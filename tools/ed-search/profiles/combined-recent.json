@@ -1,0 +1,9 @@
+{
+  "description": "Combined deleted-domains feed (last 7 days, all TLDs) — broad scan",
+  "path": "/domains/combinedexpired/",
+  "params": {
+    "flimit": 25,
+    "fhidewithhyphen": 1,
+    "fhidewithnumber": 1
+  }
+}

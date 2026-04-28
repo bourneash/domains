@@ -1,0 +1,11 @@
+{
+  "description": "Recently deleted .com — finance keyword filter, backlinks-heavy",
+  "path": "/domains/expiredcom/",
+  "params": {
+    "flimit": 25,
+    "fdomainpop": 10,
+    "fhidewithhyphen": 1,
+    "fhidewithnumber": 1,
+    "fname": "bank|loan|capital|invest|fund|wealth|credit"
+  }
+}

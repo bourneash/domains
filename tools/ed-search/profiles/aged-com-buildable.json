@@ -1,0 +1,11 @@
+{
+  "description": "Deleted .com last 7d — short, clean (no hyphens/numbers), 5+ backlinks",
+  "path": "/domains/expiredcom/",
+  "params": {
+    "flimit": 25,
+    "fmaxlength": 14,
+    "fhidewithhyphen": 1,
+    "fhidewithnumber": 1,
+    "fdomainpop": 5
+  }
+}

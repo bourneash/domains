@@ -1,0 +1,10 @@
+{
+  "description": "Caught/about-to-drop .com — short, clean — catch-list candidates",
+  "path": "/domains/caughtdomains/",
+  "params": {
+    "flimit": 25,
+    "fmaxlength": 10,
+    "fhidewithhyphen": 1,
+    "fhidewithnumber": 1
+  }
+}
