@@ -6,7 +6,9 @@ Local utilities shared across all domain projects under `/home/jesse/projects/do
 
 | Tool | What it does |
 |------|--------------|
+| [`cf-stats/`](./cf-stats/) | Hourly **Cloudflare** account/usage snapshot — token health + expiry, zones, DNS, workers, custom domains, email routing, 24h request/error totals. JSONL per day + `latest.json`. Driven by user crontab. |
 | [`ed-search/`](./ed-search/) | Authenticated CLI for **expireddomains.net**. Runs named saved-search profiles, dumps CSVs of buy candidates. |
+| [`lama-cleaner/`](./lama-cleaner/) | Launches **IOPaint** (the maintained lama-cleaner) GPU-accelerated on a directory of images. Random free port, prints local + LAN URL. |
 
 ## Conventions
 

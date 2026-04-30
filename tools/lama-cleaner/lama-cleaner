@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""Launch IOPaint (lama-cleaner) on a directory of images, GPU-accelerated.
+
+Picks a free port automatically, binds 0.0.0.0 so it's reachable on the LAN,
+prints local + LAN URLs, then execs iopaint.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import socket
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+VENV_PY = HERE / ".venv" / "bin" / "python"
+
+
+def find_free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))
+        return s.getsockname()[1]
+
+
+def detect_lan_ip() -> str:
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        s.close()
+
+
+def banner(input_dir: Path, output_dir: Path, model: str, device: str,
+           port: int, lan_ip: str) -> None:
+    lines = [
+        "",
+        "  IOPaint / lama-cleaner",
+        "  " + "-" * 56,
+        f"  input    {input_dir}",
+        f"  output   {output_dir}",
+        f"  model    {model}",
+        f"  device   {device}",
+        f"  local    http://127.0.0.1:{port}",
+        f"  LAN      http://{lan_ip}:{port}",
+        "",
+        "  Open one of the URLs above in your browser.",
+        "  Ctrl-C here to stop the server.",
+        "",
+    ]
+    print("\n".join(lines), flush=True)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("input_dir", type=Path, help="directory of images to load")
+    ap.add_argument("--output-dir", type=Path, default=None,
+                    help="where edited images get saved (default: same as input_dir)")
+    ap.add_argument("--model", default="lama", help="iopaint model (default: lama)")
+    ap.add_argument("--device", default="cuda", choices=("cuda", "cpu", "mps"),
+                    help="inference device (default: cuda)")
+    ap.add_argument("--port", type=int, default=0, help="port (default: random free)")
+    ap.add_argument("--host", default="0.0.0.0", help="bind host (default: 0.0.0.0)")
+    ap.add_argument("--gpu", type=int, default=None,
+                    help="CUDA device index to expose via CUDA_VISIBLE_DEVICES")
+    args, passthrough = ap.parse_known_args()
+
+    if not VENV_PY.exists():
+        print(f"venv not found at {VENV_PY}. Run ./setup.sh first.", file=sys.stderr)
+        return 1
+
+    input_dir = args.input_dir.expanduser().resolve()
+    if not input_dir.is_dir():
+        print(f"not a directory: {input_dir}", file=sys.stderr)
+        return 1
+
+    output_dir = (args.output_dir.expanduser().resolve()
+                  if args.output_dir is not None else input_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    port = args.port or find_free_port()
+    lan_ip = detect_lan_ip()
+
+    env = os.environ.copy()
+    if args.gpu is not None:
+        env["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
+
+    cmd = [
+        str(VENV_PY), "-m", "iopaint", "start",
+        "--model", args.model,
+        "--device", args.device,
+        "--host", args.host,
+        "--port", str(port),
+        "--input", str(input_dir),
+        "--output-dir", str(output_dir),
+        *passthrough,
+    ]
+
+    banner(input_dir, output_dir, args.model, args.device, port, lan_ip)
+    os.execvpe(cmd[0], cmd, env)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
