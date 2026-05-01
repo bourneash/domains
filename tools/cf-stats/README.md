@@ -23,6 +23,8 @@ counts drift, and notice when a new resource appears that we forgot about.
 | D1 databases | `GET /accounts/{id}/d1/database` | D1 (gracefully skipped) |
 | Queues | `GET /accounts/{id}/queues` | Queues (gracefully skipped) |
 | Workers analytics 24h (requests, errors, subrequests, per-script) | GraphQL `workersInvocationsAdaptive` | Account Analytics:Read ✅ |
+| Per-zone HTTP analytics 7d (requests, pageviews, uniques, bytes, threats, cached split, daily series) | GraphQL `httpRequests1dGroups` (batched in groups of 10) | Zone Analytics:Read ✅ |
+| Per-zone HTTP analytics 24h drilldown (top countries, top paths, status mix, blocked 403/429 by country+path) | GraphQL `httpRequestsAdaptiveGroups` | Zone Analytics:Read ✅ |
 
 Every collector returns `{"ok": false, "error": "..."}` on auth failure
 instead of aborting the run, so missing scopes don't kill the snapshot.
@@ -62,9 +64,31 @@ Hourly at `:23` (offset from other ops jobs in the crontab).
 ## Sample summary line
 
 ```
-[2026-04-30T17:25:32Z] cf-stats zones=34 workers=7 domains=12 dns=192 email_on=7 r2=- kv=0 d1=- queues=0 req24h=5182 err24h=0 39.06s
+[2026-05-01T03:55:23Z] cf-stats zones=34 workers=7 domains=12 dns=192 email_on=7 r2=- kv=0 d1=- queues=0 req24h=4073 err24h=0 pv7d=21071 uniq7d=4676 thr7d=1265 50.56s
 ```
 
 `-` means the collector returned `ok=false` for that resource (typically
-token doesn't have that scope). `analytics=NO` would mean the GraphQL call
-failed; otherwise you'll see `req24h` / `err24h` totals.
+token doesn't have that scope). `analytics=NO` would mean the Workers GraphQL
+call failed; `zoneana=NO` would mean the per-zone GraphQL call failed.
+Otherwise you get `req24h` / `err24h` (Worker invocations) plus
+`pv{N}d` / `uniq{N}d` / `thr{N}d` (zone-level pageviews, uniques, threats
+across the lookback window — default 7d, tunable via `--zone-lookback-days`).
+
+## Querying the snapshot
+
+Per-site traffic for the active 7 sites:
+
+```bash
+python3 -c "
+import json
+d = json.load(open('out/latest.json'))['zone_analytics']['per_zone']
+for n in ['aliencouncil.com','americastrikes.com','rc-9.com','reviewtattoo.com','sinderella.org','ultrarough.com','weapontester.com']:
+    t = d.get(n, {}).get('totals') or {}
+    print(f'{n:22s} pv={t.get(\"pageViews\",0):>5} uniq={t.get(\"uniques\",0):>4} thr={t.get(\"threats\",0):>4}')
+"
+```
+
+Each `per_zone[name]` entry contains:
+- `totals` — sums over lookback window (requests, pageViews, uniques, bytes, threats, cachedRequests, cachedBytes)
+- `daily` — sorted day-by-day series (each item: date, requests, pageViews, uniques, bytes, threats)
+- `recent` — last-24h drilldown (`by_country`, `by_path`, `by_status`, `blocked`)

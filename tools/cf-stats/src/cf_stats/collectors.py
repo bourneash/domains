@@ -254,6 +254,179 @@ query WorkerStats($accountTag: string!, $start: Time!, $end: Time!) {
 """
 
 
+_ZONE_AGG_GQL = """
+query ZoneAgg($zoneTags: [String!]!, $startDate: Date!, $endDate: Date!) {
+  viewer {
+    zones(filter: { zoneTag_in: $zoneTags }) {
+      zoneTag
+      httpRequests1dGroups(limit: 1000, filter: { date_geq: $startDate, date_leq: $endDate }) {
+        dimensions { date }
+        sum { requests pageViews bytes threats cachedRequests cachedBytes }
+        uniq { uniques }
+      }
+    }
+  }
+}
+"""
+
+
+_ZONE_DETAIL_GQL = """
+query ZoneDetail($zid: String!, $start: Time!, $end: Time!) {
+  viewer {
+    zones(filter: { zoneTag: $zid }) {
+      byCountry: httpRequestsAdaptiveGroups(
+        limit: 15, filter: { datetime_geq: $start, datetime_leq: $end }, orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { clientCountryName }
+      }
+      byPath: httpRequestsAdaptiveGroups(
+        limit: 25, filter: { datetime_geq: $start, datetime_leq: $end }, orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { clientRequestPath }
+      }
+      byStatus: httpRequestsAdaptiveGroups(
+        limit: 15, filter: { datetime_geq: $start, datetime_leq: $end }, orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { edgeResponseStatus }
+      }
+      blocked: httpRequestsAdaptiveGroups(
+        limit: 15,
+        filter: { datetime_geq: $start, datetime_leq: $end, edgeResponseStatus_in: [403, 429] },
+        orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { clientCountryName clientRequestPath }
+      }
+    }
+  }
+}
+"""
+
+
+def collect_zone_analytics(cf: CFClient, zones: dict, lookback_days: int = 7,
+                           detail_hours: int = 24, only_zones: list[str] | None = None) -> dict:
+    """Per-zone HTTP analytics: 7d aggregates (pageviews, uniques, bytes, threats)
+    in one batched GraphQL call, plus per-zone 24h drill-down (top countries,
+    paths, status mix, blocked traffic). Free plan limits adaptive groups to a
+    1-day window, so detail queries run per-zone over the last 24h."""
+    if not zones.get("ok"):
+        return {"ok": False, "error": "zones unavailable"}
+
+    zone_index = zones["_zone_index"]
+    if only_zones:
+        zone_index = {n: i for n, i in zone_index.items() if n in only_zones}
+    if not zone_index:
+        return {"ok": True, "lookback_days": lookback_days, "per_zone": {}, "totals": {}}
+
+    end = datetime.now(timezone.utc).replace(microsecond=0)
+    start_d = (end - timedelta(days=lookback_days)).date()
+    end_d = end.date()
+    detail_start = end - timedelta(hours=detail_hours)
+    fmt_t = lambda d: d.isoformat().replace("+00:00", "Z")
+
+    per_zone: dict[str, dict] = {}
+    errors: dict[str, str] = {}
+
+    # --- 7d aggregate: batched calls (CF caps zoneTag_in around ~10) ---
+    name_by_id = {zid: name for name, zid in zone_index.items()}
+    all_ids = list(zone_index.values())
+    BATCH = 10
+    for i in range(0, len(all_ids), BATCH):
+        batch_ids = all_ids[i:i + BATCH]
+        try:
+            data = cf.graphql(_ZONE_AGG_GQL, {
+                "zoneTags": batch_ids,
+                "startDate": start_d.isoformat(),
+                "endDate": end_d.isoformat(),
+            })
+            for z in (data.get("viewer") or {}).get("zones", []):
+                name = name_by_id.get(z.get("zoneTag"))
+                if not name:
+                    continue
+                days = z.get("httpRequests1dGroups") or []
+                agg = {
+                    "requests": sum(d["sum"]["requests"] for d in days),
+                    "pageViews": sum(d["sum"]["pageViews"] for d in days),
+                    "uniques": sum(d["uniq"]["uniques"] for d in days),
+                    "bytes": sum(d["sum"]["bytes"] for d in days),
+                    "threats": sum(d["sum"]["threats"] for d in days),
+                    "cachedRequests": sum(d["sum"]["cachedRequests"] for d in days),
+                    "cachedBytes": sum(d["sum"]["cachedBytes"] for d in days),
+                }
+                per_zone.setdefault(name, {})["window_days"] = lookback_days
+                per_zone[name]["totals"] = agg
+                per_zone[name]["daily"] = [
+                    {
+                        "date": d["dimensions"]["date"],
+                        "requests": d["sum"]["requests"],
+                        "pageViews": d["sum"]["pageViews"],
+                        "uniques": d["uniq"]["uniques"],
+                        "bytes": d["sum"]["bytes"],
+                        "threats": d["sum"]["threats"],
+                    }
+                    for d in sorted(days, key=lambda r: r["dimensions"]["date"])
+                ]
+        except Exception as e:
+            errors[f"__aggregate_batch_{i}__"] = str(e)
+
+    # --- 24h per-zone drill-down ---
+    for name, zid in zone_index.items():
+        try:
+            data = cf.graphql(_ZONE_DETAIL_GQL, {
+                "zid": zid,
+                "start": fmt_t(detail_start),
+                "end": fmt_t(end),
+            })
+            zlist = (data.get("viewer") or {}).get("zones") or []
+            z = zlist[0] if zlist else {}
+            detail = {
+                "window_hours": detail_hours,
+                "by_country": [
+                    {"country": r["dimensions"]["clientCountryName"], "count": r["count"]}
+                    for r in z.get("byCountry") or []
+                ],
+                "by_path": [
+                    {"path": r["dimensions"]["clientRequestPath"], "count": r["count"]}
+                    for r in z.get("byPath") or []
+                ],
+                "by_status": {
+                    str(r["dimensions"]["edgeResponseStatus"]): r["count"]
+                    for r in z.get("byStatus") or []
+                },
+                "blocked": [
+                    {
+                        "country": r["dimensions"]["clientCountryName"],
+                        "path": r["dimensions"]["clientRequestPath"],
+                        "count": r["count"],
+                    }
+                    for r in z.get("blocked") or []
+                ],
+            }
+            per_zone.setdefault(name, {})["recent"] = detail
+        except Exception as e:
+            errors[name] = str(e)
+
+    # portfolio totals (over lookback window)
+    portfolio = {"requests": 0, "pageViews": 0, "uniques": 0, "bytes": 0, "threats": 0}
+    for z in per_zone.values():
+        t = z.get("totals") or {}
+        for k in portfolio:
+            portfolio[k] += t.get(k, 0)
+
+    return {
+        "ok": True,
+        "lookback_days": lookback_days,
+        "detail_hours": detail_hours,
+        "zone_count": len(zone_index),
+        "totals": portfolio,
+        "per_zone": per_zone,
+        "errors": errors,
+    }
+
+
 def collect_workers_analytics(cf: CFClient, hours: int = 24) -> dict:
     end = datetime.now(timezone.utc).replace(microsecond=0)
     start = end - timedelta(hours=hours)

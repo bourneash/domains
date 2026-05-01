@@ -66,6 +66,15 @@ def _summary_line(snap: dict) -> str:
         parts.append(f"err24h={t.get('errors', 0)}")
     else:
         parts.append("analytics=NO")
+    za = snap.get("zone_analytics") or {}
+    if za.get("ok"):
+        t = za.get("totals", {})
+        days = za.get("lookback_days", 7)
+        parts.append(f"pv{days}d={t.get('pageViews', 0)}")
+        parts.append(f"uniq{days}d={t.get('uniques', 0)}")
+        parts.append(f"thr{days}d={t.get('threats', 0)}")
+    else:
+        parts.append("zoneana=NO")
     parts.append(f"{snap['duration_seconds']}s")
     return " ".join(parts)
 
@@ -83,8 +92,11 @@ def main() -> None:
               help="Override env file. Default search: ./.env, /work/.env.shared, /home/jesse/projects/domains/.env")
 @click.option("--analytics-hours", type=int, default=24, show_default=True,
               help="Window for Workers GraphQL analytics query.")
+@click.option("--zone-lookback-days", type=int, default=7, show_default=True,
+              help="Days of per-zone HTTP analytics to aggregate (1d granularity).")
 @click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
-def collect(out_dir: Path, env_file: Path | None, analytics_hours: int, quiet: bool) -> None:
+def collect(out_dir: Path, env_file: Path | None, analytics_hours: int,
+            zone_lookback_days: int, quiet: bool) -> None:
     """Run all collectors, write JSONL + latest.json, print one-line summary."""
     token, account = _load_env(env_file)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -106,6 +118,7 @@ def collect(out_dir: Path, env_file: Path | None, analytics_hours: int, quiet: b
         snap["d1"] = C.collect_d1(cf)
         snap["queues"] = C.collect_queues(cf)
         snap["workers_analytics_24h"] = C.collect_workers_analytics(cf, hours=analytics_hours)
+        snap["zone_analytics"] = C.collect_zone_analytics(cf, snap["zones"], lookback_days=zone_lookback_days)
 
     if isinstance(snap.get("zones"), dict):
         snap["zones"].pop("_zone_index", None)
