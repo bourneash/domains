@@ -75,6 +75,11 @@ def _summary_line(snap: dict) -> str:
         parts.append(f"thr{days}d={t.get('threats', 0)}")
     else:
         parts.append("zoneana=NO")
+    rum = snap.get("rum_analytics") or {}
+    if rum.get("ok"):
+        parts.append(f"rum={rum.get('total_pageloads', 0)}")
+    else:
+        parts.append("rum=NO")
     parts.append(f"{snap['duration_seconds']}s")
     return " ".join(parts)
 
@@ -119,6 +124,7 @@ def collect(out_dir: Path, env_file: Path | None, analytics_hours: int,
         snap["queues"] = C.collect_queues(cf)
         snap["workers_analytics_24h"] = C.collect_workers_analytics(cf, hours=analytics_hours)
         snap["zone_analytics"] = C.collect_zone_analytics(cf, snap["zones"], lookback_days=zone_lookback_days)
+        snap["rum_analytics"] = C.collect_rum_analytics(cf, hours=zone_lookback_days * 24)
 
     if isinstance(snap.get("zones"), dict):
         snap["zones"].pop("_zone_index", None)

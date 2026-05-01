@@ -306,6 +306,92 @@ query ZoneDetail($zid: String!, $start: Time!, $end: Time!) {
 """
 
 
+_RUM_GQL = """
+query RumStats($acct: String!, $start: Time!, $end: Time!) {
+  viewer {
+    accounts(filter: { accountTag: $acct }) {
+      byReferer: rumPageloadEventsAdaptiveGroups(
+        limit: 50,
+        filter: { datetime_geq: $start, datetime_leq: $end },
+        orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { requestHost refererHost }
+      }
+      byCountry: rumPageloadEventsAdaptiveGroups(
+        limit: 50,
+        filter: { datetime_geq: $start, datetime_leq: $end },
+        orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { requestHost countryName }
+      }
+      byPath: rumPageloadEventsAdaptiveGroups(
+        limit: 100,
+        filter: { datetime_geq: $start, datetime_leq: $end },
+        orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { requestHost requestPath }
+      }
+      byDevice: rumPageloadEventsAdaptiveGroups(
+        limit: 30,
+        filter: { datetime_geq: $start, datetime_leq: $end },
+        orderBy: [count_DESC]
+      ) {
+        count
+        dimensions { requestHost deviceType }
+      }
+    }
+  }
+}
+"""
+
+
+def collect_rum_analytics(cf: CFClient, hours: int = 168) -> dict:
+    """Cloudflare Web Analytics (RUM beacon) data across all sites.
+    Pulls referers, countries, top paths, device types at account level.
+    hours=168 = 7 days (default)."""
+    end = datetime.now(timezone.utc).replace(microsecond=0)
+    start = end - timedelta(hours=hours)
+    fmt = lambda d: d.isoformat().replace("+00:00", "Z")
+    try:
+        data = cf.graphql(_RUM_GQL, {
+            "acct": cf.account_id,
+            "start": fmt(start),
+            "end": fmt(end),
+        })
+        accts = (data.get("viewer") or {}).get("accounts") or []
+        a = accts[0] if accts else {}
+
+        per_site: dict[str, dict] = {}
+        totals: dict[str, int] = {}
+
+        def agg(rows: list, key: str, dim_key: str) -> None:
+            for r in rows:
+                host = r["dimensions"].get("requestHost") or "unknown"
+                site = per_site.setdefault(host, {})
+                bucket = site.setdefault(key, [])
+                bucket.append({dim_key: r["dimensions"].get(dim_key), "count": r["count"]})
+                totals[host] = totals.get(host, 0) + (r["count"] if key == "by_referer" else 0)
+
+        agg(a.get("byReferer") or [], "by_referer", "refererHost")
+        agg(a.get("byCountry") or [], "by_country", "countryName")
+        agg(a.get("byPath") or [], "by_path", "requestPath")
+        agg(a.get("byDevice") or [], "by_device", "deviceType")
+
+        return {
+            "ok": True,
+            "window_hours": hours,
+            "start": fmt(start),
+            "end": fmt(end),
+            "total_pageloads": sum(totals.values()),
+            "per_site": per_site,
+        }
+    except Exception as e:
+        return _err(e)
+
+
 def collect_zone_analytics(cf: CFClient, zones: dict, lookback_days: int = 7,
                            detail_hours: int = 24, only_zones: list[str] | None = None) -> dict:
     """Per-zone HTTP analytics: 7d aggregates (pageviews, uniques, bytes, threats)
