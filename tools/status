@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""domains status — traffic + ops health at a glance.
+
+Usage:
+    tools/status           # full report (7d traffic + ops board)
+    tools/status --traffic # traffic only
+    tools/status --ops     # ops board only
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
+BASE = Path(__file__).parent.parent
+STATS_FILE = BASE / "tools/cf-stats/out/latest.json"
+SITES = [
+    "aliencouncil.com",
+    "americastrikes.com",
+    "rc-9.com",
+    "reviewtattoo.com",
+    "sinderella.org",
+    "ultrarough.com",
+    "weapontester.com",
+]
+
+# ANSI colours (disabled if not a tty)
+if sys.stdout.isatty():
+    GREEN  = "\033[32m"
+    YELLOW = "\033[33m"
+    RED    = "\033[31m"
+    BOLD   = "\033[1m"
+    DIM    = "\033[2m"
+    RESET  = "\033[0m"
+else:
+    GREEN = YELLOW = RED = BOLD = DIM = RESET = ""
+
+
+def age_str(iso: str) -> tuple[str, str]:
+    """Return (age_string, colour) for an ISO timestamp."""
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        delta = datetime.now(timezone.utc) - dt
+        hours = delta.total_seconds() / 3600
+        if hours < 6:
+            return f"{int(hours)}h ago", GREEN
+        if hours < 48:
+            return f"{int(hours)}h ago", YELLOW
+        days = int(hours / 24)
+        return f"{days}d ago", RED
+    except Exception:
+        return "?", DIM
+
+
+def exit_colour(code: int) -> str:
+    return GREEN if code == 0 else RED
+
+
+def load_stats() -> dict:
+    if not STATS_FILE.exists():
+        return {}
+    return json.loads(STATS_FILE.read_text())
+
+
+def load_ops_board(site: str) -> dict:
+    board = BASE / site / "ops/board/last-run.json"
+    if not board.exists():
+        return {}
+    try:
+        return json.loads(board.read_text())
+    except Exception:
+        return {}
+
+
+def print_traffic(stats: dict) -> None:
+    per_zone = stats.get("zone_analytics", {}).get("per_zone", {})
+    wa = stats.get("workers_analytics", {})
+    collected = stats.get("collected_at") or stats.get("timestamp", "?")
+
+    print(f"\n{BOLD}── Traffic  (snapshot: {collected}) ──────────────────────────{RESET}")
+    print(f"  {'Site':24s}  {'Req/24h':>8}  {'PV/7d':>6}  {'Uniq/7d':>7}  {'Thr/7d':>6}  {'Cache':>5}  {'MB/7d':>7}")
+    print("  " + "─" * 72)
+
+    total_pv = total_uniq = 0
+    for name in SITES:
+        z = per_zone.get(name, {})
+        t = z.get("totals") or {}
+        rec = z.get("recent") or {}
+        by_status = rec.get("by_status", {})
+        req_24h = sum(by_status.values()) if isinstance(by_status, dict) else 0
+        pv   = t.get("pageViews", 0)
+        uniq = t.get("uniques", 0)
+        thr  = t.get("threats", 0)
+        req  = t.get("requests", 0)
+        cached = t.get("cachedRequests", 0)
+        byt  = t.get("bytes", 0)
+        cache_pct = f"{cached/req*100:.0f}%" if req else "-"
+        mb = f"{byt/1024/1024:.1f}" if byt else "-"
+        total_pv += pv
+        total_uniq += uniq
+        print(f"  {name:24s}  {req_24h:>8,}  {pv:>6,}  {uniq:>7,}  {thr:>6,}  {cache_pct:>5}  {mb:>7}")
+
+    print("  " + "─" * 72)
+    print(f"  {'PORTFOLIO':24s}  {'':8}  {total_pv:>6,}  {total_uniq:>7,}")
+
+    # Workers
+    if wa.get("ok"):
+        total_req = wa.get("totals", {}).get("requests", 0)
+        total_err = wa.get("totals", {}).get("errors", 0)
+        print(f"\n  Workers 24h: {total_req:,} req, {total_err} errors")
+
+
+def print_ops(now: datetime) -> None:
+    print(f"\n{BOLD}── Ops Schedule Health ──────────────────────────────────────{RESET}")
+
+    for site in SITES:
+        board = load_ops_board(site)
+        site_dir = BASE / site / "ops"
+        if not site_dir.exists():
+            print(f"  {DIM}{site}: no ops{RESET}")
+            continue
+
+        # Gather roles from board
+        roles = {k: v for k, v in board.items() if isinstance(v, dict) and "at" in v}
+        if not roles:
+            print(f"  {YELLOW}{site}: board empty{RESET}")
+            continue
+
+        print(f"\n  {BOLD}{site}{RESET}")
+        for role, info in sorted(roles.items()):
+            age, colour = age_str(info.get("at", ""))
+            exit_code = info.get("exit", -1)
+            ec_col = exit_colour(exit_code)
+            status = f"exit={exit_code}"
+            print(f"    {colour}{role:22s}{RESET}  {age:10s}  {ec_col}{status}{RESET}")
+
+
+def main() -> None:
+    args = set(sys.argv[1:])
+    show_traffic = "--ops" not in args
+    show_ops = "--traffic" not in args
+
+    stats = load_stats() if show_traffic else {}
+    now = datetime.now(timezone.utc)
+
+    if show_traffic:
+        if not stats:
+            print(f"{RED}No snapshot found at {STATS_FILE}{RESET}")
+        else:
+            print_traffic(stats)
+
+    if show_ops:
+        print_ops(now)
+
+    print()
+
+
+if __name__ == "__main__":
+    main()

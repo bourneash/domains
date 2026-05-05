@@ -1,0 +1,496 @@
+{
+  "id": null,
+  "uid": "cf-portfolio",
+  "title": "CF Stats — Portfolio",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Pageviews (7d rolling)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT pv_7d FROM portfolio ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Unique Visitors (7d rolling)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT uniq_7d FROM portfolio ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Requests (7d rolling)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT req_7d FROM portfolio ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Threats (7d rolling)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT threats_7d FROM portfolio ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Pageviews & Uniques — Rolling 7d Window",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, pv_7d AS \"Pageviews\" FROM portfolio ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        },
+        {
+          "refId": "B",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, uniq_7d AS \"Uniques\" FROM portfolio ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Threats — Rolling 7d Window",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, threats_7d AS \"Threats\" FROM portfolio ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "table",
+      "title": "Zones — Latest Snapshot",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT zone AS \"Zone\", pv_7d AS \"PV (7d)\", req_7d AS \"Requests (7d)\", uniq_7d AS \"Uniques (7d)\", ROUND(bytes_7d / 1000000.0, 1) AS \"MB (7d)\", threats_7d AS \"Threats (7d)\" FROM zones WHERE ts = (SELECT MAX(ts) FROM zones) AND req_7d > 0 ORDER BY pv_7d DESC",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PV (7d)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Threats (7d)"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 100
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "PV (7d)",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "RUM Beacon Pageloads (7d) — ultrarough.com",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, pageloads_7d AS \"RUM Pageloads\" FROM rum WHERE site = 'ultrarough.com' ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    }
+  ]
+}

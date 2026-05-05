@@ -1,0 +1,548 @@
+{
+  "id": null,
+  "uid": "cf-zone",
+  "title": "CF Stats — Zone Detail",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "zone",
+        "label": "Zone",
+        "type": "query",
+        "datasource": {
+          "type": "frser-sqlite-datasource",
+          "uid": "cf-stats"
+        },
+        "query": "SELECT DISTINCT zone FROM zones WHERE req_7d > 0 ORDER BY zone",
+        "refresh": 2,
+        "sort": 1,
+        "options": [],
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Pageviews (7d)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT pv_7d FROM zones WHERE zone = '$zone' ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Unique Visitors (7d)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT uniq_7d FROM zones WHERE zone = '$zone' ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Requests (7d)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT req_7d FROM zones WHERE zone = '$zone' ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Bandwidth (7d)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT ROUND(bytes_7d / 1000000.0, 1) FROM zones WHERE zone = '$zone' ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 15,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Threats (7d)",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT threats_7d FROM zones WHERE zone = '$zone' ORDER BY ts DESC LIMIT 1",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Pageviews & Uniques — Rolling 7d Window",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, pv_7d AS \"Pageviews\" FROM zones WHERE zone = '$zone' ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        },
+        {
+          "refId": "B",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, uniq_7d AS \"Uniques\" FROM zones WHERE zone = '$zone' ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Requests & Threats — Rolling 7d Window",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, req_7d AS \"Requests\" FROM zones WHERE zone = '$zone' ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        },
+        {
+          "refId": "B",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, threats_7d AS \"Threats\" FROM zones WHERE zone = '$zone' ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "spanNulls": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Threats"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Bandwidth — Rolling 7d Window",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT strftime('%s', ts) AS time, ROUND(bytes_7d / 1000000.0, 2) AS \"MB served\" FROM zones WHERE zone = '$zone' ORDER BY ts",
+          "format": "time_series",
+          "timeColumns": [
+            "time"
+          ],
+          "queryType": "time series"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes",
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "All Snapshots for $zone",
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "cf-stats"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "rawQueryText": "SELECT ts AS \"Timestamp\", pv_7d AS \"PV (7d)\", req_7d AS \"Requests (7d)\", uniq_7d AS \"Uniques (7d)\", ROUND(bytes_7d/1000000.0,1) AS \"MB (7d)\", threats_7d AS \"Threats (7d)\" FROM zones WHERE zone = '$zone' ORDER BY ts DESC LIMIT 100",
+          "format": "table",
+          "queryType": "table"
+        }
+      ],
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "Timestamp",
+            "desc": true
+          }
+        ]
+      }
+    }
+  ]
+}
