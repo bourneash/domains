@@ -10,6 +10,7 @@
 .cloudflared/
 
 # Tooling artifacts at repo root
+.worktrees/
 .playwright-mcp/
 playwright-report/
 test-results/
