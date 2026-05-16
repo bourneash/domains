@@ -1,21 +1,21 @@
 [submodule "aliencouncil.com"]
-	path = aliencouncil.com
+	path = sites/aliencouncil.com
 	url = git@github-bourneash:bourneash/aliencouncil.git
 [submodule "americastrikes.com"]
-	path = americastrikes.com
+	path = sites/americastrikes.com
 	url = git@github-bourneash:bourneash/americastrikes.git
 [submodule "rc-9.com"]
-	path = rc-9.com
+	path = sites/rc-9.com
 	url = git@github-bourneash:bourneash/rc-9.git
 [submodule "reviewtattoo.com"]
-	path = reviewtattoo.com
+	path = sites/reviewtattoo.com
 	url = git@github-bourneash:bourneash/reviewtattoo.git
 [submodule "sinderella.org"]
-	path = sinderella.org
+	path = sites/sinderella.org
 	url = https://github.com/bourneash/sinderella.git
 [submodule "ultrarough.com"]
-	path = ultrarough.com
+	path = sites/ultrarough.com
 	url = git@github-bourneash:bourneash/ultrarough.com.git
 [submodule "weapontester.com"]
-	path = weapontester.com
+	path = sites/weapontester.com
 	url = git@github-bourneash:bourneash/weapontester.com.git
