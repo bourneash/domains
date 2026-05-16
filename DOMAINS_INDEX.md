@@ -24,6 +24,7 @@
 | coffeepredator.com 	|   ⬜   | 
 | complicated.work 		|   ⬜   | 
 | deadlymaracas.com 	|   ⬜   | 
+| deeppenetrations.com 	|   ⬜   | Adult niche OR "deep penetration testing" cybersecurity satire — angle undecided 			|
 | driveford.net 		|   ⬜   | 
 | drivegm.net 			|   ⬜   | 
 | dumbsluts.com 		|   ⬜   | 
@@ -38,12 +39,18 @@
 | onlysexyteens.com 	|   ⬜   | 
 | pervypotion.com 		|   ⬜   | 
 | pokererotic.com 		|   ⬜   | 
+| rodhat.com 			|   ⬜   | Fishing rod + hat — outdoors/fishing apparel & tackle affiliate (weapontester sibling) 		|
 | securityplaces.com 	|   ⬜   | 
 | sexchallengecoins.com |   ⬜   | 
 | sexchallenge.me 		|   ⬜   | 
 | sexvendor.com 		|   ⬜   | 
+| shoptopless.com 		|   ⬜   | Satire Jeep 'topless' accessories affiliate amazon store |
 | stinkyleftfoot.com 	|   ⬜   | 
 | synapticworkshop.com 	|   ⬜   | 
 | synapticworkshop.net 	|   ⬜   | 
+| totaljerks.com 		|   ⬜   |
+| vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
+| wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
+| xxxtea.com 			|   ⬜   | Adult-industry gossip/news brand ("spilling the tea") — editorial + affiliate 				|
 
-_Last generated: 2026-04-27_
+_Last generated: 2026-05-16_

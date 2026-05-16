@@ -1,0 +1,27 @@
+{
+  "display_information": {
+    "name": "Domain Ops",
+    "description": "Autonomous ops alerts for all domain projects (americastrikes.com, aliencouncil.com, etc.)",
+    "background_color": "#1a1a2e"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Domain Ops",
+      "always_online": true
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "chat:write",
+        "chat:write.public"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "is_hosted": false,
+    "token_rotation_enabled": false
+  }
+}
