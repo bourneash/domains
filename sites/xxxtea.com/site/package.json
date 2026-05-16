@@ -1,0 +1,26 @@
+{
+  "name": "xxxtea-site",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node scripts/build-redirects.mjs && astro dev --host 0.0.0.0",
+    "start": "node scripts/build-redirects.mjs && astro dev --host 0.0.0.0",
+    "prebuild": "node scripts/build-redirects.mjs",
+    "build": "astro build",
+    "preview": "astro preview --host 0.0.0.0",
+    "astro": "astro",
+    "security:audit": "npm audit --audit-level=high",
+    "ci:verify": "npm run security:audit && npm run build",
+    "deploy": "npm run build && npx wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.11",
+    "@astrojs/sitemap": "^3.2.1",
+    "@astrojs/tailwind": "^5.1.4",
+    "astro": "^5.1.1",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "wrangler": "^4.85.0"
+  }
+}

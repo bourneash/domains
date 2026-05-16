@@ -1,0 +1,99 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { VARIETALS, BROWSABLE_VARIETALS } from '@/lib/affiliate';
+
+const rows = BROWSABLE_VARIETALS.map((v) => ({
+  v,
+  meta: VARIETALS[v],
+}));
+---
+<BaseLayout
+  title="Brewing guide — temperature, time, leaf | xxxtea"
+  description="The full brewing chart — temperature, steep time, caffeine — for every varietal we cover. Built to live next to the kettle."
+>
+  <section class="max-w-4xl mx-auto px-6 py-20">
+    <p class="eyebrow mb-3">The chart</p>
+    <h1 class="font-display text-5xl md:text-6xl text-porcelain leading-tight">
+      Time, temperature, <span class="italic text-honey-500">patience.</span>
+    </h1>
+    <p class="mt-5 max-w-2xl text-steep-300 text-lg">
+      Two minutes too long and it's a different cup entirely. The math below is the math
+      that works — give or take a degree, give or take thirty seconds. Save it. Print it.
+      Put it where the kettle is.
+    </p>
+  </section>
+
+  <section class="max-w-4xl mx-auto px-6 pb-16">
+    <div class="border-y border-steep-700">
+      <table class="w-full text-left">
+        <thead class="border-b border-steep-700">
+          <tr class="text-steep-300">
+            <th class="py-4 pr-4 eyebrow">Leaf</th>
+            <th class="py-4 pr-4 eyebrow">Temp</th>
+            <th class="py-4 pr-4 eyebrow">Steep</th>
+            <th class="py-4 pr-4 eyebrow">Caffeine</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr class={`border-b border-steep-700 ${i % 2 === 0 ? 'bg-steep-900' : 'bg-steep-800/40'}`}>
+              <td class="py-5 pr-4">
+                <a href={`/varietals/${r.v}/`} class="font-display text-2xl text-porcelain no-underline hover:text-honey-400">
+                  {r.meta.label}
+                </a>
+                <p class="text-xs text-steep-300 mt-1 max-w-xs">{r.meta.tagline}</p>
+              </td>
+              <td class="py-5 pr-4 font-mono text-xl text-honey-400 align-top">{r.meta.brewTemp}</td>
+              <td class="py-5 pr-4 font-mono text-xl text-porcelain align-top">{r.meta.brewTime}</td>
+              <td class="py-5 pr-4 font-mono text-sm text-steep-100 align-top capitalize">{r.meta.caffeine}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 py-16 space-y-12">
+    <div>
+      <p class="eyebrow mb-3">First principle</p>
+      <h2 class="font-display text-4xl text-porcelain">Cooler water for younger leaves.</h2>
+      <p class="mt-4 text-steep-100 leading-relaxed text-lg">
+        Black and pu-erh take a full boil. They've been oxidized and fermented; rolling water
+        doesn't intimidate them. White, green, and the more delicate oolongs ask for less —
+        175 to 195°F. Boil the water, take the kettle off, count to forty. That's close
+        enough.
+      </p>
+    </div>
+
+    <div>
+      <p class="eyebrow mb-3">Second principle</p>
+      <h2 class="font-display text-4xl text-porcelain">Set a timer. Always.</h2>
+      <p class="mt-4 text-steep-100 leading-relaxed text-lg">
+        The difference between a balanced cup and an astringent one is almost always 60 to 90
+        seconds of inattention. The leaf doesn't know you got a phone call. The leaf just
+        keeps releasing tannins. Set a timer. Hit it.
+      </p>
+    </div>
+
+    <div>
+      <p class="eyebrow mb-3">Third principle</p>
+      <h2 class="font-display text-4xl text-porcelain">Loose leaf, every time you can.</h2>
+      <p class="mt-4 text-steep-100 leading-relaxed text-lg">
+        Bagged tea is dust — broken leaves with the surface area to release flavor fast and the
+        nuance to release bitterness right behind it. Whole leaves take longer, hold up to
+        re-steeping, and reward attention. The difference is real. A
+        <a href="/reviews/forlife-brew-in-mug-basket/" class="text-honey-400">basket infuser</a>
+        costs ten dollars and removes the only reason most people stick with bags.
+      </p>
+    </div>
+
+    <div class="card p-8">
+      <p class="eyebrow mb-3">Rule of thumb</p>
+      <p class="font-display italic text-2xl text-porcelain leading-snug">
+        If the cup tastes harsh, the water was too hot or the leaves stayed in too long.
+        If the cup tastes thin, the water was too cool or the leaves came out too soon.
+        That's almost the entire game.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

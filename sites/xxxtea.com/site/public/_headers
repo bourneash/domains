@@ -1,0 +1,39 @@
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 0
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://static.cloudflareinsights.com https://affiliate-program.amazon.com https://*.amazon-adsystem.com https://z-na.associates-amazon.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://cloudflareinsights.com https://*.amazon-adsystem.com; frame-src https://www.youtube.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/gallery/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/hero/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/reviews/*
+  Cache-Control: public, max-age=300, s-maxage=300
+
+/varietals/*
+  Cache-Control: public, max-age=600, s-maxage=600
+
+/vessels/*
+  Cache-Control: public, max-age=600, s-maxage=600
+
+/sitemap*.xml
+  Cache-Control: public, max-age=600

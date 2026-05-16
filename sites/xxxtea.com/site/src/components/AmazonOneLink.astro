@@ -1,0 +1,16 @@
+---
+// Amazon OneLink is opt-in via env var. Placeholder for post-Associates-approval.
+const ONELINK_ENABLED = import.meta.env.PUBLIC_AMAZON_ONELINK === '1';
+---
+{ONELINK_ENABLED && (
+  <script type="text/javascript" is:inline>
+    var amzn_assoc_tracking_id = 'xxxtea-20';
+    var amzn_assoc_ad_mode = 'auto';
+    var amzn_assoc_ad_type = 'smart';
+    var amzn_assoc_marketplace = 'amazon';
+    var amzn_assoc_region = 'US';
+    var amzn_assoc_placement = '';
+    var amzn_assoc_linkid = 'xxxtea-onelink';
+  </script>
+  <script src="//z-na.associates-amazon.com/s/link-enhancer?tag=xxxtea-20" is:inline></script>
+)}

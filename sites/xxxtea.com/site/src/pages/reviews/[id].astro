@@ -1,0 +1,175 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SkuCard from '@/components/SkuCard.astro';
+import { SKUS, FORMS, VARIETALS, type Sku } from '@/lib/affiliate';
+
+export async function getStaticPaths() {
+  return SKUS.map((s) => ({ params: { id: s.id }, props: { sku: s } }));
+}
+
+interface Props { sku: Sku }
+const { sku } = Astro.props as Props;
+
+const tierLabel = sku.priceTier === 'pro' ? 'Pro tier' : sku.priceTier === 'mid' ? 'Mid tier' : 'Budget tier';
+
+const related = SKUS
+  .filter((s) => s.id !== sku.id && (s.varietal === sku.varietal || s.form === sku.form))
+  .slice(0, 3);
+
+const title = `${sku.name} — Full review | xxxtea`;
+const description = `${sku.blurb} Verdict, brewing notes, and where to buy.`;
+const ogImage = '/og-default.svg';
+
+const varietalMeta = sku.varietal !== 'none' ? VARIETALS[sku.varietal] : null;
+const productUrl = new URL(`/reviews/${sku.id}/`, Astro.site).toString();
+const imageUrl = new URL(`/gallery/${sku.image}-1200.webp`, Astro.site).toString();
+const ratingValue = sku.priceTier === 'pro' ? 4.8 : sku.priceTier === 'mid' ? 4.3 : 3.8;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: sku.name,
+  description: sku.blurb,
+  image: imageUrl,
+  url: productUrl,
+  category: FORMS[sku.form].label,
+  review: {
+    '@type': 'Review',
+    reviewRating: { '@type': 'Rating', ratingValue: String(ratingValue), bestRating: '5' },
+    author: { '@type': 'Organization', name: 'xxxtea' },
+    reviewBody: sku.blurb,
+  },
+};
+---
+<BaseLayout title={title} description={description} ogImage={ogImage}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </Fragment>
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden border-b border-steep-700">
+    <div class="absolute inset-0">
+      <img src={`/gallery/${sku.image}-1200.webp`} alt=""
+           class="w-full h-full object-cover opacity-60 drift"
+           loading="eager" decoding="async" fetchpriority="high"/>
+      <div class="absolute inset-0 bg-gradient-to-t from-steep-900 via-steep-900/70 to-steep-900/30"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-steep-900/80 via-transparent to-transparent"></div>
+    </div>
+    <div class="relative max-w-4xl mx-auto px-6 py-20 md:py-28">
+      <p class="eyebrow mb-3">{FORMS[sku.form].label} · {tierLabel}</p>
+      <h1 class="font-display text-4xl md:text-6xl text-porcelain leading-tight">{sku.name}</h1>
+      <p class="mt-4 font-display italic text-xl md:text-2xl text-honey-500">{sku.pitch}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={`/go/${sku.id}`} rel="sponsored noopener" class="btn-primary">Check price on Amazon</a>
+        <a href="/reviews/" class="btn-ghost">More reviews</a>
+      </div>
+    </div>
+  </section>
+
+  <article class="max-w-4xl mx-auto px-6 py-16">
+    <!-- SPEC STRIP -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+      <div>
+        <p class="eyebrow mb-1">Form</p>
+        <p class="font-display text-2xl text-porcelain">{FORMS[sku.form].label}</p>
+      </div>
+      {varietalMeta && (
+        <div>
+          <p class="eyebrow mb-1">Varietal</p>
+          <p class="font-display text-2xl text-porcelain">{varietalMeta.label}</p>
+        </div>
+      )}
+      {sku.brewTemp && (
+        <div>
+          <p class="eyebrow mb-1">Brew temp</p>
+          <p class="font-mono text-2xl text-porcelain">{sku.brewTemp}</p>
+        </div>
+      )}
+      {sku.brewTime && (
+        <div>
+          <p class="eyebrow mb-1">Steep time</p>
+          <p class="font-mono text-2xl text-porcelain">{sku.brewTime}</p>
+        </div>
+      )}
+    </div>
+
+    <div class="rule my-12"></div>
+
+    <!-- VERDICT -->
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card p-6 md:col-span-2">
+        <p class="eyebrow mb-3">The verdict</p>
+        <h2 class="font-display text-3xl text-porcelain mb-4">Where this pick fits.</h2>
+        <p class="text-steep-100 leading-relaxed text-lg">{sku.blurb}</p>
+        <p class="text-steep-300 mt-4 italic">
+          {sku.pitch} It earned its spot in our {tierLabel.toLowerCase()} lineup by solving the
+          stage it's supposed to solve — without pretending to solve every stage after it.
+        </p>
+      </div>
+      <div class="card p-6">
+        <p class="eyebrow mb-3">Quick take</p>
+        <ul class="space-y-3 text-sm text-steep-100">
+          <li><span class="text-honey-500">Best for:</span> {sku.bestFor.slice(0, 3).join(', ')}</li>
+          <li><span class="text-honey-500">Format:</span> {FORMS[sku.form].label}</li>
+          {varietalMeta && <li><span class="text-honey-500">Varietal:</span> {varietalMeta.label}</li>}
+          {sku.caffeine && <li><span class="text-honey-500">Caffeine:</span> {sku.caffeine}</li>}
+          <li><span class="text-honey-500">Tier:</span> {tierLabel}</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- BEST FOR -->
+    <section class="mt-12 grid lg:grid-cols-[1.25fr_0.75fr] gap-6">
+      <div class="card p-6">
+        <p class="eyebrow mb-3">Best for</p>
+        <h3 class="font-display text-2xl text-porcelain mb-4">Where it earns its keep.</h3>
+        <ul class="grid sm:grid-cols-2 gap-x-8 gap-y-2">
+          {sku.bestFor.map((b) => (
+            <li class="text-steep-100 capitalize"><span class="text-honey-500">·</span> {b}</li>
+          ))}
+        </ul>
+      </div>
+      <div class="card p-6">
+        <p class="eyebrow mb-3">Keep moving</p>
+        <h3 class="font-display text-2xl text-porcelain mb-4">Useful next clicks.</h3>
+        <div class="space-y-4">
+          {varietalMeta && (
+            <a href={`/varietals/${sku.varietal}/`} class="block no-underline">
+              <span class="text-porcelain hover:text-honey-400">All {varietalMeta.label.toLowerCase()} reviews</span>
+              <span class="block text-sm text-steep-300 mt-1">{varietalMeta.tagline}</span>
+            </a>
+          )}
+          <a href={`/vessels/${sku.form}/`} class="block no-underline">
+            <span class="text-porcelain hover:text-honey-400">All {FORMS[sku.form].label.toLowerCase()}</span>
+            <span class="block text-sm text-steep-300 mt-1">{FORMS[sku.form].tagline}</span>
+          </a>
+          <a href="/brewing/" class="block no-underline">
+            <span class="text-porcelain hover:text-honey-400">The brewing guide</span>
+            <span class="block text-sm text-steep-300 mt-1">Temperature × time × leaf, in one chart.</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOUSE RULE -->
+    <div class="mt-12 p-6 border border-honey-500 rounded-sm flex flex-col sm:flex-row sm:items-center gap-4">
+      <div class="flex-1">
+        <p class="eyebrow mb-2">House rule</p>
+        <p class="text-porcelain font-display italic text-lg">
+          xxxtea earns a small commission on Amazon links. Your price is identical. Our take doesn't soften for anyone.
+        </p>
+      </div>
+      <a href={`/go/${sku.id}`} rel="sponsored noopener" class="btn-primary shrink-0">Check price on Amazon</a>
+    </div>
+  </article>
+
+  {related.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-20">
+      <p class="eyebrow mb-4">In the same cup</p>
+      <h2 class="font-display text-3xl md:text-4xl text-porcelain mb-6">You might also reach for these.</h2>
+      <div class="grid md:grid-cols-3 gap-5">
+        {related.map((r) => <SkuCard sku={r} variant="compact"/>)}
+      </div>
+    </section>
+  )}
+</BaseLayout>

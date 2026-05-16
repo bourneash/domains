@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout title="Contact — xxxtea" description="Get in touch: tips, corrections, takedown requests, partnerships.">
+  <section class="max-w-2xl mx-auto px-6 py-16">
+    <p class="eyebrow mb-3">House</p>
+    <h1 class="font-display text-5xl md:text-6xl text-porcelain">Contact.</h1>
+    <p class="mt-4 text-steep-300">Pick the right address and we'll route faster.</p>
+
+    <ul class="mt-10 space-y-6">
+      <li class="card p-5">
+        <p class="eyebrow mb-1">General</p>
+        <a href="mailto:hello@xxxtea.com" class="font-display text-2xl text-porcelain no-underline hover:text-honey-400">hello@xxxtea.com</a>
+        <p class="text-sm text-steep-300 mt-1">Tips, suggestions, "hey have you tried X."</p>
+      </li>
+      <li class="card p-5">
+        <p class="eyebrow mb-1">Corrections / takedowns</p>
+        <a href="mailto:takedown@xxxtea.com" class="font-display text-2xl text-porcelain no-underline hover:text-honey-400">takedown@xxxtea.com</a>
+        <p class="text-sm text-steep-300 mt-1">Got a fact wrong? Image without permission? Tell us, we fix it.</p>
+      </li>
+      <li class="card p-5">
+        <p class="eyebrow mb-1">Brand inquiries</p>
+        <a href="mailto:contact@xxxtea.com" class="font-display text-2xl text-porcelain no-underline hover:text-honey-400">contact@xxxtea.com</a>
+        <p class="text-sm text-steep-300 mt-1">We don't accept paid reviews. We do read every PR pitch.</p>
+      </li>
+    </ul>
+
+    <div class="rule my-12"></div>
+
+    <form action="mailto:hello@xxxtea.com?subject=xxxtea%20contact" method="POST" enctype="text/plain" class="space-y-4">
+      <div>
+        <label class="block text-sm text-steep-300 mb-1" for="name">Name</label>
+        <input id="name" name="name" type="text" required
+               class="w-full bg-steep-800 border border-steep-700 rounded-sm px-3 py-2 focus:outline-none focus:border-honey-500"/>
+      </div>
+      <div>
+        <label class="block text-sm text-steep-300 mb-1" for="email">Email</label>
+        <input id="email" name="email" type="email" required
+               class="w-full bg-steep-800 border border-steep-700 rounded-sm px-3 py-2 focus:outline-none focus:border-honey-500"/>
+      </div>
+      <div>
+        <label class="block text-sm text-steep-300 mb-1" for="message">Message</label>
+        <textarea id="message" name="message" rows="6" required
+                  class="w-full bg-steep-800 border border-steep-700 rounded-sm px-3 py-2 focus:outline-none focus:border-honey-500"></textarea>
+      </div>
+      <button type="submit" class="btn-primary">Send</button>
+    </form>
+  </section>
+</BaseLayout>

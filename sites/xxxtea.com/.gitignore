@@ -1,0 +1,14 @@
+site/dist/
+site/node_modules/
+site/.astro/
+.env
+.env.*
+!.env.example
+.deploy-needed
+ops/logs/
+ops/scripts/node_modules/
+.playwright-mcp/
+.wrangler/
+
+# Source PNGs in images_for_use/ are committed — they're the rebuild
+# source-of-truth for the WebP variants under site/public/{gallery,hero}.

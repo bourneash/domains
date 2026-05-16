@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /go/
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+Sitemap: https://xxxtea.com/sitemap-index.xml
