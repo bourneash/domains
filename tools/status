@@ -24,6 +24,7 @@ SITES = [
     "sinderella.org",
     "ultrarough.com",
     "weapontester.com",
+    "xxxtea.com",
 ]
 
 # ANSI colours (disabled if not a tty)
@@ -76,7 +77,6 @@ def load_ops_board(site: str) -> dict:
 
 def print_traffic(stats: dict) -> None:
     per_zone = stats.get("zone_analytics", {}).get("per_zone", {})
-    wa = stats.get("workers_analytics", {})
     collected = stats.get("collected_at") or stats.get("timestamp", "?")
 
     print(f"\n{BOLD}── Traffic  (snapshot: {collected}) ──────────────────────────{RESET}")
@@ -105,11 +105,18 @@ def print_traffic(stats: dict) -> None:
     print("  " + "─" * 72)
     print(f"  {'PORTFOLIO':24s}  {'':8}  {total_pv:>6,}  {total_uniq:>7,}")
 
-    # Workers
-    if wa.get("ok"):
-        total_req = wa.get("totals", {}).get("requests", 0)
-        total_err = wa.get("totals", {}).get("errors", 0)
+    # Workers (snapshot key is workers_analytics_24h, not workers_analytics)
+    wa24 = stats.get("workers_analytics_24h", {})
+    if wa24.get("ok"):
+        total_req = wa24.get("totals", {}).get("requests", 0)
+        total_err = wa24.get("totals", {}).get("errors", 0)
         print(f"\n  Workers 24h: {total_req:,} req, {total_err} errors")
+        per = wa24.get("per_script") or {}
+        if per:
+            for script, ws in sorted(per.items()):
+                req = ws.get("requests", 0)
+                err = ws.get("errors", 0)
+                print(f"    {script:24s}  {req:>6,} req  {err} errors")
 
 
 def print_ops(now: datetime) -> None:

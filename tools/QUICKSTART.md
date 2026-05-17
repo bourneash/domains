@@ -68,17 +68,26 @@ cd tools/cf-grafana && python3 ingest.py
 
 ## cf-stats — Cloudflare Data Collector
 
-Hourly cron at `:23` collects from the CF API and appends to JSONL per day.
+Runs as a long-lived container at `tools/cf-stats/` (supercronic-driven,
+same pattern as `sites/americastrikes.com/ops/docker/`). Hourly at `:23 UTC`
+the in-container `cf-stats collect` fires and appends to host
+`tools/cf-stats/out/`. No host crontab.
 
 ```bash
-# Manual one-shot collect (useful after a long gap or to force a snapshot)
+# Start / stop / status
 cd tools/cf-stats
-.venv/bin/cf-stats collect --out-dir out
+docker compose up -d              # build + start
+docker compose ps                 # is it running?
+docker compose logs -f            # tail in real time
+docker compose down               # stop
+
+# Force a one-shot collect (useful after a long gap or to force a snapshot)
+docker compose exec collector cf-stats collect --out-dir /work/out
 
 # Verify token is valid
-.venv/bin/cf-stats verify
+docker compose exec collector cf-stats verify
 
-# Tail the cron log (shows summary lines + any errors)
+# Tail the in-container cron log (still mirrored to host out/cron.log)
 tail -f tools/cf-stats/out/cron.log
 
 # View latest snapshot (pretty JSON)
@@ -102,9 +111,9 @@ for site, z in sorted(per.items()):
 | `latest.json` | Most recent snapshot, pretty-printed |
 | `cron.log` | One summary line per run + any errors |
 
-**Cron schedule** (installed in `crontab -e`):
+**Schedule** (baked into `tools/cf-stats/crontab.docker`, supercronic):
 ```
-23 * * * *  cf-stats collect  # hourly at :23
+23 * * * *  cf-stats collect  # hourly at :23 UTC, in-container
 ```
 
 ---
@@ -136,6 +145,7 @@ tail -f reviewtattoo.com/ops/logs/cron.log
 | sinderella.org | content-writer (daily 3am), tarot-reader (daily 3:30am), notebook-writer (3x daily), mailbag-writer (M/W/F), seo-analyst (Mon), planner (Mon) |
 | weapontester.com | planner (Mon), content-writer (T/Th/Sa), seo-analyst (Wed), deployer (flag-triggered) |
 | ultrarough.com | (check `ultrarough.com/ops/`) |
+| xxxtea.com | (check `xxxtea.com/ops/`) |
 
 ---
 

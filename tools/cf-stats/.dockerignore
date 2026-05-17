@@ -1,0 +1,8 @@
+.venv/
+out/
+__pycache__/
+*.pyc
+*.egg-info/
+.git/
+.gitignore
+README.md

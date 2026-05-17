@@ -1,0 +1,30 @@
+# cf-stats — Cloudflare snapshot collector, containerized.
+#
+# Replaces the previous host-crontab line documented in earlier README revisions.
+# Pattern modeled on sites/americastrikes.com (supercronic, restart unless-stopped),
+# simplified to a single container since the work is a stateless Python API job.
+#
+# Bring up:    docker compose up -d
+# Watch logs:  docker compose logs -f
+# Force run:   docker compose exec collector cf-stats collect --out-dir /work/out
+# Stop:        docker compose down
+
+name: cf-stats
+
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cf-stats:latest
+    container_name: cf-stats
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+    volumes:
+      # Shared CF + affiliate creds (same pattern as americastrikes.com)
+      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      # Snapshot output — appended to from inside, read by cf-grafana's ingest.
+      # Host path stays identical to pre-container layout so consumers
+      # (tools/status, tools/cf-grafana/ingest.py) don't need to change.
+      - ./out:/work/out

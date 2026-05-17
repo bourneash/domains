@@ -11,6 +11,7 @@
 | sinderella.org 		|   ✅   | Daily horoscope/tarot site fronted by "Sinderella," a Jersey Shore boardwalk fortune teller persona 							|
 | ultrarough.com 		|   ✅   | Kink-coded sandpaper/abrasives review authority — Liquid Death aesthetic on a boring Amazon niche 							|
 | weapontester.com 		|   ✅   | Browser weapon builder + physics-realistic ballistics range; in-tool affiliate links on real parts 							|
+| xxxtea.com 			|   ✅   | Fragrance-ad tea + tea-ware review site — "restraint is the joke" voice, honey/amber on oolong-dark, affiliate 				|
 
 
 
@@ -51,6 +52,5 @@
 | totaljerks.com 		|   ⬜   |
 | vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
 | wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
-| xxxtea.com 			|   ⬜   | Adult-industry gossip/news brand ("spilling the tea") — editorial + affiliate 				|
 
 _Last generated: 2026-05-16_

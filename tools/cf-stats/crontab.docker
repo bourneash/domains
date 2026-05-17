@@ -1,0 +1,7 @@
+# cf-stats schedule (supercronic, TZ=UTC).
+# Hourly at :23 — offset from any future ops jobs so we don't bunch up.
+# Stdout/stderr stream to docker logs via supercronic -passthrough-logs.
+# The summary line also appends to /work/out/cron.log for tail -f compatibility
+# with the pre-container workflow documented in QUICKSTART.md.
+
+23 * * * * cf-stats collect --out-dir /work/out 2>&1 | tee -a /work/out/cron.log
