@@ -24,6 +24,17 @@ def test_load_returns_sites_dict(sites_yml: Path):
     assert reg.sites["alpha.test"]["active"] is True
 
 
+def test_load_normalizes_bare_manual_values_to_dict(sites_yml: Path):
+    """Bare-string manual values (e.g. from hand-edited sites.yml) get lifted
+    to the {value, set_at} dict shape so downstream readers don't have to branch."""
+    reg = registry.load(sites_yml)
+    # The fixture has alpha.test's amazon_associates_id as a bare string.
+    val = reg.sites["alpha.test"]["manual"]["amazon_associates_id"]
+    assert isinstance(val, dict)
+    assert val["value"] == "alpha-20"
+    assert val["set_at"] is None
+
+
 def test_load_returns_config(sites_yml: Path):
     reg = registry.load(sites_yml)
     assert reg.config["auto_commit"] is True
@@ -44,7 +55,8 @@ def test_set_manual_fact_overwrites_existing(sites_yml: Path):
     registry.set_manual_fact(reg, sites_yml, "alpha.test", "amazon_associates_id", "alpha-30")
     reloaded = registry.load(sites_yml)
     val = reloaded.sites["alpha.test"]["manual"]["amazon_associates_id"]
-    assert val == "alpha-30" or val.get("value") == "alpha-30"
+    assert val["value"] == "alpha-30"
+    assert "set_at" in val
 
 
 def test_set_manual_fact_raises_unknown_site(sites_yml: Path):

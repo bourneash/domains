@@ -18,9 +18,19 @@ class Registry:
 def load(path: Path) -> Registry:
     with open(path) as f:
         data = yaml.safe_load(f) or {}
+    sites = data.get("sites", {}) or {}
+    for site_cfg in sites.values():
+        manual = site_cfg.get("manual") or {}
+        normalized = {}
+        for k, v in manual.items():
+            if isinstance(v, dict) and "value" in v:
+                normalized[k] = v
+            else:
+                normalized[k] = {"value": v, "set_at": None}
+        site_cfg["manual"] = normalized
     return Registry(
         config=data.get("config", {}),
-        sites=data.get("sites", {}),
+        sites=sites,
     )
 
 
