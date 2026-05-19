@@ -1,0 +1,64 @@
+# Site registry — source of truth for tools/site-tracker.
+# DOMAINS_INDEX.md is regenerated from this file (see scripts/render_domains_index.py).
+
+config:
+  auto_commit: true       # /edit POSTs git commit. Default off for push.
+  auto_push: false
+  domains_root: /work     # parent domains repo inside the container
+
+sites:
+  aliencouncil.com:
+    active: true
+    cf_zone: aliencouncil.com
+    github: bourneash/aliencouncil.com
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
+
+  americastrikes.com:
+    active: true
+    cf_zone: americastrikes.com
+    github: bourneash/americastrikes.com
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
+
+  rc-9.com:
+    active: true
+    cf_zone: rc-9.com
+    github: bourneash/rc-9.com
+    applies_to: [cf, http, sitemap, tls, git, github, manual]
+    manual: {}
+
+  reviewtattoo.com:
+    active: true
+    cf_zone: reviewtattoo.com
+    github: bourneash/reviewtattoo.com
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
+
+  sinderella.org:
+    active: true
+    cf_zone: sinderella.org
+    github: bourneash/sinderella.org
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
+
+  ultrarough.com:
+    active: true
+    cf_zone: ultrarough.com
+    github: bourneash/ultrarough.com
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
+
+  weapontester.com:
+    active: true
+    cf_zone: weapontester.com
+    github: bourneash/weapontester.com
+    applies_to: [cf, http, sitemap, tls, git, github, manual]
+    manual: {}
+
+  xxxtea.com:
+    active: true
+    cf_zone: xxxtea.com
+    github: bourneash/xxxtea.com
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
