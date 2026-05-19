@@ -54,7 +54,10 @@ def init_db(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = connect(db_path)
     try:
-        conn.executescript(_SCHEMA)
+        for stmt in _SCHEMA.strip().split(";"):
+            stmt = stmt.strip()
+            if stmt:
+                conn.execute(stmt)
     finally:
         conn.close()
 
@@ -72,25 +75,31 @@ def upsert_fact(
     """Insert or update a fact. Appends to audit when value changes."""
     encoded = json.dumps(value)
     ts = _now_iso()
-    existing = conn.execute(
-        "SELECT value FROM facts WHERE site=? AND key=?", (site, key)
-    ).fetchone()
-    old = existing[0] if existing else None
-    if old != encoded:
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        existing = conn.execute(
+            "SELECT value FROM facts WHERE site=? AND key=?", (site, key)
+        ).fetchone()
+        old = existing[0] if existing else None
+        if old != encoded:
+            conn.execute(
+                "INSERT INTO audit(ts, site, key, old_value, new_value, source) "
+                "VALUES (?,?,?,?,?,?)",
+                (ts, site, key, old, encoded, source),
+            )
         conn.execute(
-            "INSERT INTO audit(ts, site, key, old_value, new_value, source) "
-            "VALUES (?,?,?,?,?,?)",
-            (ts, site, key, old, encoded, source),
+            "INSERT INTO facts(site, key, value, source, verified_at, state, ttl_hours) "
+            "VALUES (?,?,?,?,?,?,?) "
+            "ON CONFLICT(site, key) DO UPDATE SET "
+            "  value=excluded.value, source=excluded.source, "
+            "  verified_at=excluded.verified_at, state=excluded.state, "
+            "  ttl_hours=excluded.ttl_hours",
+            (site, key, encoded, source, ts, state, ttl_hours),
         )
-    conn.execute(
-        "INSERT INTO facts(site, key, value, source, verified_at, state, ttl_hours) "
-        "VALUES (?,?,?,?,?,?,?) "
-        "ON CONFLICT(site, key) DO UPDATE SET "
-        "  value=excluded.value, source=excluded.source, "
-        "  verified_at=excluded.verified_at, state=excluded.state, "
-        "  ttl_hours=excluded.ttl_hours",
-        (site, key, encoded, source, ts, state, ttl_hours),
-    )
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
 
 
 def get_site_facts(conn: sqlite3.Connection, site: str) -> dict[str, dict[str, Any]]:
