@@ -33,7 +33,9 @@ def _last_commit_age_hours(repo: Path) -> float | None:
             ["git", "log", "-1", "--format=%cI"],
             cwd=repo, stderr=subprocess.DEVNULL, text=True,
         ).strip()
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+    if not out:
         return None
     ts = datetime.fromisoformat(out)
     return (_now() - ts).total_seconds() / 3600
