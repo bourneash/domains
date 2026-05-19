@@ -73,6 +73,16 @@ def _ops_board_age(hours: Any, _site: dict) -> str:
     return "red"
 
 
+def _push_age(hours: Any, _site: dict) -> str:
+    if hours is None:
+        return "unknown"
+    if hours < 24 * 7:
+        return "green"
+    if hours < 24 * 30:
+        return "yellow"
+    return "red"
+
+
 def _commits_ahead(n: Any, _site: dict) -> str:
     if n is None:
         return "unknown"
@@ -104,7 +114,7 @@ FACTS: dict[str, FactSpec] = {
 
     # GitHub
     "github.commits_ahead":   FactSpec("github.commits_ahead",   "github",  "github_api",  24, "Local commits not on origin",            _commits_ahead),
-    "github.last_push_age_hours":FactSpec("github.last_push_age_hours","github","github_api",24,"Hours since last push to origin",        _commit_age),
+    "github.last_push_age_hours":FactSpec("github.last_push_age_hours","github","github_api",24,"Hours since last push to origin",        _push_age),
 }
 
 
