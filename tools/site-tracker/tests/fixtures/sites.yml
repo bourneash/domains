@@ -1,0 +1,26 @@
+config:
+  auto_commit: true
+  auto_push: false
+  domains_root: /work
+
+sites:
+  alpha.test:
+    active: true
+    cf_zone: alpha.test
+    github: org/alpha
+    applies_to: [cf, http, git, manual]
+    manual:
+      amazon_associates_id: alpha-20
+
+  beta.test:
+    active: true
+    cf_zone: beta.test
+    github: org/beta
+    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    manual: {}
+
+  parked.test:
+    active: false
+    cf_zone: parked.test
+    applies_to: [cf]
+    manual: {}
