@@ -27,7 +27,7 @@ def reg() -> registry.Registry:
     )
 
 
-def _zone_response(active: bool, has_worker: bool, has_email: bool):
+def _zone_response(active: bool):
     return {
         "result": [{
             "id": "zone-id",
@@ -42,7 +42,7 @@ def _zone_response(active: bool, has_worker: bool, has_email: bool):
 def test_collects_zone_active(db, reg):
     respx.get("https://api.cloudflare.com/client/v4/zones",
               params={"name": "alpha.test"}).mock(
-        return_value=httpx.Response(200, json=_zone_response(True, True, True))
+        return_value=httpx.Response(200, json=_zone_response(True))
     )
     respx.get("https://api.cloudflare.com/client/v4/zones/zone-id/workers/routes").mock(
         return_value=httpx.Response(200, json={"result": [{"pattern": "alpha.test/*"}], "success": True})
@@ -61,7 +61,7 @@ def test_collects_zone_active(db, reg):
 def test_zone_pending_marks_red(db, reg):
     respx.get("https://api.cloudflare.com/client/v4/zones",
               params={"name": "alpha.test"}).mock(
-        return_value=httpx.Response(200, json=_zone_response(False, False, False))
+        return_value=httpx.Response(200, json=_zone_response(False))
     )
     respx.get("https://api.cloudflare.com/client/v4/zones/zone-id/workers/routes").mock(
         return_value=httpx.Response(200, json={"result": [], "success": True})
@@ -83,3 +83,16 @@ def test_api_error_marks_unknown(db, reg):
     cf.run(reg, db)
     facts = store.get_site_facts(db, "alpha.test")
     assert facts["cf.zone_active"]["state"] == "unknown"
+
+
+@respx.mock
+def test_zone_not_in_cf_marks_false(db, reg):
+    respx.get("https://api.cloudflare.com/client/v4/zones",
+              params={"name": "alpha.test"}).mock(
+        return_value=httpx.Response(200, json={"result": [], "success": True})
+    )
+    cf.run(reg, db)
+    facts = store.get_site_facts(db, "alpha.test")
+    assert facts["cf.zone_active"]["value"] is False
+    assert facts["cf.worker_bound"]["value"] is False
+    assert facts["cf.email_routing"]["value"] is False
