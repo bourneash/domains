@@ -31,11 +31,7 @@ def test_collects_last_push(db, reg):
         respx.get("https://api.github.com/repos/org/alpha").mock(
             return_value=httpx.Response(200, json={
                 "pushed_at": "2026-05-18T12:00:00Z",
-                "default_branch": "main",
             })
-        )
-        respx.get("https://api.github.com/repos/org/alpha/branches/main").mock(
-            return_value=httpx.Response(200, json={"commit": {"sha": "abc123"}})
         )
         gh.run(reg, db)
     facts = store.get_site_facts(db, "alpha.test")
@@ -51,3 +47,17 @@ def test_404_marks_unknown(db, reg):
     gh.run(reg, db)
     facts = store.get_site_facts(db, "alpha.test")
     assert facts["github.last_push_age_hours"]["state"] == "unknown"
+
+
+@respx.mock
+def test_pushed_at_absent_marks_unknown(db, reg):
+    """If the /repos response is 200 but pushed_at is missing,
+    last_push_age_hours should be unknown (not crash)."""
+    respx.get("https://api.github.com/repos/org/alpha").mock(
+        return_value=httpx.Response(200, json={})
+    )
+    gh.run(reg, db)
+    facts = store.get_site_facts(db, "alpha.test")
+    assert facts["github.last_push_age_hours"]["state"] == "unknown"
+    # commits_ahead is still emitted as unknown on the success path
+    assert facts["github.commits_ahead"]["state"] == "unknown"
