@@ -34,7 +34,7 @@ def test_collects_last_push(db, reg):
             })
         )
         gh.run(reg, db)
-    facts = store.get_site_facts(db, "alpha.test")
+        facts = store.get_site_facts(db, "alpha.test")
     assert facts["github.last_push_age_hours"]["value"] == 24.0
     assert facts["github.last_push_age_hours"]["state"] == "green"
 
