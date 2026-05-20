@@ -31,7 +31,56 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
     def healthz():
         return {"ok": True}
 
+    @app.get("/", response_class=HTMLResponse)
+    def matrix(request: Request):
+        reg = registry.load(app.state.sites_yml)
+        store.init_db(app.state.db_path)
+        conn = store.connect(app.state.db_path)
+        try:
+            rows = []
+            for site_name, site_cfg in reg.sites.items():
+                facts = store.get_site_facts(conn, site_name)
+                row = {"site": site_name, "cells": {}}
+                applies = set(site_cfg.get("applies_to", []))
+                for fam in families():
+                    if fam not in applies:
+                        row["cells"][fam] = {"state": "n_a", "summary": "—"}
+                        continue
+                    keys = keys_for_family(fam) if fam != "manual" else []
+                    if fam == "manual":
+                        man = site_cfg.get("manual", {}) or {}
+                        if man:
+                            row["cells"][fam] = {"state": "green", "summary": f"{len(man)}"}
+                        else:
+                            row["cells"][fam] = {"state": "yellow", "summary": "?"}
+                        continue
+                    states = [facts.get(k, {}).get("state", "unknown") for k in keys]
+                    summary_state = _rollup(states)
+                    row["cells"][fam] = {"state": summary_state, "summary": _short(summary_state)}
+                rows.append(row)
+        finally:
+            conn.close()
+        return _TEMPLATES.TemplateResponse(
+            "matrix.html",
+            {"request": request, "rows": rows, "families": families()},
+        )
+
     return app
+
+
+def _rollup(states: list[str]) -> str:
+    order = ["red", "stale", "yellow", "unknown", "green", "n_a"]
+    if not states:
+        return "unknown"
+    for s in order:
+        if s in states:
+            return s
+    return "unknown"
+
+
+def _short(state: str) -> str:
+    return {"green": "✓", "yellow": "?", "red": "✗",
+            "stale": "·", "unknown": "?", "n_a": "—"}.get(state, "?")
 
 
 # Module-level singleton used when uvicorn imports `app`.
