@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from site_tracker import store
 from site_tracker.app.main import build_app
 
 
@@ -30,9 +31,6 @@ def test_healthz_ok(client):
     r = client.get("/healthz")
     assert r.status_code == 200
     assert r.json() == {"ok": True}
-
-
-from site_tracker import store
 
 
 def _seed_facts(db_path: Path):

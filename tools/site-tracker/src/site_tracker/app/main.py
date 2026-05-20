@@ -46,7 +46,6 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
                     if fam not in applies:
                         row["cells"][fam] = {"state": "n_a", "summary": "—"}
                         continue
-                    keys = keys_for_family(fam) if fam != "manual" else []
                     if fam == "manual":
                         man = site_cfg.get("manual", {}) or {}
                         if man:
@@ -54,15 +53,16 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
                         else:
                             row["cells"][fam] = {"state": "yellow", "summary": "?"}
                         continue
-                    states = [facts.get(k, {}).get("state", "unknown") for k in keys]
+                    states = [facts.get(k, {}).get("state", "unknown") for k in keys_for_family(fam)]
                     summary_state = _rollup(states)
                     row["cells"][fam] = {"state": summary_state, "summary": _short(summary_state)}
                 rows.append(row)
         finally:
             conn.close()
         return _TEMPLATES.TemplateResponse(
+            request,
             "matrix.html",
-            {"request": request, "rows": rows, "families": families()},
+            {"rows": rows, "families": families()},
         )
 
     return app
