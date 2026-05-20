@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block body %}
+<h2>{{ site }}</h2>
+
+<h3>Auto-detected facts</h3>
+<table>
+  <thead><tr><th>key</th><th>describe</th><th>value</th><th>state</th><th>source</th><th>age (h)</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td class="site">{{ r.key }}</td>
+      <td>{{ r.describe }}</td>
+      <td>{{ r.value if r.value is not none else '—' }}</td>
+      <td><span class="cell {{ r.state }}">{{ r.state }}</span></td>
+      <td>{{ r.source }}</td>
+      <td>{{ r.age_hours if r.age_hours is not none else '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3>Manual facts</h3>
+<table>
+  <thead><tr><th>key</th><th>value</th><th>set_at</th></tr></thead>
+  <tbody>
+    {% for m in manual_rows %}
+    <tr>
+      <td class="site">{{ m.key }}</td>
+      <td id="manual-{{ m.key }}"
+          hx-get="/site/{{ site }}/edit/manual.{{ m.key }}"
+          hx-target="this" hx-swap="outerHTML"
+          style="cursor: pointer">
+        {{ m.value }}
+      </td>
+      <td>{{ m.set_at or '—' }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td class="site"><em>+ add</em></td>
+      <td colspan="2"
+          hx-get="/site/{{ site }}/edit/manual.new"
+          hx-target="this" hx-swap="outerHTML">
+        click to add a manual fact
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -65,6 +65,46 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
             {"rows": rows, "families": families()},
         )
 
+    @app.get("/site/{site}", response_class=HTMLResponse)
+    def site_detail(request: Request, site: str):
+        reg = registry.load(app.state.sites_yml)
+        if site not in reg.sites:
+            raise HTTPException(status_code=404, detail="site not found")
+        store.init_db(app.state.db_path)
+        conn = store.connect(app.state.db_path)
+        try:
+            site_cfg = reg.sites[site]
+            applies = set(site_cfg.get("applies_to", []))
+            facts = store.get_site_facts(conn, site)
+            rows = []
+            for key, spec in FACTS.items():
+                if spec.family not in applies:
+                    continue
+                f = facts.get(key, {})
+                rows.append({
+                    "key": key,
+                    "describe": spec.describe,
+                    "family": spec.family,
+                    "value": f.get("value"),
+                    "source": f.get("source") or spec.source,
+                    "state": f.get("state", "unknown"),
+                    "verified_at": f.get("verified_at"),
+                    "age_hours": f.get("age_hours"),
+                })
+            manual_rows = []
+            if "manual" in applies:
+                # registry.load() normalizes manual values to {value, set_at} dicts,
+                # so we can always do v["value"] / v["set_at"].
+                for k, v in (site_cfg.get("manual") or {}).items():
+                    manual_rows.append({"key": k, "value": v["value"], "set_at": v["set_at"]})
+        finally:
+            conn.close()
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "site_detail.html",
+            {"site": site, "rows": rows, "manual_rows": manual_rows},
+        )
+
     return app
 
 
