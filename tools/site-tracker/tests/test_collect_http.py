@@ -36,7 +36,8 @@ HEAD_BARE = "<!doctype html><html><head></head><body></body></html>"
 
 
 @respx.mock
-def test_detects_pixels_in_head(db, reg):
+def test_detects_pixels_in_head(db, reg, monkeypatch):
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 90)
     respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=HEAD_WITH_PIXELS))
     respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(200, text="<urlset/>"))
     respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(200, text="User-agent: *"))
@@ -49,7 +50,8 @@ def test_detects_pixels_in_head(db, reg):
 
 
 @respx.mock
-def test_missing_pixels_marked_false(db, reg):
+def test_missing_pixels_marked_false(db, reg, monkeypatch):
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 90)
     respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=HEAD_BARE))
     respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(404))
     respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(404))
@@ -61,10 +63,34 @@ def test_missing_pixels_marked_false(db, reg):
 
 
 @respx.mock
-def test_homepage_timeout_marks_unknown(db, reg):
+def test_homepage_timeout_marks_unknown(db, reg, monkeypatch):
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 90)
     respx.get("https://alpha.test/").mock(side_effect=httpx.ConnectTimeout("boom"))
     respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(404))
     respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(404))
     http_scrape.run(reg, db)
     facts = store.get_site_facts(db, "alpha.test")
     assert facts["http.ga4_present"]["state"] == "unknown"
+
+
+@respx.mock
+def test_tls_expiry_stored_when_probe_succeeds(db, reg, monkeypatch):
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 45)
+    respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=HEAD_BARE))
+    respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(200, text="<urlset/>"))
+    respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(200, text="User-agent: *"))
+    http_scrape.run(reg, db)
+    facts = store.get_site_facts(db, "alpha.test")
+    assert facts["http.tls_expiry_days"]["value"] == 45
+    assert facts["http.tls_expiry_days"]["state"] == "green"
+
+
+@respx.mock
+def test_tls_expiry_unknown_when_probe_fails(db, reg, monkeypatch):
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: None)
+    respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=HEAD_BARE))
+    respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(200, text="<urlset/>"))
+    respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(200, text="User-agent: *"))
+    http_scrape.run(reg, db)
+    facts = store.get_site_facts(db, "alpha.test")
+    assert facts["http.tls_expiry_days"]["state"] == "unknown"

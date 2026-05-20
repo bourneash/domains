@@ -19,7 +19,12 @@ from site_tracker.collectors.base import emit, emit_unknown
 
 log = logging.getLogger(__name__)
 
-_GA4_RE     = re.compile(r"gtag/js\?id=G-[A-Z0-9]+|G-[A-Z0-9]{6,}", re.I)
+_GA4_RE     = re.compile(
+    r"gtag/js\?id=G-[A-Z0-9]+"                          # tag loader URL
+    r"|gtag\(['\"]config['\"],\s*['\"]G-[A-Z0-9]+"      # inline gtag('config', 'G-...')
+    r"|['\"]G-[A-Z0-9]{6,}['\"]",                       # quoted GA4 ID string literal
+    re.I,
+)
 _ADSENSE_RE = re.compile(r"adsbygoogle\.js|ca-pub-\d+", re.I)
 _META_RE    = re.compile(r"fbq\s*\(\s*['\"]init['\"]|connect\.facebook\.net", re.I)
 _GTM_RE     = re.compile(r"GTM-[A-Z0-9]+|googletagmanager\.com/gtm\.js", re.I)
@@ -44,7 +49,8 @@ def _tls_expiry_days(host: str) -> int | None:
     except (OSError, ssl.SSLError) as e:
         log.warning("tls probe %s failed: %s", host, e)
         return None
-    not_after = datetime.strptime(cert["notAfter"], "%b %d %H:%M:%S %Y %Z").replace(tzinfo=timezone.utc)
+    not_after_secs = ssl.cert_time_to_seconds(cert["notAfter"])
+    not_after = datetime.fromtimestamp(not_after_secs, tz=timezone.utc)
     return int((not_after - datetime.now(timezone.utc)).total_seconds() // 86400)
 
 
