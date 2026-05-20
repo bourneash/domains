@@ -32,16 +32,20 @@ def test_collect_unknown_collector_errors(workdir: Path, monkeypatch):
     runner = CliRunner()
     res = runner.invoke(main, ["collect", "doesnotexist",
                                "--data-dir", str(workdir / "data")])
-    assert res.exit_code != 0
-    assert "unknown collector" in res.output.lower()
+    assert res.exit_code == 2
+    # The "unknown collector" message is written to stderr.
+    combined = (res.output + (res.stderr or "")).lower()
+    assert "unknown collector" in combined
 
 
 def test_collect_all_runs_each_collector(workdir: Path, monkeypatch):
     monkeypatch.chdir(workdir / "tools" / "site-tracker")
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "")  # cf collector will skip
+    # Stub http_scrape's slow network paths so the test stays fast.
+    from site_tracker.collectors import http_scrape
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda h: None)
+    monkeypatch.setattr(http_scrape, "_fetch", lambda *_: None)
     runner = CliRunner()
     res = runner.invoke(main, ["collect-all", "--data-dir", str(workdir / "data")])
-    # not asserting exit==0 because http_scrape will fail DNS on toy hosts,
-    # but the CLI must catch exceptions per-collector and continue.
     assert "filesystem" in res.output
     assert "cloudflare" in res.output
