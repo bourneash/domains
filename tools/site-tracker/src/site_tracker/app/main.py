@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
+import subprocess
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -103,6 +104,71 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
             request,
             "site_detail.html",
             {"site": site, "rows": rows, "manual_rows": manual_rows},
+        )
+
+    @app.get("/site/{site}/edit/{key}", response_class=HTMLResponse)
+    def edit_form(request: Request, site: str, key: str):
+        reg = registry.load(app.state.sites_yml)
+        if site not in reg.sites:
+            raise HTTPException(status_code=404, detail="site not found")
+        current = ""
+        if key.startswith("manual."):
+            sub = key[len("manual."):]
+            # registry.load() normalizes manual values to {value, set_at} dicts.
+            man = reg.sites[site].get("manual", {}) or {}
+            v = man.get(sub)
+            if v is not None:
+                current = v.get("value") or ""
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "fragments/edit_form.html",
+            {"site": site, "key": key, "current": current},
+        )
+
+    @app.post("/site/{site}/edit/{key}", response_class=HTMLResponse)
+    async def edit_submit(request: Request, site: str, key: str):
+        form = dict(await request.form())
+        new_value = (form.get("value") or "").strip()
+        custom_key = (form.get("key") or "").strip()
+        reg = registry.load(app.state.sites_yml)
+        if site not in reg.sites:
+            raise HTTPException(status_code=404, detail="site not found")
+        if key == "manual.new":
+            if not custom_key:
+                raise HTTPException(status_code=400, detail="missing 'key' in form")
+            sub = custom_key
+        elif key.startswith("manual."):
+            sub = key[len("manual."):]
+        else:
+            raise HTTPException(status_code=400, detail="only manual.* keys are editable")
+        registry.set_manual_fact(reg, app.state.sites_yml, site, sub, new_value)
+        store.init_db(app.state.db_path)
+        conn = store.connect(app.state.db_path)
+        try:
+            store.upsert_fact(
+                conn, site=site, key=f"manual.{sub}",
+                value=new_value, source="manual", state="green", ttl_hours=None,
+            )
+        finally:
+            conn.close()
+        cfg = reg.config
+        if cfg.get("auto_commit", True):
+            try:
+                git_root = getattr(app.state, "git_root", None) or Path(cfg.get("domains_root", "/work"))
+                git_ops.commit_paths(
+                    git_root,
+                    [app.state.sites_yml],
+                    f"site-tracker: {site} manual.{sub} = {new_value}",
+                    push=cfg.get("auto_push", False),
+                )
+            except subprocess.CalledProcessError:
+                log.exception("git commit failed")
+                raise HTTPException(status_code=500, detail="commit failed")
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "fragments/cell.html",
+            {"site": site, "key": f"manual.{sub}",
+             "value": new_value, "state": "green"},
         )
 
     return app
