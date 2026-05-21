@@ -9,6 +9,7 @@ Local utilities shared across all domain projects under `/home/jesse/projects/do
 | [`cf-stats/`](./cf-stats/) | Hourly **Cloudflare** account/usage snapshot — token health + expiry, zones, DNS, workers, custom domains, email routing, 24h request/error totals. JSONL per day + `latest.json`. Runs as a supercronic container (see its `docker-compose.yml`); no host cron. |
 | [`cf-grafana/`](./cf-grafana/) | Grafana stack on the cf-stats SQLite — auto-ingests the JSONL files cf-stats produces, serves portfolio + zone-detail dashboards at `localhost:4741`. Bring up with `docker compose up -d`. |
 | [`lama-cleaner/`](./lama-cleaner/) | Launches **IOPaint** (the maintained lama-cleaner) GPU-accelerated on a directory of images. Random free port, prints local + LAN URL. |
+| [`site-tracker/`](./site-tracker/) | Portfolio maintenance dashboard at `localhost:4742` — per-site verification/wiring state in a status matrix (CF, GA4, AdSense, sitemap, TLS, git, GitHub, manual facts). Containerized FastAPI + HTMX + SQLite. Click any cell to edit manual facts; writes back to `sites.yml` and commits. |
 | [`status`](./status) | One-shot CLI dashboard — per-site 24h requests, 7d pageviews/uniques/threats/cache, plus per-role ops health from each site's `ops/board/last-run.json`. |
 
 ## Conventions
