@@ -14,6 +14,7 @@ from fastapi.templating import Jinja2Templates
 from site_tracker import registry, store
 from site_tracker.fact_keys import FACTS, families, keys_for_family
 from site_tracker.app import git_ops
+from site_tracker.cli import COLLECTORS
 
 log = logging.getLogger(__name__)
 
@@ -174,6 +175,27 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
             {"site": site, "key": f"manual.{sub}",
              "value": new_value, "state": "green"},
         )
+
+    @app.get("/collectors", response_class=HTMLResponse)
+    def collectors_page(request: Request):
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "collectors.html",
+            {"collectors": list(COLLECTORS.keys())},
+        )
+
+    @app.post("/collectors/{name}/run", response_class=HTMLResponse)
+    def collectors_run(name: str):
+        if name not in COLLECTORS:
+            raise HTTPException(status_code=404, detail="unknown collector")
+        reg = registry.load(app.state.sites_yml)
+        store.init_db(app.state.db_path)
+        conn = store.connect(app.state.db_path)
+        try:
+            COLLECTORS[name].run(reg, conn)
+        finally:
+            conn.close()
+        return HTMLResponse(f'<div class="cell green">{name} done</div>')
 
     return app
 

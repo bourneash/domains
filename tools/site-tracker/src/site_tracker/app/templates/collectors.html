@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+<h2>Collectors</h2>
+<table>
+  <thead><tr><th>name</th><th>action</th></tr></thead>
+  <tbody>
+    {% for c in collectors %}
+    <tr>
+      <td class="site">{{ c }}</td>
+      <td>
+        <button hx-post="/collectors/{{ c }}/run" hx-target="this" hx-swap="outerHTML">run</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
