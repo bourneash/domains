@@ -1,0 +1,8 @@
+# site-tracker schedule (supercronic, TZ=UTC).
+# Offsets chosen so this container doesn't bunch up with cf-stats (:23) or
+# americastrikes/sinderella ops crons.
+
+*/15 * * * * cd /work/tools/site-tracker && site-tracker collect filesystem      2>&1 | tee -a /work/tools/site-tracker/out/cron.log
+17   * * * * cd /work/tools/site-tracker && site-tracker collect http_scrape     2>&1 | tee -a /work/tools/site-tracker/out/cron.log
+33   * * * * cd /work/tools/site-tracker && site-tracker collect cloudflare      2>&1 | tee -a /work/tools/site-tracker/out/cron.log
+0    4 * * * cd /work/tools/site-tracker && site-tracker collect github          2>&1 | tee -a /work/tools/site-tracker/out/cron.log
