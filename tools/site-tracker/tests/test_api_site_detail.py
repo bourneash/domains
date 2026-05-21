@@ -52,3 +52,13 @@ def test_drilldown_lists_every_applicable_fact(client, appdir):
 def test_drilldown_unknown_site_404(client):
     r = client.get("/site/doesnotexist.com")
     assert r.status_code == 404
+
+
+def test_drilldown_renders_when_manual_block_is_empty(client):
+    """beta.test has applies_to: [..., manual] but manual: {} — the page must
+    render the empty Manual section with the '+ add' affordance, no errors."""
+    r = client.get("/site/beta.test")
+    assert r.status_code == 200
+    html = r.text
+    assert "Manual facts" in html
+    assert "click to add a manual fact" in html
