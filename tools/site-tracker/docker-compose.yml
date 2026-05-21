@@ -1,0 +1,30 @@
+# site-tracker — portfolio maintenance dashboard.
+#
+# Bring up:    docker compose up -d --build
+# Open:        http://localhost:4742
+# Watch logs:  docker compose logs -f
+# Force run:   docker compose exec site-tracker site-tracker collect <name>
+# Stop:        docker compose down
+
+name: site-tracker
+
+services:
+  site-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: site-tracker:latest
+    container_name: site-tracker
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      TZ: UTC
+    ports:
+      - "4742:4742"
+    volumes:
+      # Parent domains repo, read-write — collectors read /work/sites/* and
+      # the edit-cell POST commits sites.yml inside /work.
+      - ${HOME:-/home/jesse}/projects/domains:/work
+      # The shared .env (CF token, GitHub PAT) bind-mounted at the spot
+      # entrypoint.sh sources.
+      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
