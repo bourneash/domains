@@ -151,6 +151,10 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
             )
         finally:
             conn.close()
+        # NB: sites.yml + DB are already mutated above. If the git commit
+        # below fails, state is inconsistent (file updated, no commit) —
+        # the operator must commit manually to recover. Acceptable for a
+        # local single-user tool.
         cfg = reg.config
         if cfg.get("auto_commit", True):
             try:
@@ -161,7 +165,7 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
                     f"site-tracker: {site} manual.{sub} = {new_value}",
                     push=cfg.get("auto_push", False),
                 )
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, FileNotFoundError):
                 log.exception("git commit failed")
                 raise HTTPException(status_code=500, detail="commit failed")
         return _TEMPLATES.TemplateResponse(
