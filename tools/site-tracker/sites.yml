@@ -10,35 +10,35 @@ sites:
   aliencouncil.com:
     active: true
     cf_zone: aliencouncil.com
-    github: bourneash/aliencouncil.com
+    github: bourneash/aliencouncil
     applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
     manual: {}
 
   americastrikes.com:
     active: true
     cf_zone: americastrikes.com
-    github: bourneash/americastrikes.com
+    github: bourneash/americastrikes
     applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
     manual: {}
 
   rc-9.com:
     active: true
     cf_zone: rc-9.com
-    github: bourneash/rc-9.com
+    github: bourneash/rc-9
     applies_to: [cf, http, sitemap, tls, git, github, manual]
     manual: {}
 
   reviewtattoo.com:
     active: true
     cf_zone: reviewtattoo.com
-    github: bourneash/reviewtattoo.com
+    github: bourneash/reviewtattoo
     applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
     manual: {}
 
   sinderella.org:
     active: true
     cf_zone: sinderella.org
-    github: bourneash/sinderella.org
+    github: bourneash/sinderella
     applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
     manual: {}
 
