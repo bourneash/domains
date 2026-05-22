@@ -50,7 +50,7 @@ def _ops_board_age_hours(repo: Path) -> float | None:
 
 
 def run(reg: registry.Registry, conn: sqlite3.Connection) -> None:
-    domains_root = Path(reg.config["domains_root"])
+    domains_root = Path(reg.config.get("domains_root", "/work"))
     for site_name, site_cfg in reg.sites.items():
         applies = site_cfg.get("applies_to", [])
         repo = domains_root / "sites" / site_name
