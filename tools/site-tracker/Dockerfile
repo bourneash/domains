@@ -25,6 +25,7 @@ RUN groupadd -g 1000 ops && \
 WORKDIR /opt/site-tracker
 COPY pyproject.toml ./
 COPY src ./src
+COPY registry ./registry
 RUN pip install --no-cache-dir .
 
 COPY crontab.docker /etc/crontab.docker

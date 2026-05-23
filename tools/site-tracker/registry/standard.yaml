@@ -1,0 +1,122 @@
+# Standard fact catalog for tools/site-tracker.
+#
+# Each fact is keyed by its dotted name (e.g. "cf.zone_active") and has:
+#   family:      grouping for the matrix column (cf, http, sitemap, tls, git, ops, github, manual)
+#   source:      who populated it — collector module name or "manual"
+#   ttl_hours:   freshness window; after this the state degrades to 'stale' at read time
+#   describe:    short human-readable description
+#   state_rule:  named evaluator from fact_keys.py:
+#                  bool_green_red       — True→green, False→red, None→unknown
+#                  bool_green_yellow    — True→green, False→yellow, None→unknown
+#                  tls_expiry           — numeric days; <7=red, <30=yellow, else green
+#                  commit_age           — hours; active sites <168h=green, <720=yellow, else red; parked sites always green
+#                  push_age             — hours; <168=green, <720=yellow, else red (no active-site exception)
+#                  ops_board_age        — hours; <25=green, <72=yellow, else red
+#                  commits_ahead        — int; 0=green, <5=yellow, else red
+#
+# Adding a new fact: copy a block below, rename the key, fill in describe + state_rule.
+# Adding a new state rule: define it in fact_keys.py and reference its name here.
+
+facts:
+  # Cloudflare
+  cf.zone_active:
+    family: cf
+    source: cf_api
+    ttl_hours: 6
+    describe: Zone active in Cloudflare
+    state_rule: bool_green_red
+  cf.worker_bound:
+    family: cf
+    source: cf_api
+    ttl_hours: 6
+    describe: Worker bound to zone
+    state_rule: bool_green_yellow
+  cf.email_routing:
+    family: cf
+    source: cf_api
+    ttl_hours: 24
+    describe: Email routing configured
+    state_rule: bool_green_yellow
+
+  # HTTP scrape
+  http.ga4_present:
+    family: http
+    source: http_scrape
+    ttl_hours: 24
+    describe: GA4 tag in <head>
+    state_rule: bool_green_yellow
+  http.adsense_present:
+    family: http
+    source: http_scrape
+    ttl_hours: 24
+    describe: AdSense tag in <head>
+    state_rule: bool_green_yellow
+  http.meta_pixel_present:
+    family: http
+    source: http_scrape
+    ttl_hours: 24
+    describe: Meta Pixel in <head>
+    state_rule: bool_green_yellow
+  http.gtm_present:
+    family: http
+    source: http_scrape
+    ttl_hours: 24
+    describe: GTM tag in <head>
+    state_rule: bool_green_yellow
+  http.sitemap_200:
+    family: sitemap
+    source: http_scrape
+    ttl_hours: 24
+    describe: GET /sitemap.xml returns 200
+    state_rule: bool_green_red
+  http.robots_present:
+    family: sitemap
+    source: http_scrape
+    ttl_hours: 24
+    describe: GET /robots.txt returns 200
+    state_rule: bool_green_yellow
+  http.tls_expiry_days:
+    family: tls
+    source: http_scrape
+    ttl_hours: 24
+    describe: Days until TLS cert expires
+    state_rule: tls_expiry
+
+  # Filesystem
+  fs.last_commit_age_hours:
+    family: git
+    source: filesystem
+    ttl_hours: 1
+    describe: Hours since last commit on main
+    state_rule: commit_age
+  fs.ops_board_last_run_age_hours:
+    family: ops
+    source: filesystem
+    ttl_hours: 1
+    describe: Hours since latest ops/board/last-run.json
+    state_rule: ops_board_age
+
+  # GitHub
+  github.commits_ahead:
+    family: github
+    source: github_api
+    ttl_hours: 24
+    describe: Local commits not on origin
+    state_rule: commits_ahead
+  github.last_push_age_hours:
+    family: github
+    source: github_api
+    ttl_hours: 24
+    describe: Hours since last push to origin
+    state_rule: push_age
+
+# Canonical column order for the matrix.
+families:
+  - cf
+  - http
+  - sitemap
+  - tls
+  - git
+  - ops
+  - github
+  - manual

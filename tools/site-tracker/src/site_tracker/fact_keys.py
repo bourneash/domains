@@ -1,16 +1,27 @@
-"""Registry of v1 fact keys, their families (for applies_to gating), source, and TTL.
+"""Fact registry — loads catalog from registry/standard.yaml.
 
-A fact's `family` controls whether a site's row in the matrix renders that cell:
-the cell shows iff the family appears in the site's `applies_to` list.
+Public API is unchanged from before:
+  FACTS              — dict[str, FactSpec]
+  families()         — canonical column order
+  keys_for_family(f) — list of keys in family
 
-Each fact's `state_from_value(value, site)` returns 'green' | 'yellow' | 'red'
-| 'unknown' | 'n_a'. Collectors call this AFTER they have a value; manual edits
-bypass it and accept the human's verdict (always 'green' on save).
+State rules are functions defined in this module and referenced by name
+(via STATE_RULES) from the YAML catalog. To add a rule, define it here
+and reference its name in standard.yaml's state_rule field.
+
+Catalog path resolution:
+  1. env SITE_TRACKER_REGISTRY (full path to a YAML file)
+  2. /opt/site-tracker/registry/standard.yaml (Docker install path)
+  3. <repo>/tools/site-tracker/registry/standard.yaml (local dev — walk up)
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable
+
+import yaml
 
 
 @dataclass(frozen=True)
@@ -23,6 +34,8 @@ class FactSpec:
     state_from_value: Callable[[Any, dict], str]
 
 
+# ---------------- state rule functions ----------------
+
 def _bool_green_red(v: Any, _site: dict) -> str:
     if v is True:
         return "green"
@@ -32,7 +45,6 @@ def _bool_green_red(v: Any, _site: dict) -> str:
 
 
 def _bool_green_yellow(v: Any, _site: dict) -> str:
-    """For optional-but-recommended facts: missing = yellow, not red."""
     if v is True:
         return "green"
     if v is False:
@@ -53,9 +65,18 @@ def _tls_expiry(days: Any, _site: dict) -> str:
 def _commit_age(hours: Any, site: dict) -> str:
     if hours is None:
         return "unknown"
-    # Active sites should ship at least weekly; parked sites are static.
     if not site.get("active", False):
         return "green"
+    if hours < 24 * 7:
+        return "green"
+    if hours < 24 * 30:
+        return "yellow"
+    return "red"
+
+
+def _push_age(hours: Any, _site: dict) -> str:
+    if hours is None:
+        return "unknown"
     if hours < 24 * 7:
         return "green"
     if hours < 24 * 30:
@@ -73,16 +94,6 @@ def _ops_board_age(hours: Any, _site: dict) -> str:
     return "red"
 
 
-def _push_age(hours: Any, _site: dict) -> str:
-    if hours is None:
-        return "unknown"
-    if hours < 24 * 7:
-        return "green"
-    if hours < 24 * 30:
-        return "yellow"
-    return "red"
-
-
 def _commits_ahead(n: Any, _site: dict) -> str:
     if n is None:
         return "unknown"
@@ -93,29 +104,70 @@ def _commits_ahead(n: Any, _site: dict) -> str:
     return "red"
 
 
-FACTS: dict[str, FactSpec] = {
-    # Cloudflare
-    "cf.zone_active":         FactSpec("cf.zone_active",         "cf",      "cf_api",      6,  "Zone active in Cloudflare",              _bool_green_red),
-    "cf.worker_bound":        FactSpec("cf.worker_bound",        "cf",      "cf_api",      6,  "Worker bound to zone",                   _bool_green_yellow),
-    "cf.email_routing":       FactSpec("cf.email_routing",       "cf",      "cf_api",      24, "Email routing configured",               _bool_green_yellow),
-
-    # HTTP scrape
-    "http.ga4_present":       FactSpec("http.ga4_present",       "http",    "http_scrape", 24, "GA4 tag in <head>",                      _bool_green_yellow),
-    "http.adsense_present":   FactSpec("http.adsense_present",   "http",    "http_scrape", 24, "AdSense tag in <head>",                  _bool_green_yellow),
-    "http.meta_pixel_present":FactSpec("http.meta_pixel_present","http",    "http_scrape", 24, "Meta Pixel in <head>",                   _bool_green_yellow),
-    "http.gtm_present":       FactSpec("http.gtm_present",       "http",    "http_scrape", 24, "GTM tag in <head>",                      _bool_green_yellow),
-    "http.sitemap_200":       FactSpec("http.sitemap_200",       "sitemap", "http_scrape", 24, "GET /sitemap.xml returns 200",           _bool_green_red),
-    "http.robots_present":    FactSpec("http.robots_present",    "sitemap", "http_scrape", 24, "GET /robots.txt returns 200",            _bool_green_yellow),
-    "http.tls_expiry_days":   FactSpec("http.tls_expiry_days",   "tls",     "http_scrape", 24, "Days until TLS cert expires",            _tls_expiry),
-
-    # Filesystem
-    "fs.last_commit_age_hours":FactSpec("fs.last_commit_age_hours","git",   "filesystem",  1,  "Hours since last commit on main",        _commit_age),
-    "fs.ops_board_last_run_age_hours":FactSpec("fs.ops_board_last_run_age_hours","ops","filesystem",1,"Hours since latest ops/board/last-run.json",_ops_board_age),
-
-    # GitHub
-    "github.commits_ahead":   FactSpec("github.commits_ahead",   "github",  "github_api",  24, "Local commits not on origin",            _commits_ahead),
-    "github.last_push_age_hours":FactSpec("github.last_push_age_hours","github","github_api",24,"Hours since last push to origin",        _push_age),
+STATE_RULES: dict[str, Callable[[Any, dict], str]] = {
+    "bool_green_red":    _bool_green_red,
+    "bool_green_yellow": _bool_green_yellow,
+    "tls_expiry":        _tls_expiry,
+    "commit_age":        _commit_age,
+    "push_age":          _push_age,
+    "ops_board_age":     _ops_board_age,
+    "commits_ahead":     _commits_ahead,
 }
+
+
+# ---------------- catalog loading ----------------
+
+def _candidate_paths() -> list[Path]:
+    paths: list[Path] = []
+    env = os.environ.get("SITE_TRACKER_REGISTRY")
+    if env:
+        paths.append(Path(env))
+    paths.append(Path("/opt/site-tracker/registry/standard.yaml"))
+    # Walk up from this file looking for `tools/site-tracker/registry/standard.yaml`.
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        cand = parent / "tools" / "site-tracker" / "registry" / "standard.yaml"
+        if cand.exists():
+            paths.append(cand)
+            break
+        # Also handle the case where __file__ is already inside the tool tree
+        cand2 = parent / "registry" / "standard.yaml"
+        if cand2.exists():
+            paths.append(cand2)
+            break
+    return paths
+
+
+def _load_catalog() -> tuple[dict[str, FactSpec], list[str]]:
+    for path in _candidate_paths():
+        if path.exists():
+            data = yaml.safe_load(path.read_text()) or {}
+            facts_yaml = data.get("facts", {}) or {}
+            families_list = data.get("families", []) or []
+            specs: dict[str, FactSpec] = {}
+            for key, body in facts_yaml.items():
+                rule_name = body["state_rule"]
+                rule = STATE_RULES.get(rule_name)
+                if rule is None:
+                    raise ValueError(
+                        f"unknown state_rule {rule_name!r} for fact {key!r} in {path}"
+                    )
+                specs[key] = FactSpec(
+                    key=key,
+                    family=body["family"],
+                    source=body["source"],
+                    ttl_hours=int(body["ttl_hours"]),
+                    describe=body["describe"],
+                    state_from_value=rule,
+                )
+            return specs, list(families_list)
+    raise FileNotFoundError(
+        "registry/standard.yaml not found in any candidate path; "
+        "set SITE_TRACKER_REGISTRY or run from inside the project tree"
+    )
+
+
+FACTS, _FAMILIES = _load_catalog()
 
 
 def keys_for_family(family: str) -> list[str]:
@@ -123,5 +175,4 @@ def keys_for_family(family: str) -> list[str]:
 
 
 def families() -> list[str]:
-    """Canonical column order for the matrix."""
-    return ["cf", "http", "sitemap", "tls", "git", "ops", "github", "manual"]
+    return list(_FAMILIES)
