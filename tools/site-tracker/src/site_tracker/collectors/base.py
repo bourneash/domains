@@ -7,6 +7,7 @@ from typing import Any
 
 from site_tracker import store
 from site_tracker.fact_keys import FACTS
+from site_tracker.writers import per_site_yaml
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +35,16 @@ def emit(
         state=state,
         ttl_hours=spec.ttl_hours,
     )
+    try:
+        per_site_yaml.write_fact(
+            site_name, key,
+            value=value,
+            source=source or spec.source,
+            state=state,
+            ttl_hours=spec.ttl_hours,
+        )
+    except Exception:
+        log.exception("per-site yaml write failed for %s/%s", site_name, key)
 
 
 def emit_unknown(
@@ -57,3 +68,13 @@ def emit_unknown(
         state="unknown",
         ttl_hours=spec.ttl_hours,
     )
+    try:
+        per_site_yaml.write_fact(
+            site_name, key,
+            value=None,
+            source=source or spec.source,
+            state="unknown",
+            ttl_hours=spec.ttl_hours,
+        )
+    except Exception:
+        log.exception("per-site yaml write failed for %s/%s", site_name, key)
