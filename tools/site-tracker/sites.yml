@@ -60,5 +60,5 @@ sites:
     active: true
     cf_zone: xxxtea.com
     github: bourneash/xxxtea.com
-    applies_to: [cf, http, sitemap, tls, git, ops, github, manual]
+    applies_to: [cf, http, sitemap, tls, git, ops, github, contact, legal, branding, manual]
     manual: {}
