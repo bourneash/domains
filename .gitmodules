@@ -23,3 +23,6 @@
 	path = sites/xxxtea.com
 	url = git@github-bourneash:bourneash/xxxtea.com.git
 	branch = main
+[submodule "saveusfarms.com"]
+	path = sites/saveusfarms.com
+	url = git@github-bourneash:bourneash/saveusfarms.com.git

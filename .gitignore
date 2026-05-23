@@ -3,6 +3,7 @@
 
 # Secrets
 .env
+.env.shared
 .env.local
 .env.*.local
 *.pem
