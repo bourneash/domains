@@ -4,6 +4,7 @@ entry in registry/standard.yaml.
 
 Supported recipe types:
   regex_on_head:   pattern: '<regex>'   — match against <head> slice of homepage
+  regex_on_body:   pattern: '<regex>'   — match against full response body
   path_status:     path: '/foo'         — GET <site>/foo; expected: <int> (default 200)
 """
 from __future__ import annotations
@@ -43,6 +44,18 @@ def _eval_regex_on_head(client: httpx.Client, base: str, recipe: dict,
     return bool(re.search(recipe["pattern"], head, re.I))
 
 
+def _eval_regex_on_body(client: httpx.Client, base: str, recipe: dict,
+                        homepage_cache: dict) -> bool | None:
+    """Run a regex against the full homepage response body."""
+    if base not in homepage_cache:
+        homepage_cache[base] = _fetch(client, f"{base}/")
+    r = homepage_cache[base]
+    if r is None or r.status_code >= 500:
+        return None
+    body = r.text[:500_000]   # cap at 500k to avoid pathologically large pages
+    return bool(re.search(recipe["pattern"], body, re.I))
+
+
 def _eval_path_status(client: httpx.Client, base: str, recipe: dict) -> bool | None:
     path = recipe["path"]
     expected = int(recipe.get("expected", 200))
@@ -54,6 +67,7 @@ def _eval_path_status(client: httpx.Client, base: str, recipe: dict) -> bool | N
 
 _DISPATCH = {
     "regex_on_head": _eval_regex_on_head,
+    "regex_on_body": _eval_regex_on_body,
     "path_status":   _eval_path_status,
 }
 
@@ -79,8 +93,8 @@ def _collect_site(client: httpx.Client, conn: sqlite3.Connection,
             log.warning("unknown recipe type %r for fact %s", rtype, key)
             emit_unknown(conn, site_name, site_cfg, key, source="recipes")
             continue
-        if rtype == "regex_on_head":
-            value = _eval_regex_on_head(client, base, recipe, homepage_cache)
+        if rtype in ("regex_on_head", "regex_on_body"):
+            value = handler(client, base, recipe, homepage_cache)
         else:
             value = handler(client, base, recipe)
         if value is None:

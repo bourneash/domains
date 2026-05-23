@@ -82,6 +82,69 @@ facts:
     describe: Days until TLS cert expires
     state_rule: tls_expiry
 
+  # SEO essentials (head)
+  http.has_canonical:
+    family: seo
+    source: recipes
+    ttl_hours: 24
+    describe: <link rel="canonical"> present in head
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_head
+      pattern: '<link[^>]+rel=["'']canonical["'']'
+
+  http.has_og_tags:
+    family: seo
+    source: recipes
+    ttl_hours: 24
+    describe: Open Graph meta tags present (og:title etc.)
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_head
+      pattern: 'property=["'']og:(title|image|description)["'']'
+
+  http.has_schema_org:
+    family: seo
+    source: recipes
+    ttl_hours: 24
+    describe: schema.org structured data present (JSON-LD or microdata)
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_head
+      pattern: 'application/ld\+json|itemscope'
+
+  http.has_viewport_meta:
+    family: seo
+    source: recipes
+    ttl_hours: 24
+    describe: <meta name="viewport"> present (mobile-friendly)
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_head
+      pattern: 'name=["'']viewport["'']'
+
+  http.has_rss:
+    family: seo
+    source: recipes
+    ttl_hours: 24
+    describe: RSS/Atom feed linked from head
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_head
+      pattern: 'type=["''](application/(rss|atom)\+xml)["'']'
+
+  # Ads / monetization
+  http.has_ads_txt:
+    family: ads
+    source: recipes
+    ttl_hours: 24
+    describe: /ads.txt published (IAB ad inventory authentication)
+    state_rule: bool_green_yellow
+    recipe:
+      type: path_status
+      path: /ads.txt
+      expected: 200
+
   # Contact / discoverability
   http.has_contact_email:
     family: contact
@@ -105,6 +168,39 @@ facts:
       path: /privacy
       expected: 200
 
+  http.has_terms_page:
+    family: legal
+    source: recipes
+    ttl_hours: 24
+    describe: GET /terms returns 200
+    state_rule: bool_green_yellow
+    recipe:
+      type: path_status
+      path: /terms
+      expected: 200
+
+  http.has_security_txt:
+    family: legal
+    source: recipes
+    ttl_hours: 24
+    describe: GET /.well-known/security.txt returns 200
+    state_rule: bool_green_yellow
+    recipe:
+      type: path_status
+      path: /.well-known/security.txt
+      expected: 200
+
+  http.has_affiliate_disclosure:
+    family: legal
+    source: recipes
+    ttl_hours: 24
+    describe: Page body mentions affiliate / Amazon Associates disclosure
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_body
+      pattern: 'amazon associate|affiliate (link|disclosure)|earn.{0,40}commission'
+
+  # Branding
   http.has_favicon:
     family: branding
     source: recipes
@@ -114,6 +210,17 @@ facts:
     recipe:
       type: path_status
       path: /favicon.ico
+      expected: 200
+
+  http.has_about_page:
+    family: branding
+    source: recipes
+    ttl_hours: 24
+    describe: GET /about returns 200
+    state_rule: bool_green_yellow
+    recipe:
+      type: path_status
+      path: /about
       expected: 200
 
   # Filesystem
@@ -148,11 +255,13 @@ facts:
 families:
   - cf
   - http
+  - seo
   - sitemap
   - tls
   - git
   - ops
   - github
+  - ads
   - contact
   - legal
   - branding
