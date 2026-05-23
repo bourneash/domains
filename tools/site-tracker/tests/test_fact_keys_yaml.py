@@ -8,15 +8,16 @@ import pytest
 from site_tracker import fact_keys
 
 
-def test_catalog_loads_14_facts_from_standard_yaml():
+def test_catalog_loads_17_facts_from_standard_yaml():
     # The module-level FACTS is populated at import time from standard.yaml.
-    assert len(fact_keys.FACTS) == 14
+    assert len(fact_keys.FACTS) == 17
     for key in (
         "cf.zone_active", "cf.worker_bound", "cf.email_routing",
         "http.ga4_present", "http.adsense_present",
         "http.meta_pixel_present", "http.gtm_present",
         "http.sitemap_200", "http.robots_present",
         "http.tls_expiry_days",
+        "http.has_contact_email", "http.has_privacy_page", "http.has_favicon",
         "fs.last_commit_age_hours", "fs.ops_board_last_run_age_hours",
         "github.commits_ahead", "github.last_push_age_hours",
     ):
@@ -25,7 +26,7 @@ def test_catalog_loads_14_facts_from_standard_yaml():
 
 def test_families_returns_canonical_order():
     assert fact_keys.families() == [
-        "cf", "http", "sitemap", "tls", "git", "ops", "github", "manual",
+        "cf", "http", "sitemap", "tls", "git", "ops", "github", "contact", "legal", "branding", "manual",
     ]
 
 
@@ -98,3 +99,10 @@ families: [cf]
     monkeypatch.setenv("SITE_TRACKER_REGISTRY", str(catalog))
     with pytest.raises(ValueError, match="does_not_exist"):
         fact_keys._load_catalog()
+
+
+def test_recipe_field_loads_from_yaml():
+    spec = fact_keys.FACTS["http.has_contact_email"]
+    assert spec.recipe is not None
+    assert spec.recipe["type"] == "regex_on_head"
+    assert "pattern" in spec.recipe

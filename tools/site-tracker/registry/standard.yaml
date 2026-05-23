@@ -82,6 +82,40 @@ facts:
     describe: Days until TLS cert expires
     state_rule: tls_expiry
 
+  # Contact / discoverability
+  http.has_contact_email:
+    family: contact
+    source: recipes
+    ttl_hours: 24
+    describe: "Site has a mailto: link"
+    state_rule: bool_green_yellow
+    recipe:
+      type: regex_on_head
+      pattern: 'mailto:[\w\.\-+]+@'
+
+  # Legal / trust signals
+  http.has_privacy_page:
+    family: legal
+    source: recipes
+    ttl_hours: 24
+    describe: "GET /privacy returns 200"
+    state_rule: bool_green_yellow
+    recipe:
+      type: path_status
+      path: /privacy
+      expected: 200
+
+  http.has_favicon:
+    family: branding
+    source: recipes
+    ttl_hours: 24
+    describe: "GET /favicon.ico returns 200"
+    state_rule: bool_green_yellow
+    recipe:
+      type: path_status
+      path: /favicon.ico
+      expected: 200
+
   # Filesystem
   fs.last_commit_age_hours:
     family: git
@@ -119,4 +153,7 @@ families:
   - git
   - ops
   - github
+  - contact
+  - legal
+  - branding
   - manual

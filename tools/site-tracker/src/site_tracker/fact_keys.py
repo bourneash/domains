@@ -32,6 +32,7 @@ class FactSpec:
     ttl_hours: int
     describe: str
     state_from_value: Callable[[Any, dict], str]
+    recipe: dict | None = None
 
 
 # ---------------- state rule functions ----------------
@@ -159,6 +160,7 @@ def _load_catalog() -> tuple[dict[str, FactSpec], list[str]]:
                     ttl_hours=int(body["ttl_hours"]),
                     describe=body["describe"],
                     state_from_value=rule,
+                    recipe=body.get("recipe"),
                 )
             return specs, list(families_list)
     raise FileNotFoundError(
