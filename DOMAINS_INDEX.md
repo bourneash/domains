@@ -15,6 +15,17 @@
 
 
 
+## Coming Soon (scaffolded, awaiting CF Worker connection)
+
+| Domain 			| In use | Worker name      | Notes                                                              |
+|-------------------|--------|------------------|--------------------------------------------------------------------|
+| 3om.com 			|   🟡   | `3om-com`        | CF zone pending (NS not yet pointed) — run setup-cf-email.sh after NS propagates |
+| noveltyguns.com 	|   🟡   | `noveltyguns-com`| CF email ✅                                                        |
+| saveusfarms.com 	|   🟡   | `saveusfarms-com`| Brief TBD                                                          |
+| wetpages.com 		|   🟡   | `wetpages-com`   | CF email ✅                                                        |
+
+
+
 ## Parked / empty (registered, no site yet)
 
 | Domain 				| In use | TLDR                                                   |
@@ -53,4 +64,14 @@
 | vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
 | wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
 
-_Last generated: 2026-05-16_
+_Last updated: 2026-05-23_
+
+## Bootstrap scripts
+
+```bash
+# New domain → running site:
+tools/scripts/bootstrap-domain.sh <domain>     # scaffold + GitHub + CF email
+# (Jesse connects CF Worker via dashboard)
+tools/scripts/bind-worker-domain.sh <domain>   # bind custom domain to worker
+tools/scripts/setup-cf-email.sh <domain>       # re-run email routing only
+```

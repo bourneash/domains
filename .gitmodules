@@ -26,3 +26,12 @@
 [submodule "saveusfarms.com"]
 	path = sites/saveusfarms.com
 	url = git@github-bourneash:bourneash/saveusfarms.com.git
+[submodule "sites/wetpages.com"]
+	path = sites/wetpages.com
+	url = git@github-bourneash:bourneash/wetpages.com.git
+[submodule "sites/noveltyguns.com"]
+	path = sites/noveltyguns.com
+	url = git@github-bourneash:bourneash/noveltyguns.com.git
+[submodule "sites/3om.com"]
+	path = sites/3om.com
+	url = git@github-bourneash:bourneash/3om.com.git
