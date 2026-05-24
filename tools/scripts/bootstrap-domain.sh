@@ -283,6 +283,7 @@ ZONE_RESP=$(curl -sS "https://api.cloudflare.com/client/v4/zones?name=${DOMAIN}"
 ZONE_ID=$(echo "${ZONE_RESP}" | python3 -c \
   'import json,sys; r=json.load(sys.stdin)["result"]; print(r[0]["id"]) if r else print("")')
 
+NS_NOTE=""
 if [ -z "${ZONE_ID}" ]; then
   echo "  WARNING: CF zone not found for ${DOMAIN} — add domain to CF first, then run:"
   echo "  ${SCRIPT_DIR}/setup-cf-email.sh ${DOMAIN}"
@@ -290,6 +291,33 @@ else
   CF_STATUS=$(echo "${ZONE_RESP}" | python3 -c \
     'import json,sys; r=json.load(sys.stdin)["result"]; print(r[0]["status"]) if r else print("")')
   echo "  Zone ID: ${ZONE_ID}  (status: ${CF_STATUS})"
+
+  # If zone is pending, extract the NS values and note current registrar NS
+  if [ "${CF_STATUS}" = "pending" ]; then
+    NS_NOTE=$(echo "${ZONE_RESP}" | python3 -c "
+import json,sys
+z = json.load(sys.stdin)['result'][0]
+cf_ns  = z.get('name_servers', [])
+cur_ns = z.get('original_name_servers', [])
+lines  = ['## Nameserver Update Required', '']
+lines += ['CF-assigned nameservers (set these at your registrar):']
+lines += ['  ' + ns for ns in cf_ns]
+lines += ['']
+lines += ['Current nameservers (at registrar now):']
+lines += ['  ' + ns for ns in cur_ns]
+lines += ['']
+lines += ['After NS propagates, run:']
+lines += ['  tools/scripts/setup-cf-email.sh ${DOMAIN}']
+print('\n'.join(lines))
+")
+    echo "  PENDING: zone NS not yet pointing to CF — see NS_PENDING.md in site root"
+    echo "${NS_NOTE}" > "${DOMAINS_ROOT}/sites/${DOMAIN}/NS_PENDING.md"
+    cd "${DOMAINS_ROOT}/sites/${DOMAIN}"
+    git add NS_PENDING.md
+    git -c commit.gpgsign=false commit -q -m "ops: add NS_PENDING.md — nameservers not yet pointing to CF"
+    git push -q origin main
+    echo "  NS_PENDING.md committed to repo"
+  fi
 
   ENABLE_RESP=$(curl -sS -X POST \
     "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/email/routing/enable" \
