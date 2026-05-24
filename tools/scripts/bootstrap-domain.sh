@@ -72,70 +72,53 @@ cat > "${TMPSCAFFOLD}/site/package.json" << PKGEOF
     "dev": "astro dev --host 0.0.0.0",
     "start": "astro dev --host 0.0.0.0",
     "build": "astro build",
-    "preview": "npm run build && wrangler dev",
+    "preview": "npm run build && wrangler dev --config dist/server/wrangler.json",
     "astro": "astro",
     "security:audit": "npm audit --audit-level=high",
     "security:audit:prod": "npm audit --omit=dev --audit-level=high",
-    "ci:verify": "npm run security:audit && npm run build",
-    "deploy": "npm run build && wrangler deploy",
+    "ci:verify": "npm run security:audit:prod && npm run build",
+    "deploy": "npm run build && wrangler deploy --config dist/server/wrangler.json",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@astrojs/cloudflare": "12",
-    "@astrojs/rss": "^4.0.11",
-    "@astrojs/sitemap": "^3.2.1",
-    "@astrojs/tailwind": "^5.1.4",
-    "astro": "^5.1.1",
-    "tailwindcss": "^3.4.17"
+    "@astrojs/rss": "^4",
+    "@astrojs/sitemap": "^3",
+    "astro": "^6"
   },
   "devDependencies": {
-    "wrangler": "^4.93.1"
+    "wrangler": "^4"
   }
 }
 PKGEOF
 
-# astro.config.mjs
+# astro.config.mjs — no tailwind (coming-soon uses inline styles)
 cat > "${TMPSCAFFOLD}/site/astro.config.mjs" << ASTREOF
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   site: 'https://${DOMAIN}',
-  integrations: [tailwind(), sitemap()],
+  integrations: [sitemap()],
   build: { inlineStylesheets: 'auto' },
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   adapter: cloudflare()
 });
 ASTREOF
 
-# tailwind.config.mjs
-cat > "${TMPSCAFFOLD}/site/tailwind.config.mjs" << 'TWEOF'
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
-  theme: { extend: {} },
-  plugins: [],
-};
-TWEOF
-
-# wrangler.jsonc
+# wrangler.jsonc — no main/assets fields; adapter v13 generates dist/server/wrangler.json
+# Deploy with: wrangler deploy --config dist/server/wrangler.json
 cat > "${TMPSCAFFOLD}/site/wrangler.jsonc" << WRANEOF
 {
   "\$schema": "node_modules/wrangler/config-schema.json",
   "name": "${WORKER_NAME}",
   "compatibility_date": "${COMPAT_DATE}",
   "observability": { "enabled": true },
-  "main": "dist/_worker.js/index.js",
   "compatibility_flags": [
     "global_fetch_strictly_public",
     "nodejs_compat"
-  ],
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "dist"
-  }
+  ]
 }
 WRANEOF
 
@@ -252,12 +235,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: site/package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Dependency audit (high+ production deps)
+      - name: Dependency audit (production deps, high+)
         run: npm run security:audit:prod
       - name: Build
         run: npm run build
@@ -266,7 +249,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: site/dist
+          path: site/dist/client
           retention-days: 7
 CIEOF
 
@@ -345,9 +328,10 @@ echo "  1. https://dash.cloudflare.com → Workers & Pages → Create → Worker
 echo "  2. Repo         : ${GITHUB_REPO}"
 echo "  3. Build command: npm run build"
 echo "  4. Root dir     : site"
-echo "  5. Output dir   : dist"
-echo "  6. Node version : 20"
-echo "  7. Worker name  : ${WORKER_NAME}  (CF may auto-derive this from the repo name)"
+echo "  5. Output dir   : dist/client"
+echo "  6. Node version : 22"
+echo "  7. Deploy command: wrangler deploy --config dist/server/wrangler.json"
+echo "  8. Worker name  : ${WORKER_NAME}  (CF may auto-derive this from the repo name)"
 echo ""
 echo "  After worker is live and first deploy succeeds, run:"
 echo "  ${SCRIPT_DIR}/bind-worker-domain.sh ${DOMAIN}"
