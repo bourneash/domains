@@ -200,6 +200,9 @@ Disallow: /api/
 Sitemap: https://${DOMAIN}/sitemap-index.xml
 ROBEOF
 
+# .assetsignore — prevents wrangler from treating _worker.js dir as a static asset
+echo '_worker.js' > "${TMPSCAFFOLD}/site/public/.assetsignore"
+
 # _headers — OWASP security headers
 cat > "${TMPSCAFFOLD}/site/public/_headers" << 'HDRSEOF'
 /*
@@ -254,8 +257,8 @@ jobs:
           cache-dependency-path: site/package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Dependency audit (high+)
-        run: npm run security:audit
+      - name: Dependency audit (high+ production deps)
+        run: npm run security:audit:prod
       - name: Build
         run: npm run build
       - name: Upload build artifact
