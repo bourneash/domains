@@ -38,3 +38,6 @@
 [submodule "sites/wetslit.com"]
 	path = sites/wetslit.com
 	url = git@github-bourneash:bourneash/wetslit.com.git
+[submodule "sites/shoptopless.com"]
+	path = sites/shoptopless.com
+	url = git@github-bourneash:bourneash/shoptopless.com.git
