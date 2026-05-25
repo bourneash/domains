@@ -81,7 +81,7 @@ cat > "${TMPSCAFFOLD}/site/package.json" << PKGEOF
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "12",
+    "@astrojs/cloudflare": "^13",
     "@astrojs/rss": "^4",
     "@astrojs/sitemap": "^3",
     "astro": "^6"
@@ -292,7 +292,9 @@ else
     'import json,sys; r=json.load(sys.stdin)["result"]; print(r[0]["status"]) if r else print("")')
   echo "  Zone ID: ${ZONE_ID}  (status: ${CF_STATUS})"
 
-  # If zone is pending, extract the NS values and note current registrar NS
+  # If zone is pending, NS not yet pointing to CF.
+  # For CF-registered domains this resolves automatically within minutes.
+  # For domains at an external registrar, update NS manually.
   if [ "${CF_STATUS}" = "pending" ]; then
     NS_NOTE=$(echo "${ZONE_RESP}" | python3 -c "
 import json,sys
@@ -300,21 +302,21 @@ z = json.load(sys.stdin)['result'][0]
 cf_ns  = z.get('name_servers', [])
 cur_ns = z.get('original_name_servers', [])
 lines  = ['## Nameserver Update Required', '']
-lines += ['CF-assigned nameservers (set these at your registrar):']
+lines += ['CF nameservers (already set if domain is at CF Registrar):']
 lines += ['  ' + ns for ns in cf_ns]
 lines += ['']
-lines += ['Current nameservers (at registrar now):']
+lines += ['Current nameservers at registrar:']
 lines += ['  ' + ns for ns in cur_ns]
 lines += ['']
-lines += ['After NS propagates, run:']
+lines += ['After zone goes active, run:']
 lines += ['  tools/scripts/setup-cf-email.sh ${DOMAIN}']
 print('\n'.join(lines))
 ")
-    echo "  PENDING: zone NS not yet pointing to CF — see NS_PENDING.md in site root"
+    echo "  PENDING: zone NS not yet active — if domain is at CF Registrar this resolves automatically"
     echo "${NS_NOTE}" > "${DOMAINS_ROOT}/sites/${DOMAIN}/NS_PENDING.md"
     cd "${DOMAINS_ROOT}/sites/${DOMAIN}"
     git add NS_PENDING.md
-    git -c commit.gpgsign=false commit -q -m "ops: add NS_PENDING.md — nameservers not yet pointing to CF"
+    git -c commit.gpgsign=false commit -q -m "ops: add NS_PENDING.md — zone pending activation"
     git push -q origin main
     echo "  NS_PENDING.md committed to repo"
   fi
@@ -351,16 +353,14 @@ rm -rf "${TMPSCAFFOLD}"
 echo ""
 echo "=== DONE: ${DOMAIN} ============================================"
 echo ""
-echo "NEXT — Connect CF Workers to GitHub:"
-echo "  1. https://dash.cloudflare.com → Workers & Pages → Create → Worker → Connect to Git"
-echo "  2. Repo         : ${GITHUB_REPO}"
-echo "  3. Build command: npm run build"
-echo "  4. Root dir     : site"
-echo "  5. Output dir   : dist/client"
-echo "  6. Node version : 22"
-echo "  7. Deploy command: wrangler deploy --config dist/server/wrangler.json"
-echo "  8. Worker name  : ${WORKER_NAME}  (CF may auto-derive this from the repo name)"
+echo "NEXT — Deploy the worker and bind the domain:"
 echo ""
-echo "  After worker is live and first deploy succeeds, run:"
-echo "  ${SCRIPT_DIR}/bind-worker-domain.sh ${DOMAIN}"
+echo "  1. Deploy (run from project root — needs .env in scope):"
+echo "     source .env && npm --prefix sites/${DOMAIN}/site run deploy"
+echo ""
+echo "  2. Bind custom domain (after first successful deploy):"
+echo "     ${SCRIPT_DIR}/bind-worker-domain.sh ${DOMAIN}"
+echo ""
+echo "  GitHub Actions handles CI (build + audit) on every push."
+echo "  Deploy is manual: 'source .env && npm --prefix sites/<domain>/site run deploy'"
 echo ""
