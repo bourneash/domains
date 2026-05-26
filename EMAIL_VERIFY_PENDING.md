@@ -36,3 +36,17 @@ Tick the checkbox + add the date once the round-trip email lands.
 | broadwayshowgirls.com | 2026-05-26 | ☐ |
 | totaljerks.com | 2026-05-26 | ☐ |
 | pervypotion.com | 2026-05-26 | ☐ |
+| sexvendor.com | 2026-05-26 | ☐ |
+| sexchallenge.me | 2026-05-26 | ☐ |
+| securityplaces.com | 2026-05-26 | ☐ |
+| pokererotic.com | 2026-05-26 | ☐ |
+| onlysexyteens.com | 2026-05-26 | ☐ |
+| failbunny.com | 2026-05-26 | ☐ |
+| dumbsluts.com | 2026-05-26 | ☐ |
+| kinkxels.com | 2026-05-26 | ☐ |
+| deadlymaracas.com | 2026-05-26 | ☐ |
+| cock-smoker.com | 2026-05-26 | ☐ |
+| adultxtube.com | 2026-05-26 | ☐ |
+| driveford.net | 2026-05-26 | ☐ |
+| nsfwpixels.com | 2026-05-26 | ☐ |
+| mynewgm.com | 2026-05-26 | ☐ |
