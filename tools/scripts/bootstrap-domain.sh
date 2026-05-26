@@ -254,6 +254,11 @@ jobs:
 CIEOF
 
 # ── 2. npm install + build ─────────────────────────────────────────────────
+# NODE_OPTIONS=--inspect-port=0 so parallel bootstraps don't race on the
+# default debugger port 9229 (only one process can bind it; subsequent ones
+# fail with EADDRINUSE during astro/wrangler build).
+export NODE_OPTIONS="${NODE_OPTIONS:-} --inspect-port=0"
+
 echo "--- npm install (${DOMAIN}) ---"
 npm --prefix "${TMPSCAFFOLD}/site" install
 
