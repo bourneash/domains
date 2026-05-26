@@ -41,3 +41,18 @@
 [submodule "sites/shoptopless.com"]
 	path = sites/shoptopless.com
 	url = git@github-bourneash:bourneash/shoptopless.com.git
+[submodule "sites/complicated.work"]
+	path = sites/complicated.work
+	url = git@github-bourneash:bourneash/complicated.work.git
+[submodule "sites/deeppenetrations.com"]
+	path = sites/deeppenetrations.com
+	url = git@github-bourneash:bourneash/deeppenetrations.com.git
+[submodule "sites/coffeepredator.com"]
+	path = sites/coffeepredator.com
+	url = git@github-bourneash:bourneash/coffeepredator.com.git
+[submodule "sites/sexchallengecoins.com"]
+	path = sites/sexchallengecoins.com
+	url = git@github-bourneash:bourneash/sexchallengecoins.com.git
+[submodule "sites/vibratorporn.com"]
+	path = sites/vibratorporn.com
+	url = git@github-bourneash:bourneash/vibratorporn.com.git
