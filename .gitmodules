@@ -113,3 +113,15 @@
 [submodule "sites/nsfwpixels.com"]
 	path = sites/nsfwpixels.com
 	url = git@github-bourneash:bourneash/nsfwpixels.com.git
+[submodule "sites/drivegm.net"]
+	path = sites/drivegm.net
+	url = git@github-bourneash:bourneash/drivegm.net.git
+[submodule "sites/mynewgm.info"]
+	path = sites/mynewgm.info
+	url = git@github-bourneash:bourneash/mynewgm.info.git
+[submodule "sites/stinkyleftfoot.com"]
+	path = sites/stinkyleftfoot.com
+	url = git@github-bourneash:bourneash/stinkyleftfoot.com.git
+[submodule "sites/infrainnovator.com"]
+	path = sites/infrainnovator.com
+	url = git@github-bourneash:bourneash/infrainnovator.com.git

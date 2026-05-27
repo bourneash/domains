@@ -14,14 +14,33 @@
 # manual step per worker after this script completes.
 set -euo pipefail
 
-DOMAIN="${1:?Usage: $0 <domain.tld>}"
+# Parse flags. --no-email passes through to bootstrap-domain.sh to skip
+# CF Email Routing setup (use when zone has Proton/Fastmail/etc. handling mail).
+NO_EMAIL=0
+ARGS=()
+for arg in "$@"; do
+  case "${arg}" in
+    --no-email) NO_EMAIL=1 ;;
+    *) ARGS+=("${arg}") ;;
+  esac
+done
+set -- "${ARGS[@]}"
+
+DOMAIN="${1:?Usage: $0 [--no-email] <domain.tld>}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOMAINS_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+# Disable Node inspector entirely — parallel runs collide on inspector port
+# (9229 default, or whatever Vite/miniflare picks next). The bootstrap and
+# deploy don't need the inspector; this just prevents the EADDRINUSE crash.
+export NODE_OPTIONS="${NODE_OPTIONS:-} --inspect-port=0"
 
 cd "${DOMAINS_ROOT}"
 
 echo "==> [1/3] bootstrap-domain.sh ${DOMAIN}"
-bash "${SCRIPT_DIR}/bootstrap-domain.sh" "${DOMAIN}"
+BOOTSTRAP_FLAGS=()
+[ "${NO_EMAIL}" = "1" ] && BOOTSTRAP_FLAGS+=(--no-email)
+bash "${SCRIPT_DIR}/bootstrap-domain.sh" "${BOOTSTRAP_FLAGS[@]}" "${DOMAIN}"
 
 echo ""
 echo "==> [2/3] First wrangler deploy ${DOMAIN}"

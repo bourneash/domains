@@ -13,7 +13,20 @@
 # then run: bind-worker-domain.sh <domain>
 set -euo pipefail
 
-DOMAIN="${1:?Usage: $0 <domain.tld>}"
+# Parse flags. --no-email skips CF Email Routing setup at the end.
+# Use when the zone already has its own email handler (Proton, Fastmail,
+# Google Workspace, etc.) whose MX records must be preserved.
+NO_EMAIL=0
+ARGS=()
+for arg in "$@"; do
+  case "${arg}" in
+    --no-email) NO_EMAIL=1 ;;
+    *) ARGS+=("${arg}") ;;
+  esac
+done
+set -- "${ARGS[@]}"
+
+DOMAIN="${1:?Usage: $0 [--no-email] <domain.tld>}"
 WORKER_NAME="${DOMAIN//./-}"
 SITE_NAME="${WORKER_NAME}-site"
 GITHUB_REPO="bourneash/${DOMAIN}"
@@ -282,6 +295,10 @@ git submodule add "git@github-bourneash:${GITHUB_REPO}.git" "sites/${DOMAIN}"
 echo "--- Registered as submodule: sites/${DOMAIN} ---"
 
 # ── 5. CF email routing ────────────────────────────────────────────────────
+if [ "${NO_EMAIL}" = "1" ]; then
+  echo "--- CF email routing SKIPPED (--no-email) for ${DOMAIN} ---"
+  echo "    Existing MX/SPF/DKIM records on the zone are untouched."
+else
 echo "--- CF email routing for ${DOMAIN} ---"
 ZONE_RESP=$(curl -sS "https://api.cloudflare.com/client/v4/zones?name=${DOMAIN}" \
   -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
@@ -351,6 +368,7 @@ print('\n'.join(lines))
   echo "  catch-all: $(echo "${RESP}" | python3 -c \
     'import json,sys; r=json.load(sys.stdin); print("OK") if r.get("success") else print(str(r.get("errors","?"))[:100])')"
 fi
+fi  # end NO_EMAIL guard
 
 # ── 6. Cleanup tmp ─────────────────────────────────────────────────────────
 rm -rf "${TMPSCAFFOLD}"

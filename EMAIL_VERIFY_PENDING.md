@@ -50,3 +50,7 @@ Tick the checkbox + add the date once the round-trip email lands.
 | driveford.net | 2026-05-26 | ☐ |
 | nsfwpixels.com | 2026-05-26 | ☐ |
 | mynewgm.com | 2026-05-26 | ☐ |
+| drivegm.net | 2026-05-26 | ☐ |
+| mynewgm.info | 2026-05-26 | ☐ |
+| stinkyleftfoot.com | 2026-05-26 | ☐ |
+| nsfwpixles.com | 2026-05-26 | ☐ (typo-redirect domain, but still has contact@/takedown@/catch-all forwarding) |
