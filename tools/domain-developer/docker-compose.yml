@@ -1,0 +1,64 @@
+# domain-developer panel — containerized management plane
+#
+# The panel runs inside its own container and talks to the host Docker
+# daemon via the mounted socket. Spawned dev containers are SIBLINGS
+# (created next to the panel, not inside it).
+#
+# CRITICAL: sites/ is bind-mounted at the SAME absolute path inside the
+# container as on the host. This makes `docker run -v <sites/foo>:/work`
+# resolve correctly — the daemon (on host) reads the source path as-is,
+# so it must be a real host path. Same trick the americastrikes-cron
+# container uses to invoke `docker compose run` against host bind specs.
+#
+# Bring up:    tools/domain-developer/bin/dd-up
+# Tear down:   tools/domain-developer/bin/dd-down
+
+name: domain-developer
+
+services:
+  panel:
+    build:
+      context: .
+      dockerfile: docker/panel.Dockerfile
+    image: domain-developer-panel:latest
+    container_name: dd-panel
+    restart: unless-stopped
+    # Bind to LOOPBACK only — single-operator localhost tool, no auth.
+    ports:
+      - "127.0.0.1:7777:7777"
+    # Required so UID 1000 inside the container can read /var/run/docker.sock
+    # (which is owned by root:docker on the host). DOCKER_GID is detected
+    # by bin/dd-up from `getent group docker` and exported.
+    group_add:
+      - "${DOCKER_GID:-999}"
+    volumes:
+      # Docker socket — panel uses this to spawn/inspect sibling containers.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Sites dir at SAME path → both fs.readdir (in-container) and
+      # docker -v paths (resolved on host) work consistently.
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/sites:${DOMAINS_ROOT:-/home/jesse/projects/domains}/sites:ro
+      # Shared .env at SAME path — panel only checks existsSync; the
+      # daemon mounts it RO into workers. The :ro here is panel-side.
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/.env:${DOMAINS_ROOT:-/home/jesse/projects/domains}/.env:ro
+      # State file — port-per-site assignments persist here.
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/domain-developer/state.json:/app/state.json
+      # Per-site claude project dirs land under here. RW because the panel
+      # mkdirs them on-demand before spawning workers. Same path inside as
+      # on host so docker -v specs the panel emits resolve consistently.
+      - ${HOST_HOME:-/home/jesse}/.claude/projects:${HOST_HOME:-/home/jesse}/.claude/projects
+      # Host ~/.claude RO — panel only needs existsSync on plugins/commands/
+      # hooks/.credentials.json before deciding whether to pass them through.
+      # Worker containers get these as separate RO binds from the same source.
+      - ${HOST_HOME:-/home/jesse}/.claude:${HOST_HOME:-/home/jesse}/.claude:ro
+    environment:
+      # Listen on all interfaces INSIDE the container; the port mapping
+      # above clamps it to 127.0.0.1 on the host.
+      DD_PANEL_HOST: 0.0.0.0
+      DD_PANEL_PORT: "7777"
+      DD_PORT_BASE: "7800"
+      # These paths are passed straight to `docker run -v ...` for the
+      # worker containers. The daemon (on host) resolves them, so they
+      # MUST be host paths regardless of where they appear in this container.
+      DD_HOST_HOME: ${HOST_HOME:-/home/jesse}
+      DD_HOST_DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      DD_STATE_FILE: /app/state.json

@@ -1,0 +1,403 @@
+#!/usr/bin/env node
+/**
+ * domain-developer panel
+ *
+ * Lists every site under /home/jesse/projects/domains/sites/* and exposes
+ * controls to start/stop a per-site Docker container that runs ttyd → bash
+ * with claude + the dev toolchain. Each container bind-mounts ONLY that
+ * site's directory at /work so the host filesystem stays protected.
+ */
+
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const { spawnSync, spawn } = require('child_process');
+
+// When the panel runs in its own container, the docker daemon (on host)
+// resolves -v source paths against the host filesystem — so we need to
+// pass HOST paths, even when our own process sees them at a different
+// or read-only location. DD_HOST_HOME / DD_HOST_DOMAINS_ROOT override
+// for containerized deploys; defaults work for host-process mode.
+const HOST_DOMAINS_ROOT = process.env.DD_HOST_DOMAINS_ROOT
+    || path.resolve(__dirname, '..', '..', '..');         // /home/jesse/projects/domains
+const HOST_HOME = process.env.DD_HOST_HOME || os.homedir();
+
+// Where THIS process reads from. In container mode the sites dir is
+// bind-mounted at the same path as the host, so both equal HOST_DOMAINS_ROOT.
+const ROOT = HOST_DOMAINS_ROOT;
+const SITES_DIR = path.join(ROOT, 'sites');
+const STATE_FILE = process.env.DD_STATE_FILE
+    || path.join(__dirname, '..', 'state.json');
+const IMAGE = 'domain-developer:latest';
+const PANEL_PORT = parseInt(process.env.DD_PANEL_PORT || '7777', 10);
+const TTYD_PORT_BASE = parseInt(process.env.DD_PORT_BASE || '7800', 10);
+const DEV_PORT_BASE = parseInt(process.env.DD_DEV_PORT_BASE || '7900', 10);
+const DEV_PORT_IN_CONTAINER = parseInt(process.env.DD_DEV_PORT_IN_CONTAINER || '4321', 10);
+const PANEL_HOST = process.env.DD_PANEL_HOST || '127.0.0.1';
+// PANEL_PUBLIC_HOST is what we tell the BROWSER to connect to — always
+// host loopback, even when the panel binds 0.0.0.0 inside its container.
+const PANEL_PUBLIC_HOST = process.env.DD_PANEL_PUBLIC_HOST || '127.0.0.1';
+
+// ───────────────────────── helpers ─────────────────────────
+
+const safeSiteName = (s) => /^[a-zA-Z0-9._-]+$/.test(s);
+const containerName = (site) => `dd-${site}`;
+const volumeName = (site) => `dd-home-${site.replace(/[^a-zA-Z0-9_.-]/g, '_')}`;
+
+function loadState() {
+    let s;
+    try { s = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); }
+    catch { s = { ports: {} }; }
+    // Migrate legacy format `{site: <number>}` → `{site: {ttyd, dev}}`.
+    let mutated = false;
+    for (const [site, val] of Object.entries(s.ports || {})) {
+        if (typeof val === 'number') {
+            s.ports[site] = { ttyd: val };
+            mutated = true;
+        }
+    }
+    if (mutated) saveState(s);
+    return s;
+}
+function saveState(s) { fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2)); }
+
+function allocPorts(site) {
+    const state = loadState();
+    const existing = state.ports[site] || {};
+    const usedTtyd = new Set();
+    const usedDev = new Set();
+    for (const p of Object.values(state.ports)) {
+        if (p.ttyd) usedTtyd.add(p.ttyd);
+        if (p.dev) usedDev.add(p.dev);
+    }
+    if (!existing.ttyd) {
+        let p = TTYD_PORT_BASE;
+        while (usedTtyd.has(p)) p++;
+        existing.ttyd = p;
+    }
+    if (!existing.dev) {
+        let p = DEV_PORT_BASE;
+        while (usedDev.has(p)) p++;
+        existing.dev = p;
+    }
+    state.ports[site] = existing;
+    saveState(state);
+    return existing;
+}
+
+function docker(args, opts = {}) {
+    const r = spawnSync('docker', args, { encoding: 'utf8', ...opts });
+    return { code: r.status ?? -1, stdout: r.stdout || '', stderr: r.stderr || '' };
+}
+
+function listSites() {
+    if (!fs.existsSync(SITES_DIR)) return [];
+    return fs.readdirSync(SITES_DIR, { withFileTypes: true })
+        .filter(d => d.isDirectory() && !d.name.startsWith('.'))
+        .map(d => d.name)
+        .sort();
+}
+
+function inspectContainer(site) {
+    const name = containerName(site);
+    const r = docker(['inspect', '--format', '{{.State.Status}}', name]);
+    if (r.code !== 0) return { exists: false, status: 'absent' };
+    return { exists: true, status: r.stdout.trim() };
+}
+
+// Single bulk call: lists EVERY dd-* container's state + port bindings in one
+// shot. Lets siteRow avoid N sequential `docker inspect` calls — a big perf
+// win for /api/sites when there are dozens of sites.
+function listDdContainers() {
+    // \x01 separator; safer than tab if ports column contains whitespace
+    const r = docker(['ps', '-a',
+        '--filter', 'name=^dd-',
+        '--format', '{{.Names}}\x01{{.State}}\x01{{.Ports}}']);
+    if (r.code !== 0) return {};
+    const map = {};
+    for (const line of r.stdout.split('\n')) {
+        if (!line.trim()) continue;
+        const [name, state, ports] = line.split('\x01');
+        if (!name || !name.startsWith('dd-')) continue;
+        map[name.slice(3)] = { state: state || 'absent', ports: ports || '' };
+    }
+    return map;
+}
+
+// Parse "127.0.0.1:7800->7681/tcp, 127.0.0.1:7900->4321/tcp" → { 7681: 7800, 4321: 7900 }
+function parsePortsString(portsStr) {
+    const out = {};
+    if (!portsStr) return out;
+    const re = /(?:\d+\.\d+\.\d+\.\d+|::):(\d+)->(\d+)\/tcp/g;
+    let m;
+    while ((m = re.exec(portsStr)) !== null) {
+        out[parseInt(m[2], 10)] = parseInt(m[1], 10);
+    }
+    return out;
+}
+
+// Read actual host port bindings off a running container. Falls back to
+// state.json's allocation. Returns null if container has no mapping for
+// that internal port (e.g., CLI-spawned containers have no -p flags).
+function containerPort(siteName, internalPort) {
+    const r = docker(['inspect', '--format',
+        `{{(index (index .NetworkSettings.Ports "${internalPort}/tcp") 0).HostPort}}`,
+        containerName(siteName)]);
+    if (r.code !== 0) return null;
+    const p = parseInt(r.stdout.trim(), 10);
+    return Number.isFinite(p) ? p : null;
+}
+
+function siteRow(name, containerMap, statePorts) {
+    const dir = path.join(SITES_DIR, name);
+    const hasEnv = fs.existsSync(path.join(dir, '.env'));
+    const c = containerMap[name];
+    const status = c ? c.state : 'absent';
+    const livePorts = c ? parsePortsString(c.ports) : {};
+    const sp = (statePorts || {})[name] || {};
+    const ttydPort = livePorts[7681] || sp.ttyd || null;
+    const devPort  = livePorts[DEV_PORT_IN_CONTAINER] || sp.dev || null;
+    return {
+        name, dir, hasEnv,
+        status,
+        ttydPort, devPort,
+        ttydUrl: ttydPort ? `http://${PANEL_PUBLIC_HOST}:${ttydPort}/` : null,
+        devUrl:  devPort  ? `http://${PANEL_PUBLIC_HOST}:${devPort}/`  : null,
+        liveUrl: `https://${name}/`,
+        repoUrl: `https://github.com/bourneash/${name}`,
+    };
+}
+
+function imageExists() {
+    const r = docker(['image', 'inspect', IMAGE]);
+    return r.code === 0;
+}
+
+function startContainer(site) {
+    if (!safeSiteName(site)) throw new Error('invalid site name');
+    const dir = path.join(SITES_DIR, site);
+    if (!fs.existsSync(dir)) throw new Error(`site dir not found: ${dir}`);
+
+    const cur = inspectContainer(site);
+    const ports = loadState().ports[site] || allocPorts(site);
+    if (cur.status === 'running') return { started: false, ports };
+
+    if (cur.exists) {
+        // Was stopped — just start it.
+        const r = docker(['start', containerName(site)]);
+        if (r.code !== 0) throw new Error(`docker start failed: ${r.stderr}`);
+        return { started: true, ports };
+    }
+
+    // Fresh run. All -v source paths must be HOST paths (the docker
+    // daemon resolves them; it doesn't see our container's view).
+    const { ttyd: ttydPort, dev: devPort } = allocPorts(site);
+    const hostSiteDir = path.join(HOST_DOMAINS_ROOT, 'sites', site);
+    const hostSharedEnv = path.join(HOST_DOMAINS_ROOT, '.env');
+
+    // Per-site claude project dir (Option A architecture):
+    //   - Site is bind-mounted at the SAME host path inside the container so
+    //     cwd matches host → claude encodes the project ID identically.
+    //   - That encoded dir is bind-mounted RW from host's ~/.claude/projects/
+    //     so per-site memory + transcripts traverse up to the host.
+    const projectId = hostSiteDir.replace(/\//g, '-');
+    const hostProjectDir = path.join(HOST_HOME, '.claude', 'projects', projectId);
+    fs.mkdirSync(hostProjectDir, { recursive: true });
+
+    // Shared RO host dirs — skills, commands, hooks, auth read-only.
+    // Each one mounted into the per-site volume's claude dir.
+    const claudeShares = [
+        ['plugins', false],
+        ['commands', false],
+        ['hooks', false],
+        ['.credentials.json', true],  // single-file RO bind for auth
+    ];
+
+    const args = [
+        'run', '-d',
+        '--name', containerName(site),
+        '--hostname', `dd-${site}`,
+        '--restart', 'unless-stopped',
+        '--workdir', hostSiteDir,
+        '-p', `127.0.0.1:${ttydPort}:7681`,
+        // Dev-server port (Astro default 4321) → host-allocated port,
+        // so the panel can iframe the running dev server when user
+        // starts `npm run dev` in one of their terminal tabs.
+        '-p', `127.0.0.1:${devPort}:${DEV_PORT_IN_CONTAINER}`,
+        // Site code bind-mounted at SAME path as host (NOT /work) so
+        // claude's cwd-based project encoding matches host's view.
+        '-v', `${hostSiteDir}:${hostSiteDir}`,
+        // Per-site writable claude state volume.
+        '-v', `dd-claude-${site}:/home/dev/.claude`,
+        // .claude.json is COPIED into the volume on first boot by the
+        // entrypoint — bind path here is read-once-at-startup only.
+        '-v', `${HOST_HOME}/.claude.json:/host-claude-json-ro:ro`,
+        // Per-site project dir lives on host, shared with this container.
+        '-v', `${hostProjectDir}:/home/dev/.claude/projects/${projectId}`,
+        '-v', `${HOST_HOME}/.ssh:/home/dev/.ssh:ro`,
+        '-v', `${volumeName(site)}:/home/dev/persist`,
+        '-e', `SITE_NAME=${site}`,
+        '-e', `SITE_DIR=${hostSiteDir}`,
+        '-e', 'TTYD_PORT=7681',
+    ];
+
+    // RO shares from host ~/.claude/ for plugins/commands/hooks/creds.
+    for (const [name, isFile] of claudeShares) {
+        const src = path.join(HOST_HOME, '.claude', name);
+        if (fs.existsSync(src)) {
+            args.push('-v', `${src}:/home/dev/.claude/${name}:ro`);
+        }
+    }
+    if (fs.existsSync(hostSharedEnv)) {
+        args.push('-v', `${hostSharedEnv}:${hostSiteDir}/.env.shared:ro`);
+    }
+    args.push(IMAGE);
+
+    const r = docker(args);
+    if (r.code !== 0) throw new Error(`docker run failed: ${r.stderr.trim()}`);
+    return { started: true, ports: { ttyd: ttydPort, dev: devPort } };
+}
+
+function stopContainer(site) {
+    if (!safeSiteName(site)) throw new Error('invalid site name');
+    const r = docker(['stop', containerName(site)]);
+    return { code: r.code, stderr: r.stderr };
+}
+
+function removeContainer(site) {
+    if (!safeSiteName(site)) throw new Error('invalid site name');
+    docker(['stop', containerName(site)]);
+    const r = docker(['rm', containerName(site)]);
+    return { code: r.code, stderr: r.stderr };
+}
+
+// ───────────────────────── http ─────────────────────────
+
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/health', (req, res) => {
+    res.json({
+        ok: true,
+        imageBuilt: imageExists(),
+        sitesDir: SITES_DIR,
+        hostHome: HOST_HOME,
+        hostDomainsRoot: HOST_DOMAINS_ROOT,
+        panelHost: PANEL_HOST,
+        publicHost: PANEL_PUBLIC_HOST,
+        ttydPortBase: TTYD_PORT_BASE,
+        devPortBase: DEV_PORT_BASE,
+        containerized: !!process.env.DD_HOST_DOMAINS_ROOT,
+    });
+});
+
+app.get('/api/sites', (req, res) => {
+    // Pull container state and state.json ports ONCE, then map. Avoids the
+    // O(N) docker-inspect storm that made site-switching feel slow.
+    const containerMap = listDdContainers();
+    const statePorts = loadState().ports || {};
+    const sites = listSites().map(n => siteRow(n, containerMap, statePorts));
+    res.json({ sites });
+});
+
+app.post('/api/sites/:site/start', (req, res) => {
+    try {
+        const r = startContainer(req.params.site);
+        const ttydPort = r.ports.ttyd;
+        const devPort = r.ports.dev;
+        res.json({
+            ok: true,
+            started: r.started,
+            ports: r.ports,
+            ttydUrl: `http://${PANEL_PUBLIC_HOST}:${ttydPort}/`,
+            devUrl:  `http://${PANEL_PUBLIC_HOST}:${devPort}/`,
+        });
+    } catch (e) {
+        res.status(400).json({ ok: false, error: e.message });
+    }
+});
+
+app.post('/api/sites/:site/stop', (req, res) => {
+    try {
+        const r = stopContainer(req.params.site);
+        res.json({ ok: r.code === 0, error: r.code !== 0 ? r.stderr : undefined });
+    } catch (e) {
+        res.status(400).json({ ok: false, error: e.message });
+    }
+});
+
+// Parse "key=value\nkey=value" output from dd-dev into an object.
+function parseKV(stdout) {
+    const out = {};
+    for (const line of stdout.split('\n')) {
+        const m = line.match(/^([a-zA-Z_]+)=(.*)$/);
+        if (m) out[m[1]] = m[2];
+    }
+    return out;
+}
+
+function devExec(site, ...args) {
+    if (!safeSiteName(site)) throw new Error('invalid site name');
+    const r = docker(['exec', containerName(site), 'dd-dev', ...args]);
+    return { code: r.code, stdout: r.stdout, stderr: r.stderr, kv: parseKV(r.stdout) };
+}
+
+app.get('/api/sites/:site/dev', (req, res) => {
+    try {
+        const r = devExec(req.params.site, 'status');
+        res.json({ ok: true, ...r.kv });
+    } catch (e) {
+        res.status(400).json({ ok: false, error: e.message });
+    }
+});
+
+app.post('/api/sites/:site/dev/start', (req, res) => {
+    try {
+        const r = devExec(req.params.site, 'start');
+        if (r.code !== 0) {
+            return res.status(400).json({ ok: false, ...r.kv, raw: r.stdout || r.stderr });
+        }
+        res.json({ ok: true, ...r.kv });
+    } catch (e) {
+        res.status(400).json({ ok: false, error: e.message });
+    }
+});
+
+app.post('/api/sites/:site/dev/stop', (req, res) => {
+    try {
+        const r = devExec(req.params.site, 'stop');
+        res.json({ ok: true, ...r.kv });
+    } catch (e) {
+        res.status(400).json({ ok: false, error: e.message });
+    }
+});
+
+app.get('/api/sites/:site/dev/logs', (req, res) => {
+    try {
+        const n = parseInt(String(req.query.n || '200'), 10);
+        const r = devExec(req.params.site, 'logs', String(n));
+        res.type('text/plain').send(r.stdout || '(no logs)');
+    } catch (e) {
+        res.status(400).type('text/plain').send(e.message);
+    }
+});
+
+app.post('/api/sites/:site/remove', (req, res) => {
+    try {
+        const r = removeContainer(req.params.site);
+        res.json({ ok: r.code === 0, error: r.code !== 0 ? r.stderr : undefined });
+    } catch (e) {
+        res.status(400).json({ ok: false, error: e.message });
+    }
+});
+
+app.listen(PANEL_PORT, PANEL_HOST, () => {
+    console.log(`domain-developer panel:  http://${PANEL_HOST}:${PANEL_PORT}/`);
+    console.log(`sites dir:               ${SITES_DIR}`);
+    if (!imageExists()) {
+        console.log(`\n[!] image ${IMAGE} not built yet. Run:`);
+        console.log(`    tools/domain-developer/bin/dd-build`);
+    }
+});

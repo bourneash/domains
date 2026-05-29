@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>domain-developer</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #141414;
+    --bg3: #1c1c1c;
+    --bg4: #242424;
+    --fg: #e6e6e6;
+    --dim: #8a8a8a;
+    --accent: #ffaa00;
+    --green: #6ee787;
+    --red: #ff6b6b;
+    --blue: #79b8ff;
+    --border: #2a2a2a;
+    --sidebar-w: 240px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; }
+
+  /* ── sidebar ───────────────────────────────────────────────────────── */
+  .side {
+    background: var(--bg2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; min-width: 0;
+  }
+  .side { min-height: 0; }
+  .side-head { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .side-head h1 { margin: 0 0 8px; font-size: 14px; font-weight: 600; letter-spacing: 0.4px; }
+  .side-head h1 .accent { color: var(--accent); }
+  .side-filter-row { display: flex; gap: 6px; }
+  .side-head input {
+    flex: 1; min-width: 0; background: var(--bg3); color: var(--fg); border: 1px solid var(--border);
+    padding: 6px 8px; border-radius: 3px; font-family: inherit; font-size: 12px;
+  }
+  .side-head input:focus { outline: none; border-color: var(--accent); }
+  .side-sort-btn {
+    background: var(--bg3); color: var(--dim); border: 1px solid var(--border);
+    padding: 0 8px; border-radius: 3px; font-family: inherit; font-size: 12px;
+    cursor: pointer; min-width: 32px;
+  }
+  .side-sort-btn:hover { color: var(--accent); border-color: var(--accent); }
+  /* flex: 1 1 0 + min-height: 0 = the canonical flex-column scroll fix */
+  .side-list { overflow-y: auto; overflow-x: hidden; flex: 1 1 0; min-height: 0; padding: 4px 0; }
+  .side-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 14px;
+    cursor: pointer; border-left: 2px solid transparent;
+  }
+  .side-item:hover { background: var(--bg3); }
+  .side-item.active { background: var(--bg3); border-left-color: var(--accent); }
+  .side-item .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--dim); flex-shrink: 0;
+  }
+  .side-item.is-running .dot { background: var(--green); box-shadow: 0 0 6px rgba(110,231,135,0.5); }
+  .side-item.is-exited  .dot { background: var(--red); }
+  .side-item .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+  .side-item .badge { font-size: 10px; color: var(--dim); }
+  .side-foot { padding: 8px 14px; border-top: 1px solid var(--border); color: var(--dim); font-size: 11px; }
+
+  /* ── main pane ─────────────────────────────────────────────────────── */
+  .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .toolbar {
+    display: flex; align-items: center; gap: 6px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border); background: var(--bg2); flex-wrap: wrap;
+  }
+  .toolbar .site-title { font-weight: 600; font-size: 13px; margin-right: 6px; }
+  .toolbar .site-status { font-size: 11px; color: var(--dim); margin-right: 12px; }
+  .toolbar button {
+    background: var(--bg3); color: var(--fg); border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 3px; font-size: 11px;
+  }
+  .toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+  .toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .toolbar button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .toolbar button.primary:hover { background: #ffbb33; }
+  .toolbar button.danger:hover { border-color: var(--red); color: var(--red); }
+  .toolbar .sep { width: 1px; align-self: stretch; background: var(--border); margin: 0 4px; }
+
+  .tabbar {
+    display: flex; align-items: center; background: var(--bg2);
+    border-bottom: 1px solid var(--border); overflow-x: auto; min-height: 32px;
+  }
+  .tab {
+    display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+    border-right: 1px solid var(--border); cursor: pointer;
+    font-size: 11px; white-space: nowrap; flex-shrink: 0;
+    background: var(--bg2); color: var(--dim);
+  }
+  .tab:hover { color: var(--fg); background: var(--bg3); }
+  .tab.active { background: var(--bg); color: var(--fg); border-bottom: 2px solid var(--accent); margin-bottom: -1px; }
+  .tab .tab-icon { opacity: 0.7; }
+  .tab .tab-close {
+    border: none; background: transparent; color: inherit; padding: 0 2px;
+    font-size: 12px; line-height: 1; opacity: 0.5;
+  }
+  .tab .tab-close:hover { opacity: 1; color: var(--red); }
+
+  .stage {
+    position: relative; flex: 1; background: var(--bg); min-height: 0;
+  }
+  .pane { position: absolute; inset: 0; display: none; }
+  .pane.active { display: flex; flex-direction: column; }
+  .pane iframe { flex: 1; border: none; width: 100%; height: 100%; background: var(--bg); }
+  .pane .pane-bar {
+    padding: 5px 10px; background: var(--bg2); border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 8px;
+  }
+  .pane .pane-bar a { color: var(--blue); text-decoration: none; font-family: inherit; font-size: 11px; }
+  .pane .pane-bar button {
+    background: transparent; border: 1px solid var(--border); color: var(--fg);
+    padding: 2px 8px; border-radius: 2px; font-size: 11px;
+  }
+  .pane .pane-bar button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .empty {
+    display: flex; align-items: center; justify-content: center; height: 100%;
+    color: var(--dim); font-size: 13px; text-align: center; padding: 20px;
+    flex-direction: column; gap: 10px;
+  }
+  .empty .hint { font-size: 11px; max-width: 400px; line-height: 1.6; }
+  .empty code { background: var(--bg3); padding: 1px 5px; border-radius: 2px; color: var(--accent); }
+
+  .alert {
+    background: rgba(255,170,0,0.08); border: 1px solid var(--accent); color: var(--accent);
+    padding: 8px 12px; font-size: 12px; margin: 10px 14px; border-radius: 3px;
+  }
+  .alert code { background: rgba(0,0,0,0.4); padding: 1px 5px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="side">
+    <div class="side-head">
+      <h1>domain-developer<span class="accent"> ·</span></h1>
+      <div class="side-filter-row">
+        <input id="filter" placeholder="filter…" autofocus />
+        <button id="sort-btn" class="side-sort-btn" title="toggle A→Z / Z→A">A↓</button>
+      </div>
+    </div>
+    <div class="side-list" id="side-list"></div>
+    <div class="side-foot" id="side-foot">loading…</div>
+  </aside>
+
+  <section class="main">
+    <div id="warn"></div>
+    <div class="toolbar" id="toolbar">
+      <div class="site-title">no site selected</div>
+    </div>
+    <div class="tabbar" id="tabbar"></div>
+    <div class="stage" id="stage">
+      <div class="empty">
+        <div>Pick a site on the left.</div>
+        <div class="hint">Each site gets its own sandboxed container with claude pre-installed and your site dir mounted at <code>/work</code>. Open a terminal, run <code>yolo</code> for <code>claude --dangerously-skip-permissions</code>, or preview your local dev server.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[c]));
+
+const STORE_KEY = 'dd-panel-state-v1';
+const state = {
+  sites: [],
+  activeSite: null,
+  siteTabs: {},     // { site: { tabs:[{id,type,url,label}], active: tabId } }
+  health: {},
+  // Dev server state per site: { site: { status: 'running'|'stopped'|'starting'|'unknown', pid?, pollTimer? } }
+  dev: {},
+  sortDir: 'asc',   // 'asc' (A→Z) or 'desc' (Z→A)
+};
+function loadStored() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    state.activeSite = s.activeSite || null;
+    state.siteTabs = s.siteTabs || {};
+    if (s.sortDir === 'desc' || s.sortDir === 'asc') state.sortDir = s.sortDir;
+  } catch {}
+}
+function persist() {
+  localStorage.setItem(STORE_KEY, JSON.stringify({
+    activeSite: state.activeSite, siteTabs: state.siteTabs, sortDir: state.sortDir
+  }));
+}
+
+// ── api ────────────────────────────────────────────────────────────────
+async function api(p, opts) { const r = await fetch(p, opts); return r.json(); }
+
+async function refresh() {
+  const [h, s] = await Promise.all([api('/api/health'), api('/api/sites')]);
+  state.health = h;
+  state.sites = s.sites;
+  if (state.activeSite && !state.sites.find(x => x.name === state.activeSite)) {
+    state.activeSite = null;
+  }
+  if (!state.activeSite && state.sites.length) state.activeSite = state.sites[0].name;
+  renderWarn();
+  renderSidebar();
+  renderToolbar();
+  renderTabs();
+}
+
+function renderWarn() {
+  const w = $('#warn');
+  w.textContent = '';
+  if (state.health.imageBuilt) return;
+  const alert = document.createElement('div');
+  alert.className = 'alert';
+  alert.append(
+    'worker image ',
+    Object.assign(document.createElement('code'), { textContent: 'domain-developer:latest' }),
+    ' not built. Run ',
+    Object.assign(document.createElement('code'), { textContent: 'tools/domain-developer/bin/dd-build' }),
+    ' on host.'
+  );
+  w.appendChild(alert);
+}
+
+function renderSidebar() {
+  const q = $('#filter').value.trim().toLowerCase();
+  let list = q ? state.sites.filter(s => s.name.toLowerCase().includes(q)) : state.sites.slice();
+  // state.sites comes from the server alphabetical; flip for desc.
+  if (state.sortDir === 'desc') list.reverse();
+  $('#sort-btn').textContent = state.sortDir === 'asc' ? 'A↓' : 'Z↓';
+
+  const list_el = $('#side-list');
+  list_el.textContent = '';
+  const frag = document.createDocumentFragment();
+  for (const s of list) {
+    const div = document.createElement('div');
+    div.className = 'side-item is-' + s.status + (s.name === state.activeSite ? ' active' : '');
+    div.dataset.site = s.name;
+    const dot = document.createElement('span'); dot.className = 'dot';
+    const name = document.createElement('span'); name.className = 'name'; name.textContent = s.name;
+    const badge = document.createElement('span'); badge.className = 'badge';
+    badge.textContent = s.status === 'running' && s.ttydPort ? ':' + s.ttydPort : '';
+    div.append(dot, name, badge);
+    div.addEventListener('click', () => selectSite(s.name));
+    frag.appendChild(div);
+  }
+  list_el.appendChild(frag);
+  $('#side-foot').textContent = `${state.sites.length} sites · ${state.sites.filter(s=>s.status==='running').length} running`;
+}
+
+// Instant site switch — render from cached state, don't block on /api/sites.
+// The 5-second background poll keeps state fresh.
+function selectSite(name) {
+  if (state.activeSite === name) return;
+  state.activeSite = name;
+  persist();
+  renderSidebar();
+  renderToolbar();
+  renderTabs();
+  const ss = state.sites.find(x => x.name === name);
+  if (ss && ss.status === 'running') pollDev(name);
+}
+
+function renderToolbar() {
+  const tb = $('#toolbar');
+  tb.textContent = '';
+  const s = state.sites.find(x => x.name === state.activeSite);
+  if (!s) {
+    const ph = document.createElement('div');
+    ph.className = 'site-title'; ph.textContent = 'no site selected';
+    tb.appendChild(ph);
+    return;
+  }
+
+  const title = document.createElement('div');
+  title.className = 'site-title'; title.textContent = s.name;
+  const status = document.createElement('div');
+  status.className = 'site-status';
+  status.textContent = s.status === 'running' ? '● running' : '○ ' + s.status;
+  tb.append(title, status);
+
+  const btn = (label, opts={}) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    if (opts.primary) b.classList.add('primary');
+    if (opts.danger) b.classList.add('danger');
+    if (opts.disabled) b.disabled = true;
+    if (opts.title) b.title = opts.title;
+    if (opts.onclick) b.addEventListener('click', opts.onclick);
+    return b;
+  };
+  const sep = () => { const d = document.createElement('div'); d.className = 'sep'; return d; };
+
+  const isRunning = s.status === 'running';
+
+  if (isRunning) {
+    const dev = state.dev[s.name] || { status: 'unknown' };
+    const devRunning = dev.status === 'running';
+    const devBusy = dev.status === 'starting' || dev.status === 'stopping';
+
+    // Dev status pill
+    const devPill = document.createElement('div');
+    devPill.className = 'site-status';
+    devPill.style.marginRight = '8px';
+    const dot = ({ running: '●', starting: '◐', stopped: '○', stopping: '◑', unknown: '·' })[dev.status] || '·';
+    const color = ({ running: 'var(--green)', starting: 'var(--accent)', stopping: 'var(--accent)', stopped: 'var(--dim)', unknown: 'var(--dim)' })[dev.status];
+    devPill.textContent = '';
+    const dotSpan = document.createElement('span'); dotSpan.style.color = color; dotSpan.textContent = dot;
+    const lbl = document.createElement('span'); lbl.textContent = ' dev: ' + dev.status;
+    devPill.append(dotSpan, lbl);
+
+    tb.append(
+      btn('+ Terminal', { primary: true, onclick: () => openTab('term', s) }),
+      sep(),
+      devPill,
+      devRunning
+        ? btn('Stop Dev', { onclick: () => devAction(s.name, 'stop') })
+        : btn('Start Dev', { disabled: devBusy, onclick: () => devAction(s.name, 'start'),
+            title: 'Run npm run dev in <site-dir>/site/ (installs deps if needed)' }),
+      btn('Dev Preview', { disabled: !devRunning, onclick: () => openTab('dev', s),
+            title: devRunning ? 'Open iframe to the dev server' : 'Dev server not running' }),
+      btn('Dev Logs', { onclick: () => openTab('devlogs', s),
+            title: 'Tail of the dev server output' }),
+      sep(),
+      btn('Live Site', { onclick: () => openTab('live', s), title: `Iframe https://${s.name}` }),
+      btn('Repo ↗', { onclick: () => window.open(s.repoUrl, '_blank', 'noopener'), title: s.repoUrl }),
+      sep(),
+      btn('Stop', { onclick: () => containerAction(s.name, 'stop') }),
+      btn('Remove', { danger: true, onclick: () => {
+        if (!confirm(`Remove container for ${s.name}? (site code untouched, claude state volume kept)`)) return;
+        containerAction(s.name, 'remove');
+      }}),
+    );
+  } else {
+    tb.append(
+      btn('Start container', { primary: true, onclick: async () => {
+        await containerAction(s.name, 'start');
+      }}),
+    );
+  }
+}
+
+// ── dev server ─────────────────────────────────────────────────────────
+async function devAction(site, action) {
+  if (action === 'start') state.dev[site] = { status: 'starting' };
+  if (action === 'stop')  state.dev[site] = { status: 'stopping' };
+  renderToolbar();
+  const r = await api(`/api/sites/${encodeURIComponent(site)}/dev/${action}`, { method: 'POST' });
+  if (!r.ok && r.error) alert(r.error);
+  await pollDev(site);
+}
+
+async function pollDev(site) {
+  try {
+    const r = await api(`/api/sites/${encodeURIComponent(site)}/dev`);
+    state.dev[site] = { status: r.status === 'running' ? 'running' : 'stopped', pid: r.pid, port: r.port };
+  } catch {
+    state.dev[site] = { status: 'unknown' };
+  }
+  renderToolbar();
+}
+
+async function containerAction(site, action) {
+  const r = await api(`/api/sites/${encodeURIComponent(site)}/${action}`, { method: 'POST' });
+  if (!r.ok && action !== 'remove') alert(r.error || `${action} failed`);
+  if (action === 'remove') {
+    delete state.siteTabs[site];
+    persist();
+  }
+  await refresh();
+}
+
+// ── tabs ───────────────────────────────────────────────────────────────
+function siteTabState(site) {
+  if (!state.siteTabs[site]) state.siteTabs[site] = { tabs: [], active: null };
+  return state.siteTabs[site];
+}
+
+function openTab(type, site) {
+  const ts = siteTabState(site.name);
+  let url, label, icon;
+  if (type === 'term') {
+    if (!site.ttydUrl) return;
+    url = site.ttydUrl;
+    const n = ts.tabs.filter(t => t.type === 'term').length + 1;
+    label = `Term ${n}`; icon = '▶';
+  } else if (type === 'dev') {
+    // Reuse existing dev tab if present
+    const existing = ts.tabs.find(t => t.type === 'dev');
+    if (existing) { ts.active = existing.id; persist(); renderTabs(); return; }
+    url = site.devUrl; label = 'Dev Preview'; icon = '◉';
+  } else if (type === 'live') {
+    const existing = ts.tabs.find(t => t.type === 'live');
+    if (existing) { ts.active = existing.id; persist(); renderTabs(); return; }
+    url = site.liveUrl; label = 'Live Site'; icon = '🌐';
+  } else if (type === 'devlogs') {
+    const existing = ts.tabs.find(t => t.type === 'devlogs');
+    if (existing) { ts.active = existing.id; persist(); renderTabs(); return; }
+    // No URL — a synthetic tab whose content is rendered by renderTabs.
+    url = `/api/sites/${encodeURIComponent(site.name)}/dev/logs?n=400`;
+    label = 'Dev Logs'; icon = '📜';
+  }
+  const id = 'tab-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+  ts.tabs.push({ id, type, url, label, icon });
+  ts.active = id;
+  persist();
+  renderTabs();
+}
+
+function closeTab(site, tabId) {
+  const ts = siteTabState(site);
+  const idx = ts.tabs.findIndex(t => t.id === tabId);
+  if (idx < 0) return;
+  ts.tabs.splice(idx, 1);
+  if (ts.active === tabId) ts.active = ts.tabs[Math.max(0, idx-1)]?.id || null;
+  persist();
+  renderTabs();
+}
+
+function renderTabs() {
+  const tabbar = $('#tabbar');
+  const stage = $('#stage');
+  tabbar.textContent = '';
+  // Stage: keep all iframes mounted across sites so terminal state survives
+  // site switches. Hide non-active.
+  const wantedIds = new Set();
+  for (const [siteName, ts] of Object.entries(state.siteTabs)) {
+    for (const t of ts.tabs) wantedIds.add(`${siteName}::${t.id}`);
+  }
+  // Remove panes that no longer exist
+  for (const pane of $$('.pane', stage)) {
+    if (!wantedIds.has(pane.dataset.key)) pane.remove();
+  }
+
+  const s = state.sites.find(x => x.name === state.activeSite);
+  if (!s) {
+    stage.textContent = '';
+    const e = document.createElement('div'); e.className = 'empty';
+    const m = document.createElement('div'); m.textContent = 'no site selected';
+    e.appendChild(m); stage.appendChild(e);
+    return;
+  }
+  const ts = siteTabState(s.name);
+  if (!ts.tabs.length) {
+    const old = $('.empty', stage); if (old) old.remove();
+    const emp = document.createElement('div');
+    emp.className = 'empty';
+    if (s.status === 'running') {
+      const head = document.createElement('div'); head.textContent = 'No tabs open.';
+      const hint = document.createElement('div'); hint.className = 'hint';
+      hint.append(
+        'Use ',
+        Object.assign(document.createElement('strong'), { textContent: '+ Terminal' }),
+        ' to start one, ',
+        Object.assign(document.createElement('strong'), { textContent: 'Dev Preview' }),
+        ' to embed your ',
+        Object.assign(document.createElement('code'), { textContent: 'npm run dev' }),
+        ' output, or ',
+        Object.assign(document.createElement('strong'), { textContent: 'Live Site' }),
+        ' to iframe the production site.'
+      );
+      emp.append(head, hint);
+    } else {
+      const head = document.createElement('div'); head.textContent = 'Container not running.';
+      const hint = document.createElement('div'); hint.className = 'hint';
+      hint.append(
+        'Click ',
+        Object.assign(document.createElement('strong'), { textContent: 'Start container' }),
+        ' in the toolbar to spin up ',
+        Object.assign(document.createElement('code'), { textContent: 'dd-' + s.name }),
+        '.'
+      );
+      emp.append(head, hint);
+    }
+    stage.appendChild(emp);
+    return;
+  }
+  const old = $('.empty', stage); if (old) old.remove();
+
+  for (const t of ts.tabs) {
+    const tabEl = document.createElement('div');
+    tabEl.className = 'tab' + (t.id === ts.active ? ' active' : '');
+    tabEl.dataset.tabId = t.id;
+    const iconEl = document.createElement('span'); iconEl.className = 'tab-icon'; iconEl.textContent = t.icon || '·';
+    const labelEl = document.createElement('span'); labelEl.textContent = t.label;
+    const closeBtn = document.createElement('button'); closeBtn.className = 'tab-close'; closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(s.name, t.id); });
+    tabEl.append(iconEl, labelEl, closeBtn);
+    tabEl.addEventListener('click', () => { ts.active = t.id; persist(); renderTabs(); });
+    tabbar.appendChild(tabEl);
+  }
+
+  // Mount / show / hide iframes
+  for (const t of ts.tabs) {
+    const key = `${s.name}::${t.id}`;
+    let pane = stage.querySelector(`.pane[data-key="${CSS.escape(key)}"]`);
+    if (!pane) {
+      pane = document.createElement('div');
+      pane.className = 'pane'; pane.dataset.key = key;
+
+      if (t.type === 'devlogs') {
+        // A polling log viewer, not an iframe.
+        const bar = document.createElement('div');
+        bar.className = 'pane-bar';
+        const lbl = document.createElement('span');
+        lbl.append(
+          'dev server logs for ',
+          Object.assign(document.createElement('code'), { textContent: s.name }),
+          ' — refreshes every 2s'
+        );
+        bar.appendChild(lbl);
+        pane.appendChild(bar);
+
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'margin:0;padding:10px 12px;flex:1;overflow:auto;background:var(--bg);color:var(--fg);font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;';
+        pre.textContent = '(loading…)';
+        pane.appendChild(pre);
+
+        const tick = async () => {
+          if (!document.body.contains(pane)) return;  // detached → stop
+          try {
+            const r = await fetch(t.url);
+            const text = await r.text();
+            const atBottom = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 24;
+            pre.textContent = text;
+            if (atBottom) pre.scrollTop = pre.scrollHeight;
+          } catch {}
+          setTimeout(tick, 2000);
+        };
+        tick();
+      } else if (t.type === 'dev' || t.type === 'live') {
+        const bar = document.createElement('div');
+        bar.className = 'pane-bar';
+        const openExt = document.createElement('a');
+        openExt.href = t.url; openExt.target = '_blank'; openExt.rel = 'noopener';
+        openExt.textContent = '↗ ' + t.url;
+        const reload = document.createElement('button');
+        reload.textContent = 'reload';
+        reload.addEventListener('click', () => { const f = pane.querySelector('iframe'); f.src = f.src; });
+        bar.append(openExt, reload);
+        if (t.type === 'dev') {
+          const note = document.createElement('span');
+          note.style.marginLeft = 'auto';
+          note.append(
+            'expects ',
+            Object.assign(document.createElement('code'), { textContent: 'npm run dev' }),
+            ' on port 4321 in the container'
+          );
+          bar.appendChild(note);
+        }
+        pane.appendChild(bar);
+        const iframe = document.createElement('iframe');
+        iframe.src = t.url;
+        pane.appendChild(iframe);
+      } else {
+        // Plain terminal (ttyd)
+        const iframe = document.createElement('iframe');
+        iframe.src = t.url;
+        pane.appendChild(iframe);
+      }
+      stage.appendChild(pane);
+    }
+    pane.classList.toggle('active', t.id === ts.active);
+  }
+  // Hide other sites' panes
+  for (const pane of $$('.pane', stage)) {
+    if (!pane.dataset.key.startsWith(s.name + '::')) {
+      pane.classList.remove('active');
+    }
+  }
+}
+
+// ── boot ───────────────────────────────────────────────────────────────
+$('#filter').addEventListener('input', renderSidebar);
+$('#sort-btn').addEventListener('click', () => {
+  state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+  persist();
+  renderSidebar();
+});
+setInterval(async () => {
+  // Light refresh: pull sites only, don't re-mount iframes
+  const s = await api('/api/sites');
+  state.sites = s.sites;
+  renderSidebar(); renderToolbar();
+  // Also poll dev-status for the active running site so the badge stays fresh
+  const active = state.sites.find(x => x.name === state.activeSite);
+  if (active && active.status === 'running') pollDev(active.name);
+}, 5000);
+
+loadStored();
+refresh().then(() => {
+  // Initial dev-status poll for the active site (after first refresh)
+  const a = state.sites.find(x => x.name === state.activeSite);
+  if (a && a.status === 'running') pollDev(a.name);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# dd-dev — manage a backgrounded `npm run dev` inside this worker container.
+#
+#   dd-dev start    → spawn dev server in <SITE_DIR>/site/ (or SITE_DIR if no site/)
+#   dd-dev stop     → terminate it (whole process group, so npm children die too)
+#   dd-dev status   → "running pid=<n> port=<p>" or "stopped" (exit 0 / 1)
+#   dd-dev logs     → tail -n 200 of the dev server's stdout/stderr
+#
+# Output is structured (KEY=value lines) so the panel can parse it reliably.
+
+set -uo pipefail
+
+PID_FILE=/tmp/dd-dev.pid
+LOG_FILE=/tmp/dd-dev.log
+DEFAULT_PORT="${DD_DEV_PORT:-4321}"
+
+# Pick the dev directory: prefer <site>/site/, fall back to <site>/.
+pick_dev_dir() {
+    local root="${SITE_DIR:-/work}"
+    if [[ -f "${root}/site/package.json" ]]; then
+        echo "${root}/site"
+    elif [[ -f "${root}/package.json" ]]; then
+        echo "${root}"
+    else
+        return 1
+    fi
+}
+
+is_running() {
+    [[ -f "${PID_FILE}" ]] || return 1
+    local pid
+    pid="$(cat "${PID_FILE}" 2>/dev/null)"
+    [[ -n "${pid}" ]] && kill -0 "${pid}" 2>/dev/null
+}
+
+cmd_start() {
+    if is_running; then
+        echo "status=already-running"
+        echo "pid=$(cat "${PID_FILE}")"
+        exit 0
+    fi
+    local dev_dir
+    if ! dev_dir="$(pick_dev_dir)"; then
+        echo "status=error"
+        echo "error=no-package-json-in-${SITE_DIR:-/work}-or-${SITE_DIR:-/work}/site"
+        exit 1
+    fi
+
+    cd "${dev_dir}"
+    : > "${LOG_FILE}"
+
+    # If node_modules is missing, chain `npm install` before `npm run dev`.
+    # We wrap in `bash -c` so a single PG covers both phases — killing the
+    # group later cleanly takes out install or dev, whichever is active.
+    local cmd
+    if [[ -d node_modules ]]; then
+        cmd='npm run dev'
+    else
+        cmd='echo "[dd-dev] installing dependencies (one-time)..."; npm install --no-audit --no-fund && echo "[dd-dev] starting dev server..." && npm run dev'
+    fi
+
+    # setsid → new session, so kill -- -PGID later takes out npm + astro + esbuild.
+    # nohup + redirected fds so the process survives our exec exit.
+    setsid nohup bash -c "${cmd}" > "${LOG_FILE}" 2>&1 < /dev/null &
+    local pid=$!
+    echo "${pid}" > "${PID_FILE}"
+
+    echo "status=started"
+    echo "pid=${pid}"
+    echo "dir=${dev_dir}"
+    echo "log=${LOG_FILE}"
+}
+
+cmd_stop() {
+    if ! is_running; then
+        rm -f "${PID_FILE}"
+        echo "status=stopped"
+        exit 0
+    fi
+    local pid
+    pid="$(cat "${PID_FILE}")"
+    # The PID from setsid is the session/PG leader → -PGID kills the whole tree.
+    kill -TERM -- -"${pid}" 2>/dev/null || kill -TERM "${pid}" 2>/dev/null || true
+    # Give it a moment to shut down cleanly.
+    for _ in 1 2 3 4 5; do
+        kill -0 "${pid}" 2>/dev/null || break
+        sleep 0.5
+    done
+    # Still alive? force.
+    if kill -0 "${pid}" 2>/dev/null; then
+        kill -KILL -- -"${pid}" 2>/dev/null || kill -KILL "${pid}" 2>/dev/null || true
+    fi
+    rm -f "${PID_FILE}"
+    echo "status=stopped"
+}
+
+cmd_status() {
+    if is_running; then
+        echo "status=running"
+        echo "pid=$(cat "${PID_FILE}")"
+        echo "port=${DEFAULT_PORT}"
+        exit 0
+    fi
+    echo "status=stopped"
+    exit 1
+}
+
+cmd_logs() {
+    [[ -f "${LOG_FILE}" ]] || { echo "(no log file yet)"; exit 0; }
+    tail -n "${1:-200}" "${LOG_FILE}"
+}
+
+case "${1:-status}" in
+    start)  cmd_start ;;
+    stop)   cmd_stop ;;
+    status) cmd_status ;;
+    logs)   shift; cmd_logs "${1:-200}" ;;
+    *)      echo "usage: dd-dev {start|stop|status|logs [N]}" >&2; exit 2 ;;
+esac

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Bring up the containerized panel + ensure the dev base image is built.
+#
+# Idempotent: safe to re-run. Prints the panel URL when done.
+
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOOL_DIR="$(cd "${HERE}/.." && pwd)"
+ROOT_REPO="$(cd "${TOOL_DIR}/../.." && pwd)"          # /home/jesse/projects/domains
+
+# state.json must exist as a FILE before docker bind-mounts it — otherwise
+# docker creates a directory at that path and Node can't write to it.
+STATE_FILE="${TOOL_DIR}/state.json"
+[[ -f "${STATE_FILE}" ]] || echo '{"ports":{}}' > "${STATE_FILE}"
+
+# Build the dev base image if missing (workers depend on it).
+if ! docker image inspect domain-developer:latest >/dev/null 2>&1; then
+    echo "[dd-up] base image domain-developer:latest not found — building..."
+    "${HERE}/dd-build"
+fi
+
+# Build + start the panel via compose. Compose builds on first up.
+cd "${TOOL_DIR}"
+export HOST_HOME="${HOME}"
+export DOMAINS_ROOT="${ROOT_REPO}"
+# Host docker GID — panel container needs this as a supplementary group to
+# read /var/run/docker.sock. Falls back to 999 (common default) if missing.
+export DOCKER_GID="$(getent group docker | cut -d: -f3 || echo 999)"
+
+echo "[dd-up] starting panel container..."
+docker compose up -d --build panel
+
+# Wait for the panel to bind 7777 before declaring success.
+for i in {1..20}; do
+    if curl -fsS http://127.0.0.1:7777/api/health >/dev/null 2>&1; then
+        echo
+        echo "✓ panel up:    http://127.0.0.1:7777/"
+        echo "  container:   dd-panel"
+        echo "  logs:        docker logs -f dd-panel"
+        echo "  shut down:   tools/domain-developer/bin/dd-down"
+        exit 0
+    fi
+    sleep 0.5
+done
+
+echo "[dd-up] panel container is up but /api/health is not responding yet." >&2
+echo "        Check: docker logs dd-panel" >&2
+exit 1

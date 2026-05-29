@@ -1,0 +1,37 @@
+# domain-developer in-container bashrc
+
+# Standard bits
+[[ $- != *i* ]] && return
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoreboth
+shopt -s histappend checkwinsize
+
+# Color prompt with site name
+__site="${SITE_NAME:-?}"
+PS1='\[\033[01;36m\][dd:'"${__site}"']\[\033[00m\] \[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
+# Color tooling
+alias ls='ls --color=auto'
+alias ll='ls -lah --color=auto'
+alias grep='grep --color=auto'
+
+# Claude shortcuts — the whole point of this container
+alias yolo='claude --dangerously-skip-permissions'
+alias sane='claude'
+
+# Git config (overridden by host mount if .gitconfig is brought in)
+git config --global --add safe.directory /work 2>/dev/null || true
+git config --global init.defaultBranch main 2>/dev/null || true
+
+# Load shared affiliate / CF creds if a per-site .env didn't set them
+__site_dir="${SITE_DIR:-/work}"
+if [[ -f "${__site_dir}/.env.shared" && ! -f "${__site_dir}/.env" ]]; then
+    set -a
+    # shellcheck disable=SC1091
+    source "${__site_dir}/.env.shared"
+    set +a
+fi
+git config --global --add safe.directory "${__site_dir}" 2>/dev/null || true
+
+cd "${SITE_DIR:-/work}" 2>/dev/null || true

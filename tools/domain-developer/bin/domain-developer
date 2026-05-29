@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# domain-developer <site>
+#
+# Spins up (or attaches to) a sandboxed Docker container for one site under
+# /home/jesse/projects/domains/sites/<site>, with claude + the dev toolchain
+# already installed and the site directory mounted at /work.
+#
+# Examples:
+#   domain-developer americastrikes.com         # interactive shell in container
+#   domain-developer americastrikes.com claude  # run a command and exit
+#   domain-developer --list                     # list known sites
+#   domain-developer --stop americastrikes.com  # stop container
+#   domain-developer --rm   americastrikes.com  # remove container
+
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_REPO="$(cd "${HERE}/../../.." && pwd)"          # /home/jesse/projects/domains
+SITES_DIR="${ROOT_REPO}/sites"
+IMAGE="domain-developer:latest"
+
+usage() {
+    sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+    exit "${1:-0}"
+}
+
+list_sites() {
+    find "${SITES_DIR}" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '%f\n' | sort
+}
+
+container_for() { echo "dd-$1"; }
+
+ensure_image() {
+    if ! docker image inspect "${IMAGE}" >/dev/null 2>&1; then
+        echo "Image ${IMAGE} not built. Building now..." >&2
+        "${HERE}/dd-build"
+    fi
+}
+
+start_or_attach() {
+    local site="$1"; shift || true
+    local dir="${SITES_DIR}/${site}"
+    [[ -d "${dir}" ]] || { echo "site dir not found: ${dir}" >&2; exit 1; }
+
+    ensure_image
+
+    local cname; cname="$(container_for "${site}")"
+    local state="absent"
+    if docker inspect "${cname}" >/dev/null 2>&1; then
+        state="$(docker inspect --format '{{.State.Status}}' "${cname}" 2>/dev/null | tr -d '[:space:]')"
+    fi
+
+    if [[ "${state}" == "absent" ]]; then
+        echo "Creating container ${cname}..."
+        # Project ID = host site dir with / → - (matches claude-code's encoding).
+        local project_id="${dir//\//-}"
+        local host_project_dir="${HOME}/.claude/projects/${project_id}"
+        mkdir -p "${host_project_dir}"
+
+        local extra=()
+        [[ -f "${ROOT_REPO}/.env" ]] && extra+=(-v "${ROOT_REPO}/.env:${dir}/.env.shared:ro")
+        # RO shares: plugins / commands / hooks / credentials, only if they exist on host.
+        local share
+        for share in plugins commands hooks .credentials.json; do
+            [[ -e "${HOME}/.claude/${share}" ]] && extra+=(-v "${HOME}/.claude/${share}:/home/dev/.claude/${share}:ro")
+        done
+
+        # No port mappings on CLI-spawned containers — CLI uses `docker exec`,
+        # not a web terminal. If you want browser-side ttyd + dev preview,
+        # spawn via the panel instead (the panel is the port-owner).
+        docker run -d \
+            --name "${cname}" \
+            --hostname "dd-${site}" \
+            --restart unless-stopped \
+            --workdir "${dir}" \
+            -v "${dir}:${dir}" \
+            -v "dd-claude-${site}:/home/dev/.claude" \
+            -v "${HOME}/.claude.json:/host-claude-json-ro:ro" \
+            -v "${host_project_dir}:/home/dev/.claude/projects/${project_id}" \
+            -v "${HOME}/.ssh:/home/dev/.ssh:ro" \
+            -v "dd-home-${site//[^a-zA-Z0-9_.-]/_}:/home/dev/persist" \
+            "${extra[@]}" \
+            -e "SITE_NAME=${site}" \
+            -e "SITE_DIR=${dir}" \
+            -e "TTYD_PORT=7681" \
+            "${IMAGE}" >/dev/null
+    elif [[ "${state}" != "running" ]]; then
+        docker start "${cname}" >/dev/null
+    fi
+
+    local tty_flags=("-i")
+    [[ -t 0 && -t 1 ]] && tty_flags+=("-t")
+
+    if [[ $# -gt 0 ]]; then
+        exec docker exec "${tty_flags[@]}" -e SITE_NAME="${site}" "${cname}" "$@"
+    else
+        exec docker exec "${tty_flags[@]}" -e SITE_NAME="${site}" "${cname}" bash -l
+    fi
+}
+
+case "${1:-}" in
+    ''|-h|--help) usage 0 ;;
+    --list)       list_sites ;;
+    --stop)       shift; [[ $# -ge 1 ]] || usage 1; docker stop "$(container_for "$1")" ;;
+    --rm)         shift; [[ $# -ge 1 ]] || usage 1; docker stop "$(container_for "$1")" 2>/dev/null || true; docker rm "$(container_for "$1")" ;;
+    --*)          echo "unknown flag: $1" >&2; usage 1 ;;
+    *)            site="$1"; shift; start_or_attach "${site}" "$@" ;;
+esac

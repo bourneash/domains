@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Build the domain-developer base image. Idempotent; cache-friendly.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "${HERE}/.." && pwd)"
+
+HOST_UID="$(id -u)"
+HOST_GID="$(id -g)"
+
+echo "Building domain-developer:latest (HOST_UID=${HOST_UID} HOST_GID=${HOST_GID})..."
+docker build \
+    --build-arg HOST_UID="${HOST_UID}" \
+    --build-arg HOST_GID="${HOST_GID}" \
+    -t domain-developer:latest \
+    "${ROOT}/docker"
+
+echo
+echo "✓ Image built: domain-developer:latest"
+docker image inspect domain-developer:latest --format \
+    'size: {{.Size}} bytes   created: {{.Created}}'

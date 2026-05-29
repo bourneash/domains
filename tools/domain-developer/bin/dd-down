@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Tear down the panel. By default leaves spawned dd-<site> worker
+# containers running (so an in-flight claude session isn't killed).
+#
+# Flags:
+#   --all       also stop every dd-<site> worker container
+#   --purge     also REMOVE every dd-<site> worker container (volumes kept)
+
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOOL_DIR="$(cd "${HERE}/.." && pwd)"
+
+mode="panel-only"
+case "${1:-}" in
+    ''|--panel-only) mode="panel-only" ;;
+    --all)           mode="stop-all"   ;;
+    --purge)         mode="purge"      ;;
+    -h|--help)
+        sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+        exit 0
+        ;;
+    *) echo "unknown flag: $1" >&2; exit 1 ;;
+esac
+
+cd "${TOOL_DIR}"
+echo "[dd-down] stopping dd-panel..."
+docker compose down --remove-orphans
+
+if [[ "${mode}" == "panel-only" ]]; then
+    running=$(docker ps --filter name=dd- --filter status=running --format '{{.Names}}' | grep -v '^dd-panel$' || true)
+    if [[ -n "${running}" ]]; then
+        echo
+        echo "Worker containers still running:"
+        printf '  %s\n' ${running}
+        echo "  (use --all to also stop them, --purge to remove them)"
+    fi
+    exit 0
+fi
+
+workers=$(docker ps -a --filter name=dd- --format '{{.Names}}' | grep -v '^dd-panel$' || true)
+if [[ -z "${workers}" ]]; then
+    echo "[dd-down] no worker containers to act on."
+    exit 0
+fi
+
+for w in ${workers}; do
+    case "${mode}" in
+        stop-all) echo "  stopping ${w}"; docker stop "${w}" >/dev/null || true ;;
+        purge)    echo "  removing ${w}"; docker stop "${w}" >/dev/null 2>&1 || true; docker rm "${w}" >/dev/null || true ;;
+    esac
+done
+
+echo "[dd-down] done."
