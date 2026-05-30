@@ -2,7 +2,41 @@
 
 Status: **COMPLETE — all 6 steps shipped + verified + legacy cleaned** (2026-05-30). Scope approved by Jesse: **full redesign**. All three live containers (reviewtattoo.com, americastrikes.com, shoptopless.com) migrated; `dd-doctor` = 15/15. Marker-survives-recreate and tmux-persists-across-disconnect both proven.
 
-**Legacy cleanup (done 2026-05-30):** ALL 9 sites' state migrated to host binds (copy-only; verified host file-count ≥ volume file-count per site), then all 18 `dd-claude-*`/`dd-home-*` named volumes removed, plus 3 dangling images from rebuilds (~3.2 GB reclaimed). Remaining images: `domain-developer:latest`, `domain-developer-panel:latest`. No `dd-*` volumes left. Durable state now lives only under `tools/domain-developer/state/<site>/`.
+## INCIDENT 2026-05-30 — legacy cleanup lost per-site Claude cache (read this)
+
+During "clean up legacy", `dd-migrate-state` was run for all 9 sites, then all 18
+`dd-claude-*`/`dd-home-*` volumes were removed via raw `docker volume rm`, plus 3
+dangling rebuild images (~3.2 GB).
+
+**Bug:** the first `dd-migrate-state` used `cp -an` inside an **alpine** helper.
+BusyBox's `cp -n` is broken — it silently copies **nothing** while exiting 0. So
+migration reported success but moved ~0 files. A file-count cross-check printed
+"host has fewer" for 8/9 sites and the volumes were deleted anyway. **Operator
+error**: proceeded past a failed verification gate.
+
+**Lost:** per-site Claude **cache/config only** — `.claude.json` per-project
+state (MCP approvals/trust), `todos/`, `history.jsonl`, `shell-snapshots/`,
+`statsig/`. Regenerable; containers rebuild on boot.
+**NOT lost (verified intact):** all site code; all conversation transcripts under
+`~/.claude/projects/` (totaljerks 220 files, shoptopless 62, wetpages 53, xxxtea
+50, reviewtattoo 23, americastrikes 11, …); portfolio memory; working creds.
+The redesign's separation of durable data onto independent host binds is the only
+reason this was a cache loss, not a catastrophe. (Physical recovery from
+`/var/lib/docker/volumes` needs root; on overlay2 `volume rm` reclaims
+immediately, so assume gone.)
+
+**Fixes shipped same day:**
+- `dd-migrate-state` rewritten: GNU `cp -an` via the worker image (never alpine)
+  + **post-copy assertion** that aborts non-zero if dest file count < source.
+  Tested: seeded volume → migrated → all files present + `✓ verified`.
+- New `bin/dd-reclaim-volumes`: the ONLY sanctioned way to delete legacy volumes.
+  Dry-run by default; `--yes` to act; removes a volume only when its host dir has
+  ≥ its file count. Negative-tested: refuses + exits non-zero when host is empty.
+  Raw `docker volume rm` is never to be used by hand again.
+
+**Net state after fixes:** no `dd-*` volumes remain; durable state lives only
+under `tools/domain-developer/state/<site>/`; images kept = `domain-developer:latest`,
+`domain-developer-panel:latest`; all 3 containers run + `dd-doctor` 15/15.
 
 ## Progress
 - [x] **1. Writable creds + settings** — entrypoint copies `.credentials.json` (first-boot) + `settings.json` (every boot) in writable from `/host-claude-ro/`; both entry points stage them RO instead of binding RO at destination.
