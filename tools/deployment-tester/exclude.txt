@@ -1,0 +1,14 @@
+# deployment-tester exclusion list
+# One domain per line. Lines starting with # and blank lines are ignored.
+# A domain listed here is never probed (no file dropped, no push).
+#
+# Use this for:
+#   - "domains" that aren't real repos of their own (typo-redirects, parked names)
+#   - sites you deliberately don't want auto-pushed (e.g. mid-migration, manual-deploy-only)
+#
+# NOTE: the tool only iterates real git submodules from .gitmodules, so plain
+# redirect folders (e.g. the misspelled nsfwpixles.com) are already excluded by
+# virtue of not having their own repo. This list is for submodules you still
+# want to skip, plus a belt-and-suspenders entry for the known typo domain.
+
+nsfwpixles.com
