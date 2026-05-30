@@ -1,6 +1,8 @@
 # domain-developer durability redesign
 
-Status: **COMPLETE — all 6 steps shipped + verified on branch `dd-durability`** (2026-05-30). Scope approved by Jesse: **full redesign**. All three live containers (reviewtattoo.com, americastrikes.com, shoptopless.com) migrated; `dd-doctor` = 15/15. Marker-survives-recreate and tmux-persists-across-disconnect both proven. Legacy `dd-claude-*`/`dd-home-*` volumes left intact as backup (reclaim with `docker volume rm` once you're satisfied).
+Status: **COMPLETE — all 6 steps shipped + verified + legacy cleaned** (2026-05-30). Scope approved by Jesse: **full redesign**. All three live containers (reviewtattoo.com, americastrikes.com, shoptopless.com) migrated; `dd-doctor` = 15/15. Marker-survives-recreate and tmux-persists-across-disconnect both proven.
+
+**Legacy cleanup (done 2026-05-30):** ALL 9 sites' state migrated to host binds (copy-only; verified host file-count ≥ volume file-count per site), then all 18 `dd-claude-*`/`dd-home-*` named volumes removed, plus 3 dangling images from rebuilds (~3.2 GB reclaimed). Remaining images: `domain-developer:latest`, `domain-developer-panel:latest`. No `dd-*` volumes left. Durable state now lives only under `tools/domain-developer/state/<site>/`.
 
 ## Progress
 - [x] **1. Writable creds + settings** — entrypoint copies `.credentials.json` (first-boot) + `settings.json` (every boot) in writable from `/host-claude-ro/`; both entry points stage them RO instead of binding RO at destination.
