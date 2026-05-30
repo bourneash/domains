@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# dd-doctor [site]
+#
+# Verifies a domain-developer worker container against the durability redesign
+# (tools/domain-developer/REDESIGN.md). Doubles as the executable spec and the
+# rollout gate: run it after recreating a site to confirm the fixes took.
+#
+# Checks per container:
+#   1. .credentials.json is NOT bound read-only at its destination
+#      (it must be a writable copy so OAuth refresh can persist)        [RC1]
+#   2. credentials file is actually writable inside the container        [RC1]
+#   3. /home/dev/.claude is a HOST BIND (not a named volume)             [RC2]
+#   4. /home/dev/persist is a HOST BIND (not a named volume)             [RC2]
+#   5. tmux is installed in the image (session survives a bounce)        [RC2]
+#
+# Exit 0 only if every checked container passes every check.
+
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_REPO="$(cd "${HERE}/../../.." && pwd)"
+
+pass=0; fail=0
+ok()   { printf '  \033[32m✓\033[0m %s\n' "$1"; pass=$((pass+1)); }
+bad()  { printf '  \033[31m✗\033[0m %s\n' "$1"; fail=$((fail+1)); }
+note() { printf '    \033[2m%s\033[0m\n' "$1"; }
+
+containers() {
+    if [[ $# -ge 1 && -n "${1:-}" ]]; then
+        echo "dd-$1"
+    else
+        docker ps -a --filter 'name=^dd-' --format '{{.Names}}' | grep -v '^dd-panel$' || true
+    fi
+}
+
+check_one() {
+    local c="$1"
+    printf '\n\033[1m%s\033[0m\n' "$c"
+    if ! docker inspect "$c" >/dev/null 2>&1; then
+        bad "container does not exist"; return
+    fi
+    local running; running="$(docker inspect -f '{{.State.Running}}' "$c" 2>/dev/null)"
+
+    # 1. credentials must NOT be a RO bind at the destination path
+    local cred_rw
+    cred_rw="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/home/dev/.claude/.credentials.json"}}{{.RW}}{{end}}{{end}}' "$c" 2>/dev/null)"
+    if [[ -z "${cred_rw}" ]]; then
+        ok "credentials.json not bind-mounted at destination (copied-in copy)"
+    elif [[ "${cred_rw}" == "false" ]]; then
+        bad "credentials.json is RO bind-mounted at destination → OAuth refresh will fail"
+        note "recreate this container after dd-build to pick up the writable-creds fix"
+    else
+        ok "credentials.json bind is writable"
+    fi
+
+    # 2. credentials writable inside the container (only if running)
+    if [[ "${running}" == "true" ]]; then
+        if docker exec "$c" test -w /home/dev/.claude/.credentials.json 2>/dev/null; then
+            ok "credentials.json is writable inside the container"
+        elif docker exec "$c" test -e /home/dev/.claude/.credentials.json 2>/dev/null; then
+            bad "credentials.json exists but is NOT writable inside the container"
+        else
+            note "credentials.json not present yet (first boot may not have copied it)"
+        fi
+    fi
+
+    # 3. .claude must be a host bind, not a named volume
+    local claude_src
+    claude_src="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/home/dev/.claude"}}{{.Type}}:{{.Source}}{{end}}{{end}}' "$c" 2>/dev/null)"
+    case "${claude_src}" in
+        bind:*) ok ".claude is a host bind (${claude_src#bind:})" ;;
+        volume:*) bad ".claude is a named VOLUME → not prune-proof/visible (${claude_src#volume:})" ;;
+        *) note ".claude mount: ${claude_src:-<none>}" ;;
+    esac
+
+    # 4. persist must be a host bind, not a named volume
+    local persist_src
+    persist_src="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/home/dev/persist"}}{{.Type}}:{{.Source}}{{end}}{{end}}' "$c" 2>/dev/null)"
+    case "${persist_src}" in
+        bind:*) ok "persist is a host bind" ;;
+        volume:*) bad "persist is a named VOLUME (${persist_src#volume:})" ;;
+        *) note "persist mount: ${persist_src:-<none>}" ;;
+    esac
+
+    # 5. tmux present in image
+    if [[ "${running}" == "true" ]]; then
+        if docker exec "$c" sh -c 'command -v tmux' >/dev/null 2>&1; then
+            ok "tmux present (session survives a bounce)"
+        else
+            bad "tmux NOT installed → REPL dies when the container bounces"
+        fi
+    fi
+}
+
+main() {
+    local list; list="$(containers "${1:-}")"
+    if [[ -z "${list}" ]]; then
+        echo "no dd-* worker containers found"; exit 0
+    fi
+    for c in ${list}; do check_one "$c"; done
+    printf '\n\033[1mdd-doctor: %d passed, %d failed\033[0m\n' "$pass" "$fail"
+    [[ "$fail" -eq 0 ]]
+}
+
+main "${1:-}"

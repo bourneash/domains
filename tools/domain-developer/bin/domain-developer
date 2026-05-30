@@ -57,12 +57,31 @@ start_or_attach() {
         local host_project_dir="${HOME}/.claude/projects/${project_id}"
         mkdir -p "${host_project_dir}"
 
+        # Per-site Claude state + scratch on host binds (not named volumes) so
+        # state is visible/backup-able/prune-proof. Worker entrypoint chowns.
+        local state_root="${DD_STATE_DIR:-${HERE}/../state}"
+        local claude_state_dir persist_state_dir
+        mkdir -p "${state_root}/${site}/claude" "${state_root}/${site}/persist"
+        claude_state_dir="$(cd "${state_root}/${site}/claude" && pwd)"
+        persist_state_dir="$(cd "${state_root}/${site}/persist" && pwd)"
+
         local extra=()
         [[ -f "${ROOT_REPO}/.env" ]] && extra+=(-v "${ROOT_REPO}/.env:${dir}/.env.shared:ro")
-        # RO shares: plugins / commands / hooks / credentials, only if they exist on host.
+        # RO shares from host ~/.claude/, only if they exist:
+        #   plugins/commands/hooks  — shared skills/commands/hooks (usable, not editable)
+        #   skills                  — personal skills (~/.claude/skills)
+        #   settings.json           — enabledPlugins (so plugin skills like marketing-skills load) + perms
+        #   .credentials.json       — shared OAuth
+        # Dirs Claude only reads → bind RO straight at destination.
         local share
-        for share in plugins commands hooks .credentials.json; do
+        for share in plugins commands hooks skills; do
             [[ -e "${HOME}/.claude/${share}" ]] && extra+=(-v "${HOME}/.claude/${share}:/home/dev/.claude/${share}:ro")
+        done
+        # Files Claude REWRITES (settings.json, .credentials.json on OAuth
+        # refresh) → stage RO; entrypoint copies them in writable. Binding them
+        # RO at the destination broke those writes → periodic auth failure.
+        for share in settings.json .credentials.json; do
+            [[ -e "${HOME}/.claude/${share}" ]] && extra+=(-v "${HOME}/.claude/${share}:/host-claude-ro/${share}:ro")
         done
 
         # No port mappings on CLI-spawned containers — CLI uses `docker exec`,
@@ -72,16 +91,18 @@ start_or_attach() {
             --name "${cname}" \
             --hostname "dd-${site}" \
             --restart unless-stopped \
+            --stop-timeout 30 \
             --workdir "${dir}" \
             -v "${dir}:${dir}" \
-            -v "dd-claude-${site}:/home/dev/.claude" \
+            -v "${claude_state_dir}:/home/dev/.claude" \
             -v "${HOME}/.claude.json:/host-claude-json-ro:ro" \
             -v "${host_project_dir}:/home/dev/.claude/projects/${project_id}" \
             -v "${HOME}/.ssh:/home/dev/.ssh:ro" \
-            -v "dd-home-${site//[^a-zA-Z0-9_.-]/_}:/home/dev/persist" \
+            -v "${persist_state_dir}:/home/dev/persist" \
             "${extra[@]}" \
             -e "SITE_NAME=${site}" \
             -e "SITE_DIR=${dir}" \
+            -e "HOST_HOME=${HOME}" \
             -e "TTYD_PORT=7681" \
             "${IMAGE}" >/dev/null
     elif [[ "${state}" != "running" ]]; then

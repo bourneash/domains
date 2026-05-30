@@ -1,0 +1,5 @@
+# Per-site Claude state lives here: credentials, transcripts, scratch.
+# NEVER commit it. This dir is created/populated at runtime by the worker
+# containers (and bin/dd-migrate-state).
+*
+!.gitignore

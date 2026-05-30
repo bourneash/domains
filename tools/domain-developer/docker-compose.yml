@@ -42,6 +42,11 @@ services:
       - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/.env:${DOMAINS_ROOT:-/home/jesse/projects/domains}/.env:ro
       # State file — port-per-site assignments persist here.
       - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/domain-developer/state.json:/app/state.json
+      # Per-site Claude state now lives on HOST BINDS under here (not named
+      # volumes) → visible, backup-able, prune-proof. RW: the panel mkdirs each
+      # site's dir before spawning its worker. Same path inside as on host so
+      # the docker -v specs the panel emits resolve consistently.
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/domain-developer/state:${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/domain-developer/state
       # Per-site claude project dirs land under here. RW because the panel
       # mkdirs them on-demand before spawning workers. Same path inside as
       # on host so docker -v specs the panel emits resolve consistently.

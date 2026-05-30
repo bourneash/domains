@@ -3,134 +3,300 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>domain-developer</title>
+<title>domain·developer — control plane</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23ffb224'/%3E%3Cg fill='none' stroke='%231a1206' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 8 9 12 5 16'/%3E%3Cline x1='12' y1='16' x2='18' y2='16'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --bg2: #141414;
-    --bg3: #1c1c1c;
-    --bg4: #242424;
-    --fg: #e6e6e6;
-    --dim: #8a8a8a;
-    --accent: #ffaa00;
-    --green: #6ee787;
-    --red: #ff6b6b;
-    --blue: #79b8ff;
-    --border: #2a2a2a;
-    --sidebar-w: 240px;
+    /* layered surfaces — cool near-black, builds depth */
+    --bg-0: #07080a;
+    --bg-1: #0b0d10;
+    --bg-2: #111419;
+    --bg-3: #171b22;
+    --bg-4: #1f242d;
+    --bg-5: #272d38;
+
+    --fg:    #e8ebf0;
+    --fg-2:  #aab2bf;
+    --dim:   #6c7480;
+    --faint: #444b56;
+
+    --border:   rgba(255,255,255,0.065);
+    --border-2: rgba(255,255,255,0.11);
+    --border-3: rgba(255,255,255,0.18);
+
+    /* signature amber — matches the ttyd terminal cursor theme */
+    --accent:      #ffb224;
+    --accent-2:    #ff9d12;
+    --accent-soft: rgba(255,178,36,0.13);
+    --accent-line: rgba(255,178,36,0.4);
+
+    --green:      #44d07f;
+    --green-soft: rgba(68,208,127,0.13);
+    --red:        #ff5d5d;
+    --red-soft:   rgba(255,93,93,0.12);
+    --blue:       #5b9dff;
+
+    --radius:    6px;
+    --radius-lg: 9px;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow:    0 6px 24px -8px rgba(0,0,0,0.7);
+    --shadow-lg: 0 18px 50px -12px rgba(0,0,0,0.8);
+
+    --font-ui:   'Archivo', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --sidebar-w: 268px;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); height: 100vh; overflow: hidden; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  button { font-family: inherit; cursor: pointer; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg-1); color: var(--fg);
+    height: 100vh; overflow: hidden;
+    font: 13px/1.5 var(--font-mono);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  button { font-family: var(--font-ui); cursor: pointer; }
+  ::selection { background: var(--accent-soft); color: #fff; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 
-  .app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; }
+  /* scrollbars */
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--bg-4); border-radius: 8px;
+    border: 2px solid transparent; background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: var(--bg-5); border: 2px solid transparent; background-clip: padding-box; }
+
+  .app {
+    display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh;
+    position: relative;
+  }
+  /* hairline of light along the very top — subtle product polish */
+  .app::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; z-index: 5;
+    background: linear-gradient(90deg, transparent, var(--accent-line) 18%, transparent 60%);
+    opacity: 0.6; pointer-events: none;
+  }
 
   /* ── sidebar ───────────────────────────────────────────────────────── */
   .side {
-    background: var(--bg2); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; min-width: 0;
+    background:
+      radial-gradient(120% 60% at 0% 0%, rgba(255,178,36,0.05), transparent 60%),
+      linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; min-width: 0; min-height: 0;
   }
-  .side { min-height: 0; }
-  .side-head { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .side-head h1 { margin: 0 0 8px; font-size: 14px; font-weight: 600; letter-spacing: 0.4px; }
-  .side-head h1 .accent { color: var(--accent); }
-  .side-filter-row { display: flex; gap: 6px; }
+  .side-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+    display: grid; place-items: center;
+    background: linear-gradient(155deg, var(--accent), var(--accent-2));
+    color: #1a1206; box-shadow: 0 3px 10px -2px rgba(255,178,36,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .brand-mark svg { width: 17px; height: 17px; }
+  .brand-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .brand-name { font-family: var(--font-ui); font-weight: 700; font-size: 14px; letter-spacing: -0.2px; color: var(--fg); }
+  .brand-name .sep { color: var(--accent); }
+  .brand-sub { font-size: 9.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--dim); font-family: var(--font-ui); font-weight: 500; margin-top: 2px; }
+
+  .side-filter-row { display: flex; gap: 7px; }
+  .search { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+  .search-ico { position: absolute; left: 9px; width: 13px; height: 13px; color: var(--dim); pointer-events: none; }
   .side-head input {
-    flex: 1; min-width: 0; background: var(--bg3); color: var(--fg); border: 1px solid var(--border);
-    padding: 6px 8px; border-radius: 3px; font-family: inherit; font-size: 12px;
+    flex: 1; min-width: 0; width: 100%;
+    background: var(--bg-3); color: var(--fg);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 7px 9px 7px 28px; font-family: var(--font-mono); font-size: 12px;
+    transition: border-color .15s, background .15s, box-shadow .15s;
   }
-  .side-head input:focus { outline: none; border-color: var(--accent); }
+  .side-head input::placeholder { color: var(--faint); }
+  .side-head input:focus { outline: none; border-color: var(--accent-line); background: var(--bg-2); box-shadow: 0 0 0 3px var(--accent-soft); }
   .side-sort-btn {
-    background: var(--bg3); color: var(--dim); border: 1px solid var(--border);
-    padding: 0 8px; border-radius: 3px; font-family: inherit; font-size: 12px;
-    cursor: pointer; min-width: 32px;
+    background: var(--bg-3); color: var(--dim); border: 1px solid var(--border);
+    padding: 0 9px; border-radius: var(--radius); font-family: var(--font-mono); font-size: 11px;
+    min-width: 34px; transition: color .15s, border-color .15s, background .15s;
   }
-  .side-sort-btn:hover { color: var(--accent); border-color: var(--accent); }
-  /* flex: 1 1 0 + min-height: 0 = the canonical flex-column scroll fix */
-  .side-list { overflow-y: auto; overflow-x: hidden; flex: 1 1 0; min-height: 0; padding: 4px 0; }
+  .side-sort-btn:hover { color: var(--accent); border-color: var(--accent-line); background: var(--bg-4); }
+
+  .side-list { overflow-y: auto; overflow-x: hidden; flex: 1 1 0; min-height: 0; padding: 8px; }
   .side-item {
-    display: flex; align-items: center; gap: 8px; padding: 6px 14px;
-    cursor: pointer; border-left: 2px solid transparent;
+    display: flex; align-items: center; gap: 9px; padding: 7px 10px;
+    cursor: pointer; border-radius: var(--radius-lg); margin: 1px 0;
+    border: 1px solid transparent; position: relative;
+    transition: background .14s ease, border-color .14s ease;
   }
-  .side-item:hover { background: var(--bg3); }
-  .side-item.active { background: var(--bg3); border-left-color: var(--accent); }
+  .side-item:hover { background: var(--bg-3); }
+  .side-item.active {
+    background: linear-gradient(90deg, var(--accent-soft), rgba(255,178,36,0.03));
+    border-color: var(--border);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .side-item.active .name { color: var(--fg); }
   .side-item .dot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--dim); flex-shrink: 0;
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    background: var(--faint); box-shadow: 0 0 0 3px rgba(255,255,255,0.02);
   }
-  .side-item.is-running .dot { background: var(--green); box-shadow: 0 0 6px rgba(110,231,135,0.5); }
-  .side-item.is-exited  .dot { background: var(--red); }
-  .side-item .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
-  .side-item .badge { font-size: 10px; color: var(--dim); }
-  .side-foot { padding: 8px 14px; border-top: 1px solid var(--border); color: var(--dim); font-size: 11px; }
+  .side-item.is-running .dot { background: var(--green); }
+  .side-item.is-running .dot { animation: pulse 2.4s ease-out infinite; }
+  .side-item.is-exited  .dot { background: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
+  .side-item .name {
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 12px; color: var(--fg-2); font-family: var(--font-mono); letter-spacing: -0.2px;
+  }
+  .side-item .badge {
+    font-size: 10px; color: var(--accent); font-family: var(--font-mono);
+    background: var(--accent-soft); padding: 1px 6px; border-radius: 5px; letter-spacing: 0;
+  }
+  .side-item .badge:empty { display: none; }
+  .side-foot {
+    padding: 10px 16px; border-top: 1px solid var(--border); color: var(--dim);
+    font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-ui); font-weight: 500;
+  }
 
   /* ── main pane ─────────────────────────────────────────────────────── */
-  .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg-0); }
   .toolbar {
-    display: flex; align-items: center; gap: 6px; padding: 10px 14px;
-    border-bottom: 1px solid var(--border); background: var(--bg2); flex-wrap: wrap;
+    display: flex; align-items: center; gap: 7px; padding: 11px 16px;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    background: linear-gradient(180deg, var(--bg-2), rgba(17,20,25,0.6));
+    backdrop-filter: blur(6px); box-shadow: var(--shadow-sm);
   }
-  .toolbar .site-title { font-weight: 600; font-size: 13px; margin-right: 6px; }
-  .toolbar .site-status { font-size: 11px; color: var(--dim); margin-right: 12px; }
+  .toolbar .site-title { font-family: var(--font-ui); font-weight: 600; font-size: 14px; letter-spacing: -0.3px; margin-right: 4px; }
+  .toolbar .site-status {
+    font-size: 11px; color: var(--dim); font-family: var(--font-ui); font-weight: 500;
+    padding: 3px 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-2);
+    white-space: nowrap;
+  }
+  .toolbar .site-status.ok    { color: var(--green); border-color: var(--green-soft); background: var(--green-soft); }
+  .toolbar .site-status.off   { color: var(--dim); }
   .toolbar button {
-    background: var(--bg3); color: var(--fg); border: 1px solid var(--border);
-    padding: 5px 10px; border-radius: 3px; font-size: 11px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg-3); color: var(--fg-2); border: 1px solid var(--border);
+    padding: 6px 11px; border-radius: var(--radius); font-size: 11px; font-weight: 500;
+    transition: background .14s, border-color .14s, color .14s, transform .06s, box-shadow .14s;
   }
-  .toolbar button:hover { border-color: var(--accent); color: var(--accent); }
-  .toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .toolbar button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
-  .toolbar button.primary:hover { background: #ffbb33; }
-  .toolbar button.danger:hover { border-color: var(--red); color: var(--red); }
-  .toolbar .sep { width: 1px; align-self: stretch; background: var(--border); margin: 0 4px; }
+  .toolbar button:hover { border-color: var(--border-3); color: var(--fg); background: var(--bg-4); }
+  .toolbar button:active { transform: translateY(1px); }
+  .toolbar button:disabled { opacity: 0.38; cursor: not-allowed; }
+  .toolbar button:disabled:hover { background: var(--bg-3); border-color: var(--border); color: var(--fg-2); transform: none; }
+  .toolbar button .btn-ico { display: inline-flex; opacity: 0.85; }
+  .toolbar button .btn-ico svg { width: 13px; height: 13px; display: block; }
+  .toolbar button.primary {
+    background: linear-gradient(155deg, var(--accent), var(--accent-2)); color: #1a1206;
+    border-color: transparent; font-weight: 600;
+    box-shadow: 0 3px 12px -3px rgba(255,178,36,0.5), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .toolbar button.primary:hover { background: linear-gradient(155deg, #ffbe45, #ffa92b); color: #1a1206; }
+  .toolbar button.primary .btn-ico { opacity: 1; }
+  .toolbar button.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+  /* Redraw — deliberately loud (distinct blue) so the fix is easy to find. */
+  .toolbar button.redraw-btn {
+    background: linear-gradient(155deg, #6aa6ff, #3f7fe0); color: #061226;
+    border-color: transparent; font-weight: 600;
+    box-shadow: 0 3px 12px -3px rgba(91,157,255,0.55), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .toolbar button.redraw-btn:hover { background: linear-gradient(155deg, #7fb2ff, #4d8bea); color: #061226; }
+  .toolbar button.redraw-btn .btn-ico { opacity: 1; }
+  .toolbar .sep { width: 1px; align-self: stretch; background: var(--border); margin: 2px 5px; }
 
   .tabbar {
-    display: flex; align-items: center; background: var(--bg2);
-    border-bottom: 1px solid var(--border); overflow-x: auto; min-height: 32px;
+    display: flex; align-items: center; background: var(--bg-1);
+    border-bottom: 1px solid var(--border); overflow-x: auto; min-height: 36px;
   }
   .tab {
-    display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+    display: flex; align-items: center; gap: 7px; padding: 8px 14px;
     border-right: 1px solid var(--border); cursor: pointer;
-    font-size: 11px; white-space: nowrap; flex-shrink: 0;
-    background: var(--bg2); color: var(--dim);
+    font-family: var(--font-ui); font-size: 11px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+    background: transparent; color: var(--dim); position: relative;
+    transition: color .14s, background .14s;
   }
-  .tab:hover { color: var(--fg); background: var(--bg3); }
-  .tab.active { background: var(--bg); color: var(--fg); border-bottom: 2px solid var(--accent); margin-bottom: -1px; }
-  .tab .tab-icon { opacity: 0.7; }
+  .tab:hover { color: var(--fg); background: var(--bg-2); }
+  .tab.active { background: var(--bg-0); color: var(--fg); }
+  .tab.active::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  .tab .tab-icon { opacity: 0.7; font-size: 11px; }
   .tab .tab-close {
-    border: none; background: transparent; color: inherit; padding: 0 2px;
-    font-size: 12px; line-height: 1; opacity: 0.5;
+    border: none; background: transparent; color: inherit; padding: 0 1px 0 2px;
+    font-size: 14px; line-height: 1; opacity: 0.4; border-radius: 3px; transition: opacity .12s, color .12s;
   }
   .tab .tab-close:hover { opacity: 1; color: var(--red); }
 
-  .stage {
-    position: relative; flex: 1; background: var(--bg); min-height: 0;
-  }
+  .stage { position: relative; flex: 1; background: var(--bg-0); min-height: 0; }
   .pane { position: absolute; inset: 0; display: none; }
-  .pane.active { display: flex; flex-direction: column; }
-  .pane iframe { flex: 1; border: none; width: 100%; height: 100%; background: var(--bg); }
+  .pane.active { display: flex; flex-direction: column; animation: paneIn .18s ease; }
+  .pane iframe { flex: 1; border: none; width: 100%; height: 100%; background: var(--bg-0); }
+  /* Redraw nudge: shrink the terminal, then restore. Each step makes ttyd's
+     xterm recompute rows/cols → PTY resize → SIGWINCH → the TUI repaints,
+     clearing dropped/garbled characters. */
+  .pane.redrawing iframe { flex: 0 0 55%; }
   .pane .pane-bar {
-    padding: 5px 10px; background: var(--bg2); border-bottom: 1px solid var(--border);
-    font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; background: var(--bg-2); border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 10px;
   }
-  .pane .pane-bar a { color: var(--blue); text-decoration: none; font-family: inherit; font-size: 11px; }
+  .pane .pane-bar a { color: var(--blue); text-decoration: none; font-family: var(--font-mono); font-size: 11px; }
+  .pane .pane-bar a:hover { text-decoration: underline; }
   .pane .pane-bar button {
-    background: transparent; border: 1px solid var(--border); color: var(--fg);
-    padding: 2px 8px; border-radius: 2px; font-size: 11px;
+    background: var(--bg-3); border: 1px solid var(--border); color: var(--fg-2);
+    padding: 3px 9px; border-radius: var(--radius); font-size: 11px; font-family: var(--font-ui);
+    transition: border-color .14s, color .14s, background .14s;
   }
-  .pane .pane-bar button:hover { border-color: var(--accent); color: var(--accent); }
+  .pane .pane-bar button:hover { border-color: var(--accent-line); color: var(--accent); background: var(--bg-4); }
 
   .empty {
     display: flex; align-items: center; justify-content: center; height: 100%;
-    color: var(--dim); font-size: 13px; text-align: center; padding: 20px;
-    flex-direction: column; gap: 10px;
+    color: var(--dim); font-size: 13px; text-align: center; padding: 24px;
+    flex-direction: column; gap: 14px; font-family: var(--font-ui);
+    background: radial-gradient(80% 50% at 50% 38%, rgba(255,178,36,0.04), transparent 70%);
   }
-  .empty .hint { font-size: 11px; max-width: 400px; line-height: 1.6; }
-  .empty code { background: var(--bg3); padding: 1px 5px; border-radius: 2px; color: var(--accent); }
+  .empty .empty-glyph {
+    width: 56px; height: 56px; color: var(--faint); opacity: 0.7; margin-bottom: 2px;
+  }
+  .empty > div:not(.hint):not(.empty-glyph) { font-size: 15px; font-weight: 600; color: var(--fg-2); letter-spacing: -0.2px; }
+  .empty .hint { font-size: 12px; max-width: 430px; line-height: 1.7; color: var(--dim); font-family: var(--font-mono); }
+  .empty code, .empty strong { font-family: var(--font-mono); }
+  .empty code { background: var(--bg-3); padding: 1px 6px; border-radius: 4px; color: var(--accent); border: 1px solid var(--border); }
+  .empty strong { color: var(--fg-2); font-weight: 600; }
 
   .alert {
-    background: rgba(255,170,0,0.08); border: 1px solid var(--accent); color: var(--accent);
-    padding: 8px 12px; font-size: 12px; margin: 10px 14px; border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent-soft), rgba(255,178,36,0.04));
+    border: 1px solid var(--accent-line); color: var(--accent);
+    padding: 9px 13px; font-size: 12px; margin: 12px 16px 0; border-radius: var(--radius);
+    font-family: var(--font-mono); box-shadow: var(--shadow-sm);
   }
-  .alert code { background: rgba(0,0,0,0.4); padding: 1px 5px; border-radius: 2px; }
+  .alert code { background: rgba(0,0,0,0.4); padding: 1px 6px; border-radius: 4px; }
+
+  /* ── motion ────────────────────────────────────────────────────────── */
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(68,208,127,0.5); }
+    70%  { box-shadow: 0 0 0 5px rgba(68,208,127,0); }
+    100% { box-shadow: 0 0 0 0 rgba(68,208,127,0); }
+  }
+  @keyframes paneIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes itemIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  .side-list.boot .side-item { animation: itemIn .34s cubic-bezier(.22,.61,.36,1) both; }
+  .side-list.boot .side-item:nth-child(1)  { animation-delay: .02s; }
+  .side-list.boot .side-item:nth-child(2)  { animation-delay: .04s; }
+  .side-list.boot .side-item:nth-child(3)  { animation-delay: .06s; }
+  .side-list.boot .side-item:nth-child(4)  { animation-delay: .08s; }
+  .side-list.boot .side-item:nth-child(5)  { animation-delay: .10s; }
+  .side-list.boot .side-item:nth-child(6)  { animation-delay: .12s; }
+  .side-list.boot .side-item:nth-child(7)  { animation-delay: .14s; }
+  .side-list.boot .side-item:nth-child(8)  { animation-delay: .16s; }
+  .side-list.boot .side-item:nth-child(9)  { animation-delay: .18s; }
+  .side-list.boot .side-item:nth-child(10) { animation-delay: .20s; }
+  .side-list.boot .side-item:nth-child(n+11) { animation-delay: .22s; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
 </style>
 </head>
 <body>
@@ -139,13 +305,28 @@
 
   <aside class="side">
     <div class="side-head">
-      <h1>domain-developer<span class="accent"> ·</span></h1>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="5 8 9 12 5 16"/><line x1="12" y1="16" x2="18" y2="16"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">domain<span class="sep">·</span>developer</span>
+          <span class="brand-sub">container control plane</span>
+        </span>
+      </div>
       <div class="side-filter-row">
-        <input id="filter" placeholder="filter…" autofocus />
+        <div class="search">
+          <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input id="filter" placeholder="filter sites…" autofocus />
+        </div>
         <button id="sort-btn" class="side-sort-btn" title="toggle A→Z / Z→A">A↓</button>
       </div>
     </div>
-    <div class="side-list" id="side-list"></div>
+    <div class="side-list boot" id="side-list"></div>
     <div class="side-foot" id="side-foot">loading…</div>
   </aside>
 
@@ -157,8 +338,11 @@
     <div class="tabbar" id="tabbar"></div>
     <div class="stage" id="stage">
       <div class="empty">
-        <div>Pick a site on the left.</div>
-        <div class="hint">Each site gets its own sandboxed container with claude pre-installed and your site dir mounted at <code>/work</code>. Open a terminal, run <code>yolo</code> for <code>claude --dangerously-skip-permissions</code>, or preview your local dev server.</div>
+        <svg class="empty-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="4" width="19" height="16" rx="2.5"/><polyline points="7 9 10 12 7 15"/><line x1="13" y1="15" x2="17.5" y2="15"/>
+        </svg>
+        <div>Select a site to begin</div>
+        <div class="hint">Each site runs in its own sandboxed container with claude pre-installed and the site dir mounted at <code>/work</code>. Open a terminal, run <code>yolo</code> for <code>claude --dangerously-skip-permissions</code>, or preview your local dev server.</div>
       </div>
     </div>
   </section>
@@ -171,6 +355,35 @@ const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
 }[c]));
+
+// ── action icons (inline SVG, stroke = currentColor) ─────────────────────
+const SVG = (paths) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+const ICONS = {
+  terminal: SVG('<polyline points="5 8 9 12 5 16"/><line x1="12" y1="16" x2="18" y2="16"/>'),
+  play:     SVG('<polygon points="7 5 19 12 7 19 7 5" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>'),
+  stop:     SVG('<rect x="6.5" y="6.5" width="11" height="11" rx="1.6" fill="currentColor" stroke="none"/>'),
+  window:   SVG('<rect x="3" y="4.5" width="18" height="15" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>'),
+  logs:     SVG('<line x1="9" y1="7" x2="20" y2="7"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="17" x2="16" y2="17"/><circle cx="4.5" cy="7" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="17" r="1.1" fill="currentColor" stroke="none"/>'),
+  globe:    SVG('<circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18"/>'),
+  external: SVG('<path d="M15 4h5v5"/><path d="M20 4 11 13"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/>'),
+  power:    SVG('<path d="M12 3v9"/><path d="M6.6 7a8 8 0 1 0 10.8 0"/>'),
+  trash:    SVG('<polyline points="3 6 21 6"/><path d="M19 6v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+  redraw:   SVG('<path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 8.5 15.5 8.5"/>'),
+};
+function iconFor(label) {
+  if (label === '+ Terminal') return ICONS.terminal;
+  if (label === 'Redraw') return ICONS.redraw;
+  if (label.startsWith('Start Dev')) return ICONS.play;
+  if (label === 'Stop Dev') return ICONS.stop;
+  if (label === 'Dev Preview') return ICONS.window;
+  if (label === 'Dev Logs') return ICONS.logs;
+  if (label === 'Live Site') return ICONS.globe;
+  if (label.startsWith('Repo')) return ICONS.external;
+  if (label === 'Stop') return ICONS.power;
+  if (label === 'Remove') return ICONS.trash;
+  if (label === 'Start container') return ICONS.play;
+  return null;
+}
 
 const STORE_KEY = 'dd-panel-state-v1';
 const state = {
@@ -284,13 +497,19 @@ function renderToolbar() {
   const title = document.createElement('div');
   title.className = 'site-title'; title.textContent = s.name;
   const status = document.createElement('div');
-  status.className = 'site-status';
+  status.className = 'site-status ' + (s.status === 'running' ? 'ok' : 'off');
   status.textContent = s.status === 'running' ? '● running' : '○ ' + s.status;
   tb.append(title, status);
 
   const btn = (label, opts={}) => {
     const b = document.createElement('button');
-    b.textContent = label;
+    const ico = iconFor(label);
+    if (ico) {
+      const sp = document.createElement('span'); sp.className = 'btn-ico'; sp.innerHTML = ico;
+      b.appendChild(sp);
+    }
+    const tx = document.createElement('span'); tx.textContent = label;
+    b.appendChild(tx);
     if (opts.primary) b.classList.add('primary');
     if (opts.danger) b.classList.add('danger');
     if (opts.disabled) b.disabled = true;
@@ -318,8 +537,15 @@ function renderToolbar() {
     const lbl = document.createElement('span'); lbl.textContent = ' dev: ' + dev.status;
     devPill.append(dotSpan, lbl);
 
+    const redrawBtn = btn('Redraw', {
+      onclick: redrawActiveTerminal,
+      title: 'Force the active terminal to repaint — fixes dropped/garbled characters. Same effect as resizing a terminal window; your session is untouched.',
+    });
+    redrawBtn.classList.add('redraw-btn');
+
     tb.append(
       btn('+ Terminal', { primary: true, onclick: () => openTab('term', s) }),
+      redrawBtn,
       sep(),
       devPill,
       devRunning
@@ -416,6 +642,38 @@ function openTab(type, site) {
   renderTabs();
 }
 
+// Force the ttyd terminal to repaint by briefly resizing it. Shrinking then
+// restoring the iframe makes xterm's FitAddon recompute rows/cols, which ttyd
+// forwards to the PTY (TIOCSWINSZ) → SIGWINCH → the TUI (Claude) redraws,
+// clearing dropped/garbled characters. Same effect as resizing a native
+// terminal window. Non-destructive: the session/process is untouched.
+function forceRedraw(pane) {
+  if (!pane || !pane.querySelector('iframe')) return;
+  pane.classList.add('redrawing');
+  setTimeout(() => pane.classList.remove('redrawing'), 220);
+}
+
+// Redraw whichever tab is active for the current site (toolbar button).
+// The real fix for dropped/garbled glyphs is clearing xterm's glyph texture-
+// atlas + a full refresh — a plain resize repaints from the SAME corrupt
+// atlas. We can't touch the cross-origin iframe's `window.term` directly, so
+// we postMessage in; the injected ttyd script (ttyd-enhance.js) does the work.
+// The forceRedraw() resize is kept as a best-effort fallback for any older
+// container that predates the injected handler.
+function redrawActiveTerminal() {
+  const s = state.sites.find(x => x.name === state.activeSite);
+  if (!s) return;
+  const ts = siteTabState(s.name);
+  if (!ts.active) return;
+  const pane = document.querySelector(`.pane[data-key="${CSS.escape(s.name + '::' + ts.active)}"]`);
+  if (!pane) return;
+  const iframe = pane.querySelector('iframe');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({ type: 'dd-redraw' }, '*');
+  }
+  forceRedraw(pane);
+}
+
 function closeTab(site, tabId) {
   const ts = siteTabState(site);
   const idx = ts.tabs.findIndex(t => t.id === tabId);
@@ -452,6 +710,9 @@ function renderTabs() {
   const ts = siteTabState(s.name);
   if (!ts.tabs.length) {
     const old = $('.empty', stage); if (old) old.remove();
+    // This site has no tabs — hide every other site's pane, otherwise the
+    // previously-active terminal stays visible behind the empty state.
+    for (const pane of $$('.pane', stage)) pane.classList.remove('active');
     const emp = document.createElement('div');
     emp.className = 'empty';
     if (s.status === 'running') {
@@ -502,6 +763,13 @@ function renderTabs() {
   // Mount / show / hide iframes
   for (const t of ts.tabs) {
     const key = `${s.name}::${t.id}`;
+    // Port-based URLs (terminal, dev preview) must track the LIVE container
+    // port, not the value frozen when the tab was opened — ports get
+    // reassigned when a container is recreated, which would otherwise leave
+    // an open terminal pointing at a dead port ("refused to connect").
+    const effUrl = t.type === 'term' ? s.ttydUrl
+                 : t.type === 'dev'  ? s.devUrl
+                 : t.url;
     let pane = stage.querySelector(`.pane[data-key="${CSS.escape(key)}"]`);
     if (!pane) {
       pane = document.createElement('div');
@@ -521,7 +789,7 @@ function renderTabs() {
         pane.appendChild(bar);
 
         const pre = document.createElement('pre');
-        pre.style.cssText = 'margin:0;padding:10px 12px;flex:1;overflow:auto;background:var(--bg);color:var(--fg);font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;';
+        pre.style.cssText = 'margin:0;padding:10px 12px;flex:1;overflow:auto;background:var(--bg-0);color:var(--fg);font:12px/1.5 var(--font-mono);white-space:pre-wrap;';
         pre.textContent = '(loading…)';
         pane.appendChild(pre);
 
@@ -541,8 +809,8 @@ function renderTabs() {
         const bar = document.createElement('div');
         bar.className = 'pane-bar';
         const openExt = document.createElement('a');
-        openExt.href = t.url; openExt.target = '_blank'; openExt.rel = 'noopener';
-        openExt.textContent = '↗ ' + t.url;
+        openExt.href = effUrl || t.url; openExt.target = '_blank'; openExt.rel = 'noopener';
+        openExt.textContent = '↗ ' + (effUrl || t.url);
         const reload = document.createElement('button');
         reload.textContent = 'reload';
         reload.addEventListener('click', () => { const f = pane.querySelector('iframe'); f.src = f.src; });
@@ -559,15 +827,22 @@ function renderTabs() {
         }
         pane.appendChild(bar);
         const iframe = document.createElement('iframe');
-        iframe.src = t.url;
+        iframe.src = effUrl || t.url;
         pane.appendChild(iframe);
       } else {
-        // Plain terminal (ttyd)
+        // Plain terminal (ttyd). Repaint is driven by the toolbar "Redraw"
+        // button (redrawActiveTerminal) → postMessage into this iframe.
         const iframe = document.createElement('iframe');
-        iframe.src = t.url;
+        iframe.src = effUrl || t.url;
         pane.appendChild(iframe);
       }
       stage.appendChild(pane);
+    } else if (effUrl && (t.type === 'term' || t.type === 'dev')) {
+      // Pane already mounted — if the live port drifted (container recreated),
+      // repoint the iframe so the terminal/preview reconnects instead of
+      // showing a dead "refused to connect" port.
+      const f = pane.querySelector('iframe');
+      if (f && f.src !== effUrl) f.src = effUrl;
     }
     pane.classList.toggle('active', t.id === ts.active);
   }
@@ -601,6 +876,8 @@ refresh().then(() => {
   // Initial dev-status poll for the active site (after first refresh)
   const a = state.sites.find(x => x.name === state.activeSite);
   if (a && a.status === 'running') pollDev(a.name);
+  // Drop the one-shot entrance animation so the 5s sidebar poll doesn't re-trigger it.
+  setTimeout(() => $('#side-list').classList.remove('boot'), 900);
 });
 </script>
 

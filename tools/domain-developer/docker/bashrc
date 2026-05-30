@@ -35,3 +35,7 @@ fi
 git config --global --add safe.directory "${__site_dir}" 2>/dev/null || true
 
 cd "${SITE_DIR:-/work}" 2>/dev/null || true
+
+# Show the welcome banner (written by the entrypoint each boot). With tmux this
+# prints once per shell/pane instead of once per ttyd session.
+[[ $- == *i* && -r ~/.banner ]] && cat ~/.banner
