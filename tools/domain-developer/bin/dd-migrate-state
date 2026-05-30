@@ -43,10 +43,13 @@ copy_volume() {
     # Throwaway container (as root so chown always works) copies with GNU cp,
     # chowns to the host uid, then counts both sides and FAILS if the
     # destination has fewer files than the source.
-    if docker run --rm --user 0:0 \
+    # --entrypoint bash is REQUIRED: domain-developer:latest's ENTRYPOINT is
+    # tini→dd-entrypoint (launches ttyd) and would ignore our command, running
+    # ttyd instead of the copy — a silent no-op. Override it.
+    if docker run --rm --user 0:0 --entrypoint bash \
         -v "${vol}:/from:ro" \
         -v "${dest}:/to" \
-        "${HELPER_IMAGE}" bash -c "
+        "${HELPER_IMAGE}" -c "
             set -e
             cp -an /from/. /to/ 2>/dev/null || true
             chown -R ${OWNER} /to

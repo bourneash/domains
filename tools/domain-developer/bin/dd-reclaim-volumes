@@ -34,8 +34,10 @@ done
 [[ "${DD_RECLAIM_YES:-0}" == "1" ]] && YES=1
 
 vol_file_count() {
-    docker run --rm --user 0:0 -v "$1:/v:ro" "${HELPER_IMAGE}" \
-        bash -c 'find /v -type f 2>/dev/null | wc -l'
+    # --entrypoint bash: domain-developer:latest's entrypoint launches ttyd and
+    # would ignore our command — override it so we actually count files.
+    docker run --rm --user 0:0 --entrypoint bash -v "$1:/v:ro" "${HELPER_IMAGE}" \
+        -c 'find /v -type f 2>/dev/null | wc -l'
 }
 
 # Map a volume name to its host dir. dd-claude-<site> -> state/<site>/claude,
