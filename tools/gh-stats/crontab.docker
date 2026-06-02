@@ -1,0 +1,5 @@
+# gh-stats schedule (supercronic, TZ=UTC).
+# Hourly at :37 — offset from cf-stats (:23) so they don't bunch up.
+# The collect command reads sites.yml from the bind-mounted site-tracker dir.
+
+37 * * * * gh-stats collect --out-dir /work/out --sites-file /work/tools/site-tracker/sites.yml 2>&1 | tee -a /work/out/cron.log
