@@ -1,0 +1,97 @@
+{
+  "id": null,
+  "uid": "developer",
+  "title": "Developer — Git & Deploys",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": { "from": "now-7d", "to": "now" },
+  "timepicker": {},
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Sites in drift",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT COUNT(*) FROM (SELECT g.site FROM gh_repos g JOIN zone_worker zw ON zw.zone=g.site LEFT JOIN deployments d ON d.worker=zw.worker WHERE g.ts=(SELECT MAX(ts) FROM gh_repos) GROUP BY g.site HAVING g.last_commit_date > MAX(d.created_on))" } ],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" }, "colorMode": "background", "graphMode": "none", "textMode": "auto", "justifyMode": "auto", "orientation": "auto" }
+    },
+    {
+      "id": 2, "type": "stat", "title": "Open PRs",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT COUNT(*) FROM gh_prs WHERE ts=(SELECT MAX(ts) FROM gh_prs)" } ],
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "blue", "value": null } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" }, "colorMode": "background", "graphMode": "none", "textMode": "auto", "justifyMode": "auto", "orientation": "auto" }
+    },
+    {
+      "id": 3, "type": "stat", "title": "Deploys (24h)",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT COUNT(*) FROM deployments WHERE created_on >= datetime('now','-24 hours')" } ],
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" }, "colorMode": "background", "graphMode": "none", "textMode": "auto", "justifyMode": "auto", "orientation": "auto" }
+    },
+    {
+      "id": 4, "type": "stat", "title": "Deploys (7d)",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT COUNT(*) FROM deployments WHERE created_on >= datetime('now','-7 days')" } ],
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "purple", "value": null } ] } }, "overrides": [] },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" }, "colorMode": "background", "graphMode": "none", "textMode": "auto", "justifyMode": "auto", "orientation": "auto" }
+    },
+    {
+      "id": 5, "type": "table", "title": "Pipeline status — commit vs deploy",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT g.site AS \"Site\", substr(g.last_commit_sha,1,7) AS \"Main @\", g.last_commit_date AS \"Last commit\", MAX(d.created_on) AS \"Last deploy\", CASE WHEN MAX(d.created_on) IS NULL THEN '?' WHEN g.last_commit_date > MAX(d.created_on) THEN 'DRIFT' ELSE 'ok' END AS \"Drift\" FROM gh_repos g JOIN zone_worker zw ON zw.zone=g.site LEFT JOIN deployments d ON d.worker=zw.worker WHERE g.ts=(SELECT MAX(ts) FROM gh_repos) GROUP BY g.site ORDER BY g.site" } ],
+      "gridPos": { "h": 11, "w": 24, "x": 0, "y": 4 },
+      "fieldConfig": { "defaults": {}, "overrides": [
+        { "matcher": { "id": "byName", "options": "Drift" }, "properties": [
+          { "id": "custom.displayMode", "value": "color-background" },
+          { "id": "mappings", "value": [
+            { "type": "value", "options": { "DRIFT": { "color": "red", "index": 0 }, "ok": { "color": "green", "index": 1 }, "?": { "color": "yellow", "index": 2 } } } ] } ] } ] },
+      "options": { "sortBy": [ { "displayName": "Drift", "desc": true } ] }
+    },
+    {
+      "id": 6, "type": "table", "title": "Deploy log — newest first",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT d.created_on AS \"Time\", COALESCE(zw.zone, d.worker) AS \"Site\", d.source AS \"Source\", substr(d.version_id,1,8) AS \"Version\", d.author AS \"Author\" FROM deployments d LEFT JOIN zone_worker zw ON zw.worker=d.worker ORDER BY d.created_on DESC LIMIT 100" } ],
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 15 },
+      "fieldConfig": { "defaults": {}, "overrides": [
+        { "matcher": { "id": "byName", "options": "Source" }, "properties": [
+          { "id": "custom.displayMode", "value": "color-background" },
+          { "id": "mappings", "value": [
+            { "type": "value", "options": { "wrangler": { "color": "blue", "index": 0 }, "ci": { "color": "green", "index": 1 } } } ] } ] } ] },
+      "options": { "sortBy": [ { "displayName": "Time", "desc": true } ] }
+    },
+    {
+      "id": 7, "type": "table", "title": "Branches per repo",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT site AS \"Site\", branch_count AS \"Branches\", branches AS \"Names\" FROM gh_repos WHERE ts=(SELECT MAX(ts) FROM gh_repos) ORDER BY branch_count DESC, site" } ],
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 27 },
+      "fieldConfig": { "defaults": {}, "overrides": [
+        { "matcher": { "id": "byName", "options": "Branches" }, "properties": [
+          { "id": "custom.displayMode", "value": "color-background" },
+          { "id": "thresholds", "value": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 2 }, { "color": "orange", "value": 4 } ] } } ] } ] },
+      "options": { "sortBy": [ { "displayName": "Branches", "desc": true } ] }
+    },
+    {
+      "id": 8, "type": "table", "title": "Open pull requests",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "cf-stats" },
+      "targets": [ { "refId": "A", "rawQuery": true, "queryType": "table", "format": "table",
+        "rawQueryText": "SELECT site AS \"Site\", number AS \"#\", title AS \"Title\", head AS \"Branch\" FROM gh_prs WHERE ts=(SELECT MAX(ts) FROM gh_prs) ORDER BY site, number" } ],
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 27 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": {}
+    }
+  ]
+}
