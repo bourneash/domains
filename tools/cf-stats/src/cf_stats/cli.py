@@ -51,6 +51,7 @@ def _summary_line(snap: dict) -> str:
         f"[{snap['timestamp']}] cf-stats",
         f"zones={s('zones', 'count')}",
         f"workers={s('workers', 'count')}",
+        f"deploys={sum(len(v) for v in (snap.get('deployments') or {}).get('per_worker', {}).values())}",
         f"domains={s('worker_domains', 'count')}",
         f"dns={s('dns', 'total_records')}",
         f"email_on={s('email_routing', 'enabled_count', '?')}",
@@ -114,6 +115,7 @@ def collect(out_dir: Path, env_file: Path | None, analytics_hours: int,
         snap["token"] = C.collect_token(cf)
         snap["zones"] = C.collect_zones(cf)
         snap["workers"] = C.collect_workers(cf)
+        snap["deployments"] = C.collect_deployments(cf, snap["workers"])
         snap["worker_domains"] = C.collect_worker_domains(cf)
         snap["workers_subdomain"] = C.collect_workers_subdomain(cf)
         snap["dns"] = C.collect_dns(cf, snap["zones"])
