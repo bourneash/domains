@@ -27,9 +27,11 @@ services:
     environment:
       CF_STATS_OUT: /cf-stats-out
       CF_STATS_DB: /grafana-data/cf-stats.db
+      GH_STATS_OUT: /gh-stats-out
     volumes:
       - ./ingest.py:/app/ingest.py:ro
       - ../cf-stats/out:/cf-stats-out:ro
+      - ../gh-stats/out:/gh-stats-out:ro
       - grafana_data:/grafana-data
     restart: unless-stopped
     depends_on:
