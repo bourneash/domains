@@ -56,6 +56,20 @@ def init(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_zones_zone ON zones(zone);
         CREATE INDEX IF NOT EXISTS idx_rum_ts     ON rum(ts);
         CREATE INDEX IF NOT EXISTS idx_workers_ts ON workers(ts);
+        CREATE TABLE IF NOT EXISTS deployments (
+            worker       TEXT NOT NULL,
+            created_on   TEXT NOT NULL,
+            source       TEXT,
+            version_id   TEXT,
+            triggered_by TEXT,
+            author       TEXT,
+            PRIMARY KEY (worker, created_on)
+        );
+        CREATE TABLE IF NOT EXISTS zone_worker (
+            zone   TEXT PRIMARY KEY,
+            worker TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_deploy_created ON deployments(created_on);
     """)
     conn.commit()
 
@@ -95,6 +109,26 @@ def ingest_snapshot(conn: sqlite3.Connection, snap: dict) -> None:
             "INSERT OR REPLACE INTO workers VALUES (?,?,?,?)",
             (ts, script, ws.get("requests", 0), ws.get("errors", 0)),
         )
+
+    dep = snap.get("deployments") or {}
+    for worker, rows in (dep.get("per_worker") or {}).items():
+        for d in rows:
+            created = d.get("created_on")
+            if not created:
+                continue
+            conn.execute(
+                "INSERT OR REPLACE INTO deployments VALUES (?,?,?,?,?,?)",
+                (worker, created, d.get("source"), d.get("version_id"),
+                 d.get("triggered_by"), d.get("author")),
+            )
+
+    wd = snap.get("worker_domains") or {}
+    for d in (wd.get("domains") or []):
+        zone = d.get("zone_name")
+        worker = d.get("service")
+        if zone and worker:
+            conn.execute(
+                "INSERT OR REPLACE INTO zone_worker VALUES (?,?)", (zone, worker))
 
 
 def main() -> None:
