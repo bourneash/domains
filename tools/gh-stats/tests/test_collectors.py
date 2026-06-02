@@ -60,3 +60,47 @@ def test_collect_repo_empty_branch_for_missing_main(gh):
     assert out["ok"] is True
     assert out["last_main_commit"] is None
     assert out["open_pr_count"] == 0
+
+
+@respx.mock
+def test_collect_repo_falls_back_to_default_branch(gh):
+    """When 'main' is absent but the default branch has commits, the fallback
+    returns the default branch's last commit (not None)."""
+    slug = "bourneash/y"
+    respx.get(f"{BASE}/repos/{slug}").mock(return_value=httpx.Response(
+        200, json={"default_branch": "master", "visibility": "private"}))
+    respx.get(f"{BASE}/repos/{slug}/branches").mock(return_value=httpx.Response(
+        200, json=[{"name": "master"}]))
+    # First /commits call (sha=main) 404s; the fallback (sha=master) succeeds.
+    respx.get(f"{BASE}/repos/{slug}/commits").mock(side_effect=[
+        httpx.Response(404, json={"message": "No commit found for main"}),
+        httpx.Response(200, json=[{"sha": "deadbee1234", "commit": {
+            "committer": {"date": "2026-05-01T00:00:00Z"},
+            "message": "initial"}}]),
+    ])
+    respx.get(f"{BASE}/repos/{slug}/pulls").mock(return_value=httpx.Response(
+        200, json=[]))
+    out = C.collect_repo(gh, "y.com", slug)
+    assert out["ok"] is True
+    assert out["last_main_commit"]["sha"] == "deadbee"
+    assert out["last_main_commit"]["message"] == "initial"
+
+
+@respx.mock
+def test_collect_repo_empty_commit_message(gh):
+    """An empty commit message must not crash; it degrades to an empty string
+    while still returning the commit (regression for splitlines()[0])."""
+    slug = "bourneash/z"
+    respx.get(f"{BASE}/repos/{slug}").mock(return_value=httpx.Response(
+        200, json={"default_branch": "main", "visibility": "private"}))
+    respx.get(f"{BASE}/repos/{slug}/branches").mock(return_value=httpx.Response(
+        200, json=[{"name": "main"}]))
+    respx.get(f"{BASE}/repos/{slug}/commits").mock(return_value=httpx.Response(
+        200, json=[{"sha": "abc1234def", "commit": {
+            "committer": {"date": "2026-05-02T00:00:00Z"}, "message": ""}}]))
+    respx.get(f"{BASE}/repos/{slug}/pulls").mock(return_value=httpx.Response(
+        200, json=[]))
+    out = C.collect_repo(gh, "z.com", slug)
+    assert out["ok"] is True
+    assert out["last_main_commit"]["sha"] == "abc1234"
+    assert out["last_main_commit"]["message"] == ""

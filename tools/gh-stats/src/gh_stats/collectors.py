@@ -12,9 +12,11 @@ def _err(e: Exception) -> dict:
     return {"ok": False, "status": 0, "error": str(e)}
 
 
-def _last_main_commit(gh: GHClient, slug: str, default_branch: str) -> dict | None:
-    """Last commit on the repo's main branch. Returns None if the branch is
-    empty/absent (409/404) rather than raising."""
+def _last_main_commit(gh: GHClient, slug: str, default_branch: str | None) -> dict | None:
+    """Last commit shipped to the repo. Always tries `main` first (that is the
+    branch the deploy pipeline cares about); only if `main` is absent
+    (404/409/422) does it fall back once to the repo's default branch. Returns
+    None if neither resolves, rather than raising."""
     branch = "main" if default_branch in (None, "") else default_branch
     try:
         commits = gh.get(f"/repos/{slug}/commits", params={"sha": "main", "per_page": 1})
@@ -34,10 +36,11 @@ def _last_main_commit(gh: GHClient, slug: str, default_branch: str) -> dict | No
     if not commits:
         return None
     c = commits[0]
+    msg = ((c.get("commit") or {}).get("message") or "").splitlines()
     return {
         "sha": (c.get("sha") or "")[:7],
         "date": ((c.get("commit") or {}).get("committer") or {}).get("date"),
-        "message": ((c.get("commit") or {}).get("message") or "").splitlines()[0][:120],
+        "message": (msg[0] if msg else "")[:120],
     }
 
 
