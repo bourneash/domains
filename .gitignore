@@ -16,6 +16,7 @@
 playwright-report/
 test-results/
 .claude/settings.local.json
+.cloak-screenshots/
 node_modules/
 
 # Stray screenshots dropped at root by browser sessions
@@ -28,3 +29,4 @@ node_modules/
 Thumbs.db
 
 .security-dashboard/
+.vsec

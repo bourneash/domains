@@ -97,6 +97,8 @@ cat > /home/dev/.banner <<EOF
 ║  Aliases:                                                      ║
 ║    yolo  = claude --dangerously-skip-permissions               ║
 ║    sane  = claude                                              ║
+║                                                                ║
+║  Copy text:  Shift+drag to select, then Ctrl+Shift+C / Cmd+C   ║
 ╚════════════════════════════════════════════════════════════════╝
 EOF
 
@@ -112,6 +114,20 @@ cat > /home/dev/.tmux.conf <<'TMUXCONF'
 set -g default-command "bash -l"
 set -g history-limit 100000
 set -g mouse on
+# Copy/paste in the browser:
+#   - mouse on lets the wheel scroll tmux history, but a plain drag is captured
+#     by tmux's copy-mode — it lands in tmux's INTERNAL buffer, not your OS
+#     clipboard, so it looks like "nothing got selected". Two things fix that:
+#   1. set-clipboard on + the copy-mode bindings below emit OSC 52, which ttyd's
+#      xterm relays to the actual system clipboard — so drag-select now copies.
+#   2. Hold SHIFT while dragging to bypass tmux entirely and do a native browser
+#      selection (then Ctrl+Shift+C / Cmd+C) — always works as a fallback.
+set -g set-clipboard on
+set -g mouse-utf8 off 2>/dev/null
+# Drag-release in copy-mode → copy via OSC 52 to the system clipboard, keep it
+# highlighted (don't clear) so the selection is visible after release.
+bind -T copy-mode    MouseDragEnd1Pane send -X copy-selection-no-clear
+bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-selection-no-clear
 set -g status-style "bg=#0a0a0a,fg=#ffaa00"
 TMUXCONF
 
