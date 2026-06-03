@@ -71,6 +71,27 @@ snapshots) and renders via Grafana at `tools/cf-grafana/`. When the
 visual dashboard ships, it should pull the same `latest.json` rather
 than make its own CF calls.
 
+### Developer dashboard — shipped 2026-06-02
+
+A "Developer — Git & Deploys" Grafana dashboard (uid `developer`, on the
+existing `:4741` stack) correlating GitHub state to Cloudflare deploys.
+Built from:
+- `tools/cf-stats` `collect_deployments()` — per-worker deploy log
+  (`created_on`, `source`, `version_id`, author) from the CF deployments API.
+- `tools/gh-stats` (new sibling tool) — hourly per-repo GitHub snapshots
+  (branches, last commit to `main`, open PRs), domain→repo map read from
+  `site-tracker/sites.yml`, domain→worker resolved from cf-stats
+  `worker_domains` (no hardcoding; both names drift via TLD stripping).
+- `cf-grafana/ingest.py` tables `deployments`, `zone_worker`, `gh_repos`,
+  `gh_prs`; `cf-grafana/grafana/dashboards/developer.json` (pipeline-status
+  drift table, deploy log, branches, open PRs, stat tiles).
+
+Note: Workers Builds CI telemetry (build pass/fail/duration/logs) is **not**
+exposed to our token; the deploy `source` field is the substitute — all
+current deploys read `wrangler` (sites ship via wrangler, not CF
+push-to-deploy CI). domain-developer sandbox session activity was out of
+scope (no metric stream exists yet).
+
 ## Explicitly deferred (out of v1, may never)
 
 - GSC impressions/clicks (OAuth setup)

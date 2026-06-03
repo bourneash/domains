@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# dd-reclaim-volumes [site]
+#
+# Safely remove the legacy named volumes (dd-claude-<site>, dd-home-<site>)
+# AFTER verifying their contents were migrated to the host bind dirs under
+# tools/domain-developer/state/<site>/{claude,persist}.
+#
+# This exists because raw `docker volume rm` has no safety net — on 2026-05-30 a
+# silent migration failure (BusyBox cp) was followed by manual `docker volume rm`
+# and per-site Claude cache was lost. This script REFUSES to delete a volume
+# unless the matching host dir has at least as many files as the volume.
+#
+# For EACH volume:
+#   host_files >= volume_files  → remove the volume
+#   otherwise                   → keep it, report, exit non-zero
+#
+# Run with no arg to consider every existing dd-claude-* / dd-home-* volume.
+# DRY RUN by default — pass --yes (or set DD_RECLAIM_YES=1) to actually delete.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATE_ROOT="${DD_STATE_DIR:-${HERE}/../state}"
+HELPER_IMAGE="${DD_HELPER_IMAGE:-domain-developer:latest}"
+docker image inspect "${HELPER_IMAGE}" >/dev/null 2>&1 || HELPER_IMAGE=ubuntu:24.04
+
+YES=0
+args=()
+for a in "$@"; do
+    case "$a" in
+        --yes|-y) YES=1 ;;
+        *) args+=("$a") ;;
+    esac
+done
+[[ "${DD_RECLAIM_YES:-0}" == "1" ]] && YES=1
+
+vol_file_count() {
+    # --entrypoint bash: domain-developer:latest's entrypoint launches ttyd and
+    # would ignore our command — override it so we actually count files.
+    docker run --rm --user 0:0 --entrypoint bash -v "$1:/v:ro" "${HELPER_IMAGE}" \
+        -c 'find /v -type f 2>/dev/null | wc -l'
+}
+
+# Map a volume name to its host dir. dd-claude-<site> -> state/<site>/claude,
+# dd-home-<sanitized> -> state/<site>/persist (best-effort reverse of the
+# sanitizer; site names here are domains, already safe).
+host_dir_for() {
+    local vol="$1"
+    case "$vol" in
+        dd-claude-*) echo "${STATE_ROOT}/${vol#dd-claude-}/claude" ;;
+        dd-home-*)   echo "${STATE_ROOT}/${vol#dd-home-}/persist" ;;
+        *) return 1 ;;
+    esac
+}
+
+reclaim_one() {
+    local vol="$1" dest vc hc
+    dest="$(host_dir_for "${vol}")" || { echo "  [${vol}] unrecognized name — skip"; return 0; }
+    if ! docker volume inspect "${vol}" >/dev/null 2>&1; then
+        echo "  [${vol}] not present — skip"; return 0
+    fi
+    vc="$(vol_file_count "${vol}")"
+    hc="$(find "${dest}" -type f 2>/dev/null | wc -l)"
+    if [[ ! -d "${dest}" ]]; then
+        echo "  [${vol}] host dir ${dest} MISSING (vol=${vc}) — KEEP"; KEEP=1; return 0
+    fi
+    if [[ "${hc}" -ge "${vc}" && "${vc}" -gt 0 ]] || [[ "${vc}" -eq 0 ]]; then
+        if [[ "${YES}" -eq 1 ]]; then
+            docker volume rm "${vol}" >/dev/null && echo "  [${vol}] removed (host=${hc} >= vol=${vc})"
+        else
+            echo "  [${vol}] WOULD remove (host=${hc} >= vol=${vc})  [dry-run]"
+        fi
+    else
+        echo "  [${vol}] KEEP — host=${hc} < vol=${vc} (migration incomplete)"; KEEP=1
+    fi
+}
+
+KEEP=0
+targets=()
+if [[ "${#args[@]}" -ge 1 ]]; then
+    for s in "${args[@]}"; do targets+=("dd-claude-${s}" "dd-home-${s}"); done
+else
+    while read -r v; do [[ -n "$v" ]] && targets+=("$v"); done < <(
+        docker volume ls --format '{{.Name}}' | grep -E '^dd-(claude|home)-' | sort || true)
+fi
+
+if [[ "${#targets[@]}" -eq 0 ]]; then
+    echo "no dd-claude-*/dd-home-* volumes found — nothing to reclaim."
+    exit 0
+fi
+
+[[ "${YES}" -eq 1 ]] || echo "(dry run — pass --yes to actually delete)"
+for v in "${targets[@]}"; do reclaim_one "$v"; done
+
+if [[ "${KEEP}" -ne 0 ]]; then
+    echo "Some volumes were KEPT because migration looked incomplete. Re-run dd-migrate-state first." >&2
+    exit 1
+fi
+echo "done."

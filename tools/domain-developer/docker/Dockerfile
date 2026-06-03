@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       jq less man-db \
       ripgrep fd-find fzf \
       vim nano \
+      tmux \
       python3 python3-pip python3-venv pipx \
       build-essential \
       tzdata locales sudo \
@@ -52,8 +53,44 @@ RUN ARCH=$(uname -m) \
       -o /usr/local/bin/ttyd \
     && chmod +x /usr/local/bin/ttyd
 
+# Shift+Enter = newline in the web terminal. ttyd's bundled xterm sends bare
+# CR for both Enter and Shift+Enter, so Claude Code's TUI submits instead of
+# inserting a line. We capture ttyd's OWN served index.html here (so it always
+# matches this exact ttyd build) and inject a small script at the top of <head>
+# that rewrites Shift+Enter → ESC+CR on the input websocket. The entrypoint
+# then serves this augmented page via `ttyd -I`. See ttyd-shift-enter.js.
+COPY ttyd-enhance.js /opt/ttyd/enhance.js
+RUN set -eu; \
+    ttyd -p 7682 -i 127.0.0.1 true & TTYD_PID="$!"; \
+    for i in $(seq 1 50); do \
+      curl -sf http://127.0.0.1:7682/ -o /opt/ttyd/index.html && break; \
+      sleep 0.2; \
+    done; \
+    kill "${TTYD_PID}" 2>/dev/null || true; \
+    test -s /opt/ttyd/index.html; \
+    node -e 'const fs=require("fs"); \
+      const html=fs.readFileSync("/opt/ttyd/index.html","utf8"); \
+      const js=fs.readFileSync("/opt/ttyd/enhance.js","utf8"); \
+      if(!html.includes("<head>")) throw new Error("ttyd index has no <head>"); \
+      const out=html.replace("<head>","<head><script>"+js+"</scr"+"ipt>"); \
+      if(out===html) throw new Error("injection no-op"); \
+      fs.writeFileSync("/opt/ttyd/index.html",out);'; \
+    grep -q "NEWLINE_FRAME" /opt/ttyd/index.html; \
+    grep -q "dd-redraw" /opt/ttyd/index.html
+
 # Claude Code + Wrangler globally
 RUN npm install -g @anthropic-ai/claude-code wrangler
+
+# The global npm prefix (/usr) is root-owned, but containers run as the
+# unprivileged `dev` user — so claude's in-place auto-update can't write there
+# ("no write permission to npm prefix"). The image owns the claude version;
+# bump it by rebuilding with `bin/dd-build`, not by self-update.
+ENV DISABLE_AUTOUPDATER=1
+
+# Put the per-user native-install dir on PATH so claude doesn't nag
+# ("Native installation exists but ~/.local/bin is not in your PATH") if a
+# native claude ever lands there. Applies to exec, ttyd, and login shells.
+ENV PATH="/home/dev/.local/bin:${PATH}"
 
 # Match host UID/GID (1000:1000 on Jesse's machine). Override via build args if needed.
 ARG HOST_UID=1000

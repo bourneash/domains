@@ -30,6 +30,11 @@ const SITES_DIR = path.join(ROOT, 'sites');
 const STATE_FILE = process.env.DD_STATE_FILE
     || path.join(__dirname, '..', 'state.json');
 const IMAGE = 'domain-developer:latest';
+// Per-site Claude state lives on HOST BIND MOUNTS under here (not named
+// volumes) → visible, backup-able, survives `docker volume prune` and
+// container recreation. Layout: <STATE_ROOT>/<site>/{claude,persist}.
+const STATE_ROOT = process.env.DD_STATE_DIR
+    || path.join(HOST_DOMAINS_ROOT, 'tools', 'domain-developer', 'state');
 const PANEL_PORT = parseInt(process.env.DD_PANEL_PORT || '7777', 10);
 const TTYD_PORT_BASE = parseInt(process.env.DD_PORT_BASE || '7800', 10);
 const DEV_PORT_BASE = parseInt(process.env.DD_DEV_PORT_BASE || '7900', 10);
@@ -43,7 +48,6 @@ const PANEL_PUBLIC_HOST = process.env.DD_PANEL_PUBLIC_HOST || '127.0.0.1';
 
 const safeSiteName = (s) => /^[a-zA-Z0-9._-]+$/.test(s);
 const containerName = (site) => `dd-${site}`;
-const volumeName = (site) => `dd-home-${site.replace(/[^a-zA-Z0-9_.-]/g, '_')}`;
 
 function loadState() {
     let s;
@@ -205,20 +209,31 @@ function startContainer(site) {
     const hostProjectDir = path.join(HOST_HOME, '.claude', 'projects', projectId);
     fs.mkdirSync(hostProjectDir, { recursive: true });
 
-    // Shared RO host dirs — skills, commands, hooks, auth read-only.
-    // Each one mounted into the per-site volume's claude dir.
-    const claudeShares = [
-        ['plugins', false],
-        ['commands', false],
-        ['hooks', false],
-        ['.credentials.json', true],  // single-file RO bind for auth
-    ];
+    // Per-site Claude state + scratch on host binds (see STATE_ROOT). Created
+    // here so the dirs exist before `docker run`; the worker entrypoint chowns
+    // them to its dev user on boot (it has passwordless sudo).
+    const claudeStateDir = path.join(STATE_ROOT, site, 'claude');
+    const persistStateDir = path.join(STATE_ROOT, site, 'persist');
+    fs.mkdirSync(claudeStateDir, { recursive: true });
+    fs.mkdirSync(persistStateDir, { recursive: true });
+
+    // Host ~/.claude bits shared into the container, split by whether Claude
+    // WRITES the file at runtime:
+    //   - claudeRoShares: dirs Claude only reads → bind RO straight at dest.
+    //     plugins/commands/hooks (shared, usable not editable) + skills (personal).
+    //   - claudeCopyIn: files Claude REWRITES (settings.json on config changes,
+    //     .credentials.json on every OAuth refresh). Binding these RO broke the
+    //     writes → periodic auth failure. Stage them RO under /host-claude-ro/
+    //     and let the entrypoint copy them in writable.
+    const claudeRoShares = ['plugins', 'commands', 'hooks', 'skills'];
+    const claudeCopyIn = ['settings.json', '.credentials.json'];
 
     const args = [
         'run', '-d',
         '--name', containerName(site),
         '--hostname', `dd-${site}`,
         '--restart', 'unless-stopped',
+        '--stop-timeout', '30',
         '--workdir', hostSiteDir,
         '-p', `127.0.0.1:${ttydPort}:7681`,
         // Dev-server port (Astro default 4321) → host-allocated port,
@@ -228,25 +243,35 @@ function startContainer(site) {
         // Site code bind-mounted at SAME path as host (NOT /work) so
         // claude's cwd-based project encoding matches host's view.
         '-v', `${hostSiteDir}:${hostSiteDir}`,
-        // Per-site writable claude state volume.
-        '-v', `dd-claude-${site}:/home/dev/.claude`,
+        // Per-site writable claude state (host bind, not a named volume).
+        '-v', `${claudeStateDir}:/home/dev/.claude`,
         // .claude.json is COPIED into the volume on first boot by the
         // entrypoint — bind path here is read-once-at-startup only.
         '-v', `${HOST_HOME}/.claude.json:/host-claude-json-ro:ro`,
         // Per-site project dir lives on host, shared with this container.
         '-v', `${hostProjectDir}:/home/dev/.claude/projects/${projectId}`,
         '-v', `${HOST_HOME}/.ssh:/home/dev/.ssh:ro`,
-        '-v', `${volumeName(site)}:/home/dev/persist`,
+        '-v', `${persistStateDir}:/home/dev/persist`,
         '-e', `SITE_NAME=${site}`,
         '-e', `SITE_DIR=${hostSiteDir}`,
+        // Host home so the entrypoint can bridge absolute host paths baked
+        // into mounted ~/.claude config (marketplace installLocations).
+        '-e', `HOST_HOME=${HOST_HOME}`,
         '-e', 'TTYD_PORT=7681',
     ];
 
-    // RO shares from host ~/.claude/ for plugins/commands/hooks/creds.
-    for (const [name, isFile] of claudeShares) {
+    // RO shares from host ~/.claude/ for plugins/commands/hooks/skills.
+    for (const name of claudeRoShares) {
         const src = path.join(HOST_HOME, '.claude', name);
         if (fs.existsSync(src)) {
             args.push('-v', `${src}:/home/dev/.claude/${name}:ro`);
+        }
+    }
+    // Files Claude rewrites: stage RO; the entrypoint copies them in writable.
+    for (const name of claudeCopyIn) {
+        const src = path.join(HOST_HOME, '.claude', name);
+        if (fs.existsSync(src)) {
+            args.push('-v', `${src}:/host-claude-ro/${name}:ro`);
         }
     }
     if (fs.existsSync(hostSharedEnv)) {

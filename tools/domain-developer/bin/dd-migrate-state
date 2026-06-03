@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# dd-migrate-state [site]
+#
+# One-time, COPY-ONLY migration of per-site Claude state from the legacy named
+# volumes (dd-claude-<site>, dd-home-<site>) to host bind dirs under
+# tools/domain-developer/state/<site>/{claude,persist}.
+#
+# Safety (HARD-VERIFIED — learned the hard way 2026-05-30):
+#   - Uses GNU coreutils cp via the domain-developer image. (The earlier version
+#     used `cp -an` in BusyBox/alpine, whose broken -n flag silently copies
+#     NOTHING — it reported success while migrating 0 files. Never use alpine cp
+#     for this.)
+#   - Copy-only, NO-CLOBBER (GNU `cp -an`): never overwrites newer host files,
+#     never deletes from the volume. Idempotent — safe to re-run.
+#   - POST-COPY ASSERTION: after copying, the destination file count MUST be
+#     >= the source file count, or the run ABORTS LOUDLY with a non-zero exit.
+#     A failed copy can never look like success again.
+#   - Leaves the named volumes intact. Do NOT delete them by hand — use
+#     `bin/dd-reclaim-volumes`, which re-checks counts before removing anything.
+#
+# Run with no arg to migrate every site that still has a legacy claude volume.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATE_ROOT="${DD_STATE_DIR:-${HERE}/../state}"
+OWNER="$(id -u):$(id -g)"
+# GNU coreutils (NOT alpine/busybox — its cp -n is broken). The worker base
+# image is always present; fall back to ubuntu if somehow missing.
+HELPER_IMAGE="${DD_HELPER_IMAGE:-domain-developer:latest}"
+docker image inspect "${HELPER_IMAGE}" >/dev/null 2>&1 || HELPER_IMAGE=ubuntu:24.04
+mkdir -p "${STATE_ROOT}"
+
+fail=0
+
+copy_volume() {
+    local vol="$1" dest="$2" label="$3"
+    if ! docker volume inspect "${vol}" >/dev/null 2>&1; then
+        echo "  [${label}] no volume '${vol}' — skip"
+        return 0
+    fi
+    mkdir -p "${dest}"
+    echo "  [${label}] ${vol} -> ${dest}  (GNU cp -an, no-clobber, verified)"
+    # Throwaway container (as root so chown always works) copies with GNU cp,
+    # chowns to the host uid, then counts both sides and FAILS if the
+    # destination has fewer files than the source.
+    # --entrypoint bash is REQUIRED: domain-developer:latest's ENTRYPOINT is
+    # tini→dd-entrypoint (launches ttyd) and would ignore our command, running
+    # ttyd instead of the copy — a silent no-op. Override it.
+    if docker run --rm --user 0:0 --entrypoint bash \
+        -v "${vol}:/from:ro" \
+        -v "${dest}:/to" \
+        "${HELPER_IMAGE}" -c "
+            set -e
+            cp -an /from/. /to/ 2>/dev/null || true
+            chown -R ${OWNER} /to
+            f=\$(find /from -type f | wc -l)
+            t=\$(find /to   -type f | wc -l)
+            echo \"      source=\$f  dest=\$t\"
+            if [ \"\$t\" -lt \"\$f\" ]; then
+                echo \"      !! VERIFY FAILED: dest has fewer files than source\" >&2
+                exit 17
+            fi
+        "; then
+        echo "      ✓ verified"
+    else
+        echo "  [${label}] MIGRATION FAILED — leaving volume intact, NOT safe to reclaim" >&2
+        fail=1
+    fi
+}
+
+migrate_one() {
+    local site="$1"
+    copy_volume "dd-claude-${site}" "${STATE_ROOT}/${site}/claude"   "${site}/claude"
+    copy_volume "dd-home-${site//[^a-zA-Z0-9_.-]/_}" "${STATE_ROOT}/${site}/persist" "${site}/persist"
+}
+
+if [[ $# -ge 1 ]]; then
+    echo "site: $1"
+    migrate_one "$1"
+else
+    docker volume ls --format '{{.Name}}' \
+        | grep '^dd-claude-' | sed 's/^dd-claude-//' | sort \
+        | while read -r s; do
+            echo "site: ${s}"
+            migrate_one "${s}"
+        done
+    # NOTE: the while-loop runs in a subshell (pipe), so `fail` set inside it
+    # does not propagate here. Re-derive overall status below.
+fi
+
+if [[ "${fail}" -ne 0 ]]; then
+    echo "FAILED: at least one volume did not fully migrate. Do NOT reclaim volumes." >&2
+    exit 1
+fi
+echo "done. Volumes left intact — reclaim with: bin/dd-reclaim-volumes [site]"

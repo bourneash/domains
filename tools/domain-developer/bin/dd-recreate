@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# dd-recreate <site>
+#
+# Recreate a worker container WITHOUT losing state. Safe by construction now
+# that all per-site state lives on host bind mounts (REDESIGN.md): we stop + rm
+# the container and start a fresh one from the current image. State (Claude
+# config, credentials, transcripts, scratch) lives under
+# tools/domain-developer/state/<site>/ and on the host's ~/.claude/projects, so
+# it survives untouched.
+#
+# Re-uses the panel (the port owner) if it's up; otherwise falls back to the
+# CLI entry point (no published ports).
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PANEL_URL="${DD_PANEL_URL:-http://127.0.0.1:7777}"
+
+site="${1:-}"
+[[ -n "${site}" ]] || { echo "usage: dd-recreate <site>" >&2; exit 1; }
+cname="dd-${site}"
+
+echo "[dd-recreate] stopping + removing ${cname} (host-bind state is preserved)..."
+docker stop "${cname}" >/dev/null 2>&1 || true
+docker rm   "${cname}" >/dev/null 2>&1 || true
+
+if curl -fsS "${PANEL_URL}/api/health" >/dev/null 2>&1; then
+    echo "[dd-recreate] panel up — starting via panel (preserves port assignments)..."
+    curl -fsS -X POST "${PANEL_URL}/api/sites/${site}/start" && echo
+else
+    echo "[dd-recreate] panel down — starting via CLI (no published ports)..."
+    "${HERE}/domain-developer" "${site}" true
+fi
+
+echo "[dd-recreate] done. Verify with: ${HERE}/dd-doctor ${site}"

@@ -551,3 +551,36 @@ def collect_workers_analytics(cf: CFClient, hours: int = 24) -> dict:
         }
     except Exception as e:
         return _err(e)
+
+
+def collect_deployments(cf: CFClient, workers: dict, limit: int = 5) -> dict:
+    """Latest deployments per worker script. Best-effort: a worker that errors
+    records its error string and never aborts the snapshot."""
+    if not workers.get("ok"):
+        return {"ok": False, "error": "workers unavailable"}
+    per_worker: dict[str, list] = {}
+    errors: dict[str, str] = {}
+    for s in workers.get("scripts") or []:
+        name = s.get("id")
+        if not name:
+            continue
+        try:
+            body = cf.get(
+                f"/accounts/{cf.account_id}/workers/scripts/{name}/deployments"
+            )
+            result = body.get("result") or {}
+            deps = result.get("deployments") if isinstance(result, dict) else result
+            rows = []
+            for d in (deps or [])[:limit]:
+                versions = d.get("versions") or []
+                rows.append({
+                    "created_on": d.get("created_on"),
+                    "source": d.get("source"),
+                    "version_id": versions[0].get("version_id") if versions else None,
+                    "triggered_by": (d.get("annotations") or {}).get("workers/triggered_by"),
+                    "author": d.get("author_email"),
+                })
+            per_worker[name] = rows
+        except Exception as e:
+            errors[name] = str(e)
+    return {"ok": True, "limit": limit, "per_worker": per_worker, "errors": errors}

@@ -1,0 +1,26 @@
+# gh-stats — GitHub per-repo snapshot collector, containerized.
+# Mirrors tools/cf-stats/docker-compose.yml.
+#
+# Bring up:    docker compose up -d
+# Watch logs:  docker compose logs -f
+# Force run:   docker compose exec collector gh-stats collect --out-dir /work/out --sites-file /work/tools/site-tracker/sites.yml
+# Stop:        docker compose down
+
+name: gh-stats
+
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gh-stats:latest
+    container_name: gh-stats
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+    volumes:
+      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      # Read sites.yml (domain→repo map) from the live site-tracker config.
+      - ${HOME:-/home/jesse}/projects/domains/tools/site-tracker/sites.yml:/work/tools/site-tracker/sites.yml:ro
+      # Snapshot output — read by cf-grafana's ingest.
+      - ./out:/work/out

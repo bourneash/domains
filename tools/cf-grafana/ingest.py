@@ -17,6 +17,7 @@ from pathlib import Path
 
 OUT_DIR = Path(os.environ.get("CF_STATS_OUT", Path(__file__).parent.parent / "cf-stats" / "out"))
 DB_PATH = Path(os.environ.get("CF_STATS_DB",  Path(__file__).parent / "data" / "cf-stats.db"))
+GH_STATS_OUT = Path(os.environ.get("GH_STATS_OUT", Path(__file__).parent.parent / "gh-stats" / "out"))
 
 
 def init(conn: sqlite3.Connection) -> None:
@@ -56,6 +57,43 @@ def init(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_zones_zone ON zones(zone);
         CREATE INDEX IF NOT EXISTS idx_rum_ts     ON rum(ts);
         CREATE INDEX IF NOT EXISTS idx_workers_ts ON workers(ts);
+        CREATE TABLE IF NOT EXISTS deployments (
+            worker       TEXT NOT NULL,
+            created_on   TEXT NOT NULL,
+            source       TEXT,
+            version_id   TEXT,
+            triggered_by TEXT,
+            author       TEXT,
+            PRIMARY KEY (worker, created_on)
+        );
+        CREATE TABLE IF NOT EXISTS zone_worker (
+            zone   TEXT PRIMARY KEY,
+            worker TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_deploy_created ON deployments(created_on);
+        CREATE TABLE IF NOT EXISTS gh_repos (
+            ts               TEXT NOT NULL,
+            site             TEXT NOT NULL,
+            slug             TEXT,
+            default_branch   TEXT,
+            branch_count     INTEGER DEFAULT 0,
+            branches         TEXT,
+            last_commit_sha  TEXT,
+            last_commit_date TEXT,
+            last_commit_msg  TEXT,
+            open_pr_count    INTEGER DEFAULT 0,
+            PRIMARY KEY (ts, site)
+        );
+        CREATE TABLE IF NOT EXISTS gh_prs (
+            ts     TEXT NOT NULL,
+            site   TEXT NOT NULL,
+            number INTEGER NOT NULL,
+            title  TEXT,
+            head   TEXT,
+            PRIMARY KEY (ts, site, number)
+        );
+        CREATE INDEX IF NOT EXISTS idx_gh_repos_ts ON gh_repos(ts);
+        CREATE INDEX IF NOT EXISTS idx_gh_prs_ts   ON gh_prs(ts);
     """)
     conn.commit()
 
@@ -96,6 +134,50 @@ def ingest_snapshot(conn: sqlite3.Connection, snap: dict) -> None:
             (ts, script, ws.get("requests", 0), ws.get("errors", 0)),
         )
 
+    dep = snap.get("deployments") or {}
+    for worker, rows in (dep.get("per_worker") or {}).items():
+        for d in rows:
+            created = d.get("created_on")
+            if not created:
+                continue
+            conn.execute(
+                "INSERT OR REPLACE INTO deployments VALUES (?,?,?,?,?,?)",
+                (worker, created, d.get("source"), d.get("version_id"),
+                 d.get("triggered_by"), d.get("author")),
+            )
+
+    wd = snap.get("worker_domains") or {}
+    for d in (wd.get("domains") or []):
+        zone = d.get("zone_name")
+        worker = d.get("service")
+        if zone and worker:
+            conn.execute(
+                "INSERT OR REPLACE INTO zone_worker VALUES (?,?)", (zone, worker))
+
+
+def ingest_gh_snapshot(conn: sqlite3.Connection, snap: dict) -> None:
+    ts = snap.get("timestamp", "")
+    if not ts:
+        return
+    for site, r in (snap.get("repos") or {}).items():
+        if not r.get("ok"):
+            continue
+        lc = r.get("last_main_commit") or {}
+        conn.execute(
+            "INSERT OR REPLACE INTO gh_repos VALUES (?,?,?,?,?,?,?,?,?,?)",
+            (ts, site, r.get("slug"), r.get("default_branch"),
+             r.get("branch_count", 0), json.dumps(r.get("branches") or []),
+             lc.get("sha"), lc.get("date"), lc.get("message"),
+             r.get("open_pr_count", 0)),
+        )
+        for pr in (r.get("open_prs") or []):
+            if pr.get("number") is None:
+                continue
+            conn.execute(
+                "INSERT OR REPLACE INTO gh_prs VALUES (?,?,?,?,?)",
+                (ts, site, pr.get("number"), pr.get("title"), pr.get("head")),
+            )
+
 
 def main() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -117,6 +199,23 @@ def main() -> None:
                     print(f"  warn {path.name}: {e}", file=sys.stderr)
         print(f"  {path.name}: {n} snapshots")
         total += n
+
+    gh_total = 0
+    for path in sorted(GH_STATS_OUT.glob("gh-stats-*.jsonl")):
+        n = 0
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    ingest_gh_snapshot(conn, json.loads(line))
+                    n += 1
+                except Exception as e:
+                    print(f"  warn {path.name}: {e}", file=sys.stderr)
+        print(f"  {path.name}: {n} gh snapshots")
+        gh_total += n
+    print(f"  gh-stats: {gh_total} snapshots")
 
     conn.commit()
     conn.close()
