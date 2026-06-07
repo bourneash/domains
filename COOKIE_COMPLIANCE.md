@@ -72,7 +72,6 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | rc-9.com | G-R2H86NCJ2F | 539712309 | ✅ Yes | ✅ 14 months |
 | reviewtattoo.com | G-JRCG92YYCB | 539754267 | ✅ Yes | ✅ 14 months |
 | shoptopless.com | G-SZFER7KX15 | 539755746 | ✅ Yes | ✅ 14 months |
-| shoptopless.com (dup) | — | 539897281 | — | ✅ 14 months |
 | aliencouncil.com | G-8Z6YMDR3VX | 539754450 | ✅ Yes | ✅ 14 months |
 | americastrikes.com | G-ZHHXBF92TY | 539753593 | ✅ Yes | ✅ 14 months |
 | totaljerks.com | G-R72CH4D2CR | 539694930 | ✅ Yes | ✅ 14 months |
@@ -82,7 +81,7 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | xxxtea.com | G-P889LLFBNK | 539743210 | ✅ Yes | ✅ 14 months |
 | sinderella.org | G-Q378G15KZZ | 539773741 | ✅ Yes | ✅ 14 months |
 
-**Note:** Two shoptopless.com properties exist in GA4 (539755746 is the active/starred one). Investigate and delete the duplicate 539897281 if confirmed unused.
+**Note:** Duplicate shoptopless.com property (539897281) confirmed inactive and moved to GA4 Trash 2026-06-07. Active property is 539755746 (receiving traffic, G-SZFER7KX15).
 
 ---
 
