@@ -95,8 +95,9 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 2026-06-06 | shoptopless.com | Added terms.astro, disclosure.astro, CookieBanner, gated GA |
 | 2026-06-06 | totaljerks.com | Added privacy.astro, terms.astro, CookieBanner, gated GA |
 | 2026-06-06 | wetpages.com | Added CookieBanner, gated GA |
-| 2026-06-06 | findyourlostpets.com | Added disclosure.astro |
+| 2026-06-06 | findyourlostpets.com | Removed incorrectly-added disclosure.astro — site has no affiliates |
 | 2026-06-06 | rc-9.com | Added terms.html, cookie banner, gated GA |
 | 2026-06-06 | 30 coming-soon sites | Added privacy.astro + terms.astro + footer legal links to all |
 | 2026-06-07 | deeppenetrations.com | Added GA4 (G-LXCYBEFKC1), CookieBanner, gated GA, updated privacy policy |
 | 2026-06-07 | ALL 13 GA4 properties | GA4 admin audit: event data retention → 14 months, Google Signals = OFF confirmed, Consent settings = Good. Property IDs recorded. |
+| 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
