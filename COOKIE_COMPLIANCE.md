@@ -1,6 +1,6 @@
 # Cookie & Legal Compliance Tracker
 
-Last updated: 2026-06-06
+Last updated: 2026-06-07
 
 ## Status Legend
 - ✅ Present and correct
@@ -63,20 +63,26 @@ Last updated: 2026-06-06
 
 ## Google Analytics Property IDs
 
-| Site | GA4 Measurement ID | Consent Gated |
-|------|--------------------|---------------|
-| ultrarough.com | G-2WSKDPGPXV | ✅ Yes |
-| xxxtea.com | G-P889LLFBNK | ✅ Yes |
-| weapontester.com | G-HYYSTD9NW8 | ✅ Yes |
-| sinderella.org | G-Q378G15KZZ | ✅ Yes |
-| reviewtattoo.com | G-JRCG92YYCB | ✅ Yes |
-| findyourlostpets.com | G-BZ35NJ4FMB | ✅ Yes |
-| aliencouncil.com | G-8Z6YMDR3VX | ✅ Yes (gated 2026-06-06) |
-| americastrikes.com | G-ZHHXBF92TY | ✅ Yes (gated 2026-06-06) |
-| shoptopless.com | G-SZFER7KX15 | ✅ Yes (gated 2026-06-06) |
-| totaljerks.com | G-R72CH4D2CR | ✅ Yes (gated 2026-06-06) |
-| wetpages.com | G-L1285EE0NE | ✅ Yes (gated 2026-06-06) |
-| rc-9.com | G-R2H86NCJ2F | ✅ Yes (gated 2026-06-06) |
+Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied: event data retention = 14mo, Google Signals = OFF.
+
+| Site | GA4 Measurement ID | GA4 Property ID | Consent Gated | Data Retention |
+|------|--------------------|-----------------|---------------|----------------|
+| deeppenetrations.com | G-LXCYBEFKC1 | 540547540 | ✅ Yes | ✅ 14 months |
+| findyourlostpets.com | G-BZ35NJ4FMB | 540456372 | ✅ Yes | ✅ 14 months |
+| rc-9.com | G-R2H86NCJ2F | 539712309 | ✅ Yes | ✅ 14 months |
+| reviewtattoo.com | G-JRCG92YYCB | 539754267 | ✅ Yes | ✅ 14 months |
+| shoptopless.com | G-SZFER7KX15 | 539755746 | ✅ Yes | ✅ 14 months |
+| shoptopless.com (dup) | — | 539897281 | — | ✅ 14 months |
+| aliencouncil.com | G-8Z6YMDR3VX | 539754450 | ✅ Yes | ✅ 14 months |
+| americastrikes.com | G-ZHHXBF92TY | 539753593 | ✅ Yes | ✅ 14 months |
+| totaljerks.com | G-R72CH4D2CR | 539694930 | ✅ Yes | ✅ 14 months |
+| ultrarough.com | G-2WSKDPGPXV | 539753693 | ✅ Yes | ✅ 14 months |
+| weapontester.com | G-HYYSTD9NW8 | 539755626 | ✅ Yes | ✅ 14 months |
+| wetpages.com | G-L1285EE0NE | 539774170 | ✅ Yes | ✅ 14 months |
+| xxxtea.com | G-P889LLFBNK | 539743210 | ✅ Yes | ✅ 14 months |
+| sinderella.org | G-Q378G15KZZ | 539773741 | ✅ Yes | ✅ 14 months |
+
+**Note:** Two shoptopless.com properties exist in GA4 (539755746 is the active/starred one). Investigate and delete the duplicate 539897281 if confirmed unused.
 
 ---
 
@@ -94,3 +100,4 @@ Last updated: 2026-06-06
 | 2026-06-06 | rc-9.com | Added terms.html, cookie banner, gated GA |
 | 2026-06-06 | 30 coming-soon sites | Added privacy.astro + terms.astro + footer legal links to all |
 | 2026-06-07 | deeppenetrations.com | Added GA4 (G-LXCYBEFKC1), CookieBanner, gated GA, updated privacy policy |
+| 2026-06-07 | ALL 13 GA4 properties | GA4 admin audit: event data retention → 14 months, Google Signals = OFF confirmed, Consent settings = Good. Property IDs recorded. |
