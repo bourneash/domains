@@ -22,7 +22,7 @@ Last updated: 2026-06-06
 | **aliencouncil.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **americastrikes.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **deeppenetrations.com** | ✅ | ✅ | ✅ | N/A | N/A no GA | **COMPLIANT** | No analytics — no banner needed |
-| **findyourlostpets.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA-BZ35NJ4FMB gated | **COMPLIANT** | Fixed 2026-06-06 |
+| **findyourlostpets.com** | ✅ | ✅ | N/A | ✅ | ✅ GA-BZ35NJ4FMB gated | **COMPLIANT** | No affiliates — disclosure N/A |
 | **shoptopless.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **totaljerks.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **wetpages.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
