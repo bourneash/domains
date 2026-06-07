@@ -128,3 +128,6 @@
 [submodule "sites/findyourlostpets.com"]
 	path = sites/findyourlostpets.com
 	url = git@github-bourneash:bourneash/findyourlostpets.com.git
+[submodule "sites/3boobs.com"]
+	path = sites/3boobs.com
+	url = git@github-bourneash:bourneash/3boobs.com.git

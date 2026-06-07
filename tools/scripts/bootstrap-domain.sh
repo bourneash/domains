@@ -85,12 +85,12 @@ cat > "${TMPSCAFFOLD}/site/package.json" << PKGEOF
     "dev": "astro dev --host 0.0.0.0",
     "start": "astro dev --host 0.0.0.0",
     "build": "astro build",
-    "preview": "npm run build && wrangler dev --config dist/server/wrangler.json",
+    "preview": "npm run build && wrangler dev --config dist/client/wrangler.json",
     "astro": "astro",
     "security:audit": "npm audit --audit-level=high",
     "security:audit:prod": "npm audit --omit=dev --audit-level=high",
     "ci:verify": "npm run security:audit:prod && npm run build",
-    "deploy": "npm run build && wrangler deploy --config dist/server/wrangler.json",
+    "deploy": "npm run build && wrangler deploy --config dist/client/wrangler.json",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
@@ -120,8 +120,8 @@ export default defineConfig({
 });
 ASTREOF
 
-# wrangler.jsonc — no main/assets fields; adapter v13 generates dist/server/wrangler.json
-# Deploy with: wrangler deploy --config dist/server/wrangler.json
+# wrangler.jsonc — no main/assets fields; adapter v13 generates dist/client/wrangler.json
+# Deploy with: wrangler deploy --config dist/client/wrangler.json
 cat > "${TMPSCAFFOLD}/site/wrangler.jsonc" << WRANEOF
 {
   "\$schema": "node_modules/wrangler/config-schema.json",
