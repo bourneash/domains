@@ -21,7 +21,7 @@ Last updated: 2026-06-06
 | **reviewtattoo.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
 | **aliencouncil.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **americastrikes.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
-| **deeppenetrations.com** | ✅ | ✅ | ✅ | N/A | N/A no GA | **COMPLIANT** | No analytics — no banner needed |
+| **deeppenetrations.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-07 |
 | **findyourlostpets.com** | ✅ | ✅ | N/A | ✅ | ✅ GA-BZ35NJ4FMB gated | **COMPLIANT** | No affiliates — disclosure N/A |
 | **shoptopless.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **totaljerks.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
@@ -93,3 +93,4 @@ Last updated: 2026-06-06
 | 2026-06-06 | findyourlostpets.com | Added disclosure.astro |
 | 2026-06-06 | rc-9.com | Added terms.html, cookie banner, gated GA |
 | 2026-06-06 | 30 coming-soon sites | Added privacy.astro + terms.astro + footer legal links to all |
+| 2026-06-07 | deeppenetrations.com | Added GA4 (G-LXCYBEFKC1), CookieBanner, gated GA, updated privacy policy |
