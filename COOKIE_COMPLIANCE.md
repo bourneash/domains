@@ -28,6 +28,7 @@ Last updated: 2026-06-07
 | **wetpages.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **rc-9.com** | ✅ | ✅ | N/A | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 (pure HTML) |
 | **adultxtube.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon — 2026-06-06 |
+| **3boobs.com** | ✅ | ✅ | N/A | ✅ | ✅ gated, dormant (no GA4 ID) | **COMPLIANT** | Launched 2026-06-09 — audit 6/6 PASS; no affiliates |
 | **broadwayshowgirls.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **cock-smoker.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **coffeepredator.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
