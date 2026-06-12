@@ -1,0 +1,5 @@
+# Per-project scan cadence. `secscan sync` reconciles this into the engine.
+defaults:
+  cadence: weekly
+projects:
+  tools: { cadence: daily }

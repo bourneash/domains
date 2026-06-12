@@ -1,0 +1,5 @@
+name: rodhat.com
+scope: sites/rodhat.com
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]

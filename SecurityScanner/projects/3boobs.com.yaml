@@ -1,0 +1,5 @@
+name: 3boobs.com
+scope: sites/3boobs.com
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]

@@ -1,0 +1,5 @@
+name: saveusfarms.com
+scope: sites/saveusfarms.com
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]

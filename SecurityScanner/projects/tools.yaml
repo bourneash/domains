@@ -1,0 +1,5 @@
+name: tools
+scope: tools
+languages: [python, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog, bandit]
+excludes: [node_modules, .venv, __pycache__, dist, .git]

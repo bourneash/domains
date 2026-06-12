@@ -1,0 +1,5 @@
+name: deadlymaracas.com
+scope: sites/deadlymaracas.com
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]

@@ -4,6 +4,7 @@
 # Secrets
 .env
 .env.shared
+.gcp/
 .env.local
 .env.*.local
 *.pem
@@ -30,3 +31,4 @@ Thumbs.db
 
 .security-dashboard/
 .vsec
+SecurityScanner/.runtime/

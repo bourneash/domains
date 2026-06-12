@@ -1,0 +1,9 @@
+# SecurityScanner install config — checked in. Edited by humans.
+[install]
+instance = "secscan-domains"
+engine_version = "v0.3.0"
+port_mode = "auto"          # auto = secscan picks free ports at install time
+
+[scan]
+# Scan scopes are ALWAYS subtrees, never "." (repo root) — see design §3.
+# One file per target lives in projects/. Run `secscan sync` after editing.

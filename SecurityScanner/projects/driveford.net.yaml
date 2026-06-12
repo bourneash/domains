@@ -1,0 +1,5 @@
+name: driveford.net
+scope: sites/driveford.net
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]

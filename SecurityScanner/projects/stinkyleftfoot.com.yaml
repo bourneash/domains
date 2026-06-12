@@ -1,0 +1,5 @@
+name: stinkyleftfoot.com
+scope: sites/stinkyleftfoot.com
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]

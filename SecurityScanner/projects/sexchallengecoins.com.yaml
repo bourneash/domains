@@ -1,0 +1,5 @@
+name: sexchallengecoins.com
+scope: sites/sexchallengecoins.com
+languages: [astro, typescript, javascript]
+scanners: [semgrep, gitleaks, trufflehog]
+excludes: [node_modules, dist, .astro, .git]
