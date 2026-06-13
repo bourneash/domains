@@ -2,10 +2,13 @@ const $ = (sel, el = document) => el.querySelector(sel);
 
 async function load() {
   const main = $('#systems');
-  main.textContent = 'Loading…';
+  if (!main.dataset.loaded) main.textContent = 'Loading…';   // avoid flicker on poll refreshes
   const systems = await (await fetch('/api/systems')).json();
   main.innerHTML = '';
   for (const sys of systems) main.appendChild(renderSystem(sys));
+  main.dataset.loaded = '1';
+  const stamp = $('#lastUpdated');
+  if (stamp) stamp.textContent = 'updated ' + new Date().toLocaleTimeString();
 }
 
 function renderSystem(sys) {
@@ -109,6 +112,33 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
+// ---- Auto-refresh polling (on by default, persisted, user-toggleable) ----
+const POLL_MS = 30000;
+let pollTimer = null;
+
+function pollEnabled() {
+  return localStorage.getItem('cm-autorefresh') !== 'off';   // default ON
+}
+
+function applyPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (pollEnabled()) {
+    // Don't refresh while a rebuild modal is open — it would yank the view.
+    pollTimer = setInterval(() => {
+      if ($('#logModal').classList.contains('hidden')) load();
+    }, POLL_MS);
+  }
+}
+
+const autoToggle = $('#autoToggle');
+autoToggle.checked = pollEnabled();
+autoToggle.onchange = () => {
+  localStorage.setItem('cm-autorefresh', autoToggle.checked ? 'on' : 'off');
+  applyPolling();
+};
+
 $('#refresh').onclick = load;
 $('#logClose').onclick = () => $('#logModal').classList.add('hidden');
+
 load();
+applyPolling();
