@@ -1,0 +1,28 @@
+:root { --bg:#0f1115; --card:#181b22; --line:#2a2f3a; --fg:#e6e9ef; --muted:#8b93a7; --accent:#6ea8fe; }
+* { box-sizing: border-box; }
+body { margin:0; font:14px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--fg); }
+header { padding:16px 24px; border-bottom:1px solid var(--line); }
+header h1 { margin:0; font-size:20px; }
+header .sub { margin:4px 0 8px; color:var(--muted); }
+main { padding:24px; display:grid; gap:20px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+.card h2 { margin:0 0 12px; font-size:16px; display:flex; gap:10px; align-items:center; }
+.kind { font-size:11px; color:var(--muted); border:1px solid var(--line); padding:1px 6px; border-radius:6px; }
+.container { margin-left:auto; font-family:monospace; color:var(--muted); font-size:12px; }
+.status { font-size:11px; padding:1px 8px; border-radius:6px; }
+.status.running { background:#10391f; color:#7ee2a8; }
+.status.stopped { background:#3a2417; color:#f0a878; }
+.status.never-built { background:#2a2f3a; color:var(--muted); }
+table { width:100%; border-collapse:collapse; }
+th, td { text-align:left; padding:6px 8px; border-top:1px solid var(--line); vertical-align:top; }
+th { color:var(--muted); font-weight:600; font-size:12px; }
+tr.paused { opacity:.55; }
+td .cmd { font-family:monospace; font-size:12px; color:var(--muted); }
+button { background:#222632; color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:4px 10px; margin-right:6px; cursor:pointer; }
+button:hover { border-color:var(--accent); }
+button.danger:hover { border-color:#f0786e; color:#f0786e; }
+button.rebuild { margin-top:12px; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; }
+.modal.hidden { display:none; }
+.modal-body { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; width:min(800px,90vw); max-height:80vh; overflow:auto; }
+.modal-body pre { background:#0b0d11; padding:12px; border-radius:6px; overflow:auto; max-height:55vh; }

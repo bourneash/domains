@@ -1,0 +1,21 @@
+name: cron-manager
+
+services:
+  panel:
+    build: .
+    image: cron-manager:latest
+    container_name: cron-manager
+    restart: unless-stopped
+    # Loopback-only publish — same posture as domain-developer.
+    ports:
+      - "127.0.0.1:4753:4753"
+    environment:
+      # The repo root, bind-mounted at the SAME path inside the container so
+      # `docker compose build/up` for a site resolves its volume sources.
+      CM_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
+      CM_HOST: 0.0.0.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
+      - ${HOME:-/home/jesse}/.docker:${HOME:-/home/jesse}/.docker
+    working_dir: ${HOME:-/home/jesse}/projects/domains/tools/cron-manager

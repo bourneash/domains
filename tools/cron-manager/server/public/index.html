@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cron Manager — Domains Portfolio</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Cron Manager</h1>
+    <p class="sub">Every cron system across the portfolio. Pause a role instantly; edits need a rebuild.</p>
+    <button id="refresh">Refresh</button>
+  </header>
+  <main id="systems">Loading…</main>
+  <div id="logModal" class="modal hidden">
+    <div class="modal-body"><h3>Rebuild output</h3><pre id="logOut"></pre><button id="logClose">Close</button></div>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
