@@ -1,5 +1,5 @@
 name: adultxtube.com
 scope: sites/adultxtube.com
 languages: [astro, typescript, javascript]
-scanners: [semgrep, gitleaks, trufflehog]
+scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft]
 excludes: [node_modules, dist, .astro, .git]
