@@ -1,5 +1,6 @@
 name: coffeepredator.com
 scope: sites/coffeepredator.com
+url: https://coffeepredator.com
 languages: [astro, typescript, javascript]
-scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft]
+scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-frontend, nuclei]
 excludes: [node_modules, dist, .astro, .git]

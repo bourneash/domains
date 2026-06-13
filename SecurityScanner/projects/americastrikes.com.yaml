@@ -1,5 +1,6 @@
 name: americastrikes.com
 scope: sites/americastrikes.com
+url: https://americastrikes.com
 languages: [astro, typescript, javascript]
-scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft]
+scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-frontend, nuclei]
 excludes: [node_modules, dist, .astro, .git]

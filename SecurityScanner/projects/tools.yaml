@@ -1,5 +1,5 @@
 name: tools
 scope: tools
 languages: [python, typescript, javascript]
-scanners: [gitleaks, trufflehog, semgrep, ruff, eslint-security, jscpd, retirejs, osv-scanner, syft]
+scanners: [gitleaks, trufflehog, semgrep, ruff, eslint-security, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-backend]
 excludes: [node_modules, .venv, __pycache__, dist, .git]
