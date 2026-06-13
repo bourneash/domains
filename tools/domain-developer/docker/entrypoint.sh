@@ -43,12 +43,13 @@ fi
 # those writes failed → auth broke on a timer ("periodic permission issues").
 # Instead the entry points now RO-bind the host copies at a staging dir and we
 # copy them in WRITABLE here.
-#   - .credentials.json: first-boot only, so the container then owns its own
-#     refresh chain and a restart won't clobber an in-session refreshed token.
+#   - .credentials.json: refreshed from host every boot so a container restart
+#     always picks up the host's current OAuth token (stale container-local
+#     tokens were the main cause of "please log in" after token expiry).
 #   - settings.json: refreshed from host every boot (host is config source of
 #     truth; Claude's own writes go to settings.local.json / .claude.json).
 RO_STAGE=/host-claude-ro
-if [[ -r "${RO_STAGE}/.credentials.json" && ! -f "${CLAUDE_DIR}/.credentials.json" ]]; then
+if [[ -r "${RO_STAGE}/.credentials.json" ]]; then
     cp "${RO_STAGE}/.credentials.json" "${CLAUDE_DIR}/.credentials.json"
     chmod 600 "${CLAUDE_DIR}/.credentials.json"
 fi
@@ -98,7 +99,7 @@ cat > /home/dev/.banner <<EOF
 ║    yolo  = claude --dangerously-skip-permissions               ║
 ║    sane  = claude                                              ║
 ║                                                                ║
-║  Copy text:  Shift+drag to select, then Ctrl+Shift+C / Cmd+C   ║
+║  Copy text:  drag to select (auto-copied to clipboard)         ║
 ╚════════════════════════════════════════════════════════════════╝
 EOF
 
@@ -114,20 +115,9 @@ cat > /home/dev/.tmux.conf <<'TMUXCONF'
 set -g default-command "bash -l"
 set -g history-limit 100000
 set -g mouse on
-# Copy/paste in the browser:
-#   - mouse on lets the wheel scroll tmux history, but a plain drag is captured
-#     by tmux's copy-mode — it lands in tmux's INTERNAL buffer, not your OS
-#     clipboard, so it looks like "nothing got selected". Two things fix that:
-#   1. set-clipboard on + the copy-mode bindings below emit OSC 52, which ttyd's
-#      xterm relays to the actual system clipboard — so drag-select now copies.
-#   2. Hold SHIFT while dragging to bypass tmux entirely and do a native browser
-#      selection (then Ctrl+Shift+C / Cmd+C) — always works as a fallback.
-set -g set-clipboard on
-set -g mouse-utf8 off 2>/dev/null
-# Drag-release in copy-mode → copy via OSC 52 to the system clipboard, keep it
-# highlighted (don't clear) so the selection is visible after release.
-bind -T copy-mode    MouseDragEnd1Pane send -X copy-selection-no-clear
-bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-selection-no-clear
+# Mouse mode stays on for wheel-scroll of tmux scrollback. Left-button drag
+# selection and clipboard copy are handled in JS (ttyd-enhance.js §3) by
+# injecting shiftKey to bypass tmux's mouse capture — no OSC 52 needed.
 set -g status-style "bg=#0a0a0a,fg=#ffaa00"
 TMUXCONF
 

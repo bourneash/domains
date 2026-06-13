@@ -1,10 +1,2 @@
-{
-  "version": "v0.3.0",
-  "vsec_format": 1,
-  "git_sha": "3eec4fa027ff8e3536e326bea05e122bc3f81307",
-  "images": [
-    {"name":"security-v2-api","tag":"v0.3.0","tarball":"security-v2-api-v0.3.0.tar.gz","sha256":"377864cb3d270a8f0e3645213cd082bb9bb50ff007d99b9a6d626b2df9405cdf"},
-    {"name":"security-v2-executor","tag":"v0.3.0","tarball":"security-v2-executor-v0.3.0.tar.gz","sha256":"eb16175f9fdab2ea1c6621e900a42566a3d53fc53b9ce62a299c6b32f84cfdf3"},
-    {"name":"security-v2-frontend","tag":"v0.3.0","tarball":"security-v2-frontend-v0.3.0.tar.gz","sha256":"7e6e9f74ea54100af8aa7072e554bd8e7299fcbb0f8f10f3074cf564ad447e53"}
-  ]
-}
+{"version":"v0.3.2","vsec_format":1,"git_sha":"60043a2a0d8fbea86662f42fd5774c20899c3dd9","images":[
+{"name":"security-v2-api","tag":"v0.3.2"},{"name":"security-v2-executor","tag":"v0.3.2"},{"name":"security-v2-frontend","tag":"v0.3.2"}]}

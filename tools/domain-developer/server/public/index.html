@@ -833,6 +833,7 @@ function renderTabs() {
         // Plain terminal (ttyd). Repaint is driven by the toolbar "Redraw"
         // button (redrawActiveTerminal) → postMessage into this iframe.
         const iframe = document.createElement('iframe');
+        iframe.allow = 'clipboard-read; clipboard-write';
         iframe.src = effUrl || t.url;
         pane.appendChild(iframe);
       }

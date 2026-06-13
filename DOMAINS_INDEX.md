@@ -4,8 +4,10 @@
 
 | Domain 				| In use | TLDR                                                                                                                      	|
 |-----------------------|--------|------------------------------------------------------------------------------------------------------------------------------|
+| 3boobs.com 			|   ✅   | Adult novelty / affiliate — CF Workers Builds wired, KV session, auto-deploy verified 2026-06-07 								|
 | aliencouncil.com 		|   ✅   | "The Council" — credible UAP/disclosure editorial brand riding the 2026 disclosure wave (ads + affiliate + member tier) 		|
 | americastrikes.com 	|   ✅   | Autonomous geopolitics/defense news brand; speed-to-publish play on the Iran cycle, growing into permanent geopolitics brief |
+| oventoheaven.com 		|   ✅   | Scaffolded, live on CF Workers Builds — brief/positioning TBD 																|
 | rc-9.com 				|   ✅   | "Remote Command" browser artillery game; monetized via HTML5 game portals + rewarded ads + AI battle stream 					|
 | reviewtattoo.com 		|   ✅   | Tattoo review & discovery site (cities/styles/guides); affiliate + future paid artist listings 								|
 | sinderella.org 		|   ✅   | Daily horoscope/tarot site fronted by "Sinderella," a Jersey Shore boardwalk fortune teller persona 							|
@@ -15,13 +17,13 @@
 
 
 
-## Coming Soon (scaffolded, awaiting CF Worker connection)
+## Coming Soon (scaffolded, awaiting brief or CF Worker connection)
 
 | Domain 			| In use | Worker name      | Notes                                                              |
 |-------------------|--------|------------------|--------------------------------------------------------------------|
-| 3om.com 			|   🟡   | `3om-com`        | CF zone pending (NS not yet pointed) — run setup-cf-email.sh after NS propagates |
+| findyourlostpets.com |   🟡   | `findyourlostpets-com` | Affiliate disclosure removed 2026-05; site live but positioning being reset |
 | noveltyguns.com 	|   🟡   | `noveltyguns-com`| CF email ✅                                                        |
-| saveusfarms.com 	|   🟡   | `saveusfarms-com`| Brief TBD                                                          |
+| saveusfarms.com 	|   🟡   | `saveusfarms-com`| Brief TBD — rolled back to brand-neutral pending Jesse's brief     |
 | wetpages.com 		|   🟡   | `wetpages-com`   | CF email ✅                                                        |
 
 
@@ -47,7 +49,7 @@
 | mynewgm.com 			|   ⬜   | 
 | mynewgm.info 			|   ⬜   | 
 | nsfwpixels.com 		|   ⬜   | 
-| nsfwpixles.com 		|   ⬜   | 
+| nsfwpixles.com 		|   ⬜   | Typo variant of nsfwpixels.com — registered for protection |
 | onlysexyteens.com 	|   ⬜   | 
 | pervypotion.com 		|   ⬜   | 
 | pokererotic.com 		|   ⬜   | 
@@ -58,13 +60,11 @@
 | sexvendor.com 		|   ⬜   | 
 | shoptopless.com 		|   ⬜   | Satire Jeep 'topless' accessories affiliate amazon store |
 | stinkyleftfoot.com 	|   ⬜   | 
-| synapticworkshop.com 	|   ⬜   | 
-| synapticworkshop.net 	|   ⬜   | 
 | totaljerks.com 		|   ⬜   |
 | vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
 | wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
 
-_Last updated: 2026-05-23_
+_Last updated: 2026-06-07_
 
 ## Bootstrap scripts
 
@@ -74,4 +74,8 @@ tools/scripts/bootstrap-domain.sh <domain>     # scaffold + GitHub + CF email
 # (Jesse connects CF Worker via dashboard)
 tools/scripts/bind-worker-domain.sh <domain>   # bind custom domain to worker
 tools/scripts/setup-cf-email.sh <domain>       # re-run email routing only
+
+# Drift checks (run after any new site goes live):
+bash tools/scripts/check-worker-names.sh       # local wrangler name vs CF deployed name
+bash tools/scripts/check-index-drift.sh        # sites/ vs DOMAINS_INDEX.md vs sites.yml
 ```

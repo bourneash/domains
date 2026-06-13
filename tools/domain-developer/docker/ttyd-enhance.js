@@ -2,25 +2,21 @@
  * domain-developer — in-terminal enhancements injected into ttyd's page.
  *
  * Injected at the very top of <head> (before ttyd's own bundle) so it can wrap
- * window.WebSocket before ttyd opens its socket. Provides two things:
+ * window.WebSocket before ttyd opens its socket.
  *
- *  1. Shift+Enter = newline. ttyd's xterm sends a bare CR ("\r") for BOTH
- *     Enter and Shift+Enter (its keymap ignores Shift for keyCode 13), so
- *     Claude Code's TUI can't tell them apart and submits on Shift+Enter.
- *     xterm emits ESC+CR ("\x1b\r") for Alt+Enter, which Claude treats as
- *     "insert newline". ttyd's input frame is [0x30 ('0'), ...utf8(payload)],
- *     so we put [0x30, 0x1b, 0x0d] on the socket for Shift+Enter.
- *
- *  2. Redraw / repaint. The panel's toolbar "Redraw" button posts
- *     {type:'dd-redraw'} into this iframe. We call window.term.clearTextureAtlas()
- *     + a full refresh. THIS is the real cure for the "dropped/garbled letters"
- *     bug: it's a corrupt glyph texture-atlas in xterm's renderer. A plain grid
- *     resize makes Claude repaint but xterm redraws from the SAME corrupt atlas,
- *     so the bad glyphs come right back — clearing the atlas forces every glyph
- *     to be re-rasterized. ttyd conveniently exposes the terminal as window.term.
+ *  1. Shift+Enter = newline (ESC+CR on the websocket).
+ *  2. Redraw / repaint (clear xterm glyph atlas via postMessage from panel).
+ *  3. Drag-to-select + auto-copy (bypass tmux mouse mode for left-button drags).
+ *  4. Suppress browser context menu on the terminal.
  */
 (function () {
   'use strict';
+
+  // ── Shared helper ───────────────────────────────────────────────────────
+  function inTerm(el) {
+    var s = document.querySelector('.xterm-screen');
+    return s && s.contains(el);
+  }
 
   // ── 1. Shift+Enter → ESC+CR ────────────────────────────────────────────
   var Native = window.WebSocket;
@@ -40,7 +36,6 @@
   PatchedWebSocket.CLOSED = Native.CLOSED;
   window.WebSocket = PatchedWebSocket;
 
-  // ttyd INPUT frame: '0' (0x30) + payload; payload = ESC (0x1b) + CR (0x0d).
   var NEWLINE_FRAME = new Uint8Array([0x30, 0x1b, 0x0d]);
 
   window.addEventListener('keydown', function (e) {
@@ -66,4 +61,65 @@
   window.addEventListener('message', function (ev) {
     if (ev && ev.data && ev.data.type === 'dd-redraw') redraw();
   });
+
+  // ── 3. Drag-to-select + auto-copy ──────────────────────────────────────
+  // tmux mouse mode makes xterm.js forward all mouse events to the app
+  // instead of handling selection natively. We intercept ALL left-button
+  // events on the terminal and re-emit with shiftKey — xterm.js's standard
+  // "bypass application mouse mode" signal. The initial mousedown MUST have
+  // shiftKey or xterm.js never enters selection mode. Mouse wheel events
+  // are untouched so tmux scrollback keeps working. Single left-clicks no
+  // longer reach tmux (no click-to-position), which is fine for Claude Code.
+  var SYN = '__dd';
+
+  function shifted(e) {
+    var n = new MouseEvent(e.type, {
+      bubbles: true, cancelable: true, view: e.view, detail: e.detail,
+      screenX: e.screenX, screenY: e.screenY,
+      clientX: e.clientX, clientY: e.clientY,
+      button: e.button, buttons: e.buttons,
+      ctrlKey: e.ctrlKey, altKey: e.altKey, metaKey: e.metaKey,
+      shiftKey: true, relatedTarget: e.relatedTarget
+    });
+    n[SYN] = 1;
+    return n;
+  }
+
+  ['mousedown', 'mousemove', 'mouseup'].forEach(function (type) {
+    document.addEventListener(type, function (e) {
+      if (e[SYN] || e.shiftKey) return;
+      if (!inTerm(e.target)) return;
+      if (type === 'mousedown' && e.button !== 0) return;
+      if (type === 'mouseup' && e.button !== 0) return;
+      if (type === 'mousemove' && !(e.buttons & 1)) return;
+
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      e.target.dispatchEvent(shifted(e));
+    }, true);
+  });
+
+  // Auto-copy: poll for terminal, then watch selection changes with a
+  // debounce so we copy once after the drag settles, not on every pixel.
+  (function waitForTerm() {
+    var t = window.term;
+    if (!t || !t.onSelectionChange) { setTimeout(waitForTerm, 300); return; }
+    var timer;
+    t.onSelectionChange(function () {
+      clearTimeout(timer);
+      if (!t.hasSelection()) return;
+      timer = setTimeout(function () {
+        var text = t.getSelection();
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () {});
+        }
+      }, 150);
+    });
+  })();
+
+  // ── 4. Suppress browser context menu on terminal ────────────────────────
+  document.addEventListener('contextmenu', function (e) {
+    if (inTerm(e.target)) e.preventDefault();
+  }, true);
 })();

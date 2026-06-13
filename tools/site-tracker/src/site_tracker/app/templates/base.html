@@ -11,9 +11,13 @@
     <h1><a href="/">site-tracker</a></h1>
     <nav>
       <a href="/">matrix</a> ·
+      <a href="/tasks">tasks</a> ·
       <a href="/collectors">collectors</a>
     </nav>
   </header>
+  {% if self.breadcrumbs() | trim %}
+  <nav class="breadcrumbs">{% block breadcrumbs %}{% endblock %}</nav>
+  {% endif %}
   <main>{% block body %}{% endblock %}</main>
 </body>
 </html>

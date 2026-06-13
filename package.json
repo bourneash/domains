@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "google-auth-library": "^10.7.0"
+  },
+  "devDependencies": {
+    "prettier": "^3",
+    "prettier-plugin-astro": "^0.14"
+  },
+  "scripts": {
+    "format": "prettier --write 'sites/*/site/src/**/*.{ts,tsx,js,astro}'",
+    "format:check": "prettier --check 'sites/*/site/src/**/*.{ts,tsx,js,astro}'"
+  }
+}
+

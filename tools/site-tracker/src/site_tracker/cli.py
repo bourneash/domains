@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from site_tracker import store, registry
 from site_tracker.collectors import (
+    canary,
     cloudflare,
     filesystem,
     github,
@@ -19,6 +20,7 @@ from site_tracker.collectors import (
 )
 
 COLLECTORS = {
+    "canary":          canary,
     "filesystem":      filesystem,
     "http_scrape":     http_scrape,
     "cloudflare":      cloudflare,
@@ -119,6 +121,20 @@ def serve(host: str, port: int) -> None:
     """Start the FastAPI app."""
     import uvicorn
     uvicorn.run("site_tracker.app.main:app", host=host, port=port, log_level="info")
+
+
+@main.command("dead-man-alert")
+@click.option("--data-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--dry-run", is_flag=True, help="Print alerts without sending email")
+def dead_man_alert(data_dir: Path | None, dry_run: bool) -> None:
+    """Check ops publishing loops and email if any have gone silent."""
+    from site_tracker.scripts.dead_man_alert import run as _run
+    _, data = _resolve_paths(data_dir, None)
+    _run(
+        db_path=data / "facts.db",
+        state_path=data / "dms_state.json",
+        dry_run=dry_run,
+    )
 
 
 @main.command("render-domains-index")

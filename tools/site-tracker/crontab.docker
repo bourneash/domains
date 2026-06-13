@@ -3,6 +3,8 @@
 # americastrikes/sinderella ops crons.
 
 */15 * * * * cd /work/tools/site-tracker && site-tracker collect filesystem      2>&1 | tee -a /work/tools/site-tracker/out/cron.log
+5    * * * * cd /work/tools/site-tracker && site-tracker dead-man-alert            2>&1 | tee -a /work/tools/site-tracker/out/cron.log
+51   8 * * * cd /work/tools/site-tracker && site-tracker collect canary            2>&1 | tee -a /work/tools/site-tracker/out/cron.log
 17   * * * * cd /work/tools/site-tracker && site-tracker collect http_scrape     2>&1 | tee -a /work/tools/site-tracker/out/cron.log
 33   * * * * cd /work/tools/site-tracker && site-tracker collect cloudflare      2>&1 | tee -a /work/tools/site-tracker/out/cron.log
 43   * * * * cd /work/tools/site-tracker && site-tracker collect recipes         2>&1 | tee -a /work/tools/site-tracker/out/cron.log

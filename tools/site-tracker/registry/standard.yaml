@@ -38,6 +38,14 @@ facts:
     describe: Email routing configured
     state_rule: bool_green_yellow
 
+  # Canary / smoke-string
+  canary.smoke_ok:
+    family: canary
+    source: canary
+    ttl_hours: 25
+    describe: Smoke string present in live homepage (catches silent broken deploys)
+    state_rule: bool_green_red
+
   # HTTP scrape
   http.ga4_present:
     family: http
@@ -253,6 +261,7 @@ facts:
 
 # Canonical column order for the matrix.
 families:
+  - canary
   - cf
   - http
   - seo

@@ -7,58 +7,90 @@ config:
   domains_root: /work     # parent domains repo inside the container
 
 sites:
+  3boobs.com:
+    active: true
+    cf_zone: 3boobs.com
+    github: bourneash/3boobs.com
+    smoke_string: "3boobs.com"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
+    manual: {}
+
   aliencouncil.com:
     active: true
     cf_zone: aliencouncil.com
     github: bourneash/aliencouncil
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: "Independent body of record on UAP"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
     manual: {}
 
   americastrikes.com:
     active: true
     cf_zone: americastrikes.com
     github: bourneash/americastrikes
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: "Geopolitics, Defense"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    manual: {}
+
+  findyourlostpets.com:
+    active: true
+    cf_zone: findyourlostpets.com
+    github: bourneash/findyourlostpets.com
+    smoke_string: "Every trail leads home"
+    applies_to: [canary, cf, http, seo, tls, git, github, contact, legal, branding, manual]
+    manual: {}
+
+  oventoheaven.com:
+    active: true
+    cf_zone: oventoheaven.com
+    github: bourneash/oventoheaven.com
+    smoke_string: "oventoheaven.com"
+    applies_to: [canary, cf, http, seo, tls, git, github, contact, legal, branding, manual]
     manual: {}
 
   rc-9.com:
     active: true
     cf_zone: rc-9.com
     github: bourneash/rc-9
-    applies_to: [cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
+    smoke_string: "Free Online Artillery Tank Game"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
     manual: {}
 
   reviewtattoo.com:
     active: true
     cf_zone: reviewtattoo.com
     github: bourneash/reviewtattoo
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: "First Tattoo Guides"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
     manual: {}
 
   sinderella.org:
     active: true
     cf_zone: sinderella.org
     github: bourneash/sinderella
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: "signal-informed daily horoscopes"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
     manual: {}
 
   ultrarough.com:
     active: true
     cf_zone: ultrarough.com
     github: bourneash/ultrarough.com
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: "The grit you"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
     manual: {}
 
   weapontester.com:
     active: true
     cf_zone: weapontester.com
     github: bourneash/weapontester.com
-    applies_to: [cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
+    smoke_string: "Build a rifle. Test it."
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
     manual: {}
 
   xxxtea.com:
     active: true
     cf_zone: xxxtea.com
     github: bourneash/xxxtea.com
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: "Tea for adults"
+    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
     manual: {}

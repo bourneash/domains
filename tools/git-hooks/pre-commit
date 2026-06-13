@@ -1,0 +1,18 @@
+#!/bin/sh
+# Format staged .ts/.tsx/.js/.astro files with shared prettier before commit.
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|astro)$')
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
+DOMAINS_ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
+PRETTIER="$DOMAINS_ROOT/node_modules/.bin/prettier"
+
+if [ ! -f "$PRETTIER" ]; then
+  echo "prettier not found at $PRETTIER — run 'npm install' in $DOMAINS_ROOT"
+  exit 0
+fi
+
+printf '%s\n' $STAGED | xargs "$PRETTIER" --write --ignore-unknown
+printf '%s\n' $STAGED | xargs git add
