@@ -11,6 +11,22 @@ function stem(slug) {
   return slug.split('.')[0];
 }
 
+// The actual cron container name. Convention is `<stem>-cron`, but compose
+// can drift from it (e.g. CF/Workers naming stripping dots → xxxtea-com). We
+// prefer the real `container_name:` ending in `-cron` straight from the
+// site's docker-compose.yml so status lookups never silently miss the
+// container and report "never-built". Falls back to the convention.
+function cronContainerName(composePath, fallback) {
+  try {
+    const text = fs.readFileSync(composePath, 'utf8');
+    const names = [...text.matchAll(/container_name:\s*["']?([A-Za-z0-9._-]+)["']?/g)]
+      .map((m) => m[1]);
+    return names.find((n) => n.endsWith('-cron')) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function readDirs(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true })
@@ -37,9 +53,11 @@ function buildSite(root, slug) {
   const opsDir = path.join(root, 'sites', slug, 'ops');
   const { entries } = parseCrontab(fs.readFileSync(crontabPath, 'utf8'));
   const name = stem(slug);
+  const composePath = path.join(root, 'sites', slug, 'docker-compose.yml');
   return {
     kind: 'site', slug, crontabPath, opsDir,
-    project: `${name}-ops`, container: `${name}-cron`,
+    project: `${name}-ops`,
+    container: cronContainerName(composePath, `${name}-cron`),
     entries: withEnabled(entries, opsDir),
   };
 }

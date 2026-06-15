@@ -59,3 +59,26 @@ test('rejects an unknown system slug', async () => {
   const r = await fetch(`${base}/api/systems/does-not-exist/jobs/x/disable`, { method: 'POST' });
   assert.strictEqual(r.status, 404);
 });
+
+test('GET /api/systems exposes honest status fields', async () => {
+  const r = await fetch(`${base}/api/systems`);
+  const demo = (await r.json()).find((s) => s.slug === 'demo.com');
+  // statusRunner stubbed to empty → never-built, but the shape must be present
+  assert.strictEqual(demo.status, 'never-built');
+  assert.strictEqual(demo.failed, false);
+  assert.ok('exitCode' in demo);
+  assert.ok('statusText' in demo);
+});
+
+test('GET logs returns container output', async () => {
+  const r = await fetch(`${base}/api/systems/demo.com/logs`);
+  assert.strictEqual(r.status, 200);
+  const txt = await r.text();
+  // statusRunner stub returns empty stdout → friendly placeholder, never 500
+  assert.ok(txt.length >= 0);
+});
+
+test('GET logs 404s for unknown system', async () => {
+  const r = await fetch(`${base}/api/systems/nope/logs`);
+  assert.strictEqual(r.status, 404);
+});

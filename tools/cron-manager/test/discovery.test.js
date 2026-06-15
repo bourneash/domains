@@ -55,6 +55,29 @@ test('tool entries (no role) are enabled when not commented out', () => {
   assert.strictEqual(tool.entries[0].enabled, true);
 });
 
+test('falls back to <stem>-cron when no compose file is present', () => {
+  // fixture has no docker-compose.yml → must still derive the conventional name
+  const site = discoverSystems(root).find(s => s.slug === 'americastrikes.com');
+  assert.strictEqual(site.container, 'americastrikes-cron');
+});
+
+test('reads the real cron container_name from docker-compose.yml (A5: name drift)', () => {
+  // Simulate the xxxtea-style drift where the actual container name is not <stem>-cron
+  const dir = path.join(root, 'sites', 'driftsite.com');
+  fs.mkdirSync(path.join(dir, 'ops', 'docker'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'ops', 'docker', 'crontab.docker'),
+    '0 6 * * 1  bash ops/scripts/run-worker.sh planner');
+  fs.writeFileSync(path.join(dir, 'docker-compose.yml'), [
+    'services:',
+    '  worker:',
+    '    container_name: driftsite-worker',
+    '  cron:',
+    '    container_name: driftsite-com-cron',   // drifted from the <stem>-cron assumption
+  ].join('\n'));
+  const site = discoverSystems(root).find(s => s.slug === 'driftsite.com');
+  assert.strictEqual(site.container, 'driftsite-com-cron');
+});
+
 test('a newly-added site appears on re-scan (dynamic discovery)', () => {
   const ops = path.join(root, 'sites', 'newsite.com', 'ops', 'docker');
   fs.mkdirSync(ops, { recursive: true });

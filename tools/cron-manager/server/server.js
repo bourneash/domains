@@ -6,7 +6,7 @@ const path = require('node:path');
 const cronstrue = require('cronstrue');
 
 const { discoverSystems } = require('./discovery');
-const { containerStatus, rebuildCron } = require('./docker');
+const { inspectContainer, confirmHealthy, containerLogs, rebuildCron } = require('./docker');
 const crontab = require('./crontab');
 
 const DEFAULT_ROOT = process.env.CM_DOMAINS_ROOT
@@ -28,14 +28,28 @@ function createApp({ root = DEFAULT_ROOT, statusRunner } = {}) {
   app.use(express.json());
   app.use(express.static(path.join(__dirname, 'public')));
 
-  // List all systems, with container status + human schedules.
+  // List all systems, with honest container health + human schedules.
   app.get('/api/systems', async (_req, res) => {
     const systems = discoverSystems(root);
     for (const s of systems) {
-      s.status = await containerStatus(s.container, statusRunner);
+      const i = await inspectContainer(s.container, statusRunner);
+      s.status = i.state;           // real docker state, badge driver
+      s.statusText = i.raw;         // "Up 3 hours" / "Exited (127) 2 min ago"
+      s.exitCode = i.exitCode;
+      s.failed = i.failed;          // true → red badge, surfaces failed starts
       s.entries = s.entries.map((e) => ({ ...e, human: describe(e.schedule) }));
     }
     res.json(systems);
+  });
+
+  // Tail a system's container logs (A4) — debug a failure without a shell.
+  app.get('/api/systems/:slug/logs', async (req, res) => {
+    const sys = findSystem(root, req.params.slug);
+    if (!sys) return res.status(404).json({ error: 'unknown system' });
+    const tail = Math.min(parseInt(req.query.tail, 10) || 200, 1000);
+    const out = await containerLogs(sys.container, statusRunner, tail);
+    res.setHeader('content-type', 'text/plain; charset=utf-8');
+    res.send(out);
   });
 
   // Instant enable/disable for run-worker.sh roles (flag file).
@@ -87,7 +101,17 @@ function createApp({ root = DEFAULT_ROOT, statusRunner } = {}) {
     const cwd = sys.kind === 'site' ? path.join(sys.opsDir, '..') : path.dirname(sys.crontabPath);
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     const result = await rebuildCron(cwd, (d) => res.write(d));
-    res.write(`\n[exit ${result.code}] ${result.ok ? 'OK' : 'FAILED'}\n`);
+    res.write(`\n[exit ${result.code}] compose ${result.ok ? 'OK' : 'FAILED'}\n`);
+    // A2: `up -d` exiting 0 does NOT prove the container survived init. Verify.
+    res.write(`Verifying ${sys.container} actually started…\n`);
+    const health = await confirmHealthy(sys.container, statusRunner);
+    if (health.ok) {
+      res.write(`✅ ${sys.container} is running (${health.raw}).\n`);
+    } else {
+      res.write(`❌ ${sys.container} did NOT come up — state="${health.state}"`
+        + `${health.exitCode != null ? ` exit=${health.exitCode}` : ''} (${health.raw || 'no status'}).\n`);
+      res.write(`   Click "Logs" on this card to see why.\n`);
+    }
     res.end();
   });
 

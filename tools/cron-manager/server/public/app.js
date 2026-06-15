@@ -7,15 +7,35 @@ async function load() {
   main.innerHTML = '';
   for (const sys of systems) main.appendChild(renderSystem(sys));
   main.dataset.loaded = '1';
+  renderBanner(systems);
   const stamp = $('#lastUpdated');
   if (stamp) stamp.textContent = 'updated ' + new Date().toLocaleTimeString();
 }
 
+// A3: portfolio health summary so bulk failures surface at a glance.
+function renderBanner(systems) {
+  const banner = $('#healthBanner');
+  if (!banner) return;
+  const running = systems.filter((s) => s.status === 'running').length;
+  const failed = systems.filter((s) => s.failed).length;
+  const other = systems.length - running - failed;
+  const failedNames = systems.filter((s) => s.failed).map((s) => s.slug);
+  banner.className = 'banner' + (failed ? ' has-failures' : '');
+  banner.innerHTML =
+    `<span class="pill ok">🟢 ${running} running</span>` +
+    `<span class="pill ${failed ? 'bad' : 'muted'}">${failed ? '❌' : '✓'} ${failed} failed</span>` +
+    `<span class="pill muted">⏸ ${other} idle/other</span>` +
+    (failed ? `<span class="failed-list">— ${failedNames.map(escapeHtml).join(', ')}</span>` : '');
+}
+
 function renderSystem(sys) {
   const card = document.createElement('section');
-  card.className = 'card';
+  card.className = 'card' + (sys.failed ? ' card-failed' : '');
   const st = escapeHtml(sys.status);
-  const badge = `<span class="status ${st}">${st}</span>`;
+  const cls = sys.failed ? 'failed' : st;                    // red badge for any failed state
+  const tip = escapeHtml(sys.statusText || sys.status);
+  const exit = sys.exitCode != null ? ` (exit ${sys.exitCode})` : '';
+  const badge = `<span class="status ${cls}" title="${tip}">${st}${escapeHtml(exit)}</span>`;
   card.innerHTML = `<h2>${escapeHtml(sys.slug)} <span class="kind">${escapeHtml(sys.kind)}</span> ${badge}
     <span class="container">${escapeHtml(sys.container)}</span></h2>`;
   const table = document.createElement('table');
@@ -24,11 +44,19 @@ function renderSystem(sys) {
   for (const e of sys.entries) tbody.appendChild(renderRow(sys, e));
   table.appendChild(tbody);
   card.appendChild(table);
+
+  const bar = document.createElement('div');
+  bar.className = 'card-actions';
   const rebuild = document.createElement('button');
   rebuild.textContent = 'Rebuild & restart cron';
   rebuild.className = 'rebuild';
   rebuild.onclick = () => doRebuild(sys.slug);
-  card.appendChild(rebuild);
+  bar.appendChild(rebuild);
+  const logs = document.createElement('button');
+  logs.textContent = 'Logs';
+  logs.onclick = () => doLogs(sys.slug, sys.container);
+  bar.appendChild(logs);
+  card.appendChild(bar);
   return card;
 }
 
@@ -101,11 +129,25 @@ async function post(url) {
 
 async function doRebuild(slug) {
   const modal = $('#logModal'); const out = $('#logOut');
+  $('#logTitle').textContent = `Rebuild — ${slug}`;
   out.textContent = ''; modal.classList.remove('hidden');
   const r = await fetch(`/api/systems/${slug}/rebuild`, { method: 'POST' });
   const reader = r.body.getReader(); const dec = new TextDecoder();
   for (;;) { const { done, value } = await reader.read(); if (done) break; out.textContent += dec.decode(value); }
   load();
+}
+
+// A4: view container logs without dropping to a shell.
+async function doLogs(slug, container) {
+  const modal = $('#logModal'); const out = $('#logOut');
+  $('#logTitle').textContent = `Logs — ${container}`;
+  out.textContent = 'Loading…'; modal.classList.remove('hidden');
+  try {
+    const r = await fetch(`/api/systems/${slug}/logs?tail=300`);
+    out.textContent = await r.text();
+  } catch (e) {
+    out.textContent = `failed to load logs: ${e.message}`;
+  }
 }
 
 function escapeHtml(s) {
