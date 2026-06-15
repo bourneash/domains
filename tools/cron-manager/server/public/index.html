@@ -1,26 +1,90 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cron Manager — Domains Portfolio</title>
+  <script>
+    // Set theme before first paint to avoid a flash.
+    try {
+      var t = localStorage.getItem('cm-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='none' stroke='%233dd7c4' stroke-width='1.5'/><path d='M8 4.5V8l2.5 1.5' fill='none' stroke='%233dd7c4' stroke-width='1.5' stroke-linecap='round'/></svg>" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <header>
-    <h1>Cron Manager</h1>
-    <p class="sub">Every cron system across the portfolio. Pause a role instantly; edits need a rebuild.</p>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 6.5V12l4 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <div class="brand-text">
+        <h1>Cron Manager</h1>
+        <p class="sub">Portfolio cron control plane</p>
+      </div>
+    </div>
+
+    <div id="healthBanner" class="health" aria-live="polite"></div>
+
     <div class="controls">
-      <button id="refresh">Refresh</button>
-      <label class="autorefresh"><input type="checkbox" id="autoToggle" /> Auto-refresh every 30s</label>
+      <button id="refresh" class="btn ghost" title="Refresh now">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M20 11a8 8 0 1 0-.6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Refresh</span>
+      </button>
+      <label class="switch" title="Auto-refresh every 30s">
+        <input type="checkbox" id="autoToggle" />
+        <span class="track"><span class="thumb"></span></span>
+        <span class="switch-label">Auto</span>
+      </label>
+      <button id="themeToggle" class="btn icon" title="Toggle light / dark" aria-label="Toggle theme">
+        <svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
       <span id="lastUpdated" class="last-updated"></span>
     </div>
   </header>
-  <div id="healthBanner" class="banner"></div>
-  <main id="systems">Loading…</main>
-  <div id="logModal" class="modal hidden">
-    <div class="modal-body"><h3 id="logTitle">Output</h3><pre id="logOut"></pre><button id="logClose">Close</button></div>
+
+  <main id="systems"><div class="loading">Loading systems…</div></main>
+
+  <!-- Professional log viewer -->
+  <div id="logModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="logTitle">
+    <div class="modal-body log-viewer">
+      <div class="log-head">
+        <div class="log-title-wrap">
+          <h3 id="logTitle">Logs</h3>
+          <div id="logSources" class="seg" role="tablist" aria-label="Log source"></div>
+        </div>
+        <button id="logClose" class="btn icon" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="log-toolbar">
+        <input id="logFilter" class="input filter" type="text" placeholder="Filter lines…" spellcheck="false" />
+        <select id="logTail" class="input select-sm" title="Lines to show">
+          <option value="200">200 lines</option>
+          <option value="400" selected>400 lines</option>
+          <option value="1000">1000 lines</option>
+          <option value="2000">2000 lines</option>
+        </select>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="logWrap" /> Wrap</label>
+        <button id="logReload" class="btn ghost sm">Reload</button>
+        <button id="logCopy" class="btn ghost sm">Copy</button>
+        <button id="logDownload" class="btn ghost sm">Download</button>
+      </div>
+      <pre id="logOut" class="log-out" tabindex="0"></pre>
+      <div class="log-foot"><span id="logCount"></span><span id="logMeta"></span></div>
+    </div>
   </div>
+
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
+
   <script src="/app.js"></script>
 </body>
 </html>

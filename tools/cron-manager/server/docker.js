@@ -69,6 +69,21 @@ async function confirmHealthy(container, runner = defaultRunner, opts = {}) {
   return { ...last, ok: false };
 }
 
+// When the running container was last (re)created. Used to detect a stale
+// crontab: if crontab.docker on disk is newer than this, the baked-in copy is
+// out of date and a rebuild is needed. Returns a Date or null.
+async function containerCreatedAt(container, runner = defaultRunner) {
+  try {
+    const { stdout } = await runner(`docker inspect -f "{{.Created}}" ${container}`);
+    const t = stdout.trim();
+    if (!t) return null;
+    const d = new Date(t);
+    return isNaN(d.getTime()) ? null : d;
+  } catch {
+    return null;
+  }
+}
+
 // Tail a container's logs (A4) — merges stdout+stderr (docker logs writes to
 // both). Never throws; returns a readable message on error.
 async function containerLogs(container, runner = defaultRunner, tail = 200) {
@@ -94,4 +109,4 @@ function rebuildCron(cwd, onData) {
   });
 }
 
-module.exports = { containerStatus, inspectContainer, confirmHealthy, containerLogs, rebuildCron };
+module.exports = { containerStatus, inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, rebuildCron };

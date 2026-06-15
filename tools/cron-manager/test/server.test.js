@@ -13,6 +13,15 @@ before(async () => {
   fs.mkdirSync(ops, { recursive: true });
   fs.writeFileSync(path.join(ops, 'crontab.docker'),
     '0 6 * * 1  bash ops/scripts/run-worker.sh planner');
+  // last-run facts + a log file for enrichment / role-log tests
+  const board = path.join(root, 'sites', 'demo.com', 'ops', 'board');
+  const logs = path.join(root, 'sites', 'demo.com', 'ops', 'logs');
+  fs.mkdirSync(board, { recursive: true });
+  fs.mkdirSync(logs, { recursive: true });
+  fs.writeFileSync(path.join(logs, 'planner-2026-06-15.log'), 'planner ran ok\n');
+  fs.writeFileSync(path.join(board, 'last-run.json'), JSON.stringify({
+    planner: { at: '2026-06-15T10:06:37Z', exit: 0, log: '/work/ops/logs/planner-2026-06-15.log' },
+  }));
   // status runner stubbed so the test never shells out to docker
   const app = createApp({ root, statusRunner: async () => ({ stdout: '', stderr: '' }) });
   await new Promise((res) => { server = app.listen(0, '127.0.0.1', res); });
@@ -81,4 +90,35 @@ test('GET logs returns container output', async () => {
 test('GET logs 404s for unknown system', async () => {
   const r = await fetch(`${base}/api/systems/nope/logs`);
   assert.strictEqual(r.status, 404);
+});
+
+test('GET /api/cron/describe validates + translates', async () => {
+  const ok = await (await fetch(`${base}/api/cron/describe?expr=${encodeURIComponent('0 6 * * 1')}`)).json();
+  assert.strictEqual(ok.valid, true);
+  assert.match(ok.human, /Monday/i);
+  const bad = await (await fetch(`${base}/api/cron/describe?expr=${encodeURIComponent('nope')}`)).json();
+  assert.strictEqual(bad.valid, false);
+  assert.ok(bad.error);
+});
+
+test('GET /api/systems enriches entries with last-run + log sources', async () => {
+  const demo = (await (await fetch(`${base}/api/systems`)).json()).find((s) => s.slug === 'demo.com');
+  const planner = demo.entries.find((e) => e.role === 'planner');
+  assert.strictEqual(planner.lastRun, '2026-06-15T10:06:37Z');
+  assert.strictEqual(planner.lastExit, 0);
+  assert.strictEqual(planner.hasLog, true);
+  assert.ok(demo.logSources.some((x) => x.id === 'role:planner'));
+  assert.ok(demo.logSources.some((x) => x.id === 'container'));
+  assert.strictEqual(typeof demo.needsRebuild, 'boolean');
+});
+
+test('GET logs source=role reads the recorded role log', async () => {
+  const r = await fetch(`${base}/api/systems/demo.com/logs?source=role:planner`);
+  assert.strictEqual(r.status, 200);
+  assert.match(await r.text(), /planner ran ok/);
+});
+
+test('GET logs source=rebuild returns a placeholder before any rebuild', async () => {
+  const r = await fetch(`${base}/api/systems/demo.com/logs?source=rebuild`);
+  assert.match(await r.text(), /no rebuild/i);
 });

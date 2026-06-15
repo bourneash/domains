@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { containerStatus, inspectContainer, confirmHealthy, containerLogs } = require('../server/docker');
+const { containerStatus, inspectContainer, confirmHealthy, containerLogs, containerCreatedAt } = require('../server/docker');
 
 // Fakes return the `docker ps --format "{{.State}}\t{{.Status}}"` shape.
 function fakeExec(output) {
@@ -112,4 +112,17 @@ test('containerLogs returns merged output', async () => {
 test('containerLogs never throws', async () => {
   const out = await containerLogs('x-cron', async () => { throw new Error('boom'); });
   assert.match(out, /error fetching logs/);
+});
+
+// ---- containerCreatedAt (needs-rebuild detection) ----
+
+test('containerCreatedAt parses an ISO date', async () => {
+  const d = await containerCreatedAt('x-cron', fakeExec('2026-06-15T10:00:00.123Z\n'));
+  assert.ok(d instanceof Date);
+  assert.strictEqual(d.toISOString(), '2026-06-15T10:00:00.123Z');
+});
+
+test('containerCreatedAt returns null on empty / error', async () => {
+  assert.strictEqual(await containerCreatedAt('x', fakeExec('\n')), null);
+  assert.strictEqual(await containerCreatedAt('x', async () => { throw new Error('x'); }), null);
 });
