@@ -14,6 +14,13 @@ services:
       # `docker compose build/up` for a site resolves its volume sources.
       CM_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
       CM_HOST: 0.0.0.0
+      # Must match the HOST's HOME. Site compose files mount the shared
+      # creds via ${HOME}/projects/domains/.env; when cron-manager spawns
+      # `docker compose up cron` for a site, that ${HOME} is resolved by the
+      # CLI running INSIDE this container. Without this, HOME=/root here and
+      # the bind source becomes /root/projects/domains/.env (nonexistent on
+      # the host), so the container init fails and is left in `Created`.
+      HOME: ${HOME:-/home/jesse}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
