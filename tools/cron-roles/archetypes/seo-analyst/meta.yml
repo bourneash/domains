@@ -1,0 +1,24 @@
+name: seo-analyst
+# Selected: wetpages.com/seo-analyst (18/18) — strongest structure: Purpose/Schedule/
+# Inputs/Outputs/Workflow/Success-metrics, GSC+Bing+IndexNow coverage, concrete schema
+# audit checklist, internal-linking audit, hand-off section maps to role types. Grafted:
+# ultrarough hard-stop/turn-budget anti-runaway guard; sinderella engineering-escalation
+# discipline (non-engineering exclusions + task format).
+source: sites/wetpages.com/ops/roles/seo-analyst.md
+schedule: "0 6 * * 3"            # Wednesday 6am — mid-week diagnostic cadence
+model: claude-sonnet-4-6
+owns_task_types: [seo]
+produces_task_types: [content, refresh, engineering]
+worker_deps: []
+needs_rebuild_verify: true        # crontab.docker is baked into the cron image
+self_notifies: false              # LLM role; run-role.sh handles notify
+deploy: false                     # files tasks; does not ship content itself
+scripts: []
+gitignore: []
+placeholders: [SITE_NAME, BASE_URL, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT]
+placeholder_detection:
+  SITE_NAME: "brand/site name from package.json name field, or basename of site dir if missing"
+  BASE_URL: "https://<domain> — also the property name for any Search Console references"
+  MODEL: "claude-sonnet-4-6"
+  SLACK_CHANNEL_VAR: "SLACK_CHANNEL_* var name from ops/scripts/run-role.sh (grep -oP 'SLACK_CHANNEL_\\w+')"
+  SLACK_CHANNEL_DEFAULT: "fallback channel string from run-role.sh default, e.g. domain-<short>-com"
