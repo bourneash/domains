@@ -1,0 +1,65 @@
+name: engineer
+# Selected: americastrikes.com is the declared reference engineer.
+# Why: bash-driven (near-zero Claude turns), true-DOM render health check via
+# Playwright, authoritative npm-run-build gate before any push, Slack 👍 heartbeat
+# when healthy+idle (0 tokens), file-based task-board integration. Best-in-class.
+source: americastrikes.com
+schedule: "0 */4 * * *"
+model: none            # bash-driven; run-engineer.sh selects Sonnet internally only when there is work
+owns_task_types: [engineering]
+produces_task_types: []          # the escalation sink — everyone files TO it; it files to no one
+worker_deps: [chromium, nss, freetype, harfbuzz, ttf-freefont, "playwright-core@1.49.1"]
+needs_rebuild_verify: true
+self_notifies: true              # run-engineer.sh posts its own Slack — do NOT add to run-role.sh notify allowlist (double-post guard)
+scripts:
+  - engineer-check.sh.tmpl
+  - engineer-render-check.mjs.tmpl
+  - run-engineer.sh.tmpl
+  - enqueue-engineer-task.sh.tmpl
+gitignore:
+  - "ops/logs/engineer-issues-*.txt"
+  - "ops/logs/engineer-render-fail-*.png"
+  - "ops/logs/engineer-render-last.json"
+placeholders:
+  - BASE_URL
+  - COLLECTIONS_JSON
+  - DOMAIN
+  - MODEL
+  - SITE_BRAND
+  - SITE_SHORT
+  - SITEMAP_PATH
+  - SLACK_CHANNEL_DEFAULT
+  - SLACK_CHANNEL_VAR
+  - STATIC_PAGES_JSON
+placeholder_detection:
+  BASE_URL: "live site URL, e.g. https://<domain> — read from CLAUDE.md header or wrangler.toml routes"
+  DOMAIN: "bare domain name, e.g. example.com — from directory name (sites/<DOMAIN>) or wrangler.toml name"
+  SITE_SHORT: "short slug for Slack lines, e.g. americastrikes — domain name without the TLD, hyphens stripped"
+  MODEL: "engineer model ID to invoke for work passes — default claude-sonnet-4-6 (check claude-api skill for current Sonnet ID)"
+  SLACK_CHANNEL_VAR: "env var name holding the Slack channel, e.g. SLACK_CHANNEL_AMERICA_STRIKES — grep /home/jesse/projects/domains/.env for SLACK_CHANNEL_<X>"
+  SLACK_CHANNEL_DEFAULT: "fallback Slack channel string, e.g. domain-americastrikes-com — grep .env for the matching value or derive as domain-<slug>-<tld>"
+  SITE_BRAND: |
+    Exact brand string rendered on every page (header/footer site name) — the render marker the
+    health check asserts. Detect by: grep the layout/header component in site/src/layouts/ or
+    site/src/components/ for the visible site name text, e.g. grep -r 'America Strikes' site/src/.
+    Must be a string that appears in the rendered HTML of every page.
+  COLLECTIONS_JSON: |
+    JSON array of content collections to render-check (newest entry of each).
+    Detect by:
+      1. ls site/src/content/ — each subdirectory is a candidate collection.
+      2. ls site/src/pages/ — find the route file (e.g. [slug].astro or index.astro) to get
+         the public URL prefix for each collection.
+      3. For each collection, identify the brand markers visible on those pages.
+    Shape: [{ dir: "<content-dir>", urlPrefix: "/<route>/", markers: ["<brand-string>", ...] }, ...]
+    Example: [{ dir: "articles", urlPrefix: "/articles/", markers: ["America Strikes"] }]
+  STATIC_PAGES_JSON: |
+    JSON array of static anchor pages every healthy site must serve.
+    Detect by: inspect site/src/pages/ for top-level routes (index.astro = "/", topic hubs, etc.)
+    and confirm they exist by curl -sI <BASE_URL><path>.
+    Always include at minimum: homepage "/", and at least one content hub or topic page.
+    Shape: [{ path: "/<path>/", kind: "<label>", markers: ["<brand-string>"] }, ...]
+    Example: [{ path: "/", kind: "home", markers: ["America Strikes"] }, { path: "/topics/iran-middle-east/", kind: "topic", markers: ["America Strikes"] }]
+  SITEMAP_PATH: |
+    Sitemap path served by the live site — almost always /sitemap-index.xml for Astro's sitemap
+    integration. Confirm by: curl -sI <BASE_URL>/sitemap-index.xml (200 = use that path).
+    Fallback: /sitemap.xml. The render check fetches this via curl and asserts XML markers.

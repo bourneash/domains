@@ -1,0 +1,24 @@
+name: content-writer
+# Selected: sites/reviewtattoo.com/ops/roles/content-writer.md (score 17/18) — cleanest
+# task-pickup loop + refresh checklist + affiliate registry rules + explicit anti-slop
+# Don't list; harness-managed deploy. Voice quarantined into a TUNE-PER-SITE stub.
+source: sites/reviewtattoo.com/ops/roles/content-writer.md
+schedule: "0 7 * * 6"            # Saturday 7am — weekly content/refresh cadence
+model: claude-sonnet-4-6
+owns_task_types: [content, refresh]
+produces_task_types: [engineering]   # build/redirect bug noticed mid-edit -> engineer (or human-triage fallback)
+worker_deps: []
+needs_rebuild_verify: true
+self_notifies: false             # LLM role; run-role.sh handles notify
+deploy: true                     # writing content results in a deploy — via harness .deploy-needed, NOT self-push
+scripts: []
+gitignore: []
+placeholders: [SITE_NAME, BASE_URL, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, CONTENT_COLLECTIONS, GO_PREFIX]
+placeholder_detection:
+  SITE_NAME: "brand/site name from package.json name field, or basename of site dir if missing"
+  BASE_URL: "https://<domain> — from CLAUDE.md header line or wrangler.toml routes[0].pattern"
+  MODEL: "claude-sonnet-4-6"
+  SLACK_CHANNEL_VAR: "SLACK_CHANNEL_* var name from ops/scripts/run-role.sh (grep -oP 'SLACK_CHANNEL_\\w+')"
+  SLACK_CHANNEL_DEFAULT: "fallback channel string from run-role.sh default, e.g. domain-<short>-com"
+  CONTENT_COLLECTIONS: "the content dirs/collections this site publishes — ls site/src/content/ to enumerate; describe each e.g. 'guides + styles' or 'articles + briefings'"
+  GO_PREFIX: "affiliate cloak path — confirm via site/public/_redirects, default /go/"

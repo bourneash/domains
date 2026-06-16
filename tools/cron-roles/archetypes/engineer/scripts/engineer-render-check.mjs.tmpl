@@ -1,0 +1,149 @@
+#!/usr/bin/env node
+// engineer-render-check.mjs — true-render health check for the live site.
+//
+// Loads key pages in a real headless browser (Playwright + system chromium) and
+// asserts each actually RENDERED — not just returned 200. Degrades to curl +
+// HTML-marker checks if chromium can't launch (tagged mode=degraded).
+//
+// Usage:  node engineer-render-check.mjs <base-url>
+// Output: one JSON line per page, then: RENDER_RESULT pass=N fail=M mode=browser|degraded
+// Exit:   0 all pass, 1 any fail, 2 harness error.
+
+import { readdirSync, existsSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { execFileSync } from "node:child_process";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(__dirname, "..", "..");
+const BASE = (process.argv[2] || "{{BASE_URL}}").replace(/\/+$/, "");
+const LOG_DIR = join(REPO_ROOT, "ops", "logs");
+
+const CHROMIUM_CANDIDATES = [
+  process.env.CHROMIUM_PATH, "/usr/bin/chromium-browser", "/usr/bin/chromium", "/usr/bin/google-chrome",
+].filter(Boolean);
+
+// ===== PROJECT CONFIG (the skill fills this per target project) =====
+// SITE_BRAND: a string present on every page (header/footer) — the render marker.
+// COLLECTIONS: the newest entry of each dir under site/src/content/ is checked.
+// STATIC_PAGES: fixed anchor pages every healthy site must serve.
+// SITEMAP_PATH: Astro sitemap index path (always fetched via curl — XML).
+const SITE_BRAND = "{{SITE_BRAND}}";
+const COLLECTIONS = {{COLLECTIONS_JSON}};
+const STATIC_PAGES = {{STATIC_PAGES_JSON}};
+const SITEMAP_PATH = "{{SITEMAP_PATH}}";
+// ====================================================================
+
+function latestSlug(dir) {
+  const p = join(REPO_ROOT, "site", "src", "content", dir);
+  if (!existsSync(p)) return null;
+  const files = readdirSync(p).filter((f) => f.endsWith(".md") || f.endsWith(".mdx")).sort();
+  return files.length ? files[files.length - 1].replace(/\.mdx?$/, "") : null;
+}
+
+function buildPageList() {
+  const pages = [...STATIC_PAGES];
+  for (const c of COLLECTIONS) {
+    const slug = latestSlug(c.dir);
+    if (slug) pages.push({ path: `${c.urlPrefix}${slug}/`, kind: c.dir, markers: c.markers });
+  }
+  pages.push({ path: SITEMAP_PATH, kind: "sitemap", markers: ["<urlset", "<sitemapindex", "<loc>"], raw: true });
+  return pages;
+}
+
+const PAGES = buildPageList();
+
+function fetchRaw(url) {
+  const out = execFileSync("curl", ["-sS", "-L", "--max-time", "20", "-w", "\\n__HTTP__%{http_code}", url],
+    { encoding: "utf8", maxBuffer: 12 * 1024 * 1024 });
+  const idx = out.lastIndexOf("\n__HTTP__");
+  const body = idx >= 0 ? out.slice(0, idx) : out;
+  const status = idx >= 0 ? parseInt(out.slice(idx + 9), 10) : 0;
+  return { body, status };
+}
+
+function evalRaw(pg, body, status) {
+  const res = { page: pg.path, kind: pg.kind, ok: false, status, bytes: body.length, note: "" };
+  const httpOk = status >= 200 && status < 400;
+  const bigEnough = body.length >= (pg.raw ? 120 : 1500);
+  const markersOk = pg.markers.some((m) => body.includes(m));
+  res.ok = httpOk && bigEnough && markersOk;
+  if (!res.ok) res.note = !httpOk ? `HTTP ${status}` : !bigEnough ? `tiny (${body.length}B)` : "missing markers";
+  return res;
+}
+
+async function runBrowser() {
+  let chromium;
+  try {
+    const entry = process.env.PLAYWRIGHT_CORE_ENTRY;
+    const mod = entry && existsSync(entry) ? await import(entry) : await import("playwright-core");
+    chromium = mod.chromium || (mod.default && mod.default.chromium);
+  } catch { return null; }
+  if (!chromium) return null;
+  const execPath = CHROMIUM_CANDIDATES.find((p) => existsSync(p));
+  if (!execPath) return null;
+
+  let browser;
+  try {
+    browser = await chromium.launch({ executablePath: execPath, args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"] });
+  } catch { return null; }
+
+  const results = [];
+  const ctx = await browser.newContext({ userAgent: "{{SITE_SHORT}}-EngineerBot/1.0 (+health-check)" });
+  for (const pg of PAGES) {
+    const url = BASE + pg.path;
+    if (pg.raw) {
+      try { const { body, status } = fetchRaw(url); results.push(evalRaw(pg, body, status)); }
+      catch (e) { results.push({ page: pg.path, kind: pg.kind, ok: false, status: 0, bytes: 0, note: String(e.message || e).slice(0, 120) }); }
+      continue;
+    }
+    const res = { page: pg.path, kind: pg.kind, ok: false, status: 0, bytes: 0, note: "" };
+    const page = await ctx.newPage();
+    try {
+      const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
+      res.status = resp ? resp.status() : 0;
+      const body = await page.evaluate(() => document.documentElement.outerHTML);
+      res.bytes = body.length;
+      const httpOk = res.status >= 200 && res.status < 400;
+      const bigEnough = res.bytes >= 1500;
+      const markersOk = pg.markers.some((m) => body.includes(m));
+      const visibleLen = await page.evaluate(() => (document.body?.innerText || "").trim().length);
+      const textOk = visibleLen >= 200;
+      res.ok = httpOk && bigEnough && markersOk && textOk;
+      if (!res.ok) {
+        res.note = !httpOk ? `HTTP ${res.status}` : !bigEnough ? `tiny (${res.bytes}B)`
+          : !textOk ? `thin body text (${visibleLen} chars)` : "missing markers";
+        try { const shot = join(LOG_DIR, `engineer-render-fail-${pg.kind}.png`); await page.screenshot({ path: shot }); res.shot = shot; } catch {}
+      }
+    } catch (e) { res.note = String(e.message || e).slice(0, 120); }
+    await page.close();
+    results.push(res);
+  }
+  await browser.close();
+  return { mode: "browser", results };
+}
+
+function runCurl() {
+  const results = [];
+  for (const pg of PAGES) {
+    try { const { body, status } = fetchRaw(BASE + pg.path); results.push(evalRaw(pg, body, status)); }
+    catch (e) { results.push({ page: pg.path, kind: pg.kind, ok: false, status: 0, bytes: 0, note: String(e.message || e).slice(0, 120) }); }
+  }
+  return { mode: "degraded", results };
+}
+
+async function main() {
+  void SITE_BRAND; // available for project-specific marker tuning
+  let outcome = await runBrowser();
+  if (!outcome) outcome = runCurl();
+  let pass = 0, fail = 0;
+  for (const r of outcome.results) { console.log(JSON.stringify(r)); r.ok ? pass++ : fail++; }
+  console.log(`RENDER_RESULT pass=${pass} fail=${fail} mode=${outcome.mode}`);
+  try {
+    writeFileSync(join(LOG_DIR, "engineer-render-last.json"),
+      JSON.stringify({ base: BASE, pass, fail, mode: outcome.mode, results: outcome.results }, null, 2));
+  } catch {}
+  process.exit(fail > 0 ? 1 : 0);
+}
+
+main().catch((e) => { console.error("engineer-render-check harness error:", e); console.log("RENDER_RESULT pass=0 fail=0 mode=error"); process.exit(2); });

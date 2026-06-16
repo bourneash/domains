@@ -1,0 +1,23 @@
+name: planner
+# Selected: wetpages.com/planner (17/18) — most portable: explicit pickup hierarchy,
+# multi-input reads, success metrics, hand-off section maps to role types not site names.
+# Grafted: sinderella engineering-escalation discipline (non-engineering exclusions +
+# task format) for fuller guardrail coverage.
+source: sites/wetpages.com/ops/roles/planner.md
+schedule: "0 6 * * 1"            # Monday 6am — weekly board-clearing cadence
+model: claude-sonnet-4-6
+owns_task_types: [ops, planning]
+produces_task_types: ["*"]        # dispatcher — can file any task type for any role
+worker_deps: []
+needs_rebuild_verify: true        # crontab.docker is baked into the cron image
+self_notifies: false              # LLM role; run-role.sh handles notify
+deploy: false                     # manages the board; no site changes
+scripts: []
+gitignore: []
+placeholders: [SITE_NAME, BASE_URL, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT]
+placeholder_detection:
+  SITE_NAME: "brand/site name from package.json name field, or basename of site dir if missing"
+  BASE_URL: "https://<domain> — from CLAUDE.md header line or wrangler.toml routes[0].pattern"
+  MODEL: "claude-sonnet-4-6"
+  SLACK_CHANNEL_VAR: "SLACK_CHANNEL_* var name from ops/scripts/run-role.sh (grep -oP 'SLACK_CHANNEL_\\w+')"
+  SLACK_CHANNEL_DEFAULT: "fallback channel string from run-role.sh default, e.g. domain-<short>-com"

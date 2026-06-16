@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# engineer-check.sh — programmatic health/state sweep for the Engineer role.
+#
+# Runs ALL mechanical checks (render, git, Cloudflare, system, task queue) with
+# zero Claude involvement, appends a human report to the log, and prints eval-able
+# scalars to stdout for run-engineer.sh:
+#   eval "$(bash ops/scripts/engineer-check.sh "$LOG" {{BASE_URL}})"
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+LOG="${1:-/dev/stderr}"
+BASE_URL="${2:-{{BASE_URL}}}"
+TS="$(date -u +%Y%m%d-%H%M%S)"
+ISSUES_FILE="$REPO_ROOT/ops/logs/engineer-issues-$TS.txt"
+: > "$ISSUES_FILE"
+
+[[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
+
+rlog() { echo "[$(date -Iseconds)] engineer-check: $*" >> "$LOG"; }
+issue() { echo "$1 $2" >> "$ISSUES_FILE"; }   # $1=[warn]|[block]  $2=text
+
+rlog "=== engineer check sweep ($BASE_URL) ==="
+
+# ---- 1. Render check (Playwright true-render, degrades to curl) ----
+RENDER_PASS=0; RENDER_FAIL=0; RENDER_MODE=error
+if command -v node >/dev/null 2>&1; then
+  RENDER_OUT=$(node "$REPO_ROOT/ops/scripts/engineer-render-check.mjs" "$BASE_URL" 2>>"$LOG")
+  echo "$RENDER_OUT" >> "$LOG"
+  # Parse with sed — the worker is Alpine (busybox grep has no -P/-oP).
+  SUMMARY=$(echo "$RENDER_OUT" | grep '^RENDER_RESULT' | tail -1)
+  RENDER_PASS=$(echo "$SUMMARY" | sed -n 's/.*pass=\([0-9]*\).*/\1/p'); RENDER_PASS=${RENDER_PASS:-0}
+  RENDER_FAIL=$(echo "$SUMMARY" | sed -n 's/.*fail=\([0-9]*\).*/\1/p'); RENDER_FAIL=${RENDER_FAIL:-0}
+  RENDER_MODE=$(echo "$SUMMARY" | sed -n 's/.*mode=\([A-Za-z]*\).*/\1/p'); RENDER_MODE=${RENDER_MODE:-error}
+  while IFS= read -r line; do
+    pg=$(echo "$line" | sed -n 's/.*"page":"\([^"]*\)".*/\1/p')
+    note=$(echo "$line" | sed -n 's/.*"note":"\([^"]*\)".*/\1/p')
+    [[ -n "$pg" ]] && issue "[warn]" "render fail $pg — ${note:-unknown}"
+  done < <(echo "$RENDER_OUT" | grep '"ok":false' || true)
+else
+  issue "[warn]" "node not available — render check skipped"
+fi
+rlog "render: pass=$RENDER_PASS fail=$RENDER_FAIL mode=$RENDER_MODE"
+
+# ---- 2. Git state ----
+GIT_CLEAN=1; GIT_AHEAD=0; GIT_BEHIND=0
+if command -v git >/dev/null 2>&1 && [[ -e "$REPO_ROOT/.git" ]]; then  # -e not -d: site repos are git submodules, so .git is a file
+  git fetch --quiet origin 2>>"$LOG" || rlog "git fetch failed (offline?) — using local refs"
+  if ! git diff --quiet || ! git diff --cached --quiet; then GIT_CLEAN=0; fi
+  GIT_AHEAD=$(git log --oneline origin/main..HEAD 2>/dev/null | wc -l | tr -d ' ')
+  GIT_BEHIND=$(git log --oneline HEAD..origin/main 2>/dev/null | wc -l | tr -d ' ')
+  [[ "$GIT_BEHIND" -gt 0 ]] && issue "[warn]" "local main is $GIT_BEHIND commit(s) behind origin — pull"
+  [[ "$GIT_AHEAD" -gt 3 ]] && issue "[warn]" "$GIT_AHEAD unpushed commits — deploy may be stuck"
+else
+  issue "[warn]" "git not available — git check skipped"
+fi
+rlog "git: clean=$GIT_CLEAN ahead=$GIT_AHEAD behind=$GIT_BEHIND"
+
+# ---- 3. Cloudflare deploy check ----
+CF_OK=0; CF_MODE=edge
+HDRS=$(curl -sSI --max-time 10 "$BASE_URL/" 2>>"$LOG" || true)
+HTTP_CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$BASE_URL/" 2>>"$LOG" || echo 000)
+if echo "$HDRS" | grep -qiE '^(cf-ray|server:\s*cloudflare)'; then CF_OK=1; fi
+if [[ "$HTTP_CODE" != "200" ]]; then
+  CF_OK=0; issue "[block]" "apex returned HTTP $HTTP_CODE (not 200) — site may be down"
+fi
+if [[ -n "${CLOUDFLARE_API_TOKEN:-}" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+  API=$(curl -sS --max-time 10 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+    "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" 2>>"$LOG" || true)
+  echo "$API" | grep -q '"success":true' && CF_MODE=api || rlog "CF API non-success (token scope?) — staying on edge check"
+fi
+rlog "cloudflare: ok=$CF_OK mode=$CF_MODE http=$HTTP_CODE"
+
+# ---- 4. System / deploy flags ----
+DEPLOY_PENDING=0; DEPLOY_STALE=0
+[[ -f "$REPO_ROOT/.deploy-needed.failed" ]] && issue "[block]" ".deploy-needed.failed exists — deployer hit retry cap"
+if [[ -f "$REPO_ROOT/.deploy-needed" ]]; then
+  DEPLOY_PENDING=1
+  AGE=$(( $(date +%s) - $(stat -c %Y "$REPO_ROOT/.deploy-needed" 2>/dev/null || echo "$(date +%s)") ))
+  [[ "$AGE" -gt 7200 ]] && { DEPLOY_STALE=1; issue "[warn]" ".deploy-needed is ${AGE}s old — deployer may be stuck"; }
+fi
+rlog "deploy: pending=$DEPLOY_PENDING stale=$DEPLOY_STALE"
+
+# ---- 5. Task queue (assigned_role: engineer) ----
+# ops/.engineer-paused → monitor-only (no task pickup). ENGINEER_MAX_TASKS caps pickups.
+# Tasks whose FILENAME starts with HOLD- or HOLD_ (case-insensitive) are on hold:
+# skipped and not counted (rename to drop the prefix to re-activate).
+MAX_TASKS="${ENGINEER_MAX_TASKS:-3}"
+ENG_ELIGIBLE=$(grep -rl 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null \
+  | grep -viE '/HOLD[-_]' | sort || true)
+QUEUE_COUNT=$(printf '%s\n' "$ENG_ELIGIBLE" | grep -c . || true); QUEUE_COUNT=${QUEUE_COUNT:-0}
+HELD_COUNT=$(grep -rl 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null \
+  | grep -ciE '/HOLD[-_]' || true); HELD_COUNT=${HELD_COUNT:-0}
+ENGINEER_PAUSED=0
+if [[ -f "$REPO_ROOT/ops/.engineer-paused" ]]; then
+  ENGINEER_PAUSED=1; QUEUE_TASKS=""
+  rlog "queue: eligible=$QUEUE_COUNT held=$HELD_COUNT PAUSED (ops/.engineer-paused) — monitor-only"
+else
+  QUEUE_TASKS=$(printf '%s\n' "$ENG_ELIGIBLE" | sed '/^$/d' | head -"$MAX_TASKS" \
+    | awk -F/ '{print $NF}' | paste -sd ',' || true)
+  rlog "queue: eligible=$QUEUE_COUNT held=$HELD_COUNT picked=[$QUEUE_TASKS] (max=$MAX_TASKS)"
+fi
+
+# ---- 6. Classify ----
+ISSUES_COUNT=$(wc -l < "$ISSUES_FILE" | tr -d ' ')
+BLOCK_COUNT=$(grep -c '^\[block\]' "$ISSUES_FILE" 2>/dev/null || true); BLOCK_COUNT=${BLOCK_COUNT:-0}
+HAVE_PICKED=0; [[ -n "$QUEUE_TASKS" ]] && HAVE_PICKED=1
+if [[ "$ISSUES_COUNT" -gt 0 || "$HAVE_PICKED" -gt 0 ]]; then
+  ENGINEER_STATUS=work
+  [[ "$BLOCK_COUNT" -gt 0 ]] && ENGINEER_STATUS=issue
+else
+  ENGINEER_STATUS=green
+fi
+rlog "status=$ENGINEER_STATUS issues=$ISSUES_COUNT blockers=$BLOCK_COUNT paused=$ENGINEER_PAUSED"
+
+cat <<EOF
+RENDER_PASS=$RENDER_PASS
+RENDER_FAIL=$RENDER_FAIL
+RENDER_MODE=$RENDER_MODE
+GIT_CLEAN=$GIT_CLEAN
+GIT_AHEAD=$GIT_AHEAD
+GIT_BEHIND=$GIT_BEHIND
+CF_OK=$CF_OK
+CF_MODE=$CF_MODE
+DEPLOY_PENDING=$DEPLOY_PENDING
+DEPLOY_STALE=$DEPLOY_STALE
+QUEUE_COUNT=$QUEUE_COUNT
+QUEUE_TASKS="$QUEUE_TASKS"
+ENGINEER_PAUSED=$ENGINEER_PAUSED
+ISSUES_COUNT=$ISSUES_COUNT
+ISSUES_FILE="$ISSUES_FILE"
+ENGINEER_STATUS=$ENGINEER_STATUS
+EOF
