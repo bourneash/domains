@@ -35,7 +35,7 @@ board_block() {  # $1=status-line  $2=detail
 # ---- 1. Check sweep (no Claude) ----
 log "running check sweep against $BASE_URL ..."
 # Safe ingest: NO eval (QUEUE_TASKS holds filenames — eval would be injectable).
-RENDER_PASS=0; RENDER_FAIL=0; GIT_CLEAN=1; GIT_AHEAD=0; GIT_BEHIND=0; CF_OK=0
+RENDER_PASS=0; RENDER_FAIL=0; GIT_CLEAN=1; GIT_DIRTY_SRC=0; GIT_AHEAD=0; GIT_BEHIND=0; CF_OK=0
 DEPLOY_PENDING=0; DEPLOY_STALE=0; QUEUE_COUNT=0; ISSUES_COUNT=0; ENGINEER_PAUSED=0
 RENDER_MODE=error; CF_MODE=edge; ENGINEER_STATUS=green; QUEUE_TASKS=""; ISSUES_FILE=""
 CHECK_OUT="$(bash "$REPO_ROOT/ops/scripts/engineer-check.sh" "$LOG" "$BASE_URL")"
@@ -43,7 +43,7 @@ while IFS='=' read -r _k _v; do
   [[ -z "$_k" ]] && continue
   _v="${_v%\"}"; _v="${_v#\"}"
   case "$_k" in
-    RENDER_PASS|RENDER_FAIL|GIT_CLEAN|GIT_AHEAD|GIT_BEHIND|CF_OK|DEPLOY_PENDING|DEPLOY_STALE|QUEUE_COUNT|ISSUES_COUNT|ENGINEER_PAUSED)
+    RENDER_PASS|RENDER_FAIL|GIT_CLEAN|GIT_DIRTY_SRC|GIT_AHEAD|GIT_BEHIND|CF_OK|DEPLOY_PENDING|DEPLOY_STALE|QUEUE_COUNT|ISSUES_COUNT|ENGINEER_PAUSED)
       [[ "$_v" =~ ^[0-9]+$ ]] && printf -v "$_k" '%s' "$_v" ;;
     RENDER_MODE|CF_MODE|ENGINEER_STATUS)
       [[ "$_v" =~ ^[A-Za-z]+$ ]] && printf -v "$_k" '%s' "$_v" ;;
@@ -53,13 +53,22 @@ while IFS='=' read -r _k _v; do
       [[ "$_v" =~ ^[A-Za-z0-9._/-]+$ ]] && printf -v "$_k" '%s' "$_v" ;;
   esac
 done <<< "$CHECK_OUT"
-RENDER_TAG="${RENDER_PASS}/$((RENDER_PASS + RENDER_FAIL))"
-[[ "$RENDER_MODE" == "degraded" ]] && RENDER_TAG="${RENDER_TAG}(curl)"
-GIT_TAG="clean"; [[ "$GIT_CLEAN" == "0" ]] && GIT_TAG="dirty"
-[[ "$GIT_BEHIND" -gt 0 ]] && GIT_TAG="${GIT_TAG},behind${GIT_BEHIND}"
-CF_TAG="current"; [[ "$CF_OK" == "0" ]] && CF_TAG="DOWN"
+# Each tag is one clear, non-overlapping fact (these are separate axes, not the
+# same thing said twice):
+#   render  — did the key pages truly render in a real browser
+#   tree    — is the local WORKING TREE clean of uncommitted *source* (runtime
+#             churn in logs/board/facts is filtered out upstream and reads clean)
+#   main    — is local HEAD in sync with origin/main (pushed?)  [push axis]
+#   CF      — is Cloudflare serving the site                    [deploy axis]
+RENDER_TAG="${RENDER_PASS}/$((RENDER_PASS + RENDER_FAIL)) pages"
+[[ "$RENDER_MODE" == "degraded" ]] && RENDER_TAG="${RENDER_TAG} (curl)"
+TREE_TAG="tree clean"; [[ "${GIT_DIRTY_SRC:-0}" -gt 0 ]] && TREE_TAG="⚠ ${GIT_DIRTY_SRC} uncommitted src"
+SYNC_TAG="main synced"
+[[ "$GIT_AHEAD"  -gt 0 ]] && SYNC_TAG="main +${GIT_AHEAD} unpushed"
+[[ "$GIT_BEHIND" -gt 0 ]] && SYNC_TAG="main -${GIT_BEHIND} behind"
+CF_TAG="CF live"; [[ "$CF_OK" == "0" ]] && CF_TAG="CF DOWN"
 QUEUE_TAG="${QUEUE_COUNT} task(s)"; [[ "${ENGINEER_PAUSED:-0}" == "1" ]] && QUEUE_TAG="${QUEUE_COUNT} task(s, paused)"
-STATUS_LINE="render ${RENDER_TAG}, git ${GIT_TAG}, deploy ${CF_TAG}, ${QUEUE_TAG} · ${NOW_ET}"
+STATUS_LINE="render ${RENDER_TAG} · ${TREE_TAG} · ${SYNC_TAG} · ${CF_TAG} · ${QUEUE_TAG} · ${NOW_ET}"
 log "status=$ENGINEER_STATUS — $STATUS_LINE"
 
 # ---- 2. Healthy + empty queue → heartbeat, exit ----

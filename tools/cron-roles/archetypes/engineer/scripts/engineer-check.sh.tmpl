@@ -44,10 +44,18 @@ fi
 rlog "render: pass=$RENDER_PASS fail=$RENDER_FAIL mode=$RENDER_MODE"
 
 # ---- 2. Git state ----
-GIT_CLEAN=1; GIT_AHEAD=0; GIT_BEHIND=0
+GIT_CLEAN=1; GIT_AHEAD=0; GIT_BEHIND=0; GIT_DIRTY_SRC=0
 if command -v git >/dev/null 2>&1 && [[ -e "$REPO_ROOT/.git" ]]; then  # -e not -d: site repos are git submodules, so .git is a file
   git fetch --quiet origin 2>>"$LOG" || rlog "git fetch failed (offline?) — using local refs"
   if ! git diff --quiet || ! git diff --cached --quiet; then GIT_CLEAN=0; fi
+  # Classify the dirt. ops/logs, ops/board, ops/facts.yaml, ops/.locks and
+  # .deploy-needed churn every run — benign, expected, not worth reporting. Only
+  # UNCOMMITTED SOURCE is surfaced, and the engineer deliberately does NOT
+  # auto-commit it (blindly committing a working tree is the git add -A hazard) —
+  # it flags it so a human notices work a role left unshipped.
+  GIT_DIRTY_SRC=$(git status --porcelain 2>/dev/null | cut -c4- \
+    | grep -vE '^(ops/logs/|ops/board/|ops/\.locks/|ops/facts\.yaml|\.deploy-needed)' \
+    | grep -c . )
   GIT_AHEAD=$(git log --oneline origin/main..HEAD 2>/dev/null | wc -l | tr -d ' ')
   GIT_BEHIND=$(git log --oneline HEAD..origin/main 2>/dev/null | wc -l | tr -d ' ')
   [[ "$GIT_BEHIND" -gt 0 ]] && issue "[warn]" "local main is $GIT_BEHIND commit(s) behind origin — pull"
@@ -55,7 +63,7 @@ if command -v git >/dev/null 2>&1 && [[ -e "$REPO_ROOT/.git" ]]; then  # -e not 
 else
   issue "[warn]" "git not available — git check skipped"
 fi
-rlog "git: clean=$GIT_CLEAN ahead=$GIT_AHEAD behind=$GIT_BEHIND"
+rlog "git: clean=$GIT_CLEAN dirty_src=$GIT_DIRTY_SRC ahead=$GIT_AHEAD behind=$GIT_BEHIND"
 
 # ---- 3. Cloudflare deploy check ----
 CF_OK=0; CF_MODE=edge
@@ -119,6 +127,7 @@ RENDER_PASS=$RENDER_PASS
 RENDER_FAIL=$RENDER_FAIL
 RENDER_MODE=$RENDER_MODE
 GIT_CLEAN=$GIT_CLEAN
+GIT_DIRTY_SRC=$GIT_DIRTY_SRC
 GIT_AHEAD=$GIT_AHEAD
 GIT_BEHIND=$GIT_BEHIND
 CF_OK=$CF_OK
