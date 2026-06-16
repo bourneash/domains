@@ -45,7 +45,7 @@ rlog "render: pass=$RENDER_PASS fail=$RENDER_FAIL mode=$RENDER_MODE"
 
 # ---- 2. Git state ----
 GIT_CLEAN=1; GIT_AHEAD=0; GIT_BEHIND=0
-if command -v git >/dev/null 2>&1 && [[ -d "$REPO_ROOT/.git" ]]; then
+if command -v git >/dev/null 2>&1 && [[ -e "$REPO_ROOT/.git" ]]; then  # -e not -d: site repos are git submodules, so .git is a file
   git fetch --quiet origin 2>>"$LOG" || rlog "git fetch failed (offline?) — using local refs"
   if ! git diff --quiet || ! git diff --cached --quiet; then GIT_CLEAN=0; fi
   GIT_AHEAD=$(git log --oneline origin/main..HEAD 2>/dev/null | wc -l | tr -d ' ')
