@@ -150,7 +150,42 @@ body, with no helper scripts), skip this step — that is normal for some archet
 
 ## Step 6 — Wire `run-role.sh` — ARCHITECTURE-AWARE
 
-Sites use **one of two dispatcher styles**. Detect which before touching the file:
+### Rule 0 (takes precedence) — bash-driven roles ALWAYS get an explicit branch
+
+If the archetype is **bash-driven** — `meta.model == none` AND it ships its own runner
+in `meta.scripts` (e.g. the engineer's `run-engineer.sh`) — it is NOT correctly handled
+by a generic `claude -p "$(cat role.md)"` dispatcher: that path would run the role body
+as a one-shot LLM prompt every tick, skipping the runner's mechanical sweep / build-gate /
+heartbeat entirely. So **regardless of dispatcher style (a or b below), a bash-driven role
+REQUIRES an explicit branch that shells to its runner and bypasses the generic `claude -p`
+call.** Wire it like this, guarding the generic invocation:
+
+```bash
+set +e
+if [[ "$ROLE" == "<name>" ]]; then
+  # Bash-driven role: <name>'s runner does the sweep, build-gate, commit,
+  # push, and its own Slack. No generic `claude -p`, no outer `timeout` —
+  # the runner manages its own time and invokes its model with its own limits.
+  bash "$REPO_ROOT/ops/scripts/run-<name>.sh" "$LOG" 2>&1 | tee -a "$LOG"
+else
+  timeout "$TIMEOUT" claude -p "$(cat "$ROLE_FILE")
+  ... existing generic invocation, unchanged ...
+fi
+STATUS=$?
+set -e
+```
+
+This is the proven americastrikes engineer dispatch (the runner takes `$LOG` as `$1` and
+tees to it internally; the outer `| tee -a "$LOG"` captures its stdout). `STATUS=$?` after
+the pipe reflects the runner's exit via `pipefail`. Also add a `case "$ROLE"` arm for the
+role's `TIMEOUT` (and `MAX_TURNS`, unused by the runner but harmless) alongside the
+existing per-role knobs. Let the file's existing
+post-run flow (status-file write, generic push, success-notify allowlist) continue: the
+runner self-pushes so the generic push is a no-op, and a self-notifying role must stay OUT
+of the success-notify allowlist (double-post guard, below). This Rule 0 case is exactly
+what the engineer needs even on a generic-dispatcher site.
+
+For all OTHER (LLM-driven, `meta.model != none`) roles, fall through to the style detection:
 
 ```bash
 grep -nE 'if \[\[ "\$ROLE" ==|elif \[\[ "\$ROLE" ==' "$TARGET/ops/scripts/run-role.sh"
