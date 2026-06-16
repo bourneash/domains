@@ -1,0 +1,25 @@
+name: affiliate-editor
+# Selected: reviewtattoo.com/affiliate-tester (scored 17/18 — pure no-deploy sentinel,
+# crisp headless contract, anti-bot-wall false-positive guard). Grafted: wetpages
+# build-gate validator rigor; xxxtea explicit engineering handoff.
+source: reviewtattoo.com/affiliate-tester
+schedule: "0 7 * * 3"            # Wed 7am — 2-3 day buffer before weekend content runs
+model: claude-sonnet-4-6
+owns_task_types: [affiliate]
+produces_task_types: [content, engineering]   # dead ASIN -> content; broken /go/ redirect -> engineering
+worker_deps: []                  # curl-based; no headless browser
+needs_rebuild_verify: true       # crontab.docker is baked into the cron image
+self_notifies: false             # LLM role; run-role.sh handles notify
+deploy: false                    # NO-DEPLOY sentinel — only files tasks
+scripts: []
+gitignore: []
+placeholders: [BASE_URL, SITE_BRAND, GO_PREFIX, AFFILIATE_TAG, CONTENT_PATH, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, MODEL]
+placeholder_detection:
+  BASE_URL: "live site URL https://<domain> — from astro.config or CLAUDE.md (ignore amazon URLs)"
+  SITE_BRAND: "on-page brand string from header/footer"
+  GO_PREFIX: "affiliate cloak path, default /go/ — confirm via site/public/_redirects"
+  AFFILIATE_TAG: "Amazon Associates tag, e.g. <brand>-20 — from site/src/lib/affiliate.ts"
+  CONTENT_PATH: "dir to grep for pages referencing a dead id — e.g. site/src/content/guides/ or site/src/pages/reviews/"
+  SLACK_CHANNEL_VAR: "SLACK_CHANNEL_* var name from run-role.sh"
+  SLACK_CHANNEL_DEFAULT: "fallback channel, e.g. domain-<short>-com"
+  MODEL: "claude-sonnet-4-6"
