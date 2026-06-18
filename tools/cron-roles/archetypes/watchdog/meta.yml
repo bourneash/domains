@@ -1,0 +1,73 @@
+name: watchdog
+# Selected: americastrikes.com is the declared reference watchdog (prototype
+# 2026-06-18). Why: fast self-healing incident loop, bash-driven (0 tokens when
+# healthy), machine-readable incident contract any role can emit into, and a
+# capable model auto-repair behind the same push-revoked + authoritative-gate
+# envelope the engineer uses — bounded by an attempt cap + cooldown + escalation.
+source: americastrikes.com
+
+# KIND: cron-direct (NOT a worker-dispatched role).
+# Unlike engineer/affiliate-editor/etc., the watchdog does NOT run via
+# `run-worker.sh <name>` and has NO run-role.sh branch and NO task pickup. Its
+# crontab line invokes `run-watchdog.sh` straight in the CRON container (like
+# run-deployer.sh / check-live-images.sh); the cheap detection runs there at ~0
+# cost and only an eligible OPEN incident spins a worker for the repair pass.
+# Consequence: generic WIRING.md Steps 6 (run-role.sh), 7 (worker cron line), and
+# 12 (worker dry-run) do NOT apply as written — the domains-cron-role-watchdog
+# skill carries the cron-direct install + validation specifics instead.
+kind: cron-direct
+
+schedule: "2,17,32,47 * * * *"   # every 15 min, offset off scraper(:00/:15) + deployer(:05)
+cron_invocation: "bash ops/scripts/run-watchdog.sh"   # cron-direct — NOT run-worker.sh
+model: none            # bash-driven; watchdog.sh invokes the repair model (MODEL) internally only on an incident
+owns_task_types: []                  # never picks up tasks
+produces_task_types: [engineering]   # on escalation, files a priority human-triage engineering task
+worker_deps: []                      # repair reuses the existing worker (claude+node+npm+git already present)
+needs_rebuild_verify: true           # crontab is baked into the cron image — new line needs a cron rebuild
+self_notifies: true                  # watchdog.sh posts its own Slack (heartbeat-silent; fixes + escalations only)
+deploy: true                         # it commits + build-gates + pushes its fixes
+scripts:
+  - watchdog.sh.tmpl
+  - run-watchdog.sh.tmpl
+  - emit-incident.sh.tmpl
+
+# The incident CONTRACT. Installing the watchdog is only half the job — the other
+# roles must EMIT incidents on failure or the watchdog has nothing to detect
+# (beyond its own site-down / deploy-stuck probes). At install time, wire the
+# site's abort/failure branches to call emit-incident.sh. At minimum:
+#   - ops/scripts/deploy.sh: the audit-fail and build-fail abort branches.
+# Add others as the site grows (scraper hard-fail, render-check fail, etc.).
+emits_required_in:
+  - "ops/scripts/deploy.sh (audit-abort + build-fail branches)"
+
+gitignore:
+  - "ops/health/"
+  - "ops/.watchdog-disabled"
+
+placeholders:
+  - BASE_URL
+  - DOMAIN
+  - MODEL
+  - SITE_BRAND
+  - SITE_SHORT
+  - SLACK_CHANNEL_ENV_VAR
+  - SLACK_CHANNEL_DEFAULT
+  - GIT_USER_NAME
+  - GIT_USER_EMAIL
+  - BUILD_GATE
+placeholder_detection:
+  BASE_URL: "live site URL, e.g. https://<domain> — read from CLAUDE.md header or wrangler routes"
+  DOMAIN: "bare domain name, e.g. example.com — from directory name (sites/<DOMAIN>) or wrangler name"
+  MODEL: "repair model id to invoke on an incident — default claude-sonnet-4-6 (check claude-api skill for current Sonnet ID)"
+  SITE_BRAND: "brand string used in the repair prompt, e.g. 'AmericaStrikes.com' — the site name from CLAUDE.md / package.json"
+  SITE_SHORT: "short slug for Slack lines, e.g. americastrikes — domain without the TLD, hyphens stripped"
+  SLACK_CHANNEL_ENV_VAR: "env var name holding the Slack channel, e.g. SLACK_CHANNEL_AMERICA_STRIKES — grep ops/scripts/run-role.sh or /home/jesse/projects/domains/.env"
+  SLACK_CHANNEL_DEFAULT: "fallback Slack channel string, e.g. domain-americastrikes-com — the :- default beside SLACK_CHANNEL_ENV_VAR in run-role.sh"
+  GIT_USER_NAME: "commit identity fallback, e.g. 'AmericaStrikes Desk' — match the site's existing deploy.sh/run-engineer.sh git config default"
+  GIT_USER_EMAIL: "commit identity fallback, e.g. bot@<domain> — match the site's existing git config default"
+  BUILD_GATE: |
+    The authoritative verify command(s) the wrapper runs from site/ before pushing a
+    fix — must exit non-zero on a bad build. Default: `npm run build`. If the site has a
+    production-only audit gate (americastrikes added `security:audit:prod`), use
+    `npm run security:audit:prod && npm run build`. Detect by: grep site/package.json
+    "scripts" for an audit/verify script; otherwise default to `npm run build`.

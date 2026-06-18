@@ -1,0 +1,396 @@
+#!/usr/bin/env bash
+# watchdog.sh — fast self-healing incident loop (runs every 15 min via cron).
+#
+# Bash-driven, ZERO tokens when healthy. Cheap probes + open incident breadcrumbs
+# (ops/health/incidents/*.json, written by emit-incident.sh) decide whether there
+# is anything to do. Only when an OPEN, eligible incident exists does it spin up a
+# capable model (Sonnet) for a focused, guardrailed auto-repair pass.
+#
+# Guardrails:
+#   - One incident per tick (highest urgency first) — bounds cost/latency.
+#   - Attempt cap per fingerprint (WATCHDOG_MAX_ATTEMPTS, default 3) → escalate to
+#     a human-triage task + loud Slack @here, then stop touching that fingerprint.
+#   - Cooldown (WATCHDOG_COOLDOWN, default 1200s) — never re-invoke the model on
+#     the same fingerprint more often than this, even though it ticks every 15m.
+#   - Verify-before-push: the model never pushes (GIT_SSH_COMMAND=/bin/false); the
+#     wrapper runs the authoritative build+audit gate and only then pushes.
+#   - Single-flight flock + kill switch (ops/.watchdog-disabled).
+#
+# Testing knobs (never set in production cron):
+#   WATCHDOG_DRY_RUN=1        — skip the real model pass, build gate, and push.
+#   WATCHDOG_FAKE_REPAIR=...  — with DRY_RUN: simulate the model outcome:
+#                               changed (edited+build ok) | noop | fail | recover
+#   WATCHDOG_FAKE_PROBE_DOWN=1 — force the site-down probe to trip (test only).
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+# ---- config ----
+BASE_URL="${WATCHDOG_BASE_URL:-{{BASE_URL}}}"
+MODEL="${WATCHDOG_MODEL:-{{MODEL}}}"
+MAX_ATTEMPTS="${WATCHDOG_MAX_ATTEMPTS:-3}"
+COOLDOWN="${WATCHDOG_COOLDOWN:-1200}"      # 20m
+DEPLOY_STUCK_AGE="${WATCHDOG_DEPLOY_STUCK_AGE:-1200}"  # 20m
+WORK_TIMEOUT="${WATCHDOG_WORK_TIMEOUT:-1800}"          # 30m model budget
+MAX_TURNS="${WATCHDOG_MAX_TURNS:-30}"
+DRY_RUN="${WATCHDOG_DRY_RUN:-0}"
+
+INC_DIR="$REPO_ROOT/ops/health/incidents"
+LOCK="$REPO_ROOT/ops/.locks/watchdog.lock"
+LOG="$REPO_ROOT/ops/logs/watchdog-$(date -u +%Y%m%d).log"
+KILL="$REPO_ROOT/ops/.watchdog-disabled"
+EMIT="$REPO_ROOT/ops/scripts/emit-incident.sh"
+mkdir -p "$INC_DIR" "$REPO_ROOT/ops/.locks" "$REPO_ROOT/ops/logs" 2>/dev/null || true
+
+[[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_ENV_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
+TODAY="$(date -u +%Y-%m-%d)"
+
+log()   { echo "[$(date -Iseconds)] watchdog: $*" | tee -a "$LOG"; }
+slack() { [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$1" "${2:-good}" 2>/dev/null || true; }
+
+# ---- single-flight + kill switch ----
+exec 9>"$LOCK"
+if ! flock -n 9; then
+  log "another watchdog run holds the lock — exiting"; exit 0
+fi
+if [[ -f "$KILL" ]]; then
+  log "kill switch present ($KILL) — watchdog disabled, exiting"; exit 0
+fi
+
+# recovered_for <class> — cheap, side-effect-free check of whether a given
+# incident class's real-world symptom is GONE. Only the cheap, self-clearing
+# classes are reconcilable here (curl / flag age — safe in the cron container,
+# no npm). Code-level failures (build-fail / npm-audit-*) do NOT self-clear and
+# are resolved through the repair path, so they return 1 (not recovered) here.
+recovered_for() {
+  case "$1" in
+    site-down)
+      [[ "${WATCHDOG_FAKE_PROBE_DOWN:-0}" == "1" ]] && return 1
+      local code; code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$BASE_URL/" 2>/dev/null || echo 000)"
+      [[ "$code" =~ ^2|^3 ]] ;;
+    deploy-stuck)
+      [[ ! -f .deploy-needed && ! -f .deploy-needed.failed ]] && return 0
+      local f mt now age; now="$(date +%s)"
+      for f in .deploy-needed .deploy-needed.failed; do
+        [[ -f "$f" ]] || continue
+        mt="$(stat -c %Y "$f" 2>/dev/null || echo "$now")"; age=$(( now - mt ))
+        [[ "$age" -gt "$DEPLOY_STUCK_AGE" ]] && return 1
+      done
+      return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# ================= 1. Cheap active probes (each trips → breadcrumb) =================
+probe() {
+  # site-down: one curl on the homepage.
+  local code
+  if [[ "${WATCHDOG_FAKE_PROBE_DOWN:-0}" == "1" ]]; then code="503"; else
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$BASE_URL/" 2>/dev/null || echo 000)"
+  fi
+  if [[ ! "$code" =~ ^2|^3 ]]; then
+    log "probe: homepage returned $code"
+    bash "$EMIT" --role probe --class site-down --severity high \
+      --summary "live homepage $BASE_URL returned HTTP $code" >/dev/null 2>&1 || true
+  fi
+
+  # deploy-stuck: .deploy-needed (or .failed) lingering past threshold.
+  local flag="" age=0 now; now="$(date +%s)"
+  for f in .deploy-needed .deploy-needed.failed; do
+    if [[ -f "$f" ]]; then
+      local mt; mt="$(stat -c %Y "$f" 2>/dev/null || echo "$now")"
+      age=$(( now - mt ))
+      if [[ "$age" -gt "$DEPLOY_STUCK_AGE" ]]; then
+        log "probe: $f stuck for ${age}s (> ${DEPLOY_STUCK_AGE}s)"
+        bash "$EMIT" --role probe --class deploy-stuck --severity high \
+          --summary "$f unprocessed for $((age/60))m — deploys not completing" \
+          --log "$REPO_ROOT/ops/logs/deployer-retry-cap.log" >/dev/null 2>&1 || true
+      fi
+    fi
+  done
+}
+probe
+
+# ================= 2. Gather OPEN incidents =================
+shopt -s nullglob
+OPEN=()
+for rec in "$INC_DIR"/*.json; do
+  st="$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('status','open'))" "$rec" 2>/dev/null || echo open)"
+  [[ "$st" == "open" ]] && OPEN+=("$rec")
+done
+
+# ---- Reconcile: auto-resolve incidents whose symptom has self-cleared ----
+# (transient outage recovered, deploy finally completed, or a prior pushed fix
+# has landed). Keeps the watchdog from re-attempting already-healthy incidents.
+# Resolution is IN PLACE (status field) — files are never moved, so attempt
+# history survives a later re-sighting and the attempt cap keeps bounding it.
+STILL_OPEN=()
+for rec in "${OPEN[@]}"; do
+  rclass="$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('class',''))" "$rec" 2>/dev/null || echo)"
+  if recovered_for "$rclass"; then
+    fp="$(basename "$rec" .json)"
+    log "reconcile: $fp ($rclass) symptom cleared — resolving"
+    python3 - "$rec" <<'PY' 2>/dev/null || true
+import json,sys,datetime
+d=json.load(open(sys.argv[1]))
+d['status']='resolved'
+d['last_outcome']='self-cleared'
+d['resolved_at']=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+json.dump(d,open(sys.argv[1],'w'),indent=2)
+PY
+    [[ "${WATCHDOG_DETECT_ONLY:-0}" == "1" ]] || slack "✅ *{{SITE_SHORT}} watchdog* — \`$rclass\` recovered on its own · ${NOW_ET}" "good"
+  else
+    STILL_OPEN+=("$rec")
+  fi
+done
+OPEN=("${STILL_OPEN[@]}")
+
+# ---- Prune old resolved records so the ledger doesn't grow unbounded ----
+find "$INC_DIR" -maxdepth 1 -name '*.json' -mtime +3 2>/dev/null | while read -r old; do
+  st="$(python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('status',''))" "$old" 2>/dev/null || echo)"
+  [[ "$st" == "resolved" ]] && rm -f "$old"
+done
+
+if [[ "${#OPEN[@]}" -eq 0 ]]; then
+  log "no open incidents — healthy (0 tokens)"
+  exit 0
+fi
+
+log "${#OPEN[@]} open incident(s)"
+
+# ================= 3. Pick the single most urgent eligible incident =================
+# Eligible = not in cooldown. Order: high severity first, then oldest first.
+pick_incident() {
+  python3 - "$COOLDOWN" "${OPEN[@]}" <<'PY'
+import json, sys, time
+cooldown = int(sys.argv[1]); recs = sys.argv[2:]
+now = time.time()
+def parse(ts):
+    import datetime
+    try: return datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=datetime.timezone.utc).timestamp()
+    except Exception: return 0
+cands = []
+for r in recs:
+    try: d = json.load(open(r))
+    except Exception: continue
+    la = d.get('last_attempt')
+    if la and (now - parse(la)) < cooldown:
+        continue  # still cooling down
+    sev_rank = 0 if d.get('severity') == 'high' else 1
+    cands.append((sev_rank, parse(d.get('first_seen','')), r))
+if not cands:
+    sys.exit(0)
+cands.sort(key=lambda x: (x[0], x[1]))
+print(cands[0][2])
+PY
+}
+TARGET="$(pick_incident)"
+if [[ -z "$TARGET" ]]; then
+  log "open incidents exist but all are within cooldown — nothing to do this tick"
+  exit 0
+fi
+
+# Detect-only mode (run by run-watchdog.sh in the cheap cron container): probes
+# have run and any incidents are recorded; signal "there is repair work" with
+# exit 10 so the wrapper spins a worker container (which has claude + npm) to do
+# the actual repair. No model/npm/git is touched here.
+if [[ "${WATCHDOG_DETECT_ONLY:-0}" == "1" ]]; then
+  log "[detect-only] eligible incident found ($(basename "$TARGET")) — wrapper will spin a worker"
+  exit 10
+fi
+
+# Load target fields.
+read -r FP ROLE CLASS SEV ATTEMPTS SUMMARY <<<"$(python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1]))
+print(d.get('fingerprint',''), d.get('role',''), d.get('class',''), d.get('severity','high'), int(d.get('attempts',0)), d.get('summary','').replace(chr(10),' '))
+" "$TARGET")"
+log "target=$FP role=$ROLE class=$CLASS sev=$SEV attempts=$ATTEMPTS — $SUMMARY"
+
+set_field() {  # $1=key $2=value (string)
+  python3 - "$TARGET" "$1" "$2" <<'PY' 2>/dev/null || true
+import json,sys
+rec,k,v=sys.argv[1],sys.argv[2],sys.argv[3]
+d=json.load(open(rec))
+if v.isdigit(): d[k]=int(v)
+else: d[k]=v
+json.dump(d,open(rec,'w'),indent=2)
+PY
+}
+
+escalate() {  # $1=reason
+  local reason="$1"
+  log "ESCALATING $FP: $reason"
+  set_field status escalated
+  local task="$REPO_ROOT/ops/tasks/backlog/$(date -u +%Y%m%d-%H%M%S)-watchdog-${FP}.md"
+  mkdir -p "$REPO_ROOT/ops/tasks/backlog" 2>/dev/null || true
+  cat > "$task" <<EOF
+---
+title: "WATCHDOG ESCALATION: $CLASS ($ROLE) — needs a human"
+priority: 1
+type: engineering
+assigned_role: engineer
+created: $TODAY
+source: watchdog
+fingerprint: $FP
+---
+
+The watchdog attempted auto-repair $ATTEMPTS time(s) and could not resolve this.
+
+- **Class:** $CLASS
+- **Raised by:** $ROLE
+- **Summary:** $SUMMARY
+- **Reason escalated:** $reason
+
+Incident record: \`ops/health/incidents/$FP.json\`
+Watchdog log: \`${LOG#$REPO_ROOT/}\`
+
+Auto-repair is now PAUSED for this fingerprint until a human resolves it
+(delete the incident record, or set its status to "resolved", to re-arm).
+EOF
+  slack "🚨 <!here> *{{SITE_SHORT}} watchdog* gave up on \`$CLASS\` after ${ATTEMPTS} attempt(s) · ${NOW_ET}
+${SUMMARY}
+→ ${reason}. High-priority task filed; auto-repair PAUSED for this incident." "danger"
+}
+
+# ================= 4. Attempt cap =================
+if [[ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]]; then
+  escalate "attempt cap ($MAX_ATTEMPTS) reached"
+  exit 0
+fi
+
+# ================= 5. Repair pass =================
+NEW_ATTEMPTS=$(( ATTEMPTS + 1 ))
+set_field attempts "$NEW_ATTEMPTS"
+set_field last_attempt "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+set_field status repairing
+log "repair attempt $NEW_ATTEMPTS/$MAX_ATTEMPTS for $FP"
+
+# ---- DRY RUN: exercise the full control flow without model/build/push ----
+if [[ "$DRY_RUN" == "1" ]]; then
+  fake="${WATCHDOG_FAKE_REPAIR:-recover}"
+  log "[dry-run] would invoke $MODEL repair pass for $FP; simulated outcome=$fake"
+  case "$fake" in
+    recover|changed)
+      log "[dry-run] simulating successful repair + recovery"
+      set_field last_outcome "dry-run:$fake"
+      set_field status resolved
+      slack "🔧 *{{SITE_SHORT}} watchdog* auto-fixed \`$CLASS\` (dry-run) · ${NOW_ET}
+${SUMMARY}" "good"
+      ;;
+    fail|noop)
+      log "[dry-run] simulating failed repair (attempt $NEW_ATTEMPTS)"
+      set_field last_outcome "dry-run:$fake"
+      set_field status open
+      [[ "$NEW_ATTEMPTS" -ge "$MAX_ATTEMPTS" ]] && { ATTEMPTS="$NEW_ATTEMPTS"; escalate "dry-run repair did not recover after $NEW_ATTEMPTS attempt(s)"; }
+      ;;
+  esac
+  exit 0
+fi
+
+# ---- REAL repair: invoke the model (no push capability), then gate+push here ----
+INCIDENT_JSON="$(cat "$TARGET")"
+RESULT_FILE="$(mktemp)"; trap 'rm -f "$RESULT_FILE"' EXIT
+PROMPT="You are the {{SITE_BRAND}} autonomous Watchdog repair engineer. Today is ${TODAY} (${NOW_ET}).
+Working directory: ${REPO_ROOT}. You were woken by an OPEN production incident and must fix it FAST.
+Your full role contract is in ops/roles/watchdog.md — follow it. You have ${MAX_TURNS} turns.
+
+## The incident
+${INCIDENT_JSON}
+
+## Your job
+1. Diagnose the root cause of THIS incident only. Do not refactor or wander.
+2. Apply the minimal, safe fix at the source.
+3. Run \`cd site && {{BUILD_GATE}}\` — it MUST pass (all configured gates green).
+   If you cannot make them pass, REVERT your edits (leave the tree clean) and report failure.
+4. Do NOT git commit or git push — the wrapper handles the build-gated push.
+5. Do NOT touch: legal/disclosure pages, _headers CSP (no loosening), runtime third-party JS.
+
+## Output — your LAST THREE LINES, exact format, nothing after:
+WATCHDOG_FIXED=<0 if you could not safely fix it, 1 if you applied a fix that builds>
+WATCHDOG_SUMMARY=<one short line for Slack, e.g. 'npm audit fix bumped wrangler; build+audit green'>
+WATCHDOG_DETAIL=<one short line: root cause + what you changed>"
+
+log "invoking $MODEL repair pass (max ${MAX_TURNS} turns, ${WORK_TIMEOUT}s budget)..."
+set +e
+GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 \
+timeout "$WORK_TIMEOUT" claude -p "$PROMPT" \
+  --output-format text --model "$MODEL" --max-turns "$MAX_TURNS" \
+  --dangerously-skip-permissions > "$RESULT_FILE" 2>>"$LOG"
+CLAUDE_EXIT=$?
+set -e
+tee -a "$LOG" < "$RESULT_FILE" > /dev/null
+
+FIXED=$(grep '^WATCHDOG_FIXED='   "$RESULT_FILE" | tail -1 | cut -d= -f2  | tr -d ' \r\n'); FIXED="${FIXED:-0}"
+RSUMMARY=$(grep '^WATCHDOG_SUMMARY=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); RSUMMARY="${RSUMMARY:-watchdog repair}"
+RDETAIL=$(grep '^WATCHDOG_DETAIL='  "$RESULT_FILE" | tail -1 | cut -d= -f2-); RDETAIL="${RDETAIL:-}"
+
+if [[ "$CLAUDE_EXIT" == "124" ]]; then
+  log "repair pass TIMED OUT"
+  set_field status open; set_field last_outcome "timeout"
+  [[ "$NEW_ATTEMPTS" -ge "$MAX_ATTEMPTS" ]] && { ATTEMPTS="$NEW_ATTEMPTS"; escalate "repair pass timed out after ${WORK_TIMEOUT}s"; }
+  exit 0
+fi
+
+if [[ "$FIXED" != "1" ]]; then
+  log "model could not safely fix it: $RSUMMARY"
+  set_field status open; set_field last_outcome "model-no-fix: $RSUMMARY"
+  [[ "$NEW_ATTEMPTS" -ge "$MAX_ATTEMPTS" ]] && { ATTEMPTS="$NEW_ATTEMPTS"; escalate "model could not fix after ${NEW_ATTEMPTS} attempt(s): $RSUMMARY"; }
+  exit 0
+fi
+
+# ---- Authoritative gate (bash, independent of the model's claim) ----
+log "model reports a fix — running authoritative audit+build gate..."
+if ! ( cd site && rm -rf dist && {{BUILD_GATE}} ) >>"$LOG" 2>&1; then
+  log "FAIL: authoritative gate failed — not pushing; reverting model edits"
+  git checkout -- . 2>>"$LOG" || true
+  git clean -fd site/ 2>>"$LOG" || true
+  set_field status open; set_field last_outcome "gate-failed"
+  [[ "$NEW_ATTEMPTS" -ge "$MAX_ATTEMPTS" ]] && { ATTEMPTS="$NEW_ATTEMPTS"; escalate "fix did not pass the build/audit gate after ${NEW_ATTEMPTS} attempt(s)"; }
+  exit 0
+fi
+
+# ---- Build-gated push (wrapper owns git, same setup the engineer uses) ----
+if [[ -d "${HOME:-/root}/.ssh" ]]; then
+  mkdir -p /tmp/ssh
+  cp -f "${HOME}/.ssh"/config      /tmp/ssh/config      2>/dev/null || true
+  cp -f "${HOME}/.ssh"/known_hosts /tmp/ssh/known_hosts 2>/dev/null || true
+  for k in "${HOME}/.ssh"/github-* "${HOME}/.ssh"/id_*; do [ -f "$k" ] && cp -f "$k" "/tmp/ssh/$(basename "$k")"; done
+  chmod 700 /tmp/ssh && chmod 600 /tmp/ssh/* 2>/dev/null || true
+  [ -f /tmp/ssh/config ] && export GIT_SSH_COMMAND="ssh -F /tmp/ssh/config -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/tmp/ssh/known_hosts"
+fi
+git config --global user.name  "${GIT_USER_NAME:-{{GIT_USER_NAME}}}"
+git config --global user.email "${GIT_USER_EMAIL:-{{GIT_USER_EMAIL}}}"
+git config --global --add safe.directory "$REPO_ROOT" 2>/dev/null || true
+
+git add -A -- site/ ops/ .github/ 2>/dev/null || true
+PUSHED=0
+if git diff --cached --quiet; then
+  log "fix needed no shippable file change (e.g. lockfile-only already applied) — treating as recovered"
+else
+  git -c commit.gpgsign=false commit -m "watchdog: ${RSUMMARY} — ${TODAY} ${NOW_ET}" >>"$LOG" 2>&1 || true
+  if timeout 120 git push origin main >>"$LOG" 2>&1; then
+    touch .deploy-needed; PUSHED=1
+    log "pushed fix to main — CF Workers Builds will deploy"
+  else
+    log "FAIL: git push failed"
+    set_field status open; set_field last_outcome "push-failed"
+    slack "🔴 *{{SITE_SHORT}} watchdog* — fix built but git push FAILED · ${NOW_ET}
+${RSUMMARY}" "danger"
+    exit 1
+  fi
+fi
+
+# ---- Resolve (in place — status lifecycle, file is pruned later) ----
+set_field status resolved
+set_field last_outcome "fixed: $RSUMMARY"
+slack "🔧 *{{SITE_SHORT}} watchdog* auto-fixed \`$CLASS\` · ${NOW_ET}
+${RSUMMARY}${RDETAIL:+
+_${RDETAIL}_}
+(attempt ${NEW_ATTEMPTS}/${MAX_ATTEMPTS}, pushed=${PUSHED})" "good"
+log "resolved $FP — $RSUMMARY"
+exit 0

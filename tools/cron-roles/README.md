@@ -28,10 +28,20 @@ rigor, anti-slop guardrails, reusability), then parameterized.
 | `content-writer` | `domains-cron-role-content-writer` | LLM, deploy (voice tuned per site) | content, refresh → engineering | `0 7 * * 6` | reviewtattoo |
 | `planner` | `domains-cron-role-planner` | LLM dispatcher | ops, planning → * | `0 6 * * 1` | wetpages |
 | `seo-analyst` | `domains-cron-role-seo-analyst` | LLM, diagnose-only | seo → content, refresh, engineering | `0 6 * * 3` | wetpages |
+| `watchdog` | `domains-cron-role-watchdog` | bash-driven, **cron-direct** self-healer | — → engineering (escalation) | `2,17,32,47 * * * *` | americastrikes |
 
 Roles hand work to each other ONLY through the task board, and awareness is generated
 **dynamically per site** at install time (a role learns which siblings actually exist;
 absent targets degrade to a Slack alert + `human-triage` task). See `handoff-protocol.md`.
+
+**`cron-direct` kind (watchdog).** Most archetypes are worker-dispatched (cron →
+`run-worker.sh <role>` → `run-role.sh`). The `watchdog` is the exception: its crontab
+line runs `run-watchdog.sh` straight in the cron container (like `run-deployer.sh`), doing
+cheap detection at ~0 cost and only spinning a worker for the actual repair. It has no
+`run-role.sh` branch, no task pickup, and `validate-install.sh` does not apply — its skill
+carries cron-direct install + validation steps. It also relies on an **incident contract**:
+other roles' failure branches call `ops/scripts/emit-incident.sh`, and the watchdog
+consumes `ops/health/incidents/`. Wiring those emits is part of its install.
 
 ## Adding a new archetype
 
