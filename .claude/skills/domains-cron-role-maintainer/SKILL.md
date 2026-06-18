@@ -2,8 +2,8 @@
 name: domains-cron-role-maintainer
 description: >-
   Manage the portfolio's autonomous cron-role family — the tools/cron-roles/ library and the
-  five domains-cron-role-* installer skills (engineer, affiliate-editor, content-writer, planner,
-  seo-analyst) that stamp autonomous roles onto sites under /home/jesse/projects/domains/sites/.
+  six domains-cron-role-* installer skills (engineer, affiliate-editor, content-writer, planner,
+  seo-analyst, watchdog) that stamp autonomous roles onto sites under /home/jesse/projects/domains/sites/.
   Use this skill WHENEVER the work is about the cron-role system itself rather than just firing one
   install: adding a NEW role archetype, editing/updating an existing archetype or its skill,
   pushing an archetype change out to already-installed sites (stamp-once means edits do NOT
@@ -38,9 +38,10 @@ Two layers, deliberately separated:
    - `README.md` — the stamp-once model + the add-a-new-archetype recipe.
    - `archetypes/<name>/` — `role.md.tmpl` (the role body, with `{{UPPERCASE}}` tokens + a
      `<!-- AWARENESS-BLOCK -->` marker), `meta.yml` (the knobs), and optional `scripts/`.
-2. **Five thin skills** at `.claude/skills/domains-cron-role-<name>/` — one per archetype. Each is a
+2. **Six thin skills** at `.claude/skills/domains-cron-role-<name>/` — one per archetype. Each is a
    short pointer: "install `<name>`; follow `WIRING.md`." All site-specifics come from `meta.yml`
-   and the per-site detection in WIRING Step 2.
+   and the per-site detection in WIRING Step 2. (The `watchdog` skill is the exception — it is
+   cron-direct and carries its own install steps, since generic WIRING does not apply; see below.)
 
 **Stamp-once is the load-bearing design decision.** The installer scaffolds a complete, working role
 and walks away. An installed role's body is then tuned per site and is *never re-synced*. So
@@ -48,7 +49,7 @@ improving an archetype here does **not** reach already-installed sites — propa
 deliberate, explicit act (see *Update a live site* below). This is intentional: sites stay un-aligned
 (e.g. content-writer voice differs everywhere), which is what Jesse wants.
 
-## The five archetypes
+## The six archetypes
 
 | Archetype | Kind | Owns → Produces | Schedule | Selected from |
 |---|---|---|---|---|
@@ -57,10 +58,17 @@ deliberate, explicit act (see *Update a live site* below). This is intentional: 
 | `content-writer` | LLM, deploy; voice = per-site stub | content, refresh → engineering | `0 7 * * 6` | reviewtattoo |
 | `planner` | LLM, **dispatcher** | ops, planning → * | `0 6 * * 1` | wetpages |
 | `seo-analyst` | LLM, **diagnose-only** | seo → content, refresh, engineering | `0 6 * * 3` | wetpages |
+| `watchdog` | bash-driven, **cron-direct** self-healer | — → engineering (escalation) | `2,17,32,47 * * * *` | americastrikes |
 
 `engineer` is special: `model: none` (bash-driven, its `run-engineer.sh` picks the model itself) and
 `self_notifies: true` (it posts its own Slack — never add it to `run-role.sh`'s notify allowlist).
-All others are normal LLM roles dispatched with `--model` from meta.
+`watchdog` is the other exception and goes further: `model: none`, `self_notifies: true`, AND
+**`kind: cron-direct`** — its crontab line runs `run-watchdog.sh` straight in the cron container (like
+`run-deployer.sh`), so it has **no** `run-role.sh` branch, no task pickup, and `validate-install.sh`
+does not apply. It also depends on an **incident contract**: other roles' failure branches call
+`ops/scripts/emit-incident.sh`, and the watchdog consumes `ops/health/incidents/`. Its own
+`domains-cron-role-watchdog` skill carries the cron-direct install + validation steps. All the
+remaining roles are normal LLM roles dispatched with `--model` from meta.
 
 ## Playbooks
 
