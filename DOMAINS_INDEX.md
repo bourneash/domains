@@ -4,6 +4,7 @@
 
 | Domain 				| In use | TLDR                                                                                                                      	|
 |-----------------------|--------|------------------------------------------------------------------------------------------------------------------------------|
+| 0xroulette.com		|   ✅   | Hacker roulette strategy backtesting platform — Lua IDE, WASM simulation engine, variance analysis for developers				|
 | 3boobs.com 			|   ✅   | Adult novelty / affiliate — CF Workers Builds wired, KV session, auto-deploy verified 2026-06-07 								|
 | aliencouncil.com 		|   ✅   | "The Council" — credible UAP/disclosure editorial brand riding the 2026 disclosure wave (ads + affiliate + member tier) 		|
 | americastrikes.com 	|   ✅   | Autonomous geopolitics/defense news brand; speed-to-publish play on the Iran cycle, growing into permanent geopolitics brief |

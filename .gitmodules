@@ -131,3 +131,6 @@
 [submodule "sites/3boobs.com"]
 	path = sites/3boobs.com
 	url = git@github-bourneash:bourneash/3boobs.com.git
+[submodule "sites/0xroulette.com"]
+	path = sites/0xroulette.com
+	url = git@github-bourneash:bourneash/0xroulette.com.git

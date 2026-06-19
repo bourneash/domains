@@ -7,6 +7,14 @@ config:
   domains_root: /work     # parent domains repo inside the container
 
 sites:
+  0xroulette.com:
+    active: true
+    cf_zone: 0xroulette.com
+    github: bourneash/0xroulette.com
+    smoke_string: "0xRoulette"
+    applies_to: [cf, http, seo, tls, git, github, contact, branding, manual]
+    manual: {}
+
   3boobs.com:
     active: true
     cf_zone: 3boobs.com
