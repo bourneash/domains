@@ -30,7 +30,7 @@ Last updated: 2026-06-20
 | **rc-9.com** | ✅ | ✅ | N/A | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 (pure HTML) |
 | **adultxtube.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon — 2026-06-06 |
 | **3boobs.com** | ✅ | ✅ | N/A | ✅ | ✅ gated, dormant (no GA4 ID) | **COMPLIANT** | Launched 2026-06-09 — audit 6/6 PASS; no affiliates |
-| **broadwayshowgirls.com** | ✅ | ✅ | ✅ | ✅ | ✅ gated, dormant (placeholder ID — real GA4 property pending login-handoff) | **COMPLIANT** | Launched 2026-06-20; affiliate (broadwayshowgirls-20), consent-gated GA4 reject-by-default |
+| **broadwayshowgirls.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Launched 2026-06-20; affiliate (broadwayshowgirls-20); GA4 G-SKQPE8V8JB (property 542413111) wired + consent-gated reject-by-default 2026-06-20 |
 | **cock-smoker.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **coffeepredator.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **complicated.work** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
@@ -83,6 +83,7 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | xxxtea.com | G-P889LLFBNK | 539743210 | ✅ Yes | ✅ 14 months |
 | sinderella.org | G-Q378G15KZZ | 539773741 | ✅ Yes | ✅ 14 months |
 | 0xroulette.com | G-KQH7L26D95 | 542247993 | ✅ Yes | ✅ 14 months |
+| broadwayshowgirls.com | G-SKQPE8V8JB | 542413111 | ✅ Yes | ✅ 14 months |
 
 **Note:** Duplicate shoptopless.com property (539897281) confirmed inactive and moved to GA4 Trash 2026-06-07. Active property is 539755746 (receiving traffic, G-SZFER7KX15).
 
@@ -106,3 +107,4 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
 | 2026-06-19 | 0xroulette.com | Created GA4 property (G-KQH7L26D95 / 542247993), Eastern TZ, USD, 14mo retention (both), Google Signals OFF. React SPA: consent-gated GA4 (key `0xr_analytics_consent`), CookieBanner, privacy/terms/disclosure pages. |
 | 2026-06-20 | broadwayshowgirls.com | Site launched. Updated from Coming Soon to LIVE. Disclosure ✅ (broadwayshowgirls-20 affiliate), CookieBanner ✅ consent-gated reject-by-default, GA4 gated + dormant (placeholder ID — real property pending login-handoff). |
+| 2026-06-20 | broadwayshowgirls.com | Created GA4 property (G-SKQPE8V8JB / 542413111, stream 15122444707), Eastern TZ, USD, Arts & Entertainment, 14mo retention (event+user), Google Signals OFF. Real measurement ID wired into `site/src/lib/analytics.ts` (was placeholder); consent-gated via `bsg_analytics_consent`. |
