@@ -1,6 +1,6 @@
 # Cookie & Legal Compliance Tracker
 
-Last updated: 2026-06-19
+Last updated: 2026-06-20
 
 ## Status Legend
 - ✅ Present and correct
@@ -30,7 +30,7 @@ Last updated: 2026-06-19
 | **rc-9.com** | ✅ | ✅ | N/A | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 (pure HTML) |
 | **adultxtube.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon — 2026-06-06 |
 | **3boobs.com** | ✅ | ✅ | N/A | ✅ | ✅ gated, dormant (no GA4 ID) | **COMPLIANT** | Launched 2026-06-09 — audit 6/6 PASS; no affiliates |
-| **broadwayshowgirls.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
+| **broadwayshowgirls.com** | ✅ | ✅ | ✅ | ✅ | ✅ gated, dormant (placeholder ID — real GA4 property pending login-handoff) | **COMPLIANT** | Launched 2026-06-20; affiliate (broadwayshowgirls-20), consent-gated GA4 reject-by-default |
 | **cock-smoker.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **coffeepredator.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **complicated.work** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
@@ -105,3 +105,4 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 2026-06-07 | ALL 13 GA4 properties | GA4 admin audit: event data retention → 14 months, Google Signals = OFF confirmed, Consent settings = Good. Property IDs recorded. |
 | 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
 | 2026-06-19 | 0xroulette.com | Created GA4 property (G-KQH7L26D95 / 542247993), Eastern TZ, USD, 14mo retention (both), Google Signals OFF. React SPA: consent-gated GA4 (key `0xr_analytics_consent`), CookieBanner, privacy/terms/disclosure pages. |
+| 2026-06-20 | broadwayshowgirls.com | Site launched. Updated from Coming Soon to LIVE. Disclosure ✅ (broadwayshowgirls-20 affiliate), CookieBanner ✅ consent-gated reject-by-default, GA4 gated + dormant (placeholder ID — real property pending login-handoff). |
