@@ -170,6 +170,7 @@ main { padding: 22px; display: grid; gap: 16px; max-width: 1320px; margin: 0 aut
 .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; text-transform: capitalize; border: 1px solid transparent; }
 .badge .dot { width: 7px; height: 7px; border-radius: 50%; }
 .badge.running { color: var(--ok); background: var(--ok-bg); } .badge.running .dot { background: var(--ok); box-shadow: 0 0 7px var(--ok); }
+.badge.stale { color: var(--warn); background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 38%, transparent); } .badge.stale .dot { background: var(--warn); box-shadow: 0 0 7px var(--warn); animation: pulse 1.6s ease-in-out infinite; }
 .badge.exited, .badge.paused { color: var(--warn); background: var(--warn-bg); } .badge.exited .dot, .badge.paused .dot { background: var(--warn); }
 .badge.never-built, .badge.unknown { color: var(--muted); background: var(--idle-bg); } .badge.never-built .dot, .badge.unknown .dot { background: var(--idle); }
 .badge.failed { color: var(--bad); background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 40%, transparent); } .badge.failed .dot { background: var(--bad); box-shadow: 0 0 7px var(--bad); }
@@ -308,9 +309,46 @@ tr.editor-row > td { background: var(--panel-2); padding: 0; }
 .toast .close { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; }
 .toast .close:hover { color: var(--fg); }
 
+/* ---------- Diff viewer ---------- */
+.diff-viewer { width: min(860px, 94vw); max-height: 80vh; display: flex; flex-direction: column; overflow: hidden; }
+.diff-head { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.diff-title-wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; flex: 1; }
+.diff-head h3 { margin: 0; font-size: 14px; font-family: var(--font-mono); }
+.diff-legend { display: flex; gap: 14px; font-family: var(--font-mono); font-size: 12px; }
+.diff-legend .dl-add { color: var(--ok); }
+.diff-legend .dl-del { color: var(--bad); }
+.diff-out {
+  margin: 0; flex: 1; overflow: auto; padding: 14px 16px;
+  background: var(--term-bg); color: #c9d4e3;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.7;
+  white-space: pre; tab-size: 2;
+}
+.diff-out .dl-add { display: block; color: var(--ok); background: var(--ok-bg); }
+.diff-out .dl-del { display: block; color: var(--bad); background: var(--bad-bg); }
+.diff-out .dl-same { display: block; color: var(--muted); }
+.diff-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line-soft); }
+.diff-meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.diff-actions { display: flex; gap: 8px; }
+
+/* ---------- Collapse / expand ---------- */
+.card-body.collapsed { display: none; }
+.card-head { cursor: pointer; user-select: none; }
+.collapse-btn { color: var(--muted); flex-shrink: 0; }
+.collapse-btn:hover { color: var(--fg); }
+.collapse-controls { display: flex; gap: 4px; }
+
+/* ---------- Site filter ---------- */
+.filter-site { width: 150px; font-family: var(--font-ui); font-size: 12.5px; padding: 6px 10px; }
+
+/* ---------- Run-now button ---------- */
+.btn.run-btn { color: var(--accent); }
+.btn.run-btn:hover { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+
 @media (max-width: 720px) {
   .jobs col.c-job { width: 26%; }
   .jobs col.c-last { width: 96px; }
   .jobs col.c-act { width: 150px; }
   .health { display: none; }
+  .filter-site { width: 110px; }
+  .collapse-controls { display: none; }
 }

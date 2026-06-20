@@ -37,6 +37,11 @@
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M20 11a8 8 0 1 0-.6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Refresh</span>
       </button>
+      <div class="collapse-controls">
+        <button id="collapseAll" class="btn ghost sm" title="Collapse all cards">Collapse all</button>
+        <button id="expandAll" class="btn ghost sm" title="Expand all cards">Expand all</button>
+      </div>
+      <input id="siteFilter" class="input filter-site" type="search" placeholder="Filter sites…" spellcheck="false" autocomplete="off" />
       <label class="switch" title="Auto-refresh every 30s">
         <input type="checkbox" id="autoToggle" />
         <span class="track"><span class="thumb"></span></span>
@@ -80,6 +85,32 @@
       </div>
       <pre id="logOut" class="log-out" tabindex="0"></pre>
       <div class="log-foot"><span id="logCount"></span><span id="logMeta"></span></div>
+    </div>
+  </div>
+
+  <!-- Diff viewer: disk vs running container crontab -->
+  <div id="diffModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="diffTitle">
+    <div class="modal-body diff-viewer">
+      <div class="diff-head">
+        <div class="diff-title-wrap">
+          <h3 id="diffTitle">crontab diff</h3>
+          <div class="diff-legend">
+            <span class="dl-add">&#43;&nbsp;disk (pending)</span>
+            <span class="dl-del">&#8722;&nbsp;running (built-in)</span>
+          </div>
+        </div>
+        <button id="diffClose" class="btn icon" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <pre id="diffOut" class="diff-out" tabindex="0"></pre>
+      <div class="diff-foot">
+        <span id="diffMeta" class="diff-meta"></span>
+        <div class="diff-actions">
+          <button id="diffRevert" class="btn ghost danger">Revert to running</button>
+          <button id="diffClose2" class="btn ghost">Close</button>
+        </div>
+      </div>
     </div>
   </div>
 

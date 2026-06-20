@@ -6,7 +6,7 @@ const path = require('node:path');
 const cronstrue = require('cronstrue');
 
 const { discoverSystems } = require('./discovery');
-const { inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, rebuildCron } = require('./docker');
+const { inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, containerCrontab, rebuildCron } = require('./docker');
 const { readLastRuns, resolveLogPath, tailFile } = require('./runinfo');
 const crontab = require('./crontab');
 
@@ -46,6 +46,18 @@ function createApp({ root = DEFAULT_ROOT, statusRunner } = {}) {
   // Last streamed rebuild output, per slug — so the log viewer can show it
   // on demand instead of force-opening a modal during the rebuild.
   const lastRebuildLog = new Map();
+
+  // Per-slug write lock for crontab edits (bug 4).
+  // Prevents two concurrent POST /crontab requests from both passing the
+  // stale-line check and silently overwriting each other.
+  const crontabLocks = new Map();
+  function withCrontabLock(slug, fn) {
+    const prev = crontabLocks.get(slug) ?? Promise.resolve();
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    crontabLocks.set(slug, gate);
+    return prev.then(() => fn()).finally(release);
+  }
 
   // Live cron validation + plain-language translation for the inline editor.
   app.get('/api/cron/describe', (req, res) => {
@@ -134,28 +146,101 @@ function createApp({ root = DEFAULT_ROOT, statusRunner } = {}) {
     }
   });
 
+  // Manually trigger a role job by exec-ing into the running container.
+  // Streams output the same way rebuild does; final line is @@RUN_EXIT <code>.
+  app.post('/api/systems/:slug/jobs/:role/run', async (req, res) => {
+    const { slug, role } = req.params;
+    const sys = findSystem(root, slug);
+    if (!sys) return res.status(404).json({ error: 'unknown system' });
+    if (!sys.opsDir) return res.status(400).json({ error: 'tool systems do not support manual run' });
+    if (!/^[A-Za-z0-9._-]+$/.test(role)) return res.status(400).json({ error: 'bad role' });
+
+    const health = await inspectContainer(sys.container, statusRunner);
+    if (!health.ok) {
+      return res.status(409).json({ error: `container is not running (${health.state})` });
+    }
+
+    const { spawn } = require('node:child_process');
+    res.setHeader('content-type', 'text/plain; charset=utf-8');
+    // Mirror the crontab invocation: `bash ops/scripts/run-worker.sh <role>` from /work.
+    // Passing args as an array avoids any shell injection.
+    const child = spawn('docker', ['exec', '-w', '/work', sys.container, 'bash', 'ops/scripts/run-worker.sh', role]);
+    child.stdout.on('data', (d) => res.write(d.toString()));
+    child.stderr.on('data', (d) => res.write(d.toString()));
+    child.on('close', (code) => {
+      res.write(`\n@@RUN_EXIT ${code ?? -1}\n`);
+      res.end();
+    });
+    child.on('error', (e) => {
+      res.write(`spawn error: ${e.message}\n@@RUN_EXIT -1\n`);
+      res.end();
+    });
+  });
+
   // File-mutating actions: comment/uncomment/edit/remove. Marks pending rebuild.
-  app.post('/api/systems/:slug/crontab', (req, res) => {
+  // Bug 4 fix: serialised per slug so concurrent edits can't both pass the
+  // stale-line check and silently overwrite each other.
+  app.post('/api/systems/:slug/crontab', async (req, res) => {
     const sys = findSystem(root, req.params.slug);
     if (!sys) return res.status(404).json({ error: 'unknown system' });
     const { action, lineIndex, newSchedule, expectedRawLine } = req.body || {};
-    let text;
-    try { text = fs.readFileSync(sys.crontabPath, 'utf8'); }
-    catch (e) { return res.status(500).json({ error: e.message }); }
-    let out;
+
     try {
-      if (action === 'comment') out = crontab.commentLine(text, lineIndex, expectedRawLine);
-      else if (action === 'uncomment') out = crontab.uncommentLine(text, lineIndex, expectedRawLine);
-      else if (action === 'edit') out = crontab.editSchedule(text, lineIndex, newSchedule, expectedRawLine);
-      else if (action === 'remove') out = crontab.removeLine(text, lineIndex, expectedRawLine);
-      else return res.status(400).json({ error: 'bad action' });
+      await withCrontabLock(sys.slug, async () => {
+        const text = fs.readFileSync(sys.crontabPath, 'utf8');
+        let out;
+        if (action === 'comment') out = crontab.commentLine(text, lineIndex, expectedRawLine);
+        else if (action === 'uncomment') out = crontab.uncommentLine(text, lineIndex, expectedRawLine);
+        else if (action === 'edit') out = crontab.editSchedule(text, lineIndex, newSchedule, expectedRawLine);
+        else if (action === 'remove') out = crontab.removeLine(text, lineIndex, expectedRawLine);
+        else { const e = new Error('bad action'); e.httpStatus = 400; throw e; }
+        fs.writeFileSync(sys.crontabPath, out);
+      });
     } catch (e) {
-      const code = e.code === 'STALE' ? 409 : 400;
-      return res.status(code).json({ error: e.message });
+      const status = e.code === 'STALE' ? 409 : (e.httpStatus || 400);
+      return res.status(status).json({ error: e.message });
     }
-    try { fs.writeFileSync(sys.crontabPath, out); }
-    catch (e) { return res.status(500).json({ error: e.message }); }
     return res.json({ ok: true, pendingRebuild: true });
+  });
+
+  // Return the disk crontab and the version baked into the running container
+  // so the client can diff them. `running` is null when the container is not up.
+  app.get('/api/systems/:slug/diff', async (req, res) => {
+    const sys = findSystem(root, req.params.slug);
+    if (!sys) return res.status(404).json({ error: 'unknown system' });
+    let disk;
+    try { disk = fs.readFileSync(sys.crontabPath, 'utf8'); }
+    catch (e) { return res.status(500).json({ error: e.message }); }
+    const running = await containerCrontab(sys.container, statusRunner);
+    res.json({ disk, running });
+  });
+
+  // Revert: overwrite the disk crontab with what's baked in the running container,
+  // then backdate the file mtime to just before the container was created so
+  // needsRebuild clears immediately on the next poll.
+  app.post('/api/systems/:slug/revert', async (req, res) => {
+    const sys = findSystem(root, req.params.slug);
+    if (!sys) return res.status(404).json({ error: 'unknown system' });
+    const running = await containerCrontab(sys.container, statusRunner);
+    // Bug 1 fix: guard against null (exec failed) AND empty string (docker exec
+    // succeeded but returned no content — both cases would wipe the disk file).
+    if (running === null) {
+      return res.status(409).json({ error: 'container is not running — cannot read baked crontab' });
+    }
+    if (!running.trim()) {
+      return res.status(409).json({ error: 'baked crontab is empty — refusing to overwrite disk file' });
+    }
+    try {
+      fs.writeFileSync(sys.crontabPath, running);
+      const created = await containerCreatedAt(sys.container, statusRunner);
+      if (created) {
+        const t = (created.getTime() - 1000) / 1000;
+        fs.utimesSync(sys.crontabPath, t, t);
+      }
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+    res.json({ ok: true });
   });
 
   // Rebuild + restart this system's cron container; stream output, capture it,

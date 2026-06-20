@@ -1,6 +1,6 @@
 # Cookie & Legal Compliance Tracker
 
-Last updated: 2026-06-07
+Last updated: 2026-06-19
 
 ## Status Legend
 - ✅ Present and correct
@@ -19,6 +19,7 @@ Last updated: 2026-06-07
 | **xxxtea.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
 | **sinderella.org** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
 | **reviewtattoo.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
+| **0xroulette.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | React SPA — added 2026-06-19 |
 | **aliencouncil.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **americastrikes.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
 | **deeppenetrations.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-07 |
@@ -81,6 +82,7 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | wetpages.com | G-L1285EE0NE | 539774170 | ✅ Yes | ✅ 14 months |
 | xxxtea.com | G-P889LLFBNK | 539743210 | ✅ Yes | ✅ 14 months |
 | sinderella.org | G-Q378G15KZZ | 539773741 | ✅ Yes | ✅ 14 months |
+| 0xroulette.com | G-KQH7L26D95 | 542247993 | ✅ Yes | ✅ 14 months |
 
 **Note:** Duplicate shoptopless.com property (539897281) confirmed inactive and moved to GA4 Trash 2026-06-07. Active property is 539755746 (receiving traffic, G-SZFER7KX15).
 
@@ -102,3 +104,4 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 2026-06-07 | deeppenetrations.com | Added GA4 (G-LXCYBEFKC1), CookieBanner, gated GA, updated privacy policy |
 | 2026-06-07 | ALL 13 GA4 properties | GA4 admin audit: event data retention → 14 months, Google Signals = OFF confirmed, Consent settings = Good. Property IDs recorded. |
 | 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
+| 2026-06-19 | 0xroulette.com | Created GA4 property (G-KQH7L26D95 / 542247993), Eastern TZ, USD, 14mo retention (both), Google Signals OFF. React SPA: consent-gated GA4 (key `0xr_analytics_consent`), CookieBanner, privacy/terms/disclosure pages. |

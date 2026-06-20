@@ -126,3 +126,18 @@ test('containerCreatedAt returns null on empty / error', async () => {
   assert.strictEqual(await containerCreatedAt('x', fakeExec('\n')), null);
   assert.strictEqual(await containerCreatedAt('x', async () => { throw new Error('x'); }), null);
 });
+
+// ---- containerCrontab (diff / revert support) ----
+
+const { containerCrontab } = require('../server/docker');
+
+test('containerCrontab returns the baked crontab from the container', async () => {
+  const body = '0 6 * * 1  bash ops/scripts/run-worker.sh planner\n';
+  const out = await containerCrontab('x-cron', async () => ({ stdout: body, stderr: '' }));
+  assert.strictEqual(out, body);
+});
+
+test('containerCrontab returns null when exec fails', async () => {
+  const out = await containerCrontab('x-cron', async () => { throw new Error('no such container'); });
+  assert.strictEqual(out, null);
+});

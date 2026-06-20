@@ -122,3 +122,33 @@ test('GET logs source=rebuild returns a placeholder before any rebuild', async (
   const r = await fetch(`${base}/api/systems/demo.com/logs?source=rebuild`);
   assert.match(await r.text(), /no rebuild/i);
 });
+
+test('GET /api/systems/demo.com/diff returns disk and running fields', async () => {
+  const r = await fetch(`${base}/api/systems/demo.com/diff`);
+  assert.strictEqual(r.status, 200);
+  const body = await r.json();
+  assert.ok('disk' in body, 'has disk field');
+  assert.ok('running' in body, 'has running field');
+  assert.strictEqual(typeof body.disk, 'string');
+});
+
+test('GET /api/systems/nope/diff 404s', async () => {
+  const r = await fetch(`${base}/api/systems/nope/diff`);
+  assert.strictEqual(r.status, 404);
+});
+
+test('POST /api/systems/demo.com/revert 409s when baked crontab is empty', async () => {
+  // statusRunner stub returns '' for docker exec — revert must refuse to wipe
+  // the disk file with an empty string (bug-1 guard).
+  const p = path.join(root, 'sites', 'demo.com', 'ops', 'docker', 'crontab.docker');
+  const before = fs.readFileSync(p, 'utf8');
+  const r = await fetch(`${base}/api/systems/demo.com/revert`, { method: 'POST' });
+  assert.strictEqual(r.status, 409);
+  // Disk file must be unchanged
+  assert.strictEqual(fs.readFileSync(p, 'utf8'), before);
+});
+
+test('POST /api/systems/nope/revert 404s', async () => {
+  const r = await fetch(`${base}/api/systems/nope/revert`, { method: 'POST' });
+  assert.strictEqual(r.status, 404);
+});

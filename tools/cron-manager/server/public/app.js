@@ -24,13 +24,26 @@ const ICONS = {
   info: '<svg class="ico" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   spin: '<svg class="ico spin" viewBox="0 0 24 24" width="18" height="18"><path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
 };
+const CHEVRON_DOWN  = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHEVRON_RIGHT = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 // ---- state ----
 const systemsBySlug = new Map();
-const clientRebuildLog = new Map();   // slug -> last rebuild text (this session)
-let editing = null;                   // { slug, lineIndex } while inline-editing
+const clientRebuildLog = new Map();
+const clientRunLog = new Map();   // "slug:role" → last run output (this session)
+let editing = null;               // { slug, lineIndex } while inline-editing
 const POLL_MS = 30000;
 let pollTimer = null;
+
+// Collapse state — persisted across page refreshes via localStorage
+function loadCollapsed() {
+  try { return new Set(JSON.parse(localStorage.getItem('cm-collapsed') || '[]')); }
+  catch { return new Set(); }
+}
+function saveCollapsed(set) {
+  try { localStorage.setItem('cm-collapsed', JSON.stringify([...set])); } catch {}
+}
+const collapsedSlugs = loadCollapsed();
 
 // ============================================================ load + render
 async function load() {
@@ -39,10 +52,16 @@ async function load() {
     const systems = await (await fetch('/api/systems')).json();
     systemsBySlug.clear();
     for (const s of systems) systemsBySlug.set(s.slug, s);
+    // Failed / stale containers float to the top for immediate visibility
+    systems.sort((a, b) => {
+      const rank = (s) => s.failed ? 0 : (s.needsRebuild ? 1 : s.status === 'running' ? 2 : 3);
+      return rank(a) - rank(b);
+    });
     main.innerHTML = '';
     systems.forEach((sys, i) => main.appendChild(renderSystem(sys, i)));
     renderBanner(systems);
     $('#lastUpdated').textContent = new Date().toLocaleTimeString();
+    applyCardFilter();
   } catch (e) {
     main.innerHTML = `<div class="loading">Failed to load: ${escapeHtml(e.message)}</div>`;
   }
@@ -58,25 +77,85 @@ function renderBanner(systems) {
     `<span class="chip ${failed.length ? 'bad' : 'idle'}"><span class="dot"></span>${failed.length} failed</span>` +
     `<span class="chip idle"><span class="dot"></span>${idle} idle</span>`;
   b.title = failed.length ? 'Failed: ' + failed.map((s) => s.slug).join(', ') : '';
+  // Keep the browser tab title in sync — visible across browser tabs
+  document.title = failed.length ? `⚠ ${failed.length} failed — Cron Manager` : 'Cron Manager';
+}
+
+// ---- collapse / expand ----
+function toggleCollapse(slug, card) {
+  const body = card.querySelector('.card-body');
+  const btn = card.querySelector('.collapse-btn');
+  if (collapsedSlugs.has(slug)) {
+    collapsedSlugs.delete(slug);
+    body.classList.remove('collapsed');
+    btn.innerHTML = CHEVRON_DOWN;
+    btn.title = 'Collapse';
+    btn.setAttribute('aria-expanded', 'true');
+  } else {
+    collapsedSlugs.add(slug);
+    body.classList.add('collapsed');
+    btn.innerHTML = CHEVRON_RIGHT;
+    btn.title = 'Expand';
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  saveCollapsed(collapsedSlugs);
+}
+
+function collapseAll() {
+  $$('.card').forEach((card) => {
+    const slug = card.dataset.slug;
+    if (!slug) return;
+    collapsedSlugs.add(slug);
+    card.querySelector('.card-body')?.classList.add('collapsed');
+    const btn = card.querySelector('.collapse-btn');
+    if (btn) { btn.innerHTML = CHEVRON_RIGHT; btn.title = 'Expand'; btn.setAttribute('aria-expanded', 'false'); }
+  });
+  saveCollapsed(collapsedSlugs);
+}
+
+function expandAll() {
+  $$('.card').forEach((card) => {
+    const slug = card.dataset.slug;
+    if (!slug) return;
+    collapsedSlugs.delete(slug);
+    card.querySelector('.card-body')?.classList.remove('collapsed');
+    const btn = card.querySelector('.collapse-btn');
+    if (btn) { btn.innerHTML = CHEVRON_DOWN; btn.title = 'Collapse'; btn.setAttribute('aria-expanded', 'true'); }
+  });
+  saveCollapsed(collapsedSlugs);
 }
 
 function renderSystem(sys, i) {
+  const isCollapsed = collapsedSlugs.has(sys.slug);
   const card = document.createElement('section');
   card.className = 'card' + (sys.failed ? ' failed-card' : '');
   card.style.animationDelay = Math.min(i * 35, 350) + 'ms';
   card.dataset.slug = sys.slug;
 
   const st = sys.status;
-  const cls = sys.failed ? 'failed' : st;
+  const isStale = st === 'running' && sys.needsRebuild;
+  const badgeCls = sys.failed ? 'failed' : isStale ? 'stale' : st;
+  const badgeLabel = isStale ? 'stale' : st;
   const exit = sys.exitCode != null ? ` · exit ${sys.exitCode}` : '';
+  const badgeTitle = isStale
+    ? escapeHtml((sys.statusText || st) + ' · crontab changed since last build')
+    : escapeHtml((sys.statusText || st) + exit);
+
   const head = document.createElement('div');
   head.className = 'card-head';
   head.innerHTML =
+    `<button class="btn icon collapse-btn" title="${isCollapsed ? 'Expand' : 'Collapse'}" aria-expanded="${!isCollapsed}">${isCollapsed ? CHEVRON_RIGHT : CHEVRON_DOWN}</button>` +
     `<span class="name">${escapeHtml(sys.slug)}</span>` +
     `<span class="kind">${escapeHtml(sys.kind)}</span>` +
-    `<span class="badge ${cls}" title="${escapeHtml((sys.statusText || st) + exit)}"><span class="dot"></span>${escapeHtml(st)}</span>` +
-    (sys.needsRebuild ? `<span class="chip-rebuild" title="crontab edited since last build"><span class="dot"></span>needs rebuild</span>` : '') +
+    `<span class="badge ${badgeCls}" title="${badgeTitle}"><span class="dot"></span>${escapeHtml(badgeLabel)}</span>` +
+    (sys.needsRebuild && !isStale ? `<span class="chip-rebuild" title="crontab edited since last build"><span class="dot"></span>needs rebuild</span>` : '') +
     `<span class="container">${escapeHtml(sys.container)}</span>`;
+  // Clicking anywhere on the header (that isn't itself a button) collapses/expands
+  head.onclick = (ev) => {
+    if (ev.target.closest('button, a, input')) return;
+    toggleCollapse(sys.slug, card);
+  };
+  head.querySelector('.collapse-btn').onclick = () => toggleCollapse(sys.slug, card);
   card.appendChild(head);
 
   const table = document.createElement('table');
@@ -88,7 +167,6 @@ function renderSystem(sys, i) {
   for (const e of sys.entries) tbody.appendChild(renderRow(sys, e));
   if (!sys.entries.length) tbody.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">No cron entries.</td></tr>';
   table.appendChild(tbody);
-  card.appendChild(table);
 
   const foot = document.createElement('div');
   foot.className = 'card-foot';
@@ -102,13 +180,31 @@ function renderSystem(sys, i) {
   logs.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 4h11l3 3v13H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 11h8M8 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Logs</span>';
   logs.onclick = () => openLogs(sys, 'container');
   foot.appendChild(logs);
+  if (isStale) {
+    const diffBtn = document.createElement('button');
+    diffBtn.className = 'btn ghost';
+    diffBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M8 6h13M8 12h9M8 18h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>View diff</span>';
+    diffBtn.onclick = () => openDiff(sys);
+    foot.appendChild(diffBtn);
+    const revertBtn = document.createElement('button');
+    revertBtn.className = 'btn ghost danger';
+    revertBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M3 12a9 9 0 1 0 .6-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Revert</span>';
+    revertBtn.onclick = () => doRevert(sys);
+    foot.appendChild(revertBtn);
+  }
   if (sys.needsRebuild) {
     const hint = document.createElement('span');
     hint.className = 'hint';
-    hint.textContent = 'crontab changed — rebuild to apply';
+    hint.textContent = isStale ? 'running stale crontab — rebuild or revert' : 'crontab changed — rebuild to apply';
     foot.appendChild(hint);
   }
-  card.appendChild(foot);
+
+  // Wrap table + footer in a collapsible body div
+  const body = document.createElement('div');
+  body.className = 'card-body' + (isCollapsed ? ' collapsed' : '');
+  body.appendChild(table);
+  body.appendChild(foot);
+  card.appendChild(body);
   return card;
 }
 
@@ -145,6 +241,10 @@ function renderRow(sys, e) {
   const edit = mkBtn('Edit', 'ghost sm', () => editJob(sys, e, tr));
   actions.append(toggle, edit);
   if (e.hasLog) actions.appendChild(mkBtn('Log', 'ghost sm', () => openLogs(sys, `role:${e.role}`)));
+  // Run now — only for named roles when the container is live
+  if (e.role && sys.status === 'running') {
+    actions.appendChild(mkBtn('Run', 'ghost sm run-btn', () => runJob(sys, e)));
+  }
   actions.appendChild(mkBtn('Remove', 'ghost sm danger', () => removeJob(sys, e)));
   actTd.appendChild(actions);
 
@@ -260,6 +360,107 @@ async function post(url) {
   if (!r.ok) toast({ type: 'error', title: 'Action failed', sub: (await r.json().catch(() => ({}))).error || r.statusText });
 }
 
+// ============================================================ run now
+async function runJob(sys, e) {
+  const t = toast({ type: 'loading', title: `Running ${e.role}`, sub: `${sys.container} …`, sticky: true });
+  let text = '';
+  try {
+    const r = await fetch(`/api/systems/${sys.slug}/jobs/${e.role}/run`, { method: 'POST' });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || r.statusText);
+    }
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    for (;;) { const { done, value } = await reader.read(); if (done) break; text += dec.decode(value); }
+  } catch (err) { text += `\nclient error: ${err.message}`; }
+  const m = text.match(/@@RUN_EXIT (-?\d+)/);
+  const code = m ? parseInt(m[1], 10) : null;
+  const clean = text.replace(/@@RUN_EXIT[^\n]*\n?/g, '');
+  clientRunLog.set(`${sys.slug}:${e.role}`, clean);
+  t.dismiss();
+  toast({
+    type: code === 0 ? 'success' : 'error',
+    title: code === 0 ? `${e.role} completed` : `${e.role} exited ${code ?? '?'}`,
+    sub: sys.container,
+    action: { label: 'View output', fn: () => openLogs(sys, `run:${e.role}`) },
+    timeout: code === 0 ? 6000 : 0,
+  });
+  load();
+}
+
+// ============================================================ diff viewer
+function diffLines(running, disk) {
+  const a = (running || '').split('\n');
+  const b = (disk || '').split('\n');
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+  const result = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && a[i - 1] === b[j - 1]) {
+      result.unshift({ type: 'same', line: a[i - 1] }); i--; j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      result.unshift({ type: 'add', line: b[j - 1] }); j--;
+    } else {
+      result.unshift({ type: 'del', line: a[i - 1] }); i--;
+    }
+  }
+  return result;
+}
+
+const dv = { slug: null, sys: null };
+
+async function openDiff(sys) {
+  dv.slug = sys.slug; dv.sys = sys;
+  $('#diffTitle').textContent = `crontab diff — ${sys.slug}`;
+  const out = $('#diffOut');
+  out.innerHTML = '<span style="color:var(--muted)">Loading…</span>';
+  $('#diffMeta').textContent = '';
+  $('#diffModal').classList.remove('hidden');
+  try {
+    const r = await fetch(`/api/systems/${sys.slug}/diff`);
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
+    const { disk, running } = await r.json();
+    if (running === null) {
+      out.innerHTML = '<span style="color:var(--warn)">Container is not running — cannot read baked crontab.</span>';
+      $('#diffMeta').textContent = 'no running container';
+      return;
+    }
+    const lines = diffLines(running, disk);
+    const adds = lines.filter((l) => l.type === 'add').length;
+    const dels = lines.filter((l) => l.type === 'del').length;
+    out.innerHTML = lines.map(({ type, line }) => {
+      const esc = escapeHtml(line);
+      if (type === 'add') return `<span class="dl-add">+ ${esc}</span>`;
+      if (type === 'del') return `<span class="dl-del">- ${esc}</span>`;
+      return `<span class="dl-same">  ${esc}</span>`;
+    }).join('\n');
+    $('#diffMeta').textContent = adds || dels
+      ? `+${adds} / -${dels} lines vs running`
+      : 'no differences (content matches)';
+  } catch (e) {
+    out.innerHTML = `<span style="color:var(--bad)">${escapeHtml(e.message)}</span>`;
+  }
+}
+
+function closeDiff() { $('#diffModal').classList.add('hidden'); }
+
+async function doRevert(sys) {
+  if (!confirm(`Overwrite ${sys.slug}'s crontab.docker with the version baked into the running container?\n\nYour disk changes will be discarded.`)) return;
+  const r = await fetch(`/api/systems/${sys.slug}/revert`, { method: 'POST' });
+  if (!r.ok) {
+    toast({ type: 'error', title: 'Revert failed', sub: (await r.json().catch(() => ({}))).error || r.statusText });
+    return;
+  }
+  closeDiff();
+  toast({ type: 'success', title: 'Reverted', sub: 'crontab.docker reset to running container version', timeout: 4000 });
+  load();
+}
+
 // ============================================================ rebuild → toast
 async function doRebuild(sys, btn) {
   const orig = btn.innerHTML;
@@ -294,10 +495,16 @@ const lv = {
 async function openLogs(sys, source) {
   lv.slug = sys.slug; lv.source = source || 'container';
   $('#logTitle').textContent = sys.container;
-  // build source selector
+  // Build source selector: server sources + client-side rebuild/run outputs
   const sources = (sys.logSources || [{ id: 'container', label: 'Container' }]).slice();
   if (clientRebuildLog.has(sys.slug) && !sources.some((s) => s.id === 'rebuild')) {
     sources.splice(1, 0, { id: 'rebuild', label: 'Last rebuild' });
+  }
+  for (const [key] of clientRunLog) {
+    if (!key.startsWith(sys.slug + ':')) continue;
+    const role = key.slice(sys.slug.length + 1);
+    const id = `run:${role}`;
+    if (!sources.some((s) => s.id === id)) sources.push({ id, label: `run: ${role}` });
   }
   const seg = $('#logSources');
   seg.innerHTML = sources.map((s) => `<button data-id="${escapeHtml(s.id)}">${escapeHtml(s.label)}</button>`).join('');
@@ -309,9 +516,12 @@ async function fetchLogs() {
   $$('#logSources button').forEach((b) => b.classList.toggle('active', b.dataset.id === lv.source));
   const out = lv.out();
   const tail = $('#logTail').value;
-  // client rebuild buffer is freshest
+  // Client-side sources (no server round-trip needed)
   if (lv.source === 'rebuild' && clientRebuildLog.has(lv.slug)) {
     lv.raw = clientRebuildLog.get(lv.slug);
+  } else if (lv.source.startsWith('run:')) {
+    const role = lv.source.slice(4);
+    lv.raw = clientRunLog.get(`${lv.slug}:${role}`) ?? '(no run output in this session)';
   } else {
     out.textContent = 'Loading…';
     try { lv.raw = await (await fetch(`/api/systems/${lv.slug}/logs?source=${encodeURIComponent(lv.source)}&tail=${tail}`)).text(); }
@@ -329,6 +539,18 @@ function applyFilter() {
   $('#logCount').textContent = f ? `${shown.length} / ${lines.length} lines` : `${lines.length} lines`;
 }
 function closeLogs() { lv.modal().classList.add('hidden'); }
+
+// ============================================================ site filter
+function applyCardFilter() {
+  const input = $('#siteFilter');
+  if (!input) return;
+  const f = input.value.trim().toLowerCase();
+  try { localStorage.setItem('cm-site-filter', input.value); } catch {}
+  $$('.card').forEach((card) => {
+    const slug = (card.dataset.slug || '').toLowerCase();
+    card.style.display = (!f || slug.includes(f)) ? '' : 'none';
+  });
+}
 
 // ============================================================ toasts
 function toast({ type = 'info', title, sub, action, timeout = 4000, sticky = false }) {
@@ -359,9 +581,9 @@ function applyPolling() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   if (pollEnabled()) {
     pollTimer = setInterval(() => {
-      // never yank the view while editing or reading logs
       if (editing) return;
       if (!lv.modal().classList.contains('hidden')) return;
+      if (!$('#diffModal').classList.contains('hidden')) return;  // bug 3 fix
       load();
     }, POLL_MS);
   }
@@ -384,8 +606,23 @@ $('#logDownload').onclick = () => {
   a.href = URL.createObjectURL(blob); a.download = `${lv.slug}-${lv.source.replace(':', '-')}.log`;
   a.click(); URL.revokeObjectURL(a.href);
 };
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeLogs(); closeEditor(); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeLogs(); closeDiff(); closeEditor(); } });
 lv.modal().addEventListener('click', (e) => { if (e.target === lv.modal()) closeLogs(); });
+$('#diffModal').addEventListener('click', (e) => { if (e.target === $('#diffModal')) closeDiff(); });
+$('#diffClose').onclick = closeDiff;
+$('#diffClose2').onclick = closeDiff;
+$('#diffRevert').onclick = () => dv.sys && doRevert(dv.sys);
+
+// Collapse all / expand all buttons
+$('#collapseAll').onclick = collapseAll;
+$('#expandAll').onclick = expandAll;
+
+// Site filter — restore persisted value from last session
+const siteFilterEl = $('#siteFilter');
+if (siteFilterEl) {
+  try { siteFilterEl.value = localStorage.getItem('cm-site-filter') || ''; } catch {}
+  siteFilterEl.addEventListener('input', applyCardFilter);
+}
 
 load();
 applyPolling();

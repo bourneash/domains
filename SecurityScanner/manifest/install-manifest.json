@@ -1,2 +1,90 @@
-{"version":"v0.3.2","vsec_format":1,"git_sha":"60043a2a0d8fbea86662f42fd5774c20899c3dd9","images":[
-{"name":"security-v2-api","tag":"v0.3.2"},{"name":"security-v2-executor","tag":"v0.3.2"},{"name":"security-v2-frontend","tag":"v0.3.2"}]}
+{
+  "version": "v0.3.2-exceptions",
+  "vsec_format": 1,
+  "created_at": "2026-06-16T12:51:59Z",
+  "git_sha": "c1ea6b5565ede1304b39c44d05be1c56c2ee4022",
+  "images": [
+    {
+      "name": "security-v2-api",
+      "tag": "v0.3.2-exceptions",
+      "tarball": "security-v2-api-v0.3.2-exceptions.tar.gz",
+      "sha256": "80b2d5ecd18b07a1aef4ffa13e348504371c5e29301d8386085e6ce73ec6c66e"
+    },
+    {
+      "name": "security-v2-executor",
+      "tag": "v0.3.2-exceptions",
+      "tarball": "security-v2-executor-v0.3.2-exceptions.tar.gz",
+      "sha256": "cff8eb12d0bdc3480787463346588cb84ee1668bbca6c06926d1fdc6bb24c705"
+    },
+    {
+      "name": "security-v2-frontend",
+      "tag": "v0.3.2-exceptions",
+      "tarball": "security-v2-frontend-v0.3.2-exceptions.tar.gz",
+      "sha256": "a49bb2fcf21527d6e9fd0c793f11c29698008c2b253ff48edd2b29fe6e2cdd4e"
+    }
+  ],
+  "compose_files": [
+    {
+      "name": "base",
+      "filename": "docker-compose.yml",
+      "sha256": "5c0a42c8ec0fe94958f63f397ed0c30a92175fee3ed8b8ff0c9a2393908451c3"
+    },
+    {
+      "name": "overlay",
+      "filename": "docker-compose.images.yml",
+      "sha256": "47240bc8a208539509839d5ba5a396e5326f62181cc04054129a40033ca6b83d"
+    },
+    {
+      "name": "env_example",
+      "filename": ".env.example",
+      "sha256": "8bf7008a55d9cd6e721d186fd58db5f297be9671d7bad2c277f2bc3fbcd04412"
+    }
+  ],
+  "env_required": [
+    {
+      "key": "INSTANCE_NAME",
+      "role": "Unique identifier for this installation; namespaces all container and volume names",
+      "auto": "derive"
+    },
+    {
+      "key": "API_PORT",
+      "role": "Host port the API service listens on",
+      "auto": "find_free"
+    },
+    {
+      "key": "FRONTEND_PORT",
+      "role": "Host port the frontend HTTPS service listens on",
+      "auto": "find_free"
+    },
+    {
+      "key": "FRONTEND_HTTP_PORT",
+      "role": "Host port the frontend HTTP (redirect) service listens on",
+      "auto": "find_free"
+    },
+    {
+      "key": "POSTGRES_USER",
+      "role": "PostgreSQL superuser username for the embedded database",
+      "auto": "generate"
+    },
+    {
+      "key": "POSTGRES_PASSWORD",
+      "role": "PostgreSQL superuser password for the embedded database",
+      "auto": "generate"
+    },
+    {
+      "key": "POSTGRES_DB",
+      "role": "PostgreSQL database name created on first start",
+      "auto": "generate"
+    },
+    {
+      "key": "REDIS_PASSWORD",
+      "role": "Password for the embedded Redis instance used by the executor",
+      "auto": "generate"
+    },
+    {
+      "key": "JWT_SECRET",
+      "role": "Secret key used to sign and verify JWT tokens issued by the API",
+      "auto": "generate"
+    }
+  ]
+}

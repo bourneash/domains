@@ -8,6 +8,15 @@ function defaultRunner(cmd) {
   return execP(cmd, { timeout: 10000 });
 }
 
+// Guard against shell injection from untrusted container names (bug 5).
+// Discovery already sanitises via regex, but this makes each shell-facing
+// function self-defending against any future path that skips discovery.
+function assertContainerName(name) {
+  if (!name || !/^[A-Za-z0-9._-]+$/.test(name)) {
+    throw new Error(`unsafe container name: ${String(name)}`);
+  }
+}
+
 // Honest container health (A1). Returns the REAL docker state, not a
 // running/stopped binary — a container stuck in `created` (failed start) or
 // crash-looping in `restarting` used to render identically to a deliberately
@@ -23,6 +32,7 @@ function defaultRunner(cmd) {
 //            loop, dead, or non-zero exit) — these get a red badge in the UI
 async function inspectContainer(container, runner = defaultRunner) {
   try {
+    assertContainerName(container);
     const { stdout } = await runner(
       `docker ps -a --filter name=^/${container}$ --format "{{.State}}\t{{.Status}}"`
     );
@@ -74,6 +84,7 @@ async function confirmHealthy(container, runner = defaultRunner, opts = {}) {
 // out of date and a rebuild is needed. Returns a Date or null.
 async function containerCreatedAt(container, runner = defaultRunner) {
   try {
+    assertContainerName(container);
     const { stdout } = await runner(`docker inspect -f "{{.Created}}" ${container}`);
     const t = stdout.trim();
     if (!t) return null;
@@ -88,8 +99,9 @@ async function containerCreatedAt(container, runner = defaultRunner) {
 // both). Never throws; returns a readable message on error.
 async function containerLogs(container, runner = defaultRunner, tail = 200) {
   try {
-    const { stdout, stderr } = await runner(`docker logs --tail ${tail} ${container} 2>&1`);
-    return (stdout || stderr || '').trim() || '(no log output)';
+    assertContainerName(container);
+    const { stdout } = await runner(`docker logs --tail ${tail} ${container} 2>&1`);
+    return stdout.trim() || '(no log output)';
   } catch (e) {
     return `error fetching logs: ${e.message}`;
   }
@@ -97,16 +109,41 @@ async function containerLogs(container, runner = defaultRunner, tail = 200) {
 
 // Rebuild + restart a system's cron container. Streams output via onData.
 // Resolves { ok, code }. Never rejects on non-zero exit.
-function rebuildCron(cwd, onData) {
+// Bug 2 fix: a 10-minute hard timeout prevents a stalled build from holding
+// the HTTP streaming response open indefinitely.
+function rebuildCron(cwd, onData, opts = {}) {
   const { spawn } = require('node:child_process');
+  const timeoutMs = opts.timeoutMs ?? 600_000;
   return new Promise((resolve) => {
     const child = spawn('bash', ['-lc', 'docker compose build cron && docker compose up -d cron'],
       { cwd });
+    let settled = false;
+    function settle(result) { if (!settled) { settled = true; resolve(result); } }
+
+    const timer = setTimeout(() => {
+      onData('\n[timeout: build exceeded 10 minutes — killing]\n');
+      child.kill('SIGTERM');
+      settle({ ok: false, code: -2 });
+    }, timeoutMs);
+
     child.stdout.on('data', (d) => onData(d.toString()));
     child.stderr.on('data', (d) => onData(d.toString()));
-    child.on('close', (code) => resolve({ ok: code === 0, code }));
-    child.on('error', (e) => { onData(`spawn error: ${e.message}\n`); resolve({ ok: false, code: -1 }); });
+    child.on('close', (code) => { clearTimeout(timer); settle({ ok: code === 0, code }); });
+    child.on('error', (e) => { clearTimeout(timer); onData(`spawn error: ${e.message}\n`); settle({ ok: false, code: -1 }); });
   });
 }
 
-module.exports = { containerStatus, inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, rebuildCron };
+// Read the crontab baked into the running container. Returns the text, or
+// null if the container is not running or the exec fails. All containers in
+// this portfolio bake the crontab at /etc/crontab.docker.
+async function containerCrontab(container, runner = defaultRunner) {
+  try {
+    assertContainerName(container);
+    const { stdout } = await runner(`docker exec ${container} cat /etc/crontab.docker`);
+    return stdout;
+  } catch {
+    return null;
+  }
+}
+
+module.exports = { containerStatus, inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, containerCrontab, rebuildCron };
