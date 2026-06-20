@@ -32,3 +32,7 @@ Thumbs.db
 .security-dashboard/
 .vsec
 SecurityScanner/.runtime/
+
+# Disabled sites (renamed out of the active roster) + ops worktree clones
+sites/DISABLED-*/
+sites/saveusfarms-ops/
