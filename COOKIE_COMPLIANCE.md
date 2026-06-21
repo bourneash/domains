@@ -51,7 +51,7 @@ Last updated: 2026-06-20
 | **pervypotion.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **pokererotic.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **rodhat.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **saveusfarms.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
+| **saveusfarms.com** | ✅ | ✅ | N/A | N/A | ✅ GA gated | **COMPLIANT** | News portal; GA4 G-GDYX2GPMMJ (property 542493246) wired + consent-gated (suf_analytics_consent) 2026-06-21 |
 | **securityplaces.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **sexchallengecoins.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **sexchallenge.me** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
@@ -84,6 +84,7 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | sinderella.org | G-Q378G15KZZ | 539773741 | ✅ Yes | ✅ 14 months |
 | 0xroulette.com | G-KQH7L26D95 | 542247993 | ✅ Yes | ✅ 14 months |
 | broadwayshowgirls.com | G-SKQPE8V8JB | 542413111 | ✅ Yes | ✅ 14 months |
+| saveusfarms.com | G-GDYX2GPMMJ | 542493246 | ✅ Yes | ✅ 14 months |
 
 **Note:** Duplicate shoptopless.com property (539897281) confirmed inactive and moved to GA4 Trash 2026-06-07. Active property is 539755746 (receiving traffic, G-SZFER7KX15).
 
@@ -107,4 +108,5 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
 | 2026-06-19 | 0xroulette.com | Created GA4 property (G-KQH7L26D95 / 542247993), Eastern TZ, USD, 14mo retention (both), Google Signals OFF. React SPA: consent-gated GA4 (key `0xr_analytics_consent`), CookieBanner, privacy/terms/disclosure pages. |
 | 2026-06-20 | broadwayshowgirls.com | Site launched. Updated from Coming Soon to LIVE. Disclosure ✅ (broadwayshowgirls-20 affiliate), CookieBanner ✅ consent-gated reject-by-default, GA4 gated + dormant (placeholder ID — real property pending login-handoff). |
+| 2026-06-21 | saveusfarms.com | Created GA4 property (G-GDYX2GPMMJ / 542493246, stream 15124982708), Eastern TZ (New York), USD, News industry, Small, 14mo retention (event+user), Google Signals OFF. Real measurement ID wired into `site/src/lib/analytics.ts` (was G-PLACEHOLDER); consent-gated via `suf_analytics_consent` / `suf-consent-granted`. |
 | 2026-06-20 | broadwayshowgirls.com | Created GA4 property (G-SKQPE8V8JB / 542413111, stream 15122444707), Eastern TZ, USD, Arts & Entertainment, 14mo retention (event+user), Google Signals OFF. Real measurement ID wired into `site/src/lib/analytics.ts` (was placeholder); consent-gated via `bsg_analytics_consent`. |
