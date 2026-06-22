@@ -23,6 +23,7 @@
 | Domain 			| In use | Worker name      | Notes                                                              |
 |-------------------|--------|------------------|--------------------------------------------------------------------|
 | findyourlostpets.com |   🟡   | `findyourlostpets-com` | Affiliate disclosure removed 2026-05; site live but positioning being reset |
+| gate03.com 		|   🟡   | `gate03-com`     | Scaffolded + live + bound; brief TBD, Workers Builds connect pending |
 | noveltyguns.com 	|   🟡   | `noveltyguns-com`| CF email ✅                                                        |
 | saveusfarms.com 	|   🟡   | `saveusfarms-com`| Brief TBD — rolled back to brand-neutral pending Jesse's brief     |
 | wetpages.com 		|   🟡   | `wetpages-com`   | CF email ✅                                                        |

@@ -47,6 +47,13 @@ sites:
     applies_to: [canary, cf, http, seo, tls, git, github, contact, legal, branding, manual]
     manual: {}
 
+  gate03.com:
+    active: true
+    cf_zone: gate03.com
+    github: bourneash/gate03.com
+    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    manual: {}
+
   oventoheaven.com:
     active: true
     cf_zone: oventoheaven.com
