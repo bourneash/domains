@@ -8,11 +8,12 @@ import pytest
 from site_tracker import fact_keys
 
 
-def test_catalog_loads_27_facts_from_standard_yaml():
+def test_catalog_loads_32_facts_from_standard_yaml():
     # The module-level FACTS is populated at import time from standard.yaml.
-    assert len(fact_keys.FACTS) == 27
+    assert len(fact_keys.FACTS) == 32
     for key in (
         "cf.zone_active", "cf.worker_bound", "cf.email_routing",
+        "canary.smoke_ok",
         "http.ga4_present", "http.adsense_present",
         "http.meta_pixel_present", "http.gtm_present",
         "http.sitemap_200", "http.robots_present",
@@ -25,13 +26,15 @@ def test_catalog_loads_27_facts_from_standard_yaml():
         "http.has_favicon", "http.has_about_page",
         "fs.last_commit_age_hours", "fs.ops_board_last_run_age_hours",
         "github.commits_ahead", "github.last_push_age_hours",
+        "amz.asin_count", "amz.oos_count", "amz.delisted_count", "amz.last_scan",
     ):
         assert key in fact_keys.FACTS, f"missing: {key}"
 
 
 def test_families_returns_canonical_order():
     assert fact_keys.families() == [
-        "cf", "http", "seo", "sitemap", "tls", "git", "ops", "github", "ads", "contact", "legal", "branding", "manual",
+        "canary", "cf", "http", "seo", "sitemap", "tls", "git", "ops", "github",
+        "amz", "ads", "contact", "legal", "branding", "manual",
     ]
 
 

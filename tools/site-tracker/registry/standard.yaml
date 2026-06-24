@@ -245,6 +245,32 @@ facts:
     describe: Hours since latest ops/board/last-run.json
     state_rule: ops_board_age
 
+  # Amazon affiliate health
+  amz.asin_count:
+    family: amz
+    source: amazon
+    ttl_hours: 25
+    describe: Total affiliate ASINs registered for this site
+    state_rule: amz_asin_count
+  amz.oos_count:
+    family: amz
+    source: amazon
+    ttl_hours: 25
+    describe: ASINs currently out of stock on Amazon
+    state_rule: amz_oos_count
+  amz.delisted_count:
+    family: amz
+    source: amazon
+    ttl_hours: 25
+    describe: ASINs no longer returned by Amazon API (likely delisted)
+    state_rule: amz_delisted_count
+  amz.last_scan:
+    family: amz
+    source: amazon
+    ttl_hours: 25
+    describe: Timestamp of last amz-stats catalog snapshot
+    state_rule: amz_last_scan
+
   # GitHub
   github.commits_ahead:
     family: github
@@ -270,6 +296,7 @@ families:
   - git
   - ops
   - github
+  - amz
   - ads
   - contact
   - legal

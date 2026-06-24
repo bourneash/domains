@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from site_tracker import store, registry
 from site_tracker.collectors import (
+    amazon,
     canary,
     cloudflare,
     filesystem,
@@ -27,6 +28,7 @@ COLLECTORS = {
     "github":          github,
     "recipes":         recipes,
     "search_consoles": search_consoles,
+    "amazon":          amazon,
 }
 
 

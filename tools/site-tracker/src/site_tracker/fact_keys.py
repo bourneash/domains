@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
@@ -105,14 +106,61 @@ def _commits_ahead(n: Any, _site: dict) -> str:
     return "red"
 
 
+def _amz_asin_count(n: Any, _site: dict) -> str:
+    if n is None:
+        return "unknown"
+    return "green" if int(n) > 0 else "yellow"
+
+
+def _amz_oos_count(n: Any, _site: dict) -> str:
+    if n is None:
+        return "unknown"
+    n = int(n)
+    if n == 0:
+        return "green"
+    if n < 3:
+        return "yellow"
+    return "red"
+
+
+def _amz_delisted_count(n: Any, _site: dict) -> str:
+    if n is None:
+        return "unknown"
+    n = int(n)
+    if n == 0:
+        return "green"
+    if n == 1:
+        return "yellow"
+    return "red"
+
+
+def _amz_last_scan(ts: Any, _site: dict) -> str:
+    if ts is None:
+        return "unknown"
+    try:
+        t = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        age_hours = (datetime.now(timezone.utc) - t).total_seconds() / 3600
+    except (ValueError, TypeError):
+        return "unknown"
+    if age_hours < 25:
+        return "green"
+    if age_hours < 50:
+        return "yellow"
+    return "red"
+
+
 STATE_RULES: dict[str, Callable[[Any, dict], str]] = {
-    "bool_green_red":    _bool_green_red,
-    "bool_green_yellow": _bool_green_yellow,
-    "tls_expiry":        _tls_expiry,
-    "commit_age":        _commit_age,
-    "push_age":          _push_age,
-    "ops_board_age":     _ops_board_age,
-    "commits_ahead":     _commits_ahead,
+    "bool_green_red":      _bool_green_red,
+    "bool_green_yellow":   _bool_green_yellow,
+    "tls_expiry":          _tls_expiry,
+    "commit_age":          _commit_age,
+    "push_age":            _push_age,
+    "ops_board_age":       _ops_board_age,
+    "commits_ahead":       _commits_ahead,
+    "amz_asin_count":     _amz_asin_count,
+    "amz_oos_count":      _amz_oos_count,
+    "amz_delisted_count": _amz_delisted_count,
+    "amz_last_scan":      _amz_last_scan,
 }
 
 
