@@ -1,0 +1,26 @@
+# amz-stats — Amazon affiliate catalog snapshot collector, containerized.
+#
+# Pattern modeled on tools/cf-stats (supercronic, restart unless-stopped),
+# simplified to a single container since the work is a stateless Python API job.
+#
+# Bring up:    docker compose up -d
+# Watch logs:  docker compose logs -f
+# Force run:   docker compose exec collector amz-stats collect --out-dir /work/out --domains-root /work/domains
+# Stop:        docker compose down
+
+name: amz-stats
+
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: amz-stats:latest
+    container_name: amz-stats
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+    volumes:
+      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      - ${HOME:-/home/jesse}/projects/domains:/work/domains:ro
+      - ./out:/work/out

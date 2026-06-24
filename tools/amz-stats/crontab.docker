@@ -1,0 +1,6 @@
+# amz-stats schedule (supercronic, TZ=UTC).
+# Daily at 06:17 — offset from other fleet jobs to keep host load steady.
+# Stdout/stderr stream to docker logs via supercronic -passthrough-logs.
+# The summary line also appends to /work/out/cron.log for tail -f compatibility.
+
+17 6 * * * amz-stats collect --out-dir /work/out --domains-root /work/domains 2>&1 | tee -a /work/out/cron.log
