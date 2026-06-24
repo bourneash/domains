@@ -1,0 +1,11 @@
+out/*.jsonl
+out/latest.json
+out/earnings*.jsonl
+out/earnings-latest.json
+out/.token_cache.json
+out/.session.json
+out/cron.log
+__pycache__/
+*.egg-info/
+.pytest_cache/
+dist/
