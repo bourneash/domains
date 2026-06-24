@@ -93,6 +93,10 @@ class AMZClient:
             self._client.close()
             self._client = None
 
+    def ping(self) -> str:
+        """Fetch (or return cached) token; return its first 8 chars as a liveness check."""
+        return self._get_token()[:8]
+
     def _get_token(self) -> str:
         """Return a valid Bearer token, fetching and caching a new one if needed."""
         cached = self._cache.get()

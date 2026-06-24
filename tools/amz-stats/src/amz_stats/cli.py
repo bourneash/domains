@@ -11,7 +11,7 @@ import click
 from dotenv import load_dotenv
 
 from . import __version__
-from .api import AMZClient, AMZError
+from .api import AMZClient
 from .collectors import harvest_asins, collect_catalog, build_summary
 from .store import write_snapshot
 
@@ -20,18 +20,7 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def _load_env(env_file: Path | None) -> tuple[str, str, str]:
-    if env_file:
-        load_dotenv(env_file, override=False)
-    else:
-        for cand in (
-            Path.cwd() / ".env",
-            Path("/work/.env.shared"),
-            Path("/home/jesse/projects/domains/.env"),
-        ):
-            if cand.exists():
-                load_dotenv(cand, override=False)
-                break
+def _resolve_env_vars() -> tuple[str, str, str]:
     key_id = os.environ.get("AMAZON_CREATORS_KEY_ID")
     key_secret = os.environ.get("AMAZON_CREATORS_KEY_SECRET")
     store_id = os.environ.get("AMAZON_ASSOCIATES_STORE_ID")
@@ -44,6 +33,21 @@ def _load_env(env_file: Path | None) -> tuple[str, str, str]:
         click.echo(f"ERROR: missing required env vars: {', '.join(missing)}", err=True)
         sys.exit(2)
     return key_id, key_secret, store_id  # type: ignore[return-value]
+
+
+def _load_env(env_file: Path | None) -> tuple[str, str, str]:
+    if env_file:
+        load_dotenv(env_file, override=True)
+        return _resolve_env_vars()
+    for cand in (
+        Path.cwd() / ".env",
+        Path("/work/.env.shared"),
+        Path("/home/jesse/projects/domains/.env"),
+    ):
+        if cand.exists():
+            load_dotenv(cand, override=False)
+    # No break — load all that exist; first-set wins via override=False
+    return _resolve_env_vars()
 
 
 @click.group()
@@ -104,22 +108,21 @@ def collect(out_dir: Path, env_file: Path | None, domains_root: Path, quiet: boo
     if not quiet:
         click.echo(line)
 
-    log_path = out_dir / "cron.log"
-    with log_path.open("a", encoding="utf-8") as f:
-        f.write(line + "\n")
-
 
 @main.command()
+@click.option("--out-dir", "out_dir", type=click.Path(path_type=Path), default=Path("out"),
+              help="Directory containing the token cache. Default: ./out")
 @click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None)
-def verify(env_file: Path | None) -> None:
+def verify(out_dir: Path, env_file: Path | None) -> None:
     """Verify the API credentials work. Exit 0 on success."""
     key_id, key_secret, store_id = _load_env(env_file)
-    cache_file = Path("/tmp/amz-stats-verify-token-cache.json")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = out_dir / ".token_cache.json"
     try:
         with AMZClient(key_id, key_secret, store_id, cache_file) as client:
-            token = client._get_token()
-        click.echo(f"OK token={token[:8]}... store={store_id}")
-    except (AMZError, Exception) as exc:
+            token_prefix = client.ping()
+        click.echo(f"OK token={token_prefix}... store={store_id}")
+    except Exception as exc:
         click.echo(f"FAIL: {exc}", err=True)
         sys.exit(1)
 
