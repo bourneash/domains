@@ -76,12 +76,14 @@ class AMZClient:
         key_secret: str,
         store_id: str,
         cache_file: Path,
+        application_id: str | None = None,
         marketplace: str = "www.amazon.com",
         timeout: float = 30.0,
     ):
         self._key_id = key_id
         self._key_secret = key_secret
         self.store_id = store_id
+        self.application_id = application_id
         self.marketplace = marketplace
         self._timeout = timeout
         self._cache = TokenCache(cache_file)
@@ -142,6 +144,8 @@ class AMZClient:
             "Content-Type": "application/json",
             "x-marketplace": self.marketplace,
         }
+        if self.application_id:
+            headers["x-amz-application-id"] = self.application_id
         url = f"{API_BASE}{path}"
         retries = 3
         for attempt in range(retries):

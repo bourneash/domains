@@ -22,10 +22,11 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def _resolve_env_vars() -> tuple[str, str, str]:
+def _resolve_env_vars() -> tuple[str, str, str, str | None]:
     key_id = os.environ.get("AMAZON_CREATORS_KEY_ID")
     key_secret = os.environ.get("AMAZON_CREATORS_KEY_SECRET")
     store_id = os.environ.get("AMAZON_ASSOCIATES_STORE_ID")
+    application_id = os.environ.get("AMAZON_CREATORS_APPLICATION_ID")
     missing = [n for n, v in [
         ("AMAZON_CREATORS_KEY_ID", key_id),
         ("AMAZON_CREATORS_KEY_SECRET", key_secret),
@@ -34,10 +35,10 @@ def _resolve_env_vars() -> tuple[str, str, str]:
     if missing:
         click.echo(f"ERROR: missing required env vars: {', '.join(missing)}", err=True)
         sys.exit(2)
-    return key_id, key_secret, store_id  # type: ignore[return-value]
+    return key_id, key_secret, store_id, application_id  # type: ignore[return-value]
 
 
-def _load_env(env_file: Path | None) -> tuple[str, str, str]:
+def _load_env(env_file: Path | None) -> tuple[str, str, str, str | None]:
     if env_file:
         load_dotenv(env_file, override=True)
         return _resolve_env_vars()
@@ -68,7 +69,7 @@ def main() -> None:
 @click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
 def collect(out_dir: Path, env_file: Path | None, domains_root: Path, quiet: bool) -> None:
     """Harvest ASINs, collect catalog from Amazon API, write JSONL + latest.json."""
-    key_id, key_secret, store_id = _load_env(env_file)
+    key_id, key_secret, store_id, application_id = _load_env(env_file)
     out_dir.mkdir(parents=True, exist_ok=True)
     cache_file = out_dir / ".token_cache.json"
 
@@ -78,7 +79,7 @@ def collect(out_dir: Path, env_file: Path | None, domains_root: Path, quiet: boo
     # harvest_asins globs domains_root/sites/*/site/src/lib/affiliate.ts
     asins_by_site = harvest_asins(domains_root)
 
-    with AMZClient(key_id, key_secret, store_id, cache_file) as client:
+    with AMZClient(key_id, key_secret, store_id, cache_file, application_id=application_id) as client:
         catalog = collect_catalog(client, asins_by_site)
 
     summary = build_summary(asins_by_site, catalog)
@@ -117,11 +118,11 @@ def collect(out_dir: Path, env_file: Path | None, domains_root: Path, quiet: boo
 @click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None)
 def verify(out_dir: Path, env_file: Path | None) -> None:
     """Verify the API credentials work. Exit 0 on success."""
-    key_id, key_secret, store_id = _load_env(env_file)
+    key_id, key_secret, store_id, application_id = _load_env(env_file)
     out_dir.mkdir(parents=True, exist_ok=True)
     cache_file = out_dir / ".token_cache.json"
     try:
-        with AMZClient(key_id, key_secret, store_id, cache_file) as client:
+        with AMZClient(key_id, key_secret, store_id, cache_file, application_id=application_id) as client:
             token_prefix = client.ping()
         click.echo(f"OK token={token_prefix}... store={store_id}")
     except Exception as exc:
