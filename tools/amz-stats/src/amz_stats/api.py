@@ -128,6 +128,7 @@ class AMZClient:
             expires_in: int = body.get("expires_in", 3600)
             self._cache.set(token, expires_in)
             return token
+        raise AMZError(0, "token fetch: exhausted retries")
 
     def _request(self, method: str, path: str, **kw) -> dict[str, Any]:
         """Execute a request against API_BASE with 3 retries and exponential backoff."""
