@@ -12,10 +12,6 @@ import respx
 from amz_stats.api import AMZClient, AMZError, DEFAULT_RESOURCES, TOKEN_URL, API_BASE
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
 TOKEN_RESPONSE = {
     "access_token": "test-bearer-token",
     "token_type": "bearer",
@@ -47,10 +43,6 @@ def client(cache_file: Path) -> AMZClient:
     )
 
 
-# ---------------------------------------------------------------------------
-# Test 1: Token fetched on first call, cached; second call does NOT re-fetch
-# ---------------------------------------------------------------------------
-
 @respx.mock
 def test_token_cached_between_calls(client: AMZClient, cache_file: Path):
     token_route = respx.post(TOKEN_URL).mock(return_value=httpx.Response(200, json=TOKEN_RESPONSE))
@@ -59,26 +51,19 @@ def test_token_cached_between_calls(client: AMZClient, cache_file: Path):
     )
 
     with client:
-        # First call — token must be fetched
         client.get_items(["B001234567"])
         assert token_route.call_count == 1
         assert cache_file.exists(), "Cache file should be written after first token fetch"
 
-        # Verify cache content
         data = json.loads(cache_file.read_text())
         assert data["token"] == "test-bearer-token"
         assert data["expires_at"] > time.time()
 
-        # Second call — token should come from cache, NOT re-fetched
         client.get_items(["B007654321"])
         assert token_route.call_count == 1, "Token should NOT be re-fetched on second call"
 
     assert items_route.call_count == 2
 
-
-# ---------------------------------------------------------------------------
-# Test 2: get_items with 2 ASINs returns parsed itemsResult.items
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_get_items_returns_items(client: AMZClient):
@@ -121,10 +106,6 @@ def test_get_items_sends_correct_body(client: AMZClient):
     assert body["resources"] == DEFAULT_RESOURCES
 
 
-# ---------------------------------------------------------------------------
-# Test 3: 429 response retried, succeeds on third attempt
-# ---------------------------------------------------------------------------
-
 @respx.mock
 def test_429_retried_then_succeeds(client: AMZClient, monkeypatch):
     monkeypatch.setattr("amz_stats.api.time.sleep", lambda _: None)
@@ -148,10 +129,6 @@ def test_429_retried_then_succeeds(client: AMZClient, monkeypatch):
     assert call_count == 3
     assert "itemsResult" in result
 
-
-# ---------------------------------------------------------------------------
-# Test 4: 4xx response raises AMZError
-# ---------------------------------------------------------------------------
 
 @respx.mock
 def test_4xx_raises_amzerror(client: AMZClient):

@@ -16,7 +16,6 @@ amz-stats = "amz_stats.cli:main"
 dev = [
     "pytest>=8.0",
     "respx>=0.21",
-    "freezegun>=1.5",
 ]
 
 [build-system]

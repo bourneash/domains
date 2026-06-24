@@ -1,8 +1,9 @@
 """Thin Amazon Creators API client. Raises AMZError on non-success; callers decide how to degrade."""
 from __future__ import annotations
 
-import fcntl
 import json
+import os
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -48,15 +49,21 @@ class TokenCache:
         return None
 
     def set(self, token: str, expires_in: int) -> None:
-        """Write token + expiry to cache file using flock for write safety."""
-        payload = json.dumps({"token": token, "expires_at": time.time() + expires_in})
-        self._path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self._path, "w") as fh:
-            fcntl.flock(fh, fcntl.LOCK_EX)
+        """Write token + expiry atomically via tempfile + os.replace (no flock race)."""
+        data = json.dumps({"token": token, "expires_at": time.time() + expires_in})
+        dir_ = self._path.parent
+        dir_.mkdir(parents=True, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(dir=dir_, prefix=".token_cache_tmp")
+        try:
+            with os.fdopen(fd, "w") as fh:
+                fh.write(data)
+            os.replace(tmp, self._path)
+        except Exception:
             try:
-                fh.write(payload)
-            finally:
-                fcntl.flock(fh, fcntl.LOCK_UN)
+                os.unlink(tmp)
+            except OSError:
+                pass
+            raise
 
 
 class AMZClient:
@@ -101,7 +108,6 @@ class AMZClient:
                 "client_secret": self._key_secret,
                 "scope": "creatorsapi::default",
             },
-            headers={"Content-Type": "application/json"},
         )
         if not r.is_success:
             raise AMZError(r.status_code, f"token fetch failed: {r.text[:200]}")
@@ -141,7 +147,6 @@ class AMZClient:
                 msg = body.get("message") or body.get("error") or r.text[:200]
                 raise AMZError(r.status_code, str(msg))
             return body
-        raise AMZError(0, "exhausted retries")
 
     def get_items(
         self,
