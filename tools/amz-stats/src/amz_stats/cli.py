@@ -1,6 +1,7 @@
 """amz-stats CLI: harvest ASINs from affiliate.ts files, collect catalog, write snapshot."""
 from __future__ import annotations
 
+import json
 import os
 import sys
 import time
@@ -13,6 +14,7 @@ from dotenv import load_dotenv
 from . import __version__
 from .api import AMZClient
 from .collectors import harvest_asins, collect_catalog, build_summary
+from .earnings import SessionExpiredError, scrape_earnings, save_session
 from .store import write_snapshot
 
 
@@ -125,6 +127,88 @@ def verify(out_dir: Path, env_file: Path | None) -> None:
     except Exception as exc:
         click.echo(f"FAIL: {exc}", err=True)
         sys.exit(1)
+
+
+@main.command("scrape-earnings")
+@click.option("--out-dir", "out_dir", type=click.Path(path_type=Path), default=Path("out"),
+              help="Directory to write earnings JSONL + latest.json. Default: ./out")
+@click.option("--session-file", "session_file", type=click.Path(path_type=Path), default=None,
+              help="Path to Playwright session file. Default: <out-dir>/.session.json")
+@click.option("--days", default=30, show_default=True,
+              help="Number of days to fetch (ending today).")
+@click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None,
+              help="Override env file.")
+@click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
+def scrape_earnings_cmd(
+    out_dir: Path,
+    session_file: Path | None,
+    days: int,
+    env_file: Path | None,
+    quiet: bool,
+) -> None:
+    """Download daily earnings from Associates Central and write JSONL + latest.json."""
+    if session_file is None:
+        session_file = out_dir / ".session.json"
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        rows = scrape_earnings(session_file, days)
+    except SessionExpiredError:
+        click.echo("Session missing or expired. Run: amz-stats save-session", err=True)
+        sys.exit(3)
+
+    # Group rows by month and append to per-month JSONL files
+    by_month: dict[str, list[dict]] = {}
+    for row in rows:
+        date_val = row.get("date", "")
+        if len(date_val) >= 7:
+            month_key = date_val[:7]  # YYYY-MM
+        else:
+            month_key = "unknown"
+        by_month.setdefault(month_key, []).append(row)
+
+    for month_key, month_rows in by_month.items():
+        jsonl_path = out_dir / f"earnings-{month_key}.jsonl"
+        with jsonl_path.open("a", encoding="utf-8") as fh:
+            for row in month_rows:
+                fh.write(json.dumps(row) + "\n")
+
+    # Overwrite latest.json with full result list
+    latest_path = out_dir / "earnings-latest.json"
+    latest_path.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+
+    # Compute totals for summary line
+    total_clicks = sum(int(r.get("clicks", 0) or 0) for r in rows)
+    total_orders = sum(int(r.get("ordered_items", 0) or 0) for r in rows)
+    total_earnings = sum(float(r.get("commission_income", 0) or 0) for r in rows)
+
+    ts = _now_iso()
+    line = (
+        f"[{ts}] amz-earnings"
+        f" days={days}"
+        f" clicks={total_clicks}"
+        f" orders={total_orders}"
+        f" earnings=${total_earnings:.2f}"
+    )
+
+    if not quiet:
+        click.echo(line)
+
+
+@main.command("save-session")
+@click.option("--session-file", "session_file", type=click.Path(path_type=Path),
+              default=Path("out/.session.json"),
+              help="Path to save the Playwright session file. Default: out/.session.json")
+@click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None,
+              help="Override env file.")
+def save_session_cmd(session_file: Path, env_file: Path | None) -> None:
+    """Save an Associates Central login session for use by scrape-earnings.
+
+    Run this once interactively to authenticate. Requires a display.
+    Use: docker compose exec -it collector amz-stats save-session
+    """
+    save_session(session_file)
 
 
 if __name__ == "__main__":
