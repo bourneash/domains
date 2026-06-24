@@ -17,8 +17,11 @@ DEFAULT_RESOURCES = [
     "itemInfo.title",
     "itemInfo.byLineInfo",
     "images.primary.medium",
-    "offersV2",
-    "customerReviews",
+    "offersV2.listings.price",
+    "offersV2.listings.availability",
+    "offersV2.listings.condition",
+    "customerReviews.starRating",
+    "customerReviews.count",
     "parentASIN",
 ]
 
