@@ -33,7 +33,7 @@ def _coerce_value(raw: str) -> int | float | str:
     """Convert a string value to int, float, or leave as str."""
     v = raw.strip().lstrip("$").replace(",", "")
     if not v:
-        return raw.strip()
+        return 0
     try:
         as_int = int(v)
         return as_int
@@ -105,71 +105,71 @@ def scrape_earnings(session_file: Path, days: int = 30) -> list[dict]:
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
-        ctx = browser.new_context(storage_state=str(session_file))
-        page = ctx.new_page()
-
-        # Navigate to reports page
-        page.goto(REPORTS_URL, wait_until="domcontentloaded", timeout=30_000)
-
-        # Check for login redirect
-        current_url = page.url
-        if any(pat in current_url for pat in LOGIN_PATTERNS):
-            browser.close()
-            raise SessionExpiredError(
-                f"Session expired — redirected to login: {current_url}"
-            )
-
-        # Select "Daily Summary" report type
         try:
-            # Look for a dropdown or select with report type options
-            page.select_option("select[name*='reportType'], select[id*='reportType']",
-                               label="Daily Summary", timeout=10_000)
-        except (PWTimeout, Exception):
-            # Try clicking via visible text as fallback
-            try:
-                page.click("text=Daily Summary", timeout=5_000)
-            except (PWTimeout, Exception):
-                pass  # Best effort — page structure may vary
+            ctx = browser.new_context(storage_state=str(session_file))
+            page = ctx.new_page()
 
-        # Set date range inputs
-        start_str = start_date.strftime("%m/%d/%Y")
-        end_str = end_date.strftime("%m/%d/%Y")
+            # Navigate to reports page
+            page.goto(REPORTS_URL, wait_until="domcontentloaded", timeout=30_000)
 
-        for sel, val in [
-            ("input[name*='startDate'], input[id*='startDate'], input[placeholder*='Start']", start_str),
-            ("input[name*='endDate'], input[id*='endDate'], input[placeholder*='End']", end_str),
-        ]:
-            try:
-                page.fill(sel, val, timeout=5_000)
-            except (PWTimeout, Exception):
-                pass
-
-        # Trigger CSV download
-        csv_text: str = ""
-        try:
-            with page.expect_download(timeout=30_000) as dl_info:
-                # Click the export/download button
-                page.click(
-                    "button:has-text('Export'), "
-                    "a:has-text('Export'), "
-                    "button:has-text('Download'), "
-                    "a:has-text('Download'), "
-                    "input[value*='Export'], "
-                    "input[value*='Download']",
-                    timeout=10_000,
+            # Check for login redirect
+            current_url = page.url
+            if any(pat in current_url for pat in LOGIN_PATTERNS):
+                raise SessionExpiredError(
+                    f"Session expired — redirected to login: {current_url}"
                 )
-            download = dl_info.value
-            path = download.path()
-            if path:
-                csv_text = Path(path).read_text(encoding="utf-8-sig")
-        except (PWTimeout, Exception):
-            # Fallback: try reading page content as CSV if no download triggered
-            content = page.content()
-            if "Date" in content and "Clicks" in content:
-                # Page may render CSV inline in a <pre> or table — extract text
-                csv_text = page.inner_text("pre, .report-data, table") or ""
 
-        browser.close()
+            # Select "Daily Summary" report type
+            try:
+                # Look for a dropdown or select with report type options
+                page.select_option("select[name*='reportType'], select[id*='reportType']",
+                                   label="Daily Summary", timeout=10_000)
+            except PWTimeout:
+                # Try clicking via visible text as fallback
+                try:
+                    page.click("text=Daily Summary", timeout=5_000)
+                except PWTimeout:
+                    pass  # Best effort — page structure may vary
+
+            # Set date range inputs
+            start_str = start_date.strftime("%m/%d/%Y")
+            end_str = end_date.strftime("%m/%d/%Y")
+
+            for sel, val in [
+                ("input[name*='startDate'], input[id*='startDate'], input[placeholder*='Start']", start_str),
+                ("input[name*='endDate'], input[id*='endDate'], input[placeholder*='End']", end_str),
+            ]:
+                try:
+                    page.fill(sel, val, timeout=5_000)
+                except PWTimeout:
+                    pass
+
+            # Trigger CSV download
+            csv_text: str = ""
+            try:
+                with page.expect_download(timeout=30_000) as dl_info:
+                    # Click the export/download button
+                    page.click(
+                        "button:has-text('Export'), "
+                        "a:has-text('Export'), "
+                        "button:has-text('Download'), "
+                        "a:has-text('Download'), "
+                        "input[value*='Export'], "
+                        "input[value*='Download']",
+                        timeout=10_000,
+                    )
+                download = dl_info.value
+                path = download.path()
+                if path:
+                    csv_text = Path(path).read_text(encoding="utf-8-sig")
+            except PWTimeout:
+                # Fallback: try reading page content as CSV if no download triggered
+                content = page.content()
+                if "Date" in content and "Clicks" in content:
+                    # Page may render CSV inline in a <pre> or table — extract text
+                    csv_text = page.inner_text("pre, .report-data, table") or ""
+        finally:
+            browser.close()
 
     if not csv_text:
         return []

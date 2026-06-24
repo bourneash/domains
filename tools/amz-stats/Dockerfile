@@ -32,8 +32,7 @@ RUN groupadd -g 1000 ops && \
 WORKDIR /opt/amz-stats
 COPY pyproject.toml ./
 COPY src ./src
-RUN pip install --no-cache-dir .
-RUN pip install --no-cache-dir playwright && playwright install chromium --with-deps
+RUN pip install --no-cache-dir . && playwright install chromium --with-deps
 
 # Cron + entrypoint
 COPY crontab.docker /etc/crontab.docker

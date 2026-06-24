@@ -129,6 +129,11 @@ def verify(out_dir: Path, env_file: Path | None) -> None:
         sys.exit(1)
 
 
+def _row_date(row: dict) -> str:
+    """Return the date string from a row, handling both 'date' and 'report_date' keys."""
+    return row.get("date") or row.get("report_date") or ""
+
+
 @main.command("scrape-earnings")
 @click.option("--out-dir", "out_dir", type=click.Path(path_type=Path), default=Path("out"),
               help="Directory to write earnings JSONL + latest.json. Default: ./out")
@@ -158,10 +163,10 @@ def scrape_earnings_cmd(
         click.echo("Session missing or expired. Run: amz-stats save-session", err=True)
         sys.exit(3)
 
-    # Group rows by month and append to per-month JSONL files
+    # Group rows by month; merge by date to avoid duplicates on re-runs
     by_month: dict[str, list[dict]] = {}
     for row in rows:
-        date_val = row.get("date", "")
+        date_val = _row_date(row)
         if len(date_val) >= 7:
             month_key = date_val[:7]  # YYYY-MM
         else:
@@ -170,9 +175,18 @@ def scrape_earnings_cmd(
 
     for month_key, month_rows in by_month.items():
         jsonl_path = out_dir / f"earnings-{month_key}.jsonl"
-        with jsonl_path.open("a", encoding="utf-8") as fh:
-            for row in month_rows:
-                fh.write(json.dumps(row) + "\n")
+        # Read existing rows keyed by date, overlay new rows (new data wins), write back
+        existing: dict[str, dict] = {}
+        if jsonl_path.exists():
+            for line in jsonl_path.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    row = json.loads(line)
+                    existing[_row_date(row)] = row
+        for row in month_rows:
+            existing[_row_date(row)] = row
+        with jsonl_path.open("w", encoding="utf-8") as fh:
+            for row in sorted(existing.values(), key=_row_date):
+                fh.write(json.dumps(row, separators=(",", ":")) + "\n")
 
     # Overwrite latest.json with full result list
     latest_path = out_dir / "earnings-latest.json"
@@ -200,9 +214,7 @@ def scrape_earnings_cmd(
 @click.option("--session-file", "session_file", type=click.Path(path_type=Path),
               default=Path("out/.session.json"),
               help="Path to save the Playwright session file. Default: out/.session.json")
-@click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None,
-              help="Override env file.")
-def save_session_cmd(session_file: Path, env_file: Path | None) -> None:
+def save_session_cmd(session_file: Path) -> None:
     """Save an Associates Central login session for use by scrape-earnings.
 
     Run this once interactively to authenticate. Requires a display.
