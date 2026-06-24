@@ -218,7 +218,6 @@ def test_collect_catalog_batch_error_continues(client: AMZClient, cache_file: Pa
     respx.post(f"{API_BASE}/catalog/v1/getItems").mock(side_effect=batch_handler)
 
     # 11 ASINs → 2 batches: first batch (10) fails, second (1) succeeds
-    failing_asins = [f"B001AAAAAA"] + [f"B0{i:08d}"[: 10] for i in range(9)]
     # Ensure all are 10-char uppercase+digit
     failing_asins = ["B001AAAAAA"] + [f"B{str(i).zfill(9)}" for i in range(1, 10)]
     good_asin = "B099GGGGGG"

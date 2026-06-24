@@ -19,7 +19,10 @@ def write_snapshot(snap: dict, out_dir: Path) -> None:
     ``out_dir`` is created (including parents) if it does not exist.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
-    day = snap["timestamp"][:10]
+    ts = snap.get("timestamp")
+    if not ts:
+        raise ValueError("snap must contain 'timestamp'")
+    day = ts[:10]
     jsonl_path = out_dir / f"amz-stats-{day}.jsonl"
     with jsonl_path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(snap, separators=(",", ":")) + "\n")

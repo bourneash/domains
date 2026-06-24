@@ -13,7 +13,7 @@ from .api import AMZClient, AMZError
 
 log = logging.getLogger(__name__)
 
-_ASIN_RE = re.compile(r"asin:\s*['\"]([A-Z0-9]{10})['\"]")
+_ASIN_RE = re.compile(r"asin:\s+['\"]([A-Z0-9]{10})['\"]")
 
 
 # ---------------------------------------------------------------------------
@@ -28,7 +28,6 @@ def harvest_asins(domains_root: Path) -> dict[str, list[str]]:
     Within a single file, duplicate ASINs are deduplicated while preserving
     first-occurrence order.
     """
-    pattern = domains_root / "sites" / "*" / "site" / "src" / "lib" / "affiliate.ts"
     result: dict[str, list[str]] = {}
 
     for ts_file in sorted(domains_root.glob("sites/*/site/src/lib/affiliate.ts")):
@@ -194,12 +193,14 @@ def build_summary(
     total_oos = 0
     total_delisted = 0
     total_unknown = 0
+    total_missing = 0
     all_unique: set[str] = set()
 
     for site, site_asins in asins_by_site.items():
         oos_count = 0
         delisted_count = 0
         unknown_count = 0
+        missing_count = 0
 
         for asin in site_asins:
             all_unique.add(asin)
@@ -211,12 +212,15 @@ def build_summary(
                     oos_count += 1
                 elif avail == "UNKNOWN":
                     unknown_count += 1
+            else:
+                missing_count += 1
 
         per_site[site] = {
             "asin_count": len(site_asins),
             "oos_count": oos_count,
             "delisted_count": delisted_count,
             "unknown_count": unknown_count,
+            "missing_count": missing_count,
             "asins": list(site_asins),
         }
 
@@ -224,6 +228,7 @@ def build_summary(
         total_oos += oos_count
         total_delisted += delisted_count
         total_unknown += unknown_count
+        total_missing += missing_count
 
     return {
         "per_site": per_site,
@@ -234,6 +239,7 @@ def build_summary(
             "oos_count": total_oos,
             "delisted_count": total_delisted,
             "unknown_count": total_unknown,
+            "missing_count": total_missing,
             "error_count": len(error_set),
         },
     }

@@ -100,22 +100,30 @@ class AMZClient:
             return cached
 
         assert self._client is not None, "AMZClient must be used as a context manager"
-        r = self._client.post(
-            TOKEN_URL,
-            json={
-                "grant_type": "client_credentials",
-                "client_id": self._key_id,
-                "client_secret": self._key_secret,
-                "scope": "creatorsapi::default",
-            },
-        )
-        if not r.is_success:
-            raise AMZError(r.status_code, f"token fetch failed: {r.text[:200]}")
-        body = r.json()
-        token: str = body["access_token"]
-        expires_in: int = body.get("expires_in", 3600)
-        self._cache.set(token, expires_in)
-        return token
+        retries = 3
+        for attempt in range(retries):
+            try:
+                r = self._client.post(
+                    TOKEN_URL,
+                    json={
+                        "grant_type": "client_credentials",
+                        "client_id": self._key_id,
+                        "client_secret": self._key_secret,
+                        "scope": "creatorsapi::default",
+                    },
+                )
+            except httpx.HTTPError as e:
+                if attempt == retries - 1:
+                    raise AMZError(0, f"token fetch failed: {e}") from e
+                time.sleep(1.0 * (2 ** attempt))
+                continue
+            if not r.is_success:
+                raise AMZError(r.status_code, f"token fetch failed: {r.text[:200]}")
+            body = r.json()
+            token: str = body["access_token"]
+            expires_in: int = body.get("expires_in", 3600)
+            self._cache.set(token, expires_in)
+            return token
 
     def _request(self, method: str, path: str, **kw) -> dict[str, Any]:
         """Execute a request against API_BASE with 3 retries and exponential backoff."""
