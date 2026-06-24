@@ -166,6 +166,7 @@ def build_summary(
                     "oos_count": int,
                     "delisted_count": int,
                     "unknown_count": int,
+                    "missing_count": int,
                     "asins": [str],
                 }
             },
@@ -176,6 +177,7 @@ def build_summary(
                 "oos_count": int,
                 "delisted_count": int,
                 "unknown_count": int,
+                "missing_count": int,
                 "error_count": int,
             },
         }
@@ -183,6 +185,7 @@ def build_summary(
     - delisted: ASIN appears in ``asins_by_site`` values AND in ``catalog["errors"]``
     - oos: availability == "OOS"
     - unknown: availability == "UNKNOWN"
+    - missing: ASIN appears in ``asins_by_site`` values but in neither ``catalog["asins"]`` nor ``catalog["errors"]``
     """
     catalog_items: dict[str, dict] = catalog.get("asins") or {}
     error_set: set[str] = set(catalog.get("errors") or [])

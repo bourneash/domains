@@ -371,3 +371,19 @@ def test_build_summary_shared_asin_across_sites():
 
     assert summary["totals"]["asin_count"] == 3       # 2 + 1
     assert summary["totals"]["unique_asin_count"] == 2  # B001SHARED0 + B002BBBBBB
+
+
+def test_build_summary_missing_asin():
+    """ASIN in asins_by_site but in neither catalog["asins"] nor catalog["errors"] → missing_count incremented."""
+    asins_by_site = {
+        "site-a.com": ["B001MISSING"],
+    }
+    # Catalog is empty — no ASINs collected, no errors
+    catalog = _mock_catalog(asins_by_site, error_asins=frozenset())
+    # Manually empty out the asins dict to simulate a true missing ASIN
+    catalog["asins"] = {}
+
+    summary = build_summary(asins_by_site, catalog)
+
+    assert summary["per_site"]["site-a.com"]["missing_count"] == 1
+    assert summary["totals"]["missing_count"] == 1
