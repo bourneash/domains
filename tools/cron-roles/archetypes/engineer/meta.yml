@@ -4,8 +4,12 @@ name: engineer
 # Playwright, authoritative npm-run-build gate before any push, Slack 👍 heartbeat
 # when healthy+idle (0 tokens), file-based task-board integration. Best-in-class.
 source: americastrikes.com
-schedule: "0 */4 * * *"
-model: none            # bash-driven; run-engineer.sh selects Sonnet internally only when there is work
+# Every 30 min, offset to :12/:42 so the work-pass `claude` (when it fires) never
+# launches in the same second as the :00/:15/:30/:45 scraper, :05/:35 breaking, or
+# :02/:17/:32/:47 watchdog ticks — concurrent claude startups race the shared OAuth
+# refresh. The sweep is bash-only/zero-token; only a real work pass starts claude.
+schedule: "12,42 * * * *"
+model: none            # bash-driven; run-engineer.sh selects Sonnet internally only when there is work. Work pass serialized per-site by ops/.locks/engineer-work.lock.d (time-based, auto-reclaims after 3000s)
 owns_task_types: [engineering]
 produces_task_types: []          # the escalation sink — everyone files TO it; it files to no one
 worker_deps: [chromium, nss, freetype, harfbuzz, ttf-freefont, "playwright-core@1.49.1"]
@@ -20,6 +24,7 @@ gitignore:
   - "ops/logs/engineer-issues-*.txt"
   - "ops/logs/engineer-render-fail-*.png"
   - "ops/logs/engineer-render-last.json"
+  - "ops/logs/engineer-heartbeat-*.jsonl"
 placeholders:
   - BASE_URL
   - COLLECTIONS_JSON

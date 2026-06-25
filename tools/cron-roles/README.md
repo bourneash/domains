@@ -23,7 +23,7 @@ rigor, anti-slop guardrails, reusability), then parameterized.
 
 | Archetype | Skill | Kind | Owns → Produces | Schedule | Selected from |
 |---|---|---|---|---|---|
-| `engineer` | `domains-cron-role-engineer` | bash-driven sink | engineering → — | `0 */4 * * *` | americastrikes |
+| `engineer` | `domains-cron-role-engineer` | bash-driven sink | engineering → — | `12,42 * * * *` | americastrikes |
 | `affiliate-editor` | `domains-cron-role-affiliate-editor` | LLM, no-deploy sentinel | affiliate → content, engineering | `0 7 * * 3` | reviewtattoo |
 | `content-writer` | `domains-cron-role-content-writer` | LLM, deploy (voice tuned per site) | content, refresh → engineering | `0 7 * * 6` | reviewtattoo |
 | `planner` | `domains-cron-role-planner` | LLM dispatcher | ops, planning → * | `0 6 * * 1` | wetpages |
