@@ -7,10 +7,17 @@ aligned to the current archetype, and what is each one seeing right now?*
 ## Usage
 
 ```bash
-python3 tools/engineer-fleet/engineer-status.py          # full table (all sites)
-python3 tools/engineer-fleet/engineer-status.py --drift   # only legacy/partial/missing — alignment check
-python3 tools/engineer-fleet/engineer-status.py --json     # machine-readable (for dashboards/cron)
+python3 tools/engineer-fleet/engineer-status.py            # full table — current state (all sites)
+python3 tools/engineer-fleet/engineer-status.py --drift     # only legacy/partial/missing — alignment check
+python3 tools/engineer-fleet/engineer-status.py --json       # machine-readable current state (for dashboards/cron)
+python3 tools/engineer-fleet/engineer-status.py --history 7   # audit the success+fail pulse log over last N days (default 1)
 ```
+
+`--history` reads each site's `ops/logs/engineer-heartbeat-<date>.jsonl` (the
+success+fail record written every tick) and reports ticks, green/work/issue mix,
+CF-down count, last failure, and **cover%** (pulses seen ÷ 48/day expected) — a
+`cover% !` under 70% means the engineer is missing scheduled runs (wedged cron).
+Coverage reads low on a partial first day; it normalizes once full days accrue.
 
 ## What it reads (writes nothing)
 
@@ -25,7 +32,9 @@ python3 tools/engineer-fleet/engineer-status.py --json     # machine-readable (f
 ## Notes
 
 - The **pulse files are the liveness source of truth**, not Slack — a healthy
-  engineer posts to Slack only once/day, so Slack silence is normal. See
+  engineer is **completely silent on Slack** (success = pulse file only). Slack
+  carries failures, escalations, and work-done deploys only. So Slack silence is
+  the normal, healthy state; check health here, not in Slack. See
   `reference_engineer_pulse_monitoring` and `tools/cron-roles/archetypes/engineer/`.
 - A site showing `PULSE=—` simply hasn't fired since its pulse was introduced; it
   fills in within 30 min (cadence `o,o+30 * * * *`).

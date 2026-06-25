@@ -148,8 +148,56 @@ def audit_site(site_dir):
     return r
 
 
+def history(days):
+    """Audit the success+fail pulse logs (ops/logs/engineer-heartbeat-<date>.jsonl)
+    over the last `days` days — uptime coverage, status mix, last failure per site."""
+    EXPECTED_PER_DAY = 48                      # twice-hourly cadence
+    hdr = (f'{"SITE":22} {"TICKS":6} {"green":6} {"work":5} {"issue":5} '
+           f'{"cf✗":4} {"cover%":7} {"LAST FAILURE (status @ utc)"}')
+    print(f"— engineer pulse history, last {days}d (success+fail log) —")
+    print(hdr); print("-" * len(hdr))
+    any_rows = False
+    for d in sorted(p for p in SITES.iterdir() if p.is_dir() and not p.name.startswith("DISABLED-")):
+        logs = sorted((d / "ops" / "logs").glob("engineer-heartbeat-*.jsonl")) if (d / "ops" / "logs").is_dir() else []
+        logs = logs[-days:]
+        if not logs:
+            continue
+        any_rows = True
+        recs = []
+        for lf in logs:
+            for ln in read(lf).splitlines():
+                ln = ln.strip()
+                if not ln:
+                    continue
+                try:
+                    recs.append(json.loads(ln))
+                except Exception:
+                    pass
+        n = len(recs)
+        g = sum(1 for r in recs if r.get("status") == "green")
+        w = sum(1 for r in recs if r.get("status") == "work")
+        i = sum(1 for r in recs if r.get("status") == "issue")
+        cfx = sum(1 for r in recs if r.get("cf_ok") == 0)
+        last_fail = "—"
+        for r in reversed(recs):
+            if r.get("status") != "green" or r.get("cf_ok") == 0:
+                last_fail = f'{r.get("status")}{"/cf-down" if r.get("cf_ok")==0 else ""} @ {r.get("ts","?")}'
+                break
+        cover = int(round(100 * n / (EXPECTED_PER_DAY * len(logs)))) if logs else 0
+        cflag = "!" if cover < 70 else ""        # < 70% coverage → engineer is missing runs (wedged cron?)
+        print(f'{d.name:22} {n:<6} {g:<6} {w:<5} {i:<5} {cfx:<4} {str(cover)+"%"+cflag:7} {last_fail}')
+    if not any_rows:
+        print("(no pulse logs yet — sites populate engineer-heartbeat-<date>.jsonl as they fire)")
+    print("cover% = pulses seen / expected (48/day); '!' < 70% → engineer is missing scheduled runs.")
+
+
 def main():
     args = set(sys.argv[1:])
+    if "--history" in args:
+        # optional integer day count, default 1
+        days = next((int(a) for a in sys.argv[1:] if a.isdigit()), 1)
+        history(days)
+        return
     cron_up = running_cron_containers()
     rows = []
     for d in sorted(p for p in SITES.iterdir() if p.is_dir() and not p.name.startswith("DISABLED-")):

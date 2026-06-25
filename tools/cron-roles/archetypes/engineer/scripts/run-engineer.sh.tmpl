@@ -24,13 +24,9 @@ WORK_TIMEOUT=2400
 # must exceed the worst-case work pass (WORK_TIMEOUT + build/commit/push margin).
 WORK_LOCK_DIR="$REPO_ROOT/ops/.locks/engineer-work.lock.d"
 LOCK_STALE_SECS=3000
-# Green is the common case at 30-min cadence; posting 👍 every fire would spam
-# Slack. So a green sweep NEVER posts per-check — instead every check writes a
-# zero-cost machine-readable PULSE (heartbeat_touch, for monitoring), and the
-# green 👍 goes to Slack at most ONCE PER DAY as a liveness summary.
-# Work / issues / escalations ALWAYS post immediately (handled below).
-HEARTBEAT_FILE="$REPO_ROOT/ops/.locks/engineer-heartbeat.ts"          # gates the DAILY Slack summary only
-HEARTBEAT_THROTTLE_SECS="${ENGINEER_HEARTBEAT_THROTTLE_SECS:-86400}"  # 24h — once-a-day green summary
+# A green/healthy sweep is SILENT on Slack — success only writes a zero-cost
+# machine-readable PULSE (heartbeat_touch). Only failures / work / escalations
+# reach Slack (handled below). Audit health from the pulse via tools/engineer-fleet.
 PULSE_STATUS_FILE="$REPO_ROOT/ops/.locks/engineer-status.json"        # latest machine-readable status (overwritten every check)
 PULSE_LOG="$REPO_ROOT/ops/logs/engineer-heartbeat-$(date -u +%Y-%m-%d).jsonl"  # append-only daily pulse log (14-day pruned)
 
@@ -66,14 +62,6 @@ acquire_work_lock() {
   return 1
 }
 release_work_lock() { [[ "${HAVE_WORK_LOCK:-0}" == "1" ]] && rm -rf "$WORK_LOCK_DIR" 2>/dev/null; return 0; }
-
-heartbeat_due() {
-  local last age
-  last=$(cat "$HEARTBEAT_FILE" 2>/dev/null || echo 0)
-  age=$(( $(date +%s) - ${last:-0} ))
-  [[ "$age" -ge "$HEARTBEAT_THROTTLE_SECS" ]]
-}
-mark_heartbeat() { mkdir -p "$REPO_ROOT/ops/.locks"; date +%s > "$HEARTBEAT_FILE"; }
 
 # heartbeat_touch — the always-on, zero-token liveness PULSE. Called on EVERY
 # check (green, work, issue, deferred) BEFORE any branching, so external
@@ -138,16 +126,11 @@ log "status=$ENGINEER_STATUS — $STATUS_LINE"
 # ---- 2. Liveness pulse (ALWAYS, zero-token) — written every check for monitoring ----
 heartbeat_touch "$ENGINEER_STATUS"
 
-# ---- 2b. Healthy + empty queue → daily Slack summary at most, exit (zero Claude) ----
+# ---- 2b. Healthy + empty queue → pulse only, exit (zero Claude, SILENT on Slack) ----
+# Success posts NOTHING to Slack. The pulse files written above are the success
+# record; audit health via tools/engineer-fleet. Only failures/work/escalations Slack.
 if [[ "$ENGINEER_STATUS" == "green" ]]; then
-  if heartbeat_due; then
-    slack "👍 *{{SITE_SHORT}}* healthy (daily summary) — ${STATUS_LINE}" "good"
-    board_block "👍 **Healthy** (daily summary) — ${STATUS_LINE}"
-    mark_heartbeat
-    log "green — daily Slack summary posted, pulse logged, no Claude turns used"
-  else
-    log "green — pulse logged, Slack summary throttled (<24h since last), no Claude turns used"
-  fi
+  log "green — pulse logged, success is silent (no Slack), no Claude turns used"
   exit 0
 fi
 
