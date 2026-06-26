@@ -11,6 +11,7 @@ const git = require('./git');
 const tasks = require('./tasks');
 const run = require('./run');
 const containers = require('./containers');
+const roles = require('./roles');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -58,6 +59,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Trigger one engineer to run now (same command cron fires, detached).
   app.post('/api/fleet/:slug/run', requireSite, async (req, res) => {
     try { res.json({ ok: true, container: await run.runEngineer(req.params.slug) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  // Roles matrix: site × role status from crontab + disabled flags + logs.
+  app.get('/api/roles', (_req, res) => {
+    try { res.json(roles.matrix(root, discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.get('/api/roles/:slug/:role/log', requireSite, (req, res) => {
+    try { res.json(roles.roleLog(root, req.params.slug, req.params.role, req.query.tail)); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 

@@ -354,6 +354,86 @@ async function gitPush(slug, box, btn) {
   } catch (e) { toast(`push failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
+/* ===================== ROLES ===================== */
+function fmtAge(secs) {
+  if (secs == null) return '';
+  const s = Math.round(secs);
+  return s < 90 ? `${s}s` : s < 5400 ? `${Math.floor(s / 60)}m` : s < 172800 ? `${Math.floor(s / 3600)}h` : `${Math.floor(s / 86400)}d`;
+}
+const STATE_RANK = { overdue: 3, stale: 2, never: 1, fresh: 0, paused: -1 };
+
+async function renderRoles() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Reading role status…</div>';
+  let data;
+  try { data = await api('GET', '/api/roles'); }
+  catch (e) { app.innerHTML = `<div class="empty">Roles read failed: ${esc(e.message)}</div>`; return; }
+  const sites = data.sites;
+
+  // Columns = roles scheduled on ≥2 sites (common roles); per-site singletons
+  // (e.g. a site's bespoke writers) collapse into a trailing "other" cell.
+  const count = {};
+  sites.forEach((s) => Object.keys(s.cells).forEach((r) => { count[r] = (count[r] || 0) + 1; }));
+  const core = data.roles.filter((r) => count[r] >= 2);
+  const coreSet = new Set(core);
+
+  const tally = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
+  sites.forEach((s) => Object.values(s.cells).forEach((c) => { tally[c.state]++; }));
+
+  const head = '<th class="rsite-h">Site</th>'
+    + core.map((r) => `<th class="rcol">${esc(r)}</th>`).join('')
+    + '<th class="rcol">other</th>';
+
+  const body = sites.map((s) => {
+    const cells = core.map((r) => {
+      const c = s.cells[r];
+      return `<td class="rcell">${c ? roleDot(s.site, r, c) : '<span class="rdot r-none">·</span>'}</td>`;
+    }).join('');
+    const others = Object.keys(s.cells).filter((r) => !coreSet.has(r));
+    let otherCell = '<td class="rcell"><span class="rdot r-none">·</span></td>';
+    if (others.length) {
+      const worst = others.reduce((a, r) => STATE_RANK[s.cells[r].state] > STATE_RANK[a] ? s.cells[r].state : a, 'paused');
+      const tip = others.map((r) => `${r}: ${s.cells[r].state}${s.cells[r].age != null ? ` (${fmtAge(s.cells[r].age)})` : ''}`).join('\n');
+      otherCell = `<td class="rcell"><span class="rcount r-${worst}" title="${esc(tip)}">${others.length}</span></td>`;
+    }
+    return `<tr><td class="rsite">${esc(s.site)}</td>${cells}${otherCell}</tr>`;
+  }).join('');
+
+  const lg = (st, txt) => `<span class="rdot r-${st}"></span> ${txt}`;
+  app.innerHTML = `
+    <div class="task-toolbar">
+      <strong>${sites.length} sites · ${core.length} common roles</strong>
+      <span class="muted">${lg('fresh', tally.fresh + ' fresh')} · ${lg('stale', tally.stale + ' stale')} · ${lg('overdue', tally.overdue + ' overdue')} · ${lg('paused', tally.paused + ' paused')} · ${lg('never', tally.never + ' no-log')}</span>
+    </div>
+    <div class="card rmatrix-card"><table class="rmatrix">
+      <thead><tr>${head}</tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a cell for its latest log. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
+
+  $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRoleLog(d.dataset.site, d.dataset.role)));
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+const STATE_LABEL = { fresh: 'fresh', stale: 'overdue', overdue: 'well overdue', paused: 'paused', never: 'no log found' };
+function roleDot(site, role, c) {
+  const tip = `${role} — ${STATE_LABEL[c.state] || c.state}${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''} · sched ${c.schedule}`;
+  return `<span class="rdot r-${c.state}" data-site="${esc(site)}" data-role="${esc(role)}" title="${esc(tip)}"></span>`;
+}
+
+async function openRoleLog(site, role) {
+  const title = $('#modal-title'), body = $('#modal-body');
+  title.textContent = `${site} · ${role}`;
+  body.innerHTML = '<div class="loading">loading latest log…</div>';
+  $('#modal').classList.remove('hidden');
+  try {
+    const r = await api('GET', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/log?tail=400`);
+    body.innerHTML = `<div class="section-title">${r.file ? esc(r.file) : 'no log file found'}</div><pre class="cn-logs-box">${esc(r.log)}</pre>`;
+    const pre = $('#modal-body .cn-logs-box'); if (pre) pre.scrollTop = pre.scrollHeight;
+  } catch (e) { body.innerHTML = `<div class="flag">${esc(e.message)}</div>`; }
+}
+
 /* ===================== CONTAINERS ===================== */
 async function renderContainers() {
   const app = $('#app');
@@ -769,7 +849,7 @@ async function deleteTask(site, column, file) {
 function closeModal() { $('#modal').classList.add('hidden'); }
 
 /* ===================== SHELL ===================== */
-const VIEWS = ['fleet', 'containers', 'git', 'tasks'];
+const VIEWS = ['fleet', 'roles', 'containers', 'git', 'tasks'];
 
 // FRESH = true → a navigation/first paint: show loading placeholders.
 // FRESH = false → an in-place soft refresh: no loading flash, and each view
@@ -800,6 +880,7 @@ function applyUISnap() {
 function render() {
   $$('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === STATE.view));
   if (STATE.view === 'fleet') renderEngineers();
+  else if (STATE.view === 'roles') renderRoles();
   else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
   else if (STATE.view === 'tasks') renderTasks();
