@@ -56,6 +56,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(500).json({ error: e.message }); }
   });
 
+  // Safe write ops: commit selected paths, ignore (gitignore+commit), push.
+  app.post('/api/git/:slug/commit', requireSite, async (req, res) => {
+    try { res.json(await git.commit(root, req.params.slug, (req.body || {}).paths, (req.body || {}).message)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/git/:slug/ignore', requireSite, async (req, res) => {
+    try { res.json(await git.ignore(root, req.params.slug, (req.body || {}).path)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/git/:slug/push', requireSite, async (req, res) => {
+    try { res.json(await git.push(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
   // Tasks CRUD ------------------------------------------------------------
   // Cross-fleet aggregate (every site's tasks, flat) — the integrated
   // successor to site-tracker's /tasks page. Client does facet/filter/group.

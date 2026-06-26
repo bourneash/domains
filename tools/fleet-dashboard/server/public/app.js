@@ -208,8 +208,16 @@ async function renderGit() {
 
   $$('.git-row').forEach((tr) => tr.addEventListener('click', () => toggleGitDetail(tr.dataset.slug)));
   if (!FRESH) applyUISnap();
+  // applyUISnap re-injects the saved innerHTML of any expanded detail but not its
+  // event listeners — re-wire the live ops for every still-open detail panel.
+  $$('.git-detail-row:not(.hidden)').forEach((r) => {
+    const box = $(`#gd-${CSS.escape(r.dataset.detail)}`);
+    if (box && box.querySelector('.gd-files, .gd-push')) wireGitOps(r.dataset.detail, box);
+  });
   stamp();
 }
+
+const gitCls = (k) => k === 'untracked' ? 'unt' : k.includes('staged') ? 'stg' : k === 'deleted' || k === 'D' ? 'del' : 'mod';
 
 async function toggleGitDetail(slug) {
   const row = $(`tr[data-detail="${CSS.escape(slug)}"]`);
@@ -217,13 +225,113 @@ async function toggleGitDetail(slug) {
   if (!row.classList.contains('hidden')) { row.classList.add('hidden'); return; }
   row.classList.remove('hidden');
   box.innerHTML = '<span class="muted">loading…</span>';
+  await fillGitDetail(slug, box);
+}
+
+async function fillGitDetail(slug, box) {
+  let s;
+  try { s = await api('GET', `/api/git/${encodeURIComponent(slug)}`); }
+  catch (e) { box.innerHTML = `<span class="flag">${esc(e.message)}</span>`; return; }
+  renderGitDetail(slug, box, s);
+}
+
+function renderGitDetail(slug, box, s) {
+  const lc = s.lastCommit
+    ? `<span class="gd-last muted">last commit <span class="mono">${esc(s.lastCommit.hash)}</span> · ${esc(s.lastCommit.subject)} · ${esc(s.lastCommit.when)}</span>`
+    : '';
+  const pushBtn = `<button type="button" class="btn sm gd-push"${s.ahead ? '' : ' disabled title="nothing to push"'}>⇧ Push${s.ahead ? ` ${s.ahead}` : ''}</button>`;
+
+  if (!s.files.length) {
+    box.innerHTML = `<div class="gd-head">${lc}</div>
+      <div class="muted gd-clean">working tree clean${s.behind ? ` · ${s.behind} behind` : ''}</div>
+      <div class="gd-commit">${pushBtn}</div><div class="gd-result"></div>`;
+    wireGitOps(slug, box);
+    return;
+  }
+
+  const fileRows = s.files.map((f) => `<label class="gd-file">
+      <input type="checkbox" class="gd-sel" value="${esc(f.path)}" checked />
+      <span class="code chip ${gitCls(f.kind)}" title="${esc(f.kind)}">${esc(f.code)}</span>
+      <span class="gd-path" title="${esc(f.kind)}">${esc(f.path)}</span>
+      <button type="button" class="gd-ignore" data-path="${esc(f.path)}" title="Add to .gitignore and commit the .gitignore">ignore</button>
+    </label>`).join('');
+
+  const meta = [`${s.files.length} changed`, s.staged ? `${s.staged} staged` : '', s.untracked ? `${s.untracked} untracked` : '',
+    s.ahead ? `${s.ahead} to push` : '', s.behind ? `${s.behind} behind` : ''].filter(Boolean).join(' · ');
+
+  box.innerHTML = `
+    <div class="gd-head"><span class="section-title" style="margin:0">${esc(meta)}</span>${lc}</div>
+    <div class="gd-controls"><a class="gd-all" data-v="1">select all</a><a class="gd-all" data-v="0">none</a></div>
+    <div class="gd-files">${fileRows}</div>
+    <div class="gd-commit">
+      <input class="gd-msg" placeholder="commit message for the selected files…" />
+      <button type="button" class="btn sm primary gd-commit-btn">Commit selected</button>
+      ${pushBtn}
+    </div>
+    <div class="gd-result"></div>`;
+  wireGitOps(slug, box);
+}
+
+function wireGitOps(slug, box) {
+  $$('.gd-all', box).forEach((a) => a.addEventListener('click', () => $$('.gd-sel', box).forEach((c) => { c.checked = a.dataset.v === '1'; })));
+  $$('.gd-ignore', box).forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); gitIgnore(slug, box, b.dataset.path, b); }));
+  const cb = $('.gd-commit-btn', box); if (cb) cb.addEventListener('click', () => gitCommit(slug, box, cb));
+  const pb = $('.gd-push', box); if (pb) pb.addEventListener('click', () => gitPush(slug, box, pb));
+}
+
+function gdBusy(btn, on) {
+  if (!btn) return;
+  if (on) { btn._orig = btn.textContent; btn.disabled = true; btn.textContent = '…'; }
+  else { btn.disabled = false; if (btn._orig) btn.textContent = btn._orig; }
+}
+
+async function refreshGitAfterOp(slug, box) {
+  let s; try { s = await api('GET', `/api/git/${encodeURIComponent(slug)}`); } catch { return; }
+  renderGitDetail(slug, box, s);
+  const row = $(`tr.git-row[data-slug="${CSS.escape(slug)}"]`);
+  if (!row) return;
+  const tds = row.querySelectorAll('td');
+  if (tds[1]) tds[1].innerHTML = `<span class="mono">${esc(s.branch || '—')}</span>`;
+  if (tds[2]) tds[2].innerHTML = s.dirty > 0 ? `<span class="badge b-yellow">${s.dirty} uncommitted</span>` : '<span class="badge b-green">clean</span>';
+  if (tds[3]) {
+    const sync = [];
+    if (s.ahead) sync.push(`<span class="badge b-blue">↑${s.ahead}</span>`);
+    if (s.behind) sync.push(`<span class="badge b-red">↓${s.behind}</span>`);
+    if (!s.ahead && !s.behind) sync.push('<span class="muted">synced</span>');
+    tds[3].innerHTML = sync.join(' ');
+  }
+}
+
+async function gitCommit(slug, box, btn) {
+  const paths = $$('.gd-sel', box).filter((c) => c.checked).map((c) => c.value);
+  const msg = ($('.gd-msg', box) || {}).value ? $('.gd-msg', box).value.trim() : '';
+  if (!paths.length) { toast('Select at least one file to commit', 'err'); return; }
+  if (!msg) { toast('Enter a commit message', 'err'); return; }
+  gdBusy(btn, true);
   try {
-    const s = await api('GET', `/api/git/${encodeURIComponent(slug)}`);
-    if (!s.files.length) { box.innerHTML = '<span class="muted">working tree clean</span>'; return; }
-    const cls = (k) => k === 'untracked' ? 'unt' : k.includes('staged') ? 'stg' : k === 'modified' ? 'mod' : 'mod';
-    box.innerHTML = `<div class="section-title">${s.files.length} changed file(s)${s.ahead ? ` · ${s.ahead} commit(s) to push` : ''}</div>
-      <div class="files">${s.files.map((f) => `<div class="filerow"><span class="code chip ${cls(f.kind)}">${esc(f.code)}</span><span>${esc(f.path)}</span></div>`).join('')}</div>`;
-  } catch (e) { box.innerHTML = `<span class="flag">${esc(e.message)}</span>`; }
+    await api('POST', `/api/git/${encodeURIComponent(slug)}/commit`, { paths, message: msg });
+    toast(`Committed ${paths.length} file(s) on ${slug}`);
+    await refreshGitAfterOp(slug, box);
+  } catch (e) { toast(`commit failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+async function gitIgnore(slug, box, p, btn) {
+  if (!confirm(`Add "${p}" to ${slug}'s .gitignore and commit the .gitignore?\n\nIf the file is currently tracked it will also be removed from the index (git rm --cached) in the same commit.`)) return;
+  gdBusy(btn, true);
+  try {
+    const r = await api('POST', `/api/git/${encodeURIComponent(slug)}/ignore`, { path: p });
+    toast(r.noop ? `${p} already ignored` : `Ignored ${p}${r.tracked ? ' (untracked + committed)' : ''}`);
+    await refreshGitAfterOp(slug, box);
+  } catch (e) { toast(`ignore failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+async function gitPush(slug, box, btn) {
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/git/${encodeURIComponent(slug)}/push`);
+    toast(`Pushed ${slug}`);
+    await refreshGitAfterOp(slug, box);
+  } catch (e) { toast(`push failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
 /* ===================== TASKS ===================== */
@@ -627,6 +735,8 @@ function scheduleAuto() {
 function refreshTick() {
   if (document.hidden) return;                                          // tab not visible
   if (!$('#modal').classList.contains('hidden')) return;                // editing a task
+  const ae = document.activeElement;                                    // mid-typing (e.g. commit msg)
+  if (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
   softRender();
 }
 

@@ -128,6 +128,26 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .chip.stg { color: var(--green); }
 .chip.del { color: var(--red); }
 
+/* ---- git detail ops ---- */
+.gd-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 8px; }
+.gd-last { font-size: 11.5px; }
+.gd-clean { padding: 6px 0 10px; font-size: 12.5px; }
+.gd-controls { display: flex; gap: 12px; margin-bottom: 4px; }
+.gd-controls a { color: var(--accent); font-size: 11.5px; cursor: pointer; }
+.gd-files { max-height: 300px; overflow: auto; margin: 4px 0 10px; border: 1px solid var(--border); border-radius: 8px; }
+.gd-file { display: flex; align-items: center; gap: 8px; padding: 4px 10px; font-family: var(--mono); font-size: 12.5px; cursor: pointer; border-bottom: 1px solid var(--border); }
+.gd-file:last-child { border-bottom: none; }
+.gd-file:hover { background: var(--panel); }
+.gd-file .code { width: 26px; flex-shrink: 0; }
+.gd-file .gd-path { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gd-sel { accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+.gd-ignore { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; padding: 1px 8px; font-size: 11px; cursor: pointer; flex-shrink: 0; }
+.gd-ignore:hover { border-color: var(--yellow); color: var(--yellow); }
+.gd-commit { display: flex; gap: 8px; align-items: center; }
+.gd-msg { flex: 1; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; }
+.gd-msg:focus { outline: none; border-color: var(--accent); }
+.gd-result { font-size: 11.5px; color: var(--muted); margin-top: 8px; white-space: pre-wrap; font-family: var(--mono); }
+
 /* ---- tasks ---- */
 .task-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 select, input, textarea {
