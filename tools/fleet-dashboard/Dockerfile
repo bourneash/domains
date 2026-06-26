@@ -4,7 +4,7 @@
 # repo is bind-mounted at the same absolute path as the host (see compose).
 FROM node:22-alpine
 
-RUN apk add --no-cache python3 git docker-cli bash
+RUN apk add --no-cache python3 git docker-cli docker-cli-compose bash
 
 # The container runs as root but the bind-mounted repos are owned by the host
 # user (uid 1000), so git refuses with "detected dubious ownership". Mark the

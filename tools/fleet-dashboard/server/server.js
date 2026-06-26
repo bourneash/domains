@@ -10,6 +10,7 @@ const audit = require('./audit');
 const git = require('./git');
 const tasks = require('./tasks');
 const run = require('./run');
+const containers = require('./containers');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -57,6 +58,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Trigger one engineer to run now (same command cron fires, detached).
   app.post('/api/fleet/:slug/run', requireSite, async (req, res) => {
     try { res.json({ ok: true, container: await run.runEngineer(req.params.slug) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  // Containers: list domains-repo containers, lifecycle actions, logs, bounce.
+  app.get('/api/containers', async (_req, res) => {
+    try { res.json(await containers.list(root)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/containers/:id/:action', async (req, res) => {
+    try { res.json(await containers.action(root, req.params.id, req.params.action)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.get('/api/containers/:id/logs', async (req, res) => {
+    try { res.json(await containers.logs(root, req.params.id, req.query.tail)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/sites/:slug/bounce', requireSite, async (req, res) => {
+    try { res.json(await containers.bounce(root, req.params.slug)); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 

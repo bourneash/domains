@@ -354,6 +354,104 @@ async function gitPush(slug, box, btn) {
   } catch (e) { toast(`push failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
+/* ===================== CONTAINERS ===================== */
+async function renderContainers() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Listing containers…</div>';
+  let rows;
+  try { rows = await api('GET', '/api/containers'); }
+  catch (e) { app.innerHTML = `<div class="empty">Container list failed: ${esc(e.message)}</div>`; return; }
+
+  const cron = rows.filter((r) => r.kind === 'cron');
+  const cronUp = cron.filter((r) => r.running).length;
+  const workers = rows.filter((r) => r.kind === 'worker').length;
+  const attention = rows.filter((r) => r.unhealthy || (r.kind === 'cron' && !r.running)).length;
+
+  const body = rows.map((r) => {
+    const label = r.kind === 'cron' ? 'cron' : r.kind === 'worker' ? 'worker run' : (r.service || r.kind);
+    const svc = `<span class="badge ${r.kind === 'cron' ? 'b-blue' : r.kind === 'worker' ? 'b-purple' : 'b-gray'}">${esc(label)}</span>`;
+    const acts = [`<button class="btn sm cn-logs" data-id="${esc(r.id)}">📜 Logs</button>`];
+    if (r.running) acts.push(`<button class="btn sm cn-act" data-id="${esc(r.id)}" data-act="restart" data-name="${esc(r.name)}">↻ Restart</button>`);
+    else acts.push(`<button class="btn sm cn-act" data-id="${esc(r.id)}" data-act="start" data-name="${esc(r.name)}">▶ Start</button>`);
+    if (r.kind === 'cron') acts.push(`<button class="btn sm cn-bounce" data-slug="${esc(r.slug)}" data-name="${esc(r.name)}" title="Rebuild image + recreate (Dockerfile/dependency changes)">⟳ Rebuild</button>`);
+    if (r.running) acts.push(`<button class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}">⏹ Stop</button>`);
+    return `<tr class="cn-row">
+      <td class="mono">${esc(r.name)}</td>
+      <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
+      <td>${svc}</td>
+      <td>${containerStatus(r)}</td>
+      <td class="mono muted">${esc(r.running ? r.runningFor : '—')}</td>
+      <td class="cn-actions">${acts.join(' ')}</td>
+    </tr>
+    <tr class="cn-detail-row hidden" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6"><pre class="cn-logs-box" id="cl-${esc(r.id)}" data-rkh="cn:${esc(r.id)}"></pre></td></tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="task-toolbar">
+      <strong>${rows.length} containers</strong>
+      <span class="muted">${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight${attention ? ` · <span class="flag">${attention} need attention</span>` : ''}</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="6" class="muted">No domains containers running.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px"><b>Restart</b> = quick bounce (re-runs the container; picks up bind-mounted crontab / role-flag changes). <b>Rebuild</b> = rebuild image + force-recreate (for Dockerfile / dependency changes). All actions are guard-railed to containers inside the domains repo.</p>`;
+
+  wireContainerRows();
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+function containerStatus(r) {
+  if (!r.running) return '<span class="badge b-red">stopped</span>';
+  if (r.unhealthy) return '<span class="badge b-red">unhealthy</span>';
+  if (r.healthy) return '<span class="badge b-green">healthy</span>';
+  return '<span class="badge b-green">running</span>';
+}
+
+function wireContainerRows() {
+  $$('.cn-logs').forEach((b) => b.addEventListener('click', () => toggleContainerLogs(b.dataset.id)));
+  $$('.cn-act').forEach((b) => b.addEventListener('click', () => containerAction(b.dataset.id, b.dataset.act, b.dataset.name, b)));
+  $$('.cn-bounce').forEach((b) => b.addEventListener('click', () => bounceCron(b.dataset.slug, b.dataset.name, b)));
+}
+
+async function toggleContainerLogs(id) {
+  const row = $(`tr[data-detail="${CSS.escape(id)}"]`);
+  const box = $(`#cl-${CSS.escape(id)}`);
+  if (!row.classList.contains('hidden')) { row.classList.add('hidden'); return; }
+  row.classList.remove('hidden');
+  box.textContent = 'loading logs…';
+  try {
+    const r = await api('GET', `/api/containers/${encodeURIComponent(id)}/logs?tail=300`);
+    box.textContent = r.logs;
+    box.scrollTop = box.scrollHeight;
+  } catch (e) { box.textContent = `error: ${e.message}`; }
+}
+
+// Re-render the containers view in place (preserving open log panels + scroll).
+function reloadContainers() { FRESH = false; UISNAP = captureUI(); return renderContainers(); }
+
+async function containerAction(id, act, name, btn) {
+  if (act === 'stop' && !confirm(`Stop ${name}? That pauses everything this container runs.`)) return;
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/containers/${encodeURIComponent(id)}/${act}`);
+    toast(`${act === 'restart' ? 'Restarted' : act === 'stop' ? 'Stopped' : 'Started'} ${name}`);
+    await reloadContainers();
+  } catch (e) { toast(`${act} failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+async function bounceCron(slug, name, btn) {
+  if (!confirm(`Rebuild and recreate the cron container for ${slug}?\n\nThis rebuilds the image (can take a minute or two) then force-recreates the container.`)) return;
+  gdBusy(btn, true);
+  toast(`Rebuilding ${slug} cron — this can take a minute…`);
+  try {
+    await api('POST', `/api/sites/${encodeURIComponent(slug)}/bounce`);
+    toast(`Rebuilt + recreated ${name}`);
+    await reloadContainers();
+  } catch (e) { toast(`rebuild failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
 /* ===================== TASKS ===================== */
 const COLS = ['backlog', 'in-progress', 'done', 'hold'];
 const COL_LABEL = { 'backlog': 'Backlog', 'in-progress': 'In Progress', 'done': 'Done', 'hold': 'Hold' };
@@ -671,7 +769,7 @@ async function deleteTask(site, column, file) {
 function closeModal() { $('#modal').classList.add('hidden'); }
 
 /* ===================== SHELL ===================== */
-const VIEWS = ['fleet', 'git', 'tasks'];
+const VIEWS = ['fleet', 'containers', 'git', 'tasks'];
 
 // FRESH = true → a navigation/first paint: show loading placeholders.
 // FRESH = false → an in-place soft refresh: no loading flash, and each view
@@ -702,6 +800,7 @@ function applyUISnap() {
 function render() {
   $$('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === STATE.view));
   if (STATE.view === 'fleet') renderEngineers();
+  else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
   else if (STATE.view === 'tasks') renderTasks();
 }
