@@ -101,7 +101,21 @@ function matrix(root, slugs) {
       if (cells[role]) continue;                       // first schedule wins on dupes
       const enabled = !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
       const last = lastRun(cwd, role);
-      const { state, age } = cellState(enabled, last, schedule, now);
+      let { state, age } = cellState(enabled, last, schedule, now);
+      // Deployers are event-gated: the cron only fires when a `.deploy-needed`
+      // flag is present (dropped by engineers/writers on a real commit), and a
+      // log is written only on those runs. So cadence-freshness mislabels quiet
+      // sites as "overdue". Color by the deploy queue instead — idle when
+      // nothing's queued (healthy), red only when a requested deploy is stuck.
+      if (role === 'deployer' && enabled) {
+        let pendingMt = 0;
+        try { pendingMt = fs.statSync(path.join(cwd, '.deploy-needed')).mtimeMs; } catch { /* none */ }
+        if (!pendingMt) { state = 'idle'; age = last ? (now - last) / 1000 : null; }
+        else if (!last || last < pendingMt) {
+          age = (now - pendingMt) / 1000;
+          state = age <= THRESH.frequent ? 'stale' : 'overdue';   // queued but unserviced
+        }
+      }
       cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state, worker };
       freq[role] = (freq[role] || 0) + 1;
     }

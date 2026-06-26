@@ -370,7 +370,7 @@ function fmtAge(secs) {
   const s = Math.round(secs);
   return s < 90 ? `${s}s` : s < 5400 ? `${Math.floor(s / 60)}m` : s < 172800 ? `${Math.floor(s / 3600)}h` : `${Math.floor(s / 86400)}d`;
 }
-const STATE_RANK = { overdue: 3, stale: 2, never: 1, fresh: 0, paused: -1 };
+const STATE_RANK = { overdue: 3, stale: 2, never: 1, fresh: 0, idle: -1, paused: -1 };
 let ROLEMATRIX = null;
 let ROLE_OPEN = null;   // {site, role} while the role-log modal is open (for live-follow)
 
@@ -410,7 +410,7 @@ async function renderControl() {
   const core = data.roles.filter((r) => count[r] >= 2);
   const coreSet = new Set(core);
 
-  const tally = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
+  const tally = { fresh: 0, stale: 0, overdue: 0, idle: 0, paused: 0, never: 0 };
   sites.forEach((s) => Object.values(s.cells).forEach((c) => { tally[c.state]++; }));
 
   const agentSet = new Set((STATE.agents || []).map((a) => a.role));
@@ -440,13 +440,13 @@ async function renderControl() {
     <div class="page-head"><h2 class="page-title">Domain Control</h2><span class="muted">fleet roles across ${sites.length} sites · column headers open an agent page</span></div>
     <div class="task-toolbar">
       <strong>${core.length} common roles</strong>
-      <span class="muted">${lg('fresh', tally.fresh + ' fresh')} · ${lg('stale', tally.stale + ' stale')} · ${lg('overdue', tally.overdue + ' overdue')} · ${lg('paused', tally.paused + ' paused')} · ${lg('never', tally.never + ' no-log')}</span>
+      <span class="muted">${lg('fresh', tally.fresh + ' fresh')} · ${lg('stale', tally.stale + ' stale')} · ${lg('overdue', tally.overdue + ' overdue')} · ${lg('idle', tally.idle + ' idle')} · ${lg('paused', tally.paused + ' paused')} · ${lg('never', tally.never + ' no-log')}</span>
     </div>
     <div class="card rmatrix-card"><table class="rmatrix">
       <thead><tr>${head}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
+    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('idle', 'event-gated, nothing queued')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
 
   $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role)));
   $$('.rcol-link').forEach((a) => a.addEventListener('click', () => go('agent', a.dataset.role)));
@@ -454,7 +454,7 @@ async function renderControl() {
   stamp();
 }
 
-const STATE_LABEL = { fresh: 'fresh', stale: 'overdue', overdue: 'well overdue', paused: 'paused', never: 'no log found' };
+const STATE_LABEL = { fresh: 'fresh', stale: 'overdue', overdue: 'well overdue', idle: 'idle · nothing queued', paused: 'paused', never: 'no log found' };
 function roleDot(site, role, c) {
   const tip = `${role} — ${STATE_LABEL[c.state] || c.state}${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''} · sched ${c.schedule}`;
   return `<span class="rdot r-${c.state}" data-site="${esc(site)}" data-role="${esc(role)}" title="${esc(tip)}"></span>`;
