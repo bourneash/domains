@@ -2,6 +2,8 @@
 
 const express = require('express');
 const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
 
 const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
@@ -25,6 +27,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!isKnownSite(root, req.params.slug)) return res.status(404).json({ error: 'unknown site' });
     next();
   }
+
+  // A fingerprint of the served front-end assets. The SPA polls this and
+  // self-updates when it changes, so a tab left open across a deploy doesn't
+  // keep running stale JS.
+  function assetVersion() {
+    const h = crypto.createHash('sha1');
+    for (const f of ['index.html', 'app.js', 'style.css']) {
+      try { const st = fs.statSync(path.join(__dirname, 'public', f)); h.update(`${f}:${st.mtimeMs}:${st.size};`); }
+      catch { /* ignore a missing asset */ }
+    }
+    return h.digest('hex').slice(0, 12);
+  }
+  app.get('/api/version', (_req, res) => res.json({ version: assetVersion() }));
 
   app.get('/api/sites', (_req, res) => res.json(discoverSites(root)));
 

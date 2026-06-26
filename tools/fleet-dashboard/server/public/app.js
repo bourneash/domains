@@ -740,6 +740,20 @@ function refreshTick() {
   softRender();
 }
 
+/* ---- self-update: detect a new front-end build and reload cleanly ---- */
+let BOOT_VERSION = null;
+async function checkVersion() {
+  let v; try { v = (await api('GET', '/api/version')).version; } catch { return; }
+  if (!BOOT_VERSION) { BOOT_VERSION = v; return; }                      // first call: record baseline
+  if (v === BOOT_VERSION) return;
+  // A new build is being served. Reload when it won't interrupt anything;
+  // otherwise surface a pill so the user reloads when ready.
+  const ae = document.activeElement;
+  const busy = !$('#modal').classList.contains('hidden') || (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName));
+  if (document.hidden || !busy) location.reload();
+  else $('#update-pill').classList.remove('hidden');
+}
+
 async function boot() {
   try { STATE.sites = await api('GET', '/api/sites'); } catch { STATE.sites = []; }
   const fromHash = (location.hash || '').replace('#', '');
@@ -750,8 +764,11 @@ async function boot() {
   $('#auto-int').addEventListener('change', (e) => { localStorage.setItem('fd.interval', e.target.value); scheduleAuto(); });
   $('#modal-close').addEventListener('click', closeModal);
   $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+  $('#update-pill').addEventListener('click', () => location.reload());
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { refreshTick(); scheduleAuto(); } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); refreshTick(); scheduleAuto(); } });
+  checkVersion();
+  setInterval(checkVersion, 60000);
   window.addEventListener('hashchange', () => {
     const v = (location.hash || '').replace('#', '');
     if (VIEWS.includes(v) && v !== STATE.view) { STATE.view = v; FRESH = true; render(); }
