@@ -1086,6 +1086,7 @@ function applyUISnap() {
 function render() {
   $$('.tab[data-view]').forEach((t) => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn'); if (ddBtn) ddBtn.classList.toggle('active', STATE.view === 'agent');
+  document.body.dataset.view = STATE.view;   // lets CSS widen specific views
   syncAgentsMenuActive();
   if (STATE.view === 'control') renderControl();
   else if (STATE.view === 'agent') renderAgent(STATE.agent);

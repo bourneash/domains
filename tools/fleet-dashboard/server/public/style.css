@@ -93,6 +93,9 @@ body:not(.auto-on) .auto-int { opacity: .45; }
 body:not(.auto-on) .auto-label { color: var(--muted); }
 
 main { padding: 20px; max-width: 1280px; margin: 0 auto; }
+/* Domain Control's matrix is wide — let it use the full viewport so the role
+   columns fit without horizontal scrolling. */
+body[data-view="control"] main { max-width: none; }
 .muted { color: var(--muted); font-size: 12.5px; }
 .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
 .icon-btn:hover { color: #fff; }
