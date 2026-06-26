@@ -13,8 +13,11 @@
       <h1>Fleet Dashboard</h1>
     </div>
     <nav class="tabs">
-      <button class="tab active" data-view="fleet">Engineers</button>
-      <button class="tab" data-view="roles">Roles</button>
+      <button class="tab" data-view="control">Domain Control</button>
+      <div class="tab-dd" id="agents-dd">
+        <button class="tab tab-dd-btn" id="agents-btn">Agents ▾</button>
+        <div class="dd-menu hidden" id="agents-menu"></div>
+      </div>
       <button class="tab" data-view="containers">Containers</button>
       <button class="tab" data-view="git">Git</button>
       <button class="tab" data-view="tasks">Tasks</button>

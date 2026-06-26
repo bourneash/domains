@@ -143,4 +143,21 @@ function setEnabled(root, slug, role, enabled) {
   return { ok: true, role: r, enabled };
 }
 
-module.exports = { matrix, roleLog, setEnabled, parseRoles, cadenceClass };
+// Lightweight agent list for the nav dropdown: roles scheduled on ≥2 sites,
+// engineer first, then by frequency. Only parses crontabs (no log scans), so
+// it's cheap to call on every nav render. New roles appear automatically.
+function agents(root, slugs) {
+  const freq = {};
+  for (const slug of slugs) {
+    const seen = new Set();
+    for (const { role } of parseRoles(readFirst(siteDir(root, slug), CRONTABS))) {
+      if (!seen.has(role)) { seen.add(role); freq[role] = (freq[role] || 0) + 1; }
+    }
+  }
+  return Object.keys(freq)
+    .filter((r) => freq[r] >= 2)
+    .sort((a, b) => (a === 'engineer' ? -1 : b === 'engineer' ? 1 : 0) || freq[b] - freq[a] || a.localeCompare(b))
+    .map((r) => ({ role: r, sites: freq[r] }));
+}
+
+module.exports = { matrix, roleLog, setEnabled, agents, parseRoles, cadenceClass };

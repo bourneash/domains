@@ -62,6 +62,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
+  // Agent list for the nav dropdown (roles on ≥2 sites, engineer first).
+  app.get('/api/agents', (_req, res) => {
+    try { res.json(roles.agents(root, discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
   // Roles matrix: site × role status from crontab + disabled flags + logs.
   app.get('/api/roles', (_req, res) => {
     try { res.json(roles.matrix(root, discoverSites(root))); }

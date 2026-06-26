@@ -4,7 +4,9 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-let STATE = { view: 'fleet', sites: [], taskSite: null };
+let STATE = { view: 'control', agent: null, sites: [], agents: [], taskSite: null };
+
+function agentLabel(role) { return String(role).split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
 
 async function api(method, url, body) {
   const opt = { method, headers: {} };
@@ -134,6 +136,8 @@ async function renderEngineers() {
     `<th class="th-help" title="${esc(name)} — ${esc(tip)}">${esc(label)}</th>`).join('');
 
   app.innerHTML = `
+    ${breadcrumb('engineer')}
+    <div class="page-head"><h2 class="page-title">Engineer</h2><span class="muted">${eng.length} sites run this agent — live pulse, render, Cloudflare, queue</span></div>
     <div class="task-toolbar">
       <strong>${eng.length} engineers</strong>
       <span class="muted">${esc(summary)}</span>
@@ -163,6 +167,7 @@ async function renderEngineers() {
   $('#fleet-help-link').addEventListener('click', () => { helpBox.classList.remove('hidden'); helpBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
   $$('.run-eng').forEach((b) => b.addEventListener('click', () => runEngineerNow(b.dataset.site, b)));
   $$('.tasks-link').forEach((b) => b.addEventListener('click', () => openSiteTasks(b.dataset.site)));
+  wireCrumbs();
   if (!FRESH) applyUISnap();
   stamp();
 }
@@ -375,10 +380,16 @@ function logFollowTick() {
       if (box) fetchContainerLog(r.dataset.detail, box);
     });
   }
+  if (STATE.view === 'agent' && STATE.agent && STATE.agent !== 'engineer') {
+    $$('.ag-detail-row:not(.hidden)').forEach((r) => {
+      const box = $(`#al-${CSS.escape(r.dataset.detail)}`);
+      if (box) fetchAgentLog(r.dataset.detail, STATE.agent, box);
+    });
+  }
   if (ROLE_OPEN && !$('#modal').classList.contains('hidden')) fetchRoleLog(ROLE_OPEN.site, ROLE_OPEN.role);
 }
 
-async function renderRoles() {
+async function renderControl() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Reading role status…</div>';
   let data;
@@ -397,8 +408,11 @@ async function renderRoles() {
   const tally = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
   sites.forEach((s) => Object.values(s.cells).forEach((c) => { tally[c.state]++; }));
 
+  const agentSet = new Set((STATE.agents || []).map((a) => a.role));
   const head = '<th class="rsite-h">Site</th>'
-    + core.map((r) => `<th class="rcol">${esc(r)}</th>`).join('')
+    + core.map((r) => agentSet.has(r)
+      ? `<th class="rcol"><a class="rcol-link" data-role="${esc(r)}" title="Open the ${esc(agentLabel(r))} agent page">${esc(r)} →</a></th>`
+      : `<th class="rcol">${esc(r)}</th>`).join('')
     + '<th class="rcol">other</th>';
 
   const body = sites.map((s) => {
@@ -418,17 +432,19 @@ async function renderRoles() {
 
   const lg = (st, txt) => `<span class="rdot r-${st}"></span> ${txt}`;
   app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Domain Control</h2><span class="muted">fleet roles across ${sites.length} sites · column headers open an agent page</span></div>
     <div class="task-toolbar">
-      <strong>${sites.length} sites · ${core.length} common roles</strong>
+      <strong>${core.length} common roles</strong>
       <span class="muted">${lg('fresh', tally.fresh + ' fresh')} · ${lg('stale', tally.stale + ' stale')} · ${lg('overdue', tally.overdue + ' overdue')} · ${lg('paused', tally.paused + ' paused')} · ${lg('never', tally.never + ' no-log')}</span>
     </div>
     <div class="card rmatrix-card"><table class="rmatrix">
       <thead><tr>${head}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a cell for its latest log and to pause/resume the role. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
+    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
 
   $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role)));
+  $$('.rcol-link').forEach((a) => a.addEventListener('click', () => go('agent', a.dataset.role)));
   if (!FRESH) applyUISnap();
   stamp();
 }
@@ -450,6 +466,7 @@ async function openRole(site, role) {
   title.textContent = `${site} · ${role}`;
   const badgeCls = !c ? 'b-gray' : !c.enabled ? 'b-gray' : c.state === 'fresh' ? 'b-green' : c.state === 'never' ? 'b-gray' : 'b-yellow';
   const stateTxt = c ? (c.enabled ? (STATE_LABEL[c.state] || c.state) : 'paused') : '';
+  const isAgent = (STATE.agents || []).some((a) => a.role === role);
   const ctrl = c && c.worker
     ? `<button class="btn sm ${c.enabled ? 'danger' : 'primary'}" id="role-toggle">${c.enabled ? '⏸ Pause role' : '▶ Resume role'}</button>`
     : (c ? '<span class="muted" style="font-size:11.5px">not pause-controllable</span>' : '');
@@ -457,6 +474,7 @@ async function openRole(site, role) {
     <div class="role-head">
       <span class="badge ${badgeCls}">${esc(stateTxt)}</span>
       ${c ? `<span class="muted">sched <span class="mono">${esc(c.schedule)}</span>${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''}</span>` : ''}
+      ${isAgent ? `<a class="crumb-link" id="role-openpage">open ${esc(agentLabel(role))} page →</a>` : ''}
       <span class="role-ctrl">${ctrl}</span>
     </div>
     <div class="section-title"><span id="role-logfile">latest log</span> <span class="live-tag">live</span></div>
@@ -465,6 +483,8 @@ async function openRole(site, role) {
   ROLE_OPEN = { site, role };
   const tg = $('#role-toggle');
   if (tg) tg.addEventListener('click', () => toggleRole(site, role, c.enabled));
+  const op = $('#role-openpage');
+  if (op) op.addEventListener('click', () => { closeModal(); go('agent', role); });
   await fetchRoleLog(site, role);
 }
 
@@ -485,9 +505,84 @@ async function toggleRole(site, role, currentlyEnabled) {
     await api('POST', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/${action}`);
     toast(`${action === 'pause' ? 'Paused' : 'Resumed'} ${role} on ${site}`);
     FRESH = false; UISNAP = captureUI();
-    await renderRoles();          // refetch matrix (updates ROLEMATRIX + the grid)
+    await (STATE.view === 'agent' ? renderGenericAgent(STATE.agent) : renderControl());  // refresh active view
     await openRole(site, role);   // re-open with fresh state
   } catch (e) { toast(`${action} failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+/* ===================== AGENT PAGE (generic) ===================== */
+// One role across the fleet: overview of every site that has it (status, last
+// run, schedule, pause/resume) + a per-site zoomed log (live-following).
+async function renderGenericAgent(role) {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(agentLabel(role))} agent…</div>`;
+  let data;
+  try { data = await api('GET', '/api/roles'); }
+  catch (e) { app.innerHTML = `${breadcrumb(role)}<div class="empty">${esc(e.message)}</div>`; wireCrumbs(); return; }
+  ROLEMATRIX = data;
+  const rows = data.sites.filter((s) => s.cells[role]).map((s) => ({ site: s.site, ...s.cells[role] }));
+  if (!rows.length) {
+    app.innerHTML = `${breadcrumb(role)}<div class="empty">No sites schedule the <b>${esc(role)}</b> role.</div>`;
+    wireCrumbs(); stamp(); return;
+  }
+  const enabled = rows.filter((r) => r.enabled).length;
+  const paused = rows.length - enabled;
+  const issues = rows.filter((r) => r.enabled && (r.state === 'stale' || r.state === 'overdue')).length;
+
+  const body = rows.map((r) => {
+    const ctrl = r.worker
+      ? `<button class="btn sm ${r.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>`
+      : '<span class="muted" style="font-size:11px">not controllable</span>';
+    const badge = !r.enabled ? '<span class="badge b-gray">paused</span>'
+      : r.state === 'fresh' ? '<span class="badge b-green">fresh</span>'
+        : r.state === 'never' ? '<span class="badge b-gray">no log</span>'
+          : `<span class="badge b-yellow">${esc(STATE_LABEL[r.state] || r.state)}</span>`;
+    return `<tr class="ag-row">
+      <td class="site">${esc(r.site)}</td>
+      <td>${badge}</td>
+      <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
+      <td class="mono muted">${esc(r.schedule)}</td>
+      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}">📜 Logs</button> ${ctrl}</td>
+    </tr>
+    <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="5"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    ${breadcrumb(role)}
+    <div class="page-head"><h2 class="page-title">${esc(agentLabel(role))}</h2><span class="muted">${rows.length} sites run this agent</span></div>
+    <div class="task-toolbar">
+      <strong>${rows.length} sites</strong>
+      <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Schedule</th><th>Actions</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site. ← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
+
+  wireCrumbs();
+  const c2 = $('#crumb-control2'); if (c2) c2.addEventListener('click', () => go('control'));
+  $$('.ag-logs').forEach((b) => b.addEventListener('click', () => toggleAgentLog(b.dataset.site, role)));
+  $$('.ag-toggle').forEach((b) => b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1')));
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+async function toggleAgentLog(site, role) {
+  const row = $(`tr.ag-detail-row[data-detail="${CSS.escape(site)}"]`);
+  const box = $(`#al-${CSS.escape(site)}`);
+  if (!row.classList.contains('hidden')) { row.classList.add('hidden'); return; }
+  row.classList.remove('hidden');
+  box.textContent = 'loading latest log…';
+  await fetchAgentLog(site, role, box);
+}
+
+async function fetchAgentLog(site, role, box) {
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 30;
+  try {
+    const r = await api('GET', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/log?tail=400`);
+    if (box.textContent !== r.log) { box.textContent = r.log; if (atBottom) box.scrollTop = box.scrollHeight; }
+  } catch (e) { if (box.textContent === 'loading latest log…') box.textContent = `error: ${e.message}`; }
 }
 
 /* ===================== CONTAINERS ===================== */
@@ -924,7 +1019,21 @@ async function deleteTask(site, column, file) {
 function closeModal() { $('#modal').classList.add('hidden'); ROLE_OPEN = null; }
 
 /* ===================== SHELL ===================== */
-const VIEWS = ['fleet', 'roles', 'containers', 'git', 'tasks'];
+const TOP_VIEWS = ['control', 'containers', 'git', 'tasks'];
+
+// Hash router. Routes: #control, #containers, #git, #tasks, #agents/<role>.
+// Legacy aliases: #roles → control, #fleet → agents/engineer.
+function parseHash() {
+  const h = (location.hash || '').replace(/^#/, '');
+  if (!h) return { view: 'control', agent: null };
+  const [a, b] = h.split('/');
+  if (a === 'agents' && b) return { view: 'agent', agent: decodeURIComponent(b) };
+  if (a === 'fleet') return { view: 'agent', agent: 'engineer' };
+  if (a === 'roles') return { view: 'control', agent: null };
+  if (TOP_VIEWS.includes(a)) return { view: a, agent: null };
+  return { view: 'control', agent: null };
+}
+function hashFor(view, agent) { return view === 'agent' ? `agents/${encodeURIComponent(agent)}` : view; }
 
 // FRESH = true → a navigation/first paint: show loading placeholders.
 // FRESH = false → an in-place soft refresh: no loading flash, and each view
@@ -953,12 +1062,19 @@ function applyUISnap() {
 }
 
 function render() {
-  $$('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === STATE.view));
-  if (STATE.view === 'fleet') renderEngineers();
-  else if (STATE.view === 'roles') renderRoles();
+  $$('.tab[data-view]').forEach((t) => t.classList.toggle('active', t.dataset.view === STATE.view));
+  const ddBtn = $('#agents-btn'); if (ddBtn) ddBtn.classList.toggle('active', STATE.view === 'agent');
+  syncAgentsMenuActive();
+  if (STATE.view === 'control') renderControl();
+  else if (STATE.view === 'agent') renderAgent(STATE.agent);
   else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
   else if (STATE.view === 'tasks') renderTasks();
+}
+
+function renderAgent(role) {
+  if (role === 'engineer') renderEngineers();
+  else renderGenericAgent(role);
 }
 
 // In-place refresh of the current view: capture UI state, repaint without the
@@ -969,12 +1085,35 @@ function softRender() {
   render();
 }
 
-function go(view) {
-  STATE.view = view;
-  if (location.hash !== `#${view}`) location.hash = view;   // shareable + back-button
+function go(view, agent) {
+  STATE.view = view; STATE.agent = agent || null;
+  const hash = hashFor(view, agent);
+  if (location.hash !== `#${hash}`) location.hash = hash;   // shareable + back-button
   FRESH = true;
   render();
 }
+
+/* ---- agents dropdown ---- */
+function buildAgentsMenu() {
+  const menu = $('#agents-menu');
+  if (!menu) return;
+  menu.innerHTML = (STATE.agents || []).map((a) =>
+    `<a class="dd-item" data-role="${esc(a.role)}">${esc(agentLabel(a.role))}<span class="dd-count">${a.sites}</span></a>`).join('')
+    || '<span class="dd-empty">no agents found</span>';
+  $$('.dd-item', menu).forEach((it) => it.addEventListener('click', () => { closeAgentsMenu(); go('agent', it.dataset.role); }));
+  syncAgentsMenuActive();
+}
+function syncAgentsMenuActive() {
+  $$('#agents-menu .dd-item').forEach((it) => it.classList.toggle('active', STATE.view === 'agent' && it.dataset.role === STATE.agent));
+}
+function toggleAgentsMenu() { $('#agents-menu').classList.toggle('hidden'); }
+function closeAgentsMenu() { const m = $('#agents-menu'); if (m) m.classList.add('hidden'); }
+
+// Breadcrumb shown atop every agent page.
+function breadcrumb(role) {
+  return `<div class="crumbs"><a class="crumb-link" id="crumb-control">Domain Control</a><span class="crumb-sep">›</span><span class="muted">Agents</span><span class="crumb-sep">›</span><span class="crumb-cur">${esc(agentLabel(role))}</span></div>`;
+}
+function wireCrumbs() { const c = $('#crumb-control'); if (c) c.addEventListener('click', () => go('control')); }
 
 /* ---- auto-refresh ---- */
 let autoTimer = null, countTimer = null, nextAt = 0;
@@ -1031,9 +1170,12 @@ async function checkVersion() {
 
 async function boot() {
   try { STATE.sites = await api('GET', '/api/sites'); } catch { STATE.sites = []; }
-  const fromHash = (location.hash || '').replace('#', '');
-  if (VIEWS.includes(fromHash)) STATE.view = fromHash;
-  $$('.tab').forEach((t) => t.addEventListener('click', () => go(t.dataset.view)));
+  try { STATE.agents = await api('GET', '/api/agents'); } catch { STATE.agents = []; }
+  const r = parseHash(); STATE.view = r.view; STATE.agent = r.agent;
+  buildAgentsMenu();
+  $$('.tab[data-view]').forEach((t) => t.addEventListener('click', () => go(t.dataset.view)));
+  $('#agents-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleAgentsMenu(); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('#agents-dd')) closeAgentsMenu(); });
   $('#refresh').addEventListener('click', softRender);
   $('#auto-on').addEventListener('change', (e) => { localStorage.setItem('fd.auto', e.target.checked ? '1' : '0'); scheduleAuto(); });
   $('#auto-int').addEventListener('change', (e) => { localStorage.setItem('fd.interval', e.target.value); scheduleAuto(); });
@@ -1046,8 +1188,8 @@ async function boot() {
   setInterval(checkVersion, 60000);
   setInterval(logFollowTick, 3000);   // live-tail open log surfaces
   window.addEventListener('hashchange', () => {
-    const v = (location.hash || '').replace('#', '');
-    if (VIEWS.includes(v) && v !== STATE.view) { STATE.view = v; FRESH = true; render(); }
+    const n = parseHash();
+    if (n.view !== STATE.view || n.agent !== STATE.agent) { STATE.view = n.view; STATE.agent = n.agent; FRESH = true; render(); }
   });
   FRESH = true;
   render();

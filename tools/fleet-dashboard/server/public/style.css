@@ -34,7 +34,27 @@ body {
 .brand h1 { font-size: 16px; margin: 0; font-weight: 650; letter-spacing: .2px; }
 .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-.tabs { display: flex; gap: 4px; margin-left: 8px; }
+.tabs { display: flex; gap: 4px; margin-left: 8px; align-items: center; }
+.tab-dd { position: relative; }
+.dd-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; background: var(--panel); border: 1px solid var(--border); border-radius: 9px; padding: 5px; z-index: 40; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.dd-menu.hidden { display: none; }
+.dd-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 10px; border-radius: 6px; cursor: pointer; color: var(--text); font-size: 13px; }
+.dd-item:hover { background: var(--panel-2); }
+.dd-item.active { background: var(--panel-2); color: #fff; }
+.dd-count { background: var(--panel-2); color: var(--muted); border-radius: 10px; padding: 0 7px; font-size: 11px; font-family: var(--mono); }
+.dd-item.active .dd-count { background: var(--border); }
+.dd-empty { display: block; padding: 8px 10px; color: var(--muted); font-size: 12px; }
+
+/* page heading + breadcrumbs */
+.page-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.page-title { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: .2px; }
+.crumbs { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-bottom: 10px; }
+.crumb-link { color: var(--accent); cursor: pointer; }
+.crumb-link:hover { text-decoration: underline; }
+.crumb-sep { color: var(--muted); }
+.crumb-cur { color: var(--text); font-weight: 600; }
+.rcol-link { color: var(--muted); cursor: pointer; }
+.rcol-link:hover { color: var(--accent); text-decoration: underline; }
 .tab {
   background: transparent; color: var(--muted); border: none;
   padding: 7px 14px; border-radius: 7px; cursor: pointer; font-size: 13.5px; font-weight: 550;
