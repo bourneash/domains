@@ -1,0 +1,22 @@
+name: fleet-dashboard
+
+services:
+  panel:
+    build: .
+    image: fleet-dashboard:latest
+    container_name: fleet-dashboard
+    restart: unless-stopped
+    # Loopback-only publish — same posture as cron-manager / domain-developer.
+    ports:
+      - "127.0.0.1:4754:4754"
+    environment:
+      # Repo root, bind-mounted at the SAME absolute path inside the container
+      # so the engineer-status.py audit resolves sites/* correctly and the
+      # git/task file paths line up with the host.
+      FD_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
+      FD_HOST: 0.0.0.0
+      HOME: ${HOME:-/home/jesse}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
+    working_dir: ${HOME:-/home/jesse}/projects/domains/tools/fleet-dashboard

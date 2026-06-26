@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fleet Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Fleet Dashboard</h1>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-view="fleet">Engineers</button>
+      <button class="tab" data-view="git">Git</button>
+      <button class="tab" data-view="tasks">Tasks</button>
+    </nav>
+    <div class="actions">
+      <span id="updated" class="muted"></span>
+      <div class="auto" title="Automatic refresh — updates in place; preserves scroll, open rows and filters. Paused while a task editor is open or the tab is hidden.">
+        <label class="auto-toggle">
+          <input type="checkbox" id="auto-on" />
+          <span class="auto-track"></span>
+          <span class="auto-label">Auto</span>
+        </label>
+        <select id="auto-int" class="auto-int" aria-label="Refresh interval">
+          <option value="5000">5s</option>
+          <option value="10000">10s</option>
+          <option value="15000">15s</option>
+          <option value="30000">30s</option>
+          <option value="60000">1m</option>
+          <option value="300000">5m</option>
+        </select>
+        <span id="auto-next" class="muted auto-next"></span>
+      </div>
+      <button id="refresh" class="btn">↻ Refresh</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- views render here -->
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Task editor / viewer modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="modal-title">Task</h2>
+        <button id="modal-close" class="icon-btn">✕</button>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

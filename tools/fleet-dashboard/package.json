@@ -1,0 +1,15 @@
+{
+  "name": "fleet-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio fleet dashboard — engineer liveness, git status, and task-board CRUD across the domains repo",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "js-yaml": "^4.1.0"
+  }
+}
