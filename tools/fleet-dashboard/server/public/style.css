@@ -119,6 +119,10 @@ th.th-help:hover { color: var(--text); }
 tbody tr:hover { background: var(--panel-2); }
 tbody tr:last-child td { border-bottom: none; }
 td.site { font-weight: 600; }
+.site-link { color: var(--text); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.site-link:hover { color: var(--accent); }
+.site-link .ext { color: var(--muted); font-size: 10px; opacity: 0; transition: opacity .12s; }
+.site-link:hover .ext { opacity: 1; }
 td .sub { color: var(--muted); font-size: 11.5px; }
 .mono { font-family: var(--mono); font-size: 12.5px; }
 

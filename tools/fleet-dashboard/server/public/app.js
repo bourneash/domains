@@ -8,6 +8,11 @@ let STATE = { view: 'control', agent: null, sites: [], agents: [], taskSite: nul
 
 function agentLabel(role) { return String(role).split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
 
+// The site dir name is the live domain — link straight to it (new tab).
+function siteLink(site) {
+  return `<a class="site-link" href="https://${esc(site)}" target="_blank" rel="noopener noreferrer" title="Open https://${esc(site)}">${esc(site)}<span class="ext">↗</span></a>`;
+}
+
 async function api(method, url, body) {
   const opt = { method, headers: {} };
   if (body !== undefined) { opt.headers['content-type'] = 'application/json'; opt.body = JSON.stringify(body); }
@@ -102,7 +107,7 @@ async function renderEngineers() {
       : '';
     const actions = r.engineer ? runBtn + tasksBtn : tasksBtn;
     return `<tr>
-      <td class="site">${esc(r.site)}</td>
+      <td class="site">${siteLink(r.site)}</td>
       <td>${tier(r.tier)}</td>
       <td>${r.engineer ? feats(r) : '<span class="muted">—</span>'}</td>
       <td>${cron}</td>
@@ -427,7 +432,7 @@ async function renderControl() {
       const tip = others.map((r) => `${r}: ${s.cells[r].state}${s.cells[r].age != null ? ` (${fmtAge(s.cells[r].age)})` : ''}`).join('\n');
       otherCell = `<td class="rcell"><span class="rcount r-${worst}" title="${esc(tip)}">${others.length}</span></td>`;
     }
-    return `<tr><td class="rsite">${esc(s.site)}</td>${cells}${otherCell}</tr>`;
+    return `<tr><td class="rsite">${siteLink(s.site)}</td>${cells}${otherCell}</tr>`;
   }).join('');
 
   const lg = (st, txt) => `<span class="rdot r-${st}"></span> ${txt}`;
@@ -541,7 +546,7 @@ async function renderGenericAgent(role) {
         : r.state === 'never' ? '<span class="badge b-gray">no log</span>'
           : `<span class="badge b-yellow">${esc(STATE_LABEL[r.state] || r.state)}</span>`;
     return `<tr class="ag-row">
-      <td class="site">${esc(r.site)}</td>
+      <td class="site">${siteLink(r.site)}</td>
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted">${esc(r.schedule)}</td>
