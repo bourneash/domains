@@ -164,6 +164,8 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .gd-result { font-size: 11.5px; color: var(--muted); margin-top: 8px; white-space: pre-wrap; font-family: var(--mono); }
 
 /* ---- roles matrix ---- */
+.role-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.role-head .role-ctrl { margin-left: auto; }
 .rmatrix-card { overflow-x: auto; }
 .rmatrix { border-collapse: collapse; min-width: 100%; }
 .rmatrix th.rcol { text-align: center; font-size: 10.5px; padding: 8px 7px; white-space: nowrap; color: var(--muted); }

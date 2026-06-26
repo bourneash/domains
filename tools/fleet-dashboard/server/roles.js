@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { siteDir } = require('./sites');
 
+function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
+
 const CRONTABS = ['ops/docker/crontab.docker', 'ops/docker/crontab'];
 // Roles whose log files don't start with the role name.
 const LOG_PREFIX = { deployer: 'deploy' };
@@ -28,10 +30,12 @@ function parseRoles(crontab) {
     if (!m) continue;
     const schedule = m[1].trim();
     const cmd = m[2];
-    let role = null, rm;
-    if ((rm = cmd.match(/run-worker\.sh\s+([a-z0-9-]+)/i))) role = rm[1];
+    let role = null, worker = false, rm;
+    if ((rm = cmd.match(/run-worker\.sh\s+([a-z0-9-]+)/i))) { role = rm[1]; worker = true; }
     else if ((rm = cmd.match(/run-([a-z0-9-]+)\.sh/i)) && !['worker', 'role'].includes(rm[1].toLowerCase())) role = rm[1];
-    if (role) out.push({ role: role.toLowerCase(), schedule });
+    // worker = invoked via run-worker.sh, which honours ops/.<role>-disabled, so
+    // it's safe to pause/resume by toggling that flag.
+    if (role) out.push({ role: role.toLowerCase(), schedule, worker });
   }
   return out;
 }
@@ -84,12 +88,12 @@ function matrix(root, slugs) {
     const cwd = siteDir(root, slug);
     const parsed = parseRoles(readFirst(cwd, CRONTABS));
     const cells = {};
-    for (const { role, schedule } of parsed) {
+    for (const { role, schedule, worker } of parsed) {
       if (cells[role]) continue;                       // first schedule wins on dupes
       const enabled = !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
       const last = lastRun(cwd, role);
       const { state, age } = cellState(enabled, last, schedule, now);
-      cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state };
+      cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state, worker };
       freq[role] = (freq[role] || 0) + 1;
     }
     return { site: slug, cells };
@@ -118,4 +122,25 @@ function roleLog(root, slug, role, tail) {
   return { file: best, mtime: bestMt, log: lines.slice(-n).join('\n') };
 }
 
-module.exports = { matrix, roleLog, parseRoles, cadenceClass };
+// Pause/resume a role by toggling ops/.<role>-disabled — the same flag run-worker.sh
+// checks (and that matrix() reads). Only allowed for scheduled run-worker.sh roles,
+// where the flag is actually honoured.
+function setEnabled(root, slug, role, enabled) {
+  const r = String(role || '').toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(r)) throw httpErr(400, 'invalid role');
+  const cwd = siteDir(root, slug);
+  const entry = parseRoles(readFirst(cwd, CRONTABS)).find((p) => p.role === r);
+  if (!entry) throw httpErr(404, 'role is not scheduled on this site');
+  if (!entry.worker) throw httpErr(400, 'role is not pause/resume-controllable (not a run-worker.sh role)');
+  const flag = path.join(cwd, 'ops', `.${r}-disabled`);
+  if (enabled) {
+    try { fs.unlinkSync(flag); } catch (e) { if (e.code !== 'ENOENT') throw e; }
+  } else if (!fs.existsSync(flag)) {
+    // These flags are tracked, conventionally-empty files — match `touch` so
+    // pausing doesn't create spurious content diffs.
+    fs.writeFileSync(flag, '');
+  }
+  return { ok: true, role: r, enabled };
+}
+
+module.exports = { matrix, roleLog, setEnabled, parseRoles, cadenceClass };

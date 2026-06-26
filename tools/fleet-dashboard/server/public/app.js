@@ -361,6 +361,7 @@ function fmtAge(secs) {
   return s < 90 ? `${s}s` : s < 5400 ? `${Math.floor(s / 60)}m` : s < 172800 ? `${Math.floor(s / 3600)}h` : `${Math.floor(s / 86400)}d`;
 }
 const STATE_RANK = { overdue: 3, stale: 2, never: 1, fresh: 0, paused: -1 };
+let ROLEMATRIX = null;
 
 async function renderRoles() {
   const app = $('#app');
@@ -368,6 +369,7 @@ async function renderRoles() {
   let data;
   try { data = await api('GET', '/api/roles'); }
   catch (e) { app.innerHTML = `<div class="empty">Roles read failed: ${esc(e.message)}</div>`; return; }
+  ROLEMATRIX = data;
   const sites = data.sites;
 
   // Columns = roles scheduled on ≥2 sites (common roles); per-site singletons
@@ -409,9 +411,9 @@ async function renderRoles() {
       <thead><tr>${head}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a cell for its latest log. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
+    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a cell for its latest log and to pause/resume the role. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
 
-  $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRoleLog(d.dataset.site, d.dataset.role)));
+  $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role)));
   if (!FRESH) applyUISnap();
   stamp();
 }
@@ -422,16 +424,48 @@ function roleDot(site, role, c) {
   return `<span class="rdot r-${c.state}" data-site="${esc(site)}" data-role="${esc(role)}" title="${esc(tip)}"></span>`;
 }
 
-async function openRoleLog(site, role) {
+function roleCell(site, role) {
+  const s = ROLEMATRIX && ROLEMATRIX.sites.find((x) => x.site === site);
+  return s ? s.cells[role] : null;
+}
+
+async function openRole(site, role) {
   const title = $('#modal-title'), body = $('#modal-body');
+  const c = roleCell(site, role);
   title.textContent = `${site} · ${role}`;
-  body.innerHTML = '<div class="loading">loading latest log…</div>';
+  const badgeCls = !c ? 'b-gray' : !c.enabled ? 'b-gray' : c.state === 'fresh' ? 'b-green' : c.state === 'never' ? 'b-gray' : 'b-yellow';
+  const stateTxt = c ? (c.enabled ? (STATE_LABEL[c.state] || c.state) : 'paused') : '';
+  const ctrl = c && c.worker
+    ? `<button class="btn sm ${c.enabled ? 'danger' : 'primary'}" id="role-toggle">${c.enabled ? '⏸ Pause role' : '▶ Resume role'}</button>`
+    : (c ? '<span class="muted" style="font-size:11.5px">not pause-controllable</span>' : '');
+  body.innerHTML = `
+    <div class="role-head">
+      <span class="badge ${badgeCls}">${esc(stateTxt)}</span>
+      ${c ? `<span class="muted">sched <span class="mono">${esc(c.schedule)}</span>${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''}</span>` : ''}
+      <span class="role-ctrl">${ctrl}</span>
+    </div>
+    <div class="section-title" id="role-logfile">latest log</div>
+    <pre class="cn-logs-box" id="role-log">loading latest log…</pre>`;
   $('#modal').classList.remove('hidden');
+  const tg = $('#role-toggle');
+  if (tg) tg.addEventListener('click', () => toggleRole(site, role, c.enabled));
   try {
     const r = await api('GET', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/log?tail=400`);
-    body.innerHTML = `<div class="section-title">${r.file ? esc(r.file) : 'no log file found'}</div><pre class="cn-logs-box">${esc(r.log)}</pre>`;
-    const pre = $('#modal-body .cn-logs-box'); if (pre) pre.scrollTop = pre.scrollHeight;
-  } catch (e) { body.innerHTML = `<div class="flag">${esc(e.message)}</div>`; }
+    $('#role-logfile').textContent = r.file || 'no log file found';
+    const pre = $('#role-log'); pre.textContent = r.log; pre.scrollTop = pre.scrollHeight;
+  } catch (e) { $('#role-log').textContent = `error: ${e.message}`; }
+}
+
+async function toggleRole(site, role, currentlyEnabled) {
+  const action = currentlyEnabled ? 'pause' : 'resume';
+  const btn = $('#role-toggle'); gdBusy(btn, true);
+  try {
+    await api('POST', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/${action}`);
+    toast(`${action === 'pause' ? 'Paused' : 'Resumed'} ${role} on ${site}`);
+    FRESH = false; UISNAP = captureUI();
+    await renderRoles();          // refetch matrix (updates ROLEMATRIX + the grid)
+    await openRole(site, role);   // re-open with fresh state
+  } catch (e) { toast(`${action} failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
 /* ===================== CONTAINERS ===================== */

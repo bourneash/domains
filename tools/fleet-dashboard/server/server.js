@@ -73,6 +73,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
+  // Pause / resume a role (toggles ops/.<role>-disabled).
+  app.post('/api/roles/:slug/:role/:action', requireSite, (req, res) => {
+    const act = req.params.action;
+    if (act !== 'pause' && act !== 'resume') return res.status(400).json({ error: 'unknown action' });
+    try { res.json(roles.setEnabled(root, req.params.slug, req.params.role, act === 'resume')); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
   // Containers: list domains-repo containers, lifecycle actions, logs, bounce.
   app.get('/api/containers', async (_req, res) => {
     try { res.json(await containers.list(root)); }
