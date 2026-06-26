@@ -118,6 +118,19 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .spark { display: inline-flex; gap: 1px; align-items: flex-end; height: 16px; }
 .spark i { width: 3px; background: var(--green); border-radius: 1px; display: inline-block; }
 .spark i.bad { background: var(--red); }
+/* health timeline */
+.hcell { display: inline-flex; align-items: center; gap: 7px; }
+.hbar { display: inline-flex; gap: 1px; align-items: center; }
+.hbar i { width: 3px; height: 13px; border-radius: 1px; display: inline-block; background: #3a4150; }
+.hbar i.h-ok { background: var(--green); }
+.hbar i.h-bad { background: var(--red); }
+.hbar i.h-miss { background: #3a4150; }
+.hpct { font-variant-numeric: tabular-nums; font-size: 12px; }
+.warn { color: var(--yellow); }
+.hkey { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: middle; margin: 0 1px; background: #3a4150; }
+.hkey.h-ok { background: var(--green); }
+.hkey.h-bad { background: var(--red); }
+.hkey.h-miss { background: #3a4150; }
 
 /* ---- git ---- */
 .filerow { display: flex; gap: 8px; padding: 3px 0; font-family: var(--mono); font-size: 12.5px; }

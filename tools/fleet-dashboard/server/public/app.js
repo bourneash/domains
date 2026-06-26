@@ -50,6 +50,26 @@ function sparkline(series) {
   if (!series || !series.length) return '';
   return `<span class="spark">${series.map((v) => `<i class="${v ? '' : 'bad'}" style="height:${v ? 14 : 6}px"></i>`).join('')}</span>`;
 }
+// Health timeline: one cell per scheduled 30-min run (last 24h) — 2=ran healthy,
+// 1=ran with an issue/cf-down, 0=missed (cron didn't fire).
+function healthBar(tl) {
+  if (!tl || !tl.length) return '';
+  const cls = (c) => c === 2 ? 'h-ok' : c === 1 ? 'h-bad' : 'h-miss';
+  return `<span class="hbar">${tl.map((c) => `<i class="${cls(c)}"></i>`).join('')}</span>`;
+}
+function healthCell(h) {
+  if (!h) return '<span class="muted">—</span>';
+  const tl = Array.isArray(h.timeline) ? h.timeline : null;
+  if (!tl) return `<span class="${h.coverage < 70 ? 'flag' : 'muted'}">${h.coverage}%</span>`;
+  const ok = tl.filter((c) => c === 2).length;
+  const bad = tl.filter((c) => c === 1).length;
+  const miss = tl.filter((c) => c === 0).length;
+  const shown = tl.length;
+  const pct = shown ? Math.round(100 * ok / shown) : 0;
+  const cls = pct >= 90 ? 'muted' : pct >= 70 ? 'warn' : 'flag';
+  const tip = `last 24h: ${ok} healthy · ${bad} issue · ${miss} missed (of ${shown} runs) · 3-day coverage ${h.coverage}%`;
+  return `<span class="hcell" title="${esc(tip)}">${healthBar(tl)}<span class="${cls} hpct">${pct}%</span></span>`;
+}
 
 async function renderEngineers() {
   const app = $('#app');
@@ -73,7 +93,7 @@ async function renderEngineers() {
     const flags = [...(r.flags || [])];
     if (r.engineer && !r.cron_up) flags.unshift('no-cron-container');
     const flagHtml = flags.length ? `<span class="flag">${esc(flags.join(', '))}</span>` : '';
-    const cover = h ? `<span class="${h.coverage < 70 ? 'flag' : 'muted'}">${h.coverage}%</span>` : '<span class="muted">—</span>';
+    const cover = healthCell(h);
     const tasksBtn = `<button class="btn sm tasks-link" data-site="${esc(r.site)}" title="Open ${esc(r.site)}'s task board">📋 Tasks${r.queue ? ` <span class="qn">${r.queue}</span>` : ''}</button>`;
     const runBtn = r.engineer
       ? `<button class="btn sm run-eng" data-site="${esc(r.site)}"${r.cron_up ? '' : ' disabled title="cron container not running"'}>▶ Run</button> `
@@ -89,7 +109,7 @@ async function renderEngineers() {
       <td class="mono">${r.render ? esc(r.render) : '—'}</td>
       <td>${cf}</td>
       <td class="mono">${r.queue || 0}</td>
-      <td>${cover} ${h ? sparkline(h.spark) : ''}</td>
+      <td>${cover}</td>
       <td>${flagHtml}</td>
       <td class="run-cell">${actions}</td>
     </tr>`;
@@ -106,7 +126,7 @@ async function renderEngineers() {
     ['Rnd', 'Render check', 'True-render health check of the live site (Playwright in-container): passes / total checks. e.g. 1/1 = the live page rendered correctly on the last tick.'],
     ['CF', 'Cloudflare', 'Cloudflare deploy/edge status. ok = the Worker is serving the live site; DOWN = the live site did not respond on the last check.'],
     ['Q', 'Queue', 'Number of open tasks assigned to this engineer (assigned_role: engineer) waiting in the task backlog.'],
-    ['3d cover', '3-day coverage', 'Pulse coverage over the last 3 days: pulses seen / pulses expected (48/day at 30-min cadence). Under 70% is flagged — the cron is missing runs. The bars are a per-tick sparkline (filled = healthy, short = a bad/missed tick).'],
+    ['Health', 'Run health (24h)', 'One square per scheduled 30-min run over the last 24 hours — green = ran healthy, red = ran but reported an issue or Cloudflare was down, gray = the run was missed (the cron did not fire). The % is the healthy share of those runs (green = ≥90%, amber 70–90%, red <70%). Hover the cell for exact counts and the 3-day coverage figure.'],
     ['Flags', 'Flags', 'Audit warnings for this row, e.g. no-cron-container (engineer installed but its cron container is not running) or archetype drift. Empty = no warnings.'],
     ['Actions', 'Actions', '▶ Run fires this engineer immediately — the exact command cron runs (bash ops/scripts/run-worker.sh engineer) inside the site\'s cron container, detached; the work-lock makes a mid-pass click no-op safely, and ▶ Run is disabled when the cron container is down. 📋 Tasks jumps to this site\'s task board (the number is its open engineer-queue count).'],
   ];
@@ -136,7 +156,7 @@ async function renderEngineers() {
       <thead><tr>${thead}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Feat: <b>L</b>=work-lock <b>P</b>=liveness-pulse <b>D</b>=daily-summary · Age <b>!</b> = pulse &gt; 35m (possibly wedged) · cover = pulses seen / expected (48/day). <a id="fleet-help-link" class="filter-clear" style="margin-left:0">full column key →</a></p>`;
+    <p class="muted" style="margin-top:12px">Feat: <b>L</b>=work-lock <b>P</b>=liveness-pulse <b>D</b>=daily-summary · Age <b>!</b> = pulse &gt; 35m (possibly wedged) · Health: <i class="hkey h-ok"></i> healthy <i class="hkey h-bad"></i> issue <i class="hkey h-miss"></i> missed — one per 30-min run, last 24h. <a id="fleet-help-link" class="filter-clear" style="margin-left:0">full column key →</a></p>`;
   const helpBox = $('#fleet-help');
   const toggleHelp = () => helpBox.classList.toggle('hidden');
   $('#fleet-help-toggle').addEventListener('click', toggleHelp);
