@@ -1,6 +1,7 @@
 'use strict';
 
 const { execFile } = require('node:child_process');
+const roles = require('./roles');
 
 function sh(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
@@ -40,4 +41,20 @@ async function runEngineer(slug) {
   return container;
 }
 
-module.exports = { runEngineer, cronContainer };
+// Fire any worker role immediately inside the site's cron container, detached —
+// the exact command cron runs (`bash ops/scripts/run-worker.sh <role>`). Limited
+// to scheduled run-worker.sh roles (which honour the per-role work-lock, so an
+// ad-hoc run while one is in flight no-ops safely).
+async function runRole(root, slug, role) {
+  const r = String(role || '').toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(r)) { const e = new Error('invalid role'); e.httpStatus = 400; throw e; }
+  const entry = roles.roleEntry(root, slug, r);
+  if (!entry) { const e = new Error('role is not scheduled on this site'); e.httpStatus = 404; throw e; }
+  if (!entry.worker) { const e = new Error('role is not run-now-capable (not a run-worker.sh role)'); e.httpStatus = 400; throw e; }
+  const container = await cronContainer(slug);
+  if (!container) { const e = new Error(`no running cron container for ${slug}`); e.httpStatus = 409; throw e; }
+  await sh('docker', ['exec', '-d', container, 'bash', 'ops/scripts/run-worker.sh', r]);
+  return container;
+}
+
+module.exports = { runEngineer, runRole, cronContainer };

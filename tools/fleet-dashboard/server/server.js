@@ -79,12 +79,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
-  // Pause / resume a role (toggles ops/.<role>-disabled).
-  app.post('/api/roles/:slug/:role/:action', requireSite, (req, res) => {
+  // Role actions: pause / resume (toggle ops/.<role>-disabled) or run (fire now).
+  app.post('/api/roles/:slug/:role/:action', requireSite, async (req, res) => {
     const act = req.params.action;
-    if (act !== 'pause' && act !== 'resume') return res.status(400).json({ error: 'unknown action' });
-    try { res.json(roles.setEnabled(root, req.params.slug, req.params.role, act === 'resume')); }
-    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+    try {
+      if (act === 'run') return res.json({ ok: true, container: await run.runRole(root, req.params.slug, req.params.role) });
+      if (act === 'pause' || act === 'resume') return res.json(roles.setEnabled(root, req.params.slug, req.params.role, act === 'resume'));
+      return res.status(400).json({ error: 'unknown action' });
+    } catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
   // Containers: list domains-repo containers, lifecycle actions, logs, bounce.

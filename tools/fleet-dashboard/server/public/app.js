@@ -468,7 +468,7 @@ async function openRole(site, role) {
   const stateTxt = c ? (c.enabled ? (STATE_LABEL[c.state] || c.state) : 'paused') : '';
   const isAgent = (STATE.agents || []).some((a) => a.role === role);
   const ctrl = c && c.worker
-    ? `<button class="btn sm ${c.enabled ? 'danger' : 'primary'}" id="role-toggle">${c.enabled ? '⏸ Pause role' : '▶ Resume role'}</button>`
+    ? `<button class="btn sm" id="role-run">▶ Run now</button> <button class="btn sm ${c.enabled ? 'danger' : 'primary'}" id="role-toggle">${c.enabled ? '⏸ Pause role' : '▶ Resume role'}</button>`
     : (c ? '<span class="muted" style="font-size:11.5px">not pause-controllable</span>' : '');
   body.innerHTML = `
     <div class="role-head">
@@ -485,6 +485,8 @@ async function openRole(site, role) {
   if (tg) tg.addEventListener('click', () => toggleRole(site, role, c.enabled));
   const op = $('#role-openpage');
   if (op) op.addEventListener('click', () => { closeModal(); go('agent', role); });
+  const rn = $('#role-run');
+  if (rn) rn.addEventListener('click', () => runAgent(site, role, rn));
   await fetchRoleLog(site, role);
 }
 
@@ -530,8 +532,9 @@ async function renderGenericAgent(role) {
   const issues = rows.filter((r) => r.enabled && (r.state === 'stale' || r.state === 'overdue')).length;
 
   const body = rows.map((r) => {
+    const runBtn = r.worker ? `<button class="btn sm ag-run" data-site="${esc(r.site)}">▶ Run</button>` : '';
     const ctrl = r.worker
-      ? `<button class="btn sm ${r.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>`
+      ? `${runBtn} <button class="btn sm ${r.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>`
       : '<span class="muted" style="font-size:11px">not controllable</span>';
     const badge = !r.enabled ? '<span class="badge b-gray">paused</span>'
       : r.state === 'fresh' ? '<span class="badge b-green">fresh</span>'
@@ -564,8 +567,22 @@ async function renderGenericAgent(role) {
   const c2 = $('#crumb-control2'); if (c2) c2.addEventListener('click', () => go('control'));
   $$('.ag-logs').forEach((b) => b.addEventListener('click', () => toggleAgentLog(b.dataset.site, role)));
   $$('.ag-toggle').forEach((b) => b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1')));
+  $$('.ag-run').forEach((b) => b.addEventListener('click', () => runAgent(b.dataset.site, role, b)));
   if (!FRESH) applyUISnap();
   stamp();
+}
+
+// Fire a worker role now on one site (detached run-worker.sh, work-lock safe).
+async function runAgent(site, role, btn) {
+  if (btn.disabled) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const r = await api('POST', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/run`);
+    toast(`${agentLabel(role)} triggered on ${site} (${r.container})`);
+    btn.textContent = '✓ sent';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 5000);
+  } catch (e) { toast(`run failed: ${e.message}`, 'err'); btn.textContent = orig; btn.disabled = false; }
 }
 
 async function toggleAgentLog(site, role) {

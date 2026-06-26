@@ -122,6 +122,12 @@ function roleLog(root, slug, role, tail) {
   return { file: best, mtime: bestMt, log: lines.slice(-n).join('\n') };
 }
 
+// The parsed crontab entry for a role on a site (or null), for validation.
+function roleEntry(root, slug, role) {
+  const r = String(role || '').toLowerCase();
+  return parseRoles(readFirst(siteDir(root, slug), CRONTABS)).find((p) => p.role === r) || null;
+}
+
 // Pause/resume a role by toggling ops/.<role>-disabled — the same flag run-worker.sh
 // checks (and that matrix() reads). Only allowed for scheduled run-worker.sh roles,
 // where the flag is actually honoured.
@@ -160,4 +166,4 @@ function agents(root, slugs) {
     .map((r) => ({ role: r, sites: freq[r] }));
 }
 
-module.exports = { matrix, roleLog, setEnabled, agents, parseRoles, cadenceClass };
+module.exports = { matrix, roleLog, setEnabled, agents, roleEntry, parseRoles, cadenceClass };
