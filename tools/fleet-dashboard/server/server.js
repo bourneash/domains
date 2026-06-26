@@ -87,6 +87,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
+  // Fleet-wide bounce: restart every cron container. Defined before :id/:action.
+  app.post('/api/containers/restart-crons', async (_req, res) => {
+    try { res.json(await containers.restartCrons(root)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
   app.post('/api/containers/:id/:action', async (req, res) => {
     try { res.json(await containers.action(root, req.params.id, req.params.action)); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }

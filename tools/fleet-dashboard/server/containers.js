@@ -92,4 +92,16 @@ async function bounce(root, slug) {
   return { ok: true, out: (up.stderr || up.stdout || '').trim() };
 }
 
-module.exports = { list, action, logs, bounce };
+// One-click fleet bounce: restart every cron container (sequential to avoid a
+// host load spike). Restart picks up bind-mounted crontab / role-flag changes.
+async function restartCrons(root) {
+  const crons = (await list(root)).filter((c) => c.kind === 'cron');
+  const results = [];
+  for (const c of crons) {
+    const r = await sh('docker', ['restart', c.id], { timeout: 60000 });
+    results.push({ site: c.slug, name: c.name, ok: !r.err, error: r.err ? dockerErr(r) : null });
+  }
+  return { ok: true, restarted: results.filter((x) => x.ok).length, total: results.length, results };
+}
+
+module.exports = { list, action, logs, bounce, restartCrons };

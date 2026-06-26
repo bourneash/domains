@@ -362,6 +362,21 @@ function fmtAge(secs) {
 }
 const STATE_RANK = { overdue: 3, stale: 2, never: 1, fresh: 0, paused: -1 };
 let ROLEMATRIX = null;
+let ROLE_OPEN = null;   // {site, role} while the role-log modal is open (for live-follow)
+
+// Live-follow: every few seconds, re-tail any open log surface (container log
+// panels on the Containers tab, and the role-log modal). Stops itself when the
+// tab is hidden or nothing is open.
+function logFollowTick() {
+  if (document.hidden) return;
+  if (STATE.view === 'containers') {
+    $$('.cn-detail-row:not(.hidden)').forEach((r) => {
+      const box = $(`#cl-${CSS.escape(r.dataset.detail)}`);
+      if (box) fetchContainerLog(r.dataset.detail, box);
+    });
+  }
+  if (ROLE_OPEN && !$('#modal').classList.contains('hidden')) fetchRoleLog(ROLE_OPEN.site, ROLE_OPEN.role);
+}
 
 async function renderRoles() {
   const app = $('#app');
@@ -444,16 +459,23 @@ async function openRole(site, role) {
       ${c ? `<span class="muted">sched <span class="mono">${esc(c.schedule)}</span>${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''}</span>` : ''}
       <span class="role-ctrl">${ctrl}</span>
     </div>
-    <div class="section-title" id="role-logfile">latest log</div>
+    <div class="section-title"><span id="role-logfile">latest log</span> <span class="live-tag">live</span></div>
     <pre class="cn-logs-box" id="role-log">loading latest log…</pre>`;
   $('#modal').classList.remove('hidden');
+  ROLE_OPEN = { site, role };
   const tg = $('#role-toggle');
   if (tg) tg.addEventListener('click', () => toggleRole(site, role, c.enabled));
+  await fetchRoleLog(site, role);
+}
+
+async function fetchRoleLog(site, role) {
+  const pre = $('#role-log'); if (!pre) return;
+  const atBottom = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 30;
   try {
     const r = await api('GET', `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/log?tail=400`);
-    $('#role-logfile').textContent = r.file || 'no log file found';
-    const pre = $('#role-log'); pre.textContent = r.log; pre.scrollTop = pre.scrollHeight;
-  } catch (e) { $('#role-log').textContent = `error: ${e.message}`; }
+    const f = $('#role-logfile'); if (f) f.textContent = r.file || 'no log file found';
+    if (pre.textContent !== r.log) { pre.textContent = r.log; if (atBottom) pre.scrollTop = pre.scrollHeight; }
+  } catch (e) { if (pre.textContent === 'loading latest log…') pre.textContent = `error: ${e.message}`; }
 }
 
 async function toggleRole(site, role, currentlyEnabled) {
@@ -497,13 +519,14 @@ async function renderContainers() {
       <td class="mono muted">${esc(r.running ? r.runningFor : '—')}</td>
       <td class="cn-actions">${acts.join(' ')}</td>
     </tr>
-    <tr class="cn-detail-row hidden" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6"><pre class="cn-logs-box" id="cl-${esc(r.id)}" data-rkh="cn:${esc(r.id)}"></pre></td></tr>`;
+    <tr class="cn-detail-row hidden" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6"><div class="cn-log-head muted">logs · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="cl-${esc(r.id)}" data-rkh="cn:${esc(r.id)}"></pre></td></tr>`;
   }).join('');
 
   app.innerHTML = `
     <div class="task-toolbar">
       <strong>${rows.length} containers</strong>
       <span class="muted">${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight${attention ? ` · <span class="flag">${attention} need attention</span>` : ''}</span>
+      <button class="btn sm" id="restart-crons" style="margin-left:auto">↻ Restart all crons</button>
     </div>
     <div class="card"><table>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
@@ -512,8 +535,20 @@ async function renderContainers() {
     <p class="muted" style="margin-top:12px"><b>Restart</b> = quick bounce (re-runs the container; picks up bind-mounted crontab / role-flag changes). <b>Rebuild</b> = rebuild image + force-recreate (for Dockerfile / dependency changes). All actions are guard-railed to containers inside the domains repo.</p>`;
 
   wireContainerRows();
+  $('#restart-crons').addEventListener('click', restartAllCrons);
   if (!FRESH) applyUISnap();
   stamp();
+}
+
+async function restartAllCrons() {
+  if (!confirm('Restart ALL cron containers across the fleet?\n\nQuick bounce — re-runs each cron container (picks up crontab / role-flag changes). Takes ~15s.')) return;
+  const btn = $('#restart-crons'); gdBusy(btn, true);
+  toast('Restarting all cron containers…');
+  try {
+    const r = await api('POST', '/api/containers/restart-crons');
+    toast(`Restarted ${r.restarted}/${r.total} cron containers`, r.restarted === r.total ? 'ok' : 'err');
+    await reloadContainers();
+  } catch (e) { toast(`restart-all failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
 function containerStatus(r) {
@@ -535,11 +570,17 @@ async function toggleContainerLogs(id) {
   if (!row.classList.contains('hidden')) { row.classList.add('hidden'); return; }
   row.classList.remove('hidden');
   box.textContent = 'loading logs…';
+  await fetchContainerLog(id, box);
+}
+
+// Fetch (or re-fetch, for live-follow) a container's logs. Keeps the view
+// pinned to the bottom only if it was already there (so manual scroll sticks).
+async function fetchContainerLog(id, box) {
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 30;
   try {
     const r = await api('GET', `/api/containers/${encodeURIComponent(id)}/logs?tail=300`);
-    box.textContent = r.logs;
-    box.scrollTop = box.scrollHeight;
-  } catch (e) { box.textContent = `error: ${e.message}`; }
+    if (box.textContent !== r.logs) { box.textContent = r.logs; if (atBottom) box.scrollTop = box.scrollHeight; }
+  } catch (e) { if (!box.textContent || box.textContent === 'loading logs…') box.textContent = `error: ${e.message}`; }
 }
 
 // Re-render the containers view in place (preserving open log panels + scroll).
@@ -880,7 +921,7 @@ async function deleteTask(site, column, file) {
   } catch (e) { toast(e.message, 'err'); }
 }
 
-function closeModal() { $('#modal').classList.add('hidden'); }
+function closeModal() { $('#modal').classList.add('hidden'); ROLE_OPEN = null; }
 
 /* ===================== SHELL ===================== */
 const VIEWS = ['fleet', 'roles', 'containers', 'git', 'tasks'];
@@ -1003,6 +1044,7 @@ async function boot() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); refreshTick(); scheduleAuto(); } });
   checkVersion();
   setInterval(checkVersion, 60000);
+  setInterval(logFollowTick, 3000);   // live-tail open log surfaces
   window.addEventListener('hashchange', () => {
     const v = (location.hash || '').replace('#', '');
     if (VIEWS.includes(v) && v !== STATE.view) { STATE.view = v; FRESH = true; render(); }
