@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { siteDir } = require('./sites');
+const gitMod = require('./git');
 
 function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
 
@@ -14,10 +15,6 @@ const LOG_PREFIX = { deployer: ['deployer', 'deploy'] };
 // Staleness thresholds (seconds) by inferred cadence — a cell goes amber past
 // the threshold and red past 2×.
 const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
-// Deployer freshness is judged by time since the last real deploy (day-scale),
-// not the cron poll interval: green within ~30h, amber to 3 days, then red.
-const DEPLOY_FRESH = 30 * 3600;
-const DEPLOY_STALE = 72 * 3600;
 
 // Regex matching a role's `<prefix>-<date>…` log files. Accepts any of the
 // role's configured prefixes (default: the role name itself).
@@ -94,9 +91,14 @@ function cellState(enabled, last, schedule, now) {
 
 // Build the site × role matrix from what's on disk: scheduled (crontab),
 // enabled (no ops/.<role>-disabled flag), and last-run (logs / pulse).
-function matrix(root, slugs) {
+async function matrix(root, slugs) {
   const now = Date.now();
   const freq = {};
+  // Per-site git state (branch / ahead / dirty), computed once and reused for
+  // the deployer cell. Cheap: reads the local origin/main tracking ref (no
+  // fetch) — and it's the same clone the crons push from, so it's current.
+  const gitBySlug = {};
+  for (const g of await gitMod.summaries(root, slugs)) gitBySlug[g.slug] = g;
   const sites = slugs.map((slug) => {
     const cwd = siteDir(root, slug);
     const parsed = parseRoles(readFirst(cwd, CRONTABS));
@@ -106,26 +108,25 @@ function matrix(root, slugs) {
       const enabled = !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
       const last = lastRun(cwd, role);
       let { state, age } = cellState(enabled, last, schedule, now);
-      // Deployers fire on real deploys, not on a fixed cadence (the */N cron is
-      // just a poll interval — most only run when there's something to ship), so
-      // the cron-cadence thresholds mislabel sites that deploy daily as
-      // "overdue" every few hours. Judge a deployer by how long since its last
-      // ACTUAL deploy, on day-scale thresholds — and flag a stuck queue (a
-      // `.deploy-needed` flag no run has cleared) as overdue outright.
+      let deploy = null;
+      // The deployer cell tracks DEPLOY HEALTH, not cron recency. Every site
+      // ships via push-to-deploy (commit → `git push origin main` → CF rebuild),
+      // so the local deployer cron is just a safety net — a site can be fully
+      // live with a stale cron. Judge it by whether main is in sync with origin:
+      // in sync → CF has it (fresh); commits ahead → unpushed, NOT live (red).
+      // (last actual deploy time is kept in `age` for the tooltip.)
       if (role === 'deployer' && enabled) {
-        let pendingMt = 0;
-        try { pendingMt = fs.statSync(path.join(cwd, '.deploy-needed')).mtimeMs; } catch { /* none */ }
-        if (pendingMt && (!last || last < pendingMt)) {
-          age = (now - pendingMt) / 1000;            // queued but not yet serviced
-          state = age <= 3600 ? 'fresh' : age <= 6 * 3600 ? 'stale' : 'overdue';
-        } else if (last) {
-          age = (now - last) / 1000;                 // time since last real deploy
-          state = age <= DEPLOY_FRESH ? 'fresh' : age <= DEPLOY_STALE ? 'stale' : 'overdue';
-        } else {
-          state = 'never';
-        }
+        const g = gitBySlug[slug] || {};
+        const onMain = g.branch === 'main' || g.branch === 'master';
+        age = last ? (now - last) / 1000 : null;
+        if (!g.isRepo) state = 'never';
+        else if (g.ahead > 0) state = 'overdue';         // committed but unpushed → not deployed
+        else if (!onMain) state = 'stale';               // feature branch checked out
+        else state = 'fresh';                            // in sync with origin → deployed
+        deploy = { ahead: g.ahead || 0, dirty: g.dirty || 0, branch: g.branch || null,
+          pushed: onMain && (g.ahead || 0) === 0 };
       }
-      cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state, worker };
+      cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state, worker, deploy };
       freq[role] = (freq[role] || 0) + 1;
     }
     return { site: slug, cells };

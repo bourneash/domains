@@ -446,7 +446,7 @@ async function renderControl() {
       <thead><tr>${head}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>.</p>`;
+    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>. The <b>deployer</b> column reflects deploy health (main vs origin): ${lg('fresh', 'in sync — live via push-to-deploy')} · ${lg('overdue', 'unpushed commits not deployed')}.</p>`;
 
   $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role)));
   $$('.rcol-link').forEach((a) => a.addEventListener('click', () => go('agent', a.dataset.role)));
@@ -456,7 +456,21 @@ async function renderControl() {
 
 const STATE_LABEL = { fresh: 'fresh', stale: 'overdue', overdue: 'well overdue', paused: 'paused', never: 'no log found' };
 function roleDot(site, role, c) {
-  const tip = `${role} — ${STATE_LABEL[c.state] || c.state}${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''} · sched ${c.schedule}`;
+  let tip;
+  if (c.deploy) {
+    // Deployer cell = deploy health (main vs origin), not cron recency.
+    const d = c.deploy;
+    const health = d.pushed ? 'in sync — deployed'
+      : d.ahead ? `${d.ahead} commit${d.ahead > 1 ? 's' : ''} not deployed (unpushed)`
+      : (d.branch && d.branch !== 'main' && d.branch !== 'master') ? `on ${d.branch} (not main)`
+      : 'no repo';
+    const extras = [];
+    if (d.dirty) extras.push(`${d.dirty} uncommitted`);
+    if (c.age != null) extras.push(`last deploy ${fmtAge(c.age)} ago`);
+    tip = `deployer — ${health}${extras.length ? ' · ' + extras.join(' · ') : ''}`;
+  } else {
+    tip = `${role} — ${STATE_LABEL[c.state] || c.state}${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''} · sched ${c.schedule}`;
+  }
   return `<span class="rdot r-${c.state}" data-site="${esc(site)}" data-role="${esc(role)}" title="${esc(tip)}"></span>`;
 }
 
