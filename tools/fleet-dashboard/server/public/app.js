@@ -1120,8 +1120,11 @@ async function renderCron() {
     <p class="muted" style="margin-top:12px">Each card is one cron container (a site or tool). Edits write the on-disk <span class="mono">crontab.docker</span>; the container keeps running its baked-in copy until you <b>Rebuild &amp; restart</b>. <b>Pause/Resume</b> on a worker role toggles its <span class="mono">.&lt;role&gt;-disabled</span> flag (instant, no rebuild). <span class="cm-badge stale">stale</span> = disk crontab changed since the last build — rebuild or revert.</p>`;
 
   cmWireCards();
-  $('#cm-collapse-all').addEventListener('click', () => { systems.forEach((s) => CM.collapsed.add(s.slug)); cmSaveCollapsed(); softRender(); });
-  $('#cm-expand-all').addEventListener('click', () => { CM.collapsed.clear(); cmSaveCollapsed(); softRender(); });
+  // Apply to the DOM directly, NOT via softRender() — softRender captures the
+  // current [data-rk] visibility and re-applies it in applyUISnap(), which would
+  // clobber the collapse state we just set (the cards would bounce right back).
+  $('#cm-collapse-all').addEventListener('click', () => { systems.forEach((s) => CM.collapsed.add(s.slug)); cmSaveCollapsed(); cmApplyCollapsed(); });
+  $('#cm-expand-all').addEventListener('click', () => { CM.collapsed.clear(); cmSaveCollapsed(); cmApplyCollapsed(); });
   if (!FRESH) applyUISnap();
   stamp();
 }
@@ -1224,10 +1227,21 @@ function cmWireCards() {
 function cmToggleCollapse(slug) {
   if (CM.collapsed.has(slug)) CM.collapsed.delete(slug); else CM.collapsed.add(slug);
   cmSaveCollapsed();
-  const body = $(`.cm-body[data-rk="cron:${CSS.escape(slug)}"]`);
-  const btn = $(`.cm-collapse[data-slug="${CSS.escape(slug)}"]`);
-  if (body) body.classList.toggle('hidden', CM.collapsed.has(slug));
-  if (btn) { const open = !CM.collapsed.has(slug); btn.textContent = open ? '▾' : '▸'; btn.setAttribute('aria-expanded', open); }
+  cmApplyCollapsed(slug);
+}
+
+// Reflect CM.collapsed into the DOM (body .hidden + chevron) without a re-render,
+// so it survives applyUISnap(). Pass a slug to update one card, or omit for all.
+function cmApplyCollapsed(slug) {
+  const btns = slug ? $$(`.cm-collapse[data-slug="${CSS.escape(slug)}"]`) : $$('.cm-collapse');
+  btns.forEach((btn) => {
+    const s = btn.dataset.slug;
+    const collapsed = CM.collapsed.has(s);
+    const body = $(`.cm-body[data-rk="cron:${CSS.escape(s)}"]`);
+    if (body) body.classList.toggle('hidden', collapsed);
+    btn.textContent = collapsed ? '▸' : '▾';
+    btn.setAttribute('aria-expanded', String(!collapsed));
+  });
 }
 
 /* ---- inline schedule editor ---- */
