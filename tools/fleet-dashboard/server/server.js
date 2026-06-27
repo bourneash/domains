@@ -12,6 +12,7 @@ const tasks = require('./tasks');
 const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
+const cron = require('./cron');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -113,6 +114,62 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.post('/api/sites/:slug/bounce', requireSite, async (req, res) => {
     try { res.json(await containers.bounce(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  // Cron control plane (folded in from the retired cron-manager tool). Operates
+  // at the crontab-LINE level: list every cron entry, edit a schedule, comment/
+  // remove a line, diff/revert vs the baked-in crontab, rebuild + verify. Routes
+  // are thin wrappers over server/cron.js. NOTE: cron "systems" include tools/*,
+  // not just sites/*, so these validate via cron.findSystem (not requireSite).
+  app.get('/api/cron/describe', (req, res) => res.json(cron.validateAndDescribe(req.query.expr)));
+
+  app.get('/api/cron/systems', async (_req, res) => {
+    try { res.json(await cron.systems(root)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.get('/api/cron/systems/:slug/logs', async (req, res) => {
+    try {
+      res.setHeader('content-type', 'text/plain; charset=utf-8');
+      res.send(await cron.logs(root, req.params.slug, req.query.source, req.query.tail));
+    } catch (e) { res.status(e.httpStatus || 500).send(e.message); }
+  });
+
+  app.get('/api/cron/systems/:slug/diff', async (req, res) => {
+    try { res.json(await cron.diff(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/cron/systems/:slug/crontab', async (req, res) => {
+    try { res.json(await cron.crontabMutate(root, req.params.slug, req.body || {})); }
+    catch (e) { res.status(e.httpStatus || 400).json({ error: e.message }); }
+  });
+
+  app.post('/api/cron/systems/:slug/revert', async (req, res) => {
+    try { res.json(await cron.revert(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/cron/systems/:slug/rebuild', async (req, res) => {
+    try { await cron.rebuild(root, req.params.slug, res); }
+    catch (e) {
+      if (res.headersSent) { try { res.end(); } catch { /* already closed */ } }
+      else res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  // Manual run streams — define BEFORE the generic :action flag route.
+  app.post('/api/cron/systems/:slug/jobs/:role/run', async (req, res) => {
+    try { await cron.runJob(root, req.params.slug, req.params.role, res); }
+    catch (e) {
+      if (res.headersSent) { try { res.end(); } catch { /* already closed */ } }
+      else res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/cron/systems/:slug/jobs/:role/:action', (req, res) => {
+    try { res.json(cron.jobFlag(root, req.params.slug, req.params.role, req.params.action)); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 

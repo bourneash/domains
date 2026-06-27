@@ -1,5 +1,8 @@
 'use strict';
 
+// Per-role last-run facts + log resolution for the cron control plane.
+// Ported verbatim from tools/cron-manager (server/runinfo.js).
+
 const fs = require('node:fs');
 const path = require('node:path');
 

@@ -2,10 +2,12 @@
 
 How the autonomous cron/ops layer works across domain sites, and the
 invariants that keep it from breaking. Read this before touching any
-`ops/docker/` file or the `cron-manager` tool.
+`ops/docker/` file or the Fleet Dashboard's Cron tab.
 
-Managed visually by **`tools/cron-manager`** (http://127.0.0.1:4753) — view
-status, pause/resume roles, edit schedules, rebuild containers, tail logs.
+Managed visually by the **Fleet Dashboard → Cron tab**
+(http://127.0.0.1:4754#cron) — view status, pause/resume roles, edit
+schedules, diff vs the running container, rebuild containers, tail logs. (This
+folded in the standalone `tools/cron-manager` panel, retired 2026-06-27.)
 
 ## The two-container model (per site)
 
@@ -24,7 +26,7 @@ Each site with autonomy has, under `sites/<domain>/`:
 
 Naming convention: project `<stem>-ops`, containers `<stem>-cron` /
 `<stem>-worker` (stem = domain's first label, e.g. `americastrikes`).
-`cron-manager` reads the real `container_name` from compose rather than
+The Cron tab reads the real `container_name` from compose rather than
 assuming the stem, so a drifted name (cf. CF stripping dots → `xxxtea-com`)
 won't be missed.
 
@@ -43,9 +45,9 @@ Compose files mount shared creds like:
 This breaks the moment something runs `docker compose up` with `HOME` set to
 the wrong value. Two places this matters:
 
-1. **The cron-manager panel** spawns `docker compose up cron` *inside its own
-   container*. That container therefore sets `HOME=/home/jesse` explicitly
-   (`tools/cron-manager/docker-compose.yml`). Without it, `HOME` defaulted to
+1. **The Fleet Dashboard panel** spawns `docker compose up cron` *inside its
+   own container*. That container therefore sets `HOME=/home/jesse` explicitly
+   (`tools/fleet-dashboard/docker-compose.yml`). Without it, `HOME` defaulted to
    `/root`, the bind source became `/root/projects/domains/.env` (nonexistent
    on the host), Docker auto-created it as a directory, and the cron container
    died in `created` with an OCI "mount directory onto file" error
@@ -81,7 +83,7 @@ all sites.
 
 ## Disabling a role
 
-Two mechanisms (both surfaced in cron-manager):
+Two mechanisms (both surfaced in the Cron tab):
 
 - **Instant, no rebuild** — a `.<role>-disabled` flag file in `ops/`.
   `run-role.sh`/discovery honor it. This is the preferred toggle.
@@ -93,8 +95,8 @@ Two mechanisms (both surfaced in cron-manager):
 
 `docker compose build cron` reads the **local working tree**, so edits to
 `Dockerfile.cron` / `crontab.docker` / `entrypoint-cron.sh` go live on the
-next rebuild — independent of git commit/push. Use cron-manager's
-"Rebuild & restart cron" (it now verifies the container actually reached
+next rebuild — independent of git commit/push. Use the Cron tab's
+"Rebuild & restart" (it verifies the container actually reached
 `running` afterward and surfaces the failure + logs if not).
 
 ## Deferred / not normalized (intentionally)

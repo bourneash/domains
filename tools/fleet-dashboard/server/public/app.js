@@ -1054,10 +1054,431 @@ async function deleteTask(site, column, file) {
 
 function closeModal() { $('#modal').classList.add('hidden'); ROLE_OPEN = null; }
 
-/* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'containers', 'git', 'tasks'];
+/* ===================== CRON ===================== */
+// Crontab-line control plane, folded in from the retired cron-manager tool.
+// Operates at the crontab-LINE level (edit schedule, comment/remove a line,
+// diff vs the baked-in crontab, revert, rebuild) across sites/* AND tools/*.
+const CM = {
+  bySlug: new Map(),
+  collapsed: cmLoadCollapsed(),
+  rebuildLog: new Map(),          // slug → last rebuild output (this session)
+  runLog: new Map(),              // "slug:role" → last run output (this session)
+  editing: null,                  // { slug, lineIndex } while inline-editing
+};
+function cmLoadCollapsed() {
+  try { return new Set(JSON.parse(localStorage.getItem('fd.cron.collapsed') || '[]')); }
+  catch { return new Set(); }
+}
+function cmSaveCollapsed() {
+  try { localStorage.setItem('fd.cron.collapsed', JSON.stringify([...CM.collapsed])); } catch {}
+}
+function cmRel(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const s = (Date.now() - d.getTime()) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  if (s < 604800) return Math.floor(s / 86400) + 'd ago';
+  return d.toLocaleDateString();
+}
 
-// Hash router. Routes: #control, #containers, #git, #tasks, #agents/<role>.
+async function renderCron() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Reading crontabs…</div>';
+  let systems;
+  try { systems = await api('GET', '/api/cron/systems'); }
+  catch (e) { app.innerHTML = `<div class="empty">Cron read failed: ${esc(e.message)}</div>`; return; }
+
+  CM.bySlug.clear();
+  systems.forEach((s) => CM.bySlug.set(s.slug, s));
+  // Failed / stale / down float to the top for immediate visibility.
+  systems.sort((a, b) => {
+    const rank = (s) => s.failed ? 0 : (s.needsRebuild ? 1 : s.status === 'running' ? 2 : 3);
+    return rank(a) - rank(b);
+  });
+
+  const running = systems.filter((s) => s.status === 'running').length;
+  const failed = systems.filter((s) => s.failed);
+  const dirty = systems.filter((s) => s.needsRebuild).length;
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Cron</h2><span class="muted">every crontab across ${systems.length} systems · edit a schedule, diff vs the running container, rebuild</span></div>
+    <div class="task-toolbar">
+      <strong>${systems.length} systems</strong>
+      <span class="muted"><span class="cm-st on"></span>${running} running · <span class="cm-st off"></span>${failed.length} failed · ${dirty} need rebuild</span>
+      <button class="btn sm" id="cm-collapse-all" style="margin-left:auto">Collapse all</button>
+      <button class="btn sm" id="cm-expand-all">Expand all</button>
+    </div>
+    <div class="cm-systems">${systems.map((s) => cmCard(s)).join('')}</div>
+    <p class="muted" style="margin-top:12px">Each card is one cron container (a site or tool). Edits write the on-disk <span class="mono">crontab.docker</span>; the container keeps running its baked-in copy until you <b>Rebuild &amp; restart</b>. <b>Pause/Resume</b> on a worker role toggles its <span class="mono">.&lt;role&gt;-disabled</span> flag (instant, no rebuild). <span class="cm-badge stale">stale</span> = disk crontab changed since the last build — rebuild or revert.</p>`;
+
+  cmWireCards();
+  $('#cm-collapse-all').addEventListener('click', () => { systems.forEach((s) => CM.collapsed.add(s.slug)); cmSaveCollapsed(); softRender(); });
+  $('#cm-expand-all').addEventListener('click', () => { CM.collapsed.clear(); cmSaveCollapsed(); softRender(); });
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+function cmCard(sys) {
+  const collapsed = CM.collapsed.has(sys.slug);
+  const st = sys.status;
+  const isStale = st === 'running' && sys.needsRebuild;
+  const badgeCls = sys.failed ? 'failed' : isStale ? 'stale' : st === 'running' ? 'running' : 'stopped';
+  const badgeLabel = isStale ? 'stale' : st;
+  const exit = sys.exitCode != null ? ` · exit ${sys.exitCode}` : '';
+  const badgeTitle = isStale
+    ? esc((sys.statusText || st) + ' · crontab changed since last build')
+    : esc((sys.statusText || st) + exit);
+
+  const rows = sys.entries.length
+    ? sys.entries.map((e) => cmRow(sys, e)).join('')
+    : '<tr><td colspan="5" class="muted">No cron entries.</td></tr>';
+
+  const foot = [
+    `<button class="btn sm primary cm-rebuild${sys.needsRebuild ? ' dirty' : ''}" data-slug="${esc(sys.slug)}">⟳ Rebuild &amp; restart</button>`,
+    `<button class="btn sm cm-logs" data-slug="${esc(sys.slug)}" data-source="container">📜 Logs</button>`,
+  ];
+  if (isStale) {
+    foot.push(`<button class="btn sm cm-diff" data-slug="${esc(sys.slug)}">≡ View diff</button>`);
+    foot.push(`<button class="btn sm danger cm-revert" data-slug="${esc(sys.slug)}">↩ Revert</button>`);
+  }
+  const hint = sys.needsRebuild
+    ? `<span class="cm-hint">${isStale ? 'running stale crontab — rebuild or revert' : 'crontab changed — rebuild to apply'}</span>`
+    : '';
+
+  return `<section class="cm-card${sys.failed ? ' cm-failed' : ''}">
+    <div class="cm-head" data-slug="${esc(sys.slug)}">
+      <button class="cm-collapse" data-slug="${esc(sys.slug)}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'}">${collapsed ? '▸' : '▾'}</button>
+      <span class="cm-name">${esc(sys.slug)}</span>
+      <span class="cm-kind">${esc(sys.kind)}</span>
+      <span class="cm-badge ${badgeCls}" title="${badgeTitle}">${esc(badgeLabel)}</span>
+      ${sys.needsRebuild && !isStale ? '<span class="cm-badge stale">needs rebuild</span>' : ''}
+      <span class="cm-container mono">${esc(sys.container)}</span>
+    </div>
+    <div class="cm-body${collapsed ? ' hidden' : ''}" data-rk="cron:${esc(sys.slug)}">
+      <table class="cm-jobs">
+        <thead><tr><th>State</th><th>Job</th><th>Schedule</th><th>Last run</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="cm-foot">${foot.join(' ')}${hint}</div>
+    </div>
+  </section>`;
+}
+
+function cmRow(sys, e) {
+  const r = cmRel(e.lastRun);
+  const exCls = e.lastExit === 0 ? 'ok' : (e.lastExit != null ? 'bad' : '');
+  const last = r
+    ? `<span class="cm-last${e.hasLog ? ' cm-clickable' : ''}" data-slug="${esc(sys.slug)}" data-role="${esc(e.role || '')}" title="${esc(e.lastRun)}${e.lastExit != null ? ' · exit ' + e.lastExit : ''}">${exCls ? `<span class="cm-ex ${exCls}"></span>` : ''}${esc(r)}</span>`
+    : '<span class="muted">—</span>';
+  const job = e.role
+    ? `<span class="cm-job" title="${esc(e.command)}">${esc(e.role)}</span>`
+    : `<span class="cm-job cmd" title="${esc(e.command)}">${esc(e.command)}</span>`;
+
+  const acts = [
+    `<button class="btn sm cm-toggle" data-line="${e.lineIndex}">${e.enabled ? 'Pause' : 'Resume'}</button>`,
+    `<button class="btn sm cm-edit" data-line="${e.lineIndex}">Edit</button>`,
+  ];
+  if (e.hasLog) acts.push(`<button class="btn sm cm-rolelog" data-role="${esc(e.role)}">Log</button>`);
+  if (e.role && sys.status === 'running') acts.push(`<button class="btn sm cm-run" data-role="${esc(e.role)}">Run</button>`);
+  acts.push(`<button class="btn sm danger cm-remove" data-line="${e.lineIndex}">Remove</button>`);
+
+  return `<tr class="cm-jobrow${e.enabled ? '' : ' cm-paused'}" data-slug="${esc(sys.slug)}" data-line="${e.lineIndex}">
+    <td><span class="cm-state ${e.enabled ? 'on' : 'off'}">${e.enabled ? 'on' : 'paused'}</span></td>
+    <td>${job}</td>
+    <td><span class="cm-sched"><span class="cm-human">${esc(e.human || e.schedule)}</span><span class="cm-expr mono">${esc(e.schedule)}</span></span></td>
+    <td>${last}</td>
+    <td class="cn-actions">${acts.join(' ')}</td>
+  </tr>`;
+}
+
+// Look up the live entry object for a (slug, lineIndex) — needed for rawLine
+// (stale-line check) and schedule on demand.
+function cmEntry(slug, lineIndex) {
+  const sys = CM.bySlug.get(slug);
+  return sys ? sys.entries.find((e) => e.lineIndex === Number(lineIndex)) : null;
+}
+
+function cmWireCards() {
+  $$('.cm-collapse').forEach((b) => b.addEventListener('click', (ev) => { ev.stopPropagation(); cmToggleCollapse(b.dataset.slug); }));
+  $$('.cm-head').forEach((h) => h.addEventListener('click', (ev) => { if (ev.target.closest('button')) return; cmToggleCollapse(h.dataset.slug); }));
+  $$('.cm-rebuild').forEach((b) => b.addEventListener('click', () => cmDoRebuild(b.dataset.slug, b)));
+  $$('.cm-logs').forEach((b) => b.addEventListener('click', () => cmOpenLogs(b.dataset.slug, b.dataset.source)));
+  $$('.cm-diff').forEach((b) => b.addEventListener('click', () => cmOpenDiff(b.dataset.slug)));
+  $$('.cm-revert').forEach((b) => b.addEventListener('click', () => cmDoRevert(b.dataset.slug)));
+  $$('.cm-toggle').forEach((b) => b.addEventListener('click', () => cmToggleJob(b.closest('tr').dataset.slug, b.dataset.line)));
+  $$('.cm-edit').forEach((b) => b.addEventListener('click', () => cmEditJob(b.closest('tr'))));
+  $$('.cm-remove').forEach((b) => b.addEventListener('click', () => cmRemoveJob(b.closest('tr').dataset.slug, b.dataset.line)));
+  $$('.cm-run').forEach((b) => b.addEventListener('click', () => cmRunJob(b.closest('tr').dataset.slug, b.dataset.role, b)));
+  $$('.cm-rolelog').forEach((b) => b.addEventListener('click', () => cmOpenLogs(b.closest('tr').dataset.slug, `role:${b.dataset.role}`)));
+  $$('.cm-last.cm-clickable').forEach((s) => s.addEventListener('click', () => { if (s.dataset.role) cmOpenLogs(s.dataset.slug, `role:${s.dataset.role}`); }));
+}
+
+function cmToggleCollapse(slug) {
+  if (CM.collapsed.has(slug)) CM.collapsed.delete(slug); else CM.collapsed.add(slug);
+  cmSaveCollapsed();
+  const body = $(`.cm-body[data-rk="cron:${CSS.escape(slug)}"]`);
+  const btn = $(`.cm-collapse[data-slug="${CSS.escape(slug)}"]`);
+  if (body) body.classList.toggle('hidden', CM.collapsed.has(slug));
+  if (btn) { const open = !CM.collapsed.has(slug); btn.textContent = open ? '▾' : '▸'; btn.setAttribute('aria-expanded', open); }
+}
+
+/* ---- inline schedule editor ---- */
+const CM_PRESETS = [
+  ['*/15 * * * *', 'Every 15 min'], ['0 * * * *', 'Hourly'], ['*/30 * * * *', 'Every 30 min'],
+  ['0 6 * * *', 'Daily 6am'], ['0 7 * * 1', 'Mon 7am'], ['0 9 1 * *', 'Monthly'],
+];
+function cmCloseEditor() { $$('.cm-editor-row').forEach((r) => r.remove()); CM.editing = null; }
+
+function cmEditJob(tr) {
+  const next = tr.nextElementSibling;
+  if (next && next.classList.contains('cm-editor-row')) { cmCloseEditor(); return; }
+  cmCloseEditor();
+  const slug = tr.dataset.slug;
+  const e = cmEntry(slug, tr.dataset.line);
+  if (!e) return;
+  CM.editing = { slug, lineIndex: e.lineIndex };
+  const row = document.createElement('tr');
+  row.className = 'cm-editor-row';
+  row.innerHTML = `<td colspan="5"><div class="cm-editor">
+    <div class="cm-ed-top">
+      <span class="muted">Schedule for <b>${esc(e.role || e.command)}</b></span>
+      <input class="cm-input cm-cron" type="text" spellcheck="false" autocomplete="off" value="${esc(e.schedule)}" />
+      <span class="cm-ed-dirty" hidden>● unsaved</span>
+    </div>
+    <div class="cm-ed-verdict"></div>
+    <div class="cm-ed-presets">${CM_PRESETS.map(([v, l]) => `<button class="btn sm cm-preset" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div>
+    <div class="cm-ed-legend muted">min 0-59 · hour 0-23 · day 1-31 · month 1-12 · weekday 0-6 · <b>*</b> any · <b>*/n</b> every n · <b>a,b</b> list · <b>a-b</b> range</div>
+    <div class="cm-ed-actions"><button class="btn sm primary cm-ed-save" disabled>Save</button><button class="btn sm cm-ed-cancel">Cancel</button></div>
+  </div></td>`;
+  tr.after(row);
+
+  const input = $('.cm-cron', row);
+  const verdict = $('.cm-ed-verdict', row);
+  const save = $('.cm-ed-save', row);
+  const dirty = $('.cm-ed-dirty', row);
+  const original = e.schedule;
+  let valid = false;
+  let t;
+  const check = () => {
+    clearTimeout(t);
+    t = setTimeout(async () => {
+      const expr = input.value.trim();
+      const changed = expr !== original;
+      dirty.hidden = !changed;
+      if (!expr) { verdict.className = 'cm-ed-verdict'; verdict.textContent = ''; input.className = 'cm-input cm-cron'; save.disabled = true; return; }
+      try {
+        const v = await api('GET', '/api/cron/describe?expr=' + encodeURIComponent(expr));
+        valid = v.valid;
+        input.className = 'cm-input cm-cron ' + (v.valid ? 'valid' : 'invalid');
+        verdict.className = 'cm-ed-verdict ' + (v.valid ? 'good' : 'bad');
+        verdict.textContent = v.valid ? v.human : (v.error || 'invalid');
+        save.disabled = !v.valid || !changed;
+      } catch { verdict.textContent = ''; }
+    }, 180);
+  };
+  input.addEventListener('input', check);
+  $$('.cm-preset', row).forEach((p) => p.addEventListener('click', () => { input.value = p.dataset.v; input.focus(); check(); }));
+  $('.cm-ed-cancel', row).addEventListener('click', cmCloseEditor);
+  save.addEventListener('click', async () => {
+    if (!valid) return;
+    save.disabled = true;
+    await cmPostCrontab(slug, { action: 'edit', lineIndex: e.lineIndex, newSchedule: input.value.trim(), expectedRawLine: e.rawLine });
+  });
+  input.focus(); input.select(); check();
+}
+
+/* ---- mutations ---- */
+async function cmToggleJob(slug, line) {
+  const e = cmEntry(slug, line);
+  const sys = CM.bySlug.get(slug);
+  if (!e || !sys) return;
+  try {
+    if (e.role && sys.kind === 'site') {
+      await api('POST', `/api/cron/systems/${encodeURIComponent(slug)}/jobs/${encodeURIComponent(e.role)}/${e.enabled ? 'disable' : 'enable'}`);
+      toast(`${e.enabled ? 'Paused' : 'Resumed'} ${e.role} on ${slug}`);
+    } else {
+      await api('POST', `/api/cron/systems/${encodeURIComponent(slug)}/crontab`, { action: e.enabled ? 'comment' : 'uncomment', lineIndex: e.lineIndex, expectedRawLine: e.rawLine });
+      toast(`${e.enabled ? 'Disabled' : 'Enabled'} line — rebuild to apply`);
+    }
+    softRender();
+  } catch (err) { toast(`failed: ${err.message}`, 'err'); }
+}
+
+async function cmRemoveJob(slug, line) {
+  const e = cmEntry(slug, line);
+  if (!e) return;
+  if (!confirm(`Remove this line from ${slug}'s crontab?\n\n${e.rawLine}`)) return;
+  await cmPostCrontab(slug, { action: 'remove', lineIndex: e.lineIndex, expectedRawLine: e.rawLine });
+}
+
+async function cmPostCrontab(slug, payload) {
+  try {
+    await api('POST', `/api/cron/systems/${encodeURIComponent(slug)}/crontab`, payload);
+    toast('Saved to crontab — rebuild to apply');
+    cmCloseEditor();
+    softRender();
+  } catch (e) { toast(`change failed: ${e.message}`, 'err'); }
+}
+
+/* ---- run now (streamed) ---- */
+async function cmRunJob(slug, role, btn) {
+  const orig = btn.textContent; btn.disabled = true; btn.textContent = '…';
+  let text = '';
+  try {
+    const r = await fetch(`/api/cron/systems/${encodeURIComponent(slug)}/jobs/${encodeURIComponent(role)}/run`, { method: 'POST' });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
+    const reader = r.body.getReader(); const dec = new TextDecoder();
+    for (;;) { const { done, value } = await reader.read(); if (done) break; text += dec.decode(value); }
+  } catch (err) { text += `\nclient error: ${err.message}`; }
+  const m = text.match(/@@RUN_EXIT (-?\d+)/);
+  const code = m ? parseInt(m[1], 10) : null;
+  CM.runLog.set(`${slug}:${role}`, text.replace(/@@RUN_EXIT[^\n]*\n?/g, ''));
+  btn.disabled = false; btn.textContent = orig;
+  toast(code === 0 ? `${role} completed — open Logs ▸ run:${role}` : `${role} exited ${code ?? '?'} — see Logs`, code === 0 ? 'ok' : 'err');
+  softRender();
+}
+
+/* ---- rebuild (streamed) ---- */
+async function cmDoRebuild(slug, btn) {
+  if (!confirm(`Rebuild and restart ${slug}'s cron container?\n\nBuilds the image then recreates the container (can take a minute).`)) return;
+  const orig = btn.textContent; btn.disabled = true; btn.textContent = 'Rebuilding…';
+  toast(`Rebuilding ${slug} — this can take a minute…`);
+  let text = '';
+  try {
+    const r = await fetch(`/api/cron/systems/${encodeURIComponent(slug)}/rebuild`, { method: 'POST' });
+    const reader = r.body.getReader(); const dec = new TextDecoder();
+    for (;;) { const { done, value } = await reader.read(); if (done) break; text += dec.decode(value); }
+  } catch (e) { text += `\nclient error: ${e.message}`; }
+  CM.rebuildLog.set(slug, text.replace(/@@VERDICT.*\n?/g, ''));
+  const ok = /@@VERDICT ok\b/.test(text);
+  btn.disabled = false; btn.textContent = orig;
+  toast(ok ? `${slug} cron restarted` : `${slug} failed to start — open Logs ▸ Last rebuild`, ok ? 'ok' : 'err');
+  softRender();
+}
+
+/* ---- diff viewer ---- */
+function cmDiffLines(running, disk) {
+  const a = (running || '').split('\n');
+  const b = (disk || '').split('\n');
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+  const out = []; let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && a[i - 1] === b[j - 1]) { out.unshift({ type: 'same', line: a[i - 1] }); i--; j--; }
+    else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) { out.unshift({ type: 'add', line: b[j - 1] }); j--; }
+    else { out.unshift({ type: 'del', line: a[i - 1] }); i--; }
+  }
+  return out;
+}
+let CM_DIFF_SLUG = null;
+async function cmOpenDiff(slug) {
+  CM_DIFF_SLUG = slug;
+  $('#cm-diff-title').textContent = `crontab diff — ${slug}`;
+  const out = $('#cm-diff-out'); out.textContent = 'Loading…';
+  $('#cm-diff-meta').textContent = '';
+  $('#cm-diff-modal').classList.remove('hidden');
+  try {
+    const { disk, running } = await api('GET', `/api/cron/systems/${encodeURIComponent(slug)}/diff`);
+    if (running === null) { out.textContent = 'Container is not running — cannot read baked crontab.'; $('#cm-diff-meta').textContent = 'no running container'; return; }
+    const lines = cmDiffLines(running, disk);
+    const adds = lines.filter((l) => l.type === 'add').length;
+    const dels = lines.filter((l) => l.type === 'del').length;
+    out.innerHTML = lines.map(({ type, line }) => {
+      const e = esc(line);
+      if (type === 'add') return `<span class="cm-dl-add">+ ${e}</span>`;
+      if (type === 'del') return `<span class="cm-dl-del">- ${e}</span>`;
+      return `<span class="cm-dl-same">  ${e}</span>`;
+    }).join('\n');
+    $('#cm-diff-meta').textContent = (adds || dels) ? `+${adds} / -${dels} lines vs running` : 'no differences (content matches)';
+  } catch (e) { out.textContent = e.message; }
+}
+function cmCloseDiff() { $('#cm-diff-modal').classList.add('hidden'); CM_DIFF_SLUG = null; }
+
+async function cmDoRevert(slug) {
+  if (!confirm(`Overwrite ${slug}'s crontab.docker with the version baked into the running container?\n\nYour on-disk changes will be discarded.`)) return;
+  try {
+    await api('POST', `/api/cron/systems/${encodeURIComponent(slug)}/revert`);
+    cmCloseDiff();
+    toast(`Reverted ${slug} to the running container's crontab`);
+    softRender();
+  } catch (e) { toast(`revert failed: ${e.message}`, 'err'); }
+}
+
+/* ---- log viewer ---- */
+const CMLV = { slug: null, source: 'container', raw: '' };
+async function cmOpenLogs(slug, source) {
+  const sys = CM.bySlug.get(slug);
+  CMLV.slug = slug; CMLV.source = source || 'container';
+  $('#cm-log-title').textContent = sys ? sys.container : slug;
+  const sources = (sys && sys.logSources ? sys.logSources : [{ id: 'container', label: 'Container' }]).slice();
+  if (CM.rebuildLog.has(slug) && !sources.some((s) => s.id === 'rebuild')) sources.splice(1, 0, { id: 'rebuild', label: 'Last rebuild' });
+  for (const key of CM.runLog.keys()) {
+    if (!key.startsWith(slug + ':')) continue;
+    const role = key.slice(slug.length + 1);
+    if (!sources.some((s) => s.id === `run:${role}`)) sources.push({ id: `run:${role}`, label: `run: ${role}` });
+  }
+  const seg = $('#cm-log-sources');
+  seg.innerHTML = sources.map((s) => `<button data-id="${esc(s.id)}">${esc(s.label)}</button>`).join('');
+  $$('#cm-log-sources button', seg).forEach((b) => b.addEventListener('click', () => { CMLV.source = b.dataset.id; cmFetchLogs(); }));
+  $('#cm-log-modal').classList.remove('hidden');
+  cmFetchLogs();
+}
+async function cmFetchLogs() {
+  $$('#cm-log-sources button').forEach((b) => b.classList.toggle('active', b.dataset.id === CMLV.source));
+  const out = $('#cm-log-out');
+  const tail = $('#cm-log-tail').value;
+  if (CMLV.source === 'rebuild' && CM.rebuildLog.has(CMLV.slug)) {
+    CMLV.raw = CM.rebuildLog.get(CMLV.slug);
+  } else if (CMLV.source.startsWith('run:')) {
+    CMLV.raw = CM.runLog.get(`${CMLV.slug}:${CMLV.source.slice(4)}`) ?? '(no run output in this session)';
+  } else {
+    out.textContent = 'Loading…';
+    try { CMLV.raw = await (await fetch(`/api/cron/systems/${encodeURIComponent(CMLV.slug)}/logs?source=${encodeURIComponent(CMLV.source)}&tail=${tail}`)).text(); }
+    catch (e) { CMLV.raw = `failed to load logs: ${e.message}`; }
+  }
+  cmApplyLogFilter();
+  $('#cm-log-meta').textContent = `${CMLV.source} · tail ${tail}`;
+  out.scrollTop = out.scrollHeight;
+}
+function cmApplyLogFilter() {
+  const f = $('#cm-log-filter').value.trim().toLowerCase();
+  const lines = CMLV.raw.split('\n');
+  const shown = f ? lines.filter((l) => l.toLowerCase().includes(f)) : lines;
+  $('#cm-log-out').textContent = shown.join('\n');
+  $('#cm-log-count').textContent = f ? `${shown.length} / ${lines.length} lines` : `${lines.length} lines`;
+}
+function cmCloseLogs() { $('#cm-log-modal').classList.add('hidden'); }
+
+// Wire the cron modals' static controls once at boot.
+function cmWireModals() {
+  $('#cm-log-close').addEventListener('click', cmCloseLogs);
+  $('#cm-log-modal').addEventListener('click', (e) => { if (e.target.id === 'cm-log-modal') cmCloseLogs(); });
+  $('#cm-log-filter').addEventListener('input', cmApplyLogFilter);
+  $('#cm-log-tail').addEventListener('change', cmFetchLogs);
+  $('#cm-log-reload').addEventListener('click', cmFetchLogs);
+  $('#cm-log-wrap').addEventListener('change', (e) => $('#cm-log-out').classList.toggle('cm-wrap', e.target.checked));
+  $('#cm-log-copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#cm-log-out').textContent); toast('Copied'); } catch { toast('Copy failed', 'err'); } });
+  $('#cm-log-download').addEventListener('click', () => {
+    const blob = new Blob([CMLV.raw], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `${CMLV.slug}-${CMLV.source.replace(':', '-')}.log`;
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  $('#cm-diff-close').addEventListener('click', cmCloseDiff);
+  $('#cm-diff-close2').addEventListener('click', cmCloseDiff);
+  $('#cm-diff-modal').addEventListener('click', (e) => { if (e.target.id === 'cm-diff-modal') cmCloseDiff(); });
+  $('#cm-diff-revert').addEventListener('click', () => { if (CM_DIFF_SLUG) cmDoRevert(CM_DIFF_SLUG); });
+}
+
+/* ===================== SHELL ===================== */
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks'];
+
+// Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
 function parseHash() {
   const h = (location.hash || '').replace(/^#/, '');
@@ -1103,6 +1524,7 @@ function render() {
   document.body.dataset.view = STATE.view;   // lets CSS widen specific views
   syncAgentsMenuActive();
   if (STATE.view === 'control') renderControl();
+  else if (STATE.view === 'cron') renderCron();
   else if (STATE.view === 'agent') renderAgent(STATE.agent);
   else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
@@ -1219,7 +1641,8 @@ async function boot() {
   $('#modal-close').addEventListener('click', closeModal);
   $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
   $('#update-pill').addEventListener('click', () => location.reload());
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  cmWireModals();
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); cmCloseLogs(); cmCloseDiff(); cmCloseEditor(); } });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); refreshTick(); scheduleAuto(); } });
   checkVersion();
   setInterval(checkVersion, 60000);

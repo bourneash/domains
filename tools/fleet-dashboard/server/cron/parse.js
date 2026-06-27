@@ -1,5 +1,9 @@
 'use strict';
 
+// Crontab line parsing + safe line mutations. Ported verbatim from
+// tools/cron-manager (server/crontab.js) when the cron control plane was
+// folded into the fleet dashboard.
+
 // Matches an optional leading comment marker, then 5 whitespace-separated
 // schedule fields, then the command (rest of line).
 const CRON_RE = /^(#\s*)?((?:\S+\s+){4}\S+)\s+(.+)$/;

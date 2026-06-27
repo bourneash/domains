@@ -1,5 +1,9 @@
 'use strict';
 
+// Docker interaction for the cron control plane: honest container health,
+// post-rebuild verification, log/crontab reads, and the build+restart stream.
+// Ported verbatim from tools/cron-manager (server/docker.js).
+
 const { exec } = require('node:child_process');
 const { promisify } = require('node:util');
 const execP = promisify(exec);
@@ -8,28 +12,20 @@ function defaultRunner(cmd) {
   return execP(cmd, { timeout: 10000 });
 }
 
-// Guard against shell injection from untrusted container names (bug 5).
-// Discovery already sanitises via regex, but this makes each shell-facing
-// function self-defending against any future path that skips discovery.
+// Guard against shell injection from untrusted container names. Discovery
+// already sanitises via regex, but this makes each shell-facing function
+// self-defending against any future path that skips discovery.
 function assertContainerName(name) {
   if (!name || !/^[A-Za-z0-9._-]+$/.test(name)) {
     throw new Error(`unsafe container name: ${String(name)}`);
   }
 }
 
-// Honest container health (A1). Returns the REAL docker state, not a
-// running/stopped binary — a container stuck in `created` (failed start) or
-// crash-looping in `restarting` used to render identically to a deliberately
-// stopped one, which is how 5 failed rebuilds stayed invisible.
+// Honest container health. Returns the REAL docker state, not a running/stopped
+// binary — a container stuck in `created` (failed start) or crash-looping in
+// `restarting` used to render identically to a deliberately stopped one.
 //
 // Returns: { state, raw, exitCode, ok, failed }
-//   state    'running'|'created'|'exited'|'restarting'|'paused'|'dead'
-//            |'never-built'|'unknown'
-//   raw      the human ".Status" string ("Up 3 hours", "Exited (127) ...")
-//   exitCode parsed exit code when present, else null
-//   ok       true only when actually running
-//   failed   true for states that should NOT persist (start failed, crash
-//            loop, dead, or non-zero exit) — these get a red badge in the UI
 async function inspectContainer(container, runner = defaultRunner) {
   try {
     assertContainerName(container);
@@ -52,19 +48,8 @@ async function inspectContainer(container, runner = defaultRunner) {
   }
 }
 
-// Back-compat string view. Kept so any caller expecting the old tri-state
-// keeps working; new code should use inspectContainer.
-// Returns "running" | "stopped" | "never-built".
-async function containerStatus(container, runner = defaultRunner) {
-  const i = await inspectContainer(container, runner);
-  if (i.state === 'never-built' || i.state === 'unknown') return 'never-built';
-  return i.state === 'running' ? 'running' : 'stopped';
-}
-
-// Post-rebuild verification (A2). Poll the container until it is actually
-// running, or until it lands in a terminal failed state, or until tries run
-// out. `up -d` exiting 0 does NOT mean the container survived init — this is
-// what confirms it did. Resolves the final inspect result plus { ok }.
+// Post-rebuild verification. Poll the container until it is actually running,
+// or until it lands in a terminal failed state, or until tries run out.
 async function confirmHealthy(container, runner = defaultRunner, opts = {}) {
   const tries = opts.tries ?? 6;
   const delayMs = opts.delayMs ?? 1500;
@@ -95,8 +80,7 @@ async function containerCreatedAt(container, runner = defaultRunner) {
   }
 }
 
-// Tail a container's logs (A4) — merges stdout+stderr (docker logs writes to
-// both). Never throws; returns a readable message on error.
+// Tail a container's logs — merges stdout+stderr. Never throws.
 async function containerLogs(container, runner = defaultRunner, tail = 200) {
   try {
     assertContainerName(container);
@@ -108,9 +92,8 @@ async function containerLogs(container, runner = defaultRunner, tail = 200) {
 }
 
 // Rebuild + restart a system's cron container. Streams output via onData.
-// Resolves { ok, code }. Never rejects on non-zero exit.
-// Bug 2 fix: a 10-minute hard timeout prevents a stalled build from holding
-// the HTTP streaming response open indefinitely.
+// Resolves { ok, code }. Never rejects on non-zero exit. A 10-minute hard
+// timeout prevents a stalled build from holding the HTTP response open.
 function rebuildCron(cwd, onData, opts = {}) {
   const { spawn } = require('node:child_process');
   const timeoutMs = opts.timeoutMs ?? 600_000;
@@ -133,9 +116,9 @@ function rebuildCron(cwd, onData, opts = {}) {
   });
 }
 
-// Read the crontab baked into the running container. Returns the text, or
-// null if the container is not running or the exec fails. All containers in
-// this portfolio bake the crontab at /etc/crontab.docker.
+// Read the crontab baked into the running container. Returns the text, or null
+// if the container is not running or the exec fails. All containers in this
+// portfolio bake the crontab at /etc/crontab.docker.
 async function containerCrontab(container, runner = defaultRunner) {
   try {
     assertContainerName(container);
@@ -146,4 +129,4 @@ async function containerCrontab(container, runner = defaultRunner) {
   }
 }
 
-module.exports = { containerStatus, inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, containerCrontab, rebuildCron };
+module.exports = { inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, containerCrontab, rebuildCron };

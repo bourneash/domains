@@ -18,6 +18,7 @@
         <button class="tab tab-dd-btn" id="agents-btn">Agents ▾</button>
         <div class="dd-menu hidden" id="agents-menu"></div>
       </div>
+      <button class="tab" data-view="cron">Cron</button>
       <button class="tab" data-view="containers">Containers</button>
       <button class="tab" data-view="git">Git</button>
       <button class="tab" data-view="tasks">Tasks</button>
@@ -50,6 +51,59 @@
   </main>
 
   <div id="toast" class="toast"></div>
+
+  <!-- Cron log viewer (namespaced cm-*) -->
+  <div id="cm-log-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card cm-log-card">
+      <div class="modal-head">
+        <div class="cm-log-titlewrap">
+          <h2 id="cm-log-title">Logs</h2>
+          <div id="cm-log-sources" class="cm-seg" role="tablist" aria-label="Log source"></div>
+        </div>
+        <button id="cm-log-close" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="cm-log-toolbar">
+        <input id="cm-log-filter" class="cm-input" type="text" placeholder="Filter lines…" spellcheck="false" />
+        <select id="cm-log-tail" class="cm-input" title="Lines to show">
+          <option value="200">200 lines</option>
+          <option value="400" selected>400 lines</option>
+          <option value="1000">1000 lines</option>
+          <option value="2000">2000 lines</option>
+        </select>
+        <span class="cm-spacer"></span>
+        <label class="cm-chk"><input type="checkbox" id="cm-log-wrap" /> Wrap</label>
+        <button id="cm-log-reload" class="btn sm">Reload</button>
+        <button id="cm-log-copy" class="btn sm">Copy</button>
+        <button id="cm-log-download" class="btn sm">Download</button>
+      </div>
+      <pre id="cm-log-out" class="cn-logs-box" tabindex="0"></pre>
+      <div class="cm-log-foot"><span id="cm-log-count"></span><span id="cm-log-meta" class="muted"></span></div>
+    </div>
+  </div>
+
+  <!-- Cron crontab diff viewer (disk vs running container) -->
+  <div id="cm-diff-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card cm-diff-card">
+      <div class="modal-head">
+        <div class="cm-log-titlewrap">
+          <h2 id="cm-diff-title">crontab diff</h2>
+          <div class="cm-diff-legend">
+            <span class="cm-dl-add">+&nbsp;disk (pending)</span>
+            <span class="cm-dl-del">−&nbsp;running (built-in)</span>
+          </div>
+        </div>
+        <button id="cm-diff-close" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <pre id="cm-diff-out" class="cn-logs-box" tabindex="0"></pre>
+      <div class="cm-log-foot">
+        <span id="cm-diff-meta" class="muted"></span>
+        <div class="cm-diff-actions">
+          <button id="cm-diff-revert" class="btn sm danger">Revert to running</button>
+          <button id="cm-diff-close2" class="btn sm">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Task editor / viewer modal -->
   <div id="modal" class="modal hidden">

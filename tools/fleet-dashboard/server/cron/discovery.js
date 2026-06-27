@@ -1,8 +1,12 @@
 'use strict';
 
+// Cron-system discovery: enumerates sites/* and tools/* that own a crontab.
+// Ported verbatim from tools/cron-manager (server/discovery.js); the only
+// change is the parser require path (./crontab → ./parse).
+
 const fs = require('node:fs');
 const path = require('node:path');
-const { parseCrontab } = require('./crontab');
+const { parseCrontab } = require('./parse');
 
 // site slug → compose name stem. The ops compose files name the project
 // `<firstSegment>-ops` and the cron container `<firstSegment>-cron`
@@ -11,11 +15,11 @@ function stem(slug) {
   return slug.split('.')[0];
 }
 
-// The actual cron container name. Convention is `<stem>-cron`, but compose
-// can drift from it (e.g. CF/Workers naming stripping dots → xxxtea-com). We
-// prefer the real `container_name:` ending in `-cron` straight from the
-// site's docker-compose.yml so status lookups never silently miss the
-// container and report "never-built". Falls back to the convention.
+// The actual cron container name. Convention is `<stem>-cron`, but compose can
+// drift from it (e.g. CF/Workers naming stripping dots → xxxtea-com). We prefer
+// the real `container_name:` ending in `-cron` straight from the site's
+// docker-compose.yml so status lookups never silently miss the container and
+// report "never-built". Falls back to the convention.
 function cronContainerName(composePath, fallback) {
   try {
     const text = fs.readFileSync(composePath, 'utf8');
