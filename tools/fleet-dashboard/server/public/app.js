@@ -458,12 +458,17 @@ const STATE_LABEL = { fresh: 'fresh', stale: 'overdue', overdue: 'well overdue',
 function roleDot(site, role, c) {
   let tip;
   if (c.deploy) {
-    // Deployer cell = deploy health (main vs origin), not cron recency.
-    const d = c.deploy;
-    const health = d.pushed ? 'in sync — deployed'
-      : d.ahead ? `${d.ahead} commit${d.ahead > 1 ? 's' : ''} not deployed (unpushed)`
-      : (d.branch && d.branch !== 'main' && d.branch !== 'master') ? `on ${d.branch} (not main)`
-      : 'no repo';
+    // Deployer cell = deploy health: push state (main vs origin) refined by the
+    // CF build verdict (did Cloudflare actually ship the latest commit?).
+    const d = c.deploy, b = d.build;
+    let health;
+    if (d.ahead) health = `${d.ahead} commit${d.ahead > 1 ? 's' : ''} not deployed (unpushed)`;
+    else if (d.branch && d.branch !== 'main' && d.branch !== 'master') health = `on ${d.branch} (not main)`;
+    else if (!d.pushed) health = 'no repo';
+    else if (b && b.ok && b.live === false) health = 'pushed — CF build behind (pending/failed)';
+    else if (b && b.ok && b.live) health = `live — CF v${b.version}`;
+    else if (b && b.error) health = `in sync (CF check: ${b.error})`;
+    else health = 'in sync — deployed';
     const extras = [];
     if (d.dirty) extras.push(`${d.dirty} uncommitted`);
     if (c.age != null) extras.push(`last deploy ${fmtAge(c.age)} ago`);

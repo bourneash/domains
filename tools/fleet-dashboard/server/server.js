@@ -13,6 +13,7 @@ const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
 const cron = require('./cron');
+const deployhealth = require('./deployhealth');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -74,6 +75,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try { res.json(await roles.matrix(root, discoverSites(root))); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
+
+  // Background CF deploy-health cache (powers the deployer cell's "is it live?"
+  // half). Exposed for inspection/debugging.
+  app.get('/api/deploy-health', (_req, res) => res.json(deployhealth.all()));
 
   app.get('/api/roles/:slug/:role/log', requireSite, (req, res) => {
     try { res.json(roles.roleLog(root, req.params.slug, req.params.role, req.query.tail)); }
@@ -237,6 +242,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try { tasks.remove(root, req.params.slug, req.params.column, req.params.file); res.json({ ok: true }); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
+
+  // Kick off the background CF deploy-health poller (re-discovers sites each
+  // sweep so new sites are picked up without a restart).
+  deployhealth.start(root, () => discoverSites(root));
 
   return app;
 }

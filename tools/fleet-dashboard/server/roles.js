@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { siteDir } = require('./sites');
 const gitMod = require('./git');
+const deployhealth = require('./deployhealth');
 
 function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
 
@@ -118,13 +119,22 @@ async function matrix(root, slugs) {
       if (role === 'deployer' && enabled) {
         const g = gitBySlug[slug] || {};
         const onMain = g.branch === 'main' || g.branch === 'master';
+        const pushed = onMain && (g.ahead || 0) === 0;
         age = last ? (now - last) / 1000 : null;
+        // Push state (cheap, every request) decides red/green first; the CF
+        // build verdict (background poller) refines a pushed-but-not-yet-live
+        // site — fresh push still building = amber, long-behind = red (failed).
+        const bh = deployhealth.get(slug);
+        let build = null;
         if (!g.isRepo) state = 'never';
-        else if (g.ahead > 0) state = 'overdue';         // committed but unpushed → not deployed
-        else if (!onMain) state = 'stale';               // feature branch checked out
-        else state = 'fresh';                            // in sync with origin → deployed
-        deploy = { ahead: g.ahead || 0, dirty: g.dirty || 0, branch: g.branch || null,
-          pushed: onMain && (g.ahead || 0) === 0 };
+        else if (g.ahead > 0) state = 'overdue';          // committed but unpushed → not deployed
+        else if (!onMain) state = 'stale';                // feature branch checked out
+        else if (bh && bh.ok && bh.live === false) {
+          const pushedAgo = bh.headTime ? now / 1000 - bh.headTime : Infinity;
+          state = pushedAgo <= 15 * 60 ? 'stale' : 'overdue';   // building vs failed/stuck
+        } else state = 'fresh';                           // in sync + (CF confirms live, or no CF data)
+        if (bh) build = { ok: bh.ok, live: bh.live, version: bh.version, deployedAt: bh.deployedAt, error: bh.error };
+        deploy = { ahead: g.ahead || 0, dirty: g.dirty || 0, branch: g.branch || null, pushed, build };
       }
       cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state, worker, deploy };
       freq[role] = (freq[role] || 0) + 1;
