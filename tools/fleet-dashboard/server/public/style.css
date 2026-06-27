@@ -205,7 +205,6 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .rdot.r-fresh { background: var(--green); border-color: var(--green); }
 .rdot.r-stale { background: var(--yellow); border-color: var(--yellow); }
 .rdot.r-overdue { background: var(--red); border-color: var(--red); }
-.rdot.r-idle { background: var(--muted); border-color: var(--muted); opacity: .55; }
 .rdot.r-paused { background: transparent; border-color: var(--muted); }
 .rdot.r-never { background: transparent; border: 1px dashed var(--muted); }
 .rdot.r-none { background: none; border: none; color: #39414f; }
@@ -213,7 +212,7 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .rcount.r-fresh { background: var(--green); }
 .rcount.r-stale { background: var(--yellow); }
 .rcount.r-overdue { background: var(--red); }
-.rcount.r-idle, .rcount.r-paused, .rcount.r-never { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); }
+.rcount.r-paused, .rcount.r-never { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); }
 .rcount:hover { filter: brightness(1.15); }
 
 /* ---- containers ---- */

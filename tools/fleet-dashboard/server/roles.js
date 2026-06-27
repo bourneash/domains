@@ -14,6 +14,10 @@ const LOG_PREFIX = { deployer: ['deployer', 'deploy'] };
 // Staleness thresholds (seconds) by inferred cadence — a cell goes amber past
 // the threshold and red past 2×.
 const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
+// Deployer freshness is judged by time since the last real deploy (day-scale),
+// not the cron poll interval: green within ~30h, amber to 3 days, then red.
+const DEPLOY_FRESH = 30 * 3600;
+const DEPLOY_STALE = 72 * 3600;
 
 // Regex matching a role's `<prefix>-<date>…` log files. Accepts any of the
 // role's configured prefixes (default: the role name itself).
@@ -102,18 +106,23 @@ function matrix(root, slugs) {
       const enabled = !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
       const last = lastRun(cwd, role);
       let { state, age } = cellState(enabled, last, schedule, now);
-      // Deployers are event-gated: the cron only fires when a `.deploy-needed`
-      // flag is present (dropped by engineers/writers on a real commit), and a
-      // log is written only on those runs. So cadence-freshness mislabels quiet
-      // sites as "overdue". Color by the deploy queue instead — idle when
-      // nothing's queued (healthy), red only when a requested deploy is stuck.
+      // Deployers fire on real deploys, not on a fixed cadence (the */N cron is
+      // just a poll interval — most only run when there's something to ship), so
+      // the cron-cadence thresholds mislabel sites that deploy daily as
+      // "overdue" every few hours. Judge a deployer by how long since its last
+      // ACTUAL deploy, on day-scale thresholds — and flag a stuck queue (a
+      // `.deploy-needed` flag no run has cleared) as overdue outright.
       if (role === 'deployer' && enabled) {
         let pendingMt = 0;
         try { pendingMt = fs.statSync(path.join(cwd, '.deploy-needed')).mtimeMs; } catch { /* none */ }
-        if (!pendingMt) { state = 'idle'; age = last ? (now - last) / 1000 : null; }
-        else if (!last || last < pendingMt) {
-          age = (now - pendingMt) / 1000;
-          state = age <= THRESH.frequent ? 'stale' : 'overdue';   // queued but unserviced
+        if (pendingMt && (!last || last < pendingMt)) {
+          age = (now - pendingMt) / 1000;            // queued but not yet serviced
+          state = age <= 3600 ? 'fresh' : age <= 6 * 3600 ? 'stale' : 'overdue';
+        } else if (last) {
+          age = (now - last) / 1000;                 // time since last real deploy
+          state = age <= DEPLOY_FRESH ? 'fresh' : age <= DEPLOY_STALE ? 'stale' : 'overdue';
+        } else {
+          state = 'never';
         }
       }
       cells[role] = { scheduled: true, enabled, schedule, last, age: age ?? null, state, worker };
