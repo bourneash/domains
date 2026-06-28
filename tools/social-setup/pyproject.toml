@@ -8,6 +8,7 @@ dependencies = [
     "click>=8.0",
     "httpx",
     "rich",
+    "social-lib @ file:///home/jesse/projects/domains/tools/social-lib",
 ]
 
 [project.scripts]

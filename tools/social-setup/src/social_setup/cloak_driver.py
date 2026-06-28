@@ -39,13 +39,16 @@ def ensure_dirs():
 
 def _get_context_and_page():
     from cloakbrowser import launch_persistent_context
+    from social_lib.vpn_session import get_proxy_url
 
     ensure_dirs()
+    proxy_url = get_proxy_url("us")
     context = launch_persistent_context(
         str(PROFILE_DIR),
         headless=False,
         humanize=True,
         viewport={"width": 1000, "height": 700},
+        proxy={"server": proxy_url},
     )
 
     if context.pages:
