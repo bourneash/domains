@@ -48,8 +48,9 @@ skill is the operator + extension knowledge that complements it.
   → write ops/cache/news-feed.json
         │
         ▼  (also)
-  Fleet Dashboard "Data Hub" tab (tools/fleet-dashboard) — VPN health,
-  per-connection egress ledger, freshness, datasets, source×site matrix.
+  Fleet Dashboard "Data Hub" tab (tools/fleet-dashboard) — VPN health, outbound
+  egress ledger, inbound Site Pulls ledger, source freshness (+ enable/disable
+  toggle), datasets, source×site matrix.
 ```
 
 ## Layout
@@ -68,11 +69,11 @@ tools/data-hub/
   src/datahub/
     __main__.py           # CLI: `python -m datahub collect` (one cycle) | `serve` (API, default)
     config.py             # Settings.from_env(); Source/Subscription/ItemsQuery models; DEFAULT_HOME_IPS
-    store.py              # SQLite: items, datasets_state, sources_state, egress_log; upsert/query/record_egress
+    store.py              # SQLite: items, datasets, sources_state, source_overrides, egress_log, pull_log
     vpn.py                # probe_exit_ip() (HTTPS checkip), plan_fetch() → FetchPlan (fail-closed)
     fetch_rss.py          # RSS fetch + parse → items
     collector.py          # run_cycle(): for each source → plan_fetch → fetch → upsert → record egress
-    api.py                # FastAPI create_app(): /items /subscriptions /datasets /egress /sources /health
+    api.py                # FastAPI create_app(): /items /subscriptions /datasets /egress /pulls /sources /health
     datasets/
       __init__.py         # FETCHERS registry + _get_json (with _redact) + DatasetUnavailable
       ephemeris.py usgs.py noaa_alerts.py noaa_swpc.py noaa_tides.py launchlib.py   # keyless
@@ -174,6 +175,16 @@ in compose via `DATAHUB_PROXY_US`/`…_EU`/`DATAHUB_CONTROL_*`.
 - Every fetch writes an **egress_log** row (source → target host, policy, exit
   node + real IP, status, note, when). That's what the dashboard ledger and
   `GET /egress` surface. Keep recording egress for every new fetch path.
+- **Two directional ledgers — don't confuse them.** `egress_log` (`/egress`) is
+  OUTBOUND: hub → internet fetches. `pull_log` (`/pulls`) is INBOUND: consumer →
+  hub pulls — the API calls `store.record_pull` on each `/subscriptions/{site}/items`,
+  `/datasets/{key}`, and `/items` request (site, endpoint, item_count returned,
+  client IP, when). Read-only endpoints (`/health`, `/sources`, `/egress`,
+  `/datasets` index, `/pulls`) are deliberately NOT logged so the dashboard's own
+  polling doesn't pollute the ledger — if you add a new consumer-facing data route,
+  call `record_pull`; if you add a new read-only/meta route, don't. Surfaced in the
+  dashboard as the **"Site Pulls"** panel (mirrors the egress "Outbound Connection
+  Ledger"). Neither ledger is auto-pruned yet (low volume; revisit if it grows).
 - If you ever run the hub from a **different host**, add that host's outbound IP
   to `DATAHUB_HOME_IPS` (comma-separated env) so the leak check stays correct.
 

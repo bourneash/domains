@@ -82,8 +82,10 @@ Base URL: `http://127.0.0.1:4760`
 | GET | `/items` | Query items by tags, sources, since, limit |
 | GET | `/subscriptions/{site}/items` | Items matching a site's subscription query |
 | GET | `/subscriptions/{site}` | Resolve a site's subscription config |
-| GET | `/sources` | All registered sources with live state |
-| GET | `/egress` | Fetch audit log (exit IP, policy, status per source) |
+| GET | `/sources` | All registered sources with live state + enabled/overridden |
+| GET | `/egress` | **Outbound** audit: hub→source fetches (exit IP, policy, status, count) |
+| GET | `/pulls` | **Inbound** audit: consumer pulls (site, endpoint, item_count, client IP, when) — params `limit`, `site` |
+| POST | `/sources/{id}/enabled` | Runtime enable/disable override (`{"enabled": bool}`) |
 
 ### `/items` query params
 
@@ -108,8 +110,12 @@ curl -s "http://127.0.0.1:4760/items?tags=defense&limit=5"
 # Items for a site subscription
 curl -s "http://127.0.0.1:4760/subscriptions/americastrikes.com/items?limit=10"
 
-# Egress audit
+# Egress audit (outbound: hub → sources)
 curl -s "http://127.0.0.1:4760/egress?limit=20"
+
+# Pull audit (inbound: who queried the hub and what they got)
+curl -s "http://127.0.0.1:4760/pulls?limit=20"
+curl -s "http://127.0.0.1:4760/pulls?site=americastrikes.com"
 ```
 
 ---
