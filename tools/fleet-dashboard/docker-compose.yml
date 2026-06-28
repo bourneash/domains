@@ -16,7 +16,19 @@ services:
       FD_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
       FD_HOST: 0.0.0.0
       HOME: ${HOME:-/home/jesse}
+      DATAHUB_API: http://datahub-api:4760
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+      - vpn_proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
     working_dir: ${HOME:-/home/jesse}/projects/domains/tools/fleet-dashboard
+
+networks:
+  default:
+  vpn_proxy:
+    external: true
+    name: vpn-proxy_default

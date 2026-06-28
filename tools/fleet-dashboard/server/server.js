@@ -14,6 +14,7 @@ const containers = require('./containers');
 const roles = require('./roles');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
+const datahub = require('./datahub');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -44,6 +45,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return h.digest('hex').slice(0, 12);
   }
   app.get('/api/version', (_req, res) => res.json({ version: assetVersion() }));
+
+  // Data Hub routes — all static paths, no :param conflicts.
+  app.get('/api/datahub/health', async (_req, res) => res.json(await datahub.health()));
+  app.get('/api/datahub/egress', async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 60, 300);
+    res.json(await datahub.egress(limit));
+  });
+  app.get('/api/datahub/sources', async (_req, res) => res.json(await datahub.sources()));
+  app.get('/api/datahub/datasets', async (_req, res) => res.json(await datahub.datasets()));
+  app.get('/api/datahub/matrix', (_req, res) => {
+    try { res.json(datahub.matrix()); }
+    catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+  });
 
   app.get('/api/sites', (_req, res) => res.json(discoverSites(root)));
 
