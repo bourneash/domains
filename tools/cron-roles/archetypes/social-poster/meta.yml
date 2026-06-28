@@ -1,0 +1,37 @@
+name: social-poster
+# Posts latest articles to all active social platforms twice daily.
+# Bash-driven: runs `social-poster post <domain>` via the installed CLI;
+# no Claude turns. Slack-notifies on failure only.
+source: tools/social-poster/cron/run.sh
+# Schedule: 9am + 5pm with per-site minute offset to stagger fleet load.
+# Use the stagger map (reference_cron_stagger_map.md) to pick an unused minute.
+# Template uses {{SOCIAL_POSTER_MINUTE}} — installer fills in 0-29.
+# Example: americastrikes → minute 12 → "12 9,17 * * *"
+schedule: "{{SOCIAL_POSTER_MINUTE}} 9,17 * * *"
+model: none            # bash-driven; social-poster CLI handles all logic
+owns_task_types: [social]
+produces_task_types: []          # pure executor — no board handoffs
+worker_deps: []
+needs_rebuild_verify: true       # crontab.docker baked at build time (sinderella guard)
+self_notifies: true              # run.sh posts Slack on failure; do NOT add to run-role.sh notify allowlist
+deploy: false
+scripts:
+  - run-social-poster.sh.tmpl
+gitignore:
+  - "ops/logs/social-poster*.log"
+placeholders:
+  - DOMAIN
+  - SITE_SHORT
+  - SLACK_CHANNEL_VAR
+  - SLACK_CHANNEL_DEFAULT
+  - SOCIAL_POSTER_MINUTE
+placeholder_detection:
+  DOMAIN: "bare domain name, e.g. americastrikes.com — from directory name (sites/<DOMAIN>)"
+  SITE_SHORT: "short slug, e.g. americastrikes — domain without TLD, hyphens stripped"
+  SLACK_CHANNEL_VAR: "env var name from ops/scripts/run-role.sh, e.g. SLACK_CHANNEL_AMERICA_STRIKES"
+  SLACK_CHANNEL_DEFAULT: "fallback Slack channel string, e.g. domain-americastrikes-com"
+  SOCIAL_POSTER_MINUTE: |
+    Minute offset 0-29 within the hour for the 9am+5pm posts.
+    Pick an UNUSED minute from the fleet stagger map (reference_cron_stagger_map.md social-poster section).
+    Current known sites and their social-poster offsets are tracked in that file.
+    Do NOT default to 0 (thundering herd). Example: if americastrikes uses 12, next free site picks 14.

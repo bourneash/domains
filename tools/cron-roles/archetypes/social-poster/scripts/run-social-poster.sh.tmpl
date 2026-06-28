@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# ops/scripts/run-social-poster.sh
+# Dispatcher shim for the social-poster cron role on {{DOMAIN}}.
+# Called by run-role.sh when ROLE=social-poster (bash-driven branch).
+# Passes LOG as $1 so run-role.sh can tee it.
+set -euo pipefail
+
+LOG="${1:-/app/logs/social-poster.log}"
+LOG_DIR="$(dirname "$LOG")"
+mkdir -p "$LOG_DIR"
+
+DOMAIN="{{DOMAIN}}"
+SLACK_CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] social-poster run starting for $DOMAIN" >> "$LOG"
+
+social-poster post "$DOMAIN" >> "$LOG" 2>&1
+STATUS=$?
+
+if [[ $STATUS -ne 0 ]]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR: social-poster failed (exit $STATUS)" >> "$LOG"
+    if [[ -n "${SLACK_BOT_TOKEN:-}" && -n "$SLACK_CHANNEL" ]]; then
+        curl -sf -X POST "https://slack.com/api/chat.postMessage" \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "{\"channel\":\"$SLACK_CHANNEL\",\"text\":\"[{{SITE_SHORT}}] :x: social-poster failed — check ops/logs/social-poster.log\"}" \
+            > /dev/null || true
+    fi
+    exit $STATUS
+fi
+
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] social-poster done for $DOMAIN" >> "$LOG"
