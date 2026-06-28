@@ -48,6 +48,8 @@ def test_vpn_down_skips_fail_closed(db, monkeypatch):
     state = {s["source_id"]: s for s in store.get_sources_state(db)}["reuters"]
     assert state["status"] == "skipped-vpn-down"
     assert state["stale"] == 1
+    eg = store.query_egress(db)
+    assert any(r["source_id"] == "reuters" and r["status"] == "skipped" for r in eg)
 
 
 def test_source_error_is_isolated(db, monkeypatch):
@@ -65,6 +67,35 @@ def test_source_error_is_isolated(db, monkeypatch):
     assert summary["errors"] == 1
     assert summary["new_items"] == 1   # good source still stored
     assert len(store.query_items(db, tags_any=["world"])) == 1
+    eg = store.query_egress(db)
+    assert any(r["source_id"] == "bad" and r["status"] == "error" for r in eg)
+
+
+def test_plan_fetch_raise_is_isolated(db, monkeypatch):
+    """plan_fetch raising for one source must not abort the cycle."""
+    import datahub.collector as _collector
+    from datahub.vpn import FetchPlan
+
+    def patched_plan_fetch(src, settings, client=None):
+        if src.id == "explode":
+            raise RuntimeError("boom")
+        return FetchPlan(allowed=True, reason="ok", proxy=None,
+                         exit_node="direct", exit_ip=None, policy="direct")
+
+    monkeypatch.setattr(_collector, "plan_fetch", patched_plan_fetch)
+    monkeypatch.setattr(fr, "fetch_rss", lambda src, **kw: [
+        {"title": "G", "url": "https://x/g", "summary": "", "published_iso": "2026-06-28T10:00:00+00:00",
+         "source_id": src.id, "source_name": src.id, "tags": src.tags, "raw": {}}])
+
+    sources = [
+        Source(id="explode", type="rss", url="https://e/bad.rss", tags=["world"], exit="us"),
+        Source(id="good", type="rss", url="https://e/good.rss", tags=["world"], exit="us"),
+    ]
+    summary = collector.run_cycle(db, sources, _settings())
+    assert summary["errors"] == 1
+    assert summary["new_items"] == 1   # good source stored despite explode failing
+    eg = store.query_egress(db)
+    assert any(r["source_id"] == "explode" and r["status"] == "error" for r in eg)
 
 
 def test_direct_policy_skips_vpn_probe(db, monkeypatch):
