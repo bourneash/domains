@@ -995,7 +995,7 @@ def test_vpn_down_skips_fail_closed(db, monkeypatch):
     assert summary["skipped"] == 1
     assert summary["new_items"] == 0
     state = {s["source_id"]: s for s in store.get_sources_state(db)}["reuters"]
-    assert state["last_status"] == "skipped-vpn-down"
+    assert state["status"] == "skipped-vpn-down"
     assert state["stale"] == 1
 
 
@@ -1057,18 +1057,21 @@ def run_cycle(conn, sources: list[Source], settings: Settings, *,
 
     for source in sources:
         target = _host(source.url)
-        plan = plan_fetch(source, settings, client=control_client)
-
-        if not plan.allowed:
-            store.set_source_state(conn, source_id=source.id,
-                                   status=f"skipped-{plan.reason}", error=plan.reason, stale=True)
-            store.record_egress(conn, source_id=source.id, target_host=target,
-                                policy=source.policy, exit_node=plan.exit_node,
-                                exit_ip=plan.exit_ip, status="skipped", note=plan.reason)
-            summary["skipped"] += 1
-            continue
-
+        plan = None
         try:
+            # plan_fetch is inside the try so an unexpected raise here is isolated
+            # per source (the cycle must never abort on one bad source).
+            plan = plan_fetch(source, settings, client=control_client)
+
+            if not plan.allowed:
+                store.set_source_state(conn, source_id=source.id,
+                                       status=f"skipped-{plan.reason}", error=plan.reason, stale=True)
+                store.record_egress(conn, source_id=source.id, target_host=target,
+                                    policy=source.policy, exit_node=plan.exit_node,
+                                    exit_ip=plan.exit_ip, status="skipped", note=plan.reason)
+                summary["skipped"] += 1
+                continue
+
             if source.type == "dataset":
                 # Plan 2 implements dataset fetchers; record a benign no-op here.
                 store.set_source_state(conn, source_id=source.id, status="ok", stale=False)
@@ -1086,12 +1089,14 @@ def run_cycle(conn, sources: list[Source], settings: Settings, *,
                                 exit_ip=plan.exit_ip, status="ok", item_count=new)
             summary["fetched"] += 1
             summary["new_items"] += new
-        except Exception as exc:  # per-source isolation
+        except Exception as exc:  # per-source isolation (covers plan_fetch + all branches)
             store.set_source_state(conn, source_id=source.id, status="error",
                                    error=str(exc), stale=False)
             store.record_egress(conn, source_id=source.id, target_host=target,
-                                policy=source.policy, exit_node=plan.exit_node,
-                                exit_ip=plan.exit_ip, status="error", note=str(exc)[:200])
+                                policy=source.policy,
+                                exit_node=plan.exit_node if plan else "",
+                                exit_ip=plan.exit_ip if plan else None,
+                                status="error", note=str(exc)[:200])
             summary["errors"] += 1
 
     return summary
@@ -1295,7 +1300,7 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         eu = probe_exit_ip(settings.control_eu, client=vpn_client)
         states = store.get_sources_state(conn)
         item_count = conn.execute("SELECT COUNT(*) AS n FROM items").fetchone()["n"]
-        skipped = [s for s in states if (s["last_status"] or "").startswith("skipped")]
+        skipped = [s for s in states if (s["status"] or "").startswith("skipped")]
         return {
             "ok": bool(us or eu),
             "nodes": {"us": us, "eu": eu},
@@ -1310,6 +1315,7 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
 - [ ] **Step 4: Implement `src/datahub/__main__.py`**
 
 ```python
+import os
 import sys
 import uvicorn
 from .config import Settings, load_sources
@@ -1329,7 +1335,8 @@ def main():
         print(f"[datahub] cycle: {summary}")
     elif cmd == "serve":
         app = create_app(settings)
-        uvicorn.run(app, host="0.0.0.0", port=int(__import__("os").environ.get("DATAHUB_PORT", "4760")))
+        uvicorn.run(app, host=os.environ.get("DATAHUB_HOST", "127.0.0.1"),
+                    port=int(os.environ.get("DATAHUB_PORT", "4760")))
     else:
         print(f"unknown command: {cmd}", file=sys.stderr)
         sys.exit(2)
@@ -1438,6 +1445,9 @@ services:
       DATAHUB_DB_PATH: /data/data-hub.db
       DATAHUB_REGISTRY_DIR: /app/registry
       DATAHUB_PROXY_HOST: host.docker.internal
+      DATAHUB_HOST: "0.0.0.0"   # bind all interfaces INSIDE the container so the
+                                # host-side 127.0.0.1:4760 publish can reach it;
+                                # loopback-only exposure is enforced by the port mapping
       DATAHUB_PORT: "4760"
     volumes:
       - ./data:/data

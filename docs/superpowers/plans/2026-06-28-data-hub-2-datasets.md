@@ -742,7 +742,11 @@ Expected: FAIL — `NotImplementedError` (stubs).
 
 `datasets/fred.py`:
 ```python
-from . import _get_json, DatasetUnavailable
+import datahub.datasets as _ds
+from . import DatasetUnavailable
+# NOTE: call _ds._get_json(...) (module-level lookup) so tests that monkeypatch
+# datahub.datasets._get_json actually intercept the call. A `from . import _get_json`
+# local binding would NOT be patchable.
 
 URL = "https://api.stlouisfed.org/fred/series/observations"
 
@@ -751,7 +755,7 @@ def fetch(source, *, proxy=None, settings=None, client=None) -> list[dict]:
     if not (settings and settings.fred_key):
         raise DatasetUnavailable("no-api-key")
     series_id = source.params["series_id"]
-    data = _get_json(URL, proxy=proxy, client=client, params={
+    data = _ds._get_json(URL, proxy=proxy, client=client, params={
         "series_id": series_id, "api_key": settings.fred_key,
         "file_type": "json", "sort_order": "desc", "limit": 1})
     obs = data.get("observations", [])
@@ -764,7 +768,11 @@ def fetch(source, *, proxy=None, settings=None, client=None) -> list[dict]:
 
 `datasets/eia.py`:
 ```python
-from . import _get_json, DatasetUnavailable
+import datahub.datasets as _ds
+from . import DatasetUnavailable
+# NOTE: call _ds._get_json(...) (module-level lookup) so tests that monkeypatch
+# datahub.datasets._get_json actually intercept the call. A `from . import _get_json`
+# local binding would NOT be patchable.
 
 BASE = "https://api.eia.gov/v2/"
 
@@ -775,14 +783,18 @@ def fetch(source, *, proxy=None, settings=None, client=None) -> list[dict]:
     url = BASE + source.params["path"].lstrip("/")
     params = {k: v for k, v in source.params.items() if k != "path"}
     params["api_key"] = settings.eia_key
-    data = _get_json(url, proxy=proxy, client=client, params=params)
+    data = _ds._get_json(url, proxy=proxy, client=client, params=params)
     rows = (data.get("response") or {}).get("data", [])
     return [{"observed_at": str(r.get("period", "")), "payload": r} for r in rows]
 ```
 
 `datasets/nass.py`:
 ```python
-from . import _get_json, DatasetUnavailable
+import datahub.datasets as _ds
+from . import DatasetUnavailable
+# NOTE: call _ds._get_json(...) (module-level lookup) so tests that monkeypatch
+# datahub.datasets._get_json actually intercept the call. A `from . import _get_json`
+# local binding would NOT be patchable.
 
 URL = "https://quickstats.nass.usda.gov/api/api_GET/"
 
@@ -793,7 +805,7 @@ def fetch(source, *, proxy=None, settings=None, client=None) -> list[dict]:
     params = dict(source.params)
     params["key"] = settings.nass_key
     params["format"] = "JSON"
-    data = _get_json(URL, proxy=proxy, client=client, params=params)
+    data = _ds._get_json(URL, proxy=proxy, client=client, params=params)
     out = []
     for r in data.get("data", []):
         year = str(r.get("year", "")).strip()
