@@ -17,8 +17,12 @@ _IP_CHECK_URL = "https://checkip.amazonaws.com"
 def probe_exit_ip(proxy_url: str, *, client: httpx.Client | None = None, timeout: float = 8) -> str | None:
     """Return the exit IP as seen through proxy_url, or None if unreachable/leaking.
 
-    Uses an HTTP GET to a plain-text IP-echo endpoint routed through the proxy.
-    This avoids the gluetun control API which now requires authentication.
+    GETs an HTTPS IP-echo endpoint (checkip.amazonaws.com) through the proxy. The
+    request MUST be HTTPS: httpx CONNECT-tunnels it end-to-end, so the gluetun proxy
+    cannot inject an X-Forwarded-For/container IP into the TLS-protected response —
+    r.text is the genuine public VPN exit IP. (A prior plain-HTTP version leaked the
+    container's internal IP instead.) None on any failure → caller treats as vpn-down
+    (fail-closed). The gluetun control API is not used (it now requires auth).
     """
     owns = client is None
     client = client or httpx.Client(proxy=proxy_url, timeout=timeout, follow_redirects=True)
