@@ -1513,12 +1513,13 @@ function dhPathBadge(policy, exitNode) {
 async function renderDataHub() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="muted">loading data hub…</div>';
-  const [health, eg, src, ds, mtx] = await Promise.all([
+  const [health, eg, src, ds, mtx, pl] = await Promise.all([
     api('GET', '/api/datahub/health'),
     api('GET', '/api/datahub/egress?limit=80'),
     api('GET', '/api/datahub/sources'),
     api('GET', '/api/datahub/datasets'),
     api('GET', '/api/datahub/matrix'),
+    api('GET', '/api/datahub/pulls?limit=80'),
   ]);
 
   const hubDown = health && health.ok === false;
@@ -1560,6 +1561,24 @@ async function renderDataHub() {
     <table class="dh-egress">
       <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
       <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
+    </table>`;
+
+  // ---- Panel 2b: Site Pulls (inbound — who consumed what, when) ----
+  const pulls = (pl && pl.pulls) || [];
+  const plRows = pulls.map((p) => {
+    const who = p.site ? siteLink(p.site) : `<span class="dh-host">${esc(p.endpoint || '')}</span>`;
+    return `<tr>
+      <td class="dh-time">${esc((p.ts || '').replace('T', ' ').slice(0, 19))}</td>
+      <td>${who}</td>
+      <td class="dh-host">${esc(p.endpoint || '')}</td>
+      <td><b>${esc(String(p.item_count ?? 0))}</b></td>
+      <td class="dh-ip">${esc(p.client_ip || '—')}</td>
+    </tr>`;
+  }).join('');
+  const pullsHtml = `
+    <table class="dh-egress dh-pulls">
+      <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
+      <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
     </table>`;
 
   // ---- Panel 3: Source Freshness (+ enabled/disabled toggle) ----
@@ -1620,6 +1639,7 @@ async function renderDataHub() {
     <div class="dh-grid">
       <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${healthHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>
+      <section class="dh-panel dh-wide" data-rk="dh-pulls"><h3>Site Pulls <span class="dh-sub-h">inbound — who consumed what</span> <span class="live-tag">live</span></h3>${pullsHtml}</section>
       <section class="dh-panel" data-rk="dh-sources"><h3>Source Freshness</h3>${srcHtml}</section>
       <section class="dh-panel" data-rk="dh-datasets"><h3>Datasets</h3>${dsHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-matrix"><h3>Source × Site Matrix</h3>${matrixHtml}</section>

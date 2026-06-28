@@ -52,6 +52,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 60, 300));
     res.json(await datahub.egress(limit));
   });
+  app.get('/api/datahub/pulls', async (req, res) => {
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 60, 300));
+    res.json(await datahub.pulls(limit));
+  });
   app.get('/api/datahub/sources', async (_req, res) => res.json(await datahub.sources()));
   app.post('/api/datahub/sources/:id/enabled', async (req, res) => {
     const enabled = !!(req.body && req.body.enabled);

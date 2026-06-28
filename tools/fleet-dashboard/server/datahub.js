@@ -30,6 +30,10 @@ async function sources() {
   const r = await _get('/sources');
   return r.ok === false ? { ...r, sources: [] } : r;
 }
+async function pulls(limit = 60) {
+  const r = await _get(`/pulls?limit=${encodeURIComponent(limit)}`);
+  return r.ok === false ? { ...r, pulls: [] } : r;
+}
 async function datasets() {
   const r = await _get('/datasets');
   return r.ok === false ? { ...r, datasets: [] } : r;
@@ -97,4 +101,4 @@ function matrix() {
   return { sites, sources, rss, datasets };
 }
 
-module.exports = { health, egress, sources, datasets, setSourceEnabled, matrix, API };
+module.exports = { health, egress, sources, datasets, pulls, setSourceEnabled, matrix, API };
