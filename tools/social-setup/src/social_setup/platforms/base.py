@@ -12,11 +12,25 @@ from rich.console import Console
 from ..config import BrandContext
 from ..credentials import has_creds, write_creds
 from ..passwords import generate as gen_password
+from social_lib.totp import generate_secret
+from social_lib.credentials import read_creds, write_creds as lib_write_creds
 
 console = Console()
 
 
-class PlatformProvisioner(ABC):
+class BasePlatform:
+    """Lightweight base with shared utilities that don't require a BrandContext."""
+
+    def generate_and_store_totp(self, domain: str, platform_name: str) -> str:
+        """Generate a TOTP secret, append it to the existing cred file, and return the secret."""
+        secret = generate_secret()
+        existing = read_creds(domain, platform_name)
+        existing["TOTP_SECRET"] = secret
+        lib_write_creds(domain, platform_name, existing)
+        return secret
+
+
+class PlatformProvisioner(BasePlatform, ABC):
     """Base class for social media platform account provisioners."""
 
     name: str  # e.g. "x", "instagram"
