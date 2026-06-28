@@ -18,7 +18,7 @@ def already_posted(domain: str, slug: str, platform: str) -> bool:
         if not line.strip():
             continue
         entry = json.loads(line)
-        if entry.get("slug") == slug and entry.get("platform") == platform:
+        if entry.get("article_slug") == slug and entry.get("platform") == platform:
             return True
     return False
 
@@ -27,7 +27,7 @@ def record_post(domain: str, slug: str, platform: str, post_url: str) -> None:
     path = _log_path(domain)
     path.parent.mkdir(parents=True, exist_ok=True)
     entry = {
-        "slug": slug,
+        "article_slug": slug,
         "platform": platform,
         "post_url": post_url,
         "posted_at": datetime.now(timezone.utc).isoformat(),
