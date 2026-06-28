@@ -421,3 +421,33 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .cm-dl-del { color: var(--red); display: block; }
 .cm-dl-same { color: var(--muted); display: block; }
 .cm-diff-actions { display: flex; gap: 8px; }
+
+/* ===== Data Hub ===== */
+.dh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.dh-panel { background: var(--panel, #161a22); border: 1px solid var(--border, #2a2f3a); border-radius: 8px; padding: 12px 14px; }
+.dh-panel h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted, #8a93a6); }
+.dh-wide { grid-column: 1 / -1; }
+.dh-down { color: #ffb454; padding: 8px 0; }
+.dh-health { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.dh-node-name { color: var(--muted, #8a93a6); margin-right: 6px; }
+.dh-counts { color: var(--muted, #8a93a6); margin-left: auto; }
+.dh-b { padding: 1px 7px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.dh-ok { background: rgba(74,222,128,.14); color: #4ade80; }
+.dh-skip { background: rgba(250,204,21,.14); color: #facc15; }
+.dh-err { background: rgba(248,113,113,.16); color: #f87171; }
+.dh-path { padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.dh-vpn { background: rgba(96,165,250,.16); color: #60a5fa; }
+.dh-direct { background: rgba(167,139,250,.16); color: #a78bfa; }
+.dh-egress, .dh-sources, .dh-datasets, .dh-matrix { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.dh-egress th, .dh-sources th, .dh-datasets th { text-align: left; color: var(--muted,#8a93a6); font-weight: 500; padding: 4px 8px; border-bottom: 1px solid var(--border,#2a2f3a); }
+.dh-egress td, .dh-sources td, .dh-datasets td, .dh-matrix td { padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.dh-time, .dh-ip { font-family: ui-monospace, monospace; color: var(--muted,#8a93a6); }
+.dh-host { font-family: ui-monospace, monospace; }
+.dh-note { color: var(--muted,#8a93a6); }
+.dh-stale { color: #facc15; font-size: 11px; }
+.dh-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.dh-tag { background: rgba(255,255,255,.06); border-radius: 4px; padding: 0 6px; font-size: 11px; }
+.dh-dskey { background: rgba(96,165,250,.14); color: #60a5fa; }
+.dh-matrix-sub { color: var(--muted,#8a93a6); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin: 10px 0 4px; }
+.dh-egress tbody tr:hover, .dh-sources tbody tr:hover { background: rgba(255,255,255,.03); }
+@media (max-width: 980px) { .dh-grid { grid-template-columns: 1fr; } }

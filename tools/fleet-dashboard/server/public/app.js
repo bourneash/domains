@@ -1494,8 +1494,134 @@ function cmWireModals() {
   $('#cm-diff-revert').addEventListener('click', () => { if (CM_DIFF_SLUG) cmDoRevert(CM_DIFF_SLUG); });
 }
 
+/* ===== DATA HUB ===== */
+
+function dhBadge(status) {
+  const s = String(status || '');
+  let cls = 'dh-b';
+  if (s === 'ok') cls += ' dh-ok';
+  else if (s.startsWith('skipped')) cls += ' dh-skip';
+  else if (s === 'error' || s.startsWith('error')) cls += ' dh-err';
+  return `<span class="${cls}">${esc(s || '—')}</span>`;
+}
+
+function dhPathBadge(policy, exitNode) {
+  if (policy === 'direct') return `<span class="dh-path dh-direct">direct</span>`;
+  return `<span class="dh-path dh-vpn">vpn:${esc(exitNode || '?')}</span>`;
+}
+
+async function renderDataHub() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="muted">loading data hub…</div>';
+  const [health, eg, src, ds, mtx] = await Promise.all([
+    api('GET', '/api/datahub/health'),
+    api('GET', '/api/datahub/egress?limit=80'),
+    api('GET', '/api/datahub/sources'),
+    api('GET', '/api/datahub/datasets'),
+    api('GET', '/api/datahub/matrix'),
+  ]);
+
+  const hubDown = health && health.ok === false;
+  const HOME_IPS = ['24.55.143.75', '158.173.25.169'];
+
+  // ---- Panel 1: VPN Health ----
+  let healthHtml;
+  if (hubDown) {
+    healthHtml = `<div class="dh-down">⚠ Data hub API unreachable — ${esc(health.error || 'is the datahub-api container running?')}</div>`;
+  } else {
+    const nodes = health.nodes || {};
+    const nodeCell = (name, ip) => {
+      const leak = ip && HOME_IPS.includes(ip);
+      const cls = !ip ? 'dh-err' : leak ? 'dh-err' : 'dh-ok';
+      const label = !ip ? 'down' : leak ? `${esc(ip)} ⚠ LEAK` : esc(ip);
+      return `<div class="dh-node"><span class="dh-node-name">${esc(name)}</span> <span class="dh-b ${cls}">${label}</span></div>`;
+    };
+    healthHtml = `
+      <div class="dh-health">
+        ${nodeCell('US exit', nodes.us)}
+        ${nodeCell('EU exit', nodes.eu)}
+        <div class="dh-counts">items <b>${esc(String((health.counts || {}).items ?? '—'))}</b> · skipped <b>${esc(String((health.counts || {}).skipped ?? '—'))}</b></div>
+      </div>`;
+  }
+
+  // ---- Panel 2: Outbound Connection Ledger ----
+  const events = (eg && eg.events) || [];
+  const egRows = events.map((e) => `
+    <tr>
+      <td class="dh-time">${esc((e.ts || '').replace('T', ' ').slice(0, 19))}</td>
+      <td>${esc(e.source_id || '')}</td>
+      <td class="dh-host">${esc(e.target_host || '')}</td>
+      <td>${dhPathBadge(e.policy, e.exit_node)}</td>
+      <td class="dh-ip">${esc(e.exit_ip || '—')}</td>
+      <td>${dhBadge(e.status)}</td>
+      <td class="dh-note">${esc(e.note || '')}</td>
+    </tr>`).join('');
+  const egressHtml = `
+    <table class="dh-egress">
+      <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
+      <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
+    </table>`;
+
+  // ---- Panel 3: Source Freshness ----
+  const srcs = (src && src.sources) || [];
+  const srcRows = srcs.map((s) => {
+    const st = (s.state || {});
+    const stale = st.stale ? ' · <span class="dh-stale">stale</span>' : '';
+    return `<tr>
+      <td>${esc(s.id)}</td>
+      <td>${esc(s.type)}</td>
+      <td>${dhBadge(st.status)}${stale}</td>
+      <td class="dh-time">${esc((st.last_fetch_at || '').replace('T', ' ').slice(0, 19) || '—')}</td>
+    </tr>`;
+  }).join('');
+  const srcHtml = `
+    <table class="dh-sources">
+      <thead><tr><th>source</th><th>type</th><th>status</th><th>last fetch</th></tr></thead>
+      <tbody>${srcRows || '<tr><td colspan="4" class="muted">no source state</td></tr>'}</tbody>
+    </table>`;
+
+  // ---- Panel 4: Datasets ----
+  const dss = (ds && ds.datasets) || [];
+  const dsRows = dss.map((d) => `<tr>
+    <td>${esc(d.dataset_key)}</td><td>${esc(String(d.count))}</td>
+    <td class="dh-time">${esc((d.latest_observed_at || '').replace('T', ' ').slice(0, 19))}</td>
+  </tr>`).join('');
+  const dsHtml = `
+    <table class="dh-datasets">
+      <thead><tr><th>dataset</th><th>rows</th><th>latest</th></tr></thead>
+      <tbody>${dsRows || '<tr><td colspan="3" class="muted">no datasets</td></tr>'}</tbody>
+    </table>`;
+
+  // ---- Panel 5: Source×Site Matrix ----
+  let matrixHtml = '<div class="muted">no matrix</div>';
+  if (mtx && mtx.sites) {
+    const rssRows = (mtx.rss || []).map((r) =>
+      `<tr><td>${siteLink(r.site)}</td><td><b>${esc(String(r.matched_sources.length))}</b> sources</td><td class="dh-tags">${(r.tags_any || []).map((t) => `<span class="dh-tag">${esc(t)}</span>`).join('')}</td></tr>`
+    ).join('');
+    const dsRows2 = (mtx.datasets || []).filter((d) => d.keys.length).map((d) =>
+      `<tr><td>${siteLink(d.site)}</td><td class="dh-tags">${d.keys.map((k) => `<span class="dh-tag dh-dskey">${esc(k)}</span>`).join('')}</td></tr>`
+    ).join('');
+    matrixHtml = `
+      <div class="dh-matrix-sub">RSS subscriptions (by tag)</div>
+      <table class="dh-matrix"><tbody>${rssRows}</tbody></table>
+      <div class="dh-matrix-sub">Dataset subscriptions</div>
+      <table class="dh-matrix"><tbody>${dsRows2 || '<tr><td class="muted">none</td></tr>'}</tbody></table>`;
+  }
+
+  app.innerHTML = `
+    <div class="dh-grid">
+      <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${healthHtml}</section>
+      <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>
+      <section class="dh-panel" data-rk="dh-sources"><h3>Source Freshness</h3>${srcHtml}</section>
+      <section class="dh-panel" data-rk="dh-datasets"><h3>Datasets</h3>${dsHtml}</section>
+      <section class="dh-panel dh-wide" data-rk="dh-matrix"><h3>Source × Site Matrix</h3>${matrixHtml}</section>
+    </div>`;
+
+  if (!FRESH) applyUISnap();
+}
+
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -1548,6 +1674,7 @@ function render() {
   else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
   else if (STATE.view === 'tasks') renderTasks();
+  else if (STATE.view === 'datahub') renderDataHub();
 }
 
 function renderAgent(role) {
