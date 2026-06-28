@@ -42,6 +42,10 @@ class Settings(BaseModel):
     control_us: str
     control_eu: str
     registry_dir: str
+    fred_key: str = ""
+    nass_key: str = ""
+    eia_key: str = ""
+    gnews_key: str = ""
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -57,6 +61,10 @@ class Settings(BaseModel):
             control_us=os.environ.get("DATAHUB_CONTROL_US", f"http://{host}:9281"),
             control_eu=os.environ.get("DATAHUB_CONTROL_EU", f"http://{host}:9282"),
             registry_dir=os.environ.get("DATAHUB_REGISTRY_DIR", "/app/registry"),
+            fred_key=os.environ.get("FRED_API_KEY", ""),
+            nass_key=os.environ.get("NASS_API_KEY", ""),
+            eia_key=os.environ.get("EIA_API_KEY", ""),
+            gnews_key=os.environ.get("GNEWS_API_KEY", ""),
         )
 
 

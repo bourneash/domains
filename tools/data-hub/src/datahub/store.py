@@ -182,3 +182,48 @@ def get_sources_state(conn) -> list[dict]:
         "SELECT source_id, last_fetch_at, last_status AS status, last_error AS error, "
         "stale, consecutive_failures FROM sources_state ORDER BY source_id"
     ).fetchall()]
+
+
+def upsert_datasets(conn, source_id: str, dataset_key: str, tags: list, records: list[dict]) -> int:
+    inserted = 0
+    tags_json = json.dumps(tags or [])
+    for rec in records:
+        observed_at = rec.get("observed_at")
+        if not observed_at:
+            continue
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO datasets (source_id, dataset_key, observed_at, payload, tags) "
+            "VALUES (?,?,?,?,?)",
+            (source_id, dataset_key, observed_at, json.dumps(rec.get("payload", {})), tags_json),
+        )
+        if cur.rowcount:
+            inserted += 1
+    conn.commit()
+    return inserted
+
+
+def query_datasets(conn, dataset_key: str, since_iso=None, limit=50) -> list[dict]:
+    where = ["dataset_key = ?"]
+    params: list = [dataset_key]
+    if since_iso:
+        where.append("observed_at >= ?")
+        params.append(since_iso)
+    sql = ("SELECT source_id, dataset_key, observed_at, payload, tags FROM datasets "
+           "WHERE " + " AND ".join(where) + " ORDER BY observed_at DESC LIMIT ?")
+    params.append(int(limit))
+    out = []
+    for r in conn.execute(sql, params).fetchall():
+        out.append({
+            "source_id": r["source_id"], "dataset_key": r["dataset_key"],
+            "observed_at": r["observed_at"], "payload": json.loads(r["payload"] or "{}"),
+            "tags": json.loads(r["tags"] or "[]"),
+        })
+    return out
+
+
+def dataset_keys(conn) -> list[dict]:
+    rows = conn.execute(
+        "SELECT dataset_key, COUNT(*) AS count, MAX(observed_at) AS latest_observed_at "
+        "FROM datasets GROUP BY dataset_key ORDER BY dataset_key"
+    ).fetchall()
+    return [dict(r) for r in rows]
