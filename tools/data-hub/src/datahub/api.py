@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
 from .config import Settings, Source, Subscription, load_sources, load_subscriptions
 from . import store
@@ -29,8 +29,8 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         taglist = _csv(tags)
         rows = store.query_items(
             conn,
-            tags_any=taglist if match == "any" else None,
-            tags_all=taglist if match == "all" else None,
+            tags_any=(taglist or None) if match == "any" else None,
+            tags_all=(taglist or None) if match == "all" else None,
             include_sources=_csv(sources) or None,
             exclude_sources=_csv(exclude) or None,
             since_iso=since, limit=limit,
@@ -45,7 +45,6 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         q = sub.items
         since = None
         if q.window_hours:
-            from datetime import timedelta
             since = (datetime.now(timezone.utc) - timedelta(hours=q.window_hours)).isoformat()
         rows = store.query_items(
             conn,

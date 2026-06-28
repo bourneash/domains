@@ -1,3 +1,4 @@
+import os
 import sys
 import uvicorn
 from .config import Settings, load_sources
@@ -17,7 +18,7 @@ def main():
         print(f"[datahub] cycle: {summary}")
     elif cmd == "serve":
         app = create_app(settings)
-        uvicorn.run(app, host="0.0.0.0", port=int(__import__("os").environ.get("DATAHUB_PORT", "4760")))
+        uvicorn.run(app, host=os.environ.get("DATAHUB_HOST", "127.0.0.1"), port=int(os.environ.get("DATAHUB_PORT", "4760")))
     else:
         print(f"unknown command: {cmd}", file=sys.stderr)
         sys.exit(2)

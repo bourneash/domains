@@ -60,9 +60,19 @@ def test_egress_endpoint(db):
 def test_health_reports_nodes_and_counts(db):
     _seed(db)
     store.set_source_state(db, source_id="reuters", status="ok")
+    store.set_source_state(db, source_id="reuters-vpn", status="skipped-vpn-down", stale=True)
     c = _client(db)
     r = c.get("/health")
     body = r.json()
     assert body["nodes"]["us"] == "185.2.2.2"
     assert body["counts"]["items"] == 2
+    assert body["counts"]["skipped"] == 1
     assert any(s["source_id"] == "reuters" for s in body["sources"])
+
+
+def test_subscription_404_unknown_site(db):
+    c = _client(db)
+    r = c.get("/subscriptions/nope.com")
+    assert r.status_code == 404
+    r2 = c.get("/subscriptions/nope.com/items")
+    assert r2.status_code == 404
