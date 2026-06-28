@@ -384,7 +384,9 @@ sources:
     url: "https://www.playbill.com/rss/news"
     tags: [news, theater, industry]
     policy: vpn
-    exit: any
+    # Pinned to EU 2026-06-28: the US PIA exit times out on playbill's host
+    # (WAF/geo throttling); the EU exit returns 200. Revert to `any` if US recovers.
+    exit: eu
     fetch:
       source_name: "Playbill"
 
