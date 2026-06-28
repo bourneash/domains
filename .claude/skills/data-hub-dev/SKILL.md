@@ -214,8 +214,23 @@ callable returning records.
 `datahub-api` publishes on **`127.0.0.1:4760` (host loopback only)**, so a
 container CANNOT reach it via `host.docker.internal`. Any containerized consumer
 must **join the external `vpn-proxy_default` network** and call
-`http://datahub-api:4760` by name (set `DATAHUB_API` env). This is how the
-dashboard and every per-site cron container are wired.
+`http://datahub-api:4760` by name (set `DATAHUB_API` env).
+
+### Two consumer dispatch architectures — VALIDATE THE RIGHT CONTAINER
+Sites run the puller in one of two ways; check which before concluding a site is
+broken (probing the wrong container gives a false "can't reach hub"):
+- **In-container cron** (americastrikes, aliencouncil, saveusfarms): the
+  persistent `<site>-cron` container runs `pull-feeds.py` directly and IS joined
+  to `vpn-proxy_default`. Probe: `docker exec <site>-cron python3 -c "...datahub-api:4760..."`.
+- **Ephemeral worker via `docker compose run`** (broadwayshowgirls, sinderella):
+  the `<site>-cron` container is only a DISPATCHER (intentionally NOT on
+  `vpn-proxy_default`); it runs `run-worker.sh <role>` which does
+  `docker compose run --rm worker …`, spinning a throwaway **worker** container.
+  The **`worker` service** (not cron) carries `vpn_proxy` + `DATAHUB_API`. Probing
+  `<site>-cron` will (correctly) fail name resolution — that's NOT a fault. Probe
+  the real path instead:
+  `cd sites/<host> && docker compose --env-file ../../.env run --rm --no-deps --entrypoint sh worker -c "python3 -c \"import urllib.request; urllib.request.urlopen('http://datahub-api:4760/health',timeout=8)\""`
+  If the ephemeral worker reaches the hub, the site is healthy.
 
 ### Onboarding a NEW site to pull from the hub (the Plan 4 pattern)
 1. Add the site to `registry/subscriptions.yaml` (its `tags_any`, limit, window),
