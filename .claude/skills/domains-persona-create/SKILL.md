@@ -25,6 +25,12 @@ persona create --site americastrikes.com --count 2 --role "reporter"
 persona list --site americastrikes.com
 ```
 
+## Inspect a persona
+
+```bash
+persona show jane-doe --site americastrikes.com
+```
+
 ## After creation: provision LinkedIn
 
 For each persona, run the LinkedIn provisioner via social-setup:
