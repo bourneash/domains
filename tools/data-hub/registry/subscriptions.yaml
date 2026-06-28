@@ -1,0 +1,36 @@
+---
+# data-hub subscription registry — one entry per subscriber site.
+# Each subscription defines which items the site's puller should fetch
+# from the shared item store via GET /subscriptions/{site}/items.
+
+subscriptions:
+
+  americastrikes.com:
+    items:
+      tags_any: [defense, iran, diplomacy, markets, domestic, world]
+      limit: 200
+      window_hours: 48
+
+  aliencouncil.com:
+    items:
+      tags_any: [uap, disclosure, sighting, military, science, space, weird]
+      limit: 100
+      window_hours: 72
+
+  broadwayshowgirls.com:
+    items:
+      tags_any: [theater, musicals, awards, industry]
+      limit: 50
+      window_hours: 168
+
+  saveusfarms.com:
+    items:
+      tags_any: [agriculture, farm-economy, land, food-policy, environment]
+      limit: 100
+      window_hours: 72
+
+  sinderella.org:
+    items:
+      tags_any: [weird, uap, science, disclosure, space]
+      limit: 30
+      window_hours: 168

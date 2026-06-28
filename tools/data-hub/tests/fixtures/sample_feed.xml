@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+  <title>Sample</title>
+  <item>
+    <title>Carrier transits the strait</title>
+    <link>https://example.com/a</link>
+    <description>&lt;p&gt;Tensions  rise   in the gulf.&lt;/p&gt;</description>
+    <pubDate>Sat, 28 Jun 2026 10:00:00 +0000</pubDate>
+  </item>
+  <item>
+    <title>Markets wobble</title>
+    <link>https://example.com/b</link>
+    <description>Oil up 3%.</description>
+    <pubDate>Sat, 28 Jun 2026 09:00:00 +0000</pubDate>
+  </item>
+  <item>
+    <title></title>
+    <link>https://example.com/c</link>
+    <description>no title, must be skipped</description>
+  </item>
+</channel></rss>

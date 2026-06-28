@@ -1,0 +1,61 @@
+name: data-hub
+
+# Both services share one named volume for the SQLite DB.
+# Both join the vpn-proxy network so they can reach vpn-us/vpn-eu
+# by container name (port 8888 for HTTP proxy, port 8000 for control API).
+# The api service binds 0.0.0.0 inside the container; the host-side
+# port publish (127.0.0.1:4760:4760) keeps exposure loopback-only.
+
+x-common-env: &common-env
+  DATAHUB_DB_PATH: /data/data-hub.db
+  DATAHUB_REGISTRY_DIR: /app/registry
+  DATAHUB_PROXY_US: "http://vpn-us:8888"
+  DATAHUB_PROXY_EU: "http://vpn-eu:8888"
+  DATAHUB_CONTROL_US: "http://vpn-us:8000"
+  DATAHUB_CONTROL_EU: "http://vpn-eu:8000"
+
+services:
+
+  collector:
+    build: .
+    container_name: datahub-collector
+    command: ["/usr/local/bin/supercronic", "/app/crontab"]
+    environment:
+      <<: *common-env
+    volumes:
+      - datahub-data:/data
+    networks:
+      - vpn-proxy_default
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  api:
+    build: .
+    container_name: datahub-api
+    environment:
+      <<: *common-env
+      DATAHUB_HOST: "0.0.0.0"
+      DATAHUB_PORT: "4760"
+    volumes:
+      - datahub-data:/data
+    ports:
+      - "127.0.0.1:4760:4760"
+    networks:
+      - vpn-proxy_default
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  datahub-data:
+
+networks:
+  vpn-proxy_default:
+    external: true

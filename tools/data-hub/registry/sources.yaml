@@ -1,0 +1,648 @@
+---
+# data-hub source registry — one entry per distinct feed URL.
+# Generated from fleet scraper configs (americastrikes, aliencouncil,
+# broadwayshowgirls, saveusfarms). Tags follow the controlled vocabulary;
+# exit: us = US-gov/wire feeds; exit: any = everything else.
+# breaking-defense appears in both americastrikes + aliencouncil and is merged here.
+
+sources:
+
+  # ── americastrikes.com ──────────────────────────────────────────────────────
+
+  - id: al-jazeera
+    type: rss
+    url: "https://www.aljazeera.com/xml/rss/all.xml"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Al Jazeera"
+
+  - id: bbc-middle-east
+    type: rss
+    url: "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "BBC Middle East"
+
+  - id: guardian-iran
+    type: rss
+    url: "https://www.theguardian.com/world/iran/rss"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Guardian Iran"
+
+  - id: google-news-iran
+    type: rss
+    url: "https://news.google.com/rss/search?q=iran+nuclear+IRGC&hl=en-US&gl=US&ceid=US:en"
+    tags: [iran, world]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News"
+
+  - id: middle-east-monitor
+    type: rss
+    url: "https://www.middleeastmonitor.com/feed/"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Middle East Monitor"
+
+  - id: middle-east-eye
+    type: rss
+    url: "https://www.middleeasteye.net/rss"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Middle East Eye"
+
+  - id: tehran-times
+    type: rss
+    url: "https://www.tehrantimes.com/rss"
+    tags: [iran, world]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Tehran Times"
+
+  - id: long-war-journal
+    type: rss
+    url: "https://www.longwarjournal.org/feed"
+    tags: [iran, world, defense, military]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Long War Journal"
+
+  - id: defense-news
+    type: rss
+    url: "https://www.defensenews.com/arc/outboundfeeds/rss/?outputType=xml"
+    tags: [news, defense, military]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Defense News"
+
+  # SHARED: americastrikes (defense) + aliencouncil (military) — tags merged
+  - id: breaking-defense
+    type: rss
+    url: "https://breakingdefense.com/feed/"
+    tags: [news, defense, military, uap]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Breaking Defense"
+
+  - id: task-and-purpose
+    type: rss
+    url: "https://taskandpurpose.com/feed/"
+    tags: [news, defense, military]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Task & Purpose"
+
+  - id: war-on-the-rocks
+    type: rss
+    url: "https://warontherocks.com/feed/"
+    tags: [defense, military, diplomacy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "War on the Rocks"
+
+  - id: politico-defense
+    type: rss
+    url: "https://rss.politico.com/defense.xml"
+    tags: [news, defense, domestic]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Politico Defense"
+
+  - id: google-news-defense
+    type: rss
+    url: "https://news.google.com/rss/search?q=pentagon+military+defense&hl=en-US&gl=US&ceid=US:en"
+    tags: [defense, military]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Defense"
+
+  - id: oilprice
+    type: rss
+    url: "https://oilprice.com/rss/main"
+    tags: [markets]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "OilPrice"
+
+  - id: marketwatch
+    type: rss
+    url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"
+    tags: [news, markets]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "MarketWatch"
+
+  - id: wsj-world
+    type: rss
+    url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+    tags: [news, world, diplomacy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "WSJ World"
+
+  - id: guardian-world
+    type: rss
+    url: "https://www.theguardian.com/world/rss"
+    tags: [news, world, diplomacy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Guardian World"
+
+  - id: bbc-world
+    type: rss
+    url: "http://feeds.bbci.co.uk/news/world/rss.xml"
+    tags: [news, world, diplomacy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "BBC World"
+
+  - id: foreign-policy
+    type: rss
+    url: "https://foreignpolicy.com/feed/"
+    tags: [news, world, diplomacy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Foreign Policy"
+
+  - id: foreign-affairs
+    type: rss
+    url: "https://www.foreignaffairs.com/rss.xml"
+    tags: [world, diplomacy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Foreign Affairs"
+
+  - id: dod-news
+    type: rss
+    url: "https://www.defense.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=945&max=20"
+    tags: [defense, military]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "DoD News"
+
+  - id: iaea
+    type: rss
+    url: "https://www.iaea.org/feeds/topnews"
+    tags: [iran, world]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "IAEA"
+
+  - id: eia
+    type: rss
+    url: "https://www.eia.gov/rss/todayinenergy.xml"
+    tags: [markets]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "EIA"
+
+  - id: times-of-israel
+    type: rss
+    url: "https://www.timesofisrael.com/feed/"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Times of Israel"
+
+  - id: jerusalem-post
+    type: rss
+    url: "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
+    tags: [news, world, iran]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Jerusalem Post"
+
+  - id: the-hill-defense
+    type: rss
+    url: "https://thehill.com/policy/defense/feed/"
+    tags: [news, defense, domestic]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The Hill"
+
+  - id: the-hill-national-security
+    type: rss
+    url: "https://thehill.com/policy/national-security/feed/"
+    tags: [news, defense, domestic]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The Hill"
+
+  - id: reuters
+    type: rss
+    url: "https://news.google.com/rss/search?q=when:1d+site:reuters.com+iran+OR+pentagon+OR+oil&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, world, iran, defense, markets]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "Reuters"
+
+  - id: ap
+    type: rss
+    url: "https://news.google.com/rss/search?q=when:1d+site:apnews.com+iran+OR+pentagon+OR+israel&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, world, iran, defense]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "AP"
+
+  # ── aliencouncil.com ────────────────────────────────────────────────────────
+
+  - id: the-debrief
+    type: rss
+    url: "https://thedebrief.org/feed/"
+    tags: [uap, disclosure]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The Debrief"
+
+  - id: the-war-zone
+    type: rss
+    url: "https://www.thedrive.com/the-war-zone/rss"
+    tags: [military, defense, uap]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The War Zone"
+
+  - id: google-news-uap
+    type: rss
+    url: "https://news.google.com/rss/search?q=UAP+UFO+disclosure+AARO&hl=en-US&gl=US&ceid=US:en"
+    tags: [uap, disclosure]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News UAP"
+
+  - id: google-news-3i-atlas
+    type: rss
+    url: "https://news.google.com/rss/search?q=%223I%2FATLAS%22+OR+%223I+Atlas%22+OR+interstellar+object&hl=en-US&gl=US&ceid=US:en"
+    tags: [science, space, uap]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News 3I/Atlas"
+
+  - id: google-news-hearings
+    type: rss
+    url: "https://news.google.com/rss/search?q=UFO+hearing+congress+senate+oversight&hl=en-US&gl=US&ceid=US:en"
+    tags: [disclosure, military]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Hearings"
+
+  - id: reddit-ufos
+    type: rss
+    url: "https://www.reddit.com/r/UFOs/top/.rss?t=day"
+    tags: [sighting, uap]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Reddit r/UFOs"
+
+  - id: arxiv-astro-ph
+    type: rss
+    url: "https://export.arxiv.org/rss/astro-ph.EP"
+    tags: [science, space]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "arXiv Earth & Planetary"
+
+  - id: vice
+    type: rss
+    url: "https://www.vice.com/en/feed/"
+    tags: [disclosure, uap, weird]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "VICE"
+      required_pattern: "uap|ufo|unidentified.aerial|unidentified.flying|disclosure|aaro|grusch|elizondo|whistleblower|alien|extraterrestrial|3i.?atlas|pentagon.*uap|uap.*pentagon"
+
+  - id: google-news-pentagon-uap
+    type: rss
+    url: "https://news.google.com/rss/search?q=Pentagon+UAP+military+unidentified&hl=en-US&gl=US&ceid=US:en"
+    tags: [military, uap, disclosure]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Pentagon UAP"
+
+  - id: google-news-aaro
+    type: rss
+    url: "https://news.google.com/rss/search?q=AARO+whistleblower+disclosure+Pentagon&hl=en-US&gl=US&ceid=US:en"
+    tags: [disclosure, uap]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News AARO"
+
+  # ── broadwayshowgirls.com ───────────────────────────────────────────────────
+
+  - id: playbill
+    type: rss
+    url: "https://www.playbill.com/rss/news"
+    tags: [news, theater, industry]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Playbill"
+
+  - id: broadway-news
+    type: rss
+    url: "https://broadwaynews.com/feed/"
+    tags: [news, theater, industry]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Broadway News"
+
+  - id: theatermania
+    type: rss
+    url: "https://www.theatermania.com/feed/"
+    tags: [news, theater, industry]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "TheaterMania"
+
+  - id: vulture
+    type: rss
+    url: "https://feeds.feedburner.com/nymag/vulture"
+    tags: [news, theater, musicals]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Vulture"
+
+  - id: american-theatre
+    type: rss
+    url: "https://www.americantheatre.org/feed/"
+    tags: [theater, industry]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "American Theatre"
+
+  - id: variety-legit
+    type: rss
+    url: "https://variety.com/v/legit/feed/"
+    tags: [news, theater, industry]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Variety Legit"
+
+  - id: nyt-theater
+    type: rss
+    url: "https://rss.nytimes.com/services/xml/rss/nyt/Theater.xml"
+    tags: [news, theater, industry, awards]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "NYT"
+
+  # ── saveusfarms.com ─────────────────────────────────────────────────────────
+
+  - id: google-news-agriculture
+    type: rss
+    url: "https://news.google.com/rss/search?q=agriculture+farming+farm+policy&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, agriculture, farm-economy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Agriculture"
+
+  - id: google-news-farmland
+    type: rss
+    url: "https://news.google.com/rss/search?q=farmland+foreign+owned+AFIDA&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, land, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Farmland"
+
+  - id: google-news-ag-corporate
+    type: rss
+    url: "https://news.google.com/rss/search?q=John+Deere+right+to+repair+seed+patent+Bayer&hl=en-US&gl=US&ceid=US:en"
+    tags: [agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Ag Corporate"
+
+  - id: google-news-farm-economy
+    type: rss
+    url: "https://news.google.com/rss/search?q=USDA+farm+economy+bankruptcy+commodity+prices&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, farm-economy, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Farm Economy"
+
+  - id: google-news-livestock
+    type: rss
+    url: "https://news.google.com/rss/search?q=cattle+ranchers+meatpackers+livestock+antitrust&hl=en-US&gl=US&ceid=US:en"
+    tags: [agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Livestock"
+
+  - id: google-news-farm-labor
+    type: rss
+    url: "https://news.google.com/rss/search?q=farmworkers+H-2A+farm+labor+wages&hl=en-US&gl=US&ceid=US:en"
+    tags: [agriculture, food-policy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Farm Labor"
+
+  - id: google-news-contamination
+    type: rss
+    url: "https://news.google.com/rss/search?q=PFAS+pesticides+farmland+contamination+soil&hl=en-US&gl=US&ceid=US:en"
+    tags: [environment, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Contamination"
+
+  - id: google-news-agribusiness
+    type: rss
+    url: "https://news.google.com/rss/search?q=agribusiness+Cargill+Tyson+JBS+Bayer+farmland+consolidation&hl=en-US&gl=US&ceid=US:en"
+    tags: [land, agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News Agribusiness"
+
+  - id: investigate-midwest
+    type: rss
+    url: "https://investigatemidwest.org/feed/"
+    tags: [agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Investigate Midwest"
+
+  - id: civil-eats
+    type: rss
+    url: "https://civileats.com/feed/"
+    tags: [agriculture, food-policy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Civil Eats"
+
+  - id: farm-journal
+    type: rss
+    url: "https://www.farmjournal.com/feed/"
+    tags: [farm-economy, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Farm Journal"
+
+  - id: farm-progress
+    type: rss
+    url: "https://www.farmprogress.com/rss.xml"
+    tags: [farm-economy, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Farm Progress"
+
+  - id: umn-extension
+    type: rss
+    url: "https://extension.umn.edu/rss.xml"
+    tags: [agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "UMN Extension"
+
+  - id: food-and-water-watch
+    type: rss
+    url: "https://www.foodandwaterwatch.org/feed/"
+    tags: [environment, food-policy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Food & Water Watch"
+
+  - id: ewg
+    type: rss
+    url: "https://www.ewg.org/rss.xml"
+    tags: [environment, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "EWG"
+
+  - id: politico-agriculture
+    type: rss
+    url: "https://rss.politico.com/agriculture.xml"
+    tags: [news, agriculture, farm-economy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Politico Agriculture"
+
+  - id: beef-magazine
+    type: rss
+    url: "https://www.beefmagazine.com/rss.xml"
+    tags: [agriculture, farm-economy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Beef Magazine"
+
+  - id: grist
+    type: rss
+    url: "https://grist.org/feed/"
+    tags: [news, environment, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Grist"
+
+  - id: modern-farmer
+    type: rss
+    url: "https://modernfarmer.com/feed/"
+    tags: [agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Modern Farmer"
+
+  - id: daily-yonder
+    type: rss
+    url: "https://www.dailyyonder.com/feed/"
+    tags: [agriculture, land]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Daily Yonder"
+
+  - id: nsac-blog
+    type: rss
+    url: "https://sustainableagriculture.net/blog/feed/"
+    tags: [agriculture, environment]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "NSAC Blog"
+
+  - id: nrdc
+    type: rss
+    url: "https://www.nrdc.org/rss.xml"
+    tags: [environment, agriculture]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "NRDC"
+
+  - id: foodprint
+    type: rss
+    url: "https://foodprint.org/feed/"
+    tags: [agriculture, food-policy]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "FoodPrint"
