@@ -1,7 +1,0 @@
-pyotp>=2.9
-httpx>=0.27
-
-[dev]
-pytest>=8
-pytest-httpx>=0.30
-respx>=0.21

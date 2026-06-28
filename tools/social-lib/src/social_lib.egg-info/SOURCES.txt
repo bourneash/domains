@@ -1,9 +1,0 @@
-pyproject.toml
-src/social_lib/__init__.py
-src/social_lib/vpn_session.py
-src/social_lib.egg-info/PKG-INFO
-src/social_lib.egg-info/SOURCES.txt
-src/social_lib.egg-info/dependency_links.txt
-src/social_lib.egg-info/requires.txt
-src/social_lib.egg-info/top_level.txt
-tests/test_vpn_session.py
