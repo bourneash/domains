@@ -5,7 +5,13 @@ Single consolidated account token for all fleet automation. Create at:
 
 Name it something like `domains-fleet` or `domains-ops`.
 
-After creating, update `CLOUDFLARE_API_TOKEN=` in `/home/jesse/projects/domains/.env`.
+After creating, update these two lines in `/home/jesse/projects/domains/.env`:
+```
+CF_API_TOKEN="cfat_..."
+CF_ACCOUNT_ID="8483b678e2ea98dc62f8460d69836744"
+```
+
+The older `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` names are still present in `.env` for legacy scripts; the new consolidated token uses the `CF_` prefix.
 
 ---
 
