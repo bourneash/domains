@@ -10,6 +10,18 @@ def test_source_override_roundtrip(db):
     assert store.get_source_overrides(db) == {"lwj": True}
 
 
+def test_pull_log_roundtrip(db):
+    assert store.query_pulls(db) == []
+    store.record_pull(db, site="americastrikes.com",
+                      endpoint="subscriptions/americastrikes.com/items", item_count=42, client_ip="172.30.68.8")
+    store.record_pull(db, endpoint="datasets/launches", item_count=3, client_ip="172.30.68.5")
+    rows = store.query_pulls(db, limit=10)
+    assert len(rows) == 2
+    assert rows[0]["endpoint"] == "datasets/launches"   # newest first
+    only = store.query_pulls(db, site="americastrikes.com")
+    assert len(only) == 1 and only[0]["item_count"] == 42 and only[0]["client_ip"] == "172.30.68.8"
+
+
 def test_upsert_dedups_by_url(db):
     items = [
         {"title": "A", "url": "https://x/1", "summary": "s", "published_iso": "2026-06-28T10:00:00+00:00",

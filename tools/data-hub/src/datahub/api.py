@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta, timezone
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from .config import Settings, Source, Subscription, load_sources, load_subscriptions
 from . import store
@@ -9,6 +9,10 @@ from .vpn import probe_exit_ip
 
 class EnabledBody(BaseModel):
     enabled: bool
+
+
+def _client_ip(request: Request) -> str:
+    return request.client.host if request and request.client else ""
 
 
 def _csv(v: str | None) -> list[str]:
@@ -29,7 +33,7 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
     source_by_id = {s.id: s for s in sources}
 
     @app.get("/items")
-    def items(tags: str | None = None, match: str = "any", sources: str | None = None,
+    def items(request: Request, tags: str | None = None, match: str = "any", sources: str | None = None,
               exclude: str | None = None, since: str | None = None, limit: int = 200):
         taglist = _csv(tags)
         rows = store.query_items(
@@ -40,10 +44,11 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             exclude_sources=_csv(exclude) or None,
             since_iso=since, limit=limit,
         )
+        store.record_pull(conn, endpoint="items", item_count=len(rows), client_ip=_client_ip(request))
         return {"items": rows}
 
     @app.get("/subscriptions/{site}/items")
-    def subscription_items(site: str):
+    def subscription_items(site: str, request: Request):
         sub = subscriptions.get(site)
         if not sub:
             raise HTTPException(404, f"no subscription for {site}")
@@ -57,6 +62,8 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             include_sources=q.include_sources or None, exclude_sources=q.exclude_sources or None,
             since_iso=since, limit=q.limit,
         )
+        store.record_pull(conn, site=site, endpoint=f"subscriptions/{site}/items",
+                          item_count=len(rows), client_ip=_client_ip(request))
         return {"items": rows}
 
     @app.get("/subscriptions/{site}")
@@ -71,12 +78,18 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         return {"datasets": store.dataset_keys(conn)}
 
     @app.get("/datasets/{key}")
-    def datasets_detail(key: str, since: str | None = None, limit: int = 50):
-        return {"records": store.query_datasets(conn, key, since_iso=since, limit=limit)}
+    def datasets_detail(key: str, request: Request, since: str | None = None, limit: int = 50):
+        recs = store.query_datasets(conn, key, since_iso=since, limit=limit)
+        store.record_pull(conn, endpoint=f"datasets/{key}", item_count=len(recs), client_ip=_client_ip(request))
+        return {"records": recs}
 
     @app.get("/egress")
     def egress(since: str | None = None, limit: int = 200, policy: str | None = None):
         return {"events": store.query_egress(conn, since_iso=since, limit=limit, policy=policy)}
+
+    @app.get("/pulls")
+    def pulls(since: str | None = None, limit: int = 200, site: str | None = None):
+        return {"pulls": store.query_pulls(conn, since_iso=since, limit=limit, site=site)}
 
     @app.get("/sources")
     def sources_list():

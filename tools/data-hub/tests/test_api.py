@@ -29,6 +29,21 @@ def _seed(db):
     ])
 
 
+def test_subscription_and_dataset_pulls_are_logged(db):
+    _seed(db)
+    c = _client(db)
+    r = c.get("/subscriptions/americastrikes.com/items")
+    n = len(r.json()["items"])
+    pulls = c.get("/pulls").json()["pulls"]
+    assert len(pulls) == 1
+    assert pulls[0]["site"] == "americastrikes.com"
+    assert pulls[0]["endpoint"] == "subscriptions/americastrikes.com/items"
+    assert pulls[0]["item_count"] == n
+    # read-only endpoints must NOT create pull rows
+    c.get("/sources"); c.get("/health"); c.get("/datasets")
+    assert len(c.get("/pulls").json()["pulls"]) == 1
+
+
 def test_sources_reports_enabled_and_toggle_overrides(db):
     c = _client(db)
     src = {s["id"]: s for s in c.get("/sources").json()["sources"]}["reuters"]

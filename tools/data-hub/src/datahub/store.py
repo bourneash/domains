@@ -62,6 +62,16 @@ CREATE TABLE IF NOT EXISTS source_overrides (
   enabled INTEGER NOT NULL,
   updated_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS pull_log (
+  id INTEGER PRIMARY KEY,
+  ts TEXT NOT NULL,
+  site TEXT,
+  endpoint TEXT,
+  item_count INTEGER DEFAULT 0,
+  client_ip TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_pull_ts ON pull_log(ts DESC);
 """
 
 
@@ -153,6 +163,31 @@ def record_egress(conn, *, source_id, target_host, policy, exit_node, exit_ip,
          item_count, byte_count, duration_ms, note),
     )
     conn.commit()
+
+
+def record_pull(conn, *, site="", endpoint="", item_count=0, client_ip="") -> None:
+    """Record an inbound consumer pull (a site/agent querying the hub API): which
+    endpoint, how many items it received, from which client IP, and when. The
+    inbound counterpart to record_egress (which logs the hub's outbound fetches)."""
+    conn.execute(
+        "INSERT INTO pull_log (ts, site, endpoint, item_count, client_ip) VALUES (?,?,?,?,?)",
+        (_now(), site, endpoint, int(item_count), client_ip),
+    )
+    conn.commit()
+
+
+def query_pulls(conn, since_iso=None, limit=200, site=None) -> list[dict]:
+    where, params = [], []
+    if since_iso:
+        where.append("ts >= ?"); params.append(since_iso)
+    if site:
+        where.append("site = ?"); params.append(site)
+    sql = "SELECT ts, site, endpoint, item_count, client_ip FROM pull_log"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY ts DESC LIMIT ?"
+    params.append(int(limit))
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]
 
 
 def query_egress(conn, since_iso=None, limit=200, policy=None) -> list[dict]:
