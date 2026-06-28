@@ -13,7 +13,7 @@ def _settings():
 
 def _control(ip):
     return httpx.Client(transport=httpx.MockTransport(
-        lambda r: httpx.Response(200, json={"public_ip": ip})))
+        lambda r: httpx.Response(200, content=ip.encode())))
 
 
 def test_healthy_vpn_fetches_and_stores(db, monkeypatch):

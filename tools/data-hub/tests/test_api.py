@@ -15,7 +15,7 @@ def _client(db):
     subs = {"americastrikes.com": Subscription(site="americastrikes.com",
             items=ItemsQuery(tags_any=["defense"], limit=50))}
     vpn_client = httpx.Client(transport=httpx.MockTransport(
-        lambda r: httpx.Response(200, json={"public_ip": "185.2.2.2"})))
+        lambda r: httpx.Response(200, content=b"185.2.2.2")))
     app = api.create_app(_settings(), conn=db, sources=sources, subscriptions=subs, vpn_client=vpn_client)
     return TestClient(app)
 

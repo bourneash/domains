@@ -1,0 +1,3 @@
+# data-hub collector crontab — runs inside the collector container via supercronic.
+# Collection every 30 minutes; output goes to stdout (captured by Docker logging).
+*/30 * * * * python -m datahub collect

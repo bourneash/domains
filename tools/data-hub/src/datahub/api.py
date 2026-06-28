@@ -76,8 +76,8 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
 
     @app.get("/health")
     def health():
-        us = probe_exit_ip(settings.control_us, client=vpn_client)
-        eu = probe_exit_ip(settings.control_eu, client=vpn_client)
+        us = probe_exit_ip(settings.proxy_us, client=vpn_client)
+        eu = probe_exit_ip(settings.proxy_eu, client=vpn_client)
         states = store.get_sources_state(conn)
         item_count = conn.execute("SELECT COUNT(*) AS n FROM items").fetchone()["n"]
         skipped = [s for s in states if (s["status"] or "").startswith("skipped")]
