@@ -14,6 +14,13 @@ def main():
         conn = store.connect(settings.db_path)
         store.init_schema(conn)
         sources = load_sources(f"{settings.registry_dir}/sources.yaml")
+        # Apply runtime enabled/disabled overrides (set via the UI / API) on top
+        # of the registry's declared default, so a toggle takes effect next cycle
+        # with no rebuild.
+        overrides = store.get_source_overrides(conn)
+        for s in sources:
+            if s.id in overrides:
+                s.enabled = overrides[s.id]
         summary = run_cycle(conn, sources, settings)
         print(f"[datahub] cycle: {summary}")
     elif cmd == "serve":

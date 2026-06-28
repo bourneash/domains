@@ -56,6 +56,12 @@ CREATE TABLE IF NOT EXISTS seen_urls (
   url TEXT PRIMARY KEY,
   first_seen_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS source_overrides (
+  source_id TEXT PRIMARY KEY,
+  enabled INTEGER NOT NULL,
+  updated_at TEXT
+);
 """
 
 
@@ -182,6 +188,31 @@ def get_sources_state(conn) -> list[dict]:
         "SELECT source_id, last_fetch_at, last_status AS status, last_error AS error, "
         "stale, consecutive_failures FROM sources_state ORDER BY source_id"
     ).fetchall()]
+
+
+def set_source_override(conn, *, source_id: str, enabled: bool) -> None:
+    """Persist a runtime enabled/disabled override for a source (survives image
+    rebuilds via the mounted DB; the collector applies it each cycle, the UI
+    toggles it). Overrides the registry's declared `enabled` default."""
+    conn.execute(
+        "INSERT INTO source_overrides (source_id, enabled, updated_at) VALUES (?, ?, ?) "
+        "ON CONFLICT(source_id) DO UPDATE SET enabled=excluded.enabled, updated_at=excluded.updated_at",
+        (source_id, 1 if enabled else 0, _now()),
+    )
+    conn.commit()
+
+
+def clear_source_override(conn, *, source_id: str) -> None:
+    """Remove a source's runtime override so the registry default governs again."""
+    conn.execute("DELETE FROM source_overrides WHERE source_id=?", (source_id,))
+    conn.commit()
+
+
+def get_source_overrides(conn) -> dict:
+    """Map of source_id -> bool for every source with a runtime override set."""
+    return {r["source_id"]: bool(r["enabled"]) for r in conn.execute(
+        "SELECT source_id, enabled FROM source_overrides"
+    ).fetchall()}
 
 
 def upsert_datasets(conn, source_id: str, dataset_key: str, tags: list, records: list[dict]) -> int:

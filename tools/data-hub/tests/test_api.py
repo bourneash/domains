@@ -29,6 +29,24 @@ def _seed(db):
     ])
 
 
+def test_sources_reports_enabled_and_toggle_overrides(db):
+    c = _client(db)
+    src = {s["id"]: s for s in c.get("/sources").json()["sources"]}["reuters"]
+    assert src["enabled"] is True and src["overridden"] is False and src["registry_default"] is True
+    # toggle off → effective enabled flips, registry default unchanged
+    r = c.post("/sources/reuters/enabled", json={"enabled": False})
+    assert r.status_code == 200 and r.json()["enabled"] is False
+    src = {s["id"]: s for s in c.get("/sources").json()["sources"]}["reuters"]
+    assert src["enabled"] is False and src["overridden"] is True and src["registry_default"] is True
+    # toggle back to the registry default (True) → override cleared, not redundant
+    back = c.post("/sources/reuters/enabled", json={"enabled": True}).json()
+    assert back["enabled"] is True and back["overridden"] is False
+    src = {s["id"]: s for s in c.get("/sources").json()["sources"]}["reuters"]
+    assert src["enabled"] is True and src["overridden"] is False
+    # unknown source → 404
+    assert c.post("/sources/nope/enabled", json={"enabled": False}).status_code == 404
+
+
 def test_items_filtered_by_tags(db):
     _seed(db)
     c = _client(db)

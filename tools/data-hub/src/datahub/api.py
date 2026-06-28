@@ -1,9 +1,14 @@
 import os
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from .config import Settings, Source, Subscription, load_sources, load_subscriptions
 from . import store
 from .vpn import probe_exit_ip
+
+
+class EnabledBody(BaseModel):
+    enabled: bool
 
 
 def _csv(v: str | None) -> list[str]:
@@ -76,11 +81,32 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
     @app.get("/sources")
     def sources_list():
         state = {s["source_id"]: s for s in store.get_sources_state(conn)}
+        overrides = store.get_source_overrides(conn)
         return {"sources": [
             {"id": s.id, "type": s.type, "tags": s.tags, "policy": s.policy,
-             "exit": s.exit, "state": state.get(s.id)}
+             "exit": s.exit,
+             "enabled": overrides.get(s.id, s.enabled),   # effective state
+             "registry_default": s.enabled,
+             "overridden": s.id in overrides,
+             "state": state.get(s.id)}
             for s in source_by_id.values()
         ]}
+
+    @app.post("/sources/{source_id}/enabled")
+    def set_source_enabled(source_id: str, body: EnabledBody):
+        s = source_by_id.get(source_id)
+        if s is None:
+            raise HTTPException(status_code=404, detail="unknown source")
+        # If the desired state matches the registry default, clear the override
+        # so "overridden" stays meaningful (= diverges from the registry).
+        if body.enabled == s.enabled:
+            store.clear_source_override(conn, source_id=source_id)
+            overridden = False
+        else:
+            store.set_source_override(conn, source_id=source_id, enabled=body.enabled)
+            overridden = True
+        return {"id": source_id, "enabled": body.enabled,
+                "registry_default": s.enabled, "overridden": overridden}
 
     @app.get("/health")
     def health():

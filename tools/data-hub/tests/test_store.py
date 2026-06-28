@@ -1,6 +1,15 @@
 from datahub import store
 
 
+def test_source_override_roundtrip(db):
+    assert store.get_source_overrides(db) == {}
+    store.set_source_override(db, source_id="lwj", enabled=False)
+    assert store.get_source_overrides(db) == {"lwj": False}
+    # upsert flips an existing override
+    store.set_source_override(db, source_id="lwj", enabled=True)
+    assert store.get_source_overrides(db) == {"lwj": True}
+
+
 def test_upsert_dedups_by_url(db):
     items = [
         {"title": "A", "url": "https://x/1", "summary": "s", "published_iso": "2026-06-28T10:00:00+00:00",
