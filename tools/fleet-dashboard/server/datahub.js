@@ -35,6 +35,28 @@ async function datasets() {
   return r.ok === false ? { ...r, datasets: [] } : r;
 }
 
+// Toggle a source's enabled/disabled override on the hub (persists in the hub's
+// SQLite; takes effect on the next collect cycle). Returns the hub's response or
+// a degraded { ok:false, error }.
+async function setSourceEnabled(id, enabled) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 3000);
+  try {
+    const r = await fetch(`${API}/sources/${encodeURIComponent(id)}/enabled`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: !!enabled }),
+      signal: ctrl.signal,
+    });
+    if (!r.ok) throw new Error(`hub toggle → HTTP ${r.status}`);
+    return await r.json();
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function _loadYaml(file, key) {
   try {
     const doc = yaml.load(fs.readFileSync(path.join(REG, file), 'utf8')) || {};
@@ -75,4 +97,4 @@ function matrix() {
   return { sites, sources, rss, datasets };
 }
 
-module.exports = { health, egress, sources, datasets, matrix, API };
+module.exports = { health, egress, sources, datasets, setSourceEnabled, matrix, API };

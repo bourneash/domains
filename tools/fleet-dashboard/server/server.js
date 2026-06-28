@@ -53,6 +53,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     res.json(await datahub.egress(limit));
   });
   app.get('/api/datahub/sources', async (_req, res) => res.json(await datahub.sources()));
+  app.post('/api/datahub/sources/:id/enabled', async (req, res) => {
+    const enabled = !!(req.body && req.body.enabled);
+    res.json(await datahub.setSourceEnabled(req.params.id, enabled));
+  });
   app.get('/api/datahub/datasets', async (_req, res) => res.json(await datahub.datasets()));
   app.get('/api/datahub/matrix', (_req, res) => {
     try { res.json(datahub.matrix()); }

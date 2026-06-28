@@ -1562,22 +1562,30 @@ async function renderDataHub() {
       <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
     </table>`;
 
-  // ---- Panel 3: Source Freshness ----
+  // ---- Panel 3: Source Freshness (+ enabled/disabled toggle) ----
   const srcs = (src && src.sources) || [];
+  const enabledCount = srcs.filter((s) => s.enabled !== false).length;
+  const disabledCount = srcs.length - enabledCount;
   const srcRows = srcs.map((s) => {
     const st = (s.state || {});
-    const stale = st.stale ? ' · <span class="dh-stale">stale</span>' : '';
-    return `<tr>
-      <td>${esc(s.id)}</td>
+    const off = s.enabled === false;
+    const stale = (!off && st.stale) ? ' · <span class="dh-stale">stale</span>' : '';
+    const ovr = s.overridden ? ' <span class="dh-ovr" title="overridden — differs from the registry default">override</span>' : '';
+    const statusCell = off ? '<span class="dh-b dh-skip">disabled</span>' : `${dhBadge(st.status)}${stale}`;
+    const toggle = `<button class="btn sm ${off ? 'primary' : 'danger'} dh-src-toggle" data-id="${esc(s.id)}" data-enabled="${off ? 0 : 1}">${off ? '▶ Enable' : '⏸ Disable'}</button>`;
+    return `<tr class="${off ? 'dh-row-off' : ''}">
+      <td>${esc(s.id)}${ovr}</td>
       <td>${esc(s.type)}</td>
-      <td>${dhBadge(st.status)}${stale}</td>
+      <td>${statusCell}</td>
       <td class="dh-time">${esc((st.last_fetch_at || '').replace('T', ' ').slice(0, 19) || '—')}</td>
+      <td class="dh-srcctl">${toggle}</td>
     </tr>`;
   }).join('');
   const srcHtml = `
+    <div class="dh-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dh-stale">${disabledCount} disabled</span>` : ''}</div>
     <table class="dh-sources">
-      <thead><tr><th>source</th><th>type</th><th>status</th><th>last fetch</th></tr></thead>
-      <tbody>${srcRows || '<tr><td colspan="4" class="muted">no source state</td></tr>'}</tbody>
+      <thead><tr><th>source</th><th>type</th><th>status</th><th>last fetch</th><th></th></tr></thead>
+      <tbody>${srcRows || '<tr><td colspan="5" class="muted">no source state</td></tr>'}</tbody>
     </table>`;
 
   // ---- Panel 4: Datasets ----
@@ -1617,7 +1625,25 @@ async function renderDataHub() {
       <section class="dh-panel dh-wide" data-rk="dh-matrix"><h3>Source × Site Matrix</h3>${matrixHtml}</section>
     </div>`;
 
+  // Wire the per-source enable/disable toggles (re-bound every render).
+  $$('.dh-src-toggle').forEach((b) =>
+    b.addEventListener('click', () => dhToggleSource(b.dataset.id, b.dataset.enabled === '1', b)));
+
   if (!FRESH) applyUISnap();
+}
+
+// Toggle a hub source's enabled/disabled override, then soft-refresh the view.
+// The change persists in the hub and takes effect on the next collect cycle.
+async function dhToggleSource(id, currentlyEnabled, btn) {
+  gdBusy(btn, true);
+  const r = await api('POST', `/api/datahub/sources/${encodeURIComponent(id)}/enabled`, { enabled: !currentlyEnabled });
+  if (r && r.ok === false) {
+    gdBusy(btn, false);
+    toast(`Toggle failed: ${r.error || 'hub unreachable'}`);
+    return;
+  }
+  toast(`${id} ${currentlyEnabled ? 'disabled' : 'enabled'} — applies on the next collect cycle`);
+  softRender();
 }
 
 /* ===================== SHELL ===================== */
