@@ -11,7 +11,7 @@ class FetchPlan(BaseModel):
     reason: str = ""
 
 
-_IP_CHECK_URL = "http://checkip.amazonaws.com"
+_IP_CHECK_URL = "https://checkip.amazonaws.com"
 
 
 def probe_exit_ip(proxy_url: str, *, client: httpx.Client | None = None, timeout: float = 8) -> str | None:
