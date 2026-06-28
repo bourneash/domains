@@ -7,7 +7,19 @@ import time
 from rich.console import Console
 
 from ..browser import human_gate, human_gate_input, launch_browser
+from ..exceptions import PlatformDeferred
 from .base import PlatformProvisioner
+from social_lib.credentials import write_stub
+
+
+class InstagramPlatform:
+    name = "instagram"
+
+    def provision(self, domain: str, brand, browser) -> dict:
+        write_stub(domain, "instagram")
+        raise PlatformDeferred(
+            "Instagram provisioning deferred — run with --include-meta when ready"
+        )
 
 console = Console()
 
