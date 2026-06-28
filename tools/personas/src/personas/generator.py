@@ -1,9 +1,8 @@
 from __future__ import annotations
 import json
-import os
 import re
+import subprocess
 from datetime import date
-import anthropic
 from personas.store import Persona, make_handle
 
 MODEL = "claude-haiku-4-5-20251001"
@@ -11,12 +10,10 @@ MODEL = "claude-haiku-4-5-20251001"
 
 def generate_persona(role: str, site: str, domain: str) -> Persona:
     """
-    Call Claude to generate a fictional persona for the given role/site.
+    Call Claude CLI to generate a fictional persona for the given role/site.
     Returns a Persona dataclass with fields filled from Claude.
     email and avatar_path are left blank for downstream providers to fill.
     """
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
     prompt = f"""Generate a fictional professional persona for a {role} at a website called {site}.
 
 Requirements:
@@ -36,13 +33,16 @@ Return ONLY valid JSON with these exact keys:
   ]
 }}"""
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=512,
-        messages=[{"role": "user", "content": prompt}],
+    result = subprocess.run(
+        ["claude", "-p", prompt, "--model", MODEL],
+        capture_output=True,
+        text=True,
+        timeout=60,
     )
+    if result.returncode != 0:
+        raise RuntimeError(f"claude -p failed (exit {result.returncode}): {result.stderr[:300]}")
 
-    raw = response.content[0].text.strip()
+    raw = result.stdout.strip()
     fence_match = re.search(r'```(?:json)?\s*(.+?)\s*```', raw, re.DOTALL)
     clean = fence_match.group(1) if fence_match else raw.strip()
     try:

@@ -17,25 +17,23 @@ MOCK_RESPONSE_TEXT = json.dumps({
 })
 
 
-def _mock_client(text=MOCK_RESPONSE_TEXT):
-    mock_client = MagicMock()
-    mock_client.messages.create.return_value = MagicMock(
-        content=[MagicMock(text=text)]
-    )
-    return mock_client
+def _mock_run(stdout=MOCK_RESPONSE_TEXT, returncode=0):
+    mock = MagicMock()
+    mock.returncode = returncode
+    mock.stdout = stdout
+    mock.stderr = ""
+    return mock
 
 
 def test_generate_persona_returns_persona_instance():
-    mock_client = _mock_client()
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     assert isinstance(result, Persona)
 
 
 def test_generate_persona_required_fields():
-    mock_client = _mock_client()
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     assert result.name == "Sarah Chen"
@@ -46,8 +44,7 @@ def test_generate_persona_required_fields():
 
 
 def test_generate_persona_handle_derived_from_name():
-    mock_client = _mock_client()
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     assert result.handle == make_handle(result.name)
@@ -55,16 +52,14 @@ def test_generate_persona_handle_derived_from_name():
 
 
 def test_generate_persona_created_is_today():
-    mock_client = _mock_client()
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     assert result.created == date.today().isoformat()
 
 
 def test_generate_persona_email_and_avatar_empty():
-    mock_client = _mock_client()
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     assert result.email == ""
@@ -73,8 +68,7 @@ def test_generate_persona_email_and_avatar_empty():
 
 
 def test_generate_persona_employment_history_has_correct_keys():
-    mock_client = _mock_client()
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     for entry in result.employment_history:
@@ -85,8 +79,7 @@ def test_generate_persona_employment_history_has_correct_keys():
 
 def test_generate_persona_handles_fenced_json():
     fenced = "```json\n" + MOCK_RESPONSE_TEXT + "\n```"
-    mock_client = _mock_client(text=fenced)
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run(stdout=fenced)):
         result = generate_persona(role="Editor", site="America Strikes", domain="americastrikes.com")
 
     assert isinstance(result, Persona)
@@ -94,7 +87,12 @@ def test_generate_persona_handles_fenced_json():
 
 
 def test_generate_persona_raises_on_bad_json():
-    mock_client = _mock_client(text="not json at all")
-    with patch("personas.generator.anthropic.Anthropic", return_value=mock_client):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run(stdout="not json at all")):
         with pytest.raises(ValueError, match="non-JSON"):
+            generate_persona(role="Editor", site="America Strikes", domain="americastrikes.com")
+
+
+def test_generate_persona_raises_on_cli_failure():
+    with patch("personas.generator.subprocess.run", return_value=_mock_run(returncode=1, stdout="")):
+        with pytest.raises(RuntimeError, match="claude -p failed"):
             generate_persona(role="Editor", site="America Strikes", domain="americastrikes.com")
