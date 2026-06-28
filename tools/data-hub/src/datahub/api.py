@@ -61,6 +61,14 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             raise HTTPException(404, f"no subscription for {site}")
         return sub.model_dump()
 
+    @app.get("/datasets")
+    def datasets_index():
+        return {"datasets": store.dataset_keys(conn)}
+
+    @app.get("/datasets/{key}")
+    def datasets_detail(key: str, since: str | None = None, limit: int = 50):
+        return {"records": store.query_datasets(conn, key, since_iso=since, limit=limit)}
+
     @app.get("/egress")
     def egress(since: str | None = None, limit: int = 200, policy: str | None = None):
         return {"events": store.query_egress(conn, since_iso=since, limit=limit, policy=policy)}
