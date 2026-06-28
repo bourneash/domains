@@ -109,6 +109,15 @@ for fn in sorted(os.listdir(articles_dir)):
     with open(os.path.join(articles_dir, fn), encoding="utf-8") as f:
         text = f.read()
     fm = frontmatter(text)
+    # A published article missing a configured image field renders with no hero
+    # and the default og-image. Probing only paths that EXIST in frontmatter is a
+    # blind spot — a missing field contributes 0 to CHECKED and can never be a
+    # FAILURE. Flag each missing field directly so collection gaps get found.
+    for field in fields:
+        if field not in fm:
+            checked += 1
+            failures.append((slug, "(no %s: frontmatter)" % field,
+                             "missing %s frontmatter" % field))
     targets = []  # (role, path)
     for field in fields:
         if field not in fm:
