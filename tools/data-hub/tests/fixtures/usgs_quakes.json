@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","features":[
+ {"properties":{"mag":6.2,"place":"South Pacific","time":1782950400000,"type":"earthquake","url":"https://eq/1"},"id":"a1"},
+ {"properties":{"mag":5.1,"place":"Aleutians","time":1782864000000,"type":"earthquake","url":"https://eq/2"},"id":"a2"}
+]}
