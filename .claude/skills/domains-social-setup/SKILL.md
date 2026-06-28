@@ -5,6 +5,11 @@ description: Provision social media accounts for a domain site. Creates accounts
 
 # Social Media Account Provisioner
 
+> **Note:** A legacy `social-setup` skill also exists (Playwright MCP + manual gates). This skill
+> (`domains-social-setup`) is the preferred approach — it uses the `social-setup` CLI with
+> CloakBrowser + VPN, which is more reliable and doesn't require Claude to drive the browser
+> directly. Use `domains-social-setup` for all new site onboarding.
+
 Uses the `social-setup` Python package at `tools/social-setup/` + CloakBrowser
 anti-detect browser for platform signups.
 
