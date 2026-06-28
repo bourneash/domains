@@ -13,6 +13,7 @@ from social_lib.sms_gate import manual_gate
 
 class LinkedInPlatform(BasePlatform):
     name = "linkedin"
+    display_name = "LinkedIn"
 
     def provision(self, domain: str, brand, page) -> dict:
         email = f"social@{domain}"

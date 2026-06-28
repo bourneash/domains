@@ -120,6 +120,34 @@ def _provision_platform(name: str, brand: BrandContext, force: bool = False, inc
                 pass
 
 
+def _write_new_style_log(brand: BrandContext, name: str, status: str, username: str = "", error: str = "") -> None:
+    """Write a setup-log.json entry for new-style (BasePlatform) provisioners."""
+    from datetime import datetime, timezone
+    log_path = brand.site_root / "ops" / "social" / "setup-log.json"
+    log_data: dict = {}
+    if log_path.exists():
+        try:
+            log_data = json.loads(log_path.read_text())
+        except json.JSONDecodeError:
+            pass
+    if "domain" not in log_data:
+        log_data["domain"] = brand.domain
+        log_data["email"] = f"social@{brand.domain}"
+    platforms = log_data.setdefault("platforms", {})
+    entry: dict = {
+        "status": status,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "cred_file": f"ops/social/.{name}-creds",
+    }
+    if username:
+        entry["username"] = username
+    if error:
+        entry["error"] = error
+    platforms[name] = entry
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(json.dumps(log_data, indent=2) + "\n")
+
+
 def _provision_new_style(name: str, cls, brand: BrandContext, force: bool = False, include_meta: bool = False) -> str:
     """Dispatch for new-style BasePlatform subclasses (provision(domain, brand, page))."""
     from .credentials import has_creds
@@ -149,6 +177,7 @@ def _provision_new_style(name: str, cls, brand: BrandContext, force: bool = Fals
         platform = cls()
         result = platform.provision(brand.domain, brand, page)
 
+        _write_new_style_log(brand, name, "created", username=result.get("username", ""))
         console.print(f"\n  [green]✓ {display_name} — created[/green]")
         return "created"
 
@@ -159,12 +188,15 @@ def _provision_new_style(name: str, cls, brand: BrandContext, force: bool = Fals
     except RuntimeError as e:
         msg = str(e)
         if "skipped" in msg.lower():
+            _write_new_style_log(brand, name, "skipped", error=msg)
             console.print(f"  [yellow]⏸ {display_name} — skipped[/yellow]")
             return "skipped"
+        _write_new_style_log(brand, name, "failed", error=msg)
         console.print(f"  [red]✗ {display_name} — failed: {msg}[/red]")
         return "failed"
 
     except Exception as e:
+        _write_new_style_log(brand, name, "failed", error=str(e))
         console.print(f"  [red]✗ {display_name} — error: {e}[/red]")
         traceback.print_exc()
         return "failed"
