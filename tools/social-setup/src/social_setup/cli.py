@@ -13,11 +13,12 @@ from rich.table import Table
 from .config import BrandContext, extract_brand, list_all_domains
 from .credentials import has_creds
 from .email import ensure_social_alias
+from .exceptions import PlatformDeferred
 from .platforms import ALL_PLATFORMS
 
 console = Console()
 
-PLATFORM_ORDER = ["bluesky", "reddit", "pinterest", "x", "instagram", "tiktok", "facebook"]
+PLATFORM_ORDER = ["bluesky", "reddit", "pinterest", "x", "instagram", "tiktok", "linkedin", "facebook"]
 
 
 def _resolve_platforms(platforms_str: str | None) -> list[str]:
@@ -32,7 +33,7 @@ def _resolve_platforms(platforms_str: str | None) -> list[str]:
     return requested
 
 
-def _provision_platform(name: str, brand: BrandContext, force: bool = False) -> str:
+def _provision_platform(name: str, brand: BrandContext, force: bool = False, include_meta: bool = False) -> str:
     """Provision a single platform. Returns status string."""
     cls = ALL_PLATFORMS[name]
     provisioner = cls(brand)
@@ -46,6 +47,12 @@ def _provision_platform(name: str, brand: BrandContext, force: bool = False) -> 
     page = None
 
     try:
+        # Skip Meta platforms unless --include-meta is set
+        if name in ("facebook", "instagram") and not include_meta:
+            raise PlatformDeferred(
+                f"{name.capitalize()} provisioning deferred — run with --include-meta when ready"
+            )
+
         console.print(f"\n[bold]{'=' * 50}[/bold]")
         console.print(f"[bold]{provisioner.display_name}[/bold] — {brand.domain}")
         console.print(f"[bold]{'=' * 50}[/bold]")
@@ -77,6 +84,10 @@ def _provision_platform(name: str, brand: BrandContext, force: bool = False) -> 
         console.print(f"\n  [green]✓ {provisioner.display_name} — created[/green]")
         console.print(f"    Credentials saved to: {cred_path}")
         return "created"
+
+    except PlatformDeferred as e:
+        console.print(f"  [yellow]⏸ {name}: {e}[/yellow]")
+        return "skipped"
 
     except RuntimeError as e:
         msg = str(e)
@@ -112,7 +123,8 @@ def main():
 @click.option("--platforms", "-p", default=None, help="Comma-separated platform list (default: all)")
 @click.option("--force", is_flag=True, help="Re-provision even if credentials exist")
 @click.option("--resume", is_flag=True, help="Resume from last state (skip completed)")
-def provision(domain: str, platforms: str | None, force: bool, resume: bool):
+@click.option("--include-meta", is_flag=True, default=False, help="Include Facebook and Instagram (requires SMSPool creds)")
+def provision(domain: str, platforms: str | None, force: bool, resume: bool, include_meta: bool):
     """Create and configure social media accounts for DOMAIN."""
 
     console.print(f"\n[bold]Social Media Setup — {domain}[/bold]\n")
@@ -162,7 +174,7 @@ def provision(domain: str, platforms: str | None, force: bool, resume: bool):
     # Provision each platform
     results: dict[str, str] = {}
     for name in platform_list:
-        results[name] = _provision_platform(name, brand, force=force)
+        results[name] = _provision_platform(name, brand, force=force, include_meta=include_meta)
 
     # Summary
     console.print(f"\n[bold]{'=' * 50}[/bold]")
