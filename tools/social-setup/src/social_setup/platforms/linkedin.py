@@ -56,18 +56,24 @@ class LinkedInPlatform(BasePlatform):
         mailbox = os.environ.get("HOTMAIL_ADDRESS", "jessetamburino@hotmail.com")
         api_key = os.environ.get("EMAIL_API_KEY")
         client = EmailClient(mailbox, api_key=api_key)
-        msg = client.wait_for_message(to_addr=email, subject_contains="email", timeout=120)
-        match = re.search(r"\b(\d{6})\b", msg.get("body_text", ""))
+        msg = client.wait_for_message(to_addr=email, subject_contains="verification", timeout=120)
+        body_text = msg.get("body_text", "")
+        match = re.search(r"\b(\d{6})\b", body_text)
         if match:
             code = match.group(1)
-            page.fill('input[autocomplete="one-time-code"]', code)
-            page.click('button[type="submit"]')
-            page.wait_for_timeout(2000)
+        else:
+            raise RuntimeError(
+                f"Could not extract verification code from email body. Raw: {body_text[:200]}"
+            )
+        page.fill('input[autocomplete="one-time-code"]', code)
+        page.click('button[type="submit"]')
+        page.wait_for_timeout(2000)
 
         # 6. SMS verify gate (if triggered)
-        if "phone" in page.url or page.query_selector('input[name="phoneNumber"]'):
+        if "phone" in page.url or page.query_selector('input[name="pin"]') or page.query_selector('input[name="phoneNumber"]'):
             code = manual_gate(f"linkedin-sms-{domain}")
-            page.fill('input[name="phoneNumber"]', code)
+            sms_field = page.query_selector('input[name="pin"]') or page.query_selector('input[name="phoneNumber"]')
+            sms_field.fill(code)
             page.click('button[type="submit"]')
             page.wait_for_timeout(2000)
 

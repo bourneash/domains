@@ -36,6 +36,13 @@ def _resolve_platforms(platforms_str: str | None) -> list[str]:
 def _provision_platform(name: str, brand: BrandContext, force: bool = False, include_meta: bool = False) -> str:
     """Provision a single platform. Returns status string."""
     cls = ALL_PLATFORMS[name]
+
+    # New-style platforms (BasePlatform subclass with provision(domain, brand, page))
+    # have no signup() method and are constructed with no arguments.
+    if hasattr(cls, 'provision') and not hasattr(cls, 'signup'):
+        return _provision_new_style(name, cls, brand, force=force, include_meta=include_meta)
+
+    # Old-style platforms (PlatformProvisioner subclass with signup(page))
     provisioner = cls(brand)
 
     if provisioner.already_provisioned() and not force:
@@ -102,6 +109,63 @@ def _provision_platform(name: str, brand: BrandContext, force: bool = False, inc
     except Exception as e:
         provisioner.log_result("failed", error=str(e))
         console.print(f"  [red]✗ {provisioner.display_name} — error: {e}[/red]")
+        traceback.print_exc()
+        return "failed"
+
+    finally:
+        if context:
+            try:
+                context.close()
+            except Exception:
+                pass
+
+
+def _provision_new_style(name: str, cls, brand: BrandContext, force: bool = False, include_meta: bool = False) -> str:
+    """Dispatch for new-style BasePlatform subclasses (provision(domain, brand, page))."""
+    from .credentials import has_creds
+
+    display_name = getattr(cls, 'display_name', name.capitalize())
+
+    if not force and has_creds(brand.site_root, name):
+        console.print(f"  [dim]{display_name}: already provisioned, skipping (use --force to redo)[/dim]")
+        return "exists"
+
+    context = None
+    page = None
+
+    try:
+        if name in ("facebook", "instagram") and not include_meta:
+            raise PlatformDeferred(
+                f"{name.capitalize()} provisioning deferred — run with --include-meta when ready"
+            )
+
+        console.print(f"\n[bold]{'=' * 50}[/bold]")
+        console.print(f"[bold]{display_name}[/bold] — {brand.domain}")
+        console.print(f"[bold]{'=' * 50}[/bold]")
+
+        from .browser import launch_browser
+        context, page = launch_browser(brand.domain, name)
+
+        platform = cls()
+        result = platform.provision(brand.domain, brand, page)
+
+        console.print(f"\n  [green]✓ {display_name} — created[/green]")
+        return "created"
+
+    except PlatformDeferred as e:
+        console.print(f"  [yellow]⏸ {name}: {e}[/yellow]")
+        return "skipped"
+
+    except RuntimeError as e:
+        msg = str(e)
+        if "skipped" in msg.lower():
+            console.print(f"  [yellow]⏸ {display_name} — skipped[/yellow]")
+            return "skipped"
+        console.print(f"  [red]✗ {display_name} — failed: {msg}[/red]")
+        return "failed"
+
+    except Exception as e:
+        console.print(f"  [red]✗ {display_name} — error: {e}[/red]")
         traceback.print_exc()
         return "failed"
 
