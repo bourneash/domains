@@ -4,7 +4,9 @@ from unittest.mock import patch
 from personas.email_provisioner import provision_email
 
 
-def test_provision_email_returns_address():
+def test_provision_email_returns_address(monkeypatch):
+    monkeypatch.setenv("CF_API_TOKEN", "fake-token")
+    monkeypatch.setenv("CF_ZONE_ID_AMERICASTRIKES_COM", "fake-zone-id")
     with patch("personas.email_provisioner.EmailClient") as MockClient:
         instance = MockClient.return_value
         instance.ensure_alias.return_value = True
@@ -13,7 +15,9 @@ def test_provision_email_returns_address():
     assert result == "jane.doe@americastrikes.com"
 
 
-def test_provision_email_calls_ensure_alias():
+def test_provision_email_calls_ensure_alias(monkeypatch):
+    monkeypatch.setenv("CF_API_TOKEN", "fake-token")
+    monkeypatch.setenv("CF_ZONE_ID_EXAMPLE_COM", "fake-zone-id")
     with patch("personas.email_provisioner.EmailClient") as MockClient:
         instance = MockClient.return_value
         instance.ensure_alias.return_value = True
@@ -25,7 +29,9 @@ def test_provision_email_calls_ensure_alias():
     assert "john.smith" in str(call_args)
 
 
-def test_provision_email_handles_special_chars():
+def test_provision_email_handles_special_chars(monkeypatch):
+    monkeypatch.setenv("CF_API_TOKEN", "fake-token")
+    monkeypatch.setenv("CF_ZONE_ID_EXAMPLE_COM", "fake-zone-id")
     with patch("personas.email_provisioner.EmailClient") as MockClient:
         instance = MockClient.return_value
         instance.ensure_alias.return_value = False  # already existed

@@ -37,9 +37,8 @@ def _provision_platform(name: str, brand: BrandContext, force: bool = False, inc
     """Provision a single platform. Returns status string."""
     cls = ALL_PLATFORMS[name]
 
-    # New-style platforms (BasePlatform subclass with provision(domain, brand, page))
-    # have no signup() method and are constructed with no arguments.
-    if hasattr(cls, 'provision') and not hasattr(cls, 'signup'):
+    # New-style platforms (BasePlatform subclass) carry _style = "new".
+    if getattr(cls, '_style', 'old') == 'new':
         return _provision_new_style(name, cls, brand, force=force, include_meta=include_meta)
 
     # Old-style platforms (PlatformProvisioner subclass with signup(page))

@@ -9,6 +9,7 @@ from social_setup.platforms.base import BasePlatform
 from social_lib.credentials import write_creds
 from social_lib.email_client import EmailClient
 from social_lib.sms_gate import manual_gate
+from social_lib.totp import generate_secret
 
 
 class LinkedInPlatform(BasePlatform):
@@ -21,7 +22,7 @@ class LinkedInPlatform(BasePlatform):
 
         result = self._do_signup(domain, brand, page, email, password)
 
-        totp_secret = self.generate_and_store_totp(domain, "linkedin")
+        totp_secret = generate_secret()
         write_creds(domain, "linkedin", {
             "LI_USERNAME": email,
             "LI_PASSWORD": password,
@@ -73,8 +74,10 @@ class LinkedInPlatform(BasePlatform):
         # 6. SMS verify gate (if triggered)
         if "phone" in page.url or page.query_selector('input[name="pin"]') or page.query_selector('input[name="phoneNumber"]'):
             code = manual_gate(f"linkedin-sms-{domain}")
+            page.wait_for_selector('input[name="pin"], input[name="phoneNumber"]', timeout=15000)
             sms_field = page.query_selector('input[name="pin"]') or page.query_selector('input[name="phoneNumber"]')
-            sms_field.fill(code)
+            if sms_field:
+                sms_field.fill(code)
             page.click('button[type="submit"]')
             page.wait_for_timeout(2000)
 

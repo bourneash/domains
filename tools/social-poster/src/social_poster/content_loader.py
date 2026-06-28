@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -45,6 +46,10 @@ def _collect_md_files(root: Path) -> list[Path]:
         files = [p for p in root.glob(pattern) if p.is_file()]
         if files:
             return files
+    warnings.warn(
+        f"No content files found for {root.name} — check glob patterns or add content.json",
+        stacklevel=2,
+    )
     return []
 
 

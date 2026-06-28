@@ -17,7 +17,13 @@ def provision_email(name: str, domain: str) -> str:
     mailbox = os.environ.get("HOTMAIL_ADDRESS", "jessetamburino@hotmail.com")
     api_key = os.environ.get("EMAIL_API_KEY")
     cf_token = os.environ.get("CF_API_TOKEN", "")
-    cf_zone_id = os.environ.get(f"CF_ZONE_ID_{domain.upper().replace('.', '_')}", "")
+    domain_key = domain.upper().replace(".", "_")
+    cf_zone_id = os.environ.get(f"CF_ZONE_ID_{domain_key}", "")
+
+    if not cf_token:
+        raise ValueError("CF_API_TOKEN is not set in environment")
+    if not cf_zone_id:
+        raise ValueError(f"CF_ZONE_ID_{domain_key} is not set in environment")
 
     client = EmailClient(mailbox, api_key=api_key)
     client.ensure_alias(

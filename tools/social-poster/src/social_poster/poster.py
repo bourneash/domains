@@ -20,10 +20,19 @@ def post_domain(domain: str, platforms: list[str] | None = None) -> list[dict]:
     articles = load_latest_articles(domain, limit=5)
     results: list[dict] = []
 
-    for article in articles:
-        for platform_name in active:
-            if platform_name not in ALL_ADAPTERS:
-                continue
+    for platform_name in active:
+        if platform_name not in ALL_ADAPTERS:
+            continue
+        adapter = ALL_ADAPTERS[platform_name]
+        creds = read_creds(domain, platform_name) or {}
+        if not creds:
+            results.append({
+                "platform": platform_name,
+                "result": "skipped",
+                "reason": "no creds",
+            })
+            continue
+        for article in articles:
             if already_posted(domain, article.slug, platform_name):
                 results.append({
                     "platform": platform_name,
@@ -31,17 +40,7 @@ def post_domain(domain: str, platforms: list[str] | None = None) -> list[dict]:
                     "result": "skipped",
                 })
                 continue
-            creds = read_creds(domain, platform_name)
-            if not creds:
-                results.append({
-                    "platform": platform_name,
-                    "slug": article.slug,
-                    "result": "skipped",
-                    "reason": "no creds",
-                })
-                continue
             try:
-                adapter = ALL_ADAPTERS[platform_name]
                 url = adapter.post(article, creds)
                 record_post(domain, article.slug, platform_name, url)
                 results.append({
@@ -50,7 +49,6 @@ def post_domain(domain: str, platforms: list[str] | None = None) -> list[dict]:
                     "result": "posted",
                     "url": url,
                 })
-                break  # only post one article per platform per run
             except Exception as e:
                 results.append({
                     "platform": platform_name,
@@ -58,5 +56,6 @@ def post_domain(domain: str, platforms: list[str] | None = None) -> list[dict]:
                     "result": "error",
                     "error": str(e),
                 })
+            break  # one article per platform per run
 
     return results

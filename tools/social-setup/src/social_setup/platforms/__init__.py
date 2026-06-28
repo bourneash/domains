@@ -1,6 +1,6 @@
 from .x import XProvisioner
-from .instagram import InstagramProvisioner
-from .facebook import FacebookProvisioner
+from .instagram import InstagramPlatform
+from .facebook import FacebookPlatform
 from .reddit import RedditProvisioner
 from .tiktok import TikTokProvisioner
 from .bluesky import BlueskyProvisioner
@@ -9,8 +9,8 @@ from .linkedin import LinkedInPlatform
 
 ALL_PLATFORMS = {
     "x": XProvisioner,
-    "instagram": InstagramProvisioner,
-    "facebook": FacebookProvisioner,
+    "instagram": InstagramPlatform,
+    "facebook": FacebookPlatform,
     "reddit": RedditProvisioner,
     "tiktok": TikTokProvisioner,
     "bluesky": BlueskyProvisioner,

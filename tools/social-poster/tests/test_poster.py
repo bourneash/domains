@@ -98,7 +98,11 @@ def test_post_domain_no_articles(monkeypatch, tmp_path):
     monkeypatch.setenv("DOMAINS_ROOT", str(tmp_path))
     (tmp_path / "sites" / "example.com" / "ops" / "social").mkdir(parents=True)
 
-    with patch("social_poster.poster.load_latest_articles", return_value=[]):
+    with patch("social_poster.poster.load_latest_articles", return_value=[]), \
+         patch("social_poster.poster.read_creds", return_value={"TOKEN": "abc"}), \
+         patch("social_poster.poster.ALL_ADAPTERS") as mock_adapters:
+        mock_adapters.__contains__ = lambda self, k: k == "bluesky"
+        mock_adapters.__getitem__ = lambda self, k: MagicMock()
         results = post_domain("example.com", platforms=["bluesky"])
 
     assert results == []

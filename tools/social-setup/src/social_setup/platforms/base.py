@@ -21,6 +21,8 @@ console = Console()
 class BasePlatform:
     """Lightweight base with shared utilities that don't require a BrandContext."""
 
+    _style = "new"
+
     def generate_and_store_totp(self, domain: str, platform_name: str) -> str:
         """Generate a TOTP secret, append it to the existing cred file, and return the secret."""
         secret = generate_secret()
