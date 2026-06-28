@@ -122,8 +122,19 @@ feed, retag a source, or onboard a subscriber — edit the registry and rebuild.
   entirely (no VPN probe, no fetch, no egress row) and mark its state `disabled`
   in `/health`+`/sources`. Use it for a feed whose WAF 503s the PIA exit IPs, or
   to mute a flaky source without losing the entry. (e.g. `long-war-journal` is
-  disabled — live direct, but blocked through both PIA exits.) Re-enable by
-  flipping the flag + rebuild.
+  disabled — live direct, but blocked through both PIA exits.) The registry value
+  is the **declared default**; editing it needs a rebuild.
+- **Runtime toggle (no rebuild):** the same enable/disable is toggleable live —
+  `POST /sources/{id}/enabled {"enabled": bool}` writes a **DB override**
+  (`source_overrides` table in the mounted SQLite, so it survives rebuilds) that
+  the collect path overlays on the registry default; it takes effect on the next
+  cycle. `GET /sources` returns effective `enabled` + `registry_default` +
+  `overridden`. The override is cleared automatically when set back to the
+  registry default (so `overridden` means *genuinely diverges*). **The Fleet
+  Dashboard "Data Hub" tab → Source Freshness panel has a per-source
+  Enable/Disable toggle** (POST `/api/datahub/sources/:id/enabled`) — this is the
+  normal way to flip a source; reserve the registry `enabled:` field for the
+  permanent default.
 - A source used by multiple sites is listed **once** with the **union** of tags
   (e.g. `breaking-defense` serves americastrikes + aliencouncil). Never duplicate.
 - Dataset sources reference a `dataset_key` + `fetcher` (see Datasets below).
