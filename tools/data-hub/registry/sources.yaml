@@ -646,3 +646,94 @@ sources:
     exit: any
     fetch:
       source_name: "FoodPrint"
+
+  # ── datasets ──────────────────────────────────────────────────────────────
+  - id: ephemeris
+    type: dataset
+    fetcher: ephemeris
+    dataset_key: ephemeris
+    tags: [astro, dataset]
+    policy: direct          # pure local compute, no network
+
+  - id: usgs-quakes
+    type: dataset
+    fetcher: usgs
+    dataset_key: quakes
+    tags: [nature, science, dataset]
+    policy: vpn
+    exit: us
+
+  - id: noaa-alerts
+    type: dataset
+    fetcher: noaa-alerts
+    dataset_key: weather-alerts
+    tags: [weather, nature, dataset]
+    policy: vpn
+    exit: us
+
+  - id: swpc-kindex
+    type: dataset
+    fetcher: noaa-swpc
+    dataset_key: kindex
+    tags: [space, science, astro, dataset]
+    policy: vpn
+    exit: us
+    params: { url: "https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json" }
+
+  - id: swpc-xrays
+    type: dataset
+    fetcher: noaa-swpc
+    dataset_key: solar-xrays
+    tags: [space, science, astro, dataset]
+    policy: vpn
+    exit: us
+    params: { url: "https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json" }
+
+  - id: launchlib
+    type: dataset
+    fetcher: launchlib
+    dataset_key: launches
+    tags: [space, science, dataset]
+    policy: vpn
+    exit: any
+    params: { limit: 8 }
+
+  # keyed — auto-skip (status skipped-no-api-key) until the key is added to .env
+  - id: fred-gdp
+    type: dataset
+    fetcher: fred
+    dataset_key: gdp
+    tags: [economy, markets, dataset]
+    policy: vpn
+    exit: us
+    params: { series_id: GDPC1 }
+
+  - id: eia-diesel
+    type: dataset
+    fetcher: eia
+    dataset_key: diesel
+    tags: [economy, farm-economy, dataset]
+    policy: vpn
+    exit: us
+    params:
+      path: "petroleum/pri/gnd/data/"
+      frequency: weekly
+      "data[0]": value
+      "facets[duoarea][]": NAT
+      "facets[product][]": EPD2D
+      "sort[0][column]": period
+      "sort[0][direction]": desc
+      length: 2
+
+  - id: nass-corn
+    type: dataset
+    fetcher: nass
+    dataset_key: corn-yield
+    tags: [agriculture, farm-economy, dataset]
+    policy: vpn
+    exit: us
+    params:
+      commodity_desc: CORN
+      statisticcat_desc: YIELD
+      agg_level_desc: NATIONAL
+      year__GE: "2023"

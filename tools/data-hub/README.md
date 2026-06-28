@@ -49,6 +49,29 @@ docker compose --env-file ../../.env down
 
 ---
 
+## Datasets (structured data)
+
+Beyond RSS items, the hub collects typed datasets via `type: dataset` sources:
+
+| dataset_key | source | keyless? |
+|-------------|--------|----------|
+| ephemeris | local PyEphem (moon phase, zodiac, planets) | yes (local) |
+| quakes | USGS significant earthquakes | yes |
+| weather-alerts | NOAA active alerts | yes |
+| kindex / solar-xrays | NOAA SWPC space weather | yes |
+| launches | Launch Library 2 upcoming | yes |
+| gdp | FRED (needs FRED_API_KEY) | no |
+| diesel | EIA v2 (needs EIA_API_KEY) | no |
+| corn-yield | USDA NASS (needs NASS_API_KEY) | no |
+
+Served at `GET /datasets` (index) and `GET /datasets/<key>?limit=&since=`.
+
+**Keyed sources auto-skip** with `status=skipped-no-api-key` (visible on `/sources` and the
+egress ledger) until the matching key is added to `/home/jesse/projects/domains/.env`. No restart
+logic needed — add the key, the next cycle picks it up.
+
+---
+
 ## API endpoints
 
 Base URL: `http://127.0.0.1:4760`
