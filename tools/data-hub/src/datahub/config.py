@@ -17,6 +17,10 @@ class Source(BaseModel):
     policy: Literal["vpn", "direct"] = "vpn"
     exit: Literal["us", "eu", "any"] = "any"
     fetch: dict = Field(default_factory=dict)
+    # Per-source kill-switch. Set `enabled: false` in the registry to stop
+    # fetching a source without removing it (e.g. a feed whose WAF blocks the
+    # VPN exit IPs). The collector skips it and marks its state "disabled".
+    enabled: bool = True
 
 
 class ItemsQuery(BaseModel):

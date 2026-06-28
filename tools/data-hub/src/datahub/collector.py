@@ -19,6 +19,17 @@ def run_cycle(conn, sources: list[Source], settings: Settings, *,
 
     for source in sources:
         target = _host(source.url) or (source.fetcher or "")
+
+        # Per-source kill-switch: skip disabled sources entirely. No fetch is
+        # attempted, so nothing goes over any outbound connection — we record
+        # only the source state (so /health + /sources show it as intentionally
+        # "disabled", not a recurring error), and write no egress row.
+        if not source.enabled:
+            store.set_source_state(conn, source_id=source.id,
+                                   status="disabled", error="disabled", stale=True)
+            summary["skipped"] += 1
+            continue
+
         plan = None  # may stay None if plan_fetch raises
         try:
             plan = plan_fetch(source, settings, client=control_client)

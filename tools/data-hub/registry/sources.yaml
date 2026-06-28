@@ -78,6 +78,10 @@ sources:
     tags: [iran, world, defense, military]
     policy: vpn
     exit: any
+    # DISABLED 2026-06-28: feed is live (direct fetch = 200) but its WAF returns
+    # 503 through BOTH PIA exits (US + EU). Skipped to stop the recurring error.
+    # Re-enable if PIA rotates to an unblocked exit IP.
+    enabled: false
     fetch:
       source_name: "Long War Journal"
 

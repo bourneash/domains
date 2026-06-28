@@ -52,6 +52,27 @@ def test_vpn_down_skips_fail_closed(db, monkeypatch):
     assert any(r["source_id"] == "reuters" and r["status"] == "skipped" for r in eg)
 
 
+def test_disabled_source_is_skipped_without_fetch_or_egress(db, monkeypatch):
+    # `enabled: false` must skip the source entirely: no VPN probe, no fetch,
+    # state marked "disabled", and NO egress row (nothing went over the wire).
+    def boom_fetch(src, **kw):
+        raise AssertionError("must not fetch a disabled source")
+    def boom_plan(src, settings, **kw):
+        raise AssertionError("must not VPN-probe a disabled source")
+    monkeypatch.setattr(fr, "fetch_rss", boom_fetch)
+    monkeypatch.setattr(collector, "plan_fetch", boom_plan)
+    sources = [Source(id="lwj", type="rss", url="https://x/feed",
+                      tags=["defense"], enabled=False)]
+    summary = collector.run_cycle(db, sources, _settings())
+    assert summary["skipped"] == 1
+    assert summary["new_items"] == 0
+    state = {s["source_id"]: s for s in store.get_sources_state(db)}["lwj"]
+    assert state["status"] == "disabled"
+    assert state["stale"] == 1
+    eg = store.query_egress(db)
+    assert not any(r["source_id"] == "lwj" for r in eg)
+
+
 def test_source_error_is_isolated(db, monkeypatch):
     def half(src, **kw):
         if src.id == "bad":
