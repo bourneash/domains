@@ -114,9 +114,16 @@ feed, retag a source, or onboard a subscriber — edit the registry and rebuild.
     tags: [news, world, iran]   # MULTI-TAG: a source shared by 2 sites gets all their tags, ONE entry
     policy: vpn                 # vpn (default, fail-closed) | direct (allowlist — use sparingly)
     exit: any                   # any | us | eu  (which PIA region; us for US-gov/wire feeds)
+    enabled: true               # default true; set `enabled: false` to disable (see kill-switch below)
     fetch:
       source_name: "Al Jazeera" # human label shown on items/egress
 ```
+- **Per-source kill-switch:** `enabled: false` makes the collector skip a source
+  entirely (no VPN probe, no fetch, no egress row) and mark its state `disabled`
+  in `/health`+`/sources`. Use it for a feed whose WAF 503s the PIA exit IPs, or
+  to mute a flaky source without losing the entry. (e.g. `long-war-journal` is
+  disabled — live direct, but blocked through both PIA exits.) Re-enable by
+  flipping the flag + rebuild.
 - A source used by multiple sites is listed **once** with the **union** of tags
   (e.g. `breaking-defense` serves americastrikes + aliencouncil). Never duplicate.
 - Dataset sources reference a `dataset_key` + `fetcher` (see Datasets below).
