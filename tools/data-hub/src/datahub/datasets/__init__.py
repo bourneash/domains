@@ -1,7 +1,14 @@
 """Dataset fetchers + dispatch registry."""
+import re
 import httpx
 
 DEFAULT_UA = "datahub/1.0 (+https://github.com/bourneash) contact@datahub"
+
+_SECRET_QS = re.compile(r"(?i)\b(api_key|apikey|key|token|password)=[^&\s]+")
+
+
+def _redact(text: str) -> str:
+    return _SECRET_QS.sub(r"\1=***", text or "")
 
 
 class DatasetUnavailable(Exception):
@@ -17,9 +24,12 @@ def _get_json(url: str, *, proxy: str | None = None, params: dict | None = None,
     owns = client is None
     client = client or httpx.Client(proxy=proxy, timeout=timeout, follow_redirects=True)
     try:
-        r = client.get(url, params=params, headers={"User-Agent": ua, "Accept": "application/json"})
-        r.raise_for_status()
-        return r.json()
+        try:
+            r = client.get(url, params=params, headers={"User-Agent": ua, "Accept": "application/json"})
+            r.raise_for_status()
+            return r.json()
+        except httpx.HTTPError as exc:
+            raise RuntimeError(_redact(str(exc))) from None
     finally:
         if owns:
             client.close()
