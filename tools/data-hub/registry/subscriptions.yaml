@@ -25,9 +25,12 @@ subscriptions:
 
   saveusfarms.com:
     items:
+      # Already matches the full ag corpus; the 48h window was the bottleneck
+      # (~5 items/48h vs ~115/168h). Widened to 168h (= the data retention
+      # horizon) to give the War Room desk a fuller feed.
       tags_any: [agriculture, food-policy, farm-economy, land, environment]
       limit: 200
-      window_hours: 48
+      window_hours: 168
     datasets: [corn-yield, diesel]
 
   sinderella.org:

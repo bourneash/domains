@@ -7,7 +7,9 @@ DEFAULT_URL = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/"
 def fetch(source, *, proxy=None, settings=None, client=None) -> list[dict]:
     url = source.params.get("url", DEFAULT_URL)
     params = {"limit": source.params.get("limit", 5)}
-    data = _ds._get_json(url, proxy=proxy, params=params, client=client)
+    # Launch Library 2 is a slow upstream — give it a longer timeout than the
+    # 20s default to avoid intermittent read-timeout errors.
+    data = _ds._get_json(url, proxy=proxy, params=params, client=client, timeout=45)
     out = []
     for ln in data.get("results", []):
         out.append({"observed_at": ln.get("net") or datetime.now(timezone.utc).isoformat(),
