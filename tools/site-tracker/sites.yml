@@ -7,6 +7,13 @@ config:
   domains_root: /work     # parent domains repo inside the container
 
 sites:
+  0daynews.com:
+    active: true
+    cf_zone: 0daynews.com
+    github: bourneash/0daynews.com
+    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    manual: {}
+
   0xroulette.com:
     active: true
     cf_zone: 0xroulette.com
@@ -45,6 +52,13 @@ sites:
     github: bourneash/findyourlostpets.com
     smoke_string: "Every trail leads home"
     applies_to: [canary, cf, http, seo, tls, git, github, contact, legal, branding, manual]
+    manual: {}
+
+  fishhooklabs.com:
+    active: true
+    cf_zone: fishhooklabs.com
+    github: bourneash/fishhooklabs.com
+    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
     manual: {}
 
   gate03.com:

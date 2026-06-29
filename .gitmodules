@@ -110,3 +110,9 @@
 [submodule "sites/gate03.com"]
 	path = sites/gate03.com
 	url = git@github-bourneash:bourneash/gate03.com.git
+[submodule "sites/0daynews.com"]
+	path = sites/0daynews.com
+	url = git@github-bourneash:bourneash/0daynews.com.git
+[submodule "sites/fishhooklabs.com"]
+	path = sites/fishhooklabs.com
+	url = git@github-bourneash:bourneash/fishhooklabs.com.git

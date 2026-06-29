@@ -22,7 +22,9 @@
 
 | Domain 			| In use | Worker name      | Notes                                                              |
 |-------------------|--------|------------------|--------------------------------------------------------------------|
+| 0daynews.com		|   🟡   | `0daynews-com`   | Scaffolded + live + bound; brief TBD, Workers Builds connect pending |
 | findyourlostpets.com |   🟡   | `findyourlostpets-com` | Affiliate disclosure removed 2026-05; site live but positioning being reset |
+| fishhooklabs.com	|   🟡   | `fishhooklabs-com` | Scaffolded + live + bound; brief TBD, Workers Builds connect pending |
 | gate03.com 		|   🟡   | `gate03-com`     | Scaffolded + live + bound; brief TBD, Workers Builds connect pending |
 | noveltyguns.com 	|   🟡   | `noveltyguns-com`| CF email ✅                                                        |
 | saveusfarms.com 	|   🟡   | `saveusfarms-com`| Brief TBD — rolled back to brand-neutral pending Jesse's brief     |
@@ -66,7 +68,7 @@
 | vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
 | wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
 
-_Last updated: 2026-06-07_
+_Last updated: 2026-06-29_
 
 ## Bootstrap scripts
 
