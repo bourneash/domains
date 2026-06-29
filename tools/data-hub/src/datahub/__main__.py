@@ -22,7 +22,12 @@ def main():
             if s.id in overrides:
                 s.enabled = overrides[s.id]
         summary = run_cycle(conn, sources, settings)
+        # Data lifecycle: prune rows older than the retention horizon (default 7d)
+        # every cycle so the store never grows unbounded.
+        pruned = store.prune(conn, settings.retention_days)
         print(f"[datahub] cycle: {summary}")
+        if any(pruned.values()):
+            print(f"[datahub] pruned (>{settings.retention_days}d): {pruned}")
     elif cmd == "serve":
         app = create_app(settings)
         uvicorn.run(app, host=os.environ.get("DATAHUB_HOST", "127.0.0.1"), port=int(os.environ.get("DATAHUB_PORT", "4760")))

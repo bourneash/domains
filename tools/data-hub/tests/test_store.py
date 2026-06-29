@@ -1,4 +1,32 @@
+from datetime import datetime, timedelta, timezone
+
 from datahub import store
+
+
+def test_prune_removes_old_rows_keeps_recent(db):
+    now = datetime.now(timezone.utc)
+    old = (now - timedelta(days=10)).isoformat()
+    recent = (now - timedelta(days=1)).isoformat()
+    db.execute("INSERT INTO items (source_id, url, title, published_iso, fetched_at, tags) VALUES (?,?,?,?,?,?)",
+               ("s", "https://x/old", "old", old, old, "[]"))
+    db.execute("INSERT INTO items (source_id, url, title, published_iso, fetched_at, tags) VALUES (?,?,?,?,?,?)",
+               ("s", "https://x/new", "new", recent, recent, "[]"))
+    db.execute("INSERT INTO egress_log (ts, source_id, status) VALUES (?,?,?)", (old, "s", "ok"))
+    db.execute("INSERT INTO egress_log (ts, source_id, status) VALUES (?,?,?)", (recent, "s", "ok"))
+    store.record_pull(db, endpoint="items", item_count=1, client_ip="x")  # recent (now)
+    db.execute("INSERT INTO pull_log (ts, endpoint, item_count) VALUES (?,?,?)", (old, "items", 9))
+    db.execute("INSERT INTO seen_urls (url, first_seen_at) VALUES (?,?)", ("https://x/old", old))
+    db.execute("INSERT INTO datasets (source_id, dataset_key, observed_at, payload, tags) VALUES (?,?,?,?,?)",
+               ("s", "k", old, "{}", "[]"))
+    db.commit()
+
+    deleted = store.prune(db, retention_days=7)
+    assert deleted["items"] == 1 and deleted["egress_log"] == 1 and deleted["pull_log"] == 1
+    assert deleted["seen_urls"] == 1 and deleted["datasets"] == 1
+    assert db.execute("SELECT COUNT(*) c FROM items").fetchone()["c"] == 1
+    assert db.execute("SELECT title FROM items").fetchone()["title"] == "new"
+    assert len(store.query_egress(db)) == 1
+    assert len(store.query_pulls(db)) == 1
 
 
 def test_source_override_roundtrip(db):

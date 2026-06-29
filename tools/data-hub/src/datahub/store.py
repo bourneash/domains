@@ -1,6 +1,6 @@
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS items (
@@ -90,6 +90,31 @@ def connect(db_path: str) -> sqlite3.Connection:
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
     conn.commit()
+
+
+# Data lifecycle: which table column carries each row's age. Pruning is by
+# INGESTION/observation time (when it entered the store), not article publish
+# date — so the DB never holds anything older than the retention horizon
+# regardless of feed date quirks.
+_PRUNE_COLUMNS = {
+    "items": "fetched_at",
+    "datasets": "observed_at",
+    "egress_log": "ts",
+    "pull_log": "ts",
+    "seen_urls": "first_seen_at",
+}
+
+
+def prune(conn, retention_days: int = 7) -> dict:
+    """Delete rows older than `retention_days` from every time-series table.
+    Returns {table: rows_deleted}. Idempotent; safe to run every cycle."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=retention_days)).isoformat()
+    deleted = {}
+    for table, col in _PRUNE_COLUMNS.items():
+        cur = conn.execute(f"DELETE FROM {table} WHERE {col} IS NOT NULL AND {col} < ?", (cutoff,))
+        deleted[table] = cur.rowcount
+    conn.commit()
+    return deleted
 
 
 def upsert_items(conn: sqlite3.Connection, items: list[dict]) -> int:
