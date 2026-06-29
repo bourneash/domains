@@ -23,6 +23,26 @@ tools/data-hub/
   shared volume: datahub-data:/data/data-hub.db
 ```
 
+## Data lifecycle (retention)
+
+The store keeps **at most ~1 week of data**. At the end of every collect cycle
+the collector runs `store.prune(retention_days)`, deleting rows older than the
+horizon from every time-series table — by **ingestion/observation time** (when a
+row entered the store), not article publish date, so the DB never grows
+unbounded regardless of feed date quirks:
+
+| Table | Pruned on |
+|-------|-----------|
+| `items` | `fetched_at` |
+| `datasets` | `observed_at` |
+| `egress_log` | `ts` |
+| `pull_log` | `ts` |
+| `seen_urls` | `first_seen_at` |
+
+Horizon is `DATAHUB_RETENTION_DAYS` (default **7**). 7 days also matches the
+widest subscription window (168h), so nothing servable is pruned. (No `VACUUM`
+yet — SQLite/WAL reuses freed pages; revisit if the file size matters.)
+
 ## Prerequisites
 
 - `tools/vpn-proxy` running and healthy (`docker ps` shows `vpn-us`, `vpn-eu` as healthy)

@@ -184,7 +184,15 @@ in compose via `DATAHUB_PROXY_US`/`…_EU`/`DATAHUB_CONTROL_*`.
   polling doesn't pollute the ledger — if you add a new consumer-facing data route,
   call `record_pull`; if you add a new read-only/meta route, don't. Surfaced in the
   dashboard as the **"Site Pulls"** panel (mirrors the egress "Outbound Connection
-  Ledger"). Neither ledger is auto-pruned yet (low volume; revisit if it grows).
+  Ledger").
+- **Data lifecycle / retention.** The store keeps at most `DATAHUB_RETENTION_DAYS`
+  (default 7). The collector calls `store.prune(retention_days)` at the END of
+  every cycle — deletes rows older than the horizon from items (`fetched_at`),
+  datasets (`observed_at`), egress_log/pull_log (`ts`), seen_urls (`first_seen_at`),
+  by INGESTION time not article date. 7d also matches the widest subscription
+  window (168h) so nothing servable is pruned. Any new time-series table you add
+  MUST be added to `store._PRUNE_COLUMNS` or it will grow unbounded. (No VACUUM
+  yet — WAL reuses freed pages.)
 - If you ever run the hub from a **different host**, add that host's outbound IP
   to `DATAHUB_HOME_IPS` (comma-separated env) so the leak check stays correct.
 
