@@ -653,6 +653,71 @@ sources:
     fetch:
       source_name: "FoodPrint"
 
+  # ── 0daynews.com ────────────────────────────────────────────────────────────
+
+  - id: bleepingcomputer
+    type: rss
+    url: "https://www.bleepingcomputer.com/feed/"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "BleepingComputer"
+
+  - id: krebs-on-security
+    type: rss
+    url: "https://krebsonsecurity.com/feed/"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Krebs on Security"
+
+  - id: the-hacker-news
+    type: rss
+    url: "https://feeds.feedburner.com/TheHackersNews"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The Hacker News"
+
+  - id: cisa-advisories
+    type: rss
+    url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "CISA Advisories"
+
+  - id: google-project-zero
+    type: rss
+    url: "https://googleprojectzero.blogspot.com/feeds/posts/default"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google Project Zero"
+
+  - id: talos-intelligence
+    type: rss
+    url: "https://blog.talosintelligence.com/rss/"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Talos Intelligence"
+
+  - id: rapid7-blog
+    type: rss
+    url: "https://www.rapid7.com/blog/rss/"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Rapid7 Blog"
+
   # ── datasets ──────────────────────────────────────────────────────────────
   - id: ephemeris
     type: dataset
@@ -730,6 +795,24 @@ sources:
       "sort[0][column]": period
       "sort[0][direction]": desc
       length: 2
+
+  - id: cisa-kev
+    type: dataset
+    fetcher: cisa-kev
+    dataset_key: cisa-kev
+    tags: [vuln, cve, exploit, breach, patch, dataset]
+    policy: vpn
+    exit: us
+    params: { url: "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json" }
+
+  - id: nvd-cve
+    type: dataset
+    fetcher: nvd-cve
+    dataset_key: nvd-cve
+    tags: [vuln, cve, exploit, patch, dataset]
+    policy: vpn
+    exit: us
+    params: { url: "https://services.nvd.nist.gov/rest/json/cves/2.0" }
 
   - id: nass-corn
     type: dataset

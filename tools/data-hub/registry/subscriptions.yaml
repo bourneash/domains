@@ -33,6 +33,13 @@ subscriptions:
       window_hours: 168
     datasets: [corn-yield, diesel]
 
+  0daynews.com:
+    items:
+      tags_any: [vuln, cve, exploit, breach, patch]
+      limit: 200
+      window_hours: 48
+    datasets: [cisa-kev, nvd-cve]
+
   sinderella.org:
     items:
       tags_any: [space, science, weird, nature]
