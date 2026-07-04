@@ -33,10 +33,12 @@ from . import wikimedia  # noqa: E402
 from . import unsplash  # noqa: E402
 from . import pexels  # noqa: E402
 from . import pixabay  # noqa: E402
+from . import openverse  # noqa: E402
 
 SOURCE_FETCHERS = {
     "wikimedia": wikimedia.search,
     "unsplash": unsplash.search,
     "pexels": pexels.search,
     "pixabay": pixabay.search,
+    "openverse": openverse.search,
 }
