@@ -1,0 +1,63 @@
+# data-hub-images topic registry.
+# Topic ids + queries ported/derived from the americastrikes.com image pipeline:
+#   site/scripts/find-image.mjs (buildQuery, unsplashQueries, wikimediaQueries)
+#   site/scripts/image-pipeline/router.mjs (TOPIC_DEFAULTS)
+# The site groups articles under 5 topics (iran-middle-east, defense, markets,
+# diplomacy, domestic); this registry splits iran-middle-east and defense/markets
+# into narrower sub-topics (hormuz, opec, navy, oil-markets) for sharper image
+# search queries, while keeping diplomacy/domestic 1:1 with the site.
+
+- id: iran
+  queries:
+    - "Iran Persian Gulf"
+    - "middle east landscape"
+    - "Iran nuclear IRGC"
+  target_depth: 12
+  tags: [iran, world]
+
+- id: hormuz
+  queries:
+    - "Strait of Hormuz tanker"
+    - "Strait of Hormuz naval"
+    - "Persian Gulf shipping"
+  target_depth: 12
+  tags: [iran, markets, navy]
+
+- id: opec
+  queries:
+    - "OPEC oil ministers"
+    - "oil trading market"
+    - "stock market trading"
+  target_depth: 12
+  tags: [markets, oil]
+
+- id: navy
+  queries:
+    - "military naval aircraft"
+    - "United States military"
+    - "military aircraft"
+  target_depth: 12
+  tags: [defense, military, navy]
+
+- id: oil-markets
+  queries:
+    - "oil trading market"
+    - "stock market trading"
+    - "oil refinery"
+  target_depth: 12
+  tags: [markets, oil]
+
+- id: diplomacy
+  queries:
+    - "United Nations meeting"
+    - "diplomatic meeting"
+    - "world leaders meeting"
+  target_depth: 12
+  tags: [diplomacy, world]
+
+- id: domestic
+  queries:
+    - "United States Capitol"
+    - "gas station american"
+  target_depth: 12
+  tags: [domestic]

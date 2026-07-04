@@ -1,0 +1,63 @@
+# data-hub-images source registry — one entry per image provider.
+# Later tasks implement each adapter; Task 1 only lists them.
+# `policy: vpn` sources route through the PIA proxy (any exit); `policy: direct`
+# sources are keyless gov/public APIs that don't need VPN cover.
+
+- id: unsplash
+  kind: unsplash
+  policy: vpn
+  exit: any
+  enabled: true
+  key_env: UNSPLASH_ACCESS_KEY
+
+- id: pexels
+  kind: pexels
+  policy: vpn
+  exit: any
+  enabled: true
+  key_env: PEXELS_API_KEY
+
+- id: pixabay
+  kind: pixabay
+  policy: vpn
+  exit: any
+  enabled: true
+  key_env: PIXABAY_API_KEY
+
+- id: dvids
+  kind: dvids
+  policy: vpn
+  exit: us
+  enabled: true
+  key_env: DVIDS_API_KEY
+
+- id: govflickr
+  kind: govflickr
+  policy: vpn
+  exit: any
+  enabled: true
+  key_env: FLICKR_API_KEY
+
+- id: wikimedia
+  kind: wikimedia
+  policy: vpn
+  exit: any
+  enabled: true
+
+- id: openverse
+  kind: openverse
+  policy: vpn
+  exit: any
+  enabled: true
+
+- id: nara
+  kind: nara
+  policy: direct
+  exit: any
+  enabled: true
+
+- id: loc
+  kind: loc
+  policy: direct
+  exit: any
+  enabled: true
