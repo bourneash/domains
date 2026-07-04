@@ -35,6 +35,7 @@ from . import pexels  # noqa: E402
 from . import pixabay  # noqa: E402
 from . import openverse  # noqa: E402
 from . import dvids  # noqa: E402
+from . import govflickr  # noqa: E402
 
 SOURCE_FETCHERS = {
     "wikimedia": wikimedia.search,
@@ -43,4 +44,5 @@ SOURCE_FETCHERS = {
     "pixabay": pixabay.search,
     "openverse": openverse.search,
     "dvids": dvids.search,
+    "govflickr": govflickr.search,
 }
