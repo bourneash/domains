@@ -30,7 +30,9 @@ def _redact(msg: str, *secrets: str) -> str:
 
 # Built after fetcher modules are imported (bottom of file) to avoid circular imports.
 from . import wikimedia  # noqa: E402
+from . import unsplash  # noqa: E402
 
 SOURCE_FETCHERS = {
     "wikimedia": wikimedia.search,
+    "unsplash": unsplash.search,
 }
