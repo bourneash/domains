@@ -104,3 +104,42 @@ def test_source_exception_does_not_abort_cycle(tmp_path, monkeypatch):
     assert out["fetched"] == 0
     assert store.pool_depth(conn, "iran") == 0
     assert set(out.keys()) == {"fetched", "assigned", "requests_done", "pruned"}
+
+
+def test_source_unavailable_records_skipped_egress(tmp_path, monkeypatch):
+    from datahub_images.sources import SourceUnavailable
+
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    def _source_unavailable(q, limit, proxy, client=None):
+        raise SourceUnavailable("no-api-key")
+
+    monkeypatch.setattr("datahub_images.sources.unsplash.search", _source_unavailable)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="unsplash", kind="unsplash")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] == 0
+    assert set(out.keys()) == {"fetched", "assigned", "requests_done", "pruned"}
+
+    # Verify egress_log has a row with status="skipped"
+    egress_rows = conn.execute(
+        "SELECT * FROM egress_log WHERE source_id = ?", ("unsplash",)
+    ).fetchall()
+    assert len(egress_rows) == 1
+    row = dict(egress_rows[0])
+    assert row["status"] == "skipped"
+    assert "no-api-key" in row["note"]

@@ -12,7 +12,7 @@ import httpx
 from . import blob, reuse, scoring, store, vpn
 from . import sources as sources_pkg
 from .config import Settings, Source, Topic
-from .sources import SOURCE_FETCHERS
+from .sources import SOURCE_FETCHERS, SourceUnavailable
 
 CANDIDATES_PER_SOURCE = 5
 
@@ -58,7 +58,7 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
         store.record_egress(
             conn, source_id=source.id, target_host="", policy=source.policy,
             exit_node="", exit_ip=None, status="error",
-            note=f"unknown source kind: {source.kind}",
+            note=f"unknown source kind: {source.kind}", ts=now,
         )
         return stored
 
@@ -70,18 +70,26 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
             store.record_egress(
                 conn, source_id=source.id, target_host=_host(source.url),
                 policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-                status="skipped", note=plan.reason,
+                status="skipped", note=plan.reason, ts=now,
             )
             return stored
 
         cands = fetcher(query, CANDIDATES_PER_SOURCE, plan.proxy)
+    except SourceUnavailable as exc:
+        # keyed adapter with no key configured — expected, not a failure
+        store.record_egress(
+            conn, source_id=source.id, target_host=_host(source.url),
+            policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+            status="skipped", note=str(exc)[:200], ts=now,
+        )
+        return stored
     except Exception as exc:  # per-source isolation
         exit_node = plan.exit_node if plan else ""
         exit_ip = plan.exit_ip if plan else None
         store.record_egress(
             conn, source_id=source.id, target_host=_host(source.url),
             policy=source.policy, exit_node=exit_node, exit_ip=exit_ip,
-            status="error", note=str(exc)[:200],
+            status="error", note=str(exc)[:200], ts=now,
         )
         return stored
 
@@ -133,14 +141,14 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
             store.record_egress(
                 conn, source_id=source.id, target_host=_host(cand.get("url") if isinstance(cand, dict) else None),
                 policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-                status="error", note=str(exc)[:200],
+                status="error", note=str(exc)[:200], ts=now,
             )
             continue
 
     store.record_egress(
         conn, source_id=source.id, target_host=_host(source.url),
         policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-        status="ok", item_count=stored,
+        status="ok", item_count=stored, ts=now,
     )
     return stored
 
