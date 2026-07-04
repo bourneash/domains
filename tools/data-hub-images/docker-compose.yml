@@ -1,0 +1,63 @@
+name: data-hub-images
+
+# Both services share one named volume for the SQLite DB + blob store.
+# Both join the vpn-proxy network so they can reach vpn-us/vpn-eu
+# by container name (port 8888 for HTTP proxy).
+# The api service binds 0.0.0.0 inside the container; the host-side
+# port publish (127.0.0.1:4770:4770) keeps exposure loopback-only.
+
+x-common-env: &common-env
+  DATAHUB_IMAGES_DB_PATH: /data/images.db
+  DATAHUB_IMAGES_BLOB_DIR: /data/blobs
+  DATAHUB_IMAGES_REGISTRY_DIR: /app/registry
+  DATAHUB_IMAGES_PROXY_US: "http://vpn-us:8888"
+  DATAHUB_IMAGES_PROXY_EU: "http://vpn-eu:8888"
+
+services:
+
+  collector:
+    build: .
+    container_name: datahub-images-collector
+    command: ["/usr/local/bin/supercronic", "/app/crontab"]
+    env_file: ../../.env
+    environment:
+      <<: *common-env
+    volumes:
+      - datahub-images-data:/data
+    networks:
+      - vpn-proxy_default
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  api:
+    build: .
+    container_name: datahub-images-api
+    command: ["python", "-m", "datahub_images", "serve"]
+    env_file: ../../.env
+    environment:
+      <<: *common-env
+      DATAHUB_IMAGES_API_HOST: "0.0.0.0"
+      DATAHUB_IMAGES_API_PORT: "4770"
+    volumes:
+      - datahub-images-data:/data
+    ports:
+      - "127.0.0.1:4770:4770"
+    networks:
+      - vpn-proxy_default
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  datahub-images-data:
+
+networks:
+  vpn-proxy_default:
+    external: true
