@@ -1,0 +1,106 @@
+import io
+import random
+
+from PIL import Image
+
+from datahub_images import collector, store
+from datahub_images.config import Source, Topic, Settings
+
+
+def _jpg():
+    # A flat-color image has near-zero entropy and fails scoring.validate's
+    # min_entropy gate, so build a coarse random-block image instead — high
+    # enough entropy to pass validate() while staying fast to generate/encode.
+    rng = random.Random(1)
+    im = Image.new("RGB", (1300, 800))
+    px = im.load()
+    block = 8
+    for x in range(0, 1300, block):
+        color = (rng.randrange(256), rng.randrange(256), rng.randrange(256))
+        for y in range(0, 800, block):
+            for dx in range(block):
+                for dy in range(block):
+                    if x + dx < 1300 and y + dy < 800:
+                        px[x + dx, y + dy] = color
+    b = io.BytesIO()
+    im.save(b, "JPEG")
+    return b.getvalue()
+
+
+def _settings(tmp_path):
+    return Settings(
+        db_path=str(tmp_path / "t.db"), blob_dir=str(tmp_path / "blobs"),
+        proxy_us="http://p", proxy_eu="http://p", home_ips=set(),
+        pool_ttl_days=45, retention_days=14, reuse_global_days=30,
+        reuse_same_site_days=14, api_host="0.0.0.0", api_port=4770,
+    )
+
+
+def test_pool_fill_and_request_drain(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: [
+            dict(
+                source_image_key="k1", url="http://img/1.jpg",
+                width=1300, height=800, license="cc0",
+                credit={"source": "Wikimedia"}, tags=["iran"],
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] >= 1
+    assert store.pool_depth(conn, "iran") == 1
+
+    store.create_request(conn, "americastrikes", "iran", "hormuz", 1, "2026-07-04T00:05:00Z", "127.0.0.1")
+    out2 = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:06:00Z")
+    assert out2["requests_done"] == 1
+
+    req = [r for r in store.pending_requests(conn)]
+    assert req == []
+
+
+def test_source_exception_does_not_abort_cycle(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    def _boom(q, limit, proxy, client=None):
+        raise RuntimeError("source API blew up")
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _boom)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    # Must not raise, and must still return a well-formed counts dict.
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] == 0
+    assert store.pool_depth(conn, "iran") == 0
+    assert set(out.keys()) == {"fetched", "assigned", "requests_done", "pruned"}
