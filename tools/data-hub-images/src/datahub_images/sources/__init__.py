@@ -37,6 +37,7 @@ from . import openverse  # noqa: E402
 from . import dvids  # noqa: E402
 from . import govflickr  # noqa: E402
 from . import nara  # noqa: E402
+from . import loc  # noqa: E402
 
 SOURCE_FETCHERS = {
     "wikimedia": wikimedia.search,
@@ -47,4 +48,5 @@ SOURCE_FETCHERS = {
     "dvids": dvids.search,
     "govflickr": govflickr.search,
     "nara": nara.search,
+    "loc": loc.search,
 }
