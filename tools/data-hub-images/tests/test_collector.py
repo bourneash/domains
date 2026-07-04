@@ -192,3 +192,143 @@ def test_source_unavailable_records_skipped_egress(tmp_path, monkeypatch):
     row = dict(egress_rows[0])
     assert row["status"] == "skipped"
     assert "no-api-key" in row["note"]
+
+
+def test_fetcher_returning_none_does_not_abort_cycle(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    # A misbehaving fetcher returns None instead of a list — iterating this
+    # used to raise TypeError and abort the cycle.
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search", lambda q, limit, proxy, client=None: None
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] == 0
+    assert set(out.keys()) == {"fetched", "assigned", "requests_done", "pruned"}
+    assert store.pool_depth(conn, "iran") == 0
+
+
+def test_fetcher_raising_typeerror_does_not_abort_cycle(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    def _boom(q, limit, proxy, client=None):
+        raise TypeError("NoneType is not iterable")
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _boom)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] == 0
+    assert set(out.keys()) == {"fetched", "assigned", "requests_done", "pruned"}
+    assert store.pool_depth(conn, "iran") == 0
+
+
+def test_exception_note_redacts_api_key(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setenv("PIXABAY_API_KEY", "SEKRET123")
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    def _leaky_boom(q, limit, proxy, client=None):
+        raise RuntimeError(
+            "401 for url: https://pixabay.com/api/?key=SEKRET123&q=Iran"
+        )
+
+    monkeypatch.setattr("datahub_images.sources.pixabay.search", _leaky_boom)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="pixabay", kind="pixabay")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] == 0
+
+    egress_rows = conn.execute(
+        "SELECT * FROM egress_log WHERE source_id = ?", ("pixabay",)
+    ).fetchall()
+    assert len(egress_rows) == 1
+    note = dict(egress_rows[0])["note"]
+    assert "SEKRET123" not in note
+    assert "***" in note
+
+
+def test_vpn_source_threads_planned_proxy_into_fetcher_and_download(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    planned_proxy = "http://vpn-proxy:8181"
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, planned_proxy, "us", "1.2.3.4", "ok"),
+    )
+
+    seen_fetcher_proxy = {}
+
+    def _fetcher(q, limit, proxy, client=None):
+        seen_fetcher_proxy["proxy"] = proxy
+        return [
+            dict(
+                source_image_key="k1", url="http://img/1.jpg",
+                width=1300, height=800, license="cc0",
+                credit={"source": "Wikimedia"}, tags=["iran"],
+            )
+        ]
+
+    seen_download_proxy = {}
+
+    def _download(url, proxy, http):
+        seen_download_proxy["proxy"] = proxy
+        return _jpg(), "jpg"
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _fetcher)
+    monkeypatch.setattr("datahub_images.collector._download", _download)
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia", policy="vpn")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] >= 1
+    assert seen_fetcher_proxy["proxy"] == planned_proxy
+    assert seen_download_proxy["proxy"] == planned_proxy
+    assert planned_proxy is not None

@@ -49,7 +49,7 @@ class Settings:
             blob_dir=os.environ.get("DATAHUB_IMAGES_BLOB_DIR", "/data/blobs"),
             proxy_us=os.environ.get("DATAHUB_IMAGES_PROXY_US", f"http://{host}:8181"),
             proxy_eu=os.environ.get("DATAHUB_IMAGES_PROXY_EU", f"http://{host}:8182"),
-            home_ips=set(home.split(",")) if home else set(DEFAULT_HOME_IPS),
+            home_ips=({p.strip() for p in home.split(",") if p.strip()} if home else set(DEFAULT_HOME_IPS)),
             pool_ttl_days=int(os.environ.get("DATAHUB_IMAGES_POOL_TTL_DAYS", "45")),
             retention_days=int(os.environ.get("DATAHUB_IMAGES_RETENTION_DAYS", "14")),
             reuse_global_days=int(os.environ.get("DATAHUB_IMAGES_REUSE_GLOBAL_DAYS", "30")),

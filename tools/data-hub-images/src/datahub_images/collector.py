@@ -5,6 +5,7 @@ into the fetch→pool→serve loop. Mirrors the per-source isolation pattern in
 tools/data-hub/src/datahub/collector.py: one broken source or one malformed
 candidate is caught, logged via egress_log, and never aborts the cycle.
 """
+import os
 from urllib.parse import urlparse
 
 import httpx
@@ -12,9 +13,29 @@ import httpx
 from . import blob, reuse, scoring, store, vpn
 from . import sources as sources_pkg
 from .config import Settings, Source, Topic
-from .sources import SOURCE_FETCHERS, SourceUnavailable
+from .sources import SOURCE_FETCHERS, SourceUnavailable, _redact
 
 CANDIDATES_PER_SOURCE = 5
+
+# Env vars that may hold API keys embedded in a keyed source's URL/query
+# string. Any of these values found in an exception message get redacted
+# before the message is ever persisted to egress_log (which GET /egress
+# serves verbatim).
+_SECRET_ENV_VARS = (
+    "UNSPLASH_ACCESS_KEY",
+    "PEXELS_API_KEY",
+    "PIXABAY_API_KEY",
+    "DVIDS_API_KEY",
+    "FLICKR_API_KEY",
+)
+
+
+def _secret_values() -> list[str]:
+    return [v for v in (os.environ.get(name) for name in _SECRET_ENV_VARS) if v]
+
+
+def _redacted_note(exc: BaseException) -> str:
+    return _redact(str(exc), *_secret_values())[:200]
 
 
 def _host(url: str | None) -> str:
@@ -48,23 +69,24 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
     recorded to egress_log, and the function returns what it managed so far.
     """
     stored = 0
-    # Look up the fetcher via the live module attribute (not the frozen
-    # SOURCE_FETCHERS dict, whose values were bound at import time) so that
-    # tests/ops can monkeypatch e.g. `datahub_images.sources.wikimedia.search`
-    # and have the collector pick up the patched version.
-    mod = getattr(sources_pkg, source.kind, None)
-    fetcher = getattr(mod, "search", None) if mod else SOURCE_FETCHERS.get(source.kind)
-    if fetcher is None:
-        store.record_egress(
-            conn, source_id=source.id, target_host="", policy=source.policy,
-            exit_node="", exit_ip=None, status="error",
-            note=f"unknown source kind: {source.kind}", ts=now,
-        )
-        return stored
-
-    query = " OR ".join(topic.queries) if topic.queries else topic.id
     plan = None
     try:
+        # Look up the fetcher via the live module attribute (not the frozen
+        # SOURCE_FETCHERS dict, whose values were bound at import time) so
+        # that tests/ops can monkeypatch e.g.
+        # `datahub_images.sources.wikimedia.search` and have the collector
+        # pick up the patched version.
+        mod = getattr(sources_pkg, source.kind, None)
+        fetcher = getattr(mod, "search", None) if mod else SOURCE_FETCHERS.get(source.kind)
+        if fetcher is None:
+            store.record_egress(
+                conn, source_id=source.id, target_host="", policy=source.policy,
+                exit_node="", exit_ip=None, status="error",
+                note=f"unknown source kind: {source.kind}", ts=now,
+            )
+            return stored
+
+        query = " OR ".join(topic.queries) if topic.queries else topic.id
         plan = vpn.plan_fetch(source, settings)
         if not plan.allowed:
             store.record_egress(
@@ -74,83 +96,97 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
             )
             return stored
 
-        cands = fetcher(query, CANDIDATES_PER_SOURCE, plan.proxy)
-    except SourceUnavailable as exc:
-        # keyed adapter with no key configured — expected, not a failure
+        try:
+            cands = fetcher(query, CANDIDATES_PER_SOURCE, plan.proxy)
+        except SourceUnavailable as exc:
+            # keyed adapter with no key configured — expected, not a failure
+            store.record_egress(
+                conn, source_id=source.id, target_host=_host(source.url),
+                policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+                status="skipped", note=_redacted_note(exc), ts=now,
+            )
+            return stored
+
+        # A misbehaving fetcher may return None or something non-iterable;
+        # never let that raise TypeError out of this function.
+        cands = cands or []
+        if not isinstance(cands, list):
+            cands = []
+
+        pool_phashes = [img["phash"] for img in store.pool_for_topic(conn, topic.id) if img.get("phash")]
+
+        for cand in cands:
+            try:
+                key = cand.get("source_image_key")
+                if not key or store.seen_source(conn, key):
+                    continue
+
+                data, ext = _download(cand["url"], plan.proxy, http)
+
+                if not scoring.validate(data):
+                    continue
+
+                phash = scoring.phash_hex(data)
+                if store.is_blacklisted_phash(conn, phash):
+                    continue
+                if any(scoring.is_near_dup(phash, p) for p in pool_phashes):
+                    continue
+
+                # Score on REAL, downloaded dimensions — not provider-claimed
+                # ones, which are often 0/absent and would otherwise trigger
+                # a spurious small/portrait penalty.
+                width, height = scoring.dimensions(data)
+                cand["width"], cand["height"] = width, height
+                score = scoring.score_candidate(cand, topic)
+                sha, path = blob.write_blob(settings.blob_dir, data, ext)
+
+                image = {
+                    "id": sha,
+                    "source_id": source.id,
+                    "source_image_key": key,
+                    "blob_path": path,
+                    "width": width,
+                    "height": height,
+                    "phash": phash,
+                    "score": score,
+                    "license": cand.get("license"),
+                    "credit": cand.get("credit"),
+                    "topics": [topic.id],
+                    "tags": cand.get("tags") or [],
+                    "entropy": scoring.entropy(data),
+                    "fetched_at": now,
+                }
+                inserted = store.upsert_image(conn, image)
+                store.mark_seen(conn, key, sha, now)
+                if inserted:
+                    pool_phashes.append(phash)
+                    stored += 1
+            except Exception as exc:  # per-candidate isolation
+                store.record_egress(
+                    conn, source_id=source.id, target_host=_host(cand.get("url") if isinstance(cand, dict) else None),
+                    policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+                    status="error", note=_redacted_note(exc), ts=now,
+                )
+                continue
+
         store.record_egress(
             conn, source_id=source.id, target_host=_host(source.url),
             policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-            status="skipped", note=str(exc)[:200], ts=now,
+            status="ok", item_count=stored, ts=now,
         )
         return stored
-    except Exception as exc:  # per-source isolation
+    except Exception as exc:  # whole-function isolation — this must never raise
         exit_node = plan.exit_node if plan else ""
         exit_ip = plan.exit_ip if plan else None
-        store.record_egress(
-            conn, source_id=source.id, target_host=_host(source.url),
-            policy=source.policy, exit_node=exit_node, exit_ip=exit_ip,
-            status="error", note=str(exc)[:200], ts=now,
-        )
-        return stored
-
-    pool_phashes = [img["phash"] for img in store.pool_for_topic(conn, topic.id) if img.get("phash")]
-
-    for cand in cands:
         try:
-            key = cand.get("source_image_key")
-            if not key or store.seen_source(conn, key):
-                continue
-
-            data, ext = _download(cand["url"], plan.proxy, http)
-
-            if not scoring.validate(data):
-                continue
-
-            phash = scoring.phash_hex(data)
-            if store.is_blacklisted_phash(conn, phash):
-                continue
-            if any(scoring.is_near_dup(phash, p) for p in pool_phashes):
-                continue
-
-            score = scoring.score_candidate(cand, topic)
-            sha, path = blob.write_blob(settings.blob_dir, data, ext)
-            width, height = scoring.dimensions(data)
-
-            image = {
-                "id": sha,
-                "source_id": source.id,
-                "source_image_key": key,
-                "blob_path": path,
-                "width": cand.get("width") or width,
-                "height": cand.get("height") or height,
-                "phash": phash,
-                "score": score,
-                "license": cand.get("license"),
-                "credit": cand.get("credit"),
-                "topics": [topic.id],
-                "tags": cand.get("tags") or [],
-                "entropy": scoring.entropy(data),
-                "fetched_at": now,
-            }
-            inserted = store.upsert_image(conn, image)
-            store.mark_seen(conn, key, sha, now)
-            if inserted:
-                pool_phashes.append(phash)
-                stored += 1
-        except Exception as exc:  # per-candidate isolation
             store.record_egress(
-                conn, source_id=source.id, target_host=_host(cand.get("url") if isinstance(cand, dict) else None),
-                policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-                status="error", note=str(exc)[:200], ts=now,
+                conn, source_id=source.id, target_host=_host(source.url),
+                policy=source.policy, exit_node=exit_node, exit_ip=exit_ip,
+                status="error", note=_redacted_note(exc), ts=now,
             )
-            continue
-
-    store.record_egress(
-        conn, source_id=source.id, target_host=_host(source.url),
-        policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-        status="ok", item_count=stored, ts=now,
-    )
-    return stored
+        except Exception:
+            pass
+        return stored
 
 
 def _topics_by_id(topics: list[Topic]) -> dict:
@@ -177,7 +213,13 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
                 depth = 0
             if depth >= topic.target_depth:
                 break
-            counts["fetched"] += fetch_and_store(conn, source, topic, settings, now, http)
+            try:
+                counts["fetched"] += fetch_and_store(conn, source, topic, settings, now, http)
+            except Exception:
+                # fetch_and_store is documented never to raise, but this is
+                # the last line of defense: one broken source must never
+                # abort the topic loop or the cycle.
+                continue
 
     # Phase 2: request drain.
     tmap = _topics_by_id(topics)
