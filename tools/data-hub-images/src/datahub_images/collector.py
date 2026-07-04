@@ -190,7 +190,7 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
         else:
             wanted = req.get("count") or 1
             for _ in range(wanted):
-                img = reuse.select_image(conn, topic, req["site"], req.get("keywords"), settings, now)
+                img = reuse.select_image(conn, topic, req["site"], req.get("slug"), settings, now)
                 if img is None:
                     # Targeted fetch attempt: try to top up the pool from any
                     # enabled source for this topic, then re-select once.
@@ -198,7 +198,7 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
                         if not source.enabled:
                             continue
                         fetch_and_store(conn, source, topic, settings, now, http)
-                    img = reuse.select_image(conn, topic, req["site"], req.get("keywords"), settings, now)
+                    img = reuse.select_image(conn, topic, req["site"], req.get("slug"), settings, now)
                 if img is None:
                     break
                 store.record_assignment(conn, img["id"], req["site"], req.get("keywords"), topic.id, now)

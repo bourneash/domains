@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS requests (
   site TEXT NOT NULL,
   topic TEXT,
   keywords_json TEXT,
+  slug TEXT,
   count INTEGER DEFAULT 1,
   status TEXT NOT NULL DEFAULT 'pending',
   result_json TEXT,
@@ -215,14 +216,24 @@ def site_recent_assignments(conn: sqlite3.Connection, site: str, since_iso: str)
 
 
 def create_request(conn: sqlite3.Connection, site: str, topic: str, keywords: list,
-                    count: int, ts: str, client_ip: str) -> int:
+                    count: int, ts: str, client_ip: str, slug: str | None = None) -> int:
     cur = conn.execute(
-        "INSERT INTO requests (site, topic, keywords_json, count, status, requested_at, client_ip) "
-        "VALUES (?,?,?,?, 'pending', ?, ?)",
-        (site, topic, json.dumps(keywords or []), count, ts, client_ip),
+        "INSERT INTO requests (site, topic, keywords_json, slug, count, status, requested_at, client_ip) "
+        "VALUES (?,?,?,?,?, 'pending', ?, ?)",
+        (site, topic, json.dumps(keywords or []), slug, count, ts, client_ip),
     )
     conn.commit()
     return cur.lastrowid
+
+
+def get_request(conn: sqlite3.Connection, request_id: int) -> dict | None:
+    row = conn.execute("SELECT * FROM requests WHERE id = ?", (request_id,)).fetchone()
+    if row is None:
+        return None
+    d = dict(row)
+    d["keywords"] = json.loads(d.pop("keywords_json") or "[]")
+    d["result"] = json.loads(d.pop("result_json") or "null")
+    return d
 
 
 def pending_requests(conn: sqlite3.Connection) -> list[dict]:
@@ -268,6 +279,97 @@ def record_pull(conn: sqlite3.Connection, **row) -> None:
         ),
     )
     conn.commit()
+
+
+def get_image(conn: sqlite3.Connection, image_id: str) -> dict | None:
+    row = conn.execute("SELECT * FROM images WHERE id = ?", (image_id,)).fetchone()
+    return _image_row_to_dict(row) if row else None
+
+
+def list_images(conn: sqlite3.Connection, topic: str | None = None, status: str | None = None,
+                 limit: int = 100) -> list[dict]:
+    where, params = [], []
+    if status:
+        where.append("status = ?")
+        params.append(status)
+    if topic:
+        where.append("EXISTS (SELECT 1 FROM json_each(images.topics_json) WHERE value = ?)")
+        params.append(topic)
+    sql = "SELECT * FROM images"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY fetched_at DESC LIMIT ?"
+    params.append(int(limit))
+    return [_image_row_to_dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def delete_image(conn: sqlite3.Connection, image_id: str) -> bool:
+    """Hard-remove one image row (curation reject). Does not touch the blob
+    file or blacklist_phash — use blacklist_image for that."""
+    cur = conn.execute("DELETE FROM images WHERE id = ?", (image_id,))
+    conn.commit()
+    return cur.rowcount > 0
+
+
+def query_egress(conn: sqlite3.Connection, since_iso: str | None = None, limit: int = 200,
+                  policy: str | None = None) -> list[dict]:
+    where, params = [], []
+    if since_iso:
+        where.append("ts >= ?")
+        params.append(since_iso)
+    if policy:
+        where.append("policy = ?")
+        params.append(policy)
+    sql = "SELECT * FROM egress_log"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY ts DESC LIMIT ?"
+    params.append(int(limit))
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def query_pulls(conn: sqlite3.Connection, since_iso: str | None = None, limit: int = 200,
+                 site: str | None = None) -> list[dict]:
+    where, params = [], []
+    if since_iso:
+        where.append("ts >= ?")
+        params.append(since_iso)
+    if site:
+        where.append("site = ?")
+        params.append(site)
+    sql = "SELECT * FROM pull_log"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY ts DESC LIMIT ?"
+    params.append(int(limit))
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def get_sources_state(conn: sqlite3.Connection) -> list[dict]:
+    return [dict(r) for r in conn.execute(
+        "SELECT source_id, last_fetch_at, last_status AS status, last_error AS error, "
+        "stale, consecutive_failures FROM sources_state ORDER BY source_id"
+    ).fetchall()]
+
+
+def set_source_override(conn: sqlite3.Connection, *, source_id: str, enabled: bool) -> None:
+    conn.execute(
+        "INSERT INTO source_overrides (source_id, enabled, updated_at) VALUES (?, ?, ?) "
+        "ON CONFLICT(source_id) DO UPDATE SET enabled=excluded.enabled, updated_at=excluded.updated_at",
+        (source_id, 1 if enabled else 0, _now()),
+    )
+    conn.commit()
+
+
+def clear_source_override(conn: sqlite3.Connection, *, source_id: str) -> None:
+    conn.execute("DELETE FROM source_overrides WHERE source_id = ?", (source_id,))
+    conn.commit()
+
+
+def get_source_overrides(conn: sqlite3.Connection) -> dict:
+    return {r["source_id"]: bool(r["enabled"]) for r in conn.execute(
+        "SELECT source_id, enabled FROM source_overrides"
+    ).fetchall()}
 
 
 def blacklist_image(conn: sqlite3.Connection, image_id: str) -> None:
