@@ -6,7 +6,9 @@ per site.
 
 Requires: cloakbrowser + social_lib (tools/social-setup/src on sys.path).
 """
+import glob
 import json
+import subprocess
 import time
 from pathlib import Path
 
@@ -41,23 +43,63 @@ def detail_url(ad_id, campaign_id, creator_id=CREATOR_ID):
     )
 
 
-def launch(profile=PROFILE, viewport=None, headless=False):
+def cleanup_stale_profile(profile=PROFILE):
+    """Kill any leftover Chromium process bound to this profile and remove
+    its Singleton lock files. CloakBrowser launches get flaky after heavy
+    churn in one session (many launch/close cycles) — a stale process or
+    lock file left behind by an interrupted run makes the NEXT launch hang
+    or fail silently with no useful error. Safe to call unconditionally
+    before every launch, not just reactively after a failure — matches the
+    submission-flakiness gotcha in the domains-amazon-creator-connections
+    skill, now applied proactively instead of only after something breaks."""
+    try:
+        subprocess.run(
+            ["pkill", "-9", "-f", f"user-data-dir={profile}"],
+            check=False,
+            capture_output=True,
+        )
+    except Exception:
+        pass
+    time.sleep(0.5)
+    for lock in glob.glob(f"{profile}/Singleton*"):
+        try:
+            Path(lock).unlink()
+        except Exception:
+            pass
+
+
+def launch(profile=PROFILE, viewport=None, headless=False, retries=1):
     """Launch a VPN-routed, persistent-profile CloakBrowser context. Reuses
-    the existing tab if one is open (login usually already in place)."""
+    the existing tab if one is open (login usually already in place).
+    Cleans up any stale profile lock before launching, and retries once
+    (with another cleanup pass) if the launch itself throws — this is what
+    a run getting silently killed mid-session with no diagnostic output
+    turned out to need."""
     _ensure_import_path()
     from cloakbrowser import launch_persistent_context
     from social_lib.vpn_session import get_proxy_url
 
+    cleanup_stale_profile(profile)
     proxy_url = get_proxy_url("us")
-    ctx = launch_persistent_context(
-        profile,
-        headless=headless,
-        humanize=True,
-        viewport=viewport or {"width": 1200, "height": 900},
-        proxy={"server": proxy_url},
-    )
-    page = ctx.pages[-1] if ctx.pages else ctx.new_page()
-    return ctx, page
+
+    attempt = 0
+    while True:
+        try:
+            ctx = launch_persistent_context(
+                profile,
+                headless=headless,
+                humanize=True,
+                viewport=viewport or {"width": 1200, "height": 900},
+                proxy={"server": proxy_url},
+            )
+            page = ctx.pages[-1] if ctx.pages else ctx.new_page()
+            return ctx, page
+        except Exception:
+            if attempt >= retries:
+                raise
+            attempt += 1
+            cleanup_stale_profile(profile)
+            time.sleep(2)
 
 
 def handle_login_if_needed(page, list_page_url, wait_rounds=60, wait_secs=5):
@@ -74,8 +116,13 @@ def handle_login_if_needed(page, list_page_url, wait_rounds=60, wait_secs=5):
 
 
 def extract_campaign_cards(page):
-    """Extract {txt, img, href, cid} for every campaign card on a Creator
-    Connections list page (Active / New Opportunities / Completed)."""
+    """Extract {txt, img, href, cid} for every campaign card CURRENTLY
+    RENDERED on a Creator Connections list page. The list is
+    react-virtualized (`.ReactVirtualized__Grid__RequestList`) — only rows
+    scrolled into view exist in the DOM, so a single call to this only sees
+    a window of the real total. For the full list, use
+    extract_all_campaign_cards() instead, which scrolls the virtualized
+    container to harvest every row."""
     return page.evaluate(
         r"""
         () => {
@@ -103,6 +150,50 @@ def extract_campaign_cards(page):
         }
         """
     )
+
+
+def extract_all_campaign_cards(page, max_scrolls=150, step=450, settle=0.6, stall_limit=3):
+    """Scroll the virtualized campaign-list container end to end, harvesting
+    every unique campaign card by cid. Plain page/window scrolling (or a
+    fixed-height `mouse.wheel`) does NOT reach rows outside the virtualization
+    window — this was a real gap found the hard way: a page that reported
+    "End of list" right after 30 rendered cards actually had 65+ campaigns
+    once the inner grid was scrolled properly."""
+    all_cards = {}
+
+    def harvest():
+        new = 0
+        for c in extract_campaign_cards(page):
+            if c["cid"] and c["cid"] not in all_cards:
+                all_cards[c["cid"]] = c
+                new += 1
+        return new
+
+    harvest()
+    stall = 0
+    for _ in range(max_scrolls):
+        scrolled = page.evaluate(
+            """
+            (step) => {
+              const el = document.querySelector('.ReactVirtualized__Grid__RequestList');
+              if (!el) return null;
+              el.scrollTop = Math.min(el.scrollTop + step, el.scrollHeight);
+              return {after: el.scrollTop, max: el.scrollHeight - el.clientHeight};
+            }
+            """,
+            step,
+        )
+        time.sleep(settle)
+        if harvest():
+            stall = 0
+        else:
+            stall += 1
+        if scrolled is None:
+            break  # no virtualized container on this page (e.g. empty list) — plain harvest stands
+        if scrolled["after"] >= scrolled["max"] - 2 and stall >= stall_limit:
+            break
+
+    return list(all_cards.values())
 
 
 def open_detail_resilient(page, ad_id, campaign_id, creator_id=CREATOR_ID, attempts=3):

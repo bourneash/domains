@@ -9,8 +9,10 @@ description: >
   dashboard. Covers: reading the campaigns off the dashboard via CloakBrowser (there is NO
   API for them), building on-brand content pages with cloaked /go/ links + disclosure, and
   submitting each content URL back through the dashboard. Shared tooling lives at
-  tools/creator-connections/ (pull.py, submit.py, cc_lib.py) — use it instead of writing fresh
-  CloakBrowser scripts per site. Worked reference: totaljerks.com (9 campaigns, 2026-07-03).
+  tools/creator-connections/ (pull.py, submit.py, submit_all.py, cc_lib.py) — use it instead of
+  writing fresh CloakBrowser scripts per site. Worked reference: totaljerks.com (9 campaigns,
+  2026-07-03); a 33-campaign, 5-site sweep (2026-07-04) is what produced submit_all.py and the
+  virtualized-list pull fix.
 ---
 
 # Amazon Creator Connections — portfolio playbook
@@ -160,9 +162,11 @@ shared `tools/creator-connections/submit.py` against that site's manifest (copy 
 `sites/ultrarough.com/ops/campaigns/submit-content-links.py` — it's ~15 lines). The shared
 `submit.py` is idempotent (skips `submitted:true`), detects the Amazon **"Website Temporarily
 Unavailable"** maintenance page and aborts cleanly (rerun later), saves the manifest after
-*every* campaign (not just at the end, so a mid-run crash doesn't lose progress), and — the
-lesson from ultrarough's `eQualle` campaign — retries the content-type dropdown with a raw JS
-`.click()` if the humanized click doesn't visibly open it. Run:
+*every* campaign (not just at the end, so a mid-run crash doesn't lose progress), retries the
+content-type dropdown with a raw JS `.click()` if the humanized click doesn't visibly open it
+(the ultrarough `eQualle` lesson), and — after hitting the same launch failure twice in a row
+during a 5-site sweep — proactively cleans up the CloakBrowser profile lock before every launch
+and retries the whole run once on any unhandled error, not just the dropdown. Run:
 ```bash
 /home/jesse/.pyenv/shims/python sites/<site>/ops/campaigns/submit-content-links.py
 # or directly, with more control:
@@ -170,6 +174,23 @@ lesson from ultrarough's `eQualle` campaign — retries the content-type dropdow
   --manifest sites/<site>/ops/campaigns/creator-connections.json \
   --only productId1,productId2   # optional, to retry just a straggler
 ```
+
+**Submitting across multiple sites in one pass?** Use `submit_all.py` instead of invoking
+`submit.py` once per site by hand — it cleans the profile between sites, retries a failed site
+once, and prints a single final tally instead of N separate ones you have to babysit:
+```bash
+/home/jesse/.pyenv/shims/python tools/creator-connections/submit_all.py --all
+# or name specific manifests in order:
+/home/jesse/.pyenv/shims/python tools/creator-connections/submit_all.py \
+  sites/americastrikes.com/ops/campaigns/creator-connections.json \
+  sites/totaljerks.com/ops/campaigns/creator-connections.json
+```
+It does not commit/push — do that per site afterward, same as always.
+
+**Watching a long submission run:** these take minutes per site (real page loads, real waits).
+Rather than polling with repeated status checks, use the harness's Monitor tool on the background
+task's output file (or just a `run_in_background` shell call) so you get a single notification
+when it's done — cleaner than sleeping and re-checking by hand.
 
 ## Gotchas (learned the hard way)
 
@@ -202,9 +223,13 @@ lesson from ultrarough's `eQualle` campaign — retries the content-type dropdow
 - **Wait for the form before interacting:** poll for `#contentInput` before clicking the
   content-type dropdown. Some campaign pages hydrate the header before the form.
 - **Browser gets flaky after heavy churn** (many launch/close cycles in one session): launches
-  start hanging. Fix = `pkill -9 -f cloakbrowser` + remove `/tmp/cloak-driver/profile/Singleton*`
-  before relaunching. If it stays flaky, leave stragglers for a fresh-session resume run — the
-  submit script is idempotent and deadlines usually have weeks of slack.
+  start hanging or dying with no error output at all — hit this twice in a row submitting across
+  5 sites back-to-back. Don't wait for it to happen and clean up reactively; `cc_lib.launch()`
+  now calls `cleanup_stale_profile()` (`pkill -9` matching the profile's `user-data-dir` +
+  removing `Singleton*`) automatically before every launch, and `submit.py`/`submit_all.py`
+  retry a failed run once after another cleanup pass. If it's still flaky after that, leave
+  stragglers for a fresh-session resume run — the submit script is idempotent and deadlines
+  usually have weeks of slack.
 - Always `close` the daemon / context at the end to release the profile lock.
 
 ## Repeat across sites

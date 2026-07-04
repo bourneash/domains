@@ -29,7 +29,68 @@ sys.path.insert(0, str(Path(__file__).parent))
 import cc_lib  # noqa: E402
 
 
-def main(manifest_path=None, only=None):
+def _run_once(manifest_path, only):
+    """One pass over the pending campaigns. Returns True if it ran to
+    completion (whether or not every campaign was confirmed submitted),
+    False if it was aborted mid-run by an unexpected error — the caller
+    decides whether to retry in that case. Idempotent: because the manifest
+    is saved after every successful campaign, a retry just picks up
+    wherever this pass left off."""
+    data = cc_lib.load_manifest(manifest_path)
+    pending = [c for c in data["campaigns"] if not c.get("submitted")]
+    if only:
+        pending = [c for c in pending if c["productId"] in only]
+    if not pending:
+        print("No pending campaigns to submit.")
+        return True
+    print(f"{len(pending)} campaign(s) pending submission.")
+
+    ctx, page = cc_lib.launch(viewport={"width": 1360, "height": 940})
+    try:
+        list_page_url = cc_lib.list_url()
+        page.goto(list_page_url, wait_until="domcontentloaded", timeout=70000)
+        time.sleep(7)
+        cc_lib.handle_login_if_needed(page, list_page_url)
+
+        for c in pending:
+            label = c["productId"]
+            body = cc_lib.open_detail_resilient(page, c["adId"], c["campaignId"])
+
+            if cc_lib.is_maintenance_or_empty(body):
+                print("Amazon Associates is UNAVAILABLE / in maintenance — aborting, rerun later.")
+                break
+
+            if cc_lib.link_already_stored(body, c["contentUrl"]):
+                print(f"{label}: already has this link stored — marking submitted.")
+                c["submitted"] = True
+                cc_lib.save_manifest(manifest_path, data)
+                continue
+
+            try:
+                ok = cc_lib.submit_content_link(
+                    page,
+                    c["contentUrl"],
+                    content_type=c.get("contentType", "Article or blog post"),
+                    screenshot_path=f"{cc_lib.SCREENSHOTS}/cc-submit-{label}.png",
+                )
+                if ok:
+                    c["submitted"] = True
+                    cc_lib.save_manifest(manifest_path, data)
+                    print(f"{label}: SUBMITTED ✓")
+                else:
+                    print(f"{label}: submit not confirmed — check {cc_lib.SCREENSHOTS}/cc-submit-{label}.png")
+            except Exception as e:
+                print(f"{label}: ERROR {e}")
+    finally:
+        try:
+            ctx.close()
+        except Exception:
+            pass
+
+    return True
+
+
+def main(manifest_path=None, only=None, retries=1):
     if manifest_path is None:
         parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
         parser.add_argument("--manifest", required=True)
@@ -38,56 +99,21 @@ def main(manifest_path=None, only=None):
         manifest_path = args.manifest
         only = args.only.split(",") if args.only else None
 
-    data = cc_lib.load_manifest(manifest_path)
-    pending = [c for c in data["campaigns"] if not c.get("submitted")]
-    if only:
-        pending = [c for c in pending if c["productId"] in only]
-    if not pending:
-        print("No pending campaigns to submit.")
-        return
-    print(f"{len(pending)} campaign(s) pending submission.")
-
-    ctx, page = cc_lib.launch(viewport={"width": 1360, "height": 940})
-    list_page_url = cc_lib.list_url()
-    page.goto(list_page_url, wait_until="domcontentloaded", timeout=70000)
-    time.sleep(7)
-    cc_lib.handle_login_if_needed(page, list_page_url)
-
-    for c in pending:
-        label = c["productId"]
-        body = cc_lib.open_detail_resilient(page, c["adId"], c["campaignId"])
-
-        if cc_lib.is_maintenance_or_empty(body):
-            print("Amazon Associates is UNAVAILABLE / in maintenance — aborting, rerun later.")
-            break
-
-        if cc_lib.link_already_stored(body, c["contentUrl"]):
-            print(f"{label}: already has this link stored — marking submitted.")
-            c["submitted"] = True
-            cc_lib.save_manifest(manifest_path, data)
-            continue
-
+    attempt = 0
+    while True:
         try:
-            ok = cc_lib.submit_content_link(
-                page,
-                c["contentUrl"],
-                content_type=c.get("contentType", "Article or blog post"),
-                screenshot_path=f"{cc_lib.SCREENSHOTS}/cc-submit-{label}.png",
-            )
-            if ok:
-                c["submitted"] = True
-                cc_lib.save_manifest(manifest_path, data)
-                print(f"{label}: SUBMITTED ✓")
-            else:
-                print(f"{label}: submit not confirmed — check {cc_lib.SCREENSHOTS}/cc-submit-{label}.png")
+            _run_once(manifest_path, only)
+            break
         except Exception as e:
-            print(f"{label}: ERROR {e}")
+            if attempt >= retries:
+                print(f"FAILED after {attempt + 1} attempt(s): {e}")
+                raise
+            attempt += 1
+            print(f"Run failed ({e}) — cleaning up and retrying (attempt {attempt + 1}/{retries + 1})...")
+            cc_lib.cleanup_stale_profile()
+            time.sleep(3)
 
-    try:
-        ctx.close()
-    except Exception:
-        pass
-
+    data = cc_lib.load_manifest(manifest_path)
     done = sum(1 for c in data["campaigns"] if c.get("submitted"))
     print(f"Done. {done}/{len(data['campaigns'])} campaigns submitted.")
 

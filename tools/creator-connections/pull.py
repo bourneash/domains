@@ -36,9 +36,10 @@ def cmd_list(args):
     page.goto(url, wait_until="domcontentloaded", timeout=70000)
     time.sleep(4)
     cc_lib.handle_login_if_needed(page, url)
-    page.mouse.wheel(0, 20000)
-    time.sleep(2)
-    cards = cc_lib.extract_campaign_cards(page)
+    # The list is a react-virtualized grid — only harvesting the currently
+    # rendered window (e.g. a plain page scroll) silently truncates the
+    # result. extract_all_campaign_cards scrolls the real inner container.
+    cards = cc_lib.extract_all_campaign_cards(page)
     page.screenshot(path=f"{cc_lib.SCREENSHOTS}/cc-pull-list.png")
     ctx.close()
 
