@@ -22,7 +22,7 @@ def phash_hex(b):
 
 
 def is_near_dup(a, b, max_dist=6):
-    return (imagehash.hex_to_hash(a) - imagehash.hex_to_hash(b)) <= max_dist
+    return bool((imagehash.hex_to_hash(a) - imagehash.hex_to_hash(b)) <= max_dist)
 
 
 def validate(b, min_w=1200, min_entropy=4.0):

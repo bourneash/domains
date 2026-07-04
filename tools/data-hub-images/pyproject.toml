@@ -15,6 +15,7 @@ dev = ["pytest>=8", "pytest-asyncio>=0.23"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 markers = ["live: hits real network through the VPN (opt-in)"]
+addopts = ["-m", "not live"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
