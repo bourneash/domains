@@ -201,7 +201,7 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
                     img = reuse.select_image(conn, topic, req["site"], req.get("slug"), settings, now)
                 if img is None:
                     break
-                store.record_assignment(conn, img["id"], req["site"], req.get("keywords"), topic.id, now)
+                store.record_assignment(conn, img["id"], req["site"], req.get("slug"), topic.id, now)
                 store.set_last_used(conn, img["id"], now)
                 assigned_ids.append(img["id"])
 

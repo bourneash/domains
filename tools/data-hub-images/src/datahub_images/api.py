@@ -96,7 +96,7 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         return req
 
     @app.get("/image/{image_id}")
-    def get_image(image_id: str):
+    def get_image(image_id: str, request: Request):
         img = store.get_image(conn, image_id)
         if img is None or not img.get("blob_path"):
             raise HTTPException(404, "unknown image")
@@ -105,16 +105,20 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         except OSError:
             raise HTTPException(404, "blob missing")
         ext = img["blob_path"].rsplit(".", 1)[-1].lower()
+        store.record_pull(conn, site="", endpoint=f"/image/{image_id}",
+                           item_count=1, client_ip=_client_ip(request))
         return Response(content=data, media_type=CONTENT_TYPES.get(ext, "application/octet-stream"))
 
     @app.get("/images")
-    def list_images(topic: str | None = None, site: str | None = None,
+    def list_images(request: Request, topic: str | None = None, site: str | None = None,
                      status: str | None = None, limit: int = 100):
         images = store.list_images(conn, topic=topic, status=status, limit=limit)
         if site:
             assigned_ids = {a["image_id"] for a in
                             store.site_recent_assignments(conn, site, "0000-01-01T00:00:00")}
             images = [i for i in images if i["id"] in assigned_ids]
+        store.record_pull(conn, site=site or "", endpoint="/images",
+                           item_count=len(images), client_ip=_client_ip(request))
         return {"images": images}
 
     @app.get("/stats")

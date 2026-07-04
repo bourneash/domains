@@ -76,6 +76,55 @@ def test_pool_fill_and_request_drain(tmp_path, monkeypatch):
     assert req == []
 
 
+def test_request_drain_records_slug_not_keywords(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: [
+            dict(
+                source_image_key="k1", url="http://img/1.jpg",
+                width=1300, height=800, license="cc0",
+                credit={"source": "Wikimedia"}, tags=["iran"],
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])]
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] >= 1
+    assert store.pool_depth(conn, "iran") == 1
+
+    # keywords and slug are deliberately distinct so we can tell which one
+    # ends up in assignments.slug.
+    store.create_request(
+        conn, "americastrikes", "iran", ["hormuz", "strait"], 1,
+        "2026-07-04T00:05:00Z", "127.0.0.1", slug="strait-of-hormuz-oil-shock",
+    )
+    out2 = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:06:00Z")
+    assert out2["requests_done"] == 1
+    assert out2["assigned"] == 1
+
+    images = store.list_images(conn, topic="iran")
+    assert len(images) == 1
+    rows = store.assignments_for_image(conn, images[0]["id"])
+    assert len(rows) == 1
+    assert rows[0]["slug"] == "strait-of-hormuz-oil-shock"
+
+
 def test_source_exception_does_not_abort_cycle(tmp_path, monkeypatch):
     conn = store.connect(str(tmp_path / "t.db"))
     store.init_schema(conn)

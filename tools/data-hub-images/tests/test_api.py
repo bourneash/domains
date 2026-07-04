@@ -43,6 +43,36 @@ def test_health_shape(tmp_path):
     assert "vpn" in c.get("/health").json()
 
 
+def test_get_images_logs_pull(tmp_path):
+    st = _seeded(tmp_path)
+    c = TestClient(api.create_app(st))
+    conn = store.connect(st.db_path)
+    before = len(store.query_pulls(conn))
+
+    r = c.get("/images")
+    assert r.status_code == 200
+
+    after = store.query_pulls(conn)
+    assert len(after) == before + 1
+    assert after[0]["endpoint"] == "/images"
+    assert after[0]["item_count"] == len(r.json()["images"])
+
+
+def test_get_image_by_id_logs_pull(tmp_path):
+    st = _seeded(tmp_path)
+    c = TestClient(api.create_app(st))
+    conn = store.connect(st.db_path)
+    before = len(store.query_pulls(conn))
+
+    r = c.get("/image/abc")
+    assert r.status_code == 200
+
+    after = store.query_pulls(conn)
+    assert len(after) == before + 1
+    assert after[0]["endpoint"] == "/image/abc"
+    assert after[0]["item_count"] == 1
+
+
 def test_request_with_slug_stores_it_when_pending(tmp_path):
     st = _settings(tmp_path)
     conn = store.connect(st.db_path)
