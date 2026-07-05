@@ -52,3 +52,16 @@ def test_load_config_respects_explicit_values(tmp_path):
     assert config["enabled"] is False
     assert config["dns_over_https"] is False
     assert config["slack"] == {"enabled": False}
+
+
+def test_load_config_handles_non_dict_slack_value(tmp_path):
+    """Verify load_config gracefully handles non-dict slack values (null, true, etc)."""
+    config_path = tmp_path / "smoke.yaml"
+    config_path.write_text(textwrap.dedent("""\
+        apex: example.com
+        slack: null
+    """))
+
+    config = load_config(str(config_path))
+
+    assert config["slack"] == {"enabled": True}

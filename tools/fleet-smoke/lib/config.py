@@ -19,7 +19,9 @@ def load_config(config_path):
 
     data.setdefault("enabled", True)
     data.setdefault("dns_over_https", True)
-    data.setdefault("slack", {})
+    # Normalize slack to a dict if it's not one (handles null, true, or other non-dict values)
+    if not isinstance(data.get("slack"), dict):
+        data["slack"] = {}
     data["slack"].setdefault("enabled", True)
     data.setdefault("checks", [])
     return data
