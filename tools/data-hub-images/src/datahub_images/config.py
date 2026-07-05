@@ -3,8 +3,10 @@ import yaml
 from dataclasses import dataclass
 from pydantic import BaseModel
 
-# Copied verbatim from tools/data-hub/src/datahub/config.py DEFAULT_HOME_IPS.
-DEFAULT_HOME_IPS = {"24.55.143.75", "158.173.25.169"}
+# /24s covering the known home egress IPs (was exact-IP; egress drifted
+# within the same /24 in the wild — 158.173.25.38 was not in the old exact
+# set — so we match on the containing block instead of a single address).
+DEFAULT_HOME_IPS = {"24.55.143.0/24", "158.173.25.0/24"}
 
 
 class Source(BaseModel):

@@ -1,6 +1,31 @@
+import ipaddress
 import httpx
 from dataclasses import dataclass
 from .config import Source, Settings
+
+
+def _is_home_ip(ip: str, home_ips) -> bool:
+    """True if `ip` exactly matches an entry in `home_ips`, or falls within
+    any entry that parses as a CIDR network. Entries without a "/" are
+    treated as exact-match strings (fast path, and safe for malformed
+    values). A malformed CIDR entry is skipped rather than raising, since
+    this check must never crash the leak-detection path."""
+    if ip in home_ips:
+        return True
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    for entry in home_ips:
+        if "/" not in entry:
+            continue
+        try:
+            network = ipaddress.ip_network(entry, strict=False)
+        except ValueError:
+            continue
+        if addr in network:
+            return True
+    return False
 
 @dataclass
 class FetchPlan:
@@ -33,6 +58,6 @@ def plan_fetch(source: Source, settings: Settings, client=None) -> FetchPlan:
     ip = probe_exit_ip(proxy, client)
     if ip is None:
         return FetchPlan(False, None, node, None, "vpn-down")
-    if ip in settings.home_ips:
+    if _is_home_ip(ip, settings.home_ips):
         return FetchPlan(False, None, node, ip, "leak-detected")
     return FetchPlan(True, proxy, node, ip, "ok")
