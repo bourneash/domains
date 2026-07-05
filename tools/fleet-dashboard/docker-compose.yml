@@ -17,6 +17,7 @@ services:
       FD_HOST: 0.0.0.0
       HOME: ${HOME:-/home/jesse}
       DATAHUB_API: http://datahub-api:4760
+      DATAHUB_IMAGES_API: http://datahub-images-api:4770
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
