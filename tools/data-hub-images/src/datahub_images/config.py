@@ -39,6 +39,8 @@ class Settings:
     reuse_same_site_days: int
     api_host: str
     api_port: int
+    on_demand_timeout_s: float = 25.0
+    on_demand_per_source_limit: int = 4
 
     @classmethod
     def from_env(cls):
@@ -56,6 +58,8 @@ class Settings:
             reuse_same_site_days=int(os.environ.get("DATAHUB_IMAGES_REUSE_SAME_SITE_DAYS", "14")),
             api_host=os.environ.get("DATAHUB_IMAGES_API_HOST", "0.0.0.0"),
             api_port=int(os.environ.get("DATAHUB_IMAGES_API_PORT", "4770")),
+            on_demand_timeout_s=float(os.environ.get("DATAHUB_IMAGES_ON_DEMAND_TIMEOUT_S", "25.0")),
+            on_demand_per_source_limit=int(os.environ.get("DATAHUB_IMAGES_ON_DEMAND_PER_SOURCE_LIMIT", "4")),
         )
 
 
