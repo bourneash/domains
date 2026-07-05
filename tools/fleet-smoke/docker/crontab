@@ -1,0 +1,12 @@
+# tools/fleet-smoke/docker/crontab (supercronic format, NOT host cron)
+# TZ=America/New_York (set in the Dockerfile).
+#
+# One daily fleet-wide pass, 07:00 ET. Internally staggers between sites
+# (FLEET_SMOKE_STAGGER_SECONDS, default 20s) so 11+ sites' checks don't all
+# fire in the same second — see run_fleet_smoke.py.
+#
+# Config changes (sites/*/ops/smoke.yaml) are a READ-ONLY bind mount — they
+# take effect on the next tick with NO rebuild. Only changes to this tool's
+# own code or to this schedule require `docker compose build && up -d
+# --force-recreate` (this file is baked into the image at build time).
+0 7 * * *   cd /fleet && python3 run_fleet_smoke.py --sites-dir /fleet-sites --state-dir /fleet/state

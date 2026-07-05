@@ -1,0 +1,20 @@
+# tools/fleet-smoke/docker-compose.yml
+services:
+  fleet-smoke-cron:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: fleet-smoke-cron:latest
+    container_name: fleet-smoke-cron
+    restart: unless-stopped
+    env_file:
+      - ../../.env
+    environment:
+      - TZ=America/New_York
+    volumes:
+      # Every site's ops/smoke.yaml, read-only — the fleet tool never writes
+      # into a site's own repo.
+      - ../../sites:/fleet-sites:ro
+      # Per-site last-run fail counts — the only writable state, and it lives
+      # here (not in any site's repo).
+      - ./state:/fleet/state
