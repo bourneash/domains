@@ -1,7 +1,30 @@
+import pytest
+
 from datahub_images.sources import nara, SOURCE_FETCHERS
+from datahub_images.sources import SourceUnavailable
+
+
+def test_nara_missing_key_raises(monkeypatch):
+    monkeypatch.delenv("NARA_API_KEY", raising=False)
+    with pytest.raises(SourceUnavailable):
+        nara.search("USS Enterprise", 6, proxy="http://p:8888")
+
+
+def test_nara_sends_api_key_header(monkeypatch):
+    monkeypatch.setenv("NARA_API_KEY", "test-nara-key")
+    captured = {}
+
+    def fake_get_json(url, proxy=None, headers=None, client=None):
+        captured["headers"] = headers
+        return {"body": {"hits": {"hits": []}}}
+
+    monkeypatch.setattr("datahub_images.sources.nara._get_json", fake_get_json)
+    nara.search("q", 6, proxy=None)
+    assert captured["headers"]["x-api-key"] == "test-nara-key"
 
 
 def test_nara_normalizes(monkeypatch):
+    monkeypatch.setenv("NARA_API_KEY", "test-nara-key")
     fake = {"body": {"hits": {"hits": [{"_source": {"record": {
         "naId": "12345",
         "title": "USS Enterprise underway",
@@ -19,6 +42,7 @@ def test_nara_normalizes(monkeypatch):
 
 
 def test_nara_missing_dimensions_default_to_zero_and_skips_records_without_digital_objects(monkeypatch):
+    monkeypatch.setenv("NARA_API_KEY", "test-nara-key")
     fake = {"body": {"hits": {"hits": [
         {"_source": {"record": {"naId": "1"}}},
         {"_source": {"record": {"naId": "2", "digitalObjects": [{"objectUrl": "https://catalog.archives.gov/img/2.jpg"}]}}},
