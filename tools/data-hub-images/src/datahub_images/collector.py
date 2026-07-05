@@ -6,6 +6,7 @@ tools/data-hub/src/datahub/collector.py: one broken source or one malformed
 candidate is caught, logged via egress_log, and never aborts the cycle.
 """
 import os
+import time
 from urllib.parse import urlparse
 
 import httpx
@@ -205,6 +206,94 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
         except Exception:
             pass
         return stored
+
+
+def fetch_on_demand(
+    conn, keywords: list[str], bucket: str, settings: Settings,
+    sources: list[Source], now: str, want: int, per_source_limit: int,
+    http=None, timeout_s: float | None = None,
+) -> list[str]:
+    """Fetch up to `want` new images matching `keywords`, tagged with
+    `bucket`, from enabled sources — bounded by a wall-clock timeout so a
+    synchronous caller can never hang. VPN-gated exactly like
+    fetch_and_store (fail-closed). Never raises. Returns the list of
+    newly stored image ids (may be shorter than `want`, including empty).
+    """
+    deadline = time.monotonic() + (timeout_s if timeout_s is not None else settings.on_demand_timeout_s)
+    query = " ".join(keywords) if keywords else bucket
+    topic = Topic(id=bucket, queries=keywords, tags=[])
+    pool_phashes = [img["phash"] for img in store.pool_for_topic(conn, bucket) if img.get("phash")]
+    stored_ids: list[str] = []
+
+    for source in sources:
+        if time.monotonic() >= deadline or len(stored_ids) >= want:
+            break
+        if not source.enabled:
+            continue
+
+        plan = None
+        try:
+            mod = getattr(sources_pkg, source.kind, None)
+            fetcher = getattr(mod, "search", None) if mod else SOURCE_FETCHERS.get(source.kind)
+            if fetcher is None:
+                store.record_egress(
+                    conn, source_id=source.id, target_host="", policy=source.policy,
+                    exit_node="", exit_ip=None, status="error",
+                    note=f"unknown source kind: {source.kind}", ts=now,
+                )
+                continue
+
+            plan = vpn.plan_fetch(source, settings)
+            if not plan.allowed:
+                store.record_egress(
+                    conn, source_id=source.id, target_host=_host(source.url),
+                    policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+                    status="skipped", note=plan.reason, ts=now,
+                )
+                continue
+
+            try:
+                cands = fetcher(query, per_source_limit, plan.proxy)
+            except SourceUnavailable as exc:
+                store.record_egress(
+                    conn, source_id=source.id, target_host=_host(source.url),
+                    policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+                    status="skipped", note=_redacted_note(exc), ts=now,
+                )
+                continue
+
+            cands = cands or []
+            if not isinstance(cands, list):
+                cands = []
+
+            source_stored = 0
+            for cand in cands:
+                if time.monotonic() >= deadline or len(stored_ids) >= want:
+                    break
+                image_id = _process_candidate(conn, source, topic, settings, now, plan, cand, pool_phashes, http)
+                if image_id:
+                    stored_ids.append(image_id)
+                    source_stored += 1
+
+            store.record_egress(
+                conn, source_id=source.id, target_host=_host(source.url),
+                policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+                status="ok", item_count=source_stored, ts=now,
+            )
+        except Exception as exc:  # per-source isolation — one dead source must not abort the broker
+            exit_node = plan.exit_node if plan else ""
+            exit_ip = plan.exit_ip if plan else None
+            try:
+                store.record_egress(
+                    conn, source_id=source.id, target_host=_host(source.url),
+                    policy=source.policy, exit_node=exit_node, exit_ip=exit_ip,
+                    status="error", note=_redacted_note(exc), ts=now,
+                )
+            except Exception:
+                pass
+            continue
+
+    return stored_ids
 
 
 def _topics_by_id(topics: list[Topic]) -> dict:

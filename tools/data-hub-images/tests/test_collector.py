@@ -440,3 +440,197 @@ def test_process_candidate_records_error_egress_on_exception(tmp_path, monkeypat
     row = dict(rows[0])
     assert row["status"] == "error"
     assert "network exploded" in row["note"]
+
+
+def test_fetch_on_demand_stores_images_tagged_with_bucket(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: [
+            dict(
+                source_image_key="k1", url="http://img/1.jpg",
+                width=1300, height=800, license="cc0",
+                credit={"source": "Wikimedia"}, tags=["hormuz"],
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+
+    ids = collector.fetch_on_demand(
+        conn, ["Strait", "of", "Hormuz"], "strait-of-hormuz", st, srcs,
+        "2026-07-05T00:00:00Z", want=1, per_source_limit=4,
+    )
+
+    assert len(ids) == 1
+    img = store.get_image(conn, ids[0])
+    assert img["topics"] == ["strait-of-hormuz"]
+    assert store.pool_depth(conn, "strait-of-hormuz") == 1
+
+
+def test_fetch_on_demand_stops_once_want_reached(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    def _many(q, limit, proxy, client=None):
+        return [
+            dict(source_image_key=f"k{i}", url=f"http://img/{i}.jpg",
+                 width=1300, height=800, license="cc0",
+                 credit={"source": "Wikimedia"}, tags=["hormuz"])
+            for i in range(limit)
+        ]
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _many)
+
+    calls = {"n": 0}
+
+    def _download(url, proxy, http):
+        calls["n"] += 1
+        return _jpg(), "jpg"
+
+    monkeypatch.setattr("datahub_images.collector._download", _download)
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+
+    ids = collector.fetch_on_demand(
+        conn, ["hormuz"], "hormuz", st, srcs, "2026-07-05T00:00:00Z",
+        want=1, per_source_limit=4,
+    )
+
+    assert len(ids) == 1
+    assert calls["n"] == 1  # stopped after the first stored candidate
+
+
+def test_fetch_on_demand_vpn_denied_fetches_nothing(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(False, None, "us", None, "vpn-down"),
+    )
+    fetcher_called = {"n": 0}
+
+    def _fetcher(q, limit, proxy, client=None):
+        fetcher_called["n"] += 1
+        return []
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _fetcher)
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+
+    ids = collector.fetch_on_demand(
+        conn, ["hormuz"], "hormuz", st, srcs, "2026-07-05T00:00:00Z",
+        want=1, per_source_limit=4,
+    )
+
+    assert ids == []
+    assert fetcher_called["n"] == 0  # denied before the fetcher is ever called
+
+    rows = conn.execute(
+        "SELECT * FROM egress_log WHERE source_id = ?", ("wikimedia",)
+    ).fetchall()
+    assert len(rows) == 1
+    assert dict(rows[0])["status"] == "skipped"
+
+
+def test_fetch_on_demand_source_exception_isolated(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    def _boom(q, limit, proxy, client=None):
+        raise RuntimeError("source down")
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _boom)
+    monkeypatch.setattr(
+        "datahub_images.sources.pexels.search",
+        lambda q, limit, proxy, client=None: [
+            dict(source_image_key="k1", url="http://img/1.jpg",
+                 width=1300, height=800, license="cc0",
+                 credit={"source": "Pexels"}, tags=["hormuz"])
+        ],
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia"), Source(id="pexels", kind="pexels")]
+
+    # Must not raise, and the second (working) source must still be tried.
+    ids = collector.fetch_on_demand(
+        conn, ["hormuz"], "hormuz", st, srcs, "2026-07-05T00:00:00Z",
+        want=1, per_source_limit=4,
+    )
+
+    assert len(ids) == 1
+
+
+def test_fetch_on_demand_respects_timeout(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+
+    fetcher_calls = {"n": 0}
+
+    def _fetcher(q, limit, proxy, client=None):
+        fetcher_calls["n"] += 1
+        return [
+            dict(source_image_key=f"k{fetcher_calls['n']}", url="http://img/1.jpg",
+                 width=1300, height=800, license="cc0",
+                 credit={"source": "Wikimedia"}, tags=["hormuz"])
+        ]
+
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search", _fetcher)
+    monkeypatch.setattr("datahub_images.sources.pexels.search", _fetcher)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia"), Source(id="pexels", kind="pexels")]
+
+    # want=99 (unreachable) + a 0-second timeout ⇒ the loop must bail
+    # before exhausting every source, proving the deadline is honored.
+    ids = collector.fetch_on_demand(
+        conn, ["hormuz"], "hormuz", st, srcs, "2026-07-05T00:00:00Z",
+        want=99, per_source_limit=4, timeout_s=0.0,
+    )
+
+    assert fetcher_calls["n"] <= 1
