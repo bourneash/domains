@@ -416,3 +416,16 @@ def test_health_stats_sources_passthrough(stub_factory):
     c = DataHubImagesClient(base_url=stub.base_url)
     h = c.health()
     assert h["ok"] is True
+
+
+def test_cli_bare_words_are_keywords():
+    """Node-parity: `--site x mount fuji` treats bare words as keywords."""
+    import datahub_images_client as m
+    p = m._build_arg_parser()
+    args = p.parse_args(["--site", "x", "mount", "fuji"])
+    kws = list(args.keyword or [])
+    if args.keywords:
+        kws.extend(m.normalize_keywords(args.keywords))
+    if args.keywords_pos:
+        kws.extend(m.normalize_keywords(args.keywords_pos))
+    assert kws == ["mount", "fuji"]

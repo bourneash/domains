@@ -35,8 +35,12 @@ Request body (JSON):
 | field | type | required | default | notes |
 |---|---|---|---|---|
 | `site` | string | **yes** | — | Consuming site key. Drives server-side reuse/dedup. |
-| `keywords` | string[] | one of keywords/topic | `[]` | Subject terms. The bucket is derived from these (lowercased, non-alphanumerics → `-`). |
-| `topic` | string | one of keywords/topic | `null` | Registered topic id, used **verbatim** as the bucket. If given without `keywords`, the topic's configured queries are used to fetch. |
+| `keywords` | string[] | one of keywords/topic † | `[]` | Subject terms. The bucket is derived from these (lowercased, non-alphanumerics → `-`). |
+| `topic` | string | one of keywords/topic † | `null` | Registered topic id, used **verbatim** as the bucket. If given without `keywords`, the topic's configured queries are used to fetch. |
+
+† The server does not 422 if both are omitted — it buckets into `"misc"`. The
+supplied clients enforce "at least one of keywords/topic" on the caller's behalf;
+raw HTTP consumers should do the same.
 | `count` | int | no | `1` | How many images to return. |
 | `slug` | string | no | `null` | Page/article slug. Reuse won't repeat an image within a slug. |
 | `async` | bool | no | `false` | Queue instead of fetching synchronously. (JSON key is `async`.) |

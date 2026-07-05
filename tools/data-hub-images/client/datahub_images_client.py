@@ -461,6 +461,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--health", action="store_true", help="Print broker health and exit")
     p.add_argument("--stats", action="store_true", help="Print broker stats and exit")
     p.add_argument("--sources", action="store_true", help="Print broker sources and exit")
+    # Bare words are treated as keywords (parity with the Node CLI), so
+    # `--site x mount fuji` works the same in both.
+    p.add_argument("keywords_pos", nargs="*", default=[], metavar="KEYWORD",
+                   help="Bare keyword terms (equivalent to --keyword)")
     return p
 
 
@@ -476,6 +480,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     keywords: list[str] = list(args.keyword or [])
     if args.keywords:
         keywords.extend(normalize_keywords(args.keywords))
+    if args.keywords_pos:
+        keywords.extend(normalize_keywords(args.keywords_pos))
 
     if args.count is not None and (not isinstance(args.count, int) or args.count < 1):
         print("--count must be a positive integer", file=sys.stderr)
