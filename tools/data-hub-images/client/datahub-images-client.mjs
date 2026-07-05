@@ -31,11 +31,14 @@ const DEFAULT_META_TIMEOUT_MS = 15_000;
  *  request that simply found no image is NOT an error — it resolves normally
  *  with an empty `images` array and a `note`. */
 export class DataHubImagesError extends Error {
-  constructor(message, { status, cause } = {}) {
+  constructor(message, { status, cause, retryable } = {}) {
     super(message);
     this.name = 'DataHubImagesError';
     if (status !== undefined) this.status = status;
     if (cause !== undefined) this.cause = cause;
+    // Deterministic client-side errors (arg validation) set retryable=false so
+    // the sourceImage() retry loop surfaces them immediately instead of sleeping.
+    if (retryable !== undefined) this.retryable = retryable;
   }
 }
 
@@ -116,19 +119,7 @@ export class DataHubImagesClient {
    * @param {boolean} [body.async_=false] Queue instead of fetching synchronously.
    */
   async request(body = {}) {
-    const site = body.site;
-    if (!site || typeof site !== 'string') {
-      throw new DataHubImagesError('request: `site` is required (string)');
-    }
-    const keywords = normalizeKeywords(body.keywords);
-    const topic = body.topic;
-    if (!keywords.length && !topic) {
-      throw new DataHubImagesError('request: provide `keywords` (non-empty) or a registered `topic`');
-    }
-    const count = body.count ?? 1;
-    if (!Number.isInteger(count) || count < 1) {
-      throw new DataHubImagesError('request: `count` must be a positive integer');
-    }
+    const { site, keywords, topic, count } = validateRequestArgs(body);
     const payload = { site, keywords, count };
     if (body.slug) payload.slug = body.slug;
     if (topic) payload.topic = topic;
@@ -239,6 +230,8 @@ export class DataHubImagesClient {
    */
   async sourceImage(args = {}) {
     const { destDir, filename, async_ = false, waitOpts } = args;
+    // Fail fast on bad args — deterministic, so never enter the retry loop with them.
+    validateRequestArgs(args);
 
     if (async_) {
       const created = await this.request({ ...args, async_: true });
@@ -267,7 +260,10 @@ export class DataHubImagesClient {
         body = await this.request(args);
       } catch (err) {
         // Retry only transient transport failures (5xx / network / timeout).
-        const transient = !(err instanceof DataHubImagesError) || err.status === undefined || err.status >= 500;
+        // A validation error (retryable:false) or a 4xx is deterministic — rethrow now.
+        const nonRetryable = err instanceof DataHubImagesError &&
+          (err.retryable === false || (typeof err.status === 'number' && err.status < 500));
+        const transient = !nonRetryable;
         if (transient && attempt < this.retries) {
           await this._sleep(this.retryBaseMs * 2 ** attempt);
           continue;
@@ -321,17 +317,54 @@ export class DataHubImagesClient {
         height: img.height,
       };
       if (destDir && img.id) {
-        const name = filename ? filename(img, i) : `${img.id}.jpg`;
+        // Fetch first so the extension can follow the real content-type
+        // (the broker serves jpg/png/webp/gif). A caller-supplied filename wins as-is.
+        const buf = await this.getImageBuffer(img.id);
+        const name = filename ? filename(img, i) : `${img.id}.${extForContentType(buf.contentType)}`;
         const dest = path.join(destDir, name);
-        const dl = await this.downloadImage(img.id, dest);
-        rec.path = dl.path;
-        rec.bytes = dl.bytes;
-        rec.contentType = dl.contentType;
+        await fs.mkdir(path.dirname(path.resolve(dest)), { recursive: true });
+        await fs.writeFile(dest, buf);
+        rec.path = dest;
+        rec.bytes = buf.length;
+        rec.contentType = buf.contentType || '';
       }
       out.push(rec);
     }
     return out;
   }
+}
+
+/** Validate + normalize request args. Throws DataHubImagesError (no `.status` —
+ *  these are deterministic client bugs, so callers must NOT retry them). Returns
+ *  the cleaned `{site, keywords, topic, count}`. */
+export function validateRequestArgs(body = {}) {
+  const site = body.site;
+  if (!site || typeof site !== 'string') {
+    throw new DataHubImagesError('request: `site` is required (string)', { retryable: false });
+  }
+  const keywords = normalizeKeywords(body.keywords);
+  const topic = body.topic;
+  if (!keywords.length && !topic) {
+    throw new DataHubImagesError('request: provide `keywords` (non-empty) or a registered `topic`', { retryable: false });
+  }
+  const count = body.count ?? 1;
+  if (!Number.isInteger(count) || count < 1) {
+    throw new DataHubImagesError('request: `count` must be a positive integer', { retryable: false });
+  }
+  return { site, keywords, topic, count };
+}
+
+const EXT_BY_CONTENT_TYPE = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
+
+/** Map an image content-type to a file extension; unknown → `img`. */
+export function extForContentType(contentType) {
+  const ct = (contentType || '').split(';')[0].trim().toLowerCase();
+  return EXT_BY_CONTENT_TYPE[ct] || 'img';
 }
 
 /** Normalize keywords into a clean string[] from an array or a comma/space string. */
@@ -392,7 +425,12 @@ function parseArgs(argv) {
       case '--slug': a.slug = next(); break;
       case '--out': a.out = next(); break;
       case '--base': a.base = next(); break;
-      case '--count': a.count = Number(next()); break;
+      case '--count': {
+        const v = Number(next());
+        if (!Number.isInteger(v) || v < 1) { a._error = '--count must be a positive integer'; }
+        else { a.count = v; }
+        break;
+      }
       case '--keyword': a.keywords.push(next()); break;
       case '--keywords': a.keywords.push(...normalizeKeywords(next())); break;
       default:

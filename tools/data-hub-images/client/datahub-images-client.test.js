@@ -9,7 +9,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import { DataHubImagesClient, DataHubImagesError, normalizeKeywords } from './datahub-images-client.mjs';
+import { DataHubImagesClient, DataHubImagesError, normalizeKeywords, validateRequestArgs, extForContentType } from './datahub-images-client.mjs';
 
 // A 1x1 JPEG-ish byte blob (content-type is what the client checks, not validity).
 const FAKE_JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
@@ -60,6 +60,52 @@ test('normalizeKeywords: array, comma string, space string, junk', () => {
   assert.deepEqual(normalizeKeywords('mount fuji'), ['mount', 'fuji']);
   assert.deepEqual(normalizeKeywords(undefined), []);
   assert.deepEqual(normalizeKeywords(42), []);
+});
+
+test('validateRequestArgs: marks arg errors non-retryable', () => {
+  assert.throws(() => validateRequestArgs({ keywords: ['x'] }), (e) => e.retryable === false);
+  assert.throws(() => validateRequestArgs({ site: 'd' }), (e) => e.retryable === false);
+  assert.throws(() => validateRequestArgs({ site: 'd', keywords: ['x'], count: 0 }), (e) => e.retryable === false);
+  assert.deepEqual(validateRequestArgs({ site: 'd', keywords: 'a b' }), { site: 'd', keywords: ['a', 'b'], topic: undefined, count: 1 });
+});
+
+test('extForContentType: maps known types, falls back to img', () => {
+  assert.equal(extForContentType('image/jpeg'), 'jpg');
+  assert.equal(extForContentType('image/png'), 'png');
+  assert.equal(extForContentType('image/webp; charset=binary'), 'webp');
+  assert.equal(extForContentType('image/gif'), 'gif');
+  assert.equal(extForContentType('application/octet-stream'), 'img');
+  assert.equal(extForContentType(''), 'img');
+});
+
+test('sourceImage: invalid args throw immediately — no fetch, no retry sleeps', async () => {
+  let fetches = 0, sleeps = 0;
+  const c = new DataHubImagesClient({
+    baseUrl: 'http://127.0.0.1:1',
+    retries: 3,
+    fetch: () => { fetches++; throw new Error('nope'); },
+    _sleep: () => { sleeps++; return Promise.resolve(); },
+  });
+  await assert.rejects(() => c.sourceImage({ site: 'x', keywords: [], count: 0 }), (e) => e.retryable === false);
+  assert.equal(fetches, 0);
+  assert.equal(sleeps, 0);
+});
+
+test('sourceImage: download extension follows content-type (png/webp, not .jpg)', async () => {
+  const types = { png: 'image/png', webp: 'image/webp' };
+  for (const [ext, ct] of Object.entries(types)) {
+    const stub = await startStub({
+      'POST /request': (req, res) => json(res, { images: [{ id: `id_${ext}`, url: `/image/id_${ext}`, width: 1, height: 1 }] }),
+      'GET /image/': (req, res) => { res.writeHead(200, { 'content-type': ct }); res.end(FAKE_JPEG); },
+    });
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'dhi-ext-'));
+    try {
+      const c = new DataHubImagesClient({ baseUrl: stub.baseUrl });
+      const r = await c.sourceImage({ site: 'demo', keywords: ['x'], destDir: dir });
+      assert.ok(r.images[0].path.endsWith(`.${ext}`), `expected .${ext}, got ${r.images[0].path}`);
+      await fs.access(r.images[0].path);
+    } finally { await stub.close(); await fs.rm(dir, { recursive: true, force: true }); }
+  }
 });
 
 test('request: sync happy path returns broker JSON verbatim', async () => {
