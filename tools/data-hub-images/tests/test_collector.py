@@ -5,6 +5,7 @@ from PIL import Image
 
 from datahub_images import collector, store
 from datahub_images.config import Source, Topic, Settings
+from datahub_images.sources import USER_AGENT
 
 
 def _jpg():
@@ -332,3 +333,35 @@ def test_vpn_source_threads_planned_proxy_into_fetcher_and_download(tmp_path, mo
     assert seen_fetcher_proxy["proxy"] == planned_proxy
     assert seen_download_proxy["proxy"] == planned_proxy
     assert planned_proxy is not None
+
+
+class _FakeDownloadClient:
+    """Records headers seen on .get(); returns a canned image response."""
+
+    def __init__(self, content=b"fake-bytes"):
+        self._content = content
+        self.calls = []
+
+    def get(self, url, headers=None, timeout=None):
+        self.calls.append({"url": url, "headers": headers or {}})
+
+        class _Resp:
+            def __init__(self, content):
+                self.content = content
+
+            def raise_for_status(self):
+                pass
+
+        return _Resp(self._content)
+
+    def close(self):
+        pass
+
+
+def test_download_sends_descriptive_user_agent():
+    client = _FakeDownloadClient()
+    data, ext = collector._download("https://upload.wikimedia.org/x.jpg", None, http=client)
+    assert data == b"fake-bytes"
+    assert ext == "jpg"
+    assert len(client.calls) == 1
+    assert client.calls[0]["headers"].get("User-Agent") == USER_AGENT

@@ -1,5 +1,22 @@
 """Image source adapter framework + dispatch registry."""
+import os
+import time
+
 import httpx
+
+# Wikimedia blocklists library User-Agents (e.g. `python-httpx/0.28.1`) and
+# requires a descriptive UA with contact info; LoC also requests one. A single
+# shared, env-overridable UA benefits every adapter, not just those two.
+USER_AGENT = os.environ.get(
+    "DATAHUB_IMAGES_USER_AGENT",
+    "DataHubImages/1.0 (+https://americastrikes.com; contact: tips@americastrikes.com)",
+)
+
+# Bounded retry on 403/429 (rate-limiting / transient blocks). Kept small and
+# the sleep is a patchable module attribute so tests never actually sleep.
+_MAX_RETRIES = 2
+_RETRY_BACKOFF = (0.5, 1.0)
+_sleep = time.sleep
 
 
 class SourceUnavailable(Exception):
@@ -11,10 +28,17 @@ def _get_json(url: str, proxy: str | None = None, headers: dict | None = None,
               timeout: float = 20, client: httpx.Client | None = None) -> dict:
     owns = client is None
     client = client or httpx.Client(proxy=proxy)
+    merged_headers = {"User-Agent": USER_AGENT, **(headers or {})}
     try:
-        r = client.get(url, headers=headers, timeout=timeout)
-        r.raise_for_status()
-        return r.json()
+        attempt = 0
+        while True:
+            r = client.get(url, headers=merged_headers, timeout=timeout)
+            if r.status_code in (403, 429) and attempt < _MAX_RETRIES:
+                _sleep(_RETRY_BACKOFF[attempt])
+                attempt += 1
+                continue
+            r.raise_for_status()
+            return r.json()
     finally:
         if owns:
             client.close()
