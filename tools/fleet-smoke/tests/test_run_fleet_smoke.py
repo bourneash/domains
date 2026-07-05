@@ -104,6 +104,39 @@ def test_check_one_site_returns_false_on_failing_check(tmp_path):
     assert ok is False
 
 
+def test_check_one_site_posts_slack_on_exception(tmp_path):
+    """Exception in run_checks_fn should still trigger a Slack alert when enabled,
+    not silently skip notification (a DoH outage shouldn't kill fleet alerting)."""
+    site_dir, config_path = _write_config(tmp_path, "error-slack.com", """\
+        apex: error-slack.com
+        slack:
+          enabled: true
+          channel_env: SLACK_CHANNEL_TEST_ERR
+        checks: []
+    """)
+    os.environ["SLACK_CHANNEL_TEST_ERR"] = "domain-error-slack-com"
+    posted = []
+
+    def failing_check_fn(config, run_curl=None, http_get=None):
+        raise RuntimeError("DoH endpoint unreachable")
+
+    def fake_post(channel, text, color, token, post_fn=None):
+        posted.append((channel, color, text))
+        return True
+
+    ok = check_one_site(
+        site_dir, config_path, str(tmp_path / "state"),
+        slack_token="xoxb-fake", run_checks_fn=failing_check_fn, post_fn=fake_post,
+    )
+
+    assert ok is False
+    assert len(posted) == 1
+    channel, color, text = posted[0]
+    assert channel == "domain-error-slack-com"
+    assert color == "danger"
+    assert isinstance(text, str) and text
+
+
 def test_main_reports_no_sites_found(tmp_path, capsys):
     exit_code = main(["--sites-dir", str(tmp_path / "empty"), "--state-dir", str(tmp_path / "state")])
     assert exit_code == 0

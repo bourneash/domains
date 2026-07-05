@@ -40,7 +40,13 @@ def check_one_site(site_dir, config_path, state_dir, slack_token,
         results = run_checks_fn(config)
     except Exception as exc:
         print(f"[{site_name}] ERROR running checks: {exc}")
-        return False
+        results = [{
+            "label": "Check run",
+            "path": "",
+            "expect": "n/a",
+            "actual": str(exc),
+            "ok": False,
+        }]
 
     fail_count = sum(1 for r in results if not r["ok"])
     prev = load_state(state_dir, site_name)
