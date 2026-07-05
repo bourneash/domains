@@ -41,6 +41,8 @@ class Settings:
     api_port: int
     on_demand_timeout_s: float = 25.0
     on_demand_per_source_limit: int = 4
+    on_demand_max_concurrent: int = 3
+    on_demand_acquire_timeout_s: float = 20.0
 
     @classmethod
     def from_env(cls):
@@ -60,6 +62,10 @@ class Settings:
             api_port=int(os.environ.get("DATAHUB_IMAGES_API_PORT", "4770")),
             on_demand_timeout_s=float(os.environ.get("DATAHUB_IMAGES_ON_DEMAND_TIMEOUT_S", "25.0")),
             on_demand_per_source_limit=int(os.environ.get("DATAHUB_IMAGES_ON_DEMAND_PER_SOURCE_LIMIT", "4")),
+            on_demand_max_concurrent=int(os.environ.get("DATAHUB_IMAGES_ON_DEMAND_MAX_CONCURRENT", "3")),
+            on_demand_acquire_timeout_s=float(
+                os.environ.get("DATAHUB_IMAGES_ON_DEMAND_ACQUIRE_TIMEOUT_S", "20.0")
+            ),
         )
 
 
