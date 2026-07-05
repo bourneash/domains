@@ -13,7 +13,7 @@ import httpx
 from . import blob, reuse, scoring, store, vpn
 from . import sources as sources_pkg
 from .config import Settings, Source, Topic
-from .sources import SOURCE_FETCHERS, SourceUnavailable, _redact
+from .sources import SOURCE_FETCHERS, USER_AGENT, SourceUnavailable, _redact
 
 CANDIDATES_PER_SOURCE = 5
 
@@ -50,7 +50,7 @@ def _download(url: str, proxy: str | None, http=None) -> tuple[bytes, str]:
     owns = http is None
     client = http or httpx.Client(proxy=proxy, timeout=20.0)
     try:
-        r = client.get(url, timeout=20.0)
+        r = client.get(url, headers={"User-Agent": USER_AGENT}, timeout=20.0)
         r.raise_for_status()
         ext = (urlparse(url).path.rsplit(".", 1)[-1] or "jpg").lower()
         if not ext.isalnum() or len(ext) > 5:
