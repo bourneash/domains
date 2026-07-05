@@ -110,3 +110,37 @@ test('GET /api/datahub-images/image/:id returns 404 JSON when the upstream is un
   const body = JSON.parse(res.buffer.toString('utf8'));
   assert.deepEqual(body, { error: 'image unavailable' });
 });
+
+test('GET /api/datahub-images/image/:id validates content-type and sets nosniff header', async (t) => {
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: (k) => (k === 'content-type' ? 'text/html' : null) },
+    arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+  });
+  const app = createApp();
+  const server = app.listen(0);
+  t.after(() => server.close());
+  const res = await request(server, 'GET', '/api/datahub-images/image/xyz');
+  assert.equal(res.status, 200);
+  assert.equal(res.headers['content-type'], 'application/octet-stream');
+  assert.equal(res.headers['x-content-type-options'], 'nosniff');
+  assert.deepEqual([...res.buffer], [1, 2, 3]);
+});
+
+test('GET /api/datahub-images/image/:id preserves image/* content-type and sets nosniff header', async (t) => {
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: (k) => (k === 'content-type' ? 'image/webp' : null) },
+    arrayBuffer: async () => new Uint8Array([9, 9, 9]).buffer,
+  });
+  const app = createApp();
+  const server = app.listen(0);
+  t.after(() => server.close());
+  const res = await request(server, 'GET', '/api/datahub-images/image/abc');
+  assert.equal(res.status, 200);
+  assert.equal(res.headers['content-type'], 'image/webp');
+  assert.equal(res.headers['x-content-type-options'], 'nosniff');
+  assert.deepEqual([...res.buffer], [9, 9, 9]);
+});

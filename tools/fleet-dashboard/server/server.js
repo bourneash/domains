@@ -104,7 +104,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/datahub-images/image/:id', async (req, res) => {
     const r = await datahubImages.imageBytes(req.params.id);
     if (!r.ok) return res.status(404).json({ error: 'image unavailable' });
-    res.setHeader('content-type', r.contentType);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    const contentType = typeof r.contentType === 'string' && r.contentType.startsWith('image/') ? r.contentType : 'application/octet-stream';
+    res.setHeader('content-type', contentType);
     res.send(r.buffer);
   });
 
