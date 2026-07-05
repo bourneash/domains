@@ -55,6 +55,7 @@
   policy: direct
   exit: any
   enabled: true
+  key_env: NARA_API_KEY
 
 - id: loc
   kind: loc

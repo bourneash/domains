@@ -60,11 +60,11 @@ def test_get_json_merges_user_agent_without_clobbering_caller_headers():
 def test_get_json_retries_on_403_then_succeeds(monkeypatch):
     sleeps = []
     monkeypatch.setattr("datahub_images.sources._sleep", lambda s: sleeps.append(s))
-    client = _FakeClient([_FakeResponse(403), _FakeResponse(403), _FakeResponse(200, {"ok": True})])
+    client = _FakeClient([_FakeResponse(403), _FakeResponse(403), _FakeResponse(403), _FakeResponse(200, {"ok": True})])
     out = _get_json("https://example.test/x", client=client)
     assert out == {"ok": True}
-    assert len(client.calls) == 3
-    assert len(sleeps) == 2
+    assert len(client.calls) == 4
+    assert sleeps == [1, 2, 4]
 
 
 def test_get_json_retries_on_429_then_succeeds(monkeypatch):
@@ -79,12 +79,12 @@ def test_get_json_retries_on_429_then_succeeds(monkeypatch):
 def test_get_json_persistent_403_raises_after_bounded_retries(monkeypatch):
     sleeps = []
     monkeypatch.setattr("datahub_images.sources._sleep", lambda s: sleeps.append(s))
-    client = _FakeClient([_FakeResponse(403), _FakeResponse(403), _FakeResponse(403)])
+    client = _FakeClient([_FakeResponse(403), _FakeResponse(403), _FakeResponse(403), _FakeResponse(403)])
     with pytest.raises(httpx.HTTPStatusError):
         _get_json("https://example.test/x", client=client)
-    # 1 initial attempt + 2 retries = 3 calls total, no more
-    assert len(client.calls) == 3
-    assert len(sleeps) == 2
+    # 1 initial attempt + 3 retries = 4 calls total, no more
+    assert len(client.calls) == 4
+    assert sleeps == [1, 2, 4]
 
 
 def test_get_json_does_not_retry_on_other_error_status(monkeypatch):

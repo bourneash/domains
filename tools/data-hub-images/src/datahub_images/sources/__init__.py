@@ -14,8 +14,8 @@ USER_AGENT = os.environ.get(
 
 # Bounded retry on 403/429 (rate-limiting / transient blocks). Kept small and
 # the sleep is a patchable module attribute so tests never actually sleep.
-_MAX_RETRIES = 2
-_RETRY_BACKOFF = (0.5, 1.0)
+_MAX_RETRIES = 3
+_RETRY_BACKOFF = (1, 2, 4)
 _sleep = time.sleep
 
 

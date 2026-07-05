@@ -1,15 +1,26 @@
-"""U.S. National Archives (NARA) catalog search adapter — keyless, public domain."""
+"""U.S. National Archives (NARA) catalog search adapter — keyed (NARA_API_KEY).
+
+catalog.archives.gov's v2 records-search API requires an `x-api-key` header
+(free key via email to Catalog_API@nara.gov). Without one it returns the
+catalog's HTML app shell (HTTP 200 text/html) instead of JSON.
+"""
+import os
 from urllib.parse import urlencode
 
-from . import _get_json
+from . import SourceUnavailable, _get_json
 
 BASE = "https://catalog.archives.gov/api/v2/records/search"
 
 
 def search(query: str, limit: int, proxy: str | None, client=None) -> list[dict]:
+    key = os.environ.get("NARA_API_KEY")
+    if not key:
+        raise SourceUnavailable("no-api-key")
+
     params = {"q": query, "limit": str(limit)}
     url = f"{BASE}?{urlencode(params)}"
-    data = _get_json(url, proxy=proxy, client=client)
+    headers = {"x-api-key": key, "Accept": "application/json"}
+    data = _get_json(url, proxy=proxy, headers=headers, client=client)
 
     hits = (((data.get("body") or {}).get("hits") or {}).get("hits")) or []
 
