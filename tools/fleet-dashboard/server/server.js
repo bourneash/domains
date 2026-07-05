@@ -15,6 +15,7 @@ const roles = require('./roles');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
 const datahub = require('./datahub');
+const datahubImages = require('./datahub-images');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -65,6 +66,46 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/datahub/matrix', (_req, res) => {
     try { res.json(datahub.matrix()); }
     catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+  });
+
+  // Data Hub Images routes — proxy over the data-hub-images FastAPI service
+  // (tools/data-hub-images, :4770). Same degrade-to-200 convention as
+  // /api/datahub/* above: proxied reads never throw, so they never 500.
+  app.get('/api/datahub-images/health', async (_req, res) => res.json(await datahubImages.health()));
+  app.get('/api/datahub-images/stats', async (_req, res) => res.json(await datahubImages.stats()));
+  app.get('/api/datahub-images/sources', async (_req, res) => res.json(await datahubImages.sources()));
+  app.get('/api/datahub-images/egress', async (req, res) => {
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 200, 300));
+    res.json(await datahubImages.egress(limit));
+  });
+  app.get('/api/datahub-images/pulls', async (req, res) => {
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 200, 300));
+    res.json(await datahubImages.pulls(limit));
+  });
+  app.get('/api/datahub-images/images', async (req, res) => {
+    res.json(await datahubImages.images({
+      topic: req.query.topic, site: req.query.site,
+      status: req.query.status, limit: req.query.limit,
+    }));
+  });
+  app.post('/api/datahub-images/sources/:id/enabled', async (req, res) => {
+    const enabled = !!(req.body && req.body.enabled);
+    res.json(await datahubImages.setSourceEnabled(req.params.id, enabled));
+  });
+  app.post('/api/datahub-images/images/:id/blacklist', async (req, res) => {
+    res.json(await datahubImages.blacklistImage(req.params.id));
+  });
+  app.post('/api/datahub-images/images/:id/reject', async (req, res) => {
+    res.json(await datahubImages.rejectImage(req.params.id));
+  });
+  // Binary passthrough — the thumbnail source. Never a JSON 200 on failure
+  // (there's no useful degraded image), so this is the one datahub-images
+  // route that returns a non-200 status when the upstream is unreachable.
+  app.get('/api/datahub-images/image/:id', async (req, res) => {
+    const r = await datahubImages.imageBytes(req.params.id);
+    if (!r.ok) return res.status(404).json({ error: 'image unavailable' });
+    res.setHeader('content-type', r.contentType);
+    res.send(r.buffer);
   });
 
   app.get('/api/sites', (_req, res) => res.json(discoverSites(root)));
