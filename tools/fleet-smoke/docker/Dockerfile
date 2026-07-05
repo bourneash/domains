@@ -25,7 +25,7 @@ RUN addgroup -g 1000 fleet && \
 
 COPY lib/ /fleet/lib/
 COPY run_fleet_smoke.py /fleet/run_fleet_smoke.py
-COPY docker/crontab /etc/crontab.docker
+COPY crontab.docker /etc/crontab.docker
 
 RUN chown -R fleet:fleet /fleet
 USER fleet

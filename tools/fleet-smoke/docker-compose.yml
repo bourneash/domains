@@ -1,11 +1,17 @@
 # tools/fleet-smoke/docker-compose.yml
+name: fleet-smoke
+
 services:
   fleet-smoke-cron:
     build:
       context: .
       dockerfile: docker/Dockerfile
     image: fleet-smoke-cron:latest
-    container_name: fleet-smoke-cron
+    # container_name matches the tools/<slug> directory name — this is the
+    # convention tools/fleet-dashboard's cron discovery relies on for `tools/*`
+    # entries (it assumes container === slug, unlike the `sites/*` convention
+    # which reads the real container_name out of docker-compose.yml).
+    container_name: fleet-smoke
     restart: unless-stopped
     env_file:
       - ../../.env
