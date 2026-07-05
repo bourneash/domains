@@ -1666,8 +1666,221 @@ async function dhToggleSource(id, currentlyEnabled, btn) {
   softRender();
 }
 
+/* ===== DATA HUB IMAGES ===== */
+
+function dhiBadge(status) {
+  const s = String(status || '');
+  let cls = 'dhi-b';
+  if (s === 'ok' || s === 'active') cls += ' dhi-ok';
+  else if (s.startsWith('skipped') || s === 'pending') cls += ' dhi-skip';
+  else if (s === 'error' || s.startsWith('error') || s === 'blacklisted' || s === 'deleted') cls += ' dhi-err';
+  return `<span class="${cls}">${esc(s || '—')}</span>`;
+}
+
+function dhiPathBadge(policy, exitNode) {
+  if (policy === 'direct') return `<span class="dhi-path dhi-direct">direct</span>`;
+  return `<span class="dhi-path dhi-vpn">vpn:${esc(exitNode || '?')}</span>`;
+}
+
+function dhiCountTable(title, counts) {
+  const rows = Object.entries(counts || {}).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `<tr><td>${esc(k || '—')}</td><td><b>${esc(String(v))}</b></td></tr>`).join('');
+  return `
+    <div class="dhi-countblock">
+      <div class="dhi-countblock-h">${esc(title)}</div>
+      <table class="dhi-counts"><tbody>${rows || '<tr><td colspan="2" class="muted">none</td></tr>'}</tbody></table>
+    </div>`;
+}
+
+async function renderDataHubImages() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="muted">loading data hub images…</div>';
+  const [health, stats, imgs, src, eg, pl] = await Promise.all([
+    api('GET', '/api/datahub-images/health'),
+    api('GET', '/api/datahub-images/stats'),
+    api('GET', '/api/datahub-images/images?limit=100'),
+    api('GET', '/api/datahub-images/sources'),
+    api('GET', '/api/datahub-images/egress?limit=80'),
+    api('GET', '/api/datahub-images/pulls?limit=80'),
+  ]);
+
+  const hubDown = health && health.ok === false;
+
+  // ---- Panel 1: VPN Health ----
+  let healthHtml;
+  if (hubDown) {
+    healthHtml = `<div class="dhi-down">⚠ Data hub images API unreachable — ${esc(health.error || 'is the datahub-images-api container running?')}</div>`;
+  } else {
+    const vpn = health.vpn || {};
+    const cell = (name, ip) => {
+      const cls = ip ? 'dhi-ok' : 'dhi-err';
+      return `<div class="dhi-node"><span class="dhi-node-name">${esc(name)}</span> <span class="dhi-b ${cls}">${ip ? esc(ip) : 'down'}</span></div>`;
+    };
+    healthHtml = `
+      <div class="dhi-health">
+        ${cell('US exit', vpn.us)}
+        ${cell('EU exit', vpn.eu)}
+        <div class="dhi-counts">db <b>${health.db ? 'ok' : 'down'}</b> · generated <b>${esc((health.generated_at || '').replace('T', ' ').slice(0, 19))}</b></div>
+      </div>`;
+  }
+
+  // ---- Panel 2: Pool Stats ----
+  const statsHtml = hubDown ? '<div class="muted">unavailable</div>' : `
+    <div class="dhi-stats-grid">
+      ${dhiCountTable('by topic', stats.pool_by_topic)}
+      ${dhiCountTable('by source', stats.pool_by_source)}
+      ${dhiCountTable('by license', stats.pool_by_license)}
+      ${dhiCountTable('requests by status', stats.requests_by_status)}
+    </div>`;
+
+  // ---- Panel 3: Recent Images (thumbnail grid + curation actions) ----
+  const images = (imgs && imgs.images) || [];
+  const thumbs = images.map((im) => {
+    const credit = im.credit || {};
+    const creditLine = credit.photographer || credit.source
+      ? `${esc(credit.photographer || '')}${credit.photographer && credit.source ? ' · ' : ''}${esc(credit.source || '')}`
+      : esc(im.source_id || '');
+    return `
+      <div class="dhi-thumb" data-rk="dhi-img-${esc(im.id)}">
+        <img src="/api/datahub-images/image/${encodeURIComponent(im.id)}" loading="lazy" alt="${creditLine}" />
+        <div class="dhi-thumb-meta">
+          <div class="dhi-thumb-credit">${creditLine}</div>
+          <div class="dhi-thumb-sub">${esc(im.license || '—')} · score ${esc(String(im.score ?? '—'))} · ${dhiBadge(im.status)}</div>
+          <div class="dhi-thumb-actions">
+            <button class="btn sm danger dhi-blacklist" data-id="${esc(im.id)}">Blacklist</button>
+            <button class="btn sm danger dhi-reject" data-id="${esc(im.id)}">Reject</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  const thumbsHtml = `<div class="dhi-thumbs">${thumbs || '<div class="muted">no images in the pool</div>'}</div>`;
+
+  // ---- Panel 4: Source Freshness (+ enabled/disabled toggle) ----
+  const srcs = (src && src.sources) || [];
+  const enabledCount = srcs.filter((s) => s.enabled !== false).length;
+  const disabledCount = srcs.length - enabledCount;
+  const srcRows = srcs.map((s) => {
+    const st = s.state || {};
+    const off = s.enabled === false;
+    const stale = (!off && st.stale) ? ' · <span class="dhi-stale">stale</span>' : '';
+    const ovr = s.overridden ? ' <span class="dhi-ovr" title="overridden — differs from the registry default">override</span>' : '';
+    const statusCell = off ? '<span class="dhi-b dhi-skip">disabled</span>' : `${dhiBadge(st.status)}${stale}`;
+    const toggle = `<button class="btn sm ${off ? 'primary' : 'danger'} dhi-src-toggle" data-id="${esc(s.id)}" data-enabled="${off ? 0 : 1}">${off ? '▶ Enable' : '⏸ Disable'}</button>`;
+    return `<tr class="${off ? 'dhi-row-off' : ''}">
+      <td>${esc(s.id)}${ovr}</td>
+      <td>${esc(s.kind)}</td>
+      <td>${dhiPathBadge(s.policy, s.exit)}</td>
+      <td>${statusCell}</td>
+      <td class="dhi-time">${esc((st.last_fetch_at || '').replace('T', ' ').slice(0, 19) || '—')}</td>
+      <td class="dhi-srcctl">${toggle}</td>
+    </tr>`;
+  }).join('');
+  const srcHtml = `
+    <div class="dhi-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dhi-stale">${disabledCount} disabled</span>` : ''}</div>
+    <table class="dhi-sources">
+      <thead><tr><th>source</th><th>kind</th><th>path</th><th>status</th><th>last fetch</th><th></th></tr></thead>
+      <tbody>${srcRows || '<tr><td colspan="6" class="muted">no source state</td></tr>'}</tbody>
+    </table>`;
+
+  // ---- Panel 5: Outbound Connection Ledger (egress) ----
+  const events = (eg && eg.events) || [];
+  const egRows = events.map((e) => `
+    <tr>
+      <td class="dhi-time">${esc((e.ts || '').replace('T', ' ').slice(0, 19))}</td>
+      <td>${esc(e.source_id || '')}</td>
+      <td class="dhi-host">${esc(e.target_host || '')}</td>
+      <td>${dhiPathBadge(e.policy, e.exit_node)}</td>
+      <td class="dhi-ip">${esc(e.exit_ip || '—')}</td>
+      <td>${dhiBadge(e.status)}</td>
+      <td class="dhi-note">${esc(e.note || '')}</td>
+    </tr>`).join('');
+  const egressHtml = `
+    <table class="dhi-egress">
+      <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
+      <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
+    </table>`;
+
+  // ---- Panel 6: Site Pulls (inbound — who consumed what) ----
+  const pulls = (pl && pl.pulls) || [];
+  const plRows = pulls.map((p) => {
+    const who = p.site ? siteLink(p.site) : `<span class="dhi-host">${esc(p.endpoint || '')}</span>`;
+    return `<tr>
+      <td class="dhi-time">${esc((p.ts || '').replace('T', ' ').slice(0, 19))}</td>
+      <td>${who}</td>
+      <td class="dhi-host">${esc(p.endpoint || '')}</td>
+      <td><b>${esc(String(p.item_count ?? 0))}</b></td>
+      <td class="dhi-ip">${esc(p.client_ip || '—')}</td>
+    </tr>`;
+  }).join('');
+  const pullsHtml = `
+    <table class="dhi-egress dhi-pulls">
+      <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
+      <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
+    </table>`;
+
+  app.innerHTML = `
+    ${hubDown ? `<div class="dhi-banner">⚠ Data hub images API unreachable</div>` : ''}
+    <div class="dhi-grid">
+      <section class="dhi-panel" data-rk="dhi-health"><h3>VPN Health</h3>${healthHtml}</section>
+      <section class="dhi-panel" data-rk="dhi-stats"><h3>Pool Stats</h3>${statsHtml}</section>
+      <section class="dhi-panel dhi-wide" data-rk="dhi-images"><h3>Recent Images <span class="live-tag">live</span></h3>${thumbsHtml}</section>
+      <section class="dhi-panel" data-rk="dhi-sources"><h3>Source Freshness</h3>${srcHtml}</section>
+      <section class="dhi-panel dhi-wide" data-rk="dhi-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>
+      <section class="dhi-panel dhi-wide" data-rk="dhi-pulls"><h3>Site Pulls <span class="dhi-sub-h">inbound — who consumed what</span> <span class="live-tag">live</span></h3>${pullsHtml}</section>
+    </div>`;
+
+  // Wire the per-source toggle + per-image curation buttons (re-bound every render).
+  $$('.dhi-src-toggle').forEach((b) =>
+    b.addEventListener('click', () => dhiToggleSource(b.dataset.id, b.dataset.enabled === '1', b)));
+  $$('.dhi-blacklist').forEach((b) =>
+    b.addEventListener('click', () => dhiBlacklist(b.dataset.id, b)));
+  $$('.dhi-reject').forEach((b) =>
+    b.addEventListener('click', () => dhiReject(b.dataset.id, b)));
+
+  if (!FRESH) applyUISnap();
+}
+
+// Toggle a data-hub-images source's enabled/disabled override, then soft-refresh.
+async function dhiToggleSource(id, currentlyEnabled, btn) {
+  gdBusy(btn, true);
+  const r = await api('POST', `/api/datahub-images/sources/${encodeURIComponent(id)}/enabled`, { enabled: !currentlyEnabled });
+  if (r && r.ok === false) {
+    gdBusy(btn, false);
+    toast(`Toggle failed: ${r.error || 'hub unreachable'}`);
+    return;
+  }
+  toast(`${id} ${currentlyEnabled ? 'disabled' : 'enabled'} — applies on the next collect cycle`);
+  softRender();
+}
+
+// Blacklist an image (keeps the row/blob but excludes it from future selection).
+async function dhiBlacklist(id, btn) {
+  gdBusy(btn, true);
+  const r = await api('POST', `/api/datahub-images/images/${encodeURIComponent(id)}/blacklist`);
+  if (r && r.ok === false) {
+    gdBusy(btn, false);
+    toast(`Blacklist failed: ${r.error || 'hub unreachable'}`);
+    return;
+  }
+  toast(`${id} blacklisted`);
+  softRender();
+}
+
+// Reject an image (deletes it from the pool).
+async function dhiReject(id, btn) {
+  gdBusy(btn, true);
+  const r = await api('POST', `/api/datahub-images/images/${encodeURIComponent(id)}/reject`);
+  if (r && r.ok === false) {
+    gdBusy(btn, false);
+    toast(`Reject failed: ${r.error || 'hub unreachable'}`);
+    return;
+  }
+  toast(`${id} rejected`);
+  softRender();
+}
+
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub', 'datahubimages'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -1721,6 +1934,7 @@ function render() {
   else if (STATE.view === 'git') renderGit();
   else if (STATE.view === 'tasks') renderTasks();
   else if (STATE.view === 'datahub') renderDataHub();
+  else if (STATE.view === 'datahubimages') renderDataHubImages();
 }
 
 function renderAgent(role) {
