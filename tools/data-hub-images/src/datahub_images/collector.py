@@ -18,6 +18,14 @@ from .sources import SOURCE_FETCHERS, USER_AGENT, SourceUnavailable, _redact
 
 CANDIDATES_PER_SOURCE = 5
 
+# Bounded retry on 403/429 for image-byte downloads (Wikimedia in particular
+# rate-limits bulk downloads even with a good UA). Mirrors the pattern in
+# datahub_images.sources._get_json: a patchable module-level sleep seam so
+# tests never actually sleep.
+_DOWNLOAD_MAX_RETRIES = 2
+_DOWNLOAD_RETRY_BACKOFF = (1, 2)
+_sleep = time.sleep
+
 # Env vars that may hold API keys embedded in a keyed source's URL/query
 # string. Any of these values found in an exception message get redacted
 # before the message is ever persisted to egress_log (which GET /egress
@@ -51,8 +59,15 @@ def _download(url: str, proxy: str | None, http=None) -> tuple[bytes, str]:
     owns = http is None
     client = http or httpx.Client(proxy=proxy, timeout=20.0)
     try:
-        r = client.get(url, headers={"User-Agent": USER_AGENT}, timeout=20.0)
-        r.raise_for_status()
+        attempt = 0
+        while True:
+            r = client.get(url, headers={"User-Agent": USER_AGENT}, timeout=20.0)
+            if r.status_code in (403, 429) and attempt < _DOWNLOAD_MAX_RETRIES:
+                _sleep(_DOWNLOAD_RETRY_BACKOFF[attempt])
+                attempt += 1
+                continue
+            r.raise_for_status()
+            break
         ext = (urlparse(url).path.rsplit(".", 1)[-1] or "jpg").lower()
         if not ext.isalnum() or len(ext) > 5:
             ext = "jpg"
@@ -341,10 +356,11 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
         for _ in range(wanted):
             img = reuse.select_image(conn, lookup_topic, req["site"], req.get("slug"), settings, now)
             if img is None:
-                fetch_on_demand(
+                fetched = fetch_on_demand(
                     conn, keywords, bucket, settings, sources, now,
                     want=1, per_source_limit=settings.on_demand_per_source_limit, http=http,
                 )
+                counts["fetched"] += len(fetched)
                 img = reuse.select_image(conn, lookup_topic, req["site"], req.get("slug"), settings, now)
             if img is None:
                 break
