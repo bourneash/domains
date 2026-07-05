@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Launcher for the data-hub-images client CLI — run it from anywhere.
+#
+# Symlink onto your PATH once:
+#   ln -sf /home/jesse/projects/domains/tools/data-hub-images/bin/dhi-images ~/.local/bin/dhi-images
+#
+# Then:
+#   dhi-images --site americastrikes --keywords "strait of hormuz oil tanker" --slug hormuz --out ./out
+#   dhi-images --health
+
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLIENT="$(cd "${HERE}/../client" && pwd)/datahub-images-client.mjs"   # resolved path (no .. — matches the CLI's main-module guard)
+
+exec node "${CLIENT}" "$@"

@@ -17,7 +17,9 @@
 // itself — every external fetch happens inside the broker, behind the VPN.
 
 import fs from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 
 const DEFAULT_BASE_URL = process.env.DATAHUB_IMAGES_API || 'http://127.0.0.1:4770';
@@ -489,7 +491,19 @@ async function main(argv) {
   }
 }
 
-// Run as CLI only when invoked directly (not when imported).
-if (import.meta.url === `file://${process.argv[1]}`) {
+// True when this file is the process entry point — robust to symlinks, `..`
+// segments, and launcher wrappers (a naive `import.meta.url === file://argv[1]`
+// compare breaks on all three, which silently no-ops the CLI). Compares the real
+// (symlink-resolved) paths of the entry script and this module.
+function isDirectRun() {
+  try {
+    if (!process.argv[1]) return false;
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+
+if (isDirectRun()) {
   main(process.argv.slice(2)).then((code) => process.exit(code));
 }

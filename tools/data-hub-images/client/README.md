@@ -74,8 +74,29 @@ connection open per image.
 
 ## CLI
 
+### Quickstart — the `dhi-images` command (run from anywhere)
+
+Install the launcher onto your PATH once:
+
 ```bash
-# Retrieve one image into a directory
+ln -sf /home/jesse/projects/domains/tools/data-hub-images/bin/dhi-images ~/.local/bin/dhi-images
+```
+
+Then, from any directory:
+
+```bash
+dhi-images --site americastrikes --keywords "strait of hormuz oil tanker" --slug hormuz --out ./out
+# ✓ b99dba372a0d  3072x1681 — Unsplash / Daniel Gregoire  → ./out/b99dba….jpg (550431b)
+
+dhi-images --health          # is the broker up?
+```
+
+`--out <dir>` is required to actually download the file; without it you get metadata only.
+
+### Or invoke the module directly
+
+```bash
+# from the client dir, or with an absolute path from anywhere
 node datahub-images-client.mjs --site americastrikes \
   --keywords "strait of hormuz, oil tanker" --slug hormuz-oil-shock --out ./out
 
