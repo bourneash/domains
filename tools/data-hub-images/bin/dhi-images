@@ -10,7 +10,10 @@
 
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# readlink -f resolves the symlink (this is typically run via a ~/.local/bin
+# symlink), so HERE is the real bin/ dir in the repo — not the symlink's dir.
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+HERE="$(cd "$(dirname "${SELF}")" && pwd)"
 CLIENT="$(cd "${HERE}/../client" && pwd)/datahub-images-client.mjs"   # resolved path (no .. — matches the CLI's main-module guard)
 
 exec node "${CLIENT}" "$@"
