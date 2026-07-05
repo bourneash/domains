@@ -1,5 +1,6 @@
 import os
 import re
+import threading
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Request
@@ -76,6 +77,12 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         topics = load_topics(topics_path) if os.path.exists(topics_path) else []
     topics_by_id = {t.id: t for t in topics}
 
+    # Shared across all requests handled by this app instance — bounds how
+    # many concurrent synchronous on-demand fetches can run at once, so a
+    # burst of cache-miss requests can't each hold a threadpool worker for
+    # up to on_demand_timeout_s and starve the API (incl. /health, /image).
+    on_demand_sem = threading.BoundedSemaphore(settings.on_demand_max_concurrent)
+
     @app.post("/request")
     def create_request_endpoint(body: RequestBody, request: Request):
         now = _now()
@@ -118,12 +125,25 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             return {"status": "pending", "request_id": request_id}
 
         # Sync fetch-on-miss (default): try to top up the pool right now,
-        # bounded by settings.on_demand_timeout_s, then re-select.
-        fetched_ids = collector.fetch_on_demand(
-            conn, keywords, bucket, settings, sources, now,
-            want=missing, per_source_limit=settings.on_demand_per_source_limit,
-            http=None, timeout_s=settings.on_demand_timeout_s,
-        )
+        # bounded by settings.on_demand_timeout_s, then re-select. Bounded
+        # by on_demand_sem so a burst of concurrent misses can't each hold
+        # a threadpool worker for the full fetch timeout — if no slot frees
+        # up within on_demand_acquire_timeout_s, skip the fetch and return
+        # whatever the pool already had.
+        fetched_ids: list[str] = []
+        busy_note = None
+        acquired = on_demand_sem.acquire(timeout=settings.on_demand_acquire_timeout_s)
+        if acquired:
+            try:
+                fetched_ids = collector.fetch_on_demand(
+                    conn, keywords, bucket, settings, sources, now,
+                    want=missing, per_source_limit=settings.on_demand_per_source_limit,
+                    http=None, timeout_s=settings.on_demand_timeout_s,
+                )
+            finally:
+                on_demand_sem.release()
+        else:
+            busy_note = "broker busy — no free fetch slot; retry or use async"
 
         for _ in range(missing):
             img = reuse.select_image(conn, lookup_topic, body.site, body.slug, settings, now)
@@ -136,7 +156,9 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         store.record_pull(conn, site=body.site, endpoint="request",
                            item_count=len(images), client_ip=_client_ip(request))
         result = {"images": [_image_out(i) for i in images]}
-        if not fetched_ids and len(images) < count:
+        if busy_note:
+            result["note"] = busy_note
+        elif not fetched_ids and len(images) < count:
             result["note"] = "no new images available for these keywords right now"
         return result
 

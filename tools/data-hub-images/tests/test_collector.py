@@ -348,6 +348,7 @@ class _FakeDownloadClient:
         class _Resp:
             def __init__(self, content):
                 self.content = content
+                self.status_code = 200
 
             def raise_for_status(self):
                 pass
@@ -717,3 +718,113 @@ def test_request_drain_no_unknown_topic_failure(tmp_path, monkeypatch):
     assert result["image_ids"] == []
     assert req_row["status"] == "failed"
     assert "unknown topic" not in (req_row["note"] or "")
+
+
+class _RetryDownloadResponse:
+    def __init__(self, status_code, content=b"fake-image-bytes"):
+        self.status_code = status_code
+        self.content = content
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"http {self.status_code}")
+
+
+class _RetryDownloadClient:
+    """Minimal stand-in for httpx.Client that returns a scripted sequence
+    of status codes from .get(), so _download's 403/429 retry can be
+    exercised without any real network I/O."""
+
+    def __init__(self, statuses):
+        self.statuses = list(statuses)
+        self.calls = 0
+
+    def get(self, url, headers=None, timeout=None):
+        self.calls += 1
+        status = self.statuses.pop(0)
+        return _RetryDownloadResponse(status)
+
+
+def test_download_retries_on_403_then_succeeds(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(collector, "_sleep", lambda s: sleeps.append(s))
+    client = _RetryDownloadClient([403, 200])
+
+    data, ext = collector._download("http://img.example/pic.jpg", None, http=client)
+
+    assert data == b"fake-image-bytes"
+    assert ext == "jpg"
+    assert client.calls == 2
+    assert sleeps == [1]  # first step of _DOWNLOAD_RETRY_BACKOFF
+
+
+def test_download_retries_on_429_exhausted_then_raises(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(collector, "_sleep", lambda s: sleeps.append(s))
+    # initial attempt + 2 retries, all 429 -> retries exhausted -> raises
+    client = _RetryDownloadClient([429, 429, 429])
+
+    import pytest
+
+    with pytest.raises(RuntimeError):
+        collector._download("http://img.example/pic.jpg", None, http=client)
+
+    assert client.calls == 3
+    assert sleeps == [1, 2]
+
+
+def test_download_other_error_status_not_retried(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(collector, "_sleep", lambda s: sleeps.append(s))
+    client = _RetryDownloadClient([500])
+
+    import pytest
+
+    with pytest.raises(RuntimeError):
+        collector._download("http://img.example/pic.jpg", None, http=client)
+
+    assert client.calls == 1  # no retry for non-403/429 statuses
+    assert sleeps == []
+
+
+def test_request_drain_increments_fetched_count(tmp_path, monkeypatch):
+    # Regression: the drain fetch used to discard fetch_on_demand's return
+    # value entirely, so counts["fetched"] stayed 0 even when the drain
+    # fetched new images. It must reflect drain fetches too.
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: [
+            dict(
+                source_image_key="k1", url="http://img/1.jpg",
+                width=1300, height=800, license="cc0",
+                credit={"source": "Wikimedia"}, tags=["hormuz"],
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = []  # no registered topics -> phase 1 never runs, pool starts empty
+
+    store.create_request(
+        conn, "americastrikes", "hormuz", ["hormuz"], 1,
+        "2026-07-05T00:00:00Z", "127.0.0.1",
+    )
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-05T00:00:05Z")
+
+    assert out["requests_done"] == 1
+    assert out["assigned"] == 1
+    assert out["fetched"] == 1

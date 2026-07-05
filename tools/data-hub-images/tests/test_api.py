@@ -1,4 +1,6 @@
 import os
+import threading
+import time
 
 from fastapi.testclient import TestClient
 
@@ -6,12 +8,14 @@ from datahub_images import api, collector, store
 from datahub_images.config import Settings, Source, Topic
 
 
-def _settings(tmp_path):
-    return Settings(
+def _settings(tmp_path, **overrides):
+    kwargs = dict(
         db_path=str(tmp_path / "t.db"), blob_dir=str(tmp_path / "b"), proxy_us="", proxy_eu="",
         home_ips=set(), pool_ttl_days=45, retention_days=14, reuse_global_days=30,
         reuse_same_site_days=14, api_host="0.0.0.0", api_port=4770,
     )
+    kwargs.update(overrides)
+    return Settings(**kwargs)
 
 
 def _seeded(tmp_path):
@@ -200,3 +204,67 @@ def test_request_topic_only_backward_compatible(tmp_path):
     body = r.json()
     assert body["images"] == []
     assert "note" in body
+
+
+def test_sync_miss_second_concurrent_request_gets_busy_note(tmp_path, monkeypatch):
+    # on_demand_max_concurrent=1: a slow fetch holds the only slot, so a
+    # second concurrent sync-miss request must NOT call fetch_on_demand at
+    # all — it should skip straight to a busy note with whatever the pool
+    # (empty here) already produced, and never a 500 / unbounded pile-up.
+    st = _settings(tmp_path, on_demand_max_concurrent=1, on_demand_acquire_timeout_s=0.3)
+    conn = store.connect(st.db_path)
+    store.init_schema(conn)
+    conn.close()
+
+    calls = []
+    release_event = threading.Event()
+
+    def _slow_fetch(*a, **k):
+        calls.append(1)
+        release_event.wait(2)
+        return []
+
+    monkeypatch.setattr(collector, "fetch_on_demand", _slow_fetch)
+    c = TestClient(api.create_app(st, sources=[]))
+
+    results = {}
+
+    def _first():
+        results["first"] = c.post(
+            "/request", json={"site": "americastrikes", "keywords": ["a"], "count": 1}
+        )
+
+    t = threading.Thread(target=_first)
+    t.start()
+    time.sleep(0.1)  # let the first request acquire the only slot and block in _slow_fetch
+
+    r2 = c.post("/request", json={"site": "americastrikes", "keywords": ["a"], "count": 1})
+    release_event.set()
+    t.join(2)
+
+    assert r2.status_code == 200
+    assert "busy" in r2.json().get("note", "")
+    assert results["first"].status_code == 200
+    assert len(calls) == 1  # the second request never called fetch_on_demand
+
+
+def test_sync_miss_free_slot_still_fetches(tmp_path, monkeypatch):
+    st = _settings(tmp_path, on_demand_max_concurrent=3)
+    conn = store.connect(st.db_path)
+    store.init_schema(conn)
+    conn.close()
+
+    calls = []
+
+    def _fake_fetch(*a, **k):
+        calls.append(1)
+        return []
+
+    monkeypatch.setattr(collector, "fetch_on_demand", _fake_fetch)
+    c = TestClient(api.create_app(st, sources=[]))
+
+    r = c.post("/request", json={"site": "americastrikes", "keywords": ["a"], "count": 1})
+
+    assert r.status_code == 200
+    assert len(calls) == 1
+    assert "busy" not in r.json().get("note", "")
