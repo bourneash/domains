@@ -284,6 +284,73 @@ sources:
     fetch:
       source_name: "AP"
 
+  # americastrikes.com was iran/hormuz-only before 2026-07 — these fill the
+  # other theaters where US forces/policy are actually engaged, so the
+  # relevance scorer has real non-Iran material to rank instead of defaulting
+  # back to the same story every cycle.
+  - id: kyiv-independent
+    type: rss
+    url: "https://kyivindependent.com/feed/"
+    tags: [news, world, russia, ukraine, defense]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Kyiv Independent"
+
+  - id: google-news-russia-ukraine
+    type: rss
+    url: "https://news.google.com/rss/search?q=ukraine+russia+war&hl=en-US&gl=US&ceid=US:en"
+    tags: [world, russia, ukraine, defense]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News"
+
+  - id: google-news-china-taiwan
+    type: rss
+    url: "https://news.google.com/rss/search?q=china+taiwan+military&hl=en-US&gl=US&ceid=US:en"
+    tags: [world, china, taiwan, defense]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News"
+
+  - id: google-news-north-korea
+    type: rss
+    url: "https://news.google.com/rss/search?q=north+korea+missile+OR+kim+jong+un&hl=en-US&gl=US&ceid=US:en"
+    tags: [world, korea, defense]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News"
+
+  - id: google-news-africa-security
+    type: rss
+    url: "https://news.google.com/rss/search?q=africom+OR+sahel+OR+boko+haram+OR+al-shabaab&hl=en-US&gl=US&ceid=US:en"
+    tags: [world, africa, defense]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News"
+
+  - id: reuters-world-conflicts
+    type: rss
+    url: "https://news.google.com/rss/search?q=when:1d+site:reuters.com+ukraine+OR+russia+OR+china+OR+taiwan+OR+korea&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, world, russia, ukraine, china, taiwan, korea, defense]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "Reuters"
+
+  - id: ap-world-conflicts
+    type: rss
+    url: "https://news.google.com/rss/search?q=when:1d+site:apnews.com+ukraine+OR+russia+OR+china+OR+taiwan&hl=en-US&gl=US&ceid=US:en"
+    tags: [news, world, russia, ukraine, china, taiwan, defense]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "AP"
+
   # ── aliencouncil.com ────────────────────────────────────────────────────────
 
   - id: the-debrief
