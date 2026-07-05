@@ -634,3 +634,86 @@ def test_fetch_on_demand_respects_timeout(tmp_path, monkeypatch):
     )
 
     assert fetcher_calls["n"] <= 1
+
+
+def test_request_drain_fetches_on_demand_for_arbitrary_keywords(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: [
+            dict(
+                source_image_key="k1", url="http://img/1.jpg",
+                width=1300, height=800, license="cc0",
+                credit={"source": "Wikimedia"}, tags=["hormuz"],
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    # No registered topics at all — proves the drain no longer needs a
+    # topic registry match to satisfy a keyword-only queued request.
+    tops = []
+
+    store.create_request(
+        conn, "americastrikes", "strait-of-hormuz", ["Strait", "of", "Hormuz"], 1,
+        "2026-07-05T00:00:00Z", "127.0.0.1", slug="hormuz-tanker",
+    )
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-05T00:00:05Z")
+
+    assert out["requests_done"] == 1
+    assert out["assigned"] == 1
+
+    reqs = [r for r in store.pending_requests(conn)]
+    assert reqs == []
+
+    images = store.list_images(conn, topic="strait-of-hormuz")
+    assert len(images) == 1
+    rows = store.assignments_for_image(conn, images[0]["id"])
+    assert rows[0]["slug"] == "hormuz-tanker"
+
+
+def test_request_drain_no_unknown_topic_failure(tmp_path, monkeypatch):
+    # A pending request whose bucket has no registered topic and whose
+    # sources yield nothing must resolve to status="failed" with no
+    # image_ids — never the old "unknown topic: ..." note.
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(False, None, "us", None, "vpn-down"),
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = []
+
+    store.create_request(
+        conn, "americastrikes", "some-arbitrary-bucket", ["nothing", "findable"], 1,
+        "2026-07-05T00:00:00Z", "127.0.0.1",
+    )
+
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-05T00:00:05Z")
+    assert out["requests_done"] == 1
+    assert out["assigned"] == 0
+
+    req_row = conn.execute("SELECT * FROM requests").fetchone()
+    result = __import__("json").loads(req_row["result_json"])
+    assert result["image_ids"] == []
+    assert req_row["status"] == "failed"
+    assert "unknown topic" not in (req_row["note"] or "")

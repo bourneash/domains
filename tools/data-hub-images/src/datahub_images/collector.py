@@ -331,33 +331,29 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
     # Phase 2: request drain.
     tmap = _topics_by_id(topics)
     for req in store.pending_requests(conn):
-        topic = tmap.get(req.get("topic"))
+        bucket = req.get("topic")
+        registered = tmap.get(bucket)
+        keywords = req.get("keywords") or (registered.queries if registered else [])
+        lookup_topic = registered or Topic(id=bucket, queries=keywords, tags=[])
+
         assigned_ids = []
-        result_note = None
-        if topic is None:
-            result_note = f"unknown topic: {req.get('topic')}"
-        else:
-            wanted = req.get("count") or 1
-            for _ in range(wanted):
-                img = reuse.select_image(conn, topic, req["site"], req.get("slug"), settings, now)
-                if img is None:
-                    # Targeted fetch attempt: try to top up the pool from any
-                    # enabled source for this topic, then re-select once.
-                    for source in sources:
-                        if not source.enabled:
-                            continue
-                        fetch_and_store(conn, source, topic, settings, now, http)
-                    img = reuse.select_image(conn, topic, req["site"], req.get("slug"), settings, now)
-                if img is None:
-                    break
-                store.record_assignment(conn, img["id"], req["site"], req.get("slug"), topic.id, now)
-                store.set_last_used(conn, img["id"], now)
-                assigned_ids.append(img["id"])
+        wanted = req.get("count") or 1
+        for _ in range(wanted):
+            img = reuse.select_image(conn, lookup_topic, req["site"], req.get("slug"), settings, now)
+            if img is None:
+                fetch_on_demand(
+                    conn, keywords, bucket, settings, sources, now,
+                    want=1, per_source_limit=settings.on_demand_per_source_limit, http=http,
+                )
+                img = reuse.select_image(conn, lookup_topic, req["site"], req.get("slug"), settings, now)
+            if img is None:
+                break
+            store.record_assignment(conn, img["id"], req["site"], req.get("slug"), bucket, now)
+            store.set_last_used(conn, img["id"], now)
+            assigned_ids.append(img["id"])
 
         status = "done" if assigned_ids else "failed"
         result = {"image_ids": assigned_ids}
-        if result_note:
-            result["note"] = result_note
         try:
             store.finish_request(conn, req["id"], status, result, now)
         except Exception:
