@@ -365,3 +365,78 @@ def test_download_sends_descriptive_user_agent():
     assert ext == "jpg"
     assert len(client.calls) == 1
     assert client.calls[0]["headers"].get("User-Agent") == USER_AGENT
+
+
+def test_process_candidate_stores_and_returns_id(tmp_path, monkeypatch):
+    from datahub_images.config import Source, Topic, Settings
+    from datahub_images import store as store_mod
+
+    conn = store_mod.connect(str(tmp_path / "t.db"))
+    store_mod.init_schema(conn)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    source = Source(id="wikimedia", kind="wikimedia")
+    topic = Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])
+    plan = __import__("datahub_images.vpn", fromlist=["FetchPlan"]).FetchPlan(
+        True, "http://p", "us", "1.2.3.4", "ok"
+    )
+    cand = dict(
+        source_image_key="k1", url="http://img/1.jpg",
+        width=1300, height=800, license="cc0",
+        credit={"source": "Wikimedia"}, tags=["iran"],
+    )
+    pool_phashes: list[str] = []
+
+    image_id = collector._process_candidate(
+        conn, source, topic, st, "2026-07-05T00:00:00Z", plan, cand, pool_phashes
+    )
+
+    assert image_id is not None
+    assert len(pool_phashes) == 1
+    stored_img = store_mod.get_image(conn, image_id)
+    assert stored_img is not None
+    assert stored_img["topics"] == ["iran"]
+
+    # Second call with the same source_image_key is a no-op (already seen).
+    pool_phashes2 = list(pool_phashes)
+    again = collector._process_candidate(
+        conn, source, topic, st, "2026-07-05T00:00:10Z", plan, dict(cand), pool_phashes2
+    )
+    assert again is None
+    assert pool_phashes2 == pool_phashes  # unchanged — nothing new stored
+
+
+def test_process_candidate_records_error_egress_on_exception(tmp_path, monkeypatch):
+    from datahub_images.config import Source, Topic
+
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    def _boom(url, proxy, http):
+        raise RuntimeError("network exploded")
+
+    monkeypatch.setattr("datahub_images.collector._download", _boom)
+
+    st = _settings(tmp_path)
+    source = Source(id="wikimedia", kind="wikimedia")
+    topic = Topic(id="iran", queries=["Iran"], target_depth=1, tags=["iran"])
+    plan = __import__("datahub_images.vpn", fromlist=["FetchPlan"]).FetchPlan(
+        True, "http://p", "us", "1.2.3.4", "ok"
+    )
+    cand = dict(source_image_key="k1", url="http://img/1.jpg", tags=["iran"])
+
+    result = collector._process_candidate(
+        conn, source, topic, st, "2026-07-05T00:00:00Z", plan, cand, []
+    )
+
+    assert result is None
+    rows = conn.execute(
+        "SELECT * FROM egress_log WHERE source_id = ?", ("wikimedia",)
+    ).fetchall()
+    assert len(rows) == 1
+    row = dict(rows[0])
+    assert row["status"] == "error"
+    assert "network exploded" in row["note"]

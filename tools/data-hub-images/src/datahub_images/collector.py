@@ -61,6 +61,74 @@ def _download(url: str, proxy: str | None, http=None) -> tuple[bytes, str]:
             client.close()
 
 
+def _process_candidate(
+    conn, source: Source, topic: Topic, settings: Settings, now: str,
+    plan, cand: dict, pool_phashes: list, http=None,
+) -> str | None:
+    """Validate/dedup/score/store one fetch candidate.
+
+    Mutates `pool_phashes` in place (appends the new phash) and touches
+    the DB (seen_sources, images) when the candidate is stored. Returns
+    the new image's id if a new image was inserted, otherwise None
+    (duplicate/already-seen/invalid, or a caught exception — recorded to
+    egress_log as status="error" and swallowed). Never raises.
+    """
+    try:
+        key = cand.get("source_image_key")
+        if not key or store.seen_source(conn, key):
+            return None
+
+        data, ext = _download(cand["url"], plan.proxy, http)
+
+        if not scoring.validate(data):
+            return None
+
+        phash = scoring.phash_hex(data)
+        if store.is_blacklisted_phash(conn, phash):
+            return None
+        if any(scoring.is_near_dup(phash, p) for p in pool_phashes):
+            return None
+
+        # Score on REAL, downloaded dimensions — not provider-claimed
+        # ones, which are often 0/absent and would otherwise trigger a
+        # spurious small/portrait penalty.
+        width, height = scoring.dimensions(data)
+        cand["width"], cand["height"] = width, height
+        score = scoring.score_candidate(cand, topic)
+        sha, path = blob.write_blob(settings.blob_dir, data, ext)
+
+        image = {
+            "id": sha,
+            "source_id": source.id,
+            "source_image_key": key,
+            "blob_path": path,
+            "width": width,
+            "height": height,
+            "phash": phash,
+            "score": score,
+            "license": cand.get("license"),
+            "credit": cand.get("credit"),
+            "topics": [topic.id],
+            "tags": cand.get("tags") or [],
+            "entropy": scoring.entropy(data),
+            "fetched_at": now,
+        }
+        inserted = store.upsert_image(conn, image)
+        store.mark_seen(conn, key, sha, now)
+        if inserted:
+            pool_phashes.append(phash)
+            return sha
+        return None
+    except Exception as exc:  # per-candidate isolation
+        store.record_egress(
+            conn, source_id=source.id,
+            target_host=_host(cand.get("url") if isinstance(cand, dict) else None),
+            policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
+            status="error", note=_redacted_note(exc), ts=now,
+        )
+        return None
+
+
 def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now: str, http=None) -> int:
     """Fetch candidates for one source+topic, validate/score/store them.
 
@@ -116,58 +184,8 @@ def fetch_and_store(conn, source: Source, topic: Topic, settings: Settings, now:
         pool_phashes = [img["phash"] for img in store.pool_for_topic(conn, topic.id) if img.get("phash")]
 
         for cand in cands:
-            try:
-                key = cand.get("source_image_key")
-                if not key or store.seen_source(conn, key):
-                    continue
-
-                data, ext = _download(cand["url"], plan.proxy, http)
-
-                if not scoring.validate(data):
-                    continue
-
-                phash = scoring.phash_hex(data)
-                if store.is_blacklisted_phash(conn, phash):
-                    continue
-                if any(scoring.is_near_dup(phash, p) for p in pool_phashes):
-                    continue
-
-                # Score on REAL, downloaded dimensions — not provider-claimed
-                # ones, which are often 0/absent and would otherwise trigger
-                # a spurious small/portrait penalty.
-                width, height = scoring.dimensions(data)
-                cand["width"], cand["height"] = width, height
-                score = scoring.score_candidate(cand, topic)
-                sha, path = blob.write_blob(settings.blob_dir, data, ext)
-
-                image = {
-                    "id": sha,
-                    "source_id": source.id,
-                    "source_image_key": key,
-                    "blob_path": path,
-                    "width": width,
-                    "height": height,
-                    "phash": phash,
-                    "score": score,
-                    "license": cand.get("license"),
-                    "credit": cand.get("credit"),
-                    "topics": [topic.id],
-                    "tags": cand.get("tags") or [],
-                    "entropy": scoring.entropy(data),
-                    "fetched_at": now,
-                }
-                inserted = store.upsert_image(conn, image)
-                store.mark_seen(conn, key, sha, now)
-                if inserted:
-                    pool_phashes.append(phash)
-                    stored += 1
-            except Exception as exc:  # per-candidate isolation
-                store.record_egress(
-                    conn, source_id=source.id, target_host=_host(cand.get("url") if isinstance(cand, dict) else None),
-                    policy=source.policy, exit_node=plan.exit_node, exit_ip=plan.exit_ip,
-                    status="error", note=_redacted_note(exc), ts=now,
-                )
-                continue
+            if _process_candidate(conn, source, topic, settings, now, plan, cand, pool_phashes, http):
+                stored += 1
 
         store.record_egress(
             conn, source_id=source.id, target_host=_host(source.url),
