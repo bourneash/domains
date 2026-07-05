@@ -1,12 +1,13 @@
 import os
+import re
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
-from . import blob, reuse, store, vpn
-from .config import Settings, Source, Topic, load_sources
+from . import blob, collector, reuse, store, vpn
+from .config import Settings, Source, Topic, load_sources, load_topics
 
 CONTENT_TYPES = {
     "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
@@ -29,6 +30,12 @@ def _image_out(img: dict) -> dict:
     }
 
 
+def _normalize_bucket(keywords: list[str]) -> str:
+    joined = " ".join(keywords).strip().lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", joined).strip("-")
+    return slug or "misc"
+
+
 def _default_registry_dir() -> str:
     # tools/data-hub-images/src/datahub_images/api.py -> tools/data-hub-images/registry
     here = os.path.dirname(os.path.abspath(__file__))
@@ -39,11 +46,14 @@ def _default_registry_dir() -> str:
 
 
 class RequestBody(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     site: str
-    topic: str
-    keywords: list[str] | None = None
+    keywords: list[str] = []
     count: int = 1
     slug: str | None = None
+    topic: str | None = None
+    async_: bool = Field(default=False, alias="async")
 
 
 class EnabledBody(BaseModel):
@@ -51,7 +61,7 @@ class EnabledBody(BaseModel):
 
 
 def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = None,
-               vpn_client=None) -> FastAPI:
+               vpn_client=None, topics: list[Topic] | None = None) -> FastAPI:
     app = FastAPI(title="datahub-images", version="0.1.0")
 
     if conn is None:
@@ -61,32 +71,74 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         sources_path = os.path.join(_default_registry_dir(), "sources.yaml")
         sources = load_sources(sources_path) if os.path.exists(sources_path) else []
     source_by_id = {s.id: s for s in sources}
+    if topics is None:
+        topics_path = os.path.join(_default_registry_dir(), "topics.yaml")
+        topics = load_topics(topics_path) if os.path.exists(topics_path) else []
+    topics_by_id = {t.id: t for t in topics}
 
     @app.post("/request")
-    def create_request(body: RequestBody, request: Request):
+    def create_request_endpoint(body: RequestBody, request: Request):
         now = _now()
-        topic = Topic(id=body.topic, queries=[])
         count = max(1, body.count)
+
+        registered_topic = topics_by_id.get(body.topic) if body.topic else None
+        keywords = list(body.keywords or [])
+        if not keywords and registered_topic:
+            keywords = registered_topic.queries
+
+        bucket = body.topic if body.topic else _normalize_bucket(keywords)
+        lookup_topic = Topic(
+            id=bucket, queries=keywords,
+            tags=(registered_topic.tags if registered_topic else []),
+        )
+
         images: list[dict] = []
         for _ in range(count):
-            img = reuse.select_image(conn, topic, body.site, body.slug, settings, now)
+            img = reuse.select_image(conn, lookup_topic, body.site, body.slug, settings, now)
             if img is None:
                 break
-            store.record_assignment(conn, img["id"], body.site, body.slug, topic.id, now)
+            store.record_assignment(conn, img["id"], body.site, body.slug, bucket, now)
+            store.set_last_used(conn, img["id"], now)
+            images.append(img)
+
+        if len(images) >= count:
+            store.record_pull(conn, site=body.site, endpoint="request",
+                               item_count=len(images), client_ip=_client_ip(request))
+            return {"images": [_image_out(i) for i in images]}
+
+        missing = count - len(images)
+
+        if body.async_:
+            request_id = store.create_request(
+                conn, body.site, bucket, keywords, missing, now,
+                _client_ip(request), slug=body.slug,
+            )
+            store.record_pull(conn, site=body.site, endpoint="request",
+                               item_count=len(images), client_ip=_client_ip(request))
+            return {"status": "pending", "request_id": request_id}
+
+        # Sync fetch-on-miss (default): try to top up the pool right now,
+        # bounded by settings.on_demand_timeout_s, then re-select.
+        fetched_ids = collector.fetch_on_demand(
+            conn, keywords, bucket, settings, sources, now,
+            want=missing, per_source_limit=settings.on_demand_per_source_limit,
+            http=None, timeout_s=settings.on_demand_timeout_s,
+        )
+
+        for _ in range(missing):
+            img = reuse.select_image(conn, lookup_topic, body.site, body.slug, settings, now)
+            if img is None:
+                break
+            store.record_assignment(conn, img["id"], body.site, body.slug, bucket, now)
             store.set_last_used(conn, img["id"], now)
             images.append(img)
 
         store.record_pull(conn, site=body.site, endpoint="request",
                            item_count=len(images), client_ip=_client_ip(request))
-
-        if images:
-            return {"images": [_image_out(i) for i in images]}
-
-        request_id = store.create_request(
-            conn, body.site, body.topic, body.keywords or [], body.count, now,
-            _client_ip(request), slug=body.slug,
-        )
-        return {"status": "pending", "request_id": request_id}
+        result = {"images": [_image_out(i) for i in images]}
+        if not fetched_ids and len(images) < count:
+            result["note"] = "no new images available for these keywords right now"
+        return result
 
     @app.get("/request/{request_id}")
     def request_status(request_id: int):
