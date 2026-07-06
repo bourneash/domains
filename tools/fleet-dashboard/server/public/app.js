@@ -1882,7 +1882,7 @@ async function dhiReject(id, btn) {
 /* ===================== SHELL ===================== */
 const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub', 'datahubimages', 'fleetsmoke'];
 
-// Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
+// Hash router. Routes: #control, #cron, #containers, #git, #tasks, #fleetsmoke, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
 function parseHash() {
   const h = (location.hash || '').replace(/^#/, '');
