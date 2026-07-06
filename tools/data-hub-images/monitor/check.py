@@ -44,7 +44,13 @@ CRITICAL, WARNING, OK = "critical", "warning", "ok"
 
 
 def _get(url, proxy=None, timeout=12, raw=False):
-    handlers = [urllib.request.ProxyHandler({"http": proxy, "https": proxy})] if proxy else []
+    if proxy:
+        handlers = [urllib.request.ProxyHandler({"http": proxy, "https": proxy})]
+    else:
+        # Empty ProxyHandler forces a truly DIRECT request — ignore any ambient
+        # HTTP_PROXY/HTTPS_PROXY env, so the "home IP" lookup can't be silently
+        # routed through a proxy and break the leak comparison.
+        handlers = [urllib.request.ProxyHandler({})]
     opener = urllib.request.build_opener(*handlers)
     req = urllib.request.Request(url, headers={"User-Agent": "dhi-monitor/1.0"})
     with opener.open(req, timeout=timeout) as r:
@@ -82,7 +88,9 @@ def run_checks():
         return findings  # nothing else will work
 
     # 2. VPN exits per the broker's own probe
-    vpn = health.get("vpn", {}) or {}
+    vpn = health.get("vpn")
+    if not isinstance(vpn, dict):  # tolerate a malformed/absent vpn field, never crash
+        vpn = {}
     up = [k for k, v in vpn.items() if v]
     if not up:
         add(CRITICAL, "no VPN exit is up (health.vpn all null) — sourcing is dead")
@@ -206,7 +214,12 @@ def save_state(status, findings):
 
 def main():
     dry = "--dry-run" in sys.argv
-    findings = run_checks()
+    try:
+        findings = run_checks()
+    except Exception as e:
+        # A monitor that dies silently is worse than none — turn any unexpected
+        # crash into a CRITICAL so it pages instead of going blind.
+        findings = [(CRITICAL, f"monitor itself errored: {e}")]
     status = overall(findings)
     msg = format_msg(status, findings)
 
