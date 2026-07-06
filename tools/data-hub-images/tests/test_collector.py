@@ -830,18 +830,43 @@ def test_request_drain_increments_fetched_count(tmp_path, monkeypatch):
     assert out["fetched"] == 1
 
 
-def test_documentary_first_orders_documentary_before_stock():
-    # Registry order is stock-first (unsplash, pexels, ...); the helper must
-    # reorder so documentary/PD sources are tried first, stable within tiers.
+def test_ranked_sources_three_tiers():
+    # 3-tier: preferred documentary (dvids) -> stock -> archival documentary.
+    # Registry order is stock-first; the helper must produce dvids first, then
+    # stock (stable), then archival (wikimedia/nara), stable within each tier.
     srcs = [
         Source(id="unsplash", kind="unsplash"),
         Source(id="pexels", kind="pexels"),
         Source(id="dvids", kind="dvids"),
-        Source(id="openverse", kind="openverse"),  # CC aggregator = stock, not documentary
-        Source(id="wikimedia", kind="wikimedia"),
+        Source(id="openverse", kind="openverse"),  # CC aggregator = stock
+        Source(id="wikimedia", kind="wikimedia"),   # archival -> below stock
+        Source(id="nara", kind="nara"),             # archival -> below stock
     ]
-    ordered = [s.kind for s in collector._documentary_first(srcs)]
-    assert ordered == ["dvids", "wikimedia", "unsplash", "pexels", "openverse"]
+    ordered = [s.kind for s in collector._ranked_sources(srcs)]
+    assert ordered == ["dvids", "unsplash", "pexels", "openverse", "wikimedia", "nara"]
+
+
+def test_archival_documentary_ranks_below_stock(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db")); store.init_schema(conn)
+    _allow_plan(monkeypatch)
+    # Both stock (pexels) and archival documentary (wikimedia) have a match.
+    # wikimedia must NOT win — it ranks below stock now.
+    monkeypatch.setattr("datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: [_cand("wikimedia")])
+    monkeypatch.setattr("datahub_images.sources.pexels.search",
+        lambda q, limit, proxy, client=None: [_cand("pexels")])
+
+    st = _settings(tmp_path)
+    # Registry-ish order; wikimedia listed BEFORE pexels to prove it's the rank,
+    # not the list position, that demotes it.
+    srcs = [Source(id="wikimedia", kind="wikimedia"), Source(id="pexels", kind="pexels")]
+    out = collector.fetch_on_demand(
+        conn, ["gulf", "tanker", "transit"], "mkt", st, srcs,
+        "2026-07-04T00:00:00Z", want=1, per_source_limit=5)
+
+    assert len(out) == 1
+    row = conn.execute("SELECT source_id FROM images WHERE id=?", (out[0],)).fetchone()
+    assert row["source_id"] == "pexels"  # stock beats archival documentary
 
 
 def test_fetch_on_demand_prefers_documentary_over_stock(tmp_path, monkeypatch):

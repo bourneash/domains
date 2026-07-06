@@ -24,13 +24,32 @@ CANDIDATES_PER_SOURCE = 5
 # fetch_on_demand stops at the first source that yields a usable image, we try
 # documentary sources first and fall back to stock only when none has a match.
 # openverse is a CC-aggregator (stock-like), so it is NOT documentary.
-DOCUMENTARY_KINDS = frozenset({"dvids", "wikimedia", "nara", "loc", "govflickr"})
+# Preferred documentary: operational government imagery (DoD combat-camera) — a
+# real photo of the actual subject, consistently on-point. Ranks ABOVE stock.
+PREFERRED_DOCUMENTARY_KINDS = frozenset({"dvids"})
+# Archival documentary: public-domain archives (Commons, NARA, LoC, gov Flickr).
+# On-theme but often dated/weak, so ranked BELOW stock — a last resort used only
+# when neither the preferred documentary source nor stock has a match.
+ARCHIVAL_DOCUMENTARY_KINDS = frozenset({"wikimedia", "nara", "loc", "govflickr"})
+# All documentary sources use the query-ladder: they return nothing for a long
+# full-keyword join, so a short entity query is what surfaces them.
+DOCUMENTARY_KINDS = PREFERRED_DOCUMENTARY_KINDS | ARCHIVAL_DOCUMENTARY_KINDS
 
 
-def _documentary_first(sources: list[Source]) -> list[Source]:
-    """Stable-sort so documentary/PD sources are tried before stock, preserving
-    the registry's relative order within each tier."""
-    return sorted(sources, key=lambda s: 0 if s.kind in DOCUMENTARY_KINDS else 1)
+def _source_rank(kind: str) -> int:
+    if kind in PREFERRED_DOCUMENTARY_KINDS:
+        return 0  # operational documentary — best
+    if kind in ARCHIVAL_DOCUMENTARY_KINDS:
+        return 2  # archival documentary — last resort, below stock
+    return 1      # stock
+
+
+def _ranked_sources(sources: list[Source]) -> list[Source]:
+    """Stable 3-tier sort: preferred documentary (dvids) → stock → archival
+    documentary (wikimedia/nara/loc/govflickr). Only the preferred documentary
+    tier outranks stock; archival sits below stock as a fallback. Registry
+    relative order is preserved within each tier (Python's sort is stable)."""
+    return sorted(sources, key=lambda s: _source_rank(s.kind))
 
 
 def _query_ladder(keywords: list[str]) -> list[str]:
@@ -272,7 +291,7 @@ def fetch_on_demand(
     pool_phashes = [img["phash"] for img in store.pool_for_topic(conn, bucket) if img.get("phash")]
     stored_ids: list[str] = []
 
-    for source in _documentary_first(sources):
+    for source in _ranked_sources(sources):
         if time.monotonic() >= deadline or len(stored_ids) >= want:
             break
         if not source.enabled:
