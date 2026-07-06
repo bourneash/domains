@@ -8,6 +8,7 @@ const crypto = require('node:crypto');
 const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
 const git = require('./git');
+const fleetSmoke = require('./fleet-smoke');
 const tasks = require('./tasks');
 const run = require('./run');
 const containers = require('./containers');
@@ -267,6 +268,32 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.post('/api/git/:slug/push', requireSite, async (req, res) => {
     try { res.json(await git.push(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  // Fleet Smoke — per-site levers over tools/fleet-smoke's health checks.
+  app.get('/api/fleet-smoke/sites', (_req, res) => {
+    try { res.json(fleetSmoke.listSites(root, discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.post('/api/fleet-smoke/:slug/toggle', requireSite, async (req, res) => {
+    const { field, value } = req.body || {};
+    if (field !== 'enabled' && field !== 'slack.enabled') {
+      return res.status(400).json({ error: 'field must be "enabled" or "slack.enabled"' });
+    }
+    if (typeof value !== 'boolean') return res.status(400).json({ error: 'value must be boolean' });
+    try { res.json(await fleetSmoke.toggleField(root, req.params.slug, field, value)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/fleet-smoke/:slug/add-config', requireSite, async (req, res) => {
+    try { res.json(await fleetSmoke.addConfig(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/fleet-smoke/:slug/run', requireSite, async (req, res) => {
+    try { res.json(await fleetSmoke.runNow(root, req.params.slug)); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
