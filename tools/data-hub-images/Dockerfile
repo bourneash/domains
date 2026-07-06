@@ -21,8 +21,9 @@ COPY pyproject.toml .
 COPY src/ src/
 RUN pip install --no-cache-dir .
 
-# Copy registry and crontab
+# Copy registry, monitor scripts, and crontab
 COPY registry/ registry/
+COPY monitor/ monitor/
 COPY crontab.docker /app/crontab
 
 RUN mkdir -p /data

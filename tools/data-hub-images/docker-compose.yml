@@ -24,6 +24,8 @@ services:
       <<: *common-env
     volumes:
       - datahub-images-data:/data
+      # Backups land on a host path so they survive loss of the data volume.
+      - ${DATAHUB_IMAGES_BACKUP_DIR:-/home/jesse/backups/data-hub-images}:/backups
     networks:
       - vpn-proxy_default
     restart: unless-stopped

@@ -1,3 +1,10 @@
 # data-hub-images collector crontab — runs inside the collector container via supercronic.
 # Collection every 30 minutes; output goes to stdout (captured by Docker logging).
 */30 * * * * python -m datahub_images collect
+
+# Health + VPN-integrity monitor every 5 min. Posts to Slack only on a status
+# change (bit-flip). Independently verifies image egress goes through the VPN.
+*/5 * * * * python /app/monitor/check.py
+
+# Nightly backup: consistent DB snapshot + blob archive to the mounted /backups.
+17 3 * * * bash /app/monitor/backup.sh
