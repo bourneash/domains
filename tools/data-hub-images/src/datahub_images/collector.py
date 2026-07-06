@@ -18,6 +18,20 @@ from .sources import SOURCE_FETCHERS, USER_AGENT, SourceUnavailable, _redact
 
 CANDIDATES_PER_SOURCE = 5
 
+# On-demand source preference. For a news/geopolitics use-case, government and
+# public-domain *documentary* imagery (an actual photo of the subject) is more
+# editorially relevant than commercial *stock* (a staged/generic photo). Because
+# fetch_on_demand stops at the first source that yields a usable image, we try
+# documentary sources first and fall back to stock only when none has a match.
+# openverse is a CC-aggregator (stock-like), so it is NOT documentary.
+DOCUMENTARY_KINDS = frozenset({"dvids", "wikimedia", "nara", "loc", "govflickr"})
+
+
+def _documentary_first(sources: list[Source]) -> list[Source]:
+    """Stable-sort so documentary/PD sources are tried before stock, preserving
+    the registry's relative order within each tier."""
+    return sorted(sources, key=lambda s: 0 if s.kind in DOCUMENTARY_KINDS else 1)
+
 # Bounded retry on 403/429 for image-byte downloads (Wikimedia in particular
 # rate-limits bulk downloads even with a good UA). Mirrors the pattern in
 # datahub_images.sources._get_json: a patchable module-level sleep seam so
@@ -240,7 +254,7 @@ def fetch_on_demand(
     pool_phashes = [img["phash"] for img in store.pool_for_topic(conn, bucket) if img.get("phash")]
     stored_ids: list[str] = []
 
-    for source in sources:
+    for source in _documentary_first(sources):
         if time.monotonic() >= deadline or len(stored_ids) >= want:
             break
         if not source.enabled:

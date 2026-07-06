@@ -828,3 +828,59 @@ def test_request_drain_increments_fetched_count(tmp_path, monkeypatch):
     assert out["requests_done"] == 1
     assert out["assigned"] == 1
     assert out["fetched"] == 1
+
+
+def test_documentary_first_orders_documentary_before_stock():
+    # Registry order is stock-first (unsplash, pexels, ...); the helper must
+    # reorder so documentary/PD sources are tried first, stable within tiers.
+    srcs = [
+        Source(id="unsplash", kind="unsplash"),
+        Source(id="pexels", kind="pexels"),
+        Source(id="dvids", kind="dvids"),
+        Source(id="openverse", kind="openverse"),  # CC aggregator = stock, not documentary
+        Source(id="wikimedia", kind="wikimedia"),
+    ]
+    ordered = [s.kind for s in collector._documentary_first(srcs)]
+    assert ordered == ["dvids", "wikimedia", "unsplash", "pexels", "openverse"]
+
+
+def test_fetch_on_demand_prefers_documentary_over_stock(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    # Both a stock source (unsplash, listed FIRST) and a documentary source
+    # (dvids, listed SECOND) have a usable candidate for these keywords.
+    stock_cand = lambda q, limit, proxy, client=None: [dict(
+        source_image_key="u1", url="http://img/u.jpg", width=1300, height=800,
+        license="unsplash", credit={"source": "Unsplash"}, tags=["carrier"])]
+    doc_cand = lambda q, limit, proxy, client=None: [dict(
+        source_image_key="d1", url="http://img/d.jpg", width=1300, height=800,
+        license="pd", credit={"source": "DVIDS"}, tags=["carrier"])]
+    monkeypatch.setattr("datahub_images.sources.unsplash.search", stock_cand)
+    monkeypatch.setattr("datahub_images.sources.dvids.search", doc_cand)
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg")
+    )
+
+    st = _settings(tmp_path)
+    # Stock-first registry order — the fix must still pick documentary.
+    srcs = [Source(id="unsplash", kind="unsplash"), Source(id="dvids", kind="dvids")]
+
+    out = collector.fetch_on_demand(
+        conn, ["aircraft", "carrier"], "iran", st, srcs,
+        "2026-07-04T00:00:00Z", want=1, per_source_limit=5,
+    )
+
+    assert len(out) == 1
+    row = conn.execute("SELECT source_id FROM images WHERE id = ?", (out[0],)).fetchone()
+    assert row["source_id"] == "dvids"  # documentary won despite being listed second
+    # Stock was never reached (stopped at want after the documentary hit).
+    reached = {r["source_id"] for r in conn.execute(
+        "SELECT source_id FROM egress_log").fetchall()}
+    assert "unsplash" not in reached
