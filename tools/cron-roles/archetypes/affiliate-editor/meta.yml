@@ -9,7 +9,7 @@ owns_task_types: [affiliate]
 produces_task_types: [content, engineering]   # dead ASIN -> content; broken /go/ redirect -> engineering
 worker_deps: []                  # curl-based; no headless browser
 needs_rebuild_verify: true       # crontab.docker is baked into the cron image
-self_notifies: false             # LLM role; run-role.sh handles notify
+self_notifies: true              # role posts to Slack itself via notify-slack.sh (## Notify section)
 deploy: false                    # NO-DEPLOY sentinel — only files tasks
 scripts: []
 gitignore: []

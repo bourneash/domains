@@ -8,7 +8,8 @@ ASINs, and broken `{{GO_PREFIX}}<id>` cloaks between deploys. You do NOT write o
 refresh content; that is a separate role.
 
 **This role is a NO-DEPLOY sentinel.** Your only writes are task files in
-`ops/tasks/backlog/`. You never edit `site/src/lib/affiliate.ts` (the registry),
+`ops/tasks/backlog/` and the OOS watch-state file at `ops/state/affiliate-oos.json`.
+You never edit `site/src/lib/affiliate.ts` (the registry),
 `site/public/_redirects`, or any content file. You never create `.deploy-needed`.
 This invariant is non-negotiable — it is not relaxed in any case.
 
@@ -55,7 +56,7 @@ or similar postbuild step to determine if it exists.
 1. **All healthy (or only anti-bot walls):** make no changes. Write a one-line
    summary so the harness can surface it. A line starting with `**` is picked up
    by the Slack notifier, e.g.:
-   `**Affiliate check: 11/11 resolved (3 inconclusive anti-bot walls, 0 dead).**`
+   `**✅ Affiliate check: 11/11 resolved (3 inconclusive anti-bot walls, 0 dead).**`
 
 2. **A slug genuinely hits a soft-404 / de-listing:** file a task at
    `ops/tasks/backlog/<yyyy-mm-dd>-broken-affiliate-<slug>.md` with:
@@ -66,6 +67,7 @@ or similar postbuild step to determine if it exists.
 
    Commit the task file with a message like:
    `affiliate: flag dead link <slug> (soft-404)`
+   Include the task file path in your Slack summary (see "Notify").
 
 3. **A `{{GO_PREFIX}}<id>` redirect itself is broken** (curl returns non-2xx or
    the cloak path returns a site 404 rather than redirecting to Amazon): file a
@@ -77,16 +79,22 @@ or similar postbuild step to determine if it exists.
      (check `site/src/lib/affiliate.ts` for the ASIN, expected URL:
      `https://www.amazon.com/dp/<ASIN>?tag={{AFFILIATE_TAG}}`)
 
-   See "Handing off work" for where this task goes.
+   See "Handing off work" for where this task goes. Include the task file path
+   in your Slack summary (see "Notify").
 
-4. **An out-of-stock (`currently unavailable`):** only file a task if the product
-   has been unavailable across **two consecutive runs** — products restock. Note it
-   in your summary either way. When you do file, use `type: content`.
+4. **An out-of-stock (`currently unavailable`):** track detections in
+   `ops/state/affiliate-oos.json` (a `{ "<id>": "<yyyy-mm-dd first seen>" }` map)
+   instead of relying on memory or re-reading old logs. Each run: read the file
+   (`{}` if missing); for every `id` OOS this run, if it's already a key this is its
+   2nd+ consecutive run — file the `type: content` task and remove the key; if new,
+   add it with today's date and file nothing yet. For every key NOT OOS this run
+   (restocked), remove it. Commit the updated state file alongside any task file (or
+   alone, if nothing else changed). Note the watch list in your Slack summary either way.
 
 ## Rules
 
 - **Read-only on content and registry.** Your only writes are new task files in
-  `ops/tasks/backlog/`.
+  `ops/tasks/backlog/` and the OOS watch-state file `ops/state/affiliate-oos.json`.
 - **Do not queue a deploy.** Filing a task is not a site change. Do not create
   `.deploy-needed`, do not trigger the deployer. This is a first-class invariant,
   not a footnote — the harness does not run the deployer after you finish.
@@ -100,3 +108,20 @@ or similar postbuild step to determine if it exists.
 ## Handing off work
 
 <!-- AWARENESS-BLOCK -->
+
+## Notify
+
+After the sweep, post a summary to `${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}` via
+`ops/scripts/notify-slack.sh`. Always post, even on an all-healthy run (say so) — this is the
+team's signal without polling the board.
+
+**Lead with one status emoji so the verdict is readable at a glance, without reading the sentence:**
+- `✅` — all clear, nothing filed
+- `👀` — informational only (e.g. new OOS detections below the filing threshold, anti-bot inconclusives)
+- `⚠️` — a broken redirect/cloak was filed (engineering)
+- `🚨` — a dead ASIN / de-listing was filed (content)
+
+Format: `<emoji> {{SITE_BRAND}} affiliate audit — <date>: <one-line verdict>.` e.g.
+`✅ {{SITE_BRAND}} affiliate audit — <date>: 11/11 resolved, 0 dead.`
+or, when something is filed,
+`🚨 {{SITE_BRAND}} affiliate audit — <date>: 1 dead link filed. Filed: ops/tasks/backlog/<date>-broken-affiliate-<slug>.md`
