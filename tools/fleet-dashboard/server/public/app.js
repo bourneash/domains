@@ -1880,7 +1880,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub', 'datahubimages'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub', 'datahubimages', 'fleetsmoke'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -1935,6 +1935,7 @@ function render() {
   else if (STATE.view === 'tasks') renderTasks();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
+  else if (STATE.view === 'fleetsmoke') renderFleetSmoke();
 }
 
 function renderAgent(role) {
@@ -2063,3 +2064,111 @@ async function boot() {
 }
 
 boot();
+
+/* ===================== FLEET SMOKE ===================== */
+const FS_ICON = { healthy: '✅', recovered: '🔧', attention: '🆘' };
+
+async function renderFleetSmoke() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading fleet-smoke sites…</div>';
+
+  let rows, systems;
+  try {
+    [rows, systems] = await Promise.all([
+      api('GET', '/api/fleet-smoke/sites'),
+      api('GET', '/api/cron/systems'),
+    ]);
+  } catch (e) { app.innerHTML = `<div class="empty">Fleet Smoke load failed: ${esc(e.message)}</div>`; return; }
+
+  const sys = systems.find((s) => s.slug === 'fleet-smoke');
+  const containerBadge = sys
+    ? `<span class="badge ${sys.status === 'running' ? 'b-green' : 'b-red'}">${esc(sys.status)}</span>`
+    : '<span class="badge b-red">not found</span>';
+  const schedule = sys && sys.entries && sys.entries[0] ? esc(sys.entries[0].human) : '—';
+
+  const configured = rows.filter((r) => r.configured);
+  const unconfigured = rows.filter((r) => !r.configured);
+
+  const pill = (on, slug, field) =>
+    `<button class="btn sm fs-toggle ${on ? 'b-green' : 'b-gray'}" data-slug="${esc(slug)}" data-field="${esc(field)}" data-value="${on ? 'false' : 'true'}">${on ? 'ON' : 'OFF'}</button>`;
+
+  const statusCell = (r) => {
+    if (r.error) return `<span class="badge b-red" title="${esc(r.error)}">config error</span>`;
+    if (!r.status) return '<span class="muted">—</span>';
+    return `${FS_ICON[r.status.icon] || '?'} ${r.status.pass}/${r.status.total}`;
+  };
+
+  const configuredRows = configured.map((r) => `
+    <tr>
+      <td class="mono">${siteLink(r.slug)}</td>
+      <td>${pill(r.enabled, r.slug, 'enabled')}</td>
+      <td>${pill(r.slackEnabled, r.slug, 'slack.enabled')}</td>
+      <td>${statusCell(r)}</td>
+      <td><button class="btn sm fs-run" data-slug="${esc(r.slug)}">▶ Run now</button></td>
+    </tr>`).join('');
+
+  const unconfiguredRows = unconfigured.map((r) => `
+    <tr>
+      <td class="mono">${siteLink(r.slug)}</td>
+      <td class="muted">—</td>
+      <td class="muted">—</td>
+      <td class="muted">—</td>
+      <td><button class="btn sm fs-add" data-slug="${esc(r.slug)}">+ Add config</button></td>
+    </tr>`).join('');
+
+  app.innerHTML = `
+    <div class="page-head">
+      <h2 class="page-title">Fleet Smoke</h2>
+      <span class="muted">${configured.length} configured · ${unconfigured.length} not yet · container ${containerBadge} · schedule ${schedule}</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Site</th><th>Checks</th><th>Slack</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${configuredRows || ''}${unconfiguredRows}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Toggling Checks/Slack or adding a config pushes directly to that site's <b>main</b> branch (auto-deploys via CF Workers Builds) — you'll be asked to confirm. <b>Run now</b> execs a single-site check inside the <span class="mono">fleet-smoke</span> container immediately, outside the daily schedule.</p>`;
+
+  wireFleetSmokeRows();
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+function wireFleetSmokeRows() {
+  $$('.fs-toggle').forEach((b) => b.addEventListener('click', () => fsToggle(b)));
+  $$('.fs-run').forEach((b) => b.addEventListener('click', () => fsRun(b)));
+  $$('.fs-add').forEach((b) => b.addEventListener('click', () => fsAddConfig(b)));
+}
+
+function reloadFleetSmoke() { FRESH = false; UISNAP = captureUI(); return renderFleetSmoke(); }
+
+async function fsToggle(btn) {
+  const { slug, field } = btn.dataset;
+  const value = btn.dataset.value === 'true';
+  if (!confirm(`This pushes to ${slug}'s main branch — continue?`)) return;
+  gdBusy(btn, true);
+  try {
+    const r = await api('POST', `/api/fleet-smoke/${encodeURIComponent(slug)}/toggle`, { field, value });
+    toast(r.pushed ? `${slug}: ${field} → ${value}` : `${slug}: toggled locally, push failed: ${r.pushError}`, r.pushed ? 'ok' : 'err');
+    await reloadFleetSmoke();
+  } catch (e) { toast(`toggle failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+async function fsRun(btn) {
+  const { slug } = btn.dataset;
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/fleet-smoke/${encodeURIComponent(slug)}/run`);
+    toast(`${slug}: check run complete`);
+    await reloadFleetSmoke();
+  } catch (e) { toast(`run failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+async function fsAddConfig(btn) {
+  const { slug } = btn.dataset;
+  if (!confirm(`This scaffolds ops/smoke.yaml for ${slug} and pushes to its main branch — continue?`)) return;
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/fleet-smoke/${encodeURIComponent(slug)}/add-config`);
+    toast(`${slug}: config added`);
+    await reloadFleetSmoke();
+  } catch (e) { toast(`add-config failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
