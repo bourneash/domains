@@ -115,3 +115,70 @@ test('toggleField: 404s (via thrown httpStatus) when the site has no ops/smoke.y
     (err) => err.httpStatus === 404,
   );
 });
+
+test('addConfig: scaffolds a homepage-only config with auto-detected Slack channel', async () => {
+  const root = makeRoot();
+  fs.mkdirSync(path.join(root, 'sites', 'newsite.com', 'ops'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.env'), 'SLACK_CHANNEL_NEWSITE=domain-newsite-com\nOTHER_VAR=x\n');
+  const fakeGit = { commit: async () => ({ ok: true }), push: async () => ({ ok: true, out: '' }) };
+  const result = await fleetSmoke.addConfig(root, 'newsite.com', { git: fakeGit });
+  assert.equal(result.row.enabled, true);
+  assert.equal(result.row.slackEnabled, true);
+  assert.equal(result.row.checksCount, 1);
+  const written = fs.readFileSync(path.join(root, 'sites', 'newsite.com', 'ops', 'smoke.yaml'), 'utf8');
+  assert.match(written, /channel_env: SLACK_CHANNEL_NEWSITE/);
+});
+
+test('addConfig: no matching or multiple matching channel vars → slack.enabled:false, no guessing', async () => {
+  const root = makeRoot();
+  fs.mkdirSync(path.join(root, 'sites', 'unknown.com', 'ops'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.env'), 'SLACK_CHANNEL_SOMETHINGELSE=x\n');
+  const fakeGit = { commit: async () => ({ ok: true }), push: async () => ({ ok: true, out: '' }) };
+  const result = await fleetSmoke.addConfig(root, 'unknown.com', { git: fakeGit });
+  assert.equal(result.row.slackEnabled, false);
+});
+
+test('addConfig: 409s when ops/smoke.yaml already exists', async () => {
+  const root = makeRoot();
+  writeConfig(root, 'existing.com', 'apex: existing.com\nchecks: []\n');
+  const fakeGit = { commit: async () => ({ ok: true }), push: async () => ({ ok: true, out: '' }) };
+  await assert.rejects(
+    () => fleetSmoke.addConfig(root, 'existing.com', { git: fakeGit }),
+    (err) => err.httpStatus === 409,
+  );
+});
+
+test('runNow: 409s when the fleet-smoke container is not running', async () => {
+  const root = makeRoot();
+  writeConfig(root, 'site.com', 'apex: site.com\nchecks:\n  - path: /\n    expect: 200\n    label: Homepage\n');
+  const fakeExec = async () => ({ err: null, stdout: 'exited', stderr: '' }); // never called in this test
+  const fakeIsRunning = async () => false;
+  await assert.rejects(
+    () => fleetSmoke.runNow(root, 'site.com', { exec: fakeExec, isContainerRunning: fakeIsRunning }),
+    (err) => err.httpStatus === 409,
+  );
+});
+
+test('runNow: execs into the container and returns the refreshed row on success', async () => {
+  const root = makeRoot();
+  writeConfig(root, 'site.com', 'apex: site.com\nchecks:\n  - path: /\n    expect: 200\n    label: Homepage\n');
+  let calledArgs = null;
+  const fakeExec = async (cmd, args) => { calledArgs = [cmd, ...args]; return { err: null, stdout: 'ok', stderr: '' }; };
+  const fakeIsRunning = async () => true;
+  // Simulate the exec having updated state as a side effect (a real exec would).
+  writeState(root, 'site.com', { fail: 0, headline_word: 'healthy' });
+  const result = await fleetSmoke.runNow(root, 'site.com', { exec: fakeExec, isContainerRunning: fakeIsRunning });
+  assert.equal(result.row.status.icon, 'healthy');
+  assert.deepEqual(calledArgs, ['docker', 'exec', 'fleet-smoke', 'python3', 'run_fleet_smoke.py', '--only', 'site.com', '--stagger-seconds', '0']);
+});
+
+test('runNow: surfaces the exec failure with stdout/stderr tail on non-zero exit', async () => {
+  const root = makeRoot();
+  writeConfig(root, 'site.com', 'apex: site.com\nchecks: []\n');
+  const fakeExec = async () => ({ err: new Error('exit 1'), stdout: 'some output', stderr: 'boom' });
+  const fakeIsRunning = async () => true;
+  await assert.rejects(
+    () => fleetSmoke.runNow(root, 'site.com', { exec: fakeExec, isContainerRunning: fakeIsRunning }),
+    (err) => err.httpStatus === 500 && /boom/.test(err.message),
+  );
+});
