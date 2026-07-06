@@ -884,3 +884,72 @@ def test_fetch_on_demand_prefers_documentary_over_stock(tmp_path, monkeypatch):
     reached = {r["source_id"] for r in conn.execute(
         "SELECT source_id FROM egress_log").fetchall()}
     assert "unsplash" not in reached
+
+
+def test_query_ladder_is_strong_queries_only():
+    # full join, then first-two join; never a lone single keyword.
+    assert collector._query_ladder(["us navy", "strait of hormuz", "centcom"]) == [
+        "us navy strait of hormuz centcom", "us navy strait of hormuz"]
+    assert collector._query_ladder(["a", "b"]) == ["a b"]       # full == first-two → deduped
+    assert collector._query_ladder(["OPEC"]) == ["OPEC"]        # 1 kw: only itself
+    assert collector._query_ladder([]) == []
+
+
+def _allow_plan(monkeypatch):
+    monkeypatch.setattr(
+        "datahub_images.vpn.plan_fetch",
+        lambda s, st, client=None: __import__(
+            "datahub_images.vpn", fromlist=["FetchPlan"]
+        ).FetchPlan(True, "http://p", "us", "1.2.3.4", "ok"),
+    )
+    monkeypatch.setattr(
+        "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg"))
+
+
+def _cand(source):
+    return dict(source_image_key=source + "1", url=f"http://img/{source}.jpg",
+                width=1300, height=800, license="x", credit={"source": source}, tags=["t"])
+
+
+def test_documentary_guard_denies_weak_single_keyword_match(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db")); store.init_schema(conn)
+    _allow_plan(monkeypatch)
+    # dvids ONLY matches the lone keyword "OPEC" — never the full or first-two
+    # query. The guard must refuse it and let stock (unsplash) serve instead.
+    monkeypatch.setattr("datahub_images.sources.dvids.search",
+        lambda q, limit, proxy, client=None: [_cand("dvids")] if q == "OPEC" else [])
+    monkeypatch.setattr("datahub_images.sources.unsplash.search",
+        lambda q, limit, proxy, client=None: [_cand("unsplash")])
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="unsplash", kind="unsplash"), Source(id="dvids", kind="dvids")]
+    out = collector.fetch_on_demand(
+        conn, ["OPEC", "oil markets", "explainer"], "mkt", st, srcs,
+        "2026-07-04T00:00:00Z", want=1, per_source_limit=5)
+
+    assert len(out) == 1
+    row = conn.execute("SELECT source_id FROM images WHERE id=?", (out[0],)).fetchone()
+    assert row["source_id"] == "unsplash"  # documentary's weak match was denied
+
+
+def test_documentary_preferred_on_strong_firsttwo_match(tmp_path, monkeypatch):
+    conn = store.connect(str(tmp_path / "t.db")); store.init_schema(conn)
+    _allow_plan(monkeypatch)
+    # dvids has nothing for the full join but hits on the first-two query —
+    # a strong match, so documentary should win over stock via the ladder.
+    monkeypatch.setattr("datahub_images.sources.dvids.search",
+        lambda q, limit, proxy, client=None: [_cand("dvids")] if q == "us navy strait of hormuz" else [])
+    monkeypatch.setattr("datahub_images.sources.unsplash.search",
+        lambda q, limit, proxy, client=None: [_cand("unsplash")])
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="unsplash", kind="unsplash"), Source(id="dvids", kind="dvids")]
+    out = collector.fetch_on_demand(
+        conn, ["us navy", "strait of hormuz", "centcom"], "mil", st, srcs,
+        "2026-07-04T00:00:00Z", want=1, per_source_limit=5)
+
+    assert len(out) == 1
+    row = conn.execute("SELECT source_id FROM images WHERE id=?", (out[0],)).fetchone()
+    assert row["source_id"] == "dvids"  # strong first-two match preferred
+    reached = {r["source_id"] for r in conn.execute("SELECT source_id FROM egress_log").fetchall()}
+    assert "unsplash" not in reached  # stopped at want before stock

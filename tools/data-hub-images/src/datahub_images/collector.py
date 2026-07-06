@@ -32,6 +32,24 @@ def _documentary_first(sources: list[Source]) -> list[Source]:
     the registry's relative order within each tier."""
     return sorted(sources, key=lambda s: 0 if s.kind in DOCUMENTARY_KINDS else 1)
 
+
+def _query_ladder(keywords: list[str]) -> list[str]:
+    """Strong queries only, tried in order: the full keyword join, then the
+    first-two-keyword join. Documentary archives (dvids/wikimedia/...) return
+    nothing for a long full-join but match well on a short entity query — so we
+    ladder DOWN to first-two. We deliberately STOP there and never fall to a
+    single lone keyword: that is the relevance guard. A lone weak token (e.g.
+    "OPEC") fuzzy-matches junk in a military archive (a Navy ceremony), so a
+    documentary hit is only trusted when it came from a strong (>=2-term) query.
+    Returns [] for empty input; de-duplicates (full == first-two when 2 kw)."""
+    if not keywords:
+        return []
+    ladder = [" ".join(keywords)]
+    if len(keywords) >= 2:
+        ladder.append(" ".join(keywords[:2]))
+    seen: set[str] = set()
+    return [q for q in ladder if not (q in seen or seen.add(q))]
+
 # Bounded retry on 403/429 for image-byte downloads (Wikimedia in particular
 # rate-limits bulk downloads even with a good UA). Mirrors the pattern in
 # datahub_images.sources._get_json: a patchable module-level sleep seam so
@@ -281,8 +299,30 @@ def fetch_on_demand(
                 )
                 continue
 
+            # Documentary sources get the strong-query ladder (full → first-two);
+            # stock keeps the single full query it already matches on. See
+            # _query_ladder for the relevance guard (no single-keyword fallback).
+            if source.kind in DOCUMENTARY_KINDS:
+                queries = _query_ladder(keywords) or [query]
+            else:
+                queries = [query]
+
             try:
-                cands = fetcher(query, per_source_limit, plan.proxy)
+                source_stored = 0
+                for q in queries:
+                    if time.monotonic() >= deadline or len(stored_ids) >= want:
+                        break
+                    cands = fetcher(q, per_source_limit, plan.proxy)
+                    cands = cands if isinstance(cands, list) else []
+                    for cand in cands:
+                        if time.monotonic() >= deadline or len(stored_ids) >= want:
+                            break
+                        image_id = _process_candidate(conn, source, topic, settings, now, plan, cand, pool_phashes, http)
+                        if image_id:
+                            stored_ids.append(image_id)
+                            source_stored += 1
+                    if source_stored:
+                        break  # got an image from this source; stop laddering
             except SourceUnavailable as exc:
                 store.record_egress(
                     conn, source_id=source.id, target_host=_host(source.url),
@@ -290,19 +330,6 @@ def fetch_on_demand(
                     status="skipped", note=_redacted_note(exc), ts=now,
                 )
                 continue
-
-            cands = cands or []
-            if not isinstance(cands, list):
-                cands = []
-
-            source_stored = 0
-            for cand in cands:
-                if time.monotonic() >= deadline or len(stored_ids) >= want:
-                    break
-                image_id = _process_candidate(conn, source, topic, settings, now, plan, cand, pool_phashes, http)
-                if image_id:
-                    stored_ids.append(image_id)
-                    source_stored += 1
 
             store.record_egress(
                 conn, source_id=source.id, target_host=_host(source.url),
