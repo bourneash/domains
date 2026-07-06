@@ -15,11 +15,11 @@ def load_state(state_dir, site_name):
         return json.load(f)
 
 
-def save_state(state_dir, site_name, fail_count):
+def save_state(state_dir, site_name, fail_count, headline_word):
     os.makedirs(state_dir, exist_ok=True)
     path = _state_path(state_dir, site_name)
     with open(path, "w") as f:
-        json.dump({"fail": fail_count}, f)
+        json.dump({"fail": fail_count, "headline_word": headline_word}, f)
 
 
 def compute_status(fail_count, prev_fail_count):

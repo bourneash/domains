@@ -51,7 +51,7 @@ def check_one_site(site_dir, config_path, state_dir, slack_token,
     fail_count = sum(1 for r in results if not r["ok"])
     prev = load_state(state_dir, site_name)
     icon, color, headline_word = compute_status(fail_count, prev.get("fail", 0))
-    save_state(state_dir, site_name, fail_count)
+    save_state(state_dir, site_name, fail_count, headline_word)
 
     for r in results:
         mark = "PASS" if r["ok"] else "FAIL"

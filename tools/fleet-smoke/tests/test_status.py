@@ -10,14 +10,14 @@ def test_load_state_defaults_when_missing(tmp_path):
 
 
 def test_save_then_load_state_roundtrips(tmp_path):
-    save_state(str(tmp_path), "example.com", 3)
+    save_state(str(tmp_path), "example.com", 3, "attention")
     state = load_state(str(tmp_path), "example.com")
-    assert state == {"fail": 3}
+    assert state == {"fail": 3, "headline_word": "attention"}
 
     # written under a per-site filename, not clobbering other sites
-    save_state(str(tmp_path), "other.com", 0)
-    assert load_state(str(tmp_path), "example.com") == {"fail": 3}
-    assert load_state(str(tmp_path), "other.com") == {"fail": 0}
+    save_state(str(tmp_path), "other.com", 0, "healthy")
+    assert load_state(str(tmp_path), "example.com") == {"fail": 3, "headline_word": "attention"}
+    assert load_state(str(tmp_path), "other.com") == {"fail": 0, "headline_word": "healthy"}
 
 
 def test_compute_status_healthy():
