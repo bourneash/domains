@@ -1,5 +1,11 @@
 'use strict';
 
+// Self-protecting even when this file is run directly (`node --test <file>`):
+// force the test env BEFORE requiring ./server so createApp() never starts the
+// deploy-health poller, whose live Cloudflare fetch would otherwise clobber the
+// per-test global.fetch stub (B1). The npm `test` script also sets this.
+process.env.NODE_ENV = 'test';
+
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');

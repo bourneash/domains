@@ -6,7 +6,7 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "test": "node --test"
+    "test": "NODE_ENV=test node --test"
   },
   "dependencies": {
     "cronstrue": "^2.59.0",
