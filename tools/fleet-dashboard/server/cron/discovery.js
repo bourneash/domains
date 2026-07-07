@@ -77,6 +77,15 @@ function buildTool(root, slug) {
   };
 }
 
+// Authoritative cron-container name for a site slug: the site's own
+// docker-compose `container_name:` ending in `-cron`, else the `<stem>-cron`
+// convention. Single source of truth so run.js and the cron control plane
+// resolve the SAME container (see B1) instead of guessing independently.
+function siteCronContainer(root, slug) {
+  const composePath = path.join(root, 'sites', slug, 'docker-compose.yml');
+  return cronContainerName(composePath, `${stem(slug)}-cron`);
+}
+
 function discoverSystems(root) {
   const out = [];
   for (const slug of readDirs(path.join(root, 'sites'))) {
@@ -90,4 +99,4 @@ function discoverSystems(root) {
   return out;
 }
 
-module.exports = { discoverSystems, stem };
+module.exports = { discoverSystems, stem, siteCronContainer, cronContainerName };

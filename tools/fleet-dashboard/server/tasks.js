@@ -183,11 +183,22 @@ function move(root, slug, fromCol, file, toCol) {
   return { column: toCol, file: name };
 }
 
+// Soft delete (F8): instead of unlinking, move the task into ops/tasks/.trash/
+// so an accidental delete is recoverable. The `.trash` dir is hidden and not one
+// of COLUMNS, so it never shows on the board or in listAll(). Name is prefixed
+// with its origin column and de-duplicated so repeated deletes don't collide.
 function remove(root, slug, column, file) {
   if (!isValidColumn(column) || !isValidFilename(file)) throw httpErr(400, 'bad column or filename');
   const fp = path.join(tasksDir(root, slug), column, file);
   if (!fs.existsSync(fp)) throw httpErr(404, 'task not found');
-  fs.unlinkSync(fp);
+  const trashDir = path.join(tasksDir(root, slug), '.trash');
+  fs.mkdirSync(trashDir, { recursive: true });
+  let name = `${column}__${file}`;
+  let dest = path.join(trashDir, name);
+  let n = 2;
+  while (fs.existsSync(dest)) { name = `${column}__${file.replace(/\.md$/, `-${n}.md`)}`; dest = path.join(trashDir, name); n += 1; }
+  fs.renameSync(fp, dest);
+  return { ok: true, trashed: name };
 }
 
 function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }

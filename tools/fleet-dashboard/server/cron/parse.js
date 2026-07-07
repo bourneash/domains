@@ -17,9 +17,27 @@ function isValidCron(expr) {
   return fields.every((f) => FIELD_RE.test(f));
 }
 
+// Single source of truth for turning a crontab command into a role. Two shapes:
+//   run-worker.sh <role>   → a worker role (honours ops/.<role>-disabled → pausable)
+//   run-<role>.sh          → a dedicated-script role (not a worker, not pausable)
+// Returns { role, worker } with role lowercased, or { role: null, worker: false }.
+// Both roles.js and the cron control plane consume this so recognition can never
+// drift between the roles matrix and the cron page.
+function roleFromCommand(command) {
+  const cmd = String(command || '');
+  let m;
+  if ((m = cmd.match(/run-worker\.sh\s+([A-Za-z0-9._-]+)/i))) {
+    return { role: m[1].toLowerCase(), worker: true };
+  }
+  if ((m = cmd.match(/run-([A-Za-z0-9-]+)\.sh/i)) && !['worker', 'role'].includes(m[1].toLowerCase())) {
+    return { role: m[1].toLowerCase(), worker: false };
+  }
+  return { role: null, worker: false };
+}
+
+// Back-compat thin wrapper: just the role name (or null).
 function extractRole(command) {
-  const m = command.match(/run-worker\.sh\s+([A-Za-z0-9._-]+)/);
-  return m ? m[1] : null;
+  return roleFromCommand(command).role;
 }
 
 function parseCrontab(text) {
@@ -31,12 +49,14 @@ function parseCrontab(text) {
     const schedule = m[2].trim();
     if (!isValidCron(schedule)) return;          // rejects prose comments
     const command = m[3].trim();
+    const { role, worker } = roleFromCommand(command);
     entries.push({
       lineIndex,
       rawLine: line,
       schedule,
       command,
-      role: extractRole(command),
+      role,
+      worker,
       commented: Boolean(m[1]),
     });
   });
@@ -86,5 +106,5 @@ function removeLine(text, lineIndex, expectedRawLine) {
   return lines.join('\n');
 }
 
-module.exports = { parseCrontab, isValidCron, extractRole, CRON_RE,
+module.exports = { parseCrontab, isValidCron, extractRole, roleFromCommand, CRON_RE,
   commentLine, uncommentLine, editSchedule, removeLine };

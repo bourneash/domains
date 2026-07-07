@@ -17,10 +17,25 @@ async function api(method, url, body) {
   const opt = { method, headers: {} };
   if (body !== undefined) { opt.headers['content-type'] = 'application/json'; opt.body = JSON.stringify(body); }
   const r = await fetch(url, opt);
+  if (r.status === 401) { showLogin(); throw new Error('authentication required'); }
   const txt = await r.text();
   let data; try { data = txt ? JSON.parse(txt) : null; } catch { data = txt; }
   if (!r.ok) throw new Error((data && data.error) || `HTTP ${r.status}`);
   return data;
+}
+
+/* ---- auth gate (F1) ---- */
+function showLogin() { const o = $('#login-overlay'); if (o) o.classList.remove('hidden'); const t = $('#login-token'); if (t) t.focus(); }
+function hideLogin() { const o = $('#login-overlay'); if (o) o.classList.add('hidden'); }
+async function submitLogin(e) {
+  e.preventDefault();
+  const err = $('#login-err'); if (err) err.textContent = '';
+  const token = ($('#login-token') || {}).value || '';
+  try {
+    await api('POST', '/api/login', { token });   // sets the httpOnly cookie on success
+    hideLogin();
+    location.reload();                             // re-fetch everything now that we're authed
+  } catch (ex) { if (err) err.textContent = ex.message === 'authentication required' ? 'Invalid token' : ex.message; }
 }
 
 function toast(msg, kind = 'ok') {
@@ -230,6 +245,7 @@ async function renderGit() {
     <div class="task-toolbar">
       <strong>${rows.length} repos</strong>
       <span class="muted">${dirtyCount} dirty · ${pushCount} need push</span>
+      <button class="btn sm" id="push-all" style="margin-left:auto"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button>
     </div>
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Branch</th><th>Working tree</th><th>Remote</th></tr></thead>
@@ -237,6 +253,7 @@ async function renderGit() {
     </table></div>`;
 
   $$('.git-row').forEach((tr) => tr.addEventListener('click', () => toggleGitDetail(tr.dataset.slug)));
+  const pa = $('#push-all'); if (pa) pa.addEventListener('click', pushAllSites);
   if (!FRESH) applyUISnap();
   // applyUISnap re-injects the saved innerHTML of any expanded detail but not its
   // event listeners — re-wire the live ops for every still-open detail panel.
@@ -279,12 +296,16 @@ function renderGitDetail(slug, box, s) {
     return;
   }
 
-  const fileRows = s.files.map((f) => `<label class="gd-file">
+  const fileRows = s.files.map((f) => `<div class="gd-file-wrap">
+    <label class="gd-file">
       <input type="checkbox" class="gd-sel" value="${esc(f.path)}" checked />
       <span class="code chip ${gitCls(f.kind)}" title="${esc(f.kind)}">${esc(f.code)}</span>
       <span class="gd-path" title="${esc(f.kind)}">${esc(f.path)}</span>
+      <button type="button" class="gd-diff" data-path="${esc(f.path)}" title="Show the diff for this file">diff</button>
       <button type="button" class="gd-ignore" data-path="${esc(f.path)}" title="Add to .gitignore and commit the .gitignore">ignore</button>
-    </label>`).join('');
+    </label>
+    <pre class="gd-diff-out hidden" data-diff="${esc(f.path)}"></pre>
+    </div>`).join('');
 
   const meta = [`${s.files.length} changed`, s.staged ? `${s.staged} staged` : '', s.untracked ? `${s.untracked} untracked` : '',
     s.ahead ? `${s.ahead} to push` : '', s.behind ? `${s.behind} behind` : ''].filter(Boolean).join(' · ');
@@ -305,8 +326,22 @@ function renderGitDetail(slug, box, s) {
 function wireGitOps(slug, box) {
   $$('.gd-all', box).forEach((a) => a.addEventListener('click', () => $$('.gd-sel', box).forEach((c) => { c.checked = a.dataset.v === '1'; })));
   $$('.gd-ignore', box).forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); gitIgnore(slug, box, b.dataset.path, b); }));
+  $$('.gd-diff', box).forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); toggleGitFileDiff(slug, box, b.dataset.path, b); }));
   const cb = $('.gd-commit-btn', box); if (cb) cb.addEventListener('click', () => gitCommit(slug, box, cb));
   const pb = $('.gd-push', box); if (pb) pb.addEventListener('click', () => gitPush(slug, box, pb));
+}
+
+// F5: toggle the per-file diff preview (working tree vs HEAD; whole file if new).
+async function toggleGitFileDiff(slug, box, p, btn) {
+  const pre = $(`.gd-diff-out[data-diff="${CSS.escape(p)}"]`, box);
+  if (!pre) return;
+  if (!pre.classList.contains('hidden')) { pre.classList.add('hidden'); return; }
+  pre.classList.remove('hidden');
+  pre.textContent = 'loading diff…';
+  try {
+    const r = await api('GET', `/api/git/${encodeURIComponent(slug)}/diff?path=${encodeURIComponent(p)}`);
+    pre.textContent = r.diff || (r.untracked ? '(new file — no diff)' : '(no changes vs HEAD)');
+  } catch (e) { pre.textContent = `diff failed: ${e.message}`; }
 }
 
 function gdBusy(btn, on) {
@@ -362,6 +397,20 @@ async function gitPush(slug, box, btn) {
     toast(`Pushed ${slug}`);
     await refreshGitAfterOp(slug, box);
   } catch (e) { toast(`push failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+// F6: push every site that's ahead of origin, one call, sequential on the server.
+async function pushAllSites() {
+  const btn = $('#push-all');
+  if (!confirm('Push every site that is ahead of origin?\n\nEach pushed site deploys on push. Runs sequentially.')) return;
+  gdBusy(btn, true);
+  toast('Pushing all sites that need it…');
+  try {
+    const r = await api('POST', '/api/git/push-all');
+    const failed = (r.results || []).filter((x) => !x.ok);
+    toast(`Pushed ${r.pushed}/${r.total}${failed.length ? ` · ${failed.length} failed` : ''}`, failed.length ? 'err' : 'ok');
+    softRender();
+  } catch (e) { toast(`push-all failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
 /* ===================== ROLES ===================== */
@@ -1049,10 +1098,10 @@ async function saveTask({ mode, site, origColumn, file }) {
 }
 
 async function deleteTask(site, column, file) {
-  if (!confirm(`Delete task "${file}"? This removes the file on disk.`)) return;
+  if (!confirm(`Delete task "${file}"?\n\nIt's moved to ops/tasks/.trash/ (recoverable), not permanently removed.`)) return;
   try {
     await api('DELETE', `/api/tasks/${encodeURIComponent(site)}/${encodeURIComponent(column)}/${encodeURIComponent(file)}`);
-    toast('Task deleted'); closeModal();
+    toast('Task moved to trash'); closeModal();
     if (TASK.mode === 'board') loadBoard(); else loadFleet();
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -1999,6 +2048,7 @@ function applyAutoUI() {
 function updateCountdown() {
   const next = $('#auto-next'); if (!next) return;
   if (!autoCfg().on) { next.textContent = 'paused'; return; }
+  if (SSE_LIVE) { next.textContent = '● live'; return; }   // pushed by the SSE channel
   const s = Math.max(0, Math.round((nextAt - Date.now()) / 1000));
   next.textContent = `↻ ${s}s`;
 }
@@ -2006,6 +2056,9 @@ function scheduleAuto() {
   clearInterval(autoTimer); clearInterval(countTimer);
   applyAutoUI();
   if (!autoCfg().on) { updateCountdown(); return; }
+  // When the SSE channel is live it drives refresh (throttled to the interval),
+  // so we don't also run the local poll timer — just the 1s countdown label.
+  if (SSE_LIVE) { countTimer = setInterval(updateCountdown, 1000); updateCountdown(); return; }
   nextAt = Date.now() + autoCfg().interval;
   autoTimer = setInterval(() => { nextAt = Date.now() + autoCfg().interval; refreshTick(); }, autoCfg().interval);
   countTimer = setInterval(updateCountdown, 1000);
@@ -2017,6 +2070,35 @@ function refreshTick() {
   const ae = document.activeElement;                                    // mid-typing (e.g. commit msg)
   if (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
   softRender();
+}
+
+/* ---- live refresh channel (F4) ---- */
+let SSE_LIVE = false;       // true while the SSE connection is up (drives refresh)
+let lastRefresh = 0;        // throttle: honour the user's chosen interval even on SSE ticks
+function openStream() {
+  let es;
+  try { es = new EventSource('/api/stream'); } catch { return; }   // no EventSource → keep polling
+  es.onopen = () => { SSE_LIVE = true; scheduleAuto(); };
+  es.onerror = () => { if (SSE_LIVE) { SSE_LIVE = false; scheduleAuto(); } };   // fall back to the poll timer
+  es.addEventListener('tick', (ev) => {
+    if (!autoCfg().on) return;
+    let v; try { v = JSON.parse(ev.data).version; } catch { /* ignore */ }
+    if (v && BOOT_VERSION && v !== BOOT_VERSION) return checkVersion();   // a new build shipped → reload
+    const now = Date.now();
+    if (now - lastRefresh < autoCfg().interval) return;                    // respect the interval
+    lastRefresh = now;
+    refreshTick();
+  });
+}
+
+/* ---- dependency preflight banner (F7) ---- */
+async function checkDeps() {
+  let d; try { d = await api('GET', '/api/health/deps'); } catch { return; }
+  const el = $('#deps-banner'); if (!el) return;
+  if (!d || d.ok) { el.classList.add('hidden'); el.textContent = ''; return; }
+  const bad = Object.entries(d.checks).filter(([, c]) => !c.ok).map(([k, c]) => `${k} — ${c.detail}`);
+  el.innerHTML = `<strong>⚠ Degraded</strong> ${bad.map((b) => esc(b)).join(' · ')}`;
+  el.classList.remove('hidden');
 }
 
 /* ---- self-update: detect a new front-end build and reload cleanly ---- */
@@ -2034,6 +2116,14 @@ async function checkVersion() {
 }
 
 async function boot() {
+  // Auth gate (F1): if the server requires a token and we don't have one, show
+  // the login overlay and stop — don't render the dashboard behind it.
+  const loginForm = $('#login-form'); if (loginForm) loginForm.addEventListener('submit', submitLogin);
+  try {
+    const a = await api('GET', '/api/auth');
+    if (a && a.authRequired && !a.authed) { showLogin(); return; }
+  } catch { /* /api/auth is exempt; ignore transient errors */ }
+
   try { STATE.sites = await api('GET', '/api/sites'); } catch { STATE.sites = []; }
   try { STATE.agents = await api('GET', '/api/agents'); } catch { STATE.agents = []; }
   const r = parseHash(); STATE.view = r.view; STATE.agent = r.agent;
@@ -2051,7 +2141,10 @@ async function boot() {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); cmCloseLogs(); cmCloseDiff(); cmCloseEditor(); } });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); refreshTick(); scheduleAuto(); } });
   checkVersion();
+  checkDeps();                         // F7: surface missing python3/docker/etc.
+  openStream();                        // F4: live-refresh channel (falls back to polling)
   setInterval(checkVersion, 60000);
+  setInterval(checkDeps, 120000);
   setInterval(logFollowTick, 3000);   // live-tail open log surfaces
   window.addEventListener('hashchange', () => {
     const n = parseHash();

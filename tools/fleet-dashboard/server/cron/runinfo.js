@@ -41,14 +41,30 @@ function resolveLogPath(root, slug, containerPath) {
   return resolved;
 }
 
-// Tail the last N lines of a file. Never throws.
-function tailFile(file, lines = 400) {
+// Tail the last N lines of a file WITHOUT reading the whole thing into memory.
+// Reads at most `maxBytes` from the end (enough to comfortably cover N lines of
+// ordinary log output); if we started mid-file, the first (partial) line is
+// dropped. Never throws.
+function tailFile(file, lines = 400, maxBytes = 1024 * 1024) {
+  let fd;
   try {
-    const text = fs.readFileSync(file, 'utf8').replace(/\n+$/, '');
-    const arr = text.split('\n');
+    fd = fs.openSync(file, 'r');
+    const size = fs.fstatSync(fd).size;
+    const start = Math.max(0, size - maxBytes);
+    const len = size - start;
+    const buf = Buffer.alloc(len);
+    if (len > 0) fs.readSync(fd, buf, 0, len, start);
+    let text = buf.toString('utf8');
+    if (start > 0) {
+      const nl = text.indexOf('\n');          // drop the partial first line
+      text = nl === -1 ? '' : text.slice(nl + 1);
+    }
+    const arr = text.replace(/\n+$/, '').split('\n');
     return arr.slice(Math.max(0, arr.length - lines)).join('\n').trim() || '(empty log)';
   } catch (e) {
     return `error reading log: ${e.message}`;
+  } finally {
+    if (fd !== undefined) { try { fs.closeSync(fd); } catch { /* already closed */ } }
   }
 }
 

@@ -16,6 +16,9 @@ const cron = require('./cron');
 const deployhealth = require('./deployhealth');
 const datahub = require('./datahub');
 const datahubImages = require('./datahub-images');
+const auth = require('./auth');
+const health = require('./health');
+const actionlog = require('./actionlog');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -24,8 +27,81 @@ const HOST = process.env.FD_HOST || '127.0.0.1';
 
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
+  app.disable('x-powered-by');
+
+  // Host allowlist for EVERY request (defeats DNS-rebinding — B3). Always on.
+  app.use(auth.hostGuard);
+
+  // Structured request log (F11): one line per request with status + duration,
+  // mutations flagged. Silent under test to keep `node --test` output clean.
+  if (process.env.NODE_ENV !== 'test' && process.env.FD_QUIET !== '1') {
+    app.use((req, res, next) => {
+      const start = Date.now();
+      res.on('finish', () => {
+        const write = req.method !== 'GET' && req.method !== 'HEAD';
+        // Skip the noisy SSE/asset/version polling; keep mutations + errors + API reads.
+        if (req.path === '/api/version' || req.path === '/api/stream') return;
+        if (!write && res.statusCode < 400 && !req.path.startsWith('/api/')) return;
+        console.log(`${new Date().toISOString()} ${write ? 'WRITE ' : ''}${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`);
+      });
+      next();
+    });
+  }
+
   app.use(express.json({ limit: '1mb' }));
+
+  // Persisted audit trail (B4): append one JSONL record per mutating /api/*
+  // request — actor fingerprint, path, status, duration, sanitized body. Mounted
+  // after express.json (so req.body is populated) and BEFORE the token gate so
+  // rejected mutation attempts (401/403) are recorded too.
+  app.use(actionlog.middleware);
+
+  // Token gate for the API (opt-in via FD_TOKEN — F1). App-wide but only acts on
+  // /api/* (see auth.apiGuard); mounted after express.json so POST /api/login can
+  // read its body, and before routes. Static assets + /healthz stay open so the
+  // login shell always loads.
+  app.use(auth.apiGuard);
+
   app.use(express.static(path.join(__dirname, 'public')));
+
+  // Auth surface (always available, even when the token gate is on).
+  app.get('/api/auth', auth.authStatus);
+  app.post('/api/login', auth.loginHandler);
+
+  // Audit trail read-back (B4): the most-recent mutating actions, newest first.
+  app.get('/api/actions', (req, res) => {
+    try { res.json({ actions: actionlog.tail(req.query.limit) }); }
+    catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+  });
+
+  // Liveness + dependency preflight (F7).
+  app.get('/healthz', (_req, res) => res.json({ ok: true }));
+  app.get('/api/health/deps', async (_req, res) => {
+    try { res.json(await health.deps(root)); }
+    catch (e) { res.status(500).json({ ok: false, error: String(e.message || e) }); }
+  });
+
+  // Live-refresh channel (F4): a lightweight SSE heartbeat. The SPA subscribes
+  // and refreshes in place on each tick instead of polling on its own timer.
+  const sseClients = new Set();
+  app.get('/api/stream', (req, res) => {
+    res.set({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+    if (res.flushHeaders) res.flushHeaders();
+    res.write('retry: 5000\n\n');
+    res.write(`event: hello\ndata: ${JSON.stringify({ version: assetVersion() })}\n\n`);
+    sseClients.add(res);
+    const ping = setInterval(() => {
+      try { res.write(`event: tick\ndata: ${JSON.stringify({ t: Date.now(), version: assetVersion() })}\n\n`); }
+      catch { /* client gone; cleanup runs on close */ }
+    }, 10000);
+    if (ping.unref) ping.unref();
+    req.on('close', () => { clearInterval(ping); sseClients.delete(res); });
+  });
 
   // Gate every :slug route through discovery so no request can address a
   // directory we didn't enumerate.
@@ -125,7 +201,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   // Trigger one engineer to run now (same command cron fires, detached).
   app.post('/api/fleet/:slug/run', requireSite, async (req, res) => {
-    try { res.json({ ok: true, container: await run.runEngineer(req.params.slug) }); }
+    try { res.json({ ok: true, container: await run.runEngineer(root, req.params.slug) }); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
@@ -249,9 +325,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(500).json({ error: e.message }); }
   });
 
+  // Fleet-wide bulk push (F6): push every site that's ahead of origin. Defined
+  // before :slug so "push-all" isn't captured as a slug.
+  app.post('/api/git/push-all', async (_req, res) => {
+    try { res.json(await git.pushAll(root, discoverSites(root))); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
   app.get('/api/git/:slug', requireSite, async (req, res) => {
     try { res.json(await git.status(root, req.params.slug)); }
     catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Per-file diff preview (F5): working tree vs HEAD (or whole file for untracked).
+  app.get('/api/git/:slug/diff', requireSite, async (req, res) => {
+    try { res.json(await git.fileDiff(root, req.params.slug, req.query.path)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
   // Safe write ops: commit selected paths, ignore (gitignore+commit), push.
@@ -308,14 +397,54 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
+  // JSON 404 for unmatched API routes (B5) — anything under /api/* that no route
+  // handled returns { error } JSON, not the static middleware's HTML 404.
+  app.use('/api', (req, res) => res.status(404).json({ error: 'not found', path: req.originalUrl }));
+
+  // Terminal error handler (B5): guarantees every failure — including a body
+  // parse error from express.json (malformed JSON → SyntaxError) or a throw in a
+  // handler that lacks its own try/catch — is emitted as { error } JSON for the
+  // API surface, instead of Express's default HTML error page.
+  app.use((err, req, res, next) => {
+    if (res.headersSent) return next(err);
+    const status = err.status || err.statusCode || err.httpStatus || 500;
+    if (req.path.startsWith('/api/')) return res.status(status).json({ error: String(err.message || err) });
+    return res.status(status).send(String(err.message || 'error'));
+  });
+
   // Kick off the background CF deploy-health poller (re-discovers sites each
-  // sweep so new sites are picked up without a restart).
-  deployhealth.start(root, () => discoverSites(root));
+  // sweep so new sites are picked up without a restart). Skipped under test so
+  // its outbound CF fetch doesn't race a test's stubbed global.fetch.
+  if (process.env.NODE_ENV !== 'test') deployhealth.start(root, () => discoverSites(root));
 
   return app;
 }
 
+// A pure-loopback bind is the only case where a missing token is safe. Note this
+// does NOT account for docker network membership: in compose the panel binds
+// 0.0.0.0 AND joins vpn_proxy, so any peer container can reach it regardless of
+// the published-port address — the token is the only real gate there. Hence the
+// guard keys off a non-loopback bind, which is exactly the compose case.
+const LOOPBACK = new Set(['127.0.0.1', '::1', 'localhost']);
+
+function assertSafeToBind(host) {
+  if (auth.TOKEN || LOOPBACK.has(host) || process.env.FD_ALLOW_INSECURE === '1') return;
+  console.error(
+    `\n[fleet-dashboard] REFUSING TO START — bound to ${host}:${PORT} with no FD_TOKEN.\n`
+    + '  This panel mounts the docker socket and drives the whole fleet; on a non-loopback\n'
+    + '  bind (or the shared vpn_proxy network) an unauthenticated port = full fleet + host\n'
+    + '  takeover for any peer that can reach it. Fix one of:\n'
+    + '    • set FD_TOKEN=<secret>            (recommended — gate the API)\n'
+    + '    • set FD_HOST=127.0.0.1            (loopback only, no network exposure)\n'
+    + '    • set FD_ALLOW_INSECURE=1          (explicit opt-out — you accept the risk)\n');
+  process.exit(1);
+}
+
 if (require.main === module) {
+  assertSafeToBind(HOST);
+  if (!auth.TOKEN && process.env.FD_ALLOW_INSECURE === '1' && !LOOPBACK.has(HOST)) {
+    console.warn(`[fleet-dashboard] WARNING: bound to ${HOST}:${PORT} with no FD_TOKEN (FD_ALLOW_INSECURE=1). API is UNAUTHENTICATED.`);
+  }
   createApp().listen(PORT, HOST, () => console.log(`fleet-dashboard on http://${HOST}:${PORT}`));
 }
 

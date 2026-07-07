@@ -499,3 +499,27 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .dhi-thumb-sub { font-size: 11px; color: var(--muted, #8a93a6); }
 .dhi-thumb-actions { display: flex; gap: 6px; margin-top: 4px; }
 @media (max-width: 980px) { .dhi-grid { grid-template-columns: 1fr; } }
+
+/* ---- per-file diff preview (F5) ---- */
+.gd-file-wrap { border-bottom: 1px solid var(--border); }
+.gd-file-wrap:last-child { border-bottom: none; }
+.gd-file-wrap .gd-file { border-bottom: none; }
+.gd-file .gd-diff { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 11.5px; padding: 2px 4px; }
+.gd-file .gd-diff:hover { text-decoration: underline; }
+.gd-diff-out { margin: 0 10px 8px 44px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  font-family: var(--mono); font-size: 11.5px; white-space: pre; overflow-x: auto; max-height: 320px; color: var(--text); }
+
+/* ---- dependency preflight banner (F7) ---- */
+.deps-banner { margin: 10px 16px 0; padding: 8px 12px; border-radius: 8px; font-size: 12.5px;
+  background: rgba(210,153,34,.12); border: 1px solid var(--yellow); color: var(--text); }
+.deps-banner strong { color: var(--yellow); margin-right: 6px; }
+
+/* ---- auth gate (F1) ---- */
+.login-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  background: rgba(8,10,14,.82); backdrop-filter: blur(2px); }
+.login-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 28px 26px;
+  width: min(360px, 90vw); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+.login-card h2 { margin: 0; }
+.login-card .cm-input { width: 100%; box-sizing: border-box; }
+.login-actions { display: flex; align-items: center; gap: 12px; }
+.hidden { display: none !important; }

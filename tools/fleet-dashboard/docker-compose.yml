@@ -15,6 +15,11 @@ services:
       # git/task file paths line up with the host.
       FD_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
       FD_HOST: 0.0.0.0
+      # This panel mounts the docker socket AND joins the shared vpn_proxy
+      # network, so any container on that network can reach it — the token is the
+      # only real gate (B2). REQUIRED: `docker compose up` fails fast unless
+      # FD_TOKEN is set in the environment (e.g. in the shared .env or your shell).
+      FD_TOKEN: ${FD_TOKEN:?set FD_TOKEN in the environment before starting the panel}
       HOME: ${HOME:-/home/jesse}
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770

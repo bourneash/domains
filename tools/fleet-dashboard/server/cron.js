@@ -28,16 +28,28 @@ const parse = require('./cron/parse');
 // demand instead of force-opening a panel during the rebuild.
 const lastRebuildLog = new Map();
 
-// Per-slug write lock for crontab edits. Prevents two concurrent edits from
-// both passing the stale-line check and silently overwriting each other.
-const crontabLocks = new Map();
-function withCrontabLock(slug, fn) {
-  const prev = crontabLocks.get(slug) ?? Promise.resolve();
-  let release;
-  const gate = new Promise((r) => { release = r; });
-  crontabLocks.set(slug, gate);
-  return prev.then(() => fn()).finally(release);
+// Keyed serialization lock. A tail of promises per key: each caller waits for
+// the previous one to settle before running, so operations on the same key never
+// interleave. Used for:
+//   • crontab edits (key = slug)   — two edits can't both pass the stale-line
+//                                     check and silently overwrite each other;
+//   • rebuild/revert (key = slug)  — no overlapping compose recreate of one
+//                                     site's cron container (B5);
+//   • manual runs (key = slug:role)— one in-flight run per role.
+function makeLocker() {
+  const chains = new Map();
+  return function withLock(key, fn) {
+    const prev = chains.get(key) ?? Promise.resolve();
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    // Keep the chain moving even if fn rejects; swallow here so the tail never
+    // rejects (callers still see fn's own rejection via the returned promise).
+    chains.set(key, prev.then(() => gate).catch(() => {}));
+    return prev.then(() => fn()).finally(release);
+  };
 }
+const withCrontabLock = makeLocker();   // key: slug  (crontab edits, rebuild, revert)
+const withJobLock = makeLocker();       // key: slug:role  (manual runs)
 
 function httpErr(message, status) { const e = new Error(message); e.httpStatus = status; return e; }
 
@@ -113,7 +125,7 @@ async function systems(root) {
 // Tail logs from a chosen source: container | rebuild | role:<role>.
 async function logs(root, slug, source, tailN) {
   const sys = requireSystem(root, slug);
-  const tail = Math.min(parseInt(tailN, 10) || 400, 2000);
+  const tail = Math.max(1, Math.min(parseInt(tailN, 10) || 400, 2000));
   const src = String(source || 'container');
   if (src === 'container') return containerLogs(sys.container, undefined, tail);
   if (src === 'rebuild') return lastRebuildLog.get(sys.slug) || '(no rebuild has run in this session yet)';
@@ -148,15 +160,20 @@ async function runJob(root, slug, role, res) {
   const health = await inspectContainer(sys.container);
   if (!health.ok) throw httpErr(`container is not running (${health.state})`, 409);
 
-  const { spawn } = require('node:child_process');
-  res.setHeader('content-type', 'text/plain; charset=utf-8');
-  // Mirror the crontab invocation: `bash ops/scripts/run-worker.sh <role>` from
-  // /work. Passing args as an array avoids any shell injection.
-  const child = spawn('docker', ['exec', '-w', '/work', sys.container, 'bash', 'ops/scripts/run-worker.sh', role]);
-  child.stdout.on('data', (d) => res.write(d.toString()));
-  child.stderr.on('data', (d) => res.write(d.toString()));
-  child.on('close', (code) => { res.write(`\n@@RUN_EXIT ${code ?? -1}\n`); res.end(); });
-  child.on('error', (e) => { res.write(`spawn error: ${e.message}\n@@RUN_EXIT -1\n`); res.end(); });
+  // Serialize per (slug, role) so a second manual run can't interleave with one
+  // already in flight (B5). Validation above runs BEFORE the lock so bad
+  // requests fail fast instead of queueing behind a long run.
+  await withJobLock(`${sys.slug}:${role}`, () => new Promise((resolve) => {
+    const { spawn } = require('node:child_process');
+    res.setHeader('content-type', 'text/plain; charset=utf-8');
+    // Mirror the crontab invocation: `bash ops/scripts/run-worker.sh <role>` from
+    // /work. Passing args as an array avoids any shell injection.
+    const child = spawn('docker', ['exec', '-w', '/work', sys.container, 'bash', 'ops/scripts/run-worker.sh', role]);
+    child.stdout.on('data', (d) => res.write(d.toString()));
+    child.stderr.on('data', (d) => res.write(d.toString()));
+    child.on('close', (code) => { res.write(`\n@@RUN_EXIT ${code ?? -1}\n`); res.end(); resolve(); });
+    child.on('error', (e) => { res.write(`spawn error: ${e.message}\n@@RUN_EXIT -1\n`); res.end(); resolve(); });
+  }));
 }
 
 // File-mutating actions: comment/uncomment/edit/remove. Marks pending rebuild.
@@ -203,14 +220,17 @@ async function revert(root, slug) {
   // returned no content — both would wipe the disk file).
   if (running === null) throw httpErr('container is not running — cannot read baked crontab', 409);
   if (!running.trim()) throw httpErr('baked crontab is empty — refusing to overwrite disk file', 409);
-  try {
-    fs.writeFileSync(sys.crontabPath, running);
-    const created = await containerCreatedAt(sys.container);
-    if (created) {
-      const t = (created.getTime() - 1000) / 1000;
-      fs.utimesSync(sys.crontabPath, t, t);
-    }
-  } catch (e) { throw httpErr(e.message, 500); }
+  // Serialize against concurrent edits/rebuild on this slug (B5).
+  await withCrontabLock(sys.slug, async () => {
+    try {
+      fs.writeFileSync(sys.crontabPath, running);
+      const created = await containerCreatedAt(sys.container);
+      if (created) {
+        const t = (created.getTime() - 1000) / 1000;
+        fs.utimesSync(sys.crontabPath, t, t);
+      }
+    } catch (e) { throw httpErr(e.message, 500); }
+  });
   return { ok: true };
 }
 
@@ -218,23 +238,27 @@ async function revert(root, slug) {
 // capture it, and emit a machine-readable final verdict line.
 async function rebuild(root, slug, res) {
   const sys = requireSystem(root, slug);
-  const cwd = sys.kind === 'site' ? path.join(sys.opsDir, '..') : path.dirname(sys.crontabPath);
-  res.setHeader('content-type', 'text/plain; charset=utf-8');
-  let buf = '';
-  const emit = (d) => { buf += d; res.write(d); };
-  const result = await rebuildCron(cwd, emit);
-  emit(`\n[exit ${result.code}] compose ${result.ok ? 'OK' : 'FAILED'}\n`);
-  emit(`Verifying ${sys.container} actually started…\n`);
-  const health = await confirmHealthy(sys.container);
-  if (health.ok) {
-    emit(`OK — ${sys.container} is running (${health.raw}).\n`);
-  } else {
-    emit(`FAILED — ${sys.container} did NOT come up — state="${health.state}"`
-      + `${health.exitCode != null ? ` exit=${health.exitCode}` : ''} (${health.raw || 'no status'}).\n`);
-  }
-  emit(`@@VERDICT ${health.ok ? 'ok' : 'fail'} ${sys.container}\n`);
-  lastRebuildLog.set(sys.slug, buf);
-  res.end();
+  // Serialize rebuild/revert/edit on this slug (B5): no overlapping compose
+  // force-recreate of the same cron container.
+  await withCrontabLock(sys.slug, async () => {
+    const cwd = sys.kind === 'site' ? path.join(sys.opsDir, '..') : path.dirname(sys.crontabPath);
+    res.setHeader('content-type', 'text/plain; charset=utf-8');
+    let buf = '';
+    const emit = (d) => { buf += d; res.write(d); };
+    const result = await rebuildCron(cwd, emit);
+    emit(`\n[exit ${result.code}] compose ${result.ok ? 'OK' : 'FAILED'}\n`);
+    emit(`Verifying ${sys.container} actually started…\n`);
+    const health = await confirmHealthy(sys.container);
+    if (health.ok) {
+      emit(`OK — ${sys.container} is running (${health.raw}).\n`);
+    } else {
+      emit(`FAILED — ${sys.container} did NOT come up — state="${health.state}"`
+        + `${health.exitCode != null ? ` exit=${health.exitCode}` : ''} (${health.raw || 'no status'}).\n`);
+    }
+    emit(`@@VERDICT ${health.ok ? 'ok' : 'fail'} ${sys.container}\n`);
+    lastRebuildLog.set(sys.slug, buf);
+    res.end();
+  });
 }
 
 module.exports = {

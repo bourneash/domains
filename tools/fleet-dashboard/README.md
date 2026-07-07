@@ -45,9 +45,46 @@ the CLI and the dashboard can never disagree.
 ## Safety
 
 - Loopback-only publish (`127.0.0.1:4754`).
+- **Host allowlist (always on):** every request's `Host` must resolve to an
+  allowed name (defaults: `127.0.0.1`, `localhost`, `fleet-dashboard`, `panel`).
+  This defeats DNS-rebinding. Extend with `FD_ALLOWED_HOSTS=a,b,c`, or set it to
+  `*` to disable.
+- **Token gate:** set `FD_TOKEN=<secret>` to require a token on every `/api/*`
+  request. Browsers unlock via a login form (an HttpOnly cookie holding an HMAC
+  of the token, not the token itself); programmatic clients send
+  `x-fd-token: <secret>`.
+- **Refuses to start unsafe (B2):** on a non-loopback bind (`FD_HOST` not
+  `127.0.0.1`/`localhost`/`::1`) with no `FD_TOKEN`, the server exits with an
+  error instead of coming up unauthenticated. The compose deploy binds `0.0.0.0`
+  and joins `vpn_proxy`, so `FD_TOKEN` is **required** there (the compose file
+  fails fast if it's unset). Override only with `FD_ALLOW_INSECURE=1` if you
+  accept the risk. Note: on `vpn_proxy` the token is the *only* real gate — a
+  peer container reaches the panel's container IP regardless of the bind address.
+- **Host allowlist (always on)** defeats DNS-rebinding (see above).
 - Every `:slug` route is gated through site discovery; columns and filenames
   are validated against an allowlist / regex (no path traversal).
-- Task writes are plain file writes/renames/unlinks — no git, no deploy.
+- **Audit trail (B4):** every mutating `/api/*` request (push, container
+  lifecycle, crontab edit, rebuild, task delete, role run — including rejected
+  401/403 attempts) is appended to `data/actions.jsonl` with a non-secret actor
+  fingerprint, path, status, and duration. Read it back at `GET /api/actions`.
+- **Per-repo git lock (B3):** dashboard commit/ignore/push on a site are
+  serialized per slug so they can't interleave with each other (the site's own
+  engineer/committer cron still pushes independently).
+- Task deletes are a **soft delete** into `ops/tasks/.trash/` (recoverable), not
+  an unlink.
+
+## Environment
+
+| Var | Default | Purpose |
+|-----|---------|---------|
+| `FD_PORT` | `4754` | listen port |
+| `FD_HOST` | `127.0.0.1` | bind address |
+| `FD_TOKEN` | _(unset)_ | if set, require this token on `/api/*`; **required** on a non-loopback bind |
+| `FD_ALLOW_INSECURE` | _(unset)_ | set `1` to allow a non-loopback bind with no token (accepts the risk) |
+| `FD_ALLOWED_HOSTS` | loopback + compose names | extra allowed `Host` values (or `*`) |
+| `FD_DOMAINS_ROOT` | repo root | path to the domains monorepo |
+| `FD_DATA_DIR` | `./data` | where the action audit log (`actions.jsonl`) is written |
+| `FD_QUIET` | _(unset)_ | set `1` to silence the request log |
 
 ## Test
 

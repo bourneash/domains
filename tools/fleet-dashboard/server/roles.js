@@ -5,6 +5,8 @@ const path = require('node:path');
 const { siteDir } = require('./sites');
 const gitMod = require('./git');
 const deployhealth = require('./deployhealth');
+const { roleFromCommand } = require('./cron/parse');
+const { tailFile } = require('./cron/runinfo');
 
 function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
 
@@ -32,7 +34,11 @@ function readFirst(cwd, rels) {
   return '';
 }
 
-// Pull {role, schedule} from each active (non-comment) role cron line.
+// Pull {role, schedule, worker} from each active (non-comment) role cron line.
+// Role recognition is delegated to the shared parser in cron/parse.js so the
+// roles matrix and the cron page can never disagree about what a line is.
+// worker = invoked via run-worker.sh, which honours ops/.<role>-disabled, so
+// it's safe to pause/resume by toggling that flag.
 function parseRoles(crontab) {
   const out = [];
   for (const raw of crontab.split('\n')) {
@@ -41,13 +47,8 @@ function parseRoles(crontab) {
     const m = line.match(/^((?:\S+\s+){5})(.*)$/);
     if (!m) continue;
     const schedule = m[1].trim();
-    const cmd = m[2];
-    let role = null, worker = false, rm;
-    if ((rm = cmd.match(/run-worker\.sh\s+([a-z0-9-]+)/i))) { role = rm[1]; worker = true; }
-    else if ((rm = cmd.match(/run-([a-z0-9-]+)\.sh/i)) && !['worker', 'role'].includes(rm[1].toLowerCase())) role = rm[1];
-    // worker = invoked via run-worker.sh, which honours ops/.<role>-disabled, so
-    // it's safe to pause/resume by toggling that flag.
-    if (role) out.push({ role: role.toLowerCase(), schedule, worker });
+    const { role, worker } = roleFromCommand(m[2]);
+    if (role) out.push({ role, schedule, worker });
   }
   return out;
 }
@@ -160,8 +161,8 @@ function roleLog(root, slug, role, tail) {
   } catch { /* none */ }
   if (!best) return { file: null, log: '(no log files found for this role)' };
   const n = Math.max(1, Math.min(parseInt(tail, 10) || 200, 2000));
-  const lines = fs.readFileSync(path.join(dir, best), 'utf8').split('\n');
-  return { file: best, mtime: bestMt, log: lines.slice(-n).join('\n') };
+  // Bounded tail — never slurps the whole (potentially multi-MB) log into memory.
+  return { file: best, mtime: bestMt, log: tailFile(path.join(dir, best), n) };
 }
 
 // The parsed crontab entry for a role on a site (or null), for validation.
