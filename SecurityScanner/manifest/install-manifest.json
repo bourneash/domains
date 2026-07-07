@@ -1,33 +1,33 @@
 {
-  "version": "v0.3.2-exceptions",
+  "version": "v0.3.24",
   "vsec_format": 1,
-  "created_at": "2026-06-16T12:51:59Z",
-  "git_sha": "c1ea6b5565ede1304b39c44d05be1c56c2ee4022",
+  "created_at": "2026-07-04T04:39:05Z",
+  "git_sha": "2d8f9883eee0ba107c198ae976bb1808da104906",
   "images": [
     {
       "name": "security-v2-api",
-      "tag": "v0.3.2-exceptions",
-      "tarball": "security-v2-api-v0.3.2-exceptions.tar.gz",
-      "sha256": "80b2d5ecd18b07a1aef4ffa13e348504371c5e29301d8386085e6ce73ec6c66e"
+      "tag": "v0.3.24",
+      "tarball": "security-v2-api-v0.3.24.tar.gz",
+      "sha256": "14f3081890c9e2376210f048d9797f81a27df5540a9ffad6e1a663aa4232fb05"
     },
     {
       "name": "security-v2-executor",
-      "tag": "v0.3.2-exceptions",
-      "tarball": "security-v2-executor-v0.3.2-exceptions.tar.gz",
-      "sha256": "cff8eb12d0bdc3480787463346588cb84ee1668bbca6c06926d1fdc6bb24c705"
+      "tag": "v0.3.24",
+      "tarball": "security-v2-executor-v0.3.24.tar.gz",
+      "sha256": "8fcbc11b9f21082b172f71e53ec93a5c9d70b334e4886eb23e271f94baee643e"
     },
     {
       "name": "security-v2-frontend",
-      "tag": "v0.3.2-exceptions",
-      "tarball": "security-v2-frontend-v0.3.2-exceptions.tar.gz",
-      "sha256": "a49bb2fcf21527d6e9fd0c793f11c29698008c2b253ff48edd2b29fe6e2cdd4e"
+      "tag": "v0.3.24",
+      "tarball": "security-v2-frontend-v0.3.24.tar.gz",
+      "sha256": "8bb86471ade2788da5c5890874abc390b3eb2420d83a82708258cd51dd3d8156"
     }
   ],
   "compose_files": [
     {
       "name": "base",
       "filename": "docker-compose.yml",
-      "sha256": "5c0a42c8ec0fe94958f63f397ed0c30a92175fee3ed8b8ff0c9a2393908451c3"
+      "sha256": "622117a29762c043360efee1c1bd57b7c66e229f7820f6dc566304d861397d3e"
     },
     {
       "name": "overlay",
@@ -37,7 +37,7 @@
     {
       "name": "env_example",
       "filename": ".env.example",
-      "sha256": "8bf7008a55d9cd6e721d186fd58db5f297be9671d7bad2c277f2bc3fbcd04412"
+      "sha256": "27abf110f3cd803298be948e34604c843ea9ef41a700d4fb9d8efac95d64f5f1"
     }
   ],
   "env_required": [

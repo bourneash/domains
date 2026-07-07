@@ -19,6 +19,34 @@ def _csv(v: str | None) -> list[str]:
     return [x.strip() for x in (v or "").split(",") if x.strip()]
 
 
+def _cisa_kev_to_items(records: list[dict]) -> list[dict]:
+    out = []
+    for r in records:
+        p = r["payload"]
+        title = f"{p.get('vendor_project', '')} {p.get('product', '')}: {p.get('vulnerability_name', '')}".strip(": ").strip()
+        out.append({
+            "title": title or p.get("vulnerability_name") or "",
+            "url": p.get("notes") or "",
+            "summary": p.get("short_description") or "",
+            "published_iso": r["observed_at"],
+            "source": "CISA KEV",
+            "cve_id": p.get("cve_id") or "",
+            "tags": r.get("tags", []),
+        })
+    return out
+
+
+# Maps a subscription's `datasets:` key to a function that reshapes raw
+# dataset records (source_id/dataset_key/observed_at/payload/tags) into the
+# same item shape /items and /subscriptions/{site}/items already return
+# (title/url/summary/published_iso/source/cve_id). Keys with no adapter here
+# are silently skipped in subscription_items() rather than emitting a
+# malformed item — safe no-op until an adapter is added for that dataset.
+_DATASET_ITEM_ADAPTERS = {
+    "cisa-kev": _cisa_kev_to_items,
+}
+
+
 def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = None,
                subscriptions: dict[str, Subscription] | None = None, vpn_client=None) -> FastAPI:
     app = FastAPI(title="datahub", version="0.1.0")
@@ -62,6 +90,17 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             include_sources=q.include_sources or None, exclude_sources=q.exclude_sources or None,
             since_iso=since, limit=q.limit,
         )
+        # `datasets:` in this subscription's config (e.g. cisa-kev, nvd-cve) was
+        # previously declared but never actually queried here — this site's
+        # puller only ever saw tagged RSS items, never its structured dataset
+        # feeds. Merge in any dataset with a registered item-shape adapter.
+        for key in sub.datasets:
+            adapter = _DATASET_ITEM_ADAPTERS.get(key)
+            if adapter is None:
+                continue
+            records = store.query_datasets(conn, key, since_iso=since, limit=q.limit)
+            rows.extend(adapter(records))
+        rows.sort(key=lambda r: r.get("published_iso") or "", reverse=True)
         store.record_pull(conn, site=site, endpoint=f"subscriptions/{site}/items",
                           item_count=len(rows), client_ip=_client_ip(request))
         return {"items": rows}

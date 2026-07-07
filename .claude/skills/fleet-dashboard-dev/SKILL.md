@@ -12,7 +12,8 @@ description: >-
   "wire a button on the dashboard", "the Containers/Roles/Engineers view needs…",
   "add an API endpoint to the panel", "the dashboard log tail / auto-refresh /
   live-follow / breadcrumb / dropdown is broken", "make the dashboard show X",
-  "restart the panel", or anything about localhost:4754 / the "Fleet Dashboard"
+  "restart the panel", "the dashboard access token / login / FD_TOKEN", or
+  anything about localhost:4754 / the "Fleet Dashboard"
   / "Domain Control". This skill carries the exact location, architecture, the
   load-bearing deploy mechanics (what's live vs. needs restart vs. needs
   rebuild), the SPA patterns (router, smooth refresh, live-follow, guardrails),
@@ -83,6 +84,39 @@ tabs **self-update** (a `/api/version` poll reloads them when assets change). Bu
 a *persistent* browser context (e.g. the Playwright MCP) can serve a stale
 `app.js`. When driving the page for verification, **cache-bust the URL**:
 `http://127.0.0.1:4754/?v=<n>#control`.
+
+## Access token (the auth gate) — where to get it
+
+The panel mounts the docker socket **and** joins the shared `vpn-proxy_default`
+network, so any container on that network could otherwise hit its API. The gate
+is a single shared secret, **`FD_TOKEN`**, and the compose **requires** it
+(`FD_TOKEN: ${FD_TOKEN:?…}`) — `docker compose up` fails fast without it. It is
+NOT an OAuth/external token; there is nothing to "log into." How it works:
+
+- **Where it lives:** `FD_TOKEN=<hex>` in the shared env at
+  `/home/jesse/projects/domains/.env`. Read the current value with
+  `grep '^FD_TOKEN=' /home/jesse/projects/domains/.env`. It persists across
+  reboots, and the container reads it at start.
+- **Bring the panel up:** `cd tools/fleet-dashboard &&
+  docker compose --env-file ../../.env up -d` (the `--env-file` is what feeds
+  `FD_TOKEN` into interpolation — plain `up -d` will fail with "FD_TOKEN missing").
+- **Using the dashboard in a browser:** open http://127.0.0.1:4754/ → a login
+  overlay ("This dashboard requires an access token") appears → paste the
+  `FD_TOKEN` value → it POSTs `/api/login`, which sets an **httpOnly cookie**, so
+  you're not asked again on that browser until it expires. The gate acts only on
+  `/api/*`; the static shell loads without it (which is why `/` returns 200).
+- **If there is no `FD_TOKEN` yet** (fresh host / never set): generate one and
+  persist it, then bring the panel up:
+  ```
+  openssl rand -hex 32   # → append as FD_TOKEN=<hex> to the shared .env
+  ```
+- **Escape hatch (loopback only):** the gate is skipped when the server binds a
+  pure-loopback host. The compose sets `FD_HOST: 0.0.0.0` (so VPN-network
+  containers can reach it) — set `FD_HOST: 127.0.0.1` to drop the token
+  requirement, at the cost of that reachability. `FD_ALLOW_INSECURE=1` forces an
+  unauthenticated non-loopback bind (logs a warning) — don't, unless debugging.
+  Enforcement lives in `server/server.js` (~L423–446, the "REFUSING TO START"
+  guard).
 
 ## Frontend architecture (server/public/app.js)
 

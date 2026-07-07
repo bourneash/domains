@@ -1,5 +1,9 @@
 pyproject.toml
 src/personas/__init__.py
+src/personas/cli.py
+src/personas/email_provisioner.py
+src/personas/face.py
+src/personas/generator.py
 src/personas/store.py
 src/personas.egg-info/PKG-INFO
 src/personas.egg-info/SOURCES.txt
@@ -7,4 +11,8 @@ src/personas.egg-info/dependency_links.txt
 src/personas.egg-info/entry_points.txt
 src/personas.egg-info/requires.txt
 src/personas.egg-info/top_level.txt
+tests/test_cli.py
+tests/test_email_provisioner.py
+tests/test_face.py
+tests/test_generator.py
 tests/test_store.py

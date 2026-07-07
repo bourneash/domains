@@ -109,3 +109,56 @@ def test_subscription_404_unknown_site(db):
     assert r.status_code == 404
     r2 = c.get("/subscriptions/nope.com/items")
     assert r2.status_code == 404
+
+
+def test_subscription_items_merges_configured_datasets(db):
+    # Regression test: `datasets:` on a subscription was parsed but never
+    # actually queried by /subscriptions/{site}/items — a site could declare
+    # datasets: [cisa-kev] in the registry and never see a single record.
+    # No RSS items seeded here on purpose — that path is covered by
+    # test_subscription_items_endpoint; this isolates the datasets merge.
+    # window_hours set generously wide so the test isn't coupled to wall-clock
+    # time vs. the fixed 2026-07-0x fixture dates below (default is 48h).
+    subs = {"0daynews.com": Subscription(site="0daynews.com",
+            items=ItemsQuery(tags_any=["vuln"], limit=50, window_hours=24 * 365 * 10),
+            datasets=["cisa-kev"])}
+    vpn_client = httpx.Client(transport=httpx.MockTransport(
+        lambda r: httpx.Response(200, content=b"185.2.2.2")))
+    app = api.create_app(_settings(), conn=db, sources=[], subscriptions=subs, vpn_client=vpn_client)
+    c = TestClient(app)
+
+    store.upsert_datasets(db, "cisa-kev", "cisa-kev", ["vuln", "dataset"], [
+        {"observed_at": "2026-07-05T00:00:00+00:00", "payload": {
+            "cve_id": "CVE-2026-30001", "vendor_project": "Ivanti", "product": "Connect Secure",
+            "vulnerability_name": "Auth Bypass", "short_description": "desc",
+            "notes": "https://nvd.nist.gov/vuln/detail/CVE-2026-30001",
+        }},
+        {"observed_at": "2026-07-04T00:00:00+00:00", "payload": {
+            "cve_id": "CVE-2026-29800", "vendor_project": "Fortinet", "product": "FortiOS",
+            "vulnerability_name": "Heap Overflow", "short_description": "desc2",
+            "notes": "https://nvd.nist.gov/vuln/detail/CVE-2026-29800",
+        }},
+    ])
+
+    r = c.get("/subscriptions/0daynews.com/items")
+    assert r.status_code == 200
+    items = r.json()["items"]
+    assert len(items) == 2
+    assert items[0]["cve_id"] == "CVE-2026-30001"  # newest (2026-07-05) first
+    assert items[0]["source"] == "CISA KEV"
+    assert items[0]["title"] == "Ivanti Connect Secure: Auth Bypass"
+    assert items[1]["cve_id"] == "CVE-2026-29800"
+
+
+def test_subscription_items_skips_dataset_keys_without_an_adapter(db):
+    # corn-yield/diesel etc. have no item-shape adapter yet — must not crash
+    # or emit malformed rows, just contribute nothing until one is added.
+    subs = {"saveusfarms.com": Subscription(site="saveusfarms.com",
+            items=ItemsQuery(tags_any=["agriculture"], limit=50), datasets=["corn-yield", "diesel"])}
+    app = api.create_app(_settings(), conn=db, sources=[], subscriptions=subs,
+                         vpn_client=httpx.Client(transport=httpx.MockTransport(
+                             lambda r: httpx.Response(200, content=b"185.2.2.2"))))
+    c = TestClient(app)
+    r = c.get("/subscriptions/saveusfarms.com/items")
+    assert r.status_code == 200
+    assert r.json()["items"] == []

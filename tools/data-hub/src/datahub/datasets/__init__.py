@@ -39,6 +39,7 @@ def _get_json(url: str, *, proxy: str | None = None, params: dict | None = None,
 from . import usgs, noaa_alerts, noaa_swpc, noaa_tides, launchlib  # noqa: E402
 from . import ephemeris  # noqa: E402  (Task 3)
 from . import fred, eia, nass  # noqa: E402  (Task 4)
+from . import cisa_kev  # noqa: E402
 
 FETCHERS = {
     "usgs": usgs.fetch,
@@ -50,4 +51,5 @@ FETCHERS = {
     "fred": fred.fetch,
     "eia": eia.fetch,
     "nass": nass.fetch,
+    "cisa-kev": cisa_kev.fetch,
 }

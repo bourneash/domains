@@ -1,0 +1,122 @@
+# tools/vpn-proxy — dual-location PIA VPN proxy for fleet scrapers.
+#
+# Bring up:       docker compose up -d
+# Check health:   ./check-health.sh
+# Logs:           docker compose logs -f vpn-us
+# Stop:           docker compose down
+#
+# Scrapers use:
+#   HTTP_PROXY=http://127.0.0.1:8181   (US exit)
+#   HTTP_PROXY=http://127.0.0.1:8182   (EU exit)
+#
+# Required vars in /home/jesse/projects/domains/.env (see .env.example):
+#   VPN_PIA_USERNAME, VPN_PIA_PASSWORD, VPN_REGION_US, VPN_REGION_EU
+
+name: vpn-proxy
+
+x-vpn-base: &vpn-base
+  image: qmcgaw/gluetun:latest
+  restart: unless-stopped
+  cap_add:
+    - NET_ADMIN
+  devices:
+    - /dev/net/tun:/dev/net/tun
+  labels:
+    autoheal: "true"   # picked up by the autoheal watchdog
+  logging:
+    driver: local
+    options:
+      max-size: "2m"    # 2MB cap — old lines evicted as new ones arrive
+      max-file: "1"     # single file, never accumulates across restarts
+      compress: "false"
+  healthcheck:
+    # gluetun ships its own healthcheck binary — checks tunnel state, not just process
+    test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
+    interval: 30s
+    timeout: 10s
+    retries: 5          # 5 × 30s = 2.5 min before autoheal triggers restart
+    start_period: 60s
+
+services:
+
+  # ── US exit node ────────────────────────────────────────────────────────────
+  vpn-us:
+    <<: *vpn-base
+    container_name: vpn-us
+    environment:
+      VPN_SERVICE_PROVIDER: private internet access
+      VPN_TYPE: openvpn
+      OPENVPN_USER: ${VPN_PIA_USERNAME:?set VPN_PIA_USERNAME in .env}
+      OPENVPN_PASSWORD: ${VPN_PIA_PASSWORD:?set VPN_PIA_PASSWORD in .env}
+      SERVER_REGIONS: ${VPN_REGION_US:-US East}
+
+      # HTTP proxy (built into gluetun — no sidecar needed)
+      HTTPPROXY: "on"
+      HTTPPROXY_LOG: "on"
+      HTTPPROXY_LISTENING_ADDRESS: ":8888"
+
+      # DNS-over-TLS — prevents DNS leaks; cloudflare is the default provider
+      DOT: "on"
+      DOT_PROVIDERS: cloudflare
+
+      # Kill switch is ON by default in gluetun (iptables blocks non-VPN egress)
+      # Firewall allows LAN subnets so localhost proxy connections still work
+      FIREWALL_INPUT_PORTS: "8888"
+
+      # Server list auto-update
+      UPDATER_PERIOD: 24h
+      TZ: UTC
+    ports:
+      - "127.0.0.1:8181:8888"  # HTTP proxy — scrapers use this
+      - "127.0.0.1:9281:8000"  # gluetun control/health API
+
+  # ── EU exit node ────────────────────────────────────────────────────────────
+  vpn-eu:
+    <<: *vpn-base
+    container_name: vpn-eu
+    environment:
+      VPN_SERVICE_PROVIDER: private internet access
+      VPN_TYPE: openvpn
+      OPENVPN_USER: ${VPN_PIA_USERNAME:?set VPN_PIA_USERNAME in .env}
+      OPENVPN_PASSWORD: ${VPN_PIA_PASSWORD:?set VPN_PIA_PASSWORD in .env}
+      SERVER_REGIONS: ${VPN_REGION_EU:-Netherlands}
+
+      HTTPPROXY: "on"
+      HTTPPROXY_LOG: "on"
+      HTTPPROXY_LISTENING_ADDRESS: ":8888"
+
+      DOT: "on"
+      DOT_PROVIDERS: cloudflare
+
+      FIREWALL_INPUT_PORTS: "8888"
+
+      UPDATER_PERIOD: 24h
+      TZ: UTC
+    ports:
+      - "127.0.0.1:8182:8888"  # HTTP proxy — scrapers use this
+      - "127.0.0.1:9282:8000"  # gluetun control/health API
+
+  # ── Autoheal watchdog ───────────────────────────────────────────────────────
+  # Watches for containers with label autoheal=true that go unhealthy and
+  # restarts them. Covers the case where gluetun's VPN tunnel drops but the
+  # container doesn't exit (so restart: unless-stopped alone can't catch it).
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: vpn-autoheal
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal   # only restart containers with this label
+      AUTOHEAL_INTERVAL: 30                # check every 30s
+      AUTOHEAL_START_PERIOD: 60            # grace period before first check (seconds)
+      CURL_TIMEOUT: 30
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Override the willfarrell/autoheal image's built-in 5s HEALTHCHECK, which
+    # was firing a runc exec every 5s. The watchdog interval itself is
+    # AUTOHEAL_INTERVAL above (30s); this just controls its own liveness probe.
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f autoheal || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

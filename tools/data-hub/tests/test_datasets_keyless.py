@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import datahub.datasets as ds
-from datahub.datasets import usgs, noaa_alerts, noaa_swpc, noaa_tides, launchlib
+from datahub.datasets import usgs, noaa_alerts, noaa_swpc, noaa_tides, launchlib, cisa_kev
 from datahub.config import Source, Settings
 
 FX = Path(__file__).parent / "fixtures"
@@ -56,6 +56,45 @@ def test_launchlib_maps_launches(monkeypatch):
     assert recs[0]["observed_at"] == "2026-06-29T03:21:00Z"
 
 
+def test_cisa_kev_maps_vulnerabilities(monkeypatch):
+    _patch(monkeypatch, json.loads((FX / "cisa_kev.json").read_text()))
+    src = Source(id="cisa-kev", type="dataset", fetcher="cisa-kev", dataset_key="cisa-kev",
+                 tags=["vuln", "cve", "exploit", "breach", "patch", "dataset"])
+    recs = cisa_kev.fetch(src, proxy=None, settings=S)
+    assert len(recs) == 2
+    assert recs[0]["payload"]["cve_id"] == "CVE-2026-30001"
+    assert recs[0]["payload"]["vendor_project"] == "Ivanti"
+    assert recs[0]["observed_at"].startswith("2026-07-05T00:00:00")  # dateAdded date, not fetch time
+    assert recs[1]["payload"]["known_ransomware_use"] == "Known"
+
+
+def test_cisa_kev_same_day_entries_get_distinct_observed_at(monkeypatch):
+    # Regression test: dateAdded is date-only, and CISA often adds several
+    # CVEs on the same day. observed_at must stay unique per CVE so they
+    # don't collide on the store's UNIQUE(source_id, dataset_key, observed_at)
+    # constraint and silently vanish (only the first of the batch used to
+    # survive INSERT OR IGNORE).
+    _patch(monkeypatch, {"vulnerabilities": [
+        {"cveID": "CVE-2026-00001", "dateAdded": "2026-07-01", "vendorProject": "A", "product": "A",
+         "vulnerabilityName": "n1"},
+        {"cveID": "CVE-2026-00002", "dateAdded": "2026-07-01", "vendorProject": "B", "product": "B",
+         "vulnerabilityName": "n2"},
+        {"cveID": "CVE-2026-00003", "dateAdded": "2026-07-01", "vendorProject": "C", "product": "C",
+         "vulnerabilityName": "n3"},
+    ]})
+    src = Source(id="cisa-kev", type="dataset", fetcher="cisa-kev", dataset_key="cisa-kev", tags=[])
+    recs = cisa_kev.fetch(src, proxy=None, settings=S)
+    observed_ats = [r["observed_at"] for r in recs]
+    assert len(set(observed_ats)) == 3  # all distinct despite identical dateAdded
+    for oa in observed_ats:
+        assert oa.startswith("2026-07-01")  # still the correct calendar day
+
+    # Stable across repeated fetches of the same catalog (so re-polling
+    # correctly dedupes instead of re-inserting every entry every cycle).
+    recs2 = cisa_kev.fetch(src, proxy=None, settings=S)
+    assert [r["observed_at"] for r in recs2] == observed_ats
+
+
 def test_registry_has_keyless_fetchers():
-    for name in ("usgs", "noaa-alerts", "noaa-swpc", "noaa-tides", "launchlib"):
+    for name in ("usgs", "noaa-alerts", "noaa-swpc", "noaa-tides", "launchlib", "cisa-kev"):
         assert name in ds.FETCHERS
