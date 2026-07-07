@@ -28,6 +28,7 @@ _GA4_RE     = re.compile(
 _ADSENSE_RE = re.compile(r"adsbygoogle\.js|ca-pub-\d+", re.I)
 _META_RE    = re.compile(r"fbq\s*\(\s*['\"]init['\"]|connect\.facebook\.net", re.I)
 _GTM_RE     = re.compile(r"GTM-[A-Z0-9]+|googletagmanager\.com/gtm\.js", re.I)
+_SITEMAP_RE = re.compile(r"^\s*Sitemap:\s*(\S+)", re.I | re.M)
 
 TIMEOUT = httpx.Timeout(8.0, connect=5.0)
 
@@ -65,17 +66,35 @@ def _scrape_site(client: httpx.Client, conn: sqlite3.Connection, site_name: str,
                       "http.meta_pixel_present", "http.gtm_present"):
                 emit_unknown(conn, site_name, site_cfg, k)
     elif "http" in applies:
-        head = home.text[: 200_000].split("</head>", 1)[0]
-        emit(conn, site_name, site_cfg, "http.ga4_present",        bool(_GA4_RE.search(head)))
-        emit(conn, site_name, site_cfg, "http.adsense_present",    bool(_ADSENSE_RE.search(head)))
-        emit(conn, site_name, site_cfg, "http.meta_pixel_present", bool(_META_RE.search(head)))
-        emit(conn, site_name, site_cfg, "http.gtm_present",        bool(_GTM_RE.search(head)))
+        # Pixels are frequently deferred to the end of <body> (avoids
+        # render-blocking); restricting the scan to <head> produces false
+        # negatives for sites that do this, so scan the whole fetched page.
+        page = home.text[: 200_000]
+        emit(conn, site_name, site_cfg, "http.ga4_present",        bool(_GA4_RE.search(page)))
+        emit(conn, site_name, site_cfg, "http.adsense_present",    bool(_ADSENSE_RE.search(page)))
+        emit(conn, site_name, site_cfg, "http.meta_pixel_present", bool(_META_RE.search(page)))
+        emit(conn, site_name, site_cfg, "http.gtm_present",        bool(_GTM_RE.search(page)))
 
     if "sitemap" in applies:
-        sm = _fetch(client, f"{base}/sitemap.xml")
-        emit(conn, site_name, site_cfg, "http.sitemap_200", sm is not None and sm.status_code == 200)
         rb = _fetch(client, f"{base}/robots.txt")
         emit(conn, site_name, site_cfg, "http.robots_present", rb is not None and rb.status_code == 200)
+
+        # robots.txt is the canonical place a site declares its sitemap
+        # location, which is commonly sitemap-index.xml (Astro/Next default)
+        # rather than sitemap.xml. Try that first, then fall back to the
+        # two conventional filenames.
+        sitemap_url = None
+        if rb is not None and rb.status_code == 200:
+            m = _SITEMAP_RE.search(rb.text)
+            if m:
+                sitemap_url = m.group(1)
+
+        sm = _fetch(client, sitemap_url) if sitemap_url else None
+        if sm is None or sm.status_code != 200:
+            sm = _fetch(client, f"{base}/sitemap.xml")
+        if sm is None or sm.status_code != 200:
+            sm = _fetch(client, f"{base}/sitemap-index.xml")
+        emit(conn, site_name, site_cfg, "http.sitemap_200", sm is not None and sm.status_code == 200)
 
     if "tls" in applies:
         days = _tls_expiry_days(site_name)

@@ -54,12 +54,52 @@ def test_missing_pixels_marked_false(db, reg, monkeypatch):
     monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 90)
     respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=HEAD_BARE))
     respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(404))
+    respx.get("https://alpha.test/sitemap-index.xml").mock(return_value=httpx.Response(404))
     respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(404))
     http_scrape.run(reg, db)
     facts = store.get_site_facts(db, "alpha.test")
     assert facts["http.ga4_present"]["value"] is False
     assert facts["http.sitemap_200"]["value"] is False
     assert facts["http.robots_present"]["value"] is False
+
+
+@respx.mock
+def test_sitemap_index_declared_in_robots_is_detected(db, reg, monkeypatch):
+    """Astro/Next-style sites often only serve sitemap-index.xml, declared
+    via robots.txt rather than the bare /sitemap.xml convention."""
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 90)
+    respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=HEAD_BARE))
+    respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(404))
+    respx.get("https://alpha.test/robots.txt").mock(
+        return_value=httpx.Response(
+            200, text="User-agent: *\nAllow: /\nSitemap: https://alpha.test/sitemap-index.xml\n"
+        )
+    )
+    respx.get("https://alpha.test/sitemap-index.xml").mock(
+        return_value=httpx.Response(200, text="<sitemapindex/>")
+    )
+    http_scrape.run(reg, db)
+    facts = store.get_site_facts(db, "alpha.test")
+    assert facts["http.sitemap_200"]["value"] is True
+    assert facts["http.robots_present"]["value"] is True
+
+
+@respx.mock
+def test_pixels_deferred_to_body_are_detected(db, reg, monkeypatch):
+    """Analytics snippets are often loaded near the end of <body> to avoid
+    render-blocking; detection must not be limited to <head>."""
+    monkeypatch.setattr(http_scrape, "_tls_expiry_days", lambda host: 90)
+    body_pixels = (
+        "<!doctype html><html><head></head><body>"
+        "<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-ABC123\"></script>"
+        "</body></html>"
+    )
+    respx.get("https://alpha.test/").mock(return_value=httpx.Response(200, text=body_pixels))
+    respx.get("https://alpha.test/sitemap.xml").mock(return_value=httpx.Response(200, text="<urlset/>"))
+    respx.get("https://alpha.test/robots.txt").mock(return_value=httpx.Response(200, text="User-agent: *"))
+    http_scrape.run(reg, db)
+    facts = store.get_site_facts(db, "alpha.test")
+    assert facts["http.ga4_present"]["value"] is True
 
 
 @respx.mock
