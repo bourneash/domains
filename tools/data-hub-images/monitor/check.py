@@ -167,9 +167,10 @@ def overall(findings):
 
 
 def post_slack(text):
+    """Returns True if the message reached Slack (or Slack is not configured)."""
     if not SLACK_TOKEN:
         print("[monitor] SLACK_BOT_TOKEN unset — not posting")
-        return
+        return True
     payload = json.dumps({"channel": SLACK_CHANNEL, "text": text, "unfurl_links": False}).encode()
     req = urllib.request.Request(
         "https://slack.com/api/chat.postMessage", data=payload,
@@ -180,8 +181,11 @@ def post_slack(text):
             resp = json.loads(r.read().decode())
             if not resp.get("ok"):
                 print("[monitor] slack error:", resp.get("error"))
+                return False
+            return True
     except Exception as e:
         print("[monitor] slack post failed:", e)
+        return False
 
 
 def format_msg(status, findings):
@@ -231,13 +235,17 @@ def main():
     prev = load_state().get("status", OK)
     # Bit-flip: post when we leave OK (problem) or return to OK (recovery).
     if status != prev:
-        if status == OK:
-            post_slack(format_msg(OK, []))
+        delivered = post_slack(format_msg(OK, []) if status == OK else msg)
+        if delivered:
+            save_state(status, findings)
         else:
-            post_slack(msg)
+            # Leave prev intact so the next tick retries this transition rather
+            # than silently swallowing the alert and later posting a recovery
+            # for something nobody was ever told about.
+            print(f"[monitor] slack undelivered — keeping prev={prev} to retry")
     else:
         print(f"[monitor] status unchanged ({status}) — no Slack post")
-    save_state(status, findings)
+        save_state(status, findings)
     # Always echo to stdout (captured by docker logs)
     print(f"[monitor] status={status} (prev={prev})")
     for s, m in findings:
