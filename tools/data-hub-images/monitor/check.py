@@ -35,9 +35,9 @@ PROXY_EU = os.environ.get("DATAHUB_IMAGES_PROXY_EU", "http://vpn-eu:8888")
 STATE_PATH = os.environ.get("DATAHUB_IMAGES_MONITOR_STATE", "/data/monitor-state.json")
 FRESH_MIN = int(os.environ.get("DATAHUB_IMAGES_MONITOR_FRESH_MIN", "90"))
 SLACK_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
-SLACK_CHANNEL = (os.environ.get("DATAHUB_IMAGES_ALERT_CHANNEL")
-                 or os.environ.get("SLACK_CHANNEL_AMERICA_STRIKES")
-                 or "domain-americastrikes-com")
+# Fleet infrastructure alerts (VPN exits, collector health) belong in the
+# shared ops channel, not in any one site's channel.
+SLACK_CHANNEL = os.environ.get("DATAHUB_IMAGES_ALERT_CHANNEL") or "domain-ops"
 IP_ECHOS = ["https://api.ipify.org", "https://icanhazip.com", "https://ifconfig.me/ip"]
 
 CRITICAL, WARNING, OK = "critical", "warning", "ok"
