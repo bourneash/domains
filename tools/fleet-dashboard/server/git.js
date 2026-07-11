@@ -433,4 +433,4 @@ async function summaries(root, slugs) {
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, fileDiff, pushAll, stashes, stashDiff, dropStash, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, fileDiff, pushAll, stashes, stashDiff, dropStash, stashIndex, safeRel };

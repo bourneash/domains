@@ -164,3 +164,14 @@ test('parseStashList parses `git stash list --format` unit-separated output', ()
 test('parseStashList returns [] for no stashes', () => {
   assert.deepEqual(git.parseStashList(''), []);
 });
+
+test('stashIndex validates and normalizes stash index input', () => {
+  assert.equal(git.stashIndex('0'), 0);
+  assert.equal(git.stashIndex('3'), 3);
+  assert.equal(git.stashIndex(' 3 '), 3);   // tolerates surrounding whitespace
+  assert.equal(git.stashIndex('abc'), null);
+  assert.equal(git.stashIndex('-1'), null);
+  assert.equal(git.stashIndex('1.5'), null);
+  assert.equal(git.stashIndex('3abc'), null);
+  assert.equal(git.stashIndex(''), null);
+});
