@@ -4,7 +4,7 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-let STATE = { view: 'control', agent: null, sites: [], agents: [], taskSite: null };
+let STATE = { view: 'control', agent: null, sites: [], agents: [], taskSite: null, gitSlug: null };
 
 function agentLabel(role) { return String(role).split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
 
@@ -488,6 +488,62 @@ async function pushAllSites() {
     toast(`Pushed ${r.pushed}/${r.total}${failed.length ? ` · ${failed.length} failed` : ''}`, failed.length ? 'err' : 'ok');
     softRender();
   } catch (e) { toast(`push-all failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+/* ===================== GIT STASHES ===================== */
+async function renderGitStashes(slug) {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading stashes…</div>';
+  if (!slug) { app.innerHTML = '<div class="empty">No site specified.</div>'; return; }
+  let list;
+  try { list = await api('GET', `/api/git/${encodeURIComponent(slug)}/stashes`); }
+  catch (e) { app.innerHTML = `<div class="empty">Failed to load stashes: ${esc(e.message)}</div>`; return; }
+
+  const rows = list.map((s) => `
+    <div class="card" style="margin-bottom:10px" data-rk="stash:${esc(s.ref)}">
+      <div class="gd-head">
+        <span class="mono">${esc(s.ref)}</span>
+        <span>${esc(s.message)}</span>
+        <span class="muted">${esc(s.when)}</span>
+        <button type="button" class="btn sm gs-diff" data-index="${s.index}">view diff</button>
+        <button type="button" class="btn sm gs-drop" data-index="${s.index}">drop</button>
+      </div>
+      <pre class="gd-diff-out hidden" data-stash-diff="${s.index}"></pre>
+    </div>`).join('') || '<div class="empty">No stashes for this repo.</div>';
+
+  app.innerHTML = `
+    <div class="task-toolbar">
+      <a href="#git">← back to Git</a>
+      <strong style="margin-left:12px">${esc(slug)} — ${list.length} stash(es)</strong>
+    </div>
+    ${rows}`;
+
+  $$('.gs-diff', app).forEach((b) => b.addEventListener('click', () => toggleStashDiff(slug, b.dataset.index)));
+  $$('.gs-drop', app).forEach((b) => b.addEventListener('click', () => dropStashUI(slug, b.dataset.index)));
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+async function toggleStashDiff(slug, index) {
+  const pre = $(`.gd-diff-out[data-stash-diff="${index}"]`);
+  if (!pre) return;
+  if (!pre.classList.contains('hidden')) { pre.classList.add('hidden'); return; }
+  pre.classList.remove('hidden');
+  pre.textContent = 'loading diff…';
+  try {
+    const r = await api('GET', `/api/git/${encodeURIComponent(slug)}/stashes/${index}/diff`);
+    pre.textContent = r.diff || '(empty diff)';
+  } catch (e) { pre.textContent = `diff failed: ${e.message}`; }
+}
+
+async function dropStashUI(slug, index) {
+  if (!confirm('Drop this stash? This cannot be undone.')) return;
+  try {
+    await api('DELETE', `/api/git/${encodeURIComponent(slug)}/stashes/${index}`);
+    toast('Stash dropped');
+    FRESH = true;
+    await renderGitStashes(slug);
+  } catch (e) { toast(`drop failed: ${e.message}`, 'err'); }
 }
 
 /* ===================== ROLES ===================== */
@@ -2013,10 +2069,12 @@ const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub', '
 function parseHash() {
   const h = (location.hash || '').replace(/^#/, '');
   if (!h) return { view: 'control', agent: null };
-  const [a, b] = h.split('/');
+  const parts = h.split('/');
+  const [a, b, c] = parts;
   if (a === 'agents' && b) return { view: 'agent', agent: decodeURIComponent(b) };
   if (a === 'fleet') return { view: 'agent', agent: 'engineer' };
   if (a === 'roles') return { view: 'control', agent: null };
+  if (a === 'git' && b && c === 'stashes') return { view: 'gitstashes', agent: null, gitSlug: decodeURIComponent(b) };
   if (TOP_VIEWS.includes(a)) return { view: a, agent: null };
   return { view: 'control', agent: null };
 }
@@ -2058,6 +2116,7 @@ function render() {
   else if (STATE.view === 'agent') renderAgent(STATE.agent);
   else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
+  else if (STATE.view === 'gitstashes') renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') renderTasks();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
@@ -2203,7 +2262,7 @@ async function boot() {
 
   try { STATE.sites = await api('GET', '/api/sites'); } catch { STATE.sites = []; }
   try { STATE.agents = await api('GET', '/api/agents'); } catch { STATE.agents = []; }
-  const r = parseHash(); STATE.view = r.view; STATE.agent = r.agent;
+  const r = parseHash(); STATE.view = r.view; STATE.agent = r.agent; STATE.gitSlug = r.gitSlug || null;
   buildAgentsMenu();
   $$('.tab[data-view]').forEach((t) => t.addEventListener('click', () => go(t.dataset.view)));
   $('#agents-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleAgentsMenu(); });
@@ -2225,7 +2284,7 @@ async function boot() {
   setInterval(logFollowTick, 3000);   // live-tail open log surfaces
   window.addEventListener('hashchange', () => {
     const n = parseHash();
-    if (n.view !== STATE.view || n.agent !== STATE.agent) { STATE.view = n.view; STATE.agent = n.agent; FRESH = true; render(); }
+    if (n.view !== STATE.view || n.agent !== STATE.agent || (n.gitSlug || null) !== STATE.gitSlug) { STATE.view = n.view; STATE.agent = n.agent; STATE.gitSlug = n.gitSlug || null; FRESH = true; render(); }
   });
   FRESH = true;
   render();
