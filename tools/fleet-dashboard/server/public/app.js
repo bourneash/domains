@@ -295,7 +295,11 @@ function renderGitDetail(slug, box, s) {
   if (!s.files.length) {
     box.innerHTML = `<div class="gd-head">${lc}</div>
       <div class="muted gd-clean">working tree clean${s.behind ? ` · ${s.behind} behind` : ''}</div>
-      <div class="gd-commit">${pushBtn} ${pullBtn}</div><div class="gd-result"></div>`;
+      <div class="gd-commit">${pushBtn} ${pullBtn}</div><div class="gd-result"></div>
+    <details class="gd-branches" data-rk="git-branches:${esc(slug)}">
+      <summary>Branches</summary>
+      <div class="gd-branches-body" data-rkh="git-branches-body:${esc(slug)}"><span class="muted">click to load…</span></div>
+    </details>`;
     wireGitOps(slug, box);
     return;
   }
@@ -323,7 +327,11 @@ function renderGitDetail(slug, box, s) {
       <button type="button" class="btn sm primary gd-commit-btn">Commit selected</button>
       ${pushBtn} ${pullBtn}
     </div>
-    <div class="gd-result"></div>`;
+    <div class="gd-result"></div>
+    <details class="gd-branches" data-rk="git-branches:${esc(slug)}">
+      <summary>Branches</summary>
+      <div class="gd-branches-body" data-rkh="git-branches-body:${esc(slug)}"><span class="muted">click to load…</span></div>
+    </details>`;
   wireGitOps(slug, box);
 }
 
@@ -334,6 +342,46 @@ function wireGitOps(slug, box) {
   const cb = $('.gd-commit-btn', box); if (cb) cb.addEventListener('click', () => gitCommit(slug, box, cb));
   const pb = $('.gd-push', box); if (pb) pb.addEventListener('click', () => gitPush(slug, box, pb));
   const plb = $('.gd-pull', box); if (plb) plb.addEventListener('click', () => gitPull(slug, box, plb));
+  const brDetails = $('.gd-branches', box);
+  if (brDetails) brDetails.addEventListener('toggle', () => { if (brDetails.open) loadGitBranches(slug, brDetails); }, { once: false });
+}
+
+async function loadGitBranches(slug, detailsEl) {
+  const body = $('.gd-branches-body', detailsEl);
+  if (!body || body.dataset.loaded === '1') return;
+  body.innerHTML = '<span class="muted">loading…</span>';
+  let b;
+  try { b = await api('GET', `/api/git/${encodeURIComponent(slug)}/branches`); }
+  catch (e) { body.innerHTML = `<span class="flag">${esc(e.message)}</span>`; return; }
+  body.dataset.loaded = '1';
+  renderGitBranches(slug, body, b);
+}
+
+function renderGitBranches(slug, body, b) {
+  const localRows = b.local.map((br) => {
+    const tags = [br.current ? '<span class="badge b-blue">current</span>' : '', br.merged ? '<span class="badge b-green">merged</span>' : '<span class="badge b-yellow">unmerged</span>'].filter(Boolean).join(' ');
+    const sync = (br.ahead || br.behind) ? `<span class="muted">${br.ahead ? `↑${br.ahead}` : ''}${br.behind ? ` ↓${br.behind}` : ''}</span>` : '';
+    const canDelete = br.merged && !br.current && br.name !== b.defaultBranch;
+    const delBtn = canDelete ? `<button type="button" class="btn sm gd-branch-del" data-branch="${esc(br.name)}">delete</button>` : '';
+    return `<div class="gd-branch-row"><span class="mono">${esc(br.name)}</span> ${tags} <span class="muted">${esc(br.upstream || 'no upstream')}</span> ${sync} ${delBtn}</div>`;
+  }).join('') || '<div class="muted">no local branches</div>';
+  const remoteRows = b.remoteOnly.map((r) => `<div class="gd-branch-row"><span class="mono">${esc(r.name)}</span> <span class="muted">remote-only</span></div>`).join('');
+  body.innerHTML = `<div class="gd-branch-list">${localRows}</div>${remoteRows ? `<div class="section-title" style="margin:8px 0 4px">Remote-only</div><div class="gd-branch-list">${remoteRows}</div>` : ''}`;
+  $$('.gd-branch-del', body).forEach((btn) => btn.addEventListener('click', () => deleteGitBranch(slug, body, btn)));
+}
+
+async function deleteGitBranch(slug, body, btn) {
+  const branch = btn.dataset.branch;
+  if (!confirm(`Delete merged branch "${branch}" on ${slug}?`)) return;
+  gdBusy(btn, true);
+  try {
+    await api('DELETE', `/api/git/${encodeURIComponent(slug)}/branches/${encodeURIComponent(branch)}`);
+    toast(`Deleted branch ${branch}`);
+    body.dataset.loaded = '0';
+    const r = await api('GET', `/api/git/${encodeURIComponent(slug)}/branches`);
+    body.dataset.loaded = '1';
+    renderGitBranches(slug, body, r);
+  } catch (e) { toast(`delete failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
 // F5: toggle the per-file diff preview (working tree vs HEAD; whole file if new).
