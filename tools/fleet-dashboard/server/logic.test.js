@@ -119,3 +119,32 @@ test('tasks.remove moves the file to .trash instead of unlinking', () => {
   assert.ok(fs.existsSync(path.join(trash, `backlog__${file}`)));                 // recoverable in .trash
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+/* ---- branch listing parsers ---- */
+test('parseLocalBranches parses for-each-ref tab output', () => {
+  const out = [
+    'main\torigin/main\t*',
+    'feature/foo\torigin/feature/foo\t ',
+    'scratch\t\t ',
+  ].join('\n');
+  assert.deepEqual(git.parseLocalBranches(out), [
+    { name: 'main', upstream: 'origin/main', current: true },
+    { name: 'feature/foo', upstream: 'origin/feature/foo', current: false },
+    { name: 'scratch', upstream: null, current: false },
+  ]);
+});
+
+test('parseMergedSet parses `git branch --merged` output, stripping the current-branch marker', () => {
+  const out = '* main\n  old/experiment\n  feature/done\n';
+  const merged = git.parseMergedSet(out);
+  assert.equal(merged.has('main'), true);
+  assert.equal(merged.has('old/experiment'), true);
+  assert.equal(merged.has('feature/done'), true);
+  assert.equal(merged.has('nope'), false);
+});
+
+test('parseRemoteOnlyBranches excludes origin/HEAD and branches that exist locally', () => {
+  const remoteOut = 'origin/HEAD\norigin/main\norigin/feature/foo\norigin/stray-remote-branch\n';
+  const localNames = ['main', 'feature/foo'];
+  assert.deepEqual(git.parseRemoteOnlyBranches(remoteOut, localNames), [{ name: 'origin/stray-remote-branch' }]);
+});

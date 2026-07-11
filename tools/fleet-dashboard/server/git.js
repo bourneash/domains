@@ -92,6 +92,36 @@ function parsePorcelain(out) {
   return { branch, upstream, ahead, behind, files, detached };
 }
 
+// Parse `git for-each-ref --format='%(refname:short)%09%(upstream:short)%09%(HEAD)' refs/heads`.
+function parseLocalBranches(out) {
+  return out.split('\n').filter(Boolean).map((line) => {
+    const [name, upstream, head] = line.split('\t');
+    return { name, upstream: upstream || null, current: head === '*' };
+  });
+}
+
+// Parse `git branch --merged <default>` output into a Set of branch names
+// (strips the leading `* ` current-branch marker and surrounding whitespace).
+function parseMergedSet(out) {
+  const set = new Set();
+  for (const raw of out.split('\n')) {
+    const name = raw.replace(/^\*?\s+/, '').trim();
+    if (name) set.add(name);
+  }
+  return set;
+}
+
+// Parse `git for-each-ref --format='%(refname:short)' refs/remotes/origin` output,
+// excluding the symbolic origin/HEAD ref and any remote branch that already has
+// a same-named local branch.
+function parseRemoteOnlyBranches(remoteOut, localNames) {
+  const local = new Set(localNames);
+  return remoteOut.split('\n').filter(Boolean)
+    .filter((full) => full !== 'origin/HEAD')
+    .filter((full) => !local.has(full.replace(/^origin\//, '')))
+    .map((name) => ({ name }));
+}
+
 // Classify a repo's sync status against its upstream for the Git tab's
 // color-coded SHA display. `ahead === 0 && behind === 0` against a real
 // upstream implies the same commit (localSha === remoteSha) with no extra
@@ -262,6 +292,75 @@ async function fileDiff(root, slug, p) {
   return { path: rel, untracked, diff: (d.out || '').replace(/\s+$/, '') };
 }
 
+// Resolve the default branch: prefer origin/HEAD's target, else 'main', else
+// 'master', else the current branch (best-effort — never throws).
+async function defaultBranch(cwd) {
+  const sym = await git(cwd, ['symbolic-ref', 'refs/remotes/origin/HEAD']);
+  if (sym.ok && sym.out.trim()) {
+    const m = sym.out.trim().match(/refs\/remotes\/origin\/(.+)$/);
+    if (m) return m[1];
+  }
+  const branchesOut = await git(cwd, ['for-each-ref', '--format=%(refname:short)', 'refs/heads']);
+  const names = branchesOut.ok ? branchesOut.out.split('\n').filter(Boolean) : [];
+  if (names.includes('main')) return 'main';
+  if (names.includes('master')) return 'master';
+  const cur = await git(cwd, ['branch', '--show-current']);
+  return (cur.ok && cur.out.trim()) || names[0] || 'main';
+}
+
+// Local branches (with upstream/ahead/behind/merged) + remote-only branches
+// (in refs/remotes/origin but with no matching local branch), for the Git
+// tab's "Branches" sub-section. Never throws — an unreadable repo yields
+// empty lists.
+async function branches(root, slug) {
+  const cwd = siteDir(root, slug);
+  const def = await defaultBranch(cwd);
+
+  const localOut = await git(cwd, ['for-each-ref', '--format=%(refname:short)%09%(upstream:short)%09%(HEAD)', 'refs/heads']);
+  const local = localOut.ok ? parseLocalBranches(localOut.out) : [];
+
+  const mergedOut = await git(cwd, ['branch', '--merged', def]);
+  const merged = mergedOut.ok ? parseMergedSet(mergedOut.out) : new Set();
+
+  for (const b of local) {
+    b.merged = merged.has(b.name);
+    b.ahead = 0; b.behind = 0;
+    if (b.upstream) {
+      const rl = await git(cwd, ['rev-list', '--left-right', '--count', `${b.name}...${b.upstream}`]);
+      if (rl.ok) {
+        const [a, bh] = rl.out.trim().split(/\s+/).map((n) => parseInt(n, 10) || 0);
+        b.ahead = a; b.behind = bh;
+      }
+    }
+  }
+
+  const remoteOut = await git(cwd, ['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin']);
+  const remoteOnly = remoteOut.ok ? parseRemoteOnlyBranches(remoteOut.out, local.map((b) => b.name)) : [];
+
+  return { defaultBranch: def, local, remoteOnly };
+}
+
+// Delete a local branch, but only if it's already merged into the default
+// branch (a safe `git branch -d`, never `-D`), isn't the current branch, and
+// isn't the default branch itself. Re-checks "merged" live rather than
+// trusting a client-supplied flag.
+async function deleteBranch(root, slug, branch) {
+  const rel = safeRel(branch);
+  if (!rel) throw httpErr(400, 'invalid branch name');
+  const cwd = siteDir(root, slug);
+  return withRepoLock(slug, async () => {
+    const b = await branches(root, slug);
+    if (rel === b.defaultBranch) throw httpErr(400, 'refusing to delete the default branch');
+    const entry = b.local.find((x) => x.name === rel);
+    if (!entry) throw httpErr(404, 'branch not found');
+    if (entry.current) throw httpErr(400, 'refusing to delete the current branch');
+    if (!entry.merged) throw httpErr(400, 'branch is not merged into the default branch');
+    const r = await git(cwd, ['branch', '-d', rel]);
+    if (!r.ok) throw httpErr(500, (r.err || r.out).trim() || 'git branch -d failed');
+    return { ok: true, out: (r.out || '').trim() };
+  });
+}
+
 // Push every site that is ahead of origin. Sequential (like restartCrons) to
 // avoid a burst of concurrent pushes. Skips repos with nothing to push, no
 // branch (detached), or that aren't repos.
@@ -292,4 +391,4 @@ async function summaries(root, slugs) {
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, commit, ignore, push, fileDiff, pushAll, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, branches, deleteBranch, commit, ignore, push, fileDiff, pushAll, safeRel };
