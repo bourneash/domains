@@ -143,8 +143,8 @@ test('parseMergedSet parses `git branch --merged` output, stripping the current-
   assert.equal(merged.has('nope'), false);
 });
 
-test('parseRemoteOnlyBranches excludes origin/HEAD and branches that exist locally', () => {
-  const remoteOut = 'origin/HEAD\norigin/main\norigin/feature/foo\norigin/stray-remote-branch\n';
+test('parseRemoteOnlyBranches excludes the origin symref and branches that exist locally', () => {
+  const remoteOut = 'origin\norigin/main\norigin/feature/foo\norigin/stray-remote-branch\n';
   const localNames = ['main', 'feature/foo'];
   assert.deepEqual(git.parseRemoteOnlyBranches(remoteOut, localNames), [{ name: 'origin/stray-remote-branch' }]);
 });

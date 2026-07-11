@@ -117,7 +117,7 @@ function parseMergedSet(out) {
 function parseRemoteOnlyBranches(remoteOut, localNames) {
   const local = new Set(localNames);
   return remoteOut.split('\n').filter(Boolean)
-    .filter((full) => full !== 'origin/HEAD')
+    .filter((full) => full !== 'origin/HEAD' && full !== 'origin')
     .filter((full) => !local.has(full.replace(/^origin\//, '')))
     .map((name) => ({ name }));
 }
@@ -295,6 +295,7 @@ async function pull(root, slug) {
     if (!s.upstream) throw httpErr(409, 'no upstream configured for this branch');
     const r = await git(cwd, ['pull']);
     if (!r.ok) throw httpErr(500, (r.err || r.out).trim() || 'git pull failed');
+    // Unlike push(), a fast-forward `git pull` writes its summary to stdout.
     return { ok: true, out: (r.out || r.err || '').trim() };
   });
 }
