@@ -232,9 +232,12 @@ async function renderGit() {
     if (r.ahead) sync.push(`<span class="badge b-blue">↑${r.ahead}</span>`);
     if (r.behind) sync.push(`<span class="badge b-red">↓${r.behind}</span>`);
     if (!r.ahead && !r.behind) sync.push('<span class="muted">synced</span>');
+    const shaCls = { synced: 'b-green', ahead: 'b-yellow', 'diverged-behind': 'b-red', 'no-upstream': 'b-blue' }[r.syncState] || 'b-blue';
+    const shaLine = `<span class="badge ${shaCls}" title="local vs remote SHA">${esc(r.localSha || '—')} / ${esc(r.remoteSha || '—')}</span>`;
+    const stashBadge = r.stashCount ? ` <a href="#git/${encodeURIComponent(r.slug)}/stashes" class="badge b-blue" title="${r.stashCount} stash(es)">📦 ${r.stashCount}</a>` : '';
     return `<tr class="git-row" data-slug="${esc(r.slug)}">
       <td class="site">${esc(r.slug)} <span class="muted">▸</span></td>
-      <td class="mono">${esc(r.branch || '—')}</td>
+      <td class="mono">${esc(r.branch || '—')} ${shaLine}${stashBadge}</td>
       <td>${dirty}</td>
       <td>${sync.join(' ')}</td>
     </tr>
@@ -252,7 +255,7 @@ async function renderGit() {
       <tbody>${body}</tbody>
     </table></div>`;
 
-  $$('.git-row').forEach((tr) => tr.addEventListener('click', () => toggleGitDetail(tr.dataset.slug)));
+  $$('.git-row').forEach((tr) => tr.addEventListener('click', (e) => { if (e.target.closest('a')) return; toggleGitDetail(tr.dataset.slug); }));
   const pa = $('#push-all'); if (pa) pa.addEventListener('click', pushAllSites);
   if (!FRESH) applyUISnap();
   // applyUISnap re-injects the saved innerHTML of any expanded detail but not its
@@ -287,11 +290,12 @@ function renderGitDetail(slug, box, s) {
     ? `<span class="gd-last muted">last commit <span class="mono">${esc(s.lastCommit.hash)}</span> · ${esc(s.lastCommit.subject)} · ${esc(s.lastCommit.when)}</span>`
     : '';
   const pushBtn = `<button type="button" class="btn sm gd-push"${s.ahead ? '' : ' disabled title="nothing to push"'}>⇧ Push${s.ahead ? ` ${s.ahead}` : ''}</button>`;
+  const pullBtn = `<button type="button" class="btn sm gd-pull"${s.behind ? '' : ' disabled title="nothing to pull"'}>⇩ Pull${s.behind ? ` ${s.behind}` : ''}</button>`;
 
   if (!s.files.length) {
     box.innerHTML = `<div class="gd-head">${lc}</div>
       <div class="muted gd-clean">working tree clean${s.behind ? ` · ${s.behind} behind` : ''}</div>
-      <div class="gd-commit">${pushBtn}</div><div class="gd-result"></div>`;
+      <div class="gd-commit">${pushBtn} ${pullBtn}</div><div class="gd-result"></div>`;
     wireGitOps(slug, box);
     return;
   }
@@ -317,7 +321,7 @@ function renderGitDetail(slug, box, s) {
     <div class="gd-commit">
       <input class="gd-msg" placeholder="commit message for the selected files…" />
       <button type="button" class="btn sm primary gd-commit-btn">Commit selected</button>
-      ${pushBtn}
+      ${pushBtn} ${pullBtn}
     </div>
     <div class="gd-result"></div>`;
   wireGitOps(slug, box);
@@ -329,6 +333,7 @@ function wireGitOps(slug, box) {
   $$('.gd-diff', box).forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); toggleGitFileDiff(slug, box, b.dataset.path, b); }));
   const cb = $('.gd-commit-btn', box); if (cb) cb.addEventListener('click', () => gitCommit(slug, box, cb));
   const pb = $('.gd-push', box); if (pb) pb.addEventListener('click', () => gitPush(slug, box, pb));
+  const plb = $('.gd-pull', box); if (plb) plb.addEventListener('click', () => gitPull(slug, box, plb));
 }
 
 // F5: toggle the per-file diff preview (working tree vs HEAD; whole file if new).
@@ -356,7 +361,11 @@ async function refreshGitAfterOp(slug, box) {
   const row = $(`tr.git-row[data-slug="${CSS.escape(slug)}"]`);
   if (!row) return;
   const tds = row.querySelectorAll('td');
-  if (tds[1]) tds[1].innerHTML = `<span class="mono">${esc(s.branch || '—')}</span>`;
+  if (tds[1]) {
+    const shaCls = { synced: 'b-green', ahead: 'b-yellow', 'diverged-behind': 'b-red', 'no-upstream': 'b-blue' }[s.syncState] || 'b-blue';
+    const shaLine = `<span class="badge ${shaCls}" title="local vs remote SHA">${esc(s.localSha || '—')} / ${esc(s.remoteSha || '—')}</span>`;
+    tds[1].innerHTML = `<span class="mono">${esc(s.branch || '—')}</span> ${shaLine}`;
+  }
   if (tds[2]) tds[2].innerHTML = s.dirty > 0 ? `<span class="badge b-yellow">${s.dirty} uncommitted</span>` : '<span class="badge b-green">clean</span>';
   if (tds[3]) {
     const sync = [];
@@ -397,6 +406,15 @@ async function gitPush(slug, box, btn) {
     toast(`Pushed ${slug}`);
     await refreshGitAfterOp(slug, box);
   } catch (e) { toast(`push failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+async function gitPull(slug, box, btn) {
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/git/${encodeURIComponent(slug)}/pull`);
+    toast(`Pulled ${slug}`);
+    await refreshGitAfterOp(slug, box);
+  } catch (e) { toast(`pull failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
 // F6: push every site that's ahead of origin, one call, sequential on the server.
