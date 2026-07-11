@@ -69,6 +69,15 @@ test('parsePorcelain handles normal, fresh, and detached headers', () => {
   assert.equal(detached.detached, true);
 });
 
+/* ---- sync-state color classification ---- */
+test('computeSyncState classifies upstream sync correctly', () => {
+  assert.equal(git.computeSyncState({ ahead: 0, behind: 0, upstream: 'origin/main' }), 'synced');
+  assert.equal(git.computeSyncState({ ahead: 3, behind: 0, upstream: 'origin/main' }), 'ahead');
+  assert.equal(git.computeSyncState({ ahead: 0, behind: 2, upstream: 'origin/main' }), 'diverged-behind');
+  assert.equal(git.computeSyncState({ ahead: 1, behind: 2, upstream: 'origin/main' }), 'diverged-behind');
+  assert.equal(git.computeSyncState({ ahead: 0, behind: 0, upstream: null }), 'no-upstream');
+});
+
 /* ---- B7: bounded tail returns the last N lines ---- */
 test('tailFile returns the last N lines without reading the whole file', () => {
   const dir = tmpdir('fd-tail-');

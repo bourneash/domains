@@ -92,6 +92,17 @@ function parsePorcelain(out) {
   return { branch, upstream, ahead, behind, files, detached };
 }
 
+// Classify a repo's sync status against its upstream for the Git tab's
+// color-coded SHA display. `ahead === 0 && behind === 0` against a real
+// upstream implies the same commit (localSha === remoteSha) with no extra
+// plumbing needed to prove it.
+function computeSyncState({ ahead, behind, upstream }) {
+  if (!upstream) return 'no-upstream';
+  if (behind > 0) return 'diverged-behind';
+  if (ahead > 0) return 'ahead';
+  return 'synced';
+}
+
 // Full git snapshot for one site repo (submodule). Never throws.
 async function status(root, slug) {
   const cwd = siteDir(root, slug);
@@ -109,6 +120,19 @@ async function status(root, slug) {
     const [hash, subject, when, author] = log.out.trim().split('\x1f');
     lastCommit = { hash, subject, when, author };
   }
+
+  let localSha = null;
+  const lsha = await git(cwd, ['rev-parse', '--short', 'HEAD']);
+  if (lsha.ok && lsha.out.trim()) localSha = lsha.out.trim();
+
+  let remoteSha = null;
+  if (parsed.upstream) {
+    const rsha = await git(cwd, ['rev-parse', '--short', '@{u}']);
+    if (rsha.ok && rsha.out.trim()) remoteSha = rsha.out.trim();
+  }
+
+  const syncState = computeSyncState({ ahead: parsed.ahead, behind: parsed.behind, upstream: parsed.upstream });
+
   return {
     slug, isRepo: true,
     branch: parsed.branch, upstream: parsed.upstream, detached: parsed.detached,
@@ -119,6 +143,7 @@ async function status(root, slug) {
     staged: tracked.filter((f) => f.kind === 'staged' || f.kind === 'staged+dirty').length,
     untracked: tracked.filter((f) => f.kind === 'untracked').length,
     lastCommit,
+    localSha, remoteSha, syncState,
     files: tracked,
   };
 }
@@ -262,8 +287,9 @@ async function summaries(root, slugs) {
     const s = await status(root, slug);
     return { slug: s.slug, isRepo: s.isRepo, branch: s.branch, dirty: s.dirty,
       ahead: s.ahead, behind: s.behind, needsPush: s.needsPush, needsPull: s.needsPull,
+      localSha: s.localSha, remoteSha: s.remoteSha, syncState: s.syncState,
       error: s.error || null };
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, commit, ignore, push, fileDiff, pushAll, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, commit, ignore, push, fileDiff, pushAll, safeRel };
