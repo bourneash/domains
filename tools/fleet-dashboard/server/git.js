@@ -281,6 +281,24 @@ async function push(root, slug) {
   });
 }
 
+// Pull the current branch. Refuses if the working tree has uncommitted
+// tracked changes (this repo class is cron-managed — never attempt a merge
+// against a dirty tree from the dashboard) or if there's no upstream/branch
+// to pull from (same guard shape as push()).
+async function pull(root, slug) {
+  const cwd = siteDir(root, slug);
+  return withRepoLock(slug, async () => {
+    const s = await status(root, slug);
+    if (!s.isRepo) throw httpErr(400, 'not a git repository');
+    if (s.dirty > 0) throw httpErr(409, 'working tree has uncommitted changes — commit or stash before pulling');
+    if (!s.branch) throw httpErr(409, s.detached ? 'detached HEAD — checkout a branch before pulling' : 'no branch to pull');
+    if (!s.upstream) throw httpErr(409, 'no upstream configured for this branch');
+    const r = await git(cwd, ['pull']);
+    if (!r.ok) throw httpErr(500, (r.err || r.out).trim() || 'git pull failed');
+    return { ok: true, out: (r.out || r.err || '').trim() };
+  });
+}
+
 // Unified diff for one path: working tree vs HEAD (covers staged + unstaged).
 // For an untracked file (not in HEAD) that diff is empty, so fall back to a
 // diff against the empty tree so the new file's contents still show as additions.
@@ -433,4 +451,4 @@ async function summaries(root, slugs) {
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, fileDiff, pushAll, stashes, stashDiff, dropStash, stashIndex, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, pull, fileDiff, pushAll, stashes, stashDiff, dropStash, stashIndex, safeRel };
