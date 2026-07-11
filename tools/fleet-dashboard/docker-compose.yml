@@ -23,6 +23,19 @@ services:
       HOME: ${HOME:-/home/jesse}
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770
+      # Every site repo in the fleet pushes over the same github-bourneash SSH
+      # identity (confirmed across sites — one shared account). -F /dev/null
+      # skips ~/.ssh/config entirely: root's default config-file lookup is
+      # /root/.ssh/config, and OpenSSH's strict ownership check on that file
+      # rejects it since the mounted file is owned by the host uid (1000), not
+      # root. Passing the identity/known_hosts explicitly avoids that check
+      # (which does not apply to -i/-o UserKnownHostsFile). Every remote URL
+      # uses the literal host "github-bourneash" (the host's ~/.ssh/config
+      # alias for github.com) — since -F /dev/null also throws away that
+      # alias's HostName mapping, -o HostName=github.com restores it directly.
+      # Matches the same explicit-identity pattern every site's own cron
+      # containers already use.
+      GIT_SSH_COMMAND: "ssh -F /dev/null -i /root/.ssh/github-bourneash -o UserKnownHostsFile=/root/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -31,6 +44,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
+      # Git push/pull over SSH remotes (git@github-bourneash:...) needs the
+      # host's keys/config/known_hosts — read-only, same pattern every
+      # site's own cron containers already use for git push. The container
+      # runs as root (see Dockerfile), and OpenSSH resolves ~/.ssh via the
+      # passwd-database home dir (/root), NOT the $HOME env override used
+      # elsewhere in this compose file for path-matching — so this must be
+      # mounted at /root/.ssh specifically, not at $HOME/.ssh.
+      - ${HOME:-/home/jesse}/.ssh:/root/.ssh:ro
     working_dir: ${HOME:-/home/jesse}/projects/domains/tools/fleet-dashboard
 
 networks:
