@@ -235,8 +235,9 @@ async function renderGit() {
     const shaCls = { synced: 'b-green', ahead: 'b-yellow', 'diverged-behind': 'b-red', 'no-upstream': 'b-blue' }[r.syncState] || 'b-blue';
     const shaLine = `<span class="badge ${shaCls}" title="local vs remote SHA">${esc(r.localSha || '—')} / ${esc(r.remoteSha || '—')}</span>`;
     const stashBadge = r.stashCount ? ` <a href="#git/${encodeURIComponent(r.slug)}/stashes" class="badge b-blue" title="${r.stashCount} stash(es)">📦 ${r.stashCount}</a>` : '';
+    const repoLink = r.remoteWebUrl ? ` <a href="${esc(r.remoteWebUrl)}" target="_blank" rel="noopener" class="rcol-link" title="Open repo on GitHub">↗</a>` : '';
     return `<tr class="git-row" data-slug="${esc(r.slug)}">
-      <td class="site">${esc(r.slug)} <span class="muted">▸</span></td>
+      <td class="site">${esc(r.slug)}${repoLink} <span class="muted">▸</span></td>
       <td class="mono">${esc(r.branch || '—')} ${shaLine}${stashBadge}</td>
       <td>${dirty}</td>
       <td>${sync.join(' ')}</td>

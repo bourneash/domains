@@ -14,6 +14,35 @@ function git(cwd, args) {
 
 function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
 
+// Convert a git remote URL into a browsable web URL, for a repo-link in the
+// Git tab. Handles the two shapes this fleet's remotes actually use — SSH
+// scp-syntax through an ssh-config host alias (git@github-bourneash:owner/repo.git)
+// and ssh:// URLs — plus already-web http(s) URLs. The host segment of an
+// scp-syntax/ssh:// remote may be an ssh-config alias (not a real hostname,
+// e.g. "github-bourneash"), so a literal alias can't be used as a web host;
+// treat any alias/hostname containing "github" as github.com (true for every
+// remote in this fleet) and pass through any other host as-is. Returns null
+// if the URL doesn't match a recognized shape rather than guessing wrong.
+function remoteToWebUrl(url) {
+  if (!url) return null;
+  url = url.trim();
+  const toWeb = (host, repoPath) => {
+    const webHost = /github/i.test(host) ? 'github.com' : host;
+    return `https://${webHost}/${repoPath.replace(/\.git$/, '')}`;
+  };
+  let m = url.match(/^[\w.-]+@([\w.-]+):(.+)$/);
+  if (m) return toWeb(m[1], m[2]);
+  m = url.match(/^ssh:\/\/[\w.-]+@([\w.-]+)(?::\d+)?\/(.+)$/);
+  if (m) return toWeb(m[1], m[2]);
+  // An http(s) remote may carry embedded credentials (e.g. a GitHub
+  // x-access-token deploy token: https://x-access-token:TOKEN@github.com/...)
+  // for a repo whose committer cron uses HTTPS auth instead of SSH. Strip any
+  // userinfo before the host — this becomes a clickable link, so leaking the
+  // live token into rendered HTML would be a real credential exposure.
+  if (/^https?:\/\//.test(url)) return url.replace(/^(https?:\/\/)[^@/]*@/, '$1').replace(/\.git$/, '');
+  return null;
+}
+
 // Per-repo serialization lock (B3). Each site is a live submodule clone that its
 // OWN engineer/committer cron also stages, commits and pushes to. Two dashboard
 // git mutations on the same slug (or a commit racing a push) must not interleave
@@ -172,6 +201,10 @@ async function status(root, slug) {
 
   const syncState = computeSyncState({ ahead: parsed.ahead, behind: parsed.behind, upstream: parsed.upstream });
 
+  let remoteWebUrl = null;
+  const originUrl = await git(cwd, ['remote', 'get-url', 'origin']);
+  if (originUrl.ok && originUrl.out.trim()) remoteWebUrl = remoteToWebUrl(originUrl.out.trim());
+
   return {
     slug, isRepo: true,
     branch: parsed.branch, upstream: parsed.upstream, detached: parsed.detached,
@@ -182,7 +215,7 @@ async function status(root, slug) {
     staged: tracked.filter((f) => f.kind === 'staged' || f.kind === 'staged+dirty').length,
     untracked: tracked.filter((f) => f.kind === 'untracked').length,
     lastCommit,
-    localSha, remoteSha, syncState,
+    localSha, remoteSha, syncState, remoteWebUrl,
     files: tracked,
   };
 }
@@ -448,8 +481,8 @@ async function summaries(root, slugs) {
     return { slug: s.slug, isRepo: s.isRepo, branch: s.branch, dirty: s.dirty,
       ahead: s.ahead, behind: s.behind, needsPush: s.needsPush, needsPull: s.needsPull,
       localSha: s.localSha, remoteSha: s.remoteSha, syncState: s.syncState,
-      stashCount: stashList.length, error: s.error || null };
+      stashCount: stashList.length, remoteWebUrl: s.remoteWebUrl, error: s.error || null };
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, pull, fileDiff, pushAll, stashes, stashDiff, dropStash, stashIndex, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, remoteToWebUrl, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, pull, fileDiff, pushAll, stashes, stashDiff, dropStash, stashIndex, safeRel };

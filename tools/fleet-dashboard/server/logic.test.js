@@ -78,6 +78,28 @@ test('computeSyncState classifies upstream sync correctly', () => {
   assert.equal(git.computeSyncState({ ahead: 0, behind: 0, upstream: null }), 'no-upstream');
 });
 
+/* ---- repo-link: remote URL -> browsable web URL ---- */
+test('remoteToWebUrl converts scp-syntax, ssh://, and http(s) remotes; rejects unknown shapes', () => {
+  assert.equal(git.remoteToWebUrl('git@github-bourneash:bourneash/xxxtea.com.git'), 'https://github.com/bourneash/xxxtea.com');
+  assert.equal(git.remoteToWebUrl('git@github.com:bourneash/americastrikes.git'), 'https://github.com/bourneash/americastrikes');
+  assert.equal(git.remoteToWebUrl('ssh://git@github-bourneash/bourneash/saveusfarms.com.git'), 'https://github.com/bourneash/saveusfarms.com');
+  assert.equal(git.remoteToWebUrl('https://github.com/bourneash/reviewtattoo.git'), 'https://github.com/bourneash/reviewtattoo');
+  assert.equal(git.remoteToWebUrl('git@gitlab.example.com:team/repo.git'), 'https://gitlab.example.com/team/repo');
+  assert.equal(git.remoteToWebUrl(''), null);
+  assert.equal(git.remoteToWebUrl(null), null);
+  assert.equal(git.remoteToWebUrl('not a url'), null);
+});
+
+/* ---- security: never leak embedded HTTPS credentials into the rendered link ---- */
+test('remoteToWebUrl strips embedded credentials from an http(s) remote', () => {
+  assert.equal(
+    git.remoteToWebUrl('https://x-access-token:gho_secrettoken123@github.com/bourneash/sinderella.git'),
+    'https://github.com/bourneash/sinderella');
+  assert.equal(
+    git.remoteToWebUrl('https://user:pass@example.com/team/repo.git'),
+    'https://example.com/team/repo');
+});
+
 /* ---- B7: bounded tail returns the last N lines ---- */
 test('tailFile returns the last N lines without reading the whole file', () => {
   const dir = tmpdir('fd-tail-');
