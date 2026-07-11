@@ -359,16 +359,6 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
-  app.get('/api/git/:slug/branches', requireSite, async (req, res) => {
-    try { res.json(await git.branches(root, req.params.slug)); }
-    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
-  });
-
-  app.delete('/api/git/:slug/branches/:branch', requireSite, async (req, res) => {
-    try { res.json(await git.deleteBranch(root, req.params.slug, req.params.branch)); }
-    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
-  });
-
   // Tasks CRUD ------------------------------------------------------------
   // Cross-fleet aggregate (every site's tasks, flat) — the integrated
   // successor to site-tracker's /tasks page. Client does facet/filter/group.
