@@ -148,3 +148,19 @@ test('parseRemoteOnlyBranches excludes origin/HEAD and branches that exist local
   const localNames = ['main', 'feature/foo'];
   assert.deepEqual(git.parseRemoteOnlyBranches(remoteOut, localNames), [{ name: 'origin/stray-remote-branch' }]);
 });
+
+/* ---- stash list parser ---- */
+test('parseStashList parses `git stash list --format` unit-separated output', () => {
+  const out = [
+    'stash@{0}\x1fWIP: header tweak\x1f2 hours ago',
+    'stash@{1}\x1fdebug logging\x1f1 day ago',
+  ].join('\n');
+  assert.deepEqual(git.parseStashList(out), [
+    { index: 0, ref: 'stash@{0}', message: 'WIP: header tweak', when: '2 hours ago' },
+    { index: 1, ref: 'stash@{1}', message: 'debug logging', when: '1 day ago' },
+  ]);
+});
+
+test('parseStashList returns [] for no stashes', () => {
+  assert.deepEqual(git.parseStashList(''), []);
+});

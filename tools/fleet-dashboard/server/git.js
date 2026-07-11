@@ -122,6 +122,15 @@ function parseRemoteOnlyBranches(remoteOut, localNames) {
     .map((name) => ({ name }));
 }
 
+// Parse `git stash list --format=%gd%x1f%s%x1f%cr` (ref, message, relative date).
+function parseStashList(out) {
+  return out.split('\n').filter(Boolean).map((line) => {
+    const [ref, message, when] = line.split('\x1f');
+    const m = ref.match(/\{(\d+)\}/);
+    return { index: m ? parseInt(m[1], 10) : 0, ref, message: message || '', when: when || '' };
+  });
+}
+
 // Classify a repo's sync status against its upstream for the Git tab's
 // color-coded SHA display. `ahead === 0 && behind === 0` against a real
 // upstream implies the same commit (localSha === remoteSha) with no extra
@@ -361,6 +370,38 @@ async function deleteBranch(root, slug, branch) {
   });
 }
 
+function stashIndex(i) {
+  const n = parseInt(i, 10);
+  if (!Number.isInteger(n) || n < 0 || String(n) !== String(i).trim()) return null;
+  return n;
+}
+
+async function stashes(root, slug) {
+  const cwd = siteDir(root, slug);
+  const r = await git(cwd, ['stash', 'list', '--format=%gd\x1f%s\x1f%cr']);
+  return r.ok ? parseStashList(r.out) : [];
+}
+
+async function stashDiff(root, slug, index) {
+  const n = stashIndex(index);
+  if (n === null) throw httpErr(400, 'invalid stash index');
+  const cwd = siteDir(root, slug);
+  const r = await git(cwd, ['stash', 'show', '-p', `stash@{${n}}`]);
+  if (!r.ok) throw httpErr(404, (r.err || r.out).trim() || 'stash not found');
+  return { ref: `stash@{${n}}`, diff: (r.out || '').replace(/\s+$/, '') };
+}
+
+async function dropStash(root, slug, index) {
+  const n = stashIndex(index);
+  if (n === null) throw httpErr(400, 'invalid stash index');
+  const cwd = siteDir(root, slug);
+  return withRepoLock(slug, async () => {
+    const r = await git(cwd, ['stash', 'drop', `stash@{${n}}`]);
+    if (!r.ok) throw httpErr(500, (r.err || r.out).trim() || 'git stash drop failed');
+    return { ok: true, out: (r.out || '').trim() };
+  });
+}
+
 // Push every site that is ahead of origin. Sequential (like restartCrons) to
 // avoid a burst of concurrent pushes. Skips repos with nothing to push, no
 // branch (detached), or that aren't repos.
@@ -384,11 +425,12 @@ async function pushAll(root, slugs) {
 async function summaries(root, slugs) {
   return Promise.all(slugs.map(async (slug) => {
     const s = await status(root, slug);
+    const stashList = s.isRepo ? await stashes(root, slug) : [];
     return { slug: s.slug, isRepo: s.isRepo, branch: s.branch, dirty: s.dirty,
       ahead: s.ahead, behind: s.behind, needsPush: s.needsPush, needsPull: s.needsPull,
       localSha: s.localSha, remoteSha: s.remoteSha, syncState: s.syncState,
-      error: s.error || null };
+      stashCount: stashList.length, error: s.error || null };
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, branches, deleteBranch, commit, ignore, push, fileDiff, pushAll, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, fileDiff, pushAll, stashes, stashDiff, dropStash, safeRel };
