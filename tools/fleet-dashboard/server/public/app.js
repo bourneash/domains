@@ -343,7 +343,18 @@ function wireGitOps(slug, box) {
   const pb = $('.gd-push', box); if (pb) pb.addEventListener('click', () => gitPush(slug, box, pb));
   const plb = $('.gd-pull', box); if (plb) plb.addEventListener('click', () => gitPull(slug, box, plb));
   const brDetails = $('.gd-branches', box);
-  if (brDetails) brDetails.addEventListener('toggle', () => { if (brDetails.open) loadGitBranches(slug, brDetails); }, { once: false });
+  if (brDetails) {
+    brDetails.addEventListener('toggle', () => { if (brDetails.open) loadGitBranches(slug, brDetails); }, { once: false });
+    // applyUISnap restores this <details> already-open with its previously-rendered
+    // (and dataset.loaded="1"-stamped) innerHTML, but that markup carries no live
+    // listeners. Clear the stamp so loadGitBranches' own guard doesn't no-op, forcing
+    // a genuine reload + rewire of the branch rows/delete buttons.
+    if (brDetails.open) {
+      const body = $('.gd-branches-body', brDetails);
+      if (body) body.dataset.loaded = '';
+      loadGitBranches(slug, brDetails);
+    }
+  }
 }
 
 async function loadGitBranches(slug, detailsEl) {
