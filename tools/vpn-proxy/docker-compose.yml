@@ -32,9 +32,9 @@ x-vpn-base: &vpn-base
   healthcheck:
     # gluetun ships its own healthcheck binary — checks tunnel state, not just process
     test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
-    interval: 30s
+    interval: 1m
     timeout: 10s
-    retries: 5          # 5 × 30s = 2.5 min before autoheal triggers restart
+    retries: 5          # 5 × 1m = 5 min before autoheal triggers restart
     start_period: 60s
 
 services:
@@ -106,7 +106,7 @@ services:
     restart: unless-stopped
     environment:
       AUTOHEAL_CONTAINER_LABEL: autoheal   # only restart containers with this label
-      AUTOHEAL_INTERVAL: 30                # check every 30s
+      AUTOHEAL_INTERVAL: 60                # check every 60s
       AUTOHEAL_START_PERIOD: 60            # grace period before first check (seconds)
       CURL_TIMEOUT: 30
     volumes:
@@ -116,7 +116,7 @@ services:
     # AUTOHEAL_INTERVAL above (30s); this just controls its own liveness probe.
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f autoheal || exit 1"]
-      interval: 60s
+      interval: 5m
       timeout: 10s
       retries: 3
       start_period: 60s
