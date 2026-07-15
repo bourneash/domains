@@ -63,39 +63,41 @@ def run_once(site_dir: Path, site_domain: str, cfg: dict, dry_run: bool, today: 
     products = discover_products(site_dir)
     ctx, page = checker.launch_browser()
 
-    st = state.load_state(site_dir)
-    counts = {"healthy": 0, "flagged": 0, "resolving": 0}
-
+    first_pass = []
     try:
         for i, product in enumerate(products):
             evidence = checker.check_product(page, f"https://{site_domain}", product, cfg["pacing"])
             verdict = classify.classify(evidence, cfg["checks"])
-
-            if verdict not in ("ok", "inconclusive"):
-                evidence = checker.recheck_product(product, f"https://{site_domain}", cfg["pacing"])
-                verdict = classify.classify(evidence, cfg["checks"])
-
-            st, actionable = state.update_state(st, product["id"], verdict, today, cfg["checks"])
-
-            if verdict in ("ok", "inconclusive"):
-                counts["healthy"] += 1
-            else:
-                counts["flagged"] += 1
-
-            if actionable and not dry_run:
-                counts["resolving"] += 1
-                log_path = site_dir / "ops" / "logs" / f"affiliate-audit-resolve-{product['id']}-{today}.log"
-                resolve.resolve_product(
-                    product, evidence, verdict, cfg["resolution"], site_dir, site_domain, log_path
-                )
-            elif actionable and dry_run:
-                counts["resolving"] += 1
-                print(f"[dry-run] would resolve {product['id']} ({verdict})")
-
+            first_pass.append((product, evidence, verdict))
             if i < len(products) - 1:
                 checker.pace(cfg["pacing"])
     finally:
         ctx.close()
+
+    st = state.load_state(site_dir)
+    counts = {"healthy": 0, "flagged": 0, "resolving": 0}
+
+    for product, evidence, verdict in first_pass:
+        if verdict not in ("ok", "inconclusive"):
+            evidence = checker.recheck_product(product, f"https://{site_domain}", cfg["pacing"])
+            verdict = classify.classify(evidence, cfg["checks"])
+
+        st, actionable = state.update_state(st, product["id"], verdict, today, cfg["checks"])
+
+        if verdict in ("ok", "inconclusive"):
+            counts["healthy"] += 1
+        else:
+            counts["flagged"] += 1
+
+        if actionable and not dry_run:
+            counts["resolving"] += 1
+            log_path = site_dir / "ops" / "logs" / f"affiliate-audit-resolve-{product['id']}-{today}.log"
+            resolve.resolve_product(
+                product, evidence, verdict, cfg["resolution"], site_dir, site_domain, log_path
+            )
+        elif actionable and dry_run:
+            counts["resolving"] += 1
+            print(f"[dry-run] would resolve {product['id']} ({verdict})")
 
     state.save_state(site_dir, st)
     notify_summary(site_dir, site_domain, cfg, counts)

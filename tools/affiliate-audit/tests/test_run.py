@@ -129,3 +129,44 @@ def test_run_once_recheck_clears_false_positive():
     mock_recheck.assert_called_once()
     # cleared by the recheck -- never sent to resolution
     mock_resolve.assert_not_called()
+
+
+def test_run_once_closes_main_context_before_any_recheck():
+    """Regression test for the Playwright Sync API concurrent-session crash:
+    the main sweep's browser context must be closed before recheck_product
+    (which opens its own separate Playwright session) is ever called."""
+    fake_page = object()
+    fake_ctx = mock.Mock()
+    call_order = []
+
+    evidence_by_id = {
+        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
+                     "rating": None, "redirect_ok": True},
+    }
+    recheck_evidence = {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
+                         "rating": None, "redirect_ok": True}
+
+    def record_close():
+        call_order.append("ctx.close")
+
+    def record_recheck(product, base, pacing):
+        call_order.append("recheck_product")
+        return recheck_evidence
+
+    fake_ctx.close.side_effect = record_close
+
+    with mock.patch("run.discover_products", return_value=PRODUCTS), \
+         mock.patch("run.checker.launch_browser", return_value=(fake_ctx, fake_page)), \
+         mock.patch("run.checker.check_product", side_effect=lambda page, base, product, pacing: evidence_by_id[product["id"]]), \
+         mock.patch("run.checker.recheck_product", side_effect=record_recheck), \
+         mock.patch("run.checker.pace"), \
+         mock.patch("run.state.load_state", return_value={}), \
+         mock.patch("run.state.save_state"), \
+         mock.patch("run.resolve.resolve_product", return_value=0), \
+         mock.patch("run.notify_summary"):
+        run.run_once(Path("/tmp/site"), "totaljerks.com", CFG, dry_run=False, today="2026-07-15")
+
+    assert call_order == ["ctx.close", "recheck_product"], (
+        f"main context must close before any recheck_product call, got order: {call_order}"
+    )
