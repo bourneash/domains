@@ -60,9 +60,49 @@ def test_recheck_product_uses_fresh_context():
     fresh_page = FakePage(url="https://amazon.com/dp/B00WIDGET1", body="Buy Widget now", rating=4.6, prime=True)
     fake_ctx = type("FakeCtx", (), {"closed": False, "close": lambda self: setattr(self, "closed", True)})()
 
-    with mock.patch("checker.launch_browser", return_value=(fake_ctx, fresh_page)):
+    with mock.patch("checker.launch_browser", return_value=(fake_ctx, fresh_page)) as mock_launch:
         ev = checker.recheck_product(PRODUCT, "https://totaljerks.com", {})
 
     assert ev["redirect_ok"] is True
     assert ev["body"] == "Buy Widget now"
     assert fake_ctx.closed is True
+    mock_launch.assert_called_once_with(profile=checker.RECHECK_PROFILE)
+
+
+def test_recheck_product_uses_dedicated_profile_not_default():
+    """recheck_product must use a DIFFERENT profile than the main sweep's
+    default, so cc_lib's launch-time pkill cleanup can never kill the main
+    sweep's still-open browser (the bug: both used cc_lib.PROFILE)."""
+    fresh_page = FakePage(url="https://amazon.com/dp/B00WIDGET1", body="Buy Widget now", rating=4.6, prime=True)
+    fake_ctx = type("FakeCtx", (), {"closed": False, "close": lambda self: setattr(self, "closed", True)})()
+
+    with mock.patch("checker.launch_browser", return_value=(fake_ctx, fresh_page)) as mock_launch:
+        checker.recheck_product(PRODUCT, "https://totaljerks.com", {})
+
+    called_profile = mock_launch.call_args.kwargs.get("profile")
+    assert called_profile == checker.RECHECK_PROFILE
+    assert called_profile != "/tmp/cloak-driver/profile"
+
+
+def test_launch_browser_default_passes_no_profile_to_cc_lib():
+    """The main sweep's call site (run.py -> checker.launch_browser()) must
+    keep getting cc_lib's own default profile — no override."""
+    fake_ctx, fake_page = object(), object()
+    with mock.patch.dict(
+        "sys.modules", {"cc_lib": mock.Mock(launch=mock.Mock(return_value=(fake_ctx, fake_page)))}
+    ):
+        result = checker.launch_browser()
+        cc_lib_mock = sys.modules["cc_lib"]
+        cc_lib_mock.launch.assert_called_once_with()
+    assert result == (fake_ctx, fake_page)
+
+
+def test_launch_browser_passes_through_explicit_profile():
+    fake_ctx, fake_page = object(), object()
+    with mock.patch.dict(
+        "sys.modules", {"cc_lib": mock.Mock(launch=mock.Mock(return_value=(fake_ctx, fake_page)))}
+    ):
+        result = checker.launch_browser(profile="/tmp/some/other-profile")
+        cc_lib_mock = sys.modules["cc_lib"]
+        cc_lib_mock.launch.assert_called_once_with(profile="/tmp/some/other-profile")
+    assert result == (fake_ctx, fake_page)
