@@ -36,6 +36,11 @@ _PRIME_JS = """
 () => !!document.querySelector('#primeBadge, .a-icon-prime, [aria-label*="Prime" i]')
 """
 
+# Amazon hydrates product pages client-side after domcontentloaded; reading the
+# DOM immediately can catch it mid-hydration and misclassify a healthy page as
+# OOS/broken. Mirrors the proven cc_lib.pull_product_page_info() settle delay.
+SETTLE_DELAY_S = 3
+
 
 def check_product(page, base_url: str, product: dict, pacing_cfg: dict) -> dict:
     go_url = f"{base_url.rstrip('/')}/go/{product['id']}/"
@@ -54,6 +59,8 @@ def check_product(page, base_url: str, product: dict, pacing_cfg: dict) -> dict:
     except Exception:
         evidence["redirect_ok"] = False
         return evidence
+
+    time.sleep(SETTLE_DELAY_S)
 
     evidence["landed_url"] = page.url
     evidence["body"] = page.inner_text("body")

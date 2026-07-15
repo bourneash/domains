@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import checker  # noqa: E402
@@ -35,16 +36,20 @@ PRODUCT = {"id": "widget", "asin": "B00WIDGET1"}
 
 def test_normal_product_ok_evidence():
     page = FakePage(url="https://amazon.com/dp/B00WIDGET1", body="Buy Widget now", rating=4.6, prime=True)
-    ev = checker.check_product(page, "https://totaljerks.com", PRODUCT, {})
+    with patch("checker.time.sleep") as mock_sleep:
+        ev = checker.check_product(page, "https://totaljerks.com", PRODUCT, {})
     assert ev["redirect_ok"] is True
     assert ev["body"] == "Buy Widget now"
     assert ev["rating"] == 4.6
     assert ev["prime"] is True
     assert ev["go_url"] == "https://totaljerks.com/go/widget/"
+    mock_sleep.assert_called_once_with(3)
 
 
 def test_goto_failure_is_broken_redirect():
     page = FakePage(url="", body="", raise_on_goto=True)
-    ev = checker.check_product(page, "https://totaljerks.com", PRODUCT, {})
+    with patch("checker.time.sleep") as mock_sleep:
+        ev = checker.check_product(page, "https://totaljerks.com", PRODUCT, {})
     assert ev["redirect_ok"] is False
     assert ev["body"] == ""
+    mock_sleep.assert_not_called()
