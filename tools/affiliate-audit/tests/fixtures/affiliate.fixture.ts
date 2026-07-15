@@ -1,3 +1,5 @@
+// tools/affiliate-audit/tests/fixtures/affiliate.fixture.ts
+
 export const AMAZON_TAG = 'fixture-20';
 
 export type CategorySlug = 'hard-jerks' | 'soft-jerks';
