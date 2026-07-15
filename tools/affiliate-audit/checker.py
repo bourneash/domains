@@ -73,3 +73,16 @@ def pace(pacing_cfg: dict) -> None:
     lo = pacing_cfg.get("min_delay_s", 12)
     hi = pacing_cfg.get("max_delay_s", 25)
     time.sleep(random.uniform(lo, hi))
+
+
+def recheck_product(product: dict, base_url: str, pacing_cfg: dict) -> dict:
+    """One-shot re-verification in a brand-new browser context. Used when a
+    product's first-pass verdict was flagged, to rule out a session-level
+    false positive (e.g. Amazon serving a degraded response deep into a long
+    sweep) before trusting the result. Always closes its own context, even
+    on failure inside check_product."""
+    ctx, page = launch_browser()
+    try:
+        return check_product(page, base_url, product, pacing_cfg)
+    finally:
+        ctx.close()

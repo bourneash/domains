@@ -70,6 +70,11 @@ def run_once(site_dir: Path, site_domain: str, cfg: dict, dry_run: bool, today: 
         for i, product in enumerate(products):
             evidence = checker.check_product(page, f"https://{site_domain}", product, cfg["pacing"])
             verdict = classify.classify(evidence, cfg["checks"])
+
+            if verdict not in ("ok", "inconclusive"):
+                evidence = checker.recheck_product(product, f"https://{site_domain}", cfg["pacing"])
+                verdict = classify.classify(evidence, cfg["checks"])
+
             st, actionable = state.update_state(st, product["id"], verdict, today, cfg["checks"])
 
             if verdict in ("ok", "inconclusive"):

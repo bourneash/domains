@@ -74,3 +74,58 @@ def test_run_once_dry_run_never_resolves():
         run.run_once(Path("/tmp/site"), "totaljerks.com", CFG, dry_run=True, today="2026-07-15")
 
     mock_resolve.assert_not_called()
+
+
+def test_run_once_recheck_confirms_flagged_verdict_stays_flagged():
+    fake_page = object()
+    first_pass = {
+        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
+                     "rating": None, "redirect_ok": True},
+    }
+    # recheck confirms dead-one is still broken
+    recheck_evidence = {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
+                         "rating": None, "redirect_ok": True}
+
+    with mock.patch("run.discover_products", return_value=PRODUCTS), \
+         mock.patch("run.checker.launch_browser", return_value=(mock.Mock(), fake_page)), \
+         mock.patch("run.checker.check_product", side_effect=lambda page, base, product, pacing: first_pass[product["id"]]), \
+         mock.patch("run.checker.recheck_product", return_value=recheck_evidence) as mock_recheck, \
+         mock.patch("run.checker.pace"), \
+         mock.patch("run.state.load_state", return_value={}), \
+         mock.patch("run.state.save_state"), \
+         mock.patch("run.resolve.resolve_product", return_value=0) as mock_resolve, \
+         mock.patch("run.notify_summary"):
+        run.run_once(Path("/tmp/site"), "totaljerks.com", CFG, dry_run=False, today="2026-07-15")
+
+    # recheck only called for the flagged product, not the healthy one
+    mock_recheck.assert_called_once()
+    assert mock_recheck.call_args.args[0]["id"] == "dead-one"
+    # resolution still fires, using the recheck-confirmed verdict
+    mock_resolve.assert_called_once()
+
+
+def test_run_once_recheck_clears_false_positive():
+    fake_page = object()
+    first_pass = {
+        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "dead-one": {"go_url": "y", "body": "currently unavailable", "prime": None,
+                     "rating": None, "redirect_ok": True},
+    }
+    # recheck comes back healthy -- first pass was a session artifact
+    recheck_evidence = {"go_url": "y", "body": "buy now", "prime": True, "rating": 4.9, "redirect_ok": True}
+
+    with mock.patch("run.discover_products", return_value=PRODUCTS), \
+         mock.patch("run.checker.launch_browser", return_value=(mock.Mock(), fake_page)), \
+         mock.patch("run.checker.check_product", side_effect=lambda page, base, product, pacing: first_pass[product["id"]]), \
+         mock.patch("run.checker.recheck_product", return_value=recheck_evidence) as mock_recheck, \
+         mock.patch("run.checker.pace"), \
+         mock.patch("run.state.load_state", return_value={}), \
+         mock.patch("run.state.save_state"), \
+         mock.patch("run.resolve.resolve_product", return_value=0) as mock_resolve, \
+         mock.patch("run.notify_summary"):
+        run.run_once(Path("/tmp/site"), "totaljerks.com", CFG, dry_run=False, today="2026-07-15")
+
+    mock_recheck.assert_called_once()
+    # cleared by the recheck -- never sent to resolution
+    mock_resolve.assert_not_called()

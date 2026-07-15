@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from unittest import mock
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -53,3 +54,15 @@ def test_goto_failure_is_broken_redirect():
     assert ev["redirect_ok"] is False
     assert ev["body"] == ""
     mock_sleep.assert_not_called()
+
+
+def test_recheck_product_uses_fresh_context():
+    fresh_page = FakePage(url="https://amazon.com/dp/B00WIDGET1", body="Buy Widget now", rating=4.6, prime=True)
+    fake_ctx = type("FakeCtx", (), {"closed": False, "close": lambda self: setattr(self, "closed", True)})()
+
+    with mock.patch("checker.launch_browser", return_value=(fake_ctx, fresh_page)):
+        ev = checker.recheck_product(PRODUCT, "https://totaljerks.com", {})
+
+    assert ev["redirect_ok"] is True
+    assert ev["body"] == "Buy Widget now"
+    assert fake_ctx.closed is True
