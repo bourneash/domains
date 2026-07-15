@@ -1,0 +1,68 @@
+"""CloakBrowser-driven per-product landed-page check. Reuses cc_lib.launch()
+from tools/creator-connections rather than a second browser driver."""
+import random
+import sys
+import time
+from pathlib import Path
+
+_CC_LIB_DIR = Path(__file__).resolve().parents[1] / "creator-connections"
+
+
+def _ensure_cc_lib_on_path():
+    p = str(_CC_LIB_DIR)
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+
+def launch_browser():
+    """Thin re-export so run.py only imports from checker, not cc_lib directly."""
+    _ensure_cc_lib_on_path()
+    import cc_lib
+
+    return cc_lib.launch()
+
+
+_RATING_JS = """
+() => {
+  const el = document.querySelector('#acrPopover, [data-hook="rating-out-of-text"], .a-icon-alt');
+  if (!el) return null;
+  const text = el.getAttribute('title') || el.textContent || '';
+  const m = text.match(/([\\d.]+)\\s*out of/i);
+  return m ? parseFloat(m[1]) : null;
+}
+"""
+
+_PRIME_JS = """
+() => !!document.querySelector('#primeBadge, .a-icon-prime, [aria-label*="Prime" i]')
+"""
+
+
+def check_product(page, base_url: str, product: dict, pacing_cfg: dict) -> dict:
+    go_url = f"{base_url.rstrip('/')}/go/{product['id']}/"
+    evidence = {
+        "id": product["id"],
+        "go_url": go_url,
+        "landed_url": None,
+        "redirect_ok": True,
+        "body": "",
+        "prime": None,
+        "rating": None,
+        "checked_at": None,
+    }
+    try:
+        page.goto(go_url, wait_until="domcontentloaded", timeout=30000)
+    except Exception:
+        evidence["redirect_ok"] = False
+        return evidence
+
+    evidence["landed_url"] = page.url
+    evidence["body"] = page.inner_text("body")
+    evidence["rating"] = page.evaluate(_RATING_JS)
+    evidence["prime"] = page.evaluate(_PRIME_JS)
+    return evidence
+
+
+def pace(pacing_cfg: dict) -> None:
+    lo = pacing_cfg.get("min_delay_s", 12)
+    hi = pacing_cfg.get("max_delay_s", 25)
+    time.sleep(random.uniform(lo, hi))
