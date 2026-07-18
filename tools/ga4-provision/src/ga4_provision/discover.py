@@ -27,11 +27,19 @@ def discover_properties(client, account_id: str = ACCOUNT_ID) -> list[Property]:
     while request is not None:
         response = request.execute()
         for p in response.get("properties", []):
+            name = p["name"]
+            parent = p["parent"]
+            property_id = name.split("/")[-1]
+            account_id_value = parent.split("/")[-1]
+            if not property_id:
+                raise ValueError(f"malformed property resource name: {name!r}")
+            if not account_id_value:
+                raise ValueError(f"malformed property parent: {parent!r}")
             props.append(
                 Property(
-                    property_id=p["name"].split("/")[-1],
+                    property_id=property_id,
                     display_name=p.get("displayName", ""),
-                    account_id=p.get("parent", "").split("/")[-1],
+                    account_id=account_id_value,
                 )
             )
         request = api.list_next(request, response)
