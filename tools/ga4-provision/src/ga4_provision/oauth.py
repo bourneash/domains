@@ -6,6 +6,7 @@ on it, so its expiry is never a production concern.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from google.auth.transport.requests import Request
@@ -47,7 +48,11 @@ def user_credentials(
         flow = InstalledAppFlow.from_client_secrets_file(str(client_path), USER_SCOPES)
         creds = flow.run_local_server(port=0)
 
-    token_path.parent.mkdir(parents=True, exist_ok=True)
-    token_path.write_text(creds.to_json())
-    token_path.chmod(0o600)
+    token_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    fd = os.open(token_path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600)
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(creds.to_json())
+    finally:
+        token_path.chmod(0o600)
     return creds
