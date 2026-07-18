@@ -61,3 +61,39 @@ def test_verify_failure_is_reported_not_raised():
     web = FakeWebResource(error=err)
     result = verification.verify(_client(web), "example.com")
     assert result.startswith("failed:")
+
+
+def test_is_verified_returns_false_on_http_error():
+    """is_verified returns False (not raises) when list().execute() raises HttpError."""
+    class ErrorResource(FakeWebResource):
+        def list(self):
+            err = HttpError(type("R", (), {"status": 404, "reason": "Not Found"})(), b"not found")
+            raise err
+
+    web = ErrorResource()
+    result = verification.is_verified(_client(web), "example.com")
+    assert result is False
+
+
+def test_is_verified_returns_false_on_unexpected_error():
+    """is_verified returns False (not raises) when list().execute() raises non-HttpError exception."""
+    class ErrorResource(FakeWebResource):
+        def list(self):
+            raise KeyError("unexpected")
+
+    web = ErrorResource()
+    result = verification.is_verified(_client(web), "example.com")
+    assert result is False
+
+
+def test_is_verified_returns_false_on_malformed_response():
+    """is_verified returns False (not raises) when response has unexpected shape (items contains non-dict)."""
+    class MalformedResource(FakeWebResource):
+        def list(self):
+            # items contains something that's not a dict (None), causing AttributeError
+            # when parsing attempts item.get("site", {})
+            return type("R", (), {"execute": lambda _s: {"items": [None]}})()
+
+    web = MalformedResource()
+    result = verification.is_verified(_client(web), "example.com")
+    assert result is False

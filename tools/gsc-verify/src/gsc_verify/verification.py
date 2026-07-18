@@ -32,13 +32,18 @@ def is_verified(client, domain: str) -> bool:
     """True when this identity already owns the domain."""
     try:
         response = client.webResource().list().execute()
+        for item in response.get("items", []):
+            site = item.get("site", {})
+            if site.get("type") == SITE_TYPE and site.get("identifier") == domain:
+                return True
+        return False
     except HttpError:
         return False
-    for item in response.get("items", []):
-        site = item.get("site", {})
-        if site.get("type") == SITE_TYPE and site.get("identifier") == domain:
-            return True
-    return False
+    except Exception:  # noqa: BLE001 - one domain must not abort the fleet
+        # If we cannot confirm ownership, treat as unverified. Returning True
+        # on error would skip verification for a domain that may have no access.
+        # Returning False at worst causes a redundant verification attempt (harmless).
+        return False
 
 
 def verify(client, domain: str) -> str:
