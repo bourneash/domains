@@ -63,11 +63,17 @@ def verify_domain(sv_client, sc_client, cf, domain: str) -> str:
     except Exception as exc:  # noqa: BLE001
         return f"failed:token-{type(exc).__name__}"
 
-    zone = cloudflare.zone_id(cf, domain)
+    try:
+        zone = cloudflare.zone_id(cf, domain)
+    except Exception as exc:  # noqa: BLE001
+        return f"failed:cloudflare-{type(exc).__name__}"
     if not zone:
         return "failed:no-cf-zone"
 
-    cloudflare.upsert_txt(cf, zone, domain, token)
+    try:
+        cloudflare.upsert_txt(cf, zone, domain, token)
+    except Exception as exc:  # noqa: BLE001
+        return f"failed:cloudflare-{type(exc).__name__}"
 
     if not wait_for_txt(domain, token):
         # Record intentionally retained so a re-run resumes instead of restarting.
@@ -104,7 +110,10 @@ def main(argv: list[str] | None = None) -> int:
     failures = 0
     with cloudflare.cf_client() as cf:
         for domain in domains:
-            result = verify_domain(sv_client, sc_client, cf, domain)
+            try:
+                result = verify_domain(sv_client, sc_client, cf, domain)
+            except Exception as exc:  # noqa: BLE001
+                result = f"failed:unexpected-{type(exc).__name__}"
             if result.startswith(("failed", "pending")):
                 failures += 1
             print(f"  {domain:<28} {result}")
