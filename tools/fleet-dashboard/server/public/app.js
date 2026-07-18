@@ -268,6 +268,67 @@ async function renderGit() {
   stamp();
 }
 
+/* ===================== TASK BUDGET ===================== */
+// Writer-role turn-budget audit: static (configured) vs. computed (derived
+// from the next backlog task's own estimated_turns) --max-turns per
+// site/role, plus dead-role backlog task drift (assigned_role with no
+// matching ops/roles/*.md). Delegates to tools/task-budget/turn_budget.py
+// audit --json (server/taskbudget.js) — same "shell out to the Python CLI,
+// render here" pattern as the Engineers view.
+async function renderTaskBudget() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Auditing writer-role turn budgets…</div>';
+  let sites;
+  try { sites = await api('GET', '/api/task-budget'); }
+  catch (e) { app.innerHTML = `<div class="empty">Task-budget audit failed: ${esc(e.message)}</div>`; return; }
+
+  let roleRows = 0, driftRows = 0, deadRoleRows = 0;
+  const siteBlocks = sites.filter((s) => s.roles.length || s.dead_role_tasks.length).map((s) => {
+    const rows = s.roles.map((r) => {
+      roleRows++;
+      const drift = r.static_max_turns != null && r.computed_max_turns != null
+        && Math.abs(r.static_max_turns - r.computed_max_turns) >= 10;
+      if (drift) driftRows++;
+      const staticBadge = r.static_max_turns != null ? `<span class="badge b-blue">${r.static_max_turns}</span>` : '<span class="muted">—</span>';
+      const computedBadge = r.computed_max_turns != null
+        ? `<span class="badge ${drift ? 'b-yellow' : 'b-green'}">${r.computed_max_turns}</span>`
+        : '<span class="muted">no eligible task</span>';
+      const installed = r.role_installed ? '' : ' <span class="badge b-red" title="assigned_role with no matching ops/roles/*.md">dead role</span>';
+      const dispatch = r.dispatch === 'wrapper'
+        ? `<span class="muted mono" title="${esc(r.wrapper_script || '')}">wrapper</span>`
+        : '<span class="muted">run-role.sh</span>';
+      return `<tr>
+        <td class="mono">${esc(r.role)}${installed}</td>
+        <td>${staticBadge}</td>
+        <td>${computedBadge}</td>
+        <td>${dispatch}</td>
+        <td>${r.next_task ? esc(r.next_task) : '<span class="muted">—</span>'}</td>
+      </tr>`;
+    }).join('');
+    const deadTasks = s.dead_role_tasks.map((d) => {
+      deadRoleRows++;
+      return `<div class="muted">⚠ <span class="mono">${esc(d.file)}</span> → assigned_role: <span class="mono">${esc(d.assigned_role)}</span> (no such role installed — never picked up)</div>`;
+    }).join('');
+    return `<div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar"><strong>${esc(s.site)}</strong></div>
+      ${rows ? `<table>
+        <thead><tr><th>Role</th><th>Static</th><th>Computed</th><th>Dispatch</th><th>Next task</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>` : ''}
+      ${deadTasks ? `<div style="padding:10px 14px">${deadTasks}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="task-toolbar">
+      <strong>${roleRows} writer/backlog-driven roles</strong>
+      <span class="muted">${driftRows} static≫computed drift · ${deadRoleRows} dead-role tasks stuck in backlog</span>
+    </div>
+    ${siteBlocks || '<div class="empty">No sites with backlog-driven roles found.</div>'}`;
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
 const gitCls = (k) => k === 'untracked' ? 'unt' : k.includes('staged') ? 'stg' : k === 'deleted' || k === 'D' ? 'del' : 'mod';
 
 async function toggleGitDetail(slug) {
@@ -2063,7 +2124,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'datahub', 'datahubimages'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -2119,6 +2180,7 @@ function render() {
   else if (STATE.view === 'git') renderGit();
   else if (STATE.view === 'gitstashes') renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') renderTasks();
+  else if (STATE.view === 'taskbudget') renderTaskBudget();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
 }
