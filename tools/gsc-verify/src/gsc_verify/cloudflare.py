@@ -47,14 +47,33 @@ def zone_id(client: httpx.Client, domain: str) -> str | None:
 
 
 def find_txt(client: httpx.Client, zone: str, name: str, content: str) -> str | None:
-    """Return the id of an existing TXT record with this exact content."""
-    payload = _json(
-        client.get(f"/zones/{zone}/dns_records", params={"type": "TXT", "name": name})
-    )
-    for record in payload.get("result", []):
-        if record.get("content", "").strip('"') == content:
-            return record["id"]
-    return None
+    """Return the id of an existing TXT record with this exact content.
+
+    Pages through the entire result set. Cloudflare paginates dns_records
+    responses, and a hostname can easily accumulate more TXT records (SPF,
+    multiple DKIM selectors, prior verification codes) than fit on one page.
+    Missing a match on a later page would cause upsert_txt to POST a
+    duplicate, which breaks this module's idempotency guarantee.
+    """
+    page = 1
+    while True:
+        payload = _json(
+            client.get(
+                f"/zones/{zone}/dns_records",
+                params={"type": "TXT", "name": name, "page": page, "per_page": 100},
+            )
+        )
+        for record in payload.get("result", []):
+            if record.get("content", "").strip('"') == content:
+                return record["id"]
+
+        result_info = payload.get("result_info")
+        if not isinstance(result_info, dict):
+            return None
+        total_pages = result_info.get("total_pages")
+        if not isinstance(total_pages, int) or total_pages <= page:
+            return None
+        page += 1
 
 
 def upsert_txt(client: httpx.Client, zone: str, name: str, content: str) -> str:
