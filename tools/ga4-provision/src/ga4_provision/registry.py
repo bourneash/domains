@@ -1,6 +1,7 @@
 """Writes the canonical site→property mapping consumed by the data-hub collector."""
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import yaml
@@ -39,6 +40,13 @@ def build_registry(
         site = prop.display_name.strip()
         if not site:
             continue
+        if site in sites:
+            print(
+                f"WARNING: duplicate GA4 display_name {site!r} — "
+                f"property {sites[site]['ga4_property_id']} overwritten by "
+                f"property {prop.property_id} (last-wins)",
+                file=sys.stderr,
+            )
         sites[site] = {
             "ga4_property_id": prop.property_id,
             "ga4_measurement_id": (measurement_map.get(site) or "").strip() or None,

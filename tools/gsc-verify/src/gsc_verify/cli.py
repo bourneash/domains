@@ -66,14 +66,14 @@ def verify_domain(sv_client, sc_client, cf, domain: str) -> str:
     try:
         zone = cloudflare.zone_id(cf, domain)
     except Exception as exc:  # noqa: BLE001
-        return f"failed:cloudflare-{type(exc).__name__}"
+        return f"failed:cloudflare-{type(exc).__name__}-{str(exc)[:120]}"
     if not zone:
         return "failed:no-cf-zone"
 
     try:
         cloudflare.upsert_txt(cf, zone, domain, token)
     except Exception as exc:  # noqa: BLE001
-        return f"failed:cloudflare-{type(exc).__name__}"
+        return f"failed:cloudflare-{type(exc).__name__}-{str(exc)[:120]}"
 
     if not wait_for_txt(domain, token):
         # Record intentionally retained so a re-run resumes instead of restarting.
@@ -83,9 +83,19 @@ def verify_domain(sv_client, sc_client, cf, domain: str) -> str:
     if result != "verified":
         return result
 
-    console.add_site(sc_client, domain)
-    console.submit_sitemap(sc_client, domain)
-    return "verified"
+    add_result = console.add_site(sc_client, domain)
+    sitemap_result = console.submit_sitemap(sc_client, domain)
+    if add_result == "added" and sitemap_result == "submitted":
+        return "verified"
+
+    # DNS verification succeeded but registration did not fully complete —
+    # never report a fabricated "verified" when either write failed.
+    problems = []
+    if add_result != "added":
+        problems.append(f"add-{add_result}")
+    if sitemap_result != "submitted":
+        problems.append(f"sitemap-{sitemap_result}")
+    return "verified:" + ",".join(problems)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -98,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
 
     domains = args.domain or load_domains()
     sv_client = clients.site_verification()
-    sc_client = clients.search_console()
+    sc_client = clients.search_console_write()
 
     if args.dry_run:
         print("dry-run: reporting verification state only.")
@@ -114,7 +124,12 @@ def main(argv: list[str] | None = None) -> int:
                 result = verify_domain(sv_client, sc_client, cf, domain)
             except Exception as exc:  # noqa: BLE001
                 result = f"failed:unexpected-{type(exc).__name__}"
-            if result.startswith(("failed", "pending")):
+            # Only "verified" and "already-verified" are clean successes.
+            # Every other status — failed:*, pending:*, or the
+            # "verified:add-failed-..."/"verified:sitemap-failed-..." partial
+            # results from verify_domain — must count against the tally so
+            # the printed n/n can never overstate success.
+            if result not in ("verified", "already-verified"):
                 failures += 1
             print(f"  {domain:<28} {result}")
 

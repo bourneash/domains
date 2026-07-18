@@ -55,8 +55,9 @@ def find_txt(client: httpx.Client, zone: str, name: str, content: str) -> str | 
     Missing a match on a later page would cause upsert_txt to POST a
     duplicate, which breaks this module's idempotency guarantee.
     """
+    MAX_PAGES = 50  # hard cap: a malformed total_pages must not drive unbounded GETs
     page = 1
-    while True:
+    while page <= MAX_PAGES:
         payload = _json(
             client.get(
                 f"/zones/{zone}/dns_records",
@@ -74,6 +75,7 @@ def find_txt(client: httpx.Client, zone: str, name: str, content: str) -> str | 
         if not isinstance(total_pages, int) or total_pages <= page:
             return None
         page += 1
+    return None
 
 
 def upsert_txt(client: httpx.Client, zone: str, name: str, content: str) -> str:

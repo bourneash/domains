@@ -15,6 +15,7 @@ SCOPES: dict[str, list[str]] = {
     "ga4_data": ["https://www.googleapis.com/auth/analytics.readonly"],
     "ga4_admin": ["https://www.googleapis.com/auth/analytics.readonly"],
     "search_console": ["https://www.googleapis.com/auth/webmasters.readonly"],
+    "search_console_write": ["https://www.googleapis.com/auth/webmasters"],
     "site_verification": ["https://www.googleapis.com/auth/siteverification"],
 }
 
@@ -27,6 +28,21 @@ def _client(service: str, version: str, scope_key: str, path: Path | None):
 def search_console(path: Path | None = None):
     """Search Analytics + sitemaps. NOTE: this API has no permissions endpoint."""
     return _client("searchconsole", "v1", "search_console", path)
+
+
+def search_console_write(path: Path | None = None):
+    """Write-capable Search Console client.
+
+    `sites().add()` and `sitemaps().submit()` are both PUT requests and the
+    live Google discovery document requires the full
+    `https://www.googleapis.com/auth/webmasters` scope for both — a service
+    account self-signs its JWT for whatever scope it's handed, so
+    `webmasters.readonly` gets a 403 on every call. This factory exists ONLY
+    for the one-time verification/registration flow in tools/gsc-verify.
+    `search_console()` above stays readonly and is what the recurring daily
+    metrics collector must keep using — do not widen that one.
+    """
+    return _client("searchconsole", "v1", "search_console_write", path)
 
 
 def site_verification(path: Path | None = None):

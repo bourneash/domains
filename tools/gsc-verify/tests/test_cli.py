@@ -83,7 +83,7 @@ def test_main_continues_after_one_domain_raises_unexpectedly(monkeypatch, capsys
     in main(), the RuntimeError from 'bad.com' propagates out of main() and
     'good.com' is never reached or printed, which this test would catch."""
     monkeypatch.setattr(cli.clients, "site_verification", lambda: object())
-    monkeypatch.setattr(cli.clients, "search_console", lambda: object())
+    monkeypatch.setattr(cli.clients, "search_console_write", lambda: object())
 
     class FakeCfClient:
         def __enter__(self):
@@ -123,3 +123,70 @@ def test_happy_path_runs_full_sequence(monkeypatch):
     monkeypatch.setattr(cli.console, "add_site", lambda c, d: "added")
     monkeypatch.setattr(cli.console, "submit_sitemap", lambda c, d: "submitted")
     assert cli.verify_domain(None, None, None, "good.com") == "verified"
+
+
+def test_add_site_failure_is_not_reported_as_verified(monkeypatch):
+    """A DNS-verified domain whose sites().add() call fails must not report
+    the fabricated 'verified' status — the result must name the failure so
+    main()'s tally cannot overstate success."""
+    monkeypatch.setattr(cli.verification, "is_verified", lambda c, d: False)
+    monkeypatch.setattr(cli.verification, "get_token", lambda c, d: "TOKEN")
+    monkeypatch.setattr(cli.cloudflare, "zone_id", lambda c, d: "zone1")
+    monkeypatch.setattr(cli.cloudflare, "upsert_txt", lambda c, z, n, v: "rec1")
+    monkeypatch.setattr(cli, "wait_for_txt", lambda *a, **kw: True)
+    monkeypatch.setattr(cli.verification, "verify", lambda c, d: "verified")
+    monkeypatch.setattr(cli.console, "add_site", lambda c, d: "failed:http-403")
+    monkeypatch.setattr(cli.console, "submit_sitemap", lambda c, d: "submitted")
+
+    result = cli.verify_domain(None, None, None, "addfail.com")
+    assert result != "verified"
+    assert "add" in result
+    assert "failed:http-403" in result
+
+
+def test_submit_sitemap_failure_is_not_reported_as_verified(monkeypatch):
+    """Likewise for a sitemaps().submit() failure — must not be silently
+    discarded behind a fabricated 'verified' status."""
+    monkeypatch.setattr(cli.verification, "is_verified", lambda c, d: False)
+    monkeypatch.setattr(cli.verification, "get_token", lambda c, d: "TOKEN")
+    monkeypatch.setattr(cli.cloudflare, "zone_id", lambda c, d: "zone1")
+    monkeypatch.setattr(cli.cloudflare, "upsert_txt", lambda c, z, n, v: "rec1")
+    monkeypatch.setattr(cli, "wait_for_txt", lambda *a, **kw: True)
+    monkeypatch.setattr(cli.verification, "verify", lambda c, d: "verified")
+    monkeypatch.setattr(cli.console, "add_site", lambda c, d: "added")
+    monkeypatch.setattr(cli.console, "submit_sitemap", lambda c, d: "failed:http-404")
+
+    result = cli.verify_domain(None, None, None, "sitemapfail.com")
+    assert result != "verified"
+    assert "sitemap" in result
+    assert "failed:http-404" in result
+
+
+def test_main_counts_partial_registration_failure_as_failure(monkeypatch, capsys):
+    """main() must not tally a domain that DNS-verified but whose Search
+    Console registration partially failed as a clean success — the n/n
+    tally must reflect the real failure."""
+    monkeypatch.setattr(cli.clients, "site_verification", lambda: object())
+    monkeypatch.setattr(cli.clients, "search_console_write", lambda: object())
+
+    class FakeCfClient:
+        def __enter__(self):
+            return "cf"
+
+        def __exit__(self, *exc_info):
+            return False
+
+    monkeypatch.setattr(cli.cloudflare, "cf_client", lambda: FakeCfClient())
+
+    def fake_verify_domain(sv, sc, cf, domain):
+        if domain == "partial.com":
+            return "verified:add-failed:http-403"
+        return "verified"
+
+    monkeypatch.setattr(cli, "verify_domain", fake_verify_domain)
+
+    rc = cli.main(["--domain", "partial.com", "--domain", "good.com"])
+    out = capsys.readouterr().out
+
+    assert "1/2 domains verified." in out
+    assert rc == 1
