@@ -1,21 +1,39 @@
-import pytest
 from googleapiclient.errors import HttpError
 
 from ga4_provision import grant
 
 
+class FakeRequest:
+    """Models a google-api-python-client request object: .execute() -> page."""
+
+    def __init__(self, page):
+        self._page = page
+
+    def execute(self):
+        return self._page
+
+
 class FakeBindings:
-    def __init__(self, existing=None, error=None):
-        self.existing = existing or []
+    def __init__(self, existing=None, pages=None, error=None):
+        # Legacy single-page mode: existing list of user emails
+        if pages is None and existing is not None:
+            pages = [{"accessBindings": [{"user": e} for e in existing]}]
+        self.pages = pages or [{"accessBindings": []}]
+        self._page_index = 0
         self.error = error
         self.created = []
 
     def list(self, parent=None, **kw):
-        bindings = [{"user": e} for e in self.existing]
-        return type("R", (), {"execute": lambda _s: {"accessBindings": bindings}})()
+        page = self.pages[self._page_index]
+        self._page_index += 1
+        return FakeRequest(page)
 
     def list_next(self, request, response):
-        return None
+        if self._page_index >= len(self.pages):
+            return None
+        page = self.pages[self._page_index]
+        self._page_index += 1
+        return FakeRequest(page)
 
     def create(self, parent=None, body=None):
         if self.error:
@@ -42,6 +60,20 @@ def test_grant_is_idempotent():
     result = grant.grant_viewer(_client(b), "123", "sa@domains-ops.iam.gserviceaccount.com")
     assert result == "already"
     assert b.created == []
+
+
+def test_grant_finds_binding_on_second_page():
+    # Pagination test: service account binding is on page 2, not page 1.
+    # If list_next returned None unconditionally, this binding would be missed,
+    # and grant_viewer would incorrectly call create() and return "granted".
+    pages = [
+        {"accessBindings": [{"user": "other@example.iam.gserviceaccount.com"}]},
+        {"accessBindings": [{"user": "sa@domains-ops.iam.gserviceaccount.com"}]},
+    ]
+    b = FakeBindings(pages=pages)
+    result = grant.grant_viewer(_client(b), "123", "sa@domains-ops.iam.gserviceaccount.com")
+    assert result == "already", "Should find binding on page 2 and return 'already'"
+    assert b.created == [], "Should not create a duplicate binding"
 
 
 def test_grant_failure_is_reported_not_raised():
