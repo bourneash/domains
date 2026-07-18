@@ -12,6 +12,7 @@ const tasks = require('./tasks');
 const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
+const taskbudget = require('./taskbudget');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
 const datahub = require('./datahub');
@@ -214,6 +215,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Roles matrix: site × role status from crontab + disabled flags + logs.
   app.get('/api/roles', async (_req, res) => {
     try { res.json(await roles.matrix(root, discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Writer-role turn-budget audit (delegates to tools/task-budget/turn_budget.py
+  // audit --json): static vs. computed --max-turns per site/role, plus
+  // dead-role backlog task drift.
+  app.get('/api/task-budget', async (_req, res) => {
+    try { res.json(await taskbudget.fleet(root)); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
 
