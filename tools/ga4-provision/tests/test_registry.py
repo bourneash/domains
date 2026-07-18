@@ -30,6 +30,27 @@ def test_unknown_measurement_id_is_null_not_empty_string():
     assert data["sites"]["newsite.com"]["ga4_measurement_id"] is None
 
 
+def test_empty_string_measurement_id_is_null():
+    # Empty string must become None, not survive as "".
+    props = [Property("1", "newsite.com", "396394354")]
+    data = registry.build_registry(props, {"newsite.com": ""})
+    assert data["sites"]["newsite.com"]["ga4_measurement_id"] is None
+
+
+def test_whitespace_only_measurement_id_is_null():
+    # Whitespace-only string must become None, not survive as "   ".
+    props = [Property("1", "newsite.com", "396394354")]
+    data = registry.build_registry(props, {"newsite.com": "   "})
+    assert data["sites"]["newsite.com"]["ga4_measurement_id"] is None
+
+
+def test_measurement_id_with_surrounding_whitespace_is_stripped():
+    # Real value with incidental whitespace must be stripped to exact value.
+    props = [Property("1", "newsite.com", "396394354")]
+    data = registry.build_registry(props, {"newsite.com": "  G-ABC12345  "})
+    assert data["sites"]["newsite.com"]["ga4_measurement_id"] == "G-ABC12345"
+
+
 def test_write_registry_roundtrips(tmp_path):
     path = tmp_path / "sites-analytics.yaml"
     props = [Property("123", "saveusfarms.com", "396394354")]

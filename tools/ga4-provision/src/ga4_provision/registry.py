@@ -41,7 +41,7 @@ def build_registry(
             continue
         sites[site] = {
             "ga4_property_id": prop.property_id,
-            "ga4_measurement_id": measurement_map.get(site) or None,
+            "ga4_measurement_id": (measurement_map.get(site) or "").strip() or None,
             "gsc_property": f"sc-domain:{site}",
             "consent_gated": site in gated,
         }
