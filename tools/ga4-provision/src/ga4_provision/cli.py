@@ -55,7 +55,12 @@ def main(argv: list[str] | None = None) -> int:
     creds = oauth.user_credentials()
     client = build("analyticsadmin", "v1beta", credentials=creds, cache_discovery=False)
 
-    properties = discover.discover_properties(client)
+    try:
+        properties = discover.discover_properties(client)
+    except (KeyError, ValueError) as exc:
+        print(f"error: discovery failed, aborting before touching the registry: {exc}",
+              file=sys.stderr)
+        return 1
     print(f"Discovered {len(properties)} GA4 properties.")
 
     measurement_map = measurement_ids_from_sites()

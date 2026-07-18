@@ -29,7 +29,29 @@ def test_dry_run_makes_no_grants(monkeypatch, tmp_path, capsys):
         raise AssertionError("dry run must not grant")
 
     monkeypatch.setattr(cli.grant, "grant_viewer", boom)
-    monkeypatch.setattr(cli.registry, "REGISTRY_PATH", tmp_path / "out.yaml")
+    registry_path = tmp_path / "registry" / "out.yaml"
+    monkeypatch.setattr(cli.registry, "REGISTRY_PATH", registry_path)
+    fake_sites = tmp_path / "sites"
+    fake_sites.mkdir()
+    monkeypatch.setattr(cli, "SITES_DIR", fake_sites)
 
     assert cli.main(["--dry-run"]) == 0
     assert "dry-run" in capsys.readouterr().out.lower()
+    assert not registry_path.exists()
+
+
+def test_discover_properties_failure_returns_clean_error(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(cli.oauth, "user_credentials", lambda: object())
+    monkeypatch.setattr(cli, "build", lambda *a, **kw: object())
+
+    def boom(client):
+        raise ValueError("malformed API response: missing 'properties' key")
+
+    monkeypatch.setattr(cli.discover, "discover_properties", boom)
+    fake_sites = tmp_path / "sites"
+    fake_sites.mkdir()
+    monkeypatch.setattr(cli, "SITES_DIR", fake_sites)
+
+    assert cli.main([]) == 1
+    err = capsys.readouterr().err.lower()
+    assert "discovery failed" in err
