@@ -48,7 +48,8 @@ _DATASET_ITEM_ADAPTERS = {
 
 
 def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = None,
-               subscriptions: dict[str, Subscription] | None = None, vpn_client=None) -> FastAPI:
+               subscriptions: dict[str, Subscription] | None = None, vpn_client=None,
+               analytics_sites: dict | None = None) -> FastAPI:
     app = FastAPI(title="datahub", version="0.1.0")
 
     if conn is None:
@@ -59,6 +60,9 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
     if subscriptions is None:
         subscriptions = load_subscriptions(os.path.join(settings.registry_dir, "subscriptions.yaml"))
     source_by_id = {s.id: s for s in sources}
+    if analytics_sites is None:
+        from .config import load_analytics_registry
+        analytics_sites = load_analytics_registry(os.path.join(settings.registry_dir, "sites-analytics.yaml"))
 
     @app.get("/items")
     def items(request: Request, tags: str | None = None, match: str = "any", sources: str | None = None,
@@ -174,5 +178,62 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             "counts": {"items": item_count, "skipped": len(skipped)},
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
+
+    @app.get("/metrics/ga4")
+    def metrics_ga4(request: Request, site: str, since: str | None = None, until: str | None = None,
+                    grain: str = "site", limit: int = 400):
+        rows = store.query_ga4_metrics(conn, site, grain=grain, since=since, until=until, limit=limit)
+        store.record_pull(conn, site=site, endpoint="metrics/ga4", item_count=len(rows),
+                          client_ip=_client_ip(request))
+        return {"records": rows}
+
+    @app.get("/metrics/gsc")
+    def metrics_gsc(request: Request, site: str, since: str | None = None, until: str | None = None,
+                    grain: str = "site", limit: int = 400):
+        rows = store.query_gsc_metrics(conn, site, grain=grain, since=since, until=until, limit=limit)
+        store.record_pull(conn, site=site, endpoint="metrics/gsc", item_count=len(rows),
+                          client_ip=_client_ip(request))
+        return {"records": rows}
+
+    @app.get("/metrics/summary")
+    def metrics_summary(site: str, window: int = 28):
+        since = (datetime.now(timezone.utc) - timedelta(days=window)).date().isoformat()
+        ga4_rows = store.query_ga4_metrics(conn, site, grain="site", since=since, limit=window + 1)
+        gsc_rows = store.query_gsc_metrics(conn, site, grain="site", since=since, limit=window + 1)
+        if not ga4_rows and not gsc_rows:
+            return {"site": site, "window_days": window, "has_data": False}
+        out = {"site": site, "window_days": window, "has_data": True}
+        for key in ("sessions", "users", "new_users", "views", "conversions"):
+            out[key] = sum(r[key] or 0 for r in ga4_rows)
+        for key in ("clicks", "impressions"):
+            out[key] = sum(r[key] or 0 for r in gsc_rows)
+        return out
+
+    @app.get("/metrics/top")
+    def metrics_top(site: str, source: str, metric: str, window: int = 28, limit: int = 10):
+        since = (datetime.now(timezone.utc) - timedelta(days=window)).date().isoformat()
+        if source == "ga4":
+            rows = store.query_ga4_metrics(conn, site, grain="page", since=since, limit=5000)
+        elif source == "gsc":
+            rows = store.query_gsc_metrics(conn, site, grain="query", since=since, limit=5000)
+        else:
+            raise HTTPException(422, "source must be 'ga4' or 'gsc'")
+        totals: dict[str, float] = {}
+        for r in rows:
+            totals[r["dim_key"]] = totals.get(r["dim_key"], 0) + (r.get(metric) or 0)
+        ranked = sorted(totals.items(), key=lambda kv: kv[1], reverse=True)[:limit]
+        return {"top": [{"dim_key": k, metric: v} for k, v in ranked]}
+
+    @app.get("/metrics/health")
+    def metrics_health():
+        states = {s["source_id"]: s for s in store.get_sources_state(conn)}
+        out = {}
+        for site, cfg in analytics_sites.items():
+            out[site] = {
+                "consent_gated": cfg.consent_gated,
+                "ga4": states.get(f"ga4:{site}"),
+                "gsc": states.get(f"gsc:{site}"),
+            }
+        return {"sites": out, "generated_at": datetime.now(timezone.utc).isoformat()}
 
     return app
