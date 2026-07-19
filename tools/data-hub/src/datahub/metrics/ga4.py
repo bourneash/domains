@@ -16,7 +16,6 @@ METRIC_MAP = [
     ("averageSessionDuration", "avg_session_duration"),
     ("conversions", "conversions"),
 ]
-_API_TO_COLUMN = dict(METRIC_MAP)
 
 
 def trailing_window(today: date, days: int = 7) -> tuple[str, str]:
@@ -49,7 +48,12 @@ def _rows_to_records(response: dict, grain: str, has_dim_key: bool) -> list[dict
         record = {"date": iso_date, "grain": grain, "dim_key": dim_key}
         for api_name, column in METRIC_MAP:
             raw = metric_values.get(api_name)
-            record[column] = float(raw) if column in ("engagement_rate", "avg_session_duration") else int(float(raw)) if raw is not None else None
+            if raw is None:
+                record[column] = None
+            elif column in ("engagement_rate", "avg_session_duration"):
+                record[column] = float(raw)
+            else:
+                record[column] = int(float(raw))
         records.append(record)
     return records
 

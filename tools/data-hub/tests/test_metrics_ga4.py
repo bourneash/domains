@@ -82,3 +82,27 @@ def test_fetch_site_calls_runreport_with_correct_property_and_window():
     assert body["dateRanges"] == [{"startDate": "2026-07-12", "endDate": "2026-07-18"}]
     assert body["dimensions"] == [{"name": "date"}]
     assert body["returnPropertyQuota"] is True
+
+
+def test_fetch_site_maps_metrics_correctly_when_response_header_order_differs_from_metric_map():
+    """Regression test: by-name lookup must be used, not positional indexing.
+    If someone rewrites _rows_to_records to use positional indexing,
+    this test will fail because headers are in reversed order but values
+    still correspond to the correct metrics."""
+    reversed_map = list(reversed(ga4.METRIC_MAP))
+    response = {
+        "dimensionHeaders": [{"name": "date"}],
+        "metricHeaders": [{"name": n} for n, _ in reversed_map],
+        "rows": [{
+            "dimensionValues": [{"value": "20260718"}],
+            "metricValues": [{"value": str(i)} for i in range(len(reversed_map))],
+        }],
+        "propertyQuota": {},
+    }
+    client = FakeClient(response)
+    records, _ = ga4.fetch_site(client, "539743210", today=date(2026, 7, 19))
+    record = records[0]
+    # reversed_map[0] is the LAST entry of METRIC_MAP (conversions), which got value "0"
+    # reversed_map[-1] is the FIRST entry of METRIC_MAP (sessions), which got value "len-1"
+    assert record["conversions"] == 0
+    assert record["sessions"] == len(reversed_map) - 1
