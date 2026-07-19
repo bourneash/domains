@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install the package in editable mode
 COPY pyproject.toml .
 COPY src/ src/
+COPY vendor/google-auth-fleet/ vendor/google-auth-fleet/
 RUN pip install --no-cache-dir -e .
 
 # Copy registry and crontab

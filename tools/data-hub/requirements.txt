@@ -6,3 +6,5 @@ fastapi==0.115.4
 uvicorn==0.32.0
 pytest==8.3.3
 ephem==4.2.1
+google-api-python-client
+google-auth

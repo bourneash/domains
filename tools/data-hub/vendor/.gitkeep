@@ -1,0 +1,3 @@
+# vendor/ holds a build-time copy of tools/google-auth (the google-auth-fleet
+# package), refreshed manually when that package changes, since Docker cannot
+# COPY a path outside its build context.
