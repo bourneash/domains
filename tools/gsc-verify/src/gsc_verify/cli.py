@@ -37,12 +37,17 @@ def wait_for_txt(
     timeout: int = DNS_TIMEOUT_SECONDS,
     interval: int = DNS_POLL_INTERVAL,
 ) -> bool:
-    """Poll public DNS until the TXT record resolves, or time out."""
+    """Poll DNS until the TXT record resolves, or time out.
+
+    Uses the system resolver rather than a hardcoded public one (e.g.
+    8.8.8.8) — some hosts firewall direct outbound queries to arbitrary
+    DNS servers while the local stub resolver works fine.
+    """
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
             out = subprocess.run(
-                ["dig", "+short", "TXT", domain, "@8.8.8.8"],
+                ["dig", "+short", "TXT", domain],
                 capture_output=True, text=True, timeout=20,
             ).stdout
             if content in out.replace('"', ""):
