@@ -60,47 +60,54 @@ def wait_for_txt(
 
 def verify_domain(sv_client, sc_client, cf, domain: str) -> str:
     """Run the per-domain state machine. Returns a status string, never raises."""
-    if verification.is_verified(sv_client, domain):
-        return "already-verified"
+    already_owned = verification.is_verified(sv_client, domain)
 
-    try:
-        token = verification.get_token(sv_client, domain)
-    except Exception as exc:  # noqa: BLE001
-        return f"failed:token-{type(exc).__name__}"
+    if not already_owned:
+        try:
+            token = verification.get_token(sv_client, domain)
+        except Exception as exc:  # noqa: BLE001
+            return f"failed:token-{type(exc).__name__}"
 
-    try:
-        zone = cloudflare.zone_id(cf, domain)
-    except Exception as exc:  # noqa: BLE001
-        return f"failed:cloudflare-{type(exc).__name__}-{str(exc)[:120]}"
-    if not zone:
-        return "failed:no-cf-zone"
+        try:
+            zone = cloudflare.zone_id(cf, domain)
+        except Exception as exc:  # noqa: BLE001
+            return f"failed:cloudflare-{type(exc).__name__}-{str(exc)[:120]}"
+        if not zone:
+            return "failed:no-cf-zone"
 
-    try:
-        cloudflare.upsert_txt(cf, zone, domain, token)
-    except Exception as exc:  # noqa: BLE001
-        return f"failed:cloudflare-{type(exc).__name__}-{str(exc)[:120]}"
+        try:
+            cloudflare.upsert_txt(cf, zone, domain, token)
+        except Exception as exc:  # noqa: BLE001
+            return f"failed:cloudflare-{type(exc).__name__}-{str(exc)[:120]}"
 
-    if not wait_for_txt(domain, token):
-        # Record intentionally retained so a re-run resumes instead of restarting.
-        return "pending:dns-propagation"
+        if not wait_for_txt(domain, token):
+            # Record intentionally retained so a re-run resumes instead of restarting.
+            return "pending:dns-propagation"
 
-    result = verification.verify(sv_client, domain)
-    if result != "verified":
-        return result
+        result = verification.verify(sv_client, domain)
+        if result != "verified":
+            return result
 
+    # Ownership is established (either already, or just now via DNS_TXT).
+    # add_site/submit_sitemap are idempotent PUT-style upserts (see console.py),
+    # so always (re)confirm them here — this is what makes a domain that
+    # DNS-verified but whose registration partially failed on a prior run
+    # retryable. Without this, is_verified() short-circuits every re-run
+    # straight to "already-verified" and the registration never gets retried.
     add_result = console.add_site(sc_client, domain)
     sitemap_result = console.submit_sitemap(sc_client, domain)
+    clean = "already-verified" if already_owned else "verified"
     if add_result == "added" and sitemap_result == "submitted":
-        return "verified"
+        return clean
 
-    # DNS verification succeeded but registration did not fully complete —
-    # never report a fabricated "verified" when either write failed.
+    # Registration did not fully complete — never report a fabricated
+    # clean status when either write failed.
     problems = []
     if add_result != "added":
         problems.append(f"add-{add_result}")
     if sitemap_result != "submitted":
         problems.append(f"sitemap-{sitemap_result}")
-    return "verified:" + ",".join(problems)
+    return f"{clean}:" + ",".join(problems)
 
 
 def main(argv: list[str] | None = None) -> int:

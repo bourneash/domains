@@ -1,14 +1,33 @@
 from gsc_verify import cli
 
 
-def test_already_verified_domain_is_skipped(monkeypatch):
+def test_already_verified_domain_skips_dns_but_still_confirms_registration(monkeypatch):
     monkeypatch.setattr(cli.verification, "is_verified", lambda c, d: True)
 
     def boom(*a, **kw):
         raise AssertionError("must not touch DNS for a verified domain")
 
     monkeypatch.setattr(cli.cloudflare, "zone_id", boom)
+    monkeypatch.setattr(cli.console, "add_site", lambda c, d: "added")
+    monkeypatch.setattr(cli.console, "submit_sitemap", lambda c, d: "submitted")
     assert cli.verify_domain(None, None, None, "example.com") == "already-verified"
+
+
+def test_already_verified_domain_retries_prior_registration_failure(monkeypatch):
+    """Regression: a domain that DNS-verified but whose add_site/submit_sitemap
+    failed (e.g. rate-limited) on a prior run must be retryable on a re-run.
+    Without retrying registration when already_owned, is_verified() short-circuits
+    every re-run straight to a bare 'already-verified' and the broken
+    registration is never fixed — this is the ultrarough.com/wetpages.com bug
+    hit on the real fleet run (429/403 on registration after DNS succeeded)."""
+    monkeypatch.setattr(cli.verification, "is_verified", lambda c, d: True)
+    monkeypatch.setattr(cli.cloudflare, "zone_id",
+                         lambda *a, **kw: (_ for _ in ()).throw(AssertionError("must not touch DNS")))
+    monkeypatch.setattr(cli.console, "add_site", lambda c, d: "added")
+    monkeypatch.setattr(cli.console, "submit_sitemap", lambda c, d: "submitted")
+
+    result = cli.verify_domain(None, None, None, "retried.com")
+    assert result == "already-verified"
 
 
 def test_missing_zone_reports_and_does_not_raise(monkeypatch):
