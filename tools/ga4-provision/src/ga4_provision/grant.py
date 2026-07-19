@@ -1,7 +1,10 @@
 """Grant the service account Viewer on GA4 properties.
 
 A service account cannot grant itself, so this runs under Jesse's OAuth
-credentials. One failure never aborts the fleet run.
+credentials. One HTTP-level failure never aborts the fleet run — but a
+programmer error (wrong API surface, bad attribute access) is not a
+per-property failure, it is a code bug that would silently repeat across
+every property in the fleet, so it is left to propagate.
 """
 from __future__ import annotations
 
@@ -45,5 +48,3 @@ def grant_viewer(client, property_id: str, sa_email: str) -> str:
         return "granted"
     except HttpError as exc:
         return f"failed:http-{getattr(exc.resp, 'status', '?')}"
-    except Exception as exc:  # noqa: BLE001 - one property must not abort the fleet
-        return f"failed:{type(exc).__name__}"

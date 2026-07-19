@@ -53,7 +53,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     creds = oauth.user_credentials()
-    client = build("analyticsadmin", "v1beta", credentials=creds, cache_discovery=False)
+    # v1alpha, not v1beta: accessBindings (the grant step) only exists there.
+    # v1alpha is a superset — properties.list used for discovery works the same.
+    client = build("analyticsadmin", "v1alpha", credentials=creds, cache_discovery=False)
 
     try:
         properties = discover.discover_properties(client)
