@@ -36,7 +36,12 @@ def build_registry(
     gated = CONSENT_GATED if consent_gated is None else consent_gated
     sites: dict[str, dict] = {}
 
-    for prop in sorted(properties, key=lambda p: p.display_name):
+    # Sort ascending by property_id so a display_name collision deterministically
+    # keeps the highest (most-recently-created) property, regardless of API
+    # response ordering. Confirmed correct in practice for the one known
+    # collision (0daynews.com 543877193 vs 544645637): the newer property's
+    # measurement ID is the one actually embedded in the site's source.
+    for prop in sorted(properties, key=lambda p: (p.display_name, int(p.property_id))):
         site = prop.display_name.strip()
         if not site:
             continue
@@ -44,7 +49,7 @@ def build_registry(
             print(
                 f"WARNING: duplicate GA4 display_name {site!r} — "
                 f"property {sites[site]['ga4_property_id']} overwritten by "
-                f"property {prop.property_id} (last-wins)",
+                f"newer property {prop.property_id} (highest property_id wins)",
                 file=sys.stderr,
             )
         sites[site] = {

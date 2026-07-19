@@ -76,15 +76,24 @@ def main(argv: list[str] | None = None) -> int:
     registry.write_registry(data)
     print(f"Wrote {registry.REGISTRY_PATH}")
 
+    # Grant only the properties that survived dedup in the registry — a
+    # duplicate display_name's losing property_id must never get the SA
+    # granted on it, since nothing will ever read from it.
     sa_email = grant.service_account_email()
+    granted_property_ids = {entry["ga4_property_id"] for entry in data["sites"].values()}
+    to_grant = [p for p in properties if p.property_id in granted_property_ids]
+    skipped = len(properties) - len(to_grant)
+    if skipped:
+        print(f"  ({skipped} duplicate propert{'y' if skipped == 1 else 'ies'} skipped, not granted)")
+
     failures = 0
-    for prop in properties:
+    for prop in to_grant:
         result = grant.grant_viewer(client, prop.property_id, sa_email)
         if result.startswith("failed"):
             failures += 1
         print(f"  {prop.display_name:<28} {result}")
 
-    print(f"\n{len(properties) - failures}/{len(properties)} properties granted.")
+    print(f"\n{len(to_grant) - failures}/{len(to_grant)} properties granted.")
     return 1 if failures else 0
 
 

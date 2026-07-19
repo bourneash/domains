@@ -55,3 +55,36 @@ def test_discover_properties_failure_returns_clean_error(monkeypatch, tmp_path, 
     assert cli.main([]) == 1
     err = capsys.readouterr().err.lower()
     assert "discovery failed" in err
+
+
+def test_duplicate_display_name_grants_only_the_winning_property(monkeypatch, tmp_path, capsys):
+    from ga4_provision.discover import Property
+
+    monkeypatch.setattr(cli.oauth, "user_credentials", lambda: object())
+    monkeypatch.setattr(cli, "build", lambda *a, **kw: object())
+    monkeypatch.setattr(
+        cli.discover, "discover_properties",
+        lambda c: [
+            Property("543877193", "0daynews.com", "396394354"),
+            Property("544645637", "0daynews.com", "396394354"),
+        ],
+    )
+    monkeypatch.setattr(cli.grant, "service_account_email", lambda: "sa@x.iam.gserviceaccount.com")
+
+    granted = []
+
+    def fake_grant(client, property_id, sa_email):
+        granted.append(property_id)
+        return "granted"
+
+    monkeypatch.setattr(cli.grant, "grant_viewer", fake_grant)
+    registry_path = tmp_path / "registry" / "out.yaml"
+    monkeypatch.setattr(cli.registry, "REGISTRY_PATH", registry_path)
+    fake_sites = tmp_path / "sites"
+    fake_sites.mkdir()
+    monkeypatch.setattr(cli, "SITES_DIR", fake_sites)
+
+    assert cli.main([]) == 0
+    assert granted == ["544645637"]
+    out = capsys.readouterr().out.lower()
+    assert "1 duplicate property skipped" in out
