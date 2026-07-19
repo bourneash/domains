@@ -1,0 +1,18 @@
+checks:
+  prime_required: true
+  min_rating: 4.0
+  oos_grace_runs: 2
+  dead_grace_runs: 1
+  broken_redirect_grace_runs: 1
+  no_prime_grace_runs: 2
+  low_rating_grace_runs: 2
+pacing:
+  min_delay_s: 12
+  max_delay_s: 25
+resolution:
+  max_search_attempts: 3
+  max_agent_turns: 20
+  model: claude-sonnet-4-6
+slack:
+  channel_env: SLACK_CHANNEL_TOTALJERKS
+  channel_default: null

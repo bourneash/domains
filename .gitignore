@@ -35,3 +35,8 @@ SecurityScanner/.runtime/
 
 # Disabled sites (renamed out of the active roster)
 sites/DISABLED-*/
+
+# Python build/cache artefacts (never sweep these in via git add -A)
+__pycache__/
+*.egg-info/
+*.pyc
