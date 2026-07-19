@@ -217,6 +217,14 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
                           client_ip=_client_ip(request))
         return out
 
+    # A bogus metric name must 422, not silently rank everything at a fabricated
+    # 0 via r.get(metric) — same "absence is not zero" family as /metrics/summary.
+    _TOP_METRICS = {
+        "ga4": {"sessions", "users", "new_users", "views", "engaged_sessions",
+                "engagement_rate", "avg_session_duration", "conversions"},
+        "gsc": {"clicks", "impressions", "ctr", "position"},
+    }
+
     @app.get("/metrics/top")
     def metrics_top(request: Request, site: str, source: str, metric: str, window: int = 28, limit: int = 10):
         since = (datetime.now(timezone.utc) - timedelta(days=window)).date().isoformat()
@@ -226,6 +234,8 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             rows = store.query_gsc_metrics(conn, site, grain="query", since=since, limit=5000)
         else:
             raise HTTPException(422, "source must be 'ga4' or 'gsc'")
+        if metric not in _TOP_METRICS[source]:
+            raise HTTPException(422, f"metric must be one of {sorted(_TOP_METRICS[source])}")
         totals: dict[str, float] = {}
         for r in rows:
             totals[r["dim_key"]] = totals.get(r["dim_key"], 0) + (r.get(metric) or 0)

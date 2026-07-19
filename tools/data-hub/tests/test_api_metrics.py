@@ -96,6 +96,15 @@ def test_metrics_top_returns_pages_sorted_by_metric(db):
     assert top[0]["dim_key"] == "/b"
 
 
+def test_metrics_top_rejects_unknown_metric(db):
+    store.upsert_ga4_metrics(db, "xxxtea.com", [
+        {**_ga4_row("2026-07-18"), "grain": "page", "dim_key": "/a", "sessions": 5},
+    ])
+    client = _app(db)
+    r = client.get("/metrics/top?site=xxxtea.com&source=ga4&metric=not_a_real_metric")
+    assert r.status_code == 422
+
+
 def test_metrics_health_marks_consent_gated_sites(db):
     sites = {"saveusfarms.com": AnalyticsSite(ga4_property_id="1", gsc_property="sc-domain:saveusfarms.com",
                                               consent_gated=True)}
