@@ -58,6 +58,32 @@ def test_metrics_summary_totals_sessions_over_window(db):
     assert body["sessions"] == 30
 
 
+def test_metrics_summary_omits_gsc_keys_when_gsc_absent(db):
+    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row("2026-07-18", 10)])
+    client = _app(db)
+    r = client.get("/metrics/summary?site=xxxtea.com&window=28")
+    body = r.json()
+    assert body["has_data"] is True
+    assert body["sessions"] == 10
+    assert "clicks" not in body
+    assert "impressions" not in body
+
+
+def test_metrics_summary_omits_ga4_keys_when_ga4_absent(db):
+    store.upsert_gsc_metrics(db, "xxxtea.com", [{"date": "2026-07-18", "grain": "site", "dim_key": "",
+                                                 "clicks": 5, "impressions": 100, "ctr": 0.05, "position": 6.0}])
+    client = _app(db)
+    r = client.get("/metrics/summary?site=xxxtea.com&window=28")
+    body = r.json()
+    assert body["has_data"] is True
+    assert body["clicks"] == 5
+    assert "sessions" not in body
+    assert "users" not in body
+    assert "new_users" not in body
+    assert "views" not in body
+    assert "conversions" not in body
+
+
 def test_metrics_top_returns_pages_sorted_by_metric(db):
     store.upsert_ga4_metrics(db, "xxxtea.com", [
         {**_ga4_row("2026-07-18"), "grain": "page", "dim_key": "/a", "sessions": 5},
