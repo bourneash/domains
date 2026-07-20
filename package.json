@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "google-auth-library": "^10.7.0"
-  },
   "devDependencies": {
     "prettier": "^3",
     "prettier-plugin-astro": "^0.14"
