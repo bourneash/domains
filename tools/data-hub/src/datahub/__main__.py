@@ -28,6 +28,31 @@ def main():
         print(f"[datahub] cycle: {summary}")
         if any(pruned.values()):
             print(f"[datahub] pruned (>{settings.retention_days}d): {pruned}")
+    elif cmd == "collect-metrics":
+        conn = store.connect(settings.db_path)
+        store.init_schema(conn)
+        from .config import load_analytics_registry
+        from . import metrics_collector
+        from google_auth_fleet import clients
+        sites = load_analytics_registry(f"{settings.registry_dir}/sites-analytics.yaml")
+        if not sites:
+            print("[datahub] collect-metrics: sites-analytics.yaml empty or missing, nothing to do")
+            return
+        summary = metrics_collector.run_metrics_cycle(
+            conn, sites, ga4_client=clients.ga4_data(), gsc_client=clients.search_console())
+        print(f"[datahub] metrics cycle: {summary}")
+    elif cmd == "backfill-ga4":
+        conn = store.connect(settings.db_path)
+        store.init_schema(conn)
+        from .config import load_analytics_registry
+        from . import backfill_ga4
+        from google_auth_fleet import clients
+        sites = load_analytics_registry(f"{settings.registry_dir}/sites-analytics.yaml")
+        client = clients.ga4_data()
+        for site, cfg in sites.items():
+            records = backfill_ga4.backfill_site(client, cfg.ga4_property_id)
+            n = store.upsert_ga4_metrics(conn, site, records)
+            print(f"[datahub] backfill {site}: {n} rows")
     elif cmd == "serve":
         app = create_app(settings)
         uvicorn.run(app, host=os.environ.get("DATAHUB_HOST", "127.0.0.1"), port=int(os.environ.get("DATAHUB_PORT", "4760")))

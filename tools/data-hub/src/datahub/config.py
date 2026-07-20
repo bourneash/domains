@@ -38,6 +38,13 @@ class Subscription(BaseModel):
     datasets: list[str] = Field(default_factory=list)
 
 
+class AnalyticsSite(BaseModel):
+    ga4_property_id: str
+    ga4_measurement_id: str | None = None
+    gsc_property: str
+    consent_gated: bool = False
+
+
 class Settings(BaseModel):
     db_path: str
     home_ips: set[str]
@@ -87,3 +94,16 @@ def load_subscriptions(path: str) -> dict[str, Subscription]:
         body["site"] = site
         out[site] = Subscription(**body)
     return out
+
+
+def load_analytics_registry(path: str) -> dict[str, "AnalyticsSite"]:
+    """Read registry/sites-analytics.yaml (written by tools/ga4-provision).
+
+    Missing file returns {} rather than raising — this registry only exists
+    after ga4-provision has run at least once, and the collector must not
+    crash before that one-time step has happened.
+    """
+    if not os.path.exists(path):
+        return {}
+    data = yaml.safe_load(open(path, encoding="utf-8").read()) or {}
+    return {domain: AnalyticsSite(**body) for domain, body in (data.get("sites") or {}).items()}

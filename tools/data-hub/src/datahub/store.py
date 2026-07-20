@@ -72,6 +72,42 @@ CREATE TABLE IF NOT EXISTS pull_log (
   client_ip TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_pull_ts ON pull_log(ts DESC);
+
+CREATE TABLE IF NOT EXISTS ga4_metrics (
+  id INTEGER PRIMARY KEY,
+  site TEXT NOT NULL,
+  date TEXT NOT NULL,
+  grain TEXT NOT NULL,
+  dim_key TEXT NOT NULL DEFAULT '',
+  sessions INTEGER,
+  users INTEGER,
+  new_users INTEGER,
+  views INTEGER,
+  engaged_sessions INTEGER,
+  engagement_rate REAL,
+  avg_session_duration REAL,
+  conversions INTEGER,
+  fetched_at TEXT NOT NULL,
+  UNIQUE(site, date, grain, dim_key)
+);
+CREATE INDEX IF NOT EXISTS idx_ga4_metrics_site_date ON ga4_metrics(site, date);
+CREATE INDEX IF NOT EXISTS idx_ga4_metrics_lookup ON ga4_metrics(site, grain, dim_key);
+
+CREATE TABLE IF NOT EXISTS gsc_metrics (
+  id INTEGER PRIMARY KEY,
+  site TEXT NOT NULL,
+  date TEXT NOT NULL,
+  grain TEXT NOT NULL,
+  dim_key TEXT NOT NULL DEFAULT '',
+  clicks INTEGER,
+  impressions INTEGER,
+  ctr REAL,
+  position REAL,
+  fetched_at TEXT NOT NULL,
+  UNIQUE(site, date, grain, dim_key)
+);
+CREATE INDEX IF NOT EXISTS idx_gsc_metrics_site_date ON gsc_metrics(site, date);
+CREATE INDEX IF NOT EXISTS idx_gsc_metrics_lookup ON gsc_metrics(site, grain, dim_key);
 """
 
 
@@ -318,3 +354,72 @@ def dataset_keys(conn) -> list[dict]:
         "FROM datasets GROUP BY dataset_key ORDER BY dataset_key"
     ).fetchall()
     return [dict(r) for r in rows]
+
+
+def upsert_ga4_metrics(conn, site: str, records: list[dict]) -> int:
+    now = _now()
+    for r in records:
+        conn.execute(
+            "INSERT INTO ga4_metrics (site, date, grain, dim_key, sessions, users, new_users, views, "
+            "engaged_sessions, engagement_rate, avg_session_duration, conversions, fetched_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(site, date, grain, dim_key) DO UPDATE SET "
+            "sessions=excluded.sessions, users=excluded.users, new_users=excluded.new_users, "
+            "views=excluded.views, engaged_sessions=excluded.engaged_sessions, "
+            "engagement_rate=excluded.engagement_rate, avg_session_duration=excluded.avg_session_duration, "
+            "conversions=excluded.conversions, fetched_at=excluded.fetched_at",
+            (site, r["date"], r["grain"], r.get("dim_key", ""), r.get("sessions"), r.get("users"),
+             r.get("new_users"), r.get("views"), r.get("engaged_sessions"), r.get("engagement_rate"),
+             r.get("avg_session_duration"), r.get("conversions"), now),
+        )
+    conn.commit()
+    return len(records)
+
+
+def query_ga4_metrics(conn, site: str, *, grain: str = "site", dim_key: str | None = None,
+                      since: str | None = None, until: str | None = None, limit: int = 400) -> list[dict]:
+    where = ["site = ?", "grain = ?"]
+    params: list = [site, grain]
+    if dim_key is not None:
+        where.append("dim_key = ?"); params.append(dim_key)
+    if since:
+        where.append("date >= ?"); params.append(since)
+    if until:
+        where.append("date <= ?"); params.append(until)
+    sql = ("SELECT site, date, grain, dim_key, sessions, users, new_users, views, engaged_sessions, "
+           "engagement_rate, avg_session_duration, conversions, fetched_at FROM ga4_metrics "
+           "WHERE " + " AND ".join(where) + " ORDER BY date ASC LIMIT ?")
+    params.append(int(limit))
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def upsert_gsc_metrics(conn, site: str, records: list[dict]) -> int:
+    now = _now()
+    for r in records:
+        conn.execute(
+            "INSERT INTO gsc_metrics (site, date, grain, dim_key, clicks, impressions, ctr, position, fetched_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(site, date, grain, dim_key) DO UPDATE SET "
+            "clicks=excluded.clicks, impressions=excluded.impressions, ctr=excluded.ctr, "
+            "position=excluded.position, fetched_at=excluded.fetched_at",
+            (site, r["date"], r["grain"], r.get("dim_key", ""), r.get("clicks"), r.get("impressions"),
+             r.get("ctr"), r.get("position"), now),
+        )
+    conn.commit()
+    return len(records)
+
+
+def query_gsc_metrics(conn, site: str, *, grain: str = "site", dim_key: str | None = None,
+                      since: str | None = None, until: str | None = None, limit: int = 400) -> list[dict]:
+    where = ["site = ?", "grain = ?"]
+    params: list = [site, grain]
+    if dim_key is not None:
+        where.append("dim_key = ?"); params.append(dim_key)
+    if since:
+        where.append("date >= ?"); params.append(since)
+    if until:
+        where.append("date <= ?"); params.append(until)
+    sql = ("SELECT site, date, grain, dim_key, clicks, impressions, ctr, position, fetched_at FROM gsc_metrics "
+           "WHERE " + " AND ".join(where) + " ORDER BY date ASC LIMIT ?")
+    params.append(int(limit))
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]

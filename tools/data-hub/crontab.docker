@@ -1,3 +1,8 @@
 # data-hub collector crontab — runs inside the collector container via supercronic.
 # Collection every 30 minutes; output goes to stdout (captured by Docker logging).
 */30 * * * * python -m datahub collect
+
+# Fleet analytics — GA4 + Search Console, once daily. Separate cadence from the
+# RSS/dataset cycle above: these are authenticated, quota-metered Google API
+# calls, not a light RSS poll. Staggered off the hour so it never races collect.
+17 6 * * * python -m datahub collect-metrics
