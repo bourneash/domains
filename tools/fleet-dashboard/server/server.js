@@ -16,6 +16,7 @@ const taskbudget = require('./taskbudget');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
 const datahub = require('./datahub');
+const analytics = require('./analytics');
 const datahubImages = require('./datahub-images');
 const auth = require('./auth');
 const health = require('./health');
@@ -144,6 +145,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try { res.json(datahub.matrix()); }
     catch (e) { res.status(500).json({ error: String(e.message || e) }); }
   });
+
+  // Analytics routes — GA4 + Search Console metrics, proxied from the data-hub
+  // /metrics/* endpoints (tools/data-hub/src/datahub/api.py). Same degrade-to-200
+  // convention as /api/datahub/* above.
+  app.get('/api/analytics/health', async (_req, res) => res.json(await analytics.health()));
+  app.get('/api/analytics/summary', async (req, res) => {
+    const window = Math.max(1, Math.min(parseInt(req.query.window, 10) || 28, 400));
+    res.json(await analytics.summary(req.query.site, window));
+  });
+  app.get('/api/analytics/top', async (req, res) => {
+    const window = Math.max(1, Math.min(parseInt(req.query.window, 10) || 28, 400));
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 10, 50));
+    const fn = req.query.source === 'gsc' ? analytics.topGsc : analytics.topGa4;
+    res.json(await fn(req.query.site, req.query.metric, window, limit));
+  });
+  app.get('/api/analytics/wow', async (req, res) => res.json(await analytics.wow(req.query.site)));
 
   // Data Hub Images routes — proxy over the data-hub-images FastAPI service
   // (tools/data-hub-images, :4770). Same degrade-to-200 convention as

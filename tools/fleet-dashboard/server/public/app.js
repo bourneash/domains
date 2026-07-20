@@ -1910,6 +1910,97 @@ async function dhToggleSource(id, currentlyEnabled, btn) {
   softRender();
 }
 
+/* ===== ANALYTICS ===== */
+
+let ANALYTICS_SITE = null; // persists across soft-refreshes
+
+function anDelta(cur, prev) {
+  if (!prev) return '';
+  const pct = prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
+  const cls = pct > 0 ? 'dh-ok' : pct < 0 ? 'dh-err' : '';
+  const sign = pct > 0 ? '+' : '';
+  return ` <span class="dh-b ${cls}">${sign}${pct}% WoW</span>`;
+}
+
+async function renderAnalytics() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="muted">loading analytics…</div>';
+
+  const sitesResp = await api('GET', '/api/sites');
+  const sites = (sitesResp && sitesResp.sites) || sitesResp || [];
+  const siteNames = sites.map((s) => (typeof s === 'string' ? s : s.domain || s.name)).filter(Boolean).sort();
+  if (!ANALYTICS_SITE || !siteNames.includes(ANALYTICS_SITE)) ANALYTICS_SITE = siteNames[0] || null;
+
+  const health = await api('GET', '/api/analytics/health');
+  const healthSites = (health && health.sites) || {};
+
+  const healthRows = Object.keys(healthSites).sort().map((site) => {
+    const s = healthSites[site] || {};
+    const stateCell = (st) => {
+      if (!st) return '<span class="dh-b dh-skip">no data</span>';
+      const cls = st.stale ? 'dh-stale' : (st.status || '').startsWith('ok') ? 'dh-ok' : 'dh-err';
+      return `<span class="dh-b ${cls}">${esc(st.status || 'unknown')}</span> <span class="dh-time">${esc((st.last_fetch_at || '').replace('T', ' ').slice(0, 19) || '—')}</span>`;
+    };
+    const gate = s.consent_gated ? ' <span class="dh-ovr" title="gated behind explicit visitor consent — reports only consented traffic, reads lower than reality">consent-gated</span>' : '';
+    return `<tr><td>${siteLink(site)}${gate}</td><td>${stateCell(s.ga4)}</td><td>${stateCell(s.gsc)}</td></tr>`;
+  }).join('');
+  const healthHtml = `
+    <table class="dh-sources">
+      <thead><tr><th>site</th><th>GA4</th><th>Search Console</th></tr></thead>
+      <tbody>${healthRows || '<tr><td colspan="3" class="muted">no sites</td></tr>'}</tbody>
+    </table>`;
+
+  let detailHtml = '<div class="muted">select a site</div>';
+  if (ANALYTICS_SITE) {
+    const [summary, wow, topPages, topQueries] = await Promise.all([
+      api('GET', `/api/analytics/summary?site=${encodeURIComponent(ANALYTICS_SITE)}&window=28`),
+      api('GET', `/api/analytics/wow?site=${encodeURIComponent(ANALYTICS_SITE)}`),
+      api('GET', `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=ga4&metric=sessions&window=28&limit=10`),
+      api('GET', `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=gsc&metric=clicks&window=28&limit=10`),
+    ]);
+
+    let summaryHtml;
+    if (!summary || summary.has_data === false) {
+      summaryHtml = '<div class="muted">no data captured yet for this site</div>';
+    } else {
+      const ga4Line = 'sessions' in summary
+        ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · conversions <b>${esc(String(summary.conversions))}</b></div>`
+        : '<div class="muted">no GA4 data</div>';
+      const gscLine = 'clicks' in summary
+        ? `<div>clicks <b>${esc(String(summary.clicks))}</b>${wow.gsc ? anDelta(wow.gsc.cur.clicks, wow.gsc.prev.clicks) : ''} · impressions <b>${esc(String(summary.impressions))}</b></div>`
+        : '<div class="muted">no Search Console data</div>';
+      summaryHtml = `${ga4Line}${gscLine}<div class="dh-sub-h">trailing 28 days</div>`;
+    }
+
+    const topRows = (label, rows, metric) => (rows.top || []).map((r) =>
+      `<tr><td class="dh-host">${esc(r.dim_key)}</td><td><b>${esc(String(r[metric] ?? 0))}</b></td></tr>`
+    ).join('') || `<tr><td colspan="2" class="muted">no ${label} data</td></tr>`;
+
+    detailHtml = `
+      <section class="dh-panel" data-rk="an-summary"><h3>${siteLink(ANALYTICS_SITE)} — Summary</h3>${summaryHtml}</section>
+      <section class="dh-panel" data-rk="an-pages"><h3>Top Pages (sessions)</h3>
+        <table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead>
+        <tbody>${topRows('page', topPages, 'sessions')}</tbody></table></section>
+      <section class="dh-panel" data-rk="an-queries"><h3>Top Queries (clicks)</h3>
+        <table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead>
+        <tbody>${topRows('query', topQueries, 'clicks')}</tbody></table></section>`;
+  }
+
+  const picker = `<select id="an-site-picker">${siteNames.map((s) => `<option value="${esc(s)}" ${s === ANALYTICS_SITE ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>`;
+
+  app.innerHTML = `
+    <div class="dh-grid">
+      <section class="dh-panel dh-wide" data-rk="an-health"><h3>Capture Freshness — all sites</h3>${healthHtml}</section>
+      <section class="dh-panel dh-wide" data-rk="an-picker">${picker}</section>
+      ${detailHtml}
+    </div>`;
+
+  const picked = $('#an-site-picker');
+  if (picked) picked.addEventListener('change', () => { ANALYTICS_SITE = picked.value; softRender(); });
+
+  if (!FRESH) applyUISnap();
+}
+
 /* ===== DATA HUB IMAGES ===== */
 
 function dhiBadge(status) {
@@ -2124,7 +2215,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages', 'analytics'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -2183,6 +2274,7 @@ function render() {
   else if (STATE.view === 'taskbudget') renderTaskBudget();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
+  else if (STATE.view === 'analytics') renderAnalytics();
 }
 
 function renderAgent(role) {
