@@ -15,10 +15,11 @@ self_notifies: false              # LLM role; run-role.sh handles notify
 deploy: false                     # files tasks; does not ship content itself
 scripts: []
 gitignore: []
-placeholders: [SITE_NAME, BASE_URL, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT]
+placeholders: [SITE_NAME, BASE_URL, BASE_URL_HOST, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT]
 placeholder_detection:
   SITE_NAME: "brand/site name from package.json name field, or basename of site dir if missing"
   BASE_URL: "https://<domain> — also the property name for any Search Console references"
+  BASE_URL_HOST: "BASE_URL with the https:// scheme stripped, e.g. example.com"
   MODEL: "claude-sonnet-4-6"
   SLACK_CHANNEL_VAR: "SLACK_CHANNEL_* var name from ops/scripts/run-role.sh (grep -oP 'SLACK_CHANNEL_\\w+')"
   SLACK_CHANNEL_DEFAULT: "fallback channel string from run-role.sh default, e.g. domain-<short>-com"

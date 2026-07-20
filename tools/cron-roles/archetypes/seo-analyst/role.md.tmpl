@@ -38,10 +38,19 @@ Read in this order before deciding anything:
 
 ## Workflow
 
-1. **GSC pull:** last 7 days — top queries, top pages, indexing coverage, any spikes or drops.
-   Identify the top opportunity-zone queries: positions 5–20 (existing rankings with quick
-   improvement potential). Log if GSC credentials are not yet available ("Blocked on Jesse
-   — GSC verification pending") and move on.
+1. **GSC pull:** query the data hub directly — it already collects GA4 + Search Console daily
+   (`tools/data-hub`, `/metrics/*`). `DATAHUB_API` is pre-set in this container's environment.
+   ```bash
+   curl -s "${DATAHUB_API}/metrics/summary?site={{BASE_URL_HOST}}&window=7"
+   curl -s "${DATAHUB_API}/metrics/gsc?site={{BASE_URL_HOST}}&grain=query&since=$(date -u -d '7 days ago' +%F)&limit=200"
+   ```
+   `{{BASE_URL_HOST}}` is `{{BASE_URL}}` with the `https://` scheme stripped (the hub keys
+   captures by bare host). From the query-grain response, rank by `clicks`/`impressions` to find
+   top movers and opportunity-zone queries (position 5–20). If `/metrics/summary` responds
+   `"has_data": false` or the `gsc` key is entirely absent from its response, this site is not
+   yet verified for Search Console — log "GSC not yet verified for this site (see
+   /metrics/health)" and move on. Do not fabricate a zero-traffic report; absence of data is not
+   the same as zero traffic.
 
 2. **IndexNow re-ping:** if `site/scripts/indexnow-ping.mjs` exists, run it:
    ```bash
@@ -83,7 +92,7 @@ Read in this order before deciding anything:
 
 ## GSC summary (last 7 days)
 [2-3 lines: impressions trend, top movers, indexing coverage.]
-[If no access: "Blocked on Jesse — GSC verification pending."]
+[If GSC is not yet verified for this site: "GSC not yet verified — see /metrics/health."]
 
 ## Opportunity-zone queries (positions 5–20)
 1. [query] — position X — [proposed action]
