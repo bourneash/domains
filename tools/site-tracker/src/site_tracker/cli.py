@@ -17,7 +17,6 @@ from site_tracker.collectors import (
     github,
     http_scrape,
     recipes,
-    search_consoles,
 )
 
 COLLECTORS = {
@@ -27,7 +26,6 @@ COLLECTORS = {
     "cloudflare":      cloudflare,
     "github":          github,
     "recipes":         recipes,
-    "search_consoles": search_consoles,
     "amazon":          amazon,
 }
 

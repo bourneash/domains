@@ -28,20 +28,10 @@ def client(appdir: Path, monkeypatch):
 def test_collectors_page_lists_all_known(client):
     r = client.get("/collectors")
     assert r.status_code == 200
-    for name in ("filesystem", "http_scrape", "cloudflare", "github", "search_consoles"):
+    for name in ("filesystem", "http_scrape", "cloudflare", "github"):
         assert name in r.text
 
 
 def test_post_run_unknown_404(client):
     r = client.post("/collectors/doesnotexist/run")
     assert r.status_code == 404
-
-
-def test_post_run_returns_200_and_starts(client, monkeypatch):
-    called = {}
-    def fake_run(reg, conn):
-        called["yes"] = True
-    monkeypatch.setattr("site_tracker.collectors.search_consoles.run", fake_run)
-    r = client.post("/collectors/search_consoles/run")
-    assert r.status_code == 200
-    assert called == {"yes": True}

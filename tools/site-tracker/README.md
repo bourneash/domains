@@ -66,7 +66,6 @@ docker compose down
 
 ## What it does NOT do (v1)
 
-- Google Search Console / Bing Webmaster — `collect_search_consoles` is a v2 stub.
 - Active collection for parked sites — they're in `sites.yml` but collectors skip them.
 - Time-series view — use `cf-grafana` for that.
 - Hosted on the public internet — local-only by design.
