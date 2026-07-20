@@ -1915,7 +1915,7 @@ async function dhToggleSource(id, currentlyEnabled, btn) {
 let ANALYTICS_SITE = null; // persists across soft-refreshes
 
 function anDelta(cur, prev) {
-  if (!prev) return '';
+  if (prev == null) return '';
   const pct = prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
   const cls = pct > 0 ? 'dh-ok' : pct < 0 ? 'dh-err' : '';
   const sign = pct > 0 ? '+' : '';
