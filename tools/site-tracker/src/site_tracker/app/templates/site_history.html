@@ -3,6 +3,15 @@
 {% block body %}
 <h2>{{ site }} — history</h2>
 <p><a href="/site/{{ site }}">&larr; back to {{ site }}</a></p>
+<p>
+  {% if show_all %}
+    Showing all events (manual edits + collector updates), most recent 200.
+    <a href="/site/{{ site }}/history">Show manual edits only</a>
+  {% else %}
+    Showing manual edits only, most recent 200.
+    <a href="/site/{{ site }}/history?show_all=true">Show all events (incl. collector updates)</a>
+  {% endif %}
+</p>
 <table>
   <thead><tr><th>when</th><th>key</th><th>old value</th><th>new value</th><th>source</th></tr></thead>
   <tbody>
@@ -15,7 +24,7 @@
       <td>{{ r.source }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="5"><em>no audit history for this site yet</em></td></tr>
+    <tr><td colspan="5"><em>{% if show_all %}no audit history for this site yet{% else %}no manual edits for this site yet — try "show all events"{% endif %}</em></td></tr>
     {% endfor %}
   </tbody>
 </table>

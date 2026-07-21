@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -28,6 +29,10 @@ _STATIC = _HERE / "static"
 # clicks (or an automated caller) from hammering paid upstream APIs
 # (CF, GitHub, Amazon) with duplicate collector runs.
 COLLECTOR_DEBOUNCE_SECONDS = 30
+
+# New manual-fact keys become both a sites.yml map key and a URL path
+# segment (`/site/{site}/edit/manual.{key}`) — see _resolve_manual_key.
+_MANUAL_KEY_RE = re.compile(r"^[a-zA-Z0-9._-]+$")
 
 
 class EditError(Exception):
@@ -155,20 +160,20 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
         )
 
     @app.get("/site/{site}/history", response_class=HTMLResponse)
-    def site_history(request: Request, site: str):
+    def site_history(request: Request, site: str, show_all: bool = False):
         reg = registry.load(app.state.sites_yml)
         if site not in reg.sites:
             raise HTTPException(status_code=404, detail="site not found")
         store.init_db(app.state.db_path)
         conn = store.connect(app.state.db_path)
         try:
-            rows = store.get_audit_for_site(conn, site)
+            rows = store.get_audit_for_site(conn, site, manual_only=not show_all, limit=200)
         finally:
             conn.close()
         return _TEMPLATES.TemplateResponse(
             request,
             "site_history.html",
-            {"site": site, "rows": rows},
+            {"site": site, "rows": rows, "show_all": show_all},
         )
 
     @app.get("/site/{site}/edit/{key}", response_class=HTMLResponse)
@@ -194,6 +199,16 @@ def build_app(*, sites_yml: Path, db_path: Path) -> FastAPI:
         if key == "manual.new":
             if not custom_key:
                 raise EditError(400, "missing 'key' in form")
+            # The key becomes a URL path segment (`/site/{site}/edit/manual.{key}`)
+            # and a sites.yml map key. Anything outside this set (a stray "/",
+            # a space) produces a fact that's saved but permanently
+            # un-editable/un-deletable through the UI, since the resulting
+            # edit link is malformed.
+            if not _MANUAL_KEY_RE.match(custom_key):
+                raise EditError(
+                    400,
+                    "key must be letters, numbers, '.', '_', '-' only (no spaces or slashes)",
+                )
             return custom_key
         if key.startswith("manual."):
             return key[len("manual."):]

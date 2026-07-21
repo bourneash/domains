@@ -17,7 +17,11 @@ ENV TZ=UTC \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     SITE_TRACKER_SITES_YML=/work/tools/site-tracker/sites.yml \
-    SITE_TRACKER_DB=/work/tools/site-tracker/data/facts.db
+    SITE_TRACKER_DB=/work/tools/site-tracker/data/facts.db \
+    GIT_AUTHOR_NAME=site-tracker \
+    GIT_AUTHOR_EMAIL=ops@site-tracker.local \
+    GIT_COMMITTER_NAME=site-tracker \
+    GIT_COMMITTER_EMAIL=ops@site-tracker.local
 
 RUN groupadd -g 1000 ops && \
     useradd -u 1000 -g ops -m -s /bin/sh ops

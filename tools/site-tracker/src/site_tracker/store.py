@@ -162,13 +162,23 @@ def delete_fact(conn: sqlite3.Connection, *, site: str, key: str, source: str) -
         raise
 
 
-def get_audit_for_site(conn: sqlite3.Connection, site: str) -> list[dict[str, Any]]:
-    """Most-recent-first audit trail for a site."""
-    rows = conn.execute(
-        "SELECT ts, key, old_value, new_value, source FROM audit "
-        "WHERE site=? ORDER BY ts DESC, rowid DESC",
-        (site,),
-    ).fetchall()
+def get_audit_for_site(
+    conn: sqlite3.Connection, site: str, *, manual_only: bool = True, limit: int = 200
+) -> list[dict[str, Any]]:
+    """Most-recent-first audit trail for a site.
+
+    Defaults to manual edits only, capped at `limit` rows — collector-driven
+    facts can flip every 15 minutes and would otherwise bury every deliberate
+    manual change under thousands of routine deltas (seen: 11k+ rows for a
+    single active site), which also made the page itself unusable to render.
+    """
+    query = "SELECT ts, key, old_value, new_value, source FROM audit WHERE site=?"
+    params: list[Any] = [site]
+    if manual_only:
+        query += " AND source='manual'"
+    query += " ORDER BY ts DESC, rowid DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(query, params).fetchall()
     out = []
     for ts, key, old, new, source in rows:
         out.append({

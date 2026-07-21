@@ -44,9 +44,13 @@ function siteTrackerFilterMatrix() {
     var matchesText = !q || site.indexOf(q) !== -1;
     var matchesIssues = true;
     if (onlyIssues) {
+      // 'unknown' (rendered as a gray "?") isn't itself a problem — most
+      // sites have at least one column that's simply never been collected
+      // yet, which made this filter a no-op against real data. Only red/
+      // stale/yellow are genuine issues worth triaging.
       var states = (tr.getAttribute('data-states') || '').split(',');
       matchesIssues = states.some(function (s) {
-        return s && s !== 'green' && s !== 'n_a';
+        return s === 'red' || s === 'stale' || s === 'yellow';
       });
     }
     var visible = matchesText && matchesIssues;

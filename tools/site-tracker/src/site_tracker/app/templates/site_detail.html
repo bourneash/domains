@@ -41,10 +41,11 @@
     </tr>
     {% endfor %}
     <tr>
-      <td class="site"><em>+ add</em></td>
+      <td class="site" style="cursor: pointer" onclick="this.nextElementSibling.click()"><em>+ add</em></td>
       <td colspan="2"
           hx-get="/site/{{ site }}/edit/manual.new"
-          hx-target="this" hx-swap="outerHTML">
+          hx-target="this" hx-swap="outerHTML"
+          style="cursor: pointer">
         click to add a manual fact
       </td>
     </tr>
