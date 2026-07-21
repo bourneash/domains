@@ -785,6 +785,77 @@ sources:
     fetch:
       source_name: "Rapid7 Blog"
 
+  # Hacker News (news.ycombinator.com), keyword-filtered via hnrss.org.
+  # Tagged to match 0daynews' existing subscription (tags_any in subscriptions.yaml)
+  # so these slot straight in with no subscription changes. points=15 floor
+  # keeps out low-engagement noise; separate feeds per keyword since hnrss/
+  # Algolia doesn't reliably OR multiple terms in one query.
+  - id: hn-vulnerability
+    type: rss
+    url: "https://hnrss.org/newest?q=vulnerability&points=15"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
+  - id: hn-exploit
+    type: rss
+    url: "https://hnrss.org/newest?q=exploit&points=15"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
+  - id: hn-breach
+    type: rss
+    url: "https://hnrss.org/newest?q=breach&points=15"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
+  - id: hn-cve
+    type: rss
+    url: "https://hnrss.org/newest?q=CVE&points=10"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
+  - id: hn-zero-day
+    type: rss
+    url: "https://hnrss.org/newest?q=zero-day&points=10"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
+  # Broader unfiltered HN — general tech/startup coverage, not security-scoped.
+  # New tag, not yet consumed by any subscriptions.yaml entry: registered here
+  # for future sites that want general tech content, no site wired in yet.
+  - id: hn-frontpage
+    type: rss
+    url: "https://hnrss.org/frontpage"
+    tags: [tech]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
+  - id: hn-best
+    type: rss
+    url: "https://hnrss.org/best"
+    tags: [tech]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Hacker News"
+
   # ── datasets ──────────────────────────────────────────────────────────────
   - id: ephemeris
     type: dataset
