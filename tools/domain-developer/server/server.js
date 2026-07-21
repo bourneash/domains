@@ -79,11 +79,21 @@ function saveState(s) { fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2))
 
 // Port allocations and dd-* containers for sites whose directory no longer
 // exists accumulate forever with no cleanup path otherwise.
+// listDdContainers() matches on `dd-*`, which also catches the panel's own
+// container (`dd-panel`, per docker-compose.yml's container_name) — exclude
+// it everywhere bulk/orphan logic iterates "every dd-* container", so the
+// panel can never target itself for stop/remove.
+function listSiteContainers() {
+    const map = listDdContainers();
+    delete map['panel'];
+    return map;
+}
+
 function findOrphans() {
     const sites = new Set(listSites());
     const state = loadState();
     const stalePorts = Object.keys(state.ports || {}).filter(s => !sites.has(s));
-    const danglingContainers = Object.keys(listDdContainers()).filter(s => !sites.has(s));
+    const danglingContainers = Object.keys(listSiteContainers()).filter(s => !sites.has(s));
     return { stalePorts, danglingContainers };
 }
 
@@ -200,6 +210,11 @@ function siteRow(name, containerMap, statePorts) {
     const devPort  = livePorts[DEV_PORT_IN_CONTAINER] || sp.dev || null;
     return {
         name, dir, hasEnv,
+        // Fleet-wide kill-switch convention (see tools/site-tracker etc.) —
+        // this panel doesn't enforce it, but it shouldn't be silent about it
+        // either: starting a sandbox for a deliberately-disabled site should
+        // require a conscious click, not look identical to any other site.
+        disabled: name.startsWith('DISABLED-'),
         status,
         ttydPort, devPort,
         ttydUrl: ttydPort ? `http://${PANEL_PUBLIC_HOST}:${ttydPort}/` : null,
@@ -474,7 +489,7 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.post('/api/sites/stop-all', (req, res) => {
-    const running = Object.entries(listDdContainers()).filter(([, c]) => c.state === 'running').map(([s]) => s);
+    const running = Object.entries(listSiteContainers()).filter(([, c]) => c.state === 'running').map(([s]) => s);
     const stopped = [];
     const errors = [];
     for (const site of running) {
@@ -486,7 +501,7 @@ app.post('/api/sites/stop-all', (req, res) => {
 });
 
 app.post('/api/sites/remove-stopped', (req, res) => {
-    const notRunning = Object.entries(listDdContainers()).filter(([, c]) => c.state !== 'running').map(([s]) => s);
+    const notRunning = Object.entries(listSiteContainers()).filter(([, c]) => c.state !== 'running').map(([s]) => s);
     const removed = [];
     const errors = [];
     for (const site of notRunning) {

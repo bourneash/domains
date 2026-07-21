@@ -147,6 +147,10 @@
   .side-item.is-running .dot { background: var(--green); }
   .side-item.is-running .dot { animation: pulse 2.4s ease-out infinite; }
   .side-item.is-exited  .dot { background: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
+  .side-item.is-disabled { opacity: 0.55; }
+  .side-item.is-disabled .name::after {
+    content: ' ⚠ disabled'; color: var(--accent); opacity: 0.9; font-size: 10px; text-transform: uppercase; letter-spacing: .4px;
+  }
   .side-item .name {
     flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     font-size: 12px; color: var(--fg-2); font-family: var(--font-mono); letter-spacing: -0.2px;
@@ -489,8 +493,9 @@ function renderSidebar() {
   const frag = document.createDocumentFragment();
   for (const s of list) {
     const div = document.createElement('div');
-    div.className = 'side-item is-' + s.status + (s.name === state.activeSite ? ' active' : '');
+    div.className = 'side-item is-' + s.status + (s.name === state.activeSite ? ' active' : '') + (s.disabled ? ' is-disabled' : '');
     div.dataset.site = s.name;
+    if (s.disabled) div.title = `${s.name} is disabled (kill-switched) fleet-wide — starting a sandbox here is unusual.`;
     const dot = document.createElement('span'); dot.className = 'dot';
     const name = document.createElement('span'); name.className = 'name'; name.textContent = s.name;
     const badge = document.createElement('span'); badge.className = 'badge';
@@ -500,7 +505,10 @@ function renderSidebar() {
     frag.appendChild(div);
   }
   list_el.appendChild(frag);
-  $('#side-foot').textContent = `${state.sites.length} sites · ${state.sites.filter(s=>s.status==='running').length} running`;
+  const running = state.sites.filter(s=>s.status==='running').length;
+  $('#side-foot').textContent = q
+    ? `${list.length} / ${state.sites.length} sites shown · ${running} running`
+    : `${state.sites.length} sites · ${running} running`;
 }
 
 // Instant site switch — render from cached state, don't block on /api/sites.
@@ -602,13 +610,28 @@ function renderToolbar() {
       }}),
     );
   } else {
+    // 'absent' = never created. Anything else (exited, created, restarting…)
+    // means the container still exists — it just isn't running — so it also
+    // needs a way to be removed without starting it back up first.
+    const exists = s.status !== 'absent';
     tb.append(
-      btn('Start container', { primary: true, disabled: state.health.dockerAvailable === false,
-        title: state.health.dockerAvailable === false ? 'Docker daemon unreachable' : undefined,
+      btn(s.disabled ? '⚠ Start container (disabled site)' : 'Start container', {
+        primary: true, disabled: state.health.dockerAvailable === false,
+        title: state.health.dockerAvailable === false ? 'Docker daemon unreachable'
+             : s.disabled ? `${s.name} is disabled fleet-wide` : undefined,
         onclick: async () => {
+          if (s.disabled && !confirm(`${s.name} is disabled (kill-switched) fleet-wide. Start a dev sandbox for it anyway?`)) return;
           await containerAction(s.name, 'start');
         }}),
     );
+    if (exists) {
+      tb.append(
+        btn('Remove', { danger: true, onclick: () => {
+          if (!confirm(`Remove container for ${s.name}? (site code untouched, claude state volume kept)`)) return;
+          containerAction(s.name, 'remove');
+        }}),
+      );
+    }
   }
 }
 
@@ -882,6 +905,19 @@ function renderTabs() {
       // showing a dead "refused to connect" port.
       const f = pane.querySelector('iframe');
       if (f && f.src !== effUrl) f.src = effUrl;
+      pane.querySelector('.pane-stopped')?.remove();
+    } else if (!effUrl && (t.type === 'term' || t.type === 'dev')) {
+      // Container stopped/removed since this pane was opened. Leaving the
+      // stale iframe as-is makes a dead ttyd session look like it's just
+      // briefly disconnected ("Press ⏎ to Reconnect") when it's actually
+      // gone — replace it with an explicit stopped notice instead.
+      if (!pane.querySelector('.pane-stopped')) {
+        const f = pane.querySelector('iframe'); if (f) f.remove();
+        const notice = document.createElement('div');
+        notice.className = 'pane-stopped empty';
+        notice.textContent = `Container for ${s.name} is not running. Start it again to reconnect this ${t.type === 'term' ? 'terminal' : 'dev preview'}.`;
+        pane.appendChild(notice);
+      }
     }
     pane.classList.toggle('active', t.id === ts.active);
   }
