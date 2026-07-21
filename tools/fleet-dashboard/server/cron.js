@@ -181,7 +181,7 @@ async function runJob(root, slug, role, res) {
 // and silently overwrite each other.
 async function crontabMutate(root, slug, body) {
   const sys = requireSystem(root, slug);
-  const { action, lineIndex, newSchedule, expectedRawLine } = body || {};
+  const { action, lineIndex, newSchedule, expectedRawLine, command } = body || {};
   await withCrontabLock(sys.slug, async () => {
     const text = fs.readFileSync(sys.crontabPath, 'utf8');
     let out;
@@ -189,6 +189,7 @@ async function crontabMutate(root, slug, body) {
     else if (action === 'uncomment') out = parse.uncommentLine(text, lineIndex, expectedRawLine);
     else if (action === 'edit') out = parse.editSchedule(text, lineIndex, newSchedule, expectedRawLine);
     else if (action === 'remove') out = parse.removeLine(text, lineIndex, expectedRawLine);
+    else if (action === 'add') out = parse.addLine(text, newSchedule, command);
     else throw httpErr('bad action', 400);
     fs.writeFileSync(sys.crontabPath, out);
   }).catch((e) => {

@@ -13,6 +13,36 @@ function siteLink(site) {
   return `<a class="site-link" href="https://${esc(site)}" target="_blank" rel="noopener noreferrer" title="Open https://${esc(site)}">${esc(site)}<span class="ext">↗</span></a>`;
 }
 
+// F5: quick-links to the other portfolio tools that operate on this same site —
+// site-tracker's per-site detail page (:4742/site/<slug>) and the
+// domain-developer sandboxed dev panel (:7777/, no per-site deep link exists
+// there today so it just opens the panel root).
+function toolLinks(site) {
+  const s = encodeURIComponent(site);
+  return `<span class="tool-links">` +
+    `<a href="http://127.0.0.1:4742/site/${s}" target="_blank" rel="noopener noreferrer" title="Open ${esc(site)} in site-tracker">tracker↗</a>` +
+    `<a href="http://127.0.0.1:7777/" target="_blank" rel="noopener noreferrer" title="Open the domain-developer panel">dev↗</a>` +
+    `</span>`;
+}
+
+// Shared dot-legend chip (used by the Domain Control, Containers, and Deploys
+// tally headers) — a colored .rdot swatch (reusing the role-matrix state
+// colors: fresh=green, overdue=red, paused=gray) followed by a label.
+function dotLegend(st, txt) { return `<span class="rdot r-${st}"></span> ${txt}`; }
+
+// F6: fleet-wide site filter (topbar input). Any row rendered with
+// data-fleet-row + data-site="<slug>" is shown/hidden as the operator types.
+// Re-applied at the end of every view that opts in, since a re-render replaces
+// the DOM (and any hidden state on it).
+function applyFleetFilter() {
+  const input = $('#fleet-filter');
+  const q = ((input && input.value) || '').trim().toLowerCase();
+  $$('[data-fleet-row]').forEach((el) => {
+    const site = (el.dataset.site || '').toLowerCase();
+    el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
+  });
+}
+
 async function api(method, url, body) {
   const opt = { method, headers: {} };
   if (body !== undefined) { opt.headers['content-type'] = 'application/json'; opt.body = JSON.stringify(body); }
@@ -224,6 +254,7 @@ async function renderGit() {
 
   const dirtyCount = rows.filter((r) => r.dirty > 0).length;
   const pushCount = rows.filter((r) => r.needsPush).length;
+  const pullCount = rows.filter((r) => r.needsPull).length;
 
   const body = rows.map((r) => {
     if (!r.isRepo) return `<tr><td class="site">${esc(r.slug)}</td><td colspan="5"><span class="muted">${esc(r.error || 'not a repo')}</span></td></tr>`;
@@ -236,7 +267,7 @@ async function renderGit() {
     const shaLine = `<span class="badge ${shaCls}" title="local vs remote SHA">${esc(r.localSha || '—')} / ${esc(r.remoteSha || '—')}</span>`;
     const stashBadge = r.stashCount ? ` <a href="#git/${encodeURIComponent(r.slug)}/stashes" class="badge b-blue" title="${r.stashCount} stash(es)">📦 ${r.stashCount}</a>` : '';
     const repoLink = r.remoteWebUrl ? ` <a href="${esc(r.remoteWebUrl)}" target="_blank" rel="noopener" class="rcol-link" title="Open repo on GitHub">↗</a>` : '';
-    return `<tr class="git-row" data-slug="${esc(r.slug)}">
+    return `<tr class="git-row" data-slug="${esc(r.slug)}" data-fleet-row data-site="${esc(r.slug)}">
       <td class="site">${esc(r.slug)}${repoLink} <span class="muted">▸</span></td>
       <td class="mono">${esc(r.branch || '—')} ${shaLine}${stashBadge}</td>
       <td>${dirty}</td>
@@ -248,8 +279,9 @@ async function renderGit() {
   app.innerHTML = `
     <div class="task-toolbar">
       <strong>${rows.length} repos</strong>
-      <span class="muted">${dirtyCount} dirty · ${pushCount} need push</span>
-      <button class="btn sm" id="push-all" style="margin-left:auto"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button>
+      <span class="muted">${dirtyCount} dirty · ${pushCount} need push · ${pullCount} need pull</span>
+      <button class="btn sm" id="pull-all" style="margin-left:auto"${pullCount ? '' : ' disabled title="nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button>
+      <button class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button>
     </div>
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Branch</th><th>Working tree</th><th>Remote</th></tr></thead>
@@ -258,6 +290,7 @@ async function renderGit() {
 
   $$('.git-row').forEach((tr) => tr.addEventListener('click', (e) => { if (e.target.closest('a')) return; toggleGitDetail(tr.dataset.slug); }));
   const pa = $('#push-all'); if (pa) pa.addEventListener('click', pushAllSites);
+  const pua = $('#pull-all'); if (pua) pua.addEventListener('click', pullAllSites);
   if (!FRESH) applyUISnap();
   // applyUISnap re-injects the saved innerHTML of any expanded detail but not its
   // event listeners — re-wire the live ops for every still-open detail panel.
@@ -265,6 +298,7 @@ async function renderGit() {
     const box = $(`#gd-${CSS.escape(r.dataset.detail)}`);
     if (box && box.querySelector('.gd-files, .gd-push')) wireGitOps(r.dataset.detail, box);
   });
+  applyFleetFilter();
   stamp();
 }
 
@@ -326,6 +360,102 @@ async function renderTaskBudget() {
     </div>
     ${siteBlocks || '<div class="empty">No sites with backlog-driven roles found.</div>'}`;
   if (!FRESH) applyUISnap();
+  stamp();
+}
+
+/* ===================== DEPLOYS ===================== */
+// F27: dedicated panel for the CF deploy-health poller (server/deployhealth.js)
+// — today it only folds into the deployer role-matrix cell tooltip; this
+// surfaces the raw {live, version, deployedAt, error} per site in a table so a
+// CF-side deploy failure is visible without hovering a dot or opening devtools.
+async function renderDeployHealth() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading deploy health…</div>';
+  let d;
+  try { d = await api('GET', '/api/deploy-health'); }
+  catch (e) { app.innerHTML = `<div class="empty">Deploy health failed: ${esc(e.message)}</div>`; return; }
+
+  const sites = Object.values(d.sites || {}).sort((a, b) => a.slug.localeCompare(b.slug));
+  const live = sites.filter((s) => s.live === true).length;
+  const behind = sites.filter((s) => s.live === false).length;
+  const unknown = sites.length - live - behind;
+
+  const body = sites.map((s) => {
+    const badge = s.live === true ? '<span class="badge b-green">live</span>'
+      : s.live === false ? '<span class="badge b-red">behind</span>'
+        : '<span class="badge b-gray">unknown</span>';
+    const deployedAt = s.deployedAt ? new Date(s.deployedAt * 1000).toLocaleString() : '—';
+    return `<tr data-fleet-row data-site="${esc(s.slug)}">
+      <td class="site">${siteLink(s.slug)}</td>
+      <td class="mono muted">${esc(s.worker || '—')}</td>
+      <td>${badge}</td>
+      <td class="mono">${s.version != null ? esc(String(s.version)) : '—'}</td>
+      <td class="mono muted">${esc(deployedAt)}</td>
+      <td>${s.error ? `<span class="flag">${esc(s.error)}</span>` : ''}</td>
+    </tr>`;
+  }).join('');
+
+  const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Deploys</h2><span class="muted">Cloudflare deploy health — does the live Worker match the latest commit?</span></div>
+    <div class="task-toolbar">
+      <strong>${sites.length} sites</strong>
+      <span class="muted">${dotLegend('fresh', live + ' live')} · ${dotLegend('overdue', behind + ' behind')} · ${dotLegend('paused', unknown + ' unknown')} · last swept ${esc(swept)}</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Site</th><th>Worker</th><th>Status</th><th>Version</th><th>Deployed at</th><th>Error</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px"><b>live</b> = the newest Worker version was deployed at/after the site's HEAD commit time. <b>behind</b> = pushed but Cloudflare hasn't shipped the latest commit yet (pending build or a failed one). <b>unknown</b> = no CF credentials, or the poller hasn't checked this site yet. Refreshed every 5 minutes in the background.</p>`;
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
+/* ===================== ACTIVITY ===================== */
+// F14: read-only view over the durable audit trail (GET /api/actions, backed
+// by server/actionlog.js) — every mutating dashboard request, newest first.
+function activitySiteFromPath(p) {
+  const m = String(p || '').match(/^\/api\/(?:roles|git|tasks|fleet|sites|cron\/systems)\/([^/?]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+async function renderActivity() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading action log…</div>';
+  let data;
+  try { data = await api('GET', '/api/actions?limit=300'); }
+  catch (e) { app.innerHTML = `<div class="empty">Action log read failed: ${esc(e.message)}</div>`; return; }
+
+  const rows = data.actions || [];
+  const failed = rows.filter((a) => !a.ok).length;
+
+  const body = rows.map((a) => {
+    const site = activitySiteFromPath(a.path);
+    return `<tr${site ? ` data-fleet-row data-site="${esc(site)}"` : ''}>
+      <td class="mono muted">${esc((a.ts || '').replace('T', ' ').slice(0, 19))}</td>
+      <td class="mono">${esc(a.actor)}</td>
+      <td class="mono">${esc(a.method)}</td>
+      <td class="mono">${esc(a.path)}</td>
+      <td>${site ? esc(site) : '<span class="muted">—</span>'}</td>
+      <td><span class="badge ${a.ok ? 'b-green' : 'b-red'}">${a.status}</span></td>
+      <td class="mono muted">${a.ms != null ? `${a.ms}ms` : '—'}</td>
+      <td class="mono muted">${esc(a.ip || '—')}</td>
+    </tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Activity</h2><span class="muted">durable audit trail of every mutating dashboard action — newest first</span></div>
+    <div class="task-toolbar">
+      <strong>${rows.length} actions</strong>
+      <span class="muted">${failed ? `<span class="flag">${failed} failed</span>` : 'all succeeded'}</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Time</th><th>Actor</th><th>Method</th><th>Path</th><th>Site</th><th>Status</th><th>Duration</th><th>IP</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="8" class="muted">No actions recorded yet.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Every completed POST/PUT/DELETE to the dashboard's API, including rejected attempts (401/403). <b>Actor</b> is a non-reversible fingerprint of the caller's token/cookie, never the secret itself.</p>`;
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
   stamp();
 }
 
@@ -552,6 +682,21 @@ async function pushAllSites() {
   } catch (e) { toast(`push-all failed: ${e.message}`, 'err'); gdBusy(btn, false); }
 }
 
+// F25: pull every site that's behind origin, one call, sequential on the
+// server (git.pullAll mirrors git.pushAll exactly).
+async function pullAllSites() {
+  const btn = $('#pull-all');
+  if (!confirm('Pull every site that is behind origin?\n\nSkips any repo with uncommitted changes. Runs sequentially.')) return;
+  gdBusy(btn, true);
+  toast('Pulling all sites that need it…');
+  try {
+    const r = await api('POST', '/api/git/pull-all');
+    const failed = (r.results || []).filter((x) => !x.ok);
+    toast(`Pulled ${r.pulled}/${r.total}${failed.length ? ` · ${failed.length} failed` : ''}`, failed.length ? 'err' : 'ok');
+    softRender();
+  } catch (e) { toast(`pull-all failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
 /* ===================== GIT STASHES ===================== */
 async function renderGitStashes(slug) {
   const app = $('#app');
@@ -658,10 +803,23 @@ async function renderControl() {
   sites.forEach((s) => Object.values(s.cells).forEach((c) => { tally[c.state]++; }));
 
   const agentSet = new Set((STATE.agents || []).map((a) => a.role));
+  // F13: fleet-wide pause/resume per role, next to the column header. Only
+  // shown when at least one site's cell for this role is worker-controllable
+  // (the same gate roles.setEnabled() enforces server-side); the icon/action
+  // reflects the majority state so one click flips the whole column.
   const head = '<th class="rsite-h">Site</th>'
-    + core.map((r) => agentSet.has(r)
-      ? `<th class="rcol"><a class="rcol-link" data-role="${esc(r)}" title="Open the ${esc(agentLabel(r))} agent page">${esc(r)} →</a></th>`
-      : `<th class="rcol">${esc(r)}</th>`).join('')
+    + core.map((r) => {
+      const cells = sites.map((s) => s.cells[r]).filter(Boolean);
+      const controllable = cells.filter((c) => c.worker);
+      const anyEnabled = controllable.some((c) => c.enabled);
+      const bulkBtn = controllable.length
+        ? `<button class="rcol-bulk" data-role="${esc(r)}" data-act="${anyEnabled ? 'pause' : 'resume'}" title="${anyEnabled ? 'Pause' : 'Resume'} ${esc(r)} on all ${controllable.length} site(s)">${anyEnabled ? '⏸' : '▶'}</button>`
+        : '';
+      const label = agentSet.has(r)
+        ? `<a class="rcol-link" data-role="${esc(r)}" title="Open the ${esc(agentLabel(r))} agent page">${esc(r)} →</a>`
+        : `<span>${esc(r)}</span>`;
+      return `<th class="rcol">${label}${bulkBtn}</th>`;
+    }).join('')
     + '<th class="rcol">other</th>';
 
   const body = sites.map((s) => {
@@ -676,10 +834,10 @@ async function renderControl() {
       const tip = others.map((r) => `${r}: ${s.cells[r].state}${s.cells[r].age != null ? ` (${fmtAge(s.cells[r].age)})` : ''}`).join('\n');
       otherCell = `<td class="rcell"><span class="rcount r-${worst}" title="${esc(tip)}">${others.length}</span></td>`;
     }
-    return `<tr><td class="rsite">${siteLink(s.site)}</td>${cells}${otherCell}</tr>`;
+    return `<tr data-fleet-row data-site="${esc(s.site)}"><td class="rsite">${siteLink(s.site)}${toolLinks(s.site)}</td>${cells}${otherCell}</tr>`;
   }).join('');
 
-  const lg = (st, txt) => `<span class="rdot r-${st}"></span> ${txt}`;
+  const lg = dotLegend;
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Domain Control</h2><span class="muted">fleet roles across ${sites.length} sites · column headers open an agent page</span></div>
     <div class="task-toolbar">
@@ -694,8 +852,35 @@ async function renderControl() {
 
   $$('.rdot[data-site]').forEach((d) => d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role)));
   $$('.rcol-link').forEach((a) => a.addEventListener('click', () => go('agent', a.dataset.role)));
+  $$('.rcol-bulk').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); bulkToggleRole(b.dataset.role, b.dataset.act); }));
   if (!FRESH) applyUISnap();
+  applyFleetFilter();
   stamp();
+}
+
+// F13: pause/resume one role across every site that schedules it as a
+// worker role. Sequenced client-side, one site at a time (same shape as
+// pushAllSites), so a single slow/failed site can't block the rest and the
+// operator gets a per-site result instead of one opaque spinner.
+async function bulkToggleRole(role, act) {
+  const sites = (ROLEMATRIX && ROLEMATRIX.sites || []).filter((s) => s.cells[role] && s.cells[role].worker);
+  if (!sites.length) { toast(`No worker-controllable sites schedule ${role}`, 'err'); return; }
+  const verb = act === 'pause' ? 'Pause' : 'Resume';
+  if (!confirm(`${verb} ${role} across ${sites.length} site(s)?`)) return;
+  const btn = $(`.rcol-bulk[data-role="${CSS.escape(role)}"]`);
+  gdBusy(btn, true);
+  toast(`${verb === 'Pause' ? 'Pausing' : 'Resuming'} ${role} on ${sites.length} site(s)…`);
+  const results = [];
+  for (const s of sites) {
+    try {
+      await api('POST', `/api/roles/${encodeURIComponent(s.site)}/${encodeURIComponent(role)}/${act}`);
+      results.push({ site: s.site, ok: true });
+    } catch (e) { results.push({ site: s.site, ok: false, error: e.message }); }
+    if (btn) btn.textContent = `${results.length}/${sites.length}`;
+  }
+  const failed = results.filter((r) => !r.ok);
+  toast(`${verb}d ${results.length - failed.length}/${results.length} ${role}${failed.length ? ` · failed: ${failed.map((f) => f.site).join(', ')}` : ''}`, failed.length ? 'err' : 'ok');
+  softRender();
 }
 
 const STATE_LABEL = { fresh: 'fresh', stale: 'overdue', overdue: 'well overdue', paused: 'paused', never: 'no log found' };
@@ -808,8 +993,8 @@ async function renderGenericAgent(role) {
       : r.state === 'fresh' ? '<span class="badge b-green">fresh</span>'
         : r.state === 'never' ? '<span class="badge b-gray">no log</span>'
           : `<span class="badge b-yellow">${esc(STATE_LABEL[r.state] || r.state)}</span>`;
-    return `<tr class="ag-row">
-      <td class="site">${siteLink(r.site)}</td>
+    return `<tr class="ag-row" data-fleet-row data-site="${esc(r.site)}">
+      <td class="site">${siteLink(r.site)}${toolLinks(r.site)}</td>
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted">${esc(r.schedule)}</td>
@@ -837,6 +1022,7 @@ async function renderGenericAgent(role) {
   $$('.ag-toggle').forEach((b) => b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1')));
   $$('.ag-run').forEach((b) => b.addEventListener('click', () => runAgent(b.dataset.site, role, b)));
   if (!FRESH) applyUISnap();
+  applyFleetFilter();
   stamp();
 }
 
@@ -881,7 +1067,10 @@ async function renderContainers() {
   const cron = rows.filter((r) => r.kind === 'cron');
   const cronUp = cron.filter((r) => r.running).length;
   const workers = rows.filter((r) => r.kind === 'worker').length;
-  const attention = rows.filter((r) => r.unhealthy || (r.kind === 'cron' && !r.running)).length;
+
+  // F15: health tally, same dot-legend pattern as Domain Control / Git.
+  const tally = { healthy: 0, unhealthy: 0, stopped: 0 };
+  rows.forEach((r) => { if (!r.running) tally.stopped++; else if (r.unhealthy) tally.unhealthy++; else tally.healthy++; });
 
   const body = rows.map((r) => {
     const label = r.kind === 'cron' ? 'cron' : r.kind === 'worker' ? 'worker run' : (r.service || r.kind);
@@ -891,7 +1080,7 @@ async function renderContainers() {
     else acts.push(`<button class="btn sm cn-act" data-id="${esc(r.id)}" data-act="start" data-name="${esc(r.name)}">▶ Start</button>`);
     if (r.kind === 'cron') acts.push(`<button class="btn sm cn-bounce" data-slug="${esc(r.slug)}" data-name="${esc(r.name)}" title="Rebuild image + recreate (Dockerfile/dependency changes)">⟳ Rebuild</button>`);
     if (r.running) acts.push(`<button class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}">⏹ Stop</button>`);
-    return `<tr class="cn-row">
+    return `<tr class="cn-row" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}">
       <td class="mono">${esc(r.name)}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${svc}</td>
@@ -899,13 +1088,22 @@ async function renderContainers() {
       <td class="mono muted">${esc(r.running ? r.runningFor : '—')}</td>
       <td class="cn-actions">${acts.join(' ')}</td>
     </tr>
-    <tr class="cn-detail-row hidden" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6"><div class="cn-log-head muted">logs · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="cl-${esc(r.id)}" data-rkh="cn:${esc(r.id)}"></pre></td></tr>`;
+    <tr class="cn-detail-row hidden" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6">
+      <div class="cn-log-toolbar muted">
+        <span>logs · <span class="live-tag">live</span></span>
+        <span class="cm-spacer"></span>
+        <input class="cm-input cn-log-filter" data-id="${esc(r.id)}" type="text" placeholder="Filter lines…" spellcheck="false" />
+        <label class="cm-chk"><input type="checkbox" class="cn-log-wrap" data-id="${esc(r.id)}" /> Wrap</label>
+        <button type="button" class="btn sm cn-log-copy" data-id="${esc(r.id)}">Copy</button>
+        <button type="button" class="btn sm cn-log-download" data-id="${esc(r.id)}" data-name="${esc(r.name)}">Download</button>
+      </div>
+      <pre class="cn-logs-box" id="cl-${esc(r.id)}" data-rkh="cn:${esc(r.id)}"></pre></td></tr>`;
   }).join('');
 
   app.innerHTML = `
     <div class="task-toolbar">
       <strong>${rows.length} containers</strong>
-      <span class="muted">${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight${attention ? ` · <span class="flag">${attention} need attention</span>` : ''}</span>
+      <span class="muted">${dotLegend('fresh', tally.healthy + ' healthy')} · ${dotLegend('overdue', tally.unhealthy + ' unhealthy')} · ${dotLegend('paused', tally.stopped + ' stopped')} · ${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight</span>
       <button class="btn sm" id="restart-crons" style="margin-left:auto">↻ Restart all crons</button>
     </div>
     <div class="card"><table>
@@ -917,6 +1115,7 @@ async function renderContainers() {
   wireContainerRows();
   $('#restart-crons').addEventListener('click', restartAllCrons);
   if (!FRESH) applyUISnap();
+  applyFleetFilter();
   stamp();
 }
 
@@ -942,6 +1141,27 @@ function wireContainerRows() {
   $$('.cn-logs').forEach((b) => b.addEventListener('click', () => toggleContainerLogs(b.dataset.id)));
   $$('.cn-act').forEach((b) => b.addEventListener('click', () => containerAction(b.dataset.id, b.dataset.act, b.dataset.name, b)));
   $$('.cn-bounce').forEach((b) => b.addEventListener('click', () => bounceCron(b.dataset.slug, b.dataset.name, b)));
+  // F26: filter/copy/download toolbar on the container log view (mirrors the
+  // Cron tab's cm-log-filter/copy/download, scoped per container id).
+  $$('.cn-log-filter').forEach((inp) => inp.addEventListener('input', () => {
+    cnLogState(inp.dataset.id).filter = inp.value;
+    cnApplyLogFilter(inp.dataset.id);
+  }));
+  $$('.cn-log-wrap').forEach((cb) => cb.addEventListener('change', (e) => {
+    const box = $(`#cl-${CSS.escape(cb.dataset.id)}`);
+    if (box) box.classList.toggle('cm-wrap', e.target.checked);
+  }));
+  $$('.cn-log-copy').forEach((b) => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(cnLogState(b.dataset.id).raw); toast('Copied'); }
+    catch { toast('Copy failed', 'err'); }
+  }));
+  $$('.cn-log-download').forEach((b) => b.addEventListener('click', () => {
+    const st = cnLogState(b.dataset.id);
+    const blob = new Blob([st.raw], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `${b.dataset.name || b.dataset.id}.log`;
+    a.click(); URL.revokeObjectURL(a.href);
+  }));
 }
 
 async function toggleContainerLogs(id) {
@@ -953,13 +1173,31 @@ async function toggleContainerLogs(id) {
   await fetchContainerLog(id, box);
 }
 
+// F26: per-container raw log text + active filter string, keyed by container
+// id — lets the filter/copy/download toolbar act on the unfiltered text even
+// while a filter is applied, and survives the periodic live-follow re-fetch.
+const CN_LOG = new Map();
+function cnLogState(id) {
+  if (!CN_LOG.has(id)) CN_LOG.set(id, { raw: '', filter: '' });
+  return CN_LOG.get(id);
+}
+function cnApplyLogFilter(id) {
+  const box = $(`#cl-${CSS.escape(id)}`);
+  if (!box) return;
+  const st = cnLogState(id);
+  const f = st.filter.trim().toLowerCase();
+  const lines = st.raw.split('\n');
+  box.textContent = (f ? lines.filter((l) => l.toLowerCase().includes(f)) : lines).join('\n');
+}
+
 // Fetch (or re-fetch, for live-follow) a container's logs. Keeps the view
 // pinned to the bottom only if it was already there (so manual scroll sticks).
 async function fetchContainerLog(id, box) {
   const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 30;
   try {
     const r = await api('GET', `/api/containers/${encodeURIComponent(id)}/logs?tail=300`);
-    if (box.textContent !== r.logs) { box.textContent = r.logs; if (atBottom) box.scrollTop = box.scrollHeight; }
+    const st = cnLogState(id);
+    if (st.raw !== r.logs) { st.raw = r.logs; cnApplyLogFilter(id); if (atBottom) box.scrollTop = box.scrollHeight; }
   } catch (e) { if (!box.textContent || box.textContent === 'loading logs…') box.textContent = `error: ${e.message}`; }
 }
 
@@ -1223,8 +1461,18 @@ async function openTaskModal({ mode, site, column, file }) {
       loadedMeta = t.meta || {}; meta = { ...loadedMeta }; body = t.body || '';
     } catch (e) { toast(e.message, 'err'); return; }
   }
+  // F16: bulk assignment — create mode only. A checkbox swaps the single-site
+  // select for a multi-select; on save, the same POST the single-site path
+  // already uses is looped client-side, one task file per selected site
+  // (mirrors pushAllSites' "loop + await" bulk pattern — no new bulk endpoint).
   const siteSel = mode === 'create'
-    ? `<div class="field"><label>Site</label><select id="f-site">${STATE.sites.map((s) => `<option value="${esc(s)}" ${s === site ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></div>`
+    ? `<div class="field" id="f-site-wrap"><label>Site</label><select id="f-site">${STATE.sites.map((s) => `<option value="${esc(s)}" ${s === site ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
+       <div class="field"><label><input type="checkbox" id="f-bulk-toggle" /> Assign to multiple sites</label></div>
+       <div class="field hidden" id="f-bulk-wrap">
+         <label>Sites (ctrl/cmd-click to select multiple)</label>
+         <select id="f-sites-multi" multiple size="6">${STATE.sites.map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select>
+         <span class="muted" style="font-size:11px">Creates one copy of this task per selected site.</span>
+       </div>`
     : '';
   title.textContent = mode === 'create' ? 'New task' : `Edit · ${site} · ${file}`;
 
@@ -1256,6 +1504,13 @@ async function openTaskModal({ mode, site, column, file }) {
   $('#f-cancel').onclick = closeModal;
   $('#f-save').onclick = () => saveTask({ mode, site, origColumn: column, file });
   if (mode === 'edit') $('#f-delete').onclick = () => deleteTask(site, column, file);
+  const bulkToggle = $('#f-bulk-toggle');
+  if (bulkToggle) {
+    bulkToggle.addEventListener('change', (e) => {
+      $('#f-site-wrap').classList.toggle('hidden', e.target.checked);
+      $('#f-bulk-wrap').classList.toggle('hidden', !e.target.checked);
+    });
+  }
 }
 
 function collectMeta() {
@@ -1272,11 +1527,30 @@ function collectMeta() {
 }
 
 async function saveTask({ mode, site, origColumn, file }) {
-  const targetSite = mode === 'create' ? ($('#f-site') ? $('#f-site').value : site) : site;
   const meta = collectMeta();
   const body = $('#f-body').value;
   const targetCol = $('#f-col').value;
   if (!meta.title) { toast('Title is required', 'err'); return; }
+
+  const bulkToggle = $('#f-bulk-toggle');
+  if (mode === 'create' && bulkToggle && bulkToggle.checked) {
+    const sites = [...$('#f-sites-multi').selectedOptions].map((o) => o.value);
+    if (!sites.length) { toast('Select at least one site', 'err'); return; }
+    const saveBtn = $('#f-save'); gdBusy(saveBtn, true);
+    let ok = 0; const failed = [];
+    for (const s of sites) {
+      try {
+        await api('POST', `/api/tasks/${encodeURIComponent(s)}/${encodeURIComponent(targetCol)}`, { ...meta, body });
+        ok++;
+      } catch (e) { failed.push(`${s}: ${e.message}`); }
+    }
+    toast(`Created task on ${ok}/${sites.length} site(s)${failed.length ? ' · failed: ' + failed.join('; ') : ''}`, failed.length ? 'err' : 'ok');
+    closeModal();
+    if (TASK.mode === 'board') loadBoard(); else loadFleet();
+    return;
+  }
+
+  const targetSite = mode === 'create' ? ($('#f-site') ? $('#f-site').value : site) : site;
   const base = `/api/tasks/${encodeURIComponent(targetSite)}`;
   try {
     if (mode === 'create') {
@@ -1370,6 +1644,7 @@ async function renderCron() {
   $('#cm-collapse-all').addEventListener('click', () => { systems.forEach((s) => CM.collapsed.add(s.slug)); cmSaveCollapsed(); cmApplyCollapsed(); });
   $('#cm-expand-all').addEventListener('click', () => { CM.collapsed.clear(); cmSaveCollapsed(); cmApplyCollapsed(); });
   if (!FRESH) applyUISnap();
+  applyFleetFilter();
   stamp();
 }
 
@@ -1400,7 +1675,7 @@ function cmCard(sys) {
     ? `<span class="cm-hint">${isStale ? 'running stale crontab — rebuild or revert' : 'crontab changed — rebuild to apply'}</span>`
     : '';
 
-  return `<section class="cm-card${sys.failed ? ' cm-failed' : ''}">
+  return `<section class="cm-card${sys.failed ? ' cm-failed' : ''}" data-fleet-row data-site="${esc(sys.kind === 'site' ? sys.slug : '')}">
     <div class="cm-head" data-slug="${esc(sys.slug)}">
       <button class="cm-collapse" data-slug="${esc(sys.slug)}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'}">${collapsed ? '▸' : '▾'}</button>
       <span class="cm-name">${esc(sys.slug)}</span>
@@ -1414,7 +1689,9 @@ function cmCard(sys) {
         <thead><tr><th>State</th><th>Job</th><th>Schedule</th><th>Last run</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="cm-foot">${foot.join(' ')}${hint}</div>
+      <div class="cm-foot">${foot.join(' ')}${hint}
+        <button class="btn sm cm-addjob" data-slug="${esc(sys.slug)}" style="margin-left:auto">+ Add job</button>
+      </div>
     </div>
   </section>`;
 }
@@ -1466,6 +1743,7 @@ function cmWireCards() {
   $$('.cm-run').forEach((b) => b.addEventListener('click', () => cmRunJob(b.closest('tr').dataset.slug, b.dataset.role, b)));
   $$('.cm-rolelog').forEach((b) => b.addEventListener('click', () => cmOpenLogs(b.closest('tr').dataset.slug, `role:${b.dataset.role}`)));
   $$('.cm-last.cm-clickable').forEach((s) => s.addEventListener('click', () => { if (s.dataset.role) cmOpenLogs(s.dataset.slug, `role:${s.dataset.role}`); }));
+  $$('.cm-addjob').forEach((b) => b.addEventListener('click', () => cmOpenAddJob(b.dataset.slug)));
 }
 
 function cmToggleCollapse(slug) {
@@ -1551,6 +1829,108 @@ function cmEditJob(tr) {
     await cmPostCrontab(slug, { action: 'edit', lineIndex: e.lineIndex, newSchedule: input.value.trim(), expectedRawLine: e.rawLine });
   });
   input.focus(); input.select(); check();
+}
+
+/* ---- F28: add a new cron line ---- */
+function cmCloseAddJob() { $$('.cm-addjob-row').forEach((r) => r.remove()); }
+
+function cmOpenAddJob(slug) {
+  cmCloseEditor(); cmCloseAddJob();
+  const sys = CM.bySlug.get(slug);
+  const head = $(`.cm-head[data-slug="${CSS.escape(slug)}"]`);
+  const card = head ? head.closest('.cm-card') : null;
+  const tbody = card ? $('.cm-jobs tbody', card) : null;
+  if (!sys || !tbody) return;
+  const isSite = sys.kind === 'site';
+  const row = document.createElement('tr');
+  row.className = 'cm-addjob-row';
+  row.innerHTML = `<td colspan="5"><div class="cm-editor">
+    <div class="cm-ed-top">
+      <span class="muted">New cron job on <b>${esc(slug)}</b></span>
+      <select class="cm-input cm-aj-kind">
+        <option value="worker"${isSite ? ' selected' : ''}>Worker role — bash ops/scripts/run-worker.sh &lt;role&gt;${isSite ? '' : ' (sites only)'}</option>
+        <option value="custom"${isSite ? '' : ' selected'}>Custom command</option>
+      </select>
+    </div>
+    <div class="cm-ed-top">
+      <input class="cm-input cm-aj-role" type="text" placeholder="role name, e.g. seo-analyst" spellcheck="false" autocomplete="off" ${isSite ? '' : 'disabled'} />
+      <textarea class="cm-input cm-aj-cmd hidden" rows="2" placeholder="full shell command" spellcheck="false"></textarea>
+    </div>
+    <div class="cm-ed-top">
+      <input class="cm-input cm-cron cm-aj-sched" type="text" placeholder="* * * * *" spellcheck="false" autocomplete="off" />
+      <span class="cm-ed-dirty" hidden>● unsaved</span>
+    </div>
+    <div class="cm-ed-verdict"></div>
+    <div class="cm-ed-presets">${CM_PRESETS.map(([v, l]) => `<button class="btn sm cm-preset" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div>
+    <div class="cm-ed-legend muted">min 0-59 · hour 0-23 · day 1-31 · month 1-12 · weekday 0-6 · <b>*</b> any · <b>*/n</b> every n · <b>a,b</b> list · <b>a-b</b> range</div>
+    <div class="cm-ed-actions"><button class="btn sm primary cm-aj-save" disabled>Add</button><button class="btn sm cm-aj-cancel">Cancel</button></div>
+  </div></td>`;
+  tbody.appendChild(row);
+
+  const kindSel = $('.cm-aj-kind', row);
+  const roleInp = $('.cm-aj-role', row);
+  const cmdInp = $('.cm-aj-cmd', row);
+  const schedInp = $('.cm-cron', row);
+  const verdict = $('.cm-ed-verdict', row);
+  const save = $('.cm-aj-save', row);
+  const dirty = $('.cm-ed-dirty', row);
+
+  function currentCommand() {
+    if (kindSel.value === 'worker') {
+      const role = roleInp.value.trim().toLowerCase();
+      return role ? `bash ops/scripts/run-worker.sh ${role}` : '';
+    }
+    return cmdInp.value.trim();
+  }
+  function syncKindUI() {
+    const worker = kindSel.value === 'worker';
+    roleInp.classList.toggle('hidden', !worker);
+    cmdInp.classList.toggle('hidden', worker);
+    roleInp.disabled = !worker;
+  }
+  syncKindUI();
+
+  let valid = false;
+  let t;
+  const check = () => {
+    clearTimeout(t);
+    t = setTimeout(async () => {
+      const expr = schedInp.value.trim();
+      const cmd = currentCommand();
+      dirty.hidden = !(expr || cmd);
+      if (!expr || !cmd) {
+        verdict.className = 'cm-ed-verdict'; verdict.textContent = '';
+        schedInp.className = 'cm-input cm-cron cm-aj-sched'; save.disabled = true; return;
+      }
+      try {
+        const v = await api('GET', '/api/cron/describe?expr=' + encodeURIComponent(expr));
+        valid = v.valid;
+        schedInp.className = 'cm-input cm-cron cm-aj-sched ' + (v.valid ? 'valid' : 'invalid');
+        verdict.className = 'cm-ed-verdict ' + (v.valid ? 'good' : 'bad');
+        verdict.textContent = v.valid ? `${v.human} — ${cmd}` : (v.error || 'invalid');
+        save.disabled = !v.valid;
+      } catch { verdict.textContent = ''; }
+    }, 180);
+  };
+  kindSel.addEventListener('change', () => { syncKindUI(); check(); });
+  roleInp.addEventListener('input', check);
+  cmdInp.addEventListener('input', check);
+  schedInp.addEventListener('input', check);
+  $$('.cm-preset', row).forEach((p) => p.addEventListener('click', () => { schedInp.value = p.dataset.v; schedInp.focus(); check(); }));
+  $('.cm-aj-cancel', row).addEventListener('click', cmCloseAddJob);
+  save.addEventListener('click', async () => {
+    if (!valid) return;
+    const command = currentCommand();
+    if (!command) { toast('Enter a role or command', 'err'); return; }
+    save.disabled = true;
+    try {
+      await api('POST', `/api/cron/systems/${encodeURIComponent(slug)}/crontab`, { action: 'add', newSchedule: schedInp.value.trim(), command });
+      toast('Added to crontab — rebuild to apply');
+      cmCloseAddJob();
+      softRender();
+    } catch (e) { toast(`add failed: ${e.message}`, 'err'); save.disabled = false; }
+  });
+  schedInp.focus();
 }
 
 /* ---- mutations ---- */
@@ -2215,7 +2595,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages', 'analytics'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -2275,6 +2655,8 @@ function render() {
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
   else if (STATE.view === 'analytics') renderAnalytics();
+  else if (STATE.view === 'deploys') renderDeployHealth();
+  else if (STATE.view === 'activity') renderActivity();
 }
 
 function renderAgent(role) {
@@ -2423,13 +2805,14 @@ async function boot() {
   $('#agents-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleAgentsMenu(); });
   document.addEventListener('click', (e) => { if (!e.target.closest('#agents-dd')) closeAgentsMenu(); });
   $('#refresh').addEventListener('click', softRender);
+  const ff = $('#fleet-filter'); if (ff) ff.addEventListener('input', applyFleetFilter);
   $('#auto-on').addEventListener('change', (e) => { localStorage.setItem('fd.auto', e.target.checked ? '1' : '0'); scheduleAuto(); });
   $('#auto-int').addEventListener('change', (e) => { localStorage.setItem('fd.interval', e.target.value); scheduleAuto(); });
   $('#modal-close').addEventListener('click', closeModal);
   $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
   $('#update-pill').addEventListener('click', () => location.reload());
   cmWireModals();
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); cmCloseLogs(); cmCloseDiff(); cmCloseEditor(); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); cmCloseLogs(); cmCloseDiff(); cmCloseEditor(); cmCloseAddJob(); } });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkVersion(); refreshTick(); scheduleAuto(); } });
   checkVersion();
   checkDeps();                         // F7: surface missing python3/docker/etc.

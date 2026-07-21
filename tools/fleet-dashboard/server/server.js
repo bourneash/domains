@@ -358,6 +358,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
+  // Fleet-wide bulk pull (F25): pull every site that's behind origin. Same
+  // shape as push-all, defined before :slug for the same reason.
+  app.post('/api/git/pull-all', async (_req, res) => {
+    try { res.json(await git.pullAll(root, discoverSites(root))); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
   app.get('/api/git/:slug', requireSite, async (req, res) => {
     try { res.json(await git.status(root, req.params.slug)); }
     catch (e) { res.status(500).json({ error: e.message }); }

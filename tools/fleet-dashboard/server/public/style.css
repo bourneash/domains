@@ -25,6 +25,7 @@ body {
 .topbar {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 24px;
+  flex-wrap: wrap;
   padding: 12px 20px;
   background: rgba(14,17,22,.85);
   backdrop-filter: blur(8px);
@@ -34,7 +35,7 @@ body {
 .brand h1 { font-size: 16px; margin: 0; font-weight: 650; letter-spacing: .2px; }
 .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-.tabs { display: flex; gap: 4px; margin-left: 8px; align-items: center; }
+.tabs { display: flex; gap: 4px; margin-left: 8px; align-items: center; flex-wrap: wrap; row-gap: 6px; }
 .tab-dd { position: relative; }
 .dd-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; background: var(--panel); border: 1px solid var(--border); border-radius: 9px; padding: 5px; z-index: 40; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
 .dd-menu.hidden { display: none; }
@@ -61,6 +62,24 @@ body {
 }
 .tab:hover { color: var(--text); background: var(--panel); }
 .tab.active { color: #fff; background: var(--panel-2); }
+
+/* F6: fleet-wide site filter, sits in the topbar so it's available across tabs */
+.fleet-filter-wrap { display: flex; align-items: center; }
+.fleet-filter { width: 170px; }
+.fleet-hidden { display: none !important; }
+
+/* F5: per-site cross-links to site-tracker / domain-developer */
+.tool-links { margin-left: 8px; font-size: 11px; white-space: nowrap; }
+.tool-links a { color: var(--muted); text-decoration: none; margin-right: 8px; }
+.tool-links a:hover { color: var(--accent); text-decoration: underline; }
+
+/* F13: fleet-wide pause/resume button in a Domain Control column header */
+.rcol-bulk { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 11px; margin-left: 6px; padding: 0 2px; vertical-align: middle; }
+.rcol-bulk:hover { color: var(--accent); }
+
+/* F26: filter/copy/download toolbar on the Containers log view (mirrors .cm-log-toolbar) */
+.cn-log-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 16px 0; flex-wrap: wrap; }
+.cn-log-toolbar .cm-input { padding: 4px 8px; font-size: 11.5px; }
 
 .actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .btn {

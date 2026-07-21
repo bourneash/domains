@@ -473,6 +473,26 @@ async function pushAll(root, slugs) {
   return { ok: true, pushed: results.filter((r) => r.ok).length, total: results.length, results };
 }
 
+// Pull every site that is behind origin. Sequential (like pushAll) to avoid a
+// burst of concurrent pulls. Skips repos with nothing to pull, dirty working
+// trees, no branch (detached), or no upstream — pull() itself enforces those,
+// this just filters obviously-skippable repos first so results read cleanly.
+async function pullAll(root, slugs) {
+  const results = [];
+  for (const slug of slugs) {
+    const s = await status(root, slug);
+    if (!s.isRepo || !(s.behind > 0)) continue;
+    if (!s.branch) { results.push({ slug, ok: false, error: 'detached HEAD — no branch to pull' }); continue; }
+    try {
+      const r = await pull(root, slug);
+      results.push({ slug, ok: true, out: r.out });
+    } catch (e) {
+      results.push({ slug, ok: false, error: e.message });
+    }
+  }
+  return { ok: true, pulled: results.filter((r) => r.ok).length, total: results.length, results };
+}
+
 // Cheap fleet-wide summary (one row per site) for the dashboard table.
 async function summaries(root, slugs) {
   return Promise.all(slugs.map(async (slug) => {
@@ -485,4 +505,4 @@ async function summaries(root, slugs) {
   }));
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, remoteToWebUrl, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, pull, fileDiff, pushAll, stashes, stashDiff, dropStash, stashIndex, safeRel };
+module.exports = { status, summaries, parsePorcelain, computeSyncState, remoteToWebUrl, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, pull, fileDiff, pushAll, pullAll, stashes, stashDiff, dropStash, stashIndex, safeRel };

@@ -106,5 +106,24 @@ function removeLine(text, lineIndex, expectedRawLine) {
   return lines.join('\n');
 }
 
+// Append a new cron line (F28 — "add cron job" UI). No lineIndex/expectedRawLine
+// stale check is needed since this only appends; the caller (cron.js
+// crontabMutate) still runs it inside the per-slug crontab lock so a concurrent
+// add/edit/remove on the same file can't interleave.
+function addLine(text, schedule, command) {
+  if (!isValidCron(schedule)) {
+    throw new Error(`invalid cron expression: ${schedule}`);
+  }
+  const cmd = String(command || '').trim();
+  if (!cmd) throw new Error('command is required');
+  const lines = text.split('\n');
+  // Insert before any trailing blank line(s) so the file keeps a clean single
+  // trailing newline instead of accumulating blank lines at the end.
+  let insertAt = lines.length;
+  while (insertAt > 0 && lines[insertAt - 1] === '') insertAt--;
+  lines.splice(insertAt, 0, `${schedule.trim()}  ${cmd}`);
+  return lines.join('\n');
+}
+
 module.exports = { parseCrontab, isValidCron, extractRole, roleFromCommand, CRON_RE,
-  commentLine, uncommentLine, editSchedule, removeLine };
+  commentLine, uncommentLine, editSchedule, removeLine, addLine };
