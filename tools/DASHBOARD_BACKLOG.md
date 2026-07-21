@@ -1,5 +1,10 @@
 # Dashboard backlog
 
+> **STALE — superseded 2026-06.** The static-HTML `tools/dashboard/` plan
+> below shipped differently: as `tools/fleet-dashboard/` (control plane at
+> `localhost:4754`). See `tools/fleet-dashboard/README.md` for current state.
+> Kept for history; do not treat as an open checklist.
+
 Remaining work from `DASHBOARD_DRAFT_PLAN.md` (2026-04-28). The plan
 proposed a `tools/dashboard/` static HTML page giving Jesse a single
 glanceable view of the entire portfolio. Since then, two of the four

@@ -1,5 +1,11 @@
 # Housekeeping Proposals — 2026-05-17
 
+> **STALE — superseded 2026-06/07.** Most of the portfolio-ops-container
+> proposals below were superseded by `tools/fleet-dashboard/` (Cron tab) and
+> the `tools/cron-roles/` family. Kept for history; do not treat as an open
+> checklist — check `tools/fleet-dashboard/` and current cron-role skills for
+> live state.
+
 Recurring cleanup + reliability tasks that should be automated, prioritized
 by blast radius if neglected.
 

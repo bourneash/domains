@@ -40,3 +40,6 @@ sites/DISABLED-*/
 __pycache__/
 *.egg-info/
 *.pyc
+
+# Cron/script run logs (never sweep these in via git add -A)
+tools/scripts/*.log
