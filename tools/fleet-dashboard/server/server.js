@@ -21,6 +21,8 @@ const datahubImages = require('./datahub-images');
 const auth = require('./auth');
 const health = require('./health');
 const actionlog = require('./actionlog');
+const devsandbox = require('./devsandbox');
+const sitefacts = require('./sitefacts');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -460,6 +462,87 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
+  // Dev Sandboxes — per-site sandboxed Claude/ttyd containers, folded in from
+  // the standalone domain-developer tool. Site-name validation is entirely
+  // delegated to requireSite/discoverSites (no separate allowlist needed).
+  app.get('/api/devsandbox/sites', async (_req, res) => {
+    try { res.json(await devsandbox.list(root, discoverSites(root))); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.get('/api/devsandbox/stats', async (_req, res) => {
+    try { res.json({ ok: true, containers: await devsandbox.stats() }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+
+  app.get('/api/devsandbox/orphans', async (_req, res) => {
+    try { res.json(await devsandbox.findOrphans(discoverSites(root))); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+  app.post('/api/devsandbox/orphans/cleanup', async (_req, res) => {
+    try { res.json(await devsandbox.cleanupOrphans(discoverSites(root))); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/devsandbox/stop-all', async (_req, res) => {
+    try { res.json(await devsandbox.stopAll()); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+  app.post('/api/devsandbox/remove-stopped', async (_req, res) => {
+    try { res.json(await devsandbox.removeStopped()); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/devsandbox/:slug/start', requireSite, async (req, res) => {
+    try { res.json({ ok: true, ...await devsandbox.start(root, req.params.slug) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+  app.post('/api/devsandbox/:slug/stop', requireSite, async (req, res) => {
+    try { res.json(await devsandbox.stop(req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+  app.post('/api/devsandbox/:slug/remove', requireSite, async (req, res) => {
+    try { res.json(await devsandbox.remove(req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+
+  app.get('/api/devsandbox/:slug/dev', requireSite, async (req, res) => {
+    try { res.json({ ok: true, ...await devsandbox.devStatus(req.params.slug) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+  app.post('/api/devsandbox/:slug/dev/start', requireSite, async (req, res) => {
+    try { res.json({ ok: true, ...await devsandbox.devStart(req.params.slug) }); }
+    catch (e) { res.status(e.httpStatus || 400).json({ ok: false, error: e.message }); }
+  });
+  app.post('/api/devsandbox/:slug/dev/stop', requireSite, async (req, res) => {
+    try { res.json({ ok: true, ...await devsandbox.devStop(req.params.slug) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+  app.get('/api/devsandbox/:slug/dev/logs', requireSite, async (req, res) => {
+    try { res.type('text/plain').send(await devsandbox.devLogs(req.params.slug, req.query.n)); }
+    catch (e) { res.status(e.httpStatus || 500).type('text/plain').send(e.message); }
+  });
+
+  // Site Facts — SEO/trust/branding/ads/legal recipe checks + Amazon ASIN
+  // health + manual annotations, folded in from the standalone site-tracker
+  // tool (which covered only 15 of ~59 sites and was stalled since 2026-05).
+  app.get('/api/sitefacts', (_req, res) => {
+    try { res.json(sitefacts.matrix(discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+  app.get('/api/sitefacts/:slug', requireSite, (req, res) => {
+    try { res.json(sitefacts.siteDetail(req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+  app.post('/api/sitefacts/:slug/manual/:key', requireSite, (req, res) => {
+    try { res.json({ ok: true, ...sitefacts.setManualFact(req.params.slug, req.params.key, (req.body || {}).value) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+  app.delete('/api/sitefacts/:slug/manual/:key', requireSite, (req, res) => {
+    try { sitefacts.deleteManualFact(req.params.slug, req.params.key); res.json({ ok: true }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ ok: false, error: e.message }); }
+  });
+
   // JSON 404 for unmatched API routes (B5) — anything under /api/* that no route
   // handled returns { error } JSON, not the static middleware's HTML 404.
   app.use('/api', (req, res) => res.status(404).json({ error: 'not found', path: req.originalUrl }));
@@ -479,6 +562,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // sweep so new sites are picked up without a restart). Skipped under test so
   // its outbound CF fetch doesn't race a test's stubbed global.fetch.
   if (process.env.NODE_ENV !== 'test') deployhealth.start(root, () => discoverSites(root));
+  // Site Facts background sweep (hourly — these change rarely). Same
+  // skip-under-test convention as the deploy-health poller above.
+  if (process.env.NODE_ENV !== 'test') sitefacts.start(() => discoverSites(root));
 
   return app;
 }

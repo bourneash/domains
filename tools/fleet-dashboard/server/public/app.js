@@ -459,6 +459,313 @@ async function renderActivity() {
   stamp();
 }
 
+/* ===================== DEV SANDBOXES ===================== */
+// Per-site sandboxed Claude/ttyd dev containers, folded in from the
+// standalone domain-developer tool so it stops being a separate URL an
+// operator has to remember exists. Backed by server/devsandbox.js.
+const DS = { sites: [], dockerAvailable: true, open: new Map() };  // open: site -> 'term'|'dev'|'logs'
+
+function dsStatusBadge(status) {
+  if (status === 'running') return '<span class="badge b-green">running</span>';
+  if (status === 'absent') return '<span class="badge b-gray">absent</span>';
+  return `<span class="badge b-red">${esc(status)}</span>`;
+}
+
+async function renderDevSandbox() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading dev sandboxes…</div>';
+  let d;
+  try { d = await api('GET', '/api/devsandbox/sites'); }
+  catch (e) { app.innerHTML = `<div class="empty">Dev sandbox list failed: ${esc(e.message)}</div>`; return; }
+  DS.sites = d.sites || [];
+  DS.dockerAvailable = d.dockerAvailable !== false;
+
+  const running = DS.sites.filter((s) => s.status === 'running').length;
+  const exists = DS.sites.filter((s) => s.status !== 'absent').length;
+
+  const warn = !DS.dockerAvailable
+    ? `<div class="alert" style="margin-bottom:12px">Docker daemon unreachable — every site below shows "absent" because sandbox state can't be queried, not because containers were removed. Start is disabled until Docker is back.</div>`
+    : '';
+
+  const body = DS.sites.map((s) => {
+    const acts = [];
+    if (s.status === 'running') {
+      acts.push(`<button class="btn sm ds-open" data-site="${esc(s.name)}" data-tab="term">🖥 Terminal</button>`);
+      acts.push(`<button class="btn sm ds-open" data-site="${esc(s.name)}" data-tab="dev">▶ Dev preview</button>`);
+      acts.push(`<button class="btn sm ds-open" data-site="${esc(s.name)}" data-tab="logs">📜 Dev logs</button>`);
+      acts.push(`<button class="btn sm danger ds-act" data-site="${esc(s.name)}" data-act="stop">⏹ Stop</button>`);
+    } else {
+      acts.push(`<button class="btn sm primary ds-act" data-site="${esc(s.name)}" data-act="start"${DS.dockerAvailable ? '' : ' disabled'}>▶ Start</button>`);
+      if (s.status !== 'absent') acts.push(`<button class="btn sm danger ds-act" data-site="${esc(s.name)}" data-act="remove">🗑 Remove</button>`);
+    }
+    const openTab = DS.open.get(s.name);
+    return `<tr class="cn-row" data-fleet-row data-site="${esc(s.name)}">
+      <td class="site">${siteLink(s.name)}</td>
+      <td>${dsStatusBadge(s.status)}</td>
+      <td class="mono muted">${s.ttydPort ? ':' + s.ttydPort : '—'}</td>
+      <td class="mono muted" id="ds-stat-${esc(s.name)}">—</td>
+      <td class="cn-actions">${acts.join(' ')}</td>
+    </tr>
+    <tr class="cn-detail-row${openTab ? '' : ' hidden'}" data-detail="ds:${esc(s.name)}" data-rk="ds:${esc(s.name)}"><td colspan="5">
+      <div id="ds-panel-${esc(s.name)}"></div>
+    </td></tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Dev Sandboxes</h2><span class="muted">per-site sandboxed Claude + ttyd dev containers — folded in from domain-developer</span></div>
+    <div class="task-toolbar">
+      <strong>${DS.sites.length} sites</strong>
+      <span class="muted">${dotLegend('fresh', running + ' running')} · ${dotLegend('paused', (exists - running) + ' stopped')}</span>
+      <span class="cm-spacer"></span>
+      <button class="btn sm" id="ds-stats">📊 Stats</button>
+      <button class="btn sm" id="ds-stop-all">⏹ Stop all</button>
+      <button class="btn sm" id="ds-remove-stopped">🧹 Remove stopped</button>
+      <button class="btn sm" id="ds-clean-orphans">🗑 Clean orphans</button>
+    </div>
+    ${warn}
+    <div class="card"><table>
+      <thead><tr><th>Site</th><th>Status</th><th>ttyd</th><th>CPU · Mem · PIDs</th><th>Actions</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="5" class="muted">No sites found.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Each sandbox bind-mounts ONLY that site's directory — the rest of the fleet stays protected. Memory/CPU/PIDs are capped per container. Unauthenticated worker containers still run with <code>--dangerously-skip-permissions</code> inside their own sandbox; this tab itself is behind the same token gate as the rest of the dashboard.</p>`;
+
+  wireDevSandboxRows();
+  for (const [site, tab] of DS.open) dsRenderPanel(site, tab);
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
+function reloadDevSandbox() { FRESH = false; UISNAP = captureUI(); return renderDevSandbox(); }
+
+function wireDevSandboxRows() {
+  $$('.ds-act').forEach((b) => b.addEventListener('click', () => dsAction(b.dataset.site, b.dataset.act, b)));
+  $$('.ds-open').forEach((b) => b.addEventListener('click', () => dsToggleTab(b.dataset.site, b.dataset.tab)));
+  $('#ds-stats')?.addEventListener('click', dsShowStats);
+  $('#ds-stop-all')?.addEventListener('click', dsStopAll);
+  $('#ds-remove-stopped')?.addEventListener('click', dsRemoveStopped);
+  $('#ds-clean-orphans')?.addEventListener('click', dsCleanOrphans);
+}
+
+async function dsAction(site, act, btn) {
+  if (act === 'remove' && !confirm(`Remove the dev sandbox for ${site}? (site code untouched, claude state kept)`)) return;
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/devsandbox/${encodeURIComponent(site)}/${act}`);
+    toast(`${act === 'start' ? 'Started' : act === 'stop' ? 'Stopped' : 'Removed'} ${site} sandbox`);
+    await reloadDevSandbox();
+  } catch (e) { toast(`${act} failed: ${e.message}`, 'err'); gdBusy(btn, false); }
+}
+
+function dsToggleTab(site, tab) {
+  const row = $(`tr[data-detail="ds:${CSS.escape(site)}"]`);
+  if (DS.open.get(site) === tab) { DS.open.delete(site); row.classList.add('hidden'); return; }
+  DS.open.set(site, tab);
+  row.classList.remove('hidden');
+  dsRenderPanel(site, tab);
+}
+
+function dsRenderPanel(site, tab) {
+  const s = DS.sites.find((x) => x.name === site);
+  const el = $(`#ds-panel-${CSS.escape(site)}`);
+  if (!el || !s) return;
+  if (tab === 'term') {
+    if (!s.ttydUrl) { el.innerHTML = '<div class="empty">Terminal not available — sandbox is not running.</div>'; return; }
+    el.innerHTML = `<iframe class="ds-frame" src="${esc(s.ttydUrl)}" allow="clipboard-read; clipboard-write"></iframe>`;
+  } else if (tab === 'dev') {
+    if (!s.devUrl) { el.innerHTML = '<div class="empty">Dev preview not available — sandbox is not running.</div>'; return; }
+    el.innerHTML = `
+      <div class="cn-log-toolbar muted">
+        <span>expects <code>npm run dev</code> on port 4321 in the container</span>
+        <span class="cm-spacer"></span>
+        <a href="${esc(s.devUrl)}" target="_blank" rel="noopener">↗ ${esc(s.devUrl)}</a>
+      </div>
+      <iframe class="ds-frame" src="${esc(s.devUrl)}"></iframe>`;
+  } else if (tab === 'logs') {
+    el.innerHTML = `<pre class="cn-logs-box" id="ds-logs-${esc(site)}">loading…</pre>`;
+    dsFetchDevLogs(site);
+  }
+}
+
+async function dsFetchDevLogs(site) {
+  const box = $(`#ds-logs-${CSS.escape(site)}`);
+  if (!box) return;
+  try {
+    const r = await fetch(`/api/devsandbox/${encodeURIComponent(site)}/dev/logs?n=400`);
+    box.textContent = await r.text();
+  } catch (e) { box.textContent = `error: ${e.message}`; }
+}
+
+async function dsShowStats() {
+  let r;
+  try { r = await api('GET', '/api/devsandbox/stats'); }
+  catch (e) { toast(`stats failed: ${e.message}`, 'err'); return; }
+  for (const c of r.containers || []) {
+    const el = $(`#ds-stat-${CSS.escape(c.site)}`);
+    if (el) el.textContent = `${c.cpu} · ${c.mem} · ${c.pids}p`;
+  }
+  if (!r.containers || !r.containers.length) toast('No running sandboxes');
+}
+
+async function dsStopAll() {
+  if (!confirm('Stop every running dev sandbox?')) return;
+  try {
+    const r = await api('POST', '/api/devsandbox/stop-all');
+    if (r.errors && r.errors.length) toast(`Some sites failed to stop: ${r.errors.map((e) => e.site).join(', ')}`, 'err');
+    else toast(`Stopped ${r.stopped.length} sandbox(es)`);
+    await reloadDevSandbox();
+  } catch (e) { toast(`stop-all failed: ${e.message}`, 'err'); }
+}
+
+async function dsRemoveStopped() {
+  if (!confirm('Remove every non-running dev sandbox container? (site code and claude state are untouched)')) return;
+  try {
+    const r = await api('POST', '/api/devsandbox/remove-stopped');
+    if (r.errors && r.errors.length) toast(`Some containers failed to remove: ${r.errors.map((e) => e.site).join(', ')}`, 'err');
+    else toast(`Removed ${r.removed.length} container(s)`);
+    await reloadDevSandbox();
+  } catch (e) { toast(`remove-stopped failed: ${e.message}`, 'err'); }
+}
+
+async function dsCleanOrphans() {
+  let o;
+  try { o = await api('GET', '/api/devsandbox/orphans'); }
+  catch (e) { toast(`orphan check failed: ${e.message}`, 'err'); return; }
+  if (!o.stalePorts.length && !o.danglingContainers.length) { toast('No orphans found'); return; }
+  const msg = [
+    o.danglingContainers.length ? `Remove ${o.danglingContainers.length} dangling container(s): ${o.danglingContainers.join(', ')}` : null,
+    o.stalePorts.length ? `Prune ${o.stalePorts.length} stale port allocation(s): ${o.stalePorts.join(', ')}` : null,
+  ].filter(Boolean).join('\n');
+  if (!confirm(msg + '\n\nProceed?')) return;
+  try {
+    const r = await api('POST', '/api/devsandbox/orphans/cleanup');
+    if (r.errors && r.errors.length) toast(`Some cleanup steps failed: ${r.errors.map((e) => e.site).join(', ')}`, 'err');
+    else toast('Orphans cleaned up');
+    await reloadDevSandbox();
+  } catch (e) { toast(`cleanup failed: ${e.message}`, 'err'); }
+}
+
+/* ===================== SITE FACTS ===================== */
+// SEO/trust/branding/ads/legal checks + Amazon ASIN health + manual
+// annotations, folded in from the standalone site-tracker tool.
+const SF = { open: new Set() };
+
+function sfCellClass(state) {
+  return state === 'green' ? 'r-fresh' : state === 'yellow' ? 'r-overdue' : 'r-paused';
+}
+
+async function renderSiteFacts() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading site facts…</div>';
+  let d;
+  try { d = await api('GET', '/api/sitefacts'); }
+  catch (e) { app.innerHTML = `<div class="empty">Site facts failed: ${esc(e.message)}</div>`; return; }
+
+  const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never (first sweep is still running — hourly checks, give it a minute)';
+
+  const body = d.rows.map((row) => {
+    const cells = d.families.map((fam) => `<td><span class="rdot ${sfCellClass(row.cells[fam])}" title="${esc(fam)}: ${esc(row.cells[fam])}"></span></td>`).join('');
+    const open = SF.open.has(row.site);
+    return `<tr data-fleet-row data-site="${esc(row.site)}">
+      <td class="site"><a href="#" class="sf-open" data-site="${esc(row.site)}">${esc(row.site)}</a></td>
+      ${cells}
+    </tr>
+    <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="sf:${esc(row.site)}" data-rk="sf:${esc(row.site)}"><td colspan="${d.families.length + 1}">
+      <div id="sf-panel-${esc(row.site)}"></div>
+    </td></tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Site Facts</h2><span class="muted">SEO/trust/branding/ads/legal presence checks + Amazon ASIN health — swept hourly, ${d.rows.length} sites</span></div>
+    <div class="task-toolbar"><span class="muted">last swept ${esc(swept)}</span></div>
+    <div class="card"><table class="sf-table">
+      <thead><tr><th>Site</th>${d.families.map((f) => `<th>${esc(f)}</th>`).join('')}</tr></thead>
+      <tbody>${body || '<tr><td colspan="99" class="muted">No sites found.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Click a site name for the fact-by-fact breakdown, Amazon ASIN health, and manual annotations. Green = present, gray dot = not yet checked, amber-ish = missing (never a hard "red" — these are presence checks, not outages).</p>`;
+
+  $$('.sf-open').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); sfToggle(a.dataset.site); }));
+  for (const site of SF.open) sfRenderPanel(site);
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
+function reloadSiteFacts() { FRESH = false; UISNAP = captureUI(); return renderSiteFacts(); }
+
+function sfToggle(site) {
+  const row = $(`tr[data-detail="sf:${CSS.escape(site)}"]`);
+  if (SF.open.has(site)) { SF.open.delete(site); row.classList.add('hidden'); return; }
+  SF.open.add(site);
+  row.classList.remove('hidden');
+  sfRenderPanel(site);
+}
+
+async function sfRenderPanel(site) {
+  const el = $(`#sf-panel-${CSS.escape(site)}`);
+  if (!el) return;
+  el.innerHTML = '<span class="muted">loading…</span>';
+  let d;
+  try { d = await api('GET', `/api/sitefacts/${encodeURIComponent(site)}`); }
+  catch (e) { el.innerHTML = `<span class="muted">failed: ${esc(e.message)}</span>`; return; }
+
+  const factRows = d.rows.map((r) => `<tr>
+    <td class="mono muted">${esc(r.key)}</td>
+    <td>${esc(r.describe)}</td>
+    <td>${r.value === true ? '<span class="badge b-green">yes</span>' : r.value === false ? '<span class="badge b-red">no</span>' : '<span class="badge b-gray">unknown</span>'}</td>
+  </tr>`).join('');
+
+  const tlsRow = d.tlsExpiryDays != null
+    ? `<span class="${d.tlsExpiryDays < 7 ? 'flag' : d.tlsExpiryDays < 30 ? 'warn' : ''}">${d.tlsExpiryDays}d</span>`
+    : '<span class="muted">unknown</span>';
+
+  const amz = d.amz || {};
+  const amzLine = amz.asin_count != null
+    ? `${amz.asin_count} ASINs · ${amz.oos_count ?? 0} OOS · ${amz.delisted_count ?? 0} delisted · last scan ${esc(amz.last_scan || '—')}`
+    : '<span class="muted">no amz-stats data for this site</span>';
+
+  const manualRows = Object.entries(d.manual || {}).map(([k, v]) => `<tr>
+    <td class="mono muted">${esc(k)}</td>
+    <td id="sf-manual-${esc(site)}-${esc(k)}">${esc(v.value)}</td>
+    <td class="mono muted">${esc(v.setAt || '—')}</td>
+    <td><button class="btn sm danger sf-manual-del" data-site="${esc(site)}" data-key="${esc(k)}">delete</button></td>
+  </tr>`).join('');
+
+  el.innerHTML = `
+    <div class="cn-log-toolbar muted"><span>checked ${d.checkedAt ? fmtAge((Date.now() - d.checkedAt) / 1000) + ' ago' : 'never yet'} · TLS expiry: ${tlsRow}</span></div>
+    <table class="sf-detail-table"><tbody>${factRows}</tbody></table>
+    <div class="section-title" style="margin-top:12px">Amazon affiliate health</div>
+    <p class="muted">${amzLine}</p>
+    <div class="section-title" style="margin-top:12px">Manual annotations</div>
+    <table class="sf-detail-table"><tbody>${manualRows || '<tr><td colspan="4" class="muted">none yet</td></tr>'}</tbody></table>
+    <form class="sf-manual-form" data-site="${esc(site)}" style="margin-top:8px;display:flex;gap:6px">
+      <input type="text" class="cm-input sf-manual-key" placeholder="key (e.g. adsense_status)" pattern="[-a-zA-Z0-9._]+" required />
+      <input type="text" class="cm-input sf-manual-value" placeholder="value" maxlength="500" required />
+      <button type="submit" class="btn sm primary">add / update</button>
+    </form>`;
+
+  $$(`.sf-manual-del[data-site="${CSS.escape(site)}"]`).forEach((b) => b.addEventListener('click', () => sfDeleteManual(site, b.dataset.key)));
+  el.querySelector('.sf-manual-form')?.addEventListener('submit', (e) => { e.preventDefault(); sfSetManual(site, el); });
+}
+
+async function sfSetManual(site, panelEl) {
+  const key = panelEl.querySelector('.sf-manual-key').value.trim();
+  const value = panelEl.querySelector('.sf-manual-value').value.trim();
+  try {
+    await api('POST', `/api/sitefacts/${encodeURIComponent(site)}/manual/${encodeURIComponent(key)}`, { value });
+    toast(`Set manual.${key} for ${site}`);
+    await sfRenderPanel(site);
+  } catch (e) { toast(`Save failed: ${e.message}`, 'err'); }
+}
+async function sfDeleteManual(site, key) {
+  if (!confirm(`Delete manual.${key} for ${site}?`)) return;
+  try {
+    await api('DELETE', `/api/sitefacts/${encodeURIComponent(site)}/manual/${encodeURIComponent(key)}`);
+    toast(`Deleted manual.${key}`);
+    await sfRenderPanel(site);
+  } catch (e) { toast(`Delete failed: ${e.message}`, 'err'); }
+}
+
 const gitCls = (k) => k === 'untracked' ? 'unt' : k.includes('staged') ? 'stg' : k === 'deleted' || k === 'D' ? 'del' : 'mod';
 
 async function toggleGitDetail(slug) {
@@ -2595,7 +2902,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -2657,6 +2964,8 @@ function render() {
   else if (STATE.view === 'analytics') renderAnalytics();
   else if (STATE.view === 'deploys') renderDeployHealth();
   else if (STATE.view === 'activity') renderActivity();
+  else if (STATE.view === 'devsandbox') renderDevSandbox();
+  else if (STATE.view === 'sitefacts') renderSiteFacts();
 }
 
 function renderAgent(role) {

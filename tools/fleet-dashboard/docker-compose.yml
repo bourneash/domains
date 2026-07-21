@@ -52,6 +52,15 @@ services:
       # elsewhere in this compose file for path-matching — so this must be
       # mounted at /root/.ssh specifically, not at $HOME/.ssh.
       - ${HOME:-/home/jesse}/.ssh:/root/.ssh:ro
+      # Dev Sandboxes tab (folded in from the standalone domain-developer
+      # tool): spawned per-site worker containers get their Claude project
+      # dir bind-mounted RW here so per-site memory/transcripts land on the
+      # host, and share plugins/commands/hooks/skills/settings from the
+      # operator's own ~/.claude RO. This panel's OWN process only needs
+      # existsSync on these before deciding what to pass through to workers
+      # — same posture domain-developer's panel had, just relocated.
+      - ${HOME:-/home/jesse}/.claude/projects:${HOME:-/home/jesse}/.claude/projects
+      - ${HOME:-/home/jesse}/.claude:${HOME:-/home/jesse}/.claude:ro
     working_dir: ${HOME:-/home/jesse}/projects/domains/tools/fleet-dashboard
 
 networks:

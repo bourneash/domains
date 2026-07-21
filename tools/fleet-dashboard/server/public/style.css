@@ -357,6 +357,13 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .loading { color: var(--muted); padding: 30px; text-align: center; }
 .section-title { font-size: 13px; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
 .flag { color: var(--red); font-weight: 600; }
+.alert {
+  background: rgba(248,81,73,.1); border: 1px solid var(--red); color: var(--fg);
+  border-radius: 6px; padding: 10px 14px; font-size: 13px;
+}
+
+/* ============================== DEV SANDBOXES (ds-*) ============================== */
+.ds-frame { width: 100%; height: 480px; border: 1px solid var(--border); border-radius: 6px; background: #000; }
 
 /* ============================== CRON (cm-*) ============================== */
 .cm-st { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 4px 0 2px; vertical-align: middle; }
