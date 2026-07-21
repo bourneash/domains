@@ -21,10 +21,7 @@ sites:
     - legal
     - branding
     - manual
-    manual:
-      ops_verify_probe:
-        value: verify-ok
-        set_at: '2026-07-21T20:02:55Z'
+    manual: {}
   0xroulette.com:
     active: true
     cf_zone: 0xroulette.com
