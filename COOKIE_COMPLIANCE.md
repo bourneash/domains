@@ -47,7 +47,7 @@ Last updated: 2026-06-20
 | **noveltyguns.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **nsfwpixels.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **onlysexyteens.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **oventoheaven.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
+| **oventoheaven.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Launched 2026-07; affiliate (Amazon Associates oventoheaven-20); GA4 G-RY7R673EL5 (property 546574620) wired + consent-gated (oth_cookie_consent) 2026-07-21; privacy/terms rewritten from pre-launch placeholder text |
 | **pervypotion.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **pokererotic.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
 | **rodhat.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
@@ -85,6 +85,7 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 0xroulette.com | G-KQH7L26D95 | 542247993 | ✅ Yes | ✅ 14 months |
 | broadwayshowgirls.com | G-SKQPE8V8JB | 542413111 | ✅ Yes | ✅ 14 months |
 | saveusfarms.com | G-GDYX2GPMMJ | 542493246 | ✅ Yes | ✅ 14 months |
+| oventoheaven.com | G-RY7R673EL5 | 546574620 | ✅ Yes | ✅ 14 months |
 
 **Note:** Duplicate shoptopless.com property (539897281) confirmed inactive and moved to GA4 Trash 2026-06-07. Active property is 539755746 (receiving traffic, G-SZFER7KX15).
 
@@ -105,6 +106,7 @@ Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied:
 | 2026-06-06 | 30 coming-soon sites | Added privacy.astro + terms.astro + footer legal links to all |
 | 2026-06-07 | deeppenetrations.com | Added GA4 (G-LXCYBEFKC1), CookieBanner, gated GA, updated privacy policy |
 | 2026-06-07 | ALL 13 GA4 properties | GA4 admin audit: event data retention → 14 months, Google Signals = OFF confirmed, Consent settings = Good. Property IDs recorded. |
+| 2026-07-21 | oventoheaven.com | GA4 property created (G-RY7R673EL5, property 546574620), 14mo retention set, Google Signals confirmed OFF; added CookieBanner + consent-gated Analytics.astro; rewrote privacy.astro/terms.astro off stale "pre-launch placeholder" text now that the site has real content, affiliate links, and analytics; fleet-smoke ops/smoke.yaml already existed, added /go/ affiliate-redirect checks |
 | 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
 | 2026-06-19 | 0xroulette.com | Created GA4 property (G-KQH7L26D95 / 542247993), Eastern TZ, USD, 14mo retention (both), Google Signals OFF. React SPA: consent-gated GA4 (key `0xr_analytics_consent`), CookieBanner, privacy/terms/disclosure pages. |
 | 2026-06-20 | broadwayshowgirls.com | Site launched. Updated from Coming Soon to LIVE. Disclosure ✅ (broadwayshowgirls-20 affiliate), CookieBanner ✅ consent-gated reject-by-default, GA4 gated + dormant (placeholder ID — real property pending login-handoff). |
