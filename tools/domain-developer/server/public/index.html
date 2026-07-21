@@ -105,6 +105,7 @@
   .brand-name { font-family: var(--font-ui); font-weight: 700; font-size: 14px; letter-spacing: -0.2px; color: var(--fg); }
   .brand-name .sep { color: var(--accent); }
   .brand-sub { font-size: 9.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--dim); font-family: var(--font-ui); font-weight: 500; margin-top: 2px; }
+  .badge-auth { margin-top: 8px; font-size: 9.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--dim); font-family: var(--font-ui); font-weight: 600; border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; text-align: center; cursor: help; }
 
   .side-filter-row { display: flex; gap: 7px; }
   .search { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
@@ -159,6 +160,21 @@
     padding: 10px 16px; border-top: 1px solid var(--border); color: var(--dim);
     font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-ui); font-weight: 500;
   }
+  .side-fleet-actions {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 10px;
+  }
+  .side-fleet-actions button {
+    flex: 1 1 auto; font-size: 10.5px; padding: 5px 6px; white-space: nowrap;
+    background: var(--bg-3); color: var(--fg-2); border: 1px solid var(--border); border-radius: var(--radius);
+    font-weight: 500; transition: background .14s, border-color .14s, color .14s;
+  }
+  .side-fleet-actions button:hover { border-color: var(--border-3); color: var(--fg); background: var(--bg-4); }
+  .side-fleet-stats {
+    padding: 0 16px 10px; font-family: var(--font-mono); font-size: 10.5px; color: var(--dim);
+    max-height: 160px; overflow: auto;
+  }
+  .side-fleet-stats .row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
+  .side-fleet-stats .row span:first-child { color: var(--fg); }
 
   /* ── main pane ─────────────────────────────────────────────────────── */
   .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg-0); }
@@ -316,6 +332,9 @@
           <span class="brand-sub">container control plane</span>
         </span>
       </div>
+      <div class="badge-auth" title="No login is required — this panel is intentionally reachable only from the host machine (127.0.0.1). Do not expose it beyond localhost without adding auth.">
+        unauthenticated · loopback only
+      </div>
       <div class="side-filter-row">
         <div class="search">
           <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -328,6 +347,13 @@
     </div>
     <div class="side-list boot" id="side-list"></div>
     <div class="side-foot" id="side-foot">loading…</div>
+    <div class="side-fleet-actions">
+      <button id="fleet-stats-btn" class="" title="Poll live CPU/mem for all running sandboxes">📊 Stats</button>
+      <button id="fleet-stop-all-btn" class="" title="Stop every running sandbox container">⏹ Stop all</button>
+      <button id="fleet-remove-stopped-btn" class="" title="Remove every non-running dd-* container">🧹 Remove stopped</button>
+      <button id="fleet-clean-orphans-btn" class="" title="Remove dangling containers + stale port allocations for sites that no longer exist">🗑 Clean orphans</button>
+    </div>
+    <div class="side-fleet-stats" id="side-fleet-stats"></div>
   </aside>
 
   <section class="main">
@@ -431,6 +457,13 @@ async function refresh() {
 function renderWarn() {
   const w = $('#warn');
   w.textContent = '';
+  if (state.health.dockerAvailable === false) {
+    const alert = document.createElement('div');
+    alert.className = 'alert';
+    alert.textContent = 'Docker daemon unreachable — every site below shows "absent" because the panel cannot query container state, not because containers were removed. Start is disabled until Docker is back.';
+    w.appendChild(alert);
+    return;
+  }
   if (state.health.imageBuilt) return;
   const alert = document.createElement('div');
   alert.className = 'alert';
@@ -559,6 +592,8 @@ function renderToolbar() {
       sep(),
       btn('Live Site', { onclick: () => openTab('live', s), title: `Iframe https://${s.name}` }),
       btn('Repo ↗', { onclick: () => window.open(s.repoUrl, '_blank', 'noopener'), title: s.repoUrl }),
+      btn('Fleet ↗', { onclick: () => window.open(s.fleetDashboardUrl, '_blank', 'noopener'), title: 'Open Fleet Dashboard control plane' }),
+      btn('Tracker ↗', { onclick: () => window.open(s.siteTrackerUrl, '_blank', 'noopener'), title: `Open ${s.name} in Site Tracker` }),
       sep(),
       btn('Stop', { onclick: () => containerAction(s.name, 'stop') }),
       btn('Remove', { danger: true, onclick: () => {
@@ -568,9 +603,11 @@ function renderToolbar() {
     );
   } else {
     tb.append(
-      btn('Start container', { primary: true, onclick: async () => {
-        await containerAction(s.name, 'start');
-      }}),
+      btn('Start container', { primary: true, disabled: state.health.dockerAvailable === false,
+        title: state.health.dockerAvailable === false ? 'Docker daemon unreachable' : undefined,
+        onclick: async () => {
+          await containerAction(s.name, 'start');
+        }}),
     );
   }
 }
@@ -802,6 +839,7 @@ function renderTabs() {
             pre.textContent = text;
             if (atBottom) pre.scrollTop = pre.scrollHeight;
           } catch {}
+          if (!document.body.contains(pane)) return;  // detached while fetch was in flight → stop
           setTimeout(tick, 2000);
         };
         tick();
@@ -862,6 +900,48 @@ $('#sort-btn').addEventListener('click', () => {
   persist();
   renderSidebar();
 });
+// ── fleet-wide bulk actions (F7) + orphan cleanup (F8) + resource stats (F2) ──
+async function renderFleetStats() {
+  const box = $('#side-fleet-stats');
+  box.textContent = 'loading…';
+  const r = await api('/api/stats');
+  if (!r.ok) { box.textContent = r.error || 'docker stats failed'; return; }
+  if (!r.containers.length) { box.textContent = 'no running sandboxes'; return; }
+  box.textContent = '';
+  for (const c of r.containers) {
+    const row = document.createElement('div'); row.className = 'row';
+    const name = document.createElement('span'); name.textContent = c.site;
+    const val = document.createElement('span'); val.textContent = `${c.cpu} · ${c.mem} · ${c.pids}p`;
+    row.append(name, val);
+    box.appendChild(row);
+  }
+}
+$('#fleet-stats-btn').addEventListener('click', renderFleetStats);
+$('#fleet-stop-all-btn').addEventListener('click', async () => {
+  if (!confirm('Stop every running sandbox container?')) return;
+  const r = await api('/api/sites/stop-all', { method: 'POST' });
+  if (r.errors && r.errors.length) alert('Some sites failed to stop:\n' + r.errors.map(e => `${e.site}: ${e.error}`).join('\n'));
+  await refresh();
+});
+$('#fleet-remove-stopped-btn').addEventListener('click', async () => {
+  if (!confirm('Remove every non-running dd-* container? (site code and claude state are untouched)')) return;
+  const r = await api('/api/sites/remove-stopped', { method: 'POST' });
+  if (r.errors && r.errors.length) alert('Some containers failed to remove:\n' + r.errors.map(e => `${e.site}: ${e.error}`).join('\n'));
+  await refresh();
+});
+$('#fleet-clean-orphans-btn').addEventListener('click', async () => {
+  const o = await api('/api/orphans');
+  if (!o.stalePorts.length && !o.danglingContainers.length) { alert('No orphans found.'); return; }
+  const msg = [
+    o.danglingContainers.length ? `Remove ${o.danglingContainers.length} dangling container(s): ${o.danglingContainers.join(', ')}` : null,
+    o.stalePorts.length ? `Prune ${o.stalePorts.length} stale port allocation(s): ${o.stalePorts.join(', ')}` : null,
+  ].filter(Boolean).join('\n');
+  if (!confirm(msg + '\n\nProceed?')) return;
+  const r = await api('/api/orphans/cleanup', { method: 'POST' });
+  if (r.errors && r.errors.length) alert('Some cleanup steps failed:\n' + r.errors.map(e => `${e.site}: ${e.error}`).join('\n'));
+  await refresh();
+});
+
 setInterval(async () => {
   // Light refresh: pull sites only, don't re-mount iframes
   const s = await api('/api/sites');

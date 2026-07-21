@@ -43,10 +43,21 @@ const PANEL_HOST = process.env.DD_PANEL_HOST || '127.0.0.1';
 // PANEL_PUBLIC_HOST is what we tell the BROWSER to connect to — always
 // host loopback, even when the panel binds 0.0.0.0 inside its container.
 const PANEL_PUBLIC_HOST = process.env.DD_PANEL_PUBLIC_HOST || '127.0.0.1';
+// Per-container resource caps — one runaway dev-server/build in a sandbox
+// shouldn't be able to starve the host or every other running container.
+const DD_MEMORY_LIMIT = process.env.DD_MEMORY_LIMIT || '4g';
+const DD_CPUS_LIMIT = process.env.DD_CPUS_LIMIT || '2';
+const DD_PIDS_LIMIT = parseInt(process.env.DD_PIDS_LIMIT || '512', 10);
 
 // ───────────────────────── helpers ─────────────────────────
 
-const safeSiteName = (s) => /^[a-zA-Z0-9._-]+$/.test(s);
+function safeSiteName(s) {
+    if (typeof s !== 'string' || s === '' || s === '.' || s === '..') return false;
+    if (!/^[a-zA-Z0-9._-]+$/.test(s)) return false;
+    // Defense-in-depth: even a regex-legal name must resolve inside SITES_DIR.
+    const resolved = path.resolve(SITES_DIR, s);
+    return resolved === path.join(SITES_DIR, s) && resolved.startsWith(SITES_DIR + path.sep);
+}
 const containerName = (site) => `dd-${site}`;
 
 function loadState() {
@@ -65,6 +76,25 @@ function loadState() {
     return s;
 }
 function saveState(s) { fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2)); }
+
+// Port allocations and dd-* containers for sites whose directory no longer
+// exists accumulate forever with no cleanup path otherwise.
+function findOrphans() {
+    const sites = new Set(listSites());
+    const state = loadState();
+    const stalePorts = Object.keys(state.ports || {}).filter(s => !sites.has(s));
+    const danglingContainers = Object.keys(listDdContainers()).filter(s => !sites.has(s));
+    return { stalePorts, danglingContainers };
+}
+
+function pruneStaleState() {
+    const { stalePorts } = findOrphans();
+    if (!stalePorts.length) return stalePorts;
+    const state = loadState();
+    for (const s of stalePorts) delete state.ports[s];
+    saveState(state);
+    return stalePorts;
+}
 
 function allocPorts(site) {
     const state = loadState();
@@ -93,6 +123,12 @@ function allocPorts(site) {
 function docker(args, opts = {}) {
     const r = spawnSync('docker', args, { encoding: 'utf8', ...opts });
     return { code: r.status ?? -1, stdout: r.stdout || '', stderr: r.stderr || '' };
+}
+
+// Distinguishes "Docker daemon unreachable" from "container doesn't exist" so
+// callers don't misread a dead daemon as every site being absent.
+function dockerAvailable() {
+    return docker(['version', '--format', '{{.Server.Version}}']).code === 0;
 }
 
 function listSites() {
@@ -170,6 +206,8 @@ function siteRow(name, containerMap, statePorts) {
         devUrl:  devPort  ? `http://${PANEL_PUBLIC_HOST}:${devPort}/`  : null,
         liveUrl: `https://${name}/`,
         repoUrl: `https://github.com/bourneash/${name}`,
+        fleetDashboardUrl: `http://localhost:4754/#control`,
+        siteTrackerUrl: `http://localhost:4742/site/${encodeURIComponent(name)}`,
     };
 }
 
@@ -234,6 +272,9 @@ function startContainer(site) {
         '--hostname', `dd-${site}`,
         '--restart', 'unless-stopped',
         '--stop-timeout', '30',
+        '--memory', DD_MEMORY_LIMIT,
+        '--cpus', DD_CPUS_LIMIT,
+        '--pids-limit', String(DD_PIDS_LIMIT),
         '--workdir', hostSiteDir,
         '-p', `127.0.0.1:${ttydPort}:7681`,
         // Dev-server port (Astro default 4321) → host-allocated port,
@@ -306,6 +347,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api/health', (req, res) => {
     res.json({
         ok: true,
+        dockerAvailable: dockerAvailable(),
         imageBuilt: imageExists(),
         sitesDir: SITES_DIR,
         hostHome: HOST_HOME,
@@ -417,6 +459,62 @@ app.post('/api/sites/:site/remove', (req, res) => {
         res.status(400).json({ ok: false, error: e.message });
     }
 });
+
+// Live CPU/mem per running dd-* container, for the resource dashboard (F2).
+// docker stats --no-stream blocks ~1s per call; fine for on-demand polling,
+// not for the main 5s /api/sites tick.
+app.get('/api/stats', (req, res) => {
+    const r = docker(['stats', '--no-stream', '--format', '{{.Name}}\x01{{.CPUPerc}}\x01{{.MemUsage}}\x01{{.PIDs}}']);
+    if (r.code !== 0) return res.json({ ok: false, error: r.stderr.trim() || 'docker stats failed', containers: [] });
+    const containers = r.stdout.split('\n').filter(Boolean).map(line => {
+        const [name, cpu, mem, pids] = line.split('\x01');
+        return { site: (name || '').replace(/^dd-/, ''), cpu: cpu || '', mem: mem || '', pids: pids || '' };
+    }).filter(c => c.site);
+    res.json({ ok: true, containers });
+});
+
+app.post('/api/sites/stop-all', (req, res) => {
+    const running = Object.entries(listDdContainers()).filter(([, c]) => c.state === 'running').map(([s]) => s);
+    const stopped = [];
+    const errors = [];
+    for (const site of running) {
+        const r = stopContainer(site);
+        if (r.code === 0) stopped.push(site);
+        else errors.push({ site, error: r.stderr.trim() });
+    }
+    res.json({ ok: errors.length === 0, stopped, errors });
+});
+
+app.post('/api/sites/remove-stopped', (req, res) => {
+    const notRunning = Object.entries(listDdContainers()).filter(([, c]) => c.state !== 'running').map(([s]) => s);
+    const removed = [];
+    const errors = [];
+    for (const site of notRunning) {
+        const r = removeContainer(site);
+        if (r.code === 0) removed.push(site);
+        else errors.push({ site, error: r.stderr.trim() });
+    }
+    res.json({ ok: errors.length === 0, removed, errors });
+});
+
+app.get('/api/orphans', (req, res) => {
+    res.json(findOrphans());
+});
+
+app.post('/api/orphans/cleanup', (req, res) => {
+    const { stalePorts, danglingContainers } = findOrphans();
+    const removed = [];
+    const errors = [];
+    for (const site of danglingContainers) {
+        const r = docker(['rm', '-f', containerName(site)]);
+        if (r.code === 0) removed.push(site);
+        else errors.push({ site, error: r.stderr.trim() });
+    }
+    const prunedPorts = pruneStaleState();
+    res.json({ ok: errors.length === 0, removedContainers: removed, prunedPorts, errors });
+});
+
+pruneStaleState();
 
 app.listen(PANEL_PORT, PANEL_HOST, () => {
     console.log(`domain-developer panel:  http://${PANEL_HOST}:${PANEL_PORT}/`);
