@@ -2,6 +2,10 @@
 {% block breadcrumbs %}<a href="/">matrix</a> <span class="bc-sep">›</span> {{ site }}{% endblock %}
 {% block body %}
 <h2>{{ site }}</h2>
+<p class="site-links">
+  <a href="/site/{{ site }}/history">history / audit trail</a> ·
+  <a href="http://localhost:7777/?site={{ site }}" title="Open this site in domain-developer">domain-developer ↗</a>
+</p>
 
 <h3>Auto-detected facts</h3>
 <table>

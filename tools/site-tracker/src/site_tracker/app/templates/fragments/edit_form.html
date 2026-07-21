@@ -7,7 +7,13 @@
     {% if key == "manual.new" %}
       <input type="text" name="key" placeholder="key (e.g. adsense_status)" required>
     {% endif %}
-    <input type="text" name="value" value="{{ current }}" autofocus required>
+    <input type="text" name="value" value="{{ current }}" maxlength="500" autofocus required>
     <button type="submit">save</button>
   </form>
+  {% if key != "manual.new" %}
+  <button type="button" class="delete-btn"
+          hx-delete="/site/{{ site }}/edit/{{ key }}"
+          hx-target="closest tr" hx-swap="outerHTML"
+          hx-confirm="Delete {{ key }} for {{ site }}?">delete</button>
+  {% endif %}
 </td>

@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block body %}
-<table>
+<div class="matrix-controls">
+  <input type="text" id="site-filter" class="matrix-filter-input"
+         placeholder="filter by site name…" oninput="siteTrackerFilterMatrix()">
+  <label class="matrix-toggle">
+    <input type="checkbox" id="only-issues" onchange="siteTrackerFilterMatrix()">
+    only red/stale
+  </label>
+  <span id="matrix-filter-count" class="matrix-filter-count"></span>
+</div>
+<div class="table-scroll">
+<table id="matrix-table">
   <thead>
     <tr>
       <th class="site">site</th>
@@ -9,7 +19,8 @@
   </thead>
   <tbody>
     {% for row in rows %}
-    <tr>
+    <tr data-site="{{ row.site | lower }}"
+        data-states="{% for fam in families %}{{ row.cells[fam].state }}{% if not loop.last %},{% endif %}{% endfor %}">
       <td class="site"><a href="/site/{{ row.site }}">{{ row.site }}</a></td>
       {% for fam in families %}
         {% set cell = row.cells[fam] %}
@@ -21,4 +32,29 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+<script>
+function siteTrackerFilterMatrix() {
+  var q = document.getElementById('site-filter').value.trim().toLowerCase();
+  var onlyIssues = document.getElementById('only-issues').checked;
+  var rows = document.querySelectorAll('#matrix-table tbody tr');
+  var shown = 0;
+  rows.forEach(function (tr) {
+    var site = tr.getAttribute('data-site') || '';
+    var matchesText = !q || site.indexOf(q) !== -1;
+    var matchesIssues = true;
+    if (onlyIssues) {
+      var states = (tr.getAttribute('data-states') || '').split(',');
+      matchesIssues = states.some(function (s) {
+        return s && s !== 'green' && s !== 'n_a';
+      });
+    }
+    var visible = matchesText && matchesIssues;
+    tr.style.display = visible ? '' : 'none';
+    if (visible) shown++;
+  });
+  var countEl = document.getElementById('matrix-filter-count');
+  countEl.textContent = (q || onlyIssues) ? (shown + ' / ' + rows.length + ' sites') : '';
+}
+</script>
 {% endblock %}

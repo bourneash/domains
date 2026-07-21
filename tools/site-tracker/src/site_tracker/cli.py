@@ -80,10 +80,13 @@ def _run_collector(name: str, reg: registry.Registry, db_path: Path) -> int:
     conn = store.connect(db_path)
     try:
         click.echo(f"[{name}] start")
+        store.start_collector_run(conn, name)
         mod.run(reg, conn)
+        store.finish_collector_run(conn, name, ok=True, error=None)
         click.echo(f"[{name}] done")
         return 0
     except Exception as e:
+        store.finish_collector_run(conn, name, ok=False, error=str(e))
         click.echo(f"[{name}] FAILED: {e}", err=True)
         return 1
     finally:

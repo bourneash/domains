@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}<a href="/">matrix</a> <span class="bc-sep">›</span> bulk edit{% endblock %}
+{% block body %}
+<h2>Bulk edit a manual fact</h2>
+<p class="muted">
+  Set the same <code>manual.&lt;key&gt;</code> value across every checked site in a
+  single git commit.
+</p>
+
+{% if result %}
+<div class="bulk-result">
+  Set <code>manual.{{ result.key }}</code> = <code>{{ result.value }}</code>
+  for {{ result.sites | length }} site(s): {{ result.sites | join(', ') }}
+</div>
+{% endif %}
+
+<form method="post" action="/bulk-edit">
+  <div class="bulk-fields">
+    <label>
+      key
+      <input type="text" name="key" placeholder="e.g. adsense_status" maxlength="200" required>
+    </label>
+    <label>
+      value
+      <input type="text" name="value" placeholder="e.g. approved" maxlength="500" required>
+    </label>
+    <button type="submit">apply to selected sites</button>
+  </div>
+
+  <table class="bulk-sites">
+    <thead><tr><th></th><th>site</th></tr></thead>
+    <tbody>
+      {% for s in sites %}
+      <tr>
+        <td><input type="checkbox" name="sites" value="{{ s }}"></td>
+        <td class="site">{{ s }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
+{% endblock %}

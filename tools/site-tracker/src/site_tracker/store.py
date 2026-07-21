@@ -36,6 +36,14 @@ CREATE TABLE IF NOT EXISTS audit (
   source      TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS audit_site_key ON audit(site, key, ts);
+
+CREATE TABLE IF NOT EXISTS collector_runs (
+  name          TEXT NOT NULL PRIMARY KEY,
+  started_at    TEXT NOT NULL,
+  finished_at   TEXT,
+  status        TEXT NOT NULL,
+  error         TEXT
+);
 """
 
 
@@ -130,3 +138,92 @@ def get_site_facts(conn: sqlite3.Connection, site: str) -> dict[str, dict[str, A
 
 def all_sites(conn: sqlite3.Connection) -> list[str]:
     return [r[0] for r in conn.execute("SELECT DISTINCT site FROM facts ORDER BY site").fetchall()]
+
+
+def delete_fact(conn: sqlite3.Connection, *, site: str, key: str, source: str) -> None:
+    """Remove a fact row and record the deletion in the audit log
+    (old_value -> new_value=NULL)."""
+    ts = _now_iso()
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        existing = conn.execute(
+            "SELECT value FROM facts WHERE site=? AND key=?", (site, key)
+        ).fetchone()
+        if existing is not None:
+            conn.execute(
+                "INSERT INTO audit(ts, site, key, old_value, new_value, source) "
+                "VALUES (?,?,?,?,?,?)",
+                (ts, site, key, existing[0], None, source),
+            )
+            conn.execute("DELETE FROM facts WHERE site=? AND key=?", (site, key))
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+
+
+def get_audit_for_site(conn: sqlite3.Connection, site: str) -> list[dict[str, Any]]:
+    """Most-recent-first audit trail for a site."""
+    rows = conn.execute(
+        "SELECT ts, key, old_value, new_value, source FROM audit "
+        "WHERE site=? ORDER BY ts DESC, rowid DESC",
+        (site,),
+    ).fetchall()
+    out = []
+    for ts, key, old, new, source in rows:
+        out.append({
+            "ts": ts,
+            "key": key,
+            "old_value": _decode_audit_value(old),
+            "new_value": _decode_audit_value(new),
+            "source": source,
+        })
+    return out
+
+
+def _decode_audit_value(raw: str | None) -> Any:
+    if raw is None:
+        return None
+    try:
+        return json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return raw
+
+
+# ── Collector last-run tracking (debounce + /collectors last-run display) ──
+
+def start_collector_run(conn: sqlite3.Connection, name: str) -> None:
+    conn.execute(
+        "INSERT INTO collector_runs(name, started_at, finished_at, status, error) "
+        "VALUES (?,?,?,?,?) "
+        "ON CONFLICT(name) DO UPDATE SET "
+        "  started_at=excluded.started_at, finished_at=NULL, status='running', error=NULL",
+        (name, _now_iso(), None, "running", None),
+    )
+
+
+def finish_collector_run(conn: sqlite3.Connection, name: str, *, ok: bool, error: str | None) -> None:
+    conn.execute(
+        "UPDATE collector_runs SET finished_at=?, status=?, error=? WHERE name=?",
+        (_now_iso(), "ok" if ok else "error", error, name),
+    )
+
+
+def get_collector_run(conn: sqlite3.Connection, name: str) -> dict[str, Any] | None:
+    row = conn.execute(
+        "SELECT started_at, finished_at, status, error FROM collector_runs WHERE name=?",
+        (name,),
+    ).fetchone()
+    if row is None:
+        return None
+    return {"started_at": row[0], "finished_at": row[1], "status": row[2], "error": row[3]}
+
+
+def all_collector_runs(conn: sqlite3.Connection) -> dict[str, dict[str, Any]]:
+    rows = conn.execute(
+        "SELECT name, started_at, finished_at, status, error FROM collector_runs"
+    ).fetchall()
+    return {
+        r[0]: {"started_at": r[1], "finished_at": r[2], "status": r[3], "error": r[4]}
+        for r in rows
+    }

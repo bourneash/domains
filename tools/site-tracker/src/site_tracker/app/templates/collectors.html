@@ -3,11 +3,24 @@
 {% block body %}
 <h2>Collectors</h2>
 <table>
-  <thead><tr><th>name</th><th>action</th></tr></thead>
+  <thead><tr><th>name</th><th>last run</th><th>status</th><th>action</th></tr></thead>
   <tbody>
     {% for c in collectors %}
+    {% set r = runs.get(c) %}
     <tr>
       <td class="site">{{ c }}</td>
+      <td>{{ r.started_at if r else '—' }}</td>
+      <td>
+        {% if not r %}
+          <span class="cell unknown">never run</span>
+        {% elif r.status == 'running' %}
+          <span class="cell yellow">running…</span>
+        {% elif r.status == 'ok' %}
+          <span class="cell green">ok{% if r.finished_at %} ({{ r.finished_at }}){% endif %}</span>
+        {% else %}
+          <span class="cell red" title="{{ r.error or '' }}">error{% if r.error %}: {{ r.error }}{% endif %}</span>
+        {% endif %}
+      </td>
       <td>
         <button hx-post="/collectors/{{ c }}/run" hx-target="this" hx-swap="outerHTML">run</button>
       </td>

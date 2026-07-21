@@ -5,6 +5,20 @@ email when any tracked site's loop has gone silent past the warning or critical
 threshold.  Tracks alert state in data/dms_state.json to suppress repeat
 messages until the condition changes.
 
+Scheduling: already wired into cron via crontab.docker (hourly, minute 5) —
+see `site-tracker dead-man-alert` in cli.py. This module is invoked from
+there; it is not CLI-only.
+
+Slack delivery (optional, additive to the Resend email above): reuses the
+fleet's shared Domain Ops bot pattern from tools/post-notify and
+tools/role-notify — SLACK_BOT_TOKEN (already in the fleet .env) plus a
+SLACK_CHANNEL_SITE_TRACKER env var naming the target channel, following the
+same SLACK_CHANNEL_<NAME> convention those tools use. Neither the token nor
+a channel is invented here: if SLACK_CHANNEL_SITE_TRACKER isn't set, Slack
+delivery silently no-ops (same "silent no-op if unset" contract as
+post-notify/role-notify) and only the Resend email fires. An operator who
+wants Slack alerts for this just needs to add that one line to .env.
+
 State machine per site:
   green    → clear saved state, send recovery email if previously alerted
   yellow   → send WARNING if not already at yellow/red
@@ -32,6 +46,39 @@ CRIT_HOURS = 72    # >3 days → critical
 RESEND_API = "https://api.resend.com/emails"
 FROM_ADDR  = "notifications@reviewtattoo.com"
 TO_ADDR    = "jessetamburino@hotmail.com"
+
+SLACK_POST_URL = "https://slack.com/api/chat.postMessage"
+
+
+def _send_slack(subject: str, body: str) -> bool:
+    """Best-effort Slack post via the shared Domain Ops bot. Silent no-op if
+    SLACK_BOT_TOKEN or SLACK_CHANNEL_SITE_TRACKER aren't set — never raises,
+    mirrors tools/post-notify + tools/role-notify."""
+    token = os.environ.get("SLACK_BOT_TOKEN")
+    channel = os.environ.get("SLACK_CHANNEL_SITE_TRACKER")
+    if not token or not channel:
+        log.debug(
+            "Slack delivery skipped (SLACK_BOT_TOKEN and/or "
+            "SLACK_CHANNEL_SITE_TRACKER unset) — set SLACK_CHANNEL_SITE_TRACKER "
+            "in .env to enable dead-man-alert Slack delivery"
+        )
+        return False
+    try:
+        r = httpx.post(
+            SLACK_POST_URL,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"channel": channel, "text": f"*{subject}*\n```{body}```"},
+            timeout=10,
+        )
+        r.raise_for_status()
+        resp = r.json()
+        if not resp.get("ok"):
+            log.error("slack post failed: %s", resp.get("error"))
+            return False
+        return True
+    except Exception as e:
+        log.error("slack post failed: %s", e)
+        return False
 
 
 # ── Helpers ──────────────────────────────────────────────────────
@@ -145,6 +192,7 @@ def run(db_path: Path, state_path: Path, dry_run: bool = False) -> None:
                 log.info("%s recovered (was %s)", site, prev_sev)
                 if not dry_run:
                     _send_email(api_key, subj, body)
+                    _send_slack(subj, body)
                 else:
                     print(f"DRY-RUN: {subj}")
                 sent += 1
@@ -183,6 +231,7 @@ def run(db_path: Path, state_path: Path, dry_run: bool = False) -> None:
         log.warning("%s %s: %s", level, site, reason)
         if not dry_run:
             _send_email(api_key, subj, body)
+            _send_slack(subj, body)
         else:
             print(f"DRY-RUN: {subj}\n{body}")
         sent += 1

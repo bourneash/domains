@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}<a href="/">matrix</a> <span class="bc-sep">›</span> <a href="/site/{{ site }}">{{ site }}</a> <span class="bc-sep">›</span> history{% endblock %}
+{% block body %}
+<h2>{{ site }} — history</h2>
+<p><a href="/site/{{ site }}">&larr; back to {{ site }}</a></p>
+<table>
+  <thead><tr><th>when</th><th>key</th><th>old value</th><th>new value</th><th>source</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.ts }}</td>
+      <td class="site">{{ r.key }}</td>
+      <td>{{ r.old_value if r.old_value is not none else '—' }}</td>
+      <td>{{ r.new_value if r.new_value is not none else '—' }}</td>
+      <td>{{ r.source }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5"><em>no audit history for this site yet</em></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

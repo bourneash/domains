@@ -1,13 +1,30 @@
 :root {
-  --bg: #0e1116;
-  --fg: #e6edf3;
-  --muted: #8b949e;
-  --grid: #21262d;
-  --green: #3fb950;
-  --yellow: #d29922;
-  --red: #f85149;
-  --unknown: #58626c;
-  --stale: #a371f7;
+  /* Light palette (default). Dark overrides below under prefers-color-scheme. */
+  --bg: #ffffff;
+  --bg-alt: #f6f8fa;
+  --fg: #1f2328;
+  --muted: #656d76;
+  --grid: #d0d7de;
+  --green: #1a7f37;
+  --yellow: #9a6700;
+  --red: #cf222e;
+  --unknown: #6e7781;
+  --stale: #8250df;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1116;
+    --bg-alt: #161b22;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --grid: #21262d;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --unknown: #58626c;
+    --stale: #a371f7;
+  }
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--fg); font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; padding: 0; }
@@ -18,14 +35,14 @@ header nav a { color: var(--muted); margin-left: 1rem; }
 main { padding: 2rem; }
 .breadcrumbs {
   padding: 0.4rem 2rem; font-size: 0.8rem; color: var(--muted);
-  border-bottom: 1px solid var(--grid); background: #0d1117;
+  border-bottom: 1px solid var(--grid); background: var(--bg-alt);
 }
 .breadcrumbs a { color: var(--muted); text-decoration: none; }
 .breadcrumbs a:hover { color: var(--fg); }
 .bc-sep { margin: 0 0.35rem; }
 table { border-collapse: collapse; font-size: 0.85rem; }
 th, td { border: 1px solid var(--grid); padding: 0.4rem 0.6rem; text-align: center; }
-th { background: #161b22; font-weight: 500; }
+th { background: var(--bg-alt); font-weight: 500; }
 td.site { text-align: left; font-weight: 500; }
 .cell { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-weight: 600; cursor: pointer; }
 .cell.green   { background: rgba(63, 185, 80, 0.18);  color: var(--green); }
@@ -34,7 +51,7 @@ td.site { text-align: left; font-weight: 500; }
 .cell.unknown { background: rgba(88, 98, 108, 0.25);  color: var(--unknown); }
 .cell.stale   { background: rgba(163, 113, 247, 0.18); color: var(--stale); }
 .cell.n_a     { color: var(--muted); }
-.edit-form input { background: #0e1116; color: var(--fg); border: 1px solid var(--grid); padding: 0.2rem 0.4rem; }
+.edit-form input { background: var(--bg); color: var(--fg); border: 1px solid var(--grid); padding: 0.2rem 0.4rem; }
 
 /* ── Tasks page — top bar ────────────────────────────────────── */
 .tasks-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
@@ -68,7 +85,7 @@ td.site { text-align: left; font-weight: 500; }
 
 /* ── Filter panel ────────────────────────────────────────────── */
 .filter-panel {
-  background: #0d1117; border: 1px solid var(--grid); border-radius: 6px;
+  background: var(--bg-alt); border: 1px solid var(--grid); border-radius: 6px;
   margin-bottom: 1.25rem;
 }
 .filter-details { }
@@ -132,7 +149,7 @@ details[open] > .filter-summary::before { transform: rotate(90deg); }
 .col-stage { width: 7rem; }
 .col-type, .col-role { font-size: 0.82rem; color: var(--muted); }
 .stage-divider td {
-  background: #161b22; color: var(--muted); font-size: 0.78rem;
+  background: var(--bg-alt); color: var(--muted); font-size: 0.78rem;
   text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.6rem;
   border-top: 2px solid var(--grid);
 }
@@ -155,7 +172,7 @@ details[open] > .filter-summary::before { transform: rotate(90deg); }
 .tree-summary {
   display: flex; align-items: center; gap: 0.75rem;
   padding: 0.55rem 0.75rem; cursor: pointer;
-  background: #161b22; list-style: none; user-select: none;
+  background: var(--bg-alt); list-style: none; user-select: none;
 }
 .tree-summary::-webkit-details-marker { display: none; }
 .tree-summary::before {
@@ -196,3 +213,55 @@ details[open] > .tree-summary::before { transform: rotate(90deg); }
 .tree-title { flex: 1; }
 .tree-role { color: var(--muted); font-size: 0.78rem; min-width: 8rem; text-align: right; flex-shrink: 0; }
 .tree-est  { color: var(--muted); font-size: 0.75rem; min-width: 3.5rem; text-align: right; flex-shrink: 0; }
+
+/* ── Matrix filter controls (F10) ────────────────────────────── */
+.matrix-controls {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.matrix-filter-input {
+  background: var(--bg); color: var(--fg); border: 1px solid var(--grid);
+  border-radius: 4px; padding: 0.3rem 0.6rem; font-size: 0.85rem; min-width: 14rem;
+}
+.matrix-toggle {
+  display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--muted);
+  cursor: pointer; user-select: none;
+}
+.matrix-filter-count { font-size: 0.78rem; color: var(--muted); }
+
+/* ── Horizontal scroll container for wide tables (F21) ──────────── */
+.table-scroll { width: 100%; overflow-x: auto; }
+
+/* ── Site detail extras (F3 / F11) ──────────────────────────────── */
+.site-links { font-size: 0.85rem; color: var(--muted); }
+.site-links a { color: var(--muted); }
+.site-links a:hover { color: var(--fg); }
+
+/* ── Delete button (F23) ─────────────────────────────────────────── */
+.delete-btn {
+  background: transparent; border: 1px solid var(--red); color: var(--red);
+  border-radius: 4px; padding: 0.15rem 0.5rem; font-size: 0.78rem; cursor: pointer;
+  margin-left: 0.4rem;
+}
+.delete-btn:hover { background: rgba(248, 81, 73, 0.12); }
+
+/* ── Bulk edit page (F12) ────────────────────────────────────────── */
+.bulk-fields { display: flex; align-items: flex-end; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.bulk-fields label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.78rem; color: var(--muted); }
+.bulk-fields input {
+  background: var(--bg); color: var(--fg); border: 1px solid var(--grid);
+  border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.85rem;
+}
+.bulk-sites td, .bulk-sites th { text-align: left; }
+.bulk-result {
+  background: rgba(63,185,80,0.12); border: 1px solid var(--green); color: var(--fg);
+  border-radius: 6px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; font-size: 0.85rem;
+}
+
+/* ── Responsive breakpoint (F21) ─────────────────────────────────── */
+@media (max-width: 640px) {
+  header { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 1rem; }
+  header nav a { margin-left: 0; margin-right: 0.75rem; }
+  main { padding: 1rem; }
+  .bulk-fields { flex-direction: column; align-items: stretch; }
+  .matrix-controls { flex-direction: column; align-items: stretch; }
+}
