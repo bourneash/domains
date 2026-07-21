@@ -1,125 +1,303 @@
-# Site registry — source of truth for tools/site-tracker.
-# DOMAINS_INDEX.md is regenerated from this file (see scripts/render_domains_index.py).
-
 config:
-  auto_commit: true       # /edit POSTs git commit. Default off for push.
+  auto_commit: true
   auto_push: false
-  domains_root: /work     # parent domains repo inside the container
-
+  domains_root: /work
 sites:
   0daynews.com:
     active: true
     cf_zone: 0daynews.com
     github: bourneash/0daynews.com
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
-    manual: {}
-
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual:
+      ops_verify_probe:
+        value: verify-ok
+        set_at: '2026-07-21T20:02:55Z'
   0xroulette.com:
     active: true
     cf_zone: 0xroulette.com
     github: bourneash/0xroulette.com
-    smoke_string: "0xRoulette"
-    applies_to: [cf, http, seo, tls, git, github, contact, branding, manual]
+    smoke_string: 0xRoulette
+    applies_to:
+    - cf
+    - http
+    - seo
+    - tls
+    - git
+    - github
+    - contact
+    - branding
+    - manual
     manual: {}
-
   3boobs.com:
     active: true
     cf_zone: 3boobs.com
     github: bourneash/3boobs.com
-    smoke_string: "3boobs.com"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
+    smoke_string: 3boobs.com
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   aliencouncil.com:
     active: true
     cf_zone: aliencouncil.com
     github: bourneash/aliencouncil
-    smoke_string: "Independent body of record on UAP"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: Independent body of record on UAP
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   americastrikes.com:
     active: true
     cf_zone: americastrikes.com
     github: bourneash/americastrikes
-    smoke_string: "Geopolitics, Defense"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: Geopolitics, Defense
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   findyourlostpets.com:
     active: true
     cf_zone: findyourlostpets.com
     github: bourneash/findyourlostpets.com
-    smoke_string: "Every trail leads home"
-    applies_to: [canary, cf, http, seo, tls, git, github, contact, legal, branding, manual]
+    smoke_string: Every trail leads home
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - tls
+    - git
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   fishhooklabs.com:
     active: true
     cf_zone: fishhooklabs.com
     github: bourneash/fishhooklabs.com
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   gate03.com:
     active: true
     cf_zone: gate03.com
     github: bourneash/gate03.com
-    applies_to: [cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   oventoheaven.com:
     active: true
     cf_zone: oventoheaven.com
     github: bourneash/oventoheaven.com
-    smoke_string: "oventoheaven.com"
-    applies_to: [canary, cf, http, seo, tls, git, github, contact, legal, branding, manual]
+    smoke_string: oventoheaven.com
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - tls
+    - git
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   rc-9.com:
     active: true
     cf_zone: rc-9.com
     github: bourneash/rc-9
-    smoke_string: "Free Online Artillery Tank Game"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
+    smoke_string: Free Online Artillery Tank Game
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   reviewtattoo.com:
     active: true
     cf_zone: reviewtattoo.com
     github: bourneash/reviewtattoo
-    smoke_string: "First Tattoo Guides"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: First Tattoo Guides
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   sinderella.org:
     active: true
     cf_zone: sinderella.org
     github: bourneash/sinderella
-    smoke_string: "signal-informed daily horoscopes"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: signal-informed daily horoscopes
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   ultrarough.com:
     active: true
     cf_zone: ultrarough.com
     github: bourneash/ultrarough.com
-    smoke_string: "The grit you"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: The grit you
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   weapontester.com:
     active: true
     cf_zone: weapontester.com
     github: bourneash/weapontester.com
-    smoke_string: "Build a rifle. Test it."
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, github, ads, contact, legal, branding, manual]
+    smoke_string: Build a rifle. Test it.
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
-
   xxxtea.com:
     active: true
     cf_zone: xxxtea.com
     github: bourneash/xxxtea.com
-    smoke_string: "Tea for adults"
-    applies_to: [canary, cf, http, seo, sitemap, tls, git, ops, github, ads, contact, legal, branding, manual]
+    smoke_string: Tea for adults
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
     manual: {}
