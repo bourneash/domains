@@ -6,7 +6,7 @@
   <form hx-post="/site/{{ site }}/edit/{{ key }}" hx-target="closest tr" hx-swap="outerHTML">
     {% if key == "manual.new" %}
       <input type="text" name="key" placeholder="key (e.g. adsense_status)" required
-             pattern="[a-zA-Z0-9._-]+" title="letters, numbers, '.', '_', '-' only — no spaces or slashes">
+             pattern="[-a-zA-Z0-9._]+" title="letters, numbers, '.', '_', '-' only — no spaces or slashes">
     {% endif %}
     <input type="text" name="value" value="{{ current }}" maxlength="500" autofocus required>
     <button type="submit">save</button>
