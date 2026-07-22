@@ -55,20 +55,41 @@ def log(msg):
     print(f"[affiliate-link-check] {msg}", file=sys.stderr, flush=True)
 
 
-def parse_products(affiliate_ts: Path):
-    """Extract id/asin/searchQuery per product from the TS registry via regex.
-    Good enough for the fixed object-literal shape used across the fleet —
-    not a general TS parser."""
-    text = affiliate_ts.read_text(encoding="utf-8")
-    # Split on each product object boundary inside PRODUCTS: [...]. Objects
-    # are always `{ id: '...', ... },` at one nesting level — split on lines
-    # starting a new object via the `id:` field as the anchor.
+def parse_products_frontmatter_dir(products_dir: Path):
+    """shoptopless.com-style registry: one markdown file per product at
+    <dir>/<slug>.md, filename stem is the id, ASIN in `amazonAsin:` frontmatter."""
     products = []
-    for block in re.split(r"\n\s*\{\s*\n", text)[1:]:
-        id_m = re.search(r"""id:\s*['"]([^'"]+)['"]""", block)
-        if not id_m:
-            continue
-        asin_m = re.search(r"""asin:\s*['"]([^'"]+)['"]""", block)
+    for f in sorted(products_dir.glob("*.md")):
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        asin_m = re.search(r"""amazonAsin:\s*["']?([A-Z0-9]{10})["']?""", text)
+        products.append({
+            "id": f.stem,
+            "asin": asin_m.group(1) if asin_m else None,
+            "searchQuery": None,
+        })
+    return products
+
+
+def parse_products(affiliate_ts: Path):
+    """Extract id/asin/searchQuery per product from the registry via regex.
+    Good enough for the fixed object-literal shapes used across the fleet
+    (TS array-of-objects, TS `Record<string, X>` objects e.g.
+    weapontester.com's AFFILIATE_LINKS, and plain JSON e.g.
+    broadwayshowgirls.com's ops/affiliate/products.json) — not a general
+    TS/JSON parser."""
+    if affiliate_ts.is_dir():
+        return parse_products_frontmatter_dir(affiliate_ts)
+    text = affiliate_ts.read_text(encoding="utf-8")
+    # Anchor on each `id: '...'` field and take a fixed window of following
+    # text as "the rest of this object" to search asin/searchQuery in. Avoids
+    # needing to correctly locate the enclosing `{` (which varies: `{` alone
+    # on its own line in a PRODUCTS array, vs. `'key': {` on one line in a
+    # `Record<string, X>` object, e.g. weapontester.com's AFFILIATE_LINKS).
+    products = []
+    WINDOW = 600
+    for id_m in re.finditer(r"""["']?\bid["']?\s*:\s*['"]([^'"]+)['"]""", text):
+        block = text[id_m.end():id_m.end() + WINDOW]
+        asin_m = re.search(r"""["']?asin["']?\s*:\s*['"]([^'"]+)['"]""", block)
         search_m = re.search(r"""searchQuery:\s*['"]([^'"]+)['"]""", block)
         products.append({
             "id": id_m.group(1),
@@ -78,22 +99,77 @@ def parse_products(affiliate_ts: Path):
     return products
 
 
-def check_link(url: str, timeout: int):
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (affiliate-link-check)"})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            status = resp.status
-            body = resp.read(200_000).decode("utf-8", errors="ignore")
-    except urllib.error.HTTPError as e:
-        status = e.code
-        body = e.read(200_000).decode("utf-8", errors="ignore") if e.fp else ""
-    except Exception as e:
-        return {"classification": "broken-redirect", "detail": f"request failed: {e}"}
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None  # never auto-follow — we need to classify each hop separately
 
-    if status < 200 or status >= 300:
-        # urllib follows redirects itself, so a non-2xx here means the final
-        # hop (often the /go/<id> cloak path itself) is broken.
-        return {"classification": "broken-redirect", "detail": f"HTTP {status}"}
+
+_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
+_UA = {"User-Agent": "Mozilla/5.0 (affiliate-link-check)"}
+
+
+def check_link(go_url: str, timeout: int):
+    """Two-hop check, classified by WHO owns the failure:
+    - our /go/<id> cloak not resolving to a redirect at all -> broken-redirect
+      (our infra, file an engineering task)
+    - the redirect resolves fine but the landing page (Amazon) errors,
+      rate-limits, or anti-bot-walls us -> inconclusive (not our infra, never
+      file a task for this — was the root cause of a 2026-07-22 false positive
+      on americastrikes.com: a transient Amazon 503 got misread as our cloak
+      being broken when curl -IL against the same URL showed a clean 302)
+    - the redirect resolves and the landing page loads (200) -> classify by
+      body markers as today (dead / oos / healthy)
+    """
+    req = urllib.request.Request(go_url, headers=_UA)
+    own_body = ""
+    try:
+        resp = _NO_REDIRECT_OPENER.open(req, timeout=timeout)
+        status, location = resp.status, resp.headers.get("Location")
+        if status not in (301, 302, 303, 307, 308):
+            own_body = resp.read(200_000).decode("utf-8", errors="ignore")
+    except urllib.error.HTTPError as e:
+        if e.code in (301, 302, 303, 307, 308):
+            status, location = e.code, e.headers.get("Location")
+        else:
+            return {"classification": "broken-redirect", "detail": f"cloak returned HTTP {e.code}"}
+    except Exception as e:
+        return {"classification": "broken-redirect", "detail": f"cloak request failed: {e}"}
+
+    if status not in (301, 302, 303, 307, 308):
+        # Some sites (e.g. ultrarough.com) cloak via a static HTTP-200 page with a
+        # meta-refresh / JS redirect instead of a real HTTP 3xx. Extract the target
+        # from the body and treat it exactly like a real redirect below — otherwise
+        # a dead ASIN behind one of these pages would be invisible to this check.
+        m = re.search(r'''url\s*=\s*["']?(https://[^"'\s>]+)''', own_body, re.IGNORECASE)
+        if m:
+            location = m.group(1)
+        else:
+            # No redirect target found in the body at all — either this cloak
+            # genuinely serves content directly, or it's broken. Check the body
+            # itself for soft-404/anti-bot markers rather than assuming healthy.
+            body_lower = own_body.lower()
+            if any(mk in body_lower for mk in ANTI_BOT_MARKERS):
+                return {"classification": "inconclusive", "detail": "anti-bot wall"}
+            for marker in SOFT_404_MARKERS:
+                if marker.lower() in body_lower:
+                    return {"classification": "dead", "detail": marker}
+            return {"classification": "healthy", "detail": "cloak returned 2xx directly (no redirect target found)"}
+    if not location:
+        return {"classification": "broken-redirect", "detail": f"HTTP {status} with no Location header"}
+
+    try:
+        with urllib.request.urlopen(urllib.request.Request(location, headers=_UA), timeout=timeout) as resp2:
+            land_status = resp2.status
+            body = resp2.read(200_000).decode("utf-8", errors="ignore")
+    except urllib.error.HTTPError as e2:
+        land_status = e2.code
+        body = e2.read(200_000).decode("utf-8", errors="ignore") if e2.fp else ""
+    except Exception as e2:
+        return {"classification": "inconclusive", "detail": f"landing page request failed: {e2}"}
+
+    if land_status != 200:
+        # Amazon-side error (rate-limit, 5xx, etc.) — not our cloak's fault.
+        return {"classification": "inconclusive", "detail": f"landing page HTTP {land_status}"}
 
     body_lower = body.lower()
     if any(m in body_lower for m in ANTI_BOT_MARKERS):
@@ -133,11 +209,16 @@ def main():
     ap.add_argument("--state-file", default="ops/state/affiliate-oos.json")
     ap.add_argument("--findings-file", default="ops/cache/affiliate-check-findings.json")
     ap.add_argument("--timeout", type=int, default=15)
+    ap.add_argument("--delay", type=float, default=0.75,
+                     help="seconds to sleep between checks — Amazon rate-limits rapid "
+                          "back-to-back requests from one IP, which shows up as false "
+                          "'inconclusive' (not false 'broken', so it fails safe, but a "
+                          "small delay keeps the fleet's real weekly detection rate high)")
     args = ap.parse_args()
 
     repo_root = Path(args.repo_root)
     registry = repo_root / args.affiliate_registry
-    if not registry.is_file():
+    if not registry.is_file() and not registry.is_dir():
         log(f"registry not found at {registry} — cannot run, treating as clean (fail open)")
         sys.exit(0)
 
@@ -153,8 +234,11 @@ def main():
     except Exception:
         oos_state = {}
 
+    import time
     results = {}
-    for p in products:
+    for i, p in enumerate(products):
+        if i > 0 and args.delay > 0:
+            time.sleep(args.delay)
         url = f"{args.base_url.rstrip('/')}{args.go_prefix}{p['id']}/"
         results[p["id"]] = {**p, "url": url, **check_link(url, args.timeout)}
         log(f"{p['id']}: {results[p['id']]['classification']} ({results[p['id']]['detail']})")
@@ -175,9 +259,27 @@ def main():
     healthy_count = sum(1 for r in results.values() if r["classification"] == "healthy")
 
     state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_changed = new_state != oos_state
     state_path.write_text(json.dumps(new_state, indent=2, sort_keys=True) + "\n")
 
     needs_ai = bool(dead or broken or oos_to_file)
+
+    if state_changed and not needs_ai:
+        # On the dirty path, the state file is left staged-but-uncommitted —
+        # the Claude invocation that follows commits it alongside whatever
+        # task file(s) it files, in one commit, per the role's existing spec.
+        # On the clean path there's no Claude turn to do that, so commit it
+        # here (best-effort — never fail the run over a git hiccup).
+        try:
+            subprocess.run(["git", "add", str(args.state_file)], cwd=str(repo_root), check=True, capture_output=True)
+            subprocess.run(
+                ["git", "commit", "-m", f"affiliate: update OOS watch-state ({today})"],
+                cwd=str(repo_root), check=True, capture_output=True,
+            )
+            subprocess.run(["git", "push"], cwd=str(repo_root), check=True, capture_output=True, timeout=30)
+            log("committed + pushed OOS watch-state change")
+        except Exception as e:
+            log(f"warning: could not commit/push OOS state change: {e}")
 
     if not needs_ai:
         summary = (
