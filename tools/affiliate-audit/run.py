@@ -182,8 +182,16 @@ def main():
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
+    # Two invocation shapes: (1) on the host, from anywhere, with the full
+    # domains monorepo on disk -> ROOT/sites/<site> exists; (2) inside a
+    # per-site container where only that site's own repo (plus tools/
+    # bind-mounted read-only at .monorepo-tools) is mounted -> ROOT/sites/<site>
+    # can't exist because "sites/" itself isn't mounted, so fall back to the
+    # cwd, matching the convention every other in-container role script uses.
     site_dir = ROOT / "sites" / args.site
     if not site_dir.is_dir():
+        site_dir = Path.cwd()
+    if not site_dir.is_dir() or not (site_dir / "site").is_dir():
         print(f"no such site dir: {site_dir}", file=sys.stderr)
         sys.exit(1)
 
