@@ -1,0 +1,124 @@
+name: deployer
+# Selected: NOT a single-site "best-impl-wins" pick like the other 7 archetypes —
+# no single site's deploy.sh was best on every axis. This is a synthesis:
+#   - Outer cron-direct wrapper (run-deployer.sh): americastrikes.com verbatim —
+#     the only site with a retry cap, auto-recovery cooldown, and signal-kill
+#     handling. Most production-hardened of the 4 candidates.
+#   - Inner deploy.sh: merged per-concern from the 4 sites that had independently
+#     hand-forked a "zero-AI bash deployer" (0daynews.com, americastrikes.com,
+#     saveusfarms.com, aliencouncil.com) — branch guard + npm-audit-existence-
+#     check style from 0daynews/americastrikes (made mandatory here — saveusfarms/
+#     aliencouncil were missing both, a real gap, not a feature to preserve);
+#     per-path `git add` loop and `.deploy-needed` trigger-metadata parsing from
+#     saveusfarms/aliencouncil (promoted to universal — 0daynews/americastrikes
+#     lacked both); `emit_incident()` wrapper-function style from 0daynews/
+#     aliencouncil over americastrikes/saveusfarms' inline calls; build-defer-on-
+#     musl-relocation-error auto-detection from saveusfarms/aliencouncil over
+#     0daynews's blunt SKIP_LOCAL_BUILD env flag (self-diagnosing, no manual
+#     per-site toggle needed). The CF Workers Builds status-polling block (Step 3)
+#     was already verbatim-identical across all 4 — carried over unchanged.
+#     Traced to a real incident: 0daynews.com declared "shipped and verified
+#     live" off a homepage-only curl check while the actual CF build for that
+#     push had failed in ~2 min (transient git-clone error, no retry) — the
+#     article 404'd for 37 min until an unrelated later push happened to carry
+#     it along. Fixed 2026-07-29 across all 4 sites before this archetype existed.
+source: "synthesis of americastrikes.com (wrapper) + 0daynews.com/americastrikes.com/saveusfarms.com/aliencouncil.com (deploy.sh, merged per-concern)"
+
+# KIND: cron-direct (NOT a worker-dispatched role) — same shape as watchdog.
+# The deployer does NOT run via `run-worker.sh <name>` and has NO run-role.sh
+# branch and NO task pickup. Its crontab line invokes `run-deployer.sh` straight
+# in the CRON container; that wrapper does the cheap .deploy-needed gate at ~0
+# cost and spins a worker (pure bash, no AI at all — unlike watchdog, which
+# invokes a repair model on an incident) to run deploy.sh.
+# Consequence: generic WIRING.md Steps 6 (run-role.sh), 7 (worker cron line), and
+# 12 (worker dry-run) do NOT apply as written — the domains-cron-role-deployer
+# skill carries the cron-direct install + validation specifics instead.
+kind: cron-direct
+
+schedule: "*/5 * * * *"   # every 5 min, only fires when .deploy-needed exists (cheap bash gate, no cron-cadence conflict with other roles to dodge — it's a flag check, not a token-costing pass)
+cron_invocation: "bash ops/scripts/run-deployer.sh"   # cron-direct — NOT run-worker.sh
+model: none             # 100% bash/curl/python3(stdlib json only) — zero AI tokens, always. Unlike watchdog, there is no model invocation at all, ever.
+owns_task_types: []                  # never picks up tasks
+produces_task_types: []              # does not escalate directly — relies on the site's watchdog (if installed) to consume the incidents it emits
+worker_deps: []                      # reuses the existing worker (npm/git/curl/python3 already present)
+needs_rebuild_verify: true           # crontab is baked into the cron image — new line needs a cron rebuild
+self_notifies: true                  # deploy.sh posts its own Slack (ok on genuine success, fail with real reason on any gate)
+deploy: true                         # this IS the deploy
+scripts:
+  - deploy.sh.tmpl
+  - run-deployer.sh.tmpl
+
+# No role.md.tmpl. Unlike watchdog (which invokes a repair MODEL and therefore
+# needs an operating-rules prompt), the deployer never calls `claude -p` at all —
+# there is nothing for a role body to instruct. Fleet Dashboard's roles.js does
+# not read ops/roles/*.md for role recognition either (confirmed via explore,
+# 2026-07-29) — it parses crontab.docker + ops/logs/ naming only. Document the
+# role in the site's CLAUDE.md role table instead (existing convention on all
+# 4 pre-archetype sites: "Deployer — When .deploy-needed flag exists — Build,
+# audit, deploy, smoke test").
+
+# Incident emission: the deployer calls emit-incident.sh itself, internally, on
+# every failure branch (wrong-branch, npm-audit-high, build-fail, push-fail,
+# cf-build-fail, smoke-fail) — no external wiring required, unlike watchdog's
+# emits_required_in contract which depends on OTHER roles remembering to call
+# it. If the site's watchdog is installed, it gets these for free; if not, the
+# calls are inert no-ops (emit_incident() guards on emit-incident.sh existing).
+
+# Optional env var (NOT a {{placeholder}} — set in the site's docker-compose.yml
+# `environment:` block if needed, never baked into the stamped script):
+#   SKIP_LOCAL_BUILD=1 — for a worker container where `npm ci`/`npm run build`
+#   are ALREADY CONCLUSIVELY KNOWN to be unrunnable (e.g. Alpine/musl can't run
+#   Cloudflare's glibc-only workerd binary), skip attempting them every deploy
+#   and go straight to CF-Workers-Builds-is-authoritative. Discovered as a real
+#   gap 2026-07-29 retrofitting 0daynews.com: it hardcodes this in
+#   docker-compose.yml precisely because the auto-detect-and-defer fallback
+#   (below) would otherwise re-attempt a doomed `npm ci`/build on every single
+#   tick. Only set this once the failure mode is confirmed for a given site —
+#   don't set it speculatively.
+
+known_variants:
+  wrangler_direct:
+    applies_to: [0xroulette.com, rc-9.com]
+    why: "These sites `wrangler deploy` synchronously from the worker container instead of relying on git-push-triggered Cloudflare Workers Builds — there is no async build gap to poll for, and wrangler's own exit code is already the authoritative, immediate success/fail signal."
+    change: "Omit deploy.sh Step 3 (the CF Workers Build polling block) entirely; replace with the site's existing `npx wrangler deploy` invocation and treat its exit code as BUILD_CONFIRMED. Keep everything else (branch guard, audit, git add/commit/push, smoke tests, Slack wrapper) as-is."
+
+gitignore:
+  - "ops/.deploy-attempts"
+  - "ops/.deploy-needed.failed"
+
+placeholders:
+  - DOMAIN
+  - BASE_URL
+  - GIT_USER_NAME
+  - GIT_USER_EMAIL
+  - SLACK_CHANNEL_VAR
+  - SLACK_CHANNEL_DEFAULT
+  - SMOKE_TEST_CMD
+  - DEPLOY_ADD_PATHS
+placeholder_detection:
+  DOMAIN: "bare domain name, e.g. example.com — from directory name (sites/<DOMAIN>)"
+  BASE_URL: "live site URL, e.g. https://<domain> — read from CLAUDE.md header or wrangler.jsonc routes"
+  GIT_USER_NAME: "commit identity fallback, e.g. 'AmericaStrikes Desk' — match the site's existing content-writer/engineer git config default. Do NOT default to a generic placeholder like 'Engineer Bot' — this exact copy-paste bug was found and fixed on aliencouncil.com 2026-07-29."
+  GIT_USER_EMAIL: "commit identity fallback, e.g. bot@<domain> — match the site's existing git config default"
+  SLACK_CHANNEL_VAR: "env var name holding the Slack channel, e.g. SLACK_CHANNEL_AMERICA_STRIKES — grep ops/scripts/run-role.sh or /home/jesse/projects/domains/.env"
+  SLACK_CHANNEL_DEFAULT: "fallback Slack channel string, e.g. domain-americastrikes-com — the :- default beside SLACK_CHANNEL_VAR in run-role.sh"
+  SMOKE_TEST_CMD: |
+    Full shell command line that runs this site's post-deploy smoke tests and
+    exits non-zero on failure. Standardize on `bash ops/scripts/run-smoke-tests.sh
+    "$BASE_URL"` if the site has (or will have) a compliant run-smoke-tests.sh —
+    3 of the 4 existing hardened sites use this exact form. A site with a
+    genuinely different, legitimate smoke tool (e.g. aliencouncil.com's DoH-aware
+    sandbox-safe `smoke-live.sh`, which takes no URL arg) keeps its own command
+    line here instead of being forced to conform. The smoke test itself MUST
+    check at least one dynamically-newest piece of content (article/case/etc,
+    by mtime — not just static core pages), or it cannot catch a build that
+    silently omits new content while still serving old pages 200. This was the
+    exact detection gap in the 2026-07-29 incident.
+  DEPLOY_ADD_PATHS: |
+    Space-separated list of git pathspecs to stage on deploy. Detect by reading
+    the site's ops/ layout: at minimum `site/src/ site/public/` plus whatever
+    ops/ subdirectories this site's other roles actually write to (ops/board/,
+    ops/tasks/, ops/cache/, ops/social/queue.jsonl, ops/facts.yaml, etc. — check
+    what exists on disk, don't guess). Conditionally include `site/dist/` only
+    when the site's build strategy does NOT defer (i.e. runs a full local
+    build) — sites using the musl/glibc build-defer path never commit dist/.

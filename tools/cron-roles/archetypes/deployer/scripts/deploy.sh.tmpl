@@ -1,0 +1,346 @@
+#!/usr/bin/env bash
+# deploy.sh — zero-AI bash deployer ({{DOMAIN}}). Replaces `claude -p deployer`.
+# Called by ops/scripts/run-deployer.sh (cron-direct wrapper) via:
+#   docker compose run --rm --entrypoint bash worker ops/scripts/deploy.sh
+#
+# Archetype: tools/cron-roles/archetypes/deployer/ — installed via the
+# domains-cron-role-deployer skill. This is a stamped, tuned-per-site copy;
+# the archetype template is never re-synced (stamp-once — see
+# tools/cron-roles/README.md).
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+LOG_DIR="$REPO_ROOT/ops/logs"
+TS="$(date +%Y-%m-%d-%H%M)"
+LOG="$LOG_DIR/deployer-$TS.log"
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+BASE_URL="{{BASE_URL}}"
+
+# The worker container only mounts this site's repo (.:/work), not the parent
+# monorepo, so a plain "$REPO_ROOT/../.." guess resolves to "/" in-container and
+# silently can't find tools/role-notify (notify_role's `2>/dev/null || true`
+# swallows the failure, so a "shipped and verified live" / "deploy failed" card
+# would silently no-op in-container — this exact bug was found and fixed across
+# 4 sites on 2026-07-29). Prefer the dedicated container mount
+# (docker-compose.yml: ${HOME}/projects/domains/tools:/work/.monorepo-tools)
+# when present; fall back to the relative guess for host-side runs.
+if [ -d "/work/.monorepo-tools" ]; then
+  TOOLS_ROOT="/work/.monorepo-tools"
+else
+  TOOLS_ROOT="$(cd "$REPO_ROOT/../.." && pwd)/tools"
+fi
+ROLE_NOTIFY="$TOOLS_ROOT/role-notify/notify_role.py"
+
+notify_role() {  # usage: notify_role --status ok|fail --headline "..." [--detail "..."]... [--files f1 f2 ...] [--url u]
+  local extra=()
+  [[ -n "${TRIGGER_DETAIL:-}" ]] && extra=(--detail "$TRIGGER_DETAIL")
+  if [ ! -f "$ROLE_NOTIFY" ]; then
+    echo "[$(date -Iseconds)] WARNING: notify_role.py not found at $ROLE_NOTIFY — falling back to notify-slack.sh" >&2
+    [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "deploy ($*)" "warning" 2>/dev/null || true
+    return
+  fi
+  local err
+  err="$(python3 "$ROLE_NOTIFY" --mode structured --site {{DOMAIN}} --role deployer \
+    --channel-env {{SLACK_CHANNEL_VAR}} --channel-default {{SLACK_CHANNEL_DEFAULT}} \
+    "$@" "${extra[@]}" 2>&1)" || true
+  [ -n "$err" ] && echo "[$(date -Iseconds)] WARNING: notify_role failed: $err" >&2
+  return 0
+}
+emit_incident() {  # usage: emit_incident --class c --summary s   (no-op if this site has no watchdog consumer for it)
+  [[ -x "$REPO_ROOT/ops/scripts/emit-incident.sh" ]] || return 0
+  bash "$REPO_ROOT/ops/scripts/emit-incident.sh" --role deployer --severity high "$@" --log "$LOG" 2>/dev/null || true
+}
+
+mkdir -p "$LOG_DIR"
+
+if [ -f .env.shared ]; then set -a; . .env.shared; set +a; fi
+
+# When running inside a worker container (entrypoint overridden), SSH keys may
+# be bind-mounted read-only with host permissions that exceed 600. Copy them
+# to a writable tmpfs with strict 600 perms and point git at the temp config.
+SSH_SRC="${HOME}/.ssh"
+if [ -d "$SSH_SRC" ]; then
+  mkdir -p /tmp/ssh
+  cp -f "$SSH_SRC/config"      /tmp/ssh/config      2>/dev/null || true
+  cp -f "$SSH_SRC/known_hosts" /tmp/ssh/known_hosts  2>/dev/null || true
+  for k in "$SSH_SRC"/github-* "$SSH_SRC"/id_*; do
+    [ -f "$k" ] && cp -f "$k" "/tmp/ssh/$(basename "$k")"
+  done
+  chmod 700 /tmp/ssh
+  chmod 600 /tmp/ssh/* 2>/dev/null || true
+  [ -f /tmp/ssh/config ] && \
+    export GIT_SSH_COMMAND="ssh -F /tmp/ssh/config -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/tmp/ssh/known_hosts"
+  git config --global user.name  "${GIT_USER_NAME:-{{GIT_USER_NAME}}}"
+  git config --global user.email "${GIT_USER_EMAIL:-{{GIT_USER_EMAIL}}}"
+  git config --global --add safe.directory "$REPO_ROOT"
+fi
+
+log() { echo "[$(date -Iseconds)] $*"; }
+
+# Optional hook (no-op if absent): some sites' content-writer commits directly
+# and only sometimes touches .deploy-needed on a max-turns exit. If present,
+# ops/scripts/reconcile-orphan-content.sh treats untracked site/src/content/
+# files as an implicit deploy request so a hero article doesn't sit orphaned
+# until the next sweep. Reference implementation: 0daynews.com.
+if [ -x ops/scripts/reconcile-orphan-content.sh ]; then
+  bash ops/scripts/reconcile-orphan-content.sh || true
+fi
+
+# Exit cleanly when nothing to do — cron fires regardless.
+[ -f .deploy-needed ] || { log "no .deploy-needed flag — exiting"; exit 0; }
+
+main() {
+  log "=== deploy started ==="
+  log "repo=$REPO_ROOT"
+
+  # ---- 0. Branch guard ----
+  # This script commits to HEAD but pushes `origin main`. If the working tree
+  # is ever left on a non-main branch, every commit lands there and
+  # `git push origin main` fails non-fast-forward — silently, every tick.
+  # Fail loud and early instead of churning.
+  CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+  if [ "$CURRENT_BRANCH" != "main" ]; then
+    log "FAIL: working tree is on '$CURRENT_BRANCH', not 'main' — refusing to deploy"
+    notify_role --status fail --headline "Deploy blocked — working tree on '$CURRENT_BRANCH', not main" \
+      --detail "Run: git checkout main"
+    emit_incident --class wrong-branch --summary "deploy blocked — working tree on '$CURRENT_BRANCH', not main"
+    exit 1
+  fi
+
+  # ---- 1. Build ----
+  # SKIP_LOCAL_BUILD=1 is an explicit, per-site ESCAPE HATCH for containers
+  # where the incompatibility is already conclusively known and permanent
+  # (e.g. an Alpine/musl worker image that can never run Cloudflare's
+  # glibc-only workerd binary — confirmed on 0daynews.com, hardcoded in its
+  # docker-compose.yml). Set it in that site's docker-compose.yml environment
+  # block, NOT here, if `npm ci`/`npm run build` are known-unrunnable in this
+  # container. Leave unset (the default) to get the self-diagnosing auto-defer
+  # below instead — it reaches the same safe outcome (skip committing dist/,
+  # let CF Workers Builds be authoritative) without needing a hardcoded flag,
+  # but only AFTER attempting the build once per deploy.
+  if [ "${SKIP_LOCAL_BUILD:-0}" = "1" ]; then
+    log "SKIP_LOCAL_BUILD=1 — skipping npm ci/audit/build in-container; CF Workers Builds is the authoritative gate on push."
+    BUILD_DEFERRED=1
+  else
+  (
+    cd site
+    log "running npm ci..."
+    npm ci
+
+    log "running security audit (production deps)..."
+    # Block only on high+ severity in RUNTIME deps — those are what ship in the
+    # static Worker bundle. Build/deploy tooling never reaches visitors.
+    # Existence-checked first: not every site's package.json defines these.
+    if npm run | grep -q "security:audit:prod"; then
+      if ! npm run security:audit:prod; then
+        log "production audit failed — attempting npm's non-breaking automatic remediation..."
+        npm audit fix --omit=dev || true
+        if npm run security:audit:prod; then
+          log "production audit remediated automatically; continuing deploy"
+        else
+          AUDIT_KEY="$(sha256sum package-lock.json 2>/dev/null | cut -c1-12 || echo unknown)"
+          log "FAIL: production audit remains high+ after safe remediation"
+          notify_role --status fail --headline "Deploy blocked — production npm vulnerability; automatic repair started"
+          emit_incident --class npm-audit-high --key "$AUDIT_KEY" --summary "production npm audit remains high+ after npm audit fix (lock $AUDIT_KEY); repair requires a dependency upgrade"
+          exit 42
+        fi
+      fi
+    fi
+    if npm run | grep -q "security:audit"; then
+      if ! npm run security:audit >/dev/null 2>&1; then
+        log "WARN: npm audit found high+ severity in dev/build tooling (non-blocking)."
+      fi
+    fi
+
+    log "cleaning stale dist before build..."
+    rm -rf dist
+
+    log "running astro build..."
+    BUILD_OUT="$(mktemp)"
+    if ! npm run build > "$BUILD_OUT" 2>&1; then
+      # Some worker containers (Alpine/musl) can't run Cloudflare's glibc-only
+      # workerd binary the adapter needs at build time. Self-diagnose that
+      # specific, known-benign failure instead of treating it as a real build
+      # break, and defer to CF Workers Builds (which runs on compatible infra)
+      # as the authoritative gate. This is the safety net for a site that
+      # hasn't set SKIP_LOCAL_BUILD yet — once confirmed, prefer the explicit
+      # flag above so every deploy doesn't re-attempt a doomed build.
+      if grep -qE "Error relocating.*workerd|symbol not found" "$BUILD_OUT"; then
+        log "WARN: local build can't run workerd in this container (musl/glibc mismatch) — deferring to CF Workers Builds as the authoritative gate. Consider setting SKIP_LOCAL_BUILD=1 in docker-compose.yml to skip this attempt on future deploys."
+        BUILD_DEFERRED=1
+      else
+        cat "$BUILD_OUT"
+        log "FAIL: astro build failed"
+        notify_role --status fail --headline "Deploy failed — astro build error, check ops/logs/"
+        emit_incident --class build-fail --summary "deploy failed — astro build error"
+        rm -f "$BUILD_OUT"
+        exit 1
+      fi
+    fi
+    rm -f "$BUILD_OUT"
+  ) || exit 1
+  fi
+
+  # ---- 2. Commit ----
+  # Per-path loop, not one multi-path `git add` call — one bad/missing pathspec
+  # must not abort staging everything else.
+  for p in {{DEPLOY_ADD_PATHS}}; do
+    git add "$p" 2>/dev/null || true
+  done
+  if [ "${BUILD_DEFERRED:-0}" = "1" ]; then
+    git reset -q -- site/dist 2>/dev/null || true
+  fi
+
+  # .deploy-needed may carry trigger metadata (stamped by an engineer/watchdog
+  # role that touched it) — thread it into the Slack notify as extra context.
+  TRIGGER_DETAIL=""
+  if [ -s .deploy-needed ]; then
+    TRIGGER_ROLE="$(grep -m1 '^trigger_role:' .deploy-needed 2>/dev/null | cut -d: -f2- | xargs || true)"
+    TRIGGER_SUMMARY="$(grep -m1 '^trigger_summary:' .deploy-needed 2>/dev/null | cut -d: -f2- | xargs || true)"
+    [ -n "$TRIGGER_ROLE" ] && TRIGGER_DETAIL="triggered by ${TRIGGER_ROLE}${TRIGGER_SUMMARY:+: $TRIGGER_SUMMARY}"
+  fi
+
+  # news-writer's flow is often "commit content THEN touch .deploy-needed", so
+  # by the time we run there may be nothing new to stage — the content is
+  # already in a local commit that hasn't been pushed. Refresh origin state so
+  # the ahead-count below is honest, then treat unpushed commits as work to do.
+  git fetch origin main --quiet 2>/dev/null || true
+  UNPUSHED="$(git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)"
+
+  mapfile -t FILES < <(git diff --cached --name-only)
+
+  if git diff --cached --quiet; then
+    if [ "${UNPUSHED:-0}" = "0" ]; then
+      log "nothing staged and origin/main up to date — removing flag and exiting"
+      rm -f .deploy-needed
+      log "=== deploy done (nothing to commit) ==="
+      exit 0
+    fi
+    log "nothing new to stage, but $UNPUSHED commit(s) ahead of origin/main — pushing existing commits"
+    mapfile -t FILES < <(git diff --name-only "origin/main..HEAD" 2>/dev/null)
+  else
+    # GPG signing disabled: bot commits from automation have no GPG key configured.
+    git -c commit.gpgsign=false commit -m "deploy: $(date -Iseconds)"
+  fi
+
+  timeout 120 git push origin main || {
+    log "FAIL: git push timed out or failed"
+    notify_role --status fail --headline "Deploy failed — git push error, check ops/logs/" --files "${FILES[@]}"
+    emit_incident --class push-fail --summary "deploy push failed${TRIGGER_DETAIL:+ ($TRIGGER_DETAIL)}"
+    exit 1
+  }
+  log "pushed to main — CF Workers Builds will deploy"
+
+  # ---- 3. Verify the CF Workers Build for this push actually succeeded ----
+  # CF Workers Builds is async and can fail FAST (e.g. a transient git-clone
+  # error) without ever retrying on its own — a blind sleep+curl can't tell
+  # "still building" from "already failed, old version still serving" (root
+  # cause of a 2026-07-29 stuck-article incident on 0daynews.com: the build
+  # failed at the clone step in ~2 min, but nothing polled for that, so the
+  # article sat 404ing for 37 min until an unrelated later push happened to
+  # succeed and carry it along). Poll the Workers Builds API for the build
+  # matching our pushed commit and check its real outcome. Falls back to a
+  # plain sleep if CF creds are unavailable (e.g. a host-side manual run) or
+  # the build can't be resolved within the timeout — the smoke tests below are
+  # still the final gate either way.
+  PUSHED_SHA="$(git rev-parse HEAD)"
+  WORKER_NAME="$(grep -m1 '"name"' site/wrangler.jsonc 2>/dev/null | sed -E 's/.*"name"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/')"
+  BUILD_CONFIRMED=0
+
+  if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] && [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] && [ -n "$WORKER_NAME" ]; then
+    SCRIPT_TAG="$(curl -fsS --max-time 15 \
+      "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/services/${WORKER_NAME}" \
+      -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" 2>/dev/null \
+      | python3 -c 'import json,sys
+try: print(json.load(sys.stdin)["result"]["default_environment"]["script"]["tag"])
+except Exception: pass' 2>/dev/null || true)"
+
+    if [ -n "$SCRIPT_TAG" ]; then
+      log "polling CF Workers Build status for commit ${PUSHED_SHA:0:8} (up to 7 min)..."
+      DEADLINE=$(( $(date +%s) + 420 ))
+      BUILD_STATUS="" BUILD_OUTCOME="" BUILD_UUID=""
+      while [ "$(date +%s)" -lt "$DEADLINE" ]; do
+        MATCH="$(curl -fsS --max-time 15 \
+          "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/builds/workers/${SCRIPT_TAG}/builds?per_page=10" \
+          -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" 2>/dev/null \
+          | PUSHED_SHA="$PUSHED_SHA" python3 -c '
+import json, os, sys
+sha = os.environ["PUSHED_SHA"]
+try:
+    d = json.load(sys.stdin)
+    for b in d.get("result", []):
+        if b.get("build_trigger_metadata", {}).get("commit_hash") == sha:
+            print(b["status"], b["build_outcome"], b["build_uuid"]); break
+except Exception:
+    pass' 2>/dev/null || true)"
+        if [ -n "$MATCH" ]; then
+          read -r BUILD_STATUS BUILD_OUTCOME BUILD_UUID <<< "$MATCH"
+          [ "$BUILD_STATUS" = "stopped" ] && break
+        fi
+        sleep 10
+      done
+
+      if [ "$BUILD_STATUS" = "stopped" ] && [ "$BUILD_OUTCOME" = "success" ]; then
+        log "CF Workers Build succeeded (build $BUILD_UUID) — waiting 10s for edge cache..."
+        BUILD_CONFIRMED=1
+        sleep 10
+      elif [ "$BUILD_STATUS" = "stopped" ] && [ "$BUILD_OUTCOME" = "fail" ]; then
+        FAIL_TAIL="$(curl -fsS --max-time 15 \
+          "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/builds/builds/${BUILD_UUID}/logs" \
+          -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" 2>/dev/null \
+          | python3 -c 'import json,sys
+try: print(" | ".join(l[1] for l in json.load(sys.stdin)["result"]["lines"][-6:]))
+except Exception: print("(could not fetch build log)")' 2>/dev/null)"
+        log "FAIL: CF Workers Build failed for commit ${PUSHED_SHA:0:8} — $FAIL_TAIL"
+        notify_role --status fail --headline "CF Workers Build failed for commit ${PUSHED_SHA:0:8}" \
+          --detail "$FAIL_TAIL" --files "${FILES[@]}"
+        emit_incident --class cf-build-fail --summary "CF Workers Build failed: $FAIL_TAIL"
+        exit 1
+      else
+        log "WARN: no resolved CF build found for ${PUSHED_SHA:0:8} within timeout — falling back to sleep+smoke"
+      fi
+    fi
+  fi
+
+  if [ "$BUILD_CONFIRMED" = "0" ]; then
+    log "sleeping 60s for CF Workers propagation (no build-status confirmation available)..."
+    sleep 60
+  fi
+
+  # ---- 4. Smoke tests ----
+  log "running smoke tests..."
+  if ! {{SMOKE_TEST_CMD}}; then
+    log "FAIL: smoke tests failed — keeping .deploy-needed for retry"
+    notify_role --status fail --headline "Smoke tests failed after deploy, check ops/logs/" --files "${FILES[@]}"
+    emit_incident --class smoke-fail --summary "deploy smoke test failed after push${TRIGGER_DETAIL:+ ($TRIGGER_DETAIL)}"
+    exit 1
+  fi
+
+  # ---- 5. Success ----
+  rm -f .deploy-needed
+  log "=== deploy SUCCESS ==="
+  notify_role --status ok --headline "Deploy shipped and verified live" \
+    --files "${FILES[@]}" --url "$BASE_URL"
+
+  # ---- 6. Optional post-success hooks (no-op if the script isn't present) ----
+  if [ -x ops/scripts/indexnow.sh ]; then
+    log "pinging IndexNow..."
+    bash ops/scripts/indexnow.sh 2>&1 | tee -a "$LOG" || true
+  fi
+  if [ -x ops/scripts/check-live-images.sh ]; then
+    # Non-fatal, wrapped in a hard timeout — a large article backlog can take
+    # 15+ min to sweep and must never hang a deploy that already shipped.
+    log "running image-liveness watchdog (non-fatal, 300s cap)..."
+    timeout 300 bash ops/scripts/check-live-images.sh "$BASE_URL" 2>&1 | tee -a "$LOG" || true
+  fi
+  if [ -x ops/scripts/share-new-articles-slack.sh ]; then
+    bash ops/scripts/share-new-articles-slack.sh "$BASE_URL" || true
+  fi
+}
+
+# main() wrapper pattern avoids tee race condition losing final log lines
+main 2>&1 | tee -a "$LOG"
+exit "${PIPESTATUS[0]}"

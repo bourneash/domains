@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Deployer cron wrapper with retry cap, auto-recovery, and Slack alerting.
+#
+# Normal flow: checks .deploy-needed every tick, runs the deployer role,
+# resets counter on success.
+#
+# Failure handling:
+#   - Increments .deploy-attempts on each real failure.
+#   - After 5 consecutive failures, renames .deploy-needed → .deploy-needed.failed
+#     and stops retrying to prevent an infinite loop.
+#   - Auto-recovers .deploy-needed.failed after 30 min cooldown so a transient
+#     outage doesn't strand content indefinitely.
+#   - Signal kills (exit 130/143) are NOT counted as failures — they are
+#     infrastructure events (container restart, timeout propagation, Ctrl-C).
+#
+# Manual reset (immediate): rm .deploy-needed.failed && echo 0 > .deploy-attempts
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+LOG=ops/logs/deployer-retry-cap.log
+mkdir -p ops/logs
+
+# Load shared credentials (Slack token etc.) if not already in environment.
+# Needed when running inside the cron container where .env.shared is bind-mounted.
+if [ -f ".env.shared" ]; then
+  set -a; . ".env.shared"; set +a
+fi
+
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+
+# Auto-recover .deploy-needed.failed after 30 min cooldown.
+if [ -f .deploy-needed.failed ]; then
+  failed_at=$(stat -c %Y .deploy-needed.failed 2>/dev/null || echo 0)
+  now=$(date +%s)
+  age=$(( now - failed_at ))
+  if [ "$age" -gt 1800 ]; then
+    echo "[$(date -Iseconds)] auto-recovering .deploy-needed.failed after ${age}s cooldown" >> "$LOG"
+    mv .deploy-needed.failed .deploy-needed
+    echo 0 > .deploy-attempts
+  else
+    exit 0
+  fi
+fi
+
+[ -f .deploy-needed ] || exit 0
+
+attempts=$(cat .deploy-attempts 2>/dev/null || echo 0)
+
+if [ "$attempts" -ge 5 ]; then
+  mv .deploy-needed .deploy-needed.failed
+  echo 0 > .deploy-attempts
+  echo "[$(date -Iseconds)] halted after 5 consecutive failures — renamed to .deploy-needed.failed (auto-recovers in 30 min)" >> "$LOG"
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" \
+    ":rotating_light: *{{DOMAIN}}* deployer halted after 5 failures — content not publishing.\nAuto-recovers in 30 min. Check \`ops/logs/\` for root cause." \
+    "danger" 2>/dev/null || true
+  exit 0
+fi
+
+echo $((attempts + 1)) > .deploy-attempts
+
+set +e
+docker compose run --rm --entrypoint bash worker ops/scripts/deploy.sh
+deploy_exit=$?
+set -e
+
+if [ "$deploy_exit" -eq 42 ]; then
+  mv .deploy-needed .deploy-needed.audit-blocked
+  echo 0 > .deploy-attempts
+  echo "[$(date -Iseconds)] production npm audit blocked deploy — parked for watchdog remediation" >> "$LOG"
+  exit 0
+fi
+
+# 130=SIGINT, 143=SIGTERM — infrastructure kills, not deploy failures.
+# Undo the attempt counter increment so the cap isn't consumed by noise.
+if [ "$deploy_exit" -eq 130 ] || [ "$deploy_exit" -eq 143 ]; then
+  echo "[$(date -Iseconds)] deployer killed by signal (exit=$deploy_exit) — not counting against retry cap" >> "$LOG"
+  echo "$attempts" > .deploy-attempts
+  exit 0
+fi
+
+[ "$deploy_exit" -eq 0 ] || exit "$deploy_exit"
+
+# Success: deployer role removes .deploy-needed on pass — reset counter.
+[ -f .deploy-needed ] || echo 0 > .deploy-attempts
