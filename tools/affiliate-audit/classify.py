@@ -26,6 +26,15 @@ def classify(evidence: dict, checks_cfg: dict) -> str:
     if OOS_MARKER in body:
         return "oos"
 
+    status = evidence.get("status")
+    if status is not None and status != 200:
+        # Amazon-side error (rate-limit, 5xx, etc.) with no soft-404/OOS/anti-bot
+        # marker in the body — not our cloak's fault, and not confidently dead
+        # either. See state.py's inconclusive_grace_runs for how repeated hits
+        # of this eventually escalate to a human instead of being silently
+        # accepted forever.
+        return "inconclusive"
+
     if checks_cfg.get("prime_required", True) and evidence.get("prime") is False:
         return "no_prime"
 

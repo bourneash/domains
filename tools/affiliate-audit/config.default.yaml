@@ -6,6 +6,7 @@ checks:
   broken_redirect_grace_runs: 1
   no_prime_grace_runs: 2
   low_rating_grace_runs: 2
+  inconclusive_grace_runs: 3  # consecutive anti-bot/5xx reads before escalating to a human task
 pacing:
   min_delay_s: 12
   max_delay_s: 25

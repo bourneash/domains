@@ -9,6 +9,7 @@ _GRACE_KEY = {
     "broken_redirect": "broken_redirect_grace_runs",
     "no_prime": "no_prime_grace_runs",
     "low_rating": "low_rating_grace_runs",
+    "inconclusive": "inconclusive_grace_runs",
 }
 NON_ACTIONABLE_VERDICTS = ("ok", "inconclusive")
 
@@ -40,8 +41,10 @@ def update_state(
         new_state.pop(product_id, None)
         return new_state, False
 
-    if verdict == "inconclusive":
-        # Anti-bot wall: never advances or resets an existing streak.
+    if verdict == "inconclusive" and entry is not None and entry.get("issue") != "inconclusive":
+        # Anti-bot wall / Amazon-side error landing on top of a DIFFERENT
+        # issue already in progress (e.g. a genuine OOS streak) — a single
+        # noisy read must never advance or reset that unrelated streak.
         return new_state, False
 
     if entry is None or entry.get("issue") != verdict:

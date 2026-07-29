@@ -5,6 +5,48 @@ import subprocess
 from pathlib import Path
 
 
+def file_persistent_inconclusive(
+    product: dict,
+    evidence: dict,
+    checks_cfg: dict,
+    site_dir: Path,
+    today: str,
+) -> Path:
+    """Deterministic escalation for a product stuck on 'inconclusive' (anti-bot
+    wall or repeated Amazon-side error) for N consecutive weekly runs. No LLM
+    involved — there's no replacement decision to make here, just a signal
+    that the checker can't get a clean read and a human should look instead
+    of this silently resetting every week forever."""
+    grace = checks_cfg.get("inconclusive_grace_runs", 3)
+    status = evidence.get("status")
+    detail = f"HTTP {status} from Amazon" if status else "anti-bot wall (captcha/Robot Check)"
+    task_path = (
+        site_dir / "ops" / "tasks" / "backlog" / f"{today}-affiliate-inconclusive-{product['id']}.md"
+    )
+    task_path.parent.mkdir(parents=True, exist_ok=True)
+    task_path.write_text(
+        f"""---
+type: engineering
+---
+
+# Persistent inconclusive: {product['id']}
+
+`{evidence.get('go_url')}` has been classified inconclusive ({detail}) for
+{grace} consecutive weekly affiliate-audit runs. This is NOT a confirmed dead
+link or de-listing — the checker cannot get a clean read on the Amazon landing
+page (anti-bot wall or repeated server-side error), so no automatic replacement
+was attempted. A human should check this link manually before assuming it's
+actually broken.
+
+- id: `{product['id']}`
+- asin: `{product.get('asin')}`
+- go_url: {evidence.get('go_url')}
+- last evidence body excerpt: {(evidence.get('body') or '')[:300]!r}
+"""
+    )
+    return task_path
+
+
 def build_prompt(
     product: dict,
     evidence: dict,
@@ -71,16 +113,20 @@ to resolve" below.
      `deployer` role ships it with its own push + live-smoke-verify — do not
      `git push` yourself.
    - Post to Slack via `ops/scripts/notify-slack.sh "$SLACK_CHANNEL" "<message>"`:
-     one line naming the old product, the new product, and the reason
-     (verdict + evidence), prefixed with `✅`.
+     one line naming the old product, the new product, the reason (verdict +
+     evidence), and the go_url ({evidence.get('go_url')}), prefixed with `✅`.
 4. Unable to resolve (budget exhausted, no candidate verified, campaignOnly, or
    build/validator failure):
    - Leave `affiliate.ts` untouched (or revert any edit you made).
    - File `ops/tasks/backlog/<yyyy-mm-dd>-affiliate-issue-{product['id']}.md`
      with `type: content`, the verdict, the evidence, and what you tried.
+   - `git add` only the task file, commit
+     (`affiliate: flag unresolved {product['id']} (<verdict>)`), and push —
+     filing a task is not a deploy, but it must still land in the repo instead
+     of sitting uncommitted in the working tree.
    - Post to Slack via `ops/scripts/notify-slack.sh "$SLACK_CHANNEL" "<message>"`:
-     one line naming the product, the verdict, and the task file path, prefixed
-     with `⚠️`.
+     one line naming the product, the verdict, the go_url
+     ({evidence.get('go_url')}), and the task file path, prefixed with `⚠️`.
 
 Do not touch any product other than `{product['id']}`. Do not create
 `.deploy-needed` unless you made and committed a change in step 3.

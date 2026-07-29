@@ -117,11 +117,21 @@ team's signal without polling the board.
 
 **Lead with one status emoji so the verdict is readable at a glance, without reading the sentence:**
 - `✅` — all clear, nothing filed
-- `👀` — informational only (e.g. new OOS detections below the filing threshold, anti-bot inconclusives)
-- `⚠️` — a broken redirect/cloak was filed (engineering)
+- `⚠️` — needs attention: a broken redirect/cloak was filed (engineering), OR
+  an anti-bot-wall / Amazon-error inconclusive has repeated enough consecutive
+  runs to need a human look (not yet a confirmed dead link)
 - `🚨` — a dead ASIN / de-listing was filed (content)
+
+Never use `👀` (or any other ambiguous emoji) — every run's status must read as
+clear/warning/failure at a glance, with no third "informational" bucket to
+puzzle over.
 
 Format: `<emoji> {{SITE_BRAND}} affiliate audit — <date>: <one-line verdict>.` e.g.
 `✅ {{SITE_BRAND}} affiliate audit — <date>: 11/11 resolved, 0 dead.`
-or, when something is filed,
-`🚨 {{SITE_BRAND}} affiliate audit — <date>: 1 dead link filed. Filed: ops/tasks/backlog/<date>-broken-affiliate-<slug>.md`
+When one or more items were filed, follow the summary line with one bullet per
+item, using Slack mrkdwn link syntax (`<url|label>`) so the actual `/go/<id>`
+URL is one click away — never paste a bare URL as plain text:
+```
+🚨 {{SITE_BRAND}} affiliate audit — <date>: 1 dead link filed.
+• dead: <{{BASE_URL}}{{GO_PREFIX}}<slug>/|<slug>> — filed ops/tasks/backlog/<date>-broken-affiliate-<slug>.md
+```

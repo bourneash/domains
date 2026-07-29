@@ -7,13 +7,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import checker  # noqa: E402
 
 
+class FakeResponse:
+    def __init__(self, status):
+        self.status = status
+
+
 class FakePage:
-    def __init__(self, url, body, rating=None, prime=None, raise_on_goto=False):
+    def __init__(self, url, body, rating=None, prime=None, raise_on_goto=False, status=200):
         self.url = url
         self._body = body
         self._rating = rating
         self._prime = prime
         self._raise = raise_on_goto
+        self._status = status
         self.visited = []
 
     def goto(self, url, wait_until=None, timeout=None):
@@ -21,6 +27,7 @@ class FakePage:
         if self._raise:
             raise RuntimeError("net::ERR_CONNECTION_REFUSED")
         self.url = url
+        return FakeResponse(self._status)
 
     def inner_text(self, selector):
         assert selector == "body"
@@ -40,11 +47,20 @@ def test_normal_product_ok_evidence():
     with patch("checker.time.sleep") as mock_sleep:
         ev = checker.check_product(page, "https://totaljerks.com", PRODUCT, {})
     assert ev["redirect_ok"] is True
+    assert ev["status"] == 200
     assert ev["body"] == "Buy Widget now"
     assert ev["rating"] == 4.6
     assert ev["prime"] is True
     assert ev["go_url"] == "https://totaljerks.com/go/widget/"
     mock_sleep.assert_called_once_with(3)
+
+
+def test_5xx_status_captured_in_evidence():
+    page = FakePage(url="https://amazon.com/dp/B00WIDGET1", body="Internal Server Error", status=500)
+    with patch("checker.time.sleep"):
+        ev = checker.check_product(page, "https://totaljerks.com", PRODUCT, {})
+    assert ev["status"] == 500
+    assert ev["redirect_ok"] is True
 
 
 def test_goto_failure_is_broken_redirect():

@@ -11,7 +11,7 @@ CHECKS = {
 
 
 def _evidence(**overrides):
-    base = {"redirect_ok": True, "body": "normal product page", "prime": True, "rating": 4.6}
+    base = {"redirect_ok": True, "status": 200, "body": "normal product page", "prime": True, "rating": 4.6}
     base.update(overrides)
     return base
 
@@ -34,6 +34,24 @@ def test_dead_soft_404():
 def test_oos():
     ev = _evidence(body="currently unavailable")
     assert classify.classify(ev, CHECKS) == "oos"
+
+
+def test_5xx_status_with_no_markers_is_inconclusive():
+    ev = _evidence(status=500, body="Internal Server Error")
+    assert classify.classify(ev, CHECKS) == "inconclusive"
+
+
+def test_missing_status_does_not_force_inconclusive():
+    """status=None means the checker couldn't capture it (e.g. an older
+    evidence shape) — fall through to normal body-based classification
+    rather than treating unknown as an error."""
+    ev = _evidence(status=None)
+    assert classify.classify(ev, CHECKS) == "ok"
+
+
+def test_soft_404_wins_over_non_200_status():
+    ev = _evidence(status=404, body="Sorry! We couldn't find that page")
+    assert classify.classify(ev, CHECKS) == "dead"
 
 
 def test_no_prime():

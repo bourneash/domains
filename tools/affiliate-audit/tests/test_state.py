@@ -12,6 +12,7 @@ CHECKS = {
     "broken_redirect_grace_runs": 1,
     "no_prime_grace_runs": 2,
     "low_rating_grace_runs": 2,
+    "inconclusive_grace_runs": 3,
 }
 
 
@@ -53,12 +54,34 @@ def test_ok_clears_prior_issue():
     assert "widget" not in s2
 
 
-def test_inconclusive_leaves_existing_progress_untouched():
+def test_inconclusive_on_top_of_unrelated_issue_leaves_it_untouched():
     s1, _ = state.update_state({}, "widget", "oos", "2026-07-01", CHECKS)
     s2, actionable = state.update_state(s1, "widget", "inconclusive", "2026-07-08", CHECKS)
     assert actionable is False
+    assert s2["widget"]["issue"] == "oos"
     assert s2["widget"]["consecutive_runs"] == 1
     assert s2["widget"]["last_checked"] == "2026-07-01"
+
+
+def test_inconclusive_tracks_its_own_streak_and_escalates_after_grace_runs():
+    s1, a1 = state.update_state({}, "widget", "inconclusive", "2026-07-01", CHECKS)
+    assert a1 is False
+    assert s1["widget"]["consecutive_runs"] == 1
+
+    s2, a2 = state.update_state(s1, "widget", "inconclusive", "2026-07-08", CHECKS)
+    assert a2 is False
+    assert s2["widget"]["consecutive_runs"] == 2
+
+    s3, a3 = state.update_state(s2, "widget", "inconclusive", "2026-07-15", CHECKS)
+    assert a3 is True  # inconclusive_grace_runs == 3
+    assert s3["widget"]["consecutive_runs"] == 3
+
+
+def test_ok_clears_an_inconclusive_streak_too():
+    s1, _ = state.update_state({}, "widget", "inconclusive", "2026-07-01", CHECKS)
+    s2, actionable = state.update_state(s1, "widget", "ok", "2026-07-08", CHECKS)
+    assert actionable is False
+    assert "widget" not in s2
 
 
 def test_issue_type_change_resets_streak():

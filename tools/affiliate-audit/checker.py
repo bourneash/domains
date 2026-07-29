@@ -65,17 +65,19 @@ def check_product(page, base_url: str, product: dict, pacing_cfg: dict) -> dict:
         "go_url": go_url,
         "landed_url": None,
         "redirect_ok": True,
+        "status": None,
         "body": "",
         "prime": None,
         "rating": None,
         "checked_at": None,
     }
     try:
-        page.goto(go_url, wait_until="domcontentloaded", timeout=30000)
+        resp = page.goto(go_url, wait_until="domcontentloaded", timeout=30000)
     except Exception:
         evidence["redirect_ok"] = False
         return evidence
 
+    evidence["status"] = resp.status if resp is not None else None
     time.sleep(SETTLE_DELAY_S)
 
     evidence["landed_url"] = page.url
