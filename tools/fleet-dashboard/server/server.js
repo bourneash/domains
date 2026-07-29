@@ -13,6 +13,7 @@ const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
 const taskbudget = require('./taskbudget');
+const aiusage = require('./aiusage');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
 const datahub = require('./datahub');
@@ -242,6 +243,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // dead-role backlog task drift.
   app.get('/api/task-budget', async (_req, res) => {
     try { res.json(await taskbudget.fleet(root)); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Real AI token usage/cost, rolled up from the per-site ledgers written by
+  // tools/scripts/claude-tracked.sh (tools/ai-usage/aggregate.py is the source
+  // of truth). Sites not yet migrated to the tracked wrapper report zero
+  // calls, listed under summary.sites_uninstrumented, not as an error.
+  app.get('/api/ai-usage', async (_req, res) => {
+    try { res.json(await aiusage.fleet(root)); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
 

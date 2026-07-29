@@ -37,6 +37,10 @@ NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 TODAY="$(date -u +%Y-%m-%d)"
 BOARD_LOG="$REPO_ROOT/ops/board/engineer-log.md"
 
+CRON_SITE="$(basename "$REPO_ROOT")"
+CLAUDE_TRACKED="$REPO_ROOT/.monorepo-tools/scripts/claude-tracked.sh"
+[[ -x "$CLAUDE_TRACKED" ]] || CLAUDE_TRACKED="$REPO_ROOT/../../tools/scripts/claude-tracked.sh"
+
 log() { echo "[$(date -Iseconds)] run-engineer: $*" | tee -a "$LOG"; }
 slack() { [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$1" "${2:-good}" 2>/dev/null || true; }
 
@@ -190,8 +194,8 @@ log "invoking {{MODEL}} engineer pass (max ${MAX_TURNS} turns)..."
 # push). GIT_SSH_COMMAND=/bin/false means a misbehaving model can't reach the remote
 # despite --dangerously-skip-permissions + mounted SSH keys.
 set +e
-GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 \
-timeout "$WORK_TIMEOUT" claude -p "$PROMPT" --output-format text --model "$MODEL" \
+GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 CRON_SITE="$CRON_SITE" CRON_ROLE=engineer REPO_ROOT="$REPO_ROOT" \
+timeout "$WORK_TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" --model "$MODEL" \
   --max-turns "$MAX_TURNS" --dangerously-skip-permissions > "$RESULT_FILE" 2>>"$LOG"
 CLAUDE_EXIT=$?
 set -e

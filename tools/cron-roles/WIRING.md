@@ -229,6 +229,40 @@ to that allowlist when the role does NOT notify on its own.
 
 ---
 
+## Step 6.5 — Wire token-usage tracking (Fleet Dashboard AI Usage tab)
+
+Every `claude -p` call site should go through `tools/scripts/claude-tracked.sh` instead of
+calling `claude` directly, so its real token usage/cost lands in the Fleet Dashboard. This
+is a **deliberate, one-site-at-a-time migration** (no fleet-wide auto-rollout — see
+`feedback_no_auto_rollout_tool.md`), so wire it by hand when you touch a site's
+`run-role.sh` or a bash-driven role's runner script, not as a batch job.
+
+The diff is small and mechanical:
+
+```bash
+# Near the top, after REPO_ROOT is resolved:
+export CRON_SITE="<site-slug, e.g. americastrikes.com>"   # hardcode; basename(REPO_ROOT) is /work in-container
+CLAUDE_TRACKED="$REPO_ROOT/.monorepo-tools/scripts/claude-tracked.sh"
+[[ -x "$CLAUDE_TRACKED" ]] || CLAUDE_TRACKED="$REPO_ROOT/../../tools/scripts/claude-tracked.sh"
+
+# At each call site, swap the binary and drop any --output-format flag
+# (claude-tracked.sh owns that flag — it forces json to capture usage, then
+# re-prints .result so existing `>> "$LOG"` / `| tee -a "$LOG"` behavior is unchanged):
+CRON_ROLE="<role-name>" timeout "$TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" \
+  --max-turns "$MAX_TURNS" --dangerously-skip-permissions --model "$MODEL" \
+  >> "$LOG" 2>&1
+```
+
+`claude-tracked.sh` reads in-container via the existing `.monorepo-tools` bind mount
+(`feedback_site_containers_need_monorepo_tools_mount.md`) — no docker-compose change
+needed. It appends one JSON line per call to `ops/logs/token-usage-<UTC date>.jsonl`
+(same daily-file convention as the engineer's `PULSE_LOG`), which
+`tools/ai-usage/aggregate.py` and the Fleet Dashboard's AI Usage tab read fleet-wide.
+Reference implementation: `sites/americastrikes.com/ops/scripts/run-role.sh` and the
+`engineer`/`watchdog` archetype templates.
+
+---
+
 ## Step 7 — Wire `crontab.docker`
 
 Append a schedule line invoking the role via the worker, with a short comment header.

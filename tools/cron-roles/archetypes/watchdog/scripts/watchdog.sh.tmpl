@@ -26,6 +26,10 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 
+CRON_SITE="$(basename "$REPO_ROOT")"
+CLAUDE_TRACKED="$REPO_ROOT/.monorepo-tools/scripts/claude-tracked.sh"
+[[ -x "$CLAUDE_TRACKED" ]] || CLAUDE_TRACKED="$REPO_ROOT/../../tools/scripts/claude-tracked.sh"
+
 # ---- config ----
 BASE_URL="${WATCHDOG_BASE_URL:-{{BASE_URL}}}"
 MODEL="${WATCHDOG_MODEL:-{{MODEL}}}"
@@ -317,9 +321,9 @@ WATCHDOG_DETAIL=<one short line: root cause + what you changed>"
 
 log "invoking $MODEL repair pass (max ${MAX_TURNS} turns, ${WORK_TIMEOUT}s budget)..."
 set +e
-GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 \
-timeout "$WORK_TIMEOUT" claude -p "$PROMPT" \
-  --output-format text --model "$MODEL" --max-turns "$MAX_TURNS" \
+GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 CRON_SITE="$CRON_SITE" CRON_ROLE=watchdog REPO_ROOT="$REPO_ROOT" \
+timeout "$WORK_TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" \
+  --model "$MODEL" --max-turns "$MAX_TURNS" \
   --dangerously-skip-permissions > "$RESULT_FILE" 2>>"$LOG"
 CLAUDE_EXIT=$?
 set -e

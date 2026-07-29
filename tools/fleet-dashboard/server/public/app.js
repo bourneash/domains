@@ -363,6 +363,86 @@ async function renderTaskBudget() {
   stamp();
 }
 
+/* ===================== AI USAGE ===================== */
+// Real token usage/cost, rolled up from the per-site ledgers written by
+// tools/scripts/claude-tracked.sh (server/aiusage.js -> tools/ai-usage/aggregate.py).
+// Sites not yet migrated to the tracked wrapper (see tools/cron-roles/WIRING.md
+// Step 6.5) show up under "not yet instrumented" rather than being hidden —
+// most of the fleet will be in that bucket until sites are migrated one at a time.
+function fmtTokens(n) { return (n || 0).toLocaleString(); }
+function fmtUSD(n) { return `$${(n || 0).toFixed(2)}`; }
+
+async function renderAIUsage() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Aggregating AI token usage…</div>';
+  let data;
+  try { data = await api('GET', '/api/ai-usage'); }
+  catch (e) { app.innerHTML = `<div class="empty">AI usage aggregation failed: ${esc(e.message)}</div>`; return; }
+
+  const s = data.summary || {};
+  const uninstrumented = s.sites_uninstrumented || [];
+
+  const siteRows = (data.by_site || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd).map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
+    <td>${siteLink(r.site)}</td>
+    <td>${r.calls}</td>
+    <td>${r.errors ? `<span class="badge b-red">${r.errors}</span>` : '<span class="muted">0</span>'}</td>
+    <td class="mono">${fmtTokens(r.input_tokens)}</td>
+    <td class="mono">${fmtTokens(r.output_tokens)}</td>
+    <td class="mono">${fmtTokens(r.cache_read_input_tokens)}</td>
+    <td class="mono">${fmtTokens(r.cache_creation_input_tokens)}</td>
+    <td class="mono">${r.cache_hit_ratio != null ? `${Math.round(r.cache_hit_ratio * 100)}%` : '<span class="muted">—</span>'}</td>
+    <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+  </tr>`).join('');
+
+  const roleRows = (data.by_site_role || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd).map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
+    <td>${siteLink(r.site)}</td>
+    <td class="mono">${esc(r.role)}</td>
+    <td>${r.calls}</td>
+    <td class="mono">${fmtTokens(r.input_tokens)}</td>
+    <td class="mono">${fmtTokens(r.output_tokens)}</td>
+    <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+  </tr>`).join('');
+
+  const dayRows = (data.by_day || []).slice().sort((a, b) => a.day.localeCompare(b.day)).map((r) => `<tr>
+    <td class="mono">${esc(r.day)}</td>
+    <td>${r.calls}</td>
+    <td class="mono">${fmtTokens(r.input_tokens + r.output_tokens)}</td>
+    <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+  </tr>`).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div>
+    <div class="task-toolbar">
+      <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
+      <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${s.sites_instrumented || 0}/${s.sites_total || 0} sites instrumented</span>
+    </div>
+    ${uninstrumented.length ? `<div class="empty" style="margin-bottom:14px">Not yet instrumented (${uninstrumented.length}): ${uninstrumented.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5 to wire a site.</div>` : ''}
+    <div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar"><strong>By site</strong></div>
+      ${siteRows ? `<table>
+        <thead><tr><th>Site</th><th>Calls</th><th>Errors</th><th>Input tok</th><th>Output tok</th><th>Cache read</th><th>Cache write</th><th>Cache hit</th><th>Cost</th></tr></thead>
+        <tbody>${siteRows}</tbody>
+      </table>` : '<div class="empty">No tracked usage yet.</div>'}
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar"><strong>By site &amp; role</strong></div>
+      ${roleRows ? `<table>
+        <thead><tr><th>Site</th><th>Role</th><th>Calls</th><th>Input tok</th><th>Output tok</th><th>Cost</th></tr></thead>
+        <tbody>${roleRows}</tbody>
+      </table>` : '<div class="empty">No tracked usage yet.</div>'}
+    </div>
+    <div class="card">
+      <div class="task-toolbar"><strong>By day</strong></div>
+      ${dayRows ? `<table>
+        <thead><tr><th>Day (UTC)</th><th>Calls</th><th>Total tokens</th><th>Cost</th></tr></thead>
+        <tbody>${dayRows}</tbody>
+      </table>` : '<div class="empty">No tracked usage yet.</div>'}
+    </div>`;
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
 /* ===================== DEPLOYS ===================== */
 // F27: dedicated panel for the CF deploy-health poller (server/deployhealth.js)
 // — today it only folds into the deployer role-matrix cell tooltip; this
@@ -2902,7 +2982,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -2959,6 +3039,7 @@ function render() {
   else if (STATE.view === 'gitstashes') renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') renderTasks();
   else if (STATE.view === 'taskbudget') renderTaskBudget();
+  else if (STATE.view === 'aiusage') renderAIUsage();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
   else if (STATE.view === 'analytics') renderAnalytics();
