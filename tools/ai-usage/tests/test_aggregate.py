@@ -97,6 +97,34 @@ class AggregateTests(unittest.TestCase):
         totals = aggregate._empty_totals()
         self.assertIsNone(aggregate._cache_hit_ratio(totals))
 
+    def test_wiring_status_classifies_uninstrumented_sites(self):
+        root = self.root()
+
+        wired = root / "sites" / "wired.com"
+        (wired / "ops" / "scripts").mkdir(parents=True)
+        (wired / "ops" / "scripts" / "run-role.sh").write_text(
+            'CRON_ROLE="$ROLE" timeout 60 "$CLAUDE_TRACKED" "$PROMPT"\n')
+
+        legacy = root / "sites" / "legacy.com"
+        (legacy / "ops" / "scripts").mkdir(parents=True)
+        (legacy / "ops" / "scripts" / "run-role.sh").write_text(
+            'timeout 60 claude -p "$PROMPT" --model sonnet\n')
+
+        no_role = root / "sites" / "no-role.com"
+        no_role.mkdir(parents=True)
+
+        no_ai = root / "sites" / "no-ai.com"
+        (no_ai / "ops" / "scripts").mkdir(parents=True)
+        (no_ai / "ops" / "scripts" / "run-role.sh").write_text('bash ops/scripts/deploy.sh\n')
+
+        report = aggregate.collect(root)
+        s = report["summary"]
+
+        self.assertIn("wired.com", s["sites_wired_awaiting_first_run"])
+        self.assertIn("legacy.com", s["sites_not_wired"])
+        self.assertIn("no-role.com", s["sites_no_ai_role"])
+        self.assertIn("no-ai.com", s["sites_no_ai_role"])
+
     def test_errors_counted_separately_from_calls(self):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [

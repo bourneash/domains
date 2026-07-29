@@ -57,6 +57,25 @@ def _cache_hit_ratio(totals: dict) -> float | None:
     return round(totals["cache_read_input_tokens"] / denom, 4)
 
 
+def wiring_status(site_dir: Path) -> str:
+    """Classify a site's run-role.sh for the dashboard's uninstrumented list.
+
+    Distinguishes "will report once its cron fires" from "genuinely has no
+    AI cron role" from "has AI calls but isn't wired to claude-tracked.sh yet"
+    — three very different situations that all look identical if you only
+    check for ledger files.
+    """
+    run_role = site_dir / "ops" / "scripts" / "run-role.sh"
+    if not run_role.is_file():
+        return "no_ai_role"
+    text = run_role.read_text(encoding="utf-8", errors="ignore")
+    if "CLAUDE_TRACKED" in text:
+        return "wired_awaiting_first_run"
+    if "claude -p" in text:
+        return "not_wired"
+    return "no_ai_role"
+
+
 def read_ledger_records(ledger: Path) -> list[dict]:
     records = []
     for line in ledger.read_text(encoding="utf-8", errors="ignore").splitlines():
@@ -118,6 +137,17 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
         fleet_totals["total_cost_usd"] += totals["total_cost_usd"]
 
     uninstrumented_sites = sorted(set(all_sites) - instrumented_sites)
+    wired_awaiting_first_run = []
+    not_wired = []
+    no_ai_role = []
+    for site_name in uninstrumented_sites:
+        status = wiring_status(sites_dir / site_name)
+        if status == "wired_awaiting_first_run":
+            wired_awaiting_first_run.append(site_name)
+        elif status == "not_wired":
+            not_wired.append(site_name)
+        else:
+            no_ai_role.append(site_name)
 
     return {
         "summary": {
@@ -126,6 +156,9 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
             "sites_total": len(all_sites),
             "sites_instrumented": len(instrumented_sites),
             "sites_uninstrumented": uninstrumented_sites,
+            "sites_wired_awaiting_first_run": wired_awaiting_first_run,
+            "sites_not_wired": not_wired,
+            "sites_no_ai_role": no_ai_role,
         },
         "by_site": site_rows,
         "by_site_role": role_rows,
@@ -152,9 +185,15 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Cache read: {summary['cache_read_input_tokens']:,}  "
           f"Cache write: {summary['cache_creation_input_tokens']:,}  "
           f"Cache hit ratio: {summary['cache_hit_ratio']}")
-    if summary["sites_uninstrumented"]:
-        print(f"\nNot yet instrumented ({len(summary['sites_uninstrumented'])}): "
-              + ", ".join(summary["sites_uninstrumented"]))
+    if summary["sites_wired_awaiting_first_run"]:
+        print(f"\nWired, awaiting first cron fire ({len(summary['sites_wired_awaiting_first_run'])}): "
+              + ", ".join(summary["sites_wired_awaiting_first_run"]))
+    if summary["sites_not_wired"]:
+        print(f"\nHas AI calls but NOT wired to claude-tracked.sh yet ({len(summary['sites_not_wired'])}): "
+              + ", ".join(summary["sites_not_wired"]))
+    if summary["sites_no_ai_role"]:
+        print(f"\nNo AI cron role at all ({len(summary['sites_no_ai_role'])}): "
+              + ", ".join(summary["sites_no_ai_role"]))
     print("\n| Site | Role | Calls | Errors | In | Out | Cache R | Cache W | Cost USD | Cache hit |")
     print("|---|---|---:|---:|---:|---:|---:|---:|---:|---:|")
     for row in report["by_site_role"]:

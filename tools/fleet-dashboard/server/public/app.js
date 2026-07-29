@@ -380,7 +380,9 @@ async function renderAIUsage() {
   catch (e) { app.innerHTML = `<div class="empty">AI usage aggregation failed: ${esc(e.message)}</div>`; return; }
 
   const s = data.summary || {};
-  const uninstrumented = s.sites_uninstrumented || [];
+  const wiredAwaiting = s.sites_wired_awaiting_first_run || [];
+  const notWired = s.sites_not_wired || [];
+  const noAiRole = s.sites_no_ai_role || [];
 
   const siteRows = (data.by_site || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd).map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
     <td>${siteLink(r.site)}</td>
@@ -416,7 +418,9 @@ async function renderAIUsage() {
       <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
       <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${s.sites_instrumented || 0}/${s.sites_total || 0} sites instrumented</span>
     </div>
-    ${uninstrumented.length ? `<div class="empty" style="margin-bottom:14px">Not yet instrumented (${uninstrumented.length}): ${uninstrumented.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5 to wire a site.</div>` : ''}
+    ${notWired.length ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
+    ${wiredAwaiting.length ? `<div class="empty" style="margin-bottom:14px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
+    ${noAiRole.length ? `<div class="empty" style="margin-bottom:14px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>By site</strong></div>
       ${siteRows ? `<table>
