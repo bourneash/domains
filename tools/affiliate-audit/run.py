@@ -23,10 +23,10 @@ ROOT = Path(__file__).resolve().parents[2]  # .../domains
 AUDIT_DIR = Path(__file__).resolve().parent
 
 
-def discover_products(site_dir: Path) -> list[dict]:
-    affiliate_ts = site_dir / "site" / "src" / "lib" / "affiliate.ts"
+def discover_products(site_dir: Path, registry_path: str = "site/src/lib/affiliate.ts") -> list[dict]:
+    registry = site_dir / registry_path
     result = subprocess.run(
-        ["npx", "tsx", str(AUDIT_DIR / "discover.mjs"), str(affiliate_ts)],
+        ["npx", "tsx", str(AUDIT_DIR / "discover.mjs"), str(registry)],
         cwd=str(site_dir / "site"),
         capture_output=True,
         text=True,
@@ -104,7 +104,7 @@ def run_once(site_dir: Path, site_domain: str, cfg: dict, dry_run: bool, today: 
     if today is None:
         today = date.today().isoformat()
 
-    products = discover_products(site_dir)
+    products = discover_products(site_dir, cfg.get("registry", {}).get("path", "site/src/lib/affiliate.ts"))
     ctx, page = checker.launch_browser()
 
     first_pass = []

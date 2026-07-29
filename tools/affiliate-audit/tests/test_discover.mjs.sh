@@ -21,3 +21,20 @@ assert data[1]['asin'] is None
 assert data[1]['campaignOnly'] is True
 print('OK: discover.mjs output matches fixture')
 "
+
+OUT=$(cd "$SITE_DIR" && npx tsx "$HERE/../discover.mjs" "$HERE/fixtures/frontmatter-products")
+
+echo "$OUT" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+assert [p['id'] for p in data] == ['alpha-winch-rope', 'beta-recovery-kit']
+assert data[0]['name'] == 'Alpha Winch Rope'
+assert data[0]['asin'] == 'B0ALPHA123'
+assert data[0]['price'] == 39.95
+assert data[0]['searchQuery'] == 'Alpha Winch Rope'
+assert data[0]['ribbon'] == 'staff-pick'
+assert data[1]['asin'] is None
+assert data[1]['brand'] is None
+assert data[1]['price'] is None
+print('OK: discover.mjs reads frontmatter product directories')
+"

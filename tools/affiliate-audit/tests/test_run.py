@@ -31,6 +31,16 @@ PRODUCTS = [
 ]
 
 
+def test_discover_products_uses_configured_registry_path():
+    site_dir = Path("/tmp/site")
+    completed = mock.Mock(returncode=0, stdout="[]", stderr="")
+    with mock.patch("run.subprocess.run", return_value=completed) as mock_run:
+        assert run.discover_products(site_dir, "site/src/content/products") == []
+
+    assert mock_run.call_args.args[0][-1] == "/tmp/site/site/src/content/products"
+    assert mock_run.call_args.kwargs["cwd"] == "/tmp/site/site"
+
+
 def test_run_once_resolves_actionable_and_skips_healthy():
     fake_page = object()
     evidence_by_id = {

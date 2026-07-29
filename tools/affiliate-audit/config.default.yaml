@@ -1,3 +1,8 @@
+registry:
+  # Relative to the site repository. Sites with a frontmatter product registry
+  # override this with e.g. `site/src/content/products`.
+  path: site/src/lib/affiliate.ts
+
 checks:
   prime_required: true
   min_rating: 4.0
