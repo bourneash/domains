@@ -8,7 +8,25 @@ SOFT_404_MARKERS = (
     "404 not found",
 )
 OOS_MARKER = "currently unavailable"
-ANTI_BOT_MARKERS = ("captcha", "robot check")
+ANTI_BOT_MARKERS = (
+    "captcha",
+    "robot check",
+    "click the button below to continue shopping",  # Amazon's actual soft
+    # bot-check interstitial for a flagged/datacenter IP — confirmed live
+    # 2026-07-29 via a VPN-proxied CloakBrowser session; NOT covered by the
+    # other two markers (carried over from the old bare-curl role, which
+    # apparently never actually hit this page). Without this, a soft-blocked
+    # session misreads as "no Prime badge" (prime defaults False on a page
+    # with no primeBadge element) and could send a perfectly healthy product
+    # to the resolution agent as a false positive.
+)
+
+# A genuine Amazon product page body is always much longer than this — a
+# short body with none of the markers above is still almost certainly a
+# block/error/interstitial page, not real page content worth trusting for
+# Prime/rating classification. Mirrors the same threshold already
+# established in cc_lib.is_maintenance_or_empty().
+_MIN_TRUSTED_BODY_LEN = 200
 
 
 def classify(evidence: dict, checks_cfg: dict) -> str:
@@ -25,6 +43,9 @@ def classify(evidence: dict, checks_cfg: dict) -> str:
 
     if OOS_MARKER in body:
         return "oos"
+
+    if len(body) < _MIN_TRUSTED_BODY_LEN:
+        return "inconclusive"
 
     status = evidence.get("status")
     if status is not None and status != 200:

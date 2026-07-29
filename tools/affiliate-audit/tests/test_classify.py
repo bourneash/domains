@@ -10,8 +10,11 @@ CHECKS = {
 }
 
 
+_NORMAL_BODY = "normal product page. " * 12  # >200 chars, like a real Amazon dp page body
+
+
 def _evidence(**overrides):
-    base = {"redirect_ok": True, "status": 200, "body": "normal product page", "prime": True, "rating": 4.6}
+    base = {"redirect_ok": True, "status": 200, "body": _NORMAL_BODY, "prime": True, "rating": 4.6}
     base.update(overrides)
     return base
 
@@ -34,6 +37,19 @@ def test_dead_soft_404():
 def test_oos():
     ev = _evidence(body="currently unavailable")
     assert classify.classify(ev, CHECKS) == "oos"
+
+
+def test_continue_shopping_interstitial_is_inconclusive():
+    """Amazon's real soft bot-check page for a flagged/datacenter IP — confirmed
+    live via a VPN-proxied CloakBrowser session 2026-07-29. Must not fall through
+    to no_prime just because this short page has no primeBadge element."""
+    ev = _evidence(body="Click the button below to continue shopping\nContinue shopping", prime=False)
+    assert classify.classify(ev, CHECKS) == "inconclusive"
+
+
+def test_short_unrecognized_body_is_inconclusive_not_ok():
+    ev = _evidence(body="short", prime=True, rating=4.8)
+    assert classify.classify(ev, CHECKS) == "inconclusive"
 
 
 def test_5xx_status_with_no_markers_is_inconclusive():

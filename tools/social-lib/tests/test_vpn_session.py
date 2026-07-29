@@ -11,6 +11,27 @@ def test_get_proxy_url_eu():
     assert get_proxy_url("eu") == "http://127.0.0.1:8182"
 
 
+def test_get_proxy_url_us_env_override():
+    os.environ["VPN_PROXY_URL_US"] = "http://vpn-us:8888"
+    try:
+        assert get_proxy_url("us") == "http://vpn-us:8888"
+    finally:
+        del os.environ["VPN_PROXY_URL_US"]
+
+
+def test_get_proxy_url_eu_env_override():
+    os.environ["VPN_PROXY_URL_EU"] = "http://vpn-eu:8888"
+    try:
+        assert get_proxy_url("eu") == "http://vpn-eu:8888"
+    finally:
+        del os.environ["VPN_PROXY_URL_EU"]
+
+
+def test_get_proxy_url_falls_back_without_override():
+    os.environ.pop("VPN_PROXY_URL_US", None)
+    assert get_proxy_url("us") == "http://127.0.0.1:8181"
+
+
 def test_vpn_session_sets_env():
     with vpn_session("us") as proxy:
         assert proxy == "http://127.0.0.1:8181"

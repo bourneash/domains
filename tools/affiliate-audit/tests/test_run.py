@@ -34,7 +34,7 @@ PRODUCTS = [
 def test_run_once_resolves_actionable_and_skips_healthy():
     fake_page = object()
     evidence_by_id = {
-        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
         "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
                      "rating": None, "redirect_ok": True},
     }
@@ -59,7 +59,7 @@ def test_run_once_resolves_actionable_and_skips_healthy():
 def test_run_once_dry_run_never_resolves():
     fake_page = object()
     evidence_by_id = {
-        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
         "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
                      "rating": None, "redirect_ok": True},
     }
@@ -80,7 +80,7 @@ def test_run_once_dry_run_never_resolves():
 def test_run_once_recheck_confirms_flagged_verdict_stays_flagged():
     fake_page = object()
     first_pass = {
-        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
         "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
                      "rating": None, "redirect_ok": True},
     }
@@ -109,12 +109,12 @@ def test_run_once_recheck_confirms_flagged_verdict_stays_flagged():
 def test_run_once_recheck_clears_false_positive():
     fake_page = object()
     first_pass = {
-        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
         "dead-one": {"go_url": "y", "body": "currently unavailable", "prime": None,
                      "rating": None, "redirect_ok": True},
     }
     # recheck comes back healthy -- first pass was a session artifact
-    recheck_evidence = {"go_url": "y", "body": "buy now", "prime": True, "rating": 4.9, "redirect_ok": True}
+    recheck_evidence = {"go_url": "y", "body": "buy now. " * 25, "prime": True, "rating": 4.9, "redirect_ok": True}
 
     with mock.patch("run.discover_products", return_value=PRODUCTS), \
          mock.patch("run.checker.launch_browser", return_value=(mock.Mock(), fake_page)), \
@@ -169,7 +169,7 @@ def test_run_once_escalates_persistent_inconclusive_without_llm():
     since there's no replacement decision to make for an unconfirmed issue."""
     fake_page = object()
     evidence_by_id = {
-        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8,
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8,
                          "redirect_ok": True, "status": 200, "asin": "B001"},
         "dead-one": {"go_url": "y", "body": "Internal Server Error", "prime": None,
                      "rating": None, "redirect_ok": True, "status": 500, "asin": "B002"},
@@ -207,7 +207,7 @@ def test_run_once_closes_main_context_before_any_recheck():
     call_order = []
 
     evidence_by_id = {
-        "healthy-one": {"go_url": "x", "body": "buy now", "prime": True, "rating": 4.8, "redirect_ok": True},
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
         "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
                      "rating": None, "redirect_ok": True},
     }

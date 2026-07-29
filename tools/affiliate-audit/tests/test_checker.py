@@ -109,7 +109,7 @@ def test_launch_browser_default_passes_no_profile_to_cc_lib():
     ):
         result = checker.launch_browser()
         cc_lib_mock = sys.modules["cc_lib"]
-        cc_lib_mock.launch.assert_called_once_with()
+        cc_lib_mock.launch.assert_called_once_with(headless=True)
     assert result == (fake_ctx, fake_page)
 
 
@@ -120,5 +120,17 @@ def test_launch_browser_passes_through_explicit_profile():
     ):
         result = checker.launch_browser(profile="/tmp/some/other-profile")
         cc_lib_mock = sys.modules["cc_lib"]
-        cc_lib_mock.launch.assert_called_once_with(profile="/tmp/some/other-profile")
+        cc_lib_mock.launch.assert_called_once_with(profile="/tmp/some/other-profile", headless=True)
     assert result == (fake_ctx, fake_page)
+
+
+def test_launch_browser_always_headless_for_unattended_runs():
+    """affiliate-audit never has a human in the loop and often runs inside a
+    container with no display server — it must always launch headless,
+    regardless of cc_lib.launch()'s own (visible-window) default."""
+    fake_ctx, fake_page = object(), object()
+    with mock.patch.dict(
+        "sys.modules", {"cc_lib": mock.Mock(launch=mock.Mock(return_value=(fake_ctx, fake_page)))}
+    ):
+        checker.launch_browser()
+        assert sys.modules["cc_lib"].launch.call_args.kwargs.get("headless") is True

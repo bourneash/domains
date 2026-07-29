@@ -4,25 +4,36 @@ content-link submission. One library, used by every domain site's
 ops/campaigns/ scripts instead of copy-pasting a fresh CloakBrowser driver
 per site.
 
-Requires: cloakbrowser + social_lib (tools/social-setup/src on sys.path).
+Requires: cloakbrowser (pip) + social_lib (tools/social-lib, importable via
+pip install -e on the host, or via sys.path fallback below in a container
+where only tools/ is bind-mounted read-only, e.g. at .monorepo-tools/).
 """
 import glob
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
 
 CREATOR_ID = "amzn1.creator.7b4fea2c-d009-4d2f-86d4-f583a6aa4fd1"  # Synaptic Workshop
 PROFILE = "/tmp/cloak-driver/profile"
-SCREENSHOTS = "/home/jesse/projects/domains/.cloak-screenshots"
+SCREENSHOTS = os.environ.get("CLOAK_SCREENSHOTS_DIR", "/home/jesse/projects/domains/.cloak-screenshots")
 
-_SOCIAL_SETUP_SRC = "/home/jesse/projects/domains/tools/social-setup/src"
+# Resolved relative to this file's own location, NOT a hardcoded host path —
+# this file lives at tools/creator-connections/cc_lib.py, so parents[1] is
+# tools/. That's correct whether "tools/" is the real domains/tools directory
+# (host) or a read-only bind mount of it at .monorepo-tools/ inside a
+# container (same relative shape either way). Previously hardcoded to
+# tools/social-setup/src (wrong package entirely — social_lib actually lives
+# in tools/social-lib/src) which was a silent no-op on the host only because
+# social_lib was ALSO a real pip-installed package there.
+_SOCIAL_LIB_SRC = str(Path(__file__).resolve().parents[1] / "social-lib" / "src")
 
 
 def _ensure_import_path():
     import sys
-    if _SOCIAL_SETUP_SRC not in sys.path:
-        sys.path.insert(0, _SOCIAL_SETUP_SRC)
+    if _SOCIAL_LIB_SRC not in sys.path:
+        sys.path.insert(0, _SOCIAL_LIB_SRC)
 
 
 def list_url(creator_id=CREATOR_ID, status="active", type_="affiliate-plus", keyword=""):

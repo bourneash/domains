@@ -29,13 +29,20 @@ def launch_browser(profile=None):
     profile: optional override passed through to cc_lib.launch(). Left
     unset, cc_lib.launch() uses its own default (the main sweep's shared
     profile) — this preserves existing behavior for run.py's call site.
+
+    Always headless=True: unlike the Creator Connections campaign flows
+    (which need a visible window for a human to log in), affiliate-audit
+    only ever visits public Amazon product pages — no login, no human in
+    the loop — and this runs unattended on a weekly cron, including inside
+    a container with no display server. cc_lib.launch()'s own default
+    (headless=False) is left alone for its other, interactive callers.
     """
     _ensure_cc_lib_on_path()
     import cc_lib
 
     if profile is not None:
-        return cc_lib.launch(profile=profile)
-    return cc_lib.launch()
+        return cc_lib.launch(profile=profile, headless=True)
+    return cc_lib.launch(headless=True)
 
 
 _RATING_JS = """
