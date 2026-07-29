@@ -11,7 +11,14 @@ pacing:
   min_delay_s: 12
   max_delay_s: 25
 resolution:
-  max_search_attempts: 3
+  # Tightened 2026-07-29 after the totaljerks pilot's first real run: 5 of 6
+  # flagged products hit max_agent_turns without finishing (each search+verify
+  # round trip through CloakBrowser costs several turns; 3 attempts routinely
+  # blew the budget). Scoping to 1 attempt makes each invocation reliably fit
+  # its budget — "couldn't find a confident replacement quickly, file a task
+  # for a human" is a perfectly fine normal outcome, not a failure to
+  # engineer around with more turns/search attempts.
+  max_search_attempts: 1
   max_agent_turns: 20
   model: claude-sonnet-4-6
 slack:

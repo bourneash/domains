@@ -157,9 +157,23 @@ def run_once(site_dir: Path, site_domain: str, cfg: dict, dry_run: bool, today: 
                     log_path = (
                         site_dir / "ops" / "logs" / f"affiliate-audit-resolve-{product['id']}-{today}.log"
                     )
-                    resolve.resolve_product(
+                    exit_code = resolve.resolve_product(
                         product, evidence, verdict, cfg["resolution"], site_dir, site_domain, log_path
                     )
+                    if exit_code != 0:
+                        # The agent crashed, hit its turn cap, or otherwise
+                        # exited abnormally before reaching (or finishing)
+                        # its own step-4 file+commit+push path. Without this,
+                        # a flagged product just silently vanishes — no
+                        # task, no commit, no Slack line. File (idempotent —
+                        # leaves it alone if the agent got as far as writing
+                        # the file, just didn't commit it) and sweep it into
+                        # this run's own commit below.
+                        task_path = resolve.file_fallback_unresolved(
+                            product, evidence, verdict, site_dir, today
+                        )
+                        filed_task_paths.append(task_path)
+                        item["task_path"] = str(task_path.relative_to(site_dir))
 
     state.save_state(site_dir, st)
 
@@ -168,7 +182,7 @@ def run_once(site_dir: Path, site_domain: str, cfg: dict, dry_run: bool, today: 
             str(p.relative_to(site_dir)) for p in filed_task_paths
         ]
         if filed_task_paths:
-            message = f"affiliate-audit: flag {len(filed_task_paths)} persistent-inconclusive product(s) ({today})"
+            message = f"affiliate-audit: flag {len(filed_task_paths)} product(s) needing attention ({today})"
         else:
             message = f"affiliate-audit: state update ({today})"
         _commit_and_push(site_dir, message, commit_paths)

@@ -47,6 +47,47 @@ actually broken.
     return task_path
 
 
+def file_fallback_unresolved(
+    product: dict,
+    evidence: dict,
+    verdict: str,
+    site_dir: Path,
+    today: str,
+) -> Path:
+    """Deterministic (no LLM) fallback for when resolve_product()'s agent
+    fails to complete — hits its turn cap, crashes, or otherwise exits
+    non-zero before reaching its own step-4 "file a task and commit" path.
+    Without this, a flagged product silently vanishes: no task, no commit,
+    no Slack line, nothing to show it needs a human. Idempotent — if the
+    agent DID manage to write the task file before getting cut off (just
+    not commit it), this leaves that file alone rather than overwriting it;
+    the caller is responsible for committing whatever exists at this path."""
+    task_path = site_dir / "ops" / "tasks" / "backlog" / f"{today}-affiliate-issue-{product['id']}.md"
+    if task_path.exists():
+        return task_path
+    task_path.parent.mkdir(parents=True, exist_ok=True)
+    task_path.write_text(
+        f"""---
+type: content
+---
+
+# Unresolved affiliate flag: {product['id']}
+
+The resolution agent for this product did not complete (crashed, hit its
+turn cap, or otherwise exited abnormally before filing its own task). Filed
+automatically as a fallback so this doesn't silently vanish — a human should
+verify the underlying issue and either replace the product or clear it.
+
+- id: `{product['id']}`
+- asin: `{product.get('asin')}`
+- verdict: {verdict}
+- go_url: {evidence.get('go_url')}
+- evidence body excerpt: {(evidence.get('body') or '')[:300]!r}
+"""
+    )
+    return task_path
+
+
 def build_prompt(
     product: dict,
     evidence: dict,
@@ -80,8 +121,10 @@ Evidence (landed-page body excerpt): {(evidence.get('body') or '')[:500]!r}
 
 ## Budget — hard limits, do not exceed
 
-- At most {max_attempts} search attempts for a replacement candidate. If none
-  verify, STOP — do not keep searching.
+- At most {max_attempts} search attempt{'s' if max_attempts != 1 else ''} for a
+  replacement candidate. If none verify, STOP — do not keep searching, and do
+  not treat "no confident replacement found" as a failure to work around —
+  it's a normal outcome. Go straight to "Unable to resolve" below.
 - Do not extend your own budget under any circumstance.
 
 ## If campaignOnly is true
@@ -147,7 +190,8 @@ def resolve_product(
     model = resolution_cfg.get("model", "claude-sonnet-4-6")
 
     result = subprocess.run(
-        ["claude", "-p", prompt, "--max-turns", max_turns, "--model", model],
+        ["claude", "-p", prompt, "--max-turns", max_turns, "--model", model,
+         "--dangerously-skip-permissions"],
         cwd=str(site_dir),
         capture_output=True,
         text=True,

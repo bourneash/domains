@@ -163,6 +163,64 @@ def test_notify_summary_non_dead_flag_uses_warning_emoji():
     assert color == run.COLOR_WARN
 
 
+def test_run_once_files_fallback_when_resolution_agent_fails():
+    """Regression test for the totaljerks pilot's first real run: 5 of 6
+    resolution agents hit max_agent_turns and exited non-zero, and nothing
+    downstream ever noticed -- no task, no commit, no Slack line. A failed
+    agent must trigger the deterministic fallback filer."""
+    fake_page = object()
+    evidence_by_id = {
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
+        "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
+                     "rating": None, "redirect_ok": True},
+    }
+
+    with mock.patch("run.discover_products", return_value=PRODUCTS), \
+         mock.patch("run.checker.launch_browser", return_value=(mock.Mock(), fake_page)), \
+         mock.patch("run.checker.check_product", side_effect=lambda page, base, product, pacing: evidence_by_id[product["id"]]), \
+         mock.patch("run.checker.recheck_product", return_value=evidence_by_id["dead-one"]), \
+         mock.patch("run.checker.pace"), \
+         mock.patch("run.state.load_state", return_value={}), \
+         mock.patch("run.state.save_state"), \
+         mock.patch("run._commit_and_push") as mock_commit, \
+         mock.patch("run.resolve.resolve_product", return_value=1) as mock_resolve, \
+         mock.patch("run.resolve.file_fallback_unresolved", return_value=Path("/tmp/site/ops/tasks/backlog/x.md")) as mock_fallback, \
+         mock.patch("run.notify_summary") as mock_notify:
+        run.run_once(Path("/tmp/site"), "totaljerks.com", CFG, dry_run=False, today="2026-07-15")
+
+    mock_resolve.assert_called_once()
+    mock_fallback.assert_called_once()
+    assert mock_fallback.call_args.args[0]["id"] == "dead-one"
+    mock_commit.assert_called_once()
+    flagged_items = mock_notify.call_args.args[4]
+    assert flagged_items[0]["task_path"]
+
+
+def test_run_once_no_fallback_when_resolution_agent_succeeds():
+    fake_page = object()
+    evidence_by_id = {
+        "healthy-one": {"go_url": "x", "body": "buy now. " * 25, "prime": True, "rating": 4.8, "redirect_ok": True},
+        "dead-one": {"go_url": "y", "body": "Sorry! We couldn't find that page", "prime": None,
+                     "rating": None, "redirect_ok": True},
+    }
+
+    with mock.patch("run.discover_products", return_value=PRODUCTS), \
+         mock.patch("run.checker.launch_browser", return_value=(mock.Mock(), fake_page)), \
+         mock.patch("run.checker.check_product", side_effect=lambda page, base, product, pacing: evidence_by_id[product["id"]]), \
+         mock.patch("run.checker.recheck_product", return_value=evidence_by_id["dead-one"]), \
+         mock.patch("run.checker.pace"), \
+         mock.patch("run.state.load_state", return_value={}), \
+         mock.patch("run.state.save_state"), \
+         mock.patch("run._commit_and_push"), \
+         mock.patch("run.resolve.resolve_product", return_value=0) as mock_resolve, \
+         mock.patch("run.resolve.file_fallback_unresolved") as mock_fallback, \
+         mock.patch("run.notify_summary"):
+        run.run_once(Path("/tmp/site"), "totaljerks.com", CFG, dry_run=False, today="2026-07-15")
+
+    mock_resolve.assert_called_once()
+    mock_fallback.assert_not_called()
+
+
 def test_run_once_escalates_persistent_inconclusive_without_llm():
     """3rd consecutive inconclusive (500/anti-bot) must be filed as a task
     deterministically -- resolve_product (the LLM path) must NOT be called,
