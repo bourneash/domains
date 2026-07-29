@@ -116,3 +116,15 @@
 [submodule "sites/fishhooklabs.com"]
 	path = sites/fishhooklabs.com
 	url = git@github-bourneash:bourneash/fishhooklabs.com.git
+[submodule "sites/weirdassstuff.com"]
+	path = sites/weirdassstuff.com
+	url = git@github-bourneash:bourneash/weirdassstuff.com.git
+[submodule "sites/weirdgirlstore.com"]
+	path = sites/weirdgirlstore.com
+	url = git@github-bourneash:bourneash/weirdgirlstore.com.git
+[submodule "sites/newmomshop.com"]
+	path = sites/newmomshop.com
+	url = git@github-bourneash:bourneash/newmomshop.com.git
+[submodule "sites/amputeenews.com"]
+	path = sites/amputeenews.com
+	url = git@github-bourneash:bourneash/amputeenews.com.git
