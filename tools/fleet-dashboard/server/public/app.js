@@ -3224,3 +3224,15 @@ async function boot() {
 }
 
 boot();
+  const coverageRows = (data.coverage || []).map((r) => {
+    const label = r.status === 'reporting' ? 'reporting' :
+      r.status === 'wired_awaiting_first_run' ? 'wired — awaiting first call' :
+      r.status === 'not_wired' ? 'untracked call path' : 'no AI call path';
+    const badge = r.status === 'reporting' ? 'b-green' :
+      r.status === 'not_wired' ? 'b-red' : 'b-gray';
+    return `<tr data-fleet-row data-site="${esc(r.site)}"><td>${siteLink(r.site)}</td><td><span class="badge ${badge}">${esc(label)}</span></td></tr>`;
+  }).join('');
+    <div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar"><strong>Fleet tracking coverage</strong><span class="muted">Every site is shown, including sites with no AI call path.</span></div>
+      <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
+    </div>

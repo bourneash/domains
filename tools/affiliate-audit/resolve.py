@@ -1,6 +1,7 @@
 """Spawn a turn-capped `claude -p` resolution agent for one flagged product.
 Mirrors the existing fleet pattern in ops/scripts/run-role.sh (claude -p +
 --max-turns), scoped down to a single-product task instead of a full role."""
+import os
 import subprocess
 from pathlib import Path
 
@@ -188,14 +189,18 @@ def resolve_product(
     prompt = build_prompt(product, evidence, verdict, resolution_cfg, site_dir, site_domain)
     max_turns = str(resolution_cfg.get("max_agent_turns", 20))
     model = resolution_cfg.get("model", "claude-sonnet-4-6")
+    domains_root = site_dir.parents[1]
+    tracked = domains_root / "tools" / "scripts" / "claude-tracked.sh"
+    env = {**os.environ, "CRON_SITE": site_domain, "CRON_ROLE": "affiliate-resolution"}
 
     result = subprocess.run(
-        ["claude", "-p", prompt, "--max-turns", max_turns, "--model", model,
+        [str(tracked), prompt, "--max-turns", max_turns, "--model", model,
          "--dangerously-skip-permissions"],
         cwd=str(site_dir),
         capture_output=True,
         text=True,
         timeout=1800,
+        env=env,
     )
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path.write_text(

@@ -26,10 +26,12 @@ def _mock_run(stdout=MOCK_RESPONSE_TEXT, returncode=0):
 
 
 def test_generate_persona_returns_persona_instance():
-    with patch("personas.generator.subprocess.run", return_value=_mock_run()):
+    with patch("personas.generator.subprocess.run", return_value=_mock_run()) as mock_run:
         result = generate_persona(role="Senior Reporter", site="America Strikes", domain="americastrikes.com")
 
     assert isinstance(result, Persona)
+    assert mock_run.call_args.args[0][0].endswith("tools/scripts/claude-tracked.sh")
+    assert mock_run.call_args.kwargs["env"]["CRON_SITE"] == "americastrikes.com"
 
 
 def test_generate_persona_required_fields():

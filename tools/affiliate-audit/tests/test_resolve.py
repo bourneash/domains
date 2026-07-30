@@ -42,7 +42,7 @@ def test_resolve_product_invokes_claude_with_turn_cap():
         )
     assert code == 0
     args = mock_run.call_args.args[0]
-    assert args[0] == "claude"
+    assert args[0].endswith("tools/scripts/claude-tracked.sh")
     assert "--max-turns" in args
     assert "20" in args
     assert "--model" in args

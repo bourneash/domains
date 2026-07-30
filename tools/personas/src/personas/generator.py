@@ -1,11 +1,14 @@
 from __future__ import annotations
 import json
+import os
 import re
 import subprocess
 from datetime import date
+from pathlib import Path
 from personas.store import Persona, make_handle
 
 MODEL = "claude-haiku-4-5-20251001"
+DOMAINS_ROOT = Path(__file__).resolve().parents[4]
 
 
 def generate_persona(role: str, site: str, domain: str) -> Persona:
@@ -33,11 +36,16 @@ Return ONLY valid JSON with these exact keys:
   ]
 }}"""
 
+    repo_root = DOMAINS_ROOT / "sites" / domain
+    tracked = DOMAINS_ROOT / "tools" / "scripts" / "claude-tracked.sh"
+    env = {**os.environ, "CRON_SITE": domain, "CRON_ROLE": "persona-generator"}
     result = subprocess.run(
-        ["claude", "-p", prompt, "--model", MODEL],
+        [str(tracked), prompt, "--model", MODEL],
         capture_output=True,
         text=True,
         timeout=60,
+        cwd=str(repo_root),
+        env=env,
     )
     if result.returncode != 0:
         raise RuntimeError(f"claude -p failed (exit {result.returncode}): {result.stderr[:300]}")

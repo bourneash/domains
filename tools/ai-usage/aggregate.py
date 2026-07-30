@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[2]
@@ -27,6 +28,9 @@ NUMERIC_FIELDS = (
     "cache_creation_input_tokens",
     "cache_read_input_tokens",
 )
+
+DIRECT_CLAUDE_CALL = re.compile(r"\btimeout\b.*\bclaude\s+-p\b")
+PYTHON_CLAUDE_CALL = re.compile(r"[\[\(]\s*['\"]claude['\"]\s*,\s*['\"]-p['\"]")
 
 
 def _empty_totals() -> dict:
@@ -58,22 +62,42 @@ def _cache_hit_ratio(totals: dict) -> float | None:
 
 
 def wiring_status(site_dir: Path) -> str:
-    """Classify a site's run-role.sh for the dashboard's uninstrumented list.
+    """Classify all executable AI call sites, not only run-role.sh.
 
-    Distinguishes "will report once its cron fires" from "genuinely has no
-    AI cron role" from "has AI calls but isn't wired to claude-tracked.sh yet"
-    — three very different situations that all look identical if you only
-    check for ledger files.
+    Bash-driven roles commonly call Claude from an engineer, watchdog, or
+    writer helper.  Checking only the dispatcher made the old dashboard claim
+    that a site was wired while its actual AI calls were invisible.
     """
-    run_role = site_dir / "ops" / "scripts" / "run-role.sh"
-    if not run_role.is_file():
+    scripts_dir = site_dir / "ops" / "scripts"
+    if not scripts_dir.is_dir():
         return "no_ai_role"
-    text = run_role.read_text(encoding="utf-8", errors="ignore")
-    if "CLAUDE_TRACKED" in text:
-        return "wired_awaiting_first_run"
-    if "claude -p" in text:
+
+    tracked = 0
+    untracked = 0
+    for script in scripts_dir.rglob("*.sh"):
+        for line in script.read_text(encoding="utf-8", errors="ignore").splitlines():
+            stripped = line.lstrip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            if DIRECT_CLAUDE_CALL.search(line) or PYTHON_CLAUDE_CALL.search(line):
+                untracked += 1
+            if '"$CLAUDE_TRACKED"' in line or "${CLAUDE_TRACKED}" in line:
+                tracked += 1
+
+    if untracked:
         return "not_wired"
+    if tracked:
+        return "wired_awaiting_first_run"
     return "no_ai_role"
+
+
+def coverage_row(site_dir: Path, has_ledger: bool) -> dict:
+    status = wiring_status(site_dir)
+    return {
+        "site": site_dir.name,
+        "status": "reporting" if has_ledger else status,
+        "has_ledger": has_ledger,
+    }
 
 
 def read_ledger_records(ledger: Path) -> list[dict]:
@@ -149,6 +173,9 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
         else:
             no_ai_role.append(site_name)
 
+    coverage = [coverage_row(sites_dir / site_name, site_name in instrumented_sites)
+                for site_name in all_sites]
+
     return {
         "summary": {
             **fleet_totals,
@@ -159,10 +186,12 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
             "sites_wired_awaiting_first_run": wired_awaiting_first_run,
             "sites_not_wired": not_wired,
             "sites_no_ai_role": no_ai_role,
+            "coverage_complete": not not_wired,
         },
         "by_site": site_rows,
         "by_site_role": role_rows,
         "by_day": day_rows,
+        "coverage": coverage,
     }
 
 
