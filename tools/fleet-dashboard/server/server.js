@@ -250,8 +250,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // tools/scripts/claude-tracked.sh (tools/ai-usage/aggregate.py is the source
   // of truth). Sites not yet migrated to the tracked wrapper report zero
   // calls, listed under summary.sites_uninstrumented, not as an error.
-  app.get('/api/ai-usage', async (_req, res) => {
-    try { res.json(await aiusage.fleet(root)); }
+  app.get('/api/ai-usage', async (req, res) => {
+    try { res.json(await aiusage.fleet(root, { from: req.query.from, to: req.query.to })); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
 

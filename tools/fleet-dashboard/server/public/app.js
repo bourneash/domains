@@ -371,20 +371,87 @@ async function renderTaskBudget() {
 // most of the fleet will be in that bucket until sites are migrated one at a time.
 function fmtTokens(n) { return (n || 0).toLocaleString(); }
 function fmtUSD(n) { return `$${(n || 0).toFixed(2)}`; }
+const AI_USAGE = { range: '30d', from: '', to: '', site: '', role: '' };
+
+function utcDay(offset = 0) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - offset);
+  return d.toISOString().slice(0, 10);
+}
+function aiUsageWindow(range) {
+  if (range === 'all') return { from: '', to: '' };
+  const days = Number.parseInt(range, 10);
+  return { from: utcDay(days - 1), to: utcDay() };
+}
+function usageTotals(rows) {
+  const totals = { calls: 0, errors: 0, input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0, total_cost_usd: 0 };
+  rows.forEach((row) => Object.keys(totals).forEach((key) => { totals[key] += Number(row[key]) || 0; }));
+  const cacheDenominator = totals.input_tokens + totals.cache_read_input_tokens;
+  totals.cache_hit_ratio = cacheDenominator ? totals.cache_read_input_tokens / cacheDenominator : null;
+  return totals;
+}
+function groupUsage(rows, key) {
+  const groups = new Map();
+  rows.forEach((row) => {
+    const value = row[key];
+    if (!groups.has(value)) groups.set(value, []);
+    groups.get(value).push(row);
+  });
+  return [...groups.entries()].map(([value, items]) => ({ [key]: value, ...usageTotals(items) }));
+}
+function usageChart(rows) {
+  if (!rows.length) return '<div class="aiu-chart-empty">No tracked usage for this selection.</div>';
+  const width = 760; const height = 190; const left = 44; const bottom = 28; const top = 12;
+  const max = Math.max(...rows.map((r) => r.total_cost_usd), 0.01);
+  const plotH = height - top - bottom;
+  const step = (width - left - 10) / rows.length;
+  const barW = Math.max(3, Math.min(28, step * .66));
+  const bars = rows.map((r, index) => {
+    const h = Math.max(2, (r.total_cost_usd / max) * plotH);
+    const x = left + index * step + (step - barW) / 2;
+    const y = height - bottom - h;
+    const label = r.day.slice(5);
+    return `<g><title>${esc(r.day)}: ${fmtUSD(r.total_cost_usd)} · ${r.calls} calls · ${fmtTokens(r.input_tokens + r.output_tokens)} tokens</title><rect class="aiu-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/><text class="aiu-chart-label" x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" text-anchor="middle">${esc(label)}</text></g>`;
+  }).join('');
+  return `<svg class="aiu-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Daily AI usage cost chart"><line class="aiu-axis" x1="${left}" y1="${height - bottom}" x2="${width - 8}" y2="${height - bottom}"/><text class="aiu-chart-value" x="2" y="${top + 9}">${fmtUSD(max)}</text>${bars}</svg>`;
+}
 
 async function renderAIUsage() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Aggregating AI token usage…</div>';
+  if (AI_USAGE.range !== 'all' && AI_USAGE.range !== 'custom' && !AI_USAGE.from) Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
   let data;
-  try { data = await api('GET', '/api/ai-usage'); }
+  const params = new URLSearchParams();
+  if (AI_USAGE.from) params.set('from', AI_USAGE.from);
+  if (AI_USAGE.to) params.set('to', AI_USAGE.to);
+  try { data = await api('GET', `/api/ai-usage${params.size ? `?${params}` : ''}`); }
   catch (e) { app.innerHTML = `<div class="empty">AI usage aggregation failed: ${esc(e.message)}</div>`; return; }
 
-  const s = data.summary || {};
-  const wiredAwaiting = s.sites_wired_awaiting_first_run || [];
-  const notWired = s.sites_not_wired || [];
-  const noAiRole = s.sites_no_ai_role || [];
+  const rawRoles = data.by_site_role || [];
+  const sites = [...new Set(rawRoles.map((r) => r.site))].sort();
+  const roles = [...new Set(rawRoles.filter((r) => !AI_USAGE.site || r.site === AI_USAGE.site).map((r) => r.role))].sort();
+  if (AI_USAGE.role && !roles.includes(AI_USAGE.role)) AI_USAGE.role = '';
+  const activeRows = rawRoles.filter((r) => (!AI_USAGE.site || r.site === AI_USAGE.site) && (!AI_USAGE.role || r.role === AI_USAGE.role));
+  const s = usageTotals(activeRows);
+  const filteredDays = groupUsage((data.by_day_site_role || []).filter((r) =>
+    (!AI_USAGE.site || r.site === AI_USAGE.site) && (!AI_USAGE.role || r.role === AI_USAGE.role)), 'day')
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const siteRows = groupUsage(activeRows, 'site').sort((a, b) => b.total_cost_usd - a.total_cost_usd);
+  const roleRows = activeRows.slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd);
+  const rawSummary = data.summary || {};
+  const wiredAwaiting = rawSummary.sites_wired_awaiting_first_run || [];
+  const notWired = rawSummary.sites_not_wired || [];
+  const noAiRole = rawSummary.sites_no_ai_role || [];
+  const coverageRows = (data.coverage || []).filter((r) => !AI_USAGE.site || r.site === AI_USAGE.site).map((r) => {
+    const label = r.status === 'reporting' ? 'reporting' :
+      r.status === 'wired_awaiting_first_run' ? 'wired — awaiting first call' :
+      r.status === 'not_wired' ? 'untracked call path' : 'no AI call path';
+    const badge = r.status === 'reporting' ? 'b-green' :
+      r.status === 'not_wired' ? 'b-red' : 'b-gray';
+    return `<tr data-fleet-row data-site="${esc(r.site)}"><td>${siteLink(r.site)}</td><td><span class="badge ${badge}">${esc(label)}</span></td></tr>`;
+  }).join('');
 
-  const siteRows = (data.by_site || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd).map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
+  const siteTableRows = siteRows.map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
     <td>${siteLink(r.site)}</td>
     <td>${r.calls}</td>
     <td>${r.errors ? `<span class="badge b-red">${r.errors}</span>` : '<span class="muted">0</span>'}</td>
@@ -396,7 +463,7 @@ async function renderAIUsage() {
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
   </tr>`).join('');
 
-  const roleRows = (data.by_site_role || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd).map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
+  const roleTableRows = roleRows.map((r) => `<tr data-fleet-row data-site="${esc(r.site)}">
     <td>${siteLink(r.site)}</td>
     <td class="mono">${esc(r.role)}</td>
     <td>${r.calls}</td>
@@ -405,7 +472,7 @@ async function renderAIUsage() {
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
   </tr>`).join('');
 
-  const dayRows = (data.by_day || []).slice().sort((a, b) => a.day.localeCompare(b.day)).map((r) => `<tr>
+  const dayRows = filteredDays.map((r) => `<tr>
     <td class="mono">${esc(r.day)}</td>
     <td>${r.calls}</td>
     <td class="mono">${fmtTokens(r.input_tokens + r.output_tokens)}</td>
@@ -414,25 +481,44 @@ async function renderAIUsage() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div>
+    <div class="aiu-controls" aria-label="AI usage filters">
+      <div class="aiu-range" role="group" aria-label="Time frame">
+        ${[['7d', '7 days'], ['30d', '30 days'], ['90d', '90 days'], ['all', 'All time']].map(([value, label]) => `<button class="btn sm aiu-range-btn ${AI_USAGE.range === value ? 'active' : ''}" data-range="${value}">${label}</button>`).join('')}
+        <button class="btn sm aiu-range-btn ${AI_USAGE.range === 'custom' ? 'active' : ''}" data-range="custom">Custom</button>
+      </div>
+      <label>From <input id="aiu-from" type="date" value="${esc(AI_USAGE.from)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
+      <label>To <input id="aiu-to" type="date" value="${esc(AI_USAGE.to)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
+      ${AI_USAGE.range === 'custom' ? '<button id="aiu-apply-custom" class="btn sm">Apply dates</button>' : ''}
+      <label>Site <select id="aiu-site"><option value="">All reporting sites</option>${sites.map((site) => `<option value="${esc(site)}" ${AI_USAGE.site === site ? 'selected' : ''}>${esc(site)}</option>`).join('')}</select></label>
+      <label>Role <select id="aiu-role"><option value="">All roles</option>${roles.map((role) => `<option value="${esc(role)}" ${AI_USAGE.role === role ? 'selected' : ''}>${esc(role)}</option>`).join('')}</select></label>
+    </div>
     <div class="task-toolbar">
       <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
-      <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${s.sites_instrumented || 0}/${s.sites_total || 0} sites instrumented</span>
+      <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${rawSummary.sites_instrumented || 0}/${rawSummary.sites_total || 0} sites instrumented</span>
     </div>
     ${notWired.length ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
     ${wiredAwaiting.length ? `<div class="empty" style="margin-bottom:14px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
     ${noAiRole.length ? `<div class="empty" style="margin-bottom:14px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
     <div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar"><strong>Fleet tracking coverage</strong><span class="muted">Every site is shown, including sites with no AI call path.</span></div>
+      <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
+    </div>
+    <div class="card aiu-chart-card">
+      <div class="task-toolbar"><strong>Daily spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Dates are UTC.</span></div>
+      ${usageChart(filteredDays)}
+    </div>
+    <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>By site</strong></div>
-      ${siteRows ? `<table>
+      ${siteTableRows ? `<table>
         <thead><tr><th>Site</th><th>Calls</th><th>Errors</th><th>Input tok</th><th>Output tok</th><th>Cache read</th><th>Cache write</th><th>Cache hit</th><th>Cost</th></tr></thead>
-        <tbody>${siteRows}</tbody>
+        <tbody>${siteTableRows}</tbody>
       </table>` : '<div class="empty">No tracked usage yet.</div>'}
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>By site &amp; role</strong></div>
-      ${roleRows ? `<table>
+      ${roleTableRows ? `<table>
         <thead><tr><th>Site</th><th>Role</th><th>Calls</th><th>Input tok</th><th>Output tok</th><th>Cost</th></tr></thead>
-        <tbody>${roleRows}</tbody>
+        <tbody>${roleTableRows}</tbody>
       </table>` : '<div class="empty">No tracked usage yet.</div>'}
     </div>
     <div class="card">
@@ -442,6 +528,19 @@ async function renderAIUsage() {
         <tbody>${dayRows}</tbody>
       </table>` : '<div class="empty">No tracked usage yet.</div>'}
     </div>`;
+  $$('.aiu-range-btn').forEach((button) => button.addEventListener('click', () => {
+    AI_USAGE.range = button.dataset.range;
+    if (AI_USAGE.range !== 'custom') Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
+    renderAIUsage();
+  }));
+  $('#aiu-site').addEventListener('change', (event) => { AI_USAGE.site = event.target.value; AI_USAGE.role = ''; renderAIUsage(); });
+  $('#aiu-role').addEventListener('change', (event) => { AI_USAGE.role = event.target.value; renderAIUsage(); });
+  const applyCustom = $('#aiu-apply-custom');
+  if (applyCustom) applyCustom.addEventListener('click', () => {
+    const from = $('#aiu-from').value; const to = $('#aiu-to').value;
+    if (!from || !to || from > to) { toast('Choose a valid start and end date', 'error'); return; }
+    AI_USAGE.from = from; AI_USAGE.to = to; renderAIUsage();
+  });
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();

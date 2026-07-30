@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from datetime import date
 from pathlib import Path
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[2]
@@ -113,11 +114,16 @@ def read_ledger_records(ledger: Path) -> list[dict]:
     return records
 
 
-def collect(root: Path = DEFAULT_ROOT) -> dict:
+def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
+            end_day: str | None = None) -> dict:
+    """Build a report, optionally limited to inclusive UTC ledger dates."""
+    if start_day and end_day and start_day > end_day:
+        raise ValueError("start_day must not be after end_day")
     sites_dir = root / "sites"
     by_site: dict[str, dict] = {}
     by_site_role: dict[tuple[str, str], dict] = {}
     by_day: dict[str, dict] = {}
+    by_day_site_role: dict[tuple[str, str, str], dict] = {}
     instrumented_sites: set[str] = set()
     all_sites: list[str] = []
 
@@ -130,6 +136,10 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
             continue
         for ledger in sorted(log_dir.glob("token-usage-*.jsonl")):
             day = ledger.stem.removeprefix("token-usage-")
+            if start_day and day < start_day:
+                continue
+            if end_day and day > end_day:
+                continue
             for record in read_ledger_records(ledger):
                 site = record.get("site") or site_name
                 role = record.get("role") or "unknown"
@@ -138,6 +148,7 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
                 _add(by_site.setdefault(site, _empty_totals()), record)
                 _add(by_site_role.setdefault((site, role), _empty_totals()), record)
                 _add(by_day.setdefault(day, _empty_totals()), record)
+                _add(by_day_site_role.setdefault((day, site, role), _empty_totals()), record)
 
     site_rows = []
     for site, totals in sorted(by_site.items()):
@@ -153,6 +164,13 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
     for day, totals in sorted(by_day.items()):
         row = {"day": day, **totals, "cache_hit_ratio": _cache_hit_ratio(totals)}
         day_rows.append(row)
+
+    day_site_role_rows = []
+    for (day, site, role), totals in sorted(by_day_site_role.items()):
+        day_site_role_rows.append({
+            "day": day, "site": site, "role": role, **totals,
+            "cache_hit_ratio": _cache_hit_ratio(totals),
+        })
 
     fleet_totals = _empty_totals()
     for totals in by_site.values():
@@ -191,6 +209,8 @@ def collect(root: Path = DEFAULT_ROOT) -> dict:
         "by_site": site_rows,
         "by_site_role": role_rows,
         "by_day": day_rows,
+        "by_day_site_role": day_site_role_rows,
+        "filters": {"from": start_day, "to": end_day},
         "coverage": coverage,
     }
 
@@ -199,8 +219,16 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
+    parser.add_argument("--from", dest="start_day", type=date.fromisoformat,
+                        help="inclusive UTC ledger date (YYYY-MM-DD)")
+    parser.add_argument("--to", dest="end_day", type=date.fromisoformat,
+                        help="inclusive UTC ledger date (YYYY-MM-DD)")
     args = parser.parse_args(argv)
-    report = collect(args.root.resolve())
+    start_day = args.start_day.isoformat() if args.start_day else None
+    end_day = args.end_day.isoformat() if args.end_day else None
+    if start_day and end_day and start_day > end_day:
+        parser.error("--from must not be after --to")
+    report = collect(args.root.resolve(), start_day, end_day)
 
     if args.json:
         print(json.dumps(report, indent=2))

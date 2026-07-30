@@ -141,6 +141,18 @@ class AggregateTests(unittest.TestCase):
         # None fields from a parse_error record must not crash summation
         self.assertEqual(site_row["input_tokens"], 10)
 
+    def test_date_range_limits_every_rollup_and_keeps_chart_dimensions(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-01", [record(role="engineer")])
+        self.write_ledger(root, "example.com", "2026-07-02", [record(role="watchdog")])
+
+        report = aggregate.collect(root, "2026-07-02", "2026-07-02")
+
+        self.assertEqual(report["summary"]["calls"], 1)
+        self.assertEqual([row["day"] for row in report["by_day"]], ["2026-07-02"])
+        self.assertEqual(report["by_day_site_role"][0]["role"], "watchdog")
+        self.assertEqual(report["filters"], {"from": "2026-07-02", "to": "2026-07-02"})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,11 +9,23 @@ function scriptPath(root) {
   return path.join(root, 'tools', 'ai-usage', 'aggregate.py');
 }
 
-function fleet(root) {
+function day(value, name) {
+  if (!value) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error(`${name} must be YYYY-MM-DD`);
+  return value;
+}
+
+function fleet(root, filters = {}) {
+  const from = day(filters.from, 'from');
+  const to = day(filters.to, 'to');
+  if (from && to && from > to) throw new Error('from must not be after to');
+  const args = [scriptPath(root), '--root', root, '--json'];
+  if (from) args.push('--from', from);
+  if (to) args.push('--to', to);
   return new Promise((resolve, reject) => {
     execFile(
       'python3',
-      [scriptPath(root), '--root', root, '--json'],
+      args,
       { timeout: 30000, maxBuffer: 16 * 1024 * 1024 },
       (err, stdout) => {
         if (err) return reject(err);
