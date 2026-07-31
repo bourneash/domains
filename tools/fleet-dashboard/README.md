@@ -1,10 +1,8 @@
 # fleet-dashboard
 
-Portfolio fleet dashboard — the web successor to
-`tools/engineer-fleet/engineer-status.py`, with two new panels on top of the
-engineer audit.
+Portfolio control plane for the domain fleet (http://127.0.0.1:4754).
 
-Three views, one place (http://127.0.0.1:4754):
+Key views include:
 
 - **Engineers** — the live engineer audit: tier (aligned/partial/legacy/none),
   feature flags (work-lock / liveness-pulse / daily-summary), cron schedule,
@@ -19,6 +17,10 @@ Three views, one place (http://127.0.0.1:4754):
   board: create, edit (frontmatter + markdown body), move between columns, and
   delete. Edits write the markdown files directly; the site's
   engineer/committer picks them up on its next pass (this tool never commits).
+- **AI Inventory** — dispatch-aware provider/model/status inventory for every
+  scheduled service. It delegates to `tools/ai-inventory/audit-ai.py --json`,
+  follows dedicated engineer/writer/deployer dispatches, distinguishes local
+  Ollama/vLLM from remote Claude, and keeps deterministic rows visible.
 
 Dynamic: any site under `sites/*/ops/` appears automatically. No registry.
 
@@ -41,6 +43,10 @@ detection) already lives in `tools/engineer-fleet/engineer-status.py` and is the
 documented source of truth (`reference_engineer_pulse_monitoring`). The web
 layer calls `--json` / `--history N --json` rather than re-implementing it, so
 the CLI and the dashboard can never disagree.
+
+The AI Inventory and Task Budget views use the same pattern: their Python CLIs
+remain the canonical classifiers, while the dashboard adds summaries, filtering,
+and presentation.
 
 ## Safety
 

@@ -2833,6 +2833,322 @@ async function dhToggleSource(id, currentlyEnabled, btn) {
 
 /* ===== ANALYTICS ===== */
 
+function complianceCheck(value, yes = 'yes', no = 'no') {
+  if (value == null) return '<span class="badge b-gray">unknown</span>';
+  return value ? `<span class="badge b-green">${esc(yes)}</span>` : `<span class="badge b-red">${esc(no)}</span>`;
+}
+
+const COMPLIANCE_UI = {
+  search: '',
+  statuses: new Set(),
+  check: 'all',
+  openOnly: false,
+  staleOnly: false,
+  sort: 'site',
+  direction: 'asc',
+};
+let COMPLIANCE_PROGRESS_TIMER = null;
+let COMPLIANCE_PROGRESS_SEEN = -1;
+let COMPLIANCE_SCAN_ACTIVE = false;
+
+function complianceDuration(milliseconds) {
+  if (milliseconds == null || milliseconds < 0) return '—';
+  const minutes = Math.round(milliseconds / 60000);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.round(minutes / 60);
+  return hours < 48 ? `${hours}h` : `${Math.round(hours / 24)}d`;
+}
+
+function complianceCheckFailed(row, check) {
+  const c = row.checks || {};
+  if (check === 'open') return row.status !== 'pass';
+  if (check === 'gaConsentGated') return c.ga4 === true && c.gaConsentGated === false;
+  return c[check] === false;
+}
+
+function complianceSortValue(row, key) {
+  const c = row.checks || {};
+  if (key === 'site' || key === 'status' || key === 'checkedAt') return row[key] || '';
+  if (key === 'evidence') return row.error || (row.failures || []).join('; ') || '';
+  if (key === 'ga4') return (row.measurementIds || []).join(', ') || (c.ga4 == null ? '' : String(c.ga4));
+  return c[key] == null ? -1 : Number(c[key]);
+}
+
+function openComplianceDetail(row) {
+  const modal = $('#modal'), title = $('#modal-title'), body = $('#modal-body');
+  const c = row.checks || {}, ev = row.evidence || {};
+  const statusCls = row.status === 'pass' ? 'b-green' : row.status === 'fail' ? 'b-red' : 'b-gray';
+  const item = (label, value, explanation) => `<div class="compliance-detail-row">
+    <div>${complianceCheck(value, 'passed', 'failed')}</div>
+    <div><strong>${esc(label)}</strong><div class="muted">${esc(explanation)}</div></div>
+  </div>`;
+  const extLink = (url, label) => url
+    ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`
+    : '<span class="muted">No deployed link captured</span>';
+  const gaText = c.ga4
+    ? `Detected ${esc((row.measurementIds || []).join(', ') || 'a Google tag')}.`
+    : 'No GA4 tag was detected; analytics consent gating is not applicable.';
+  const consentText = c.ga4 === false ? gaText : c.gaConsentGated
+    ? `${gaText} The deployed source contains ${c.defaultDenied ? 'default-denied Google Consent Mode' : 'basic consent-gating logic that controls tag loading from the saved visitor choice'}.`
+    : `${gaText} No default-denied or basic gating evidence was found.`;
+  const history = (row.history || []).slice().reverse();
+  const historyStats = row.historyStats || {};
+  const historyHtml = history.length
+    ? history.map((entry) => `<div class="compliance-history-item">
+        <span class="badge ${entry.status === 'pass' ? 'b-green' : entry.status === 'fail' ? 'b-red' : 'b-gray'}">${esc(entry.status)}</span>
+        <span>${esc(new Date(entry.checkedAt).toLocaleString())}</span>
+        <span class="muted">${esc(entry.change || '')}${entry.errorType ? ` · ${esc(entry.errorType)}` : ''}</span>
+      </div>`).join('')
+    : '<span class="muted">History will appear after this site is scanned.</span>';
+
+  title.textContent = `${row.site} — compliance evidence`;
+  body.innerHTML = `
+    <div class="compliance-detail-head">
+      <span class="badge ${statusCls}">${esc(row.status)}</span>
+      <span>${extLink(row.url, 'Open scanned homepage')}</span>
+      <span class="muted">Checked ${esc(row.checkedAt ? new Date(row.checkedAt).toLocaleString() : 'not yet')}</span>
+    </div>
+    <p class="compliance-detail-summary">${row.status === 'pass'
+      ? 'This site passed the automated technical baseline because every required cookie/analytics check below was detected in the deployed page or its same-origin JavaScript.'
+      : row.status === 'fail' ? esc((row.failures || []).join('; ') || 'One or more required checks failed.')
+        : esc(row.error || 'The live site could not be verified.')}</p>
+    <div class="compliance-detail-grid">
+      ${item('Cookie banner', c.banner, ev.bannerWording || 'A cookie/consent dialog pattern was detected in the deployed source.')}
+      ${item('Accept choice', c.accept, ev.acceptLabel ? `Detected wording: “${ev.acceptLabel}”` : 'An accept/allow choice was detected.')}
+      ${item('Reject choice', c.reject, ev.rejectLabel ? `Detected wording: “${ev.rejectLabel}”` : 'A reject/decline or necessary-only choice was detected.')}
+      ${item('GA4 consent handling', c.ga4 === false ? true : c.gaConsentGated, consentText)}
+    </div>
+    <div class="compliance-wording"><strong>Detected banner wording</strong><p>${esc(ev.bannerWording || 'The previous cached scan did not retain a wording excerpt. Run “Scan live sites now” to capture it.')}</p></div>
+    <div class="compliance-links"><div><strong>Privacy</strong><br>${extLink(ev.privacyUrl, ev.privacyUrl || 'Privacy policy')}</div><div><strong>Terms</strong><br>${extLink(ev.termsUrl, ev.termsUrl || 'Terms')}</div></div>
+    <div class="compliance-history"><strong>Recent scan history</strong>
+      <div class="compliance-history-summary">
+        <span>Failure began <b>${esc(historyStats.failureSince ? new Date(historyStats.failureSince).toLocaleString() : '—')}</b></span>
+        <span>Last resolved <b>${esc(historyStats.lastResolvedAt ? new Date(historyStats.lastResolvedAt).toLocaleString() : '—')}</b></span>
+        <span>Resolution time <b>${esc(complianceDuration(historyStats.lastResolutionMs))}</b></span>
+      </div>
+      <div class="compliance-history-list">${historyHtml}</div>
+    </div>
+    <div class="muted compliance-detail-foot">Evidence source: live HTML plus ${esc(String(row.assetsChecked || 0))} same-origin JavaScript bundle(s). This is an automated technical baseline, not legal certification.</div>`;
+  modal.classList.remove('hidden');
+}
+
+async function renderCompliance() {
+  clearTimeout(COMPLIANCE_PROGRESS_TIMER);
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading live compliance evidence…</div>';
+  let rows, trend;
+  try { [rows, trend] = await Promise.all([api('GET', '/api/compliance'), api('GET', '/api/compliance/history?limit=18')]); }
+  catch (e) { app.innerHTML = `<div class="empty">Compliance scan failed: ${esc(e.message)}</div>`; return; }
+
+  const counts = { pass: 0, fail: 0, unknown: 0 };
+  rows.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  const lastScan = rows.reduce((latest, row) => {
+    const time = row.checkedAt ? Date.parse(row.checkedAt) : 0;
+    return time > latest ? time : latest;
+  }, 0);
+  const staleCutoff = Date.now() - (24 * 60 * 60 * 1000);
+  const staleCount = rows.filter((row) => !row.checkedAt || Date.parse(row.checkedAt) < staleCutoff).length;
+  const issueGroups = [
+    ['banner', 'Banner missing'], ['accept', 'Accept missing'], ['reject', 'Reject missing'],
+    ['gaConsentGated', 'GA consent ungated'], ['privacy', 'Privacy missing'], ['terms', 'Terms missing'],
+  ].map(([key, label]) => ({ key, label, count: rows.filter((row) => complianceCheckFailed(row, key)).length }))
+    .filter((group) => group.count)
+    .sort((a, b) => b.count - a.count);
+  const unknownGroups = Object.entries(rows.filter((row) => row.status === 'unknown').reduce((out, row) => {
+    const key = row.errorType || 'network';
+    out[key] = (out[key] || 0) + 1;
+    return out;
+  }, {})).sort((a, b) => b[1] - a[1]);
+  const trendHtml = trend.length
+    ? `<div class="compliance-trend" title="Fleet pass rate over recent scan windows">${trend.map((point) =>
+      `<i style="height:${Math.max(3, point.passRate * .24)}px" title="${esc(new Date(point.at).toLocaleString())}: ${point.passRate}% pass"></i>`).join('')}<span>${trend[trend.length - 1].passRate}% pass</span></div>`
+    : '<span class="muted">Trend begins after the next scan</span>';
+  const rowHtml = (r) => {
+    const c = r.checks || {};
+    const statusCls = r.status === 'pass' ? 'b-green' : r.status === 'fail' ? 'b-red' : 'b-gray';
+    const ga = c.ga4 == null ? complianceCheck(null) : c.ga4
+      ? `<span class="badge b-blue">${esc((r.measurementIds || []).join(', ') || 'detected')}</span>`
+      : '<span class="muted">not detected</span>';
+    const evidence = r.error || (r.failures || []).join('; ') || `live HTML + ${r.assetsChecked || 0} same-origin JS bundle(s)`;
+    const checked = r.checkedAt ? new Date(r.checkedAt).toLocaleString() : 'not scanned';
+    const change = r.change && r.change !== 'unchanged'
+      ? `<span class="badge compliance-change ${r.change === 'resolved' ? 'b-green' : r.change === 'regressed' ? 'b-red' : 'b-yellow'}">${esc(r.change)}</span>`
+      : '';
+    const diagnostic = r.status === 'unknown' ? `<span class="badge b-gray">${esc(r.errorType || 'network')}</span> ` : '';
+    return `<tr data-fleet-row data-site="${esc(r.site)}">
+      <td class="site">${siteLink(r.site)}</td>
+      <td><button class="badge ${statusCls} compliance-status" data-site="${esc(r.site)}" title="Show compliance evidence for ${esc(r.site)}">${esc(r.status)}</button> ${change}</td>
+      <td>${complianceCheck(c.banner, 'present', 'missing')}</td>
+      <td>${complianceCheck(c.accept, 'present', 'missing')}</td>
+      <td>${complianceCheck(c.reject, 'present', 'missing')}</td>
+      <td>${ga}</td>
+      <td>${c.ga4 === false ? '<span class="muted">N/A</span>' : complianceCheck(c.gaConsentGated, 'gated', 'ungated')}</td>
+      <td>${complianceCheck(c.privacy, 'linked', 'missing')}</td>
+      <td>${complianceCheck(c.terms, 'linked', 'missing')}</td>
+      <td class="compliance-evidence" title="${esc(evidence)}">${diagnostic}${esc(evidence)}</td>
+      <td class="mono">${esc(checked)}</td>
+      <td><button class="btn sm compliance-rescan" data-site="${esc(r.site)}" title="Rescan only ${esc(r.site)}">↻ Rescan</button></td>
+    </tr>`;
+  };
+  const sortHeader = (label, key) => {
+    const active = COMPLIANCE_UI.sort === key;
+    const arrow = active ? (COMPLIANCE_UI.direction === 'asc' ? ' ↑' : ' ↓') : '';
+    return `<th><button class="compliance-sort${active ? ' active' : ''}" data-sort="${key}" title="Sort by ${esc(label)}">${esc(label)}<span aria-hidden="true">${arrow}</span></button></th>`;
+  };
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Compliance</h2><span class="muted">Live technical privacy baseline — not legal certification</span><span class="muted compliance-last-scan">Last scan: ${esc(lastScan ? new Date(lastScan).toLocaleString() : 'not yet scanned')}</span></div>
+    <div class="task-toolbar compliance-toolbar">
+      <strong>${rows.length} domains</strong>
+      <button class="badge b-green compliance-filter-tag" data-status="pass" aria-pressed="${COMPLIANCE_UI.statuses.has('pass')}">${counts.pass} pass</button>
+      <button class="badge b-red compliance-filter-tag" data-status="fail" aria-pressed="${COMPLIANCE_UI.statuses.has('fail')}">${counts.fail} fail</button>
+      <button class="badge b-gray compliance-filter-tag" data-status="unknown" aria-pressed="${COMPLIANCE_UI.statuses.has('unknown')}">${counts.unknown} unknown</button>
+      <button id="compliance-open-only" class="btn sm compliance-toggle${COMPLIANCE_UI.openOnly ? ' active' : ''}" aria-pressed="${COMPLIANCE_UI.openOnly}">Open items</button>
+      <button id="compliance-stale-only" class="btn sm compliance-toggle${COMPLIANCE_UI.staleOnly ? ' active' : ''}" aria-pressed="${COMPLIANCE_UI.staleOnly}">${staleCount} stale</button>
+      <label class="compliance-search-wrap"><span class="muted">Site</span><input id="compliance-search" class="cm-input" type="search" placeholder="Search site name…" value="${esc(COMPLIANCE_UI.search)}" autocomplete="off"></label>
+      <select id="compliance-check-filter" class="cm-input" aria-label="Filter by compliance check">
+        <option value="all">All checks</option>
+        <option value="open">Any open issue</option>
+        <option value="banner">Banner missing</option>
+        <option value="accept">Accept missing</option>
+        <option value="reject">Reject missing</option>
+        <option value="gaConsentGated">GA consent ungated</option>
+        <option value="privacy">Privacy missing</option>
+        <option value="terms">Terms missing</option>
+      </select>
+      <span id="compliance-visible-count" class="muted"></span>
+      <button id="compliance-scan" class="btn sm" style="margin-left:auto">↻ Scan live sites now</button>
+    </div>
+    <div id="compliance-progress" class="compliance-progress hidden"><div><span id="compliance-progress-label">Preparing scan…</span><span id="compliance-progress-sites" class="muted"></span></div><progress id="compliance-progress-bar" value="0" max="1"></progress></div>
+    <div class="compliance-overview">
+      <div class="compliance-groups"><strong>Open findings</strong>${issueGroups.length
+        ? issueGroups.map((group) => `<button class="compliance-group" data-check="${group.key}"><span>${esc(group.label)}</span><b>${group.count}</b></button>`).join('')
+        : '<span class="muted">No failed checks</span>'}</div>
+      <div class="compliance-groups"><strong>Unknown diagnostics</strong>${unknownGroups.length
+        ? unknownGroups.map(([type, count]) => `<span class="compliance-group static"><span>${esc(type)}</span><b>${count}</b></span>`).join('')
+        : '<span class="muted">No unknown scans</span>'}</div>
+      <div class="compliance-trend-wrap"><strong>Pass-rate trend</strong>${trendHtml}</div>
+    </div>
+    <div class="compliance-note">A pass requires a detected cookie consent UI with both accept and reject choices, a Privacy Policy, and Terms. If GA4 is present, it must show default-denied consent mode or basic consent gating. “Unknown” means the deployed site could not be verified; it is never treated as a pass or failure.</div>
+    <div class="card compliance-table"><table>
+      <thead><tr>${sortHeader('Site', 'site')}${sortHeader('Status', 'status')}${sortHeader('Banner', 'banner')}${sortHeader('Accept', 'accept')}${sortHeader('Reject', 'reject')}${sortHeader('GA4', 'ga4')}${sortHeader('GA consent', 'gaConsentGated')}${sortHeader('Privacy', 'privacy')}${sortHeader('Terms', 'terms')}${sortHeader('Evidence / issue', 'evidence')}${sortHeader('Checked', 'checkedAt')}<th>Action</th></tr></thead>
+      <tbody id="compliance-body"></tbody>
+    </table></div>`;
+  $('#compliance-check-filter').value = COMPLIANCE_UI.check;
+
+  const bySite = new Map(rows.map((row) => [row.site, row]));
+  const updateRows = () => {
+    const query = COMPLIANCE_UI.search.trim().toLowerCase();
+    const visible = rows.filter((row) =>
+      (!query || row.site.toLowerCase().includes(query))
+      && (!COMPLIANCE_UI.statuses.size || COMPLIANCE_UI.statuses.has(row.status))
+      && (!COMPLIANCE_UI.openOnly || row.status !== 'pass')
+      && (!COMPLIANCE_UI.staleOnly || !row.checkedAt || Date.parse(row.checkedAt) < staleCutoff)
+      && (COMPLIANCE_UI.check === 'all' || complianceCheckFailed(row, COMPLIANCE_UI.check)));
+    const multiplier = COMPLIANCE_UI.direction === 'asc' ? 1 : -1;
+    visible.sort((a, b) => {
+      const av = complianceSortValue(a, COMPLIANCE_UI.sort);
+      const bv = complianceSortValue(b, COMPLIANCE_UI.sort);
+      return multiplier * (typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv), undefined, { numeric: true, sensitivity: 'base' }));
+    });
+    $('#compliance-body').innerHTML = visible.map(rowHtml).join('')
+      || `<tr><td colspan="12" class="muted">${rows.length ? 'No sites match the current filters' : 'No domains discovered'}</td></tr>`;
+    $('#compliance-visible-count').textContent = `Showing ${visible.length} of ${rows.length}`;
+    $$('.compliance-status').forEach((button) => button.addEventListener('click', () => openComplianceDetail(bySite.get(button.dataset.site))));
+    $$('.compliance-rescan').forEach((button) => button.addEventListener('click', async () => {
+      button.disabled = true; button.textContent = 'Scanning…';
+      try {
+        await api('POST', `/api/compliance/${encodeURIComponent(button.dataset.site)}/scan`);
+        toast(`${button.dataset.site} scan complete`);
+        renderCompliance();
+      } catch (e) { toast(`scan failed: ${e.message}`, 'err'); button.disabled = false; button.textContent = '↻ Rescan'; }
+    }));
+  };
+  updateRows();
+  $('#compliance-search').addEventListener('input', (event) => {
+    COMPLIANCE_UI.search = event.currentTarget.value;
+    updateRows();
+  });
+  $('#compliance-check-filter').addEventListener('change', (event) => {
+    COMPLIANCE_UI.check = event.currentTarget.value;
+    updateRows();
+  });
+  $('#compliance-open-only').addEventListener('click', () => {
+    COMPLIANCE_UI.openOnly = !COMPLIANCE_UI.openOnly;
+    $('#compliance-open-only').classList.toggle('active', COMPLIANCE_UI.openOnly);
+    $('#compliance-open-only').setAttribute('aria-pressed', String(COMPLIANCE_UI.openOnly));
+    updateRows();
+  });
+  $('#compliance-stale-only').addEventListener('click', () => {
+    COMPLIANCE_UI.staleOnly = !COMPLIANCE_UI.staleOnly;
+    $('#compliance-stale-only').classList.toggle('active', COMPLIANCE_UI.staleOnly);
+    $('#compliance-stale-only').setAttribute('aria-pressed', String(COMPLIANCE_UI.staleOnly));
+    updateRows();
+  });
+  $$('.compliance-group[data-check]').forEach((button) => button.addEventListener('click', () => {
+    COMPLIANCE_UI.check = button.dataset.check;
+    $('#compliance-check-filter').value = COMPLIANCE_UI.check;
+    updateRows();
+  }));
+  $$('.compliance-filter-tag').forEach((button) => button.addEventListener('click', () => {
+    const status = button.dataset.status;
+    if (COMPLIANCE_UI.statuses.has(status)) COMPLIANCE_UI.statuses.delete(status);
+    else COMPLIANCE_UI.statuses.add(status);
+    $$('.compliance-filter-tag').forEach((tag) => tag.setAttribute('aria-pressed', String(COMPLIANCE_UI.statuses.has(tag.dataset.status))));
+    updateRows();
+  }));
+  $$('.compliance-sort').forEach((button) => button.addEventListener('click', () => {
+    const key = button.dataset.sort;
+    if (COMPLIANCE_UI.sort === key) COMPLIANCE_UI.direction = COMPLIANCE_UI.direction === 'asc' ? 'desc' : 'asc';
+    else { COMPLIANCE_UI.sort = key; COMPLIANCE_UI.direction = 'asc'; }
+    renderCompliance();
+  }));
+  $('#compliance-scan').addEventListener('click', async (event) => {
+    const btn = event.currentTarget; btn.disabled = true; btn.textContent = 'Scanning…';
+    try { await api('POST', '/api/compliance/scan'); pollComplianceProgress(); }
+    catch (e) { toast(`scan failed: ${e.message}`, 'err'); btn.disabled = false; btn.textContent = '↻ Scan live sites now'; }
+  });
+  pollComplianceProgress();
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+async function pollComplianceProgress() {
+  clearTimeout(COMPLIANCE_PROGRESS_TIMER);
+  if (STATE.view !== 'compliance') return;
+  let progress;
+  try { progress = await api('GET', '/api/compliance/progress'); } catch { return; }
+  const box = $('#compliance-progress'), button = $('#compliance-scan');
+  if (!box || !button) return;
+  box.classList.toggle('hidden', !progress.running);
+  button.disabled = progress.running;
+  button.textContent = progress.running ? 'Scanning…' : '↻ Scan live sites now';
+  if (!progress.running) {
+    if (COMPLIANCE_SCAN_ACTIVE) {
+      COMPLIANCE_SCAN_ACTIVE = false;
+      COMPLIANCE_PROGRESS_SEEN = -1;
+      toast('Live compliance scan complete');
+      renderCompliance();
+    }
+    return;
+  }
+  COMPLIANCE_SCAN_ACTIVE = true;
+  if (COMPLIANCE_PROGRESS_SEEN >= 0 && progress.completed > COMPLIANCE_PROGRESS_SEEN) {
+    COMPLIANCE_PROGRESS_SEEN = progress.completed;
+    renderCompliance();
+    return;
+  }
+  COMPLIANCE_PROGRESS_SEEN = progress.completed;
+  $('#compliance-progress-label').textContent = `${progress.completed} / ${progress.total} sites scanned`;
+  $('#compliance-progress-sites').textContent = progress.currentSites.length ? `Currently: ${progress.currentSites.join(', ')}` : '';
+  const bar = $('#compliance-progress-bar'); bar.max = Math.max(1, progress.total); bar.value = progress.completed;
+  COMPLIANCE_PROGRESS_TIMER = setTimeout(pollComplianceProgress, 750);
+}
+
+let ANALYTICS_SITE = null; // persists across soft-refreshes
+
 function anDelta(cur, prev) {
   if (prev == null) return '';
   const pct = prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
@@ -3134,7 +3450,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'compliance', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -3196,6 +3512,7 @@ function render() {
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
   else if (STATE.view === 'analytics') renderAnalytics();
+  else if (STATE.view === 'compliance') renderCompliance();
   else if (STATE.view === 'deploys') renderDeployHealth();
   else if (STATE.view === 'activity') renderActivity();
   else if (STATE.view === 'devsandbox') renderDevSandbox();

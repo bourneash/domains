@@ -48,7 +48,7 @@ set -a
 . "${DOMAINS_ROOT}/.env"
 set +a
 export PATH="/home/jesse/.nvm/versions/node/v23.7.0/bin:${PATH}"
-npm --prefix "${DOMAINS_ROOT}/sites/${DOMAIN}/site" install
+npm --prefix "${DOMAINS_ROOT}/sites/${DOMAIN}/site" ci
 npm --prefix "${DOMAINS_ROOT}/sites/${DOMAIN}/site" run deploy
 
 echo ""

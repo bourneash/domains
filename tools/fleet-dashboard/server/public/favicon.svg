@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Fleet Dashboard</title>
+  <rect width="64" height="64" rx="15" fill="#161b22"/>
+  <path d="M15 19.5 32 10l17 9.5v20L32 50 15 39.5Z" fill="#4da3ff"/>
+  <path d="M32 10v20l17 9.5v-20ZM15 19.5v20L32 30V10Z" fill="#2b7fd1"/>
+  <path d="M18 21.2 32 13.4l14 7.8v16.6L32 45.6l-14-7.8Z" fill="#0e1116" opacity=".75"/>
+  <circle cx="23" cy="25.2" r="3.3" fill="#3fb950"/>
+  <circle cx="41" cy="25.2" r="3.3" fill="#3fb950"/>
+  <circle cx="32" cy="37.8" r="3.3" fill="#a371f7"/>
+  <path d="M25.8 27.1 30 34.3m8.2-7.2L34 34.3M26.2 25.2h11.6" fill="none" stroke="#d7dce3" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

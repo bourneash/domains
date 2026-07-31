@@ -3,6 +3,9 @@
 Centralized, deterministic health checks for every domain in the portfolio.
 One daily cron tick, staggered per-site, config-driven, Slack-notified.
 
+Unexpected HTTP results are retried three times after 10, 20, and 30 seconds.
+Slack is notified only if the final attempt still fails.
+
 Full architecture + how-to: see the `skill-domains-dev-smoke-tester-checks`
 Claude skill (`~/.claude/skills/skill-domains-dev-smoke-tester-checks/SKILL.md`).
 

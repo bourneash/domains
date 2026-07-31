@@ -355,9 +355,15 @@ add no worker deps** (Step 8 skipped): the new crontab line still needs a fresh 
 image.
 
 ```bash
-cd "$TARGET" && docker compose build worker cron && docker compose up -d cron
+cd "$TARGET" && docker compose build worker cron
+bash /home/jesse/projects/domains/tools/scripts/recreate-cron-safely.sh "$TARGET"
 bash /home/jesse/projects/domains/tools/cron-roles/validate-install.sh "$TARGET" "<name>"
 ```
+
+The safe-recreate helper exits without changing the scheduler when a one-shot
+worker is running for that site. Wait for that work to complete and retry;
+recreating its parent cron container would otherwise terminate the worker
+before it can persist state or record its result.
 
 The validator's **live-container check is the gate**. A non-zero exit means the install
 is **NOT done** — most often the image is stale (rebuild didn't take) or the dispatch /

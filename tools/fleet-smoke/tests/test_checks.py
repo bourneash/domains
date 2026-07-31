@@ -41,10 +41,54 @@ def test_run_http_check_fail():
     def fake_run_curl(apex, ip, path):
         return "503"
 
-    result = run_http_check("example.com", "203.0.113.10", check, run_curl=fake_run_curl)
+    result = run_http_check(
+        "example.com", "203.0.113.10", check,
+        run_curl=fake_run_curl, retry_delays=(),
+    )
 
     assert result["ok"] is False
     assert result["actual"] == "503"
+
+
+def test_run_http_check_retries_with_backoff_until_pass():
+    check = {"path": "/guide", "expect": 200, "label": "Guide"}
+    statuses = iter(["000", "503", "200"])
+    calls = []
+    sleeps = []
+
+    def fake_run_curl(apex, ip, path):
+        calls.append((apex, ip, path))
+        return next(statuses)
+
+    result = run_http_check(
+        "example.com", "203.0.113.10", check,
+        run_curl=fake_run_curl, sleep=sleeps.append,
+    )
+
+    assert result["ok"] is True
+    assert result["actual"] == "200"
+    assert len(calls) == 3
+    assert sleeps == [10, 20]
+
+
+def test_run_http_check_stops_after_all_retries_fail():
+    check = {"path": "/missing", "expect": 200}
+    calls = []
+    sleeps = []
+
+    def fake_run_curl(apex, ip, path):
+        calls.append(path)
+        return "000"
+
+    result = run_http_check(
+        "example.com", "203.0.113.10", check,
+        run_curl=fake_run_curl, sleep=sleeps.append,
+    )
+
+    assert result["ok"] is False
+    assert result["actual"] == "000"
+    assert calls == ["/missing"] * 4
+    assert sleeps == [10, 20, 30]
 
 
 def test_run_checks_resolves_once_and_runs_every_check():

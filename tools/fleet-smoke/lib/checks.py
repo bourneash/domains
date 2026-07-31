@@ -2,7 +2,11 @@
 module is fully unit-testable without touching the network."""
 import json
 import subprocess
+import time
 import urllib.request
+
+
+RETRY_DELAYS_SECONDS = (10, 20, 30)
 
 
 def _default_http_get(url, headers=None):
@@ -35,14 +39,24 @@ def _default_run_curl(apex, ip, path):
     return result.stdout.strip()
 
 
-def run_http_check(apex, ip, check, run_curl=None):
-    """Run one check dict ({path, expect, label}) and return the result."""
+def run_http_check(apex, ip, check, run_curl=None, sleep=None,
+                   retry_delays=RETRY_DELAYS_SECONDS):
+    """Run one check, retrying unexpected statuses with increasing backoff."""
     if run_curl is None:
         run_curl = _default_run_curl
+    if sleep is None:
+        sleep = time.sleep
     path = check["path"]
     expect = check["expect"]
     label = check.get("label", path)
+
     actual = run_curl(apex, ip, path)
+    for delay in retry_delays:
+        if actual == str(expect):
+            break
+        sleep(delay)
+        actual = run_curl(apex, ip, path)
+
     return {
         "label": label,
         "path": path,

@@ -2,7 +2,9 @@
 # bounce-crons.sh — rebuild and restart cron containers across all sites
 #
 # Discovers every sites/*/ with a docker-compose.yml that has a `cron` service,
-# then runs: docker compose build cron && docker compose up -d --force-recreate cron
+# then runs: docker compose build cron && recreate-cron-safely.sh <site>.
+# The guard refuses a recreate while an active one-shot worker belongs to the
+# site, rather than silently aborting that work.
 #
 # Usage:
 #   ./tools/cron-bouncer/bounce-crons.sh              # bounce ALL sites
@@ -73,11 +75,11 @@ bounce_site() {
     return 1
   fi
 
-  info "restarting cron service..."
-  if (cd "$site_dir" && docker compose up -d --force-recreate cron 2>&1 | sed 's/^/    /'); then
+  info "restarting cron service (only if no worker is active)..."
+  if "$REPO_ROOT/tools/scripts/recreate-cron-safely.sh" "$site_dir" 2>&1 | sed 's/^/    /'; then
     ok "restarted"
   else
-    fail "restart failed"
+    fail "restart skipped or failed"
     return 1
   fi
 

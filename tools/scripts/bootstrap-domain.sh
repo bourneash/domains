@@ -32,6 +32,7 @@ SITE_NAME="${WORKER_NAME}-site"
 GITHUB_REPO="bourneash/${DOMAIN}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOMAINS_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+SUBMODULE_PATH="sites/${DOMAIN}"
 
 set -a; . "${DOMAINS_ROOT}/.env"; set +a
 export PATH="/home/jesse/.nvm/versions/node/v23.7.0/bin:${PATH}"
@@ -41,6 +42,20 @@ echo "=== bootstrap-domain.sh: ${DOMAIN} ==="
 echo "  Worker name : ${WORKER_NAME}"
 echo "  GitHub repo : ${GITHUB_REPO}"
 echo ""
+
+if gh repo view "${GITHUB_REPO}" --json nameWithOwner >/dev/null 2>&1; then
+  echo "NOTICE: GitHub repo already exists for ${DOMAIN}: ${GITHUB_REPO}"
+  echo "        Treating this as a partial existing setup."
+  echo "        Use 'tools/scripts/domain-manager-cli.sh repair ${DOMAIN}' to continue safely."
+  exit 2
+fi
+
+if [ -e "${DOMAINS_ROOT}/${SUBMODULE_PATH}" ] || git ls-files --error-unmatch -- "${SUBMODULE_PATH}" >/dev/null 2>&1; then
+  echo "NOTICE: Local path already exists for ${DOMAIN}: ${SUBMODULE_PATH}"
+  echo "        Treating this as a partial existing setup."
+  echo "        Use 'tools/scripts/domain-manager-cli.sh repair ${DOMAIN}' to continue safely."
+  exit 2
+fi
 
 # ── 1. Scaffold in /tmp ────────────────────────────────────────────────────
 TMPSCAFFOLD="/tmp/bootstrap-${DOMAIN}"
@@ -275,6 +290,11 @@ export NODE_OPTIONS="${NODE_OPTIONS:-} --inspect-port=0"
 echo "--- npm install (${DOMAIN}) ---"
 npm --prefix "${TMPSCAFFOLD}/site" install
 
+if [ ! -f "${TMPSCAFFOLD}/site/package-lock.json" ]; then
+  echo "ERROR: npm install did not produce ${TMPSCAFFOLD}/site/package-lock.json" >&2
+  exit 1
+fi
+
 echo "--- npm run build (${DOMAIN}) ---"
 npm --prefix "${TMPSCAFFOLD}/site" run build
 echo "--- Build OK ---"
@@ -293,6 +313,21 @@ echo "--- Pushed to github.com/${GITHUB_REPO} ---"
 cd "${DOMAINS_ROOT}"
 git submodule add "git@github-bourneash:${GITHUB_REPO}.git" "sites/${DOMAIN}"
 echo "--- Registered as submodule: sites/${DOMAIN} ---"
+
+if [ ! -f "${DOMAINS_ROOT}/sites/${DOMAIN}/site/package-lock.json" ]; then
+  echo "ERROR: checked-out submodule is missing sites/${DOMAIN}/site/package-lock.json" >&2
+  exit 1
+fi
+
+echo "--- npm ci (final checkout: ${DOMAIN}) ---"
+npm --prefix "${DOMAINS_ROOT}/sites/${DOMAIN}/site" ci
+
+if [ ! -x "${DOMAINS_ROOT}/sites/${DOMAIN}/site/node_modules/.bin/astro" ]; then
+  echo "ERROR: Astro binary missing after npm ci in sites/${DOMAIN}/site" >&2
+  exit 1
+fi
+
+echo "--- Final checkout ready: sites/${DOMAIN}/site ---"
 
 # ── 5. CF email routing ────────────────────────────────────────────────────
 if [ "${NO_EMAIL}" = "1" ]; then
