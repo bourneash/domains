@@ -88,6 +88,10 @@ posting CLIs are omitted because they make no model call.
 | `aliencouncil.com` | content-writer | Anthropic CLI | CLI default (unpinned) | Enabled, 3× weekly | Writes and publishes persona-aligned site content |
 | `aliencouncil.com` | seo-analyst | Anthropic CLI | CLI default (unpinned) | Enabled, weekly | Search performance review and SEO tasking |
 | `aliencouncil.com` | affiliate-ops | Anthropic CLI | CLI default (unpinned) | **Disabled** | Monthly affiliate catalog/operations work |
+| `amputeenews.com` | content-writer | Anthropic CLI | `claude-sonnet-4-6` | Enabled, every 3h | Writes source-backed amputee/limb-difference news & guides in persona voice from the data-hub cache |
+| `amputeenews.com` | planner | Anthropic CLI | `claude-sonnet-4-6` | Enabled, weekly (Mon) | Portfolio/site planning and backlog work |
+| `amputeenews.com` | seo-analyst | Anthropic CLI | `claude-sonnet-4-6` | Enabled, weekly (Wed) | Reviews consented analytics/GSC and proposes content gaps |
+| `amputeenews.com` | affiliate-editor | Anthropic CLI | `claude-sonnet-4-6` | Enabled, weekly (Wed); inactive until real Associates tag supplied | Audits active commercial links once the affiliate program is live |
 | `americastrikes.com` | breaking-news | Anthropic CLI | Inherits CLI default in its gated runner | Enabled, conditional twice/hour | Checks threshold/dedup first, then invokes a writer only for a qualifying story |
 | `americastrikes.com` | update/news writer | Anthropic CLI | Alias `sonnet` | Enabled, 10× daily | Runs the newsroom update pipeline: research, source-grounded writing, commit, and publish queue |
 | `americastrikes.com` | weekly-editorial | Anthropic CLI | CLI default (unpinned) | Enabled, weekly | Performs weekly editorial review/long-form planning and work |

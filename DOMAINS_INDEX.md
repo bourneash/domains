@@ -15,11 +15,11 @@
 | ultrarough.com 		|   ✅   | Kink-coded sandpaper/abrasives review authority — Liquid Death aesthetic on a boring Amazon niche 							|
 | weapontester.com 		|   ✅   | Browser weapon builder + physics-realistic ballistics range; in-tool affiliate links on real parts 							|
 | xxxtea.com 			|   ✅   | Fragrance-ad tea + tea-ware review site — "restraint is the joke" voice, honey/amber on oolong-dark, affiliate 				|
+| amputeenews.com 		|   ✅   | Amputee News — source-backed practical news/guide desk for amputees and limb-different people; live on CF Workers Builds, ops/cron autonomy active, Amazon Associates pending real tag 	|
 
 
 
 ## Coming Soon (scaffolded, awaiting brief or CF Worker connection)
-| amputeenews.com 	|   🟡   | `amputeenews-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
 | weirdassstuff.com |   🟡   | `weirdassstuff-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
 | weirdgirlstore.com |   🟢   | `weirdgirlstore-com`| Barbie-goth curio affiliate shop live; brief locked, ops/board scaffolded, auto-deploy verified |
 | newmomshop.com 	|   🟡   | `newmomshop-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
