@@ -19,6 +19,10 @@
 
 
 ## Coming Soon (scaffolded, awaiting brief or CF Worker connection)
+| amputeenews.com 	|   🟡   | `amputeenews-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
+| weirdassstuff.com |   🟡   | `weirdassstuff-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
+| weirdgirlstore.com |   🟢   | `weirdgirlstore-com`| Barbie-goth curio affiliate shop live; brief locked, ops/board scaffolded, auto-deploy verified |
+| newmomshop.com 	|   🟡   | `newmomshop-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
 
 | Domain 			| In use | Worker name      | Notes                                                              |
 |-------------------|--------|------------------|--------------------------------------------------------------------|
