@@ -7,6 +7,63 @@
 
 sources:
 
+  # ── amputeenews.com ─────────────────────────────────────────────────────────
+  # Broad media queries intentionally accompany the first-party and trade feeds:
+  # the desk needs to see policy/access stories that do not use O&P vocabulary.
+  - id: amputee-coalition-news
+    type: rss
+    url: "https://news.amputee-coalition.org/feed/"
+    tags: [limb-loss, community, access]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Amputee Coalition"
+
+  - id: op-edge
+    type: rss
+    url: "https://opedge.com/feed/"
+    tags: [prosthetics, research, access]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The O&P EDGE"
+
+  - id: va-news-limb-loss
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Anews.va.gov+%28prosthetics+OR+%22limb+loss%22+OR+amputation%29&hl=en-US&gl=US&ceid=US%3Aen"
+    tags: [limb-loss, prosthetics, access, veterans]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "VA News"
+
+  - id: google-news-limb-loss
+    type: rss
+    url: "https://news.google.com/rss/search?q=%28%22limb+loss%22+OR+amputee+OR+amputation%29+%28access+OR+community+OR+technology+OR+sport%29&hl=en-US&gl=US&ceid=US%3Aen"
+    tags: [limb-loss, community, access, adaptive-sport]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News — limb loss"
+
+  - id: google-news-prosthetics
+    type: rss
+    url: "https://news.google.com/rss/search?q=prosthetics+%28research+OR+policy+OR+access+OR+technology%29&hl=en-US&gl=US&ceid=US%3Aen"
+    tags: [prosthetics, research, access]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News — prosthetics"
+
+  - id: google-news-adaptive-sport
+    type: rss
+    url: "https://news.google.com/rss/search?q=%28adaptive+sport+OR+para+sport%29+%28amputee+OR+prosthetic+OR+limb%29&hl=en-US&gl=US&ceid=US%3Aen"
+    tags: [adaptive-sport, community]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Google News — adaptive sport"
+
   # ── americastrikes.com ──────────────────────────────────────────────────────
 
   - id: al-jazeera

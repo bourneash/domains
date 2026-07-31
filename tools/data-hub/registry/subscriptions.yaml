@@ -5,6 +5,12 @@
 
 subscriptions:
 
+  amputeenews.com:
+    items:
+      tags_any: [limb-loss, prosthetics, adaptive-sport, community, access, research, veterans]
+      limit: 120
+      window_hours: 72
+
   americastrikes.com:
     items:
       tags_any: [defense, iran, diplomacy, markets, domestic, world, russia, ukraine, china, taiwan, korea, africa]
