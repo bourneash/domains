@@ -1,114 +1,20 @@
-# Cookie & Legal Compliance Tracker
+# Cookie and Analytics Compliance
 
-Last updated: 2026-06-20
+The Fleet Dashboard **Compliance** section is the source of truth for the current technical privacy baseline. This file no longer contains manually maintained site statuses.
 
-## Status Legend
-- ✅ Present and correct
-- ❌ Missing
-- ⚠️ Present but has issues (details in Notes)
-- N/A Not applicable (e.g. no analytics on site)
+Open Fleet Dashboard at `http://127.0.0.1:4754/#compliance` and select **Scan live sites now** to verify every discovered domain against its deployed homepage and same-origin JavaScript bundles.
 
----
+## Current automated checks
 
-## Summary Table
+- Live HTTPS homepage reachability
+- Cookie consent banner or dialog
+- Accept choice
+- Reject or decline choice
+- GA4 presence and measurement IDs
+- Default-denied Google consent mode or evidence of basic consent gating when GA4 is present
+- Privacy-policy link
+- Terms link
 
-| Site | Privacy | Terms | Disclosure | Cookie Banner | GA Setup | Status | Notes |
-|------|---------|-------|------------|---------------|----------|--------|-------|
-| **ultrarough.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
-| **weapontester.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
-| **xxxtea.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
-| **sinderella.org** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
-| **reviewtattoo.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | |
-| **0xroulette.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | React SPA — added 2026-06-19 |
-| **aliencouncil.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
-| **americastrikes.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
-| **deeppenetrations.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-07 |
-| **findyourlostpets.com** | ✅ | ✅ | N/A | ✅ | ✅ GA-BZ35NJ4FMB gated | **COMPLIANT** | No affiliates — disclosure N/A |
-| **shoptopless.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
-| **totaljerks.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
-| **wetpages.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 |
-| **rc-9.com** | ✅ | ✅ | N/A | ✅ | ✅ GA gated | **COMPLIANT** | Fixed 2026-06-06 (pure HTML) |
-| **adultxtube.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon — 2026-06-06 |
-| **3boobs.com** | ✅ | ✅ | N/A | ✅ | ✅ gated, dormant (no GA4 ID) | **COMPLIANT** | Launched 2026-06-09 — audit 6/6 PASS; no affiliates |
-| **broadwayshowgirls.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Launched 2026-06-20; affiliate (broadwayshowgirls-20); GA4 G-SKQPE8V8JB (property 542413111) wired + consent-gated reject-by-default 2026-06-20 |
-| **cock-smoker.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **coffeepredator.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **complicated.work** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **deadlymaracas.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **driveford.net** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **drivegm.net** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **dumbsluts.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **elevatorfriends.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **failbunny.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **infrainnovator.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **kinkxels.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **mynewgm.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **mynewgm.info** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **noveltyguns.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **nsfwpixels.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **onlysexyteens.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **oventoheaven.com** | ✅ | ✅ | ✅ | ✅ | ✅ GA gated | **COMPLIANT** | Launched 2026-07; affiliate (Amazon Associates oventoheaven-20); GA4 G-RY7R673EL5 (property 546574620) wired + consent-gated (oth_cookie_consent) 2026-07-21; privacy/terms rewritten from pre-launch placeholder text |
-| **pervypotion.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **pokererotic.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **rodhat.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **saveusfarms.com** | ✅ | ✅ | N/A | N/A | ✅ GA gated | **COMPLIANT** | News portal; GA4 G-GDYX2GPMMJ (property 542493246) wired + consent-gated (suf_analytics_consent) 2026-06-21 |
-| **securityplaces.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **sexchallengecoins.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **sexchallenge.me** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **sexvendor.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **stinkyleftfoot.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **vibratorporn.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **wetslit.com** | ✅ | ✅ | N/A | N/A | N/A | **COMPLIANT** | Coming soon |
-| **nsfwpixles.com** | N/A | N/A | N/A | N/A | N/A | **STUB** | No site directory — domain only |
+Results are reported as **pass**, **fail**, or **unknown**. An unreachable or unscanned site is always **unknown**, never assumed compliant or noncompliant. These checks are a technical baseline and not legal advice or a legal certification.
 
----
-
-## Google Analytics Property IDs
-
-Numeric property IDs verified 2026-06-07 via GA4 admin search. Settings applied: event data retention = 14mo, Google Signals = OFF.
-
-| Site | GA4 Measurement ID | GA4 Property ID | Consent Gated | Data Retention |
-|------|--------------------|-----------------|---------------|----------------|
-| deeppenetrations.com | G-LXCYBEFKC1 | 540547540 | ✅ Yes | ✅ 14 months |
-| findyourlostpets.com | G-BZ35NJ4FMB | 540456372 | ✅ Yes | ✅ 14 months |
-| rc-9.com | G-R2H86NCJ2F | 539712309 | ✅ Yes | ✅ 14 months |
-| reviewtattoo.com | G-JRCG92YYCB | 539754267 | ✅ Yes | ✅ 14 months |
-| shoptopless.com | G-SZFER7KX15 | 539755746 | ✅ Yes | ✅ 14 months |
-| aliencouncil.com | G-8Z6YMDR3VX | 539754450 | ✅ Yes | ✅ 14 months |
-| americastrikes.com | G-ZHHXBF92TY | 539753593 | ✅ Yes | ✅ 14 months |
-| totaljerks.com | G-R72CH4D2CR | 539694930 | ✅ Yes | ✅ 14 months |
-| ultrarough.com | G-2WSKDPGPXV | 539753693 | ✅ Yes | ✅ 14 months |
-| weapontester.com | G-HYYSTD9NW8 | 539755626 | ✅ Yes | ✅ 14 months |
-| wetpages.com | G-L1285EE0NE | 539774170 | ✅ Yes | ✅ 14 months |
-| xxxtea.com | G-P889LLFBNK | 539743210 | ✅ Yes | ✅ 14 months |
-| sinderella.org | G-Q378G15KZZ | 539773741 | ✅ Yes | ✅ 14 months |
-| 0xroulette.com | G-KQH7L26D95 | 542247993 | ✅ Yes | ✅ 14 months |
-| broadwayshowgirls.com | G-SKQPE8V8JB | 542413111 | ✅ Yes | ✅ 14 months |
-| saveusfarms.com | G-GDYX2GPMMJ | 542493246 | ✅ Yes | ✅ 14 months |
-| oventoheaven.com | G-RY7R673EL5 | 546574620 | ✅ Yes | ✅ 14 months |
-
-**Note:** Duplicate shoptopless.com property (539897281) confirmed inactive and moved to GA4 Trash 2026-06-07. Active property is 539755746 (receiving traffic, G-SZFER7KX15).
-
----
-
-## Fix Log
-
-| Date | Site | Fix Applied |
-|------|------|-------------|
-| 2026-06-06 | ALL SITES | Initial audit — COOKIE_COMPLIANCE.md created |
-| 2026-06-06 | aliencouncil.com | Added terms.astro, CookieBanner, gated GA |
-| 2026-06-06 | americastrikes.com | Added terms.astro, CookieBanner, gated GA |
-| 2026-06-06 | shoptopless.com | Added terms.astro, disclosure.astro, CookieBanner, gated GA |
-| 2026-06-06 | totaljerks.com | Added privacy.astro, terms.astro, CookieBanner, gated GA |
-| 2026-06-06 | wetpages.com | Added CookieBanner, gated GA |
-| 2026-06-06 | findyourlostpets.com | Removed incorrectly-added disclosure.astro — site has no affiliates |
-| 2026-06-06 | rc-9.com | Added terms.html, cookie banner, gated GA |
-| 2026-06-06 | 30 coming-soon sites | Added privacy.astro + terms.astro + footer legal links to all |
-| 2026-06-07 | deeppenetrations.com | Added GA4 (G-LXCYBEFKC1), CookieBanner, gated GA, updated privacy policy |
-| 2026-06-07 | ALL 13 GA4 properties | GA4 admin audit: event data retention → 14 months, Google Signals = OFF confirmed, Consent settings = Good. Property IDs recorded. |
-| 2026-07-21 | oventoheaven.com | GA4 property created (G-RY7R673EL5, property 546574620), 14mo retention set, Google Signals confirmed OFF; added CookieBanner + consent-gated Analytics.astro; rewrote privacy.astro/terms.astro off stale "pre-launch placeholder" text now that the site has real content, affiliate links, and analytics; fleet-smoke ops/smoke.yaml already existed, added /go/ affiliate-redirect checks |
-| 2026-06-07 | shoptopless.com | Deleted duplicate GA4 property 539897281 (no traffic). Active: 539755746 / G-SZFER7KX15. |
-| 2026-06-19 | 0xroulette.com | Created GA4 property (G-KQH7L26D95 / 542247993), Eastern TZ, USD, 14mo retention (both), Google Signals OFF. React SPA: consent-gated GA4 (key `0xr_analytics_consent`), CookieBanner, privacy/terms/disclosure pages. |
-| 2026-06-20 | broadwayshowgirls.com | Site launched. Updated from Coming Soon to LIVE. Disclosure ✅ (broadwayshowgirls-20 affiliate), CookieBanner ✅ consent-gated reject-by-default, GA4 gated + dormant (placeholder ID — real property pending login-handoff). |
-| 2026-06-21 | saveusfarms.com | Created GA4 property (G-GDYX2GPMMJ / 542493246, stream 15124982708), Eastern TZ (New York), USD, News industry, Small, 14mo retention (event+user), Google Signals OFF. Real measurement ID wired into `site/src/lib/analytics.ts` (was G-PLACEHOLDER); consent-gated via `suf_analytics_consent` / `suf-consent-granted`. |
-| 2026-06-20 | broadwayshowgirls.com | Created GA4 property (G-SKQPE8V8JB / 542413111, stream 15122444707), Eastern TZ, USD, Arts & Entertainment, 14mo retention (event+user), Google Signals OFF. Real measurement ID wired into `site/src/lib/analytics.ts` (was placeholder); consent-gated via `bsg_analytics_consent`. |
+The scanner runs when Fleet Dashboard starts, refreshes hourly, and can be run on demand. Its implementation and tests live in `tools/fleet-dashboard/server/compliance.js` and `tools/fleet-dashboard/server/compliance.test.js`.

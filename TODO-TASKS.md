@@ -1,61 +1,95 @@
+# TODO Tasks by Site
 
+## Shared / All Sites
 
+### Affiliate Images
 
-I am seeing over 20 of the affiliate links without images. Did you generate new images? As previouslly requested, please generate images if we do not have them using Nano Banan and CloakBrowser, we have skills for all this. We even have prompts and prompt writer skills too. Make no mistakes!
+- [ ] Audit the affiliate links and identify the 20+ links that do not have images.
+- [ ] Generate images for affiliate links that do not already have them, using Nano Banana and CloakBrowser along with the available prompts and prompt-writer skills.
 
+### Publishing Cadence
 
+- [ ] Replace the top-of-the-hour news article publishing cadence with a more randomized, user-contributed-style schedule.
+- [ ] Review how Broadway Showgirls handles publishing cadence and use it as a reference for a complete, reusable solution.
+- [ ] Make the publishing cadence solution reusable across other sites.
 
-The sites release news Articles on too much of a cadence, like at the top of the hour. The site needs to actually be updated. In a more random. User contributed type of fashion rather than having everything update on the hour. Need a full and complete solution for this, and we will want to do this on others too. You could see how we do this with Broadway Showgirls
+### Email System
 
+- [ ] Evaluate `/mnt/encrypted/projects/email-client` as a shared email system that all sites can use.
+- [ ] Recommend how the existing AI email-client harness could be integrated into the sites.
 
-We need an email system that all sites could interact with. What do you think about using this harness we started building for another project? This was intended to be an AI email client we could stand up in various projects: /mnt/encrypted/projects/email-client
+### Image Sourcing
 
+- [ ] Integrate ComfyUI image generation into the Fleet image sourcer.
+- [ ] Integrate the image sourcer into every site that needs it.
 
-/domains-amazon-creator-connections Could you please add the creator affiliates I accepted for fishing gear (gear, nets, knives, reels, backpack, watch, scissors, jigr attles, skirts, sunglasses, gloves, wall racks, etc)? Should go on to the site totaljerks.com Feel free to ask if you are not sure! You should decide what level of editoral and/or card each one gets based on the information yougather from it.
+### Networking
 
-/domains-amazon-creator-connections Could you please add the creator affiliates I accepted for tattoo care, and sanding disks? Should go on to the site reviewtattoo.com Feel free to ask if you are not sure! You should decide what level of editoral and/or card each one gets based on the information yougather from it.
+- [ ] Audit all containers for external communications that do not use the VPN containers.
+- [ ] Move any uncovered external communications through the appropriate VPN containers.
 
+## totaljerks.com
 
+- [ ] Review the accepted fishing-gear creator affiliates in `/domains-amazon-creator-connections`.
+- [ ] Add the accepted fishing-gear creator affiliates to totaljerks.com, including applicable gear, nets, knives, reels, backpacks, watches, scissors, jig rattles, skirts, sunglasses, gloves, wall racks, and related products.
+- [ ] Decide the appropriate editorial coverage and/or card placement for each affiliate based on the available product information.
 
-Integrate Comfy UI for image generation as well in to our Fleet image sourcer
+## reviewtattoo.com
 
-Integrate our image sourcer in to all of the sites that need it.
+- [ ] Review the accepted tattoo-care and sanding-disc creator affiliates in `/domains-amazon-creator-connections`.
+- [ ] Add the accepted tattoo-care and sanding-disc creator affiliates to reviewtattoo.com.
+- [ ] Decide the appropriate editorial coverage and/or card placement for each affiliate based on the available product information.
 
-Are any containers still not using the VPN containers for any external comms?
+## 0daynews
 
+- [ ] Add search functionality to the news articles.
+- [ ] Update **About → How We're Funded** to accurately explain how the site is funded.
+- [ ] Review the existing pages and determine whether they are appropriate, whether the Vendors page makes sense, and what “Kev” refers to.
+- [ ] Remove the duplicate **About** link at the very top of the navigation bar; retain the **About** link grouped with the other navigation links.
+- [ ] Redesign the Categories page to be easier to use and more visually polished.
 
+## Deep Penetrations
 
----
+- [ ] Add **Next** and **Back** buttons to gallery images to improve navigation.
 
-Please review and debug JIRA DF-65, DF-66, DF-67, DF-68, DF-69, DF-79, DF-71
+## 0xRoulette
 
-Note: Never ever mark tickets as Done, only mark them as In Review.
+- [ ] Persist the user's game history across page refreshes.
+- [ ] Add a **Reset** button that allows the user to start fresh.
+- [ ] Simplify starting a new game by giving the user an initial $1,000 balance before they use the bank.
+- [ ] Right-align the win/loss amount in the **Most Recent Number** box on the left side.
+- [ ] Apply for Google AdSense.
+- [ ] Clean up the wording so the site's intent is clear.
+- [ ] Improve the graphics in the center of the wheel.
 
----
-please commit/ship all your changes to main and push to remote if you have not already. Please close out any local branches/workstrees that have been merged and any remote branches as well.
+## Jira
 
----
+- [ ] Review and debug DF-65.
+- [ ] Review and debug DF-66.
+- [ ] Review and debug DF-67.
+- [ ] Review and debug DF-68.
+- [ ] Review and debug DF-69.
+- [ ] Review and debug DF-79.
+- [ ] Review and debug DF-71.
 
-  - Issue #2 — sites with stranded work: real uncommitted src/content sits in ultrarough.com (110 files!),
-  sinderella.org (8), totaljerks.com (5). The rest (0xroulette, 3boobs, aliencouncil, americastrikes,
-  saveusfarms, weapontester, wetpages) are just 1–3 ops-bookkeeping files (log/board noise, not lost work).
+> **Jira status rule:** Never mark tickets as **Done**. Mark completed work as **In Review** only.
 
+## Repository and Release Operations
 
----
+- [ ] Commit and ship all outstanding changes to `main`.
+- [ ] Push outstanding changes to the remote repository.
+- [ ] Close local branches and worktrees that have already been merged.
+- [ ] Remove remote branches that have already been merged.
 
-0daynews
-- Add a search to the news artciles
+### Sites with Stranded Work
 
-- Update About->"How we're funded" to reflect how we are fdunded
-
-- Are the pages we have right? Vendors make sense? Whats Kev?
-
-- Navigation bar - there are two "About" links, one at the very top that should be removed, and then one with the other nav links.
-
-- Build out the Categories page to be usable more easily and look nicer!
-
----
-
-Deep Penetrations
-- add next/back buttons on the Gallery images to let the user navigate better
-
+- [ ] Review and resolve the 110 uncommitted `src/content` files in ultrarough.com.
+- [ ] Review and resolve the 8 uncommitted files in sinderella.org.
+- [ ] Review and resolve the 5 uncommitted files in totaljerks.com.
+- [ ] Review the 1–3 operations-bookkeeping files in 0xroulette and remove or resolve log/board noise as appropriate.
+- [ ] Review the 1–3 operations-bookkeeping files in 3boobs and remove or resolve log/board noise as appropriate.
+- [ ] Review the 1–3 operations-bookkeeping files in aliencouncil and remove or resolve log/board noise as appropriate.
+- [ ] Review the 1–3 operations-bookkeeping files in americastrikes and remove or resolve log/board noise as appropriate.
+- [ ] Review the 1–3 operations-bookkeeping files in saveusfarms and remove or resolve log/board noise as appropriate.
+- [ ] Review the 1–3 operations-bookkeeping files in weapontester and remove or resolve log/board noise as appropriate.
+- [ ] Review the 1–3 operations-bookkeeping files in wetpages and remove or resolve log/board noise as appropriate.
