@@ -3,6 +3,25 @@ config:
   auto_push: false
   domains_root: /work
 sites:
+  amputeenews.com:
+    active: true
+    cf_zone: amputeenews.com
+    github: bourneash/amputeenews.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   0daynews.com:
     active: true
     cf_zone: 0daynews.com
@@ -199,6 +218,27 @@ sites:
     cf_zone: reviewtattoo.com
     github: bourneash/reviewtattoo
     smoke_string: First Tattoo Guides
+    applies_to:
+    - canary
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  rodhat.com:
+    active: true
+    cf_zone: rodhat.com
+    github: bourneash/rodhat.com
+    smoke_string: RodHat wears a hat
     applies_to:
     - canary
     - cf
