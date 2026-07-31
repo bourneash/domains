@@ -277,6 +277,26 @@ sites:
     - branding
     - manual
     manual: {}
+  weirdgirlstore.com:
+    active: true
+    cf_zone: weirdgirlstore.com
+    github: bourneash/weirdgirlstore.com
+    smoke_string: Weird Girl Store
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   xxxtea.com:
     active: true
     cf_zone: xxxtea.com
