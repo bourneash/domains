@@ -22,3 +22,9 @@ test('fleet returns a summary with fleet site counts', async () => {
   assert.equal(data.coverage.length, data.summary.sites_total);
   assert.ok(data.generated_at);
 });
+
+test('fleet accepts an inclusive UTC date range for dashboard time-frame controls', async () => {
+  const data = await aiusage.fleet(ROOT, { from: '2026-07-01', to: '2026-07-30' });
+  assert.deepEqual(data.filters, { from: '2026-07-01', to: '2026-07-30' });
+  assert.ok(Array.isArray(data.by_day_site_role));
+});

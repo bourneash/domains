@@ -37,6 +37,8 @@ LEDGER="$LOG_DIR/token-usage-$(date -u +%Y-%m-%d).jsonl"
 # Strip any --output-format (and its value) the caller passed — we own that flag.
 ARGS=()
 skip_next=0
+requested_model=""
+requested_max_turns=""
 for arg in "$@"; do
   if [[ $skip_next -eq 1 ]]; then
     skip_next=0
@@ -54,6 +56,26 @@ for arg in "$@"; do
   ARGS+=("$arg")
 done
 
+# Keep the caller's intent alongside Claude's observed modelUsage result.  The
+# CLI may resolve aliases or apply account-level routing, so the two fields are
+# intentionally separate rather than overwriting the observed model below.
+for ((i = 0; i < ${#ARGS[@]}; i++)); do
+  case "${ARGS[$i]}" in
+    --model)
+      requested_model="${ARGS[$((i + 1))]:-}"
+      ;;
+    --model=*)
+      requested_model="${ARGS[$i]#--model=}"
+      ;;
+    --max-turns)
+      requested_max_turns="${ARGS[$((i + 1))]:-}"
+      ;;
+    --max-turns=*)
+      requested_max_turns="${ARGS[$i]#--max-turns=}"
+      ;;
+  esac
+done
+
 TMP_JSON="$(mktemp)"
 trap 'rm -f "$TMP_JSON"' EXIT
 
@@ -62,12 +84,12 @@ claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
 STATUS=$?
 set -e
 
-python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" <<'PYEOF'
+python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" <<'PYEOF'
 import json
 import sys
 import time
 
-tmp_path, ledger_path, site, role, status = sys.argv[1:6]
+tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns = sys.argv[1:8]
 
 try:
     with open(tmp_path, encoding="utf-8") as fh:
@@ -86,6 +108,8 @@ if data is not None:
         "site": site,
         "role": role,
         "model": model,
+        "requested_model": requested_model or None,
+        "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": data.get("subtype"),
         "is_error": data.get("is_error"),
         "exit_status": int(status),
@@ -106,6 +130,8 @@ else:
         "site": site,
         "role": role,
         "model": None,
+        "requested_model": requested_model or None,
+        "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": "parse_error",
         "is_error": True,
         "exit_status": int(status),

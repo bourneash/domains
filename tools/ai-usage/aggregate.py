@@ -32,6 +32,7 @@ NUMERIC_FIELDS = (
 
 DIRECT_CLAUDE_CALL = re.compile(r"\btimeout\b.*\bclaude\s+-p\b")
 PYTHON_CLAUDE_CALL = re.compile(r"[\[\(]\s*['\"]claude['\"]\s*,\s*['\"]-p['\"]")
+LOCAL_MODEL_CALL = re.compile(r"(?:chat\.completions\.create|/api/chat|/v1/chat/completions)")
 
 
 def _empty_totals() -> dict:
@@ -69,8 +70,10 @@ def wiring_status(site_dir: Path) -> str:
     writer helper.  Checking only the dispatcher made the old dashboard claim
     that a site was wired while its actual AI calls were invisible.
     """
-    scripts_dir = site_dir / "ops" / "scripts"
-    if not scripts_dir.is_dir():
+    ops_dir = site_dir / "ops"
+    scripts_dir = ops_dir / "scripts"
+    llm_dir = ops_dir / "llm"
+    if not scripts_dir.is_dir() and not llm_dir.is_dir():
         return "no_ai_role"
 
     tracked = 0
@@ -84,6 +87,18 @@ def wiring_status(site_dir: Path) -> str:
                 untracked += 1
             if '"$CLAUDE_TRACKED"' in line or "${CLAUDE_TRACKED}" in line:
                 tracked += 1
+
+    # Local OpenAI-compatible/Ollama clients cannot use the Claude wrapper;
+    # they are wired when they emit provider-neutral records through record.py.
+    for client in llm_dir.rglob("*.py") if llm_dir.is_dir() else ():
+        if "tests" in client.relative_to(llm_dir).parts:
+            continue
+        text = client.read_text(encoding="utf-8", errors="ignore")
+        if LOCAL_MODEL_CALL.search(text):
+            if "record.py" in text:
+                tracked += 1
+            else:
+                untracked += 1
 
     if untracked:
         return "not_wired"
@@ -124,6 +139,9 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     by_site_role: dict[tuple[str, str], dict] = {}
     by_day: dict[str, dict] = {}
     by_day_site_role: dict[tuple[str, str, str], dict] = {}
+    by_model: dict[tuple[str, str], dict] = {}
+    by_requested_model: dict[str, dict] = {}
+    alerts: list[dict] = []
     instrumented_sites: set[str] = set()
     all_sites: list[str] = []
 
@@ -149,6 +167,25 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 _add(by_site_role.setdefault((site, role), _empty_totals()), record)
                 _add(by_day.setdefault(day, _empty_totals()), record)
                 _add(by_day_site_role.setdefault((day, site, role), _empty_totals()), record)
+                provider = record.get("provider") or "Anthropic / Claude Code CLI"
+                model = record.get("model") or "unresolved"
+                _add(by_model.setdefault((provider, model), _empty_totals()), record)
+                requested_model = record.get("requested_model")
+                if requested_model:
+                    _add(by_requested_model.setdefault(requested_model, _empty_totals()), record)
+                requested_turns = record.get("requested_max_turns")
+                turns = record.get("num_turns") or 0
+                if record.get("is_error") or (
+                    isinstance(requested_turns, int) and requested_turns > 0 and turns >= requested_turns
+                ):
+                    alerts.append({
+                        "day": day, "site": site, "role": role, "provider": provider,
+                        "model": model, "requested_model": requested_model,
+                        "num_turns": turns, "requested_max_turns": requested_turns,
+                        "is_error": bool(record.get("is_error")),
+                        "subtype": record.get("subtype"),
+                        "total_cost_usd": record.get("total_cost_usd") or 0.0,
+                    })
 
     site_rows = []
     for site, totals in sorted(by_site.items()):
@@ -171,6 +208,15 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
             "day": day, "site": site, "role": role, **totals,
             "cache_hit_ratio": _cache_hit_ratio(totals),
         })
+
+    model_rows = []
+    for (provider, model), totals in sorted(by_model.items()):
+        model_rows.append({"provider": provider, "model": model, **totals,
+                           "cache_hit_ratio": _cache_hit_ratio(totals)})
+    requested_model_rows = []
+    for model, totals in sorted(by_requested_model.items()):
+        requested_model_rows.append({"requested_model": model, **totals,
+                                     "cache_hit_ratio": _cache_hit_ratio(totals)})
 
     fleet_totals = _empty_totals()
     for totals in by_site.values():
@@ -210,6 +256,9 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         "by_site_role": role_rows,
         "by_day": day_rows,
         "by_day_site_role": day_site_role_rows,
+        "by_model": model_rows,
+        "by_requested_model": requested_model_rows,
+        "alerts": sorted(alerts, key=lambda row: (-row["total_cost_usd"], row["day"])),
         "filters": {"from": start_day, "to": end_day},
         "coverage": coverage,
     }

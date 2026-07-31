@@ -153,6 +153,17 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(report["by_day_site_role"][0]["role"], "watchdog")
         self.assertEqual(report["filters"], {"from": "2026-07-02", "to": "2026-07-02"})
 
+    def test_exposes_runtime_model_and_turn_limit_alerts(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [record(
+            provider="Anthropic / Claude Code CLI", model="claude-haiku", requested_model="claude-sonnet",
+            requested_max_turns=10, num_turns=10,
+        )])
+        report = aggregate.collect(root)
+        self.assertEqual(report["by_model"][0]["model"], "claude-haiku")
+        self.assertEqual(report["by_requested_model"][0]["requested_model"], "claude-sonnet")
+        self.assertEqual(report["alerts"][0]["requested_max_turns"], 10)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,7 @@ const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
 const taskbudget = require('./taskbudget');
+const aiinventory = require('./aiinventory');
 const aiusage = require('./aiusage');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
@@ -24,6 +25,7 @@ const health = require('./health');
 const actionlog = require('./actionlog');
 const devsandbox = require('./devsandbox');
 const sitefacts = require('./sitefacts');
+const compliance = require('./compliance');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -209,6 +211,26 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.get('/api/sites', (_req, res) => res.json(discoverSites(root)));
 
+  // Live technical privacy baseline. Results come from deployed pages and
+  // same-origin JS bundles, not COOKIE_COMPLIANCE.md.
+  app.get('/api/compliance', (_req, res) => {
+    try { res.json(compliance.matrix(discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+  app.get('/api/compliance/progress', (_req, res) => res.json(compliance.progress()));
+  app.get('/api/compliance/history', (req, res) => {
+    try { res.json(compliance.fleetHistory(discoverSites(root), req.query.limit)); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+  app.post('/api/compliance/scan', (_req, res) => {
+    try { res.status(202).json(compliance.startScan(discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+  app.post('/api/compliance/:slug/scan', requireSite, async (req, res) => {
+    try { res.json(await compliance.scanOne(req.params.slug)); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
   // The fleet engineer audit (delegates to engineer-status.py --json).
   app.get('/api/fleet', async (_req, res) => {
     try { res.json(await audit.fleet(root)); }
@@ -243,6 +265,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // dead-role backlog task drift.
   app.get('/api/task-budget', async (_req, res) => {
     try { res.json(await taskbudget.fleet(root)); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Dispatch-aware AI inventory: provider/model/policy for every scheduled
+  // service. The Python CLI remains the single source of truth.
+  app.get('/api/ai-inventory', async (_req, res) => {
+    try { res.json(await aiinventory.fleet(root)); }
     catch (e) { res.status(500).json({ error: e.message }); }
   });
 
@@ -575,6 +604,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Site Facts background sweep (hourly — these change rarely). Same
   // skip-under-test convention as the deploy-health poller above.
   if (process.env.NODE_ENV !== 'test') sitefacts.start(() => discoverSites(root));
+  if (process.env.NODE_ENV !== 'test') compliance.start(() => discoverSites(root));
 
   return app;
 }
