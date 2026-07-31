@@ -193,6 +193,26 @@ sites:
     - branding
     - manual
     manual: {}
+  newmomshop.com:
+    active: true
+    cf_zone: newmomshop.com
+    github: bourneash/newmomshop.com
+    smoke_string: The gear guide that's actually been through it.
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   rc-9.com:
     active: true
     cf_zone: rc-9.com
