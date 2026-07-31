@@ -61,7 +61,7 @@
 | onlysexyteens.com 	|   ⬜   | 
 | pervypotion.com 		|   ⬜   | 
 | pokererotic.com 		|   ⬜   | 
-| rodhat.com 			|   ⬜   | Fishing rod + hat — outdoors/fishing apparel & tackle affiliate (weapontester sibling) 		|
+| rodhat.com 			|   ✅   | RodHat — grumpy FreeBSD-greybeard tech persona: news 3x/day + advanced Linux/Unix tips + sysadmin essays; dev-tool/book affiliate + ads 		|
 | securityplaces.com 	|   ⬜   | 
 | sexchallengecoins.com |   ⬜   | 
 | sexchallenge.me 		|   ⬜   | 
