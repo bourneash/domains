@@ -363,6 +363,45 @@ async function renderTaskBudget() {
   stamp();
 }
 
+/* ===================== AI INVENTORY ===================== */
+async function renderAIInventory() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Tracing scheduled AI dispatches…</div>';
+  let data;
+  try { data = await api('GET', '/api/ai-inventory'); }
+  catch (e) { app.innerHTML = `<div class="empty">AI inventory failed: ${esc(e.message)}</div>`; return; }
+
+  const s = data.summary || {};
+  const providerClass = (r) => r.provider === 'None' ? 'b-gray' : r.policy === 'Local' ? 'b-purple' : 'b-blue';
+  const status = (r) => r.status === 'DISABLED'
+    ? `<span class="badge b-gray" title="${esc(r.disabled_flag || '')}">disabled</span>`
+    : '<span class="badge b-green">enabled</span>';
+  const rows = (data.rows || []).map((r) => `<tr data-fleet-row data-site="${esc(r.domain)}">
+    <td>${siteLink(r.domain)}</td>
+    <td class="mono">${esc(r.service)}</td>
+    <td><span class="badge ${providerClass(r)}">${esc(r.provider)}</span></td>
+    <td class="mono">${esc(r.model)}</td>
+    <td>${status(r)}${r.conditional ? ' <span class="badge b-yellow" title="Deterministic preflight; model is not called on every tick">conditional</span>' : ''}</td>
+    <td><span class="mono muted" title="${esc(r.source)}">${esc(r.dispatch)}</span></td>
+    <td>${esc(r.purpose)}${r.note ? `<div class="muted">${esc(r.note)}</div>` : ''}</td>
+  </tr>`).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">AI Inventory</h2><span class="muted">dispatch-aware provider and model audit of scheduled fleet services</span></div>
+    <div class="task-toolbar">
+      <strong>${s.ai || 0} AI-backed / ${s.services || 0} scheduled services</strong>
+      <span class="muted">${s.remote || 0} remote · ${s.local || 0} local · ${s.conditional || 0} conditional · ${s.disabled || 0} disabled</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Site</th><th>Service</th><th>Provider</th><th>Model</th><th>Status</th><th>Dispatch</th><th>Function</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">“Claude CLI default (unpinned)” and aliases such as <span class="mono">sonnet</span>/<span class="mono">haiku</span> can change without a repository change. Conditional services run deterministic gates before spending model tokens. Rows marked no-AI remain visible to make classifier decisions auditable.</p>`;
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
 /* ===================== AI USAGE ===================== */
 // Real token usage/cost, rolled up from the per-site ledgers written by
 // tools/scripts/claude-tracked.sh (server/aiusage.js -> tools/ai-usage/aggregate.py).
@@ -439,6 +478,9 @@ async function renderAIUsage() {
   const siteRows = groupUsage(activeRows, 'site').sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const roleRows = activeRows.slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const rawSummary = data.summary || {};
+  const runtimeModels = (data.by_model || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd);
+  const requestedModels = (data.by_requested_model || []).slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd);
+  const usageAlerts = (data.alerts || []).slice(0, 10);
   const wiredAwaiting = rawSummary.sites_wired_awaiting_first_run || [];
   const notWired = rawSummary.sites_not_wired || [];
   const noAiRole = rawSummary.sites_no_ai_role || [];
@@ -478,6 +520,9 @@ async function renderAIUsage() {
     <td class="mono">${fmtTokens(r.input_tokens + r.output_tokens)}</td>
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
   </tr>`).join('');
+  const runtimeModelRows = runtimeModels.map((r) => `<tr><td>${esc(r.provider)}</td><td class="mono">${esc(r.model)}</td><td>${r.calls}</td><td class="mono">${fmtTokens(r.output_tokens)}</td><td class="mono">${fmtUSD(r.total_cost_usd)}</td></tr>`).join('');
+  const requestedModelRows = requestedModels.map((r) => `<tr><td class="mono">${esc(r.requested_model)}</td><td>${r.calls}</td><td class="mono">${fmtUSD(r.total_cost_usd)}</td></tr>`).join('');
+  const alertText = usageAlerts.map((r) => `${r.site}/${r.role}: ${r.is_error ? 'failed' : 'turn cap reached'} (${r.num_turns || 0}/${r.requested_max_turns || '—'} turns, ${fmtUSD(r.total_cost_usd)})`).join(' · ');
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div>
@@ -496,6 +541,7 @@ async function renderAIUsage() {
       <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
       <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${rawSummary.sites_instrumented || 0}/${rawSummary.sites_total || 0} sites instrumented</span>
     </div>
+    ${usageAlerts.length ? `<div class="empty" style="margin-bottom:14px; color:var(--red)">⚠ ${usageAlerts.length} recent cost-control alert${usageAlerts.length === 1 ? '' : 's'}: ${esc(alertText)}</div>` : ''}
     ${notWired.length ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
     ${wiredAwaiting.length ? `<div class="empty" style="margin-bottom:14px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
     ${noAiRole.length ? `<div class="empty" style="margin-bottom:14px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
@@ -506,6 +552,11 @@ async function renderAIUsage() {
     <div class="card aiu-chart-card">
       <div class="task-toolbar"><strong>Daily spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Dates are UTC.</span></div>
       ${usageChart(filteredDays)}
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar"><strong>Runtime model resolution</strong><span class="muted">Observed model comes from Claude's response; requested model is the caller's flag. Differences expose alias/routing drift.</span></div>
+      ${runtimeModelRows ? `<table><thead><tr><th>Provider</th><th>Observed model</th><th>Calls</th><th>Output tok</th><th>Cost</th></tr></thead><tbody>${runtimeModelRows}</tbody></table>` : '<div class="empty">No model records yet.</div>'}
+      ${requestedModelRows ? `<div class="task-toolbar" style="margin-top:12px"><strong>Requested models</strong></div><table><thead><tr><th>Requested model</th><th>Calls</th><th>Cost</th></tr></thead><tbody>${requestedModelRows}</tbody></table>` : ''}
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>By site</strong></div>
@@ -2782,8 +2833,6 @@ async function dhToggleSource(id, currentlyEnabled, btn) {
 
 /* ===== ANALYTICS ===== */
 
-let ANALYTICS_SITE = null; // persists across soft-refreshes
-
 function anDelta(cur, prev) {
   if (prev == null) return '';
   const pct = prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
@@ -3085,7 +3134,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -3142,6 +3191,7 @@ function render() {
   else if (STATE.view === 'gitstashes') renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') renderTasks();
   else if (STATE.view === 'taskbudget') renderTaskBudget();
+  else if (STATE.view === 'aiinventory') renderAIInventory();
   else if (STATE.view === 'aiusage') renderAIUsage();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
@@ -3323,15 +3373,3 @@ async function boot() {
 }
 
 boot();
-  const coverageRows = (data.coverage || []).map((r) => {
-    const label = r.status === 'reporting' ? 'reporting' :
-      r.status === 'wired_awaiting_first_run' ? 'wired — awaiting first call' :
-      r.status === 'not_wired' ? 'untracked call path' : 'no AI call path';
-    const badge = r.status === 'reporting' ? 'b-green' :
-      r.status === 'not_wired' ? 'b-red' : 'b-gray';
-    return `<tr data-fleet-row data-site="${esc(r.site)}"><td>${siteLink(r.site)}</td><td><span class="badge ${badge}">${esc(label)}</span></td></tr>`;
-  }).join('');
-    <div class="card" style="margin-bottom:14px">
-      <div class="task-toolbar"><strong>Fleet tracking coverage</strong><span class="muted">Every site is shown, including sites with no AI call path.</span></div>
-      <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
-    </div>
