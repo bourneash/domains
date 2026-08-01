@@ -410,7 +410,7 @@ async function renderAIInventory() {
 // most of the fleet will be in that bucket until sites are migrated one at a time.
 function fmtTokens(n) { return (n || 0).toLocaleString(); }
 function fmtUSD(n) { return `$${(n || 0).toFixed(2)}`; }
-const AI_USAGE = { range: '30d', granularity: 'day', from: '', to: '', site: '', role: '' };
+const AI_USAGE = { range: '7d', granularity: 'day', from: '', to: '', site: '', role: '' };
 
 function utcDay(offset = 0) {
   const d = new Date();
@@ -526,17 +526,28 @@ async function renderAIUsage() {
   </tr>`).join('');
   const runtimeModelRows = runtimeModels.map((r) => `<tr><td>${esc(r.provider)}</td><td class="mono">${esc(r.model)}</td><td>${r.calls}</td><td class="mono">${fmtTokens(r.output_tokens)}</td><td class="mono">${fmtUSD(r.total_cost_usd)}</td></tr>`).join('');
   const requestedModelRows = requestedModels.map((r) => `<tr><td class="mono">${esc(r.requested_model)}</td><td>${r.calls}</td><td class="mono">${fmtUSD(r.total_cost_usd)}</td></tr>`).join('');
-  const alertText = usageAlerts.map((r) => `${r.site}/${r.role}: ${r.is_error ? 'failed' : 'turn cap reached'} (${r.num_turns || 0}/${r.requested_max_turns || '—'} turns, ${fmtUSD(r.total_cost_usd)})`).join(' · ');
+  const alertRows = usageAlerts.map((r) => `<tr>
+    <td>${siteLink(r.site)}</td>
+    <td class="mono">${esc(r.role)}</td>
+    <td>${r.is_error ? '<span class="badge b-red">failed</span>' : '<span class="badge b-gray">turn cap</span>'}</td>
+    <td class="mono">${r.num_turns || 0}/${r.requested_max_turns || '—'}</td>
+    <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+  </tr>`).join('');
+
+  const diagnosticsCount = usageAlerts.length + notWired.length;
+  const diagnosticsBadge = diagnosticsCount
+    ? `<span class="badge b-red">${diagnosticsCount}</span>`
+    : `<span class="badge b-green">clean</span>`;
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div>
     <div class="aiu-controls" aria-label="AI usage filters">
-      <div class="aiu-range" role="group" aria-label="Time frame">
-        ${[['7d', '7 days'], ['30d', '30 days'], ['90d', '90 days'], ['all', 'All time']].map(([value, label]) => `<button class="btn sm aiu-range-btn ${AI_USAGE.range === value ? 'active' : ''}" data-range="${value}">${label}</button>`).join('')}
-        <button class="btn sm aiu-range-btn ${AI_USAGE.range === 'custom' ? 'active' : ''}" data-range="custom">Custom</button>
-      </div>
       <div class="aiu-granularity" role="group" aria-label="Usage resolution">
-        ${[['day', 'Daily'], ['hour', 'Hourly']].map(([value, label]) => `<button class="btn sm aiu-granularity-btn ${AI_USAGE.granularity === value ? 'active' : ''}" data-granularity="${value}">${label}</button>`).join('')}
+        ${[['hour', 'Hourly'], ['day', 'Daily']].map(([value, label]) => `<button class="btn sm aiu-granularity-btn ${AI_USAGE.granularity === value ? 'active' : ''}" data-granularity="${value}">${label}</button>`).join('')}
+      </div>
+      <div class="aiu-range" role="group" aria-label="Time frame">
+        ${[['7d', '7 days'], ['90d', '90 days'], ['all', 'All time']].map(([value, label]) => `<button class="btn sm aiu-range-btn ${AI_USAGE.range === value ? 'active' : ''}" data-range="${value}">${label}</button>`).join('')}
+        <button class="btn sm aiu-range-btn ${AI_USAGE.range === 'custom' ? 'active' : ''}" data-range="custom">Custom</button>
       </div>
       <label>From <input id="aiu-from" type="date" value="${esc(AI_USAGE.from)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
       <label>To <input id="aiu-to" type="date" value="${esc(AI_USAGE.to)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
@@ -547,14 +558,6 @@ async function renderAIUsage() {
     <div class="task-toolbar">
       <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
       <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${rawSummary.sites_instrumented || 0}/${rawSummary.sites_total || 0} sites instrumented</span>
-    </div>
-    ${usageAlerts.length ? `<div class="empty" style="margin-bottom:14px; color:var(--red)">⚠ ${usageAlerts.length} recent cost-control alert${usageAlerts.length === 1 ? '' : 's'}: ${esc(alertText)}</div>` : ''}
-    ${notWired.length ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
-    ${wiredAwaiting.length ? `<div class="empty" style="margin-bottom:14px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
-    ${noAiRole.length ? `<div class="empty" style="margin-bottom:14px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
-    <div class="card" style="margin-bottom:14px">
-      <div class="task-toolbar"><strong>Fleet tracking coverage</strong><span class="muted">Every site is shown, including sites with no AI call path.</span></div>
-      <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
     </div>
     <div class="card aiu-chart-card">
       <div class="task-toolbar"><strong>${bucket === 'hour' ? 'Hourly' : 'Daily'} spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Times are UTC.</span></div>
@@ -579,13 +582,26 @@ async function renderAIUsage() {
         <tbody>${roleTableRows}</tbody>
       </table>` : '<div class="empty">No tracked usage yet.</div>'}
     </div>
-    <div class="card">
+    <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>By ${bucket === 'hour' ? 'hour' : 'day'}</strong></div>
       ${periodRows ? `<table>
         <thead><tr><th>${bucket === 'hour' ? 'Hour (UTC)' : 'Day (UTC)'}</th><th>Calls</th><th>Total tokens</th><th>Cost</th></tr></thead>
         <tbody>${periodRows}</tbody>
       </table>` : `<div class="empty">${bucket === 'hour' ? 'No timestamped usage in this selection.' : 'No tracked usage yet.'}</div>`}
-    </div>`;
+    </div>
+    <details class="card aiu-diagnostics">
+      <summary><strong>Alerts &amp; coverage</strong> ${diagnosticsBadge} <span class="muted">cost-control alerts, wiring gaps, and which sites are/aren't instrumented</span></summary>
+      <div class="aiu-diagnostics-body">
+        ${usageAlerts.length ? `
+        <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap or errored — most expensive first, last 10</span></div>
+        <table><thead><tr><th>Site</th><th>Role</th><th>Outcome</th><th>Turns</th><th>Cost</th></tr></thead><tbody>${alertRows}</tbody></table>` : ''}
+        ${notWired.length ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
+        ${wiredAwaiting.length ? `<div class="empty" style="margin-top:12px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
+        ${noAiRole.length ? `<div class="empty" style="margin-top:12px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
+        <div class="task-toolbar" style="margin-top:16px"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
+        <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
+      </div>
+    </details>`;
   $$('.aiu-range-btn').forEach((button) => button.addEventListener('click', () => {
     AI_USAGE.range = button.dataset.range;
     if (AI_USAGE.range !== 'custom') Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
