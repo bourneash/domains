@@ -8,12 +8,17 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DOMAINS_INDEX="$REPO_ROOT/DOMAINS_INDEX.md"
 SITES_YML="$REPO_ROOT/tools/site-tracker/sites.yml"
 
-# Collect site dirs (basename of each sites/<domain>/)
-mapfile -t SITE_DIRS < <(ls -1 "$REPO_ROOT/sites/" | sort)
+# Collect actual site repos only. `sites/` also contains an ops-only example directory;
+# requiring a submodule gitfile or a site/ app avoids treating that as a domain site.
+mapfile -t SITE_DIRS < <(find "$REPO_ROOT/sites" -mindepth 1 -maxdepth 1 -type d \( -name '*' \) \
+  -exec sh -c 'for path; do [ -e "$path/.git" ] || [ -d "$path/site" ] && basename "$path"; done' sh {} + | sort)
 
-# Collect domains in DOMAINS_INDEX.md (| domain | ... rows, strip whitespace and pipes)
+# Collect every registered domain. Some parked entries already have a repo, while
+# others are intentionally index-only, so use a separate active/scaffolded list
+# for the reverse (index-to-folder) check below.
 mapfile -t INDEX_DOMAINS < <(grep -E '^\|\s+[a-z0-9]' "$DOMAINS_INDEX" \
   | awk -F'|' '{print $2}' | tr -d ' \t' | sort)
+mapfile -t DEPLOY_INDEX_DOMAINS < <(awk '/^## Parked/{exit} /^\|[[:space:]]*[a-z0-9]/{split($0, fields, "|"); gsub(/[ \t]/, "", fields[2]); print fields[2]}' "$DOMAINS_INDEX" | sort)
 
 # Collect domains in sites.yml (lines ending in ':' at the start of a site block)
 mapfile -t YML_DOMAINS < <(grep -E '^  [a-z0-9].*\..*:$' "$SITES_YML" \
@@ -28,7 +33,7 @@ for d in "${SITE_DIRS[@]}"; do
     DRIFT=$((DRIFT + 1))
   fi
 done
-for d in "${INDEX_DOMAINS[@]}"; do
+for d in "${DEPLOY_INDEX_DOMAINS[@]}"; do
   if ! printf '%s\n' "${SITE_DIRS[@]}" | grep -qx "$d"; then
     echo "  PHANTOM in DOMAINS_INDEX.md (no sites/ folder): $d"
     DRIFT=$((DRIFT + 1))
