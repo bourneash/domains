@@ -410,7 +410,7 @@ async function renderAIInventory() {
 // most of the fleet will be in that bucket until sites are migrated one at a time.
 function fmtTokens(n) { return (n || 0).toLocaleString(); }
 function fmtUSD(n) { return `$${(n || 0).toFixed(2)}`; }
-const AI_USAGE = { range: '30d', from: '', to: '', site: '', role: '' };
+const AI_USAGE = { range: '30d', granularity: 'day', from: '', to: '', site: '', role: '' };
 
 function utcDay(offset = 0) {
   const d = new Date();
@@ -438,7 +438,7 @@ function groupUsage(rows, key) {
   });
   return [...groups.entries()].map(([value, items]) => ({ [key]: value, ...usageTotals(items) }));
 }
-function usageChart(rows) {
+function usageChart(rows, bucket) {
   if (!rows.length) return '<div class="aiu-chart-empty">No tracked usage for this selection.</div>';
   const width = 760; const height = 190; const left = 44; const bottom = 28; const top = 12;
   const max = Math.max(...rows.map((r) => r.total_cost_usd), 0.01);
@@ -449,10 +449,12 @@ function usageChart(rows) {
     const h = Math.max(2, (r.total_cost_usd / max) * plotH);
     const x = left + index * step + (step - barW) / 2;
     const y = height - bottom - h;
-    const label = r.day.slice(5);
-    return `<g><title>${esc(r.day)}: ${fmtUSD(r.total_cost_usd)} · ${r.calls} calls · ${fmtTokens(r.input_tokens + r.output_tokens)} tokens</title><rect class="aiu-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/><text class="aiu-chart-label" x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" text-anchor="middle">${esc(label)}</text></g>`;
+    const value = r[bucket];
+    const label = bucket === 'hour' ? value.slice(11, 16) : value.slice(5);
+    const showLabel = rows.length <= (bucket === 'hour' ? 48 : 31) || index === 0 || index === rows.length - 1;
+    return `<g><title>${esc(value)}: ${fmtUSD(r.total_cost_usd)} · ${r.calls} calls · ${fmtTokens(r.input_tokens + r.output_tokens)} tokens</title><rect class="aiu-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>${showLabel ? `<text class="aiu-chart-label" x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" text-anchor="middle">${esc(label)}</text>` : ''}</g>`;
   }).join('');
-  return `<svg class="aiu-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Daily AI usage cost chart"><line class="aiu-axis" x1="${left}" y1="${height - bottom}" x2="${width - 8}" y2="${height - bottom}"/><text class="aiu-chart-value" x="2" y="${top + 9}">${fmtUSD(max)}</text>${bars}</svg>`;
+  return `<svg class="aiu-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${bucket === 'hour' ? 'Hourly' : 'Daily'} AI usage cost chart"><line class="aiu-axis" x1="${left}" y1="${height - bottom}" x2="${width - 8}" y2="${height - bottom}"/><text class="aiu-chart-value" x="2" y="${top + 9}">${fmtUSD(max)}</text>${bars}</svg>`;
 }
 
 async function renderAIUsage() {
@@ -472,9 +474,11 @@ async function renderAIUsage() {
   if (AI_USAGE.role && !roles.includes(AI_USAGE.role)) AI_USAGE.role = '';
   const activeRows = rawRoles.filter((r) => (!AI_USAGE.site || r.site === AI_USAGE.site) && (!AI_USAGE.role || r.role === AI_USAGE.role));
   const s = usageTotals(activeRows);
-  const filteredDays = groupUsage((data.by_day_site_role || []).filter((r) =>
-    (!AI_USAGE.site || r.site === AI_USAGE.site) && (!AI_USAGE.role || r.role === AI_USAGE.role)), 'day')
-    .sort((a, b) => a.day.localeCompare(b.day));
+  const bucket = AI_USAGE.granularity === 'hour' ? 'hour' : 'day';
+  const timedRows = data[bucket === 'hour' ? 'by_hour_site_role' : 'by_day_site_role'] || [];
+  const filteredPeriods = groupUsage(timedRows.filter((r) =>
+    (!AI_USAGE.site || r.site === AI_USAGE.site) && (!AI_USAGE.role || r.role === AI_USAGE.role)), bucket)
+    .sort((a, b) => a[bucket].localeCompare(b[bucket]));
   const siteRows = groupUsage(activeRows, 'site').sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const roleRows = activeRows.slice().sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const rawSummary = data.summary || {};
@@ -514,8 +518,8 @@ async function renderAIUsage() {
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
   </tr>`).join('');
 
-  const dayRows = filteredDays.map((r) => `<tr>
-    <td class="mono">${esc(r.day)}</td>
+  const periodRows = filteredPeriods.map((r) => `<tr>
+    <td class="mono">${esc(r[bucket])}</td>
     <td>${r.calls}</td>
     <td class="mono">${fmtTokens(r.input_tokens + r.output_tokens)}</td>
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
@@ -530,6 +534,9 @@ async function renderAIUsage() {
       <div class="aiu-range" role="group" aria-label="Time frame">
         ${[['7d', '7 days'], ['30d', '30 days'], ['90d', '90 days'], ['all', 'All time']].map(([value, label]) => `<button class="btn sm aiu-range-btn ${AI_USAGE.range === value ? 'active' : ''}" data-range="${value}">${label}</button>`).join('')}
         <button class="btn sm aiu-range-btn ${AI_USAGE.range === 'custom' ? 'active' : ''}" data-range="custom">Custom</button>
+      </div>
+      <div class="aiu-granularity" role="group" aria-label="Usage resolution">
+        ${[['day', 'Daily'], ['hour', 'Hourly']].map(([value, label]) => `<button class="btn sm aiu-granularity-btn ${AI_USAGE.granularity === value ? 'active' : ''}" data-granularity="${value}">${label}</button>`).join('')}
       </div>
       <label>From <input id="aiu-from" type="date" value="${esc(AI_USAGE.from)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
       <label>To <input id="aiu-to" type="date" value="${esc(AI_USAGE.to)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
@@ -550,8 +557,8 @@ async function renderAIUsage() {
       <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
     </div>
     <div class="card aiu-chart-card">
-      <div class="task-toolbar"><strong>Daily spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Dates are UTC.</span></div>
-      ${usageChart(filteredDays)}
+      <div class="task-toolbar"><strong>${bucket === 'hour' ? 'Hourly' : 'Daily'} spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Times are UTC.</span></div>
+      ${usageChart(filteredPeriods, bucket)}
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>Runtime model resolution</strong><span class="muted">Observed model comes from Claude's response; requested model is the caller's flag. Differences expose alias/routing drift.</span></div>
@@ -573,15 +580,19 @@ async function renderAIUsage() {
       </table>` : '<div class="empty">No tracked usage yet.</div>'}
     </div>
     <div class="card">
-      <div class="task-toolbar"><strong>By day</strong></div>
-      ${dayRows ? `<table>
-        <thead><tr><th>Day (UTC)</th><th>Calls</th><th>Total tokens</th><th>Cost</th></tr></thead>
-        <tbody>${dayRows}</tbody>
-      </table>` : '<div class="empty">No tracked usage yet.</div>'}
+      <div class="task-toolbar"><strong>By ${bucket === 'hour' ? 'hour' : 'day'}</strong></div>
+      ${periodRows ? `<table>
+        <thead><tr><th>${bucket === 'hour' ? 'Hour (UTC)' : 'Day (UTC)'}</th><th>Calls</th><th>Total tokens</th><th>Cost</th></tr></thead>
+        <tbody>${periodRows}</tbody>
+      </table>` : `<div class="empty">${bucket === 'hour' ? 'No timestamped usage in this selection.' : 'No tracked usage yet.'}</div>`}
     </div>`;
   $$('.aiu-range-btn').forEach((button) => button.addEventListener('click', () => {
     AI_USAGE.range = button.dataset.range;
     if (AI_USAGE.range !== 'custom') Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
+    renderAIUsage();
+  }));
+  $$('.aiu-granularity-btn').forEach((button) => button.addEventListener('click', () => {
+    AI_USAGE.granularity = button.dataset.granularity;
     renderAIUsage();
   }));
   $('#aiu-site').addEventListener('change', (event) => { AI_USAGE.site = event.target.value; AI_USAGE.role = ''; renderAIUsage(); });

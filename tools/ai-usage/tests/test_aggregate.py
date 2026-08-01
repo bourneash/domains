@@ -153,6 +153,24 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(report["by_day_site_role"][0]["role"], "watchdog")
         self.assertEqual(report["filters"], {"from": "2026-07-02", "to": "2026-07-02"})
 
+    def test_aggregates_timestamped_records_by_utc_hour(self):
+        root = self.root()
+        # 2026-07-29T13:15:00Z and T13:59:59Z, then the next UTC hour.
+        self.write_ledger(root, "example.com", "2026-07-29", [
+            record(role="engineer", recorded_at_unix=1785330900, total_cost_usd=0.5),
+            record(role="watchdog", recorded_at_unix=1785333599, total_cost_usd=0.1),
+            record(role="engineer", recorded_at_unix=1785333600, total_cost_usd=0.2),
+            record(role="legacy", total_cost_usd=9),
+        ])
+
+        report = aggregate.collect(root)
+
+        self.assertEqual([row["hour"] for row in report["by_hour"]], [
+            "2026-07-29T13:00:00Z", "2026-07-29T14:00:00Z",
+        ])
+        self.assertEqual([row["calls"] for row in report["by_hour"]], [2, 1])
+        self.assertEqual(report["by_hour_site_role"][0]["role"], "engineer")
+
     def test_exposes_runtime_model_and_turn_limit_alerts(self):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [record(

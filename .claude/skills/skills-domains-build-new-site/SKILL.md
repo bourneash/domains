@@ -99,6 +99,17 @@ unwanted system or skip a wanted one:
 - **Persona roster** — names, roles, cultures, orientations; whether voice is hand-authored or
   local-LLM generated.
 
+Once the brief is captured in `CLAUDE.md`, also produce a standalone **agent build prompt** so the
+rest of the build (or a re-run/continuation of it) can be handed to any agent — this session,
+a fresh one, or delegated — without re-deriving the brief or the fleet rules from scratch. Copy
+`references/agent-build-prompt-template.md` to `sites/<domain>/ops/AGENT_BUILD_PROMPT.md` and
+resolve every `FILL:` marker against the brief you just captured plus the site-type router above
+(worker name = domain with dots→dashes, gotchas section copied verbatim, build-scope subsections
+trimmed to only the systems this site type needs). This file is what you pass to `Agent`/`Workflow`
+calls in Phases 2–7 instead of re-writing the brief into each delegation prompt inline — and it's
+what Jesse can hand to any other agent or session on request. Keep it in sync if the brief changes
+mid-build.
+
 ### Phase 1 — Scaffold + deploy the base (delegate)
 
 Invoke the **`deploy-domain-project`** skill — it owns the canonical Astro + Cloudflare Workers stack
@@ -188,8 +199,8 @@ Push, let CF Workers Builds deploy, then verify for real:
 
 ## Definition of done
 
-Live on `https://<domain>/` as a Worker; brief captured in `CLAUDE.md`; the site type's content
-systems working; images in place; GA4 wired with consent gating and real measurement ID; legal pages
-+ FTC disclosure live; `.env.shared` untracked; registered in `DOMAINS_INDEX.md` + `sites.yml`;
-autonomous ops installed if applicable; live URLs + email smoke-tested. Log the build to the site's
-`ops/board/BOARD_REPORT.md`.
+Live on `https://<domain>/` as a Worker; brief captured in `CLAUDE.md`; standalone build prompt at
+`ops/AGENT_BUILD_PROMPT.md`; the site type's content systems working; images in place; GA4 wired
+with consent gating and real measurement ID; legal pages + FTC disclosure live; `.env.shared`
+untracked; registered in `DOMAINS_INDEX.md` + `sites.yml`; autonomous ops installed if applicable;
+live URLs + email smoke-tested. Log the build to the site's `ops/board/BOARD_REPORT.md`.

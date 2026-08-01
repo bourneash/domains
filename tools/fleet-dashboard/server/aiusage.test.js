@@ -18,6 +18,8 @@ test('fleet returns a summary with fleet site counts', async () => {
   assert.ok(Array.isArray(data.by_site));
   assert.ok(Array.isArray(data.by_site_role));
   assert.ok(Array.isArray(data.by_day));
+  assert.ok(Array.isArray(data.by_hour));
+  assert.ok(Array.isArray(data.by_hour_site_role));
   assert.ok(Array.isArray(data.coverage));
   assert.equal(data.coverage.length, data.summary.sites_total);
   assert.ok(data.generated_at);

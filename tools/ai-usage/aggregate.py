@@ -18,7 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[2]
@@ -61,6 +61,22 @@ def _cache_hit_ratio(totals: dict) -> float | None:
     if denom == 0:
         return None
     return round(totals["cache_read_input_tokens"] / denom, 4)
+
+
+def _utc_hour(record: dict) -> str | None:
+    """Return the record's UTC hour bucket, if its event timestamp is valid.
+
+    Ledger filenames are only day-granular.  Hourly reporting must use the
+    timestamp captured with the call, so old/imported rows without one remain
+    in the daily totals but are intentionally absent from hourly totals.
+    """
+    value = record.get("recorded_at_unix")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        return datetime.fromtimestamp(value, timezone.utc).strftime("%Y-%m-%dT%H:00:00Z")
+    except (OverflowError, OSError, ValueError):
+        return None
 
 
 def wiring_status(site_dir: Path) -> str:
@@ -139,6 +155,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     by_site_role: dict[tuple[str, str], dict] = {}
     by_day: dict[str, dict] = {}
     by_day_site_role: dict[tuple[str, str, str], dict] = {}
+    by_hour: dict[str, dict] = {}
+    by_hour_site_role: dict[tuple[str, str, str], dict] = {}
     by_model: dict[tuple[str, str], dict] = {}
     by_requested_model: dict[str, dict] = {}
     alerts: list[dict] = []
@@ -167,6 +185,10 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 _add(by_site_role.setdefault((site, role), _empty_totals()), record)
                 _add(by_day.setdefault(day, _empty_totals()), record)
                 _add(by_day_site_role.setdefault((day, site, role), _empty_totals()), record)
+                hour = _utc_hour(record)
+                if hour:
+                    _add(by_hour.setdefault(hour, _empty_totals()), record)
+                    _add(by_hour_site_role.setdefault((hour, site, role), _empty_totals()), record)
                 provider = record.get("provider") or "Anthropic / Claude Code CLI"
                 model = record.get("model") or "unresolved"
                 _add(by_model.setdefault((provider, model), _empty_totals()), record)
@@ -206,6 +228,17 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     for (day, site, role), totals in sorted(by_day_site_role.items()):
         day_site_role_rows.append({
             "day": day, "site": site, "role": role, **totals,
+            "cache_hit_ratio": _cache_hit_ratio(totals),
+        })
+
+    hour_rows = []
+    for hour, totals in sorted(by_hour.items()):
+        hour_rows.append({"hour": hour, **totals, "cache_hit_ratio": _cache_hit_ratio(totals)})
+
+    hour_site_role_rows = []
+    for (hour, site, role), totals in sorted(by_hour_site_role.items()):
+        hour_site_role_rows.append({
+            "hour": hour, "site": site, "role": role, **totals,
             "cache_hit_ratio": _cache_hit_ratio(totals),
         })
 
@@ -256,6 +289,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         "by_site_role": role_rows,
         "by_day": day_rows,
         "by_day_site_role": day_site_role_rows,
+        "by_hour": hour_rows,
+        "by_hour_site_role": hour_site_role_rows,
         "by_model": model_rows,
         "by_requested_model": requested_model_rows,
         "alerts": sorted(alerts, key=lambda row: (-row["total_cost_usd"], row["day"])),
