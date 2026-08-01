@@ -81,12 +81,19 @@ for site in "${SITES[@]}"; do
     continue
   fi
 
-  # 1. Crontab line live in the actual running image (not just the source file).
+  # 1. Crontab line live where the cron container actually reads it. Most
+  #    sites COPY crontab.docker into /etc/crontab.docker at image-build time
+  #    (needs `docker compose build cron` to pick up an edit — the "sinderella
+  #    guard"). At least one site (amputeenews.com) instead points supercronic
+  #    straight at the bind-mounted ops/docker/crontab.docker with no bake
+  #    step — always live, no rebuild needed. Check both; either counts.
   #    grep -r (not cat) so a /etc/crontabs *directory* some sites have doesn't
   #    poison the exit code the way `cat` on a directory does; capture into a
   #    var first so pipefail can't blame an unrelated upstream failure for
   #    what's actually a clean grep miss (or hit).
-  CRONTAB_MATCH="$(docker exec "$CTR" sh -c 'grep -rl run-watchdog\.sh /etc/*crontab* 2>/dev/null' || true)"
+  CRONTAB_MATCH="$(docker exec "$CTR" sh -c \
+    'grep -rl run-watchdog\.sh /etc/*crontab* 2>/dev/null; grep -l run-watchdog\.sh ops/docker/crontab.docker 2>/dev/null' \
+    || true)"
   if [ -n "$CRONTAB_MATCH" ]; then
     CRONTAB_STATUS="ok"
   else
