@@ -1,4 +1,5 @@
 import httpx
+from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
 from datahub.config import Source, Settings, Subscription, ItemsQuery
 from datahub import store, api
@@ -21,10 +22,13 @@ def _client(db):
 
 
 def _seed(db):
+    # Keep fixtures inside the subscription's rolling window. Fixed 2026-06-28
+    # timestamps silently aged out and made this suite fail as wall time moved.
+    now = datetime.now(timezone.utc)
     store.upsert_items(db, [
-        {"title": "war", "url": "https://x/1", "summary": "", "published_iso": "2026-06-28T10:00:00+00:00",
+        {"title": "war", "url": "https://x/1", "summary": "", "published_iso": (now - timedelta(hours=1)).isoformat(),
          "source_id": "reuters", "source_name": "Reuters", "tags": ["defense"], "raw": {}},
-        {"title": "weather", "url": "https://x/2", "summary": "", "published_iso": "2026-06-28T09:00:00+00:00",
+        {"title": "weather", "url": "https://x/2", "summary": "", "published_iso": (now - timedelta(hours=2)).isoformat(),
          "source_id": "reuters", "source_name": "Reuters", "tags": ["nature"], "raw": {}},
     ])
 

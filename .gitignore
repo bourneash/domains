@@ -43,4 +43,6 @@ __pycache__/
 
 # Cron/script run logs (never sweep these in via git add -A)
 tools/scripts/*.log
+tools/scripts/*.lock
+tools/scripts/.ensure-fleet-cron-alerts/
 .aider*

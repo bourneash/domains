@@ -9,6 +9,7 @@ process.env.NODE_ENV = 'test';
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
+const { once } = require('node:events');
 const { createApp } = require('./server');
 
 // Talk to the test server over raw node:http so global.fetch stays free for
@@ -35,11 +36,20 @@ function request(server, method, path, body) {
   });
 }
 
+async function startServer(app, t) {
+  // Bind explicitly to loopback and wait for the asynchronous listen to
+  // complete before reading server.address(). This keeps the suite compatible
+  // with restricted CI sandboxes and removes a race that could return null.
+  const server = app.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  return server;
+}
+
 test('GET /api/datahub-images/sources returns degraded 200 JSON when upstream is down', async (t) => {
   global.fetch = async () => { throw new Error('ECONNREFUSED'); };
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/sources');
   assert.equal(res.status, 200);
   const body = JSON.parse(res.buffer.toString('utf8'));
@@ -50,8 +60,7 @@ test('GET /api/datahub-images/sources returns degraded 200 JSON when upstream is
 test('GET /api/datahub-images/health returns degraded 200 JSON when upstream is down', async (t) => {
   global.fetch = async () => { throw new Error('ECONNREFUSED'); };
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/health');
   assert.equal(res.status, 200);
   const body = JSON.parse(res.buffer.toString('utf8'));
@@ -65,8 +74,7 @@ test('GET /api/datahub-images/images passes topic/site/status/limit through to t
     return { ok: true, status: 200, json: async () => ({ images: [{ id: 'img1' }] }) };
   };
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/images?topic=iran&site=americastrikes.com&status=active&limit=25');
   assert.equal(res.status, 200);
   assert.match(calledUrl, /\/images\?topic=iran&site=americastrikes\.com&status=active&limit=25$/);
@@ -81,8 +89,7 @@ test('POST /api/datahub-images/images/:id/blacklist forwards to blacklistImage',
     return { ok: true, status: 200, json: async () => ({ id: 'img1', status: 'blacklisted' }) };
   };
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'POST', '/api/datahub-images/images/img1/blacklist');
   assert.equal(res.status, 200);
   assert.match(calledUrl, /\/images\/img1\/blacklist$/);
@@ -98,8 +105,7 @@ test('GET /api/datahub-images/image/:id streams bytes with the upstream content-
     arrayBuffer: async () => new Uint8Array([9, 9, 9]).buffer,
   });
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/image/abc');
   assert.equal(res.status, 200);
   assert.equal(res.headers['content-type'], 'image/webp');
@@ -109,8 +115,7 @@ test('GET /api/datahub-images/image/:id streams bytes with the upstream content-
 test('GET /api/datahub-images/image/:id returns 404 JSON when the upstream is unreachable', async (t) => {
   global.fetch = async () => { throw new Error('down'); };
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/image/abc');
   assert.equal(res.status, 404);
   const body = JSON.parse(res.buffer.toString('utf8'));
@@ -125,8 +130,7 @@ test('GET /api/datahub-images/image/:id validates content-type and sets nosniff 
     arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
   });
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/image/xyz');
   assert.equal(res.status, 200);
   assert.equal(res.headers['content-type'], 'application/octet-stream');
@@ -142,8 +146,7 @@ test('GET /api/datahub-images/image/:id preserves image/* content-type and sets 
     arrayBuffer: async () => new Uint8Array([9, 9, 9]).buffer,
   });
   const app = createApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
+  const server = await startServer(app, t);
   const res = await request(server, 'GET', '/api/datahub-images/image/abc');
   assert.equal(res.status, 200);
   assert.equal(res.headers['content-type'], 'image/webp');
