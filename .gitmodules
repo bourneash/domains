@@ -128,3 +128,9 @@
 [submodule "sites/amputeenews.com"]
 	path = sites/amputeenews.com
 	url = git@github-bourneash:bourneash/amputeenews.com.git
+[submodule "sites/therareunicorn.com"]
+	path = sites/therareunicorn.com
+	url = git@github-bourneash:bourneash/therareunicorn.com.git
+[submodule "sites/allthingsmasonic.com"]
+	path = sites/allthingsmasonic.com
+	url = git@github-bourneash:bourneash/allthingsmasonic.com.git
