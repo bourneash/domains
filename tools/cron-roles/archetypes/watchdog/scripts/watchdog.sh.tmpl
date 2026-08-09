@@ -333,6 +333,25 @@ FIXED=$(grep '^WATCHDOG_FIXED='   "$RESULT_FILE" | tail -1 | cut -d= -f2  | tr -
 RSUMMARY=$(grep '^WATCHDOG_SUMMARY=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); RSUMMARY="${RSUMMARY:-watchdog repair}"
 RDETAIL=$(grep '^WATCHDOG_DETAIL='  "$RESULT_FILE" | tail -1 | cut -d= -f2-); RDETAIL="${RDETAIL:-}"
 
+# ---- Auth-failure short-circuit ----
+# If the repair pass never even ran (expired/dead shared OAuth session), the
+# result file holds the raw CLI error, not WATCHDOG_FIXED= — so this falls
+# through to the generic "model could not fix it" bucket, grinds through the
+# full attempt cap (hours-to-days across a 20min cooldown), and escalates
+# with a summary that reads like a code bug. It isn't one: no amount of
+# retrying invokes the model differently, because every attempt hits the same
+# dead credential. Recognize the signature and escalate on attempt 1 instead
+# — see tools/scripts/check-claude-auth.sh for the fleet-wide, faster-still
+# version of this same check (2026-08 incident this class of fix responds to).
+if grep -qiE 'Not logged in|Please run /login|OAuth session expired|could not be refreshed|authentication_error' "$RESULT_FILE"; then
+  log "repair pass hit a dead Claude Code auth session — not a code bug, escalating immediately (no point retrying)"
+  set_field status open
+  set_field last_outcome "auth-expired: shared Claude Code OAuth session dead, needs human /login"
+  ATTEMPTS="$NEW_ATTEMPTS"
+  escalate "shared Claude Code OAuth session is expired/dead — every repair attempt will fail identically until a human runs 'claude /login' on the host. This is NOT a site-specific bug."
+  exit 0
+fi
+
 if [[ "$CLAUDE_EXIT" == "124" ]]; then
   log "repair pass TIMED OUT"
   set_field status open; set_field last_outcome "timeout"
