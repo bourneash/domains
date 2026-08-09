@@ -102,32 +102,100 @@ solved spot.
 The expensive part of postflop is not compute. It is tree design and choosing
 which spots to include.
 
+## 5. Multi-street: turn and flop solves
+
+`street.rs` is a full multi-street solver — betting rounds separated by chance
+nodes that deal the next board card, using CFR+ (regrets floored at zero, average
+strategy weighted linearly by iteration). This is the benchmark that decides
+whether "postflop solutions" is a real promise.
+
+**Turn solve, every one of the 48 river cards enumerated, no abstraction:**
+
+| Iterations | Exploitability | % of pot |
+|---|---|---|
+| 250 | 0.053 | 0.27% |
+| 750 | 0.010 | 0.05% |
+| 2,000 | 0.0025 | **0.01%** |
+
+580 decision nodes, 432 showdown boards, 196 KB of solved output, 4.8 MB working
+set, **6.7ms per iteration**. A turn solve is cheap — seconds per spot.
+
+**Cost scales linearly with runout count**, confirmed by measuring flop solves at
+four abstraction levels (3×3 through 8×8 turn/river buckets). Each implies the
+same full-flop cost, which is what makes the extrapolation trustworthy:
+
+| Runout buckets | ms/iter | Implied full flop |
+|---|---|---|
+| 3×3 | 4.1 | 1.1 s/iter |
+| 4×4 | 7.4 | 1.1 s/iter |
+| 6×6 | 17.0 | 1.1 s/iter |
+| 8×8 | 30.4 | 1.1 s/iter |
+
+All four converge to 0.1–0.2% of pot within 400 iterations.
+
+**What a flop library costs**, at 400 iterations (~0.15% exploitable), across all
+1,755 strategically distinct flops:
+
+| | Per spot | Full library |
+|---|---|---|
+| Exact (49×48 runouts) | 7.4 min, 32 MB | **218 core-hours, 55 GB** |
+| 8×8 runout abstraction | 12 s, 0.9 MB | **5.9 core-hours, 1.5 GB** |
+
+Read that as: a complete exact flop library is ~1 day on 8 cores and 55 GB —
+server-side only, absolutely not shippable. An abstracted library is an
+afternoon's compute and 1.5 GB, which is a normal asset-hosting problem.
+
+Neither ships to the client. Both are affordable to precompute. Postflop is a
+budget decision, not a research problem.
+
+### The bug this benchmark found
+
+The multi-street exploitability initially plateaued around 4% of pot and stayed
+there — which reads like slow convergence but was not. Hero combos that contain
+a dealt runout card get zero reach, but their subtree values were still being
+summed up through the chance node. Best-response takes a max over those garbage
+values while the average strategy takes a mean, so the gap never closed. Zeroing
+blocked combos' contributions at the chance node fixed it (0.01% of pot on a turn
+solve). The river solver never hit this, because its board was already complete
+when combos were filtered.
+
+`street::tests::turn_solve_converges` now asserts below 0.5% of pot specifically
+to catch a regression here. Worth remembering: **a plateau is not slow
+convergence**, and a single exploitability reading cannot tell the two apart —
+which is why the benchmark prints curves.
+
 ## What this does NOT prove
 
-Being explicit, because these are the places the estimates could still break:
-
-- **Only one street.** A river solve is the easy case. Multi-street
-  (flop → turn → river) node counts explode, and the preflop table above is the
-  warning shot for how fast that happens. A flop solve needs its own benchmark
-  before anyone promises "postflop solutions."
 - **No UI, no browser test.** Node/V8 is the same engine as Chrome, but real
   frame budgets with rendering competing for the main thread are untested.
 - **No bot play, no leak tracking.** The product's differentiators are unbuilt;
   this is engine feasibility only.
+- **Solve trees are narrow.** One bet size, optionally one raise. Real solutions
+  offer several sizings, and the preflop table above shows how fast that
+  multiplies. Costs here are a floor, not a ceiling.
+- **Runout abstraction quality is unmeasured.** Bucketed solves converge *within
+  their own abstract game*; how much strategic accuracy is lost against the full
+  game is a separate experiment.
 
 ## Verdict
 
-Green light on the technical plan, with one scope correction: the narrow v1
-(**heads-up, or 6-max with a reduced preflop tree**) is not just the safe
-product call — it is what the payload arithmetic actually permits. Real-time
-equity and coaching in-browser are comfortably fast, and a precomputed spot
-library is an overnight batch job rather than a research project.
+Green light on the technical plan, with one scope correction and one confirmation.
+
+The correction: the preflop table does not fit client-side as assumed. v1 must be
+**heads-up (119 KB) or 6-max on a reduced tree (7 MB)** — which happens to be the
+narrow product scope we already wanted, now backed by arithmetic instead of taste.
+
+The confirmation: multi-street precompute is genuinely affordable. Turn solves are
+seconds, and a full flop library is between an afternoon and a day of compute
+depending on how much abstraction we accept. Real-time equity and coach overlays
+in-browser are comfortably fast at 1.76ms per 10k-trial estimate.
 
 ## Running it
 
 ```bash
-cargo test --release              # 13 tests incl. 400k-case evaluator fuzz
-cargo run  --release --bin bench  # native benchmarks
+cargo test --release                  # 16 tests incl. 400k-case evaluator fuzz
+cargo run  --release --bin bench      # evaluator, equity, preflop tree sizing
+cargo run  --release --bin flopbench  # turn/flop solves + library extrapolation
 cargo build --release --target wasm32-unknown-unknown
-node web/bench.mjs                # identical workloads in wasm
+node web/bench.mjs                    # identical workloads in wasm
 ```

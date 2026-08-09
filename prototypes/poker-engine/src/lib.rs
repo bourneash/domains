@@ -2,6 +2,7 @@ pub mod equity;
 pub mod eval;
 pub mod river;
 pub mod rng;
+pub mod street;
 pub mod tree;
 
 use eval::{eval7, parse_cards};
