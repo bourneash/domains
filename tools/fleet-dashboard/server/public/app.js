@@ -3263,6 +3263,114 @@ async function renderAnalytics() {
   if (!FRESH) applyUISnap();
 }
 
+/* ===================== LINT ===================== */
+// Fleet prettier sweep (server/lintfleet.js -> tools/lint-fleet/lint-sweep.py).
+// Two very different signals share this table and must not be conflated:
+//   broken — prettier CANNOT PARSE the file, so the shared pre-commit hook
+//            silently skips it forever. This is the rot this page exists for.
+//   drift  — parses fine, merely unformatted; the next commit staging it fixes
+//            it automatically. Informational only.
+const LINT = { open: new Set() };
+
+function lintStatusBadge(status) {
+  if (status === 'broken') return '<span class="badge b-red">broken</span>';
+  if (status === 'drift') return '<span class="badge b-yellow">drift</span>';
+  if (status === 'clean') return '<span class="badge b-green">clean</span>';
+  return '<span class="badge b-gray">no source</span>';
+}
+
+async function renderLint() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading lint sweep…</div>';
+  let d;
+  try { d = await api('GET', '/api/lint'); }
+  catch (e) { app.innerHTML = `<div class="empty">Lint sweep failed: ${esc(e.message)}</div>`; return; }
+
+  const running = d.progress && d.progress.running;
+  if (!d.report) {
+    app.innerHTML = `
+      <div class="page-head"><h2 class="page-title">Lint</h2><span class="muted">fleet-wide prettier parse + format sweep</span></div>
+      <div class="task-toolbar">
+        <button class="btn" id="lint-scan" ${running ? 'disabled' : ''}>${running ? 'Sweeping…' : 'Run sweep'}</button>
+        <span class="muted">No sweep has run on this host yet.</span>
+      </div>`;
+    wireLintButtons();
+    if (running) setTimeout(() => { if (STATE.view === 'lint') softRender(); }, 5000);
+    return;
+  }
+
+  const r = d.report;
+  const s = r.summary || {};
+  const swept = r.generated_at ? fmtAge((Date.now() - new Date(r.generated_at).getTime()) / 1000) + ' ago' : 'unknown';
+  const newErrors = r.new_parse_errors || [];
+
+  const rows = (r.sites || []).filter((row) => row.status === 'broken' || row.status === 'drift').map((row) => {
+    const open = LINT.open.has(row.site);
+    const errs = (row.parse_errors || []).map((e) => `<li><span class="mono">${esc(e.file)}</span><div class="muted">${esc(e.message)}</div></li>`).join('');
+    const drift = (row.unformatted || []).map((f) => `<li class="mono muted">${esc(f)}</li>`).join('');
+    return `<tr data-fleet-row data-site="${esc(row.site)}">
+      <td class="site"><a href="#" class="lint-open" data-site="${esc(row.site)}">${esc(row.site)}</a></td>
+      <td>${lintStatusBadge(row.status)}</td>
+      <td class="mono">${(row.parse_errors || []).length}</td>
+      <td class="mono muted">${(row.unformatted || []).length}</td>
+      <td class="mono muted">${row.files_checked}</td>
+      <td><button class="btn sm lint-rescan" data-site="${esc(row.site)}" ${running ? 'disabled' : ''}>Rescan</button></td>
+    </tr>
+    <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="lint:${esc(row.site)}" data-rk="lint:${esc(row.site)}"><td colspan="6">
+      ${errs ? `<div class="cn-log-head">Prettier cannot parse — the pre-commit hook is skipping these</div><ul>${errs}</ul>` : ''}
+      ${drift ? `<div class="cn-log-head muted">Unformatted (auto-fixes on next commit that stages them)</div><ul>${drift}</ul>` : ''}
+    </td></tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Lint</h2><span class="muted">fleet-wide prettier parse + format sweep — the detector for files the pre-commit hook silently skips</span></div>
+    <div class="task-toolbar">
+      <strong>${s.parse_errors || 0} unparseable file(s) across ${s.broken || 0} site(s)</strong>
+      <span class="muted">${s.unformatted || 0} merely unformatted · ${s.clean || 0} clean · ${s.files_checked || 0} files checked · swept ${esc(swept)}</span>
+      <button class="btn" id="lint-scan" ${running ? 'disabled' : ''}>${running ? 'Sweeping…' : 'Rescan fleet'}</button>
+    </div>
+    ${newErrors.length ? `<div class="card" style="margin-bottom:10px"><div class="cn-log-head">New since the previous sweep (${newErrors.length})</div><ul>${newErrors.map((e) => `<li class="mono">${esc(e.site)}/${esc(e.file)}</li>`).join('')}</ul></div>` : ''}
+    <div class="card"><table>
+      <thead><tr><th>Site</th><th>Status</th><th>Parse errors</th><th>Unformatted</th><th>Files</th><th></th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="6" class="muted">Every site is clean.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">A <strong>parse error</strong> is the real signal: <span class="mono">tools/git-hooks/pre-commit</span> pipes prettier through xargs and ignores its exit code, so an unparseable file is never formatted and nothing reports it. Fix the source (JSX-style <span class="mono">{/* … */}</span> comments inside template expressions, no raw <span class="mono">&lt;svg&gt;</span> in attributes, no script bodies inside template expressions) rather than adding a <span class="mono">.prettierignore</span>. Sites shown clean are omitted from the table.</p>`;
+
+  $$('.lint-open').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); lintToggle(a.dataset.site); }));
+  wireLintButtons();
+  if (running) setTimeout(() => { if (STATE.view === 'lint') softRender(); }, 5000);
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
+function lintToggle(site) {
+  const row = $(`tr[data-detail="lint:${CSS.escape(site)}"]`);
+  if (!row) return;
+  if (LINT.open.has(site)) { LINT.open.delete(site); row.classList.add('hidden'); return; }
+  LINT.open.add(site);
+  row.classList.remove('hidden');
+}
+
+function wireLintButtons() {
+  const all = $('#lint-scan');
+  if (all) all.addEventListener('click', () => lintScan(all, null));
+  $$('.lint-rescan').forEach((b) => b.addEventListener('click', () => lintScan(b, b.dataset.site)));
+}
+
+async function lintScan(btn, site) {
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/lint/scan${site ? `?site=${encodeURIComponent(site)}` : ''}`);
+    toast(site ? `Sweeping ${site}…` : 'Fleet sweep started (~25s)…');
+    // The sweep runs detached; renderLint polls until progress.running clears.
+    softRender();
+  } catch (e) {
+    gdBusy(btn, false);
+    toast(`Sweep failed: ${e.message}`, 'err');
+  }
+}
+
 /* ===== DATA HUB IMAGES ===== */
 
 function dhiBadge(status) {
@@ -3477,7 +3585,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'compliance', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'compliance', 'lint', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -3540,6 +3648,7 @@ function render() {
   else if (STATE.view === 'datahubimages') renderDataHubImages();
   else if (STATE.view === 'analytics') renderAnalytics();
   else if (STATE.view === 'compliance') renderCompliance();
+  else if (STATE.view === 'lint') renderLint();
   else if (STATE.view === 'deploys') renderDeployHealth();
   else if (STATE.view === 'activity') renderActivity();
   else if (STATE.view === 'devsandbox') renderDevSandbox();

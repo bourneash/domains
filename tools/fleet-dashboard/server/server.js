@@ -26,6 +26,7 @@ const actionlog = require('./actionlog');
 const devsandbox = require('./devsandbox');
 const sitefacts = require('./sitefacts');
 const compliance = require('./compliance');
+const lintfleet = require('./lintfleet');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -273,6 +274,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/ai-inventory', async (_req, res) => {
     try { res.json(await aiinventory.fleet(root)); }
     catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  // Fleet lint sweep. GET serves the cached report the CLI wrote (a live sweep
+  // is ~25s, too slow for a request); POST kicks a fresh one off in the
+  // background and the UI polls GET until progress.running clears.
+  app.get('/api/lint', (_req, res) => {
+    try { res.json(lintfleet.latest(root)); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.post('/api/lint/scan', (req, res) => {
+    try {
+      const { started, running, scope, startedAt } = lintfleet.scan(root, req.query.site);
+      res.status(202).json({ started, running, scope, startedAt });
+    } catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 
   // Real AI token usage/cost, rolled up from the per-site ledgers written by
