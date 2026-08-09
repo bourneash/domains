@@ -27,6 +27,7 @@ const devsandbox = require('./devsandbox');
 const sitefacts = require('./sitefacts');
 const compliance = require('./compliance');
 const lintfleet = require('./lintfleet');
+const errorscan = require('./errorscan');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT
   || path.resolve(__dirname, '..', '..', '..');     // tools/fleet-dashboard/server → repo root
@@ -303,6 +304,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Background CF deploy-health cache (powers the deployer cell's "is it live?"
   // half). Exposed for inspection/debugging.
   app.get('/api/deploy-health', (_req, res) => res.json(deployhealth.all()));
+
+  // Background fleet-wide error/warn log scan (server/errorscan.js). Read-only
+  // rollup; :id/lines below is guarded implicitly — errorscan only ever tracks
+  // ids sourced from containers.list(root), which is already repo-scoped.
+  app.get('/api/errors', (_req, res) => res.json(errorscan.rollup()));
+  app.get('/api/errors/:id/lines', (req, res) => {
+    const r = errorscan.lines(req.params.id, req.query.limit);
+    if (!r) return res.status(404).json({ error: 'unknown container (not currently scanned)' });
+    res.json(r);
+  });
 
   app.get('/api/roles/:slug/:role/log', requireSite, (req, res) => {
     try { res.json(roles.roleLog(root, req.params.slug, req.params.role, req.query.tail)); }
@@ -617,6 +628,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // sweep so new sites are picked up without a restart). Skipped under test so
   // its outbound CF fetch doesn't race a test's stubbed global.fetch.
   if (process.env.NODE_ENV !== 'test') deployhealth.start(root, () => discoverSites(root));
+  if (process.env.NODE_ENV !== 'test') errorscan.start(root);
   // Site Facts background sweep (hourly — these change rarely). Same
   // skip-under-test convention as the deploy-health poller above.
   if (process.env.NODE_ENV !== 'test') sitefacts.start(() => discoverSites(root));

@@ -673,6 +673,92 @@ async function renderDeployHealth() {
   stamp();
 }
 
+/* ===================== ERRORS ===================== */
+// Fleet-wide error/warn rollup (server/errorscan.js) — a background poller
+// tails every in-repo container's docker logs and classifies crit/error/warn
+// lines. This is the "what's broken right now" view so nobody has to open
+// Containers and read raw tails one at a time to notice a site is erroring.
+function errLevelBadge(level) {
+  if (level === 'crit') return '<span class="badge b-red">crit</span>';
+  if (level === 'error') return '<span class="badge b-red">error</span>';
+  if (level === 'warn') return '<span class="badge b-yellow">warn</span>';
+  return '<span class="badge b-green">clean</span>';
+}
+
+async function renderErrors() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading error scan…</div>';
+  let d;
+  try { d = await api('GET', '/api/errors'); }
+  catch (e) { app.innerHTML = `<div class="empty">Error scan failed: ${esc(e.message)}</div>`; return; }
+
+  const rows = (d.containers || []).slice().sort((a, b) =>
+    (b.count1h - a.count1h) || ((b.lastAt || 0) - (a.lastAt || 0)) || a.name.localeCompare(b.name));
+
+  const noisy1h = rows.filter((r) => r.count1h > 0).length;
+  const noisy24h = rows.filter((r) => r.count24h > 0).length;
+  const crit24h = rows.reduce((n, r) => n + r.crit24h, 0);
+
+  const body = rows.map((r) => {
+    const level = r.count24h > 0 ? r.lastLevel : null;
+    const when = r.lastAt ? fmtAge((Date.now() - r.lastAt) / 1000) + ' ago' : '—';
+    return `<tr class="err-row" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}">
+      <td class="mono">${esc(r.name)}</td>
+      <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
+      <td>${r.count1h ? `<span class="badge b-red">${r.count1h}</span>` : '<span class="muted">0</span>'}</td>
+      <td>${r.count24h ? `<span class="badge ${r.count1h ? 'b-red' : 'b-yellow'}">${r.count24h}</span>` : '<span class="muted">0</span>'}</td>
+      <td>${errLevelBadge(level)}</td>
+      <td class="mono muted">${esc(when)}</td>
+      <td class="mono muted err-snippet" title="${esc(r.lastLine || '')}">${esc((r.lastLine || '—').slice(0, 90))}</td>
+      <td><button class="btn sm err-toggle" data-id="${esc(r.id)}">📜 Lines</button></td>
+    </tr>
+    <tr class="err-detail-row hidden" data-detail="${esc(r.id)}" data-rk="err:${esc(r.id)}"><td colspan="8">
+      <div class="cn-log-toolbar muted"><span>matched lines (retained window) · <span class="live-tag">live</span></span></div>
+      <pre class="cn-logs-box" id="el-${esc(r.id)}" data-rkh="err:${esc(r.id)}"></pre></td></tr>`;
+  }).join('');
+
+  const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide log scan — error/warn lines tailed from every in-repo container's docker logs.</span></div>
+    <div class="task-toolbar">
+      <strong>${rows.length} containers scanned</strong>
+      <span class="muted">${dotLegend('overdue', noisy1h + ' erroring now')} · ${dotLegend('paused', noisy24h + ' in last 24h')}${crit24h ? ' · ' + dotLegend('overdue', crit24h + ' crit') : ''} · last swept ${esc(swept)}</span>
+    </div>
+    <div class="card"><table>
+      <thead><tr><th>Container</th><th>Site</th><th>1h</th><th>24h</th><th>Level</th><th>Last</th><th>Last line</th><th></th></tr></thead>
+      <tbody>${body || '<tr><td colspan="8" class="muted">No containers scanned yet — the poller sweeps every 3 minutes in the background.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn) — a substring/regex match, noisy by design. Tune or add per-container suppression in <code>server/errorscan.js</code> if a site is chatty. Rolling ~26h retention, refreshed every 3 minutes.</p>`;
+
+  wireErrorRows();
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
+function wireErrorRows() {
+  $$('.err-toggle').forEach((b) => b.addEventListener('click', () => toggleErrorLines(b.dataset.id)));
+}
+
+async function toggleErrorLines(id) {
+  const row = $(`tr.err-detail-row[data-detail="${CSS.escape(id)}"]`);
+  const box = $(`#el-${CSS.escape(id)}`);
+  if (!row || !box) return;
+  if (!row.classList.contains('hidden')) { row.classList.add('hidden'); return; }
+  row.classList.remove('hidden');
+  box.textContent = 'loading…';
+  await fetchErrorLines(id, box);
+}
+
+async function fetchErrorLines(id, box) {
+  try {
+    const r = await api('GET', `/api/errors/${encodeURIComponent(id)}/lines?limit=500`);
+    box.textContent = r.lines.length
+      ? r.lines.map((l) => `${new Date(l.tsMs).toISOString()} [${l.level}] ${l.line}`).join('\n')
+      : '(no matched lines in the retained window)';
+  } catch (e) { box.textContent = `error: ${e.message}`; }
+}
+
 /* ===================== ACTIVITY ===================== */
 // F14: read-only view over the durable audit trail (GET /api/actions, backed
 // by server/actionlog.js) — every mutating dashboard request, newest first.
@@ -1346,6 +1432,12 @@ function logFollowTick() {
     $$('.ag-detail-row:not(.hidden)').forEach((r) => {
       const box = $(`#al-${CSS.escape(r.dataset.detail)}`);
       if (box) fetchAgentLog(r.dataset.detail, STATE.agent, box);
+    });
+  }
+  if (STATE.view === 'errors') {
+    $$('.err-detail-row:not(.hidden)').forEach((r) => {
+      const box = $(`#el-${CSS.escape(r.dataset.detail)}`);
+      if (box) fetchErrorLines(r.dataset.detail, box);
     });
   }
   if (ROLE_OPEN && !$('#modal').classList.contains('hidden')) fetchRoleLog(ROLE_OPEN.site, ROLE_OPEN.role);
@@ -3585,7 +3677,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'compliance', 'lint', 'deploys', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'compliance', 'lint', 'deploys', 'errors', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -3650,6 +3742,7 @@ function render() {
   else if (STATE.view === 'compliance') renderCompliance();
   else if (STATE.view === 'lint') renderLint();
   else if (STATE.view === 'deploys') renderDeployHealth();
+  else if (STATE.view === 'errors') renderErrors();
   else if (STATE.view === 'activity') renderActivity();
   else if (STATE.view === 'devsandbox') renderDevSandbox();
   else if (STATE.view === 'sitefacts') renderSiteFacts();
