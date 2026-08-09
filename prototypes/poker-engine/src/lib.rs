@@ -1,5 +1,6 @@
 pub mod equity;
 pub mod eval;
+pub mod preflop;
 pub mod river;
 pub mod rng;
 pub mod street;

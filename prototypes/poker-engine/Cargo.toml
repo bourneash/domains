@@ -19,3 +19,7 @@ panic = "abort"
 [[bin]]
 name = "flopbench"
 path = "src/bin/flopbench.rs"
+
+[[bin]]
+name = "solve_preflop"
+path = "src/bin/solve_preflop.rs"
