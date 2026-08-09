@@ -14,7 +14,7 @@ REGISTRY_PATH = Path(
 
 # GA4 loads only after explicit consent on these sites, so their numbers
 # undercount real traffic and must never be ranked against ungated sites.
-CONSENT_GATED = {"saveusfarms.com", "weapontester.com"}
+CONSENT_GATED = {"saveusfarms.com", "weapontester.com", "allthingsmasonic.com"}
 
 HEADER = (
     "# Canonical site -> GA4 property / GSC property mapping.\n"

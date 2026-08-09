@@ -22,6 +22,11 @@ sites:
     ga4_measurement_id: G-8Z6YMDR3VX
     gsc_property: sc-domain:aliencouncil.com
     consent_gated: false
+  allthingsmasonic.com:
+    ga4_property_id: '549245276'
+    ga4_measurement_id: G-EEHYHLL8Q0
+    gsc_property: sc-domain:allthingsmasonic.com
+    consent_gated: true
   americastrikes.com:
     ga4_property_id: '539753593'
     ga4_measurement_id: G-ZHHXBF92TY
