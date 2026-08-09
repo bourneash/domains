@@ -4,6 +4,7 @@ pub mod river;
 pub mod rng;
 pub mod street;
 pub mod tree;
+pub mod wasm;
 
 use eval::{eval7, parse_cards};
 use rng::Rng;

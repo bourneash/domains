@@ -1,0 +1,14 @@
+name = "trainingsharks-com"
+compatibility_date = "2026-06-18"
+main = "src/worker/index.ts"
+
+[observability]
+enabled = true
+
+# binding = "ASSETS" is REQUIRED — the worker calls env.ASSETS.fetch() to serve
+# the SPA index.html for client routes (/train, /help, …). Without it, every
+# non-root path falls through to the worker and 500s on an undefined binding.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"

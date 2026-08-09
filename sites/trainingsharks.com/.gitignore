@@ -1,0 +1,5 @@
+# .env.shared is an inert docker bind-mount target; it must never be tracked or
+# the runner roles' git add sweeps fleet secrets into this repo.
+.env.shared
+.monorepo-tools/
+node_modules/
