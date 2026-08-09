@@ -59,6 +59,15 @@ and presentation.
   request. Browsers unlock via a login form (an HttpOnly cookie holding an HMAC
   of the token, not the token itself); programmatic clients send
   `x-fd-token: <secret>`.
+- **Off switch — `FD_AUTH=0`:** turns the token gate off entirely while leaving
+  `FD_TOKEN` parked in the shared `.env`, so turning it back on is a
+  one-character edit rather than re-issuing a secret. Currently **off** on this
+  host (Jesse, 2026-08-09) — the login was more friction than the threat model
+  warranted for a machine nobody else touches. What you give up: the panel
+  mounts the docker socket and joins `vpn_proxy`, so with the gate off **any
+  container on that network can drive the whole fleet and the host**, not just
+  people on your LAN. Flip it back with `FD_AUTH=1` in `.env` +
+  `docker compose --env-file ../../.env up -d`.
 - **Refuses to start unsafe (B2):** on a non-loopback bind (`FD_HOST` not
   `127.0.0.1`/`localhost`/`::1`) with no `FD_TOKEN`, the server exits with an
   error instead of coming up unauthenticated. The compose deploy binds `0.0.0.0`
@@ -85,7 +94,8 @@ and presentation.
 |-----|---------|---------|
 | `FD_PORT` | `4754` | listen port |
 | `FD_HOST` | `127.0.0.1` | bind address |
-| `FD_TOKEN` | _(unset)_ | if set, require this token on `/api/*`; **required** on a non-loopback bind |
+| `FD_TOKEN` | _(unset)_ | if set, require this token on `/api/*`; **required** on a non-loopback bind unless `FD_AUTH=0` |
+| `FD_AUTH` | `1` | set `0` to disable the token gate while keeping `FD_TOKEN` parked (explicit opt-out) |
 | `FD_ALLOW_INSECURE` | _(unset)_ | set `1` to allow a non-loopback bind with no token (accepts the risk) |
 | `FD_ALLOWED_HOSTS` | loopback + compose names | extra allowed `Host` values (or `*`) |
 | `FD_DOMAINS_ROOT` | repo root | path to the domains monorepo |

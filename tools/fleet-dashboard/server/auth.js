@@ -22,7 +22,14 @@
 
 const crypto = require('node:crypto');
 
-const TOKEN = process.env.FD_TOKEN || null;
+// FD_AUTH=0 is the off switch: it disables the token gate while LEAVING the
+// secret parked in .env, so turning auth back on is a one-character edit rather
+// than a re-issue. Deliberate and explicit — the gate is never off by accident,
+// only when this is set. Read the risk note in README before flipping it: this
+// panel mounts the docker socket and joins the shared vpn_proxy network, so with
+// the gate off, any container on that network has full fleet + host control.
+const AUTH_DISABLED = process.env.FD_AUTH === '0';
+const TOKEN = AUTH_DISABLED ? null : (process.env.FD_TOKEN || null);
 const COOKIE = 'fd_auth';
 // The cookie carries an HMAC of a constant under the token, never the token
 // itself — so a leaked cookie doesn't reveal the shared secret.
@@ -112,5 +119,5 @@ function authStatus(req, res) {
 
 module.exports = {
   hostGuard, apiGuard, loginHandler, authStatus, authed, hostAllowed, tokenValid,
-  TOKEN, COOKIE, _parseCookies: parseCookies,
+  TOKEN, AUTH_DISABLED, COOKIE, _parseCookies: parseCookies,
 };

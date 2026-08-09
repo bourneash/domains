@@ -20,6 +20,10 @@ services:
       # only real gate (B2). REQUIRED: `docker compose up` fails fast unless
       # FD_TOKEN is set in the environment (e.g. in the shared .env or your shell).
       FD_TOKEN: ${FD_TOKEN:?set FD_TOKEN in the environment before starting the panel}
+      # Off switch. FD_AUTH=0 in the shared .env disables the login entirely
+      # (the token above stays parked so turning it back on is a one-character
+      # edit). Anything other than 0 -- including unset -- keeps the gate on.
+      FD_AUTH: ${FD_AUTH:-1}
       HOME: ${HOME:-/home/jesse}
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770

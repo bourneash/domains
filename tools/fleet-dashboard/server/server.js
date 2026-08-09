@@ -633,7 +633,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 const LOOPBACK = new Set(['127.0.0.1', '::1', 'localhost']);
 
 function assertSafeToBind(host) {
-  if (auth.TOKEN || LOOPBACK.has(host) || process.env.FD_ALLOW_INSECURE === '1') return;
+  if (auth.TOKEN || LOOPBACK.has(host)) return;
+  // FD_AUTH=0 is a deliberate, documented opt-out — same acknowledgement as
+  // FD_ALLOW_INSECURE=1, just the one people actually reach for.
+  if (auth.AUTH_DISABLED || process.env.FD_ALLOW_INSECURE === '1') return;
   console.error(
     `\n[fleet-dashboard] REFUSING TO START — bound to ${host}:${PORT} with no FD_TOKEN.\n`
     + '  This panel mounts the docker socket and drives the whole fleet; on a non-loopback\n'
@@ -641,14 +644,15 @@ function assertSafeToBind(host) {
     + '  takeover for any peer that can reach it. Fix one of:\n'
     + '    • set FD_TOKEN=<secret>            (recommended — gate the API)\n'
     + '    • set FD_HOST=127.0.0.1            (loopback only, no network exposure)\n'
-    + '    • set FD_ALLOW_INSECURE=1          (explicit opt-out — you accept the risk)\n');
+    + '    • set FD_AUTH=0                    (explicit opt-out — you accept the risk)\n');
   process.exit(1);
 }
 
 if (require.main === module) {
   assertSafeToBind(HOST);
-  if (!auth.TOKEN && process.env.FD_ALLOW_INSECURE === '1' && !LOOPBACK.has(HOST)) {
-    console.warn(`[fleet-dashboard] WARNING: bound to ${HOST}:${PORT} with no FD_TOKEN (FD_ALLOW_INSECURE=1). API is UNAUTHENTICATED.`);
+  if (!auth.TOKEN && !LOOPBACK.has(HOST)) {
+    const why = auth.AUTH_DISABLED ? 'FD_AUTH=0' : 'FD_ALLOW_INSECURE=1';
+    console.warn(`[fleet-dashboard] WARNING: bound to ${HOST}:${PORT} with the token gate OFF (${why}). API is UNAUTHENTICATED — any container on vpn_proxy can drive the fleet.`);
   }
   createApp().listen(PORT, HOST, () => console.log(`fleet-dashboard on http://${HOST}:${PORT}`));
 }
