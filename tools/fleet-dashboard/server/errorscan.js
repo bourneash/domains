@@ -10,6 +10,8 @@
 // Read-only: only `docker logs`, never a write/restart/exec.
 
 const { execFile } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 const containers = require('./containers');
 
 const POLL_MS = 3 * 60 * 1000;             // scan cadence
@@ -18,6 +20,16 @@ const RETENTION_MS = 26 * 60 * 60 * 1000;  // keep matches this long (covers the
 const MAX_LINES_PER_CONTAINER = 3000;      // hard cap so one chatty container can't blow up memory
 const FIRST_SCAN_SINCE = '24h';            // backfill window the first time we see a container
 const FIRST_SCAN_TAIL = '5000';            // bound the backfill cost for a chatty container's history
+
+const ALERT_ERROR_1H_THRESHOLD = 5;        // "every run of this cron is failing" signal
+const ALERT_COOLDOWN_MS = 2 * 60 * 60 * 1000; // don't re-alert the same container within this window
+
+// Known deviations from the `domain-<slug-with-dashes>` channel-naming
+// convention every other site follows (see tools/role-notify/notify_role.py's
+// --channel-env usage) — keyed by slug -> the .env var to read instead, so a
+// channel rename in .env is picked up automatically. Add an entry only when a
+// site's channel doesn't follow the default pattern.
+const CHANNEL_ENV_OVERRIDE = { '0daynews.com': 'SLACK_CHANNEL_0DAYNEWS' };
 
 // Order matters: crit beats error beats warn for a given line.
 const CRIT_RE = /\b(panic|fatal|out of memory|oom.?killed|segfault)\b/i;
@@ -41,9 +53,43 @@ function sh(cmd, args, opts = {}) {
   });
 }
 
-// id -> { name, slug, kind, scope, running, sinceIso, matches: [{tsMs, level, line}] }
+// id -> { name, slug, kind, scope, running, sinceIso, matches: [{tsMs, level, line}], lastAlertAt }
 let STATE = new Map();
 let lastSweep = 0;
+
+// Same "read .env directly" approach deployhealth.js uses for CF creds — the
+// panel's compose environment doesn't forward SLACK_BOT_TOKEN, so this is the
+// only way to reach it from inside the container.
+function loadEnvText(root) {
+  try { return fs.readFileSync(path.join(root, '.env'), 'utf8'); } catch { return ''; }
+}
+function envVar(envText, key) {
+  const m = envText.match(new RegExp('^\\s*' + key + '\\s*=\\s*["\']?([^\\s"\'#]+)', 'm'));
+  return m ? m[1] : null;
+}
+function channelForSlug(envText, slug) {
+  const overrideKey = CHANNEL_ENV_OVERRIDE[slug];
+  const override = overrideKey && envVar(envText, overrideKey);
+  return override || `domain-${slug.replace(/\./g, '-')}`;
+}
+
+// Threshold alert → the site's Slack channel. Mirrors every other notifier in
+// this repo: silently no-ops without SLACK_BOT_TOKEN, never throws (a broken
+// notify must never break the sweep).
+async function postSlackAlert(root, slug, text) {
+  const envText = loadEnvText(root);
+  const token = envVar(envText, 'SLACK_BOT_TOKEN');
+  if (!token) return;
+  const channel = channelForSlug(envText, slug);
+  try {
+    await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel, attachments: [{ color: 'danger', text }] }),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch { /* swallow — see comment above */ }
+}
 
 function classify(text) {
   if (SUPPRESS_RE.some((re) => re.test(text))) return null;
@@ -66,7 +112,7 @@ function parseLine(raw) {
   return { tsMs, tsIso, text: m[3] };
 }
 
-async function scanOne(c) {
+async function scanOne(root, c) {
   const prev = STATE.get(c.id);
   const args = ['logs', '--timestamps'];
   if (prev) args.push('--since', prev.sinceIso);
@@ -86,15 +132,39 @@ async function scanOne(c) {
     if (level) matches.push({ tsMs, level, line: text.slice(0, 2000) });
   }
 
-  const cutoff = Date.now() - RETENTION_MS;
+  const now = Date.now();
+  const cutoff = now - RETENTION_MS;
   const pruned = matches.filter((m) => m.tsMs >= cutoff);
   const trimmed = pruned.length > MAX_LINES_PER_CONTAINER ? pruned.slice(-MAX_LINES_PER_CONTAINER) : pruned;
+
+  // Threshold alert: a crit-level line, or a sustained run of error/crit
+  // lines in the last hour (e.g. a cron job failing every single iteration).
+  // Site-scoped only — tool containers (secscan, datahub, …) have no
+  // domain-<slug> Slack channel to post to. Cooldown-gated like the watchdog's
+  // escalate(), so a chronic failure alerts once per window, not every sweep.
+  const h1 = now - 60 * 60 * 1000;
+  const recent1h = trimmed.filter((m) => m.tsMs >= h1);
+  const hasCrit1h = recent1h.some((m) => m.level === 'crit');
+  const errorish1h = recent1h.filter((m) => m.level === 'error' || m.level === 'crit').length;
+  const prevAlertAt = prev ? prev.lastAlertAt : null;
+  const shouldAlert = c.scope === 'site' && (hasCrit1h || errorish1h >= ALERT_ERROR_1H_THRESHOLD)
+    && (!prevAlertAt || now - prevAlertAt > ALERT_COOLDOWN_MS);
 
   STATE.set(c.id, {
     name: c.name, slug: c.slug, kind: c.kind, scope: c.scope, running: c.running,
     sinceIso: sinceIso || new Date().toISOString(),
     matches: trimmed,
+    lastAlertAt: shouldAlert ? now : (prevAlertAt || null),
   });
+
+  if (shouldAlert) {
+    const last = trimmed[trimmed.length - 1];
+    const label = hasCrit1h ? 'CRIT' : 'repeated ERROR';
+    const text = `:rotating_light: *${c.name}* — ${label} (${errorish1h} error/crit line(s) in the last hour)\n`
+      + `Last: \`${((last && last.line) || '').slice(0, 300)}\`\n`
+      + 'Fleet Dashboard → Errors tab for detail.';
+    postSlackAlert(root, c.slug, text).catch(() => {});
+  }
 }
 
 async function sweep(root) {
@@ -107,7 +177,7 @@ async function sweep(root) {
   const queue = list.slice();
   async function worker() {
     for (let c = queue.shift(); c; c = queue.shift()) {
-      try { await scanOne(c); } catch { /* one bad container shouldn't kill the sweep */ }
+      try { await scanOne(root, c); } catch { /* one bad container shouldn't kill the sweep */ }
     }
   }
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
