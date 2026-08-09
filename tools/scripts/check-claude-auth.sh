@@ -119,7 +119,7 @@ Every site's cron/worker containers share this same host OAuth session — this 
 Signature match: ${IS_AUTH}
 Output: \`$(head -c 200 <<<"$OUTPUT" | tr '\n' ' ')\`
 
-*Fix:* refresh the host session (\`claude /login\` as the \`jesse\` user, or check \`ANTHROPIC_API_KEY\` in domains/.env if that fallback is ever wired up). This will re-alert hourly (\`AUTH_CHECK_ALERT_COOLDOWN\`) while still down and post a recovery notice once fixed." "danger"
+*Fix:* refresh the host session — run \`claude /login\` as the \`jesse\` user. The fleet has no \`ANTHROPIC_API_KEY\` fallback by design (only one auth path to keep straight). This will re-alert hourly (\`AUTH_CHECK_ALERT_COOLDOWN\`) while still down and post a recovery notice once fixed." "danger"
   log "ALERTED — posted to #$CHANNEL"
   touch "$ALERT_MARKER"
 else
