@@ -31,6 +31,21 @@ LOG="${AUTH_CHECK_LOG:-$DOMAINS_ROOT/tools/scripts/check-claude-auth.log}"
 LOCK="${AUTH_CHECK_LOCK:-$DOMAINS_ROOT/tools/scripts/check-claude-auth.lock}"
 STATE="${AUTH_CHECK_STATE:-$DOMAINS_ROOT/tools/scripts/.check-claude-auth-state}"
 TIMEOUT_SEC="${AUTH_CHECK_TIMEOUT:-30}"
+# Cron's PATH is minimal and does NOT include ~/.local/bin (where the CLI
+# actually lives) — resolve explicitly rather than relying on `claude` being
+# found bare, which fails with exit 127 "no such file" and would otherwise
+# get misread as an auth failure. Learned this the hard way on first deploy:
+# the very first real cron tick fired a false-positive fleet-down alert.
+CLAUDE_BIN="${AUTH_CHECK_CLAUDE_BIN:-}"
+if [[ -z "$CLAUDE_BIN" ]]; then
+  if command -v claude >/dev/null 2>&1; then
+    CLAUDE_BIN="$(command -v claude)"
+  elif [[ -x "$HOME/.local/bin/claude" ]]; then
+    CLAUDE_BIN="$HOME/.local/bin/claude"
+  else
+    CLAUDE_BIN="claude"  # let it fail loudly and visibly in the log below
+  fi
+fi
 FAIL_THRESHOLD="${AUTH_CHECK_FAIL_THRESHOLD:-2}"   # consecutive failing ticks before alerting
 CHANNEL="${AUTH_CHECK_CHANNEL:-domain-ops}"
 LOG_MAX_BYTES="${AUTH_CHECK_LOG_MAX_BYTES:-2097152}"
@@ -81,7 +96,7 @@ matches_auth_failure() {
   return 1
 }
 
-OUTPUT="$(timeout "$TIMEOUT_SEC" claude -p "Reply with exactly one word: OK" --dangerously-skip-permissions 2>&1)"
+OUTPUT="$(timeout "$TIMEOUT_SEC" "$CLAUDE_BIN" -p "Reply with exactly one word: OK" --dangerously-skip-permissions 2>&1)"
 EXIT_CODE=$?
 
 read -r PREV_COUNT < "$STATE" 2>/dev/null || PREV_COUNT=0

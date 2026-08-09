@@ -45,4 +45,6 @@ __pycache__/
 tools/scripts/*.log
 tools/scripts/*.lock
 tools/scripts/.ensure-fleet-cron-alerts/
+tools/scripts/.check-claude-auth-state
+tools/scripts/.check-claude-auth-alerted
 .aider*
