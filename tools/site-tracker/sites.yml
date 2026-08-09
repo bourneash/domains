@@ -98,6 +98,26 @@ sites:
     - branding
     - manual
     manual: {}
+  allthingsmasonic.com:
+    active: true
+    cf_zone: allthingsmasonic.com
+    github: bourneash/allthingsmasonic.com
+    smoke_string: All Things Masonic
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   americastrikes.com:
     active: true
     cf_zone: americastrikes.com
