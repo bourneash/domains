@@ -44,6 +44,7 @@ const WARN_RE = /\bwarn(?:ing)?\b/i;
 // suppressed. Add more entries here as other fleet-wide noise turns up.
 const SUPPRESS_RE = [
   /reaper cleanup: pid=\d+, wstatus=0\b/i,
+  /\bnon-fatal\b/i,   // "\bfatal\b" matches inside "non-fatal" — the negation flips the meaning
 ];
 
 function sh(cmd, args, opts = {}) {
