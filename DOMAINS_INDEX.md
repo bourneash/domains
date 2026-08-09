@@ -12,6 +12,7 @@
 | rc-9.com 				|   ✅   | "Remote Command" browser artillery game; monetized via HTML5 game portals + rewarded ads + AI battle stream 					|
 | reviewtattoo.com 		|   ✅   | Tattoo review & discovery site (cities/styles/guides); affiliate + future paid artist listings 								|
 | sinderella.org 		|   ✅   | Daily horoscope/tarot site fronted by "Sinderella," a Jersey Shore boardwalk fortune teller persona 							|
+| trainingsharks.com 	|   ✅   | Free browser poker trainer — equity/EV drills graded in chips, exploitable bot opponents, leak reports; Rust→wasm engine, freemium + training-affiliate revenue 	|
 | ultrarough.com 		|   ✅   | Kink-coded sandpaper/abrasives review authority — Liquid Death aesthetic on a boring Amazon niche 							|
 | weapontester.com 		|   ✅   | Browser weapon builder + physics-realistic ballistics range; in-tool affiliate links on real parts 							|
 | xxxtea.com 			|   ✅   | Fragrance-ad tea + tea-ware review site — "restraint is the joke" voice, honey/amber on oolong-dark, affiliate 				|

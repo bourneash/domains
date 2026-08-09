@@ -316,6 +316,24 @@ sites:
     - branding
     - manual
     manual: {}
+  trainingsharks.com:
+    active: true
+    cf_zone: trainingsharks.com
+    github: bourneash/trainingsharks.com
+    smoke_string: TrainingSharks
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   ultrarough.com:
     active: true
     cf_zone: ultrarough.com

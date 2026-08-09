@@ -134,3 +134,7 @@
 [submodule "sites/allthingsmasonic.com"]
 	path = sites/allthingsmasonic.com
 	url = git@github-bourneash:bourneash/allthingsmasonic.com.git
+[submodule "sites/trainingsharks.com"]
+	path = sites/trainingsharks.com
+	url = git@github-bourneash:bourneash/trainingsharks.com.git
+	branch = main
