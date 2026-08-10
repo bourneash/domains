@@ -103,6 +103,17 @@ CREATE TABLE IF NOT EXISTS blacklist_phash (
   image_id TEXT,
   blacklisted_at TEXT
 );
+
+-- Generic key/value store for collector liveness. Written every cycle
+-- regardless of whether any source was actually fetched (pool-full cycles
+-- fetch nothing and write no egress_log rows), so it's the correct signal
+-- for "is the collector still ticking" — egress recency answers a different
+-- question ("did we fetch anything recently") that is legitimately quiet for
+-- long stretches when every topic's pool is already at target_depth.
+CREATE TABLE IF NOT EXISTS meta (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
 """
 
 
@@ -343,6 +354,22 @@ def query_pulls(conn: sqlite3.Connection, since_iso: str | None = None, limit: i
     sql += " ORDER BY ts DESC LIMIT ?"
     params.append(int(limit))
     return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def record_heartbeat(conn: sqlite3.Connection, ts: str) -> None:
+    """Mark that a collector cycle completed, independent of whether it
+    fetched anything. See the `meta` table comment for why this exists."""
+    conn.execute(
+        "INSERT INTO meta (key, value) VALUES ('last_cycle_at', ?) "
+        "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+        (ts,),
+    )
+    conn.commit()
+
+
+def get_heartbeat(conn: sqlite3.Connection) -> str | None:
+    row = conn.execute("SELECT value FROM meta WHERE key = 'last_cycle_at'").fetchone()
+    return row["value"] if row else None
 
 
 def get_sources_state(conn: sqlite3.Connection) -> list[dict]:

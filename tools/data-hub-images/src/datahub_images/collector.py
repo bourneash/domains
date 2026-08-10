@@ -444,4 +444,14 @@ def run_cycle(settings: Settings, conn, sources: list[Source], topics: list[Topi
     except Exception:
         counts["pruned"] = 0
 
+    # Heartbeat: record that this cycle ran to completion, regardless of
+    # whether any source was actually fetched. Pools sitting at
+    # target_depth are the common case and legitimately fetch nothing (no
+    # egress_log rows), so egress recency alone can't tell a healthy idle
+    # collector from a wedged one.
+    try:
+        store.record_heartbeat(conn, now)
+    except Exception:
+        pass
+
     return counts

@@ -114,7 +114,6 @@ def run_checks():
         add(WARNING, f"VPN IP mismatch: monitor sees {vpn_ip} via vpn-us, broker /health reports {vpn.get('us')}")
 
     # 4. EGRESS LEAK — did any actual image fetch exit via the home IP?
-    latest_ts = None
     try:
         events = _get(f"{BROKER}/egress?limit=50").get("events", [])
         for ev in events:
@@ -122,22 +121,27 @@ def run_checks():
             if direct_ip and exit_ip == direct_ip:
                 add(CRITICAL, f"IMAGE FETCH LEAKED: egress row for '{ev.get('source_id')}' exited via home IP {exit_ip}")
                 break
-        # freshness from egress timestamps
-        ts = [ev.get("created_at") or ev.get("ts") for ev in events if ev.get("created_at") or ev.get("ts")]
-        latest_ts = max(ts) if ts else None
     except Exception as e:
         add(WARNING, f"could not read /egress: {e}")
 
     # 5. Collector freshness (a wedged collector = stale pool). Best-effort.
-    if latest_ts:
+    # Deliberately NOT keyed off egress recency: a cycle where every topic's
+    # pool is already at target_depth fetches nothing and writes no egress
+    # rows at all, which used to false-page this check every ~90-120min on a
+    # perfectly healthy collector. /health.last_cycle_at is a heartbeat the
+    # collector writes at the end of every cycle regardless of fetch activity.
+    last_cycle_at = health.get("last_cycle_at")
+    if last_cycle_at:
         try:
             from datetime import datetime, timezone
-            t = datetime.fromisoformat(latest_ts.replace("Z", "+00:00"))
+            t = datetime.fromisoformat(last_cycle_at.replace("Z", "+00:00"))
             age_min = (datetime.now(timezone.utc) - t).total_seconds() / 60
             if age_min > FRESH_MIN:
-                add(WARNING, f"collector looks stale: last egress {age_min:.0f} min ago (> {FRESH_MIN})")
+                add(WARNING, f"collector looks stale: last cycle {age_min:.0f} min ago (> {FRESH_MIN})")
         except Exception:
             pass
+    else:
+        add(WARNING, "collector heartbeat missing (last_cycle_at absent from /health) — cannot verify it's running")
 
     # 6. Serve path — pull real bytes of an existing pool image
     try:

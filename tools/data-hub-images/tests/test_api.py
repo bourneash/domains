@@ -44,7 +44,18 @@ def test_request_serves_from_pool(tmp_path):
 
 def test_health_shape(tmp_path):
     c = TestClient(api.create_app(_seeded(tmp_path), sources=[]))
-    assert "vpn" in c.get("/health").json()
+    body = c.get("/health").json()
+    assert "vpn" in body
+    # No cycle has run yet against this fresh DB — absent, not a crash.
+    assert body["last_cycle_at"] is None
+
+
+def test_health_reports_collector_heartbeat(tmp_path):
+    st = _seeded(tmp_path)
+    conn = store.connect(st.db_path)
+    store.record_heartbeat(conn, "2026-07-04T00:30:00Z")
+    c = TestClient(api.create_app(st, sources=[]))
+    assert c.get("/health").json()["last_cycle_at"] == "2026-07-04T00:30:00Z"
 
 
 def test_get_images_logs_pull(tmp_path):

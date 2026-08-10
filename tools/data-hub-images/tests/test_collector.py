@@ -73,6 +73,35 @@ def test_pool_fill_and_request_drain(tmp_path, monkeypatch):
     out2 = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:06:00Z")
     assert out2["requests_done"] == 1
 
+
+def test_run_cycle_heartbeats_even_when_pool_is_already_full(tmp_path, monkeypatch):
+    """A cycle that fetches nothing (every topic already at target_depth)
+    must still record a heartbeat — that's the whole point of it. Without
+    this, a healthy idle collector looks indistinguishable from a wedged one
+    once egress_log goes quiet."""
+    conn = store.connect(str(tmp_path / "t.db"))
+    store.init_schema(conn)
+
+    monkeypatch.setattr(
+        "datahub_images.sources.wikimedia.search",
+        lambda q, limit, proxy, client=None: (_ for _ in ()).throw(
+            AssertionError("should never fetch: pool is already at target_depth")
+        ),
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="wikimedia", kind="wikimedia")]
+    tops = [Topic(id="iran", queries=["Iran"], target_depth=0, tags=["iran"])]
+
+    assert store.get_heartbeat(conn) is None
+    out = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:00:00Z")
+    assert out["fetched"] == 0
+    assert store.get_heartbeat(conn) == "2026-07-04T00:00:00Z"
+
+    out2 = collector.run_cycle(st, conn, srcs, tops, "2026-07-04T00:30:00Z")
+    assert out2["fetched"] == 0
+    assert store.get_heartbeat(conn) == "2026-07-04T00:30:00Z"
+
     req = [r for r in store.pending_requests(conn)]
     assert req == []
 

@@ -234,10 +234,15 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             db_ok = True
         except Exception:
             db_ok = False
+        try:
+            last_cycle_at = store.get_heartbeat(conn)
+        except Exception:
+            last_cycle_at = None
         return {
             "ok": db_ok and bool(us or eu),
             "vpn": {"us": us, "eu": eu},
             "db": db_ok,
+            "last_cycle_at": last_cycle_at,
             "generated_at": _now(),
         }
 
