@@ -39,6 +39,7 @@ QUEUE_FIELDS = [
     "brief",
     "notes",
     "hero_image",
+    "hero_alt",
     "card_image",
 ]
 
