@@ -402,6 +402,91 @@ async function renderAIInventory() {
   stamp();
 }
 
+/* ===================== PRODUCT FEED ===================== */
+// tools/product-feed — shared, tagged product-candidate queue. Sites push
+// sourced+judged candidates in, tagged subscribers claim/publish them one
+// at a time. See that tool's README + the product-feed-dev skill.
+function pfStatusBadge(status) {
+  const cls = status === 'published' ? 'b-green' : status === 'claimed' ? 'b-yellow' : status === 'queued' ? 'b-gray' : 'b-red';
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+
+async function renderProductFeed() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading product feed…</div>';
+  const [health, stats, subs, candidates] = await Promise.all([
+    api('GET', '/api/product-feed/health'),
+    api('GET', '/api/product-feed/stats'),
+    api('GET', '/api/product-feed/subscriptions'),
+    api('GET', '/api/product-feed/candidates?limit=30'),
+  ]);
+
+  let healthHtml = '';
+  if (health.ok === false) {
+    healthHtml = `<div class="dh-down">⚠ product-feed API unreachable — ${esc(health.error || 'is the product-feed-api container running? (cd tools/product-feed && docker compose up -d)')}</div>`;
+  }
+
+  const subRows = (Array.isArray(subs) ? subs : []).map((s) => {
+    const depthLabel = s.error ? `<span class="muted" title="${esc(s.error)}">—</span>`
+      : `<span class="mono">${s.depth ?? '—'}${s.max_queue_depth ? ` / ${s.max_queue_depth}` : ''}</span>`;
+    const overCap = s.max_queue_depth && s.depth != null && s.depth >= s.max_queue_depth;
+    return `<tr data-fleet-row data-site="${esc(s.site)}">
+      <td>${siteLink(s.site)}</td>
+      <td>${(s.tags_any || []).map((t) => `<span class="badge b-gray">${esc(t)}</span>`).join(' ')}</td>
+      <td>${s.site_origin_allow ? esc(s.site_origin_allow.join(', ')) : '<span class="muted">any producer</span>'}</td>
+      <td>${depthLabel}${overCap ? ' <span class="badge b-yellow" title="At/above max_queue_depth — sourcing should be backing off">at cap</span>' : ''}</td>
+    </tr>`;
+  }).join('');
+
+  const statsBySite = (stats && stats.ok !== false) ? stats : {};
+  const statsRows = Object.entries(statsBySite).map(([site, byStatus]) => `<tr data-fleet-row data-site="${esc(site)}">
+    <td>${siteLink(site)}</td>
+    <td class="mono">${byStatus.queued || 0}</td>
+    <td class="mono">${byStatus.claimed || 0}</td>
+    <td class="mono">${byStatus.published || 0}</td>
+    <td class="mono">${byStatus.rejected || 0}</td>
+    <td class="mono">${byStatus.failed || 0}</td>
+  </tr>`).join('');
+
+  const candidateItems = (candidates && candidates.items) || [];
+  const candidateRows = candidateItems.map((c) => `<tr data-fleet-row data-site="${esc(c.site_origin)}">
+    <td class="mono">${esc(c.created_at || '').slice(0, 16).replace('T', ' ')}</td>
+    <td>${siteLink(c.site_origin)}</td>
+    <td>${esc(c.decision?.name || c.candidate?.title || c.asin || '—')}</td>
+    <td>${(c.tags || []).map((t) => `<span class="badge b-gray">${esc(t)}</span>`).join(' ')}</td>
+    <td>${pfStatusBadge(c.status)}</td>
+    <td>${c.claimed_by ? esc(c.claimed_by) : '<span class="muted">—</span>'}</td>
+  </tr>`).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Product Feed</h2><span class="muted">tools/product-feed — shared, tagged product-candidate queue (:4761)</span></div>
+    ${healthHtml}
+    <div class="card">
+      <h3>Subscriptions</h3>
+      <table>
+        <thead><tr><th>Site</th><th>Tags</th><th>Origin allow-list</th><th>Depth (queued+claimed / max)</th></tr></thead>
+        <tbody>${subRows || '<tr><td colspan="4" class="muted">No subscriptions registered — see registry/subscriptions.yaml</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Stats by site</h3>
+      <table>
+        <thead><tr><th>Site</th><th>Queued</th><th>Claimed</th><th>Published</th><th>Rejected</th><th>Failed</th></tr></thead>
+        <tbody>${statsRows || '<tr><td colspan="6" class="muted">No candidates sourced yet</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Recent candidates</h3>
+      <table>
+        <thead><tr><th>Sourced</th><th>Site</th><th>Name</th><th>Tags</th><th>Status</th><th>Claimed by</th></tr></thead>
+        <tbody>${candidateRows || '<tr><td colspan="6" class="muted">Nothing sourced yet</td></tr>'}</tbody>
+      </table>
+    </div>`;
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
 /* ===================== AI USAGE ===================== */
 // Real token usage/cost, rolled up from the per-site ledgers written by
 // tools/scripts/claude-tracked.sh (server/aiusage.js -> tools/ai-usage/aggregate.py).
@@ -3677,7 +3762,7 @@ async function dhiReject(id, btn) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'analytics', 'compliance', 'lint', 'deploys', 'errors', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'productfeed', 'analytics', 'compliance', 'lint', 'deploys', 'errors', 'activity', 'devsandbox', 'sitefacts'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -3738,6 +3823,7 @@ function render() {
   else if (STATE.view === 'aiusage') renderAIUsage();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
+  else if (STATE.view === 'productfeed') renderProductFeed();
   else if (STATE.view === 'analytics') renderAnalytics();
   else if (STATE.view === 'compliance') renderCompliance();
   else if (STATE.view === 'lint') renderLint();

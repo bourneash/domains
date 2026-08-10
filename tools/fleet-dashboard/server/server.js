@@ -20,6 +20,7 @@ const deployhealth = require('./deployhealth');
 const datahub = require('./datahub');
 const analytics = require('./analytics');
 const datahubImages = require('./datahub-images');
+const productFeed = require('./product-feed');
 const auth = require('./auth');
 const health = require('./health');
 const actionlog = require('./actionlog');
@@ -151,6 +152,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/datahub/matrix', (_req, res) => {
     try { res.json(datahub.matrix()); }
     catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+  });
+
+  // Product Feed routes — proxy over tools/product-feed's API (:4761). Same
+  // degrade-to-200 convention as /api/datahub/* above.
+  app.get('/api/product-feed/health', async (_req, res) => res.json(await productFeed.health()));
+  app.get('/api/product-feed/stats', async (_req, res) => res.json(await productFeed.stats()));
+  app.get('/api/product-feed/subscriptions', async (_req, res) => res.json(await productFeed.subscriptionsWithDepth()));
+  app.get('/api/product-feed/candidates', async (req, res) => {
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 30, 200));
+    res.json(await productFeed.recentCandidates(limit));
   });
 
   // Analytics routes — GA4 + Search Console metrics, proxied from the data-hub

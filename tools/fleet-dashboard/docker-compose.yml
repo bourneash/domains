@@ -27,6 +27,7 @@ services:
       HOME: ${HOME:-/home/jesse}
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770
+      PRODUCTFEED_API: http://product-feed-api:4761
       # Every site repo in the fleet pushes over the same github-bourneash SSH
       # identity (confirmed across sites — one shared account). -F /dev/null
       # skips ~/.ssh/config entirely: root's default config-file lookup is
@@ -45,6 +46,7 @@ services:
     networks:
       - default
       - vpn_proxy
+      - product_feed
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
@@ -69,6 +71,9 @@ services:
 
 networks:
   default:
+  product_feed:
+    external: true
+    name: product-feed_default
   vpn_proxy:
     external: true
     name: vpn-proxy_default
