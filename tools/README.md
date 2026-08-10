@@ -27,6 +27,7 @@ Local utilities shared across all domain projects under `/home/jesse/projects/do
 | [`google-auth/`](./google-auth/) | Shared Google OAuth helper library used by GA4/GSC tooling. |
 | [`gsc-verify/`](./gsc-verify/) | Verifies fleet domains in Google Search Console by writing a DNS TXT record via Cloudflare, self-service (GSC API can't grant access directly). |
 | [`lama-cleaner/`](./lama-cleaner/) | Launches **IOPaint** (the maintained lama-cleaner) GPU-accelerated on a directory of images. Random free port, prints local + LAN URL. |
+| [`media-gen/`](./media-gen/) | On-demand AI image **generation** for the fleet, `data-hub-images`' sibling — local ComfyUI (fast, default) or CloakBrowser+Nano Banana (real browser, opt-in). HTTP API at `localhost:4780`, host process (not dockerized — both backends need host-local access). |
 | [`personas/`](./personas/) | Persona definitions backing site voice/brand for content and social tooling (`domains-persona-create` skill). |
 | [`post-notify/`](./post-notify/) | Shared "new post" Slack announcer — one Block Kit card format, config-driven per site. |
 | [`role-notify/`](./role-notify/) | Shared "role completed" Slack notifier — emoji + checkmark + real files/status, replaces flat ad-hoc messages. |
