@@ -181,10 +181,81 @@ itself with pytest / curl against a throwaway or the real hub's own SQLite
 row — never by letting a site's publish script actually run its apply step
 against production to see if the hub "worked."
 
-## Fleet Dashboard integration (not built yet)
+## Fleet Dashboard integration
 
-data-hub has a "Data Hub" tab (VPN health, egress ledger, source
-freshness). product-feed doesn't have an equivalent yet — `GET /stats`
-already returns per-site/per-status counts, which is the natural seed for
-one. If asked to build this, follow the `fleet-dashboard-dev` skill's
-pattern for adding a new tab, not a bespoke page.
+Built 2026-08-09: the "Product Feed" tab (`tools/fleet-dashboard`) —
+subscriptions + live depth vs. `max_queue_depth`, per-site stats
+(queued/claimed/published/rejected/failed), a recent-candidates table.
+Server side is `server/product-feed.js` (same degrade-to-`{ok:false}` proxy
+pattern as `server/datahub.js`); the panel joins the `product_feed`
+external network with `PRODUCTFEED_API: http://product-feed-api:4761` set
+in the panel's own `docker-compose.yml` — **both are required**, the env
+var alone won't resolve the hostname without the network join. Check this
+first if the tab shows "unreachable" but `curl 127.0.0.1:4761/health` from
+the host works fine. Editing `server/*.js` needs `docker compose restart
+panel`; editing the network/env block needs a full `docker compose up -d`
+recreate (network attachments are set at container creation, restart alone
+won't pick up a newly-added network). See `fleet-dashboard-dev` for the
+general tab-adding pattern this follows.
+
+## Troubleshooting — known issues (found live seeding weirdgirlstore.com, 2026-08-09)
+
+These bit the *first* real end-to-end run of the whole system, all in one
+sitting — a strong prior that "looks correct in the code" and "has actually
+run successfully in production" are different claims. Check these before
+assuming a bug is new.
+
+**Queue never fills / candidates keep getting silently lost:**
+- Is the producing site's worker image missing a binary
+  `apply_candidate.py`-shaped code depends on? Weirdgirlstore's worker had
+  no `convert` (ImageMagick) at all until 2026-08-09 — every image
+  candidate had likely been silently crashing at the conversion step since
+  that site's cron was containerized. `docker exec <worker> which convert`
+  (or whatever binary) is the first check, not an afterthought.
+- Is `NODE_OPTIONS=--dns-result-order=ipv4first` set on the producing site's
+  worker service? Without it, an Astro + `@astrojs/cloudflare` in-container
+  build dies with `ECONNREFUSED 127.0.0.1` at the prerender step — see
+  `feedback_astro_cf_prerenderer_needs_ipv4first`. This means the apply
+  step's `npm run build` had never actually succeeded from inside that
+  container.
+- A site's `run-product-scout.sh`/`run-product-publish.sh`-shaped wrapper
+  computing its OWN log file at the same path its outer `run-role.sh`
+  already tees to (identical `<role>-<timestamp>.log` naming, same
+  wall-clock minute) doubles every log line — which can silently
+  double-count "new candidates this run" and spawn a judge/apply step
+  TWICE per candidate. Caught live: a sweep judged the same 2 candidates 4
+  times. If judge-agent spend looks 2x what a run should cost, check for
+  duplicate lines in that run's log before suspecting the agent itself.
+
+**A candidate got published with duplicate/orphaned entries (dangling
+affiliate.ts line, duplicate /go/ redirect with no matching content):**
+- This happens when an apply attempt writes the mechanical files (curio
+  json, affiliate.ts, `_redirects`) and THEN fails at a later step (build,
+  commit, push) — the write isn't transactional. A retry for the same ASIN
+  under a different slug leaves the first attempt's entries orphaned.
+  `apply_candidate.py`'s `cleanup_stale_entries_for_asin()` (added
+  2026-08-09) handles this automatically on retry now — if you see this
+  happen anyway, that function or its call site is the first place to look,
+  not a one-off manual cleanup.
+
+**A candidate's search/product-page browsing is VPN-routed but something
+downstream isn't:**
+- `cc_lib.launch()` proxies the CloakBrowser context correctly, but any
+  *separate* HTTP fetch a producing site's scout does outside that browser
+  context (e.g. a raw `urllib` re-fetch of a product page or image) does
+  NOT inherit that proxy automatically — it needs its own
+  `urllib.request.ProxyHandler` wired to
+  `social_lib.vpn_session.get_proxy_url()`. Audit every direct
+  `urllib`/`requests` call in a site's sourcing pipeline for this, not just
+  the browser-driven ones — scout.py's `download_hires_image()` was leaking
+  the real host IP this way until fixed.
+
+**General debugging move**: don't trust that a pipeline "works" just
+because its code reads correctly and a manual host-side run once
+succeeded. Trigger the real containerized path end-to-end
+(`docker compose run --rm worker <role>`, watched closely, NOT against a
+fake/test candidate — see the "NEVER exercise a real site's
+apply_candidate.py" note above for how to do this without contaminating
+production) whenever something changed in the container image, compose
+env, or wrapper scripts. That's how all five of the issues above surfaced
+in a single sitting.
