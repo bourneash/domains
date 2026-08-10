@@ -9,7 +9,11 @@ external providers behind a VPN; this *generates* original images locally
 slow) — it never touches the public internet on its own.
 
 Run:
-    uvicorn media_gen.api:app --host 127.0.0.1 --port 4780
+    uvicorn media_gen.api:app --host 0.0.0.0 --port 4780
+    # (binds all interfaces; _RestrictToLocalAndDocker below is what
+    # actually limits reachability to loopback + the docker0 bridge —
+    # see that class's comment for why the bind address alone can't do
+    # this correctly on a host with real LAN/VPN interfaces)
 
 See README.md for why this runs as a plain host process rather than in
 Docker (both backends need host-local access — ComfyUI's GPU process,
@@ -18,15 +22,56 @@ cleanly), and for the host.docker.internal wiring site containers need.
 """
 from __future__ import annotations
 
+import ipaddress
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from . import comfyui, nanobanana, store
 
 app = FastAPI(title="media-gen", version="0.1.0")
+
+# This host has real, non-loopback interfaces (LAN, a VPN tunnel) beyond
+# docker0 — binding uvicorn to 0.0.0.0 without this middleware would expose
+# generation (and the ComfyUI/CloakBrowser machinery behind it) to whatever
+# else can reach those networks, not just this host and its own containers.
+# uvicorn can only bind one --host value, and the caller that actually needs
+# this service (a site's cron container, via host.docker.internal) arrives
+# over the docker0 bridge, not loopback — so binding loopback-only breaks
+# that real caller, and binding docker0-only breaks host-local testing/dev.
+# Bind 0.0.0.0 and enforce the intended reachability here instead, where
+# it's provable in one place regardless of which interfaces this host has.
+_ALLOWED_NETS = [ipaddress.ip_network("127.0.0.0/8")]
+try:
+    import subprocess
+    out = subprocess.run(
+        ["ip", "-4", "-o", "addr", "show", "docker0"], capture_output=True, text=True, timeout=2,
+    ).stdout
+    # e.g. "3: docker0    inet 172.30.0.1/24 brd ..."
+    for tok in out.split():
+        if "/" in tok and tok[0].isdigit():
+            _ALLOWED_NETS.append(ipaddress.ip_network(tok, strict=False))
+            break
+except Exception:
+    pass  # docker0 not present (e.g. Docker not installed) — loopback-only is still correct
+
+
+class _RestrictToLocalAndDocker(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        client = request.client.host if request.client else None
+        try:
+            addr = ipaddress.ip_address(client)
+        except (TypeError, ValueError):
+            addr = None
+        if addr is None or not any(addr in net for net in _ALLOWED_NETS):
+            return JSONResponse(status_code=403, content={"detail": "forbidden — not host-local or docker0"})
+        return await call_next(request)
+
+
+app.add_middleware(_RestrictToLocalAndDocker)
 
 
 class GenerateRequest(BaseModel):

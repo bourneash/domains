@@ -3,7 +3,11 @@ from fastapi.testclient import TestClient
 from media_gen import comfyui, nanobanana
 from media_gen.api import app
 
-client = TestClient(app)
+# TestClient's default fake client host ("testclient") isn't a real IP, so
+# it fails the loopback/docker0 access-restriction middleware (see
+# test_middleware.py) before reaching any route — every test in this file is
+# about route behavior, not that middleware, so simulate a real loopback caller.
+client = TestClient(app, client=("127.0.0.1", 12345))
 
 
 def test_health_reports_both_backends(monkeypatch):
