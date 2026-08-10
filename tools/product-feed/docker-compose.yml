@@ -1,0 +1,50 @@
+# product-feed — shared, tagged product-candidate queue for the fleet.
+#
+# One service: the API (FastAPI/uvicorn on :4761), backed by a SQLite file
+# on a named volume. No collector/cron here — unlike tools/data-hub,
+# product-feed doesn't fetch anything itself; each site's own scout/judge
+# pipeline sources+judges candidates locally (CloakBrowser, brand voice,
+# etc.) and POSTs the result here. The hub's only job is storing candidates
+# and routing them to whichever subscriber's tags match, one claim at a
+# time — see registry/subscriptions.yaml and src/productfeed/api.py.
+#
+# Any site that wants to produce into or pull from the feed joins this
+# stack's network (`product-feed_default`, created by this compose file) by
+# name — same pattern tools/data-hub's subscribers use for vpn-proxy_default.
+# Bring this stack up FIRST, then bring up (or restart) the site's worker so
+# it can join the already-created network. See the
+# product-feed-onboard-site skill for the full wiring walkthrough.
+#
+# Bring up:    docker compose up -d --build
+# Manual pull: curl http://127.0.0.1:4761/subscriptions/weirdgirlstore.com/next
+# Logs:        docker compose logs -f api
+# Tear down:   docker compose down
+
+name: product-feed
+
+services:
+  api:
+    build: .
+    container_name: product-feed-api
+    environment:
+      PRODUCTFEED_DB_PATH: /data/product-feed.db
+      PRODUCTFEED_REGISTRY_DIR: /app/registry
+      PRODUCTFEED_HOST: "0.0.0.0"
+      PRODUCTFEED_PORT: "4761"
+    volumes:
+      - productfeed-data:/data
+    ports:
+      - "127.0.0.1:4761:4761"
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  productfeed-data:
+
+networks:
+  default:
+    name: product-feed_default

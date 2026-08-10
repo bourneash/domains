@@ -1,0 +1,23 @@
+# tools/product-feed/registry/subscriptions.yaml
+#
+# One entry per site that PULLS from the feed. `tags_any` is the routing
+# rule: GET /subscriptions/<site>/next claims the OLDEST queued candidate
+# whose `tags` list intersects this site's `tags_any` list.
+#
+# `site_origin_allow` (optional) additionally restricts a site to candidates
+# it (or a listed producer) originally sourced — use this to keep a niche
+# exclusive even if another site's tags happen to overlap. Omit it to let any
+# producer's matching-tag candidates be claimed (a genuinely shared feed).
+#
+# `max_queue_depth` is informational, not enforced by the hub: producers
+# should call GET /subscriptions/<site>/depth before sourcing more and back
+# off at/above this number — see queue_add.py-style callers.
+#
+# Adding a new site: see the product-feed-onboard-site skill. It walks
+# through picking tags, deciding whether to share or stay exclusive, and
+# wiring the site's own producer/consumer scripts.
+
+weirdgirlstore.com:
+  tags_any: [occult, novelty, decor, wearable, collectibles]
+  site_origin_allow: [weirdgirlstore.com]   # exclusive for now — first tenant, nothing else produces these tags yet
+  max_queue_depth: 12
