@@ -1,0 +1,49 @@
+name: guide-writer
+# Built fresh 2026-08-10 (not a best-impl-wins pick — first site to have this
+# shape), then generalized from reviewtattoo.com's install. Companion roles:
+# guide-idea-seeder (keeps the ideas/ backlog fed) and guide-publisher
+# (cadence-driven release, zero AI, cron-direct — separate archetype).
+source: "sites/reviewtattoo.com/ops/roles/guide-writer.md + ops/scripts/run-guide-writer.sh + ops/scripts/generate-guide-images.py"
+
+kind: worker-dispatched   # via run-worker.sh, same as content-writer/affiliate-editor
+schedule: "30 6 * * *"    # daily, staggered ~30min after guide-idea-seeder
+model: claude-sonnet-4-6
+owns_task_types: []                  # does NOT use ops/tasks/ — works ops/guide-queue/ instead
+produces_task_types: [engineering]   # schema-drift escalation, same convention as content-writer
+worker_deps: [tools/guide-queue (mounted read-only via .monorepo-tools), tools/media-gen (host process, reached via host.docker.internal:4780)]
+needs_rebuild_verify: true
+self_notifies: true              # run-guide-writer.sh posts its own Slack (bash-driven, like engineer)
+deploy: false                    # produces a DRAFT only — never touches .deploy-needed. guide-publisher deploys.
+scripts:
+  - run-guide-writer.sh.tmpl
+  - generate-guide-images.py     # not templated — no site-specific tokens beyond the theme dict, which IS the per-site customization point (see below)
+gitignore: []
+
+# Bash pre-check + Claude-for-prose-only + deterministic image gen, same
+# split as engineer (bash does the mechanical/gate work, model does only the
+# part that genuinely needs judgment). Requires a run-role.sh dispatch branch
+# (see content-writer's install for the shape — this one is simpler: no
+# turn-budget lookup, fixed --max-turns 25) since it needs the worker
+# container (Claude auth, git push) unlike guide-publisher which is fully
+# cron-direct and never spins a worker for the check itself.
+
+# THE ONE REQUIRED PER-SITE CUSTOMIZATION BEYOND {{PLACEHOLDERS}}:
+# generate-guide-images.py's BASE_STYLE + SUBJECTS dict is NOT templated —
+# it's a deliberate per-site creative decision (the site's actual color
+# palette / photographic mood), not a mechanical substitution. Read the
+# target site's tailwind.config.mjs (or DESIGN_SYSTEM.md) for its palette
+# and hand-write a new BASE_STYLE + SUBJECTS dict per install, the same way
+# a human art-directs a shoot brief once per brand. Copying reviewtattoo's
+# ink/cream/gold/blood-red recipe onto an unrelated site's guides would look
+# wrong immediately — do not skip this step to save time.
+
+placeholders: [SITE_NAME, BASE_URL, GO_PREFIX, CONTENT_COLLECTION, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, VOICE_SUMMARY, MEDIA_GEN_SITE_SLUG]
+placeholder_detection:
+  SITE_NAME: "brand/site name — same source as content-writer's SITE_NAME"
+  BASE_URL: "https://<domain>"
+  GO_PREFIX: "affiliate cloak path, default /go/ — only relevant if the site has affiliate links; omit that section of the role prompt if not"
+  CONTENT_COLLECTION: "the target content collection name + its zod schema file, e.g. 'guides, site/src/content.config.ts' — read the schema and list every field the writer must fill"
+  SLACK_CHANNEL_VAR: "same var name as content-writer/deployer already use for this site"
+  SLACK_CHANNEL_DEFAULT: "same default as content-writer/deployer already use for this site"
+  VOICE_SUMMARY: "2-4 sentence voice summary — copy from content-writer's role file if one already exists on this site rather than inventing a second voice"
+  MEDIA_GEN_SITE_SLUG: "the `site` field value passed to media-gen's /generate — lowercase, matches the domain's brand slug (e.g. 'reviewtattoo')"

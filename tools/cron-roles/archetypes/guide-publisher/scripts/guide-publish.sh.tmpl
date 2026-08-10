@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# Runs INSIDE the worker container (spun by run-guide-publisher.sh via
+# `docker compose run --rm --entrypoint bash worker ops/scripts/guide-publish.sh
+# <status> <file>`) — needs node/npm for the build gate and git/ssh for push,
+# which the cron container doesn't have. Mirrors deploy.sh's split for the
+# same reason.
+#
+# Promotes one guide-queue item to the live site: copies its generated
+# images into site/public/, strips queue-only frontmatter, writes the final
+# guide file into site/src/content/guides/, runs the build gate, commits,
+# pushes, queues a deploy (touches .deploy-needed — the existing deployer
+# role takes it from there, unchanged), and moves the queue item to released/.
+
+set -euo pipefail
+
+SOURCE_STATUS="${1:?usage: guide-publish.sh <status> <file>}"
+FILE="${2:?usage: guide-publish.sh <status> <file>}"
+
+REPO_ROOT="/work"
+cd "$REPO_ROOT"
+
+GUIDE_QUEUE_LIB_DIR="$REPO_ROOT/.monorepo-tools/guide-queue/lib"
+GQ_CLI="$GUIDE_QUEUE_LIB_DIR/cli.py"
+if [[ ! -f "$GQ_CLI" ]]; then
+  echo "guide-queue CLI not found at $GQ_CLI" >&2
+  exit 1
+fi
+
+if [ -f ".env.shared" ]; then set -a; . ".env.shared"; set +a; fi
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+fail() {
+  echo "[guide-publish] FAILED: $1" >&2
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-publish failed: $1" "danger" 2>/dev/null || true
+  exit 1
+}
+
+git config user.name "${GIT_USER_NAME:-{{GIT_USER_NAME}}}"
+git config user.email "${GIT_USER_EMAIL:-bot@{{SITE_NAME}}}"
+
+# --- Write the final guide file + copy images, all in one python step ---
+RESULT_JSON=$(GUIDE_QUEUE_LIB_DIR="$GUIDE_QUEUE_LIB_DIR" python3 - "$REPO_ROOT" "$SOURCE_STATUS" "$FILE" <<'PY'
+import json, os, sys, shutil
+from pathlib import Path
+
+sys.path.insert(0, os.environ["GUIDE_QUEUE_LIB_DIR"])
+import guide_queue as gq
+
+repo_root, status, filename = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
+item = gq.get_item(repo_root, status, filename)
+meta, body = dict(item["meta"]), item["body"]
+qid = meta.get("queue_id") or gq.slugify(meta.get("title", filename))
+
+# Match this site's OWN existing hero/card convention exactly (NOT a new
+# frontmatter field — nothing in the Astro templates would read one; see
+# generate-guide-images.py's docstring for the full reasoning):
+#   hero -> site/public/guides/heroes/<id>.jpg   (optional, glob-detected by
+#           site/src/pages/guides/[...slug].astro)
+#   card -> site/public/images/guides/cards/<id>.webp, referenced by adding
+#           this guide's id to site/src/lib/guideIcons.ts's guideIconMap
+heroes_dir = repo_root / "site" / "public" / "guides" / "heroes"
+cards_dir = repo_root / "site" / "public" / "images" / "guides" / "cards"
+heroes_dir.mkdir(parents=True, exist_ok=True)
+cards_dir.mkdir(parents=True, exist_ok=True)
+
+hero_src = meta.get("hero_image")
+card_src = meta.get("card_image")
+got_card = False
+if hero_src and (repo_root / hero_src).is_file():
+    shutil.copyfile(repo_root / hero_src, heroes_dir / f"{qid}.jpg")
+if card_src and (repo_root / card_src).is_file():
+    shutil.copyfile(repo_root / card_src, cards_dir / f"{qid}.webp")
+    got_card = True
+
+if got_card:
+    icons_ts = repo_root / "site" / "src" / "lib" / "guideIcons.ts"
+    text = icons_ts.read_text(encoding="utf-8")
+    entry = f"  '{qid}': '{qid}',"
+    if f"'{qid}':" not in text:
+        # Insert right before the map's closing `};` — same one-entry-per-line
+        # shape as every existing row.
+        text = text.replace("};\n", f"{entry}\n}};\n", 1) if text.rstrip().endswith("};") else text + f"\n{entry}\n"
+        icons_ts.write_text(text, encoding="utf-8")
+
+final_meta = gq.strip_queue_fields(meta)
+
+guides_dir = repo_root / "site" / "src" / "content" / "guides"
+guides_dir.mkdir(parents=True, exist_ok=True)
+guide_path = guides_dir / f"{qid}.md"
+if guide_path.exists():
+    print(json.dumps({"ok": False, "error": f"{guide_path} already exists — refusing to overwrite"}))
+    sys.exit(0)
+guide_path.write_text(gq.serialize_item(final_meta, body), encoding="utf-8")
+
+new_name = gq.move_item(repo_root, status, filename, "released")
+
+print(json.dumps({
+    "ok": True, "qid": qid, "guide_path": str(guide_path.relative_to(repo_root)),
+    "released_file": new_name, "title": meta.get("title", qid),
+}))
+PY
+)
+
+echo "[guide-publish] $RESULT_JSON"
+OK=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['ok'])")
+if [[ "$OK" != "True" ]]; then
+  ERR=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error','unknown'))")
+  fail "$ERR"
+fi
+
+GUIDE_PATH=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['guide_path'])")
+TITLE=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['title'])")
+
+# --- Build gate (mandatory, same as content-writer's) ---
+echo "[guide-publish] running build gate..."
+if ! (cd site && npm run build) ; then
+  fail "build failed for $GUIDE_PATH — reverting working tree, item stays in $SOURCE_STATUS/"
+fi
+
+# --- Commit + push ---
+git add "$GUIDE_PATH" "site/public/guides/heroes/" "site/public/images/guides/cards/" \
+  "site/src/lib/guideIcons.ts" "ops/guide-queue/" 2>/dev/null || true
+if git diff --cached --quiet; then
+  fail "nothing staged after a successful write — unexpected"
+fi
+git commit -m "content: publish guide \"$TITLE\" from guide-queue" -q
+if ! git push origin main 2>&1 | tail -5; then
+  fail "git push failed after commit — resolve manually, commit is local-only"
+fi
+
+touch "$REPO_ROOT/.deploy-needed"
+echo "[guide-publish] queued deploy via .deploy-needed"
+
+[[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":rocket: *{{SITE_NAME}}* guide-publisher released \"$TITLE\" ($GUIDE_PATH) — deploy queued" "good" 2>/dev/null || true
+echo "[guide-publish] done"
+exit 0

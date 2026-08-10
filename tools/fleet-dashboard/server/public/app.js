@@ -3761,8 +3761,167 @@ async function dhiReject(id, btn) {
   softRender();
 }
 
+/* ===================== GUIDE QUEUE ===================== */
+// Idea -> drafted -> ready -> released pipeline (tools/guide-queue). Same
+// per-site board shape as Tasks (reuses .board/.col/.col-head/.col-body css),
+// plus a preview modal (rendered body + hero/card images) and a per-site
+// cadence/ideas-min config editor (ops/tracked.yaml's manual: block).
+
+const GUIDE_COLS = ['ideas', 'drafted', 'ready', 'released', 'rejected'];
+const GUIDE_COL_LABEL = { ideas: 'Ideas', drafted: 'Drafted', ready: 'Ready', released: 'Released', rejected: 'Rejected' };
+let GUIDE = { site: null, data: null, config: null };
+
+async function renderGuides() {
+  const app = $('#app');
+  if (!GUIDE.site) GUIDE.site = STATE.taskSite || STATE.sites[0] || null;
+  const opts = STATE.sites.map((s) => `<option value="${esc(s)}" ${s === GUIDE.site ? 'selected' : ''}>${esc(s)}</option>`).join('');
+  app.innerHTML = `
+    <div class="task-toolbar">
+      <label class="muted">Site</label> <select id="guide-site">${opts}</select>
+      <div id="guide-config" class="muted" style="margin-left:16px;font-size:12px"></div>
+      <button class="btn primary sm" id="new-idea" style="margin-left:auto">+ New Idea</button>
+    </div>
+    <div id="guide-content"><div class="loading">Loading guide queue…</div></div>`;
+  $('#guide-site').addEventListener('change', (e) => { GUIDE.site = e.target.value; loadGuideBoard(); });
+  $('#new-idea').addEventListener('click', () => openGuideIdeaModal());
+  await loadGuideBoard();
+}
+
+async function loadGuideBoard() {
+  const content = $('#guide-content'), cfgEl = $('#guide-config');
+  if (!GUIDE.site) { content.innerHTML = '<div class="empty">No sites found.</div>'; return; }
+  let data, config;
+  try {
+    [data, config] = await Promise.all([
+      api('GET', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}`),
+      api('GET', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/config`),
+    ]);
+  } catch (e) { content.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  GUIDE.data = data; GUIDE.config = config;
+
+  cfgEl.innerHTML = `Cadence: <input id="cfg-cadence" type="number" min="1" value="${esc(config.guide_cadence_days)}" style="width:48px" /> days
+    &nbsp;·&nbsp; Ideas min: <input id="cfg-ideasmin" type="number" min="1" value="${esc(config.guide_ideas_min)}" style="width:44px" />`;
+  $('#cfg-cadence').addEventListener('change', (e) => setGuideConfig('guide_cadence_days', e.target.value));
+  $('#cfg-ideasmin').addEventListener('change', (e) => setGuideConfig('guide_ideas_min', e.target.value));
+
+  content.innerHTML = `<div class="board">${GUIDE_COLS.map((col) => {
+    const items = data[col] || [];
+    const cards = items.length ? items.map((it) => guideCard(it)).join('') : '<div class="empty" style="padding:20px;font-size:12px">empty</div>';
+    return `<div class="col"><div class="col-head"><h3>${GUIDE_COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div></div>`;
+  }).join('')}</div>`;
+  $$('.guide-card').forEach((el) => el.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    openGuideModal(el.dataset.status, el.dataset.file);
+  }));
+  $$('[data-guide-action]').forEach((btn) => btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const { guideAction: action, status, file } = btn.dataset;
+    moveGuide(status, file, action);
+  }));
+}
+
+async function setGuideConfig(field, value) {
+  try {
+    GUIDE.config = await api('PUT', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/config/${field}`, { value });
+    toast('cadence config saved');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+function guideCard(it) {
+  const cat = it.category ? `<span class="badge b-gray">${esc(it.category)}</span>` : '';
+  const src = it.source === 'ai' ? '<span class="badge b-blue">ai</span>' : '';
+  const imgTag = it.hasImages ? '<span title="has images">🖼️</span>' : '';
+  let actions = '';
+  if (it.status === 'drafted') {
+    actions = `<button class="btn sm primary" data-guide-action="accept" data-status="${esc(it.status)}" data-file="${esc(it.file)}">Accept</button>
+      <button class="btn sm danger" data-guide-action="reject" data-status="${esc(it.status)}" data-file="${esc(it.file)}">Reject</button>`;
+  } else if (it.status === 'ready') {
+    actions = `<button class="btn sm danger" data-guide-action="reject" data-status="${esc(it.status)}" data-file="${esc(it.file)}">Reject</button>`;
+  }
+  return `<div class="task guide-card" data-status="${esc(it.status)}" data-file="${esc(it.file)}">
+    <div class="t-title">${esc(it.title)} ${imgTag}</div>
+    <div class="t-meta">${cat}${src}</div>
+    ${it.excerpt ? `<div class="t-excerpt">${esc(it.excerpt)}</div>` : ''}
+    ${it.created ? `<div class="t-date">🕓 ${esc(it.created)}</div>` : ''}
+    ${actions ? `<div class="modal-foot" style="margin-top:6px">${actions}</div>` : ''}
+  </div>`;
+}
+
+async function moveGuide(status, file, action) {
+  const to = action === 'accept' ? 'ready' : 'rejected';
+  try {
+    await api('POST', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/${status}/${encodeURIComponent(file)}/move`, { to });
+    toast(action === 'accept' ? 'moved to ready' : 'rejected');
+    loadGuideBoard();
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function openGuideModal(status, file) {
+  const modal = $('#modal'), title = $('#modal-title'), bodyEl = $('#modal-body');
+  let item;
+  try { item = await api('GET', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/${status}/${encodeURIComponent(file)}`); }
+  catch (e) { toast(e.message, 'err'); return; }
+  const m = item.meta;
+  title.textContent = `${m.title || file} · ${GUIDE.site}`;
+  const images = [
+    item.images.hero ? `<img src="${item.images.hero}" alt="hero" style="max-width:100%;border-radius:6px;margin-bottom:8px" />` : '',
+    item.images.card ? `<img src="${item.images.card}" alt="card" style="max-width:240px;border-radius:6px" />` : '',
+  ].filter(Boolean).join(' ');
+  const fields = ['category', 'description', 'author', 'updated', 'published']
+    .filter((k) => m[k]).map((k) => `<div class="field"><label>${k}</label><div>${esc(String(m[k]))}</div></div>`).join('');
+  bodyEl.innerHTML = `
+    ${images ? `<div class="field">${images}</div>` : ''}
+    ${m.brief ? `<div class="field"><label>Brief</label><div class="muted">${esc(m.brief)}</div></div>` : ''}
+    ${fields}
+    <div class="field"><label>Body</label><div style="white-space:pre-wrap;max-height:50vh;overflow:auto;font-size:13px;line-height:1.5">${esc(item.body || '(no body yet)')}</div></div>
+    <div class="field"><label>Notes</label><textarea id="f-guide-notes" rows="3">${esc(m.notes || '')}</textarea></div>
+    <div class="modal-foot">
+      ${status === 'drafted' ? '<button class="btn primary" id="f-guide-accept">Accept → Ready</button><button class="btn danger" id="f-guide-reject">Reject</button>' : ''}
+      ${status === 'ready' ? '<button class="btn danger" id="f-guide-reject">Reject</button>' : ''}
+      <button class="btn" id="f-guide-save-notes">Save Notes</button>
+      <button class="btn" id="f-guide-cancel">Close</button>
+    </div>`;
+  modal.classList.remove('hidden');
+  $('#f-guide-cancel').onclick = closeModal;
+  $('#f-guide-save-notes').onclick = async () => {
+    try {
+      await api('PUT', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/${status}/${encodeURIComponent(file)}`, { notes: $('#f-guide-notes').value });
+      toast('notes saved'); closeModal(); loadGuideBoard();
+    } catch (e) { toast(e.message, 'err'); }
+  };
+  const acceptBtn = $('#f-guide-accept');
+  if (acceptBtn) acceptBtn.onclick = async () => { closeModal(); await moveGuide(status, file, 'accept'); };
+  const rejectBtn = $('#f-guide-reject');
+  if (rejectBtn) rejectBtn.onclick = async () => { closeModal(); await moveGuide(status, file, 'reject'); };
+}
+
+function openGuideIdeaModal() {
+  const modal = $('#modal'), title = $('#modal-title'), bodyEl = $('#modal-body');
+  title.textContent = `New guide idea · ${GUIDE.site}`;
+  bodyEl.innerHTML = `
+    <div class="field"><label>Title</label><input id="f-idea-title" placeholder="Short guide title" /></div>
+    <div class="field"><label>Category</label><input id="f-idea-category" placeholder="e.g. placement, aftercare, first-tattoo" /></div>
+    <div class="field"><label>Brief</label><textarea id="f-idea-brief" rows="5" placeholder="One-paragraph editorial angle for the writer"></textarea></div>
+    <div class="modal-foot">
+      <button class="btn" id="f-idea-cancel">Cancel</button>
+      <button class="btn primary" id="f-idea-save">Add Idea</button>
+    </div>`;
+  modal.classList.remove('hidden');
+  $('#f-idea-cancel').onclick = closeModal;
+  $('#f-idea-save').onclick = async () => {
+    const title2 = $('#f-idea-title').value.trim();
+    if (!title2) { toast('title required', 'err'); return; }
+    try {
+      await api('POST', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/ideas`, {
+        title: title2, category: $('#f-idea-category').value.trim(), brief: $('#f-idea-brief').value.trim(), source: 'human',
+      });
+      toast('idea added'); closeModal(); loadGuideBoard();
+    } catch (e) { toast(e.message, 'err'); }
+  };
+}
+
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'productfeed', 'analytics', 'compliance', 'lint', 'deploys', 'errors', 'activity', 'devsandbox', 'sitefacts'];
+const TOP_VIEWS = ['control', 'cron', 'containers', 'git', 'tasks', 'taskbudget', 'aiinventory', 'aiusage', 'datahub', 'datahubimages', 'productfeed', 'analytics', 'compliance', 'lint', 'deploys', 'errors', 'activity', 'devsandbox', 'sitefacts', 'guides'];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -3832,6 +3991,7 @@ function render() {
   else if (STATE.view === 'activity') renderActivity();
   else if (STATE.view === 'devsandbox') renderDevSandbox();
   else if (STATE.view === 'sitefacts') renderSiteFacts();
+  else if (STATE.view === 'guides') renderGuides();
 }
 
 function renderAgent(role) {

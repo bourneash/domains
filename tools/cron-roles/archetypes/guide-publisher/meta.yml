@@ -1,0 +1,45 @@
+name: guide-publisher
+source: "sites/reviewtattoo.com/ops/scripts/run-guide-publisher.sh + ops/scripts/guide-publish.sh"
+
+# KIND: cron-direct (NOT worker-dispatched) — same shape as deployer/watchdog.
+# Never invokes Claude, ever. No run-role.sh branch, no run-worker.sh spin for
+# the gate itself — only the real work (build gate needs node/npm) spins the
+# worker container directly, exactly like deploy.sh does
+# (`docker compose run --rm --entrypoint bash worker ops/scripts/guide-publish.sh`).
+kind: cron-direct
+cron_invocation: "bash ops/scripts/run-guide-publisher.sh"
+
+schedule: "7,37 * * * *"   # every 30 min, cheap gate (cadence check), fires zero cost most ticks
+model: none                 # 100% bash/python, zero AI tokens, always
+owns_task_types: []
+produces_task_types: []
+worker_deps: []              # reuses the existing worker image (npm/git already present)
+needs_rebuild_verify: true
+self_notifies: true          # guide-publish.sh posts its own Slack (success + failure)
+deploy: true                 # this queues the deploy (touches .deploy-needed) — the site's existing deployer role does the actual CF push/build/smoke, unchanged
+scripts:
+  - run-guide-publisher.sh.tmpl
+  - guide-publish.sh.tmpl
+gitignore: []
+
+# Cadence + preference: releases the oldest `ready/` item if one exists
+# (explicit human/AI accept via the dashboard), else falls back to the
+# oldest `drafted/` item so an unattended queue still ships on schedule —
+# the accept/reject flow is a quality gate layered on top, not a hard
+# requirement to release at all.
+#
+# Reads `ops/tracked.yaml`'s `manual.guide_cadence_days` at runtime (NOT
+# baked into the cron schedule literal) — this is what makes "release cadence
+# configurable per site" a live runtime setting instead of a cron-file edit +
+# rebuild. State: `ops/guide-queue/.last-released` (unix timestamp, git-
+# tracked so cadence state survives a container rebuild/host move).
+
+placeholders: [SITE_NAME, SITE_NAME_SLUG, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, GIT_USER_NAME, GIT_USER_EMAIL, BUILD_CMD]
+placeholder_detection:
+  SITE_NAME: "domain name, e.g. example.com"
+  SITE_NAME_SLUG: "same, dash-safe, used only for the docker run --name prefix"
+  SLACK_CHANNEL_VAR: "same var name content-writer/deployer already use for this site"
+  SLACK_CHANNEL_DEFAULT: "same default content-writer/deployer already use for this site"
+  GIT_USER_NAME: "same git identity content-writer/deployer already use for this site"
+  GIT_USER_EMAIL: "same git identity content-writer/deployer already use for this site"
+  BUILD_CMD: "the site's build gate command, default 'cd site && npm run build' — match whatever deploy.sh already uses for this site, including any SKIP_LOCAL_BUILD musl-defer variant"

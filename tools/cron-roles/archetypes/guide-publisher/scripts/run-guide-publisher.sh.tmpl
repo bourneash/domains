@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Guide Publisher — cron-direct (same kind as deployer/watchdog: no
+# run-role.sh branch, no worker container spun unless there's real work).
+# 100% bash/python, zero Claude tokens, ever.
+#
+# Cheap gate runs right here in the CRON container: is a release actually due
+# (per ops/tracked.yaml's manual.guide_cadence_days), and is there anything
+# ready to release? Only when both are true does it spin the worker container
+# (needs node/npm for the build gate + git/ssh for push) to do the real work
+# via ops/scripts/guide-publish.sh — same split deploy.sh/run-deployer.sh use.
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+GQ_CLI="$REPO_ROOT/.monorepo-tools/guide-queue/lib/cli.py"
+[[ -f "$GQ_CLI" ]] || GQ_CLI="$REPO_ROOT/../../tools/guide-queue/lib/cli.py"
+if [[ ! -f "$GQ_CLI" ]]; then
+  echo "guide-queue CLI not found — cannot run" >&2
+  exit 1
+fi
+
+if [ -f ".env.shared" ]; then set -a; . ".env.shared"; set +a; fi
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+
+CADENCE_DAYS=$(python3 -c "
+import yaml
+try:
+    d = yaml.safe_load(open('ops/tracked.yaml')) or {}
+    v = (d.get('manual') or {}).get('guide_cadence_days')
+    print(int(v) if v else 5)
+except Exception:
+    print(5)
+" 2>/dev/null || echo 5)
+
+LAST_RELEASED_FILE="ops/guide-queue/.last-released"
+NOW=$(date +%s)
+if [[ -f "$LAST_RELEASED_FILE" ]]; then
+  LAST=$(cat "$LAST_RELEASED_FILE")
+else
+  LAST=0
+fi
+ELAPSED_DAYS=$(( (NOW - LAST) / 86400 ))
+
+if [[ "$ELAPSED_DAYS" -lt "$CADENCE_DAYS" ]]; then
+  echo "[guide-publisher] last release ${ELAPSED_DAYS}d ago, cadence is ${CADENCE_DAYS}d — not due yet"
+  exit 0
+fi
+
+# Prefer ready/ (explicitly accepted); fall back to oldest drafted/ item if
+# ready/ is empty so an unattended queue still releases on cadence without
+# requiring a human to click "accept" in the dashboard (the ack/accept flag
+# is an optional gate on top of this, not a hard requirement).
+CANDIDATE=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" ready)
+SOURCE_STATUS="ready"
+if [[ "$CANDIDATE" == "null" ]]; then
+  CANDIDATE=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" drafted)
+  SOURCE_STATUS="drafted"
+fi
+if [[ "$CANDIDATE" == "null" ]]; then
+  echo "[guide-publisher] release is due but nothing is ready/drafted to release"
+  exit 0
+fi
+
+CANDIDATE_FILE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['file'])")
+CANDIDATE_TITLE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['meta'].get('title',''))")
+echo "[guide-publisher] releasing from $SOURCE_STATUS/: $CANDIDATE_FILE — $CANDIDATE_TITLE"
+
+RUN_NAME="{{SITE_NAME_SLUG}}-guide-publish-$$"
+cleanup_container() { docker rm -f "$RUN_NAME" >/dev/null 2>&1 || true; }
+trap cleanup_container EXIT INT TERM
+
+set +e
+timeout -k 30 900 docker compose run --rm --name "$RUN_NAME" --entrypoint bash worker \
+  ops/scripts/guide-publish.sh "$SOURCE_STATUS" "$CANDIDATE_FILE"
+STATUS=$?
+set -e
+
+if [[ $STATUS -ne 0 ]]; then
+  echo "[guide-publisher] publish failed (exit=$STATUS) for $CANDIDATE_FILE" >&2
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-publisher failed releasing \"$CANDIDATE_TITLE\" (exit=$STATUS) — item left in $SOURCE_STATUS/ for retry next cadence tick" "danger" 2>/dev/null || true
+  exit $STATUS
+fi
+
+echo "$NOW" > "$LAST_RELEASED_FILE"
+git add "$LAST_RELEASED_FILE" 2>/dev/null || true
+if ! git diff --cached --quiet 2>/dev/null; then
+  git commit -m "guide-queue: update last-released timestamp" -q || true
+  git push origin main -q 2>&1 | tail -3 || true
+fi
+
+echo "[guide-publisher] done"
+exit 0

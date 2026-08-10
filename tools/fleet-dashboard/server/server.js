@@ -9,6 +9,7 @@ const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
 const git = require('./git');
 const tasks = require('./tasks');
+const guideQueue = require('./guideQueue');
 const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
@@ -536,6 +537,55 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.delete('/api/tasks/:slug/:column/:file', requireSite, (req, res) => {
     try { tasks.remove(root, req.params.slug, req.params.column, req.params.file); res.json({ ok: true }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  // Guide Queue CRUD --------------------------------------------------------
+  // Idea -> drafted -> ready -> released pipeline (tools/guide-queue). Same
+  // shape as the Tasks routes above, plus image serving + per-site cadence
+  // config (ops/tracked.yaml's manual.guide_cadence_days / guide_ideas_min).
+  app.get('/api/guide-queue', (_req, res) => {
+    try { res.json(guideQueue.listAll(root, discoverSites(root))); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
+  app.get('/api/guide-queue/:slug', requireSite, (req, res) => {
+    try { res.json(guideQueue.list(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.get('/api/guide-queue/:slug/config', requireSite, (req, res) => {
+    try { res.json(guideQueue.getConfig(root, req.params.slug)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.put('/api/guide-queue/:slug/config/:field', requireSite, (req, res) => {
+    try { res.json(guideQueue.setConfigField(root, req.params.slug, req.params.field, (req.body || {}).value)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/guide-queue/:slug/ideas', requireSite, (req, res) => {
+    try { res.json({ ok: true, file: guideQueue.addIdea(root, req.params.slug, req.body || {}) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.get('/api/guide-queue/:slug/image', requireSite, (req, res) => {
+    try { res.sendFile(guideQueue.imagePath(root, req.params.slug, req.query.path)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.get('/api/guide-queue/:slug/:status/:file', requireSite, (req, res) => {
+    try { res.json(guideQueue.get(root, req.params.slug, req.params.status, req.params.file)); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.put('/api/guide-queue/:slug/:status/:file', requireSite, (req, res) => {
+    try { res.json({ ok: true, ...guideQueue.update(root, req.params.slug, req.params.status, req.params.file, req.body || {}) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
+  });
+
+  app.post('/api/guide-queue/:slug/:status/:file/move', requireSite, (req, res) => {
+    try { res.json({ ok: true, ...guideQueue.move(root, req.params.slug, req.params.status, req.params.file, (req.body || {}).to) }); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: e.message }); }
   });
 

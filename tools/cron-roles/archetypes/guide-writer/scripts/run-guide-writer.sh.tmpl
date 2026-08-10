@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Guide Writer — self-contained (mirrors run-engineer.sh's shape): cheap bash
+# gate first (is there a pending idea at all?), Claude invoked only for the
+# prose itself, then a deterministic bash/python step generates the two
+# theme-locked images (zero Claude tokens — see generate-guide-images.py) and
+# commits everything in one shot. Called from run-role.sh's guide-writer
+# branch, which handles the lock/log/status-file plumbing.
+#
+# This produces a DRAFT — ops/guide-queue/drafted/<file> — not a live guide.
+# Nothing here touches site/src/content/ or .deploy-needed. Only the separate
+# guide-publisher role (cadence-driven, zero Claude tokens) promotes a draft
+# to the live site.
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+GUIDE_QUEUE_LIB_DIR="$REPO_ROOT/.monorepo-tools/guide-queue/lib"
+[[ -d "$GUIDE_QUEUE_LIB_DIR" ]] || GUIDE_QUEUE_LIB_DIR="$REPO_ROOT/../../tools/guide-queue/lib"
+MEDIA_GEN_CLIENT_DIR="$REPO_ROOT/.monorepo-tools/media-gen/client"
+[[ -d "$MEDIA_GEN_CLIENT_DIR" ]] || MEDIA_GEN_CLIENT_DIR="$REPO_ROOT/../../tools/media-gen/client"
+export GUIDE_QUEUE_LIB_DIR MEDIA_GEN_CLIENT_DIR
+GQ_CLI="$GUIDE_QUEUE_LIB_DIR/cli.py"
+
+if [[ ! -f "$GQ_CLI" ]]; then
+  echo "guide-queue CLI not found at $GQ_CLI — cannot run" >&2
+  exit 1
+fi
+
+if [ -f ".env.shared" ]; then set -a; . ".env.shared"; set +a; fi
+
+CLAUDE_TRACKED="$REPO_ROOT/.monorepo-tools/scripts/claude-tracked.sh"
+[[ -x "$CLAUDE_TRACKED" ]] || CLAUDE_TRACKED="$REPO_ROOT/../../tools/scripts/claude-tracked.sh"
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+
+# --- Gate: anything pending? ---
+OLDEST_JSON=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" ideas)
+if [[ "$OLDEST_JSON" == "null" ]]; then
+  echo "[guide-writer] no ideas pending — nothing to write, skipping Claude entirely"
+  exit 0
+fi
+
+IDEA_FILE=$(echo "$OLDEST_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['file'])")
+IDEA_TITLE=$(echo "$OLDEST_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['meta'].get('title',''))")
+IDEA_BRIEF=$(echo "$OLDEST_JSON" | python3 -c "import json,sys; print(json.load(sys.stdin)['meta'].get('brief',''))")
+
+echo "[guide-writer] picked idea: $IDEA_FILE — $IDEA_TITLE"
+
+# --- Move idea -> drafted (queue_status updated by move_item itself) ---
+MOVE_RESULT=$(python3 "$GQ_CLI" move "$REPO_ROOT" ideas "$IDEA_FILE" drafted)
+DRAFT_FILE=$(echo "$MOVE_RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin)['file'])")
+echo "[guide-writer] moved to ops/guide-queue/drafted/$DRAFT_FILE"
+
+# --- Claude: prose only ---
+PROMPT="$(cat ops/roles/guide-writer.md)
+
+Item to write: ops/guide-queue/drafted/$DRAFT_FILE
+Title: $IDEA_TITLE
+Brief: $IDEA_BRIEF
+
+Today is $(date -Iseconds). The current working directory is $(pwd). Begin."
+
+set +e
+CRON_ROLE=guide-writer "$CLAUDE_TRACKED" "$PROMPT" \
+  --max-turns 25 \
+  --dangerously-skip-permissions \
+  --model claude-sonnet-4-6
+STATUS=$?
+set -e
+
+if [[ $STATUS -ne 0 ]]; then
+  echo "[guide-writer] Claude turn failed (exit=$STATUS) — leaving draft in place for next run's retry" >&2
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-writer failed writing \"$IDEA_TITLE\" (exit=$STATUS)" "danger" 2>/dev/null || true
+  exit $STATUS
+fi
+
+# --- Validate the draft actually got real frontmatter, not a no-op ---
+VALID=$(python3 "$GQ_CLI" get "$REPO_ROOT" drafted "$DRAFT_FILE" | python3 -c "
+import json, sys
+item = json.load(sys.stdin)
+m = item['meta']
+ok = bool(m.get('title')) and bool(m.get('description')) and bool(m.get('category')) and len(item['body'].strip()) > 400
+print('ok' if ok else 'incomplete')
+")
+if [[ "$VALID" != "ok" ]]; then
+  echo "[guide-writer] draft is missing required fields or body after Claude's turn — treating as failure" >&2
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-writer produced an incomplete draft for \"$IDEA_TITLE\" — needs manual review at ops/guide-queue/drafted/$DRAFT_FILE" "danger" 2>/dev/null || true
+  exit 1
+fi
+
+# --- Deterministic image generation (zero Claude tokens) ---
+echo "[guide-writer] generating theme-locked hero + card images (nanobanana, comfyui fallback)..."
+set +e
+python3 ops/scripts/generate-guide-images.py "$REPO_ROOT" drafted "$DRAFT_FILE" --backend nanobanana --fallback-backend comfyui
+IMG_STATUS=$?
+set -e
+if [[ $IMG_STATUS -ne 0 ]]; then
+  echo "[guide-writer] image generation failed — committing the text draft anyway, images can be regenerated later" >&2
+fi
+
+# --- Commit (harness-owned, not Claude's — see role prompt) ---
+git add "ops/guide-queue/drafted/$DRAFT_FILE" "ops/guide-queue/drafted-assets/" "site/src/lib/affiliate.ts" 2>/dev/null || true
+if ! git diff --cached --quiet; then
+  git commit -m "guide-queue: draft \"$IDEA_TITLE\"" -q
+  echo "[guide-writer] committed draft"
+else
+  echo "[guide-writer] nothing staged to commit (unexpected — check above for errors)" >&2
+fi
+
+[[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":memo: *{{SITE_NAME}}* guide-writer drafted \"$IDEA_TITLE\" — preview in the Fleet Dashboard Guides tab" "good" 2>/dev/null || true
+echo "[guide-writer] done"
+exit 0

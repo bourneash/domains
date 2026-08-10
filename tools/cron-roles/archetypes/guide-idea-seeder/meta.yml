@@ -1,0 +1,32 @@
+name: guide-idea-seeder
+source: "sites/reviewtattoo.com/ops/roles/guide-idea-seeder.md + ops/scripts/run-guide-seeder.sh"
+kind: worker-dispatched
+schedule: "0 6 * * *"     # daily, before guide-writer's slot
+model: claude-sonnet-4-6
+owns_task_types: []
+produces_task_types: []
+worker_deps: [tools/guide-queue (mounted read-only via .monorepo-tools)]
+needs_rebuild_verify: true
+self_notifies: true        # bash-driven, posts its own Slack only when it actually seeds something
+deploy: false
+scripts:
+  - run-guide-seeder.sh.tmpl
+gitignore: []
+
+# Companion to guide-writer — this is the "seeder role" Jesse asked for
+# explicitly: if a human doesn't keep ops/guide-queue/ideas/ fed, the AI
+# tops it up itself rather than letting the writer starve. Requires a
+# run-role.sh dispatch branch identical in shape to engineer's (bash script
+# does the gate + conditional claude invoke itself).
+
+placeholders: [SITE_NAME, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, CONTENT_COLLECTION, IDEA_GUIDANCE]
+placeholder_detection:
+  SITE_NAME: "brand/site name"
+  SLACK_CHANNEL_VAR: "same var name content-writer/deployer already use for this site"
+  SLACK_CHANNEL_DEFAULT: "same default content-writer/deployer already use for this site"
+  CONTENT_COLLECTION: "the target collection + its schema file, e.g. 'guides, site/src/content.config.ts'"
+  IDEA_GUIDANCE: |
+    2-5 sentences: what topical lanes this site's guides cover, which lane is
+    thin and should be favored, what makes a good vs. generic-listicle idea
+    for THIS site specifically. Do not leave generic — read a few of the
+    site's existing best-performing guides for tone/scope before writing this.
