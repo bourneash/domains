@@ -92,11 +92,16 @@ if guide_path.exists():
     sys.exit(0)
 guide_path.write_text(gq.serialize_item(final_meta, body), encoding="utf-8")
 
-new_name = gq.move_item(repo_root, status, filename, "released")
+# Deliberately NOT moving the queue item to released/ here — that has to
+# wait until the build gate below actually passes (found as a real bug via
+# a live reviewtattoo.com e2e test, 2026-08-10: moving first meant a build
+# failure left the item mis-filed as "released" while nothing was actually
+# published, and the fail() message's "item stays in $SOURCE_STATUS/" was
+# false). See the move_item() call after the build gate instead.
 
 print(json.dumps({
     "ok": True, "qid": qid, "guide_path": str(guide_path.relative_to(repo_root)),
-    "released_file": new_name, "title": meta.get("title", qid),
+    "title": meta.get("title", qid),
 }))
 PY
 )
@@ -109,13 +114,22 @@ if [[ "$OK" != "True" ]]; then
 fi
 
 GUIDE_PATH=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['guide_path'])")
+QID=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['qid'])")
 TITLE=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['title'])")
 
 # --- Build gate (mandatory, same as content-writer's) ---
 echo "[guide-publish] running build gate..."
 if ! (cd site && npm run build) ; then
-  fail "build failed for $GUIDE_PATH — reverting working tree, item stays in $SOURCE_STATUS/"
+  fail "build failed for $GUIDE_PATH — item stays in $SOURCE_STATUS/ for retry"
 fi
+
+# --- Only now move the queue item — build is proven good ---
+GUIDE_QUEUE_LIB_DIR="$GUIDE_QUEUE_LIB_DIR" REPO_ROOT="$REPO_ROOT" SOURCE_STATUS="$SOURCE_STATUS" FILE="$FILE" python3 - <<'PYMOVE'
+import os, sys
+sys.path.insert(0, os.environ["GUIDE_QUEUE_LIB_DIR"])
+import guide_queue as gq
+gq.move_item(os.environ["REPO_ROOT"], os.environ["SOURCE_STATUS"], os.environ["FILE"], "released")
+PYMOVE
 
 # --- Commit + push ---
 git add "$GUIDE_PATH" "site/public/guides/heroes/" "site/public/images/guides/cards/" \
