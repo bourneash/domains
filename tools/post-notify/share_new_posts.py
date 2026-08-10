@@ -6,6 +6,10 @@ pattern into one tool every site config-drives. Scans a content collection,
 diffs against a per-site state file, and posts a Block Kit card (cover image
 + title + description + context line + "Read" button) for anything new.
 
+content_dir is scanned recursively (subfolders like posts/<pillar>/*.md are
+picked up), and url_template may reference frontmatter fields declared in
+url_fields (e.g. {pillar}) alongside the built-in {base}/{slug}.
+
 State: <state_file> maps slug -> ISO timestamp shared.
   - First run (no state file): SEED only. Every current post is recorded as
     already-shared and nothing is posted, so we never flood the channel with
@@ -95,7 +99,10 @@ def build_card(cfg, slug, fm):
         if image:
             break
     base = cfg["base_url"].rstrip("/")
-    url = cfg["url_template"].format(base=base, slug=slug)
+    # url_fields lets a per-post frontmatter value (e.g. a pillar/category used
+    # to route the URL) fill a {placeholder} in url_template alongside {slug}.
+    url_vars = {f: field(fm, f) for f in cfg.get("url_fields", [])}
+    url = cfg["url_template"].format(base=base, slug=slug, **url_vars)
     img = (base + image) if image.startswith("/") else image
     ctx = render_context(cfg, fm)
 
@@ -192,13 +199,19 @@ def main():
         print("[share-new-posts] content dir not found:", content_dir)
         return 0
 
-    for fn in sorted(os.listdir(content_dir)):
-        if not (fn.endswith(".md") or fn.endswith(".mdx")):
-            continue
+    post_files = []
+    for root, dirs, files in os.walk(content_dir):
+        dirs.sort()
+        for fn in sorted(files):
+            if fn.endswith(".md") or fn.endswith(".mdx"):
+                post_files.append(os.path.join(root, fn))
+
+    for path in sorted(post_files):
+        fn = os.path.basename(path)
         slug = fn.rsplit(".", 1)[0]
         if slug in state:
             continue
-        with open(os.path.join(content_dir, fn), encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             fm = frontmatter(f.read())
 
         if unlisted_field and field(fm, unlisted_field).lower() == "true":
