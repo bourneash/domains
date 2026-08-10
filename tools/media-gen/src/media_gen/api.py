@@ -35,28 +35,67 @@ from . import comfyui, nanobanana, store
 app = FastAPI(title="media-gen", version="0.1.0")
 
 # This host has real, non-loopback interfaces (LAN, a VPN tunnel) beyond
-# docker0 — binding uvicorn to 0.0.0.0 without this middleware would expose
-# generation (and the ComfyUI/CloakBrowser machinery behind it) to whatever
-# else can reach those networks, not just this host and its own containers.
-# uvicorn can only bind one --host value, and the caller that actually needs
-# this service (a site's cron container, via host.docker.internal) arrives
-# over the docker0 bridge, not loopback — so binding loopback-only breaks
-# that real caller, and binding docker0-only breaks host-local testing/dev.
-# Bind 0.0.0.0 and enforce the intended reachability here instead, where
-# it's provable in one place regardless of which interfaces this host has.
+# docker's bridges — binding uvicorn to 0.0.0.0 without this middleware
+# would expose generation (and the ComfyUI/CloakBrowser machinery behind it)
+# to whatever else can reach those networks, not just this host and its own
+# containers. uvicorn can only bind one --host value, and the caller that
+# actually needs this service (a site's cron/worker container, via
+# host.docker.internal) arrives over WHICHEVER bridge that site's own
+# `docker compose` project created — every project gets its own bridge
+# (e.g. `reviewtattoo-ops_ops`, a distinct 172.x.x.0/24 subnet), not the
+# literal default `docker0` bridge. An earlier version of this allowlist
+# only trusted docker0 itself and 403'd every real per-project caller
+# except a container on the default bridge — found + fixed 2026-08-10
+# wiring the first real caller (reviewtattoo's guide-writer role, running
+# in the `reviewtattoo-ops_ops` network, not docker0). Bind 0.0.0.0 and
+# enforce the intended reachability here instead, by enumerating every
+# Docker bridge interface on the host (docker0 + every project's `br-*`),
+# not just one hardcoded name.
+
+
+def _discover_docker_bridge_nets(ip_addr_output: str) -> list[ipaddress.IPv4Network]:
+    """Parse `ip -4 -o addr show` output into every docker0/br-* bridge's
+    subnet. Pulled out as a pure function (rather than inlined at import
+    time) so it's directly unit-testable against captured `ip` output —
+    see tests/test_middleware.py's br-* regression test.
+
+    Lines look like: "3: docker0    inet 172.30.0.1/24 brd ..." or
+    "7: br-a1b2c3d4e5f6    inet 172.30.65.1/24 brd ...". Docker names the
+    default bridge "docker0" and every user-defined/compose-project bridge
+    "br-<network-id>" — matching that prefix (plus the exact docker0 name)
+    is how the daemon itself distinguishes "a docker bridge" from a LAN/VPN
+    interface, without needing to shell out to `docker network ls` (which
+    needs the socket mounted; this doesn't).
+    """
+    nets: list[ipaddress.IPv4Network] = []
+    for line in ip_addr_output.splitlines():
+        parts = line.split()
+        if len(parts) < 4:
+            continue
+        iface = parts[1].rstrip(":")
+        if iface != "docker0" and not iface.startswith("br-"):
+            continue
+        try:
+            inet_idx = parts.index("inet")
+        except ValueError:
+            continue
+        cidr = parts[inet_idx + 1]  # e.g. "172.30.65.1/24"
+        try:
+            nets.append(ipaddress.ip_network(cidr, strict=False))
+        except ValueError:
+            pass
+    return nets
+
+
 _ALLOWED_NETS = [ipaddress.ip_network("127.0.0.0/8")]
 try:
     import subprocess
-    out = subprocess.run(
-        ["ip", "-4", "-o", "addr", "show", "docker0"], capture_output=True, text=True, timeout=2,
+    _ip_out = subprocess.run(
+        ["ip", "-4", "-o", "addr", "show"], capture_output=True, text=True, timeout=2,
     ).stdout
-    # e.g. "3: docker0    inet 172.30.0.1/24 brd ..."
-    for tok in out.split():
-        if "/" in tok and tok[0].isdigit():
-            _ALLOWED_NETS.append(ipaddress.ip_network(tok, strict=False))
-            break
+    _ALLOWED_NETS.extend(_discover_docker_bridge_nets(_ip_out))
 except Exception:
-    pass  # docker0 not present (e.g. Docker not installed) — loopback-only is still correct
+    pass  # docker not present / ip unavailable — loopback-only is still correct
 
 
 class _RestrictToLocalAndDocker(BaseHTTPMiddleware):

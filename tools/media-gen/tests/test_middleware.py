@@ -45,3 +45,29 @@ def test_docker0_subnet_client_is_allowed(monkeypatch):
     c = STC(app, client=("172.30.0.7", 12345))  # a container's IP on that bridge
     r = c.get("/health")
     assert r.status_code == 200
+
+
+def test_discover_docker_bridge_nets_includes_project_bridges_not_just_docker0():
+    """Regression for the real 2026-08-10 incident: reviewtattoo's own
+    `docker compose` project runs on a bridge named `br-<hash>`, NOT the
+    literal `docker0` — an earlier version of this allowlist only matched
+    the exact name `docker0` and 403'd every real per-project caller. Feed
+    the discovery function real captured `ip -4 -o addr show` output
+    (docker0 plus two distinct project bridges, plus a non-bridge interface
+    that must NOT be picked up) and confirm all bridge subnets are found."""
+    import ipaddress
+    from media_gen.api import _discover_docker_bridge_nets
+
+    sample_output = (
+        "1: lo    inet 127.0.0.1/8 scope host lo\\       valid_lft forever preferred_lft forever\n"
+        "2: eth0    inet 10.0.2.15/24 brd 10.0.2.255 scope global eth0\\       valid_lft forever preferred_lft forever\n"
+        "3: docker0    inet 172.30.0.1/24 brd 172.30.0.255 scope global docker0\\       valid_lft forever preferred_lft forever\n"
+        "19: br-72e38143e309    inet 172.30.65.1/24 brd 172.30.65.255 scope global br-72e38143e309\\       valid_lft forever preferred_lft forever\n"
+        "26: br-6526c42d28fd    inet 172.30.53.1/24 brd 172.30.53.255 scope global br-6526c42d28fd\\       valid_lft forever preferred_lft forever\n"
+    )
+    nets = _discover_docker_bridge_nets(sample_output)
+    assert ipaddress.ip_network("172.30.0.0/24") in nets       # docker0
+    assert ipaddress.ip_network("172.30.65.0/24") in nets      # a real project bridge (reviewtattoo's)
+    assert ipaddress.ip_network("172.30.53.0/24") in nets      # a second, different project bridge
+    assert ipaddress.ip_network("10.0.2.0/24") not in nets     # eth0/LAN must NOT be swept in
+    assert len(nets) == 3
