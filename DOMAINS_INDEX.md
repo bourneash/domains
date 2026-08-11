@@ -18,11 +18,11 @@
 | xxxtea.com 			|   ✅   | Fragrance-ad tea + tea-ware review site — "restraint is the joke" voice, honey/amber on oolong-dark, affiliate 				|
 | amputeenews.com 		|   ✅   | Amputee News — source-backed practical news/guide desk for amputees and limb-different people; live on CF Workers Builds, ops/cron autonomy active, Amazon Associates pending real tag 	|
 | newmomshop.com 	|   🟢   | Dana-led pregnancy, postpartum, and newborn gear-guide affiliate site; static v1 built, Workers Builds connection pending |
+| weirdassstuff.com 	|   🟢   | "You didn't know you needed this" — DudeIWantThat-style weird/novelty product-stream feed, 39-item launch catalog across 9 categories, autonomous scout/publish pipeline; Workers Builds connection pending |
 
 
 
 ## Coming Soon (scaffolded, awaiting brief or CF Worker connection)
-| weirdassstuff.com |   🟡   | `weirdassstuff-com`| Scaffolded, awaiting brief; CF Worker connection pending         |
 | weirdgirlstore.com |   🟢   | `weirdgirlstore-com`| Barbie-goth curio affiliate shop live; brief locked, ops/board scaffolded, auto-deploy verified |
 
 | Domain 			| In use | Worker name      | Notes                                                              |

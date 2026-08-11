@@ -375,6 +375,26 @@ sites:
     - branding
     - manual
     manual: {}
+  weirdassstuff.com:
+    active: true
+    cf_zone: weirdassstuff.com
+    github: bourneash/weirdassstuff.com
+    smoke_string: Weird Ass Stuff
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   weirdgirlstore.com:
     active: true
     cf_zone: weirdgirlstore.com
