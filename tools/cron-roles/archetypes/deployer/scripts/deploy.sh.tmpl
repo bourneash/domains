@@ -130,6 +130,14 @@ main() {
     log "running npm ci..."
     npm ci
 
+    # Stale local workerd/miniflare state can outlive a @astrojs/cloudflare
+    # bump: a newer workerd binary opening an older .wrangler/state sqlite
+    # schema throws (e.g. "_cf_ALARM has 3 columns but 2 values were
+    # supplied") and takes the build down with it. This directory is fully
+    # disposable — miniflare recreates it — so clear it before every build
+    # rather than wait for the next adapter bump to trip over it again.
+    rm -rf .wrangler/state
+
     log "running security audit (production deps)..."
     # Block only on high+ severity in RUNTIME deps — those are what ship in the
     # static Worker bundle. Build/deploy tooling never reaches visitors.
