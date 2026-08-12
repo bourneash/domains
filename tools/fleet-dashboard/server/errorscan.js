@@ -45,6 +45,13 @@ const WARN_RE = /\bwarn(?:ing)?\b/i;
 const SUPPRESS_RE = [
   /reaper cleanup: pid=\d+, wstatus=0\b/i,
   /\bnon-fatal\b/i,   // "\bfatal\b" matches inside "non-fatal" — the negation flips the meaning
+  // Astro prints every successfully generated route. Article slugs are content,
+  // not status text, so names containing "warning", "failure", or "fatal" must
+  // never become incidents.
+  /^\d{2}:\d{2}:\d{2}\s+[├└]─\s+\/\S+\s+\(\+\d+(?:\.\d+)?ms\)\s*$/i,
+  // Successful batch summaries still contain the word "failed". Preserve
+  // nonzero failures as signal while dropping the explicit zero-failure case.
+  /\bDone\.\s+\d+\s+succeeded,\s+0\s+failed\.\s*$/i,
 ];
 
 function sh(cmd, args, opts = {}) {
@@ -113,6 +120,29 @@ function parseLine(raw) {
   return { tsMs, tsIso, text: m[3] };
 }
 
+function alertDecision(c, recent1h, prevAlertAt, now) {
+  const crits = recent1h.filter((m) => m.level === 'crit');
+  const errorish = recent1h.filter((m) => m.level === 'error' || m.level === 'crit');
+  const hasCrit1h = crits.length > 0;
+  const errorish1h = errorish.length;
+  // A CRIT alert should show the latest critical line that explains its label,
+  // even when a later warning was logged. Threshold ERROR alerts show the latest
+  // error/critical line that contributed to the count.
+  const trigger = hasCrit1h ? crits[crits.length - 1] : errorish[errorish.length - 1];
+  const label = hasCrit1h ? 'CRIT' : 'repeated ERROR';
+  // Running Compose one-offs are attached to their parent scheduler, so their
+  // output is already present in the persistent cron container's log. Keep them
+  // visible in the dashboard, but alert only from persistent site containers to
+  // avoid duplicate Slack incidents and per-container cooldown resets.
+  const alertEligible = c.scope === 'site' && !c.oneoff;
+  const overThreshold = hasCrit1h || errorish1h >= ALERT_ERROR_1H_THRESHOLD;
+  const outsideCooldown = !prevAlertAt || now - prevAlertAt > ALERT_COOLDOWN_MS;
+  return {
+    hasCrit1h, errorish1h, trigger, label,
+    shouldAlert: alertEligible && overThreshold && outsideCooldown,
+  };
+}
+
 async function scanOne(root, c) {
   const prev = STATE.get(c.id);
   const args = ['logs', '--timestamps'];
@@ -145,24 +175,19 @@ async function scanOne(root, c) {
   // escalate(), so a chronic failure alerts once per window, not every sweep.
   const h1 = now - 60 * 60 * 1000;
   const recent1h = trimmed.filter((m) => m.tsMs >= h1);
-  const hasCrit1h = recent1h.some((m) => m.level === 'crit');
-  const errorish1h = recent1h.filter((m) => m.level === 'error' || m.level === 'crit').length;
   const prevAlertAt = prev ? prev.lastAlertAt : null;
-  const shouldAlert = c.scope === 'site' && (hasCrit1h || errorish1h >= ALERT_ERROR_1H_THRESHOLD)
-    && (!prevAlertAt || now - prevAlertAt > ALERT_COOLDOWN_MS);
+  const decision = alertDecision(c, recent1h, prevAlertAt, now);
 
   STATE.set(c.id, {
     name: c.name, slug: c.slug, kind: c.kind, scope: c.scope, running: c.running,
     sinceIso: sinceIso || new Date().toISOString(),
     matches: trimmed,
-    lastAlertAt: shouldAlert ? now : (prevAlertAt || null),
+    lastAlertAt: decision.shouldAlert ? now : (prevAlertAt || null),
   });
 
-  if (shouldAlert) {
-    const last = trimmed[trimmed.length - 1];
-    const label = hasCrit1h ? 'CRIT' : 'repeated ERROR';
-    const text = `:rotating_light: *${c.name}* — ${label} (${errorish1h} error/crit line(s) in the last hour)\n`
-      + `Last: \`${((last && last.line) || '').slice(0, 300)}\`\n`
+  if (decision.shouldAlert) {
+    const text = `:rotating_light: *${c.name}* — ${decision.label} (${decision.errorish1h} error/crit line(s) in the last hour)\n`
+      + `Trigger: \`${((decision.trigger && decision.trigger.line) || '').slice(0, 300)}\`\n`
       + 'Fleet Dashboard → Errors tab for detail.';
     postSlackAlert(root, c.slug, text).catch(() => {});
   }
@@ -225,4 +250,17 @@ function lines(id, limit) {
   return { ok: true, name: c.name, slug: c.slug, lines: c.matches.slice(-n).reverse() };
 }
 
-module.exports = { start, rollup, lines, _scanOne: scanOne, _classify: classify, _parseLine: parseLine, _sweep: sweep };
+function resetForTest() {
+  STATE = new Map();
+  lastSweep = 0;
+}
+
+module.exports = {
+  start, rollup, lines,
+  _scanOne: scanOne,
+  _classify: classify,
+  _parseLine: parseLine,
+  _alertDecision: alertDecision,
+  _sweep: sweep,
+  _resetForTest: resetForTest,
+};

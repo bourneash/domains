@@ -813,7 +813,7 @@ async function renderErrors() {
       <thead><tr><th>Container</th><th>Site</th><th>1h</th><th>24h</th><th>Level</th><th>Last</th><th>Last line</th><th></th></tr></thead>
       <tbody>${body || '<tr><td colspan="8" class="muted">No containers scanned yet — the poller sweeps every 3 minutes in the background.</td></tr>'}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn) — a substring/regex match, noisy by design. Tune or add per-container suppression in <code>server/errorscan.js</code> if a site is chatty. Rolling ~26h retention, refreshed every 3 minutes.</p>`;
+    <p class="muted" style="margin-top:12px">Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p>`;
 
   wireErrorRows();
   if (!FRESH) applyUISnap();
