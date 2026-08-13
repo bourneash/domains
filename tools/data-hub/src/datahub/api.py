@@ -36,6 +36,26 @@ def _cisa_kev_to_items(records: list[dict]) -> list[dict]:
     return out
 
 
+def _nvd_cve_to_items(records: list[dict]) -> list[dict]:
+    out = []
+    for r in records:
+        p = r["payload"]
+        cve_id = p.get("cve_id") or ""
+        severity = p.get("severity") or ""
+        score = p.get("cvss_score")
+        title = f"{cve_id}" + (f" ({severity}, CVSS {score})" if severity else "")
+        out.append({
+            "title": title,
+            "url": p.get("url") or "",
+            "summary": p.get("summary") or "",
+            "published_iso": r["observed_at"],
+            "source": "NVD",
+            "cve_id": cve_id,
+            "tags": r.get("tags", []),
+        })
+    return out
+
+
 # Maps a subscription's `datasets:` key to a function that reshapes raw
 # dataset records (source_id/dataset_key/observed_at/payload/tags) into the
 # same item shape /items and /subscriptions/{site}/items already return
@@ -44,6 +64,7 @@ def _cisa_kev_to_items(records: list[dict]) -> list[dict]:
 # malformed item — safe no-op until an adapter is added for that dataset.
 _DATASET_ITEM_ADAPTERS = {
     "cisa-kev": _cisa_kev_to_items,
+    "nvd-cve": _nvd_cve_to_items,
 }
 
 

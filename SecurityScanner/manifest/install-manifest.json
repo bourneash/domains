@@ -1,33 +1,33 @@
 {
-  "version": "v0.3.33",
+  "version": "v0.3.45",
   "vsec_format": 1,
-  "created_at": "2026-08-01T03:14:19Z",
-  "git_sha": "9611d4be07cee7cd0dc86684e8420f4b4f3d60f1",
+  "created_at": "2026-08-11T02:21:08Z",
+  "git_sha": "dc92360a521bbba2f611c6af5abb6e002f29c759",
   "images": [
     {
       "name": "security-v2-api",
-      "tag": "v0.3.33",
-      "tarball": "security-v2-api-v0.3.33.tar.gz",
-      "sha256": "572da7ff2e73b019594f7bf73f5a2cba2fda8e52f818ff52eadeace61f360357"
+      "tag": "v0.3.45",
+      "tarball": "security-v2-api-v0.3.45.tar.gz",
+      "sha256": "76cd68eed7bdca7dab012ae31eca6ad86e74f4678f18ad87c99ea5e31d9fecf2"
     },
     {
       "name": "security-v2-executor",
-      "tag": "v0.3.33",
-      "tarball": "security-v2-executor-v0.3.33.tar.gz",
-      "sha256": "935b983195a031a8dd79a6675c04ef2b460dc0cacee576e67085c9210cfe8644"
+      "tag": "v0.3.45",
+      "tarball": "security-v2-executor-v0.3.45.tar.gz",
+      "sha256": "901518b915eaa756e3e51603772f2139457af03a648d7bf126157a003e3ca21e"
     },
     {
       "name": "security-v2-frontend",
-      "tag": "v0.3.33",
-      "tarball": "security-v2-frontend-v0.3.33.tar.gz",
-      "sha256": "34024c23899e88324dac21f4341c157288edb0e9b340d4df916e8212272a2137"
+      "tag": "v0.3.45",
+      "tarball": "security-v2-frontend-v0.3.45.tar.gz",
+      "sha256": "9f914788ab458de156011563171fefd0ffa6da8b75ac876091b79511588b0fae"
     }
   ],
   "compose_files": [
     {
       "name": "base",
       "filename": "docker-compose.yml",
-      "sha256": "622117a29762c043360efee1c1bd57b7c66e229f7820f6dc566304d861397d3e"
+      "sha256": "2d79981ea6bebdebe055f9f30a34d4f8153e2c8075cac50c5be35c5d5c3f9ee2"
     },
     {
       "name": "overlay",
@@ -37,7 +37,7 @@
     {
       "name": "env_example",
       "filename": ".env.example",
-      "sha256": "27abf110f3cd803298be948e34604c843ea9ef41a700d4fb9d8efac95d64f5f1"
+      "sha256": "3b16c744d7bb40605bb55485e5ca98187c5de1081d380fa573eeb6df82acff21"
     }
   ],
   "env_required": [

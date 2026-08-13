@@ -814,6 +814,14 @@ sources:
     exit: us
     fetch:
       source_name: "CISA Advisories"
+    # Disabled 2026-08-09: CISA's WAF has 403'd every request for ~38 days
+    # straight (1838 consecutive failures at the 30-min cadence) — the site
+    # blocks our VPN exit IPs/UA outright, not a transient issue. Structured
+    # CVE/KEV data from CISA already reaches 0daynews via the `cisa-kev`
+    # dataset fetcher below (JSON, no WAF problem), so this RSS source was
+    # pure noise (8 errors/cycle in the collector summary) for no coverage
+    # loss. Re-enable only after confirming CISA no longer blocks us.
+    enabled: false
 
   - id: google-project-zero
     type: rss
@@ -841,6 +849,55 @@ sources:
     exit: any
     fetch:
       source_name: "Rapid7 Blog"
+
+  # Added 2026-08-09 to widen 0daynews' source pool — the prior 6-feed set
+  # was thin enough that a single quiet day on one outlet (The Hacker News
+  # went ~37h with nothing) starved the writer. All five verified live
+  # (200 + real <item> entries) before adding.
+  - id: securityweek
+    type: rss
+    url: "https://www.securityweek.com/feed/"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "SecurityWeek"
+
+  - id: dark-reading
+    type: rss
+    url: "https://www.darkreading.com/rss.xml"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Dark Reading"
+
+  - id: the-record
+    type: rss
+    url: "https://therecord.media/feed"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "The Record"
+
+  - id: sans-isc
+    type: rss
+    url: "https://isc.sans.edu/rssfeed.xml"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "SANS Internet Storm Center"
+
+  - id: malwarebytes-labs
+    type: rss
+    url: "https://www.malwarebytes.com/blog/feed/index.xml"
+    tags: [vuln, cve, exploit, breach, patch]
+    policy: vpn
+    exit: any
+    fetch:
+      source_name: "Malwarebytes Labs"
 
   # Hacker News (news.ycombinator.com), keyword-filtered via hnrss.org.
   # Tagged to match 0daynews' existing subscription (tags_any in subscriptions.yaml)
