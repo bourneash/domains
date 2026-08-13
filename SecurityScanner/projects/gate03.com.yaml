@@ -1,0 +1,6 @@
+name: gate03.com
+scope: sites/gate03.com
+url: https://gate03.com
+languages: [astro, typescript, javascript]
+scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-frontend, nuclei]
+excludes: [node_modules, dist, .astro, .git]

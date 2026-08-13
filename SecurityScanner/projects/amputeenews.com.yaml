@@ -1,0 +1,6 @@
+name: amputeenews.com
+scope: sites/amputeenews.com
+url: https://amputeenews.com
+languages: [astro, typescript, javascript]
+scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-frontend, nuclei]
+excludes: [node_modules, dist, .astro, .git]
