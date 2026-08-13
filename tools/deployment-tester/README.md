@@ -66,3 +66,23 @@ to `<domain with dots→dashes>`. The GitHub link is derived from the submodule'
 (e.g. `reviewtattoo.com` → `bourneash/reviewtattoo`).
 
 Driven by the `deployment-tester` Claude skill.
+
+## Static check: CF IMAGES-binding landmine
+
+`check-cf-image-binding.sh` is a separate, static (no network) check — it scans
+every site on `@astrojs/cloudflare` v14+ (resolved from `package-lock.json`,
+not local `node_modules`, since that's what CF actually installs) and flags
+any with no `imageService` set on the adapter. v14 defaults `imageService` to
+`'cloudflare-binding'`, which injects an unprovisioned `IMAGES` binding into
+the generated wrangler config — `astro build` succeeds locally, but the real
+CF Workers Build fails at `wrangler deploy`. First hit: saveusfarms.com,
+2026-08-13 (dc44232a). Found the same unset config on 7 other v14 sites
+(amputeenews, broadwayshowgirls, reviewtattoo, rodhat, weirdgirlstore,
+wetpages, shoptopless) and preempted them the same day.
+
+```bash
+bash tools/deployment-tester/check-cf-image-binding.sh
+```
+
+Run this whenever a site is bumped onto `@astrojs/cloudflare` v14+, or
+periodically across the fleet — it's cheap and has no side effects.
