@@ -1,26 +1,26 @@
 {
-  "version": "v0.3.45",
+  "version": "v0.3.48",
   "vsec_format": 1,
-  "created_at": "2026-08-11T02:21:08Z",
-  "git_sha": "dc92360a521bbba2f611c6af5abb6e002f29c759",
+  "created_at": "2026-08-13T00:58:32Z",
+  "git_sha": "418bdc65959b057d199aa345e9ce86813b85a06d",
   "images": [
     {
       "name": "security-v2-api",
-      "tag": "v0.3.45",
-      "tarball": "security-v2-api-v0.3.45.tar.gz",
-      "sha256": "76cd68eed7bdca7dab012ae31eca6ad86e74f4678f18ad87c99ea5e31d9fecf2"
+      "tag": "v0.3.48",
+      "tarball": "security-v2-api-v0.3.48.tar.gz",
+      "sha256": "49b8654e28e67237b7178928677738ece652193d1a3d7f93df7088a88d964619"
     },
     {
       "name": "security-v2-executor",
-      "tag": "v0.3.45",
-      "tarball": "security-v2-executor-v0.3.45.tar.gz",
-      "sha256": "901518b915eaa756e3e51603772f2139457af03a648d7bf126157a003e3ca21e"
+      "tag": "v0.3.48",
+      "tarball": "security-v2-executor-v0.3.48.tar.gz",
+      "sha256": "faad455af65aed0bceffebcb38d82823685b1eedd163ba7c13899fcf5f4b24a9"
     },
     {
       "name": "security-v2-frontend",
-      "tag": "v0.3.45",
-      "tarball": "security-v2-frontend-v0.3.45.tar.gz",
-      "sha256": "9f914788ab458de156011563171fefd0ffa6da8b75ac876091b79511588b0fae"
+      "tag": "v0.3.48",
+      "tarball": "security-v2-frontend-v0.3.48.tar.gz",
+      "sha256": "93d6c977c2a25e12f1a2d43443fbcebc7036790e3703efbe4bc2b7118c35ec27"
     }
   ],
   "compose_files": [
