@@ -1,6 +1,0 @@
-name: cock-smoker.com
-scope: sites/cock-smoker.com
-url: https://cock-smoker.com
-languages: [astro, typescript, javascript]
-scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-frontend, nuclei]
-excludes: [node_modules, dist, .astro, .git]

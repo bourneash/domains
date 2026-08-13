@@ -1,6 +1,0 @@
-name: onlysexyteens.com
-scope: sites/onlysexyteens.com
-url: https://onlysexyteens.com
-languages: [astro, typescript, javascript]
-scanners: [gitleaks, trufflehog, semgrep, eslint-security, eslint, typescript, jscpd, retirejs, osv-scanner, syft, grype, kics, sonarqube-frontend, nuclei]
-excludes: [node_modules, dist, .astro, .git]
