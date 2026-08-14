@@ -1,7 +1,13 @@
-"""Full-auto Pinterest business signup for broadwayshowgirls.com.
+"""Full-auto Pinterest business signup for any domain.
 Drives every step itself — only pauses if it detects an actual captcha
 widget on the page. Everything else (fill, submit, skip onboarding,
-extract username) happens without Jesse."""
+extract username) happens with no human input.
+Usage: pinterest_signup.py <domain> <business-name> [persona-slug]
+
+Without persona-slug: the domain-level brand account (email social@<domain>,
+vault key "<domain>"). With persona-slug: a per-persona account — email
+<persona-slug>@<domain>, vault key "<domain>::<persona-slug>", separate
+browser profile."""
 import sys
 import time
 from pathlib import Path
@@ -11,16 +17,23 @@ sys.path.insert(0, "/home/jesse/projects/domains/tools/social-lib/src")
 
 from social_setup.browser import launch_browser  # noqa: E402
 from social_setup.passwords import generate as gen_password  # noqa: E402
+from social_setup.email import ensure_social_alias  # noqa: E402
 from social_lib.credentials import write_creds  # noqa: E402
 
 import sys
 DOMAIN = sys.argv[1]
-EMAIL = f"social@{DOMAIN}"
-PASSWORD = gen_password()
 BIZ_NAME = sys.argv[2]
+PERSONA = sys.argv[3] if len(sys.argv) > 3 else None
+EMAIL_LOCAL = PERSONA or "social"
+EMAIL = f"{EMAIL_LOCAL}@{DOMAIN}"
+VAULT_KEY = f"{DOMAIN}::{PERSONA}" if PERSONA else DOMAIN
+PROFILE_KEY = VAULT_KEY
+ensure_social_alias(DOMAIN, EMAIL_LOCAL)
+PASSWORD = gen_password()
 WEBSITE = f"https://{DOMAIN}"
 SHOT_DIR = Path("/home/jesse/projects/domains/.cloak-screenshots")
 SHOT_DIR.mkdir(parents=True, exist_ok=True)
+SCREENSHOT_PREFIX = f"pin-{DOMAIN.split('.')[0]}" + (f"-{PERSONA}" if PERSONA else "")
 
 
 def shot(page, name):
@@ -66,7 +79,7 @@ def click_if_present(page, *selectors, timeout=3000):
 
 print(f"Generated password: {PASSWORD}", flush=True)
 
-context, page = launch_browser(DOMAIN, "pinterest")
+context, page = launch_browser(PROFILE_KEY, "pinterest")
 page.goto("https://www.pinterest.com/business/create/", wait_until="domcontentloaded", timeout=30000)
 time.sleep(3)
 
@@ -101,7 +114,7 @@ try:
 except Exception as e:
     print(f"autofill note: {e}", flush=True)
 
-shot(page, f"pin-{DOMAIN.split(chr(46))[0]}-01-filled.png")
+shot(page, f"{SCREENSHOT_PREFIX}-01-filled.png")
 
 if captcha_present(page):
     print("STATUS captcha present before submit — need Jesse", flush=True)
@@ -117,7 +130,7 @@ else:
         time.sleep(0.5)
     click_if_present(page, 'button[type="submit"]', 'button:has-text("Create account")')
     time.sleep(3)
-    shot(page, f"pin-{DOMAIN.split(chr(46))[0]}-02-postsubmit.png")
+    shot(page, f"{SCREENSHOT_PREFIX}-02-postsubmit.png")
     print(f"STATUS post-submit url={page.url}", flush=True)
 
 # Drive the onboarding wizard: repeatedly try to skip / dismiss anything that
@@ -144,7 +157,7 @@ while time.time() < deadline:
     if not progressed:
         time.sleep(3)
 
-shot(page, f"pin-{DOMAIN.split(chr(46))[0]}-03-wizard.png")
+shot(page, f"{SCREENSHOT_PREFIX}-03-wizard.png")
 print(f"STATUS wizard-loop end url={page.url}", flush=True)
 
 if captcha_present(page):
@@ -168,17 +181,20 @@ if captcha_present(page):
         )
         time.sleep(3)
 
-shot(page, f"pin-{DOMAIN.split(chr(46))[0]}-04-final.png")
+shot(page, f"{SCREENSHOT_PREFIX}-04-final.png")
 
 # Try to read back the actual username from account/profile settings
 try:
-    page.goto("https://www.pinterest.com/settings/", wait_until="domcontentloaded", timeout=20000)
-    time.sleep(3)
-    shot(page, f"pin-{DOMAIN.split(chr(46))[0]}-05-settings.png")
+    # networkidle never fires here (Pinterest keeps a live connection open),
+    # and the React body renders noticeably after domcontentloaded — a short
+    # sleep here was the majority false-negative cause in the last sweep.
+    page.goto("https://www.pinterest.com/settings/", wait_until="domcontentloaded", timeout=30000)
+    time.sleep(6)
+    shot(page, f"{SCREENSHOT_PREFIX}-05-settings.png")
     username_field = page.locator('input[name="username"], input[id*="username"]')
     actual_username = ""
     if username_field.count():
-        actual_username = username_field.first.input_value()
+        actual_username = username_field.first.input_value(timeout=5000)
     print(f"USERNAME_FOUND:{actual_username}", flush=True)
 except Exception as e:
     print(f"username read note: {e}", flush=True)
@@ -189,7 +205,7 @@ time.sleep(5)
 context.close()
 
 if actual_username:
-    write_creds(DOMAIN, "pinterest", {
+    write_creds(VAULT_KEY, "pinterest", {
         "PINTEREST_USERNAME": actual_username,
         "PINTEREST_PASSWORD": PASSWORD,
         "PINTEREST_EMAIL": EMAIL,

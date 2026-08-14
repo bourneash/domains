@@ -12,6 +12,7 @@ from social_lib.credentials import write_creds  # noqa: E402
 
 DOMAIN = sys.argv[1]
 LOG_FILE = sys.argv[2]
+PERSONA = sys.argv[3] if len(sys.argv) > 3 else None
 PASSWORD = None
 for line in open(LOG_FILE):
     if line.startswith("Generated password: "):
@@ -19,9 +20,12 @@ for line in open(LOG_FILE):
         break
 if not PASSWORD:
     raise SystemExit(f"could not find password in {LOG_FILE}")
-EMAIL = f"social@{DOMAIN}"
+EMAIL_LOCAL = PERSONA or "social"
+EMAIL = f"{EMAIL_LOCAL}@{DOMAIN}"
+VAULT_KEY = f"{DOMAIN}::{PERSONA}" if PERSONA else DOMAIN
+PROFILE_KEY = VAULT_KEY
 SHOT_DIR = Path("/home/jesse/projects/domains/.cloak-screenshots")
-PREFIX = f"bsky-{DOMAIN.split('.')[0]}"
+PREFIX = f"bsky-{DOMAIN.split('.')[0]}" + (f"-{PERSONA}" if PERSONA else "")
 
 
 def shot(page, name):
@@ -41,7 +45,7 @@ def click_if_present(page, *selectors, timeout=3000):
     return False
 
 
-context, page = launch_browser(DOMAIN, "bluesky")
+context, page = launch_browser(PROFILE_KEY, "bluesky")
 page.goto("https://bsky.app", wait_until="domcontentloaded", timeout=30000)
 time.sleep(3)
 shot(page, "10-resume.png")
@@ -104,7 +108,7 @@ if handle:
     except Exception as e:
         print(f"DID lookup note: {e}", flush=True)
         did = ""
-    write_creds(DOMAIN, "bluesky", {
+    write_creds(VAULT_KEY, "bluesky", {
         "BLUESKY_HANDLE": handle,
         "BLUESKY_DID": did,
         "BLUESKY_PASSWORD": PASSWORD,

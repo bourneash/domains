@@ -1,6 +1,15 @@
 """Full-auto Bluesky signup for any domain — fills everything, drives the
 post-signup onboarding wizard, only pauses for a real captcha.
-Usage: bsky_signup.py <domain> <handle>"""
+Usage: bsky_signup.py <domain> <handle> [persona-slug]
+
+Without persona-slug: the domain-level brand account (email social@<domain>,
+vault key "<domain>", browser profile keyed on domain alone) — original
+behavior, unchanged.
+
+With persona-slug (e.g. "sam-reyes"): a per-persona account — email
+<persona-slug>@<domain>, vault key "<domain>::<persona-slug>", separate
+browser profile so persona sessions never collide with the brand account's
+or each other's."""
 import sys
 import time
 from pathlib import Path
@@ -12,15 +21,21 @@ sys.path.insert(0, "/home/jesse/projects/domains/tools/social-lib/src")
 
 from social_setup.browser import launch_browser  # noqa: E402
 from social_setup.passwords import generate as gen_password  # noqa: E402
+from social_setup.email import ensure_social_alias  # noqa: E402
 from social_lib.credentials import write_creds  # noqa: E402
 
 DOMAIN = sys.argv[1]
 HANDLE_BASE = sys.argv[2]
-EMAIL = f"social@{DOMAIN}"
+PERSONA = sys.argv[3] if len(sys.argv) > 3 else None
+EMAIL_LOCAL = PERSONA or "social"
+EMAIL = f"{EMAIL_LOCAL}@{DOMAIN}"
+VAULT_KEY = f"{DOMAIN}::{PERSONA}" if PERSONA else DOMAIN
+PROFILE_KEY = VAULT_KEY
+ensure_social_alias(DOMAIN, EMAIL_LOCAL)
 PASSWORD = gen_password()
 SHOT_DIR = Path("/home/jesse/projects/domains/.cloak-screenshots")
 SHOT_DIR.mkdir(parents=True, exist_ok=True)
-PREFIX = f"bsky-{DOMAIN.split('.')[0]}"
+PREFIX = f"bsky-{DOMAIN.split('.')[0]}" + (f"-{PERSONA}" if PERSONA else "")
 
 
 def shot(page, name):
@@ -54,7 +69,7 @@ def click_if_present(page, *selectors, timeout=3000):
 
 print(f"Generated password: {PASSWORD}", flush=True)
 
-context, page = launch_browser(DOMAIN, "bluesky")
+context, page = launch_browser(PROFILE_KEY, "bluesky")
 page.goto("https://bsky.app", wait_until="domcontentloaded", timeout=30000)
 time.sleep(5)
 
@@ -200,7 +215,7 @@ if handle:
         print(f"DID lookup note: {e}", flush=True)
         did = ""
 
-    write_creds(DOMAIN, "bluesky", {
+    write_creds(VAULT_KEY, "bluesky", {
         "BLUESKY_HANDLE": handle,
         "BLUESKY_DID": did,
         "BLUESKY_PASSWORD": PASSWORD,
