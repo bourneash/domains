@@ -133,13 +133,8 @@ class BlueskyProvisioner(PlatformProvisioner):
 
     def configure_profile(self, page=None) -> None:
         console.print("  Configuring Bluesky profile via API...")
-        creds = {}
-        cred_path = self.brand.site_root / "ops" / "social" / ".bluesky-creds"
-        if cred_path.exists():
-            for line in cred_path.read_text().splitlines():
-                if "=" in line:
-                    k, _, v = line.partition("=")
-                    creds[k.strip()] = v.strip()
+        from social_lib.credentials import read_creds
+        creds = read_creds(self.brand.domain, "bluesky") or {}
 
         handle = creds.get("BLUESKY_HANDLE", "")
         password = creds.get("BLUESKY_PASSWORD", self.password)

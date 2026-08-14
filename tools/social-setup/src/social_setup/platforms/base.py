@@ -64,7 +64,7 @@ class PlatformProvisioner(BasePlatform, ABC):
         cleaned = name.replace("-", "").replace("_", "")
         return cleaned.capitalize()
 
-    def save_creds(self, creds: dict) -> Path:
+    def save_creds(self, creds: dict) -> str:
         return write_creds(self.brand.site_root, self.name, creds)
 
     def log_result(self, status: str, username: str = "", api_keys: bool = False, error: str = ""):

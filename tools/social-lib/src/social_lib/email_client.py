@@ -7,7 +7,9 @@ EMAIL_API = "http://localhost:9200"
 class EmailClient:
     def __init__(self, mailbox: str, api_key: str | None = None):
         self.mailbox = mailbox
-        self._headers = {"x-api-key": api_key} if api_key else {}
+        # Server auth is `Authorization: Bearer <key>` (see email-client's
+        # api/auth.py) — x-api-key was the old scheme, updated to match.
+        self._headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
 
     def wait_for_message(
         self,

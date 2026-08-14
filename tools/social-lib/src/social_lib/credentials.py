@@ -1,6 +1,12 @@
+"""Domain-keyed credential access. Vault-backed (see vault_store.py) —
+these thin wrappers keep the (domain, platform) call signature every
+consumer already uses (social-setup, social-poster, personas)."""
+
 from __future__ import annotations
-import os
 from pathlib import Path
+import os
+
+from . import vault_store
 
 
 def site_root(domain: str) -> Path:
@@ -8,39 +14,17 @@ def site_root(domain: str) -> Path:
     return Path(base) / "sites" / domain
 
 
-def cred_path(domain: str, platform: str) -> Path:
-    return site_root(domain) / "ops" / "social" / f".{platform}-creds"
-
-
 def write_creds(domain: str, platform: str, data: dict) -> None:
-    path = cred_path(domain, platform)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(f"{k}={v}" for k, v in data.items()) + "\n")
-    path.chmod(0o600)
+    vault_store.write_creds(domain, platform, data)
 
 
 def read_creds(domain: str, platform: str) -> dict:
-    path = cred_path(domain, platform)
-    if not path.exists():
-        return {}
-    result = {}
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, _, v = line.partition("=")
-        result[k.strip()] = v.strip()
-    return result
+    return vault_store.read_creds(domain, platform)
 
 
 def has_creds(domain: str, platform: str) -> bool:
-    path = cred_path(domain, platform)
-    return path.exists() and path.stat().st_size > 0
+    return vault_store.has_creds(domain, platform)
 
 
 def write_stub(domain: str, platform: str) -> None:
-    path = cred_path(domain, platform)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not path.exists():
-        path.write_text("# deferred\n")
-        path.chmod(0o600)
+    vault_store.write_stub(domain, platform)
