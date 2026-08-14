@@ -184,6 +184,11 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .filerow .code { width: 28px; color: var(--muted); }
 .git-detail { padding: 8px 16px 14px; background: var(--panel-2); }
 .git-detail .files { max-height: 280px; overflow: auto; margin-top: 6px; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.gr-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg2, #1c1f26); border: 1px solid var(--border, #333); border-radius: 999px; padding: 3px 6px 3px 10px; font-size: 12.5px; font-family: monospace; }
+.gr-chip-x { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; padding: 0 4px; }
+.gr-chip-x:hover { color: var(--red); }
+
 .chip { color: var(--muted); }
 .chip.mod { color: var(--yellow); }
 .chip.unt { color: var(--accent); }
