@@ -64,11 +64,11 @@ Six sites publish under named bylines. The brand account is live for all six;
 
 | Site | Brand status | Persona | Beat/role | Status |
 |---|---|---|---|---|
-| americastrikes.com | ✅ live | Sam Reyes | Defense correspondent | ⬜ no accounts |
-| americastrikes.com | | Lena Park | Markets correspondent | ⬜ no accounts |
-| americastrikes.com | | David Mitchell | Diplomacy correspondent | ⬜ no accounts |
-| americastrikes.com | | Mariam Khalil | Iran & Middle East correspondent | ⬜ no accounts |
-| americastrikes.com | | Chris Donovan | Washington correspondent | ⬜ no accounts |
+| americastrikes.com | ✅ live | Sam Reyes | Defense correspondent | ✅ Bluesky (`sam-reyes.bsky.social`) + Pinterest (`samreyes0288`) |
+| americastrikes.com | | Lena Park | Markets correspondent | ✅ Bluesky (`lena-park.bsky.social`) + Pinterest (`lenapark0329`) |
+| americastrikes.com | | David Mitchell | Diplomacy correspondent | ✅ Bluesky (`david-mitchell38.bsky.social`) + Pinterest (`davidmitchell0109`) |
+| americastrikes.com | | Mariam Khalil | Iran & Middle East correspondent | 🟡 Bluesky done (`mariam-khalil.bsky.social`); Pinterest **stuck** — 2 silent submit failures, no error shown, matches the known orphaned-email-reservation pattern |
+| americastrikes.com | | Chris Donovan | Washington correspondent | 🟡 Bluesky done (`chris-donovan.bsky.social`); Pinterest **stuck** — same silent-submit-failure pattern as Mariam Khalil |
 | saveusfarms.com | ✅ live | Mara Okafor | Reporter | ⬜ no accounts |
 | saveusfarms.com | | Desmond Vega | Reporter | ⬜ no accounts |
 | saveusfarms.com | | Priya Sundaram | Reporter | ⬜ no accounts |
@@ -99,6 +99,15 @@ never a fabricated personal history — "no fake biography on social." Extend
 that rule to every persona above. Get explicit per-persona go-ahead before
 running any LinkedIn signup; Bluesky/Pinterest carry the same editorial-voice
 consideration but not the identity-verification risk.
+
+**Possible rate-limiting flag (2026-08-14):** after 5 persona Pinterest
+signups on americastrikes.com in ~20 minutes, the last 2 (Mariam Khalil,
+Chris Donovan) failed identically — form fills fine, submit click never
+registers, no error banner, no orphaned-email lock either. Matches Pinterest
+silently soft-blocking rapid signups from one IP more than the earlier
+per-account "Deja vu" reservation bug. Recommend spacing out further
+persona signups on the same domain, or pausing entirely for a few hours
+before retrying the 2 stuck ones.
 
 ## Open decisions
 
