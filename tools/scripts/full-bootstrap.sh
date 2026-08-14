@@ -56,4 +56,13 @@ echo "==> [3/3] bind-worker-domain.sh ${DOMAIN}"
 bash "${SCRIPT_DIR}/bind-worker-domain.sh" "${DOMAIN}"
 
 echo ""
+echo "==> Wiring content-guardrails pre-commit hook (host + container)"
+bash "${SCRIPT_DIR}/install-git-hooks.sh"
+# Container-side install no-ops cleanly if ops/docker/entrypoint-worker.sh
+# doesn't exist yet (added by a later ops-scaffolding step) — safe to always
+# call, and idempotent to re-run once that step runs. See
+# tools/content-guardrails/README.md.
+bash "${SCRIPT_DIR}/install-guardrail-container-hooks.sh" || true
+
+echo ""
 echo "==> full-bootstrap complete: https://${DOMAIN}/"

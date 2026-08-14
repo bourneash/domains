@@ -1,0 +1,12 @@
+{
+  "_comment": "Fleet-wide identity/content guardrails. 'blocked' terms hard-fail any commit — no override, ever. 'warn' terms only fail if an AI classifier judges the surrounding context to actually refer to the protected identity (news articles/unrelated people pass). Per-repo entries in 'overrides' are ADDITIVE ONLY — a repo can add terms, never remove a global one. Edit via the Fleet Dashboard Guardrails tab, or directly here (this file is NOT mounted read-write into any site container, so agents cannot self-edit it).",
+  "global": {
+    "blocked": [
+      "tamburino"
+    ],
+    "warn": [
+      "jesse"
+    ]
+  },
+  "overrides": {}
+}

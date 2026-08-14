@@ -1,12 +1,34 @@
 #!/bin/sh
-# Format staged .ts/.tsx/.js/.astro files with shared prettier before commit.
+# Shared pre-commit hook. Wired via `core.hooksPath` fleet-wide (host repos via
+# tools/scripts/install-git-hooks.sh; in-container via each worker's
+# entrypoint setting it to the .monorepo-tools mirror of this same dir — see
+# tools/content-guardrails/README.md). Two independent steps below; a failure
+# in the guardrail check exits nonzero and BLOCKS the commit regardless of
+# whether prettier ran.
+#
+# HOOK_DIR is one level up = tools/ root in BOTH environments: on the host
+# this dir is tools/git-hooks so `..` is tools/; in-container it's reached at
+# /work/.monorepo-tools/git-hooks (that mount mirrors tools/ wholesale) so
+# `..` is /work/.monorepo-tools, i.e. also tools/. Never add a second `..`
+# here — that only resolves to the real domains root on the host side.
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
+TOOLS_ROOT="$(cd "$HOOK_DIR/.." && pwd)"
+
+# --- 1. Identity/content guardrail check (blocked/warn lists) ---
+# Runs against whatever's staged, for every commit, regardless of file type.
+if [ -f "$TOOLS_ROOT/content-guardrails/check.js" ]; then
+  node "$TOOLS_ROOT/content-guardrails/check.js" || exit 1
+else
+  echo "guardrail check not found at $TOOLS_ROOT/content-guardrails/check.js — skipping (tool not mounted?)"
+fi
+
+# --- 2. Format staged .ts/.tsx/.js/.astro files with shared prettier ---
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|astro)$')
 if [ -z "$STAGED" ]; then
   exit 0
 fi
 
-HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
-DOMAINS_ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
+DOMAINS_ROOT="$(cd "$TOOLS_ROOT/.." && pwd)"
 PRETTIER="$DOMAINS_ROOT/node_modules/.bin/prettier"
 
 if [ ! -f "$PRETTIER" ]; then

@@ -197,10 +197,20 @@ Push, let CF Workers Builds deploy, then verify for real:
 - Smoke-test the live URLs (home, a writer profile, an article, `/go/<id>` redirect, RSS, sitemap).
 - Run `resend-test-email.sh <domain>` (backgrounded, serialized) to confirm `contact@` delivers.
 
+### Guardrails hook (once ops/docker exists)
+
+If this site got a worker/cron Docker pipeline (`ops/docker/entrypoint-worker.sh`), wire the
+identity/content guardrail pre-commit check into its container:
+`bash tools/scripts/install-guardrail-container-hooks.sh` (idempotent, safe to re-run; also
+already called from `full-bootstrap.sh` — this is only needed if ops/docker scaffolding was
+added *after* bootstrap ran). Host-side hook (`install-git-hooks.sh`) is already covered by
+bootstrap. See `tools/content-guardrails/README.md`.
+
 ## Definition of done
 
 Live on `https://<domain>/` as a Worker; brief captured in `CLAUDE.md`; standalone build prompt at
 `ops/AGENT_BUILD_PROMPT.md`; the site type's content systems working; images in place; GA4 wired
 with consent gating and real measurement ID; legal pages + FTC disclosure live; `.env.shared`
 untracked; registered in `DOMAINS_INDEX.md` + `sites.yml`; autonomous ops installed if applicable;
-live URLs + email smoke-tested. Log the build to the site's `ops/board/BOARD_REPORT.md`.
+guardrail hook wired (see above); live URLs + email smoke-tested. Log the build to the site's
+`ops/board/BOARD_REPORT.md`.
