@@ -90,7 +90,7 @@ Six sites publish under named bylines. The brand account is live for all six.
 | saveusfarms.com | | Desmond Vega | Reporter | ✅ Bluesky (`desmond-vega.bsky.social`) |
 | saveusfarms.com | | Priya Sundaram | Reporter | ✅ Bluesky (`priya-sundaram.bsky.social`) |
 | saveusfarms.com | | June Whitehorse | Reporter | ✅ Bluesky (`june-whitehorse.bsky.social`) |
-| saveusfarms.com | | Tomas Reyes | Reporter | 🟡 in progress — captcha pending |
+| saveusfarms.com | | Tomas Reyes | Reporter | ✅ Bluesky (`tomas-reyes.bsky.social`) |
 
 **Scale if pursued for everyone:** 18 personas (excluding Jesse) × up to 3
 platforms (Bluesky / Pinterest / LinkedIn) = up to **54 individual accounts**.
