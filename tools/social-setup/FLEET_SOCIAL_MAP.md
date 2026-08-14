@@ -69,9 +69,9 @@ Six sites publish under named bylines. The brand account is live for all six;
 | americastrikes.com | | David Mitchell | Diplomacy correspondent | ✅ Bluesky (`david-mitchell38.bsky.social`) + Pinterest (`davidmitchell0109`) |
 | americastrikes.com | | Mariam Khalil | Iran & Middle East correspondent | 🟡 Bluesky done (`mariam-khalil.bsky.social`); Pinterest **stuck** — 2 silent submit failures, no error shown, matches the known orphaned-email-reservation pattern |
 | americastrikes.com | | Chris Donovan | Washington correspondent | 🟡 Bluesky done (`chris-donovan.bsky.social`); Pinterest **stuck** — same silent-submit-failure pattern as Mariam Khalil |
-| saveusfarms.com | ✅ live | Mara Okafor | Reporter | ⬜ no accounts |
-| saveusfarms.com | | Desmond Vega | Reporter | ⬜ no accounts |
-| saveusfarms.com | | Priya Sundaram | Reporter | ⬜ no accounts |
+| saveusfarms.com | ✅ live | Mara Okafor | Reporter | 🟡 Bluesky done (`mara-okafor.bsky.social`); Pinterest **stuck** (soft-block, see below); Instagram **stuck** — see below |
+| saveusfarms.com | | Desmond Vega | Reporter | ✅ Bluesky (`desmond-vega.bsky.social`) |
+| saveusfarms.com | | Priya Sundaram | Reporter | 🟡 in progress |
 | saveusfarms.com | | June Whitehorse | Reporter | ⬜ no accounts |
 | saveusfarms.com | | Tomas Reyes | Reporter | ⬜ no accounts |
 | broadwayshowgirls.com | ✅ live | Priya Raghunathan | Writer | ⬜ no accounts |
@@ -103,11 +103,26 @@ consideration but not the identity-verification risk.
 **Possible rate-limiting flag (2026-08-14):** after 5 persona Pinterest
 signups on americastrikes.com in ~20 minutes, the last 2 (Mariam Khalil,
 Chris Donovan) failed identically — form fills fine, submit click never
-registers, no error banner, no orphaned-email lock either. Matches Pinterest
-silently soft-blocking rapid signups from one IP more than the earlier
-per-account "Deja vu" reservation bug. Recommend spacing out further
-persona signups on the same domain, or pausing entirely for a few hours
-before retrying the 2 stuck ones.
+registers, no error banner, no orphaned-email lock either. Confirmed
+**not** domain-specific: the very next Pinterest attempt on saveusfarms.com
+(Mara Okafor) failed the same way. This looks like Pinterest soft-blocking
+the whole session/IP, not a per-domain pattern. Recommend a VPN host switch
+before any more Pinterest attempts.
+
+**Instagram — new automation, parked after 6 attempts (2026-08-14):**
+`tools/social-setup/scripts/instagram_signup.py` exists but doesn't work
+yet. Confirmed working: email/password/full-name/username fields (Instagram
+has no stable `name`/`placeholder`/`aria-label` attributes — matched by
+input type + DOM order instead) and the Month/Day birthday dropdown (custom
+click-widgets, not native `<select>`, need real mouse-coordinate clicks to
+bypass a pointer-events block). **Not working: the Year dropdown** — its
+option list needs scrolling to reach the target value and the scroll
+approach tried so far doesn't surface it, so Submit never enables (Instagram
+appears to require all three birthday fields before allowing submission).
+No captcha has been spent on any attempt — every failure happens before
+that gate, so this has cost time, not captchas. Next step if resumed:
+inspect the Year dropdown's actual scroll container via a raw DOM dump
+(see the diagnostic pattern in git history) rather than guessing further.
 
 ## Open decisions
 
