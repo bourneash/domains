@@ -81,6 +81,14 @@ pattern this whole workflow uses.
 `bw unlock <password>`. A security review caught this once already — don't
 regress it if you touch `_ensure_unlocked`.
 
+**Backup:** the vault is one local LUKS-encrypted disk with no other
+replication — see `tools/credential-vault-backup/README.md`. A pre-commit
+hook snapshots `data/db.sqlite3` into git on every commit to this repo;
+`ADMIN_TOKEN`, the automation account password, and Jesse's personal login
+deliberately stay off git (he holds those offsite himself). Restore path
+is tested end-to-end (2026-08-14) — see that README before assuming the
+vault is unrecoverable if the box is lost.
+
 ### Bootstrapping the vault on a fresh box (you shouldn't need to redo this)
 
 If `/mnt/encrypted/projects/credential-vault/` doesn't exist at all, the
