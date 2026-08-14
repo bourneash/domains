@@ -150,7 +150,7 @@ while time.time() < deadline:
         'button:has-text("Get started")',
     )
     if "pinterest.com" in page.url and any(
-        seg in page.url for seg in ("/business-hub", "/pin-creation-tool", "/settings")
+        seg in page.url for seg in ("/business-hub", "/business/hub", "/pin-creation-tool", "/settings")
     ):
         print("STATUS looks like we're in the dashboard", flush=True)
         break
