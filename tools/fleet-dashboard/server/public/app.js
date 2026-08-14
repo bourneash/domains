@@ -414,11 +414,11 @@ function pfStatusBadge(status) {
 async function renderProductFeed() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading product feed…</div>';
-  const [health, stats, subs, products] = await Promise.all([
+  const [health, stats, subs, candidates] = await Promise.all([
     api('GET', '/api/product-feed/health'),
-    api('GET', '/api/product-feed/inventory-stats'),
+    api('GET', '/api/product-feed/stats'),
     api('GET', '/api/product-feed/subscriptions'),
-    api('GET', '/api/product-feed/products?limit=30'),
+    api('GET', '/api/product-feed/candidates?limit=30'),
   ]);
 
   let healthHtml = '';
@@ -427,50 +427,59 @@ async function renderProductFeed() {
   }
 
   const subRows = (Array.isArray(subs) ? subs : []).map((s) => {
-    const availableLabel = s.error ? `<span class="muted" title="${esc(s.error)}">—</span>`
-      : `<span class="mono">${s.available ?? '—'} / ${s.target_available_depth ?? '—'}</span>`;
-    const queueDepth = (s.queued || 0) + (s.publishing || 0);
+    const depthLabel = s.error ? `<span class="muted" title="${esc(s.error)}">—</span>`
+      : `<span class="mono">${s.depth ?? '—'}${s.max_queue_depth ? ` / ${s.max_queue_depth}` : ''}</span>`;
+    const overCap = s.max_queue_depth && s.depth != null && s.depth >= s.max_queue_depth;
     return `<tr data-fleet-row data-site="${esc(s.site)}">
       <td>${siteLink(s.site)}</td>
       <td>${(s.tags_any || []).map((t) => `<span class="badge b-gray">${esc(t)}</span>`).join(' ')}</td>
-      <td>${availableLabel}</td>
-      <td class="mono">${s.reviewing || 0}</td>
-      <td class="mono">${queueDepth}${s.max_queue_depth ? ` / ${s.max_queue_depth}` : ''}</td>
-      <td class="mono">${s.published || 0}</td>
-      <td class="mono">${s.rejected || 0}</td>
+      <td>${s.site_origin_allow ? esc(s.site_origin_allow.join(', ')) : '<span class="muted">any producer</span>'}</td>
+      <td>${depthLabel}${overCap ? ' <span class="badge b-yellow" title="At/above max_queue_depth — sourcing should be backing off">at cap</span>' : ''}</td>
     </tr>`;
   }).join('');
 
-  const productItems = (products && products.items) || [];
-  const productRows = productItems.map((p) => {
-    const safeUrl = (typeof p.amazon_url === 'string' && /^https?:\/\//i.test(p.amazon_url))
-      ? p.amazon_url
-      : `https://www.amazon.com/dp/${encodeURIComponent(p.asin || '')}`;
-    return `<tr data-fleet-row>
-    <td class="mono">${esc(p.last_verified_at || '').slice(0, 16).replace('T', ' ')}</td>
-    <td><a href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer">${esc(p.title || p.asin)} ↗</a></td>
-    <td class="mono">${esc(p.asin)}</td>
-    <td>${esc(p.price || '—')}</td>
-    <td>${p.rating == null ? '—' : `${esc(p.rating)} (${esc(p.review_count || 0)})`}</td>
-    <td>${(p.tags || []).map((t) => `<span class="badge b-gray">${esc(t)}</span>`).join(' ')}</td>
-  </tr>`;
-  }).join('');
+  const statsBySite = (stats && stats.ok !== false) ? stats : {};
+  const statsRows = Object.entries(statsBySite).map(([site, byStatus]) => `<tr data-fleet-row data-site="${esc(site)}">
+    <td>${siteLink(site)}</td>
+    <td class="mono">${byStatus.queued || 0}</td>
+    <td class="mono">${byStatus.claimed || 0}</td>
+    <td class="mono">${byStatus.published || 0}</td>
+    <td class="mono">${byStatus.rejected || 0}</td>
+    <td class="mono">${byStatus.failed || 0}</td>
+  </tr>`).join('');
+
+  const candidateItems = (candidates && candidates.items) || [];
+  const candidateRows = candidateItems.map((c) => `<tr data-fleet-row data-site="${esc(c.site_origin)}">
+    <td class="mono">${esc(c.created_at || '').slice(0, 16).replace('T', ' ')}</td>
+    <td>${siteLink(c.site_origin)}</td>
+    <td>${esc(c.decision?.name || c.candidate?.title || c.asin || '—')}</td>
+    <td>${(c.tags || []).map((t) => `<span class="badge b-gray">${esc(t)}</span>`).join(' ')}</td>
+    <td>${pfStatusBadge(c.status)}</td>
+    <td>${c.claimed_by ? esc(c.claimed_by) : '<span class="muted">—</span>'}</td>
+  </tr>`).join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Product Feed</h2><span class="muted">${esc(stats.products || 0)} verified Amazon products · independent site queues (:4761)</span></div>
+    <div class="page-head"><h2 class="page-title">Product Feed</h2><span class="muted">tools/product-feed — shared, tagged product-candidate queue (:4761)</span></div>
     ${healthHtml}
     <div class="card">
       <h3>Subscriptions</h3>
       <table>
-        <thead><tr><th>Site</th><th>Selection tags</th><th>Available / target</th><th>Reviewing</th><th>Selected queue / max</th><th>Published</th><th>Rejected</th></tr></thead>
-        <tbody>${subRows || '<tr><td colspan="7" class="muted">No subscriptions registered — see registry/subscriptions.yaml</td></tr>'}</tbody>
+        <thead><tr><th>Site</th><th>Tags</th><th>Origin allow-list</th><th>Depth (queued+claimed / max)</th></tr></thead>
+        <tbody>${subRows || '<tr><td colspan="4" class="muted">No subscriptions registered — see registry/subscriptions.yaml</td></tr>'}</tbody>
       </table>
     </div>
     <div class="card">
-      <h3>Recently verified products</h3>
+      <h3>Stats by site</h3>
       <table>
-        <thead><tr><th>Verified</th><th>Exact Amazon product</th><th>ASIN</th><th>Price</th><th>Rating</th><th>Tags</th></tr></thead>
-        <tbody>${productRows || '<tr><td colspan="6" class="muted">No verified products yet; collector will top up deficient subscriptions.</td></tr>'}</tbody>
+        <thead><tr><th>Site</th><th>Queued</th><th>Claimed</th><th>Published</th><th>Rejected</th><th>Failed</th></tr></thead>
+        <tbody>${statsRows || '<tr><td colspan="6" class="muted">No candidates sourced yet</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Recent candidates</h3>
+      <table>
+        <thead><tr><th>Sourced</th><th>Site</th><th>Name</th><th>Tags</th><th>Status</th><th>Claimed by</th></tr></thead>
+        <tbody>${candidateRows || '<tr><td colspan="6" class="muted">Nothing sourced yet</td></tr>'}</tbody>
       </table>
     </div>`;
   if (!FRESH) applyUISnap();
