@@ -38,7 +38,7 @@ Last verified against the vault: 2026-08-14 (36 items, live `bw list items` quer
 | ultrarough.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pre-existing, set up before the vault system |
 | weirdassstuff.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
 | weirdgirlstore.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
-| wetpages.com | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reclassified 2026-08-14 — reviewed, NOT explicit content (spicy-romance/BookTok book reviews, no nudity/sex acts per brand doc); moved out of the adult-content exclusion bucket, in progress |
+| wetpages.com | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reclassified 2026-08-14 — reviewed, NOT explicit content (spicy-romance/BookTok book reviews, no nudity/sex acts per brand doc); moved out of the adult-content exclusion bucket. Bluesky live (`wetpages.bsky.social`), Pinterest next |
 | xxxtea.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | — |
 
 **Fleet total:** Bluesky 16 live / 1 stuck (17). Pinterest 14 live / 2 stuck /
