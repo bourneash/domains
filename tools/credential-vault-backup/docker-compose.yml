@@ -1,0 +1,18 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: credential-vault
+    restart: unless-stopped
+    environment:
+      - DOMAIN=https://localhost:9280
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - SIGNUPS_ALLOWED=true   # flip true only long enough to create the fleet org account, then back off
+      - SENDS_ALLOWED=false
+      - WEBSOCKET_ENABLED=true
+      - LOG_LEVEL=warn
+      - ROCKET_TLS={certs="/ssl/cert.pem",key="/ssl/key.pem"}
+    volumes:
+      - ./data:/data
+      - ./ssl:/ssl:ro
+    ports:
+      - "127.0.0.1:9280:80"   # loopback only, TLS terminates inside the container now (self-signed — expect one browser warning to click through)
