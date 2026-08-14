@@ -348,20 +348,38 @@ task per site, description tracking per-platform status — this is what
 kept a ~15-site sweep coherent across a long session instead of losing
 track of what was actually done vs. assumed done.
 
-## 6. State as of 2026-08-14 (last session)
+## 6. Current state — tracked in FLEET_SOCIAL_MAP.md
 
-| Site | Bluesky | Pinterest | Reddit |
-|---|---|---|---|
-| americastrikes.com | done | done | account only, API keys blocked |
-| broadwayshowgirls.com | done | done | parked (verification-send fails) |
-| reviewtattoo.com | done | done | parked |
-| rodhat.com | done | done | parked |
-| saveusfarms.com | done | done | parked |
-| sinderella.org | done | **stuck** — orphaned email reservation | parked |
-| ultrarough.com | done (pre-existing) | done (pre-existing) | not started |
-| 0daynews.com | done | **stuck** — orphaned email reservation | parked |
-| aliencouncil.com | **stuck** — needs email verification code | not started | parked |
+**Don't duplicate the status table here — it drifts.** The canonical,
+up-to-date tracker (brand accounts × all 8 platforms, plus the writer-persona
+gap across the 6 multi-byline sites) lives at
+`tools/social-setup/FLEET_SOCIAL_MAP.md`. Update that file directly whenever
+an account is provisioned, unstuck, or a persona roster changes.
 
-Remaining sites not yet touched: weirdassstuff.com, totaljerks.com,
-allthingsmasonic.com, xxxtea.com, weirdgirlstore.com, newmomshop.com,
-shoptopless.com, amputeenews.com, trainingsharks.com.
+As of the 2026-08-14 sweep, all sites in the then-remaining list are done
+(Bluesky + Pinterest). Two open items from that session, not yet fixed in
+the scripts:
+- **Pinterest's settings-page username check races the page render** —
+  `page.goto(..., wait_until="domcontentloaded")` followed immediately by
+  reading `input[name="username"]` finds nothing on a fair number of runs
+  even though the account is fully created and logged in (confirmed via
+  screenshot — nav bar renders, body is still blank). Coarse check reports
+  "SIGNUP DID NOT SUCCEED — no username found, no creds written" as a false
+  negative. Recovery: reopen the persistent profile, `goto` the settings
+  page with `wait_until="domcontentloaded"` + an explicit multi-second
+  `time.sleep()` before reading the field (`networkidle` never fires on
+  Pinterest — it keeps a live connection open). This recovery flow doesn't
+  have a saved script yet the way Bluesky's `bsky_finish_onboarding.py`
+  does; worth promoting to `pinterest_finish_signup.py` if this keeps
+  happening (it did, repeatedly, this session).
+- Bluesky's captcha-clear-then-fails-coarse-check pattern (documented above
+  in §3) was the majority outcome this session, not the exception —
+  `bsky_finish_onboarding.py` successfully recovered every one of them.
+  Consider making the finish-onboarding call automatic inside
+  `bsky_signup.py` itself right after a "SIGNUP DID NOT SUCCEED" following
+  a captcha clear, instead of a manual follow-up step each time.
+
+See `tools/social-setup/FLEET_SOCIAL_MAP.md` for the full current picture,
+including the not-started / TBD / adult-content-excluded site buckets and the
+writer-persona gap (0/18 named bylines have an individual social presence
+anywhere, as of 2026-08-14).
