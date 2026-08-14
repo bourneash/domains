@@ -19,12 +19,15 @@ Last verified against the vault: 2026-08-14 (36 items, live `bw list items` quer
 | Domain | Bluesky | Pinterest | Reddit | X | Instagram | TikTok | LinkedIn | Facebook | Notes |
 |---|---|---|---|---|---|---|---|---|---|
 | 0daynews.com | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pinterest stuck · 4-persona roster — see §2 |
+| 0xroulette.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Corrected 2026-08-14: was mislisted as not-started, creds already existed in vault |
 | aliencouncil.com | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Bluesky needs a real email verification code (hotmail inbox not auto-readable yet) |
 | allthingsmasonic.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Handle truncated to `allthingsma.bsky.social` |
 | americastrikes.com | ✅ | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reddit account exists, OAuth app creation silently blocked · 5-writer roster — see §2 |
 | amputeenews.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 3-writer roster — see §2 |
 | broadwayshowgirls.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 3-writer roster — see §2 |
 | newmomshop.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Single persona (Dana) — voice only, not a byline roster |
+| oventoheaven.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Corrected 2026-08-14: was mislisted as not-started, creds already existed in vault |
+| rc-9.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Corrected 2026-08-14: was mislisted as not-started, creds already existed in vault |
 | reviewtattoo.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 2 named authors — see §2 |
 | rodhat.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Site itself *is* the single persona |
 | saveusfarms.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 5-reporter roster — see §2 |
@@ -35,6 +38,7 @@ Last verified against the vault: 2026-08-14 (36 items, live `bw list items` quer
 | ultrarough.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pre-existing, set up before the vault system |
 | weirdassstuff.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
 | weirdgirlstore.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
+| wetpages.com | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reclassified 2026-08-14 — reviewed, NOT explicit content (spicy-romance/BookTok book reviews, no nudity/sex acts per brand doc); moved out of the adult-content exclusion bucket, in progress |
 | xxxtea.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | — |
 
 **Fleet total:** Bluesky 16 live / 1 stuck (17). Pinterest 14 live / 2 stuck /
@@ -43,7 +47,7 @@ TikTok, LinkedIn, Facebook: **0 across every domain** — confirmed straight
 from the vault item list, not an omission in tracking.
 
 ### Not started — active/live sites, no brand social yet
-0xroulette.com, fishhooklabs.com, oventoheaven.com, rc-9.com, weapontester.com
+fishhooklabs.com, weapontester.com
 
 ### Positioning TBD — no brief yet, correctly excluded
 complicated.work, deadlymaracas.com, driveford.net, drivegm.net,
@@ -53,7 +57,7 @@ nsfwpixels.com, nsfwpixles.com, pervypotion.com, pokererotic.com,
 stinkyleftfoot.com, therareunicorn.com, wetslit.com
 
 ### Explicit / adult-content brands — mainstream platform ToS risk, not attempted
-3boobs.com, deeppenetrations.com, vibratorporn.com, wetpages.com
+3boobs.com, deeppenetrations.com, vibratorporn.com
 
 (These two category splits were read from each site's `CLAUDE.md` opening
 lines during the 2026-08-14 sweep, not re-verified line by line — sanity
