@@ -8,32 +8,34 @@ account is provisioned, unstuck, or a persona roster changes — don't let the
 `skills-domain-social-setup` skill's own status table (§6) drift out of sync;
 that skill doc should point here rather than duplicate the table.
 
+Both tables below are sorted alphabetically by site/domain.
+
 Legend: ✅ live · 🟡 stuck/partial · ⛔ blocked · ⬜ not started · — n/a
 
-Last verified against the vault: 2026-08-14 (33 items, live `bw list items` query).
+Last verified against the vault: 2026-08-14 (36 items, live `bw list items` query).
 
 ## 1. Brand accounts, by domain
 
 | Domain | Bluesky | Pinterest | Reddit | X | Instagram | TikTok | LinkedIn | Facebook | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| americastrikes.com | ✅ | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reddit account exists, OAuth app creation silently blocked |
+| 0daynews.com | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pinterest stuck · 4-persona roster — see §2 |
+| aliencouncil.com | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Bluesky needs a real email verification code (hotmail inbox not auto-readable yet) |
+| allthingsmasonic.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Handle truncated to `allthingsma.bsky.social` |
+| americastrikes.com | ✅ | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reddit account exists, OAuth app creation silently blocked · 5-writer roster — see §2 |
+| amputeenews.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 3-writer roster — see §2 |
 | broadwayshowgirls.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 3-writer roster — see §2 |
+| newmomshop.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Single persona (Dana) — voice only, not a byline roster |
 | reviewtattoo.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 2 named authors — see §2 |
 | rodhat.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Site itself *is* the single persona |
 | saveusfarms.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 5-reporter roster — see §2 |
-| sinderella.org | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pinterest: orphaned email reservation, unresolved |
-| ultrarough.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pre-existing, set up before the vault system |
-| 0daynews.com | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pinterest stuck · 4-persona roster — see §2 |
-| aliencouncil.com | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Bluesky needs a real email verification code (hotmail inbox not auto-readable yet) |
-| weirdassstuff.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
-| totaljerks.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Guide queue, no named bylines currently |
-| allthingsmasonic.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Handle truncated to `allthingsma.bsky.social` |
-| xxxtea.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | — |
-| weirdgirlstore.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
-| newmomshop.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Single persona (Dana) — voice only, not a byline roster |
 | shoptopless.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Guide queue, no named bylines currently |
-| amputeenews.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 3-writer roster — see §2 |
+| sinderella.org | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pinterest: orphaned email reservation, unresolved |
+| totaljerks.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Guide queue, no named bylines currently |
 | trainingsharks.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Tool site, no personas |
+| ultrarough.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pre-existing, set up before the vault system |
+| weirdassstuff.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
+| weirdgirlstore.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
+| xxxtea.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | — |
 
 **Fleet total:** Bluesky 16 live / 1 stuck (17). Pinterest 14 live / 2 stuck /
 1 not started (17). Reddit 1 (blocked, parked fleet-wide). X, Instagram,
@@ -41,14 +43,14 @@ TikTok, LinkedIn, Facebook: **0 across every domain** — confirmed straight
 from the vault item list, not an omission in tracking.
 
 ### Not started — active/live sites, no brand social yet
-weapontester.com, 0xroulette.com, rc-9.com, fishhooklabs.com, oventoheaven.com
+0xroulette.com, fishhooklabs.com, oventoheaven.com, rc-9.com, weapontester.com
 
 ### Positioning TBD — no brief yet, correctly excluded
-complicated.work, driveford.net, drivegm.net, findyourlostpets.com,
+complicated.work, deadlymaracas.com, driveford.net, drivegm.net,
+dumbsluts.com, elevatorfriends.com, failbunny.com, findyourlostpets.com,
 gate03.com, infrainnovator.com, mynewgm.com, mynewgm.info, noveltyguns.com,
-therareunicorn.com, elevatorfriends.com, stinkyleftfoot.com, failbunny.com,
-deadlymaracas.com, dumbsluts.com, nsfwpixels.com, nsfwpixles.com,
-pervypotion.com, pokererotic.com, wetslit.com
+nsfwpixels.com, nsfwpixles.com, pervypotion.com, pokererotic.com,
+stinkyleftfoot.com, therareunicorn.com, wetslit.com
 
 ### Explicit / adult-content brands — mainstream platform ToS risk, not attempted
 3boobs.com, deeppenetrations.com, vibratorporn.com, wetpages.com
@@ -57,35 +59,34 @@ pervypotion.com, pokererotic.com, wetslit.com
 lines during the 2026-08-14 sweep, not re-verified line by line — sanity
 check before treating the list as final.)
 
-## 2. Writer personas — zero individual accounts anywhere
+## 2. Writer personas — individual accounts, by site
 
-Six sites publish under named bylines. The brand account is live for all six;
-**no individual writer has their own Bluesky, Pinterest, or LinkedIn** yet.
+Six sites publish under named bylines. The brand account is live for all six.
 
 | Site | Brand status | Persona | Beat/role | Status |
 |---|---|---|---|---|
+| 0daynews.com | ✅ live (Pinterest stuck) | airgap | Threat intel / breaking | ⬜ no accounts |
+| 0daynews.com | | fuse | Practical defense | ⬜ no accounts |
+| 0daynews.com | | kilobaud | Analysis | ⬜ no accounts |
+| 0daynews.com | | loop | Infrastructure | ⬜ no accounts |
 | americastrikes.com | ✅ live | Sam Reyes | Defense correspondent | ✅ Bluesky (`sam-reyes.bsky.social`) + Pinterest (`samreyes0288`) |
 | americastrikes.com | | Lena Park | Markets correspondent | ✅ Bluesky (`lena-park.bsky.social`) + Pinterest (`lenapark0329`) |
 | americastrikes.com | | David Mitchell | Diplomacy correspondent | ✅ Bluesky (`david-mitchell38.bsky.social`) + Pinterest (`davidmitchell0109`) |
 | americastrikes.com | | Mariam Khalil | Iran & Middle East correspondent | 🟡 Bluesky done (`mariam-khalil.bsky.social`); Pinterest **stuck** — 2 silent submit failures, no error shown, matches the known orphaned-email-reservation pattern |
 | americastrikes.com | | Chris Donovan | Washington correspondent | 🟡 Bluesky done (`chris-donovan.bsky.social`); Pinterest **stuck** — same silent-submit-failure pattern as Mariam Khalil |
-| saveusfarms.com | ✅ live | Mara Okafor | Reporter | 🟡 Bluesky done (`mara-okafor.bsky.social`); Pinterest **stuck** (soft-block, see below); Instagram **stuck** — see below |
-| saveusfarms.com | | Desmond Vega | Reporter | ✅ Bluesky (`desmond-vega.bsky.social`) |
-| saveusfarms.com | | Priya Sundaram | Reporter | 🟡 in progress |
-| saveusfarms.com | | June Whitehorse | Reporter | ⬜ no accounts |
-| saveusfarms.com | | Tomas Reyes | Reporter | ⬜ no accounts |
-| broadwayshowgirls.com | ✅ live | Priya Raghunathan | Writer | ⬜ no accounts |
-| broadwayshowgirls.com | | Imani Carter | Writer | ⬜ no accounts |
-| broadwayshowgirls.com | | Carmen Delgado | Writer | ⬜ no accounts |
 | amputeenews.com | ✅ live | Moxie Calder | Community & culture | ⬜ no accounts |
 | amputeenews.com | | Eli Park | Mobility systems & policy | ⬜ no accounts |
 | amputeenews.com | | Mara Riggs | Practical life, work, travel, gear | ⬜ no accounts |
-| 0daynews.com | ✅ live (Pinterest stuck) | airgap | Threat intel / breaking | ⬜ no accounts |
-| 0daynews.com | | fuse | Practical defense | ⬜ no accounts |
-| 0daynews.com | | kilobaud | Analysis | ⬜ no accounts |
-| 0daynews.com | | loop | Infrastructure | ⬜ no accounts |
+| broadwayshowgirls.com | ✅ live | Priya Raghunathan | Writer | ⬜ no accounts |
+| broadwayshowgirls.com | | Imani Carter | Writer | ⬜ no accounts |
+| broadwayshowgirls.com | | Carmen Delgado | Writer | ⬜ no accounts |
 | reviewtattoo.com | ✅ live | Jesse | Founder & editor — real person, not a persona | n/a, his own identity |
 | reviewtattoo.com | | Mara | Lead aftercare tester | ⬜ no accounts |
+| saveusfarms.com | ✅ live | Mara Okafor | Reporter | 🟡 Bluesky done (`mara-okafor.bsky.social`); Pinterest **stuck** (soft-block, see below); Instagram **stuck** — see below |
+| saveusfarms.com | | Desmond Vega | Reporter | ✅ Bluesky (`desmond-vega.bsky.social`) |
+| saveusfarms.com | | Priya Sundaram | Reporter | ✅ Bluesky (`priya-sundaram.bsky.social`) |
+| saveusfarms.com | | June Whitehorse | Reporter | ✅ Bluesky (`june-whitehorse.bsky.social`) |
+| saveusfarms.com | | Tomas Reyes | Reporter | 🟡 in progress — captcha pending |
 
 **Scale if pursued for everyone:** 18 personas (excluding Jesse) × up to 3
 platforms (Bluesky / Pinterest / LinkedIn) = up to **54 individual accounts**.
