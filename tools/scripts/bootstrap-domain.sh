@@ -109,10 +109,10 @@ cat > "${TMPSCAFFOLD}/site/package.json" << PKGEOF
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^13",
+    "@astrojs/cloudflare": "^14",
     "@astrojs/rss": "^4",
     "@astrojs/sitemap": "^3",
-    "astro": "^6"
+    "astro": "^7"
   },
   "devDependencies": {
     "wrangler": "^4"
@@ -122,20 +122,25 @@ PKGEOF
 
 # astro.config.mjs — no tailwind (coming-soon uses inline styles)
 cat > "${TMPSCAFFOLD}/site/astro.config.mjs" << ASTREOF
-import { defineConfig } from 'astro/config';
+import { defineConfig, passthroughImageService } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   site: 'https://${DOMAIN}',
   integrations: [sitemap()],
+  image: { service: passthroughImageService() },
   build: { inlineStylesheets: 'auto' },
-  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
-  adapter: cloudflare()
+  // prefetchAll must stay false: viewport prefetch on /go/* affiliate links
+  // background-fetches them on scroll, 302s to Amazon, and logs a PHANTOM
+  // click with no human intent (hit the whole fleet 2026-06). Opt in per
+  // link with data-astro-prefetch instead of flipping this to true.
+  prefetch: { prefetchAll: false, defaultStrategy: 'viewport' },
+  adapter: cloudflare({ imageService: 'passthrough' })
 });
 ASTREOF
 
-# wrangler.jsonc — no main/assets fields; adapter v13 generates dist/client/wrangler.json
+# wrangler.jsonc — no main/assets fields; adapter v13+ generates dist/client/wrangler.json
 # Deploy with: wrangler deploy --config dist/client/wrangler.json
 cat > "${TMPSCAFFOLD}/site/wrangler.jsonc" << WRANEOF
 {
