@@ -1,6 +1,6 @@
 ---
 name: skills-domain-social-setup
-description: Provision social media accounts (Bluesky, Pinterest, Reddit) for a domain site using CloakBrowser + full-automation scripts, with credentials stored in the fleet's Vaultwarden instance. Use when onboarding a new site's social presence, resuming a stalled/failed signup, or extending the automation to a new platform. Captures the exact operational pattern (live captcha hand-off with Jesse, verify-before-claim discipline, known per-platform bugs) worked out across the first fleet-wide rollout — read this before re-deriving any of it from scratch.
+description: Provision social media accounts (Bluesky, Pinterest, Reddit) for a domain site using CloakBrowser + full-automation scripts, with credentials in the fleet's Vaultwarden instance and status tracked in the fleet social registry (Fleet Dashboard Social tab / social_registry.py). Use when onboarding a new site's social presence, resuming a stalled/failed signup, re-provisioning an account the platform suspended or closed, or extending the automation to a new platform. Captures the exact operational pattern (live captcha hand-off with Jesse, verify-before-claim discipline, known per-platform bugs) worked out across the first fleet-wide rollout — read this before re-deriving any of it from scratch.
 ---
 
 # Fleet Social Media Setup
@@ -280,6 +280,14 @@ Jesse's attention with no way to tell which was which:
   documented workaround (create the OAuth app on a different, established
   account — the app owner and the posting account don't have to match);
   no equivalent workaround is known yet for the verification-send failure.
+- **Re-probed 2026-08-14 (weapontester.com):** captcha cleared fine this
+  time, but immediately hit "too many requests" — a fresh rate-limit
+  symptom, not the same verification-send failure as before. No creds
+  landed in the vault (confirmed), so no orphaned-account risk on retry.
+  Consistent with the same underlying pattern (Reddit throttling this
+  fleet's signup traffic), just manifesting differently. **Parked again per
+  Jesse 2026-08-14** — don't retry without spacing attempts out much
+  further (hours/days, not minutes) or changing egress IP.
 
 ## 4. Reading verification codes from email
 
@@ -343,22 +351,79 @@ print({p: has_creds('$DOMAIN', p) for p in ['bluesky','pinterest','reddit']})
 "
 ```
 
-Track a multi-site sweep with the `TaskCreate`/`TaskUpdate` tools — one
-task per site, description tracking per-platform status — this is what
-kept a ~15-site sweep coherent across a long session instead of losing
-track of what was actually done vs. assumed done.
+Write each result into the registry the moment it lands (§6) — that's what
+keeps a long multi-site sweep coherent instead of losing track of what was
+actually done vs. assumed done. `social_registry.py worklist` is the
+resume point if the session dies.
 
-## 6. Current state — tracked in FLEET_SOCIAL_MAP.md
+## 6. The registry — where state lives (READ AND WRITE THIS)
 
-**Don't duplicate the status table here — it drifts.** The canonical,
-up-to-date tracker (brand accounts × all 8 platforms, plus the writer-persona
-gap across the 6 multi-byline sites) lives at
-`tools/social-setup/FLEET_SOCIAL_MAP.md`. Update that file directly whenever
-an account is provisioned, unstuck, or a persona roster changes.
+There is no markdown status table any more. `FLEET_SOCIAL_MAP.md` was deleted
+2026-08-15 and its contents migrated into the **fleet social registry**: a
+tracked JSON store at `tools/social-setup/registry/social.json`, served and
+edited through the Fleet Dashboard's **Social** tab
+(http://127.0.0.1:4754/#social) and its API (`/api/social/*`).
 
-As of the 2026-08-14 sweep, all sites in the then-remaining list are done
-(Bluesky + Pinterest). Two open items from that session, not yet fixed in
-the scripts:
+Why it changed: the markdown drifted constantly — sites were "corrected" in
+prose footnotes but never in the table, per-cell reasons were smeared into one
+shared Notes column, and there was no way for Jesse to tell the automation
+"Instagram killed this account, redo it." The registry fixes all three.
+
+**Use the CLI, not the JSON file.** Never hand-edit `social.json` — the API
+validates, appends an audit event, and writes atomically.
+
+```bash
+R="python3 tools/social-setup/scripts/social_registry.py"
+
+# ALWAYS start here: what is broken and what was never attempted
+$R worklist
+
+# Record a successful signup (upsert — no need to check if the row exists)
+$R set reviewtattoo.com bluesky --status active --handle reviewtattoo.bsky.social --creds
+
+# Record a failure with the reason the next run needs
+$R set sinderella.org pinterest --status stuck \
+     --note "orphaned email reservation — no known recovery, do not retry"
+
+# A persona account (--create-persona registers the byline if it's new)
+$R set americastrikes.com bluesky --persona "Sam Reyes" --status active \
+     --handle sam-reyes.bsky.social --creds
+
+# Read
+$R list --site americastrikes.com
+$R list --needs-attention
+$R personas --site saveusfarms.com
+$R events --limit 20
+```
+
+Statuses, and what each one means to you:
+
+| status | meaning | your job |
+|---|---|---|
+| `active` | live and usable | nothing |
+| `pending` | signup started, awaiting verification/onboarding | finish it |
+| `stuck` | partially created, known platform bug | read the note before retrying |
+| `blocked` | platform-level blocker (rate limit, shadow restriction) | don't burn captchas |
+| `suspended` | platform banned it — **this is the spam-ban case** | re-provision |
+| `closed` | account gone | re-provision |
+| `not_started` | never attempted (absence of a row means this too) | provision |
+| `excluded` | deliberately n/a for this site/persona | nothing |
+
+`worklist` turns those into an `action` per row (`provision` / `unblock` /
+`reprovision`) — that's the field to act on. Sites in a non-`active` bucket
+(`positioning_tbd`, `adult_excluded`, `retired`) are excluded from the
+provisioning worklist automatically, so you never have to re-derive the
+"correctly excluded" lists.
+
+**Write to the registry as you go, not at the end of a sweep.** A run that
+dies mid-way should still have left the registry accurate for everything it
+finished. This is the discipline the old markdown never enforced.
+
+Sites populate from live `sites/*` discovery, so a newly onboarded domain
+shows up in the Social tab with zero registry edits — it just has no account
+rows yet.
+
+### Known script bugs still open (2026-08-14 sweep)
 - **Pinterest's settings-page username check races the page render** —
   `page.goto(..., wait_until="domcontentloaded")` followed immediately by
   reading `input[name="username"]` finds nothing on a fair number of runs
@@ -379,7 +444,37 @@ the scripts:
   `bsky_signup.py` itself right after a "SIGNUP DID NOT SUCCEED" following
   a captcha clear, instead of a manual follow-up step each time.
 
-See `tools/social-setup/FLEET_SOCIAL_MAP.md` for the full current picture,
-including the not-started / TBD / adult-content-excluded site buckets and the
-writer-persona gap (0/18 named bylines have an individual social presence
-anywhere, as of 2026-08-14).
+### Fleet-level findings that outlived the markdown
+
+- **Pinterest soft-blocks by session/IP, not by domain.** After ~5 persona
+  signups in ~20 minutes (americastrikes.com), every subsequent attempt
+  failed identically: form fills fine, the submit click never registers, no
+  error banner, no orphaned-email lock. Confirmed not domain-specific — the
+  very next attempt on a different site (saveusfarms.com) failed the same
+  way. **Switch VPN egress before any further Pinterest attempts**, and space
+  them out.
+- **Instagram automation is parked.** `scripts/instagram_signup.py` gets
+  email/password/name/username and the Month/Day birthday dropdowns (custom
+  click-widgets — need real mouse-coordinate clicks to bypass a pointer-events
+  block; Instagram has no stable `name`/`placeholder`/`aria-label`, so fields
+  are matched by input type + DOM order). **The Year dropdown is the
+  blocker** — its option list needs scrolling to reach the target value, and
+  Submit stays disabled until all three birthday fields are set. No captcha
+  has ever been spent on it — every failure lands before that gate. Next step
+  if resumed: dump the Year dropdown's real scroll container from the DOM
+  rather than guessing.
+- **LinkedIn is a different risk class.** It requires a real identity behind a
+  profile, so a fabricated byline there is impersonation-adjacent, not just an
+  editorial-voice question. Americastrikes' own `ops/board/personas.md` already
+  bans a fake biography on social — treat that as fleet-wide. Get explicit
+  per-persona go-ahead from Jesse before running any LinkedIn signup. The
+  registry marks genuinely-real people with a `realPerson` flag on the persona;
+  everyone else is pseudonymous.
+
+### Open decisions (unresolved, ask Jesse)
+
+- Does every persona get a social presence, or only the lead/most-active
+  byline per site?
+- LinkedIn: opt-in per persona, or skip entirely for pseudonymous bylines?
+- 0daynews.com / sinderella.org Pinterest — orphaned email reservations with
+  no known recovery path. Revisit, or mark `excluded` and stop looking at them?

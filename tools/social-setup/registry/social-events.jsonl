@@ -1,0 +1,3 @@
+{"at":"2026-08-15T13:35:45.973Z","kind":"site.meta","site":"example.com","to":"retired","note":"scaffold stub — ops/ only, no site","actor":"social-setup"}
+{"at":"2026-08-15T13:35:46.217Z","kind":"account.updated","accountId":"acc_00000000004e","site":"saveusfarms.com","platform":"pinterest","scope":"persona","personaId":"per_00000000004c","to":"stuck","actor":"social-setup"}
+{"at":"2026-08-15T13:35:46.458Z","kind":"account.updated","accountId":"acc_00000000004f","site":"saveusfarms.com","platform":"instagram","scope":"persona","personaId":"per_00000000004c","to":"stuck","actor":"social-setup"}

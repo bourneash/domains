@@ -2,6 +2,45 @@
 
 Automated social media account provisioner for the domain portfolio. Creates accounts, configures profiles, captures API keys, and writes credential files to each site's `ops/social/` directory.
 
+> Current-generation provisioning (Vaultwarden creds + per-platform scripts in
+> `scripts/`) is documented in the `skills-domain-social-setup` skill. The CLI
+> described under "Usage" below is the older flat-file generation.
+
+## Registry — fleet social state
+
+`registry/social.json` is the tracked source of truth for **which accounts
+exist and what state they're in**, across every site, platform, and writer
+persona. It replaced the hand-maintained `FLEET_SOCIAL_MAP.md` on 2026-08-15.
+
+- **UI:** Fleet Dashboard → **Social** tab (http://127.0.0.1:4754/#social) —
+  matrix / list / persona views with search, grouping, sorting and filtering.
+- **API:** `/api/social/*` on the same panel (see `tools/fleet-dashboard/server/social.js`).
+- **CLI:** `scripts/social_registry.py` — the wrapper the skills and signup
+  scripts use.
+- **Audit trail:** every mutation appends to `registry/social-events.jsonl`.
+
+```bash
+R="python3 tools/social-setup/scripts/social_registry.py"
+$R worklist                                              # what needs doing
+$R set <site> <platform> --status active --handle <h> --creds
+$R set <site> <platform> --status suspended --note "why" # e.g. spam ban
+$R list --needs-attention
+$R personas --site saveusfarms.com
+```
+
+Statuses: `active` `pending` `stuck` `blocked` `suspended` `closed`
+`not_started` `excluded`; the registry derives a `provision` / `unblock` /
+`reprovision` action from them. Site buckets (`active`, `positioning_tbd`,
+`adult_excluded`, `retired`) keep non-eligible domains out of the worklist.
+Sites are discovered from `sites/*` automatically.
+
+Credentials themselves stay in Vaultwarden — the registry only records whether
+they exist. Never hand-edit `social.json`; go through the CLI/API so writes are
+validated, atomic, and logged.
+
+`registry/` was seeded by `tools/fleet-dashboard/scripts/import-social-map.js`,
+kept in-tree as provenance for the migration.
+
 ## Platforms
 
 Bluesky, Reddit, Pinterest, X (Twitter), Instagram, TikTok, Facebook Page

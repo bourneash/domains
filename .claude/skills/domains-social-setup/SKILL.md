@@ -5,6 +5,14 @@ description: Provision social media accounts for a domain site. Creates accounts
 
 # Social Media Account Provisioner
 
+> **SUPERSEDED (2026-08-15).** Use `skills-domain-social-setup` instead — it is
+> the current generation (Vaultwarden creds, per-platform full-automation
+> scripts). Account status is tracked in the fleet social registry (Fleet
+> Dashboard → Social, or `tools/social-setup/scripts/social_registry.py`), NOT
+> in flat `ops/social/` cred files and NOT in any markdown table. This file is
+> kept for its per-platform form/selector detail only.
+
+
 > **Note:** A legacy `social-setup` skill also exists (Playwright MCP + manual gates). This skill
 > (`domains-social-setup`) is the preferred approach — it uses the `social-setup` CLI with
 > CloakBrowser + VPN, which is more reliable and doesn't require Claude to drive the browser

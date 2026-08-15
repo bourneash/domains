@@ -5,6 +5,14 @@ description: Provision social media accounts for domain sites — create account
 
 # Social Media Account Provisioner
 
+> **SUPERSEDED (2026-08-15).** Use `skills-domain-social-setup` instead — it is
+> the current generation (Vaultwarden creds, per-platform full-automation
+> scripts). Account status is tracked in the fleet social registry (Fleet
+> Dashboard → Social, or `tools/social-setup/scripts/social_registry.py`), NOT
+> in flat `ops/social/` cred files and NOT in any markdown table. This file is
+> kept for its per-platform form/selector detail only.
+
+
 You (Claude) are the operator. You drive the browser via Playwright MCP tools, fill forms, take screenshots at gates, and ask Jesse only when a human is truly needed (CAPTCHA, phone verification, email confirmation codes).
 
 ## Architecture
