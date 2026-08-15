@@ -91,15 +91,25 @@ recovered_for() {
 
 # ================= 1. Cheap active probes (each trips → breadcrumb) =================
 probe() {
-  # site-down: one curl on the homepage.
+  # site-down: two consecutive curls (10s apart) on the homepage. A single
+  # curl failure is usually a transient DNS/network blip in this container,
+  # not a real outage — only raise an incident if the homepage is STILL down
+  # on the retry (chronic self-clearing false positives across the fleet,
+  # 2026-08-15 — single-shot probing was too trigger-happy).
   local code
   if [[ "${WATCHDOG_FAKE_PROBE_DOWN:-0}" == "1" ]]; then code="503"; else
     code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$BASE_URL/" 2>/dev/null || echo 000)"
   fi
   if [[ ! "$code" =~ ^2|^3 ]]; then
-    log "probe: homepage returned $code"
+    sleep 10
+    if [[ "${WATCHDOG_FAKE_PROBE_DOWN:-0}" == "1" ]]; then code="503"; else
+      code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$BASE_URL/" 2>/dev/null || echo 000)"
+    fi
+  fi
+  if [[ ! "$code" =~ ^2|^3 ]]; then
+    log "probe: homepage returned $code (2 consecutive failures)"
     bash "$EMIT" --role probe --class site-down --severity high \
-      --summary "live homepage $BASE_URL returned HTTP $code" >/dev/null 2>&1 || true
+      --summary "live homepage $BASE_URL returned HTTP $code (2 consecutive checks)" >/dev/null 2>&1 || true
   fi
 
   # deploy-stuck: .deploy-needed (or .failed) lingering past threshold.
