@@ -11,7 +11,7 @@ provenance only; absence there is a choice, not drift.
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
 | `site-tracker/sites.yml` | fleet-wide | 46/47 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 19/47 | amputeenews.com, fishhooklabs.com, newmomshop.com, rodhat.com, trainingsharks.com, weirdassstuff.com, weirdgirlstore.com |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 26/47 | — |
 | `DOMAINS_INDEX.md` | fleet-wide | 47/47 | — |
 | `social registry` | fleet-wide | 47/47 | — |
 | `data-hub/subscriptions.yaml` | opt-in | 7/47 | n/a |

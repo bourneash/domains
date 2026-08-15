@@ -178,9 +178,16 @@ sites:
     - cron
     - smoke
     - affiliate
+    - analytics
     - social
     - data-hub
+    analytics:
+      ga4_property_id: '548086783'
+      ga4_measurement_id: G-B7QK9WYK2C
+      gsc_property: sc-domain:amputeenews.com
+      consent_gated: false
     registered_in:
+    - analytics
     - data-hub
     - domains-index
     - site-tracker
@@ -342,9 +349,9 @@ sites:
     - domains-index
     - site-tracker
     - social
+    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
-    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -358,8 +365,15 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '549997086'
+      ga4_measurement_id: G-381S20FDFZ
+      gsc_property: sc-domain:fishhooklabs.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -428,9 +442,16 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '548108194'
+      ga4_measurement_id: G-NHEWL0M01E
+      gsc_property: sc-domain:newmomshop.com
+      consent_gated: false
     smoke_string: The gear guide that's actually been through it.
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -580,9 +601,16 @@ sites:
     - cron
     - smoke
     - tasks
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '548062354'
+      ga4_measurement_id: G-GXHMCZ25QC
+      gsc_property: sc-domain:rodhat.com
+      consent_gated: false
     smoke_string: RodHat wears a hat
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -632,7 +660,7 @@ sites:
       ga4_property_id: '539755746'
       ga4_measurement_id: G-SZFER7KX15
       gsc_property: sc-domain:shoptopless.com
-      consent_gated: false
+      consent_gated: true
     registered_in:
     - analytics
     - domains-index
@@ -728,9 +756,16 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '549359949'
+      ga4_measurement_id: G-ESRJQXFM0Z
+      gsc_property: sc-domain:trainingsharks.com
+      consent_gated: false
     smoke_string: TrainingSharks
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -812,10 +847,17 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
     - social
     - product-feed
+    analytics:
+      ga4_property_id: '549558311'
+      ga4_measurement_id: G-M3RMTTHB71
+      gsc_property: sc-domain:weirdassstuff.com
+      consent_gated: false
     smoke_string: Weird Ass Stuff
     registered_in:
+    - analytics
     - domains-index
     - product-feed
     - site-tracker
@@ -833,10 +875,17 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
     - social
     - product-feed
+    analytics:
+      ga4_property_id: '548108381'
+      ga4_measurement_id: G-DQ2B7ZK6Q3
+      gsc_property: sc-domain:weirdgirlstore.com
+      consent_gated: false
     smoke_string: Weird Girl Store
     registered_in:
+    - analytics
     - domains-index
     - product-feed
     - site-tracker
