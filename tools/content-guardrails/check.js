@@ -48,7 +48,13 @@ async function main() {
   const repoRoot = await gitTop(cwd);
   const repoSlug = path.basename(repoRoot);
   const diff = await stagedDiff(repoRoot);
-  if (!diff.trim()) return 0; // nothing staged (e.g. hook fired with an empty commit)
+  // Nothing staged (an empty commit) OR the staged diff is entirely inside
+  // this tool's own self-exempted path (EXEMPT_PATHSPECS) — either way,
+  // nothing to check. Must be the string 'clean', not 0: the caller compares
+  // `result === 'clean'`, so a bare falsy 0 was wrongly treated as a BLOCK
+  // (exit 1) with no message explaining why — a commit that only touches
+  // tools/content-guardrails/** always hit this.
+  if (!diff.trim()) return 'clean';
 
   const added = lib.addedLinesFromDiff(diff);
   const cfg = lib.loadConfig();
