@@ -20,7 +20,7 @@ Last verified against the vault: 2026-08-14 (36 items, live `bw list items` quer
 |---|---|---|---|---|---|---|---|---|---|
 | 0daynews.com | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pinterest stuck · 4-persona roster — see §2 |
 | 0xroulette.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Corrected 2026-08-14: was mislisted as not-started, creds already existed in vault |
-| aliencouncil.com | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Bluesky needs a real email verification code (hotmail inbox not auto-readable yet) |
+| aliencouncil.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Fixed 2026-08-14: prior "needs verification code" note was stale — fresh attempt hit one captcha (Jesse solved) on Bluesky, Pinterest went through with zero gates |
 | allthingsmasonic.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Handle truncated to `allthingsma.bsky.social` |
 | americastrikes.com | ✅ | ✅ | 🟡 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reddit account exists, OAuth app creation silently blocked · 5-writer roster — see §2 |
 | amputeenews.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 3-writer roster — see §2 |
@@ -38,16 +38,19 @@ Last verified against the vault: 2026-08-14 (36 items, live `bw list items` quer
 | ultrarough.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Pre-existing, set up before the vault system |
 | weirdassstuff.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
 | weirdgirlstore.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | No persona roster |
-| wetpages.com | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reclassified 2026-08-14 — reviewed, NOT explicit content (spicy-romance/BookTok book reviews, no nudity/sex acts per brand doc); moved out of the adult-content exclusion bucket. Bluesky live (`wetpages.bsky.social`), Pinterest next |
+| wetpages.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | Reclassified 2026-08-14 — reviewed, NOT explicit content (spicy-romance/BookTok book reviews, no nudity/sex acts per brand doc); moved out of the adult-content exclusion bucket. Pinterest done 2026-08-14, zero gates hit |
 | xxxtea.com | ✅ | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | — |
 
-**Fleet total:** Bluesky 16 live / 1 stuck (17). Pinterest 14 live / 2 stuck /
-1 not started (17). Reddit 1 (blocked, parked fleet-wide). X, Instagram,
-TikTok, LinkedIn, Facebook: **0 across every domain** — confirmed straight
-from the vault item list, not an omission in tracking.
+**Fleet total (verified live against vault 2026-08-14):** Bluesky 24/24 live
+across every eligible brand. Pinterest 22/24 live, 2 stuck on orphaned email
+reservations (0daynews.com, sinderella.org — no known recovery, don't keep
+retrying). Reddit 1 (blocked, parked fleet-wide). X, Instagram, TikTok,
+LinkedIn, Facebook: **0 across every domain**.
 
 ### Not started — active/live sites, no brand social yet
-fishhooklabs.com, weapontester.com
+None — fishhooklabs.com and weapontester.com were mislisted here (creds
+already existed in vault, same stale-tracking pattern as the 0xroulette/
+oventoheaven/rc-9 correction below). Corrected 2026-08-14.
 
 ### Positioning TBD — no brief yet, correctly excluded
 complicated.work, deadlymaracas.com, driveford.net, drivegm.net,
