@@ -40,7 +40,7 @@ OUT = ROOT / "registry" / "fleet.yaml"
 REPORT = Path(__file__).resolve().parent / "MERGE_REPORT.md"
 
 # Fields a human owns once the file exists — never overwritten by a re-run.
-PRESERVED_KEYS = {"status", "tags", "notes", "capabilities_override"}
+PRESERVED_KEYS = {"status", "tags", "notes", "capabilities_override", "analytics_external"}
 
 # Directories under sites/ that are not domains.
 NOT_A_SITE = {"example.com"}

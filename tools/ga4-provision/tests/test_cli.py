@@ -88,3 +88,17 @@ def test_duplicate_display_name_grants_only_the_winning_property(monkeypatch, tm
     assert granted == ["544645637"]
     out = capsys.readouterr().out.lower()
     assert "1 duplicate property skipped" in out
+
+
+def test_measurement_id_found_outside_the_legacy_glob_paths(tmp_path):
+    """rodhat.com wires GA4 in site/src/data/site-config.ts — the old three
+    hardcoded globs missed it and reported the site as having no GA4 at all."""
+    data = tmp_path / "rodhat.com" / "site" / "src" / "data"
+    data.mkdir(parents=True)
+    (data / "site-config.ts").write_text("  ga4MeasurementId: 'G-GXHMCZ25QC',")
+    assert cli.measurement_ids_from_sites(tmp_path) == {"rodhat.com": "G-GXHMCZ25QC"}
+
+
+def test_site_without_a_src_tree_is_skipped(tmp_path):
+    (tmp_path / "parked.com").mkdir()
+    assert cli.measurement_ids_from_sites(tmp_path) == {}

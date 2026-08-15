@@ -14,12 +14,12 @@ SITES_DIR = Path("/home/jesse/projects/domains/sites")
 GA_ID_RE = re.compile(r"G-[A-Z0-9]{8,}")
 PLACEHOLDERS = {"G-PLACEHOLDER", "G-XXXXXXXXXX"}
 
-# Both wiring patterns in the fleet: a lib module and an inline layout tag.
-SEARCH_GLOBS = (
-    "site/src/lib/analytics.ts",
-    "site/src/layouts/*.astro",
-    "site/src/components/*.astro",
-)
+# The fleet wires GA4 in more places than the three this used to check
+# (lib/analytics.ts, layouts/*.astro, components/*.astro) — rodhat.com puts it
+# in site/src/data/site-config.ts, which made the scraper report "no ID wired"
+# for a site that had been shipping gtag for weeks. Walk the whole src tree
+# instead of guessing paths; it's a few hundred files per site, once, by hand.
+SEARCH_EXTS = {".astro", ".ts", ".tsx", ".js", ".mjs"}
 
 
 def measurement_ids_from_sites(sites_dir: Path | None = None) -> dict[str, str]:
@@ -31,15 +31,18 @@ def measurement_ids_from_sites(sites_dir: Path | None = None) -> dict[str, str]:
         site = site_path.name
         if site.startswith("DISABLED-"):
             continue
-        for pattern in SEARCH_GLOBS:
-            for path in sorted(site_path.glob(pattern)):
-                try:
-                    text = path.read_text(errors="ignore")
-                except OSError:
-                    continue
-                for match in GA_ID_RE.findall(text):
-                    if match not in PLACEHOLDERS:
-                        found.setdefault(site, match)
+        src = site_path / "site" / "src"
+        if not src.is_dir():
+            continue
+        for path in sorted(p for p in src.rglob("*") if p.suffix in SEARCH_EXTS):
+            try:
+                text = path.read_text(errors="ignore")
+            except OSError:
+                continue
+            for match in GA_ID_RE.findall(text):
+                if match not in PLACEHOLDERS:
+                    found.setdefault(site, match)
+                    break
             if site in found:
                 break
 

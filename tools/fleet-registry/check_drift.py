@@ -77,6 +77,11 @@ def check() -> tuple[list[str], list[str]]:
     for label, key in FLEET_WIDE:
         missing = sorted(set(live) - set(src[key]))
         for domain in missing:
+            # A site whose analytics live in someone else's Google account is
+            # never going to appear in our registry, and re-reporting it every
+            # run is how a warning list becomes background noise.
+            if key == "analytics" and registry[domain].get("analytics_external"):
+                continue
             warnings.append(f"{domain}: live but missing from {label}")
     for domain in sorted(live):
         entry = registry[domain]
