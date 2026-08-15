@@ -22,6 +22,13 @@ else
   echo "guardrail check not found at $TOOLS_ROOT/content-guardrails/check.js — skipping (tool not mounted?)"
 fi
 
+# --- 1b. Fleet registry guard (monorepo only; no-op everywhere else) ---
+# Only fires when a commit adds/removes a sites/<domain> path without touching
+# registry/fleet.yaml — the exact moment onboarding forgets the registry.
+if [ -f "$TOOLS_ROOT/fleet-registry/precommit_check.sh" ]; then
+  sh "$TOOLS_ROOT/fleet-registry/precommit_check.sh" || exit 1
+fi
+
 # --- 2. Format staged .ts/.tsx/.js/.astro files with shared prettier ---
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|astro)$')
 if [ -z "$STAGED" ]; then

@@ -1,0 +1,876 @@
+# Canonical fleet registry — one entry per domain.
+#
+# Truth model: the filesystem owns *existence* (a dir under sites/ with
+# ops/ or site/ is a site); this file owns *policy* (status, ids, which
+# tools apply). Consumers read this instead of keeping their own roster.
+#
+# Derived fields are refreshed by tools/fleet-registry/build_registry.py
+# --write. Hand-owned fields (status, tags, notes, capabilities_override)
+# survive a rebuild — edit those here freely.
+sites:
+  0daynews.com:
+    status: live
+    repo: bourneash/0daynews.com
+    worker: 0daynews-com
+    cf_zone: 0daynews.com
+    slack_channel_env: SLACK_CHANNEL_0DAYNEWS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - analytics
+    - social
+    - data-hub
+    analytics:
+      ga4_property_id: '544645637'
+      ga4_measurement_id: G-F9JRVHH3MW
+      gsc_property: sc-domain:0daynews.com
+      consent_gated: false
+    registered_in:
+    - analytics
+    - data-hub
+    - domains-index
+    - site-tracker
+    - social
+  0xroulette.com:
+    status: live
+    repo: bourneash/0xroulette.com
+    cf_zone: 0xroulette.com
+    slack_channel_env: SLACK_CHANNEL_0XROULETTE
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '542247993'
+      ga4_measurement_id: G-KQH7L26D95
+      gsc_property: sc-domain:0xroulette.com
+      consent_gated: false
+    smoke_string: 0xRoulette
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  3boobs.com:
+    status: live
+    repo: bourneash/3boobs.com
+    worker: 3boobs-com
+    cf_zone: 3boobs.com
+    slack_channel_env: SLACK_CHANNEL_3BOOBS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '540969570'
+      ga4_measurement_id: null
+      gsc_property: sc-domain:3boobs.com
+      consent_gated: false
+    smoke_string: 3boobs.com
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  aliencouncil.com:
+    status: live
+    repo: bourneash/aliencouncil
+    worker: aliencouncil
+    cf_zone: aliencouncil.com
+    slack_channel_env: SLACK_CHANNEL_ALIENCOUNCIL
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    - data-hub
+    analytics:
+      ga4_property_id: '539754450'
+      ga4_measurement_id: G-8Z6YMDR3VX
+      gsc_property: sc-domain:aliencouncil.com
+      consent_gated: false
+    smoke_string: Independent body of record on UAP
+    registered_in:
+    - analytics
+    - data-hub
+    - domains-index
+    - site-tracker
+    - social
+  allthingsmasonic.com:
+    status: live
+    repo: bourneash/allthingsmasonic.com
+    worker: allthingsmasonic-com
+    cf_zone: allthingsmasonic.com
+    slack_channel_env: SLACK_CHANNEL_ALLTHINGSMASONIC
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '549245276'
+      ga4_measurement_id: G-EEHYHLL8Q0
+      gsc_property: sc-domain:allthingsmasonic.com
+      consent_gated: true
+    smoke_string: All Things Masonic
+    registered_in:
+    - analytics
+    - site-tracker
+    - social
+  americastrikes.com:
+    status: live
+    repo: bourneash/americastrikes
+    worker: americastrikes
+    cf_zone: americastrikes.com
+    slack_channel_env: SLACK_CHANNEL_AMERICA_STRIKES
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    - data-hub
+    analytics:
+      ga4_property_id: '539753593'
+      ga4_measurement_id: G-ZHHXBF92TY
+      gsc_property: sc-domain:americastrikes.com
+      consent_gated: false
+    smoke_string: Geopolitics, Defense
+    registered_in:
+    - analytics
+    - data-hub
+    - domains-index
+    - site-tracker
+    - social
+  amputeenews.com:
+    status: live
+    repo: bourneash/amputeenews.com
+    worker: amputeenews-com
+    cf_zone: amputeenews.com
+    slack_channel_env: SLACK_CHANNEL_AMPUTEENEWS_COM
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - affiliate
+    - social
+    - data-hub
+    registered_in:
+    - data-hub
+    - domains-index
+    - site-tracker
+    - social
+  broadwayshowgirls.com:
+    status: live
+    repo: bourneash/broadwayshowgirls.com
+    worker: broadwayshowgirls-com
+    cf_zone: broadwayshowgirls.com
+    slack_channel_env: SLACK_CHANNEL_BROADWAY_SHOW_GIRLS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    - data-hub
+    analytics:
+      ga4_property_id: '542413111'
+      ga4_measurement_id: G-SKQPE8V8JB
+      gsc_property: sc-domain:broadwayshowgirls.com
+      consent_gated: false
+    registered_in:
+    - analytics
+    - data-hub
+    - domains-index
+    - social
+  complicated.work:
+    status: scaffold
+    repo: bourneash/complicated.work
+    worker: complicated-work
+    cf_zone: complicated.work
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  deadlymaracas.com:
+    status: scaffold
+    repo: bourneash/deadlymaracas.com
+    worker: deadlymaracas-com
+    cf_zone: deadlymaracas.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  deeppenetrations.com:
+    status: live
+    repo: bourneash/deeppenetrations.com
+    worker: deeppenetrations-com
+    cf_zone: deeppenetrations.com
+    slack_channel_env: SLACK_CHANNEL_DEEPPENETRATIONS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '540547540'
+      ga4_measurement_id: G-LXCYBEFKC1
+      gsc_property: sc-domain:deeppenetrations.com
+      consent_gated: false
+    registered_in:
+    - analytics
+    - domains-index
+    - social
+  driveford.net:
+    status: scaffold
+    repo: bourneash/driveford.net
+    worker: driveford-net
+    cf_zone: driveford.net
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  drivegm.net:
+    status: scaffold
+    repo: bourneash/drivegm.net
+    worker: drivegm-net
+    cf_zone: drivegm.net
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  dumbsluts.com:
+    status: scaffold
+    repo: bourneash/dumbsluts.com
+    worker: dumbsluts-com
+    cf_zone: dumbsluts.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  elevatorfriends.com:
+    status: scaffold
+    repo: bourneash/elevatorfriends.com
+    worker: elevatorfriends-com
+    cf_zone: elevatorfriends.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  failbunny.com:
+    status: scaffold
+    repo: bourneash/failbunny.com
+    worker: failbunny-com
+    cf_zone: failbunny.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  findyourlostpets.com:
+    status: scaffold
+    repo: bourneash/findyourlostpets.com
+    worker: findyourlostpets-com
+    cf_zone: findyourlostpets.com
+    capabilities:
+    - site
+    - ops
+    - social
+    smoke_string: Every trail leads home
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
+  fishhooklabs.com:
+    status: live
+    repo: bourneash/fishhooklabs.com
+    worker: fishhooklabs-com
+    cf_zone: fishhooklabs.com
+    capabilities:
+    - site
+    - ops
+    - cron
+    - tasks
+    - affiliate
+    - social
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
+  gate03.com:
+    status: scaffold
+    repo: bourneash/gate03.com
+    worker: gate03-com
+    cf_zone: gate03.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
+  infrainnovator.com:
+    status: scaffold
+    repo: bourneash/infrainnovator.com
+    worker: infrainnovator-com
+    cf_zone: infrainnovator.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  mynewgm.com:
+    status: scaffold
+    repo: bourneash/mynewgm.com
+    worker: mynewgm-com
+    cf_zone: mynewgm.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  mynewgm.info:
+    status: scaffold
+    repo: bourneash/mynewgm.info
+    worker: mynewgm-info
+    cf_zone: mynewgm.info
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  newmomshop.com:
+    status: live
+    repo: bourneash/newmomshop.com
+    worker: newmomshop-com
+    cf_zone: newmomshop.com
+    slack_channel_env: SLACK_CHANNEL_NEWMOMSHOP
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - social
+    smoke_string: The gear guide that's actually been through it.
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
+  noveltyguns.com:
+    status: scaffold
+    repo: bourneash/noveltyguns.com
+    worker: noveltyguns-com
+    cf_zone: noveltyguns.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  nsfwpixels.com:
+    status: scaffold
+    repo: bourneash/nsfwpixels.com
+    worker: nsfwpixels-com
+    cf_zone: nsfwpixels.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  nsfwpixles.com:
+    status: redirect
+    cf_zone: nsfwpixles.com
+    capabilities:
+    - social
+    registered_in:
+    - domains-index
+    - social
+  oventoheaven.com:
+    status: live
+    repo: bourneash/oventoheaven.com
+    worker: oventoheaven-com
+    cf_zone: oventoheaven.com
+    slack_channel_env: SLACK_CHANNEL_OVENTOHEAVEN
+    capabilities:
+    - site
+    - ops
+    - smoke
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '546574620'
+      ga4_measurement_id: G-RY7R673EL5
+      gsc_property: sc-domain:oventoheaven.com
+      consent_gated: false
+    smoke_string: oventoheaven.com
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  pervypotion.com:
+    status: scaffold
+    repo: bourneash/pervypotion.com
+    worker: pervypotion-com
+    cf_zone: pervypotion.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  pokererotic.com:
+    status: scaffold
+    repo: bourneash/pokererotic.com
+    worker: pokererotic-com
+    cf_zone: pokererotic.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  rc-9.com:
+    status: live
+    repo: bourneash/rc-9
+    worker: rc-9
+    cf_zone: rc-9.com
+    slack_channel_env: SLACK_CHANNEL_RC9
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539712309'
+      ga4_measurement_id: null
+      gsc_property: sc-domain:rc-9.com
+      consent_gated: false
+    smoke_string: Free Online Artillery Tank Game
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  reviewtattoo.com:
+    status: live
+    repo: bourneash/reviewtattoo
+    worker: reviewtattoo
+    cf_zone: reviewtattoo.com
+    slack_channel_env: SLACK_CHANNEL_REVIEWTATTOO
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539754267'
+      ga4_measurement_id: G-JRCG92YYCB
+      gsc_property: sc-domain:reviewtattoo.com
+      consent_gated: false
+    smoke_string: First Tattoo Guides
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  rodhat.com:
+    status: live
+    repo: bourneash/rodhat.com
+    worker: rodhat-com
+    cf_zone: rodhat.com
+    slack_channel_env: SLACK_CHANNEL_RODHAT
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - social
+    smoke_string: RodHat wears a hat
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
+  saveusfarms.com:
+    status: live
+    repo: bourneash/saveusfarms.com
+    worker: saveusfarms-com
+    cf_zone: saveusfarms.com
+    slack_channel_env: SLACK_CHANNEL_SAVE_US_FARMS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    - data-hub
+    analytics:
+      ga4_property_id: '542493246'
+      ga4_measurement_id: G-GDYX2GPMMJ
+      gsc_property: sc-domain:saveusfarms.com
+      consent_gated: true
+    registered_in:
+    - analytics
+    - data-hub
+    - domains-index
+    - social
+  shoptopless.com:
+    status: live
+    repo: bourneash/shoptopless.com
+    worker: shoptopless-com
+    cf_zone: shoptopless.com
+    slack_channel_env: SLACK_CHANNEL_SHOPTOPLESS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539755746'
+      ga4_measurement_id: G-SZFER7KX15
+      gsc_property: sc-domain:shoptopless.com
+      consent_gated: false
+    registered_in:
+    - analytics
+    - domains-index
+    - social
+  sinderella.org:
+    status: live
+    repo: //github.com/bourneash/sinderella
+    worker: sinderella
+    cf_zone: sinderella.org
+    slack_channel_env: SLACK_CHANNEL_SINDERELLA
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    - data-hub
+    analytics:
+      ga4_property_id: '539773741'
+      ga4_measurement_id: G-Q378G15KZZ
+      gsc_property: sc-domain:sinderella.org
+      consent_gated: false
+    smoke_string: signal-informed daily horoscopes
+    registered_in:
+    - analytics
+    - data-hub
+    - domains-index
+    - site-tracker
+    - social
+  stinkyleftfoot.com:
+    status: scaffold
+    repo: bourneash/stinkyleftfoot.com
+    worker: stinkyleftfoot-com
+    cf_zone: stinkyleftfoot.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  therareunicorn.com:
+    status: scaffold
+    repo: bourneash/therareunicorn.com
+    worker: therareunicorn-com
+    cf_zone: therareunicorn.com
+    capabilities:
+    - site
+    - social
+    registered_in:
+    - social
+  totaljerks.com:
+    status: live
+    repo: bourneash/totaljerks.com
+    worker: totaljerks-com
+    cf_zone: totaljerks.com
+    slack_channel_env: SLACK_CHANNEL_TOTALJERKS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539694930'
+      ga4_measurement_id: G-R72CH4D2CR
+      gsc_property: sc-domain:totaljerks.com
+      consent_gated: false
+    registered_in:
+    - analytics
+    - domains-index
+    - social
+  trainingsharks.com:
+    status: live
+    repo: bourneash/trainingsharks.com
+    cf_zone: trainingsharks.com
+    slack_channel_env: SLACK_CHANNEL_TRAININGSHARKS
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - social
+    smoke_string: TrainingSharks
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
+  ultrarough.com:
+    status: live
+    repo: bourneash/ultrarough.com
+    worker: ultrarough
+    cf_zone: ultrarough.com
+    slack_channel_env: SLACK_CHANNEL_ULTRAROUGH
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539753693'
+      ga4_measurement_id: G-2WSKDPGPXV
+      gsc_property: sc-domain:ultrarough.com
+      consent_gated: false
+    smoke_string: The grit you
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  vibratorporn.com:
+    status: scaffold
+    repo: bourneash/vibratorporn.com
+    worker: vibratorporn-com
+    cf_zone: vibratorporn.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  weapontester.com:
+    status: live
+    repo: bourneash/weapontester.com
+    worker: weapontester
+    cf_zone: weapontester.com
+    slack_channel_env: SLACK_CHANNEL_WEAPONTESTER
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539755626'
+      ga4_measurement_id: G-HYYSTD9NW8
+      gsc_property: sc-domain:weapontester.com
+      consent_gated: true
+    smoke_string: Build a rifle. Test it.
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
+  weirdassstuff.com:
+    status: live
+    repo: bourneash/weirdassstuff.com
+    worker: weirdassstuff-com
+    cf_zone: weirdassstuff.com
+    slack_channel_env: SLACK_CHANNEL_WEIRDASSSTUFF
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - social
+    - product-feed
+    smoke_string: Weird Ass Stuff
+    registered_in:
+    - domains-index
+    - product-feed
+    - site-tracker
+    - social
+  weirdgirlstore.com:
+    status: live
+    repo: bourneash/weirdgirlstore.com
+    worker: weirdgirlstore-com
+    cf_zone: weirdgirlstore.com
+    slack_channel_env: SLACK_CHANNEL_WEIRDGIRLSTORE
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - social
+    - product-feed
+    smoke_string: Weird Girl Store
+    registered_in:
+    - domains-index
+    - product-feed
+    - site-tracker
+    - social
+  wetpages.com:
+    status: live
+    repo: bourneash/wetpages.com
+    worker: wetpages-com
+    cf_zone: wetpages.com
+    slack_channel_env: SLACK_CHANNEL_WETPAGES
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539774170'
+      ga4_measurement_id: G-L1285EE0NE
+      gsc_property: sc-domain:wetpages.com
+      consent_gated: false
+    registered_in:
+    - analytics
+    - domains-index
+    - social
+  wetslit.com:
+    status: scaffold
+    repo: bourneash/wetslit.com
+    worker: wetslit-com
+    cf_zone: wetslit.com
+    capabilities:
+    - site
+    - ops
+    - social
+    registered_in:
+    - domains-index
+    - social
+  xxxtea.com:
+    status: live
+    repo: bourneash/xxxtea.com
+    worker: xxxtea-com
+    cf_zone: xxxtea.com
+    slack_channel_env: SLACK_CHANNEL_XXXTEA
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '539743210'
+      ga4_measurement_id: G-P889LLFBNK
+      gsc_property: sc-domain:xxxtea.com
+      consent_gated: false
+    smoke_string: Tea for adults
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
+    - social
