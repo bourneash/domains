@@ -1,6 +1,11 @@
 import json
 
-from lib.checks import resolve_apex_ip, run_http_check, run_checks
+from lib.checks import (
+    resolve_apex_ip,
+    run_http_check,
+    run_checks,
+    run_module_graph_check,
+)
 
 
 def test_resolve_apex_ip_parses_doh_response():
@@ -133,5 +138,110 @@ def test_run_checks_skips_dns_lookup_when_disabled():
         raise AssertionError("should not be called when dns_over_https is False")
 
     results = run_checks(config, run_curl=fake_run_curl, http_get=fake_http_get)
+
+    assert results[0]["ok"] is True
+
+
+# --- module_graph: catches the "Importing a module script failed" class of
+# bug that a plain http_status 200 on an SPA route can never see (the shell
+# HTML always 200s; it's the chunk it references that can be missing). ---
+
+ENTRY_HTML = '<script type="module" crossorigin src="/assets/index-AAA.js"></script>'
+
+
+def _asset_graph(bodies):
+    """bodies: {path: body}. Returns (fake_run_curl, fake_fetch_body) where
+    any path not in `bodies` 404s."""
+    def fake_run_curl(apex, ip, path):
+        return "200" if path in bodies else "404"
+
+    def fake_fetch_body(apex, ip, path):
+        return bodies.get(path, "")
+
+    return fake_run_curl, fake_fetch_body
+
+
+def test_module_graph_passes_when_entry_has_no_dynamic_imports():
+    check = {"path": "/", "label": "Homepage"}
+    run_curl, fetch_body = _asset_graph({
+        "/": ENTRY_HTML,
+        "/assets/index-AAA.js": "console.log('no lazy imports here')",
+    })
+
+    result = run_module_graph_check("example.com", "203.0.113.10", check,
+                                     run_curl=run_curl, fetch_body=fetch_body)
+
+    assert result["ok"] is True
+    assert "1 module chunk(s) resolve" in result["actual"]
+
+
+def test_module_graph_walks_transitive_dynamic_imports():
+    check = {"path": "/play", "label": "Simulator"}
+    run_curl, fetch_body = _asset_graph({
+        "/play": ENTRY_HTML,
+        "/assets/index-AAA.js": 'const Game = () => import("./App-BBB.js");',
+        "/assets/App-BBB.js": 'const IDE = () => import("./EngineerIDE-CCC.js");',
+        "/assets/EngineerIDE-CCC.js": "console.log('leaf chunk')",
+    })
+
+    result = run_module_graph_check("example.com", "203.0.113.10", check,
+                                     run_curl=run_curl, fetch_body=fetch_body)
+
+    assert result["ok"] is True
+    assert "3 module chunk(s) resolve" in result["actual"]
+
+
+def test_module_graph_fails_on_missing_lazy_chunk():
+    # Exactly the reported incident: index.html's entry chunk is fine, but
+    # the lazily-imported App chunk it points at 404s (stale deploy).
+    check = {"path": "/play", "label": "Simulator"}
+    run_curl, fetch_body = _asset_graph({
+        "/play": ENTRY_HTML,
+        "/assets/index-AAA.js": 'const Game = () => import("./App-stale.js");',
+    })
+
+    result = run_module_graph_check("example.com", "203.0.113.10", check,
+                                     run_curl=run_curl, fetch_body=fetch_body)
+
+    assert result["ok"] is False
+    assert "App-stale.js (404)" in result["actual"]
+
+
+def test_module_graph_fails_when_entry_page_itself_errors():
+    check = {"path": "/play", "label": "Simulator"}
+
+    def fake_run_curl(apex, ip, path):
+        return "503"
+
+    result = run_module_graph_check("example.com", "203.0.113.10", check,
+                                     run_curl=fake_run_curl)
+
+    assert result["ok"] is False
+    assert "503" in result["actual"]
+
+
+def test_module_graph_fails_when_no_module_script_in_html():
+    check = {"path": "/play", "label": "Simulator"}
+    run_curl, fetch_body = _asset_graph({"/play": "<html><body>no script tag</body></html>"})
+
+    result = run_module_graph_check("example.com", "203.0.113.10", check,
+                                     run_curl=run_curl, fetch_body=fetch_body)
+
+    assert result["ok"] is False
+    assert "no <script" in result["actual"]
+
+
+def test_run_checks_dispatches_module_graph_type():
+    config = {
+        "apex": "example.com",
+        "dns_over_https": False,
+        "checks": [{"path": "/play", "type": "module_graph", "label": "Simulator"}],
+    }
+    run_curl, fetch_body = _asset_graph({
+        "/play": ENTRY_HTML,
+        "/assets/index-AAA.js": "console.log('leaf')",
+    })
+
+    results = run_checks(config, run_curl=run_curl, fetch_body=fetch_body)
 
     assert results[0]["ok"] is True
