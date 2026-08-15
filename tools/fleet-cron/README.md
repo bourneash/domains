@@ -1,10 +1,12 @@
 # tools/fleet-cron
 
-Fleet-level scheduler container. Runs the six cross-cutting jobs that used to
-live on jesse's host crontab — self-heal for site schedulers, the SecurityScanner
-temp-scans purge, the stuck-worker reaper, the Claude Code auth watchdog, the
-lint sweep, and the Fleet Dashboard domain-jobs drainer. Migrated 2026-08-15;
-see `HANDOFF.md` for the full brief this was built from.
+Fleet-level scheduler container. Runs the seven cross-cutting jobs that used
+to live on jesse's host crontab — self-heal for site schedulers, the
+SecurityScanner temp-scans purge, the stuck-worker reaper, the Claude Code
+auth watchdog, the lint sweep, the Fleet Dashboard domain-jobs drainer, and
+the fleet registry drift check. Migrated 2026-08-15; see `HANDOFF.md` for the
+brief the first six were built from (job 7 followed the same day — see
+"registry-drift-cron.sh" below).
 
 Same supercronic pattern every site's `ops/docker/Dockerfile.cron` already
 uses, based on `node:22-alpine` instead of bare `alpine` because job 6
@@ -25,6 +27,7 @@ and the extra ~150MB hasn't cost anything yet.
 | 4 | `*/15 * * * *` | `tools/scripts/check-claude-auth.sh` | Probe the shared Claude OAuth session; alert `#domain-ops` after 2 consecutive failures |
 | 5 | `20 6 * * *` | `tools/scripts/lint-sweep-cron.sh` | Fleet prettier parse/format sweep |
 | 6 | `* * * * *` | `tools/scripts/domain-job-runner.sh` | Drain the Fleet Dashboard Domains-tab onboard/offboard spool |
+| 7 | `35 6 * * *` | `tools/scripts/registry-drift-cron.sh` | Fleet registry (`registry/fleet.yaml`) drift check against per-site config |
 
 Cadences are unchanged from the host-crontab entries they replace. Each
 script's own header comment carries the incident that justifies its
@@ -41,7 +44,7 @@ which a host crontab entry gives you. See `HANDOFF.md` §1 for the full case.
 
 Job 1 (`ensure-fleet-cron.sh`) is the thing that notices a dead site
 scheduler and brings it back. Moving it into a container that can itself die
-is circular. **Chosen: Option A** from `HANDOFF.md` §4 — move all six jobs
+is circular. **Chosen: Option A** from `HANDOFF.md` §4 — move every job
 in here, and leave exactly **one** host crontab line:
 
 ```
@@ -132,11 +135,12 @@ Every host crontab line this replaced is commented out, not deleted (see
 `crontab -l`) — uncomment the relevant line and `docker compose down` here to
 revert instantly.
 
-## Known follow-up (out of scope for this migration)
+## registry-drift-cron.sh (job 7)
 
-A 7th line — `35 6 * * * tools/scripts/registry-drift-cron.sh` — landed on
-the host crontab the same day as this migration (fleet-registry work,
-unrelated commit) and was NOT part of the six-job brief this tool was built
-from. It has the same "wrong place" problem. Left on the host deliberately —
-folding it in was out of scope for this change; migrate it here in a
-follow-up.
+Landed on the host crontab the same day this tool was built (fleet-registry
+work, a separate unrelated commit) — after `HANDOFF.md`'s six-job brief was
+already written, so it wasn't in the original migration. Same "wrong place"
+problem as the other six; folded in the same day once flagged. Needs
+`py3-yaml` in the image (its `check_drift.py` parses `registry/fleet.yaml` +
+per-site registry files) — the only per-job Dockerfile dependency any of the
+seven jobs need beyond the base toolchain.

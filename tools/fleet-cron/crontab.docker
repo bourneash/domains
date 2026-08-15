@@ -1,4 +1,4 @@
-# Fleet-level cron schedule — six cross-cutting jobs moved off jesse's host
+# Fleet-level cron schedule — seven cross-cutting jobs moved off jesse's host
 # crontab (see ../HANDOFF.md and README.md). Bind-mounted live into the
 # fleet-cron container (NOT baked into the image): edit this file and
 # `docker compose restart cron` — no rebuild needed. This is the amputeenews
@@ -9,6 +9,10 @@
 # Schedules are unchanged from the host crontab entries they replace — do not
 # retune cadences here without a separate, deliberate change.
 #
+# Job 7 (registry-drift-cron.sh) landed on the host crontab the same day this
+# tool was built (fleet-registry work), after HANDOFF.md's six-job brief was
+# already written — folded in here 2026-08-15 as a same-day follow-up, not
+# part of the original migration commit.
 # --- Job 1: fleet cron self-heal (Option A, see ../HANDOFF.md §4) ---
 # This is the job that heals dead SITE scheduler containers. The healer
 # healing itself would be circular, so the ONE thing left on the host is
@@ -30,3 +34,6 @@
 
 # --- Job 6: Fleet Dashboard domain-jobs spool drainer ---
 * * * * * /home/jesse/projects/domains/tools/scripts/domain-job-runner.sh
+
+# --- Job 7: fleet registry drift check (zero-AI, filesystem + YAML only) ---
+35 6 * * * /home/jesse/projects/domains/tools/scripts/registry-drift-cron.sh

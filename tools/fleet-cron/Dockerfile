@@ -17,10 +17,13 @@ FROM node:22-alpine
 # or `git submodule add` from job 6 corrupts bind-mounted repo state.
 RUN deluser node
 
+# py3-yaml: job 7's check_drift.py parses registry/fleet.yaml + per-site
+# registry files.
 RUN apk add --no-cache \
     bash \
     curl \
     python3 \
+    py3-yaml \
     git \
     openssh-client \
     tzdata \
