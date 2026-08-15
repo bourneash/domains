@@ -1,0 +1,54 @@
+version: 1
+
+# Discovery searches only. Every result is opened on its canonical Amazon
+# /dp/<ASIN> page and verified before it enters the feed. These strings are
+# never used as affiliate destinations.
+queries:
+  - id: pink-macabre-decor
+    query: "pink skull gothic decor"
+    tags: [weird, weirdgirl, gothic, macabre, decor]
+    priority: 100
+  - id: creepy-cute-decor
+    query: "creepy cute gothic home decor"
+    tags: [weird, weirdgirl, gothic, macabre, decor, home-decor-weird]
+    priority: 95
+  - id: anatomical-curios
+    query: "anatomical oddity decor"
+    tags: [weird, weirdgirl, macabre, decor, collectibles, home-decor-weird]
+    priority: 92
+  - id: occult-objects
+    query: "unusual occult altar decor"
+    tags: [weird, weirdgirl, gothic, occult, collectibles]
+    priority: 90
+  - id: gothic-wearables
+    query: "unusual gothic jewelry accessory"
+    tags: [weird, weirdgirl, gothic, wearable, wearable-wtf]
+    priority: 86
+  - id: bizarre-gifts
+    query: "bizarre novelty gift weird"
+    tags: [weird, novelty, gag-gifts]
+    priority: 84
+  - id: weird-desk
+    query: "weird desk toy unusual gadget"
+    tags: [weird, novelty, desk-weird, tech-oddities]
+    priority: 82
+  - id: strange-kitchen
+    query: "strange kitchen gadget novelty"
+    tags: [weird, novelty, kitchen-chaos]
+    priority: 80
+  - id: bizarre-bathroom
+    query: "bizarre bathroom novelty gift"
+    tags: [weird, novelty, bathroom-bizarre, gag-gifts]
+    priority: 78
+  - id: weird-pet
+    query: "weird pet accessory costume novelty"
+    tags: [weird, novelty, pet-oddities]
+    priority: 76
+  - id: weird-party
+    query: "weird party game novelty"
+    tags: [weird, novelty, party-games, gag-gifts]
+    priority: 74
+  - id: strange-home
+    query: "strange bizarre home decor novelty"
+    tags: [weird, novelty, decor, home-decor-weird]
+    priority: 72

@@ -1,12 +1,10 @@
 # product-feed — shared, tagged product-candidate queue for the fleet.
 #
-# One service: the API (FastAPI/uvicorn on :4761), backed by a SQLite file
-# on a named volume. No collector/cron here — unlike tools/data-hub,
-# product-feed doesn't fetch anything itself; each site's own scout/judge
-# pipeline sources+judges candidates locally (CloakBrowser, brand voice,
-# etc.) and POSTs the result here. The hub's only job is storing candidates
-# and routing them to whichever subscriber's tags match, one claim at a
-# time — see registry/subscriptions.yaml and src/productfeed/api.py.
+# The API stores canonical Amazon products and independent per-site review /
+# publish state. The collector discovers ASINs through Amazon search, verifies
+# every result on /dp/<ASIN>, and tops up the inventory only when a subscriber
+# falls below its configured target. Search URLs are never stored as product
+# destinations.
 #
 # Any site that wants to produce into or pull from the feed joins this
 # stack's network (`product-feed_default`, created by this compose file) by
@@ -16,8 +14,8 @@
 # product-feed-onboard-site skill for the full wiring walkthrough.
 #
 # Bring up:    docker compose up -d --build
-# Manual pull: curl http://127.0.0.1:4761/subscriptions/weirdgirlstore.com/next
-# Logs:        docker compose logs -f api
+# Inventory:   curl http://127.0.0.1:4761/inventory/stats
+# Logs:        docker compose logs -f api collector
 # Tear down:   docker compose down
 
 name: product-feed
@@ -35,6 +33,40 @@ services:
       - productfeed-data:/data
     ports:
       - "127.0.0.1:4761:4761"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4761/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.collector
+    container_name: product-feed-collector
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PRODUCTFEED_API: "http://api:4761"
+      PRODUCTFEED_REGISTRY_DIR: /app/registry
+      PRODUCTFEED_COLLECT_INTERVAL_SECONDS: "3600"
+      PRODUCTFEED_MAX_QUERIES_PER_RUN: "4"
+      PRODUCTFEED_MAX_PRODUCTS_PER_RUN: "16"
+      VPN_PROXY_URL_US: "http://vpn-us:8888"
+    volumes:
+      - productfeed-collector-home:/home/collector
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - default
+      - vpn_proxy
     restart: unless-stopped
     logging:
       driver: local
@@ -44,7 +76,11 @@ services:
 
 volumes:
   productfeed-data:
+  productfeed-collector-home:
 
 networks:
   default:
     name: product-feed_default
+  vpn_proxy:
+    external: true
+    name: vpn-proxy_default

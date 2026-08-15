@@ -1,0 +1,33 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    chromium \
+    fontconfig \
+    fonts-dejavu \
+    fonts-liberation \
+    libnss3 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt /app/requirements.txt
+COPY pyproject.toml /app/pyproject.toml
+RUN pip install --timeout 120 --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir cloakbrowser==0.3.31 playwright==1.49.1
+
+# Keep slow browser/dependency installation cached when only collector source
+# or registry queries change.
+COPY src /app/src
+COPY registry /app/registry
+RUN pip install --no-deps --no-build-isolation -e .
+
+RUN useradd -u 1000 -m -d /home/collector collector \
+    && mkdir -p /home/collector/.cloakbrowser /home/collector/.product-feed \
+    && chown -R collector:collector /home/collector
+
+COPY collector-entrypoint.sh /usr/local/bin/product-feed-collector
+RUN chmod 755 /usr/local/bin/product-feed-collector
+
+USER collector
+ENV HOME=/home/collector
+ENTRYPOINT ["product-feed-collector"]

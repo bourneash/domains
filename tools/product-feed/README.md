@@ -1,138 +1,146 @@
 # product-feed
 
-Shared, tagged product-candidate queue for the fleet. Decouples **sourcing**
-(a site finding + judging a product it might want to carry) from
-**publishing** (actually shipping it live) — and, because candidates carry
-tags rather than a hardcoded destination site, makes it possible for more
-than one site to draw from the same pool without every site getting the
-same products.
+Shared, verified Amazon product inventory for the fleet. A central collector
+discovers ASINs, verifies each one on its real Amazon product page, and stores
+an untagged canonical URL such as `https://www.amazon.com/dp/B012345678`.
 
-Built 2026-08-09 out of weirdgirlstore.com's local product-scout publish
-queue — see that site's `ops/scripts/product-scout/` for the origin story
-(the [`project_weirdgirlstore_product_queue`] memory) and the
-`product-feed-onboard-site` skill for wiring a second site to it.
+Search pages are discovery inputs only. Search URLs are never product records,
+affiliate destinations, or publishing fallbacks.
 
-## Why this exists
+## How it works
 
-A site's own scout/judge pipeline (CloakBrowser sourcing + a `claude -p`
-brand-fit + copywriting pass) is inherently site-specific — the voice, the
-brand-fit gate, the category taxonomy all belong to that one site. What
-*isn't* site-specific is the mechanics after a candidate is accepted:
-store it, and hand it to whichever site actually wants it, one at a time, on
-a metered cadence. That's this service's entire job. It does **no sourcing
-and no judging itself** — sites still do that locally and POST the result
-here.
-
-## Architecture
-
-```
-Site A's scout.py + judge agent (CloakBrowser, brand-fit gate, voice)
-        │  POST /candidates  {site_origin, tags, candidate, decision}
-        ▼
-┌──────────────────────────────┐
-│   product-feed (this dir)    │  SQLite store @ /data/product-feed.db
-│   FastAPI api @ :4761        │  registry/subscriptions.yaml (tag routing)
-└──────────────────────────────┘
-        │  GET /subscriptions/<site>/next   (claims oldest matching item)
-        ▼
-Site A's (or Site B's, if tags overlap and it's allowed) publisher
-        │  runs its own apply/build/commit/push
-        ▼
-POST /candidates/<id>/published   (or /release if the publish attempt failed)
+```text
+Amazon search (discovery only)
+          |
+          v
+open and verify /dp/<ASIN>
+          |
+          v
+shared products table (canonical URL, title, image, price, rating, tags)
+          |
+          +---- WeirdGirlStore reviews its matching products
+          |
+          +---- WeirdAssStuff reviews its matching products
+          |
+          +---- future sites review their own matching products
+                        |
+                        v
+              site queue -> site publisher
+                        |
+                        v
+          /dp/<ASIN>?tag=<that-site-tag>
 ```
 
-No VPN routing needed here (unlike `tools/data-hub`) — product-feed doesn't
-make outbound requests at all, it's a pure store-and-route service sites
-talk to over the local Docker network.
+Selection state is per site. WeirdGirlStore can accept a product while
+WeirdAssStuff rejects it, or both can accept it; neither decision consumes the
+product for the other site. Each publisher appends its own Associates tag only
+when it generates the site's redirect.
+
+The collector compares every subscription's `available` inventory with its
+configured target. It calls Amazon only when at least one site is below target,
+then stores verified products that match the deficient sites' tags.
 
 ## Data model
 
-One SQLite table, `candidates`:
+The SQLite database at `/data/product-feed.db` contains:
 
-| column | meaning |
-|---|---|
-| `site_origin` | which site's scout sourced this |
-| `asin` | Amazon ASIN, if the candidate is Amazon-affiliate-shaped (not required to be) |
-| `tags` | JSON list — the routing key. Category tags (`occult`, `novelty`, ...), niche tags, whatever the producing site's brand-fit gate assigns |
-| `candidate` | JSON — the raw sourcing payload (title/price/rating/image URL/...), opaque to the hub |
-| `decision` | JSON — the judged catalog copy (name/tagline/body/category/...), opaque to the hub |
-| `status` | `queued` → `claimed` → `published` (or `rejected`/`failed`) |
-| `claimed_by` | which site claimed it |
+- `products`: one row per ASIN with canonical `/dp/` URL, current product
+  details, shared tags, discovery provenance, and verification timestamps.
+- `site_product_state`: independent `reviewing`, `queued`, `publishing`,
+  `rejected`, or `published` state for each site/product pair, plus the site's
+  catalog decision and copy.
+- `candidates`: the original passive queue, retained temporarily for backward
+  compatibility with callers that have not migrated.
 
-The hub deliberately does not validate the internals of `candidate`/`decision`
-— those shapes are owned by each site's own pipeline (see
-`sites/weirdgirlstore.com/ops/scripts/product-scout/apply_candidate.py` for
-what weirdgirlstore expects a `decision` to contain). Validating that here
-would just duplicate each producer's schema and break the moment a site adds
-a field.
+The API itself derives the Amazon URL from the validated ASIN. It ignores any
+URL submitted by a producer, which prevents a search URL from entering the new
+inventory path.
 
-## Routing: `registry/subscriptions.yaml`
+## Registry
 
-```yaml
-weirdgirlstore.com:
-  tags_any: [occult, novelty, decor, wearable, collectibles]
-  site_origin_allow: [weirdgirlstore.com]   # exclusive — no other producer's items can be claimed here
-  max_queue_depth: 12
-```
+`registry/subscriptions.yaml` defines each site's matching tags, target
+available depth, and normal review batch size.
 
-- `tags_any` — a site claims the oldest **queued** candidate whose `tags`
-  intersect this list.
-- `site_origin_allow` (optional) — additionally restrict to candidates
-  produced by listed sites. Omit it to let genuinely shared tags (e.g. two
-  sites both tagging `gothic`) be claimed by whichever subscriber asks
-  first — first claim wins, no double-serving (`claim_next` is
-  transactional).
-- `max_queue_depth` — informational. Producers should call
-  `GET /subscriptions/<site>/depth` before sourcing more and back off at/
-  above this number.
+`registry/sources.yaml` defines the Amazon discovery searches and the tags
+assigned to verified results. A query may serve several sites when its tags
+overlap their subscriptions.
 
-See the **product-feed-onboard-site** skill before adding a new site here —
-it walks through picking tags and deciding whether to share or stay
-exclusive.
+## Product API
 
-## API
+Base URL on the host is `http://127.0.0.1:4761`. Containers on the
+`product-feed_default` network use `http://product-feed-api:4761` (or `api`
+inside this Compose project).
 
-Base URL: `http://127.0.0.1:4761` (loopback-only on the host; sites reach it
-over the `product-feed_default` Docker network by container name
-`product-feed-api`).
-
-| Method | Path | Description |
+| Method | Path | Purpose |
 |---|---|---|
-| GET | `/health` | `{ok, subscriptions: [...]}` |
-| POST | `/candidates` | Producer pushes a judged candidate. Body: `{site_origin, tags, candidate, decision}` → `{id, status: "queued"}` |
-| GET | `/candidates/{id}` | Fetch one candidate |
-| GET | `/candidates?status=&site_origin=&tag=&limit=` | List/debug |
-| GET | `/subscriptions/{site}/next` | Atomically claim the oldest matching candidate for `site`. `{item: {...} | null}` |
-| GET | `/subscriptions/{site}/depth` | `{site, depth, max_queue_depth}` — queued+claimed count matching this site's tags |
-| POST | `/candidates/{id}/published` | Mark published (call after your apply/build/commit/push succeeds) |
-| POST | `/candidates/{id}/release` | Publish attempt failed downstream — put it back in `queued` for retry |
-| GET | `/stats` | Per-site, per-status counts |
+| GET | `/health` | Service health and registered sites |
+| POST | `/products` | Insert or refresh a verified ASIN; URL is derived by the API |
+| GET | `/products` | List shared verified products |
+| GET | `/products/{asin}` | Read one exact product |
+| GET | `/inventory/stats` | Shared and per-site inventory totals |
+| GET | `/subscriptions/{site}/inventory-depth` | Available/reviewing/queued/published counts and target |
+| POST | `/subscriptions/{site}/products/next-review` | Atomically claim one matching product for that site's review |
+| POST | `/subscriptions/{site}/products/{asin}/queue` | Accept it into that site's publishing queue |
+| POST | `/subscriptions/{site}/products/{asin}/reject` | Reject it for that site only |
+| POST | `/subscriptions/{site}/products/{asin}/review-release` | Release an interrupted review |
+| POST | `/subscriptions/{site}/products/publish-next` | Claim the site's oldest accepted product for publishing |
+| POST | `/subscriptions/{site}/products/{asin}/published` | Mark the site's publish complete |
+| POST | `/subscriptions/{site}/products/{asin}/publish-release` | Return a failed publish to that site's queue |
 
-## Bring up
+The legacy `/candidates`, `/subscriptions/{site}/next`, `/depth`, and `/stats`
+routes remain available during migration, but new integrations should not use
+them.
+
+## Run
+
+The collector requires the existing `vpn-proxy_default` Docker network and its
+`vpn-us` HTTP proxy. It uses CloakBrowser through that proxy and stops without
+bypass attempts if Amazon presents a challenge.
 
 ```bash
 cd tools/product-feed
 docker compose up -d --build
 curl http://127.0.0.1:4761/health
+curl http://127.0.0.1:4761/inventory/stats
+docker compose logs -f collector
 ```
 
-This creates the `product-feed_default` network. Bring this stack up
-**before** restarting a site's worker that needs to join it.
+The API has a health check; Compose waits for it before starting the collector.
+Collector browser state and query rotation are persisted in a named volume.
+
+## Site integration
+
+`scripts/site_client.py` is the shared client:
+
+```bash
+python3 scripts/site_client.py claim \
+  --site weirdgirlstore.com \
+  --count 4 \
+  --output-dir /tmp/product-review
+
+python3 scripts/site_client.py decide \
+  --site weirdgirlstore.com \
+  --candidate /tmp/product-review/B012345678.json \
+  --decision /tmp/product-review/B012345678-decision.json
+```
+
+A site's scout only judges brand fit and writes site-specific catalog copy.
+Its publisher claims that site's accepted queue, builds the redirect with the
+site's affiliate tag, applies/builds/commits, then marks the ASIN published.
 
 ## Tests
 
 ```bash
 cd tools/product-feed
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -e .
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt -e .
 .venv/bin/python -m pytest -q
 ```
 
-## Consuming this from a site
+Or test the already-built pinned image:
 
-Don't hand-roll the HTTP calls — see the **product-feed-dev** skill for
-extending this service, and **product-feed-onboard-site** for wiring a
-site's producer (`queue_add`-shaped POST) and/or consumer (`queue_pull`-shaped
-GET .../next → apply → published/release) scripts. weirdgirlstore.com's
-`ops/scripts/product-scout/queue_add.py` and `queue_pull.py` are the
-reference implementation — hub-first with a local-disk fallback so a site
-keeps working even if this service is down or not yet brought up.
+```bash
+docker run --rm \
+  -v "$PWD/tests:/app/tests:ro" \
+  product-feed-api pytest -q /app/tests
+```

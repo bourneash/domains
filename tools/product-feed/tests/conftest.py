@@ -20,6 +20,13 @@ def subscriptions():
             site_origin_allow=["weirdgirlstore.com"],
             max_queue_depth=12,
         ),
+        "weirdassstuff.com": Subscription(
+            site="weirdassstuff.com",
+            tags_any=["weird", "novelty", "gag-gifts"],
+            max_queue_depth=14,
+            target_available_depth=28,
+            review_batch_size=6,
+        ),
     }
 
 

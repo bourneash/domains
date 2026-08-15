@@ -1,23 +1,27 @@
 # tools/product-feed/registry/subscriptions.yaml
 #
-# One entry per site that PULLS from the feed. `tags_any` is the routing
-# rule: GET /subscriptions/<site>/next claims the OLDEST queued candidate
-# whose `tags` list intersects this site's `tags_any` list.
+# One entry per site that reviews products from the shared inventory.
+# `tags_any` controls which verified products the site may choose from.
 #
-# `site_origin_allow` (optional) additionally restricts a site to candidates
-# it (or a listed producer) originally sourced — use this to keep a niche
-# exclusive even if another site's tags happen to overlap. Omit it to let any
-# producer's matching-tag candidates be claimed (a genuinely shared feed).
+# `target_available_depth` tells the central collector how many unreviewed,
+# matching products to keep available for this site. The same shared product
+# remains independently reviewable by every matching site.
 #
-# `max_queue_depth` is informational, not enforced by the hub: producers
-# should call GET /subscriptions/<site>/depth before sourcing more and back
-# off at/above this number — see queue_add.py-style callers.
+# `review_batch_size` is the normal number claimed by that site's scout.
+# `max_queue_depth` is retained for the legacy candidate API only.
 #
 # Adding a new site: see the product-feed-onboard-site skill. It walks
 # through picking tags, deciding whether to share or stay exclusive, and
 # wiring the site's own producer/consumer scripts.
 
 weirdgirlstore.com:
-  tags_any: [occult, novelty, decor, wearable, collectibles]
-  site_origin_allow: [weirdgirlstore.com]   # exclusive for now — first tenant, nothing else produces these tags yet
+  tags_any: [weird, weirdgirl, gothic, occult, macabre, decor, wearable, collectibles]
   max_queue_depth: 12
+  target_available_depth: 24
+  review_batch_size: 4
+
+weirdassstuff.com:
+  tags_any: [weird, novelty, gag-gifts, kitchen-chaos, bathroom-bizarre, desk-weird, pet-oddities, wearable-wtf, party-games, home-decor-weird, tech-oddities]
+  max_queue_depth: 14
+  target_available_depth: 28
+  review_batch_size: 6

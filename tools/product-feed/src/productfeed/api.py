@@ -1,7 +1,6 @@
-"""product-feed HTTP API — FastAPI app, mirrors tools/data-hub's create_app()
-shape (a factory taking Settings + optional injected conn/subscriptions for
-tests) so this reads like a sibling of that service, not a new pattern.
-"""
+"""HTTP API for shared verified products and per-site selection queues."""
+import re
+
 from fastapi import FastAPI, HTTPException
 
 from . import store
@@ -37,6 +36,125 @@ def create_app(settings: Settings | None = None, *, conn=None, subscriptions: di
     @app.get("/health")
     def health():
         return {"ok": True, "subscriptions": list(subscriptions.keys())}
+
+    @app.post("/products", status_code=201)
+    def add_product(body: dict):
+        """Insert or refresh one verified Amazon product.
+
+        The feed derives the canonical ``/dp/<ASIN>`` URL itself. A producer
+        cannot accidentally turn a discovery search URL into a destination.
+        """
+        asin = str(body.get("asin") or "").strip().upper()
+        title = str(body.get("title") or "").strip()
+        tags = body.get("tags")
+        if not re.fullmatch(r"[A-Z0-9]{10}", asin):
+            raise HTTPException(422, "asin must be exactly 10 uppercase letters/digits")
+        if not title or not isinstance(tags, list) or not tags:
+            raise HTTPException(422, "title and a non-empty tags list are required")
+        product, created = store.upsert_product(
+            conn,
+            asin=asin,
+            title=title,
+            tags=tags,
+            price=body.get("price"),
+            rating=body.get("rating"),
+            review_count=body.get("review_count"),
+            image_url=body.get("image_url"),
+            source_query=body.get("source_query"),
+            source=body.get("source") or "amazon",
+            metadata=body.get("metadata") or {},
+        )
+        return {"created": created, "product": product}
+
+    @app.get("/products")
+    def list_products(tag: str | None = None, limit: int = 100):
+        return {"items": store.list_products(conn, tag=tag, limit=min(max(limit, 1), 500))}
+
+    @app.get("/products/{asin}")
+    def get_product(asin: str):
+        product = store.get_product(conn, asin.upper())
+        if product is None:
+            raise HTTPException(404, "no such product")
+        return product
+
+    @app.post("/subscriptions/{site}/products/next-review")
+    def next_product_for_review(site: str):
+        sub = _subscription(site)
+        item = store.claim_product_for_review(conn, site=site, tags_any=sub.tags_any)
+        return {"item": item}
+
+    @app.post("/subscriptions/{site}/products/{asin}/queue")
+    def queue_product_for_site(site: str, asin: str, body: dict):
+        _subscription(site)
+        decision = body.get("decision")
+        if not isinstance(decision, dict) or not decision.get("fits"):
+            raise HTTPException(422, "an accepted site decision is required")
+        if not store.set_site_product_status(
+            conn, site=site, asin=asin.upper(), status="queued", decision=decision
+        ):
+            raise HTTPException(404, "product is not claimed for this site")
+        return {"site": site, "asin": asin.upper(), "status": "queued"}
+
+    @app.post("/subscriptions/{site}/products/{asin}/reject")
+    def reject_product_for_site(site: str, asin: str, body: dict):
+        _subscription(site)
+        reason = str(body.get("reason") or "site rejected product")
+        if not store.set_site_product_status(
+            conn, site=site, asin=asin.upper(), status="rejected", reason=reason
+        ):
+            raise HTTPException(404, "product is not claimed for this site")
+        return {"site": site, "asin": asin.upper(), "status": "rejected"}
+
+    @app.post("/subscriptions/{site}/products/{asin}/review-release")
+    def release_product_review(site: str, asin: str):
+        _subscription(site)
+        if not store.release_site_product_review(conn, site=site, asin=asin.upper()):
+            raise HTTPException(404, "product is not currently under review for this site")
+        return {"site": site, "asin": asin.upper(), "status": "available"}
+
+    @app.post("/subscriptions/{site}/products/publish-next")
+    def next_product_to_publish(site: str):
+        _subscription(site)
+        item = store.claim_queued_product_for_publish(conn, site=site)
+        return {"item": item}
+
+    @app.post("/subscriptions/{site}/products/{asin}/published")
+    def mark_site_product_published(site: str, asin: str):
+        _subscription(site)
+        if not store.set_site_product_status(
+            conn, site=site, asin=asin.upper(), status="published"
+        ):
+            raise HTTPException(404, "product is not queued for this site")
+        return {"site": site, "asin": asin.upper(), "status": "published"}
+
+    @app.post("/subscriptions/{site}/products/{asin}/publish-release")
+    def release_site_product_publish(site: str, asin: str):
+        _subscription(site)
+        if not store.set_site_product_status(
+            conn, site=site, asin=asin.upper(), status="queued"
+        ):
+            raise HTTPException(404, "product is not queued for this site")
+        return {"site": site, "asin": asin.upper(), "status": "queued"}
+
+    @app.get("/subscriptions/{site}/products/queue")
+    def site_product_queue(site: str, limit: int = 100):
+        _subscription(site)
+        return {"items": store.list_site_queue(conn, site=site, limit=min(max(limit, 1), 500))}
+
+    @app.get("/subscriptions/{site}/inventory-depth")
+    def inventory_depth_for_site(site: str):
+        sub = _subscription(site)
+        depth = store.inventory_depth(conn, site=site, tags_any=sub.tags_any)
+        return {
+            "site": site,
+            **depth,
+            "target_available_depth": sub.target_available_depth,
+            "review_batch_size": sub.review_batch_size,
+        }
+
+    @app.get("/inventory/stats")
+    def inventory_stats():
+        return store.product_inventory_stats(conn)
 
     @app.post("/candidates", status_code=201)
     def add_candidate(body: dict):

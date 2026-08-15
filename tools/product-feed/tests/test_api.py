@@ -96,3 +96,70 @@ def test_stats_endpoint(conn, subscriptions):
     })
     r = c.get("/stats")
     assert r.json()["weirdgirlstore.com"]["queued"] == 1
+
+
+def test_product_inventory_and_independent_site_choices(conn, subscriptions):
+    c = client(conn, subscriptions)
+    r = c.post("/products", json={
+        "asin": "B0EXAMPLE1",
+        "title": "Verified Oddity",
+        "tags": ["weird", "novelty"],
+        "price": "$19.99",
+        "rating": 4.6,
+        "review_count": 200,
+        "image_url": "https://m.media-amazon.com/images/I/example.jpg",
+        # Even if a producer supplies a search-like field, the API derives
+        # the destination solely from the verified ASIN.
+        "amazon_url": "https://www.amazon.com/s?k=wrong",
+    })
+    assert r.status_code == 201
+    product = r.json()["product"]
+    assert product["amazon_url"] == "https://www.amazon.com/dp/B0EXAMPLE1"
+
+    girl = c.post("/subscriptions/weirdgirlstore.com/products/next-review").json()["item"]
+    stuff = c.post("/subscriptions/weirdassstuff.com/products/next-review").json()["item"]
+    assert girl["asin"] == stuff["asin"] == "B0EXAMPLE1"
+
+    r = c.post(
+        "/subscriptions/weirdgirlstore.com/products/B0EXAMPLE1/queue",
+        json={"decision": make_decision()},
+    )
+    assert r.json()["status"] == "queued"
+    r = c.post(
+        "/subscriptions/weirdassstuff.com/products/B0EXAMPLE1/reject",
+        json={"reason": "wrong voice"},
+    )
+    assert r.json()["status"] == "rejected"
+
+    queued = c.get("/subscriptions/weirdgirlstore.com/products/queue").json()["items"]
+    assert queued[0]["asin"] == "B0EXAMPLE1"
+    publishing = c.post(
+        "/subscriptions/weirdgirlstore.com/products/publish-next"
+    ).json()["item"]
+    assert publishing["status"] == "publishing"
+    assert publishing["decision"]["fits"] is True
+
+
+def test_product_validation_rejects_non_asin(conn, subscriptions):
+    c = client(conn, subscriptions)
+    r = c.post("/products", json={
+        "asin": "search words",
+        "title": "Not a product",
+        "tags": ["weird"],
+    })
+    assert r.status_code == 422
+
+
+def test_inventory_depth_endpoint(conn, subscriptions):
+    c = client(conn, subscriptions)
+    c.post("/products", json={
+        "asin": "B0EXAMPLE1",
+        "title": "Verified Oddity",
+        "tags": ["weird", "novelty"],
+    })
+    depth = c.get(
+        "/subscriptions/weirdassstuff.com/inventory-depth"
+    ).json()
+    assert depth["available"] == 1
+    assert depth["active"] == 1
+    assert depth["target_available_depth"] == 28

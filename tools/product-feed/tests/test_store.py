@@ -119,3 +119,92 @@ def test_stats_groups_by_site_and_status(conn):
     )
     s = store.stats(conn)
     assert s["weirdgirlstore.com"]["queued"] == 1
+
+
+def test_verified_product_uses_canonical_dp_url_and_merges_tags(conn):
+    product, created = store.upsert_product(
+        conn,
+        asin="B0EXAMPLE1",
+        title="Real Product",
+        tags=["weird", "decor"],
+        price="$12.99",
+        rating=4.7,
+        review_count=321,
+    )
+    assert created is True
+    assert product["amazon_url"] == "https://www.amazon.com/dp/B0EXAMPLE1"
+
+    product, created = store.upsert_product(
+        conn,
+        asin="B0EXAMPLE1",
+        title="Real Product — refreshed",
+        tags=["novelty"],
+    )
+    assert created is False
+    assert product["tags"] == ["decor", "novelty", "weird"]
+    assert product["price"] == "$12.99"
+
+
+def test_sites_choose_same_product_independently(conn):
+    store.upsert_product(
+        conn, asin="B0EXAMPLE1", title="Shared Product", tags=["weird", "decor"]
+    )
+    girl = store.claim_product_for_review(
+        conn, site="weirdgirlstore.com", tags_any=["decor"]
+    )
+    stuff = store.claim_product_for_review(
+        conn, site="weirdassstuff.com", tags_any=["weird"]
+    )
+    assert girl["asin"] == stuff["asin"] == "B0EXAMPLE1"
+    assert girl["status"] == stuff["status"] == "reviewing"
+
+    store.set_site_product_status(
+        conn,
+        site="weirdgirlstore.com",
+        asin="B0EXAMPLE1",
+        status="queued",
+        decision=make_decision(),
+    )
+    store.set_site_product_status(
+        conn,
+        site="weirdassstuff.com",
+        asin="B0EXAMPLE1",
+        status="rejected",
+        reason="not weird enough",
+    )
+    assert store.get_site_product(
+        conn, site="weirdgirlstore.com", asin="B0EXAMPLE1"
+    )["status"] == "queued"
+    assert store.get_site_product(
+        conn, site="weirdassstuff.com", asin="B0EXAMPLE1"
+    )["status"] == "rejected"
+
+
+def test_site_queue_publish_and_release(conn):
+    store.upsert_product(conn, asin="B0EXAMPLE1", title="Product", tags=["weird"])
+    store.claim_product_for_review(conn, site="example.com", tags_any=["weird"])
+    store.set_site_product_status(
+        conn,
+        site="example.com",
+        asin="B0EXAMPLE1",
+        status="queued",
+        decision=make_decision(),
+    )
+    claimed = store.claim_queued_product_for_publish(conn, site="example.com")
+    assert claimed["status"] == "publishing"
+    assert claimed["amazon_url"] == "https://www.amazon.com/dp/B0EXAMPLE1"
+    store.set_site_product_status(
+        conn, site="example.com", asin="B0EXAMPLE1", status="queued"
+    )
+    assert store.list_site_queue(conn, site="example.com")[0]["status"] == "queued"
+
+
+def test_inventory_depth_is_per_site(conn):
+    store.upsert_product(conn, asin="B0EXAMPLE1", title="One", tags=["weird"])
+    store.upsert_product(conn, asin="B0EXAMPLE2", title="Two", tags=["weird"])
+    store.claim_product_for_review(conn, site="a.com", tags_any=["weird"])
+    depth_a = store.inventory_depth(conn, site="a.com", tags_any=["weird"])
+    depth_b = store.inventory_depth(conn, site="b.com", tags_any=["weird"])
+    assert depth_a["available"] == 1
+    assert depth_a["reviewing"] == 1
+    assert depth_b["available"] == 2
