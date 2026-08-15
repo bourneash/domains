@@ -40,16 +40,24 @@ fi
 STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACMR)
 TOOL_DIRS=$(printf '%s\n' "$STAGED_ALL" | grep -E '^tools/[^/]+/' | sed -E 's#^tools/([^/]+)/.*#\1#' | sort -u)
 for d in $TOOL_DIRS; do
+  # Directory name comes from staged file paths — could be attacker-crafted on
+  # a foreign branch (e.g. a `'`/backtick to break out of the node -e string,
+  # or `..` to escape tools/). Allowlist before it touches any path/command.
+  case "$d" in
+    *[!A-Za-z0-9_.-]*) echo "skipping unsafe tool dir name: tools/$d"; continue ;;
+    .*) continue ;;
+  esac
   PKG="$TOOLS_ROOT/$d/package.json"
   [ -f "$PKG" ] || continue
-  HAS_TEST=$(node -e "try{const p=require('$PKG');process.stdout.write(p.scripts&&p.scripts.test?'1':'')}catch(e){}" 2>/dev/null)
+  # Path travels via env, never interpolated into the JS source string.
+  HAS_TEST=$(PKG="$PKG" node -e 'try{const p=require(process.env.PKG);process.stdout.write(p.scripts&&p.scripts.test?"1":"")}catch(e){}' 2>/dev/null)
   [ "$HAS_TEST" = "1" ] || continue
   if [ ! -d "$TOOLS_ROOT/$d/node_modules" ]; then
     echo "tools/$d has a test script but no node_modules — skipping (run 'npm install' in tools/$d)"
     continue
   fi
   echo "running tests for tools/$d ..."
-  if ! (cd "$TOOLS_ROOT/$d" && npm test --silent); then
+  if ! (cd -- "$TOOLS_ROOT/$d" && npm test --silent); then
     echo "tests failed in tools/$d — commit blocked. Fix the tests or amend what you're committing."
     exit 1
   fi
