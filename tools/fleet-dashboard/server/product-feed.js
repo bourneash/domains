@@ -24,8 +24,15 @@ async function _get(pathname, timeoutMs = 3000) {
   }
 }
 
-async function health() { return _get('/health'); }
-async function stats() { return _get('/stats'); }
+async function health() {
+  return _get('/health');
+}
+async function stats() {
+  return _get('/stats');
+}
+async function inventoryStats() {
+  return _get('/inventory/stats');
+}
 
 function subscriptions() {
   try {
@@ -43,17 +50,26 @@ function subscriptions() {
 async function subscriptionsWithDepth() {
   const subs = subscriptions();
   const sites = Object.keys(subs);
-  const rows = await Promise.all(sites.map(async (site) => {
-    const depth = await _get(`/subscriptions/${encodeURIComponent(site)}/depth`);
-    return {
-      site,
-      tags_any: subs[site]?.tags_any || [],
-      site_origin_allow: subs[site]?.site_origin_allow || null,
-      max_queue_depth: subs[site]?.max_queue_depth ?? null,
-      depth: depth.ok === false ? null : depth.depth,
-      error: depth.ok === false ? depth.error : null,
-    };
-  }));
+  const rows = await Promise.all(
+    sites.map(async site => {
+      const depth = await _get(`/subscriptions/${encodeURIComponent(site)}/inventory-depth`);
+      return {
+        site,
+        tags_any: subs[site]?.tags_any || [],
+        site_origin_allow: subs[site]?.site_origin_allow || null,
+        max_queue_depth: subs[site]?.max_queue_depth ?? null,
+        available: depth.ok === false ? null : depth.available,
+        reviewing: depth.ok === false ? null : depth.reviewing,
+        queued: depth.ok === false ? null : depth.queued,
+        publishing: depth.ok === false ? null : depth.publishing,
+        published: depth.ok === false ? null : depth.published,
+        rejected: depth.ok === false ? null : depth.rejected,
+        active: depth.ok === false ? null : depth.active,
+        target_available_depth: subs[site]?.target_available_depth ?? null,
+        error: depth.ok === false ? depth.error : null,
+      };
+    })
+  );
   return rows;
 }
 
@@ -62,4 +78,16 @@ async function recentCandidates(limit = 30) {
   return r.ok === false ? { ...r, items: [] } : r;
 }
 
-module.exports = { health, stats, subscriptionsWithDepth, recentCandidates };
+async function recentProducts(limit = 30) {
+  const r = await _get(`/products?limit=${encodeURIComponent(limit)}`);
+  return r.ok === false ? { ...r, items: [] } : r;
+}
+
+module.exports = {
+  health,
+  stats,
+  inventoryStats,
+  subscriptionsWithDepth,
+  recentCandidates,
+  recentProducts,
+};
