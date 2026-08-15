@@ -20,7 +20,7 @@ provenance only; absence there is a choice, not drift.
 ## Gaps on live sites
 
 - No `ops/smoke.yaml` (invisible to fleet-smoke): —
-- No Slack channel env: fishhooklabs.com
+- No Slack channel env: —
 - No worker name in wrangler config: 0xroulette.com, trainingsharks.com
 
 ## Stale DOMAINS_INDEX buckets

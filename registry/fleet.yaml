@@ -347,6 +347,7 @@ sites:
     repo: bourneash/fishhooklabs.com
     worker: fishhooklabs-com
     cf_zone: fishhooklabs.com
+    slack_channel_env: SLACK_CHANNEL_FISHHOOKLABS
     capabilities:
     - site
     - ops
