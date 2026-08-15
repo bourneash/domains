@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **47** (live 26, scaffold 20, parked 0, redirect 1)
+`sites/` directories merged: **48** (live 26, scaffold 21, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -10,16 +10,16 @@ provenance only; absence there is a choice, not drift.
 
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
-| `site-tracker/sites.yml` | fleet-wide | 22/47 | broadwayshowgirls.com, deeppenetrations.com, saveusfarms.com, shoptopless.com, totaljerks.com, wetpages.com |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 19/47 | amputeenews.com, fishhooklabs.com, newmomshop.com, rodhat.com, trainingsharks.com, weirdassstuff.com, weirdgirlstore.com |
-| `DOMAINS_INDEX.md` | fleet-wide | 45/47 | allthingsmasonic.com |
-| `social registry` | fleet-wide | 47/47 | — |
-| `data-hub/subscriptions.yaml` | opt-in | 7/47 | n/a |
-| `product-feed/subscriptions.yaml` | opt-in | 2/47 | n/a |
+| `site-tracker/sites.yml` | fleet-wide | 46/48 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 19/48 | amputeenews.com, fishhooklabs.com, newmomshop.com, rodhat.com, trainingsharks.com, weirdassstuff.com, weirdgirlstore.com |
+| `DOMAINS_INDEX.md` | fleet-wide | 45/48 | allthingsmasonic.com |
+| `social registry` | fleet-wide | 47/48 | — |
+| `data-hub/subscriptions.yaml` | opt-in | 7/48 | n/a |
+| `product-feed/subscriptions.yaml` | opt-in | 2/48 | n/a |
 
 ## Gaps on live sites
 
-- No `ops/smoke.yaml` (invisible to fleet-smoke): fishhooklabs.com
+- No `ops/smoke.yaml` (invisible to fleet-smoke): —
 - No Slack channel env: fishhooklabs.com
 - No worker name in wrangler config: 0xroulette.com, trainingsharks.com
 
@@ -37,6 +37,7 @@ Sites the index files under a bucket that contradicts disk evidence:
 - `dumbsluts.com` — indexed **parked**, actually **scaffold**
 - `elevatorfriends.com` — indexed **parked**, actually **scaffold**
 - `failbunny.com` — indexed **parked**, actually **scaffold**
+- `fleettest2-20260815.com` — **absent** from the index, actually **scaffold**
 - `infrainnovator.com` — indexed **parked**, actually **scaffold**
 - `mynewgm.com` — indexed **parked**, actually **scaffold**
 - `mynewgm.info` — indexed **parked**, actually **scaffold**

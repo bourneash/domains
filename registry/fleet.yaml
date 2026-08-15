@@ -209,6 +209,7 @@ sites:
     - analytics
     - data-hub
     - domains-index
+    - site-tracker
     - social
   complicated.work:
     status: scaffold
@@ -221,6 +222,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   deadlymaracas.com:
     status: scaffold
@@ -233,6 +235,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   deeppenetrations.com:
     status: live
@@ -257,6 +260,7 @@ sites:
     registered_in:
     - analytics
     - domains-index
+    - site-tracker
     - social
   driveford.net:
     status: scaffold
@@ -269,6 +273,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   drivegm.net:
     status: scaffold
@@ -281,6 +286,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   dumbsluts.com:
     status: scaffold
@@ -293,6 +299,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   elevatorfriends.com:
     status: scaffold
@@ -305,6 +312,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   failbunny.com:
     status: scaffold
@@ -317,6 +325,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   findyourlostpets.com:
     status: scaffold
@@ -341,6 +350,7 @@ sites:
     - site
     - ops
     - cron
+    - smoke
     - tasks
     - affiliate
     - social
@@ -348,6 +358,13 @@ sites:
     - domains-index
     - site-tracker
     - social
+  fleettest2-20260815.com:
+    status: scaffold
+    repo: bourneash/fleettest2-20260815.com
+    worker: fleettest2-20260815-com
+    cf_zone: fleettest2-20260815.com
+    capabilities:
+    - site
   gate03.com:
     status: scaffold
     repo: bourneash/gate03.com
@@ -372,6 +389,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   mynewgm.com:
     status: scaffold
@@ -384,6 +402,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   mynewgm.info:
     status: scaffold
@@ -396,6 +415,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   newmomshop.com:
     status: live
@@ -427,6 +447,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   nsfwpixels.com:
     status: scaffold
@@ -439,6 +460,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   nsfwpixles.com:
     status: redirect
@@ -482,6 +504,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   pokererotic.com:
     status: scaffold
@@ -494,6 +517,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   rc-9.com:
     status: live
@@ -589,6 +613,7 @@ sites:
     - analytics
     - data-hub
     - domains-index
+    - site-tracker
     - social
   shoptopless.com:
     status: live
@@ -613,6 +638,7 @@ sites:
     registered_in:
     - analytics
     - domains-index
+    - site-tracker
     - social
   sinderella.org:
     status: live
@@ -653,6 +679,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   therareunicorn.com:
     status: scaffold
@@ -663,6 +690,7 @@ sites:
     - site
     - social
     registered_in:
+    - site-tracker
     - social
   totaljerks.com:
     status: live
@@ -687,6 +715,7 @@ sites:
     registered_in:
     - analytics
     - domains-index
+    - site-tracker
     - social
   trainingsharks.com:
     status: live
@@ -743,6 +772,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   weapontester.com:
     status: live
@@ -835,6 +865,7 @@ sites:
     registered_in:
     - analytics
     - domains-index
+    - site-tracker
     - social
   wetslit.com:
     status: scaffold
@@ -847,6 +878,7 @@ sites:
     - social
     registered_in:
     - domains-index
+    - site-tracker
     - social
   xxxtea.com:
     status: live
