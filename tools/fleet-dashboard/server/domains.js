@@ -31,7 +31,11 @@ const COMMANDS = {
   },
   remove: {
     label: 'Offboard',
-    flags: ['--delete-repo', '--no-github', '--no-cloudflare', '--no-local'],
+    // NOTE: remove-domain.sh also accepts --delete-repo. It is deliberately NOT
+    // exposed here. Fleet policy: repos are archived, never deleted — an
+    // offboarded domain's history stays recoverable. Deleting one is a manual,
+    // deliberate act on the CLI, not something reachable by a click.
+    flags: ['--no-github', '--no-cloudflare', '--no-local'],
     destructive: true,
   },
   status: { label: 'Status', flags: [], destructive: false },

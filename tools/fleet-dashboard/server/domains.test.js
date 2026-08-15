@@ -56,6 +56,17 @@ test('rejects unknown commands and out-of-allowlist flags', () => {
     () => domains.validate(root, { command: 'remove', domain: 'example.com', flags: ['--full'] }),
     /unsupported flag/
   );
+  // Fleet policy: repos are archived, never deleted. remove-domain.sh accepts
+  // --delete-repo but the dashboard must never be able to reach it.
+  assert.throws(
+    () =>
+      domains.validate(root, {
+        command: 'remove',
+        domain: 'example.com',
+        flags: ['--delete-repo'],
+      }),
+    /unsupported flag/
+  );
 });
 
 test('onboard refuses a domain that is already checked out; repair refuses one that is not', () => {

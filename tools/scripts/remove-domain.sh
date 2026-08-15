@@ -254,6 +254,19 @@ remove_local_submodule() {
   fi
 }
 
+# remove_local_submodule() drives git with RELATIVE paths (`git ls-files --
+# sites/<domain>`, `git rm`, `git config -f .gitmodules`), so every one of them
+# silently resolves against the caller's cwd. Run from anywhere but the repo
+# root — a cron, a container, the Fleet Dashboard's job runner — and the local
+# cleanup reported "Local path already absent" and did NOTHING, while the
+# absolute-path `.git/modules/<path>` removal at the end of that function still
+# fired. Net effect: the submodule directory survived with a .git file pointing
+# at a gitdir that no longer existed, which made `git status` fail fatally for
+# the WHOLE parent repo. Caught 2026-08-15 by an end-to-end offboard test.
+# bootstrap-domain.sh already cd's here before its `git submodule add` for the
+# same reason; this makes the teardown side symmetric.
+cd "${DOMAINS_ROOT}"
+
 log ""
 log "=== remove-domain.sh: ${DOMAIN} ==="
 log "  Worker name : ${WORKER_NAME}"
@@ -272,12 +285,21 @@ if [ "${DO_CLOUDFLARE}" = "1" ]; then
   zone_json="$(cf_get "https://api.cloudflare.com/client/v4/zones?name=${DOMAIN}")"
   zone_id="$(printf '%s' "${zone_json}" | json_value 'items=data.get("result", []); print(items[0]["id"] if items else "")')"
 
+  # Worker scripts and worker custom-domain bindings are ACCOUNT-scoped, not
+  # zone-scoped — both API paths are /accounts/<id>/workers/..., and neither
+  # takes a zone id. They used to sit inside the `else` branch below, which
+  # meant offboarding a domain whose zone had already been removed from
+  # Cloudflare silently ORPHANED its Worker: the script reported "zone absent"
+  # and exited 0 with the Worker still deployed and serving. Caught 2026-08-15
+  # by an end-to-end onboard/offboard test on a throwaway domain that never had
+  # a zone. Only the EMAIL cleanup genuinely needs a zone.
+  cloudflare_remove_worker_domains
+  cloudflare_remove_worker_script
+
   if [ -z "${zone_id}" ]; then
-    log "--- Cloudflare zone absent: ${DOMAIN} ---"
+    log "--- Cloudflare zone absent: ${DOMAIN} (skipping email routing cleanup) ---"
   else
     log "--- Cloudflare zone: ${zone_id} ---"
-    cloudflare_remove_worker_domains
-    cloudflare_remove_worker_script
     cloudflare_remove_email "${zone_id}"
   fi
 fi

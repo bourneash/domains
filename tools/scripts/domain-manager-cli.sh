@@ -783,6 +783,15 @@ EOF
 main() {
   local cmd="${1:-menu}"
 
+  # gather_status() probes the superproject with a RELATIVE path
+  # (`git ls-files -- sites/<domain>`), so invoked from any cwd but the repo
+  # root it reported "submodule tracked: no" for perfectly healthy sites —
+  # a false FAIL in every status/repair run driven by cron, a container, or
+  # the Fleet Dashboard's job runner. Same cwd-dependence bug that let an
+  # offboard skip its local cleanup (see remove-domain.sh). Every other path
+  # in this script is already absolute, so anchoring here is free.
+  cd "${DOMAINS_ROOT}"
+
   case "${cmd}" in
     menu)
       interactive_menu
