@@ -5578,6 +5578,878 @@ function openGuideIdeaModal() {
   };
 }
 
+/* ===================== DOMAINS ===================== */
+// Onboard / offboard a domain. This view is a *remote control* for
+// tools/scripts/domain-manager-cli.sh — it never reimplements a step of the
+// flow. POST /api/domains/jobs spools a job; the host runner
+// (tools/scripts/domain-job-runner.sh) executes the CLI and streams its output
+// into a log file this view tails.
+
+const DOM = {
+  openJob: null, // job id whose log is expanded
+  form: { command: 'add', domain: '', flags: new Set(['--full']) },
+};
+
+function domJobBadge(status) {
+  const map = {
+    queued: 'b-gray',
+    running: 'b-yellow',
+    done: 'b-green',
+    failed: 'b-red',
+    cancelled: 'b-gray',
+  };
+  return `<span class="badge ${map[status] || 'b-gray'}">${esc(status)}</span>`;
+}
+
+async function renderDomains() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading domains…</div>';
+  let d;
+  try {
+    d = await api('GET', '/api/domains');
+  } catch (e) {
+    app.innerHTML = `<div class="empty">Domains failed: ${esc(e.message)}</div>`;
+    return;
+  }
+  DOM.commands = d.commands || [];
+
+  const spec = DOM.commands.find(c => c.name === DOM.form.command) || { flags: [] };
+  // Flags are per-command; drop any carried over from a previous selection.
+  DOM.form.flags = new Set([...DOM.form.flags].filter(f => spec.flags.includes(f)));
+
+  const r = d.runner || {};
+  const runnerNote = !r.installed
+    ? `<div class="empty">Host runner missing: <span class="mono">tools/scripts/domain-job-runner.sh</span> is not present. Jobs will queue and never run.</div>`
+    : !r.alive
+      ? `<div class="empty">Host runner has not checked in${r.lastTick ? ` for ${esc(fmtAge(r.ageSeconds))}` : ' yet'}. Jobs will sit in <em>queued</em> until it runs. Install the cron: <span class="mono">* * * * * ${esc(r.command)}</span></div>`
+      : '';
+
+  const cmdOpts = DOM.commands
+    .map(
+      c =>
+        `<option value="${esc(c.name)}"${c.name === DOM.form.command ? ' selected' : ''}>${esc(c.label)} (${esc(c.name)})</option>`
+    )
+    .join('');
+
+  const flagBoxes = spec.flags.length
+    ? spec.flags
+        .map(
+          f =>
+            `<label class="dom-flag"><input type="checkbox" class="dom-flag-box" value="${esc(f)}"${DOM.form.flags.has(f) ? ' checked' : ''}> <span class="mono">${esc(f)}</span></label>`
+        )
+        .join('')
+    : '<span class="muted">no flags for this command</span>';
+
+  const jobs = d.jobs || [];
+  const jobRows = jobs
+    .map(j => {
+      const open = DOM.openJob === j.id;
+      const dur =
+        j.startedAt && j.finishedAt
+          ? fmtAge((new Date(j.finishedAt) - new Date(j.startedAt)) / 1000)
+          : j.startedAt
+            ? fmtAge((Date.now() - new Date(j.startedAt)) / 1000) + '…'
+            : '—';
+      return `<tr data-fleet-row data-site="${esc(j.domain)}">
+        <td class="site"><a href="#" class="dom-open" data-id="${esc(j.id)}">${esc(j.domain)}</a></td>
+        <td class="mono">${esc(j.command)}${j.flags && j.flags.length ? ` <span class="muted">${esc(j.flags.join(' '))}</span>` : ''}</td>
+        <td>${domJobBadge(j.status)}${j.status === 'running' ? ' <span class="live-tag">live</span>' : ''}</td>
+        <td class="mono muted">${esc(dur)}</td>
+        <td class="mono muted">${j.exitCode === null || j.exitCode === undefined ? '—' : esc(String(j.exitCode))}</td>
+        <td>${j.status === 'queued' ? `<button class="btn sm dom-cancel" data-id="${esc(j.id)}">Cancel</button>` : ''}</td>
+      </tr>
+      <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="dom:${esc(j.id)}" data-rk="dom:${esc(j.id)}"><td colspan="6">
+        <div class="cn-log-head">${esc(j.id)}${j.error ? ` — <span class="b-red">${esc(j.error)}</span>` : ''}</div>
+        <pre class="cn-logs-box" data-rkh="domlog:${esc(j.id)}" data-domlog="${esc(j.id)}">${open ? 'loading…' : ''}</pre>
+      </td></tr>`;
+    })
+    .join('');
+
+  const siteRows = (d.sites || [])
+    .map(
+      s => `<tr data-fleet-row data-site="${esc(s.slug)}">
+      <td class="site">${siteLink(s.slug)}</td>
+      <td>
+        <button class="btn sm dom-quick" data-cmd="status" data-domain="${esc(s.slug)}">Status</button>
+        <button class="btn sm dom-quick" data-cmd="repair" data-domain="${esc(s.slug)}">Repair</button>
+        <button class="btn sm danger dom-offboard" data-domain="${esc(s.slug)}">Offboard…</button>
+      </td>
+    </tr>`
+    )
+    .join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div>
+    ${runnerNote}
+    <div class="card" style="margin-bottom:12px">
+      <div class="cn-log-head">Run a domain command</div>
+      <div class="task-toolbar" style="flex-wrap:wrap;gap:10px">
+        <select id="dom-cmd">${cmdOpts}</select>
+        <input id="dom-domain" type="text" placeholder="example.com" spellcheck="false" value="${esc(DOM.form.domain)}" style="min-width:220px">
+        <button class="btn" id="dom-run">Queue</button>
+      </div>
+      <div class="task-toolbar" id="dom-flags" style="flex-wrap:wrap;gap:14px">${flagBoxes}</div>
+      <p class="muted" style="margin:6px 0 0">Onboard runs bootstrap → deploy → bind (<span class="mono">--full</span> does all three in one shot). Offboard archives the GitHub repo, detaches apex + www, deletes the Worker, drops the email rules, and removes the submodule.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="cn-log-head">Jobs</div>
+      <table>
+        <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th></th></tr></thead>
+        <tbody>${jobRows || '<tr><td colspan="6" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="cn-log-head">Onboarded sites (${(d.sites || []).length})</div>
+      <table>
+        <thead><tr><th>Site</th><th></th></tr></thead>
+        <tbody>${siteRows || '<tr><td colspan="2" class="muted">No sites checked out.</td></tr>'}</tbody>
+      </table>
+    </div>`;
+
+  wireDomains();
+  if (DOM.openJob) domLoadLog(DOM.openJob);
+  // A running job's log grows; keep the view (and any open log) current.
+  if (jobs.some(j => j.status === 'running' || j.status === 'queued'))
+    setTimeout(() => {
+      if (STATE.view === 'domains') softRender();
+    }, 4000);
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
+function wireDomains() {
+  const cmd = $('#dom-cmd');
+  if (cmd)
+    cmd.addEventListener('change', () => {
+      DOM.form.command = cmd.value;
+      DOM.form.domain = ($('#dom-domain') || {}).value || '';
+      // Sensible default: the one-shot path is what onboarding almost always wants.
+      DOM.form.flags = new Set(DOM.form.command === 'add' ? ['--full'] : []);
+      softRender();
+    });
+
+  const dom = $('#dom-domain');
+  if (dom) dom.addEventListener('input', () => (DOM.form.domain = dom.value));
+
+  $$('.dom-flag-box').forEach(b =>
+    b.addEventListener('change', () => {
+      if (b.checked) DOM.form.flags.add(b.value);
+      else DOM.form.flags.delete(b.value);
+    })
+  );
+
+  const run = $('#dom-run');
+  if (run)
+    run.addEventListener('click', () =>
+      domQueue(run, DOM.form.command, ($('#dom-domain') || {}).value || '', [...DOM.form.flags])
+    );
+
+  $$('.dom-quick').forEach(b =>
+    b.addEventListener('click', () => domQueue(b, b.dataset.cmd, b.dataset.domain, []))
+  );
+  $$('.dom-offboard').forEach(b =>
+    b.addEventListener('click', () => domOffboard(b.dataset.domain))
+  );
+  $$('.dom-cancel').forEach(b => b.addEventListener('click', () => domCancel(b, b.dataset.id)));
+  $$('.dom-open').forEach(a =>
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      domToggleJob(a.dataset.id);
+    })
+  );
+}
+
+// Offboard is the one irreversible action in this tab, so it costs a typed
+// confirmation — not a yes/no anyone can click through by reflex.
+function domOffboard(domain) {
+  const typed = prompt(
+    `Offboard ${domain}?\n\nThis archives the GitHub repo, detaches apex + www from the Worker, deletes the Worker script, removes the CF email rules, and drops the local submodule.\n\nType the domain to confirm:`
+  );
+  if (typed === null) return;
+  if (typed.trim().toLowerCase() !== domain.toLowerCase()) {
+    toast('Confirmation did not match — nothing queued', 'err');
+    return;
+  }
+  domQueue(null, 'remove', domain, []);
+}
+
+async function domQueue(btn, command, domain, flags) {
+  if (!domain.trim()) {
+    toast('domain required', 'err');
+    return;
+  }
+  if (btn) gdBusy(btn, true);
+  try {
+    const job = await api('POST', '/api/domains/jobs', {
+      command,
+      domain: domain.trim(),
+      flags,
+    });
+    DOM.openJob = job.id;
+    DOM.form.domain = '';
+    toast(`${command} ${job.domain} queued`);
+    softRender();
+  } catch (e) {
+    if (btn) gdBusy(btn, false);
+    toast(e.message, 'err');
+  }
+}
+
+async function domCancel(btn, id) {
+  gdBusy(btn, true);
+  try {
+    await api('POST', `/api/domains/jobs/${encodeURIComponent(id)}/cancel`);
+    toast('Job cancelled');
+    softRender();
+  } catch (e) {
+    gdBusy(btn, false);
+    toast(e.message, 'err');
+  }
+}
+
+function domToggleJob(id) {
+  const row = $(`tr[data-detail="dom:${CSS.escape(id)}"]`);
+  if (!row) return;
+  if (DOM.openJob === id) {
+    DOM.openJob = null;
+    row.classList.add('hidden');
+    return;
+  }
+  DOM.openJob = id;
+  row.classList.remove('hidden');
+  domLoadLog(id);
+}
+
+async function domLoadLog(id) {
+  const pre = $(`pre[data-domlog="${CSS.escape(id)}"]`);
+  if (!pre) return;
+  try {
+    const d = await api('GET', `/api/domains/jobs/${encodeURIComponent(id)}`);
+    const pinned = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 24;
+    pre.textContent =
+      (d.truncated ? '… (earlier output truncated)\n' : '') +
+      (d.log || '(no output yet — waiting for the host runner to pick this job up)');
+    if (pinned) pre.scrollTop = pre.scrollHeight;
+  } catch (e) {
+    pre.textContent = `log unavailable: ${e.message}`;
+  }
+}
+
+/* ===================== SOCIAL ===================== */
+// The fleet social registry — replaces the hand-maintained
+// tools/social-setup/FLEET_SOCIAL_MAP.md. Three lenses over the same data:
+//   matrix   site x platform grid (the shape the markdown table had)
+//   list     flat, searchable/sortable/groupable account rows
+//   personas the named-byline roster and its per-platform coverage
+// Sites come from live discovery unioned with the registry, so a newly
+// onboarded site appears here with zero registry edits.
+const SOC = {
+  data: null,
+  mode: 'matrix',
+  q: '',
+  group: 'site',
+  sortKey: 'site',
+  sortDir: 1,
+  f: { platform: '', status: '', scope: '', category: '', attention: false },
+  open: new Set(), // sites expanded to show persona rows in matrix mode
+};
+
+const socStatus = k =>
+  (SOC.data.statuses || []).find(s => s.key === k) || { label: k, tone: 'gray' };
+const socPlatform = k => (SOC.data.platforms || []).find(p => p.key === k) || { label: k };
+const socToneBadge = (tone, txt) =>
+  `<span class="badge b-${{ green: 'green', yellow: 'yellow', orange: 'yellow', red: 'red', blue: 'blue', gray: 'gray' }[tone] || 'gray'}">${esc(txt)}</span>`;
+
+// Worst status wins when several accounts collapse into one cell.
+const TONE_RANK = { red: 5, orange: 4, yellow: 3, blue: 2, green: 1, gray: 0 };
+function worstTone(list) {
+  return list.reduce((w, a) => (TONE_RANK[a.tone] > TONE_RANK[w] ? a.tone : w), 'gray');
+}
+
+function socAccountsFor(site, platform, scope) {
+  return SOC.data.accounts.filter(
+    a => a.site === site && a.platform === platform && (!scope || a.scope === scope)
+  );
+}
+
+// Does this account survive the current search + filter set?
+function socMatch(a) {
+  const f = SOC.f;
+  if (f.platform && a.platform !== f.platform) return false;
+  if (f.status && a.status !== f.status) return false;
+  if (f.scope && a.scope !== f.scope) return false;
+  if (f.attention && !a.needsAttention) return false;
+  if (f.category) {
+    const s = SOC.data.sites.find(x => x.site === a.site);
+    if (((s && s.category) || 'active') !== f.category) return false;
+  }
+  const q = SOC.q.trim().toLowerCase();
+  if (!q) return true;
+  return [a.site, a.platform, a.handle, a.personaName, a.statusNote, a.notes]
+    .join(' ')
+    .toLowerCase()
+    .includes(q);
+}
+
+function socSitesFiltered() {
+  const q = SOC.q.trim().toLowerCase();
+  return SOC.data.sites.filter(s => {
+    if (SOC.f.category && (s.category || 'active') !== SOC.f.category) return false;
+    if (!q) return true;
+    if (s.site.toLowerCase().includes(q)) return true;
+    // A site also survives if any of its accounts match the search.
+    return SOC.data.accounts.some(a => a.site === s.site && socMatch(a));
+  });
+}
+
+async function renderSocial() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading social registry…</div>';
+  let data;
+  try {
+    data = await api('GET', '/api/social');
+  } catch (e) {
+    app.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    return;
+  }
+  SOC.data = data;
+  const s = data.summary;
+
+  const opt = (list, cur, blank) =>
+    `<option value="">${blank}</option>` +
+    list
+      .map(
+        o =>
+          `<option value="${esc(o.key)}" ${o.key === cur ? 'selected' : ''}>${esc(o.label)}</option>`
+      )
+      .join('');
+
+  app.innerHTML = `
+    <div class="page-head">
+      <h2 class="page-title">Social</h2>
+      <span class="muted">${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites</span>
+      <span class="soc-stats">
+        ${socToneBadge('green', `${s.live} live`)}
+        ${s.needsAttention ? socToneBadge('red', `${s.needsAttention} need attention`) : socToneBadge('gray', 'none broken')}
+      </span>
+    </div>
+    <div class="task-toolbar">
+      <div class="soc-modes">
+        ${['matrix', 'list', 'personas']
+          .map(
+            m =>
+              `<button class="btn sm ${SOC.mode === m ? 'primary' : ''}" data-soc-mode="${m}">${m[0].toUpperCase() + m.slice(1)}</button>`
+          )
+          .join('')}
+      </div>
+      <input id="soc-q" class="cm-input" placeholder="Search site, handle, persona, note…" value="${esc(SOC.q)}" style="width:250px" />
+      <select id="soc-f-platform">${opt(data.platforms, SOC.f.platform, 'All platforms')}</select>
+      <select id="soc-f-status">${opt(data.statuses, SOC.f.status, 'All statuses')}</select>
+      <select id="soc-f-scope">${opt(
+        [
+          { key: 'brand', label: 'Brand' },
+          { key: 'persona', label: 'Persona' },
+        ],
+        SOC.f.scope,
+        'Brand + persona'
+      )}</select>
+      <select id="soc-f-category">${opt(data.siteCategories, SOC.f.category, 'All site buckets')}</select>
+      <label class="soc-check"><input type="checkbox" id="soc-f-attention" ${SOC.f.attention ? 'checked' : ''} /> needs attention</label>
+      ${SOC.mode === 'list' ? `<label class="muted">Group</label><select id="soc-group">${['site', 'platform', 'status', 'scope', 'none'].map(g => `<option value="${g}" ${SOC.group === g ? 'selected' : ''}>${g}</option>`).join('')}</select>` : ''}
+      <button class="btn sm primary" id="soc-add" style="margin-left:auto">+ Account</button>
+      <button class="btn sm" id="soc-add-persona">+ Persona</button>
+    </div>
+    <div id="soc-body"></div>`;
+
+  $$('[data-soc-mode]').forEach(b =>
+    b.addEventListener('click', () => {
+      SOC.mode = b.dataset.socMode;
+      FRESH = true;
+      renderSocial();
+    })
+  );
+  const qEl = $('#soc-q');
+  qEl.addEventListener('input', () => {
+    SOC.q = qEl.value;
+    socRenderBody();
+  });
+  const bindFilter = (id, key, isCheck) =>
+    $(id).addEventListener('change', e => {
+      SOC.f[key] = isCheck ? e.target.checked : e.target.value;
+      socRenderBody();
+    });
+  bindFilter('#soc-f-platform', 'platform');
+  bindFilter('#soc-f-status', 'status');
+  bindFilter('#soc-f-scope', 'scope');
+  bindFilter('#soc-f-category', 'category');
+  bindFilter('#soc-f-attention', 'attention', true);
+  const gEl = $('#soc-group');
+  if (gEl)
+    gEl.addEventListener('change', e => {
+      SOC.group = e.target.value;
+      socRenderBody();
+    });
+  $('#soc-add').addEventListener('click', () => socAccountModal(null, {}));
+  $('#soc-add-persona').addEventListener('click', () => socPersonaModal(null));
+
+  socRenderBody();
+  if (!FRESH) applyUISnap();
+}
+
+function socRenderBody() {
+  const body = $('#soc-body');
+  if (!body) return;
+  if (SOC.mode === 'matrix') body.innerHTML = socMatrixHTML();
+  else if (SOC.mode === 'list') body.innerHTML = socListHTML();
+  else body.innerHTML = socPersonasHTML();
+  socWireBody();
+}
+
+function socWireBody() {
+  $$('[data-soc-cell]').forEach(el =>
+    el.addEventListener('click', () => {
+      const { site, platform, accountId } = el.dataset;
+      if (accountId) socAccountModal(accountId);
+      else socAccountModal(null, { site, platform, scope: 'brand' });
+    })
+  );
+  $$('[data-soc-expand]').forEach(el =>
+    el.addEventListener('click', () => {
+      const site = el.dataset.socExpand;
+      if (SOC.open.has(site)) SOC.open.delete(site);
+      else SOC.open.add(site);
+      socRenderBody();
+    })
+  );
+  $$('[data-soc-sort]').forEach(el =>
+    el.addEventListener('click', () => {
+      const k = el.dataset.socSort;
+      SOC.sortDir = SOC.sortKey === k ? -SOC.sortDir : 1;
+      SOC.sortKey = k;
+      socRenderBody();
+    })
+  );
+  $$('[data-soc-persona]').forEach(el =>
+    el.addEventListener('click', () => socPersonaModal(el.dataset.socPersona))
+  );
+  $$('[data-soc-category]').forEach(el =>
+    el.addEventListener('change', async () => {
+      try {
+        await api('PUT', `/api/social/sites/${encodeURIComponent(el.dataset.socCategory)}/meta`, {
+          category: el.value,
+        });
+        toast('site bucket saved');
+        FRESH = false;
+        renderSocial();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    })
+  );
+}
+
+/* ---- matrix ---- */
+function socCell(site, platform, scope, personaId) {
+  const rows = SOC.data.accounts.filter(
+    a =>
+      a.site === site &&
+      a.platform === platform &&
+      a.scope === scope &&
+      (personaId === undefined || a.personaId === personaId) &&
+      socMatch(a)
+  );
+  if (!rows.length) {
+    return `<td class="soc-c"><span class="soc-dot t-none" data-soc-cell data-site="${esc(site)}" data-platform="${esc(platform)}" title="not started — click to record one">·</span></td>`;
+  }
+  const a = rows[0];
+  const extra = rows.length > 1 ? `<sup class="soc-n">${rows.length}</sup>` : '';
+  const st = socStatus(a.status);
+  const tip = [
+    `${site} · ${socPlatform(platform).label} · ${a.personaName || 'brand'}`,
+    `status: ${st.label}`,
+    a.handle ? `handle: ${a.handle}` : '',
+    a.statusNote || '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+  return `<td class="soc-c"><span class="soc-dot t-${esc(a.tone)}" data-soc-cell data-account-id="${esc(a.id)}" title="${esc(tip)}"></span>${extra}</td>`;
+}
+
+function socMatrixHTML() {
+  const platforms = SOC.data.platforms;
+  const sites = socSitesFiltered();
+  if (!sites.length) return '<div class="empty">No sites match.</div>';
+  const cats = SOC.data.siteCategories;
+  const rows = sites
+    .map(s => {
+      const personas = SOC.data.personas.filter(p => p.site === s.site);
+      const isOpen = SOC.open.has(s.site);
+      const caret = personas.length
+        ? `<span class="soc-caret" data-soc-expand="${esc(s.site)}">${isOpen ? '▾' : '▸'}</span>`
+        : '<span class="soc-caret soc-caret-off">·</span>';
+      const catSel = `<select class="soc-cat" data-soc-category="${esc(s.site)}">${cats
+        .map(
+          c =>
+            `<option value="${esc(c.key)}" ${(s.category || 'active') === c.key ? 'selected' : ''}>${esc(c.label)}</option>`
+        )
+        .join('')}</select>`;
+      const main = `<tr data-fleet-row data-site="${esc(s.site)}">
+        <td class="site">${caret}${siteLink(s.site)}${s.onDisk ? '' : '<span class="muted soc-off"> (registry only)</span>'}</td>
+        <td>${catSel}</td>
+        ${platforms.map(p => socCell(s.site, p.key, 'brand')).join('')}
+        <td class="muted">${personas.length ? `${personas.length} persona${personas.length > 1 ? 's' : ''}` : '—'}</td>
+      </tr>`;
+      if (!isOpen) return main;
+      const sub = personas
+        .map(
+          p => `<tr class="soc-sub" data-fleet-row data-site="${esc(s.site)}">
+          <td class="soc-persona-name"><span class="soc-caret soc-caret-off"></span><span class="soc-plink" data-soc-persona="${esc(p.id)}">${esc(p.name)}</span></td>
+          <td class="muted">${esc(p.beat || '')}</td>
+          ${platforms.map(pl => socCell(s.site, pl.key, 'persona', p.id)).join('')}
+          <td class="muted">${p.realPerson ? 'real person' : ''}</td>
+        </tr>`
+        )
+        .join('');
+      return main + sub;
+    })
+    .join('');
+  return `<div class="card"><table class="soc-matrix">
+    <thead><tr>
+      <th>Site</th><th>Bucket</th>
+      ${platforms.map(p => `<th class="soc-c" title="${esc(p.key)}">${esc(p.label)}</th>`).join('')}
+      <th>Personas</th>
+    </tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="muted soc-legend">${SOC.data.statuses
+      .map(
+        st =>
+          `<span class="soc-lg"><span class="soc-dot t-${st.tone}"></span> ${esc(st.label)}</span>`
+      )
+      .join('')}
+      <span class="soc-lg"><span class="soc-dot t-none">·</span> not recorded</span>
+      — click any cell to edit; ▸ expands a site's personas.</div>`;
+}
+
+/* ---- list ---- */
+const SOC_COLS = [
+  { key: 'site', label: 'Site' },
+  { key: 'who', label: 'Who' },
+  { key: 'platform', label: 'Platform' },
+  { key: 'handle', label: 'Handle' },
+  { key: 'status', label: 'Status' },
+  { key: 'credsInVault', label: 'Vault' },
+  { key: 'updatedAt', label: 'Updated' },
+  { key: 'statusNote', label: 'Note' },
+];
+
+function socSortVal(a, key) {
+  if (key === 'who') return a.personaName || '';
+  if (key === 'credsInVault') return a.credsInVault ? 1 : 0;
+  return a[key] ?? '';
+}
+
+function socListHTML() {
+  const rows = SOC.data.accounts.filter(socMatch);
+  if (!rows.length) return '<div class="empty">No accounts match.</div>';
+  rows.sort((x, y) => {
+    const a = socSortVal(x, SOC.sortKey);
+    const b = socSortVal(y, SOC.sortKey);
+    const c = typeof a === 'number' ? a - b : String(a).localeCompare(String(b));
+    return (
+      (c || x.site.localeCompare(y.site) || x.platform.localeCompare(y.platform)) * SOC.sortDir
+    );
+  });
+
+  const groups = new Map();
+  for (const a of rows) {
+    const k =
+      SOC.group === 'none'
+        ? ''
+        : SOC.group === 'platform'
+          ? socPlatform(a.platform).label
+          : SOC.group === 'status'
+            ? socStatus(a.status).label
+            : SOC.group === 'scope'
+              ? a.scope
+              : a.site;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(a);
+  }
+
+  const head = `<thead><tr>${SOC_COLS.map(
+    c =>
+      `<th class="soc-sortable" data-soc-sort="${c.key}">${esc(c.label)}${SOC.sortKey === c.key ? (SOC.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`
+  ).join('')}</tr></thead>`;
+
+  const body = [...groups.entries()]
+    .map(([g, list]) => {
+      const gh = g
+        ? `<tr class="soc-group"><td colspan="${SOC_COLS.length}">${esc(g)}<span class="dd-count">${list.length}</span></td></tr>`
+        : '';
+      const trs = list
+        .map(a => {
+          const st = socStatus(a.status);
+          const link = a.profileUrl
+            ? `<a href="${esc(a.profileUrl)}" target="_blank" rel="noopener noreferrer" class="soc-hl">${esc(a.handle)}<span class="ext">↗</span></a>`
+            : esc(a.handle || '—');
+          return `<tr class="soc-row" data-fleet-row data-site="${esc(a.site)}" data-soc-cell data-account-id="${esc(a.id)}">
+            <td class="site">${esc(a.site)}</td>
+            <td>${a.personaName ? esc(a.personaName) : '<span class="muted">brand</span>'}</td>
+            <td>${esc(socPlatform(a.platform).label)}</td>
+            <td class="soc-handle">${link}</td>
+            <td>${socToneBadge(a.tone, st.label)}${a.action ? `<span class="muted soc-act"> ${esc(a.action)}</span>` : ''}</td>
+            <td>${a.credsInVault ? '🔑' : '<span class="muted">—</span>'}</td>
+            <td class="muted">${esc((a.updatedAt || '').slice(0, 10))}</td>
+            <td class="soc-note muted" title="${esc(a.statusNote || '')}">${esc(a.statusNote || '')}</td>
+          </tr>`;
+        })
+        .join('');
+      return gh + trs;
+    })
+    .join('');
+
+  return `<div class="card"><table class="soc-list">${head}<tbody>${body}</tbody></table></div>
+    <div class="muted soc-legend">${rows.length} row(s) — click a row to edit.</div>`;
+}
+
+/* ---- personas ---- */
+function socPersonasHTML() {
+  const q = SOC.q.trim().toLowerCase();
+  const personas = SOC.data.personas.filter(
+    p =>
+      (!SOC.f.category ||
+        ((SOC.data.sites.find(s => s.site === p.site) || {}).category || 'active') ===
+          SOC.f.category) &&
+      (!q || `${p.site} ${p.name} ${p.beat || ''}`.toLowerCase().includes(q))
+  );
+  if (!personas.length)
+    return '<div class="empty">No personas yet. Use + Persona to add a byline.</div>';
+  const rows = personas
+    .map(p => {
+      const accts = SOC.data.accounts.filter(a => a.personaId === p.id && socMatch(a));
+      const chips = accts.length
+        ? accts
+            .map(
+              a =>
+                `<span class="soc-chip" data-soc-cell data-account-id="${esc(a.id)}" title="${esc(a.statusNote || a.status)}"><span class="soc-dot t-${esc(a.tone)}"></span>${esc(socPlatform(a.platform).label)}</span>`
+            )
+            .join('')
+        : '<span class="muted">no accounts</span>';
+      return `<tr data-fleet-row data-site="${esc(p.site)}">
+        <td class="site">${esc(p.site)}</td>
+        <td><span class="soc-plink" data-soc-persona="${esc(p.id)}">${esc(p.name)}</span></td>
+        <td class="muted">${esc(p.beat || '')}</td>
+        <td>${chips}</td>
+        <td>${p.realPerson ? socToneBadge('blue', 'real person') : ''}${p.active ? '' : socToneBadge('gray', 'inactive')}</td>
+      </tr>`;
+    })
+    .join('');
+  return `<div class="card"><table>
+    <thead><tr><th>Site</th><th>Persona</th><th>Beat</th><th>Accounts</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="muted soc-legend">${personas.length} persona(s) — click a name to edit, a platform chip to edit that account.</div>`;
+}
+
+/* ---- account editor ---- */
+async function socAccountModal(accountId, seed = {}) {
+  const modal = $('#modal'),
+    title = $('#modal-title'),
+    bodyEl = $('#modal-body');
+  const a = accountId ? SOC.data.accounts.find(x => x.id === accountId) : null;
+  const cur = a || {
+    site: seed.site || '',
+    platform: seed.platform || '',
+    scope: seed.scope || 'brand',
+    personaId: null,
+    status: 'not_started',
+    handle: '',
+    profileUrl: '',
+    statusNote: '',
+    notes: '',
+    credsInVault: false,
+  };
+  title.textContent = a
+    ? `${a.site} · ${socPlatform(a.platform).label} · ${a.personaName || 'brand'}`
+    : 'New social account';
+
+  const siteOpts = SOC.data.sites
+    .map(
+      s =>
+        `<option value="${esc(s.site)}" ${s.site === cur.site ? 'selected' : ''}>${esc(s.site)}</option>`
+    )
+    .join('');
+  const platOpts = SOC.data.platforms
+    .map(
+      p =>
+        `<option value="${esc(p.key)}" ${p.key === cur.platform ? 'selected' : ''}>${esc(p.label)}</option>`
+    )
+    .join('');
+  const statusOpts = SOC.data.statuses
+    .map(
+      s =>
+        `<option value="${esc(s.key)}" ${s.key === cur.status ? 'selected' : ''}>${esc(s.label)}${s.describe ? ` — ${esc(s.describe)}` : ''}</option>`
+    )
+    .join('');
+  const personaOpts =
+    '<option value="">— brand account —</option>' +
+    SOC.data.personas
+      .map(
+        p =>
+          `<option value="${esc(p.id)}" data-site="${esc(p.site)}" ${p.id === cur.personaId ? 'selected' : ''}>${esc(p.site)} · ${esc(p.name)}</option>`
+      )
+      .join('');
+
+  bodyEl.innerHTML = `
+    <div class="soc-grid">
+      <div class="field"><label>Site</label><select id="f-soc-site" ${a ? 'disabled' : ''}>${siteOpts}</select></div>
+      <div class="field"><label>Platform</label><select id="f-soc-platform" ${a ? 'disabled' : ''}>${platOpts}</select></div>
+    </div>
+    <div class="field"><label>Persona (leave as brand for the site's own account)</label><select id="f-soc-persona" ${a ? 'disabled' : ''}>${personaOpts}</select></div>
+    <div class="field"><label>Status</label><select id="f-soc-status">${statusOpts}</select></div>
+    <div class="field"><label>Status note — why it is in this state (the automation reads this)</label><textarea id="f-soc-statusnote" rows="3">${esc(cur.statusNote || '')}</textarea></div>
+    <div class="soc-grid">
+      <div class="field"><label>Handle</label><input id="f-soc-handle" value="${esc(cur.handle || '')}" placeholder="e.g. americastrikes.bsky.social" /></div>
+      <div class="field"><label>Profile URL (derived from handle if blank)</label><input id="f-soc-url" value="${esc(cur.profileUrl && a && a.handle ? '' : cur.profileUrl || '')}" placeholder="https://…" /></div>
+    </div>
+    <div class="field"><label><input type="checkbox" id="f-soc-creds" ${cur.credsInVault ? 'checked' : ''} /> credentials are in the Vaultwarden "Social Media" collection</label></div>
+    <div class="field"><label>Notes</label><textarea id="f-soc-notes" rows="2">${esc(cur.notes || '')}</textarea></div>
+    <div id="soc-history"></div>
+    <div class="modal-foot">
+      ${a ? '<button class="btn danger spacer" id="f-soc-delete">Delete</button>' : ''}
+      <button class="btn" id="f-soc-cancel">Cancel</button>
+      <button class="btn primary" id="f-soc-save">Save</button>
+    </div>`;
+  modal.classList.remove('hidden');
+  $('#f-soc-cancel').onclick = closeModal;
+
+  if (a) {
+    api('GET', `/api/social/events?accountId=${encodeURIComponent(a.id)}&limit=20`)
+      .then(r => {
+        const el = $('#soc-history');
+        if (!el || !r.events.length) return;
+        el.innerHTML = `<div class="field"><label>History</label><div class="soc-hist">${r.events
+          .map(
+            e =>
+              `<div><span class="muted">${esc(e.at.slice(0, 16).replace('T', ' '))}</span> ${esc(e.kind)}${e.to ? ` → <b>${esc(e.to)}</b>` : ''} <span class="muted">${esc(e.actor || '')}</span>${e.note ? `<div class="soc-hist-note">${esc(e.note)}</div>` : ''}</div>`
+          )
+          .join('')}</div></div>`;
+      })
+      .catch(() => {});
+  }
+
+  $('#f-soc-save').onclick = async () => {
+    const payload = {
+      status: $('#f-soc-status').value,
+      statusNote: $('#f-soc-statusnote').value,
+      handle: $('#f-soc-handle').value.trim(),
+      profileUrl: $('#f-soc-url').value.trim(),
+      notes: $('#f-soc-notes').value,
+      credsInVault: $('#f-soc-creds').checked,
+      actor: 'ui',
+    };
+    try {
+      if (a) {
+        await api('PUT', `/api/social/accounts/${encodeURIComponent(a.id)}`, payload);
+      } else {
+        const personaId = $('#f-soc-persona').value;
+        await api('POST', '/api/social/accounts', {
+          ...payload,
+          site: $('#f-soc-site').value,
+          platform: $('#f-soc-platform').value,
+          scope: personaId ? 'persona' : 'brand',
+          personaId: personaId || undefined,
+        });
+      }
+      toast('saved');
+      closeModal();
+      FRESH = false;
+      renderSocial();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  const del = $('#f-soc-delete');
+  if (del)
+    del.onclick = async () => {
+      if (!confirm(`Delete the ${a.platform} row for ${a.site}? The history log keeps the record.`))
+        return;
+      try {
+        await api('DELETE', `/api/social/accounts/${encodeURIComponent(a.id)}`);
+        toast('deleted');
+        closeModal();
+        FRESH = false;
+        renderSocial();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    };
+}
+
+/* ---- persona editor ---- */
+function socPersonaModal(personaId) {
+  const modal = $('#modal'),
+    title = $('#modal-title'),
+    bodyEl = $('#modal-body');
+  const p = personaId ? SOC.data.personas.find(x => x.id === personaId) : null;
+  title.textContent = p ? `${p.site} · ${p.name}` : 'New persona';
+  const siteOpts = SOC.data.sites
+    .map(
+      s =>
+        `<option value="${esc(s.site)}" ${p && s.site === p.site ? 'selected' : ''}>${esc(s.site)}</option>`
+    )
+    .join('');
+  bodyEl.innerHTML = `
+    <div class="field"><label>Site</label><select id="f-per-site" ${p ? 'disabled' : ''}>${siteOpts}</select></div>
+    <div class="field"><label>Name (the byline)</label><input id="f-per-name" value="${esc(p ? p.name : '')}" /></div>
+    <div class="field"><label>Beat / role</label><input id="f-per-beat" value="${esc(p ? p.beat || '' : '')}" /></div>
+    <div class="field"><label>Notes</label><textarea id="f-per-notes" rows="2">${esc(p ? p.notes || '' : '')}</textarea></div>
+    <div class="field"><label><input type="checkbox" id="f-per-real" ${p && p.realPerson ? 'checked' : ''} /> real person (not a pseudonymous byline — identity-verifying platforms are fair game)</label></div>
+    <div class="field"><label><input type="checkbox" id="f-per-active" ${!p || p.active ? 'checked' : ''} /> active</label></div>
+    <div class="modal-foot">
+      ${p ? '<button class="btn danger spacer" id="f-per-delete">Delete</button>' : ''}
+      <button class="btn" id="f-per-cancel">Cancel</button>
+      <button class="btn primary" id="f-per-save">Save</button>
+    </div>`;
+  modal.classList.remove('hidden');
+  $('#f-per-cancel').onclick = closeModal;
+  $('#f-per-save').onclick = async () => {
+    const payload = {
+      name: $('#f-per-name').value.trim(),
+      beat: $('#f-per-beat').value.trim(),
+      notes: $('#f-per-notes').value,
+      realPerson: $('#f-per-real').checked,
+      active: $('#f-per-active').checked,
+      actor: 'ui',
+    };
+    try {
+      if (p) await api('PUT', `/api/social/personas/${encodeURIComponent(p.id)}`, payload);
+      else await api('POST', '/api/social/personas', { ...payload, site: $('#f-per-site').value });
+      toast('saved');
+      closeModal();
+      FRESH = false;
+      renderSocial();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  const del = $('#f-per-delete');
+  if (del)
+    del.onclick = async () => {
+      try {
+        await api('DELETE', `/api/social/personas/${encodeURIComponent(p.id)}`);
+        toast('deleted');
+        closeModal();
+        FRESH = false;
+        renderSocial();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    };
+}
+
 /* ===================== SHELL ===================== */
 const TOP_VIEWS = [
   'control',
@@ -5601,6 +6473,8 @@ const TOP_VIEWS = [
   'sitefacts',
   'guides',
   'guardrails',
+  'domains',
+  'social',
 ];
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
@@ -5686,6 +6560,8 @@ function render() {
   else if (STATE.view === 'sitefacts') renderSiteFacts();
   else if (STATE.view === 'guides') renderGuides();
   else if (STATE.view === 'guardrails') renderGuardrails();
+  else if (STATE.view === 'social') renderSocial();
+  else if (STATE.view === 'domains') renderDomains();
 }
 
 function renderAgent(role) {

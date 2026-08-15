@@ -218,6 +218,49 @@ it after setting `innerHTML` (re-wire happens every render — that's why open
 panels re-bind in the `applyUISnap` follow-up loop). Use `gdBusy()` for the
 in-flight state and re-render the view in place on success.
 
+## Domains tab — onboard/offboard, and the host-runner escape hatch
+
+`#domains` (`server/domains.js` + `renderDomains()`) onboards and offboards
+domains. It contains **zero domain logic**: every step already lives in
+`tools/scripts/*.sh` behind `tools/scripts/domain-manager-cli.sh`
+(`add` | `remove` | `status` | `repair` | `deploy` | `bind` | `email` |
+`bootstrap`). Never reimplement a step of that flow in JS.
+
+The panel **cannot run those scripts itself** — its container is root, has no
+`gh`, no host nvm node, and a root-run `git submodule add` leaves root-owned
+objects in the parent repo's `.git` (the known corruption mode). So it uses a
+**spool + host runner**:
+
+```
+POST /api/domains/jobs   → writes tools/fleet-dashboard/data/domain-jobs/<id>.json  (status: queued)
+tools/scripts/domain-job-runner.sh  (host cron, every minute, uid 1000, flock)
+                         → runs domain-manager-cli.sh, output to <id>.log, patches the record
+GET  /api/domains/jobs/:id → { job, log, truncated }   ← the UI tails this
+```
+
+- Job ids are **timestamp-prefixed** (`YYYYMMDD-HHMMSS-xxxxxx`) — the runner
+  picks the next queued job by lexical glob order, so the id *is* the queue
+  position. Don't change the id format without changing `next_queued()`.
+- Records are always **written to a temp file and renamed**. The panel (root)
+  and the runner (uid 1000) both rewrite the same file; only the rename works
+  across that uid split, and it's also what keeps the poller from reading a
+  half-written record.
+- The runner polls for ~55s per cron tick, so a queued job starts in ~2s. A
+  long bootstrap holds the flock; the next minute's tick just exits.
+- **Both sides validate** command + flags + hostname against the same
+  allowlist — the spool is a file-backed queue, so neither end trusts the other.
+- One live job per domain (`enqueue` 409s otherwise): concurrent runs against
+  the same zone is the one way this queue could do real damage.
+- **Cancel is queued-only.** Killing a mid-flight CLI leaves the domain
+  half-built; recover with Status/Repair instead.
+- `runner()` surfaces heartbeat age so the UI says "the runner is down" rather
+  than showing a silently stuck queue. If jobs sit in *queued*, check
+  `crontab -l` for the `domain-job-runner.sh` line first.
+
+Same pattern applies to **any** future dashboard action that needs host
+identity, host toolchain, or a write to the parent repo's git: spool it, don't
+`child_process` it from the panel.
+
 ## Verify before committing
 
 Backend (fast, no browser):

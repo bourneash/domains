@@ -31,6 +31,8 @@ const compliance = require('./compliance');
 const lintfleet = require('./lintfleet');
 const errorscan = require('./errorscan');
 const guardrails = require('./guardrails');
+const domains = require('./domains');
+const social = require('./social');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -267,6 +269,42 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
 
   app.get('/api/sites', (_req, res) => res.json(discoverSites(root)));
+
+  // Domain onboarding/offboarding. The panel NEVER runs the domain scripts
+  // itself — it spools a job that tools/scripts/domain-job-runner.sh picks up
+  // on the host (as uid 1000, with gh/nvm on PATH) and hands to the existing
+  // tools/scripts/domain-manager-cli.sh. See server/domains.js for why.
+  app.get('/api/domains', (_req, res) => {
+    try {
+      res.json(domains.overview(root, discoverSites(root)));
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/domains/jobs', (req, res) => {
+    try {
+      res.status(202).json(domains.enqueue(root, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.get('/api/domains/jobs/:id', (req, res) => {
+    try {
+      res.json(domains.jobLog(root, req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/domains/jobs/:id/cancel', (req, res) => {
+    try {
+      res.json(domains.cancel(root, req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
 
   // Identity/content guardrail lists (blocked/warn terms) + audit log —
   // backs both the pre-commit hook (tools/content-guardrails) and this tab.
@@ -1019,6 +1057,157 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       sitefacts.deleteManualFact(req.params.slug, req.params.key);
       res.json({ ok: true });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+
+  // Social registry — the tracked replacement for the old hand-edited
+  // tools/social-setup/FLEET_SOCIAL_MAP.md. Read+write, so both the operator
+  // (this UI) and the signup automation (`social-registry` CLI → this API)
+  // work off one source of truth. `actor` is threaded through so the event log
+  // says who changed a status.
+  const actorOf = req => {
+    const a = (req.body && req.body.actor) || req.query.actor || '';
+    return String(a).slice(0, 60) || 'ui';
+  };
+
+  app.get('/api/social', (_req, res) => {
+    try {
+      res.json(social.snapshot(discoverSites(root)));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/social/summary', (_req, res) => {
+    try {
+      res.json(social.summary(discoverSites(root)));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  // The digest the AI reads on entry: what is broken, what was never attempted.
+  app.get('/api/social/worklist', (_req, res) => {
+    try {
+      res.json(social.worklist(discoverSites(root)));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/social/events', (req, res) => {
+    try {
+      res.json({
+        events: social.readEvents({
+          limit: Math.min(Number(req.query.limit) || 100, 1000),
+          site: req.query.site || null,
+          accountId: req.query.accountId || null,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.get('/api/social/accounts', (req, res) => {
+    try {
+      res.json({
+        accounts: social.listAccounts({
+          site: req.query.site || null,
+          platform: req.query.platform || null,
+          status: req.query.status || null,
+          scope: req.query.scope || null,
+          personaId: req.query.personaId || null,
+          q: req.query.q || '',
+          needsAttention: req.query.needsAttention === '1' || req.query.needsAttention === 'true',
+          live: req.query.live === '1' || req.query.live === 'true',
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/social/accounts', (req, res) => {
+    try {
+      res.json({ ok: true, account: social.upsertAccount(req.body, actorOf(req)) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+  app.get('/api/social/accounts/:id', (req, res) => {
+    try {
+      res.json(social.getAccount(req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.put('/api/social/accounts/:id', (req, res) => {
+    try {
+      res.json({ ok: true, account: social.updateAccount(req.params.id, req.body, actorOf(req)) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+  app.post('/api/social/accounts/:id/status', (req, res) => {
+    try {
+      const b = req.body || {};
+      res.json({
+        ok: true,
+        account: social.setStatus(req.params.id, b.status, b.note, actorOf(req)),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+  app.delete('/api/social/accounts/:id', (req, res) => {
+    try {
+      res.json(social.deleteAccount(req.params.id, actorOf(req)));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+
+  app.get('/api/social/personas', (req, res) => {
+    try {
+      res.json({ personas: social.listPersonas(req.query.site || null) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/social/personas', (req, res) => {
+    try {
+      res.json({ ok: true, persona: social.createPersona(req.body, actorOf(req)) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+  app.put('/api/social/personas/:id', (req, res) => {
+    try {
+      res.json({ ok: true, persona: social.updatePersona(req.params.id, req.body, actorOf(req)) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+  app.delete('/api/social/personas/:id', (req, res) => {
+    try {
+      res.json(social.deletePersona(req.params.id, actorOf(req)));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+
+  app.post('/api/social/platforms', (req, res) => {
+    try {
+      res.json({ ok: true, platform: social.addPlatform(req.body, actorOf(req)) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
+    }
+  });
+  // Site bucket (active / positioning_tbd / adult_excluded / retired). Not
+  // gated by requireSite: the registry also carries sites that predate or
+  // outlive a sites/<slug> checkout.
+  app.put('/api/social/sites/:slug/meta', (req, res) => {
+    try {
+      res.json({ ok: true, meta: social.setSiteMeta(req.params.slug, req.body, actorOf(req)) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
     }
