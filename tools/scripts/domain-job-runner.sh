@@ -40,9 +40,13 @@ HEARTBEAT="${SPOOL}/.heartbeat"
 LOOP_SECONDS="${DOMAIN_JOB_LOOP_SECONDS:-55}"
 POLL_SECONDS="${DOMAIN_JOB_POLL_SECONDS:-2}"
 
-# cron gives us almost no PATH. These are the interpreters/CLIs the domain
-# scripts assume are present: node+npm (nvm), python3 (pyenv shim), gh (snap).
-export PATH="/home/jesse/.nvm/versions/node/v23.7.0/bin:/home/jesse/.pyenv/shims:/snap/bin:/usr/local/bin:/usr/bin:/bin"
+# Host cron gave this almost no PATH and needed an explicit nvm/pyenv/snap
+# hard-code for node+npm/python3/gh. Running inside tools/fleet-cron now,
+# whose image provides that toolchain directly (node:22-alpine base + apk
+# python3/git/gh) — no host-path assumptions needed. Override via
+# DOMAIN_JOB_PATH if a future environment needs to inject something ahead of
+# the image's own PATH.
+export PATH="${DOMAIN_JOB_PATH:-$PATH}"
 export HOME="${HOME:-/home/jesse}"
 # Nothing here is a TTY; keep the CLI's output plain so the dashboard's log
 # view doesn't have to strip ANSI escapes.
@@ -65,7 +69,9 @@ supported_flag() {
   local cmd="$1" flag="$2"
   case "${cmd}:${flag}" in
     add:--full|add:--bootstrap-only|add:--no-deploy|add:--no-bind|add:--no-email) return 0 ;;
-    remove:--delete-repo|remove:--no-github|remove:--no-cloudflare|remove:--no-local) return 0 ;;
+    # --delete-repo is deliberately absent: fleet policy is archive-never-delete,
+    # so a spooled job can't reach it even if something hand-writes the record.
+    remove:--no-github|remove:--no-cloudflare|remove:--no-local) return 0 ;;
     repair:--plan|repair:--no-email|repair:--no-deploy|repair:--no-bind) return 0 ;;
     bootstrap:--no-email) return 0 ;;
     *) return 1 ;;

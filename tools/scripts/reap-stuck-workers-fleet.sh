@@ -38,8 +38,9 @@
 # that weakens this reaper's whole purpose for every fast role.
 set -uo pipefail
 
-SITES_DIR="/home/jesse/projects/domains/sites"
-LOG="/home/jesse/projects/domains/tools/scripts/reap-stuck-workers-fleet.log"
+DOMAINS_ROOT="${FLEET_DOMAINS_ROOT:-/home/jesse/projects/domains}"
+SITES_DIR="$DOMAINS_ROOT/sites"
+LOG="$DOMAINS_ROOT/tools/scripts/reap-stuck-workers-fleet.log"
 MAX_AGE_SEC="${REAPER_MAX_AGE_SEC:-3600}"
 declare -A ROLE_MAX_AGE_SEC=(
   [affiliate-audit]="${REAPER_MAX_AGE_SEC_AFFILIATE_AUDIT:-10800}"  # 3h
@@ -51,7 +52,7 @@ declare -A ROLE_MAX_AGE_SEC=(
 # their Slack notify was a silent no-op in practice; sourcing it here for
 # real is an intentional side-effect of moving host-side, not scope creep —
 # flagged in the PR/commit message.
-[[ -f /home/jesse/projects/domains/.env ]] && { set -a; . /home/jesse/projects/domains/.env; set +a; }
+[[ -f "$DOMAINS_ROOT/.env" ]] && { set -a; . "$DOMAINS_ROOT/.env"; set +a; }
 
 # Per-site Slack channel env-var name, exactly as each removed
 # reap-stuck-workers.sh resolved it (`${SLACK_CHANNEL_<KEY>:-domain-<site>}`).

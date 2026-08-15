@@ -1,0 +1,71 @@
+# Fleet-level cron driver — see README.md and ../HANDOFF.md.
+#
+# Bring up:  cd tools/fleet-cron && docker compose --env-file ../../.env up -d
+# Logs:      docker compose logs -f cron
+# Edit sched:vi crontab.docker && docker compose restart cron  (no rebuild — bind-mounted)
+# Rebuild:   docker compose build cron  (only needed after Dockerfile/entrypoint changes)
+
+name: fleet-cron
+
+services:
+  cron:
+    build: .
+    image: fleet-cron:latest
+    container_name: fleet-cron
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      # A writable home at the HOST's home path (see HOME env below), owned
+      # by ops (Dockerfile pre-creates + chowns it). Without this, Docker
+      # auto-creates /home/jesse as an implicit root-owned mount parent for
+      # the sub-binds below, and job 4's `claude -p` can't write its own
+      # state (~/.claude.json) — it hangs until AUTH_CHECK_TIMEOUT instead of
+      # failing fast. The more specific binds below (.ssh, credentials,
+      # projects/domains) layer on top of this volume normally.
+      - fleet_cron_home:${HOME:-/home/jesse}
+      # Mount the docker socket so this container can invoke `docker compose
+      # up` / `docker exec` / `docker inspect` against every other fleet
+      # container. RW — compose v2 breaks with :ro.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # CRITICAL: bind the repo at the SAME absolute path as the host. Jobs 1
+      # and 3 invoke `docker compose up`/`docker inspect` for OTHER sites'
+      # containers from inside this one — the daemon (host-side) resolves
+      # those compose files' bind specs against the host filesystem, so `.`
+      # inside a site's docker-compose.yml only resolves correctly if this
+      # container sees that site at the identical path. Same reasoning as
+      # every site's own cron container (see ops/docker/docker-compose.yml
+      # under sites/americastrikes.com for the canonical comment).
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}:${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      # Docker config dir — job 1 (ensure-fleet-cron.sh) and job 6
+      # (domain-job-runner.sh -> full-bootstrap.sh) can trigger `docker
+      # compose build` from inside this container; without this mounted,
+      # that fails with "mkdir ~/.docker: permission denied".
+      - ${HOME:-/home/jesse}/.docker:${HOME:-/home/jesse}/.docker
+      # SSH identity for job 6's `git submodule add` / push (github-bourneash
+      # alias) — mounted at the same absolute path as HOME below, not at
+      # /home/ops, so it resolves whether a script reads it via `~` (which
+      # follows $HOME) or an absolute host path.
+      - ${HOME:-/home/jesse}/.ssh:${HOME:-/home/jesse}/.ssh:ro
+      # Shared Claude Code OAuth session — job 4 probes this directly, RO.
+      # Mount ONLY the credentials file, not the full ~/.claude (same reason
+      # as every worker container: avoids dragging 25+ plugins/skills/hooks
+      # into a headless `claude -p` context).
+      - ${HOME:-/home/jesse}/.claude/.credentials.json:${HOME:-/home/jesse}/.claude/.credentials.json:ro
+      # The schedule itself — bind-mounted live, NOT baked into the image.
+      # Edit this file + `docker compose restart cron` takes effect
+      # immediately; no rebuild. See the crontab.docker header comment.
+      - ./crontab.docker:/etc/crontab.docker:ro
+    working_dir: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+    environment:
+      TZ: America/New_York
+      # HOME must match the HOST's HOME (not the container's native
+      # /home/ops) — see the .ssh/.credentials mount comment above and the
+      # docker-compose-up-for-other-sites comment. This is the same override
+      # every site's cron container already applies.
+      HOME: ${HOME:-/home/jesse}
+      FLEET_DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+    depends_on: []
+
+volumes:
+  fleet_cron_home:

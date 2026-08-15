@@ -229,14 +229,21 @@ domains. It contains **zero domain logic**: every step already lives in
 The panel **cannot run those scripts itself** — its container is root, has no
 `gh`, no host nvm node, and a root-run `git submodule add` leaves root-owned
 objects in the parent repo's `.git` (the known corruption mode). So it uses a
-**spool + host runner**:
+**spool + runner**:
 
 ```
 POST /api/domains/jobs   → writes tools/fleet-dashboard/data/domain-jobs/<id>.json  (status: queued)
-tools/scripts/domain-job-runner.sh  (host cron, every minute, uid 1000, flock)
+tools/scripts/domain-job-runner.sh  (tools/fleet-cron container, every minute, uid 1000, flock)
                          → runs domain-manager-cli.sh, output to <id>.log, patches the record
 GET  /api/domains/jobs/:id → { job, log, truncated }   ← the UI tails this
 ```
+
+The runner is **containerized** (2026-08-15, `tools/fleet-cron`), not a host
+cron entry — see that tool's README.md. It got there because the host
+crontab was the wrong place for it (not versioned, not reviewable, invisible
+to this dashboard) same as five other fleet-level jobs; `domain-job-runner.sh`
+no longer hard-codes a host nvm/pyenv/snap `PATH` — the container's image
+provides node ≥ 22 + npm + `gh` directly.
 
 - Job ids are **timestamp-prefixed** (`YYYYMMDD-HHMMSS-xxxxxx`) — the runner
   picks the next queued job by lexical glob order, so the id *is* the queue
@@ -254,8 +261,10 @@ GET  /api/domains/jobs/:id → { job, log, truncated }   ← the UI tails this
 - **Cancel is queued-only.** Killing a mid-flight CLI leaves the domain
   half-built; recover with Status/Repair instead.
 - `runner()` surfaces heartbeat age so the UI says "the runner is down" rather
-  than showing a silently stuck queue. If jobs sit in *queued*, check
-  `crontab -l` for the `domain-job-runner.sh` line first.
+  than showing a silently stuck queue. If jobs sit in *queued*, check that the
+  `fleet-cron` container is up (`docker exec fleet-cron id` → uid 1000) and
+  that `tools/fleet-cron/crontab.docker` still has the `domain-job-runner.sh`
+  line first.
 
 Same pattern applies to **any** future dashboard action that needs host
 identity, host toolchain, or a write to the parent repo's git: spool it, don't

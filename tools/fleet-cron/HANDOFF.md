@@ -1,7 +1,9 @@
 # HANDOFF — move fleet-level host cron into a container
 
-**Status:** not started. This document is the complete brief; you should not
-need to ask questions to execute it.
+**Status:** DONE — 2026-08-15. All six jobs migrated to `tools/fleet-cron`,
+verified per §8, host crontab reduced to the two `@reboot` lines plus the
+untouched `home_energy` line. See `README.md` for the operating doc going
+forward; this file is kept for the incident/design history that motivated it.
 **Owner:** unassigned (Jesse will spin an agent)
 **Written:** 2026-08-15
 **Repo:** `/home/jesse/projects/domains` (branch `main`, commits go direct to main)
