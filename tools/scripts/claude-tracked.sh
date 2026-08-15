@@ -102,12 +102,30 @@ if data is not None:
     sys.stdout.write(data.get("result", ""))
     usage = data.get("usage", {}) or {}
     model_usage = data.get("modelUsage", {}) or {}
-    model = next(iter(model_usage), None) or data.get("model")
+    # modelUsage can hold more than one model per session — e.g. Claude
+    # Code's own auto-compact/summarization step runs on a small internal
+    # model separately from whatever --model the caller requested. Picking
+    # next(iter(...)) grabbed whichever key happened to serialize first,
+    # which on long/near-context-limit sessions was consistently the
+    # compaction model (observed: reviewtattoo.com content-writer logged
+    # "model": "claude-haiku-4-5-20251001" against a --model
+    # claude-sonnet-4-6 request on every run that hit max-turns — 2026-08-15
+    # investigation). Pick by total token volume instead so the recorded
+    # model reflects who actually did the work, not compaction noise.
+    def _model_tokens(entry):
+        if not isinstance(entry, dict):
+            return 0
+        return sum(v for v in entry.values() if isinstance(v, (int, float)))
+    model = None
+    if model_usage:
+        model = max(model_usage, key=lambda m: _model_tokens(model_usage[m]))
+    model = model or data.get("model")
     record = {
         "recorded_at_unix": int(time.time()),
         "site": site,
         "role": role,
         "model": model,
+        "model_usage": model_usage or None,
         "requested_model": requested_model or None,
         "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": data.get("subtype"),

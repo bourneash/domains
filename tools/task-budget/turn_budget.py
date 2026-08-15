@@ -84,11 +84,9 @@ def _load_task(path):
     return data if data else None
 
 
-def pick_next_task(backlog_dir, role):
-    """Same selection rule content-writer.md (and its siblings) describe:
-    lowest priority number first, tie-broken by oldest `created` date."""
+def _scan_dir(task_dir, role):
     candidates = []
-    for path in glob.glob(os.path.join(backlog_dir, "*.md")):
+    for path in glob.glob(os.path.join(task_dir, "*.md")):
         data = _load_task(path)
         if not data:
             continue
@@ -103,9 +101,35 @@ def pick_next_task(backlog_dir, role):
             priority = 5
         created = str(data.get("created", "9999-99-99"))
         candidates.append((priority, created, data, path))
+    candidates.sort(key=lambda c: (c[0], c[1]))
+    return candidates
+
+
+def pick_next_task(backlog_dir, role):
+    """Same selection rule content-writer.md (and its siblings) describe:
+    lowest priority number first, tie-broken by oldest `created` date.
+
+    Checks `ops/tasks/in-progress/` FIRST, sibling of backlog_dir. A task
+    left in-progress means a prior run picked it up and didn't finish (hit
+    its turn budget, crashed, etc.) — the role prompt tells the agent to
+    keep working the backlog/in-progress board, so in practice the agent
+    resumes that stuck task rather than abandoning it for a fresh backlog
+    pick. Before this, the budget was computed from whatever unrelated task
+    topped the backlog, completely decoupled from the task actually being
+    worked (2026-08-15 incident on reviewtattoo.com: writer was resuming a
+    4-file style-page batch estimated at 20 turns, but the budget was
+    calculated from a different, unrelated backlog task estimated at 15
+    turns — a 23-turn budget for 20-turns-worth-of-work-already-partially-
+    spent, hit the ceiling mid-file with nothing committed for that file).
+    """
+    in_progress_dir = os.path.join(os.path.dirname(os.path.normpath(backlog_dir)), "in-progress")
+    if os.path.isdir(in_progress_dir):
+        in_progress = _scan_dir(in_progress_dir, role)
+        if in_progress:
+            return in_progress[0]
+    candidates = _scan_dir(backlog_dir, role)
     if not candidates:
         return None
-    candidates.sort(key=lambda c: (c[0], c[1]))
     return candidates[0]
 
 
