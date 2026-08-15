@@ -8,7 +8,16 @@ Usage: instagram_signup.py <domain> <full-name> [persona-slug]
 Without persona-slug: the domain-level brand account (email social@<domain>,
 vault key "<domain>"). With persona-slug: a per-persona account — email
 <persona-slug>@<domain>, vault key "<domain>::<persona-slug>", separate
-browser profile."""
+browser profile.
+
+WARNING (2026-08-15): every Instagram account this script has created so far
+was later cancelled/disabled by Instagram for spam — the accounts don't
+survive. The form-fill mechanics below (birthday widget, submit-button
+selector, email-vs-phone code gate) are debugged and work; that isn't the
+problem. Don't run this as-is expecting a durable account — the
+signup-then-immediate-automation pattern itself is what's getting flagged.
+Whoever picks this back up should figure out what needs to change about
+posting cadence/behavior post-signup before mass-running it again."""
 import sys
 import time
 from pathlib import Path
@@ -55,14 +64,30 @@ def captcha_present(page) -> bool:
 
 
 def phone_gate_present(page) -> bool:
-    for phrase in ["Enter your mobile number", "Confirm your mobile number",
-                   "Enter the confirmation code", "phone number"]:
+    for phrase in ["Enter your mobile number", "Confirm your mobile number", "phone number"]:
         try:
             loc = page.get_by_text(phrase)
             if loc.count() > 0 and loc.first.is_visible():
                 return True
         except Exception:
             pass
+    return False
+
+
+def email_code_gate_present(page) -> bool:
+    """'Enter the confirmation code' is ambiguous — Instagram uses the same
+    heading for both a phone SMS code and an email code, distinguished only
+    by whether the sent-to address contains '@'. Confirmed 2026-08-14: a
+    run that should never have hit phone verification (no phone number was
+    ever entered) landed here because phone_gate_present() matched the
+    heading text alone. Check for '@' in the body to tell them apart."""
+    try:
+        loc = page.get_by_text("Enter the confirmation code")
+        if loc.count() > 0 and loc.first.is_visible():
+            body = page.locator("body").inner_text()
+            return "@" in body.split("Enter the confirmation code", 1)[-1][:150]
+    except Exception:
+        pass
     return False
 
 
@@ -115,29 +140,77 @@ def coord_click(locator):
     return False
 
 
+def select_birthday_option(page, label, value):
+    """Click a Month/Day/Year trigger and select `value` from its custom
+    listbox. These are virtualized (React) — the option DOM nodes exist for
+    the whole range but are positioned via a real scroll container buried
+    ~3 DIVs inside the `[role="listbox"]` (the listbox itself and its first
+    couple wrapper children report scrollHeight==clientHeight; the actual
+    scrollable node is deeper and mouse-wheel events over the visible area
+    don't reach it). Confirmed via live DOM walk 2026-08-14 — do not revert
+    to a wheel-based approach, it silently no-ops and leaves Year (the only
+    field with enough options to need scrolling) unset, which blocks Submit
+    with no visible error.
+    """
+    trigger = page.get_by_text(label, exact=True)
+    if trigger.count() == 0 or not trigger.first.is_visible():
+        print(f"birthday-widget note: no trigger for {label}", flush=True)
+        return False
+    coord_click(trigger.first)
+    time.sleep(0.7)
+
+    def find_option():
+        opts = page.locator('[role="option"]')
+        for i in range(opts.count()):
+            o = opts.nth(i)
+            try:
+                if o.inner_text().strip() == value:
+                    return o
+            except Exception:
+                pass
+        return None
+
+    opt = find_option()
+    if opt is None:
+        print(f"birthday-widget note: option '{value}' not in DOM for {label}", flush=True)
+        return False
+
+    box = opt.bounding_box()
+    vh = page.viewport_size["height"]
+    if not box or box["y"] > vh - 20 or box["y"] < -20:
+        # Off-viewport (virtualized) — scroll the real inner container via
+        # JS scrollTop, not a wheel event, then re-locate the option.
+        page.evaluate(
+            """(value) => {
+                const lb = [...document.querySelectorAll('[role="listbox"]')]
+                    .find(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+                if (!lb) return;
+                let el = lb;
+                for (let i = 0; i < 3 && el.children.length === 1; i++) el = el.children[0];
+                const opts = [...el.querySelectorAll('[role="option"]')];
+                const target = opts.find(o => o.innerText.trim() === value);
+                if (!target || !el.scrollHeight) return;
+                // Center the target row within the scroll container.
+                el.scrollTop = target.offsetTop - el.clientHeight / 2;
+                el.dispatchEvent(new Event('scroll', {bubbles: true}));
+            }""",
+            value,
+        )
+        time.sleep(0.4)
+        opt = find_option()
+        box = opt.bounding_box() if opt else None
+
+    if box and 0 <= box["y"] <= vh:
+        page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+        time.sleep(0.5)
+        return True
+    print(f"birthday-widget note: option '{value}' still off-viewport after scroll for {label}", flush=True)
+    return False
+
+
 try:
     for label, value in (("Month", "January"), ("Day", "1"), ("Year", "1992")):
-        trigger = page.get_by_text(label, exact=True)
-        if trigger.count() > 0 and trigger.first.is_visible():
-            coord_click(trigger.first)
-            time.sleep(0.7)
-            opt = page.get_by_text(value, exact=True)
-            if opt.count() == 0:
-                # Year's option list is long — the target may be below the
-                # fold of its own scroll container. Scroll the option into
-                # view by scrolling the nearest scrollable ancestor down
-                # repeatedly and re-checking, rather than the page itself.
-                for _ in range(15):
-                    page.mouse.wheel(0, 200)
-                    time.sleep(0.15)
-                    opt = page.get_by_text(value, exact=True)
-                    if opt.count() > 0 and opt.first.is_visible():
-                        break
-            if opt.count() > 0 and opt.first.is_visible():
-                coord_click(opt.first)
-            else:
-                print(f"birthday-widget note: option '{value}' not visible after opening {label}", flush=True)
-            time.sleep(0.5)
+        select_birthday_option(page, label, value)
 except Exception as e:
     print(f"birthday-widget note: {e}", flush=True)
 
@@ -156,7 +229,21 @@ try:
 except Exception:
     pass
 
-click_if_present(page, 'button[type="submit"]', 'button:has-text("Sign up")')
+# The Submit control is a `div[role="button"]`, not a real <button> — this
+# page has zero <button> elements at all, so the old `button[type=submit]`/
+# `button:has-text("Sign up")` selectors silently matched nothing (no
+# error, no click, form just sat there). Confirmed via live DOM dump
+# 2026-08-14. It also sits below the fold most of the time (page grows
+# taller once Birthday is filled) — scroll it into view before clicking.
+submit = page.get_by_role("button", name="Submit", exact=True)
+if submit.count() == 0:
+    submit = page.get_by_text("Submit", exact=True)
+if submit.count() > 0:
+    submit.first.scroll_into_view_if_needed(timeout=5000)
+    time.sleep(0.3)
+    submit.first.click(timeout=5000)
+else:
+    print("submit note: no Submit control found", flush=True)
 time.sleep(3)
 shot(page, "03-postsubmit")
 print(f"STATUS post-submit url={page.url}", flush=True)
@@ -192,6 +279,16 @@ while time.time() < deadline:
             time.sleep(10)
             if not phone_gate_present(page):
                 print("STATUS phone gate cleared, resuming", flush=True)
+                break
+    if email_code_gate_present(page):
+        print(f"STATUS email confirmation code required, sent to {EMAIL} — "
+              "needs a human to check that inbox and type the code into the "
+              "browser window, then click Continue", flush=True)
+        resume_deadline = time.time() + 10 * 60
+        while time.time() < resume_deadline:
+            time.sleep(10)
+            if not email_code_gate_present(page):
+                print("STATUS email code gate cleared, resuming", flush=True)
                 break
     progressed = click_if_present(
         page,
