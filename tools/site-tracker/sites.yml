@@ -436,3 +436,459 @@ sites:
     - branding
     - manual
     manual: {}
+  broadwayshowgirls.com:
+    active: true
+    cf_zone: broadwayshowgirls.com
+    github: bourneash/broadwayshowgirls.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  complicated.work:
+    active: false
+    cf_zone: complicated.work
+    github: bourneash/complicated.work
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  deadlymaracas.com:
+    active: false
+    cf_zone: deadlymaracas.com
+    github: bourneash/deadlymaracas.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  deeppenetrations.com:
+    active: true
+    cf_zone: deeppenetrations.com
+    github: bourneash/deeppenetrations.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  driveford.net:
+    active: false
+    cf_zone: driveford.net
+    github: bourneash/driveford.net
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  drivegm.net:
+    active: false
+    cf_zone: drivegm.net
+    github: bourneash/drivegm.net
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  dumbsluts.com:
+    active: false
+    cf_zone: dumbsluts.com
+    github: bourneash/dumbsluts.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  elevatorfriends.com:
+    active: false
+    cf_zone: elevatorfriends.com
+    github: bourneash/elevatorfriends.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  failbunny.com:
+    active: false
+    cf_zone: failbunny.com
+    github: bourneash/failbunny.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  infrainnovator.com:
+    active: false
+    cf_zone: infrainnovator.com
+    github: bourneash/infrainnovator.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  mynewgm.com:
+    active: false
+    cf_zone: mynewgm.com
+    github: bourneash/mynewgm.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  mynewgm.info:
+    active: false
+    cf_zone: mynewgm.info
+    github: bourneash/mynewgm.info
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  noveltyguns.com:
+    active: false
+    cf_zone: noveltyguns.com
+    github: bourneash/noveltyguns.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  nsfwpixels.com:
+    active: false
+    cf_zone: nsfwpixels.com
+    github: bourneash/nsfwpixels.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  pervypotion.com:
+    active: false
+    cf_zone: pervypotion.com
+    github: bourneash/pervypotion.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  pokererotic.com:
+    active: false
+    cf_zone: pokererotic.com
+    github: bourneash/pokererotic.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  saveusfarms.com:
+    active: true
+    cf_zone: saveusfarms.com
+    github: bourneash/saveusfarms.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  shoptopless.com:
+    active: true
+    cf_zone: shoptopless.com
+    github: bourneash/shoptopless.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  stinkyleftfoot.com:
+    active: false
+    cf_zone: stinkyleftfoot.com
+    github: bourneash/stinkyleftfoot.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  therareunicorn.com:
+    active: false
+    cf_zone: therareunicorn.com
+    github: bourneash/therareunicorn.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  totaljerks.com:
+    active: true
+    cf_zone: totaljerks.com
+    github: bourneash/totaljerks.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  vibratorporn.com:
+    active: false
+    cf_zone: vibratorporn.com
+    github: bourneash/vibratorporn.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  wetpages.com:
+    active: true
+    cf_zone: wetpages.com
+    github: bourneash/wetpages.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  wetslit.com:
+    active: false
+    cf_zone: wetslit.com
+    github: bourneash/wetslit.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
