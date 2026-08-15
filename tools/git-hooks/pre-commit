@@ -2,9 +2,8 @@
 # Shared pre-commit hook. Wired via `core.hooksPath` fleet-wide (host repos via
 # tools/scripts/install-git-hooks.sh; in-container via each worker's
 # entrypoint setting it to the .monorepo-tools mirror of this same dir — see
-# tools/content-guardrails/README.md). Two independent steps below; a failure
-# in the guardrail check exits nonzero and BLOCKS the commit regardless of
-# whether prettier ran.
+# tools/content-guardrails/README.md). Independent steps below; a failure in
+# any blocking step exits nonzero and BLOCKS the commit regardless of the rest.
 #
 # HOOK_DIR is one level up = tools/ root in BOTH environments: on the host
 # this dir is tools/git-hooks so `..` is tools/; in-container it's reached at
@@ -29,8 +28,35 @@ if [ -f "$TOOLS_ROOT/fleet-registry/precommit_check.sh" ]; then
   sh "$TOOLS_ROOT/fleet-registry/precommit_check.sh" || exit 1
 fi
 
-# --- 2. Format staged .ts/.tsx/.js/.astro files with shared prettier ---
-STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|astro)$')
+# --- 2. Run the test suite of any tools/<name>/ that has staged changes ---
+# Opt-in per tool: only fires when tools/<name>/package.json declares a "test"
+# script AND deps are already installed (node_modules present) — so a tool
+# with no tests, or one nobody's `npm install`'d yet, is silently skipped
+# rather than blocking every unrelated commit. This is the ONLY gate that
+# actually enforces `npm test` fleet-wide; catches a regression at commit
+# time instead of whenever someone remembers to run it by hand. Runs BEFORE
+# the early-exit below so it fires even when nothing staged matches the
+# prettier filter (e.g. a commit that only touches test fixtures/JSON).
+STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACMR)
+TOOL_DIRS=$(printf '%s\n' "$STAGED_ALL" | grep -E '^tools/[^/]+/' | sed -E 's#^tools/([^/]+)/.*#\1#' | sort -u)
+for d in $TOOL_DIRS; do
+  PKG="$TOOLS_ROOT/$d/package.json"
+  [ -f "$PKG" ] || continue
+  HAS_TEST=$(node -e "try{const p=require('$PKG');process.stdout.write(p.scripts&&p.scripts.test?'1':'')}catch(e){}" 2>/dev/null)
+  [ "$HAS_TEST" = "1" ] || continue
+  if [ ! -d "$TOOLS_ROOT/$d/node_modules" ]; then
+    echo "tools/$d has a test script but no node_modules — skipping (run 'npm install' in tools/$d)"
+    continue
+  fi
+  echo "running tests for tools/$d ..."
+  if ! (cd "$TOOLS_ROOT/$d" && npm test --silent); then
+    echo "tests failed in tools/$d — commit blocked. Fix the tests or amend what you're committing."
+    exit 1
+  fi
+done
+
+# --- 3. Format staged .ts/.tsx/.js/.astro files with shared prettier ---
+STAGED=$(printf '%s\n' "$STAGED_ALL" | grep -E '\.(ts|tsx|js|astro)$')
 if [ -z "$STAGED" ]; then
   exit 0
 fi
