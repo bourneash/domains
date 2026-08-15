@@ -622,10 +622,16 @@ function addPlatform(body, actor = 'api') {
   if (!KEY_RE.test(key)) throw httpErr(400, 'key must be lowercase letters/digits/-/_ (max 32)');
   if (platformCatalog(store).some(p => p.key === key))
     throw httpErr(409, 'platform already exists');
+  // Scheme-check the template for the same reason upsertAccount checks
+  // profileUrl: this string is interpolated into a profile link, so a
+  // `javascript:` template would be stored XSS against the panel operator.
+  const urlTemplate = str((body || {}).urlTemplate, 'urlTemplate', { max: 300 });
+  if (urlTemplate && !/^https?:\/\//i.test(urlTemplate))
+    throw httpErr(400, 'urlTemplate must be http(s)');
   const rec = {
     key,
     label: str((body || {}).label, 'label') || key,
-    urlTemplate: str((body || {}).urlTemplate, 'urlTemplate', { max: 300 }),
+    urlTemplate,
   };
   store.platforms.push(rec);
   save(store);

@@ -185,3 +185,14 @@ test('filters compose: needsAttention + search', () => {
   assert.equal(social.listAccounts({ q: 'spam', site: 'b.com' }).length, 0);
   assert.equal(social.listAccounts({ live: true }).length, 1);
 });
+
+test('a custom platform cannot smuggle a javascript: URL template into profile links', () => {
+  fresh();
+  assert.throws(
+    () => social.addPlatform({ key: 'evil', urlTemplate: 'javascript:alert(1)//{handle}' }),
+    /http\(s\)/
+  );
+  assert.doesNotThrow(() =>
+    social.addPlatform({ key: 'good', urlTemplate: 'https://example.com/{handle}' })
+  );
+});

@@ -56,6 +56,19 @@ function applyFleetFilter() {
   });
 }
 
+// Any URL that reaches an href must be proven http(s) first. Stored profile
+// URLs are already scheme-checked server-side, but a custom platform's
+// urlTemplate is operator-supplied, so `javascript:` could otherwise reach the
+// DOM through the derived link. esc() stops attribute-breakout, not the scheme.
+function safeHref(u) {
+  try {
+    const p = new URL(u, location.origin);
+    return p.protocol === 'http:' || p.protocol === 'https:' ? p.href : '';
+  } catch {
+    return '';
+  }
+}
+
 async function api(method, url, body) {
   const opt = { method, headers: {} };
   if (body !== undefined) {
@@ -6192,8 +6205,9 @@ function socListHTML() {
       const trs = list
         .map(a => {
           const st = socStatus(a.status);
-          const link = a.profileUrl
-            ? `<a href="${esc(a.profileUrl)}" target="_blank" rel="noopener noreferrer" class="soc-hl">${esc(a.handle)}<span class="ext">↗</span></a>`
+          const href = safeHref(a.profileUrl);
+          const link = href
+            ? `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer" class="soc-hl">${esc(a.handle)}<span class="ext">↗</span></a>`
             : esc(a.handle || '—');
           return `<tr class="soc-row" data-fleet-row data-site="${esc(a.site)}" data-soc-cell data-account-id="${esc(a.id)}">
             <td class="site">${esc(a.site)}</td>
