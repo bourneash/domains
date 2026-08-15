@@ -135,6 +135,7 @@ sites:
     smoke_string: All Things Masonic
     registered_in:
     - analytics
+    - domains-index
     - site-tracker
     - social
   americastrikes.com:
@@ -358,13 +359,6 @@ sites:
     - domains-index
     - site-tracker
     - social
-  fleettest2-20260815.com:
-    status: scaffold
-    repo: bourneash/fleettest2-20260815.com
-    worker: fleettest2-20260815-com
-    cf_zone: fleettest2-20260815.com
-    capabilities:
-    - site
   gate03.com:
     status: scaffold
     repo: bourneash/gate03.com
@@ -690,6 +684,7 @@ sites:
     - site
     - social
     registered_in:
+    - domains-index
     - site-tracker
     - social
   totaljerks.com:

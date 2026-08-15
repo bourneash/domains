@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **48** (live 26, scaffold 21, parked 0, redirect 1)
+`sites/` directories merged: **47** (live 26, scaffold 20, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -10,12 +10,12 @@ provenance only; absence there is a choice, not drift.
 
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
-| `site-tracker/sites.yml` | fleet-wide | 46/48 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 19/48 | amputeenews.com, fishhooklabs.com, newmomshop.com, rodhat.com, trainingsharks.com, weirdassstuff.com, weirdgirlstore.com |
-| `DOMAINS_INDEX.md` | fleet-wide | 45/48 | allthingsmasonic.com |
-| `social registry` | fleet-wide | 47/48 | — |
-| `data-hub/subscriptions.yaml` | opt-in | 7/48 | n/a |
-| `product-feed/subscriptions.yaml` | opt-in | 2/48 | n/a |
+| `site-tracker/sites.yml` | fleet-wide | 46/47 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 19/47 | amputeenews.com, fishhooklabs.com, newmomshop.com, rodhat.com, trainingsharks.com, weirdassstuff.com, weirdgirlstore.com |
+| `DOMAINS_INDEX.md` | fleet-wide | 47/47 | — |
+| `social registry` | fleet-wide | 47/47 | — |
+| `data-hub/subscriptions.yaml` | opt-in | 7/47 | n/a |
+| `product-feed/subscriptions.yaml` | opt-in | 2/47 | n/a |
 
 ## Gaps on live sites
 
@@ -27,7 +27,6 @@ provenance only; absence there is a choice, not drift.
 
 Sites the index files under a bucket that contradicts disk evidence:
 
-- `allthingsmasonic.com` — **absent** from the index, actually **live**
 - `broadwayshowgirls.com` — indexed **parked**, actually **live**
 - `complicated.work` — indexed **parked**, actually **scaffold**
 - `deadlymaracas.com` — indexed **parked**, actually **scaffold**
@@ -37,7 +36,6 @@ Sites the index files under a bucket that contradicts disk evidence:
 - `dumbsluts.com` — indexed **parked**, actually **scaffold**
 - `elevatorfriends.com` — indexed **parked**, actually **scaffold**
 - `failbunny.com` — indexed **parked**, actually **scaffold**
-- `fleettest2-20260815.com` — **absent** from the index, actually **scaffold**
 - `infrainnovator.com` — indexed **parked**, actually **scaffold**
 - `mynewgm.com` — indexed **parked**, actually **scaffold**
 - `mynewgm.info` — indexed **parked**, actually **scaffold**
@@ -47,7 +45,7 @@ Sites the index files under a bucket that contradicts disk evidence:
 - `rodhat.com` — indexed **parked**, actually **live**
 - `shoptopless.com` — indexed **parked**, actually **live**
 - `stinkyleftfoot.com` — indexed **parked**, actually **scaffold**
-- `therareunicorn.com` — **absent** from the index, actually **scaffold**
+- `therareunicorn.com` — indexed **parked**, actually **scaffold**
 - `totaljerks.com` — indexed **parked**, actually **live**
 - `vibratorporn.com` — indexed **parked**, actually **scaffold**
 - `wetslit.com` — indexed **parked**, actually **scaffold**

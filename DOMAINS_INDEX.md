@@ -16,6 +16,7 @@
 | ultrarough.com 		|   ✅   | Kink-coded sandpaper/abrasives review authority — Liquid Death aesthetic on a boring Amazon niche 							|
 | weapontester.com 		|   ✅   | Browser weapon builder + physics-realistic ballistics range; in-tool affiliate links on real parts 							|
 | xxxtea.com 			|   ✅   | Fragrance-ad tea + tea-ware review site — "restraint is the joke" voice, honey/amber on oolong-dark, affiliate 				|
+| allthingsmasonic.com |   ✅   | Masonic gear catalog + guides — scale-first affiliate framework with an Amazon relevance gate; live, ops/cron active |
 | amputeenews.com 		|   ✅   | Amputee News — source-backed practical news/guide desk for amputees and limb-different people; live on CF Workers Builds, ops/cron autonomy active, Amazon Associates pending real tag 	|
 | newmomshop.com 	|   🟢   | Dana-led pregnancy, postpartum, and newborn gear-guide affiliate site; static v1 built, Workers Builds connection pending |
 | weirdassstuff.com 	|   🟢   | "You didn't know you needed this" — DudeIWantThat-style weird/novelty product-stream feed, 39-item launch catalog across 9 categories, autonomous scout/publish pipeline; Workers Builds connection pending |
@@ -68,12 +69,15 @@
 | sexchallenge.me 		|   ⬜   | 
 | sexvendor.com 		|   ⬜   | 
 | shoptopless.com 		|   ⬜   | Satire Jeep 'topless' accessories affiliate amazon store |
+| therareunicorn.com 	|   ⬜   | Scaffolded, brief TBD |
 | stinkyleftfoot.com 	|   ⬜   | 
 | totaljerks.com 		|   ⬜   |
 | vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
 | wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
 
-_Last updated: 2026-06-29_
+_Last updated: 2026-08-15. Status here is prose only — the machine-readable
+source of truth is `registry/fleet.yaml` (see tools/fleet-registry/README.md);
+this table lagged reality by ~2 months and filed live sites under Parked._
 
 ## Bootstrap scripts
 
