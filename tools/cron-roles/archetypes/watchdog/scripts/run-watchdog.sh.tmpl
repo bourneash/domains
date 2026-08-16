@@ -19,6 +19,15 @@ cd "$REPO_ROOT"
 LOG="ops/logs/watchdog-$(date -u +%Y%m%d).log"
 mkdir -p ops/logs
 
+# Fleet-wide stagger: every site's watchdog shares the same crontab minute
+# (:02/:17/:32/:47), so with 20+ sites installed their probe curls all fired in
+# the same second — periodic host-level network contention that could stretch
+# a curl past the 15s timeout and trip even the 2-consecutive-failure check
+# (2026-08-15). Assign this site's offset from
+# tools/cron-roles/archetypes/watchdog/STAGGER_MAP.md (next free slot) — do
+# NOT default to 0, that collides with whichever site already has it.
+sleep {{WATCHDOG_STAGGER_SECONDS}}
+
 # Cheap detection in the cron container.
 WATCHDOG_DETECT_ONLY=1 bash ops/scripts/watchdog.sh
 rc=$?

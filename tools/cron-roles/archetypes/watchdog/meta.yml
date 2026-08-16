@@ -55,6 +55,7 @@ placeholders:
   - GIT_USER_NAME
   - GIT_USER_EMAIL
   - BUILD_GATE
+  - WATCHDOG_STAGGER_SECONDS
 placeholder_detection:
   BASE_URL: "live site URL, e.g. https://<domain> — read from CLAUDE.md header or wrangler routes"
   DOMAIN: "bare domain name, e.g. example.com — from directory name (sites/<DOMAIN>) or wrangler name"
@@ -71,3 +72,10 @@ placeholder_detection:
     production-only audit gate (americastrikes added `security:audit:prod`), use
     `npm run security:audit:prod && npm run build`. Detect by: grep site/package.json
     "scripts" for an audit/verify script; otherwise default to `npm run build`.
+  WATCHDOG_STAGGER_SECONDS: |
+    Integer seconds run-watchdog.sh sleeps before probing, so this site's cron
+    tick doesn't land in the same second as every other site's. Read
+    tools/cron-roles/archetypes/watchdog/STAGGER_MAP.md, take the next free
+    37s-spaced slot, add this site to the table, and use that value — never 0
+    and never a value another site already has (see the 2026-08-15 fleet-wide
+    false-positive incident this fixes).
