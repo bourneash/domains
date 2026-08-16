@@ -12,6 +12,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO_ROOT/.monorepo-tools/scripts/git-push-retry.sh" 2>/dev/null || source "$REPO_ROOT/../../tools/scripts/git-push-retry.sh"
 cd "$REPO_ROOT"
 
 GQ_CLI="$REPO_ROOT/.monorepo-tools/guide-queue/lib/cli.py"
@@ -88,7 +89,7 @@ echo "$NOW" > "$LAST_RELEASED_FILE"
 git add "$LAST_RELEASED_FILE" 2>/dev/null || true
 if ! git diff --cached --quiet 2>/dev/null; then
   git commit -m "guide-queue: update last-released timestamp" -q || true
-  git push origin main -q 2>&1 | tail -3 || true
+  git_push_retry 2>&1 | tail -3 || true
 fi
 
 echo "[guide-publisher] done"

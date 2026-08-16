@@ -10,6 +10,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO_ROOT/.monorepo-tools/scripts/git-push-retry.sh" 2>/dev/null || source "$REPO_ROOT/../../tools/scripts/git-push-retry.sh"
 cd "$REPO_ROOT"
 
 LOG_DIR="$REPO_ROOT/ops/logs"
@@ -234,7 +235,7 @@ main() {
     git -c commit.gpgsign=false commit -m "deploy: $(date -Iseconds)"
   fi
 
-  timeout 120 git push origin main || {
+  git_push_retry || {
     log "FAIL: git push timed out or failed"
     notify_role --status fail --headline "Deploy failed — git push error, check ops/logs/" --files "${FILES[@]}"
     emit_incident --class push-fail --summary "deploy push failed${TRIGGER_DETAIL:+ ($TRIGGER_DETAIL)}"

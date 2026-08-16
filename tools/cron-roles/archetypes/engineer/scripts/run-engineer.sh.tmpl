@@ -7,6 +7,7 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO_ROOT/.monorepo-tools/scripts/git-push-retry.sh" 2>/dev/null || source "$REPO_ROOT/../../tools/scripts/git-push-retry.sh"
 cd "$REPO_ROOT"
 
 LOG="${1:-/dev/stderr}"
@@ -234,7 +235,7 @@ if [[ "$CHANGED" == "1" ]]; then
       log "nothing staged after all — skipping commit"
     else
       git -c commit.gpgsign=false commit -m "engineer: ${SUMMARY} — ${TODAY} ${NOW_ET}" >>"$LOG" 2>&1 || true
-      if timeout 120 git push origin main >>"$LOG" 2>&1; then
+      if git_push_retry >>"$LOG" 2>&1; then
         touch .deploy-needed; PUSHED=1; log "pushed to main — CF Workers Builds will deploy"
       else
         log "FAIL: git push failed"
