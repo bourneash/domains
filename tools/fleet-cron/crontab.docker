@@ -37,3 +37,11 @@
 
 # --- Job 7: fleet registry drift check (zero-AI, filesystem + YAML only) ---
 35 6 * * * /home/jesse/projects/domains/tools/scripts/registry-drift-cron.sh
+
+# --- Job 8: domain-developer worker Claude-auth guard (2026-08-16 incident) ---
+# Self-heals dd-<site> workers on confirmed auth failure (restart re-copies
+# the current host credential) and proactively restarts them every 12h
+# (staggered per-site) so an idle worker can't silently drift past the
+# host's ~8h token-rotation window again. See script header for the full
+# story — companion to job 4, which only checks the host session.
+*/30 * * * * /home/jesse/projects/domains/tools/scripts/check-dd-containers-auth.sh
