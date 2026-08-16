@@ -47,6 +47,7 @@ tools/scripts/*.lock
 tools/scripts/.ensure-fleet-cron-alerts/
 tools/scripts/.check-claude-auth-state
 tools/scripts/.check-claude-auth-alerted
+tools/scripts/.dd-auth-state/
 
 # Fleet lint sweep — run artifacts, not source. latest.json changes on every
 # sweep and history.jsonl grows forever; both are host state.
