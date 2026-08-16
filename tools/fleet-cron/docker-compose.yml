@@ -48,10 +48,19 @@ services:
       # follows $HOME) or an absolute host path.
       - ${HOME:-/home/jesse}/.ssh:${HOME:-/home/jesse}/.ssh:ro
       # Shared Claude Code OAuth session — job 4 probes this directly, RO.
-      # Mount ONLY the credentials file, not the full ~/.claude (same reason
-      # as every worker container: avoids dragging 25+ plugins/skills/hooks
-      # into a headless `claude -p` context).
-      - ${HOME:-/home/jesse}/.claude/.credentials.json:${HOME:-/home/jesse}/.claude/.credentials.json:ro
+      # Mount the full ~/.claude DIRECTORY, not just the credentials file.
+      # A single-file bind pins to the inode present at container start; the
+      # host daemon rotates the token via atomic write-temp+rename (~every
+      # 8h), so the file bind silently went stale on any long-lived
+      # container and job 4 alerted on a false "auth revoked" for hours
+      # while the host's real session was fine (2026-08-16 incident).
+      # Directory binds resolve renames live, so this can't go stale again.
+      # Wider read surface than the single file (other projects' session
+      # transcripts, MCP OAuth tokens, settings.json) — accepted: this
+      # container already mounts /var/run/docker.sock RW, which is
+      # host-root-equivalent, so this isn't a meaningful blast-radius
+      # increase, and fleet-dashboard already runs this exact pattern.
+      - ${HOME:-/home/jesse}/.claude:${HOME:-/home/jesse}/.claude:ro
       # The schedule itself — bind-mounted live, NOT baked into the image.
       # Edit this file + `docker compose restart cron` takes effect
       # immediately; no rebuild. See the crontab.docker header comment.
