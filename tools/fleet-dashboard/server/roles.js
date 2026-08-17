@@ -24,6 +24,6 @@ const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
 function logRe(role) {
   const prefixes = LOG_PREFIX[role] || [role];
   const alt = prefixes.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  return new RegExp('^(?:' + alt)(?:-\\d)?');
+  return new RegExp('^(?:' + alt + ')(?:-\\d)?');
 }
 // ... rest of file unchanged ...
