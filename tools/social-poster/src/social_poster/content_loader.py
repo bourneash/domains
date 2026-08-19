@@ -134,14 +134,191 @@ def _load_from_content_json(root: Path, domain: str, limit: int) -> list[Article
     return articles[:limit]
 
 
+def _load_json_collection(
+    root: Path,
+    domain: str,
+    limit: int,
+    *,
+    glob: str,
+    url_template: str,
+    fields: dict[str, list[str]],
+) -> list[Article]:
+    """Generic loader for sites whose postable content is one JSON file per item
+    (e.g. a product/curio catalog), rather than markdown articles.
+
+    *fields* maps Article attribute -> ordered list of candidate JSON keys to
+    check, first match wins (same "sites use different field names" tolerance
+    as the markdown/content.json loaders above).
+    """
+    files = [p for p in root.glob(glob) if p.is_file()]
+    if not files:
+        return []
+
+    def _pick(item: dict, keys: list[str]):
+        for key in keys:
+            if key in item and item[key] not in (None, ""):
+                return item[key]
+        return None
+
+    articles: list[Article] = []
+    for path in files:
+        try:
+            item = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if not isinstance(item, dict):
+            continue
+
+        title = _pick(item, fields.get("title", ["title", "name"]))
+        if not title:
+            continue
+        slug = _pick(item, fields.get("slug", ["slug"])) or path.stem
+
+        image = _pick(item, fields.get("image", ["image", "heroImage"]))
+        if not image:
+            images = item.get("images")
+            if isinstance(images, list) and images and isinstance(images[0], dict):
+                image = images[0].get("src")
+
+        articles.append(Article(
+            slug=str(slug),
+            title=str(title),
+            url=url_template.format(domain=domain, slug=slug),
+            summary=str(_pick(item, fields.get("summary", ["description", "summary"])) or "")[:280],
+            tags=[str(t) for t in (_pick(item, fields.get("tags", ["tags", "keywords"])) or [])],
+            image_url=image,
+            published_at=str(_pick(item, fields.get("date", ["published", "pubDate", "date"])) or ""),
+        ))
+
+    articles.sort(key=lambda a: a.published_at, reverse=True)
+    return articles[:limit]
+
+
+_TS_STRING_RE = "(['\"])((?:\\\\.|(?!\\1).)*)\\1"
+
+
+def _ts_field(body: str, key: str) -> Optional[str]:
+    match = re.search(rf"\b{re.escape(key)}\s*:\s*{_TS_STRING_RE}", body, re.DOTALL)
+    return match.group(2) if match else None
+
+
+def _load_ts_record_array(
+    root: Path,
+    domain: str,
+    limit: int,
+    *,
+    ts_path: str,
+    array_name: str,
+    url_template: str,
+    image_template: Optional[str] = None,
+    summary_field: str = "blurb",
+    skip_if: Optional[dict] = None,
+) -> list[Article]:
+    """Generic-ish loader for sites whose catalog is a TS object-literal array
+    export (e.g. `export const SKUS: Sku[] = [ {...}, {...} ]`) rather than
+    markdown or JSON files.
+
+    Field extraction is done with light regex over quoted string literals —
+    good enough for hand-authored registries like `affiliate.ts`, not a real
+    TS/JS parser. Records have no publish date, so recency is approximated by
+    array position (later entries = more recently added).
+    """
+    ts_file = root / ts_path
+    if not ts_file.exists():
+        return []
+
+    text = ts_file.read_text(encoding="utf-8")
+    array_match = re.search(rf"export const {re.escape(array_name)}[^=]*=\s*\[(.*)\n\];", text, re.DOTALL)
+    if not array_match:
+        return []
+    array_body = array_match.group(1)
+
+    # Split into top-level object literals: blocks opened by "  {" and closed by "  },".
+    blocks = re.findall(r"^  \{\n(.*?)\n  \},?$", array_body, re.DOTALL | re.MULTILINE)
+
+    articles: list[Article] = []
+    for idx, body in enumerate(blocks):
+        skip = False
+        for key, value in (skip_if or {}).items():
+            if re.search(rf"\b{re.escape(key)}\s*:\s*{value}\b", body):
+                skip = True
+        if skip:
+            continue
+
+        slug = _ts_field(body, "id") or _ts_field(body, "slug")
+        title = _ts_field(body, "name") or _ts_field(body, "title")
+        if not slug or not title:
+            continue
+
+        image = _ts_field(body, "image")
+        image_url = image_template.format(domain=domain, image=image) if (image_template and image) else None
+
+        articles.append(Article(
+            slug=slug,
+            title=title,
+            url=url_template.format(domain=domain, slug=slug),
+            summary=(_ts_field(body, summary_field) or "")[:280],
+            tags=[],
+            image_url=image_url,
+            # No real publish date on these records — approximate recency with
+            # array position so the sort below (and downstream behavior) matches
+            # the date-sorted loaders.
+            published_at=f"{idx:06d}",
+        ))
+
+    return articles[-limit:][::-1]
+
+
+# Per-site content-source config for sites whose postable content doesn't live
+# in markdown articles or content.json. Add an entry here (not a new branch in
+# load_latest_articles) for the next nonstandard site.
+SITE_CONTENT_SOURCES: dict[str, dict] = {
+    "weirdgirlstore.com": {
+        "loader": _load_json_collection,
+        "kwargs": dict(
+            glob="site/src/content/curios/*.json",
+            url_template="https://{domain}/finds/{slug}/",
+            fields={
+                "title": ["name", "title"],
+                "slug": ["slug"],
+                "summary": ["tagline", "metaDescription", "verdict"],
+                "date": ["published", "pubDate", "date"],
+                "tags": ["tags", "keywords"],
+            },
+        ),
+    },
+    "ultrarough.com": {
+        "loader": _load_ts_record_array,
+        "kwargs": dict(
+            ts_path="site/src/lib/affiliate.ts",
+            array_name="SKUS",
+            url_template="https://{domain}/reviews/{slug}/",
+            image_template="https://{domain}/gallery/{image}-1200.webp",
+            summary_field="blurb",
+            skip_if={"campaignOnly": "true"},
+        ),
+    },
+}
+
+
 def load_latest_articles(domain: str, limit: int = 10) -> list[Article]:
     """Return up to *limit* articles for *domain*, newest first.
 
-    Reads from:
-      1. Markdown frontmatter under sites/<domain>/src/content/**/ (or site/src/content/**)
-      2. sites/<domain>/content.json (fallback)
+    Reads from (in order):
+      1. A per-site config in SITE_CONTENT_SOURCES, for sites whose postable
+         content isn't a markdown/content.json article shape (product catalogs,
+         review registries, etc.)
+      2. Markdown frontmatter under sites/<domain>/src/content/**/ (or
+         site/src/content/**)
+      3. sites/<domain>/content.json (fallback)
     """
     root = site_root(domain)
+
+    source = SITE_CONTENT_SOURCES.get(domain)
+    if source:
+        articles = source["loader"](root, domain, limit, **source["kwargs"])
+        if articles:
+            return articles
 
     articles = _load_from_markdown(root, domain, limit)
     if not articles:
