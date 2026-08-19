@@ -121,3 +121,70 @@ def test_summary_truncated_to_280(fake_site):
     )
     articles = load_latest_articles("example.com")
     assert len(articles[0].summary) == 280
+
+
+# --- Per-site nonstandard content sources ---
+
+
+def test_json_collection_loader(tmp_path, monkeypatch):
+    """Mirrors weirdgirlstore.com's one-JSON-file-per-product curios layout."""
+    monkeypatch.setenv("DOMAINS_ROOT", str(tmp_path))
+    site = tmp_path / "sites" / "weirdgirlstore.com"
+    curios = site / "site" / "src" / "content" / "curios"
+    curios.mkdir(parents=True)
+    (curios / "old-thing.json").write_text(json.dumps({
+        "slug": "old-thing", "name": "Old Thing", "tagline": "An old tagline.",
+        "published": "2026-01-01",
+    }))
+    (curios / "new-thing.json").write_text(json.dumps({
+        "slug": "new-thing", "name": "New Thing", "tagline": "A new tagline.",
+        "published": "2026-06-01",
+        "images": [{"src": "/images/curios/new-thing.webp"}],
+    }))
+
+    from social_poster.content_loader import load_latest_articles as _lla
+    articles = _lla("weirdgirlstore.com", limit=5)
+    assert [a.slug for a in articles] == ["new-thing", "old-thing"]
+    assert articles[0].url == "https://weirdgirlstore.com/finds/new-thing/"
+    assert articles[0].summary == "A new tagline."
+    assert articles[0].image_url == "/images/curios/new-thing.webp"
+
+
+def test_ts_record_array_loader(tmp_path, monkeypatch):
+    """Mirrors ultrarough.com's affiliate.ts SKUS registry."""
+    monkeypatch.setenv("DOMAINS_ROOT", str(tmp_path))
+    site = tmp_path / "sites" / "ultrarough.com"
+    lib_dir = site / "site" / "src" / "lib"
+    lib_dir.mkdir(parents=True)
+    (lib_dir / "affiliate.ts").write_text(
+        "export const SKUS: Sku[] = [\n"
+        "  {\n"
+        "    id: 'first-sku',\n"
+        "    name: 'First SKU',\n"
+        "    blurb:\n"
+        "      'The first one.',\n"
+        "    image: 'first-image',\n"
+        "  },\n"
+        "  {\n"
+        "    id: 'campaign-sku',\n"
+        "    name: \"Campaign Only SKU\",\n"
+        "    blurb: 'Hidden from grids.',\n"
+        "    image: 'campaign-image',\n"
+        "    campaignOnly: true,\n"
+        "  },\n"
+        "  {\n"
+        "    id: 'second-sku',\n"
+        "    name: 'Second SKU',\n"
+        "    blurb: \"Meguiar's second one.\",\n"
+        "    image: 'second-image',\n"
+        "  },\n"
+        "];\n"
+    )
+
+    from social_poster.content_loader import load_latest_articles as _lla
+    articles = _lla("ultrarough.com", limit=5)
+    # campaignOnly SKU excluded; newest (last in array) first.
+    assert [a.slug for a in articles] == ["second-sku", "first-sku"]
+    assert articles[0].url == "https://ultrarough.com/reviews/second-sku/"
+    assert articles[0].summary == "Meguiar's second one."
+    assert articles[0].image_url == "https://ultrarough.com/gallery/second-image-1200.webp"
