@@ -28,12 +28,23 @@ import json
 import os
 import subprocess
 
-VAULT_ENV_FILE = "/mnt/encrypted/projects/credential-vault/automation-account.env"
-VAULT_CA_CERT = "/mnt/encrypted/projects/credential-vault/ssl/cert.pem"
-VAULT_SERVER = "https://localhost:9280"
+# All four overridable via env — needed when this runs inside a containerized
+# cron worker: the vault dir is bind-mounted read-only (so SESSION_CACHE_FILE
+# must move to a writable path) and "localhost" inside the container is the
+# container itself, not the host running Vaultwarden (so VAULT_SERVER must
+# point at host.docker.internal instead). Defaults are unchanged for host use.
+VAULT_ENV_FILE = os.environ.get(
+    "VAULT_ENV_FILE", "/mnt/encrypted/projects/credential-vault/automation-account.env"
+)
+VAULT_CA_CERT = os.environ.get(
+    "VAULT_CA_CERT", "/mnt/encrypted/projects/credential-vault/ssl/cert.pem"
+)
+VAULT_SERVER = os.environ.get("VAULT_SERVER", "https://localhost:9280")
 ORG_ID = "a04180d3-c861-4f21-a410-02ac919e80dc"          # "Domain Fleet"
 COLLECTION_ID = "cacd4253-453d-4d5b-a039-2e6cd18118aa"    # "Social Media"
-SESSION_CACHE_FILE = "/mnt/encrypted/projects/credential-vault/.session_cache"
+SESSION_CACHE_FILE = os.environ.get(
+    "VAULT_SESSION_CACHE_FILE", "/mnt/encrypted/projects/credential-vault/.session_cache"
+)
 
 _session_key: str | None = None
 

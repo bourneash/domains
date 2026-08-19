@@ -55,7 +55,7 @@ def post(domain: str, platforms: str | None, dry_run: bool):
     for r in results:
         status = status_fmt.get(r["result"], r["result"])
         note = r.get("url") or r.get("error") or r.get("reason") or ""
-        table.add_row(r["platform"], r["slug"], status, note)
+        table.add_row(r["platform"], r.get("slug", ""), status, note)
 
     console.print(table)
 
