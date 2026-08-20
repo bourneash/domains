@@ -182,6 +182,28 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(report["by_requested_model"][0]["requested_model"], "claude-sonnet")
         self.assertEqual(report["alerts"][0]["requested_max_turns"], 10)
 
+    def test_model_drift_records_surface_in_alerts_and_summary(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [
+            record(role="breaking-news", model="claude-opus-4-7[1m]",
+                   requested_model="claude-sonnet-4-6", model_drift=True,
+                   total_cost_usd=0.72),
+            record(role="breaking-news", model="claude-sonnet-4-6",
+                   requested_model="claude-sonnet-4-6", model_drift=False,
+                   total_cost_usd=0.10),
+        ])
+        report = aggregate.collect(root)
+        self.assertEqual(report["summary"]["model_drift_calls"], 1)
+        self.assertAlmostEqual(report["summary"]["model_drift_cost_usd"], 0.72)
+        drift_row = report["by_site_role_model_drift"][0]
+        self.assertEqual(drift_row["site"], "example.com")
+        self.assertEqual(drift_row["role"], "breaking-news")
+        self.assertEqual(drift_row["calls"], 1)
+        drift_alerts = [a for a in report["alerts"] if a["model_drift"]]
+        self.assertEqual(len(drift_alerts), 1)
+        self.assertEqual(drift_alerts[0]["model"], "claude-opus-4-7[1m]")
+        self.assertEqual(drift_alerts[0]["requested_model"], "claude-sonnet-4-6")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -159,6 +159,7 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     by_hour_site_role: dict[tuple[str, str, str], dict] = {}
     by_model: dict[tuple[str, str], dict] = {}
     by_requested_model: dict[str, dict] = {}
+    by_site_role_drift: dict[tuple[str, str], dict] = {}
     alerts: list[dict] = []
     instrumented_sites: set[str] = set()
     all_sites: list[str] = []
@@ -197,14 +198,21 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                     _add(by_requested_model.setdefault(requested_model, _empty_totals()), record)
                 requested_turns = record.get("requested_max_turns")
                 turns = record.get("num_turns") or 0
-                if record.get("is_error") or (
+                is_error = bool(record.get("is_error"))
+                hit_max_turns = bool(
                     isinstance(requested_turns, int) and requested_turns > 0 and turns >= requested_turns
-                ):
+                )
+                is_model_drift = bool(record.get("model_drift"))
+                if is_model_drift:
+                    _add(by_site_role_drift.setdefault((site, role), _empty_totals()), record)
+                if is_error or hit_max_turns or is_model_drift:
                     alerts.append({
                         "day": day, "site": site, "role": role, "provider": provider,
                         "model": model, "requested_model": requested_model,
                         "num_turns": turns, "requested_max_turns": requested_turns,
-                        "is_error": bool(record.get("is_error")),
+                        "is_error": is_error,
+                        "hit_max_turns": hit_max_turns,
+                        "model_drift": is_model_drift,
                         "subtype": record.get("subtype"),
                         "total_cost_usd": record.get("total_cost_usd") or 0.0,
                     })
@@ -251,6 +259,12 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         requested_model_rows.append({"requested_model": model, **totals,
                                      "cache_hit_ratio": _cache_hit_ratio(totals)})
 
+    model_drift_rows = []
+    for (site, role), totals in sorted(by_site_role_drift.items()):
+        model_drift_rows.append({"site": site, "role": role, **totals})
+    model_drift_calls = sum(row["calls"] for row in model_drift_rows)
+    model_drift_cost_usd = sum(row["total_cost_usd"] for row in model_drift_rows)
+
     fleet_totals = _empty_totals()
     for totals in by_site.values():
         for field in (*NUMERIC_FIELDS, "calls", "errors"):
@@ -284,6 +298,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
             "sites_not_wired": not_wired,
             "sites_no_ai_role": no_ai_role,
             "coverage_complete": not not_wired,
+            "model_drift_calls": model_drift_calls,
+            "model_drift_cost_usd": model_drift_cost_usd,
         },
         "by_site": site_rows,
         "by_site_role": role_rows,
@@ -293,6 +309,7 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         "by_hour_site_role": hour_site_role_rows,
         "by_model": model_rows,
         "by_requested_model": requested_model_rows,
+        "by_site_role_model_drift": model_drift_rows,
         "alerts": sorted(alerts, key=lambda row: (-row["total_cost_usd"], row["day"])),
         "filters": {"from": start_day, "to": end_day},
         "coverage": coverage,
@@ -335,6 +352,10 @@ def main(argv: list[str] | None = None) -> None:
     if summary["sites_no_ai_role"]:
         print(f"\nNo AI cron role at all ({len(summary['sites_no_ai_role'])}): "
               + ", ".join(summary["sites_no_ai_role"]))
+    if summary["model_drift_calls"]:
+        print(f"\nModel drift (requested != actual model family): "
+              f"{summary['model_drift_calls']} calls, "
+              f"${summary['model_drift_cost_usd']:.2f}")
     print("\n| Site | Role | Calls | Errors | In | Out | Cache R | Cache W | Cost USD | Cache hit |")
     print("|---|---|---:|---:|---:|---:|---:|---:|---:|---:|")
     for row in report["by_site_role"]:

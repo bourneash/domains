@@ -826,6 +826,11 @@ async function renderAIUsage() {
     .slice()
     .sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const usageAlerts = (data.alerts || []).slice(0, 10);
+  const modelDriftCalls = rawSummary.model_drift_calls || 0;
+  const modelDriftCostUsd = rawSummary.model_drift_cost_usd || 0;
+  const modelDriftRows = (data.by_site_role_model_drift || [])
+    .slice()
+    .sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const wiredAwaiting = rawSummary.sites_wired_awaiting_first_run || [];
   const notWired = rawSummary.sites_not_wired || [];
   const noAiRole = rawSummary.sites_no_ai_role || [];
@@ -897,19 +902,36 @@ async function renderAIUsage() {
         `<tr><td class="mono">${esc(r.requested_model)}</td><td>${r.calls}</td><td class="mono">${fmtUSD(r.total_cost_usd)}</td></tr>`
     )
     .join('');
+  const alertOutcomeBadge = r => {
+    if (r.model_drift)
+      return `<span class="badge b-red">model drift</span>${r.is_error ? ' <span class="badge b-red">failed</span>' : ''}`;
+    if (r.is_error) return '<span class="badge b-red">failed</span>';
+    return '<span class="badge b-gray">turn cap</span>';
+  };
   const alertRows = usageAlerts
     .map(
       r => `<tr>
     <td>${siteLink(r.site)}</td>
     <td class="mono">${esc(r.role)}</td>
-    <td>${r.is_error ? '<span class="badge b-red">failed</span>' : '<span class="badge b-gray">turn cap</span>'}</td>
-    <td class="mono">${r.num_turns || 0}/${r.requested_max_turns || '—'}</td>
+    <td>${alertOutcomeBadge(r)}</td>
+    <td class="mono">${r.model_drift ? `${esc(r.requested_model || '?')} → ${esc(r.model || '?')}` : `${r.num_turns || 0}/${r.requested_max_turns || '—'}`}</td>
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
   </tr>`
     )
     .join('');
 
-  const diagnosticsCount = usageAlerts.length + notWired.length;
+  const modelDriftRowsHtml = modelDriftRows
+    .map(
+      r => `<tr>
+    <td>${siteLink(r.site)}</td>
+    <td class="mono">${esc(r.role)}</td>
+    <td>${r.calls}</td>
+    <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+  </tr>`
+    )
+    .join('');
+
+  const diagnosticsCount = usageAlerts.length + notWired.length + modelDriftRows.length;
   const diagnosticsBadge = diagnosticsCount
     ? `<span class="badge b-red">${diagnosticsCount}</span>`
     : `<span class="badge b-green">clean</span>`;
@@ -951,6 +973,11 @@ async function renderAIUsage() {
       <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
       <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${rawSummary.sites_instrumented || 0}/${rawSummary.sites_total || 0} sites instrumented</span>
     </div>
+    ${
+      modelDriftCalls
+        ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
+        : ''
+    }
     <div class="card aiu-chart-card">
       <div class="task-toolbar"><strong>${bucket === 'hour' ? 'Hourly' : 'Daily'} spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Times are UTC.</span></div>
       ${usageChart(filteredPeriods, bucket)}
@@ -999,8 +1026,15 @@ async function renderAIUsage() {
         ${
           usageAlerts.length
             ? `
-        <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap or errored — most expensive first, last 10</span></div>
-        <table><thead><tr><th>Site</th><th>Role</th><th>Outcome</th><th>Turns</th><th>Cost</th></tr></thead><tbody>${alertRows}</tbody></table>`
+        <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap, errored, or resolved to a different model than requested — most expensive first, last 10</span></div>
+        <table><thead><tr><th>Site</th><th>Role</th><th>Outcome</th><th>Detail</th><th>Cost</th></tr></thead><tbody>${alertRows}</tbody></table>`
+            : ''
+        }
+        ${
+          modelDriftRows.length
+            ? `
+        <div class="task-toolbar" style="margin-top:12px"><strong>Model drift by site &amp; role</strong><span class="muted">requested model resolved to a different family (opus/sonnet/haiku) than the CLI actually ran — see claude-tracked.sh</span></div>
+        <table><thead><tr><th>Site</th><th>Role</th><th>Calls</th><th>Cost</th></tr></thead><tbody>${modelDriftRowsHtml}</tbody></table>`
             : ''
         }
         ${notWired.length ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
