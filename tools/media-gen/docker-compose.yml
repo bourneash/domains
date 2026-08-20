@@ -1,0 +1,48 @@
+name: media-gen
+
+# network_mode: host — deliberate, not a shortcut. Site cron containers
+# reach this service via host.docker.internal:4780 (see README + the
+# _RestrictToLocalAndDocker middleware in api.py, which enumerates the
+# real docker0/br-* bridges on the HOST and needs to see them exactly as
+# a host process would). ComfyUI is reachable at localhost:8188 the same
+# way it always was. Using a bridge network here would mean reproducing
+# that whole allowlist as port-forwarding/extra_hosts wiring for zero
+# behavioral gain.
+#
+# The bind mounts below are the honest tradeoff of containerizing a
+# service whose nanobanana backend drives a REAL browser against this
+# host's live X session: CloakBrowser's shared profile lock
+# (/tmp/cloak-driver), the nanobanana skill's generate.py (hardcoded
+# sys.path pointing at tools/social-setup/src), and the X11 auth cookie
+# all only exist on the host, at fixed absolute paths, shared with every
+# other skill that logs into Google (SEO, GA4, social-setup) — this isn't
+# a workaround, it's the same host-session-scoped sharing those skills
+# already rely on, just also reachable from this one container. Real
+# isolation gain here is `restart: unless-stopped` (this was previously
+# a bare `nohup`, which is what actually broke); the code/library
+# environment itself (pip installs above) IS isolated and reproducible.
+services:
+  api:
+    build: .
+    container_name: media-gen-api
+    network_mode: host
+    environment:
+      DISPLAY: ":1"
+      XAUTHORITY: "/run/user/1000/gdm/Xauthority"
+      HOME: "/home/jesse"
+      # Package (media_gen.__file__) lives under image-baked /app; redirect
+      # generated-image storage back to the familiar host path so existing
+      # images and any script that reads tools/media-gen/data/ directly
+      # keep working unchanged.
+      MEDIA_GEN_DATA_DIR: "/home/jesse/projects/domains/tools/media-gen/data"
+    volumes:
+      - /home/jesse/projects/domains:/home/jesse/projects/domains
+      - /home/jesse/.claude/skills/domains-media-generator-nanobanana:/home/jesse/.claude/skills/domains-media-generator-nanobanana:ro
+      - /tmp:/tmp
+      - /run/user/1000/gdm:/run/user/1000/gdm:ro
+    restart: unless-stopped
+    logging:
+      driver: local
+      options:
+        max-size: "5m"
+        max-file: "3"

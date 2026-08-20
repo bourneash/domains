@@ -15,10 +15,9 @@ Run:
     # see that class's comment for why the bind address alone can't do
     # this correctly on a host with real LAN/VPN interfaces)
 
-See README.md for why this runs as a plain host process rather than in
-Docker (both backends need host-local access — ComfyUI's GPU process,
-Nano Banana's real browser window — that a container can't give them
-cleanly), and for the host.docker.internal wiring site containers need.
+Runs in Docker (network_mode: host, restart: unless-stopped) — see
+README.md's "Why this runs in Docker" for why, and for the
+host.docker.internal wiring site containers need to reach it.
 """
 from __future__ import annotations
 

@@ -4,10 +4,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # tools/media-gen/
 
-# ComfyUI is a plain long-running host process on this box (not dockerized),
-# listening on its default port. Site cron containers reach the host via
-# host.docker.internal, so this default works both run-locally and from
-# inside a container that maps host.docker.internal -> host-gateway.
+# ComfyUI itself runs in its own docker container (imageSetToCategories'
+# GPU-passthrough comfyui service) that publishes 8188 to the host. This
+# service's own container uses network_mode: host (see docker-compose.yml),
+# so "localhost:8188" resolves the same way whether media-gen is running
+# bare or in its container — no host.docker.internal indirection needed
+# for this leg. Site cron containers still reach *this* service (port
+# 4780) via host.docker.internal, same as always.
 COMFYUI_URL = os.environ.get("MEDIA_GEN_COMFYUI_URL", "http://localhost:8188")
 
 # Default checkpoint. flux1-schnell-fp8 is a single merged checkpoint (no

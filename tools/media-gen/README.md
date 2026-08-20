@@ -28,10 +28,15 @@ dozens of unrelated CVEs. Generation can produce something that's actually
 
 ```bash
 cd tools/media-gen
-pip install -e .
-./run.sh                    # backgrounds uvicorn on :4780, tails health
+docker compose up -d --build
 curl http://127.0.0.1:4780/health
 ```
+
+Runs as a Docker container (`restart: unless-stopped`), not a bare `nohup`
+process — see "Why this runs in Docker" below for why that changed and
+what it does/doesn't buy in terms of isolation. `docker compose logs -f`
+for logs (previously `media-gen.log`); `docker compose restart` to bounce
+it by hand.
 
 ```bash
 curl -s -X POST http://127.0.0.1:4780/generate \
@@ -87,16 +92,39 @@ imported as a clean function, and the working, tested thing already exists.
    running — but that lock only protects requests that come through *this*
    service. Don't also run the skill by hand while this is live.
 
-## Why this runs as a plain host process, not Docker
+## Why this runs in Docker (and why `network_mode: host`)
 
-Both backends need something a container can't cleanly give them: ComfyUI
-needs the GPU process already running on the host (not dockerized itself —
-`ps aux | grep ComfyUI`), and Nano Banana needs a real X display for the
-visible browser. Containerizing this API and reaching ComfyUI over
-`host.docker.internal` would work, but Nano Banana genuinely cannot run
-inside a headless container. Simplest to run both backends the same way:
-directly on the host, loopback-bound (`127.0.0.1:4780`, matches the fleet's
-other `47xx` tools — data-hub `4760`, data-hub-images `4770`).
+This used to run as a bare `nohup` process (see git history) on the belief
+that ComfyUI needed a host process too. That premise was wrong — ComfyUI on
+this box is itself a docker container (`imagecategorizer-comfyui-*`,
+GPU-passthrough, port 8188) — and the actual failure mode `nohup` produces
+(dies once, silently, stays dead — this is what took totaljerks.com's
+guide-writer down for a stretch in 2026-08) is exactly what Docker's
+`restart: unless-stopped` exists to prevent. So: this runs in Docker now,
+same as everything else in the fleet.
+
+What did NOT change: Nano Banana still genuinely cannot run in an isolated
+container. It drives a real, visible Chromium against this host's live X
+session (`DISPLAY=:1`), through CloakBrowser's single fleet-wide shared
+profile lock (`/tmp/cloak-driver/profile/`) that every other Google-login
+skill also touches directly, and `nanobanana.py`'s subprocess call has a
+hardcoded absolute path into `tools/social-setup/src`. None of that is
+network-shaped — it's host-session-scoped by nature, the same way it is for
+every other skill that logs into Google (none of which run in containers
+either). So the container uses `network_mode: host` and bind-mounts the
+specific host paths those constraints require (repo, X11 socket +
+`XAUTHORITY`, the nanobanana skill dir) rather than trying to virtualize
+them. Be clear-eyed about what that buys: for the nanobanana path, the
+isolation win is ~zero (it needs most of the host anyway) — the real value
+across both backends is process supervision (Docker restarts it; nothing
+did before) plus a reproducible, versioned dependency image (Dockerfile
+pins cloakbrowser/playwright to the exact versions previously installed ad
+hoc into the host's global pyenv). See `Dockerfile` and
+`docker-compose.yml` for the exact mounts and why each one is there.
+
+Only the comfyui backend is a "real" container in the isolation sense —
+its dependency is one HTTP call to `localhost:8188` (reachable identically
+under `network_mode: host`), nothing host-session-specific.
 
 **Site cron containers reach it via `host.docker.internal`** — the same
 `extra_hosts: host.docker.internal:host-gateway` pattern already used for
