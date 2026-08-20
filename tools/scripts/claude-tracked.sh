@@ -76,6 +76,49 @@ for ((i = 0; i < ${#ARGS[@]}; i++)); do
   esac
 done
 
+# ---- Network preflight (2026-08-19 DNS-outage hardening) ----
+# Single choke point for every caller fleet-wide (run-role.sh, run-engineer.sh,
+# watchdog.sh, run-news-writer.sh, run-breaking-news.sh, run-product-scout.sh,
+# run-guide-writer.sh/-seeder.sh, run-catalog-editor.sh, deploy.sh, ...) — this
+# is the ONE claude-tracked.sh in the repo, bind-mounted into every container.
+# 2026-08-19: a host reboot broke container DNS; every 30-min engineer/watchdog
+# tick still ran the full `claude -p` call, hung ~200s on dead DNS, then
+# failed — 120+ wasted calls fleet-wide in a day, zero work done. That case is
+# now guarded per-caller in run-engineer.sh/watchdog.sh too, but any other
+# role hitting the same outage was NOT — fixing it here closes that for good,
+# for every caller, present and future, in one place. A dead network never
+# reaches `claude -p`; it's logged to the ledger as a real (zero-cost) failed
+# attempt and returned fast so the caller's normal retry-next-tick logic runs.
+if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthropic.com/" 2>/dev/null; then
+  echo "claude-tracked.sh: network preflight failed — skipping claude -p call (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+  python3 - "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$requested_model" "$requested_max_turns" <<'PYEOF'
+import json, sys, time
+ledger_path, site, role, requested_model, requested_max_turns = sys.argv[1:6]
+record = {
+    "recorded_at_unix": int(time.time()),
+    "site": site,
+    "role": role,
+    "model": None,
+    "requested_model": requested_model or None,
+    "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
+    "subtype": "network_preflight_failed",
+    "is_error": True,
+    "exit_status": 78,
+    "num_turns": None,
+    "duration_ms": None,
+    "total_cost_usd": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "session_id": None,
+}
+with open(ledger_path, "a", encoding="utf-8") as fh:
+    fh.write(json.dumps(record, sort_keys=True) + "\n")
+PYEOF
+  exit 78
+fi
+
 TMP_JSON="$(mktemp)"
 trap 'rm -f "$TMP_JSON"' EXIT
 
