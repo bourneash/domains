@@ -1210,7 +1210,7 @@ async function renderHealth() {
     </div>
     ${errNote}
     ${cards || '<div class="empty">No sites monitored — check that tools/fleet-gatus is running and its config has been generated.</div>'}
-    <p class="muted" style="margin-top:12px">Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and stays covered only by <code>tools/fleet-smoke</code>, which also still runs its own twice-daily Slack digest independently of the alerts above.</p>`;
+    <p class="muted" style="margin-top:12px">Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and currently has no automated coverage — see tools/fleet-gatus/README.md.</p>`;
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();

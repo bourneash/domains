@@ -316,7 +316,7 @@ def report(sites: dict, disk: dict, src: dict) -> str:
         "",
         "## Gaps on live sites",
         "",
-        f"- No `ops/smoke.yaml` (invisible to fleet-smoke): {', '.join(sorted(set(live) - set(smoke))) or '—'}",
+        f"- No `ops/smoke.yaml` (invisible to fleet-gatus): {', '.join(sorted(set(live) - set(smoke))) or '—'}",
         f"- No Slack channel env: {', '.join(slackless) or '—'}",
         f"- No worker name in wrangler config: {', '.join(workerless) or '—'}",
         "",

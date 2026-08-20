@@ -1,12 +1,9 @@
 # tools/fleet-gatus/docker-compose.yml
 #
-# POC: Gatus as the fleet's health-check dashboard + alerting layer, piloted
-# on 3 sites (see scripts/generate_config.py PILOT_SITES). Replaces
-# fleet-smoke's per-tick Slack narration with threshold-based alerting
-# (only fires on real state changes) plus a glanceable status dashboard.
-#
-# fleet-smoke keeps running untouched during the pilot — this is additive,
-# not a cutover, until the pilot is validated.
+# Gatus as the fleet's health-check dashboard + alerting layer, fleet-wide
+# (see scripts/generate_config.py). Threshold-based Slack alerting — only
+# fires on real state changes, not every tick — plus a glanceable status
+# dashboard, also surfaced natively in fleet-dashboard's Health tab.
 name: fleet-gatus
 
 services:

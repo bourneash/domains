@@ -72,9 +72,10 @@ stamp_smoke() {
   env_key="SLACK_CHANNEL_$(echo "${d%%.*}" | tr 'a-z-' 'A-Z_' | tr -cd 'A-Z0-9_')"
   cat > "$target" <<EOF
 # sites/$d/ops/smoke.yaml
-# Consumed by tools/fleet-smoke/run_fleet_smoke.py — see
-# tools/fleet-smoke/README.md for the schema. Editing this file takes effect
-# on the fleet cron's next tick; no rebuild needed.
+# Consumed by tools/fleet-gatus/scripts/generate_config.py — see
+# tools/fleet-gatus/README.md for the schema. Editing this file takes effect
+# on the next `generate_config.py && docker compose restart` in
+# tools/fleet-gatus (no rebuild needed).
 #
 # Starter stamped by tools/scripts/onboard-site.sh — add the real routes
 # (categories, a sample article, /go/ redirects, sitemap, legal pages).

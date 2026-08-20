@@ -2,7 +2,7 @@
 
 Reusable turn-budget derivation for writer-type cron roles across the fleet,
 plus a read-only, zero-token fleet audit — same category of tool as
-`tools/engineer-fleet` and `tools/fleet-smoke`.
+`tools/engineer-fleet`.
 
 ## The problem this fixes
 

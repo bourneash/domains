@@ -87,7 +87,7 @@ def check() -> tuple[list[str], list[str]]:
         entry = registry[domain]
         caps = entry.get("capabilities_override") or entry.get("capabilities") or []
         if "smoke" not in caps:
-            warnings.append(f"{domain}: live with no ops/smoke.yaml — invisible to fleet-smoke")
+            warnings.append(f"{domain}: live with no ops/smoke.yaml — invisible to fleet-gatus")
         if not entry.get("slack_channel_env"):
             warnings.append(f"{domain}: live with no Slack channel wired")
 
