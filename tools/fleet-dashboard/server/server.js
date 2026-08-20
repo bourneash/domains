@@ -18,6 +18,7 @@ const aiinventory = require('./aiinventory');
 const aiusage = require('./aiusage');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
+const gatushealth = require('./gatushealth');
 const datahub = require('./datahub');
 const analytics = require('./analytics');
 const datahubImages = require('./datahub-images');
@@ -462,6 +463,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Background CF deploy-health cache (powers the deployer cell's "is it live?"
   // half). Exposed for inspection/debugging.
   app.get('/api/deploy-health', (_req, res) => res.json(deployhealth.all()));
+  app.get('/api/gatus', (_req, res) => res.json(gatushealth.all()));
 
   // Background fleet-wide error/warn log scan (server/errorscan.js). Read-only
   // rollup; :id/lines below is guarded implicitly — errorscan only ever tracks
@@ -1235,6 +1237,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // sweep so new sites are picked up without a restart). Skipped under test so
   // its outbound CF fetch doesn't race a test's stubbed global.fetch.
   if (process.env.NODE_ENV !== 'test') deployhealth.start(root, () => discoverSites(root));
+  if (process.env.NODE_ENV !== 'test') gatushealth.start();
   if (process.env.NODE_ENV !== 'test') errorscan.start(root);
   // Site Facts background sweep (hourly — these change rarely). Same
   // skip-under-test convention as the deploy-health poller above.

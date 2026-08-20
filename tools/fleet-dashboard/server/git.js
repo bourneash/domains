@@ -5,14 +5,32 @@ const path = require('node:path');
 const { execFile } = require('node:child_process');
 const { siteDir } = require('./sites');
 
+// GIT_DIR/GIT_INDEX_FILE/GIT_WORK_TREE (if ever present in this process's
+// env — e.g. this server were launched from inside another repo's git hook)
+// take precedence over `-C <cwd>` in real git, which would silently redirect
+// every commit/ignore call below at the WRONG repo. Strip them so `-C` is
+// always the sole source of truth for which repo a call operates on.
+const CLEAN_GIT_ENV = Object.fromEntries(
+  Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_'))
+);
+
 function git(cwd, args) {
-  return new Promise((resolve) => {
-    execFile('git', ['-C', cwd, ...args], { timeout: 30000, maxBuffer: 8 * 1024 * 1024 },
-      (err, stdout, stderr) => resolve({ ok: !err, out: stdout || '', err: stderr || (err && err.message) || '' }));
+  return new Promise(resolve => {
+    execFile(
+      'git',
+      ['-C', cwd, ...args],
+      { timeout: 30000, maxBuffer: 8 * 1024 * 1024, env: CLEAN_GIT_ENV },
+      (err, stdout, stderr) =>
+        resolve({ ok: !err, out: stdout || '', err: stderr || (err && err.message) || '' })
+    );
   });
 }
 
-function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
+function httpErr(status, msg) {
+  const e = new Error(msg);
+  e.httpStatus = status;
+  return e;
+}
 
 // Convert a git remote URL into a browsable web URL, for a repo-link in the
 // Git tab. Handles the two shapes this fleet's remotes actually use — SSH
@@ -39,7 +57,8 @@ function remoteToWebUrl(url) {
   // for a repo whose committer cron uses HTTPS auth instead of SSH. Strip any
   // userinfo before the host — this becomes a clickable link, so leaking the
   // live token into rendered HTML would be a real credential exposure.
-  if (/^https?:\/\//.test(url)) return url.replace(/^(https?:\/\/)[^@/]*@/, '$1').replace(/\.git$/, '');
+  if (/^https?:\/\//.test(url))
+    return url.replace(/^(https?:\/\/)[^@/]*@/, '$1').replace(/\.git$/, '');
   return null;
 }
 
@@ -53,10 +72,15 @@ const _repoChains = new Map();
 function withRepoLock(slug, fn) {
   const prev = _repoChains.get(slug) ?? Promise.resolve();
   let release;
-  const gate = new Promise((r) => { release = r; });
+  const gate = new Promise(r => {
+    release = r;
+  });
   // Keep the chain moving even if fn rejects; swallow here so the tail never
   // rejects (callers still see fn's own rejection via the returned promise).
-  _repoChains.set(slug, prev.then(() => gate).catch(() => {}));
+  _repoChains.set(
+    slug,
+    prev.then(() => gate).catch(() => {})
+  );
   return prev.then(() => fn()).finally(release);
 }
 
@@ -78,7 +102,11 @@ function safeRel(p) {
 // path and also surface ahead/behind so the UI can show "needs push".
 function parsePorcelain(out) {
   const parts = out.split('\0').filter(Boolean);
-  let branch = null, ahead = 0, behind = 0, upstream = null, detached = false;
+  let branch = null,
+    ahead = 0,
+    behind = 0,
+    upstream = null,
+    detached = false;
   const files = [];
   for (let i = 0; i < parts.length; i++) {
     const line = parts[i];
@@ -92,7 +120,8 @@ function parsePorcelain(out) {
         continue;
       }
       if (body.startsWith('HEAD (no branch)')) {
-        branch = null; detached = true;
+        branch = null;
+        detached = true;
         continue;
       }
       // ## main...origin/main [ahead 1, behind 2]
@@ -101,32 +130,42 @@ function parsePorcelain(out) {
         branch = m[1];
         upstream = m[2] || null;
         if (m[3]) {
-          const a = m[3].match(/ahead (\d+)/); if (a) ahead = parseInt(a[1], 10);
-          const b = m[3].match(/behind (\d+)/); if (b) behind = parseInt(b[1], 10);
+          const a = m[3].match(/ahead (\d+)/);
+          if (a) ahead = parseInt(a[1], 10);
+          const b = m[3].match(/behind (\d+)/);
+          if (b) behind = parseInt(b[1], 10);
         }
       }
       continue;
     }
-    const x = line[0], y = line[1], rest = line.slice(3);
-    let pathName = rest, kind;
+    const x = line[0],
+      y = line[1],
+      rest = line.slice(3);
+    let pathName = rest,
+      kind;
     if (x === '?' && y === '?') kind = 'untracked';
     else if (x === '!' && y === '!') kind = 'ignored';
     else if (x !== ' ' && y !== ' ') kind = 'staged+dirty';
     else if (x !== ' ') kind = 'staged';
     else kind = 'modified';
     // Renames/copies carry a second NUL-separated path (the original).
-    if (x === 'R' || x === 'C') { i += 1; /* consume the from-path */ }
-    files.push({ code: (x + y).trim() || (x + y), kind, path: pathName });
+    if (x === 'R' || x === 'C') {
+      i += 1; /* consume the from-path */
+    }
+    files.push({ code: (x + y).trim() || x + y, kind, path: pathName });
   }
   return { branch, upstream, ahead, behind, files, detached };
 }
 
 // Parse `git for-each-ref --format='%(refname:short)%09%(upstream:short)%09%(HEAD)' refs/heads`.
 function parseLocalBranches(out) {
-  return out.split('\n').filter(Boolean).map((line) => {
-    const [name, upstream, head] = line.split('\t');
-    return { name, upstream: upstream || null, current: head === '*' };
-  });
+  return out
+    .split('\n')
+    .filter(Boolean)
+    .map(line => {
+      const [name, upstream, head] = line.split('\t');
+      return { name, upstream: upstream || null, current: head === '*' };
+    });
 }
 
 // Parse `git branch --merged <default>` output into a Set of branch names
@@ -145,19 +184,24 @@ function parseMergedSet(out) {
 // a same-named local branch.
 function parseRemoteOnlyBranches(remoteOut, localNames) {
   const local = new Set(localNames);
-  return remoteOut.split('\n').filter(Boolean)
-    .filter((full) => full !== 'origin/HEAD' && full !== 'origin')
-    .filter((full) => !local.has(full.replace(/^origin\//, '')))
-    .map((name) => ({ name }));
+  return remoteOut
+    .split('\n')
+    .filter(Boolean)
+    .filter(full => full !== 'origin/HEAD' && full !== 'origin')
+    .filter(full => !local.has(full.replace(/^origin\//, '')))
+    .map(name => ({ name }));
 }
 
 // Parse `git stash list --format=%gd%x1f%s%x1f%cr` (ref, message, relative date).
 function parseStashList(out) {
-  return out.split('\n').filter(Boolean).map((line) => {
-    const [ref, message, when] = line.split('\x1f');
-    const m = ref.match(/\{(\d+)\}/);
-    return { index: m ? parseInt(m[1], 10) : 0, ref, message: message || '', when: when || '' };
-  });
+  return out
+    .split('\n')
+    .filter(Boolean)
+    .map(line => {
+      const [ref, message, when] = line.split('\x1f');
+      const m = ref.match(/\{(\d+)\}/);
+      return { index: m ? parseInt(m[1], 10) : 0, ref, message: message || '', when: when || '' };
+    });
 }
 
 // Classify a repo's sync status against its upstream for the Git tab's
@@ -176,11 +220,20 @@ async function status(root, slug) {
   const cwd = siteDir(root, slug);
   const r = await git(cwd, ['status', '--porcelain=v1', '--branch', '-z']);
   if (!r.ok && !r.out) {
-    return { slug, isRepo: false, error: r.err.trim() || 'not a git repository', files: [],
-      dirty: 0, ahead: 0, behind: 0, branch: null, upstream: null };
+    return {
+      slug,
+      isRepo: false,
+      error: r.err.trim() || 'not a git repository',
+      files: [],
+      dirty: 0,
+      ahead: 0,
+      behind: 0,
+      branch: null,
+      upstream: null,
+    };
   }
   const parsed = parsePorcelain(r.out);
-  const tracked = parsed.files.filter((f) => f.kind !== 'ignored');
+  const tracked = parsed.files.filter(f => f.kind !== 'ignored');
   // Last commit, for context in the detail panel.
   let lastCommit = null;
   const log = await git(cwd, ['log', '-1', '--format=%h%x1f%s%x1f%cr%x1f%an']);
@@ -199,23 +252,34 @@ async function status(root, slug) {
     if (rsha.ok && rsha.out.trim()) remoteSha = rsha.out.trim();
   }
 
-  const syncState = computeSyncState({ ahead: parsed.ahead, behind: parsed.behind, upstream: parsed.upstream });
+  const syncState = computeSyncState({
+    ahead: parsed.ahead,
+    behind: parsed.behind,
+    upstream: parsed.upstream,
+  });
 
   let remoteWebUrl = null;
   const originUrl = await git(cwd, ['remote', 'get-url', 'origin']);
   if (originUrl.ok && originUrl.out.trim()) remoteWebUrl = remoteToWebUrl(originUrl.out.trim());
 
   return {
-    slug, isRepo: true,
-    branch: parsed.branch, upstream: parsed.upstream, detached: parsed.detached,
-    ahead: parsed.ahead, behind: parsed.behind,
+    slug,
+    isRepo: true,
+    branch: parsed.branch,
+    upstream: parsed.upstream,
+    detached: parsed.detached,
+    ahead: parsed.ahead,
+    behind: parsed.behind,
     dirty: tracked.length,
     needsPush: parsed.ahead > 0,
     needsPull: parsed.behind > 0,
-    staged: tracked.filter((f) => f.kind === 'staged' || f.kind === 'staged+dirty').length,
-    untracked: tracked.filter((f) => f.kind === 'untracked').length,
+    staged: tracked.filter(f => f.kind === 'staged' || f.kind === 'staged+dirty').length,
+    untracked: tracked.filter(f => f.kind === 'untracked').length,
     lastCommit,
-    localSha, remoteSha, syncState, remoteWebUrl,
+    localSha,
+    remoteSha,
+    syncState,
+    remoteWebUrl,
     files: tracked,
   };
 }
@@ -261,14 +325,24 @@ async function _ignore(cwd, rel) {
   if (isTracked) {
     const pre = await git(cwd, ['diff', '--cached', '--name-only']);
     if (pre.ok && pre.out.trim()) {
-      throw httpErr(409, 'repo has staged changes — commit or unstage them before ignoring a tracked file');
+      throw httpErr(
+        409,
+        'repo has staged changes — commit or unstage them before ignoring a tracked file'
+      );
     }
   }
 
   const giPath = path.join(cwd, '.gitignore');
   let gi = '';
-  try { gi = fs.readFileSync(giPath, 'utf8'); } catch { /* no .gitignore yet */ }
-  const present = gi.split('\n').map((s) => s.trim()).includes(rel);
+  try {
+    gi = fs.readFileSync(giPath, 'utf8');
+  } catch {
+    /* no .gitignore yet */
+  }
+  const present = gi
+    .split('\n')
+    .map(s => s.trim())
+    .includes(rel);
   if (!present) {
     const prefix = gi.length && !gi.endsWith('\n') ? '\n' : '';
     fs.appendFileSync(giPath, `${prefix}${rel}\n`);
@@ -289,7 +363,8 @@ async function _ignore(cwd, rel) {
     c = await git(cwd, ['commit', '-m', `chore: gitignore ${rel}`, '--', '.gitignore']);
   }
   if (!c.ok) {
-    if (/nothing to commit/i.test(c.out + c.err)) return { ok: true, tracked: isTracked, noop: true };
+    if (/nothing to commit/i.test(c.out + c.err))
+      return { ok: true, tracked: isTracked, noop: true };
     throw httpErr(500, (c.err || c.out).trim() || 'git commit failed');
   }
   return { ok: true, tracked: isTracked, out: (c.out || '').trim() };
@@ -305,7 +380,11 @@ async function push(root, slug) {
     if (!s.isRepo) throw httpErr(400, 'not a git repository');
     // A detached HEAD (or a no-commits repo) has no branch to set upstream on;
     // `git push -u origin HEAD` would push to a wrongly-named ref (B10).
-    if (!s.branch) throw httpErr(409, s.detached ? 'detached HEAD — checkout a branch before pushing' : 'no branch to push');
+    if (!s.branch)
+      throw httpErr(
+        409,
+        s.detached ? 'detached HEAD — checkout a branch before pushing' : 'no branch to push'
+      );
     const args = s.upstream ? ['push'] : ['push', '-u', 'origin', s.branch];
     const r = await git(cwd, args);
     if (!r.ok) throw httpErr(500, (r.err || r.out).trim() || 'git push failed');
@@ -323,8 +402,13 @@ async function pull(root, slug) {
   return withRepoLock(slug, async () => {
     const s = await status(root, slug);
     if (!s.isRepo) throw httpErr(400, 'not a git repository');
-    if (s.dirty > 0) throw httpErr(409, 'working tree has uncommitted changes — commit or stash before pulling');
-    if (!s.branch) throw httpErr(409, s.detached ? 'detached HEAD — checkout a branch before pulling' : 'no branch to pull');
+    if (s.dirty > 0)
+      throw httpErr(409, 'working tree has uncommitted changes — commit or stash before pulling');
+    if (!s.branch)
+      throw httpErr(
+        409,
+        s.detached ? 'detached HEAD — checkout a branch before pulling' : 'no branch to pull'
+      );
     if (!s.upstream) throw httpErr(409, 'no upstream configured for this branch');
     const r = await git(cwd, ['pull']);
     if (!r.ok) throw httpErr(500, (r.err || r.out).trim() || 'git pull failed');
@@ -344,7 +428,8 @@ async function fileDiff(root, slug, p) {
   let untracked = false;
   if (d.ok && !d.out.trim()) {
     const ls = await git(cwd, ['ls-files', '--error-unmatch', '--', rel]);
-    if (!ls.ok) {                                    // not tracked → show as new file
+    if (!ls.ok) {
+      // not tracked → show as new file
       untracked = true;
       // empty-tree hash; diff against it renders the whole file as `+` lines.
       d = await git(cwd, ['diff', '--no-index', '--', '/dev/null', path.join(cwd, rel)]);
@@ -377,7 +462,11 @@ async function branches(root, slug) {
   const cwd = siteDir(root, slug);
   const def = await defaultBranch(cwd);
 
-  const localOut = await git(cwd, ['for-each-ref', '--format=%(refname:short)%09%(upstream:short)%09%(HEAD)', 'refs/heads']);
+  const localOut = await git(cwd, [
+    'for-each-ref',
+    '--format=%(refname:short)%09%(upstream:short)%09%(HEAD)',
+    'refs/heads',
+  ]);
   const local = localOut.ok ? parseLocalBranches(localOut.out) : [];
 
   const mergedOut = await git(cwd, ['branch', '--merged', def]);
@@ -385,18 +474,37 @@ async function branches(root, slug) {
 
   for (const b of local) {
     b.merged = merged.has(b.name);
-    b.ahead = 0; b.behind = 0;
+    b.ahead = 0;
+    b.behind = 0;
     if (b.upstream) {
-      const rl = await git(cwd, ['rev-list', '--left-right', '--count', `${b.name}...${b.upstream}`]);
+      const rl = await git(cwd, [
+        'rev-list',
+        '--left-right',
+        '--count',
+        `${b.name}...${b.upstream}`,
+      ]);
       if (rl.ok) {
-        const [a, bh] = rl.out.trim().split(/\s+/).map((n) => parseInt(n, 10) || 0);
-        b.ahead = a; b.behind = bh;
+        const [a, bh] = rl.out
+          .trim()
+          .split(/\s+/)
+          .map(n => parseInt(n, 10) || 0);
+        b.ahead = a;
+        b.behind = bh;
       }
     }
   }
 
-  const remoteOut = await git(cwd, ['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin']);
-  const remoteOnly = remoteOut.ok ? parseRemoteOnlyBranches(remoteOut.out, local.map((b) => b.name)) : [];
+  const remoteOut = await git(cwd, [
+    'for-each-ref',
+    '--format=%(refname:short)',
+    'refs/remotes/origin',
+  ]);
+  const remoteOnly = remoteOut.ok
+    ? parseRemoteOnlyBranches(
+        remoteOut.out,
+        local.map(b => b.name)
+      )
+    : [];
 
   return { defaultBranch: def, local, remoteOnly };
 }
@@ -412,7 +520,7 @@ async function deleteBranch(root, slug, branch) {
   return withRepoLock(slug, async () => {
     const b = await branches(root, slug);
     if (rel === b.defaultBranch) throw httpErr(400, 'refusing to delete the default branch');
-    const entry = b.local.find((x) => x.name === rel);
+    const entry = b.local.find(x => x.name === rel);
     if (!entry) throw httpErr(404, 'branch not found');
     if (entry.current) throw httpErr(400, 'refusing to delete the current branch');
     if (!entry.merged) throw httpErr(400, 'branch is not merged into the default branch');
@@ -462,7 +570,10 @@ async function pushAll(root, slugs) {
   for (const slug of slugs) {
     const s = await status(root, slug);
     if (!s.isRepo || !(s.ahead > 0)) continue;
-    if (!s.branch) { results.push({ slug, ok: false, error: 'detached HEAD — no branch to push' }); continue; }
+    if (!s.branch) {
+      results.push({ slug, ok: false, error: 'detached HEAD — no branch to push' });
+      continue;
+    }
     try {
       const r = await push(root, slug);
       results.push({ slug, ok: true, out: r.out });
@@ -470,7 +581,7 @@ async function pushAll(root, slugs) {
       results.push({ slug, ok: false, error: e.message });
     }
   }
-  return { ok: true, pushed: results.filter((r) => r.ok).length, total: results.length, results };
+  return { ok: true, pushed: results.filter(r => r.ok).length, total: results.length, results };
 }
 
 // Pull every site that is behind origin. Sequential (like pushAll) to avoid a
@@ -482,7 +593,10 @@ async function pullAll(root, slugs) {
   for (const slug of slugs) {
     const s = await status(root, slug);
     if (!s.isRepo || !(s.behind > 0)) continue;
-    if (!s.branch) { results.push({ slug, ok: false, error: 'detached HEAD — no branch to pull' }); continue; }
+    if (!s.branch) {
+      results.push({ slug, ok: false, error: 'detached HEAD — no branch to pull' });
+      continue;
+    }
     try {
       const r = await pull(root, slug);
       results.push({ slug, ok: true, out: r.out });
@@ -490,19 +604,57 @@ async function pullAll(root, slugs) {
       results.push({ slug, ok: false, error: e.message });
     }
   }
-  return { ok: true, pulled: results.filter((r) => r.ok).length, total: results.length, results };
+  return { ok: true, pulled: results.filter(r => r.ok).length, total: results.length, results };
 }
 
 // Cheap fleet-wide summary (one row per site) for the dashboard table.
 async function summaries(root, slugs) {
-  return Promise.all(slugs.map(async (slug) => {
-    const s = await status(root, slug);
-    const stashList = s.isRepo ? await stashes(root, slug) : [];
-    return { slug: s.slug, isRepo: s.isRepo, branch: s.branch, dirty: s.dirty,
-      ahead: s.ahead, behind: s.behind, needsPush: s.needsPush, needsPull: s.needsPull,
-      localSha: s.localSha, remoteSha: s.remoteSha, syncState: s.syncState,
-      stashCount: stashList.length, remoteWebUrl: s.remoteWebUrl, error: s.error || null };
-  }));
+  return Promise.all(
+    slugs.map(async slug => {
+      const s = await status(root, slug);
+      const stashList = s.isRepo ? await stashes(root, slug) : [];
+      return {
+        slug: s.slug,
+        isRepo: s.isRepo,
+        branch: s.branch,
+        dirty: s.dirty,
+        ahead: s.ahead,
+        behind: s.behind,
+        needsPush: s.needsPush,
+        needsPull: s.needsPull,
+        localSha: s.localSha,
+        remoteSha: s.remoteSha,
+        syncState: s.syncState,
+        stashCount: stashList.length,
+        remoteWebUrl: s.remoteWebUrl,
+        error: s.error || null,
+      };
+    })
+  );
 }
 
-module.exports = { status, summaries, parsePorcelain, computeSyncState, remoteToWebUrl, parseLocalBranches, parseMergedSet, parseRemoteOnlyBranches, parseStashList, branches, deleteBranch, commit, ignore, push, pull, fileDiff, pushAll, pullAll, stashes, stashDiff, dropStash, stashIndex, safeRel };
+module.exports = {
+  status,
+  summaries,
+  parsePorcelain,
+  computeSyncState,
+  remoteToWebUrl,
+  parseLocalBranches,
+  parseMergedSet,
+  parseRemoteOnlyBranches,
+  parseStashList,
+  branches,
+  deleteBranch,
+  commit,
+  ignore,
+  push,
+  pull,
+  fileDiff,
+  pushAll,
+  pullAll,
+  stashes,
+  stashDiff,
+  dropStash,
+  stashIndex,
+  safeRel,
+};

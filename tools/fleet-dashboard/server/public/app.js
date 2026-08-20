@@ -1142,6 +1142,81 @@ async function renderDeployHealth() {
   stamp();
 }
 
+/* ===================== HEALTH ===================== */
+// Rolled-up view of tools/fleet-gatus (server/gatushealth.js) — the fleet's
+// uptime/content-check monitor. Deliberately terse: only failing checks are
+// listed by name, passing ones collapse into a single count, so a healthy
+// fleet reads as one glance of green badges, not a wall of 👍 bullets.
+//
+// PILOT SCOPE (2026-08-20): Gatus only has 3 sites wired in so far
+// (wetpages.com, americastrikes.com, reviewtattoo.com). Every other site is
+// simply absent below until tools/fleet-gatus's PILOT_SITES expands.
+async function renderHealth() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading site health…</div>';
+  let d;
+  try {
+    d = await api('GET', '/api/gatus');
+  } catch (e) {
+    app.innerHTML = `<div class="empty">Health check data failed to load: ${esc(e.message)}</div>`;
+    return;
+  }
+
+  const order = d.order || [];
+  const sites = d.sites || {};
+  const healthy = order.filter(g => sites[g].failing === 0).length;
+  const unhealthy = order.length - healthy;
+
+  const cards = order
+    .map(g => {
+      const s = sites[g];
+      const badge =
+        s.failing === 0
+          ? '<span class="badge b-green">healthy</span>'
+          : `<span class="badge b-red">${s.failing} failing</span>`;
+      const failingRows = s.checks
+        .filter(c => !c.success)
+        .map(
+          c => `<tr data-fleet-row data-site="${esc(g)}">
+          <td class="mono muted">${esc(c.name)}</td>
+          <td>${c.statusCode != null ? esc(String(c.statusCode)) : '<span class="muted">no response</span>'}</td>
+          <td class="muted">${c.errors.length ? esc(c.errors.join('; ')) : ''}</td>
+        </tr>`
+        )
+        .join('');
+      return `<div class="card" data-fleet-row data-site="${esc(g)}" style="margin-bottom:12px">
+        <div class="page-head" style="padding:10px 14px 0">
+          <h2 class="page-title" style="font-size:15px">${siteLink(g)}</h2>
+          <span class="muted">${badge} · ${s.passing}/${s.total} checks green</span>
+        </div>
+        ${
+          failingRows
+            ? `<table><thead><tr><th>Failing check</th><th>Status</th><th>Detail</th></tr></thead><tbody>${failingRows}</tbody></table>`
+            : ''
+        }
+      </div>`;
+    })
+    .join('');
+
+  const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
+  const errNote = d.error
+    ? `<p class="muted" style="color:var(--red)">Gatus poller error: ${esc(d.error)} — showing last known state.</p>`
+    : '';
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Health</h2><span class="muted">Live uptime checks via <a href="http://127.0.0.1:8580" target="_blank" rel="noopener noreferrer">Gatus</a> (tools/fleet-gatus) — 5-min interval, alerts on state change only.</span></div>
+    <div class="task-toolbar">
+      <strong>${order.length} sites monitored</strong>
+      <span class="muted">${dotLegend('fresh', healthy + ' healthy')} · ${dotLegend('overdue', unhealthy + ' unhealthy')} · last swept ${esc(swept)}${d.stale ? ' <span class="flag">stale</span>' : ''}</span>
+    </div>
+    ${errNote}
+    ${cards || '<div class="empty">No sites monitored yet — this is a pilot (see tools/fleet-gatus), not yet fleet-wide.</div>'}
+    <p class="muted" style="margin-top:12px">Pilot scope: only sites wired into <code>tools/fleet-gatus/scripts/generate_config.py</code> appear here. <code>tools/fleet-smoke</code> still runs fleet-wide and posts to each site's Slack channel independently until this is expanded.</p>`;
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
 /* ===================== ERRORS ===================== */
 // Fleet-wide error/warn rollup (server/errorscan.js) — a background poller
 // tails every in-repo container's docker logs and classifies crit/error/warn
@@ -6518,6 +6593,7 @@ const TOP_VIEWS = [
   'compliance',
   'lint',
   'deploys',
+  'health',
   'errors',
   'activity',
   'devsandbox',
@@ -6605,6 +6681,7 @@ function render() {
   else if (STATE.view === 'compliance') renderCompliance();
   else if (STATE.view === 'lint') renderLint();
   else if (STATE.view === 'deploys') renderDeployHealth();
+  else if (STATE.view === 'health') renderHealth();
   else if (STATE.view === 'errors') renderErrors();
   else if (STATE.view === 'activity') renderActivity();
   else if (STATE.view === 'devsandbox') renderDevSandbox();

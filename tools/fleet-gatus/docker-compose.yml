@@ -24,3 +24,16 @@ services:
     environment:
       - GATUS_CONFIG_PATH=/config/config.yaml
       - TZ=America/New_York
+    networks:
+      - default
+      # Shared with fleet-dashboard (tools/fleet-dashboard/docker-compose.yml)
+      # so the panel container can reach this one by container name
+      # (http://fleet-gatus:8080/...) instead of the host's loopback, which
+      # is a different network namespace from inside another container.
+      - vpn_proxy
+
+networks:
+  default:
+  vpn_proxy:
+    external: true
+    name: vpn-proxy_default

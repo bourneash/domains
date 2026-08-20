@@ -14,8 +14,19 @@ const { execFileSync } = require('node:child_process');
 
 const git = require('./git');
 
+// GIT_* env vars (GIT_DIR, GIT_INDEX_FILE, GIT_WORK_TREE, ...) leak into this
+// process whenever the test suite runs from inside a git hook (e.g. the
+// fleet's pre-commit hook, tools/git-hooks/pre-commit, running `npm test`).
+// Without stripping them, the `git init`/`git commit` calls below operate
+// against the OUTER repo's git dir/index instead of the throwaway tmp repo —
+// producing spurious "invalid object ... for <unrelated staged path>"
+// failures that have nothing to do with what's actually being tested here.
+const CLEAN_ENV = Object.fromEntries(
+  Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_'))
+);
+
 function sh(cwd, args) {
-  execFileSync('git', args, { cwd });
+  execFileSync('git', args, { cwd, env: CLEAN_ENV });
 }
 
 function makeRepo() {
@@ -83,13 +94,17 @@ test('commit() only stages/commits the given paths, leaving other dirty files un
     assert.equal(r.ok, true);
     assert.equal(r.committed, 1);
 
-    const status = execFileSync('git', ['-C', cwd, 'status', '--porcelain'], { encoding: 'utf8' });
+    const status = execFileSync('git', ['-C', cwd, 'status', '--porcelain'], {
+      encoding: 'utf8',
+      env: CLEAN_ENV,
+    });
     // unrelated.txt must still show as untracked; wanted.txt must NOT appear (committed clean).
     assert.match(status, /\?\? unrelated\.txt/);
     assert.doesNotMatch(status, /wanted\.txt/);
 
     const log = execFileSync('git', ['-C', cwd, 'log', '-1', '--name-only', '--format=%s'], {
       encoding: 'utf8',
+      env: CLEAN_ENV,
     });
     assert.match(log, /add wanted\.txt/);
     assert.match(log, /^wanted\.txt$/m);
@@ -121,7 +136,10 @@ test('ignore() on an untracked path appends to .gitignore and commits just that'
     assert.equal(r.tracked, false);
     const gi = fs.readFileSync(path.join(cwd, '.gitignore'), 'utf8');
     assert.match(gi, /^secrets\.env$/m);
-    const status = execFileSync('git', ['-C', cwd, 'status', '--porcelain'], { encoding: 'utf8' });
+    const status = execFileSync('git', ['-C', cwd, 'status', '--porcelain'], {
+      encoding: 'utf8',
+      env: CLEAN_ENV,
+    });
     assert.equal(status.trim(), '');
   } finally {
     cleanup(root);
@@ -162,6 +180,7 @@ test('ignore() on a tracked path with a clean index untracks it (git rm --cached
     // ...but no longer tracked by git.
     const lsFiles = execFileSync('git', ['-C', cwd, 'ls-files', '--', 'tracked.txt'], {
       encoding: 'utf8',
+      env: CLEAN_ENV,
     });
     assert.equal(lsFiles.trim(), '');
   } finally {
