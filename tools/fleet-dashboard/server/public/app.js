@@ -5935,7 +5935,7 @@ function socMatch(a) {
   }
   const q = SOC.q.trim().toLowerCase();
   if (!q) return true;
-  return [a.site, a.platform, a.handle, a.personaName, a.statusNote, a.notes]
+  return [a.site, a.platform, a.handle, a.personaName, a.email, a.statusNote, a.notes]
     .join(' ')
     .toLowerCase()
     .includes(q);
@@ -6184,6 +6184,7 @@ function socMatrixHTML() {
 const SOC_COLS = [
   { key: 'site', label: 'Site' },
   { key: 'who', label: 'Who' },
+  { key: 'email', label: 'Email' },
   { key: 'platform', label: 'Platform' },
   { key: 'handle', label: 'Handle' },
   { key: 'status', label: 'Status' },
@@ -6246,6 +6247,7 @@ function socListHTML() {
           return `<tr class="soc-row" data-fleet-row data-site="${esc(a.site)}" data-soc-cell data-account-id="${esc(a.id)}">
             <td class="site">${esc(a.site)}</td>
             <td>${a.personaName ? esc(a.personaName) : '<span class="muted">brand</span>'}</td>
+            <td class="muted soc-email">${esc(a.email || '')}</td>
             <td>${esc(socPlatform(a.platform).label)}</td>
             <td class="soc-handle">${link}</td>
             <td>${socToneBadge(a.tone, st.label)}${a.action ? `<span class="muted soc-act"> ${esc(a.action)}</span>` : ''}</td>
@@ -6289,6 +6291,7 @@ function socPersonasHTML() {
       return `<tr data-fleet-row data-site="${esc(p.site)}">
         <td class="site">${esc(p.site)}</td>
         <td><span class="soc-plink" data-soc-persona="${esc(p.id)}">${esc(p.name)}</span></td>
+        <td class="muted soc-email">${esc(p.email || '')}</td>
         <td class="muted">${esc(p.beat || '')}</td>
         <td>${chips}</td>
         <td>${p.realPerson ? socToneBadge('blue', 'real person') : ''}${p.active ? '' : socToneBadge('gray', 'inactive')}</td>
@@ -6296,7 +6299,7 @@ function socPersonasHTML() {
     })
     .join('');
   return `<div class="card"><table>
-    <thead><tr><th>Site</th><th>Persona</th><th>Beat</th><th>Accounts</th><th></th></tr></thead>
+    <thead><tr><th>Site</th><th>Persona</th><th>Email</th><th>Beat</th><th>Accounts</th><th></th></tr></thead>
     <tbody>${rows}</tbody></table></div>
     <div class="muted soc-legend">${personas.length} persona(s) — click a name to edit, a platform chip to edit that account.</div>`;
 }

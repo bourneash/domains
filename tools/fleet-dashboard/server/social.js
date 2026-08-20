@@ -253,6 +253,28 @@ function id(prefix) {
   return `${prefix}_${crypto.randomBytes(6).toString('hex')}`;
 }
 
+// Email addresses aren't stored — they're derived from the same convention
+// the signup scripts use (tools/social-setup/src/social_setup/email.py +
+// pinterest_signup.py/instagram_signup.py/bsky_signup.py "persona-slug"
+// docstrings): a domain-level brand account is social@<site>, a persona
+// account is <slug(name)>@<site>. Both are CF Email Routing aliases that
+// forward to the shared inbox — deriving here means this always matches
+// what the scripts actually created, with no backfill to keep in sync.
+function personaSlug(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function personaEmail(site, personaName) {
+  return `${personaSlug(personaName)}@${site}`;
+}
+
+function brandEmail(site) {
+  return `social@${site}`;
+}
+
 function platformCatalog(store) {
   const seen = new Map();
   for (const p of BUILTIN_PLATFORMS) seen.set(p.key, { ...p, builtin: true });
@@ -289,6 +311,7 @@ function decorate(store, a) {
   return {
     ...a,
     personaName: persona ? persona.name : null,
+    email: persona ? personaEmail(a.site, persona.name) : brandEmail(a.site),
     profileUrl: profileUrl(store, a),
     tone: st ? st.tone : 'gray',
     live: !!(st && st.live),
@@ -520,7 +543,11 @@ function listPersonas(site) {
   const store = load();
   return store.personas
     .filter(p => !site || p.site === site)
-    .map(p => ({ ...p, accounts: store.accounts.filter(a => a.personaId === p.id).length }))
+    .map(p => ({
+      ...p,
+      email: personaEmail(p.site, p.name),
+      accounts: store.accounts.filter(a => a.personaId === p.id).length,
+    }))
     .sort((a, b) => a.site.localeCompare(b.site) || a.name.localeCompare(b.name));
 }
 
