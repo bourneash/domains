@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""Generate Gatus's config.yaml from a pilot subset of sites/*/ops/smoke.yaml.
+"""Generate Gatus's config.yaml from every sites/*/ops/smoke.yaml.
 
-POC scope: converts only the sites listed in PILOT_SITES below. Each site
-still owns its checks in its own ops/smoke.yaml (same file fleet-smoke
-reads) — this script never edits a site's repo, it just re-renders those
-checks into Gatus's format on every regen.
+Fleet-wide: auto-discovers every site with an ops/smoke.yaml (same glob
+fleet-smoke itself uses — tools/fleet-smoke/lib/config.py:discover_configs),
+same as tools/fleet-smoke reads. This script never edits a site's repo, it
+just re-renders those checks into Gatus's format on every regen. A site
+with `enabled: false` in its smoke.yaml is skipped, matching fleet-smoke's
+own behavior.
 
 Run: python3 scripts/generate_config.py   (from tools/fleet-gatus/)
 Then: docker compose up -d --build   (or `docker compose restart` if the
 image is already built — Gatus hot-reloads config.yaml on change, no
 rebuild needed for config-only edits).
 """
+import glob
 import json
 import os
 
@@ -20,18 +23,23 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", 
 SITES_DIR = os.path.join(REPO_ROOT, "sites")
 OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "config", "config.yaml")
 
-# POC scope — expand this list once the pilot proves out.
-PILOT_SITES = ["wetpages.com", "americastrikes.com", "reviewtattoo.com"]
-
 CHECK_INTERVAL = "5m"          # vs fleet-smoke's twice-daily — real uptime detection
 FAILURE_THRESHOLD = 2          # consecutive fails before alerting (kills single-blip noise)
 SUCCESS_THRESHOLD = 2          # consecutive passes before "recovered"
 
 
+def discover_sites():
+    """Every sites/<domain>/ops/smoke.yaml, mirroring fleet-smoke's own glob."""
+    pattern = os.path.join(SITES_DIR, "*", "ops", "smoke.yaml")
+    return sorted(os.path.basename(os.path.dirname(os.path.dirname(p))) for p in glob.glob(pattern))
+
+
 def load_smoke_yaml(site):
     path = os.path.join(SITES_DIR, site, "ops", "smoke.yaml")
     with open(path) as f:
-        return yaml.safe_load(f)
+        data = yaml.safe_load(f) or {}
+    data.setdefault("enabled", True)
+    return data
 
 
 def slack_alert_body(channel):
@@ -52,15 +60,31 @@ def slack_alert_body(channel):
     return json.dumps(payload)
 
 
-def build_endpoints():
+def build_endpoints(sites):
     endpoints = []
-    for site in PILOT_SITES:
+    skipped_sites = []
+    skipped_checks = []  # (site, label) — checks Gatus can't represent yet (see below)
+    for site in sites:
         cfg = load_smoke_yaml(site)
+        if not cfg.get("enabled", True):
+            skipped_sites.append(site)
+            continue
         apex = cfg["apex"]
         channel = cfg.get("slack", {}).get("channel")
         for check in cfg.get("checks", []):
             name = check["label"]
             path = check["path"]
+            # fleet-smoke has one check type Gatus's HTTP-status conditions
+            # can't replicate: `module_graph` (currently only
+            # 0xroulette.com's /play) walks the real Vite dynamic-import
+            # chunk graph rather than asserting on a status code. That
+            # depth is exactly the "deep content check" phase this pilot
+            # hasn't built yet (see README "Next steps") — skip it here
+            # rather than silently mis-representing it as an HTTP check,
+            # and leave it to fleet-smoke in the meantime.
+            if check.get("type", "http_status") != "http_status":
+                skipped_checks.append((site, name))
+                continue
             expect = check["expect"]
             endpoint = {
                 "name": name,
@@ -85,10 +109,12 @@ def build_endpoints():
                 },
             }]
             endpoints.append(endpoint)
-    return endpoints
+    return endpoints, skipped_sites, skipped_checks
 
 
 def main():
+    sites = discover_sites()
+    endpoints, skipped_sites, skipped_checks = build_endpoints(sites)
     config = {
         "storage": {
             "type": "sqlite",
@@ -106,19 +132,30 @@ def main():
                 },
             },
         },
-        "endpoints": build_endpoints(),
+        "endpoints": endpoints,
     }
-    header = (
-        "# GENERATED FILE — do not edit by hand.\n"
-        "# Regenerate with: python3 scripts/generate_config.py\n"
-        "# Source of truth for checks is each site's own sites/<domain>/ops/smoke.yaml\n"
-        f"# Pilot scope: {', '.join(PILOT_SITES)}\n\n"
-    )
+    live = len(sites) - len(skipped_sites)
+    header_lines = [
+        "# GENERATED FILE — do not edit by hand.",
+        "# Regenerate with: python3 scripts/generate_config.py",
+        "# Source of truth for checks is each site's own sites/<domain>/ops/smoke.yaml",
+        f"# Auto-discovered {live} sites, {len(endpoints)} endpoints.",
+    ]
+    if skipped_sites:
+        header_lines.append(f"# Skipped (enabled: false): {', '.join(skipped_sites)}")
+    if skipped_checks:
+        detail = "; ".join(f"{s}: {n}" for s, n in skipped_checks)
+        header_lines.append(f"# Skipped (non-http_status check, not yet supported here): {detail}")
+    header = "\n".join(header_lines) + "\n\n"
     with open(OUT_PATH, "w") as f:
         f.write(header)
         yaml.safe_dump(config, f, sort_keys=False, width=100)
-    total = len(config["endpoints"])
-    print(f"Wrote {OUT_PATH} — {total} endpoints across {len(PILOT_SITES)} sites")
+    print(f"Wrote {OUT_PATH} — {len(endpoints)} endpoints across {live} sites")
+    if skipped_sites:
+        print(f"  skipped sites (enabled: false): {', '.join(skipped_sites)}")
+    if skipped_checks:
+        for s, n in skipped_checks:
+            print(f"  skipped check (non-http_status, not yet supported): {s} — {n}")
 
 
 if __name__ == "__main__":

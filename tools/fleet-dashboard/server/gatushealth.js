@@ -9,10 +9,9 @@
 // exists so that data can be re-rendered inside this panel's own look
 // instead of pointing people at a second, differently-styled UI.
 //
-// PILOT SCOPE (2026-08-20): only 3 sites are wired into Gatus so far
-// (wetpages.com, americastrikes.com, reviewtattoo.com — see
-// tools/fleet-gatus/scripts/generate_config.py PILOT_SITES). Every other
-// site will simply be absent from the response until the pilot expands.
+// Fleet-wide (2026-08-20): every site with an ops/smoke.yaml is auto-discovered
+// by tools/fleet-gatus/scripts/generate_config.py — a site is only absent from
+// the response if it has no smoke.yaml, or `enabled: false` in it.
 
 const POLL_MS = 60 * 1000; // Gatus itself checks every 5m; poll its cache often, it's a local call
 const STALE_AFTER = 10 * 60 * 1000; // ms: ignore the cache if the poller stopped updating

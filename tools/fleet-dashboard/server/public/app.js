@@ -1148,9 +1148,8 @@ async function renderDeployHealth() {
 // listed by name, passing ones collapse into a single count, so a healthy
 // fleet reads as one glance of green badges, not a wall of 👍 bullets.
 //
-// PILOT SCOPE (2026-08-20): Gatus only has 3 sites wired in so far
-// (wetpages.com, americastrikes.com, reviewtattoo.com). Every other site is
-// simply absent below until tools/fleet-gatus's PILOT_SITES expands.
+// Fleet-wide (2026-08-20): every site with an ops/smoke.yaml is monitored —
+// a site is only absent below if it has no smoke.yaml or is disabled there.
 async function renderHealth() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading site health…</div>';
@@ -1210,8 +1209,8 @@ async function renderHealth() {
       <span class="muted">${dotLegend('fresh', healthy + ' healthy')} · ${dotLegend('overdue', unhealthy + ' unhealthy')} · last swept ${esc(swept)}${d.stale ? ' <span class="flag">stale</span>' : ''}</span>
     </div>
     ${errNote}
-    ${cards || '<div class="empty">No sites monitored yet — this is a pilot (see tools/fleet-gatus), not yet fleet-wide.</div>'}
-    <p class="muted" style="margin-top:12px">Pilot scope: only sites wired into <code>tools/fleet-gatus/scripts/generate_config.py</code> appear here. <code>tools/fleet-smoke</code> still runs fleet-wide and posts to each site's Slack channel independently until this is expanded.</p>`;
+    ${cards || '<div class="empty">No sites monitored — check that tools/fleet-gatus is running and its config has been generated.</div>'}
+    <p class="muted" style="margin-top:12px">Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and stays covered only by <code>tools/fleet-smoke</code>, which also still runs its own twice-daily Slack digest independently of the alerts above.</p>`;
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
