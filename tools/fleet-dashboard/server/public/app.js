@@ -709,7 +709,27 @@ function fmtTokens(n) {
 function fmtUSD(n) {
   return `$${(n || 0).toFixed(2)}`;
 }
-const AI_USAGE = { range: '7d', granularity: 'day', from: '', to: '', site: '', role: '' };
+// Hover-help for table headers: title attr, plus a dotted underline (CSS)
+// so it's discoverable without a legend.
+function aiuTh(label, help) {
+  return `<th class="aiu-th-help" title="${esc(help)}">${esc(label)}</th>`;
+}
+const AI_USAGE = { range: '7d', granularity: 'hour', from: '', to: '', site: '', role: '' };
+
+// Quick-select presets for the Time range dropdown. Each carries its own
+// sensible default granularity (short windows default to hourly bars, long
+// ones to daily) — overridable any time via the Hourly/Daily toggle.
+const AIU_PRESETS = [
+  { key: 'today', label: 'Today', granularity: 'hour', days: 0 },
+  { key: 'yesterday', label: 'Yesterday', granularity: 'hour', days: 1, single: true },
+  { key: '24h', label: 'Last 24 hours', granularity: 'hour', days: 1 },
+  { key: '3d', label: 'Last 3 days', granularity: 'hour', days: 2 },
+  { key: '7d', label: 'Last 7 days', granularity: 'hour', days: 6 },
+  { key: '30d', label: 'Last 30 days', granularity: 'day', days: 29 },
+  { key: '90d', label: 'Last 90 days', granularity: 'day', days: 89 },
+  { key: 'all', label: 'All time', granularity: 'day', days: null },
+  { key: 'custom', label: 'Custom range…', granularity: null },
+];
 
 function utcDay(offset = 0) {
   const d = new Date();
@@ -717,9 +737,11 @@ function utcDay(offset = 0) {
   return d.toISOString().slice(0, 10);
 }
 function aiUsageWindow(range) {
-  if (range === 'all') return { from: '', to: '' };
-  const days = Number.parseInt(range, 10);
-  return { from: utcDay(days - 1), to: utcDay() };
+  const preset = AIU_PRESETS.find(p => p.key === range);
+  if (!preset || range === 'custom') return { from: AI_USAGE.from, to: AI_USAGE.to };
+  if (preset.days == null) return { from: '', to: '' };
+  if (preset.single) return { from: utcDay(preset.days), to: utcDay(preset.days) };
+  return { from: utcDay(preset.days), to: utcDay() };
 }
 function usageTotals(rows) {
   const totals = {
@@ -751,14 +773,15 @@ function groupUsage(rows, key) {
   });
   return [...groups.entries()].map(([value, items]) => ({ [key]: value, ...usageTotals(items) }));
 }
+// Shared with the drag-to-zoom wiring below — the overlay math has to agree
+// with the bar geometry pixel-for-pixel (viewBox units == px, see .aiu-chart
+// in style.css: fixed height, 100% width).
+const AIU_CHART_GEOM = { width: 760, height: 190, left: 44, bottom: 28, top: 12 };
+
 function usageChart(rows, bucket) {
   if (!rows.length)
     return '<div class="aiu-chart-empty">No tracked usage for this selection.</div>';
-  const width = 760;
-  const height = 190;
-  const left = 44;
-  const bottom = 28;
-  const top = 12;
+  const { width, height, left, bottom, top } = AIU_CHART_GEOM;
   const max = Math.max(...rows.map(r => r.total_cost_usd), 0.01);
   const plotH = height - top - bottom;
   const step = (width - left - 10) / rows.length;
@@ -775,14 +798,89 @@ function usageChart(rows, bucket) {
       return `<g><title>${esc(value)}: ${fmtUSD(r.total_cost_usd)} · ${r.calls} calls · ${fmtTokens(r.input_tokens + r.output_tokens)} tokens</title><rect class="aiu-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>${showLabel ? `<text class="aiu-chart-label" x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" text-anchor="middle">${esc(label)}</text>` : ''}</g>`;
     })
     .join('');
-  return `<svg class="aiu-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${bucket === 'hour' ? 'Hourly' : 'Daily'} AI usage cost chart"><line class="aiu-axis" x1="${left}" y1="${height - bottom}" x2="${width - 8}" y2="${height - bottom}"/><text class="aiu-chart-value" x="2" y="${top + 9}">${fmtUSD(max)}</text>${bars}</svg>`;
+  const svg = `<svg id="aiu-chart-svg" class="aiu-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${bucket === 'hour' ? 'Hourly' : 'Daily'} AI usage cost chart"><line class="aiu-axis" x1="${left}" y1="${height - bottom}" x2="${width - 8}" y2="${height - bottom}"/><text class="aiu-chart-value" x="2" y="${top + 9}">${fmtUSD(max)}</text>${bars}</svg>`;
+  return `<div id="aiu-chart-wrap" class="aiu-chart-wrap"><div id="aiu-chart-dragbox" class="aiu-chart-dragbox"></div>${svg}</div>`;
+}
+
+// Click-and-drag zoom, Grafana-style: drag a range on the chart to set the
+// custom from/to window to the dragged buckets' day span. Re-wired every
+// render (the old svg node — and its listeners — is discarded with
+// innerHTML); the document-level move/up listeners are the only ones that
+// outlive a render, so they ride an AbortController we replace each time.
+let AIU_DRAG_ABORT = null;
+function aiuChartVX(svg, clientX) {
+  const rect = svg.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  if (!rect.width) return vb.x;
+  return vb.x + ((clientX - rect.left) / rect.width) * vb.width;
+}
+function aiuChartIndexAt(vx, len) {
+  const { left, width } = AIU_CHART_GEOM;
+  const step = (width - left - 10) / len;
+  return Math.max(0, Math.min(len - 1, Math.floor((vx - left) / step)));
+}
+function wireChartZoom(rows, bucket) {
+  AIU_DRAG_ABORT?.abort();
+  AIU_DRAG_ABORT = new AbortController();
+  const { signal } = AIU_DRAG_ABORT;
+  const svg = $('#aiu-chart-svg');
+  const wrap = $('#aiu-chart-wrap');
+  const box = $('#aiu-chart-dragbox');
+  if (!svg || !wrap || !box || rows.length < 2) return;
+  let drag = null;
+  const setBox = (vxA, vxB) => {
+    const lo = Math.min(vxA, vxB);
+    const hi = Math.max(vxA, vxB);
+    box.style.display = 'block';
+    box.style.left = `${(lo / AIU_CHART_GEOM.width) * 100}%`;
+    box.style.width = `${Math.max(0.3, ((hi - lo) / AIU_CHART_GEOM.width) * 100)}%`;
+  };
+  svg.addEventListener(
+    'mousedown',
+    e => {
+      if (e.button !== 0) return;
+      drag = { startClientX: e.clientX, startVx: aiuChartVX(svg, e.clientX) };
+      setBox(drag.startVx, drag.startVx);
+      wrap.classList.add('dragging');
+      e.preventDefault();
+    },
+    { signal }
+  );
+  document.addEventListener(
+    'mousemove',
+    e => {
+      if (!drag) return;
+      setBox(drag.startVx, aiuChartVX(svg, e.clientX));
+    },
+    { signal }
+  );
+  document.addEventListener(
+    'mouseup',
+    e => {
+      if (!drag) return;
+      const moved = Math.abs(e.clientX - drag.startClientX);
+      const endVx = aiuChartVX(svg, e.clientX);
+      const startIdx = aiuChartIndexAt(drag.startVx, rows.length);
+      const endIdx = aiuChartIndexAt(endVx, rows.length);
+      drag = null;
+      box.style.display = 'none';
+      wrap.classList.remove('dragging');
+      if (moved < 6) return; // too small to be a drag — leave it to the native <title> hover
+      const lo = Math.min(startIdx, endIdx);
+      const hi = Math.max(startIdx, endIdx);
+      AI_USAGE.range = 'custom';
+      AI_USAGE.from = rows[lo][bucket].slice(0, 10);
+      AI_USAGE.to = rows[hi][bucket].slice(0, 10);
+      renderAIUsage();
+    },
+    { signal }
+  );
 }
 
 async function renderAIUsage() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Aggregating AI token usage…</div>';
-  if (AI_USAGE.range !== 'all' && AI_USAGE.range !== 'custom' && !AI_USAGE.from)
-    Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
+  if (AI_USAGE.range !== 'custom') Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
   let data;
   const params = new URLSearchParams();
   if (AI_USAGE.from) params.set('from', AI_USAGE.from);
@@ -939,6 +1037,12 @@ async function renderAIUsage() {
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div>
     <div class="aiu-controls" aria-label="AI usage filters">
+      <label>Time range
+        <select id="aiu-quick-select">${AIU_PRESETS.map(
+          p =>
+            `<option value="${esc(p.key)}" ${AI_USAGE.range === p.key ? 'selected' : ''}>${esc(p.label)}</option>`
+        ).join('')}</select>
+      </label>
       <div class="aiu-granularity" role="group" aria-label="Usage resolution">
         ${[
           ['hour', 'Hourly'],
@@ -950,22 +1054,13 @@ async function renderAIUsage() {
           )
           .join('')}
       </div>
-      <div class="aiu-range" role="group" aria-label="Time frame">
-        ${[
-          ['7d', '7 days'],
-          ['90d', '90 days'],
-          ['all', 'All time'],
-        ]
-          .map(
-            ([value, label]) =>
-              `<button class="btn sm aiu-range-btn ${AI_USAGE.range === value ? 'active' : ''}" data-range="${value}">${label}</button>`
-          )
-          .join('')}
-        <button class="btn sm aiu-range-btn ${AI_USAGE.range === 'custom' ? 'active' : ''}" data-range="custom">Custom</button>
-      </div>
-      <label>From <input id="aiu-from" type="date" value="${esc(AI_USAGE.from)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
-      <label>To <input id="aiu-to" type="date" value="${esc(AI_USAGE.to)}" ${AI_USAGE.range === 'custom' ? '' : 'disabled'}></label>
-      ${AI_USAGE.range === 'custom' ? '<button id="aiu-apply-custom" class="btn sm">Apply dates</button>' : ''}
+      ${
+        AI_USAGE.range === 'custom'
+          ? `<label>From <input id="aiu-from" type="date" value="${esc(AI_USAGE.from)}"></label>
+      <label>To <input id="aiu-to" type="date" value="${esc(AI_USAGE.to)}"></label>
+      <button id="aiu-apply-custom" class="btn sm">Apply dates</button>`
+          : ''
+      }
       <label>Site <select id="aiu-site"><option value="">All reporting sites</option>${sites.map(site => `<option value="${esc(site)}" ${AI_USAGE.site === site ? 'selected' : ''}>${esc(site)}</option>`).join('')}</select></label>
       <label>Role <select id="aiu-role"><option value="">All roles</option>${roles.map(role => `<option value="${esc(role)}" ${AI_USAGE.role === role ? 'selected' : ''}>${esc(role)}</option>`).join('')}</select></label>
     </div>
@@ -979,20 +1074,28 @@ async function renderAIUsage() {
         : ''
     }
     <div class="card aiu-chart-card">
-      <div class="task-toolbar"><strong>${bucket === 'hour' ? 'Hourly' : 'Daily'} spend</strong><span class="muted">Hover a bar for cost, calls, and tokens. Times are UTC.</span></div>
+      <div class="task-toolbar"><strong>${bucket === 'hour' ? 'Hourly' : 'Daily'} spend</strong><span class="muted">Hover a bar for cost, calls, and tokens · drag across bars to zoom into that range. Times are UTC.</span>${AI_USAGE.range === 'custom' ? '<button id="aiu-reset-zoom" class="btn sm">↺ Reset zoom</button>' : ''}</div>
       ${usageChart(filteredPeriods, bucket)}
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>Runtime model resolution</strong><span class="muted">Observed model comes from Claude's response; requested model is the caller's flag. Differences expose alias/routing drift.</span></div>
-      ${runtimeModelRows ? `<table><thead><tr><th>Provider</th><th>Observed model</th><th>Calls</th><th>Output tok</th><th>Cost</th></tr></thead><tbody>${runtimeModelRows}</tbody></table>` : '<div class="empty">No model records yet.</div>'}
-      ${requestedModelRows ? `<div class="task-toolbar" style="margin-top:12px"><strong>Requested models</strong></div><table><thead><tr><th>Requested model</th><th>Calls</th><th>Cost</th></tr></thead><tbody>${requestedModelRows}</tbody></table>` : ''}
+      ${
+        runtimeModelRows
+          ? `<table><thead><tr>${aiuTh('Provider', 'AI provider/runtime that served the call.')}${aiuTh('Observed model', "Model Claude's response actually reports it ran — read from the API response, not the caller's --model flag.")}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Output tok', 'Output tokens generated by the model.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${runtimeModelRows}</tbody></table>`
+          : '<div class="empty">No model records yet.</div>'
+      }
+      ${
+        requestedModelRows
+          ? `<div class="task-toolbar" style="margin-top:12px"><strong>Requested models</strong></div><table><thead><tr>${aiuTh('Requested model', 'Model alias/name the caller asked for via --model.')}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${requestedModelRows}</tbody></table>`
+          : ''
+      }
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar"><strong>By site</strong></div>
       ${
         siteTableRows
           ? `<table>
-        <thead><tr><th>Site</th><th>Calls</th><th>Errors</th><th>Input tok</th><th>Output tok</th><th>Cache read</th><th>Cache write</th><th>Cache hit</th><th>Cost</th></tr></thead>
+        <thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Errors', 'Calls that returned is_error = true.')}${aiuTh('Input tok', 'Input tokens billed (excludes cache read/write tokens).')}${aiuTh('Output tok', 'Output tokens generated by the model.')}${aiuTh('Cache read', "Tokens served from Anthropic's prompt cache — cheaper than fresh input tokens.")}${aiuTh('Cache write', 'Tokens written to the prompt cache on this call (cache_creation_input_tokens).')}${aiuTh('Cache hit', 'Share of (input + cache-read) tokens that came from cache: cache_read / (input + cache_read).')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead>
         <tbody>${siteTableRows}</tbody>
       </table>`
           : '<div class="empty">No tracked usage yet.</div>'
@@ -1003,7 +1106,7 @@ async function renderAIUsage() {
       ${
         roleTableRows
           ? `<table>
-        <thead><tr><th>Site</th><th>Role</th><th>Calls</th><th>Input tok</th><th>Output tok</th><th>Cost</th></tr></thead>
+        <thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call (e.g. writer, engineer, watchdog).')}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Input tok', 'Input tokens billed (excludes cache read/write tokens).')}${aiuTh('Output tok', 'Output tokens generated by the model.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead>
         <tbody>${roleTableRows}</tbody>
       </table>`
           : '<div class="empty">No tracked usage yet.</div>'
@@ -1014,7 +1117,7 @@ async function renderAIUsage() {
       ${
         periodRows
           ? `<table>
-        <thead><tr><th>${bucket === 'hour' ? 'Hour (UTC)' : 'Day (UTC)'}</th><th>Calls</th><th>Total tokens</th><th>Cost</th></tr></thead>
+        <thead><tr>${aiuTh(bucket === 'hour' ? 'Hour (UTC)' : 'Day (UTC)', 'Bucket start, UTC.')}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Total tokens', 'Input + output tokens for the period (excludes cache read/write).')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead>
         <tbody>${periodRows}</tbody>
       </table>`
           : `<div class="empty">${bucket === 'hour' ? 'No timestamped usage in this selection.' : 'No tracked usage yet.'}</div>`
@@ -1027,30 +1130,33 @@ async function renderAIUsage() {
           usageAlerts.length
             ? `
         <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap, errored, or resolved to a different model than requested — most expensive first, last 10</span></div>
-        <table><thead><tr><th>Site</th><th>Role</th><th>Outcome</th><th>Detail</th><th>Cost</th></tr></thead><tbody>${alertRows}</tbody></table>`
+        <table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Outcome', 'Why this call is flagged: hit the turn cap, errored, or resolved to a different model than requested.')}${aiuTh('Detail', 'Model drift shows requested → actual model; otherwise shows turns used / requested max turns.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for this call.')}</tr></thead><tbody>${alertRows}</tbody></table>`
             : ''
         }
         ${
           modelDriftRows.length
             ? `
         <div class="task-toolbar" style="margin-top:12px"><strong>Model drift by site &amp; role</strong><span class="muted">requested model resolved to a different family (opus/sonnet/haiku) than the CLI actually ran — see claude-tracked.sh</span></div>
-        <table><thead><tr><th>Site</th><th>Role</th><th>Calls</th><th>Cost</th></tr></thead><tbody>${modelDriftRowsHtml}</tbody></table>`
+        <table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Calls', 'Calls where the resolved model family differed from the requested one.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${modelDriftRowsHtml}</tbody></table>`
             : ''
         }
         ${notWired.length ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
         ${wiredAwaiting.length ? `<div class="empty" style="margin-top:12px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
         ${noAiRole.length ? `<div class="empty" style="margin-top:12px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
         <div class="task-toolbar" style="margin-top:16px"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
-        <table><thead><tr><th>Site</th><th>Tracking status</th></tr></thead><tbody>${coverageRows}</tbody></table>
+        <table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI calls are wired to claude-tracked.sh and have ledger data — see tools/cron-roles/WIRING.md Step 6.5.')}</tr></thead><tbody>${coverageRows}</tbody></table>
       </div>
     </details>`;
-  $$('.aiu-range-btn').forEach(button =>
-    button.addEventListener('click', () => {
-      AI_USAGE.range = button.dataset.range;
-      if (AI_USAGE.range !== 'custom') Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
-      renderAIUsage();
-    })
-  );
+  $('#aiu-quick-select').addEventListener('change', event => {
+    const key = event.target.value;
+    AI_USAGE.range = key;
+    const preset = AIU_PRESETS.find(p => p.key === key);
+    if (key !== 'custom') {
+      Object.assign(AI_USAGE, aiUsageWindow(key));
+      if (preset && preset.granularity) AI_USAGE.granularity = preset.granularity;
+    }
+    renderAIUsage();
+  });
   $$('.aiu-granularity-btn').forEach(button =>
     button.addEventListener('click', () => {
       AI_USAGE.granularity = button.dataset.granularity;
@@ -1079,6 +1185,15 @@ async function renderAIUsage() {
       AI_USAGE.to = to;
       renderAIUsage();
     });
+  const resetZoom = $('#aiu-reset-zoom');
+  if (resetZoom)
+    resetZoom.addEventListener('click', () => {
+      AI_USAGE.range = '7d';
+      AI_USAGE.granularity = 'hour';
+      Object.assign(AI_USAGE, aiUsageWindow('7d'));
+      renderAIUsage();
+    });
+  wireChartZoom(filteredPeriods, bucket);
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
