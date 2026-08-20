@@ -127,12 +127,55 @@ claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
 STATUS=$?
 set -e
 
-python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" <<'PYEOF'
+python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" <<'PYEOF'
 import json
+import subprocess
 import sys
 import time
 
-tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns = sys.argv[1:8]
+tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns, repo_root = sys.argv[1:9]
+
+# ---- Model-drift alert (2026-08-20) ----
+# The CLI may resolve --model to something other than what was requested
+# (account-level routing, alias resolution). Usually harmless, but the
+# 2026-08-19 americastrikes.com incident showed it silently swapping a
+# requested sonnet-4-6 into claude-opus-4-7[1m] on ~20% of breaking-news
+# calls — 5-60x the intended per-token cost, undetected for weeks because
+# nothing compared requested vs. actual. This flags any requested/actual
+# family mismatch (opus vs sonnet vs haiku) in the ledger record AND
+# posts a one-line best-effort Slack alert so it surfaces same-day, not
+# next month's manual audit. Never fails the run over this — notify is
+# fire-and-forget.
+def _model_family(name):
+    if not name:
+        return None
+    lowered = name.lower()
+    for family in ("opus", "sonnet", "haiku"):
+        if family in lowered:
+            return family
+    return None
+
+
+def _check_model_drift(requested_model, actual_model, site, role, repo_root):
+    req_family = _model_family(requested_model)
+    actual_family = _model_family(actual_model)
+    if not req_family or not actual_family or req_family == actual_family:
+        return False
+    notify = f"{repo_root}/ops/scripts/notify-slack.sh"
+    channel = "domain-" + site.replace(".", "-")
+    text = (
+        f":rotating_light: *{site}* `{role}` requested `{requested_model}` "
+        f"but the CLI ran `{actual_model}` — model drift, check cost impact."
+    )
+    try:
+        subprocess.run(
+            [notify, channel, text, "danger"],
+            timeout=10, check=False,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass
+    return True
 
 try:
     with open(tmp_path, encoding="utf-8") as fh:
@@ -163,12 +206,14 @@ if data is not None:
     if model_usage:
         model = max(model_usage, key=lambda m: _model_tokens(model_usage[m]))
     model = model or data.get("model")
+    model_drift = _check_model_drift(requested_model, model, site, role, repo_root)
     record = {
         "recorded_at_unix": int(time.time()),
         "site": site,
         "role": role,
         "model": model,
         "model_usage": model_usage or None,
+        "model_drift": model_drift,
         "requested_model": requested_model or None,
         "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": data.get("subtype"),
