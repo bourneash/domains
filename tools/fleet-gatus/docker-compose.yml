@@ -1,0 +1,26 @@
+# tools/fleet-gatus/docker-compose.yml
+#
+# POC: Gatus as the fleet's health-check dashboard + alerting layer, piloted
+# on 3 sites (see scripts/generate_config.py PILOT_SITES). Replaces
+# fleet-smoke's per-tick Slack narration with threshold-based alerting
+# (only fires on real state changes) plus a glanceable status dashboard.
+#
+# fleet-smoke keeps running untouched during the pilot — this is additive,
+# not a cutover, until the pilot is validated.
+name: fleet-gatus
+
+services:
+  fleet-gatus:
+    image: twinproduction/gatus:stable
+    container_name: fleet-gatus
+    restart: unless-stopped
+    env_file:
+      - ../../.env
+    ports:
+      - "127.0.0.1:8580:8080"   # loopback only — no auth in front of it yet
+    volumes:
+      - ./config:/config:ro
+      - ./data:/data
+    environment:
+      - GATUS_CONFIG_PATH=/config/config.yaml
+      - TZ=America/New_York
