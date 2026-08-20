@@ -96,7 +96,7 @@ matches_auth_failure() {
   return 1
 }
 
-OUTPUT="$(timeout "$TIMEOUT_SEC" "$CLAUDE_BIN" -p "Reply with exactly one word: OK" --dangerously-skip-permissions 2>&1)"
+OUTPUT="$(timeout "$TIMEOUT_SEC" "$CLAUDE_BIN" -p "Reply with exactly one word: OK" --model claude-haiku-4-5-20251001 --dangerously-skip-permissions 2>&1)"
 EXIT_CODE=$?
 
 read -r PREV_COUNT < "$STATE" 2>/dev/null || PREV_COUNT=0

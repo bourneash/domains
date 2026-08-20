@@ -67,7 +67,7 @@ print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3],
 
 probe_ok() {
   local container="$1" output exit_code
-  output="$(timeout "$TIMEOUT_SEC" docker exec "$container" claude -p "Reply with exactly one word: OK" --dangerously-skip-permissions 2>&1)"
+  output="$(timeout "$TIMEOUT_SEC" docker exec "$container" claude -p "Reply with exactly one word: OK" --model claude-haiku-4-5-20251001 --dangerously-skip-permissions 2>&1)"
   exit_code=$?
   [[ "$exit_code" -eq 0 ]] && grep -qi '\bOK\b' <<<"$output"
 }
