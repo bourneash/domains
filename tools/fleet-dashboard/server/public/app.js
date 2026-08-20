@@ -6691,32 +6691,64 @@ function socPersonaModal(personaId) {
 }
 
 /* ===================== SHELL ===================== */
-const TOP_VIEWS = [
-  'control',
-  'cron',
-  'containers',
-  'git',
-  'tasks',
-  'taskbudget',
-  'aiinventory',
-  'aiusage',
-  'datahub',
-  'datahubimages',
-  'productfeed',
-  'analytics',
-  'compliance',
-  'lint',
-  'deploys',
-  'health',
-  'errors',
-  'activity',
-  'devsandbox',
-  'sitefacts',
-  'guides',
-  'guardrails',
-  'domains',
-  'social',
-];
+// NAV_GROUPS is defined further down (grouped nav), before parseHash() needs
+// it — declared here as a forward reference via var hoisting is unsafe with
+// const, so TOP_VIEWS is assembled lazily the first time it's read.
+function topViews() {
+  return ['control', ...NAV_GROUP_VIEWS];
+}
+
+// Grouped nav (F-nav): the flat 20+ tab bar collapsed into topic dropdowns,
+// mirroring the existing Agents ▾ pattern. Add a new top-level view's button
+// here — a bare data-view button is only for something that deserves to be
+// pinned outside every group (currently just Domain Control).
+const NAV_GROUPS = {
+  ops: {
+    label: 'Ops',
+    items: [
+      ['cron', 'Cron'],
+      ['containers', 'Containers'],
+      ['git', 'Git'],
+      ['tasks', 'Tasks'],
+      ['deploys', 'Deploys'],
+      ['domains', 'Domains'],
+      ['guardrails', 'Guardrails'],
+    ],
+  },
+  content: {
+    label: 'Content',
+    items: [
+      ['guides', 'Guides'],
+      ['productfeed', 'Product Feed'],
+      ['datahub', 'Data Hub'],
+      ['datahubimages', 'Data Hub Images'],
+      ['sitefacts', 'Site Facts'],
+    ],
+  },
+  growth: {
+    label: 'Growth',
+    items: [
+      ['analytics', 'Analytics'],
+      ['social', 'Social'],
+      ['aiusage', 'AI Usage'],
+      ['aiinventory', 'AI Inventory'],
+      ['taskbudget', 'Task Budget'],
+    ],
+  },
+  quality: {
+    label: 'Quality',
+    items: [
+      ['compliance', 'Compliance'],
+      ['lint', 'Lint'],
+      ['health', 'Health'],
+      ['errors', 'Errors'],
+      ['activity', 'Activity'],
+      ['devsandbox', 'Dev Sandboxes'],
+    ],
+  },
+};
+// Flattened for the router — every view any group knows about.
+const NAV_GROUP_VIEWS = Object.values(NAV_GROUPS).flatMap(g => g.items.map(([v]) => v));
 
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
@@ -6730,7 +6762,7 @@ function parseHash() {
   if (a === 'roles') return { view: 'control', agent: null };
   if (a === 'git' && b && c === 'stashes')
     return { view: 'gitstashes', agent: null, gitSlug: decodeURIComponent(b) };
-  if (TOP_VIEWS.includes(a)) return { view: a, agent: null };
+  if (topViews().includes(a)) return { view: a, agent: null };
   return { view: 'control', agent: null };
 }
 function hashFor(view, agent) {
@@ -6778,6 +6810,7 @@ function render() {
   if (ddBtn) ddBtn.classList.toggle('active', STATE.view === 'agent');
   document.body.dataset.view = STATE.view; // lets CSS widen specific views
   syncAgentsMenuActive();
+  syncNavGroupsActive();
   if (STATE.view === 'control') renderControl();
   else if (STATE.view === 'cron') renderCron();
   else if (STATE.view === 'agent') renderAgent(STATE.agent);
@@ -6858,6 +6891,37 @@ function toggleAgentsMenu() {
 function closeAgentsMenu() {
   const m = $('#agents-menu');
   if (m) m.classList.add('hidden');
+}
+
+/* ---- grouped nav dropdowns (Ops/Content/Growth/Quality — mirrors #agents-dd) ---- */
+function buildNavGroupMenus() {
+  Object.entries(NAV_GROUPS).forEach(([id, g]) => {
+    const menu = $(`[data-group-menu="${id}"]`);
+    if (!menu) return;
+    menu.innerHTML = g.items
+      .map(([view, label]) => `<a class="dd-item" data-view="${esc(view)}">${esc(label)}</a>`)
+      .join('');
+    $$('.dd-item', menu).forEach(it =>
+      it.addEventListener('click', () => {
+        closeNavGroupMenus();
+        go(it.dataset.view);
+      })
+    );
+  });
+  syncNavGroupsActive();
+}
+function syncNavGroupsActive() {
+  Object.entries(NAV_GROUPS).forEach(([id, g]) => {
+    const inGroup = g.items.some(([view]) => view === STATE.view);
+    const btn = $(`[data-group-btn="${id}"]`);
+    if (btn) btn.classList.toggle('active', inGroup);
+    $$(`[data-group-menu="${id}"] .dd-item`).forEach(it =>
+      it.classList.toggle('active', it.dataset.view === STATE.view)
+    );
+  });
+}
+function closeNavGroupMenus() {
+  $$('.nav-group .dd-menu').forEach(m => m.classList.add('hidden'));
 }
 
 // Breadcrumb shown atop every agent page.
@@ -7044,13 +7108,26 @@ async function boot() {
   STATE.agent = r.agent;
   STATE.gitSlug = r.gitSlug || null;
   buildAgentsMenu();
+  buildNavGroupMenus();
   $$('.tab[data-view]').forEach(t => t.addEventListener('click', () => go(t.dataset.view)));
   $('#agents-btn').addEventListener('click', e => {
     e.stopPropagation();
+    closeNavGroupMenus();
     toggleAgentsMenu();
   });
+  $$('[data-group-btn]').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      closeAgentsMenu();
+      const id = btn.dataset.groupBtn;
+      const wasOpen = !$(`[data-group-menu="${id}"]`).classList.contains('hidden');
+      closeNavGroupMenus();
+      if (!wasOpen) $(`[data-group-menu="${id}"]`).classList.remove('hidden');
+    })
+  );
   document.addEventListener('click', e => {
     if (!e.target.closest('#agents-dd')) closeAgentsMenu();
+    if (!e.target.closest('.nav-group')) closeNavGroupMenus();
   });
   $('#refresh').addEventListener('click', softRender);
   const ff = $('#fleet-filter');
