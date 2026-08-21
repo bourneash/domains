@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-21T16:35:21.182Z",
+  "updatedAt": "2026-08-21T18:54:13.719Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1614,17 +1614,17 @@
       "platform": "bluesky",
       "scope": "brand",
       "personaId": null,
-      "status": "stuck",
-      "statusNote": "signup form completed + no captcha, but Bluesky's interests-picker onboarding wizard never resolved a stable custom handle (tag-click element instability); bsky_finish_onboarding.py recovery also failed with 'still no handle'. No creds in vault. Needs a script fix or manual finish, not a captcha hand-off.",
-      "handle": "",
+      "status": "active",
+      "statusNote": "Resumed a stuck onboarding: prior attempts stalled on the interests-picker wizard (element-position instability, then a deadline bug where the outer 3-min wizard timeout ran concurrently with the mid-flow captcha-solve wait and got eaten by it before the wizard finished). Hardened bsky_signup.py + bsky_finish_onboarding.py (DOM-settle waits before/after tag clicks, pick-one-tag-then-stop, enabled-state check before clicking Continue, deadline bumped 3min->8min/5min) and resumed the already-created account via bsky_finish_onboarding.py rather than creating a duplicate. Bio set via AT Protocol putRecord (app.bsky.actor.profile) post-signup.",
+      "handle": "offshorehookup.bsky.social",
       "profileUrl": "",
       "notes": "",
       "tags": [],
-      "credsInVault": false,
+      "credsInVault": true,
       "followers": null,
       "lastPostedAt": null,
       "createdAt": "2026-08-21T16:34:13.862Z",
-      "updatedAt": "2026-08-21T16:34:13.862Z"
+      "updatedAt": "2026-08-21T18:54:13.718Z"
     },
     {
       "id": "acc_ba3492812489",

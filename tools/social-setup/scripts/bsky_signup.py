@@ -67,6 +67,58 @@ def click_if_present(page, *selectors, timeout=3000):
     return False
 
 
+# Interest topics Bluesky's onboarding wizard commonly offers — used as a
+# text fallback list since the tag chips have no stable data-testid.
+_INTEREST_TOPICS = [
+    "News", "Sports", "Art", "Music", "Comics", "Tech", "Culture", "Nature",
+    "Animals", "Science", "Food", "Books", "Photography", "Gaming",
+]
+
+
+def wait_for_dom_settle(page, checks=2, interval=0.8, max_wait=6.0):
+    """Poll the DOM node count until it stops changing between successive
+    checks, or max_wait elapses. Bluesky's onboarding wizard re-renders the
+    interest-picker on every tag click; clicking again before that settles
+    is what caused the previous stuck run (DOM instability / stale element
+    handles). This does not guarantee stability but avoids clicking mid-
+    animation."""
+    deadline = time.time() + max_wait
+    last_count = None
+    stable_hits = 0
+    while time.time() < deadline:
+        try:
+            count = page.evaluate("document.querySelectorAll('*').length")
+        except Exception:
+            return
+        if last_count is not None and count == last_count:
+            stable_hits += 1
+            if stable_hits >= checks:
+                return
+        else:
+            stable_hits = 0
+        last_count = count
+        time.sleep(interval)
+
+
+def pick_one_interest_tag(page):
+    """Select exactly one interest tag from the onboarding interests-picker,
+    waiting for the DOM to settle before AND after the click so the next
+    loop iteration doesn't race a re-render. Returns True if a tag was
+    clicked this pass."""
+    for topic in _INTEREST_TOPICS:
+        try:
+            tag = page.get_by_text(topic, exact=True)
+            if tag.count() > 0 and tag.first.is_visible():
+                wait_for_dom_settle(page)
+                tag.first.click(timeout=3000)
+                wait_for_dom_settle(page)
+                time.sleep(1)
+                return True
+        except Exception:
+            continue
+    return False
+
+
 print(f"Generated password: {PASSWORD}", flush=True)
 
 context, page = launch_browser(PROFILE_KEY, "bluesky")
@@ -123,7 +175,12 @@ if captcha_present(page):
             break
 
 # Try to advance the signup wizard (Next buttons, username step, etc.)
-deadline = time.time() + 3 * 60
+# Deadline is generous because a mid-flow captcha wait (up to 10 min) runs
+# inside this same loop/deadline window — a tight deadline here previously
+# let the captcha-solve time itself eat the whole budget, cutting the loop
+# off right as it reached the post-signup onboarding wizard (interests
+# picker) with no time left to finish it.
+deadline = time.time() + 8 * 60
 handle_filled = False
 while time.time() < deadline:
     if captcha_present(page):
@@ -168,20 +225,37 @@ while time.time() < deadline:
         except Exception as e:
             print(f"handle-suggestion note: {e}", flush=True)
 
-    progressed = click_if_present(
-        page,
-        'button:has-text("Next")',
-        'button:has-text("Continue")',
-        'button:has-text("Create account")',
-        'button:has-text("Skip")',
-        'button:has-text("Finish")',
-        "button:has-text(\"Let's go\")",
-        'button:has-text("Done")',
-    )
+    # Interests-picker step: pick one tag at a time, letting the DOM settle
+    # between clicks instead of racing generic Next/Continue clicks against
+    # it (this instability is what stalled the prior attempt).
+    tag_clicked = pick_one_interest_tag(page)
+
+    progressed = False
+    if not tag_clicked:
+        wait_for_dom_settle(page, max_wait=3.0)
+        next_or_continue = page.locator('button:has-text("Next"), button:has-text("Continue")')
+        if next_or_continue.count() > 0 and next_or_continue.first.is_visible():
+            # Only click once the button is actually enabled — clicking a
+            # disabled Next/Continue on the interests step is a silent no-op
+            # that burns a loop iteration without progressing.
+            enable_deadline = time.time() + 5
+            while time.time() < enable_deadline and not next_or_continue.first.is_enabled():
+                time.sleep(0.5)
+            if next_or_continue.first.is_enabled():
+                progressed = click_if_present(page, 'button:has-text("Next")', 'button:has-text("Continue")')
+        if not progressed:
+            progressed = click_if_present(
+                page,
+                'button:has-text("Create account")',
+                'button:has-text("Skip")',
+                'button:has-text("Finish")',
+                "button:has-text(\"Let's go\")",
+                'button:has-text("Done")',
+            )
     if page.locator('[data-testid="composeBtn"]').count() > 0:
         print("STATUS reached home feed", flush=True)
         break
-    if not progressed:
+    if not progressed and not tag_clicked:
         time.sleep(3)
 
 shot(page, "03-final.png")

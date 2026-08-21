@@ -45,38 +45,88 @@ def click_if_present(page, *selectors, timeout=3000):
     return False
 
 
+_INTEREST_TOPICS = [
+    "News", "Sports", "Art", "Music", "Comics", "Tech", "Culture", "Nature",
+    "Animals", "Science", "Food", "Books", "Photography", "Gaming",
+]
+
+
+def wait_for_dom_settle(page, checks=2, interval=0.8, max_wait=6.0):
+    deadline = time.time() + max_wait
+    last_count = None
+    stable_hits = 0
+    while time.time() < deadline:
+        try:
+            count = page.evaluate("document.querySelectorAll('*').length")
+        except Exception:
+            return
+        if last_count is not None and count == last_count:
+            stable_hits += 1
+            if stable_hits >= checks:
+                return
+        else:
+            stable_hits = 0
+        last_count = count
+        time.sleep(interval)
+
+
+def pick_one_interest_tag(page):
+    for topic in _INTEREST_TOPICS:
+        try:
+            tag = page.get_by_text(topic, exact=True)
+            if tag.count() > 0 and tag.first.is_visible():
+                wait_for_dom_settle(page)
+                tag.first.click(timeout=3000)
+                wait_for_dom_settle(page)
+                time.sleep(1)
+                return True
+        except Exception:
+            continue
+    return False
+
+
 context, page = launch_browser(PROFILE_KEY, "bluesky")
 page.goto("https://bsky.app", wait_until="domcontentloaded", timeout=30000)
 time.sleep(3)
 shot(page, "10-resume.png")
 print(f"STATUS resumed url={page.url}", flush=True)
 
-deadline = time.time() + 2 * 60
+deadline = time.time() + 5 * 60
+tag_already_picked = False
 while time.time() < deadline:
     if page.locator('[data-testid="composeBtn"]').count() > 0:
         print("STATUS reached home feed", flush=True)
         break
 
-    # onboarding interest-picker: click one tag, then the enabled continue button
-    try:
-        news_tag = page.locator('button:has-text("News"), :text("News")')
-        if news_tag.count() > 0 and news_tag.first.is_visible():
-            news_tag.first.click(timeout=3000)
-            time.sleep(1)
-    except Exception as e:
-        print(f"tag click note: {e}", flush=True)
+    # Interests-picker step: pick exactly one tag (skip if we already have one
+    # selected this run — re-picking races the re-render and is how the prior
+    # attempt stalled), settling the DOM before/after so the next click isn't
+    # racing a re-render.
+    tag_clicked = False
+    if not tag_already_picked:
+        tag_clicked = pick_one_interest_tag(page)
+        tag_already_picked = tag_already_picked or tag_clicked
 
-    progressed = click_if_present(
-        page,
-        'button:has-text("Continue")',
-        'button:has-text("Next")',
-        'button:has-text("Choose an interest")',
-        'button:has-text("Skip")',
-        'button:has-text("Finish")',
-        "button:has-text(\"Let's go\")",
-        'button:has-text("Done")',
-    )
-    if not progressed:
+    progressed = False
+    if not tag_clicked:
+        wait_for_dom_settle(page, max_wait=3.0)
+        next_or_continue = page.locator('button:has-text("Continue"), button:has-text("Next")')
+        if next_or_continue.count() > 0 and next_or_continue.first.is_visible():
+            enable_deadline = time.time() + 5
+            while time.time() < enable_deadline and not next_or_continue.first.is_enabled():
+                time.sleep(0.5)
+            if next_or_continue.first.is_enabled():
+                progressed = click_if_present(page, 'button:has-text("Continue")', 'button:has-text("Next")')
+        if not progressed:
+            progressed = click_if_present(
+                page,
+                'button:has-text("Choose an interest")',
+                'button:has-text("Skip")',
+                'button:has-text("Finish")',
+                "button:has-text(\"Let's go\")",
+                'button:has-text("Done")',
+            )
+    if not progressed and not tag_clicked:
         time.sleep(2)
 
 shot(page, "11-onboarded.png")
