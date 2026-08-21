@@ -138,3 +138,6 @@
 	path = sites/trainingsharks.com
 	url = git@github-bourneash:bourneash/trainingsharks.com.git
 	branch = main
+[submodule "sites/offshorehookup.com"]
+	path = sites/offshorehookup.com
+	url = git@github-bourneash:bourneash/offshorehookup.com.git

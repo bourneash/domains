@@ -3,6 +3,25 @@ config:
   auto_push: false
   domains_root: /work
 sites:
+  offshorehookup.com:
+    active: true
+    cf_zone: offshorehookup.com
+    github: bourneash/offshorehookup.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   amputeenews.com:
     active: true
     cf_zone: amputeenews.com

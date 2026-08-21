@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **47** (live 26, scaffold 20, parked 0, redirect 1)
+`sites/` directories merged: **48** (live 26, scaffold 21, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -10,16 +10,16 @@ provenance only; absence there is a choice, not drift.
 
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
-| `site-tracker/sites.yml` | fleet-wide | 46/47 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 26/47 | — |
-| `DOMAINS_INDEX.md` | fleet-wide | 47/47 | — |
-| `social registry` | fleet-wide | 47/47 | — |
-| `data-hub/subscriptions.yaml` | opt-in | 7/47 | n/a |
-| `product-feed/subscriptions.yaml` | opt-in | 2/47 | n/a |
+| `site-tracker/sites.yml` | fleet-wide | 47/48 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 26/48 | — |
+| `DOMAINS_INDEX.md` | fleet-wide | 48/48 | — |
+| `social registry` | fleet-wide | 47/48 | — |
+| `data-hub/subscriptions.yaml` | opt-in | 7/48 | n/a |
+| `product-feed/subscriptions.yaml` | opt-in | 2/48 | n/a |
 
 ## Gaps on live sites
 
-- No `ops/smoke.yaml` (invisible to fleet-smoke): —
+- No `ops/smoke.yaml` (invisible to fleet-gatus): —
 - No Slack channel env: —
 - No worker name in wrangler config: 0xroulette.com, trainingsharks.com
 

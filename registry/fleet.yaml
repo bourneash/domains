@@ -349,9 +349,9 @@ sites:
     - domains-index
     - site-tracker
     - social
-    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
+    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -489,6 +489,17 @@ sites:
     registered_in:
     - domains-index
     - social
+  offshorehookup.com:
+    status: scaffold
+    repo: bourneash/offshorehookup.com
+    worker: offshorehookup-com
+    cf_zone: offshorehookup.com
+    capabilities:
+    - site
+    - ops
+    registered_in:
+    - domains-index
+    - site-tracker
   oventoheaven.com:
     status: live
     repo: bourneash/oventoheaven.com

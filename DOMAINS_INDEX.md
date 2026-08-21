@@ -20,6 +20,7 @@
 | amputeenews.com 		|   ✅   | Amputee News — source-backed practical news/guide desk for amputees and limb-different people; live on CF Workers Builds, ops/cron autonomy active, Amazon Associates pending real tag 	|
 | newmomshop.com 	|   🟢   | Dana-led pregnancy, postpartum, and newborn gear-guide affiliate site; static v1 built, Workers Builds connection pending |
 | weirdassstuff.com 	|   🟢   | "You didn't know you needed this" — DudeIWantThat-style weird/novelty product-stream feed, 39-item launch catalog across 9 categories, autonomous scout/publish pipeline; Workers Builds connection pending |
+| offshorehookup.com 	|   🟢   | Offshore/inshore saltwater fishing gear affiliate — RedBull-energy, guide/rig/technique-focused, edgy maximalist voice; scaffolded + live, build in progress |
 
 
 
