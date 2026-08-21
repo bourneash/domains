@@ -63,6 +63,15 @@ These are mistakes the fleet has already paid for. Bake them in from the start:
 - **`@astrojs/cloudflare` 13.6+ writes the deploy config to `dist/client/wrangler.json`** (not
   `dist/server/`). The build/deploy command must be `wrangler deploy --config dist/client/wrangler.json`.
   After `npm run build`, verify that file exists.
+- **`site/wrangler.jsonc` needs `"assets": { "not_found_handling": "404-page" }` explicitly**, on
+  every site shipping a `src/pages/404.astro`. The adapter does not infer this from the page's
+  existence — without it CF serves an empty-body 404 (right status, blank page) and it's easy to
+  ship a build that "has a 404 page" that nothing ever actually renders. See `deploy-domain-project`
+  for the verify command (curl the body, not just the status code).
+- **`session: false` goes at the top level of `astro.config.mjs`**, a sibling of `adapter:`, not
+  inside `cloudflare({...})` — putting it in the adapter options silently does nothing, and v14
+  defaults to wanting an unprovisioned SESSION KV binding that build-greens and deploy-fails. See
+  `deploy-domain-project` for the full gotcha.
 - **Never invent brand positioning, pillars, or voice from the domain name alone.** No brief = a
   brand-neutral Coming Soon page that claims nothing. The brief is Jesse's call — see Phase 0.
 - **`contact@<domain>` is the default outward-facing email.** Do not use or wire `hello@`.
@@ -154,6 +163,29 @@ Sites should look great and be image-rich. Two sources:
   create one if this site will generate images regularly.
 - **Stock** — Pexels/stock; API keys live in the root `/home/jesse/projects/domains/.env`. Always
   capture `imageCredit` (source, photographer, license, url) in article frontmatter.
+
+**No duplicate images across pages — every page gets a genuinely unique hero, full stop.** Reusing
+a section-index or sibling-page's image to save a generation pass is a real defect, not a
+placeholder shortcut, and it reads as cheap/AI-slop the moment two pages sit side by side in a
+site nav. This bit offshorehookup.com's first build pass (2026-08-21): species/gear detail pages
+reused guide/index hero art and Jesse called it out immediately. If a full unique-art pass genuinely
+isn't feasible in one build session, ship the highest-priority pages first (home, section indexes)
+and **say explicitly in the completion report which pages are still on reused/placeholder art** —
+don't let it pass silently as "images: done." Before declaring the image pass complete, grep the
+built site's frontmatter/HTML for image paths and confirm no path appears on more than one page.
+
+**Product catalogs (heavy-affiliate sites) need filters, search, and a "kit"/bundle concept from
+the start if the brief signals the catalog will grow** — don't ship a static unfiltered product
+list if the site's whole premise is a deep gear catalog (offshorehookup.com's `/gear/` needed this
+retrofitted after launch; build it in on the first pass for any site where the brief says gear/
+product count will scale). Minimum viable pattern: extend the product content collection with
+category, tag (species/technique/use-case), and price-tier fields; add a client-side filter + text
+search on the index page (plain vanilla JS against a JSON payload, no backend, no framework — match
+whatever vanilla-JS pattern the site's cookie-consent banner already uses); support a `kits`
+collection (or a `components: [product-id, ...]` field on the same collection) so a bundle page can
+render its member products with links to each one's own page. Every product card — grid, detail
+page, or kit component list — needs a prominent one-click buy button through the site's existing
+`/go/<id>` affiliate cloak, never a second/parallel tracking mechanism.
 
 ### Phase 5 — Compliance + analytics (delegate)
 
