@@ -494,6 +494,7 @@ sites:
     repo: bourneash/offshorehookup.com
     worker: offshorehookup-com
     cf_zone: offshorehookup.com
+    slack_channel_env: SLACK_CHANNEL_OFFSHOREHOOKUP
     capabilities:
     - site
     - ops
