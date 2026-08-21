@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-15T13:35:46.457Z",
+  "updatedAt": "2026-08-21T16:35:21.182Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1607,6 +1607,42 @@
       "credsInVault": true,
       "createdAt": "2026-08-15T13:33:26.968Z",
       "updatedAt": "2026-08-15T13:33:26.968Z"
+    },
+    {
+      "id": "acc_bff9c6a24437",
+      "site": "offshorehookup.com",
+      "platform": "bluesky",
+      "scope": "brand",
+      "personaId": null,
+      "status": "stuck",
+      "statusNote": "signup form completed + no captcha, but Bluesky's interests-picker onboarding wizard never resolved a stable custom handle (tag-click element instability); bsky_finish_onboarding.py recovery also failed with 'still no handle'. No creds in vault. Needs a script fix or manual finish, not a captcha hand-off.",
+      "handle": "",
+      "profileUrl": "",
+      "notes": "",
+      "tags": [],
+      "credsInVault": false,
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-21T16:34:13.862Z",
+      "updatedAt": "2026-08-21T16:34:13.862Z"
+    },
+    {
+      "id": "acc_ba3492812489",
+      "site": "offshorehookup.com",
+      "platform": "pinterest",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "244qn3666q28yor6ggonxbdqvy0uo6",
+      "profileUrl": "https://www.pinterest.com/244qn3666q28yor6ggonxbdqvy0uo6/",
+      "statusNote": "Signed up as business 'OffshoreHookup', no captcha needed. Pinterest auto-assigned a random gibberish username instead of a branded one (settings-page username field wasn't editable/found in the automated flow) — worth a manual rename to something branded via the Pinterest UI later.",
+      "credsInVault": true,
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-21T16:35:21.181Z",
+      "updatedAt": "2026-08-21T16:35:21.181Z"
     }
   ]
 }
