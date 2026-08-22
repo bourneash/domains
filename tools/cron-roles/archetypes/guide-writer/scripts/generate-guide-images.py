@@ -107,6 +107,34 @@ def _crop_to_aspect(im: Image.Image, target_w: int, target_h: int) -> Image.Imag
     return im.resize((target_w, target_h), Image.LANCZOS)
 
 
+def _save_validated(im: Image.Image, path: Path, image_format: str, *,
+                    quality: int, expected_size: tuple[int, int],
+                    min_bytes: int, min_entropy: float = 3.5) -> None:
+    """Encode to a temporary file and publish only a non-blank valid image."""
+    temp_path = path.with_name(f".{path.name}.tmp")
+    try:
+        im.save(temp_path, image_format, quality=quality)
+        byte_count = temp_path.stat().st_size
+        with Image.open(temp_path) as check:
+            check.load()
+            actual_format = check.format
+            actual_size = check.size
+            entropy = check.convert("RGB").entropy()
+        if actual_format != image_format or actual_size != expected_size:
+            raise RuntimeError(
+                f"invalid generated image {path.name}: format={actual_format} "
+                f"size={actual_size}, expected {image_format} {expected_size}"
+            )
+        if byte_count < min_bytes or entropy < min_entropy:
+            raise RuntimeError(
+                f"blank generated image {path.name}: {byte_count} bytes "
+                f"(floor {min_bytes}), entropy {entropy:.2f} (floor {min_entropy})"
+            )
+        temp_path.replace(path)
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("repo_root")
@@ -151,11 +179,13 @@ def main() -> int:
     card_path = assets_dir / "card.webp"
 
     hero_im = _crop_to_aspect(Image.open(io.BytesIO(raw_hero)).convert("RGB"), 1600, 900)
-    hero_im.save(hero_path, "JPEG", quality=88)
+    _save_validated(hero_im, hero_path, "JPEG", quality=88,
+                    expected_size=(1600, 900), min_bytes=8000)
     print(f"[generate-guide-images] hero: backend={hero_backend} -> {hero_path} (1600x900 jpg)")
 
     card_im = _crop_to_aspect(Image.open(io.BytesIO(raw_card)).convert("RGB"), 1200, 675)
-    card_im.save(card_path, "WEBP", quality=88)
+    _save_validated(card_im, card_path, "WEBP", quality=88,
+                    expected_size=(1200, 675), min_bytes=4000)
     print(f"[generate-guide-images] card: backend={card_backend} -> {card_path} (1200x675 webp)")
 
     meta["hero_image"] = str(hero_path.relative_to(repo_root))

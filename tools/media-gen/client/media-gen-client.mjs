@@ -13,18 +13,43 @@ export class MediaGenError extends Error {}
 
 export class MediaGenClient {
   constructor({ baseUrl, timeoutMs = 300_000 } = {}) {
-    // host.docker.internal from inside a site's cron container (same
-    // extra_hosts pattern already used for host-Ollama wiring); localhost
-    // when run directly on the host (e.g. a local `npm run build`).
-    this.baseUrl = (baseUrl || process.env.MEDIA_GEN_API || 'http://host.docker.internal:4780').replace(/\/$/, '');
+    // Workers reach the host through host.docker.internal, while direct host
+    // runs use loopback. Linux does not define host.docker.internal on the
+    // host itself, so try both defaults and remember whichever one succeeds.
+    // An explicit constructor/env URL remains authoritative and is not retried
+    // against a different endpoint.
+    const configuredUrl = baseUrl || process.env.MEDIA_GEN_API;
+    this.baseUrls = (configuredUrl
+      ? [configuredUrl]
+      : ['http://host.docker.internal:4780', 'http://127.0.0.1:4780']
+    ).map(url => url.replace(/\/$/, ''));
+    this.baseUrl = this.baseUrls[0];
     this.timeoutMs = timeoutMs;
+  }
+
+  async _fetch(path, options) {
+    const candidates = [this.baseUrl, ...this.baseUrls.filter(url => url !== this.baseUrl)];
+    let lastError;
+    for (const candidate of candidates) {
+      try {
+        const res = await fetch(`${candidate}${path}`, options);
+        this.baseUrl = candidate;
+        return res;
+      } catch (err) {
+        if (err.name === 'AbortError') throw err;
+        lastError = err;
+      }
+    }
+    throw new MediaGenError(
+      `media-gen unreachable at ${candidates.join(' or ')}: ${lastError?.message || 'fetch failed'}`,
+    );
   }
 
   async _post(path, body) {
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
+      const res = await this._fetch(path, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(body),
@@ -56,13 +81,13 @@ export class MediaGenClient {
 
   /** Fetch the generated image's raw bytes as a Buffer. */
   async fetchImage(id) {
-    const res = await fetch(`${this.baseUrl}/image/${id}`);
+    const res = await this._fetch(`/image/${id}`);
     if (!res.ok) throw new MediaGenError(`${res.status} fetching image ${id}`);
     return Buffer.from(await res.arrayBuffer());
   }
 
   async health() {
-    const res = await fetch(`${this.baseUrl}/health`);
+    const res = await this._fetch('/health');
     return res.json();
   }
 }

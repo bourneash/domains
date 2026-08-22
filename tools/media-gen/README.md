@@ -129,8 +129,10 @@ under `network_mode: host`), nothing host-session-specific.
 **Site cron containers reach it via `host.docker.internal`** — the same
 `extra_hosts: host.docker.internal:host-gateway` pattern already used for
 host-Ollama wiring (see broadwayshowgirls.com's docker-compose.yml). Both
-clients default their base URL to `http://host.docker.internal:4780`;
-override with `MEDIA_GEN_API` when running/testing from the host directly.
+clients try `http://host.docker.internal:4780` first, then
+`http://127.0.0.1:4780` for direct Linux-host runs, and remember the healthy
+endpoint. Set `MEDIA_GEN_API` (or pass `baseUrl`/`base_url`) to use one
+authoritative endpoint without fallback.
 
 ## Storage
 
