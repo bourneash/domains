@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# fleet-image-build [cron|worker|all] [--version X] [--no-cache] [--roll] [--sites a,b]
+#
+# Build, tag and (optionally) roll the fleet's SHARED site images.
+#
+# There are exactly two of them:
+#   fleet-site-cron:latest    the supercronic scheduler, one per site container
+#   fleet-site-worker:latest  the one-shot role runner, `run --rm` per invocation
+#
+# They replace 53 per-site Dockerfiles. The whole point is that a change lands
+# in ONE place and rolls deliberately, so this script is the only sanctioned way
+# to move those tags.
+#
+# TAGGING MODEL — read before changing it.
+# Every site's compose references the plain `:latest` tag, NOT a pinned version.
+# That looks wrong for reproducibility and is deliberate: pinning versions in 27
+# compose files means a roll is 27 edits, which is how the fleet ended up with
+# 53 divergent files in the first place. Instead:
+#   - the build stamps an immutable org.domains.fleet.version LABEL,
+#   - a version-tagged image (fleet-site-cron:<version>) is kept as a rollback,
+#   - fleet-doctor asserts every RUNNING container's image ID equals the current
+#     :latest image ID, so drift is loud rather than silent.
+# That gives one-place rolls with drift detection, which is the cattle property
+# we actually want — not the illusion of pinning.
+#
+# A running container does NOT pick up a new image. That is not a bug: a
+# scheduler mid-job should not vanish under it. `--roll` recreates them.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMAGES_DIR="$(cd "${HERE}/.." && pwd)"
+DOMAINS_ROOT="${FLEET_DOMAINS_ROOT:-$(cd "${IMAGES_DIR}/../.." && pwd)}"
+VERSION_FILE="${IMAGES_DIR}/VERSION"
+
+TARGET="${1:-all}"
+[[ "$TARGET" == -* ]] && TARGET="all" || shift || true
+
+VERSION=""
+NO_CACHE=0
+ROLL=0
+ONLY_SITES=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --version)  shift; VERSION="${1:-}" ;;
+    --no-cache) NO_CACHE=1 ;;
+    --roll)     ROLL=1 ;;
+    --sites)    shift; ONLY_SITES="${1:-}" ;;
+    -h|--help)  sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "unknown flag: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+case "$TARGET" in
+  cron|worker|all) ;;
+  *) echo "usage: fleet-image-build [cron|worker|all] [--version X] [--no-cache] [--roll] [--sites a,b]" >&2; exit 1 ;;
+esac
+
+if [[ -z "$VERSION" ]]; then
+  VERSION="$(tr -d '[:space:]' < "$VERSION_FILE" 2>/dev/null || true)"
+  [[ -n "$VERSION" ]] || VERSION="0.0.0"
+fi
+
+say()  { printf '\033[1m[fleet-image-build]\033[0m %s\n' "$*"; }
+warn() { printf '\033[33m[fleet-image-build]\033[0m %s\n' "$*" >&2; }
+die()  { printf '\033[31m[fleet-image-build]\033[0m %s\n' "$*" >&2; exit 1; }
+
+build_one() {
+  local kind="$1"
+  local ctx="${IMAGES_DIR}/${kind}"
+  local image="fleet-site-${kind}"
+  [[ -f "${ctx}/Dockerfile" ]] || die "no Dockerfile at ${ctx}"
+
+  local args=(build --build-arg "FLEET_IMAGE_VERSION=${VERSION}"
+              -t "${image}:${VERSION}" -t "${image}:latest"
+              -f "${ctx}/Dockerfile" "${ctx}")
+  (( NO_CACHE )) && args=(build --no-cache "${args[@]:1}")
+
+  say "building ${image}:${VERSION} (and :latest)"
+  docker "${args[@]}" || die "${image} build FAILED — existing :latest left untouched"
+
+  local id ver
+  id="$(docker image inspect --format '{{.Id}}' "${image}:latest")"
+  ver="$(docker image inspect --format '{{index .Config.Labels "org.domains.fleet.version"}}' "${image}:latest")"
+  [[ "$ver" == "$VERSION" ]] || die "${image}:latest label is '${ver}', expected '${VERSION}' — build did not stamp correctly"
+  say "✓ ${image}:latest = ${id:7:12} (version ${ver})"
+}
+
+# ── which sites are on the shared images ────────────────────────────────────
+# Source of truth is the compose file itself: a site is migrated when its cron
+# service references the shared image. No separate list to drift out of sync.
+migrated_sites() {
+  local d name
+  for d in "${DOMAINS_ROOT}"/sites/*/; do
+    name="$(basename "$d")"
+    [[ -f "${d}docker-compose.yml" ]] || continue
+    grep -qE 'image:\s*fleet-site-(cron|worker):' "${d}docker-compose.yml" 2>/dev/null || continue
+    if [[ -n "$ONLY_SITES" ]]; then
+      [[ ",$ONLY_SITES," == *",$name,"* ]] || continue
+    fi
+    printf '%s\n' "$name"
+  done
+}
+
+roll_sites() {
+  local rolled=0 failed=0
+  local want_cron
+  want_cron="$(docker image inspect --format '{{.Id}}' fleet-site-cron:latest 2>/dev/null || true)"
+
+  while read -r site; do
+    [[ -n "$site" ]] || continue
+    local dir="${DOMAINS_ROOT}/sites/${site}"
+    local cname="${site%%.*}-cron"
+    local have
+    have="$(docker inspect --format '{{.Image}}' "$cname" 2>/dev/null || true)"
+
+    if [[ -n "$have" && "$have" == "$want_cron" ]]; then
+      say "  ${site}: already on the current image — skipping"
+      continue
+    fi
+
+    say "  ${site}: recreating ${cname} on the current image"
+    # `up -d --force-recreate` (not restart): restart reuses the container's
+    # creation-time image, which is exactly the stale-image drift this whole
+    # migration exists to eliminate.
+    if ( cd "$dir" && docker compose up -d --force-recreate cron >/dev/null 2>&1 ); then
+      rolled=$((rolled+1))
+    else
+      warn "  ${site}: recreate FAILED — see: (cd ${dir} && docker compose up -d --force-recreate cron)"
+      failed=$((failed+1))
+    fi
+  done < <(migrated_sites)
+
+  say "rolled ${rolled} site(s), ${failed} failure(s)"
+  (( failed == 0 ))
+}
+
+[[ "$TARGET" == "cron"   || "$TARGET" == "all" ]] && build_one cron
+[[ "$TARGET" == "worker" || "$TARGET" == "all" ]] && build_one worker
+
+if (( ROLL )); then
+  say "rolling site cron containers onto the current image..."
+  n="$(migrated_sites | wc -l)"
+  if [[ "$n" -eq 0 ]]; then
+    warn "no sites reference the shared images yet — nothing to roll"
+  else
+    roll_sites || die "some sites failed to roll (see above); fix them before treating this roll as done"
+  fi
+fi
+
+say "done. Verify with: ${IMAGES_DIR}/bin/fleet-doctor"

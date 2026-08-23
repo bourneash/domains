@@ -28,6 +28,13 @@ if [ -f "$TOOLS_ROOT/fleet-registry/precommit_check.sh" ]; then
   sh "$TOOLS_ROOT/fleet-registry/precommit_check.sh" || exit 1
 fi
 
+# --- 1c. Fleet shared-image guard (blocks NEW per-site cron/worker Dockerfiles) ---
+# Fires only on added files, so editing an as-yet-unmigrated site's Dockerfile
+# still works. See that script's header for the override.
+if [ -f "$TOOLS_ROOT/fleet-images/precommit_check.sh" ]; then
+  sh "$TOOLS_ROOT/fleet-images/precommit_check.sh" || exit 1
+fi
+
 # --- 2. Run the test suite of any tools/<name>/ that has staged changes ---
 # Opt-in per tool: only fires when tools/<name>/package.json declares a "test"
 # script AND deps are already installed (node_modules present) — so a tool

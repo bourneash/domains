@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+# fleet-site-migrate <site> [--cron|--worker|--both] [--dry-run] [--revert]
+#
+# Move ONE site off its bespoke images and onto the shared fleet images.
+#
+# Edits that site's docker-compose.yml in place:
+#   cron service    build: {context,dockerfile}  ->  image: fleet-site-cron:latest
+#                   + bind-mount ops/docker/crontab.docker at /etc/crontab.docker
+#                   + SITE_NAME / FLEET_WORKER_IMAGE env
+#   worker service  build: {context,dockerfile}  ->  image: fleet-site-worker:latest
+#
+# and deletes the now-dead ops/docker/Dockerfile.{cron,worker}.
+#
+# WHY A SCRIPT AND NOT 27 HAND EDITS: the hand-edit path is exactly how the
+# fleet got 53 divergent files. It is also why this is per-site and explicit
+# rather than a "migrate everything" button — Jesse's standing rule is that
+# fleet rollouts stay deliberate, reviewed and canaried, so the wave structure
+# lives in the operator's head and the command, not in a loop inside a tool.
+#
+# A .bak of the compose file is kept so --revert is always available for the
+# canary. It is written OUTSIDE the site repo (under $FLEET_MIGRATE_BAKDIR,
+# default /tmp/fleet-site-migrate) on purpose: every site is a git submodule
+# and the fleet's deploy roles run `git add -A`, so a stray .bak next to the
+# compose file would be committed and pushed. Every site is a submodule, so
+# `git -C sites/<site> diff` is the real review surface — read it before
+# committing.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMAGES_DIR="$(cd "${HERE}/.." && pwd)"
+DOMAINS_ROOT="${FLEET_DOMAINS_ROOT:-$(cd "${IMAGES_DIR}/../.." && pwd)}"
+
+SITE="${1:-}"
+[[ -n "$SITE" && "$SITE" != -* ]] || { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+shift
+
+DO_CRON=1; DO_WORKER=1; DRY=0; REVERT=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --cron)    DO_CRON=1; DO_WORKER=0 ;;
+    --worker)  DO_CRON=0; DO_WORKER=1 ;;
+    --both)    DO_CRON=1; DO_WORKER=1 ;;
+    --dry-run) DRY=1 ;;
+    --revert)  REVERT=1 ;;
+    *) echo "unknown flag: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+DIR="${DOMAINS_ROOT}/sites/${SITE}"
+COMPOSE="${DIR}/docker-compose.yml"
+[[ -f "$COMPOSE" ]] || { echo "no docker-compose.yml for ${SITE}" >&2; exit 1; }
+
+BAKDIR="${FLEET_MIGRATE_BAKDIR:-/tmp/fleet-site-migrate}"
+BAK="${BAKDIR}/${SITE}.docker-compose.yml.bak"
+mkdir -p "$BAKDIR"
+
+if (( REVERT )); then
+  [[ -f "$BAK" ]] || { echo "no backup at ${BAK} to revert from" >&2; exit 1; }
+  cp -f "$BAK" "$COMPOSE"
+  echo "[migrate] reverted ${SITE} compose from ${BAK}"
+  echo "[migrate] deleted Dockerfiles come back with: git -C ${DIR} checkout -- ops/docker"
+  exit 0
+fi
+
+export FM_SITE="$SITE" FM_COMPOSE="$COMPOSE" FM_DIR="$DIR" FM_BAK="$BAK" \
+       FM_DO_CRON="$DO_CRON" FM_DO_WORKER="$DO_WORKER" FM_DRY="$DRY"
+
+python3 <<'PYEOF'
+import os, re, shutil, sys
+
+site      = os.environ['FM_SITE']
+compose   = os.environ['FM_COMPOSE']
+site_dir  = os.environ['FM_DIR']
+do_cron   = os.environ['FM_DO_CRON'] == '1'
+do_worker = os.environ['FM_DO_WORKER'] == '1'
+dry       = os.environ['FM_DRY'] == '1'
+slug      = site.split('.')[0]
+
+src = open(compose).read()
+out = src
+changes = []
+
+def service_span(text, name):
+    """Byte span of one top-level service block under `services:`.
+
+    Hand-rolled rather than yaml.load+dump on purpose: these compose files
+    carry a lot of load-bearing commentary (why a mount is :ro, which incident
+    a flag came from) and a YAML round-trip would silently delete all of it.
+    Preserving those comments is worth a careful regex.
+    """
+    m = re.search(rf'^  {re.escape(name)}:[ \t]*$', text, re.M)
+    if not m:
+        return None
+    start = m.start()
+    nxt = re.search(r'^  [A-Za-z0-9_-]+:[ \t]*$|^[A-Za-z0-9_-]+:', text[m.end():], re.M)
+    end = m.end() + nxt.start() if nxt else len(text)
+    return start, end
+
+def swap_build_for_image(block, image, svc):
+    """Replace a `build:` mapping with `image: <shared>`, keeping any existing
+    `image:` line's position so the diff stays small and readable."""
+    # Drop the build: block (its indented children included).
+    nb = re.sub(r'\n[ \t]{4}build:[ \t]*\n(?:[ \t]{6,}.*\n)*', '\n', block)
+    if nb == block and 'build:' in block:
+        return block, False
+    # Replace an existing image: line, or insert one right after the service key.
+    if re.search(r'\n[ \t]{4}image:[ \t]*\S+', nb):
+        nb = re.sub(r'\n[ \t]{4}image:[ \t]*\S+', f'\n    image: {image}', nb, count=1)
+    else:
+        nb = re.sub(rf'(^  {re.escape(svc)}:[ \t]*\n)', rf'\1    image: {image}\n', nb, count=1, flags=re.M)
+    return nb, True
+
+def ensure_line_in_block(block, anchor_re, line, dedupe_re):
+    """Insert `line` under the mapping matched by `anchor_re` if absent."""
+    if re.search(dedupe_re, block):
+        return block, False
+    m = re.search(anchor_re, block, re.M)
+    if not m:
+        return block, False
+    return block[:m.end()] + line + block[m.end():], True
+
+# ── cron service ────────────────────────────────────────────────────────────
+if do_cron:
+    span = service_span(out, 'cron')
+    if not span:
+        print(f"[migrate] {site}: no cron service — skipping cron", file=sys.stderr)
+    else:
+        s, e = span
+        blk = out[s:e]
+        blk, did = swap_build_for_image(blk, 'fleet-site-cron:latest', 'cron')
+        if did:
+            changes.append('cron: build -> fleet-site-cron:latest')
+
+        # The load-bearing part of the whole migration: unbake the crontab.
+        blk, did = ensure_line_in_block(
+            blk, r'^[ \t]{4}volumes:[ \t]*$',
+            '\n      # Crontab is BIND-MOUNTED, never baked into the image: editing\n'
+            '      # ops/docker/crontab.docker and restarting this container is the whole\n'
+            '      # reschedule procedure. Baking it is what let schedules silently\n'
+            '      # diverge from the repo for days at a time.\n'
+            '      - ./ops/docker/crontab.docker:/etc/crontab.docker:ro',
+            r'crontab\.docker:/etc/crontab\.docker')
+        if did:
+            changes.append('cron: crontab bind-mounted')
+
+        # SITE_NAME lets the shared entrypoint identify itself in logs;
+        # FLEET_WORKER_IMAGE tells it which worker image to pre-resolve, so the
+        # cron migration does not depend on the worker migration having happened.
+        worker_img = 'fleet-site-worker:latest' if 'fleet-site-worker' in out or do_worker else f'{slug}-worker:latest'
+        blk, did = ensure_line_in_block(
+            blk, r'^[ \t]{4}environment:[ \t]*$',
+            f'\n      SITE_NAME: {site}\n      FLEET_WORKER_IMAGE: {worker_img}',
+            r'SITE_NAME:')
+        if did:
+            changes.append(f'cron: SITE_NAME + FLEET_WORKER_IMAGE={worker_img}')
+        out = out[:s] + blk + out[e:]
+
+# ── worker service ──────────────────────────────────────────────────────────
+if do_worker:
+    span = service_span(out, 'worker')
+    if not span:
+        print(f"[migrate] {site}: no worker service — skipping worker", file=sys.stderr)
+    else:
+        s, e = span
+        blk = out[s:e]
+        blk, did = swap_build_for_image(blk, 'fleet-site-worker:latest', 'worker')
+        if did:
+            changes.append('worker: build -> fleet-site-worker:latest')
+        out = out[:s] + blk + out[e:]
+        # A site that mounts its repo somewhere other than /work needs the
+        # dispatcher pointed at it (broadwayshowgirls uses /repo).
+        if re.search(r'^\s+-\s+\.:/repo\b', blk, re.M):
+            blk2, did2 = ensure_line_in_block(
+                blk, r'^[ \t]{4}environment:[ \t]*$',
+                '\n      FLEET_WORKER_ROOT: /repo', r'FLEET_WORKER_ROOT:')
+            if did2:
+                out = out[:s] + blk2 + out[e:]
+                changes.append('worker: FLEET_WORKER_ROOT=/repo')
+
+if not changes:
+    print(f"[migrate] {site}: already migrated / nothing to change")
+    sys.exit(0)
+
+if dry:
+    print(f"[migrate] {site} (DRY RUN) would apply:")
+    for c in changes:
+        print(f"           - {c}")
+    import difflib
+    for line in list(difflib.unified_diff(src.splitlines(), out.splitlines(),
+                                          'before', 'after', lineterm=''))[:80]:
+        print('    ' + line)
+    sys.exit(0)
+
+shutil.copy2(compose, os.environ['FM_BAK'])
+open(compose, 'w').write(out)
+print(f"[migrate] {site}: compose updated ({len(changes)} change(s)); backup at {os.environ['FM_BAK']}")
+for c in changes:
+    print(f"           - {c}")
+
+for kind, flag in (('cron', do_cron), ('worker', do_worker)):
+    df = os.path.join(site_dir, 'ops', 'docker', f'Dockerfile.{kind}')
+    if flag and os.path.exists(df):
+        os.remove(df)
+        print(f"           - removed ops/docker/Dockerfile.{kind}")
+PYEOF
+
+rc=$?
+(( DRY )) && exit $rc
+[[ $rc -eq 0 ]] || exit $rc
+
+echo "[migrate] validating compose syntax..."
+( cd "$DIR" && docker compose config >/dev/null ) \
+  && echo "[migrate] ✓ ${SITE} compose is valid" \
+  || { echo "[migrate] ✗ ${SITE} compose is INVALID — reverting"; cp -f "$BAK" "$COMPOSE"; exit 1; }

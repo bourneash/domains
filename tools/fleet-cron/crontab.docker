@@ -79,3 +79,24 @@
 # bearing: a stopped container pins the image it was created from forever.
 # Supports --dry-run.
 */30 * * * * /home/jesse/projects/domains/tools/scripts/reap-idle-dd-workers.sh
+
+# --- Job 10: fleet Docker garbage collection ---
+# Nothing ever collected Docker build exhaust. Measured 2026-08-23 before the
+# first run: 587 images / 241 GB (139 GB reclaimable), 159 dangling images, and
+# a 158 GB build cache — on a root filesystem at 71%. First run reclaimed
+# 73.3 GB and took the disk to 67%.
+#
+# Two entries on purpose:
+#   nightly  — dangling images + build cache not used in 168h. Cheap, keeps a
+#              warm cache so the next image bump is fast.
+#   weekly   — --cache-all, which drops the until= filter. Needed because
+#              until= matches on LAST USED and much of this host's cache has
+#              none, so the nightly pass alone silently reclaims nothing (the
+#              script cross-checks and warns when that happens — see its
+#              header). The weekly pass is what actually reclaims; the cost is
+#              one cold build afterwards.
+#
+# NEVER touches volumes. See the script header and REDESIGN.md's 2026-05-30
+# incident for why volume deletion only goes through a verified-delete path.
+40 3 * * * /home/jesse/projects/domains/tools/scripts/gc-docker.sh
+10 3 * * 0 /home/jesse/projects/domains/tools/scripts/gc-docker.sh --cache-all

@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# fleet-doctor [site] [--quiet] [--json]
+#
+# The executable spec for the fleet's container/image invariants — the
+# whole-fleet analogue of tools/domain-developer/bin/dd-doctor.
+#
+# It exists because consolidation without a gate decays. The fleet reached 53
+# hand-maintained image definitions in 23 substantive variants precisely
+# because nothing ever asserted "these should be the same". Shipping one shared
+# image without shipping this would just restart that clock.
+#
+# CHECKS, per cron-capable site:
+#   1. compose references the shared cron image (not a per-site build:)
+#   2. no per-site ops/docker/Dockerfile.cron survives
+#   3. crontab is BIND-MOUNTED, not baked   <- the drift that bit weapontester
+#   4. the cron container is running
+#   5. it runs the CURRENT fleet-site-cron:latest image ID
+#   6. it runs as uid 1000, never root
+#   7. compose references the shared worker image (not a per-site build:)
+#   8. no per-site ops/docker/Dockerfile.worker survives
+#
+# Checks 7 and 8 report as PENDING (not failed) for a site that has not been
+# migrated to the shared worker yet, so this can gate the cron rollout before
+# the worker rollout exists. A site with no worker service at all is exempt.
+#
+# Exit 0 only when every checked site passes every applicable check.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMAGES_DIR="$(cd "${HERE}/.." && pwd)"
+DOMAINS_ROOT="${FLEET_DOMAINS_ROOT:-$(cd "${IMAGES_DIR}/../.." && pwd)}"
+SITES_DIR="${DOMAINS_ROOT}/sites"
+
+CRON_IMAGE="${FLEET_CRON_IMAGE:-fleet-site-cron:latest}"
+WORKER_IMAGE="${FLEET_WORKER_IMAGE:-fleet-site-worker:latest}"
+
+QUIET=0
+ONLY=""
+for a in "$@"; do
+  case "$a" in
+    --quiet) QUIET=1 ;;
+    -h|--help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --*) echo "unknown flag: $a" >&2; exit 1 ;;
+    *) ONLY="$a" ;;
+  esac
+done
+
+pass=0; fail=0; pending=0
+cur_site=""
+_hdr() { (( QUIET )) && return 0; [[ -n "$cur_site" ]] && printf '\n\033[1m%s\033[0m\n' "$cur_site"; cur_site=""; }
+ok()   { pass=$((pass+1)); (( QUIET )) && return 0; _hdr; printf '  \033[32m✓\033[0m %s\n' "$1"; }
+bad()  { fail=$((fail+1)); _hdr; printf '  \033[31m✗\033[0m %s\n' "$1"; }
+pend() { pending=$((pending+1)); (( QUIET )) && return 0; _hdr; printf '  \033[33m…\033[0m %s\n' "$1"; }
+note() { (( QUIET )) && return 0; printf '    \033[2m%s\033[0m\n' "$1"; }
+
+want_cron_id="$(docker image inspect --format '{{.Id}}' "$CRON_IMAGE" 2>/dev/null || true)"
+want_worker_id="$(docker image inspect --format '{{.Id}}' "$WORKER_IMAGE" 2>/dev/null || true)"
+
+# Cron-capable sites: a site with a compose file that defines a cron service.
+# Derived from the filesystem, not a list, so it can't drift.
+list_sites() {
+  local d name
+  for d in "${SITES_DIR}"/*/; do
+    name="$(basename "$d")"
+    [[ -f "${d}docker-compose.yml" ]] || continue
+    grep -qE '^\s{2}cron:' "${d}docker-compose.yml" 2>/dev/null || continue
+    [[ -n "$ONLY" && "$name" != "$ONLY" ]] && continue
+    printf '%s\n' "$name"
+  done
+}
+
+check_site() {
+  local site="$1"
+  local dir="${SITES_DIR}/${site}"
+  local compose="${dir}/docker-compose.yml"
+  local cname="${site%%.*}-cron"
+  cur_site="$site"
+
+  # ── 1. compose uses the shared cron image
+  if grep -qE 'image:\s*fleet-site-cron:' "$compose" 2>/dev/null; then
+    ok "compose references the shared cron image"
+  else
+    bad "compose does NOT reference fleet-site-cron — still a per-site image"
+    note "migrate with: tools/fleet-images/bin/fleet-site-migrate ${site}"
+    return
+  fi
+
+  # ── 2. no per-site cron Dockerfile left behind
+  if [[ -f "${dir}/ops/docker/Dockerfile.cron" ]]; then
+    bad "ops/docker/Dockerfile.cron still exists — it will drift again"
+  else
+    ok "no per-site Dockerfile.cron"
+  fi
+
+  # ── 3. crontab bind-mounted, not baked
+  if grep -qE 'crontab\.docker:/etc/crontab\.docker' "$compose" 2>/dev/null; then
+    ok "crontab is bind-mounted (reschedule needs no rebuild)"
+  else
+    bad "crontab is NOT bind-mounted — schedules will silently diverge from the repo"
+    note "this is the exact drift that left weapontester.com running a stale job for 4 days"
+  fi
+
+  # ── 4/5/6. the running container
+  local status have_id uid
+  status="$(docker inspect --format '{{.State.Status}}' "$cname" 2>/dev/null || echo absent)"
+  if [[ "$status" == "running" ]]; then
+    ok "container ${cname} is running"
+
+    have_id="$(docker inspect --format '{{.Image}}' "$cname" 2>/dev/null || true)"
+    if [[ -z "$want_cron_id" ]]; then
+      pend "cannot compare image: ${CRON_IMAGE} not present locally"
+    elif [[ "$have_id" == "$want_cron_id" ]]; then
+      ok "running the current ${CRON_IMAGE}"
+    else
+      bad "running an OLDER image than ${CRON_IMAGE}"
+      note "roll it: tools/fleet-images/bin/fleet-image-build cron --roll --sites ${site}"
+    fi
+
+    uid="$(docker exec "$cname" id -u 2>/dev/null | tr -d '[:space:]')"
+    if [[ "$uid" == "1000" ]]; then
+      ok "runs as uid 1000 (never root)"
+    elif [[ -z "$uid" ]]; then
+      pend "could not read uid from ${cname}"
+    else
+      bad "runs as uid ${uid}, not 1000 — root writes into the mounted repo corrupt .git/objects"
+    fi
+  else
+    bad "container ${cname} is ${status}"
+  fi
+
+  # ── 7/8. worker side
+  if ! grep -qE '^\s{2}worker:' "$compose" 2>/dev/null; then
+    ok "no worker service (scaffold) — worker checks not applicable"
+    return
+  fi
+  if grep -qE 'image:\s*fleet-site-worker:' "$compose" 2>/dev/null; then
+    ok "compose references the shared worker image"
+    if [[ -f "${dir}/ops/docker/Dockerfile.worker" ]]; then
+      bad "ops/docker/Dockerfile.worker still exists — it will drift again"
+    else
+      ok "no per-site Dockerfile.worker"
+    fi
+  else
+    pend "worker not yet migrated to ${WORKER_IMAGE} (expected until P2 completes)"
+  fi
+}
+
+main() {
+  local sites; sites="$(list_sites)"
+  if [[ -z "$sites" ]]; then
+    echo "fleet-doctor: no cron-capable sites found under ${SITES_DIR}"
+    exit 0
+  fi
+  [[ -n "$want_cron_id" ]]   || printf '\033[33m[warn]\033[0m %s not built locally — image-currency checks will be skipped\n' "$CRON_IMAGE"
+  while read -r s; do [[ -n "$s" ]] && check_site "$s"; done <<< "$sites"
+
+  printf '\n\033[1mfleet-doctor: %d passed, %d failed, %d pending\033[0m\n' "$pass" "$fail" "$pending"
+  [[ "$fail" -eq 0 ]]
+}
+
+main
