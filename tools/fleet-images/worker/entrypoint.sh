@@ -33,6 +33,32 @@ candidates=(
     "/repo/ops/scripts/run-worker.sh"
 )
 
+# ── Playwright browser readiness (only for sites that need it) ──────────────
+# With PLAYWRIGHT_BROWSERS_PATH=0 the browsers live inside node_modules, which
+# is a persistent named volume for these sites — so this downloads once per
+# site per version, not once per run. `playwright install` is a fast no-op when
+# the matching revision is already there.
+#
+# Deliberately best-effort: a browser fetch failing (offline, upstream blip)
+# must not stop a content or deployer role that has nothing to do with
+# Playwright. The role that actually needs it will fail on its own with a
+# clearer message.
+ensure_playwright_browsers() {
+    local site_dir="${ROOT}/site"
+    [[ -d "${site_dir}/node_modules/@playwright/test" ]] || return 0
+    # Already present for the resolved version? `install` exits fast, but skip
+    # even that when we can see a browser directory.
+    if compgen -G "${site_dir}/node_modules/**/chromium*-*" >/dev/null 2>&1 \
+       || compgen -G "${site_dir}/node_modules/.cache/ms-playwright/chromium*" >/dev/null 2>&1; then
+        return 0
+    fi
+    STAMP "installing Playwright chromium for $(basename "$ROOT") (cached in node_modules, one-time per version)"
+    ( cd "$site_dir" && timeout 600 npx --no-install playwright install chromium >/dev/null 2>&1 ) \
+        && STAMP "Playwright chromium ready" \
+        || STAMP "WARNING: Playwright chromium install failed — roles that use @playwright/test will report it"
+}
+ensure_playwright_browsers
+
 for target in "${candidates[@]}"; do
     [[ -n "$target" && -f "$target" ]] || continue
     STAMP "fleet-site-worker ${FLEET_IMAGE_VERSION:-unknown} · uid=$(id -u) · dispatching to ${target}"

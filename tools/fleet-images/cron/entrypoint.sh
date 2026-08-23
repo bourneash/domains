@@ -103,21 +103,22 @@ else
     fi
 
     if [[ "${need_build:-0}" == "1" ]]; then
-        # `docker compose build` writes to ~/.docker; fall back to a tmp config
-        # dir when HOME isn't writable in this container.
-        if ! mkdir -p "${HOME:-/home/ops}/.docker" 2>/dev/null; then
-            export DOCKER_CONFIG=/tmp/.docker-config
-            mkdir -p "$DOCKER_CONFIG"
-        fi
-        if docker compose build worker; then
-            STAMP "worker image ready (version $(worker_label_version || echo unlabelled))"
-        else
-            # Do NOT abort. A scheduler that refuses to start because one build
-            # failed takes out every job on the site, including the watchdog
-            # that would have reported the problem. Start, and let the first
-            # role invocation surface the build error through its own channel.
-            STAMP "WARNING: worker image build FAILED — starting the scheduler anyway so watchdog/monitor jobs still run; the next role invocation will report the build error"
-        fi
+        # There is nothing to build here any more, and pretending otherwise is
+        # worse than saying so.
+        #
+        # Sites now reference the SHARED image (`image: fleet-site-worker:latest`)
+        # with no `build:` stanza, so `docker compose build worker` is a no-op
+        # that EXITS 0 — it would have reported "worker image ready" while the
+        # image was still missing, and the failure would surface later as a
+        # confusing role error. Shared images are built once, centrally, by
+        # tools/fleet-images/bin/fleet-image-build.
+        #
+        # We still do NOT abort: a scheduler that refuses to start takes out
+        # every job on the site, including the watchdog that would have
+        # reported the problem.
+        STAMP "WARNING: ${WORKER_IMAGE} is missing or stale and this container cannot build it — shared images are built centrally."
+        STAMP "WARNING: fix on the HOST with: tools/fleet-images/bin/fleet-image-build worker"
+        STAMP "WARNING: starting the scheduler anyway so watchdog/monitor jobs keep running; role invocations will fail until the image exists."
     fi
 fi
 

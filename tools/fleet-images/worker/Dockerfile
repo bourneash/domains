@@ -110,6 +110,35 @@ RUN pip3 install --break-system-packages --no-cache-dir \
       pyyaml Pillow httpx openai feedparser requests ephem \
       pytest pytest-mock "idna>=3.10"
 
+# ── Playwright browsers: cached PER SITE, not baked ─────────────────────────
+# Two different Playwright consumers exist in this fleet:
+#   1. ops/scripts/engineer-render-check.mjs drives the SYSTEM chromium above
+#      through playwright-core + CHROMIUM_PATH. Needs no bundle.
+#   2. Five sites depend on `@playwright/test`, and TWO of them
+#      (sinderella.org, saveusfarms.com) gate their DEPLOY on
+#      `npm run test:smoke:prod`. @playwright/test will not drive an arbitrary
+#      system binary — it launches one pinned browser REVISION and hard-fails
+#      if that exact build is absent.
+#
+# The first version of this image shipped without any bundle and broke
+# sinderella's deploy gate on a 30-minute cadence. The obvious fix — bake the
+# bundles for the pinned versions — was tried and is WRONG, because those pins
+# are caret ranges. Measured across the five sites on the same day:
+#     pinned ^1.59.1 -> resolved 1.62.1, 1.61.0, 1.61.1
+#     pinned ^1.60.0 -> resolved 1.60.0
+# Four different revisions, and every `npm ci` against a refreshed lock can
+# move them again. A baked revision is correct until the next lockfile update
+# and then fails exactly as hard as having none.
+#
+# PLAYWRIGHT_BROWSERS_PATH=0 tells Playwright to install browsers INSIDE
+# node_modules — which for these sites is already a persistent named volume.
+# So the browser is cached per site, survives the one-shot container, matches
+# whatever version that site actually resolved, and self-heals on a bump. The
+# shared entrypoint installs it on demand (see worker/entrypoint.sh).
+#
+# Same principle as the crontab: do not bake something that varies per site.
+ENV PLAYWRIGHT_BROWSERS_PATH=0
+
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV PLAYWRIGHT_CORE_ENTRY=/opt/engineer-tools/node_modules/playwright-core/index.js
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1

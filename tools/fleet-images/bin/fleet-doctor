@@ -64,6 +64,33 @@ note() { (( QUIET )) && return 0; printf '    \033[2m%s\033[0m\n' "$1"; }
 want_cron_id="$(docker image inspect --format '{{.Id}}' "$CRON_IMAGE" 2>/dev/null || true)"
 want_worker_id="$(docker image inspect --format '{{.Id}}' "$WORKER_IMAGE" 2>/dev/null || true)"
 
+# The two shared images must be built from the same VERSION. They are built by
+# separate commands, so it is entirely possible to roll one and forget the
+# other — and because workers are ephemeral, a stale worker image is invisible
+# in `docker ps`. Checked once, fleet-wide, not per site.
+image_version() { docker image inspect --format '{{index .Config.Labels "org.domains.fleet.version"}}' "$1" 2>/dev/null || true; }
+check_image_versions() {
+  local want cron_v worker_v
+  want="$(tr -d '[:space:]' < "${IMAGES_DIR}/VERSION" 2>/dev/null || true)"
+  cron_v="$(image_version "$CRON_IMAGE")"
+  worker_v="$(image_version "$WORKER_IMAGE")"
+  cur_site="shared images"
+  if [[ -z "$cron_v" || -z "$worker_v" ]]; then
+    pend "one of the shared images is missing locally (cron='${cron_v:-none}' worker='${worker_v:-none}')"
+    return
+  fi
+  if [[ "$cron_v" == "$worker_v" ]]; then
+    ok "cron and worker images are the same version (${cron_v})"
+  else
+    bad "shared images disagree: cron=${cron_v} worker=${worker_v} — one was rolled without the other"
+  fi
+  if [[ -n "$want" && "$cron_v" != "$want" ]]; then
+    bad "built images are ${cron_v} but VERSION says ${want} — rebuild or correct VERSION"
+  elif [[ -n "$want" ]]; then
+    ok "images match VERSION (${want})"
+  fi
+}
+
 # Cron-capable sites: a site with a compose file that defines a cron service.
 # Derived from the filesystem, not a list, so it can't drift.
 list_sites() {
@@ -222,6 +249,7 @@ main() {
   # impossible to truncate.
   local expected=0 checked=0
   expected="$(printf '%s\n' "$sites" | grep -c .)"
+  check_image_versions
   while read -r -u 3 s; do
     [[ -n "$s" ]] || continue
     check_site "$s"
