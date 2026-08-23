@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# fleet-site-migrate <site> [--cron|--worker|--both] [--dry-run] [--revert]
+# fleet-site-migrate <site> [--cron|--worker|--both] [--harden] [--dry-run] [--revert]
 #
 # Move ONE site off its bespoke images and onto the shared fleet images.
 #
@@ -34,12 +34,13 @@ SITE="${1:-}"
 [[ -n "$SITE" && "$SITE" != -* ]] || { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 shift
 
-DO_CRON=1; DO_WORKER=1; DRY=0; REVERT=0
+DO_CRON=1; DO_WORKER=1; DRY=0; REVERT=0; HARDEN=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --cron)    DO_CRON=1; DO_WORKER=0 ;;
     --worker)  DO_CRON=0; DO_WORKER=1 ;;
     --both)    DO_CRON=1; DO_WORKER=1 ;;
+    --harden)  HARDEN=1 ;;
     --dry-run) DRY=1 ;;
     --revert)  REVERT=1 ;;
     *) echo "unknown flag: $1" >&2; exit 1 ;;
@@ -64,7 +65,7 @@ if (( REVERT )); then
 fi
 
 export FM_SITE="$SITE" FM_COMPOSE="$COMPOSE" FM_DIR="$DIR" FM_BAK="$BAK" \
-       FM_DO_CRON="$DO_CRON" FM_DO_WORKER="$DO_WORKER" FM_DRY="$DRY"
+       FM_DO_CRON="$DO_CRON" FM_DO_WORKER="$DO_WORKER" FM_DRY="$DRY" FM_HARDEN="$HARDEN"
 
 python3 <<'PYEOF'
 import os, re, shutil, sys
@@ -75,6 +76,7 @@ site_dir  = os.environ['FM_DIR']
 do_cron   = os.environ['FM_DO_CRON'] == '1'
 do_worker = os.environ['FM_DO_WORKER'] == '1'
 dry       = os.environ['FM_DRY'] == '1'
+harden    = os.environ['FM_HARDEN'] == '1'
 slug      = site.split('.')[0]
 
 src = open(compose).read()
@@ -140,19 +142,25 @@ if do_cron:
         # the site repo. supercronic then dies with "is a directory" and the
         # container crash-loops. broadwayshowgirls.com names its file
         # `ops/docker/crontab` (no .docker suffix) and hit exactly this.
+        # Only resolve (and require) a crontab when we are actually about to add
+        # the mount. On an already-migrated site — e.g. a --harden pass — the
+        # mount is present and this must not run at all, or the guard below
+        # aborts a perfectly valid edit on a site that is already correct.
+        already_mounted = re.search(r':/etc/crontab\.docker', blk) is not None
         crontab_rel = None
-        for cand in ('ops/docker/crontab.docker', 'ops/docker/crontab'):
-            if os.path.isfile(os.path.join(site_dir, cand)):
-                crontab_rel = cand
-                break
-        if crontab_rel is None:
+        if not already_mounted:
+            for cand in ('ops/docker/crontab.docker', 'ops/docker/crontab'):
+                if os.path.isfile(os.path.join(site_dir, cand)):
+                    crontab_rel = cand
+                    break
+        if crontab_rel is None and not already_mounted:
             print(f"[migrate] {site}: FATAL — no crontab found at ops/docker/crontab.docker "
                   f"or ops/docker/crontab. Refusing to add a bind mount for a path that "
                   f"does not exist (docker would create a root-owned directory there).",
                   file=sys.stderr)
             sys.exit(2)
 
-        blk, did = ensure_line_in_block(
+        blk, did = (blk, False) if already_mounted else ensure_line_in_block(
             blk, r'^[ \t]{4}volumes:[ \t]*$',
             '\n      # Crontab is BIND-MOUNTED, never baked into the image: editing\n'
             f'      # {crontab_rel} and restarting this container is the whole\n'
@@ -212,6 +220,70 @@ for _svc in (WORKER_SERVICES if do_worker else ()):
         # `ocker/...` and produced invalid YAML. Any offset captured before an
         # edit is stale after it — collect edits, splice once.
         out = out[:s] + blk + out[e:]
+
+# ── runtime hardening ───────────────────────────────────────────────────────
+# Applied to both the scheduler and the one-shot workers. Every value below was
+# verified NOT to break the fleet before being written (astro build incl. a
+# 1156-page site, Playwright chromium launch, sharp, git, and the cron
+# container driving the docker socket, all with ALL capabilities dropped).
+#
+# cap_drop: ALL — nothing here needs a single Linux capability. The worker
+#   builds sites and runs a browser; the scheduler talks to a unix socket.
+#   Dropping all of them costs nothing and removes the whole capability-based
+#   escalation surface from a container that executes model-authored code.
+# no-new-privileges — blocks setuid escalation even if a setuid binary
+#   reappears in a future base image (the worker image also clears the bits).
+# pids_limit — a fork bomb in one role cannot take the host down with it.
+# mem_limit — one runaway build cannot starve the other 25 sites. Deliberately
+#   generous: the heaviest measured build peaks well under a tenth of this.
+HARDENING = {
+    'cron':   [('cap_drop', ['ALL']), ('pids_limit', '512'),  ('mem_limit', '1g')],
+    'worker': [('cap_drop', ['ALL']), ('pids_limit', '2048'), ('mem_limit', '8g')],
+}
+
+def harden_service(text, svc, kind):
+    sp = service_span(text, svc)
+    if not sp:
+        return text, []
+    s0, e0 = sp
+    blk = text[s0:e0]
+    done = []
+
+    # no-new-privileges lives under security_opt; add the whole key if absent.
+    if 'no-new-privileges' not in blk:
+        if re.search(r'^[ \t]{4}security_opt:[ \t]*$', blk, re.M):
+            blk, did = ensure_line_in_block(
+                blk, r'^[ \t]{4}security_opt:[ \t]*$',
+                '\n      - no-new-privileges:true', r'no-new-privileges')
+        else:
+            blk, did = ensure_line_in_block(
+                blk, rf'^  {re.escape(svc)}:[ \t]*$',
+                '\n    security_opt:\n      - no-new-privileges:true', r'no-new-privileges')
+        if did:
+            done.append(f'{svc}: no-new-privileges')
+
+    for key, val in HARDENING[kind]:
+        if re.search(rf'^[ \t]{{4}}{key}:', blk, re.M):
+            continue
+        if isinstance(val, list):
+            ins = f'\n    {key}:\n' + '\n'.join(f'      - {v}' for v in val)
+        else:
+            ins = f'\n    {key}: {val}'
+        blk, did = ensure_line_in_block(
+            blk, rf'^  {re.escape(svc)}:[ \t]*$', ins, rf'^[ \t]{{4}}{key}:')
+        if did:
+            done.append(f'{svc}: {key}')
+
+    return text[:s0] + blk + text[e0:], done
+
+if harden:
+    # cap_drop on the cron service is safe: it drives the docker socket, which
+    # needs group membership, not capabilities. Verified empirically.
+    out, d = harden_service(out, 'cron', 'cron')
+    changes.extend(d)
+    for _svc in WORKER_SERVICES:
+        out, d = harden_service(out, _svc, 'worker')
+        changes.extend(d)
 
 if do_worker and not any(c.split(':')[0] in WORKER_SERVICES for c in changes):
     print(f"[migrate] {site}: no worker service to migrate", file=sys.stderr)

@@ -176,6 +176,35 @@ check_site() {
       bad "scheduler loaded 0 jobs — container is up but doing nothing"
     fi
 
+    # ── runtime hardening, asserted on the LIVE container, not the file.
+    # Compose can say anything; what matters is what the daemon actually
+    # applied. A container recreated by hand without `up` silently loses all
+    # of this.
+    local caps nnp pids
+    caps="$(docker inspect "$cname" --format '{{.HostConfig.CapDrop}}' 2>/dev/null)"
+    if [[ "$caps" == *ALL* ]]; then
+      ok "all Linux capabilities dropped"
+    else
+      bad "cap_drop is ${caps:-empty} — expected [ALL]; recreate with: (cd ${dir} && docker compose up -d --force-recreate cron)"
+    fi
+    nnp="$(docker inspect "$cname" --format '{{.HostConfig.SecurityOpt}}' 2>/dev/null)"
+    if [[ "$nnp" == *no-new-privileges* ]]; then
+      ok "no-new-privileges set"
+    else
+      bad "no-new-privileges NOT set — setuid escalation is possible"
+    fi
+    pids="$(docker inspect "$cname" --format '{{.HostConfig.PidsLimit}}' 2>/dev/null)"
+    if [[ "$pids" =~ ^[0-9]+$ ]] && (( pids > 0 )); then
+      ok "pids_limit set (${pids})"
+    else
+      bad "no pids_limit — a fork bomb in one role can take the host down"
+    fi
+    if [[ "$(docker inspect "$cname" --format '{{.HostConfig.Privileged}}' 2>/dev/null)" == "false" ]]; then
+      ok "not privileged"
+    else
+      bad "container is PRIVILEGED — this should never be true for a site container"
+    fi
+
     uid="$(docker exec "$cname" id -u 2>/dev/null | tr -d '[:space:]')"
     if [[ "$uid" == "1000" ]]; then
       ok "runs as uid 1000 (never root)"
@@ -200,6 +229,16 @@ check_site() {
     else
       ok "no per-site Dockerfile.worker"
     fi
+    # Worker hardening lives in compose (workers are ephemeral, so there is no
+    # long-lived container to inspect). Assert the declaration is present.
+    local wblk
+    wblk="$(awk '/^  worker:/{f=1} f&&/^  [a-z-]+:/&&!/^  worker:/{f=0} f' "$compose")"
+    if grep -q 'cap_drop' <<<"$wblk" && grep -q 'no-new-privileges' <<<"$wblk"; then
+      ok "worker service declares cap_drop + no-new-privileges"
+    else
+      bad "worker service is missing cap_drop/no-new-privileges — harden with: fleet-site-migrate ${site} --harden"
+    fi
+
     # The cron entrypoint pre-resolves the worker image by NAME from this env
     # var, independently of the compose service's `image:`. A site migrated in
     # two passes (cron first, worker later) keeps the old per-site name here

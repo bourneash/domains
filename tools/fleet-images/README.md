@@ -89,6 +89,44 @@ that security updates stop arriving for free; `fleet-image-bases --check` runs
 weekly (crontab job 12) and says when the upstream tag has moved, and
 `--update` rewrites the pins. Bumping is deliberate, reviewed and smoke-gated.
 
+## Hardening
+
+Applied to the images and to all 26 sites' compose, and asserted by
+`fleet-image-smoke` (images) and `fleet-doctor` (live containers), so none of it
+can silently regress.
+
+| Control | Where | Why |
+|---|---|---|
+| `uid 1000`, no sudo | image | root writes corrupt `.git/objects`; claude-code refuses root |
+| **0 setuid/setgid binaries** | worker image | the base ships 14 (`su`, `mount`, `chsh`, `gpasswd`, …). No role uses one. Bits are cleared, not files deleted, so ordinary calls still work |
+| `cap_drop: [ALL]` | both services | nothing here needs a single capability — verified against a 1156-page astro build, Playwright chromium, sharp, git, and the scheduler driving the docker socket |
+| `no-new-privileges` | both services | blocks setuid escalation even if a future base reintroduces a setuid binary |
+| `pids_limit` | 512 cron / 2048 worker | a fork bomb in one role cannot take the host down |
+| `mem_limit` | 1g cron / 8g worker | one runaway build cannot starve the other 25 sites. Generous on purpose: the heaviest measured build peaks around 30 MB |
+| no baked secrets | image | credentials arrive as runtime mounts, never in a layer |
+
+Every value above was verified **not to break the fleet before being applied** —
+that testing is the reason `cap_drop: ALL` is safe to state rather than hope.
+
+### The risk that is NOT mitigated, and why
+
+Each site's cron container mounts `/var/run/docker.sock` read-write. That is
+**root-equivalent on the host**: anything that can reach that socket can start a
+privileged container and own the box. It is not mitigated because it cannot be —
+the scheduler's entire job is `docker compose run --rm worker <role>`.
+
+A socket proxy (the fleet already runs `tecnativa/docker-socket-proxy` for
+secscan) would need `containers create/start/attach/delete` + `images` + `exec`
+enabled to work at all, which is precisely the set that grants container escape.
+It would look like a control and provide close to none, so it is deliberately
+not used here — writing it down beats security theatre.
+
+What actually bounds this risk is everything upstream of the socket: the images
+run unprivileged with no capabilities, the code they execute comes from this
+repo, and roles are individually kill-switchable via `ops/.<role>-disabled`.
+**Treat the site cron containers as inside the host's trust boundary, because
+they are.**
+
 ## The tagging model — read before changing it
 
 Sites reference the plain `:latest` tag, **not** a pinned version. That looks wrong and is

@@ -168,6 +168,22 @@ RUN userdel -r node 2>/dev/null || true; \
     && mkdir -p /work/site/node_modules \
     && chown -R ops:ops /work
 
+# ── strip setuid/setgid escalation primitives ───────────────────────────────
+# The base image ships 14 setuid/setgid binaries (su, mount, umount, chsh,
+# chfn, gpasswd, newgrp, passwd, ssh-keysign, unix_chkpwd, dbus helper …).
+# NOT ONE of them is used by any role: workers run as uid 1000, never switch
+# user, never mount anything, and authenticate to git by SSH key rather than
+# host-based auth.
+#
+# Left in place they are a standing local-privilege-escalation toolkit inside a
+# container that executes model-authored code against the internet. Clearing
+# the bits (rather than deleting the files) removes the escalation primitive
+# while leaving the binaries callable for their ordinary unprivileged uses, so
+# nothing that legitimately shells out breaks.
+#
+# fleet-image-smoke asserts this stays at zero.
+RUN find / -xdev -perm /6000 -type f -exec chmod -s {} + 2>/dev/null || true
+
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/fleet-worker-entrypoint.sh
 
 ARG FLEET_IMAGE_VERSION=dev

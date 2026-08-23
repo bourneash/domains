@@ -85,6 +85,8 @@ smoke_cron() {
   probe "$image" "timezone is America/New_York" 'America/New_York' 'echo "$TZ"'
   probe "$image" "version label stamped"       '^[0-9]+\.[0-9]+'   'echo "$FLEET_IMAGE_VERSION"'
   probe "$image" "shared entrypoint installed" 'entrypoint-cron'   'ls /usr/local/bin/entrypoint-cron.sh'
+  probe "$image" "no setuid/setgid binaries"  '^0$'   'find / -xdev -perm /6000 -type f 2>/dev/null | wc -l'
+  probe "$image" "no sudo installed"          '^none$' 'command -v sudo >/dev/null && echo present || echo none'
 }
 
 smoke_worker() {
@@ -116,6 +118,14 @@ smoke_worker() {
   probe "$image" "node major is 22"             '^v22\.'           'node -v'
   probe "$image" "version label stamped"        '^[0-9]+\.[0-9]+'  'echo "$FLEET_IMAGE_VERSION"'
   probe "$image" "dispatcher entrypoint present" 'fleet-worker'    'ls /usr/local/bin/fleet-worker-entrypoint.sh'
+  # Hardening: no setuid/setgid binaries. The base ships 14; none are used by
+  # any role, and they are a local-privesc toolkit inside a container that runs
+  # model-authored code. Regression here is silent, so it is asserted.
+  probe "$image" "no setuid/setgid binaries"    '^0$'  'find / -xdev -perm /6000 -type f 2>/dev/null | wc -l'
+  probe "$image" "no sudo installed"            '^none$' 'command -v sudo >/dev/null && echo present || echo none'
+  # Nothing sensitive baked in — creds arrive at runtime as mounts, never layers.
+  probe "$image" "no baked credentials"         '^0$'  'find /home/ops /root -maxdepth 3 \( -name ".credentials.json" -o -name "id_*" -o -name "*.pem" \) 2>/dev/null | wc -l'
+
   # The dispatcher must FAIL loudly when there is no site mounted, never exit 0.
   local rc
   docker run --rm "fleet-site-worker:${TAG}" >/dev/null 2>&1; rc=$?
