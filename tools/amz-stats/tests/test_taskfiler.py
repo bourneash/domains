@@ -9,16 +9,23 @@ import pytest
 from amz_stats import taskfiler
 
 
-def _init_repo(root: Path) -> None:
+def _init_repo(root: Path, remote: Path | None = None) -> None:
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True)
     subprocess.run(["git", "config", "user.name", "Test"], cwd=root, check=True)
     (root / "README.md").write_text("x")
     subprocess.run(["git", "add", "README.md"], cwd=root, check=True)
     subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=root, check=True)
+    if remote is not None:
+        remote.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "init", "-q", "--bare"], cwd=remote, check=True)
+        subprocess.run(["git", "remote", "add", "origin", str(remote)], cwd=root, check=True)
+        subprocess.run(["git", "push", "-q", "-u", "origin", "HEAD"], cwd=root, check=True)
 
 
-def _make_site(domains_root: Path, site: str, id_asin_pairs: list[tuple[str, str]]) -> Path:
+def _make_site(
+    domains_root: Path, site: str, id_asin_pairs: list[tuple[str, str]], remote: Path | None = None
+) -> Path:
     site_root = domains_root / "sites" / site
     lib_dir = site_root / "site" / "src" / "lib"
     lib_dir.mkdir(parents=True)
@@ -28,7 +35,7 @@ def _make_site(domains_root: Path, site: str, id_asin_pairs: list[tuple[str, str
     )
     (lib_dir / "affiliate.ts").write_text(f"export const PRODUCTS = [\n{body}\n];\n")
     (site_root / "ops" / "tasks" / "backlog").mkdir(parents=True)
-    _init_repo(site_root)
+    _init_repo(site_root, remote=remote)
     return site_root
 
 
@@ -219,3 +226,55 @@ class TestProcess:
             domains_root, asins_by_site, catalog, "2026-01-03", state_path, push=False, http_confirm=stub
         )
         assert filed3 == []
+
+    def test_notifies_slack_only_on_real_push(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        domains_root = tmp_path / "domains"
+        remote = tmp_path / "remote.git"
+        _make_site(domains_root, "example.com", [("widget-a", "B000000001")], remote=remote)
+        asins_by_site = {"example.com": ["B000000001"]}
+        catalog = {"asins": {}, "errors": []}
+        state_path = tmp_path / "state.json"
+        stub = lambda asin: True
+
+        posted = []
+
+        def fake_post(url, **kw):
+            posted.append((url, kw))
+            class _Resp:
+                status_code = 200
+            return _Resp()
+
+        monkeypatch.setattr(taskfiler.httpx, "post", fake_post)
+        monkeypatch.setenv("SLACK_BOT_TOKEN", "xoxb-test")
+
+        # Not pushed yet — no notification.
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-01", state_path, push=False, http_confirm=stub)
+        assert posted == []
+
+        # Threshold hit AND actually pushed — notifies.
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-02", state_path, push=True, http_confirm=stub)
+
+        assert len(posted) == 1
+        url, kw = posted[0]
+        assert url == "https://slack.com/api/chat.postMessage"
+        assert kw["json"]["channel"] == "domain-example-com"
+        assert "widget-a" in kw["json"]["attachments"][0]["text"]
+        assert "B000000001" in kw["json"]["attachments"][0]["text"]
+
+    def test_no_slack_call_without_token(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        domains_root = tmp_path / "domains"
+        remote = tmp_path / "remote.git"
+        _make_site(domains_root, "example.com", [("widget-a", "B000000001")], remote=remote)
+        asins_by_site = {"example.com": ["B000000001"]}
+        catalog = {"asins": {}, "errors": []}
+        state_path = tmp_path / "state.json"
+        stub = lambda asin: True
+
+        posted = []
+        monkeypatch.setattr(taskfiler.httpx, "post", lambda *a, **kw: posted.append(1))
+        monkeypatch.delenv("SLACK_BOT_TOKEN", raising=False)
+
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-01", state_path, push=True, http_confirm=stub)
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-02", state_path, push=True, http_confirm=stub)
+
+        assert posted == []

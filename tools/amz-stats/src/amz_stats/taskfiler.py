@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -121,6 +122,38 @@ def _existing_task_mentions(site_root: Path, asin: str) -> bool:
             except OSError:
                 continue
     return False
+
+
+def notify_slack(site: str, product_id: str, asin: str, task_path: str) -> None:
+    """Post a 🚨 card to that site's domain-ops channel. Same convention as the
+    existing notify-slack.sh (per reference_slack_integration memory): one shared
+    bot token, channel = domain-<site-with-dashes>. Silent no-op on any failure
+    or missing token — a dropped Slack notification must never break the run
+    that filed the (already-committed-and-pushed) task itself.
+    """
+    token = os.environ.get("SLACK_BOT_TOKEN")
+    if not token:
+        return
+    channel = "domain-" + site.replace(".", "-")
+    text = (
+        f"🚨 Dead affiliate link auto-detected on *{site}*\n"
+        f"Product `{product_id}` (ASIN `{asin}`) — confirmed via PA-API (2 consecutive misses) "
+        f"+ independent HTTP 404 check.\n"
+        f"Task filed: `{task_path}`\n"
+        f"Needs a human/news-writer to pick a live replacement ASIN."
+    )
+    try:
+        httpx.post(
+            "https://slack.com/api/chat.postMessage",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": channel,
+                "attachments": [{"color": "danger", "text": text, "mrkdwn_in": ["text"]}],
+            },
+            timeout=10.0,
+        )
+    except httpx.HTTPError as exc:
+        log.warning("taskfiler: Slack notify failed for %s: %s", channel, exc)
 
 
 def _run_git(args: list[str], cwd: Path) -> bool:
@@ -268,6 +301,8 @@ def process(
                             )
                         if ok and push:
                             ok = _run_git(["push"], site_root)
+                            if ok:
+                                notify_slack(site, product_id, asin, str(rel))
                         if ok:
                             filed.append(f"{site}:{product_id} ({asin})")
                         entry["task_filed"] = True
