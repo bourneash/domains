@@ -100,3 +100,19 @@
 # incident for why volume deletion only goes through a verified-delete path.
 40 3 * * * /home/jesse/projects/domains/tools/scripts/gc-docker.sh
 10 3 * * 0 /home/jesse/projects/domains/tools/scripts/gc-docker.sh --cache-all
+
+# --- Job 11: fleet shared-image drift watchdog ---
+# Asserts the fleet-images invariants continuously: every site on the current
+# fleet-site-cron image, crontab bind-mounted with a source file that actually
+# exists, container running as uid 1000, scheduler holding a non-zero job
+# count. Healthy = SILENT; alerts to Slack on failure with a 6h cooldown.
+#
+# This is the half of the consolidation that makes it stick. The pre-commit
+# guard blocks NEW per-site Dockerfiles; this catches the rest — a container
+# left on a stale image after an image bump, a hand-edited compose, a
+# scheduler that came up loading zero jobs. Without it the fleet drifts back
+# to 53 divergent definitions the same way it got there the first time.
+#
+# Does NOT use --probe-worker (a container start per site) — that is a rollout
+# gate, run by hand after an image roll, not a background job.
+50 */6 * * * /home/jesse/projects/domains/tools/scripts/fleet-images-drift-cron.sh

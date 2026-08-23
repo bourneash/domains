@@ -36,9 +36,17 @@ WORKER_IMAGE="${FLEET_WORKER_IMAGE:-fleet-site-worker:latest}"
 
 QUIET=0
 ONLY=""
+PROBE=0
 for a in "$@"; do
   case "$a" in
     --quiet) QUIET=1 ;;
+    # Actually START a worker from the shared image and confirm it dispatches.
+    # Invoked with NO role, the site's worker entrypoint prints usage and exits
+    # 2 before doing anything — so this exercises the image, the dispatcher,
+    # the bind mounts and the compose wiring for FREE, with no Claude call and
+    # no side effects. Off by default because it costs a container start per
+    # site; on for rollout gates.
+    --probe-worker) PROBE=1 ;;
     -h|--help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --*) echo "unknown flag: $a" >&2; exit 1 ;;
     *) ONLY="$a" ;;
@@ -92,9 +100,21 @@ check_site() {
     ok "no per-site Dockerfile.cron"
   fi
 
-  # ── 3. crontab bind-mounted, not baked
-  if grep -qE 'crontab\.docker:/etc/crontab\.docker' "$compose" 2>/dev/null; then
+  # ── 3. crontab bind-mounted, not baked, and the SOURCE really exists
+  local ct_src
+  ct_src="$(grep -oE '\./[^:]*:/etc/crontab\.docker' "$compose" 2>/dev/null | head -1 | cut -d: -f1)"
+  if [[ -n "$ct_src" ]]; then
     ok "crontab is bind-mounted (reschedule needs no rebuild)"
+    # A bind mount whose source is missing is WORSE than no mount: docker
+    # creates the source as a root-owned DIRECTORY inside the repo and
+    # supercronic crash-loops on "is a directory". Caught on
+    # broadwayshowgirls.com, whose file is named `crontab`, not
+    # `crontab.docker`.
+    if [[ -f "${dir}/${ct_src#./}" ]]; then
+      ok "crontab source ${ct_src} exists as a file"
+    else
+      bad "crontab bind source ${ct_src} is missing or not a file — docker will create a root-owned directory there"
+    fi
   else
     bad "crontab is NOT bind-mounted — schedules will silently diverge from the repo"
     note "this is the exact drift that left weapontester.com running a stale job for 4 days"
@@ -116,6 +136,19 @@ check_site() {
       note "roll it: tools/fleet-images/bin/fleet-image-build cron --roll --sites ${site}"
     fi
 
+    # Scheduling ZERO jobs means the container is up and doing nothing — which
+    # looks identical to healthy in `docker ps`. Assert it actually loaded a
+    # schedule.
+    local sched
+    sched="$(docker logs "$cname" 2>&1 | grep -oE 'scheduling [0-9]+ job' | tail -1 | grep -oE '[0-9]+' || true)"
+    if [[ -z "$sched" ]]; then
+      pend "could not read scheduled-job count from ${cname} logs"
+    elif [[ "$sched" -gt 0 ]]; then
+      ok "scheduler loaded ${sched} job(s)"
+    else
+      bad "scheduler loaded 0 jobs — container is up but doing nothing"
+    fi
+
     uid="$(docker exec "$cname" id -u 2>/dev/null | tr -d '[:space:]')"
     if [[ "$uid" == "1000" ]]; then
       ok "runs as uid 1000 (never root)"
@@ -135,10 +168,40 @@ check_site() {
   fi
   if grep -qE 'image:\s*fleet-site-worker:' "$compose" 2>/dev/null; then
     ok "compose references the shared worker image"
-    if [[ -f "${dir}/ops/docker/Dockerfile.worker" ]]; then
-      bad "ops/docker/Dockerfile.worker still exists — it will drift again"
+    if compgen -G "${dir}/ops/docker/Dockerfile.worker*" >/dev/null 2>&1; then
+      bad "ops/docker/Dockerfile.worker* still exists — it will drift again"
     else
       ok "no per-site Dockerfile.worker"
+    fi
+    if (( PROBE )); then
+      local out rc
+      # -T and </dev/null are BOTH load-bearing. `docker compose run` attaches
+      # stdin by default; when this runs inside the site loop it swallows the
+      # remaining site list, so the loop ends after the first site and
+      # fleet-doctor reports a confident all-green having checked exactly one
+      # of 26. A gate that silently stops early is worse than no gate.
+      out="$( cd "$dir" && COMPOSE_PROFILES='*' timeout 300 docker compose run --rm --no-deps -T worker </dev/null 2>&1 )"
+      rc=$?
+      # Two independent signals, and deliberately NOT a specific exit code:
+      #   1. our dispatcher line appears  -> the shared image booted, resolved
+      #      this site's worker script, and handed off to it
+      #   2. the exit is NON-ZERO         -> that script refused to do work
+      #      without a role, i.e. it really ran
+      #
+      # An earlier version asserted `exit 2 + "usage"`, which was overfitting to
+      # the majority convention: amputeenews.com's entrypoint exits 1 with
+      # "role required" instead, and the probe called a perfectly healthy site
+      # broken. The fleet has three worker-entrypoint conventions; the probe
+      # must test that dispatch works, not that everyone words it the same.
+      if grep -q 'dispatching to' <<<"$out" && [[ $rc -ne 0 ]]; then
+        ok "worker starts from the shared image and dispatches (probe exit ${rc})"
+      elif [[ $rc -eq 0 ]]; then
+        bad "worker probe exited 0 with no role — it should have refused; the entrypoint may not have run at all"
+        note "$(printf '%s' "$out" | tail -3 | tr '\n' ' ')"
+      else
+        bad "worker probe failed (exit ${rc}) — the shared image cannot run this site's worker"
+        note "$(printf '%s' "$out" | tail -3 | tr '\n' ' ')"
+      fi
     fi
   else
     pend "worker not yet migrated to ${WORKER_IMAGE} (expected until P2 completes)"
@@ -152,9 +215,28 @@ main() {
     exit 0
   fi
   [[ -n "$want_cron_id" ]]   || printf '\033[33m[warn]\033[0m %s not built locally — image-currency checks will be skipped\n' "$CRON_IMAGE"
-  while read -r s; do [[ -n "$s" ]] && check_site "$s"; done <<< "$sites"
 
-  printf '\n\033[1mfleet-doctor: %d passed, %d failed, %d pending\033[0m\n' "$pass" "$fail" "$pending"
+  # Read the site list on fd 3, not stdin: checks shell out to docker, and
+  # anything that reads stdin would otherwise eat the rest of the list. Belt
+  # and braces with the </dev/null on the probe above — this loop must be
+  # impossible to truncate.
+  local expected=0 checked=0
+  expected="$(printf '%s\n' "$sites" | grep -c .)"
+  while read -r -u 3 s; do
+    [[ -n "$s" ]] || continue
+    check_site "$s"
+    checked=$((checked+1))
+  done 3<<< "$sites"
+
+  printf '\n\033[1mfleet-doctor: %d passed, %d failed, %d pending  (%d/%d sites checked)\033[0m\n' \
+      "$pass" "$fail" "$pending" "$checked" "$expected"
+
+  # Explicitly fail on an incomplete sweep. Reporting all-green after checking
+  # 1 of 26 sites is exactly the failure this gate exists to prevent.
+  if [[ "$checked" -ne "$expected" ]]; then
+    printf '\033[31m[FATAL]\033[0m only %d of %d sites were checked — the sweep was truncated, treat this run as INVALID\n' "$checked" "$expected"
+    return 1
+  fi
   [[ "$fail" -eq 0 ]]
 }
 

@@ -133,16 +133,35 @@ if do_cron:
             changes.append('cron: build -> fleet-site-cron:latest')
 
         # The load-bearing part of the whole migration: unbake the crontab.
+        #
+        # RESOLVE the real filename — do NOT assume it. Docker's bind-mount
+        # semantics make a wrong guess quietly destructive: if the source path
+        # doesn't exist the daemon CREATES IT, as a ROOT-OWNED DIRECTORY, inside
+        # the site repo. supercronic then dies with "is a directory" and the
+        # container crash-loops. broadwayshowgirls.com names its file
+        # `ops/docker/crontab` (no .docker suffix) and hit exactly this.
+        crontab_rel = None
+        for cand in ('ops/docker/crontab.docker', 'ops/docker/crontab'):
+            if os.path.isfile(os.path.join(site_dir, cand)):
+                crontab_rel = cand
+                break
+        if crontab_rel is None:
+            print(f"[migrate] {site}: FATAL — no crontab found at ops/docker/crontab.docker "
+                  f"or ops/docker/crontab. Refusing to add a bind mount for a path that "
+                  f"does not exist (docker would create a root-owned directory there).",
+                  file=sys.stderr)
+            sys.exit(2)
+
         blk, did = ensure_line_in_block(
             blk, r'^[ \t]{4}volumes:[ \t]*$',
             '\n      # Crontab is BIND-MOUNTED, never baked into the image: editing\n'
-            '      # ops/docker/crontab.docker and restarting this container is the whole\n'
+            f'      # {crontab_rel} and restarting this container is the whole\n'
             '      # reschedule procedure. Baking it is what let schedules silently\n'
             '      # diverge from the repo for days at a time.\n'
-            '      - ./ops/docker/crontab.docker:/etc/crontab.docker:ro',
-            r'crontab\.docker:/etc/crontab\.docker')
+            f'      - ./{crontab_rel}:/etc/crontab.docker:ro',
+            r':/etc/crontab\.docker')
         if did:
-            changes.append('cron: crontab bind-mounted')
+            changes.append(f'cron: crontab bind-mounted from {crontab_rel}')
 
         # SITE_NAME lets the shared entrypoint identify itself in logs;
         # FLEET_WORKER_IMAGE tells it which worker image to pre-resolve, so the
@@ -156,27 +175,46 @@ if do_cron:
             changes.append(f'cron: SITE_NAME + FLEET_WORKER_IMAGE={worker_img}')
         out = out[:s] + blk + out[e:]
 
-# ── worker service ──────────────────────────────────────────────────────────
-if do_worker:
-    span = service_span(out, 'worker')
+# ── worker service(s) ───────────────────────────────────────────────────────
+# Plural: broadwayshowgirls.com runs TWO one-shot workers side by side —
+# `worker` (its local-Ollama writer) and `claude-worker` (the fleet-standard
+# claude-code roles). Both are one-shot `run --rm` containers and both want the
+# shared image, so migrating only the one named exactly "worker" would leave a
+# bespoke Dockerfile.worker.claude behind and defeat the point for that site.
+WORKER_SERVICES = ('worker', 'claude-worker')
+
+for _svc in (WORKER_SERVICES if do_worker else ()):
+    span = service_span(out, _svc)
     if not span:
-        print(f"[migrate] {site}: no worker service — skipping worker", file=sys.stderr)
-    else:
+        continue
+    if True:
         s, e = span
         blk = out[s:e]
-        blk, did = swap_build_for_image(blk, 'fleet-site-worker:latest', 'worker')
+        blk, did = swap_build_for_image(blk, 'fleet-site-worker:latest', _svc)
         if did:
-            changes.append('worker: build -> fleet-site-worker:latest')
-        out = out[:s] + blk + out[e:]
+            changes.append(f'{_svc}: build -> fleet-site-worker:latest')
         # A site that mounts its repo somewhere other than /work needs the
         # dispatcher pointed at it (broadwayshowgirls uses /repo).
         if re.search(r'^\s+-\s+\.:/repo\b', blk, re.M):
-            blk2, did2 = ensure_line_in_block(
+            blk, did2 = ensure_line_in_block(
                 blk, r'^[ \t]{4}environment:[ \t]*$',
                 '\n      FLEET_WORKER_ROOT: /repo', r'FLEET_WORKER_ROOT:')
             if did2:
-                out = out[:s] + blk2 + out[e:]
-                changes.append('worker: FLEET_WORKER_ROOT=/repo')
+                changes.append(f'{_svc}: FLEET_WORKER_ROOT=/repo')
+        # SPLICE EXACTLY ONCE, after every edit to this block.
+        #
+        # The earlier version spliced after the build swap and then spliced a
+        # SECOND time using the original `e`. By then `out` had already shrunk
+        # by the length of the removed build: block, so `out[e:]` began that
+        # many characters too late and silently ate the head of the NEXT
+        # service. On broadwayshowgirls.com (which has a third service,
+        # claude-worker) that turned `dockerfile: ops/docker/...` into
+        # `ocker/...` and produced invalid YAML. Any offset captured before an
+        # edit is stale after it — collect edits, splice once.
+        out = out[:s] + blk + out[e:]
+
+if do_worker and not any(c.split(':')[0] in WORKER_SERVICES for c in changes):
+    print(f"[migrate] {site}: no worker service to migrate", file=sys.stderr)
 
 if not changes:
     print(f"[migrate] {site}: already migrated / nothing to change")
@@ -198,11 +236,11 @@ print(f"[migrate] {site}: compose updated ({len(changes)} change(s)); backup at 
 for c in changes:
     print(f"           - {c}")
 
-for kind, flag in (('cron', do_cron), ('worker', do_worker)):
-    df = os.path.join(site_dir, 'ops', 'docker', f'Dockerfile.{kind}')
-    if flag and os.path.exists(df):
-        os.remove(df)
-        print(f"           - removed ops/docker/Dockerfile.{kind}")
+# Deleting the Dockerfiles is deliberately NOT done here. It happens in the
+# shell below, only AFTER `docker compose config` proves the rewritten file is
+# valid. Doing it here removed them first and then reverted the compose on a
+# validation failure, leaving the site with a good compose that referenced
+# Dockerfiles that no longer existed — a worse state than either outcome.
 PYEOF
 
 rc=$?
@@ -210,6 +248,27 @@ rc=$?
 [[ $rc -eq 0 ]] || exit $rc
 
 echo "[migrate] validating compose syntax..."
-( cd "$DIR" && docker compose config >/dev/null ) \
-  && echo "[migrate] ✓ ${SITE} compose is valid" \
-  || { echo "[migrate] ✗ ${SITE} compose is INVALID — reverting"; cp -f "$BAK" "$COMPOSE"; exit 1; }
+if ! ( cd "$DIR" && COMPOSE_PROFILES='*' docker compose config >/dev/null ); then
+  # Keep the broken output for inspection — a revert that also destroys the
+  # evidence makes the next failure just as opaque as this one.
+  cp -f "$COMPOSE" "${BAK}.invalid"
+  cp -f "$BAK" "$COMPOSE"
+  echo "[migrate] ✗ ${SITE} compose is INVALID — reverted; broken version kept at ${BAK}.invalid"
+  exit 1
+fi
+echo "[migrate] ✓ ${SITE} compose is valid"
+
+# Only now is it safe to drop the per-site Dockerfiles.
+for kind in cron worker; do
+  case "$kind" in
+    cron)   (( DO_CRON ))   || continue ;;
+    worker) (( DO_WORKER )) || continue ;;
+  esac
+  # Also catches suffixed variants like Dockerfile.worker.claude, which
+  # broadwayshowgirls.com used for its second worker service.
+  for df in "${DIR}/ops/docker/Dockerfile.${kind}" "${DIR}/ops/docker/Dockerfile.${kind}".*; do
+    [[ -f "$df" ]] || continue
+    rm -f "$df"
+    echo "[migrate]            - removed ops/docker/$(basename "$df")"
+  done
+done
