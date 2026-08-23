@@ -3,5 +3,5 @@
 # Stdout/stderr stream to docker logs via supercronic -passthrough-logs.
 # The summary line also appends to /work/out/cron.log for tail -f compatibility.
 
-17 6 * * * amz-stats collect --out-dir /work/out --domains-root /work/domains 2>&1 | tee -a /work/out/cron.log
+17 6 * * * amz-stats collect --out-dir /work/out --domains-root $HOME/projects/domains 2>&1 | tee -a /work/out/cron.log
 30 7 * * 0 amz-stats scrape-earnings --out-dir /work/out 2>&1 | tee -a /work/out/cron.log

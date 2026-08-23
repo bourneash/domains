@@ -13,8 +13,11 @@
 FROM python:3.12-slim
 
 # supercronic — container-friendly cron, logs to stdout
+# git + openssh-client — taskfiler commits/pushes dead-ASIN task files
+# directly to each site's repo (see src/amz_stats/taskfiler.py); git identity
+# and SSH keys come from the host via bind mounts, not baked into the image.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates tzdata \
+    && apt-get install -y --no-install-recommends curl ca-certificates tzdata git openssh-client \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL -o /usr/local/bin/supercronic \
        https://github.com/aptible/supercronic/releases/download/v0.2.34/supercronic-linux-amd64 \
@@ -25,8 +28,21 @@ ENV TZ=UTC \
     PYTHONUNBUFFERED=1
 
 # Non-root user matching host UID 1000 so bind-mounted out/ is owned by jesse.
+# Home dir is /home/jesse (not the native /home/ops), matching HOME below —
+# ssh resolves ~/.ssh/config from the passwd-entry home, NOT the $HOME env
+# var, so taskfiler's `git push` (via the github-bourneash Host alias) would
+# silently fall back to system ssh_config and fail to resolve the alias
+# otherwise.
 RUN groupadd -g 1000 ops && \
-    useradd -u 1000 -g ops -m -s /bin/sh ops
+    useradd -u 1000 -g ops -d /home/jesse -m -s /bin/sh ops
+
+# taskfiler commits dead-ASIN task files directly into each site's repo
+# (bind-mounted from the host at the SAME absolute path). git flags "dubious
+# ownership" across a container UID boundary even when paths match, so
+# blanket-trust every repo under the domains root. Baked in at build time
+# (root, /etc/gitconfig) rather than at runtime — ~/.gitconfig is bind-mounted
+# read-only from the host (for git identity) so `ops` can't write to it.
+RUN git config --system --add safe.directory '*'
 
 # Install amz-stats package
 WORKDIR /opt/amz-stats

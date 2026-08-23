@@ -3,9 +3,18 @@
 # Pattern modeled on tools/cf-stats (supercronic, restart unless-stopped),
 # simplified to a single container since the work is a stateless Python API job.
 #
+# taskfiler (src/amz_stats/taskfiler.py) auto-files + commits + pushes a
+# backlog task per site when an ASIN is confirmed dead (PA-API "missing" on
+# 2 consecutive daily runs, then independently confirmed via direct HTTP
+# fetch — see reference_affiliate_product_sourcing memory for why PA-API's
+# signal alone isn't trusted). That needs git + SSH push access, hence the
+# domains mount below is read-write (not :ro) and matches the HOST's
+# absolute path — same convention as tools/fleet-cron — so .gitconfig's
+# safe.directory entries and .ssh's known_hosts line up without extra config.
+#
 # Bring up:    docker compose up -d
 # Watch logs:  docker compose logs -f
-# Force run:   docker compose exec collector amz-stats collect --out-dir /work/out --domains-root /work/domains
+# Force run:   docker compose exec collector amz-stats collect --out-dir /work/out --domains-root ${HOME}/projects/domains
 # Stop:        docker compose down
 
 name: amz-stats
@@ -20,7 +29,12 @@ services:
     restart: unless-stopped
     environment:
       TZ: UTC
+      # Must match the HOST's HOME so ~/.ssh and ~/.gitconfig resolve the
+      # same way whether a script reads them via `~` or an absolute path.
+      HOME: ${HOME:-/home/jesse}
     volumes:
       - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
-      - ${HOME:-/home/jesse}/projects/domains:/work/domains:ro
+      - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
+      - ${HOME:-/home/jesse}/.ssh:${HOME:-/home/jesse}/.ssh:ro
+      - ${HOME:-/home/jesse}/.gitconfig:${HOME:-/home/jesse}/.gitconfig:ro
       - ./out:/work/out

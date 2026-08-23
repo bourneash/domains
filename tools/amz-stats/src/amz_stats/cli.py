@@ -16,6 +16,7 @@ from .api import AMZClient
 from .collectors import harvest_asins, collect_catalog, build_summary
 from .earnings import SessionExpiredError, scrape_earnings, save_session
 from .store import write_snapshot
+from . import taskfiler
 
 
 def _now_iso() -> str:
@@ -64,10 +65,23 @@ def main() -> None:
               help="Directory to write JSONL + latest.json. Default: ./out")
 @click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None,
               help="Override env file. Default search: ./.env, /work/.env.shared, /home/jesse/projects/domains/.env")
-@click.option("--domains-root", "domains_root", type=click.Path(path_type=Path), default=Path("/work/domains"),
-              help="Root of the domains project (contains sites/). Default: /work/domains")
+@click.option("--domains-root", "domains_root", type=click.Path(path_type=Path),
+              default=lambda: Path(os.environ.get("HOME", "/home/jesse")) / "projects" / "domains",
+              help="Root of the domains project (contains sites/). Default: $HOME/projects/domains "
+                   "(mounted read-write so taskfiler can commit/push dead-ASIN tasks).")
 @click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
-def collect(out_dir: Path, env_file: Path | None, domains_root: Path, quiet: bool) -> None:
+@click.option("--no-file-tasks", is_flag=True,
+              help="Skip auto-filing backlog tasks for confirmed-dead ASINs.")
+@click.option("--no-push", is_flag=True,
+              help="File/commit tasks locally but don't git push (implies task filing still runs).")
+def collect(
+    out_dir: Path,
+    env_file: Path | None,
+    domains_root: Path,
+    quiet: bool,
+    no_file_tasks: bool,
+    no_push: bool,
+) -> None:
     """Harvest ASINs, collect catalog from Amazon API, write JSONL + latest.json."""
     key_id, key_secret, store_id, application_id = _load_env(env_file)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -84,6 +98,19 @@ def collect(out_dir: Path, env_file: Path | None, domains_root: Path, quiet: boo
 
     summary = build_summary(asins_by_site, catalog)
     elapsed = round(time.monotonic() - started, 2)
+
+    filed_tasks: list[str] = []
+    if not no_file_tasks:
+        state_path = out_dir / "asin_state.json"
+        today = ts[:10]
+        try:
+            filed_tasks = taskfiler.process(
+                domains_root, asins_by_site, catalog, today, state_path, push=not no_push
+            )
+        except Exception as exc:  # noqa: BLE001 — task filing must never crash the collect run
+            click.echo(f"taskfiler: unexpected error, skipping this run: {exc}", err=True)
+        for t in filed_tasks:
+            click.echo(f"filed task: {t}")
 
     snap = {
         "timestamp": ts,

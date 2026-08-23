@@ -9,6 +9,16 @@ Daily Amazon affiliate catalog snapshot collector. Scans every `sites/<domain>/s
 3. Records availability (IN_STOCK / OOS / UNKNOWN), price, rating, and image URL per ASIN
 4. Writes `out/amz-stats-<YYYY-MM-DD>.jsonl` (appended) and `out/latest.json` (overwritten)
 5. Appends a one-line summary to `out/cron.log`
+6. **Auto-files backlog tasks** (`src/amz_stats/taskfiler.py`) for ASINs confirmed dead:
+   an ASIN missing from `getItems` on 2 consecutive daily runs is independently
+   verified with a direct HTTP fetch of `/dp/<ASIN>` before anything is filed —
+   PA-API has been observed to persistently omit some live ASINs (likely a
+   category/resource restriction, not delisting), so its "missing" signal
+   alone is never trusted enough to act on. On a confirmed dead ASIN it
+   writes `sites/<site>/ops/tasks/backlog/<date>-broken-affiliate-<id>.md`,
+   commits, and pushes. It never edits `affiliate.ts` or picks a replacement
+   — that's still a human/news-writer call. State lives in
+   `out/asin_state.json` (gitignored).
 
 ## Setup
 
@@ -19,6 +29,11 @@ AMAZON_CREATORS_KEY_ID=...
 AMAZON_CREATORS_KEY_SECRET=...
 AMAZON_ASSOCIATES_STORE_ID=...
 ```
+
+The domains root is mounted **read-write** at the same absolute host path
+(`$HOME/projects/domains`, not `/work/domains`) — required for taskfiler's
+git commits — along with `~/.ssh` and `~/.gitconfig` (both read-only) so it
+can push using the host's `github-bourneash` deploy key and git identity.
 
 ## Bring up
 
@@ -35,7 +50,7 @@ docker compose logs -f
 ## Force run
 
 ```sh
-docker compose exec collector amz-stats collect --out-dir /work/out --domains-root /work/domains
+docker compose exec collector amz-stats collect --out-dir /work/out --domains-root "$HOME/projects/domains"
 ```
 
 ## Verify credentials
