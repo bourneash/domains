@@ -30,6 +30,11 @@ Usage:
 
 Silent no-op if SLACK_BOT_TOKEN is unset. Never raises — a broken notification
 must never fail the caller's role/deploy.
+
+Deployer success posts ("Deploy shipped and verified live") are suppressed by
+default fleet-wide — deploys succeed constantly and the cards are pure noise.
+Failures/warnings always post. Set NOTIFY_ROLE_LOUD_OK=1 to restore ok posts
+for the deployer role (e.g. for a site you're actively watching).
 """
 import argparse
 import json
@@ -151,6 +156,11 @@ def main():
     token = os.environ.get("SLACK_BOT_TOKEN")
     if not token:
         print("[notify-role] SLACK_BOT_TOKEN unset — skipping")
+        return 0
+
+    if (args.role == "deployer" and args.status == "ok"
+            and os.environ.get("NOTIFY_ROLE_LOUD_OK") != "1"):
+        print("[notify-role] deployer success — suppressed (set NOTIFY_ROLE_LOUD_OK=1 to enable)")
         return 0
 
     channel = os.environ.get(args.channel_env) or args.channel_default
