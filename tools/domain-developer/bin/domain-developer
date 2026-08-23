@@ -9,7 +9,7 @@
 #   domain-developer americastrikes.com         # interactive shell in container
 #   domain-developer americastrikes.com claude  # run a command and exit
 #   domain-developer --list                     # list known sites
-#   domain-developer --stop americastrikes.com  # stop container
+#   domain-developer --stop americastrikes.com  # stop + destroy container
 #   domain-developer --rm   americastrikes.com  # remove container
 
 set -euo pipefail
@@ -48,6 +48,21 @@ start_or_attach() {
     local state="absent"
     if docker inspect "${cname}" >/dev/null 2>&1; then
         state="$(docker inspect --format '{{.State.Status}}' "${cname}" 2>/dev/null | tr -d '[:space:]')"
+    fi
+
+    # ── Cattle, not pets ───────────────────────────────────────────────────
+    # Anything that is not CURRENTLY RUNNING gets destroyed and rebuilt from
+    # the current image — we never `docker start` a stopped container back to
+    # life. That resurrection path was the image-drift hole: `docker start`
+    # reuses whatever image the container object was created from, so a
+    # `dd-build` landed while a worker sat idle-stopped would silently never
+    # reach it. Destroying is free: every byte of durable state lives on host
+    # bind mounts (REDESIGN.md), and a fresh boot re-copies the host's current
+    # OAuth credential on the way up, which is also the auth story we want.
+    if [[ "${state}" != "absent" && "${state}" != "running" ]]; then
+        echo "Container ${cname} exists but is ${state} — destroying and recreating from current image (state is on host binds)..."
+        docker rm -f "${cname}" >/dev/null 2>&1 || true
+        state="absent"
     fi
 
     if [[ "${state}" == "absent" ]]; then
@@ -90,7 +105,9 @@ start_or_attach() {
         docker run -d \
             --name "${cname}" \
             --hostname "dd-${site}" \
-            --restart unless-stopped \
+            --label dd.role=worker \
+            --label "dd.site=${site}" \
+            --restart no \
             --stop-timeout 30 \
             --workdir "${dir}" \
             -v "${dir}:${dir}" \
@@ -105,8 +122,18 @@ start_or_attach() {
             -e "HOST_HOME=${HOME}" \
             -e "TTYD_PORT=7681" \
             "${IMAGE}" >/dev/null
-    elif [[ "${state}" != "running" ]]; then
-        docker start "${cname}" >/dev/null
+    fi
+
+    # A worker that was already running when we got here may predate the
+    # current image. We do NOT kill it — someone may be mid-session — but a
+    # silent stale worker is exactly the drift cattle is supposed to make
+    # impossible, so say so and offer the one-liner that fixes it.
+    local want_img have_img
+    want_img="$(docker image inspect --format '{{.Id}}' "${IMAGE}" 2>/dev/null || true)"
+    have_img="$(docker inspect --format '{{.Image}}' "${cname}" 2>/dev/null || true)"
+    if [[ -n "${want_img}" && -n "${have_img}" && "${want_img}" != "${have_img}" ]]; then
+        echo "[warn] ${cname} is running an OLDER image than ${IMAGE}." >&2
+        echo "[warn] Recreate when convenient: ${HERE}/dd-recreate ${site}" >&2
     fi
 
     local tty_flags=("-i")
@@ -122,7 +149,11 @@ start_or_attach() {
 case "${1:-}" in
     ''|-h|--help) usage 0 ;;
     --list)       list_sites ;;
-    --stop)       shift; [[ $# -ge 1 ]] || usage 1; docker stop "$(container_for "$1")" ;;
+    # A stopped-but-present worker is exactly the pet we refuse to keep, so
+    # --stop destroys it too. Nothing durable is in the container.
+    --stop)       shift; [[ $# -ge 1 ]] || usage 1
+                  docker stop "$(container_for "$1")" >/dev/null 2>&1 || true
+                  docker rm   "$(container_for "$1")" ;;
     --rm)         shift; [[ $# -ge 1 ]] || usage 1; docker stop "$(container_for "$1")" 2>/dev/null || true; docker rm "$(container_for "$1")" ;;
     --*)          echo "unknown flag: $1" >&2; usage 1 ;;
     *)            site="$1"; shift; start_or_attach "${site}" "$@" ;;

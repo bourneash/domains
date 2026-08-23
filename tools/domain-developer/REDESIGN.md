@@ -38,6 +38,43 @@ immediately, so assume gone.)
 under `tools/domain-developer/state/<site>/`; images kept = `domain-developer:latest`,
 `domain-developer-panel:latest`; all 3 containers run + `dd-doctor` 15/15.
 
+## FOLLOW-ON 2026-08-23 — cattle, not pets (workers are now disposable)
+
+The durability redesign made worker state independent of the container. This
+follow-on cashes that in: `dd-<site>` workers are now **destroyed rather than
+resurrected**, have **no restart policy**, and have a **bounded unattended
+lifetime**. Full rationale in `README.md` § "Workers are cattle, not pets";
+mechanics in `tools/scripts/reap-idle-dd-workers.sh`'s header; invariants
+asserted by `bin/dd-doctor`'s CATTLE checks.
+
+Two silent failures were found and fixed while proving it end to end. Both are
+worth remembering because both *looked* like working code:
+
+1. **The idle reaper could never fire.** `check-dd-containers-auth.sh` ran a
+   real `claude -p` probe inside every worker every 10 minutes. That probe
+   wrote a fresh transcript, security log and config backup into the worker's
+   host-bound state dir — the exact directory the reaper reads mtimes from to
+   decide "is anyone using this?". Every worker therefore read as active-
+   within-10-minutes, permanently. The probe was removed (it cost money and
+   told us nothing the credential sync doesn't), and the files that job still
+   writes are excluded from the idle signal.
+
+2. **The reaper never ran correctly from cron at all.** It used
+   `find -printf '%T@'` and `date -d <RFC3339>` — both GNU-only. `fleet-cron`
+   is Alpine, so under BusyBox every worker reported "can't determine
+   idleness — skipping". It only ever appeared to work because it was
+   hand-tested on the host. Both are now done in python3, which is already a
+   hard dependency there. **This is the same class of bug as the 2026-05-30
+   BusyBox `cp -n` silent no-op below** — that one cost a per-site Claude
+   cache. Test container scripts with `docker exec fleet-cron`, never only on
+   the host.
+
+Verified end to end 2026-08-23: destroy+rebuild is lossless (marker file
+survives), cold start is ~1.1s total (0.6s `docker run`, ttyd serving 200
+within another 0.5s), all four reap paths (idle, image-drift, corpse-grace,
+corpse-sweep) exercised for real inside the Alpine fleet-cron container, and
+`dd-doctor` is 16/16 with the two live workers converted.
+
 ## Progress
 - [x] **1. Writable creds + settings** — entrypoint copies `.credentials.json` (first-boot) + `settings.json` (every boot) in writable from `/host-claude-ro/`; both entry points stage them RO instead of binding RO at destination.
 - [x] **2. State on host binds** — `STATE_ROOT=tools/domain-developer/state/<site>/{claude,persist}` replaces the `dd-claude-*`/`dd-home-*` named volumes in both entry points; compose mounts the state dir RW into the panel; entrypoint `sudo chown`s the mountpoints; `state/.gitignore` keeps creds/transcripts out of git.

@@ -38,10 +38,44 @@
 # --- Job 7: fleet registry drift check (zero-AI, filesystem + YAML only) ---
 35 6 * * * /home/jesse/projects/domains/tools/scripts/registry-drift-cron.sh
 
-# --- Job 8: domain-developer worker Claude-auth guard (2026-08-16 incident) ---
-# Self-heals dd-<site> workers on confirmed auth failure (restart re-copies
-# the current host credential) and proactively restarts them every 12h
-# (staggered per-site) so an idle worker can't silently drift past the
-# host's ~8h token-rotation window again. See script header for the full
-# story — companion to job 4, which only checks the host session.
-*/30 * * * * /home/jesse/projects/domains/tools/scripts/check-dd-containers-auth.sh
+# --- Job 8: domain-developer worker Claude-auth guard ---
+# 2026-08-16 incident: idle dd-* workers drifted past the host's OAuth
+# rotation and went to "Not logged in". 2026-08-23 incident: worse than
+# that — a stale worker credential got REDEEMED (not just expired), and
+# refresh-token reuse-detection revoked the whole shared family, logging out
+# the real host session too. Fixed by pushing a fresh copy of the host
+# credential into every worker EVERY TICK (cheap file copy, no API call —
+# see sync_credentials() in the script) instead of only at container start/
+# restart. Cadence tightened 30min -> 10min on 2026-08-23 so that sync window
+# — the actual defense now — stays tight. Later the same day the workers
+# became cattle (job 9), which BOUNDS a worker's unattended lifetime instead
+# of merely patching it every tick, so the script's proactive-restart loop
+# was deleted rather than retuned and self-heal now destroys instead of
+# restarting. See script header for the full incident writeup — companion to
+# job 4, which only checks the host session.
+*/10 * * * * /home/jesse/projects/domains/tools/scripts/check-dd-containers-auth.sh
+
+# --- Job 9: idle dd-* worker reaper (cattle, not pets) ---
+# domain-developer workers are meant to be spun up "on demand" (README.md)
+# but `--restart unless-stopped` with no idle-timeout meant once started they
+# ran indefinitely — the root enabler of both auth incidents above (a worker
+# that's been up for days is a worker whose credential copy has had days to
+# drift). State lives entirely on host bind mounts (REDESIGN.md), so a
+# destroyed worker loses nothing and `domain-developer <site>` / the panel
+# brings it back in seconds, re-running the entrypoint's fresh credential
+# copy on the way up.
+#
+# This job is only ONE THIRD of the cattle fix and cannot deliver it alone —
+# the create path (bin/domain-developer + server/server.js: no restart
+# policy, destroy-and-recreate instead of `docker start`) and the verifier
+# (bin/dd-doctor's CATTLE checks) are the other two. Read the script header
+# before changing any of them.
+#
+# Stops AND REMOVES any dd-* worker that is idle past
+# DD_IDLE_THRESHOLD_SEC (default 4h), is running a stale image while idle
+# past DD_DRIFT_IDLE_GRACE_SEC (15min), or is a dead container object past
+# DD_CORPSE_GRACE_SEC (1h, kept that long so a crash-on-boot is still
+# inspectable with `docker logs`). Removing rather than stopping is load-
+# bearing: a stopped container pins the image it was created from forever.
+# Supports --dry-run.
+*/30 * * * * /home/jesse/projects/domains/tools/scripts/reap-idle-dd-workers.sh

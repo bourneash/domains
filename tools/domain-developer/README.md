@@ -7,7 +7,7 @@ Sandboxed per-site dev containers for the domains portfolio. Each site gets its 
 Two layers, both containerized:
 
 - **Management plane** — `dd-panel` runs inside its own Docker container, listening on `127.0.0.1:7777`. It talks to the host Docker daemon via the mounted socket and spawns **sibling** worker containers. Not a host process; lifecycle is fully managed by `bin/dd-up` / `bin/dd-down`.
-- **Workers** — one `dd-<site>` container per site, spun up on demand by the panel (or by the CLI). Each runs ttyd → bash + claude with only that site's directory mounted at `/work`.
+- **Workers** — one `dd-<site>` container per site, spun up on demand by the panel (or by the CLI). Each runs ttyd → bash + claude with only that site's directory mounted at `/work`. Workers are **cattle, not pets** — see below.
 
 ## Quickstart
 
@@ -73,8 +73,48 @@ Per-site port assignments persist in `tools/domain-developer/state.json` (file-m
 | `bin/dd-down`             | Stop the panel. Leaves worker containers alone. |
 | `bin/dd-down --all`       | Also stop every `dd-<site>` worker. |
 | `bin/dd-down --purge`     | Stop AND remove every worker (named volumes kept). |
+| `bin/dd-recreate <site>`  | Destroy + rebuild one worker from the current image. State preserved. |
+| `bin/dd-doctor [site]`    | Verify the durability + cattle invariants. Exit non-zero on any violation. |
 | `bin/dd-build`            | Rebuild the worker base image (`domain-developer:latest`). |
 | `bin/domain-developer <site>` | Direct CLI shell (works without the panel). |
+
+### Workers are cattle, not pets
+
+A `dd-<site>` worker container is **disposable and never resurrected**. Concretely:
+
+- **No restart policy.** Workers are created with `--restart no`. They previously
+  used `--restart unless-stopped`, which meant every worker ever started came back
+  after any daemon or host restart, whether or not anyone wanted it.
+- **Not-running means destroyed.** Both entry points (`bin/domain-developer` and the
+  panel's `startContainer`) destroy any container that isn't currently *running* and
+  create a fresh one, rather than `docker start`ing it back to life. This is the
+  load-bearing part: a stopped container object pins the image it was created from
+  forever, so a `dd-build` landing while a worker sat stopped would silently never
+  reach it.
+- **Stop means destroy.** The panel's Shut down button and `domain-developer --stop`
+  both remove the container. There is no "parked worker" state to accumulate in.
+- **Bounded lifetime.** `tools/scripts/reap-idle-dd-workers.sh` (fleet-cron job 9)
+  destroys workers idle past 4h, workers running a stale image while idle past 15min,
+  and dead container objects past a 1h `docker logs` postmortem window.
+- **Verified, not assumed.** `bin/dd-doctor`'s CATTLE checks assert all of the above
+  on every live container, so a regression shows up as a failing gate rather than as
+  the next incident.
+
+This is safe **only** because of the durability redesign (`REDESIGN.md`): every byte
+of durable state — site code, Claude config, transcripts, scratch — lives on host
+bind mounts, never in the container. Destroying a worker loses nothing and a rebuild
+takes about a second end-to-end (measured: 0.6s for `docker run`, ttyd serving HTTP
+200 within another 0.5s). If you ever move state back into the container or into a
+named volume, this whole model becomes unsafe.
+
+The one pet the model can still produce is a **long-running active session started
+before the last `dd-build`**. That is never auto-killed — someone may be mid-thought
+— but it is never silent either: the panel shows a `⚠ stale image` badge, `dd-doctor`
+fails on it, and the reaper posts to Slack. Fix it with `bin/dd-recreate <site>`.
+
+`dd-panel` itself deliberately keeps `--restart unless-stopped`. It is the control
+plane, not a worker: it is compose-managed, rebuilt from source on every `dd-up`, and
+holds no per-site state. `dd-doctor` excludes it. Do not "fix" it.
 
 ### Why the panel itself is containerized
 

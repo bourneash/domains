@@ -12,6 +12,16 @@
 #   3. /home/dev/.claude is a HOST BIND (not a named volume)             [RC2]
 #   4. /home/dev/persist is a HOST BIND (not a named volume)             [RC2]
 #   5. tmux is installed in the image (session survives a bounce)        [RC2]
+#   6. NO restart policy — a worker must never resurrect itself         [CATTLE]
+#   7. container is RUNNING — a stopped dd-* container is a pet that
+#      pins its creation-time image; the reaper should have removed it  [CATTLE]
+#   8. running image == domain-developer:latest — a worker created
+#      before the last dd-build is silently on stale code              [CATTLE]
+#
+# CATTLE checks correspond to the cattle-not-pets model: worker containers are
+# disposable, never resurrected, never outlive their session. See
+# tools/scripts/reap-idle-dd-workers.sh's header for the full three-part fix
+# (create path, reaper, this verifier).
 #
 # Exit 0 only if every checked container passes every check.
 
@@ -19,6 +29,9 @@ set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_REPO="$(cd "${HERE}/../../.." && pwd)"
+
+IMAGE="${DD_IMAGE:-domain-developer:latest}"
+WANT_IMAGE_ID="$(docker image inspect --format '{{.Id}}' "${IMAGE}" 2>/dev/null || true)"
 
 pass=0; fail=0
 ok()   { printf '  \033[32m✓\033[0m %s\n' "$1"; pass=$((pass+1)); }
@@ -89,6 +102,47 @@ check_one() {
         else
             bad "tmux NOT installed → REPL dies when the container bounces"
         fi
+    fi
+
+    # 6. no restart policy [CATTLE]. `unless-stopped` is what made these
+    #    containers immortal: they came back after every daemon/host restart
+    #    whether or not anyone wanted them, so the fleet accumulated workers
+    #    nobody had deliberately started.
+    local rpol
+    rpol="$(docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' "$c" 2>/dev/null)"
+    case "${rpol}" in
+        ''|no) ok "no restart policy (worker cannot resurrect itself)" ;;
+        *) bad "restart policy is '${rpol}' → this worker is a pet, it comes back on its own"
+           note "recreate it: ${HERE}/dd-recreate ${c#dd-}" ;;
+    esac
+
+    # 7. must be running [CATTLE]. A stopped-but-present dd-* container pins
+    #    the image it was created from, so a later dd-build can never reach
+    #    it. Both entry points now destroy rather than `docker start` such a
+    #    container, and the reaper sweeps corpses — so finding one here means
+    #    either the reaper is broken or something is creating them by hand.
+    if [[ "${running}" == "true" ]]; then
+        ok "running (no parked container object)"
+    else
+        local st; st="$(docker inspect -f '{{.State.Status}}' "$c" 2>/dev/null)"
+        bad "container exists but is '${st}' → a parked pet pinning a stale image"
+        note "remove it: docker rm ${c}   (state lives on host binds, nothing is lost)"
+        note "if this keeps reappearing, check tools/scripts/reap-idle-dd-workers.sh is running (crontab.docker job 9)"
+    fi
+
+    # 8. image freshness [CATTLE]. The one pet the model can still produce is
+    #    a LONG-lived active session started before the most recent dd-build.
+    #    Never auto-killed; must never be silent either.
+    if [[ -n "${WANT_IMAGE_ID}" ]]; then
+        local have_id; have_id="$(docker inspect -f '{{.Image}}' "$c" 2>/dev/null)"
+        if [[ "${have_id}" == "${WANT_IMAGE_ID}" ]]; then
+            ok "running the current ${IMAGE}"
+        else
+            bad "running an OLDER image than ${IMAGE} → stale code/toolchain"
+            note "recreate it: ${HERE}/dd-recreate ${c#dd-}   (state is preserved)"
+        fi
+    else
+        note "${IMAGE} not present locally — skipping image-freshness check"
     fi
 }
 

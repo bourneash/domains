@@ -353,7 +353,7 @@
     <div class="side-foot" id="side-foot">loading…</div>
     <div class="side-fleet-actions">
       <button id="fleet-stats-btn" class="" title="Poll live CPU/mem for all running sandboxes">📊 Stats</button>
-      <button id="fleet-stop-all-btn" class="" title="Stop every running sandbox container">⏹ Stop all</button>
+      <button id="fleet-stop-all-btn" class="" title="Shut down every running sandbox container (destroys them; host-bind state is kept)">⏹ Shut down all</button>
       <button id="fleet-remove-stopped-btn" class="" title="Remove every non-running dd-* container">🧹 Remove stopped</button>
       <button id="fleet-clean-orphans-btn" class="" title="Remove dangling containers + stale port allocations for sites that no longer exist">🗑 Clean orphans</button>
     </div>
@@ -541,6 +541,18 @@ function renderToolbar() {
   status.className = 'site-status ' + (s.status === 'running' ? 'ok' : 'off');
   status.textContent = s.status === 'running' ? '● running' : '○ ' + s.status;
   tb.append(title, status);
+  // Drift warning: this worker predates the current domain-developer image.
+  // Not fatal and never auto-killed (someone may be mid-session), but it must
+  // never be silent — a stale running worker is the one pet the cattle model
+  // can still produce.
+  if (s.imageStale && s.status === 'running') {
+    const stale = document.createElement('div');
+    stale.className = 'site-status';
+    stale.style.color = 'var(--accent)';
+    stale.title = 'Running an older domain-developer image than :latest. Use Recreate to rebuild from the current image (state is preserved).';
+    stale.textContent = '⚠ stale image';
+    tb.append(stale);
+  }
 
   const btn = (label, opts={}) => {
     const b = document.createElement('button');
@@ -603,11 +615,22 @@ function renderToolbar() {
       btn('Fleet ↗', { onclick: () => window.open(s.fleetDashboardUrl, '_blank', 'noopener'), title: 'Open Fleet Dashboard control plane' }),
       btn('Tracker ↗', { onclick: () => window.open(s.siteTrackerUrl, '_blank', 'noopener'), title: `Open ${s.name} in Site Tracker` }),
       sep(),
-      btn('Stop', { onclick: () => containerAction(s.name, 'stop') }),
-      btn('Remove', { danger: true, onclick: () => {
-        if (!confirm(`Remove container for ${s.name}? (site code untouched, claude state volume kept)`)) return;
-        containerAction(s.name, 'remove');
-      }}),
+      // Cattle: stop destroys the container. There is no "stopped worker"
+      // state to park in — all durable state (claude config, transcripts,
+      // scratch, site code) is on host binds, so the container itself is
+      // disposable and Start rebuilds it from the CURRENT image in seconds.
+      btn('Shut down', { danger: true,
+        title: 'Stop and destroy this worker. State on host binds is kept; Start rebuilds it from the current image.',
+        onclick: () => {
+          if (!confirm(`Shut down the ${s.name} worker?\n\nThe container is destroyed (cattle, not pets) — site code, Claude state, transcripts and scratch all live on host binds and are untouched. Start rebuilds it from the current image in a few seconds.`)) return;
+          containerAction(s.name, 'stop');
+        }}),
+      btn('Recreate', {
+        title: 'Destroy and immediately rebuild from the current domain-developer image (use after dd-build).',
+        onclick: () => {
+          if (!confirm(`Recreate the ${s.name} worker from the current image?\n\nAny live terminal session in this worker ends. State on host binds is preserved.`)) return;
+          containerAction(s.name, 'recreate');
+        }}),
     );
   } else {
     // 'absent' = never created. Anything else (exited, created, restarting…)
@@ -626,10 +649,12 @@ function renderToolbar() {
     );
     if (exists) {
       tb.append(
-        btn('Remove', { danger: true, onclick: () => {
-          if (!confirm(`Remove container for ${s.name}? (site code untouched, claude state volume kept)`)) return;
-          containerAction(s.name, 'remove');
-        }}),
+        btn('Remove', { danger: true,
+          title: 'Legacy stopped container — under the cattle model these should not exist; Start would destroy it anyway.',
+          onclick: () => {
+            if (!confirm(`Remove the leftover ${s.name} container? (site code and host-bind state untouched)`)) return;
+            containerAction(s.name, 'remove');
+          }}),
       );
     }
   }
@@ -954,7 +979,7 @@ async function renderFleetStats() {
 }
 $('#fleet-stats-btn').addEventListener('click', renderFleetStats);
 $('#fleet-stop-all-btn').addEventListener('click', async () => {
-  if (!confirm('Stop every running sandbox container?')) return;
+  if (!confirm('Shut down every running sandbox container?\n\nContainers are destroyed (cattle, not pets); all state lives on host binds and is kept.')) return;
   const r = await api('/api/sites/stop-all', { method: 'POST' });
   if (r.errors && r.errors.length) alert('Some sites failed to stop:\n' + r.errors.map(e => `${e.site}: ${e.error}`).join('\n'));
   await refresh();

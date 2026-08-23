@@ -3,8 +3,14 @@
 # containers running (so an in-flight claude session isn't killed).
 #
 # Flags:
-#   --all       also stop every dd-<site> worker container
-#   --purge     also REMOVE every dd-<site> worker container (volumes kept)
+#   --all       also shut down every dd-<site> worker container
+#   --purge     alias for --all, kept for muscle memory
+#
+# Workers are cattle (see ../README.md): "stop" and "remove" are the same
+# operation here, because a stopped-but-present worker is exactly the pet the
+# model refuses to keep — it pins the image it was created from and nothing
+# durable lives inside it. So --all removes too, and --purge is now just an
+# alias rather than a stronger mode.
 
 set -euo pipefail
 
@@ -14,7 +20,7 @@ TOOL_DIR="$(cd "${HERE}/.." && pwd)"
 mode="panel-only"
 case "${1:-}" in
     ''|--panel-only) mode="panel-only" ;;
-    --all)           mode="stop-all"   ;;
+    --all)           mode="purge"      ;;
     --purge)         mode="purge"      ;;
     -h|--help)
         sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
@@ -33,7 +39,8 @@ if [[ "${mode}" == "panel-only" ]]; then
         echo
         echo "Worker containers still running:"
         printf '  %s\n' ${running}
-        echo "  (use --all to also stop them, --purge to remove them)"
+        echo "  (use --all to shut them down too — they are destroyed, not parked;"
+        echo "   all state is on host binds, so a restart rebuilds them in ~1s)"
     fi
     exit 0
 fi
@@ -45,10 +52,9 @@ if [[ -z "${workers}" ]]; then
 fi
 
 for w in ${workers}; do
-    case "${mode}" in
-        stop-all) echo "  stopping ${w}"; docker stop "${w}" >/dev/null || true ;;
-        purge)    echo "  removing ${w}"; docker stop "${w}" >/dev/null 2>&1 || true; docker rm "${w}" >/dev/null || true ;;
-    esac
+    echo "  destroying ${w}"
+    docker stop "${w}" >/dev/null 2>&1 || true
+    docker rm   "${w}" >/dev/null 2>&1 || true
 done
 
 echo "[dd-down] done."
