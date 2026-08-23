@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from pathlib import Path
 
 from .api import AMZClient, AMZError
@@ -99,6 +100,7 @@ def collect_catalog(
     client: AMZClient,
     asins_by_site: dict[str, list[str]],
     batch_size: int = 10,
+    batch_delay: float = 1.0,
 ) -> dict:
     """Call the Amazon Creators API for every unique ASIN across all sites.
 
@@ -127,17 +129,34 @@ def collect_catalog(
     for i in range(0, len(unique_asins), batch_size):
         batch = unique_asins[i: i + batch_size]
         batch_count += 1
+        if batch_count > 1 and batch_delay > 0:
+            time.sleep(batch_delay)
         try:
             response = client.get_items(batch)
-            items = (response.get("itemsResult") or {}).get("items") or []
-            for item in items:
-                asin = item.get("asin")
-                if asin:
-                    parsed[asin] = _parse_item(item)
         except AMZError as exc:
-            log.error("collect_catalog: batch %d failed (%s); marking %d ASINs as errors",
-                      batch_count, exc, len(batch))
-            errors.extend(batch)
+            if exc.status == 429:
+                # Client already retried internally; back off harder and try this
+                # batch once more before giving up on it.
+                log.warning("collect_catalog: batch %d rate-limited, backing off %.1fs and retrying",
+                            batch_count, batch_delay * 5)
+                time.sleep(batch_delay * 5)
+                try:
+                    response = client.get_items(batch)
+                except AMZError as exc2:
+                    log.error("collect_catalog: batch %d failed after retry (%s); marking %d ASINs as errors",
+                              batch_count, exc2, len(batch))
+                    errors.extend(batch)
+                    continue
+            else:
+                log.error("collect_catalog: batch %d failed (%s); marking %d ASINs as errors",
+                          batch_count, exc, len(batch))
+                errors.extend(batch)
+                continue
+        items = (response.get("itemsResult") or {}).get("items") or []
+        for item in items:
+            asin = item.get("asin")
+            if asin:
+                parsed[asin] = _parse_item(item)
 
     return {
         "ok": True,

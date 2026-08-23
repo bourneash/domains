@@ -141,3 +141,6 @@
 [submodule "sites/offshorehookup.com"]
 	path = sites/offshorehookup.com
 	url = git@github-bourneash:bourneash/offshorehookup.com.git
+[submodule "sites/unsupervisedmedia.com"]
+	path = sites/unsupervisedmedia.com
+	url = git@github-bourneash:bourneash/unsupervisedmedia.com.git
