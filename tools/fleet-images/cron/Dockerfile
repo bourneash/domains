@@ -22,7 +22,18 @@
 #     committed, because nothing rebuilt its image. Never bake the crontab.
 #   - anything site-specific at all. If you find yourself wanting a site
 #     conditional here, it belongs in that site's crontab or its ops/ scripts.
-FROM alpine:3.20.6
+# Base pinned by DIGEST, not just tag. A tag is mutable: `alpine:3.20.6` can be
+# republished, so a rebuild months from now could silently produce a different
+# image from the one the fleet was verified against — and with 26 sites on one
+# image, "silently different" is the expensive kind of surprise.
+#
+# The cost is that security updates no longer arrive for free on rebuild. That
+# is the intended trade: updates become a deliberate, reviewed, smoke-gated
+# bump instead of an invisible one.
+#
+# To bump:  tools/fleet-images/bin/fleet-image-bases --update
+#           then rebuild; fleet-image-smoke gates the promotion.
+FROM alpine:3.20.6@sha256:de4fe7064d8f98419ea6b49190df1abbf43450c1702eeb864fe9ced453c1cc5f
 
 # Package set is the UNION of what every site's crontab actually invokes, not
 # a guess. Audited across all 27 crontabs on 2026-08-23:

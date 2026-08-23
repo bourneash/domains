@@ -116,3 +116,17 @@
 # Does NOT use --probe-worker (a container start per site) — that is a rollout
 # gate, run by hand after an image roll, not a background job.
 50 */6 * * * /home/jesse/projects/domains/tools/scripts/fleet-images-drift-cron.sh
+
+# --- Job 12: shared-image base-digest drift check ---
+# The two shared images pin their bases by DIGEST, which buys reproducibility
+# and costs free security updates on rebuild. That trade is only honest if
+# someone notices when the upstream tag moves — otherwise the pin quietly rots
+# and the next person rips it out to get unstuck.
+#
+# Weekly, read-only: compares each pinned digest against what the tag resolves
+# to now and exits non-zero when a bump is available. Does NOT build, tag or
+# roll anything. Bump deliberately with:
+#     tools/fleet-images/bin/fleet-image-bases --update
+#     tools/fleet-images/bin/fleet-image-build all --version <next>
+# fleet-image-smoke gates the promotion, so a bad base cannot reach :latest.
+30 5 * * 1 /home/jesse/projects/domains/tools/fleet-images/bin/fleet-image-bases --check

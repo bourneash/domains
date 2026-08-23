@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# fleet-image-bases [--check|--update]
+#
+# Show, and optionally bump, the DIGESTS the shared images' base images are
+# pinned to.
+#
+# WHY PINNING NEEDS THIS TOOL
+# Digest-pinning a base buys reproducibility and costs you free security
+# updates: `alpine:3.20.6` and `node:22-bookworm-slim` are republished
+# regularly, and a pin means a rebuild keeps producing the image the fleet was
+# verified against rather than whatever upstream published last night.
+#
+# That trade is only honest if bumping is easy and visible. A pin nobody can
+# comfortably move is not a pin, it is rot — the base quietly ages out and the
+# next person rips the digest out entirely to get unstuck. So:
+#
+#   --check   (default) compare each pinned digest against what the tag points
+#             to upstream RIGHT NOW, and say whether a bump is available.
+#             Cheap; safe to run on a schedule or before a release.
+#   --update  rewrite the Dockerfiles to the current upstream digests.
+#             Does NOT build — you rebuild afterwards, and fleet-image-smoke
+#             gates the promotion, so a bad base cannot reach :latest.
+#
+# Nothing here moves a :latest tag or touches a running container.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMAGES_DIR="$(cd "${HERE}/.." && pwd)"
+
+MODE="check"
+case "${1:-}" in
+  ""|--check) MODE="check" ;;
+  --update)   MODE="update" ;;
+  -h|--help)  sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  *) echo "unknown flag: $1" >&2; exit 1 ;;
+esac
+
+say()  { printf '\033[1m[fleet-image-bases]\033[0m %s\n' "$*"; }
+warn() { printf '\033[33m[fleet-image-bases]\033[0m %s\n' "$*"; }
+
+drift=0
+
+for kind in cron worker; do
+  df="${IMAGES_DIR}/${kind}/Dockerfile"
+  [[ -f "$df" ]] || continue
+
+  line="$(grep -m1 -E '^FROM ' "$df")"
+  ref="${line#FROM }"; ref="${ref%% *}"
+  tag="${ref%@*}"
+  pinned="${ref#*@}"
+  if [[ "$pinned" == "$ref" ]]; then
+    warn "${kind}: ${tag} is NOT digest-pinned"
+    drift=1
+    continue
+  fi
+
+  # Resolve what the tag points at upstream right now. `docker pull -q` updates
+  # the local RepoDigests for that tag.
+  if ! docker pull -q "$tag" >/dev/null 2>&1; then
+    warn "${kind}: could not reach the registry for ${tag} — skipping"
+    continue
+  fi
+  current="$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}' 2>/dev/null)"
+  current="${current#*@}"
+
+  if [[ -z "$current" ]]; then
+    warn "${kind}: could not resolve a digest for ${tag}"
+    continue
+  fi
+
+  if [[ "$pinned" == "$current" ]]; then
+    printf '  \033[32m✓\033[0m %-8s %-32s up to date (%s)\n' "$kind" "$tag" "${pinned:7:12}"
+    continue
+  fi
+
+  drift=1
+  printf '  \033[33m↑\033[0m %-8s %-32s pinned %s -> upstream %s\n' \
+      "$kind" "$tag" "${pinned:7:12}" "${current:7:12}"
+
+  if [[ "$MODE" == "update" ]]; then
+    # Substitute only the digest on the FROM line; everything else is untouched.
+    python3 - "$df" "$pinned" "$current" <<'PYEOF'
+import sys
+path, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
+s = open(path).read()
+assert old in s, "pinned digest not found in " + path
+open(path, 'w').write(s.replace(old, new, 1))
+PYEOF
+    say "  ${kind}: Dockerfile updated"
+  fi
+done
+
+echo
+if [[ "$MODE" == "update" ]]; then
+  if (( drift )); then
+    say "Bases updated. Now rebuild — smoke gates the promotion, so a bad base cannot reach :latest:"
+    say "    tools/fleet-images/bin/fleet-image-build all --version <next>"
+    say "    tools/fleet-images/bin/fleet-image-build cron --roll"
+  else
+    say "Nothing to update."
+  fi
+  exit 0
+fi
+
+if (( drift )); then
+  say "A newer base is available. Bump deliberately with: $0 --update"
+  exit 1
+fi
+say "All bases are pinned to the current upstream digests."

@@ -39,6 +39,9 @@ VERSION=""
 NO_CACHE=0
 ROLL=0
 ONLY_SITES=""
+# Escape hatch. Exists for debugging a build whose smoke failure is the thing
+# you are investigating — not for shipping past a red gate.
+SKIP_SMOKE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -46,6 +49,7 @@ while [[ $# -gt 0 ]]; do
     --no-cache) NO_CACHE=1 ;;
     --roll)     ROLL=1 ;;
     --sites)    shift; ONLY_SITES="${1:-}" ;;
+    --skip-smoke) SKIP_SMOKE=1 ;;
     -h|--help)  sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown flag: $1" >&2; exit 1 ;;
   esac
@@ -66,25 +70,51 @@ say()  { printf '\033[1m[fleet-image-build]\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m[fleet-image-build]\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[31m[fleet-image-build]\033[0m %s\n' "$*" >&2; exit 1; }
 
+# Build -> SMOKE -> promote. The :latest tag is moved ONLY after the new image
+# passes fleet-image-smoke.
+#
+# This ordering is the whole point. Tagging :latest at build time (the original
+# behaviour) meant a broken image became the fleet's current image the instant
+# it compiled, and `--roll` would then push it to 26 sites. Three regressions
+# shipped that way on 2026-08-23 — a missing venv path, no Playwright browser
+# story, and a presence-guard that never matched — every one of which the smoke
+# suite now catches in about fifteen seconds.
+#
+# On failure the previous :latest is left exactly where it was, so the fleet
+# keeps running the last image known to work.
 build_one() {
   local kind="$1"
   local ctx="${IMAGES_DIR}/${kind}"
   local image="fleet-site-${kind}"
   [[ -f "${ctx}/Dockerfile" ]] || die "no Dockerfile at ${ctx}"
 
+  # Build the VERSION tag only. :latest is untouched until smoke passes.
   local args=(build --build-arg "FLEET_IMAGE_VERSION=${VERSION}"
-              -t "${image}:${VERSION}" -t "${image}:latest"
+              -t "${image}:${VERSION}"
               -f "${ctx}/Dockerfile" "${ctx}")
   (( NO_CACHE )) && args=(build --no-cache "${args[@]:1}")
 
-  say "building ${image}:${VERSION} (and :latest)"
+  say "building ${image}:${VERSION}"
   docker "${args[@]}" || die "${image} build FAILED — existing :latest left untouched"
 
-  local id ver
+  local ver
+  ver="$(docker image inspect --format '{{index .Config.Labels "org.domains.fleet.version"}}' "${image}:${VERSION}")"
+  [[ "$ver" == "$VERSION" ]] || die "${image}:${VERSION} label is '${ver}' — build did not stamp correctly"
+
+  if (( SKIP_SMOKE )); then
+    warn "--skip-smoke: promoting ${image}:${VERSION} to :latest WITHOUT verification"
+  else
+    say "smoke-testing ${image}:${VERSION} before promoting it to :latest"
+    if ! "${HERE}/fleet-image-smoke" "${kind}" --tag "${VERSION}"; then
+      die "${image}:${VERSION} FAILED smoke — :latest NOT moved, the fleet keeps running the previous image. Fix and rebuild, or inspect with: docker run --rm -it --entrypoint bash ${image}:${VERSION}"
+    fi
+  fi
+
+  docker tag "${image}:${VERSION}" "${image}:latest" || die "could not promote ${image}:${VERSION} to :latest"
+
+  local id
   id="$(docker image inspect --format '{{.Id}}' "${image}:latest")"
-  ver="$(docker image inspect --format '{{index .Config.Labels "org.domains.fleet.version"}}' "${image}:latest")"
-  [[ "$ver" == "$VERSION" ]] || die "${image}:latest label is '${ver}', expected '${VERSION}' — build did not stamp correctly"
-  say "✓ ${image}:latest = ${id:7:12} (version ${ver})"
+  say "✓ promoted ${image}:latest = ${id:7:12} (version ${ver})"
 }
 
 # ── which sites are on the shared images ────────────────────────────────────

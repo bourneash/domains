@@ -24,8 +24,12 @@
 # Standardising here retires that entire bug class in one change. Do not move
 # this image to Alpine to save space. The space is not worth it.
 # ─────────────────────────────────────────────────────────────────────────────
-ARG NODE_MAJOR=22
-FROM node:${NODE_MAJOR}-bookworm-slim
+# Base pinned by DIGEST — see the cron Dockerfile's note for the reasoning and
+# the bump procedure. NODE_MAJOR is gone deliberately: a build ARG cannot be
+# combined with a digest without the two silently disagreeing (the digest wins,
+# so the ARG would become a lie). The node major is part of the pin now.
+#   node major: 22   base: bookworm (Debian 12, glibc 2.36)
+FROM node:22-bookworm-slim@sha256:d649c27dae7ba0137b3cef5dd75baa422c08dc3d9e3fc0c23dfb172dc3cc6436
 
 # ── system packages: the UNION of what all 26 sites installed ───────────────
 # FONTS ARE LOAD-BEARING, not cosmetic. The editorial-card generators render

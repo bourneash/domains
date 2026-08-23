@@ -45,7 +45,9 @@ tools/fleet-images/
   cron/entrypoint.sh       shared cron entrypoint (absorbs all 6 old variants)
   worker/Dockerfile        the shared role-runner image (glibc)
   worker/entrypoint.sh     dispatcher — finds the site's own worker script
-  bin/fleet-image-build    build, tag, and --roll the shared images
+  bin/fleet-image-build    build -> SMOKE -> promote :latest, and --roll
+  bin/fleet-image-smoke    ~32 assertions; the gate that guards :latest
+  bin/fleet-image-bases    show / bump the pinned base-image digests
   bin/fleet-site-migrate   move ONE site onto the shared images
   bin/fleet-doctor         the executable spec; the gate
   precommit_check.sh       blocks NEW per-site Dockerfiles
@@ -70,6 +72,22 @@ tools/fleet-images/bin/fleet-site-migrate <site> --both
 (cd sites/<site> && docker compose up -d --force-recreate cron)
 tools/fleet-images/bin/fleet-doctor <site>
 ```
+
+## Two things guard every change
+
+**The smoke gate.** `fleet-image-build` builds the version tag, runs
+`fleet-image-smoke` against it, and only then moves `:latest`. A failing image
+leaves `:latest` exactly where it was, so the fleet keeps running the last
+image known to work. Every regression this migration shipped — a missing venv
+path, no Playwright browser story, a presence-guard that never matched, a root
+user — is now caught in ~15 seconds instead of in production. `--skip-smoke`
+exists for debugging a failing build, not for shipping past a red gate.
+
+**Digest-pinned bases.** Both Dockerfiles pin `FROM ... @sha256:...`, so a
+rebuild months from now cannot silently produce a different image. The cost is
+that security updates stop arriving for free; `fleet-image-bases --check` runs
+weekly (crontab job 12) and says when the upstream tag has moved, and
+`--update` rewrites the pins. Bumping is deliberate, reviewed and smoke-gated.
 
 ## The tagging model — read before changing it
 
@@ -106,4 +124,7 @@ image and would silently preserve the drift).
 - `tools/domain-developer/` — the `dd-*` developer workers; same cattle model, migrated first.
   `bin/dd-doctor` is the pattern `fleet-doctor` follows.
 - `tools/scripts/gc-docker.sh` — reclaims the build exhaust these rebuilds produce.
+- `tools/scripts/reclaim-docker-volumes.sh` — the ONLY sanctioned way to delete a
+  volume on this host. Proves regenerability from the volume's own contents before
+  deleting; `docker volume prune` stays forbidden after the 2026-05-30 cache loss.
 - `tools/cron-roles/` — the role archetypes the worker image runs.

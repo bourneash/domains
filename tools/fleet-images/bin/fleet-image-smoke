@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# fleet-image-smoke <cron|worker|all> [--tag TAG]
+#
+# Assert a built shared image can actually do the jobs the fleet asks of it,
+# BEFORE it becomes :latest and rolls to 26 sites.
+#
+# WHY THIS EXISTS — every check below is a regression that actually shipped
+# 2026-08-23, or a documented incident it would have caught:
+#
+#   fonts               resvg renders <text> as NOTHING with no system fonts,
+#                       so editorial cards come out blank. It looks like a
+#                       content bug, never a build bug, and nothing errors.
+#   glibc               workerd needs fcntl64/_dl_find_object; on musl the
+#                       astro cloudflare build gate cannot run at all.
+#                       broadwayshowgirls lost its gate to this.
+#   uid 1000            root writes into the bind-mounted repo corrupt
+#                       .git/objects (done to four sites), and claude-code
+#                       refuses --dangerously-skip-permissions as root.
+#   python deps         sinderella/broadwayshowgirls local-LLM roles import
+#                       these; a missing one fails the role, not the build.
+#   venv                sinderella's tea-writer runs a venv interpreter. The
+#                       first shared image had no venv path set and both its
+#                       roles exited 1. Shipped broken.
+#   PLAYWRIGHT_*        five sites use @playwright/test; two gate their DEPLOY
+#                       on it. The first shared image had no browser story and
+#                       broke sinderella's gate on a 30-minute cadence.
+#   ipv4first           without it the astro cloudflare prerenderer's vite
+#                       server binds ::1 while fetch hits 127.0.0.1 and the
+#                       build fails with an error that looks nothing like DNS.
+#   claude/bw pinned    a floating claude-code changes the agent runtime under
+#                       every role on every site at once.
+#
+# Twenty-odd assertions, ~15 seconds. Every regression this migration shipped
+# would have been caught here instead of in production.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+IMAGES_DIR="$(cd "${HERE}/.." && pwd)"
+
+TARGET="${1:-all}"
+[[ "$TARGET" == -* ]] && TARGET=all || shift || true
+TAG="latest"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --tag) shift; TAG="${1:-latest}" ;;
+    -h|--help) sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "unknown flag: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+pass=0; fail=0
+ok()  { pass=$((pass+1)); printf '  \033[32m✓\033[0m %s\n' "$1"; }
+bad() { fail=$((fail+1)); printf '  \033[31m✗\033[0m %s\n' "$1"; }
+
+# Run a probe inside the image and compare against an expectation.
+#   probe <image> <label> <expect-regex> <shell-command>
+probe() {
+  local image="$1" label="$2" expect="$3" cmd="$4" out
+  out="$(docker run --rm --entrypoint bash "$image" -c "$cmd" 2>&1 | tr -d '\r' | tail -1)"
+  if [[ "$out" =~ $expect ]]; then
+    ok "${label} (${out})"
+  else
+    bad "${label} — expected /${expect}/, got: ${out:-<no output>}"
+  fi
+}
+
+smoke_cron() {
+  local image="fleet-site-cron:${TAG}"
+  printf '\n\033[1m%s\033[0m\n' "$image"
+  docker image inspect "$image" >/dev/null 2>&1 || { bad "image not present"; return; }
+
+  probe "$image" "runs as uid 1000"            '^1000$'            'id -u'
+  probe "$image" "in the docker_host group"    'docker_host'       'id -Gn'
+  probe "$image" "supercronic present"         'supercronic'       'command -v supercronic'
+  # A cron image that can't reach the docker CLI schedules nothing but noise.
+  probe "$image" "docker CLI present"          'docker'            'command -v docker'
+  probe "$image" "docker compose plugin"       '^[0-9]+\.[0-9]+'   'docker compose version --short'
+  # git: 23 scheduled crontab lines call it (deployer gates use git ls-files).
+  probe "$image" "git present"                 'git'               'command -v git'
+  # node/npm: 10 scheduled lines call node/npm/npx directly at cron level.
+  probe "$image" "node present"                'node'              'command -v node'
+  probe "$image" "npm present"                 'npm'               'command -v npm'
+  probe "$image" "python3 present"             'python3'           'command -v python3'
+  probe "$image" "timezone is America/New_York" 'America/New_York' 'echo "$TZ"'
+  probe "$image" "version label stamped"       '^[0-9]+\.[0-9]+'   'echo "$FLEET_IMAGE_VERSION"'
+  probe "$image" "shared entrypoint installed" 'entrypoint-cron'   'ls /usr/local/bin/entrypoint-cron.sh'
+}
+
+smoke_worker() {
+  local image="fleet-site-worker:${TAG}"
+  printf '\n\033[1m%s\033[0m\n' "$image"
+  docker image inspect "$image" >/dev/null 2>&1 || { bad "image not present"; return; }
+
+  probe "$image" "runs as uid 1000"             '^1000$'           'id -u'
+  # THE load-bearing one. musl here means every astro build gate is dead.
+  probe "$image" "libc is GNU (not musl)"       'GNU|GLIBC'        'ldd --version 2>&1 | head -1'
+  probe "$image" "claude-code pinned"           '^2\.[0-9]+\.[0-9]+' 'claude --version 2>/dev/null | grep -oE "^[0-9.]+"'
+  probe "$image" "bitwarden CLI present"        '^[0-9]{4}\.'      'bw --version 2>/dev/null'
+  probe "$image" "system chromium present"      'Chromium'         'chromium --version'
+  probe "$image" "CHROMIUM_PATH resolves"       'chromium'         'test -x "$CHROMIUM_PATH" && echo "$CHROMIUM_PATH"'
+  probe "$image" "playwright-core entry exists" 'index.js'         'test -f "$PLAYWRIGHT_CORE_ENTRY" && echo "$PLAYWRIGHT_CORE_ENTRY"'
+  # =0 means "install browsers into node_modules", which for these sites is a
+  # persistent volume. Any other value re-downloads ~150MB per one-shot run.
+  probe "$image" "PLAYWRIGHT_BROWSERS_PATH=0"   '^0$'              'echo "$PLAYWRIGHT_BROWSERS_PATH"'
+  probe "$image" "NODE_OPTIONS ipv4first"       'ipv4first'        'echo "$NODE_OPTIONS"'
+  # Blank editorial cards are silent. Assert fonts EXIST, which is what
+  # resvg's loadSystemFonts() actually needs.
+  probe "$image" "system fonts installed"       '^[1-9][0-9]+$'    'fc-list | wc -l'
+  probe "$image" "imagemagick present"          'ImageMagick'      'convert --version | head -1'
+  probe "$image" "git present"                  'git'              'command -v git'
+  probe "$image" "ssh client present"           'ssh'              'command -v ssh'
+  probe "$image" "github host key pre-seeded"   'github'           'grep -o github /home/ops/.ssh/known_hosts | head -1'
+  probe "$image" "python deps import"           '^PYOK$'           'python3 -c "import yaml,PIL,httpx,openai,feedparser,requests,ephem;print(\"PYOK\")"'
+  probe "$image" "venv exists and imports"      '^VENVOK$'         '"$FLEET_VENV/bin/python" -c "import yaml,openai,feedparser,ephem;print(\"VENVOK\")"'
+  probe "$image" "node major is 22"             '^v22\.'           'node -v'
+  probe "$image" "version label stamped"        '^[0-9]+\.[0-9]+'  'echo "$FLEET_IMAGE_VERSION"'
+  probe "$image" "dispatcher entrypoint present" 'fleet-worker'    'ls /usr/local/bin/fleet-worker-entrypoint.sh'
+  # The dispatcher must FAIL loudly when there is no site mounted, never exit 0.
+  local rc
+  docker run --rm "fleet-site-worker:${TAG}" >/dev/null 2>&1; rc=$?
+  if [[ $rc -eq 127 ]]; then
+    ok "dispatcher exits 127 with no site mounted (fails loudly)"
+  else
+    bad "dispatcher exited ${rc} with no site mounted — expected 127"
+  fi
+}
+
+[[ "$TARGET" == "cron"   || "$TARGET" == "all" ]] && smoke_cron
+[[ "$TARGET" == "worker" || "$TARGET" == "all" ]] && smoke_worker
+
+printf '\n\033[1mfleet-image-smoke: %d passed, %d failed\033[0m\n' "$pass" "$fail"
+[[ "$fail" -eq 0 ]]
