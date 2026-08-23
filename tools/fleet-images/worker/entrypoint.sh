@@ -46,10 +46,19 @@ candidates=(
 ensure_playwright_browsers() {
     local site_dir="${ROOT}/site"
     [[ -d "${site_dir}/node_modules/@playwright/test" ]] || return 0
-    # Already present for the resolved version? `install` exits fast, but skip
-    # even that when we can see a browser directory.
-    if compgen -G "${site_dir}/node_modules/**/chromium*-*" >/dev/null 2>&1 \
-       || compgen -G "${site_dir}/node_modules/.cache/ms-playwright/chromium*" >/dev/null 2>&1; then
+    # Skip when the browser is already there. With PLAYWRIGHT_BROWSERS_PATH=0
+    # Playwright installs to node_modules/playwright-core/.local-browsers/ —
+    # THREE levels below node_modules, which matters: the first version of this
+    # guard globbed `node_modules/**/chromium*-*`, and `**` without `shopt -s
+    # globstar` collapses to a single `*`, so it matched nothing and re-ran the
+    # installer on every single worker invocation for these five sites.
+    # Verified against the real layout, not assumed:
+    #   node_modules/playwright-core/.local-browsers/chromium-1234
+    #   node_modules/playwright-core/.local-browsers/chromium_headless_shell-1234
+    shopt -s nullglob
+    local found=( "${site_dir}"/node_modules/playwright-core/.local-browsers/chromium-* )
+    shopt -u nullglob
+    if (( ${#found[@]} > 0 )); then
         return 0
     fi
     STAMP "installing Playwright chromium for $(basename "$ROOT") (cached in node_modules, one-time per version)"

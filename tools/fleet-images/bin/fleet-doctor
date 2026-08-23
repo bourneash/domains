@@ -200,6 +200,23 @@ check_site() {
     else
       ok "no per-site Dockerfile.worker"
     fi
+    # The cron entrypoint pre-resolves the worker image by NAME from this env
+    # var, independently of the compose service's `image:`. A site migrated in
+    # two passes (cron first, worker later) keeps the old per-site name here
+    # and the scheduler then hunts for an image that no longer exists — which
+    # is exactly what offshorehookup.com did, silently, until its cron log was
+    # read. Same value, two places, so assert they agree.
+    local envimg svcimg
+    envimg="$(grep -oE 'FLEET_WORKER_IMAGE: *\S+' "$compose" | head -1 | awk '{print $2}')"
+    svcimg="$(grep -oE 'image: *fleet-site-worker:\S+' "$compose" | head -1 | awk '{print $2}')"
+    if [[ -z "$envimg" ]]; then
+      pend "cron sets no FLEET_WORKER_IMAGE (entrypoint will use its default)"
+    elif [[ "$envimg" == "$svcimg" ]]; then
+      ok "FLEET_WORKER_IMAGE matches the worker service image"
+    else
+      bad "FLEET_WORKER_IMAGE=${envimg} but the worker service uses ${svcimg} — the scheduler will look for the wrong image"
+    fi
+
     if (( PROBE )); then
       local out rc
       # -T and </dev/null are BOTH load-bearing. `docker compose run` attaches
