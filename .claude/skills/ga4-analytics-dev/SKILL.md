@@ -161,23 +161,26 @@ files below. This section covers only the Analytics-tab-specific code.
    way `summary`/`top` do).
 4. Wire it into `renderAnalytics()` in `app.js`, reusing `.dh-*` classes.
    Remember `esc()` on every interpolated value.
-5. Ship: `server/*.js` change → `docker compose restart panel` (fleet-dashboard
-   is bind-mounted, no rebuild). `server/public/*` change → nothing, just
+5. Ship: `server/*.js` change →
+   `tools/fleet-dashboard/bin/fleet-dashboard restart` (fleet-dashboard is
+   bind-mounted, no rebuild). `server/public/*` change → nothing, just
    hard-refresh (or cache-bust `/?v=N#analytics` if testing via Playwright —
    a persistent browser context can serve stale `app.js` otherwise).
-6. Verify via `curl -s http://127.0.0.1:4754/api/analytics/<route> \|
-   python3 -m json.tool` after logging in (`POST /api/login` with `FD_TOKEN`
-   from `/home/jesse/projects/domains/.env`, cookie-based) — see
-   `fleet-dashboard-dev` skill for the exact login flow.
+6. Verify with `FD_TOKEN="$(tools/fleet-dashboard/bin/fleet-dashboard token)"`
+   then `curl -s -H "x-fd-token: $FD_TOKEN"
+   http://127.0.0.1:4754/api/analytics/<route> \| python3 -m json.tool`. Browser
+   sessions use a rolling 30-day cookie; see `fleet-dashboard-dev` for the exact
+   auth lifecycle.
 
 ## Gotchas (all hit building this, don't re-hit them)
 
 - **data-hub is image-baked, fleet-dashboard is bind-mounted** — opposite
   deploy models, opposite muscle memory. Mixing them up means either a
   wasted rebuild or a change that silently doesn't ship.
-- **`docker compose up` without `--env-file ../../.env`** fails on
-  fleet-dashboard with `FD_TOKEN missing` — compose needs that file for
-  variable interpolation, it's not auto-loaded from the shared `.env`.
+- **Raw `docker compose up` misses the shared env.** Use
+  `tools/fleet-dashboard/bin/fleet-dashboard up`; it supplies the repo-root
+  `.env`, host Docker GID, and health wait. Raw Compose still needs an explicit
+  `--env-file ../../.env` for image rebuilds.
 - **`prev == null` vs `!prev`** in any week-over-week delta code — `0` is a
   legitimate prior value, not an absence.
 - **Absence is not zero**, everywhere in this pipeline — a missing GSC key
@@ -200,7 +203,7 @@ Fleet Dashboard      http://127.0.0.1:4754      FD_TOKEN in /home/jesse/projects
 Registry             tools/data-hub/registry/sites-analytics.yaml   (gitignored, ga4-provision-owned)
 Collector cadence    daily 06:17 UTC            tools/data-hub/crontab.docker
 data-hub deploy      docker compose build && docker compose up -d   (image-baked — rebuild, not restart)
-Dashboard deploy     docker compose restart panel (server/*.js) / nothing (server/public/*)
+Dashboard deploy     tools/fleet-dashboard/bin/fleet-dashboard restart (server/*.js) / nothing (server/public/*)
 Health check         curl -s http://127.0.0.1:4760/metrics/health | python3 -m json.tool
 Related skills       fleet-dashboard-dev (general dashboard dev), domains-seo-history (ad-hoc CLI),
                       domains-cron-role-seo-analyst (the weekly automated consumer)

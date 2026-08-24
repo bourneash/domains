@@ -87,7 +87,7 @@ def call(method, path, body=None, **params):
     except urllib.error.URLError as e:
         sys.exit(
             f"error: cannot reach the fleet dashboard at {BASE} ({e.reason}).\n"
-            "  Is it up?  cd tools/fleet-dashboard && docker compose --env-file ../../.env up -d"
+            "  Is it up?  tools/fleet-dashboard/bin/fleet-dashboard up"
         )
 
 

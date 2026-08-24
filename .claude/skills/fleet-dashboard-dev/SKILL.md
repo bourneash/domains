@@ -1,24 +1,12 @@
 ---
 name: fleet-dashboard-dev
 description: >-
-  Develop, extend, debug, and deploy the Fleet Dashboard — the loopback control
-  plane at tools/fleet-dashboard (Node/Express + vanilla SPA on port 4754) that
-  gives one pane of glass over the whole domains portfolio: Domain Control (the
-  site × role matrix), per-agent pages (Engineers + every other run-worker.sh
-  role), Containers (list/restart/rebuild/logs), Git (status/commit/ignore/push),
-  and Tasks (per-site boards). Use this skill WHENEVER work touches the fleet
-  dashboard, even if Jesse doesn't name the tool — e.g. "add a tab/page to the
-  dashboard", "the Domain Control matrix should…", "add a new agent page",
-  "wire a button on the dashboard", "the Containers/Roles/Engineers view needs…",
-  "add an API endpoint to the panel", "the dashboard log tail / auto-refresh /
-  live-follow / breadcrumb / dropdown is broken", "make the dashboard show X",
-  "restart the panel", "the dashboard access token / login / FD_TOKEN", or
-  anything about localhost:4754 / the "Fleet Dashboard"
-  / "Domain Control". This skill carries the exact location, architecture, the
-  load-bearing deploy mechanics (what's live vs. needs restart vs. needs
-  rebuild), the SPA patterns (router, smooth refresh, live-follow, guardrails),
-  how to add a new agent/tab/endpoint, verification recipes, and the commit
-  convention — so changes ship correctly the first time.
+  Develop, extend, debug, deploy, or operate the Fleet Dashboard at
+  tools/fleet-dashboard (Node/Express + vanilla SPA, localhost:4754). Use for
+  dashboard tabs/views, API endpoints, Domain Control, agents, containers, Git,
+  tasks, cron, auth/FD_TOKEN/login, restarts/rebuilds, live logs, routing, or
+  auto-refresh. Carries the architecture, safe deploy and verification workflow,
+  security guardrails, operator commands, and commit convention.
 ---
 
 # Fleet Dashboard — Development
@@ -68,8 +56,8 @@ what each kind of change needs:
 | You changed… | How to ship it | Why |
 |---|---|---|
 | `server/public/*` (app.js, style.css, index.html) | **Nothing** — it's already live. Hard-refresh the page (or wait — open tabs self-update). | Static files served straight from the bind mount. |
-| `server/*.js` (server.js, roles.js, …) | `cd tools/fleet-dashboard && docker compose restart panel` | Node loads them once at startup; restart re-execs against the bind-mounted host files. **No rebuild.** |
-| `Dockerfile` / new npm dep / new apk pkg | `cd tools/fleet-dashboard && docker compose up -d --build` | Image must be rebuilt; new deps land in the image / host `node_modules`. |
+| `server/*.js` (server.js, roles.js, …) | `tools/fleet-dashboard/bin/fleet-dashboard restart` | Node loads them once at startup; restart re-execs against the bind-mounted host files. **No rebuild.** The operator command supplies the shared env and host Docker GID. |
+| `Dockerfile` / new npm dep / new apk pkg | `cd tools/fleet-dashboard && docker compose --env-file ../../.env up -d --build` | Image must be rebuilt; new deps land in the image / host `node_modules`. |
 
 Don't run `docker compose up -d --build` for a JS edit — a plain `restart`
 (server) or nothing-but-refresh (static) is correct and far faster.
@@ -93,23 +81,31 @@ is a single shared secret, **`FD_TOKEN`**, and the compose **requires** it
 (`FD_TOKEN: ${FD_TOKEN:?…}`) — `docker compose up` fails fast without it. It is
 NOT an OAuth/external token; there is nothing to "log into." How it works:
 
-- **Where it lives:** `FD_TOKEN=<hex>` in the shared env at
-  `/home/jesse/projects/domains/.env`. Read the current value with
-  `grep '^FD_TOKEN=' /home/jesse/projects/domains/.env`. It persists across
-  reboots, and the container reads it at start.
-- **Bring the panel up:** `cd tools/fleet-dashboard &&
-  docker compose --env-file ../../.env up -d` (the `--env-file` is what feeds
-  `FD_TOKEN` into interpolation — plain `up -d` will fail with "FD_TOKEN missing").
+- **Where it lives:** `FD_TOKEN=<hex>` in the gitignored, owner-readable shared
+  env at `/home/jesse/projects/domains/.env`. It persists across reboots and
+  normal dashboard restarts. Retrieve it only when a browser needs a fresh
+  login with `tools/fleet-dashboard/bin/fleet-dashboard token`.
+- **Lifecycle command:** use `tools/fleet-dashboard/bin/fleet-dashboard up`,
+  `restart`, or `status`. This is the operator entry point: it always supplies
+  the shared `.env`, resolves the host Docker GID, and waits for `/healthz`.
+  Plain `docker compose up -d` still fails with "FD_TOKEN missing" because
+  Compose does not auto-load the repo-root env.
 - **Using the dashboard in a browser:** open http://127.0.0.1:4754/ → a login
   overlay ("This dashboard requires an access token") appears → paste the
-  `FD_TOKEN` value → it POSTs `/api/login`, which sets an **httpOnly cookie**, so
-  you're not asked again on that browser until it expires. The gate acts only on
-  `/api/*`; the static shell loads without it (which is why `/` returns 200).
-- **If there is no `FD_TOKEN` yet** (fresh host / never set): generate one and
-  persist it, then bring the panel up:
-  ```
-  openssl rand -hex 32   # → append as FD_TOKEN=<hex> to the shared .env
-  ```
+  `FD_TOKEN` value → it POSTs `/api/login`, which sets an **httpOnly,
+  SameSite=Strict cookie**. Its 30-day idle window rolls forward on authenticated
+  browser use, so an active operator is not asked again; abandoned sessions
+  still expire. The gate acts only on `/api/*`; the static shell loads without
+  it (which is why `/` returns 200).
+- **Rotation is exceptional, not scheduled renewal.** Rotate only after
+  suspected disclosure with
+  `tools/fleet-dashboard/bin/fleet-dashboard rotate-token`. It atomically
+  replaces the value while preserving `.env` permissions, recreates the panel,
+  invalidates existing browser cookies, and deliberately does not print the new
+  secret. If recreation fails, the new token remains persisted; fix Docker and
+  run `fleet-dashboard up`, then retrieve it with the `token` command. The same
+  rotation command initializes `FD_TOKEN` when the shared `.env` exists but the
+  token does not.
 - **Escape hatch (loopback only):** the gate is skipped when the server binds a
   pure-loopback host. The compose sets `FD_HOST: 0.0.0.0` (so VPN-network
   containers can reach it) — set `FD_HOST: 127.0.0.1` to drop the token
@@ -276,8 +272,9 @@ Backend (fast, no browser):
 ```
 cd tools/fleet-dashboard
 node --check server/<changed>.js              # syntax
-docker compose restart panel && sleep 2       # if you changed server/*.js
-curl -s http://127.0.0.1:4754/api/<endpoint> | python3 -m json.tool | head
+bin/fleet-dashboard restart                   # if server/*.js changed
+FD_TOKEN="$(bin/fleet-dashboard token)"
+curl -s -H "x-fd-token: $FD_TOKEN" http://127.0.0.1:4754/api/<endpoint> | python3 -m json.tool | head
 ```
 
 Frontend (Playwright MCP): navigate with a **cache-bust** (`/?v=N#control`), then
@@ -316,8 +313,10 @@ matters.
 Location   /home/jesse/projects/domains/tools/fleet-dashboard
 URL        http://127.0.0.1:4754      Container: fleet-dashboard   Service: panel
 Static edit   → just hard-refresh (self-updates)
-Server edit   → docker compose restart panel
-Dockerfile    → docker compose up -d --build
+Start/status  → tools/fleet-dashboard/bin/fleet-dashboard up|status
+Server edit   → tools/fleet-dashboard/bin/fleet-dashboard restart
+Token/rotate  → tools/fleet-dashboard/bin/fleet-dashboard token|rotate-token
+Dockerfile    → cd tools/fleet-dashboard && docker compose --env-file ../../.env up -d --build
 Logs          docker logs --tail 50 fleet-dashboard
 Tabs       Domain Control(#control) · Agents▾(#agents/<role>) · Containers · Git · Tasks
 ```
