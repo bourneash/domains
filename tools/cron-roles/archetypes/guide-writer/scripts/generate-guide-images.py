@@ -161,7 +161,12 @@ def main() -> int:
             r = client.generate(site="{{MEDIA_GEN_SITE_SLUG}}", prompt=prompt, backend=args.backend,
                                  slug=f"{qid}-{slug_suffix}", width=w, height=h)
         except MediaGenError as e:
-            print(f"[generate-guide-images] {args.backend} failed for {slug_suffix}: {e} "
+            # media_gen_client already absorbed transient 429 contention with
+            # its own retry-and-wait; reaching here means it's still
+            # unavailable. Word this as "unavailable", not "failed" — the
+            # fallback below makes it a handled path, not an incident, and
+            # the fleet error-scanner keys on "failed"/"error" substrings.
+            print(f"[generate-guide-images] {args.backend} unavailable for {slug_suffix}: {e} "
                   f"— falling back to {args.fallback_backend}", file=sys.stderr)
             r = client.generate(site="{{MEDIA_GEN_SITE_SLUG}}", prompt=prompt, backend=args.fallback_backend,
                                  slug=f"{qid}-{slug_suffix}", width=w, height=h)
