@@ -40,6 +40,7 @@ frontmatter across the fleet is flat `key: value` pairs (no nesting, no
 lists) so a hand-rolled parser is sufficient and avoids that landmine.
 """
 import argparse
+import datetime
 import glob
 import json
 import os
@@ -49,6 +50,21 @@ import sys
 DEFAULT_HARD_CAP = 40
 DEFAULT_FLOOR = 10
 DEFAULT_BUFFER = 8
+
+# 2026-08-23 token-usage audit: a completed 0daynews.com task
+# (2026-08-20-cve-2026-19490-*, estimated_turns: 10) never got moved from
+# in-progress/ to done/. pick_next_task() always checks in-progress FIRST,
+# so that one task — sitting there for free, doing nothing — kept winning
+# the task-pick on every single news-writer run for 3 days, capping the
+# real per-run budget at 18 turns (10 + buffer) regardless of what the
+# writer actually needed. Directly caused a run to die at turn 19/18 with
+# nothing shipped ($0.81, error_max_turns). in-progress/ is meant to hold a
+# task an agent is actively mid-work on — it doesn't have a self-cleaning
+# mechanism, so nothing ever notices when one just gets forgotten there.
+# STALE_IN_PROGRESS_DAYS is deliberately generous: a task genuinely being
+# iterated on across several runs is normal; one untouched for this long is
+# a smell worth a human glance, not proof of a bug.
+STALE_IN_PROGRESS_DAYS = 3
 
 
 def _parse_frontmatter(fm_text):
@@ -84,7 +100,7 @@ def _load_task(path):
     return data if data else None
 
 
-def _scan_dir(task_dir, role):
+def _scan_dir(task_dir, role, skip_types=frozenset()):
     candidates = []
     for path in glob.glob(os.path.join(task_dir, "*.md")):
         data = _load_task(path)
@@ -93,6 +109,8 @@ def _scan_dir(task_dir, role):
         if data.get("assigned_role") != role:
             continue
         if data.get("blocked_on"):
+            continue
+        if data.get("type") in skip_types:
             continue
         priority = data.get("priority", 5)
         try:
@@ -105,7 +123,7 @@ def _scan_dir(task_dir, role):
     return candidates
 
 
-def pick_next_task(backlog_dir, role):
+def pick_next_task(backlog_dir, role, skip_types=frozenset()):
     """Same selection rule content-writer.md (and its siblings) describe:
     lowest priority number first, tie-broken by oldest `created` date.
 
@@ -121,13 +139,25 @@ def pick_next_task(backlog_dir, role):
     calculated from a different, unrelated backlog task estimated at 15
     turns — a 23-turn budget for 20-turns-worth-of-work-already-partially-
     spent, hit the ceiling mid-file with nothing committed for that file).
+
+    `skip_types` (2026-08-23): excludes tasks of the given `type`(s)
+    entirely. Built for `type: ops` "awareness" tasks (no deliverable file,
+    a standing note the agent should keep in mind across many runs — e.g.
+    "route more stories to persona X until the byline split rebalances") —
+    their estimated_turns reflects reading the note, not doing a session's
+    worth of real work, so using one to size a budget produces a session
+    that's guaranteed too tight. Observed live on 0daynews.com 2026-08-23:
+    an ops task (estimated_turns: 3) was about to become the top pick right
+    after an unrelated stale-task fix, which would have computed an
+    11-turn budget — tighter than the 18-turn budget that had JUST caused a
+    real error_max_turns failure the same day.
     """
     in_progress_dir = os.path.join(os.path.dirname(os.path.normpath(backlog_dir)), "in-progress")
     if os.path.isdir(in_progress_dir):
-        in_progress = _scan_dir(in_progress_dir, role)
+        in_progress = _scan_dir(in_progress_dir, role, skip_types)
         if in_progress:
             return in_progress[0]
-    candidates = _scan_dir(backlog_dir, role)
+    candidates = _scan_dir(backlog_dir, role, skip_types)
     if not candidates:
         return None
     return candidates[0]
@@ -144,7 +174,7 @@ def compute_budget(estimated_turns, hard_cap, floor, buffer_):
 
 
 def cmd_runtime(args):
-    task = pick_next_task(args.backlog_dir, args.role)
+    task = pick_next_task(args.backlog_dir, args.role, skip_types={"ops"})
     if not task:
         print(args.fallback)
         return
@@ -226,7 +256,42 @@ def find_wrapper_scripts(site_dir, real_roles):
     return out
 
 
-def audit_site(site_dir, hard_cap, floor, buffer_):
+def _find_stale_in_progress(site_dir, stale_days):
+    """Any ops/tasks/in-progress/*.md whose `created` date is more than
+    `stale_days` old. Age is a proxy for 'is anyone actually iterating on
+    this', not proof of staleness — a task can legitimately sit while its
+    role works other priorities first. Flag it, don't auto-close it: only a
+    human (or an engineer-role task) should judge whether the work is
+    actually done vs. genuinely still in flight."""
+    in_progress_dir = os.path.join(site_dir, "ops", "tasks", "in-progress")
+    if not os.path.isdir(in_progress_dir):
+        return []
+    today = datetime.date.today()
+    stale = []
+    for path in glob.glob(os.path.join(in_progress_dir, "*.md")):
+        data = _load_task(path)
+        if not data:
+            continue
+        created = data.get("created")
+        try:
+            created_date = datetime.date.fromisoformat(str(created))
+        except (TypeError, ValueError):
+            continue
+        age_days = (today - created_date).days
+        if age_days > stale_days:
+            stale.append({
+                "file": os.path.basename(path),
+                "title": data.get("title"),
+                "assigned_role": data.get("assigned_role"),
+                "priority": data.get("priority"),
+                "created": created,
+                "age_days": age_days,
+            })
+    stale.sort(key=lambda t: -t["age_days"])
+    return stale
+
+
+def audit_site(site_dir, hard_cap, floor, buffer_, stale_days=STALE_IN_PROGRESS_DAYS):
     slug = os.path.basename(site_dir.rstrip("/"))
     backlog_dir = os.path.join(site_dir, "ops", "tasks", "backlog")
     run_role_path = os.path.join(site_dir, "ops", "scripts", "run-role.sh")
@@ -254,7 +319,7 @@ def audit_site(site_dir, hard_cap, floor, buffer_):
 
     role_rows = []
     for role in sorted(roles_in_backlog | (real_roles & set(static_turns))):
-        task = pick_next_task(backlog_dir, role) if os.path.isdir(backlog_dir) else None
+        task = pick_next_task(backlog_dir, role, skip_types={"ops"}) if os.path.isdir(backlog_dir) else None
         computed = None
         next_task_title = None
         if task:
@@ -275,6 +340,7 @@ def audit_site(site_dir, hard_cap, floor, buffer_):
         "site": slug,
         "roles": role_rows,
         "dead_role_tasks": dead_role_tasks,
+        "stale_in_progress_tasks": _find_stale_in_progress(site_dir, stale_days),
         "run_role_sh_present": os.path.isfile(run_role_path),
     }
 
@@ -288,14 +354,14 @@ def cmd_audit(args):
             continue
         if name.startswith("DISABLED-"):
             continue
-        results.append(audit_site(site_dir, args.hard_cap, args.floor, args.buffer))
+        results.append(audit_site(site_dir, args.hard_cap, args.floor, args.buffer, args.stale_days))
 
     if args.json:
         print(json.dumps(results, indent=2))
         return
 
     for site in results:
-        if not site["roles"] and not site["dead_role_tasks"]:
+        if not site["roles"] and not site["dead_role_tasks"] and not site["stale_in_progress_tasks"]:
             continue
         print(f"== {site['site']} ==")
         for r in site["roles"]:
@@ -312,6 +378,13 @@ def cmd_audit(args):
             )
         for d in site["dead_role_tasks"]:
             print(f"  DEAD ROLE TASK: {d['file']} -> assigned_role={d['assigned_role']} (no such role installed)")
+        for s in site["stale_in_progress_tasks"]:
+            print(
+                f"  STALE IN-PROGRESS ({s['age_days']}d): {s['file']} "
+                f"-> assigned_role={s['assigned_role']} priority={s['priority']} "
+                f"'{s['title']}' — verify this isn't already done; it wins task-pick "
+                f"and sets the turn budget on every run for its role until moved to done/"
+            )
         print()
 
 
@@ -333,6 +406,8 @@ def main():
     au.add_argument("--hard-cap", type=int, default=DEFAULT_HARD_CAP)
     au.add_argument("--floor", type=int, default=DEFAULT_FLOOR)
     au.add_argument("--buffer", type=int, default=DEFAULT_BUFFER)
+    au.add_argument("--stale-days", type=int, default=STALE_IN_PROGRESS_DAYS,
+                     help="flag in-progress tasks older than this (see module docstring)")
     au.add_argument("--json", action="store_true")
     au.set_defaults(func=cmd_audit)
 
