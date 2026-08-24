@@ -37,14 +37,23 @@ async function inspectContainer(container, runner = defaultRunner) {
     const tab = line.indexOf('\t');
     const state = (tab === -1 ? line : line.slice(0, tab)).trim();
     const raw = (tab === -1 ? '' : line.slice(tab + 1)).trim();
-    const m = raw.match(/\((\d+)\)/);                  // "Exited (127) ..." / "Restarting (1) ..."
+    const m = raw.match(/\((\d+)\)/); // "Exited (127) ..." / "Restarting (1) ..."
     const exitCode = m ? parseInt(m[1], 10) : null;
     const ok = state === 'running';
-    const failed = state === 'created' || state === 'dead' || state === 'restarting'
-      || (state === 'exited' && exitCode !== null && exitCode !== 0);
+    const failed =
+      state === 'created' ||
+      state === 'dead' ||
+      state === 'restarting' ||
+      (state === 'exited' && exitCode !== null && exitCode !== 0);
     return { state, raw, exitCode, ok, failed };
   } catch {
-    return { state: 'unknown', raw: 'docker unreachable', exitCode: null, ok: false, failed: false };
+    return {
+      state: 'unknown',
+      raw: 'docker unreachable',
+      exitCode: null,
+      ok: false,
+      failed: false,
+    };
   }
 }
 
@@ -53,7 +62,7 @@ async function inspectContainer(container, runner = defaultRunner) {
 async function confirmHealthy(container, runner = defaultRunner, opts = {}) {
   const tries = opts.tries ?? 6;
   const delayMs = opts.delayMs ?? 1500;
-  const sleep = opts.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
+  const sleep = opts.sleep ?? (ms => new Promise(r => setTimeout(r, ms)));
   let last;
   for (let i = 0; i < tries; i++) {
     last = await inspectContainer(container, runner);
@@ -94,14 +103,43 @@ async function containerLogs(container, runner = defaultRunner, tail = 200) {
 // Rebuild + restart a system's cron container. Streams output via onData.
 // Resolves { ok, code }. Never rejects on non-zero exit. A 10-minute hard
 // timeout prevents a stalled build from holding the HTTP response open.
+//
+// NOTE ON `docker compose build` — do not put it back.
+// Site cron services now reference the SHARED image
+// (`image: fleet-site-cron:latest`, tools/fleet-images) and carry no `build:`
+// stanza. `docker compose build cron` against such a service is a NO-OP THAT
+// EXITS 0, so the old command reported a successful rebuild while building
+// nothing at all — the operator would click Rebuild, see green, and get the
+// same image back.
+//
+// What "rebuild" means under shared images is: recreate this container from
+// the CURRENT shared image. `up -d --force-recreate` does exactly that.
+// `restart` would NOT — it reuses the container's creation-time image, which
+// is the stale-image drift the shared-image migration exists to remove.
+//
+// To actually rebuild the shared image itself (all sites at once):
+//     tools/fleet-images/bin/fleet-image-build cron --roll
 function rebuildCron(cwd, onData, opts = {}) {
   const { spawn } = require('node:child_process');
   const timeoutMs = opts.timeoutMs ?? 600_000;
-  return new Promise((resolve) => {
-    const child = spawn('bash', ['-lc', 'docker compose build cron && docker compose up -d cron'],
-      { cwd });
+  return new Promise(resolve => {
+    const child = spawn(
+      'bash',
+      [
+        '-lc',
+        'echo "[fleet] recreating cron from the current shared image (fleet-site-cron:latest)"; ' +
+          'echo "[fleet] to rebuild the image itself: tools/fleet-images/bin/fleet-image-build cron --roll"; ' +
+          'docker compose up -d --force-recreate cron',
+      ],
+      { cwd }
+    );
     let settled = false;
-    function settle(result) { if (!settled) { settled = true; resolve(result); } }
+    function settle(result) {
+      if (!settled) {
+        settled = true;
+        resolve(result);
+      }
+    }
 
     const timer = setTimeout(() => {
       onData('\n[timeout: build exceeded 10 minutes — killing]\n');
@@ -109,10 +147,17 @@ function rebuildCron(cwd, onData, opts = {}) {
       settle({ ok: false, code: -2 });
     }, timeoutMs);
 
-    child.stdout.on('data', (d) => onData(d.toString()));
-    child.stderr.on('data', (d) => onData(d.toString()));
-    child.on('close', (code) => { clearTimeout(timer); settle({ ok: code === 0, code }); });
-    child.on('error', (e) => { clearTimeout(timer); onData(`spawn error: ${e.message}\n`); settle({ ok: false, code: -1 }); });
+    child.stdout.on('data', d => onData(d.toString()));
+    child.stderr.on('data', d => onData(d.toString()));
+    child.on('close', code => {
+      clearTimeout(timer);
+      settle({ ok: code === 0, code });
+    });
+    child.on('error', e => {
+      clearTimeout(timer);
+      onData(`spawn error: ${e.message}\n`);
+      settle({ ok: false, code: -1 });
+    });
   });
 }
 
@@ -129,4 +174,11 @@ async function containerCrontab(container, runner = defaultRunner) {
   }
 }
 
-module.exports = { inspectContainer, confirmHealthy, containerLogs, containerCreatedAt, containerCrontab, rebuildCron };
+module.exports = {
+  inspectContainer,
+  confirmHealthy,
+  containerLogs,
+  containerCreatedAt,
+  containerCrontab,
+  rebuildCron,
+};
