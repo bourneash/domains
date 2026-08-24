@@ -24,6 +24,10 @@ services:
   api:
     build: .
     container_name: product-feed-api
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     environment:
       PRODUCTFEED_DB_PATH: /data/product-feed.db
       PRODUCTFEED_REGISTRY_DIR: /app/registry
@@ -51,6 +55,10 @@ services:
       context: .
       dockerfile: Dockerfile.collector
     container_name: product-feed-collector
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     environment:
       PYTHONUNBUFFERED: "1"
       PRODUCTFEED_API: "http://api:4761"

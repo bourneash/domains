@@ -48,10 +48,51 @@ couplings had to move with it:
 
 Rollback image kept as `fleet-dashboard:rollback-root` if ever needed.
 
-## Still open — the rest of the service tier
+## RESOLVED 2026-08-23: the rest of the service tier too
 
-`datahub-api`, `datahub-collector` and `product-feed-api` also run as **root**,
-and the service tier broadly has no hardening (0/10 `cap_drop`, most lack
-`no-new-privileges`). None of them mount a repo read-write, so **none carry the
-`.git` corruption risk that made the dashboard urgent** — this is hygiene, not
-an incident waiting to happen. Worth one sweep using the same recipe above.
+Every domains-owned container now runs as uid 1000 with `cap_drop: [ALL]` and
+`no-new-privileges`. Converted in the same pass:
+
+| Container | Was | Now |
+|---|---|---|
+| `datahub-api` / `datahub-collector` | root | uid 1000, cap_drop ALL |
+| `datahub-images-api` / `-collector` | root | uid 1000, cap_drop ALL |
+| `product-feed-api` | root | uid 1000, cap_drop ALL |
+| `fleet-cron` | uid 1000, no cap_drop | uid 1000, cap_drop ALL |
+
+The images (`tools/{data-hub,data-hub-images,product-feed}/Dockerfile`) gained a
+`useradd -u 1000` + `chown /app /data` + `USER` block, matching the pattern
+`tools/product-feed/Dockerfile.collector` already used.
+
+**The non-obvious part — named volumes.** Docker only applies image-time
+ownership to a volume when that volume is EMPTY. These three services keep live
+SQLite databases in long-standing named volumes, all root-owned, so the images
+alone would not have fixed anything: the services would have started cleanly and
+then failed at the first write with *"attempt to write a readonly database"* —
+a runtime error, not a startup crash, i.e. exactly the kind of failure that
+looks fine in `docker ps`. The volumes were stopped, backed up, and chown'd to
+1000:1000 out of band before the rebuild. **Any future service converted this
+way needs the same out-of-band chown.**
+
+Verified: all six report uid 1000; `/health` returns 200 on 4760/4770/4761 both
+on loopback and over the container network; the dashboard's own
+`/api/datahub/health` and `/api/datahub-images/health` return real data; and a
+direct SQLite `CREATE/INSERT/DROP` round-trip succeeded against each live
+database — the write path proven, not inferred from a healthy-looking process.
+
+## Deliberate exception: `credential-vault`
+
+Still runs as root, and is staying that way for now.
+
+- It is a **third-party upstream image** (`vaultwarden/server:latest`) that runs
+  as root by design; overriding the user means owning that decision across every
+  upstream bump.
+- It mounts **only its own data directory** (`/mnt/encrypted/.../data`, outside
+  the monorepo) plus a read-only SSL dir. It touches no git repo, so it carries
+  **none** of the `.git` corruption risk that motivated this work.
+- It is the fleet's credential store. Breaking it breaks social-poster and every
+  vault-backed role, and the failure mode of a bad chown on an encrypted volume
+  is worse than the risk being mitigated.
+
+Revisit if it ever gains a repo mount. Until then the containment is the
+loopback-only port and the isolated data dir.

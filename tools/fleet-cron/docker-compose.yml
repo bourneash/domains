@@ -12,6 +12,10 @@ services:
     build: .
     image: fleet-cron:latest
     container_name: fleet-cron
+    # Socket access comes from group membership, not capabilities — verified
+    # across this fleet, including containers that drive the docker socket.
+    cap_drop:
+      - ALL
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

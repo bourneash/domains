@@ -18,6 +18,10 @@ services:
   collector:
     build: .
     container_name: datahub-images-collector
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     command: ["/usr/local/bin/supercronic", "/app/crontab"]
     env_file: ../../.env
     environment:
@@ -38,6 +42,10 @@ services:
   api:
     build: .
     container_name: datahub-images-api
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     command: ["python", "-m", "datahub_images", "serve"]
     env_file: ../../.env
     environment:

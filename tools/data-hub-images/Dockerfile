@@ -32,4 +32,19 @@ EXPOSE 4770
 
 # Default: run the API server.
 # The collector service overrides CMD to run supercronic.
+# ── run as uid 1000, never root ─────────────────────────────────────────────
+# Fleet rule: nothing in this fleet runs as root unless it provably must, and
+# nothing here does. uid 1000 matches the host user that owns the repos and the
+# backup binds, so files this service writes stay readable/repairable without
+# sudo — which is not available passwordless on this host.
+#
+# /data holds the live SQLite database and is a named volume. Docker only
+# applies image-time ownership to a volume when the volume is EMPTY, so an
+# existing root-owned volume must be chown'd once, out of band, at rollout —
+# see the deploy note in the fleet-images README. Getting this wrong shows up
+# as "attempt to write a readonly database", not as a startup crash.
+RUN useradd -u 1000 -m -d /home/datahub datahub \
+    && chown -R datahub:datahub /app /data
+USER datahub
+
 CMD ["python", "-m", "datahub_images", "serve"]

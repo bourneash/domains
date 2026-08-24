@@ -19,6 +19,10 @@ services:
   collector:
     build: .
     container_name: datahub-collector
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     command: ["/usr/local/bin/supercronic", "/app/crontab"]
     environment:
       <<: *common-env
@@ -37,6 +41,10 @@ services:
   api:
     build: .
     container_name: datahub-api
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     environment:
       <<: *common-env
       DATAHUB_HOST: "0.0.0.0"
