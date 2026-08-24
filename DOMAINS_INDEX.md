@@ -49,7 +49,7 @@
 | cock-smoker.com 		|   ⬜   | 
 | coffeepredator.com 	|   ⬜   | 
 | complicated.work 		|   ⬜   | 
-| deadlymaracas.com 	|   ⬜   | 
+| deadlymaracas.com 	|   🟢   | Novelty/gag-gift affiliate product-stream — "the loudest, dumbest, most gloriously unnecessary gifts on the internet"; 36-item launch catalog across 4 categories, filter/search, /go/ cloak (deadlymaracas-20); product art + GA4 + Workers Builds connection pending |
 | deeppenetrations.com 	|   ⬜   | Adult niche OR "deep penetration testing" cybersecurity satire — angle undecided 			|
 | driveford.net 		|   ⬜   | 
 | drivegm.net 			|   ⬜   | 
