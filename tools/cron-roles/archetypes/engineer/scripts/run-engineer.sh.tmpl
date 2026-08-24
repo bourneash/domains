@@ -38,7 +38,35 @@ NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 TODAY="$(date -u +%Y-%m-%d)"
 BOARD_LOG="$REPO_ROOT/ops/board/engineer-log.md"
 
-CRON_SITE="$(basename "$REPO_ROOT")"
+# Site identity for the AI-usage ledger.
+#
+# NOT `basename "$REPO_ROOT"`. That is correct only when this runs on the host,
+# where REPO_ROOT is sites/<domain>. Inside the worker container the repo is
+# bind-mounted at /work, so basename yields the literal string "work" and every
+# token this role burns is logged against a phantom site called `work` —
+# silently, with the run itself succeeding. Found 2026-08-23 in the fleet
+# AI-usage report: offshorehookup.com and unsupervisedmedia.com had engineer
+# spend attributed to `work` on 08-21 and 08-22, i.e. those sites' real cost was
+# under-reported and a site that does not exist appeared in the rollup.
+#
+# Resolution order, most authoritative first:
+#   1. CRON_SITE / SITE_NAME already exported by the caller
+#   2. the git remote's repo name — travels with the repo, not the mount path
+#   3. basename, but only when it is not an obvious container mount point
+CRON_SITE="${CRON_SITE:-${SITE_NAME:-}}"
+if [[ -z "$CRON_SITE" ]]; then
+  _remote="$(git -C "$REPO_ROOT" remote get-url origin 2>/dev/null || true)"
+  if [[ -n "$_remote" ]]; then
+    CRON_SITE="$(basename "$_remote" .git)"
+  fi
+fi
+if [[ -z "$CRON_SITE" ]]; then
+  _base="$(basename "$REPO_ROOT")"
+  case "$_base" in
+    work|repo|app|srv|"") CRON_SITE="unknown-site" ;;
+    *)                    CRON_SITE="$_base" ;;
+  esac
+fi
 CLAUDE_TRACKED="$REPO_ROOT/.monorepo-tools/scripts/claude-tracked.sh"
 [[ -x "$CLAUDE_TRACKED" ]] || CLAUDE_TRACKED="$REPO_ROOT/../../tools/scripts/claude-tracked.sh"
 
@@ -155,6 +183,18 @@ if ! acquire_work_lock; then
 fi
 HAVE_WORK_LOCK=1
 log "acquired work lock — proceeding with work pass"
+
+# ---- 3a. Network preflight ----
+# 2026-08-19: host rebooted, a container's DNS came up broken, and every
+# engineer/watchdog cron tick fleet-wide still burned a full claude -p call
+# hanging ~200s on dead DNS before failing — 120+ wasted calls in one day,
+# zero work done. Skip the work pass (no Claude call, no cost) if basic
+# connectivity is down; the next tick's cheap check sweep will retry.
+if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthropic.com/" 2>/dev/null; then
+  log "network preflight FAILED — skipping work pass this tick (no Claude call made)"
+  board_block "🌐 **Network down** — preflight failed, work pass skipped to avoid burning tokens on a dead connection. ${STATUS_LINE}"
+  exit 0
+fi
 
 # ---- 3b. Work pass ({{MODEL}}) ----
 ISSUES_TEXT="(none)"; [[ -s "${ISSUES_FILE:-/dev/null}" ]] && ISSUES_TEXT="$(cat "$ISSUES_FILE")"
