@@ -177,20 +177,38 @@ def main() -> int:
 
     # Generate at a size comfortably larger than either target so the
     # center-crop below has real pixels to work with either direction.
-    raw_hero, hero_backend = generate_raw("hero", 1600, 1000)
-    raw_card, card_backend = generate_raw("card", 1600, 1000)
+    def generate_validated(slug_suffix: str, out_path: Path, image_format: str,
+                            target_w: int, target_h: int, min_bytes: int,
+                            max_attempts: int = 2) -> str | None:
+        """generate_raw + crop + _save_validated, retrying the whole chain
+        (fresh generation, not just re-saving) on a blank/invalid result —
+        flux-schnell (the comfyui fallback checkpoint) occasionally renders
+        a blank/low-entropy frame; one retry is usually enough, and it's
+        cheaper than losing the image entirely and shipping a text-only
+        guide (see the 2026-08-23 reviewtattoo incident this fix addresses)."""
+        last_err: RuntimeError | None = None
+        for attempt in range(1, max_attempts + 1):
+            raw, backend = generate_raw(slug_suffix, 1600, 1000)
+            im = _crop_to_aspect(Image.open(io.BytesIO(raw)).convert("RGB"), target_w, target_h)
+            try:
+                _save_validated(im, out_path, image_format, quality=88,
+                                expected_size=(target_w, target_h), min_bytes=min_bytes)
+                return backend
+            except RuntimeError as e:
+                last_err = e
+                if attempt < max_attempts:
+                    print(f"[generate-guide-images] {slug_suffix} image failed validation "
+                          f"(attempt {attempt}/{max_attempts}): {e} — regenerating",
+                          file=sys.stderr)
+        raise last_err
 
     hero_path = assets_dir / "hero.jpg"
     card_path = assets_dir / "card.webp"
 
-    hero_im = _crop_to_aspect(Image.open(io.BytesIO(raw_hero)).convert("RGB"), 1600, 900)
-    _save_validated(hero_im, hero_path, "JPEG", quality=88,
-                    expected_size=(1600, 900), min_bytes=8000)
+    hero_backend = generate_validated("hero", hero_path, "JPEG", 1600, 900, 8000)
     print(f"[generate-guide-images] hero: backend={hero_backend} -> {hero_path} (1600x900 jpg)")
 
-    card_im = _crop_to_aspect(Image.open(io.BytesIO(raw_card)).convert("RGB"), 1200, 675)
-    _save_validated(card_im, card_path, "WEBP", quality=88,
-                    expected_size=(1200, 675), min_bytes=4000)
+    card_backend = generate_validated("card", card_path, "WEBP", 1200, 675, 4000)
     print(f"[generate-guide-images] card: backend={card_backend} -> {card_path} (1200x675 webp)")
 
     meta["hero_image"] = str(hero_path.relative_to(repo_root))
