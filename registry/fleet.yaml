@@ -498,6 +498,10 @@ sites:
     capabilities:
     - site
     - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
     registered_in:
     - domains-index
     - site-tracker
@@ -807,6 +811,23 @@ sites:
     - domains-index
     - site-tracker
     - social
+  unsupervisedmedia.com:
+    status: live
+    repo: bourneash/unsupervisedmedia.com
+    worker: unsupervisedmedia-com
+    cf_zone: unsupervisedmedia.com
+    slack_channel_env: SLACK_CHANNEL_UNSUPERVISEDMEDIA
+    tags:
+    - business-site
+    - design-studio
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    registered_in:
+    - domains-index
+    - site-tracker
   vibratorporn.com:
     status: scaffold
     repo: bourneash/vibratorporn.com

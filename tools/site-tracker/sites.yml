@@ -374,6 +374,25 @@ sites:
     - branding
     - manual
     manual: {}
+  unsupervisedmedia.com:
+    active: true
+    cf_zone: unsupervisedmedia.com
+    github: bourneash/unsupervisedmedia.com
+    smoke_string: UNSUPERVISED
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   weapontester.com:
     active: true
     cf_zone: weapontester.com

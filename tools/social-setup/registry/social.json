@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-21T18:54:13.719Z",
+  "updatedAt": "2026-08-22T15:51:10.859Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1643,6 +1643,42 @@
       "lastPostedAt": null,
       "createdAt": "2026-08-21T16:35:21.181Z",
       "updatedAt": "2026-08-21T16:35:21.181Z"
+    },
+    {
+      "id": "acc_f76a70b9d2a7",
+      "site": "unsupervisedmedia.com",
+      "platform": "bluesky",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "unsupervisedmedia.bsky.social",
+      "credsInVault": true,
+      "profileUrl": "",
+      "statusNote": "",
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-22T15:48:19.479Z",
+      "updatedAt": "2026-08-22T15:48:19.479Z"
+    },
+    {
+      "id": "acc_1d87f67ae4c3",
+      "site": "unsupervisedmedia.com",
+      "platform": "pinterest",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "0645npvmxe0ecsiqq4b1sr9we8ddow",
+      "credsInVault": true,
+      "profileUrl": "",
+      "statusNote": "",
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-22T15:51:10.859Z",
+      "updatedAt": "2026-08-22T15:51:10.859Z"
     }
   ]
 }

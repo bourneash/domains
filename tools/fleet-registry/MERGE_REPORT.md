@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **48** (live 26, scaffold 21, parked 0, redirect 1)
+`sites/` directories merged: **48** (live 27, scaffold 20, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -11,9 +11,9 @@ provenance only; absence there is a choice, not drift.
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
 | `site-tracker/sites.yml` | fleet-wide | 47/48 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 26/48 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 26/48 | offshorehookup.com |
 | `DOMAINS_INDEX.md` | fleet-wide | 48/48 | — |
-| `social registry` | fleet-wide | 47/48 | — |
+| `social registry` | fleet-wide | 47/48 | offshorehookup.com |
 | `data-hub/subscriptions.yaml` | opt-in | 7/48 | n/a |
 | `product-feed/subscriptions.yaml` | opt-in | 2/48 | n/a |
 
