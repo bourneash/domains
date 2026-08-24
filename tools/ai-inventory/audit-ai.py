@@ -29,6 +29,25 @@ CLAUDE_CALL = re.compile(r"(?:\bclaude\s+-p\b|CLAUDE_TRACKED)")
 LOCAL_CALL = re.compile(r"(?:ollama|11434|LOCAL_LLM|BSG_LLM|chat\.completions|SINDERELLA_LLM|vllm)", re.I)
 MODEL_LITERAL = re.compile(r'^\s*(?:export\s+)?(?:MODEL|WRITER_MODEL|SCORER_MODEL)="([^"$]+)"', re.M)
 MODEL_DEFAULT = re.compile(r'(?:MODEL|WRITER_MODEL)="\$\{[A-Z0-9_]+:-([^}]+)\}"')
+def _fleet_default_model() -> str:
+    """The default tools/scripts/claude-tracked.sh injects when a caller passes
+    no --model. Parsed from the wrapper itself so this audit can never drift
+    from the thing it is auditing."""
+    try:
+        w = (Path(__file__).resolve().parents[1] / "scripts" / "claude-tracked.sh").read_text()
+        m = re.search(r'FLEET_DEFAULT_MODEL="\$\{[A-Z0-9_]+:-([^}"]+)\}"', w)
+        if m:
+            return m.group(1)
+    except OSError:
+        pass
+    return "claude-sonnet-4-6"
+
+
+# --model on the command line: bare, quoted, or ${VAR:-default}.
+INLINE_MODEL = re.compile(
+    r'--model[= ]+"?(?:\$\{[A-Z0-9_]+:-([^}"]+)\}|([A-Za-z0-9][A-Za-z0-9._-]*))"?'
+)
+FLEET_DEFAULT_MODEL = _fleet_default_model()
 CASE_MODEL = lambda role: re.compile(
     rf'^\s*{re.escape(role)}\)[^\n]*?MODEL="([^"]*)"', re.M
 )
@@ -112,7 +131,35 @@ def model_from_text(text: str, role: str | None = None) -> str | None:
                 return default.group(1) if default else raw
             return "Claude CLI default (unpinned)"
     match = MODEL_LITERAL.search(text) or MODEL_DEFAULT.search(text)
-    return match.group(1).strip() if match else None
+    if match:
+        return match.group(1).strip()
+    # Inline --model on the invocation itself, including the ${VAR:-default}
+    # form — but ONLY for single-dispatch scripts that pin at the call site for
+    # every role they run, e.g. amputeenews.com:
+    #     "$CLAUDE_TRACKED" "$PROMPT" ... --model "${CLAUDE_MODEL:-claude-sonnet-4-6}"
+    # Five genuinely-pinned services were reported unpinned without this, and an
+    # audit that cries wolf gets ignored.
+    #
+    # SCOPING IS LOAD-BEARING. If the script has a per-role `MODEL="..."` case
+    # block, a role MISSING from that block is genuinely unpinned — it falls
+    # through with MODEL="" and no flag. Searching the whole file there would
+    # let it inherit some OTHER role's --model and report it as pinned. Caught
+    # in review: an unscoped version marked 29 truly-unpinned services as fine,
+    # which is far worse than the false positives it set out to fix.
+    if not re.search(r'\bMODEL="', text):
+        match = INLINE_MODEL.search(text)
+        if match:
+            return (match.group(1) or match.group(2) or "").strip() or None
+
+    # Central fallback: anything dispatched through tools/scripts/claude-tracked.sh
+    # can no longer reach the CLI's alias default. That wrapper injects the fleet
+    # default model when the caller supplies no --model (see FLEET_DEFAULT_MODEL
+    # there), so these ARE pinned — just centrally rather than per role. Reporting
+    # them as "unpinned" would be inaccurate and would keep 22 rows permanently
+    # red, which is how a report stops being read.
+    if re.search(r'claude-tracked\.sh|CLAUDE_TRACKED', text):
+        return f"{FLEET_DEFAULT_MODEL} (fleet default)"
+    return None
 
 
 def result(provider: str, model: str, dispatch: str, source: Path,

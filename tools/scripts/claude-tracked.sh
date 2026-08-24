@@ -76,6 +76,36 @@ for ((i = 0; i < ${#ARGS[@]}; i++)); do
   esac
 done
 
+# ── never let a role fall through to the CLI's default model ────────────────
+# A role that passes no --model gets whatever `claude -p` defaults to. On this
+# host that is settings.json's "model": "sonnet" — an ALIAS, not a version. It
+# silently re-points at whatever the latest Sonnet is, so the fleet's agent
+# runtime can change under 29 scheduled services without a single line of code
+# changing, and the AI-usage audit reports them as "Claude CLI default
+# (unpinned)".
+#
+# Measured 2026-08-23: 29 scheduled services across 17 sites were unpinned.
+# They came from a common shape — run-role.sh sets MODEL per role in a
+# `case "$ROLE"` block, and any role missing from that block falls through with
+# MODEL="" and no flag. Six different dispatch shapes exist across the fleet,
+# so pinning each site separately would have been 17 fragile edits; every one
+# of those 29 calls goes through THIS wrapper, so one default here covers all
+# of them and every future role that forgets.
+#
+# Behaviour-neutral on the day it landed: the "sonnet" alias already resolved
+# to claude-sonnet-4-6, which is also the fleet's dominant pin (22 engineers,
+# 26 watchdogs, 7 seo-analysts). This stops the drift; it does not change what
+# runs today.
+#
+# An explicit --model from the caller always wins — this only fills a gap.
+# Override the fleet default with CLAUDE_TRACKED_DEFAULT_MODEL.
+FLEET_DEFAULT_MODEL="${CLAUDE_TRACKED_DEFAULT_MODEL:-claude-sonnet-4-6}"
+if [[ -z "$requested_model" ]]; then
+  requested_model="$FLEET_DEFAULT_MODEL"
+  ARGS+=(--model "$FLEET_DEFAULT_MODEL")
+  echo "claude-tracked.sh: no --model from caller (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE) — pinning fleet default $FLEET_DEFAULT_MODEL" >&2
+fi
+
 # ---- Network preflight (2026-08-19 DNS-outage hardening) ----
 # Single choke point for every caller fleet-wide (run-role.sh, run-engineer.sh,
 # watchdog.sh, run-news-writer.sh, run-breaking-news.sh, run-product-scout.sh,
