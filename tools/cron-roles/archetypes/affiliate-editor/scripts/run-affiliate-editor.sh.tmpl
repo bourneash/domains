@@ -52,7 +52,7 @@ OOS_STATE="$STATE_DIR/affiliate-oos-streak.json"
 
 TODAY="$(date +%Y-%m-%d)"
 CURL_TIMEOUT="${AFFILIATE_CURL_TIMEOUT:-20}"
-PARALLEL="${AFFILIATE_PARALLEL:-8}"
+PARALLEL="${AFFILIATE_PARALLEL:-4}"   # gentle: a fast sweep rate-limits the site and self-inflicts failures
 DRY_RUN="${AFFILIATE_DRY_RUN:-0}"
 
 exec > >(tee -a "$LOG") 2>&1
@@ -94,19 +94,53 @@ echo "checking ${#IDS[@]} affiliate id(s) from ${ID_SOURCE} against ${BASE_URL}"
 # markers. Classification order matters: anti-bot is checked BEFORE the dead
 # markers, because a captcha page can coincidentally contain other strings.
 classify_one() {
-  local id="$1" url cloak_code final_code body
-  url="${BASE_URL}${GO_PREFIX}${id}/"
+  local id="$1" url url_bare url_slash cloak_code final_code body
+  # Try the BARE form first — that is how content actually links these
+  # ("/go/<id>", no trailing slash) and how _redirects rules are written.
+  #
+  # The trailing slash is not cosmetic. ultrarough.com has alias entries that
+  # 301 from one cloak id to another (/go/3m-sanding-sponge-assorted ->
+  # /go/3m-angled-sponges); those match the bare rule and 404 with a slash
+  # appended. Checking only the slashed form reported 8 of its 101 links as
+  # broken redirects when every one of them works as published. Healthy on
+  # EITHER form means healthy.
+  url_bare="${BASE_URL}${GO_PREFIX}${id}"
+  url_slash="${url_bare}/"
+  url="$url_bare"
 
   # STEP 1 — the CLOAK's own health, measured WITHOUT -L.
   # This is the only thing that can legitimately produce a "broken redirect".
   # A 2xx interstitial and a 3xx redirect are both healthy; the fleet runs both
   # designs (a 200 "Redirecting…" stub on some sites, a real 302 on others).
-  cloak_code="$(curl -s -o /dev/null --max-time "$CURL_TIMEOUT" -w '%{http_code}' "$url" 2>/dev/null)"
+  # CONFIRM before condemning. A single failed curl is not evidence of a broken
+  # cloak: sweeping ~100 links in parallel makes the site rate-limit or drop
+  # connections, and the first version of this reported 8 of ultrarough.com's
+  # 101 links as broken redirects when every one of them was present in
+  # _redirects and served fine on retry (cloak_code came back 000 — no response
+  # at all, not a 4xx). Filing engineering tasks off transient network noise is
+  # exactly the kind of alarm that trains people to ignore the sentinel.
+  #
+  # Same discipline the fleet's auth guard uses: re-check, then decide.
+  cloak_check() { curl -s -o /dev/null --max-time "$CURL_TIMEOUT" -w '%{http_code}' "$1" 2>/dev/null; }
+  cloak_code="$(cloak_check "$url_bare")"
+  if [[ -z "$cloak_code" || "$cloak_code" == "000" || "$cloak_code" -ge 400 ]]; then
+    # Some sites publish the slashed form; accept either.
+    cloak_code="$(cloak_check "$url_slash")"
+    [[ -n "$cloak_code" && "$cloak_code" != "000" && "$cloak_code" -lt 400 ]] && url="$url_slash"
+  fi
+  if [[ -z "$cloak_code" || "$cloak_code" == "000" || "$cloak_code" -ge 400 ]]; then
+    sleep 3
+    cloak_code="$(cloak_check "$url_bare")"
+    if [[ -z "$cloak_code" || "$cloak_code" == "000" || "$cloak_code" -ge 400 ]]; then
+      cloak_code="$(cloak_check "$url_slash")"
+      [[ -n "$cloak_code" && "$cloak_code" != "000" && "$cloak_code" -lt 400 ]] && url="$url_slash"
+    fi
+  fi
   if [[ -z "$cloak_code" || "$cloak_code" == "000" ]]; then
-    printf 'REDIRECT_FAIL\t%s\t%s\n' "$id" "no response from the cloak path"; return
+    printf 'REDIRECT_FAIL\t%s\t%s\n' "$id" "no response from the cloak path (confirmed on retry)"; return
   fi
   if [[ "$cloak_code" -ge 400 ]]; then
-    printf 'REDIRECT_FAIL\t%s\t%s\n' "$id" "cloak path returned HTTP $cloak_code"; return
+    printf 'REDIRECT_FAIL\t%s\t%s\n' "$id" "cloak path returned HTTP $cloak_code (confirmed on retry)"; return
   fi
 
   # STEP 2 — follow to the destination and judge on the BODY.
