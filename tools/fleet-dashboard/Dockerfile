@@ -9,9 +9,9 @@ FROM node:22-alpine
 
 RUN apk add --no-cache python3 git openssh-client docker-cli docker-cli-compose bash
 
-# The container runs as root but the bind-mounted repos are owned by the host
-# user (uid 1000), so git refuses with "detected dubious ownership". Mark the
-# whole bind-mount tree safe so per-site `git status` works.
+# The bind-mounted repos are owned by the host user, so git refuses with
+# "detected dubious ownership" unless the tree is marked safe. --system so it
+# applies to whichever user runs the server.
 RUN git config --system --add safe.directory '*'
 
 # Commit identity for dashboard-initiated commits (ignore/commit actions).
@@ -24,6 +24,24 @@ COPY package.json package-lock.json* ./
 RUN npm install --omit=dev
 COPY server ./server
 
+# ── run as uid 1000, never root ─────────────────────────────────────────────
+# This container mounts the ENTIRE domains monorepo read-write AND the docker
+# socket, and it runs `git add`/`commit`/`push` against those repos from the
+# Git tab. As root every one of those writes lands in .git owned by root, which
+# is the documented way this fleet has already corrupted .git/objects on four
+# sites — unrecoverable without sudo, which is unavailable on this host.
+#
+# node:22-alpine ships `node` at uid 1000 / gid 1000, which is exactly the host
+# user that owns the repos, so the switch needs no uid remapping — only
+# ownership of /app (created root-owned by COPY + npm install above) and, in
+# compose, the docker group for socket access plus an SSH mount at this user's
+# real home.
+#
+# OpenSSH resolves ~/.ssh from the PASSWD home dir, not $HOME — for `node` that
+# is /home/node, which is why compose mounts the keys there rather than /root.
+RUN chown -R node:node /app
+
 ENV FD_HOST=0.0.0.0
 EXPOSE 4754
+USER node
 CMD ["node", "server/server.js"]

@@ -6,6 +6,16 @@ services:
     image: fleet-dashboard:latest
     container_name: fleet-dashboard
     restart: unless-stopped
+    # uid 1000 needs the host docker group to read /var/run/docker.sock
+    # (root:docker on the host). Same pattern the site cron containers use.
+    group_add:
+      - "${DOCKER_GID:-999}"
+    security_opt:
+      - no-new-privileges:true
+    # Verified across this fleet: nothing here needs a Linux capability, and
+    # socket access comes from group membership, not capabilities.
+    cap_drop:
+      - ALL
     # Loopback-only publish — same posture as cron-manager / domain-developer.
     ports:
       - "127.0.0.1:4754:4754"
@@ -32,15 +42,15 @@ services:
       # identity (confirmed across sites — one shared account). -F /dev/null
       # skips ~/.ssh/config entirely: root's default config-file lookup is
       # /root/.ssh/config, and OpenSSH's strict ownership check on that file
-      # rejects it since the mounted file is owned by the host uid (1000), not
-      # root. Passing the identity/known_hosts explicitly avoids that check
-      # (which does not apply to -i/-o UserKnownHostsFile). Every remote URL
+      # rejected it back when this ran as root. It now runs as uid 1000, which
+      # matches the mounted files' owner, but the explicit form is kept because
+      # -F /dev/null also discards the host's ~/.ssh/config. Every remote URL
       # uses the literal host "github-bourneash" (the host's ~/.ssh/config
       # alias for github.com) — since -F /dev/null also throws away that
       # alias's HostName mapping, -o HostName=github.com restores it directly.
       # Matches the same explicit-identity pattern every site's own cron
       # containers already use.
-      GIT_SSH_COMMAND: "ssh -F /dev/null -i /root/.ssh/github-bourneash -o UserKnownHostsFile=/root/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
+      GIT_SSH_COMMAND: "ssh -F /dev/null -i /home/node/.ssh/github-bourneash -o UserKnownHostsFile=/home/node/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -57,7 +67,7 @@ services:
       # passwd-database home dir (/root), NOT the $HOME env override used
       # elsewhere in this compose file for path-matching — so this must be
       # mounted at /root/.ssh specifically, not at $HOME/.ssh.
-      - ${HOME:-/home/jesse}/.ssh:/root/.ssh:ro
+      - ${HOME:-/home/jesse}/.ssh:/home/node/.ssh:ro
       # Dev Sandboxes tab (folded in from the standalone domain-developer
       # tool): spawned per-site worker containers get their Claude project
       # dir bind-mounted RW here so per-site memory/transcripts land on the
