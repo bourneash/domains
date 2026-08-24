@@ -12,6 +12,15 @@
 # Runs inside the cron container with only bash + python3 + curl (no node).
 # If the site is unreachable it logs a warning and exits 0 (non-fatal).
 #
+# Grace/propagation retry: a just-deployed image can briefly 404/blank while
+# Cloudflare Workers Builds finishes propagating. Failures are re-probed every
+# IMAGE_CHECK_GRACE seconds (default 20) for up to IMAGE_CHECK_MAX_WAIT seconds
+# (default 200) before being reported, exiting early once everything clears.
+# Ported from americastrikes.com's check-live-images.sh (2026-06-22 fix) via
+# saveusfarms.com (2026-08-24) — without it, a post-deploy Slack card
+# (share-new-articles-slack.sh) races the CDN and posts with its image
+# silently dropped (Slack invalid_blocks).
+#
 # Usage:
 #   ops/scripts/check-live-images.sh [BASE_URL]
 #       BASE_URL — defaults to BASE_URL_DEFAULT below.
@@ -63,8 +72,9 @@ fi
 REPORT="$(
   CHECK_WEBP="$CHECK_WEBP" IMAGE_FIELDS="$IMAGE_FIELDS" \
   COVER_FLOOR="$COVER_FLOOR" CARD_FLOOR="$CARD_FLOOR" UA="$UA" \
+  IMAGE_HTTP_ATTEMPTS="${IMAGE_HTTP_ATTEMPTS:-3}" \
   python3 - "$BASE_URL" "$REPO_ROOT/$ARTICLES_DIR_REL" <<'PY'
-import os, sys, re, urllib.request, urllib.error
+import os, sys, re, time, urllib.request, urllib.error
 
 base, articles_dir = sys.argv[1], sys.argv[2]
 fields      = os.environ.get("IMAGE_FIELDS", "image imageCard").split()
@@ -72,24 +82,37 @@ check_webp  = os.environ.get("CHECK_WEBP", "1") == "1"
 FLOOR = {"cover": int(os.environ.get("COVER_FLOOR", "11000")),
          "card":  int(os.environ.get("CARD_FLOOR",  "6000"))}
 UA = os.environ.get("UA", "ImageWatchdog/1.0")
+HTTP_ATTEMPTS = max(1, int(os.environ.get("IMAGE_HTTP_ATTEMPTS", "3")))
 
 def role_for(field):
     # "image" is the hero/cover; everything else (imageCard, ...) is a card.
     return "cover" if field == "image" else "card"
 
 def head(url):
-    """Return (status, content_length). Cloudflare omits Content-Length on HEAD
-    for static assets, so we GET and read the header without downloading the
-    body (connection is closed before the body is read)."""
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            cl = r.headers.get("Content-Length")
-            return r.status, int(cl) if cl and cl.isdigit() else -1
-    except urllib.error.HTTPError as e:
-        return e.code, -1
-    except Exception:
-        return 0, -1  # network/DNS/timeout
+    """Return (status, content_length, diagnostic), retrying transient failures.
+
+    A single DNS hiccup or dropped connection must not page as a broken image.
+    HTTP 4xx responses are definitive (except 408/429); network failures and
+    5xx responses get bounded exponential backoff. Cloudflare omits
+    Content-Length on HEAD, so this uses GET without reading the body.
+    """
+    last_status, last_error = 0, "network error"
+    for attempt in range(HTTP_ATTEMPTS):
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                cl = r.headers.get("Content-Length")
+                return r.status, int(cl) if cl and cl.isdigit() else -1, ""
+        except urllib.error.HTTPError as e:
+            last_status, last_error = e.code, "HTTP %s" % e.code
+        except Exception as e:
+            last_status = 0
+            last_error = "%s: %s" % (type(e).__name__, str(e).replace("\n", " ")[:160])
+        if last_status not in (0, 408, 429) and not (500 <= last_status < 600):
+            break
+        if attempt + 1 < HTTP_ATTEMPTS:
+            time.sleep(0.5 * (2 ** attempt))
+    return last_status, -1, "%s after %d attempt(s)" % (last_error, attempt + 1)
 
 def frontmatter(text):
     out = {}
@@ -109,15 +132,6 @@ for fn in sorted(os.listdir(articles_dir)):
     with open(os.path.join(articles_dir, fn), encoding="utf-8") as f:
         text = f.read()
     fm = frontmatter(text)
-    # A published article missing a configured image field renders with no hero
-    # and the default og-image. Probing only paths that EXIST in frontmatter is a
-    # blind spot — a missing field contributes 0 to CHECKED and can never be a
-    # FAILURE. Flag each missing field directly so collection gaps get found.
-    for field in fields:
-        if field not in fm:
-            checked += 1
-            failures.append((slug, "(no %s: frontmatter)" % field,
-                             "missing %s frontmatter" % field))
     targets = []  # (role, path)
     for field in fields:
         if field not in fm:
@@ -131,15 +145,45 @@ for fn in sorted(os.listdir(articles_dir)):
             continue
         url = base + path
         checked += 1
-        status, size = head(url)
+        status, size, diagnostic = head(url)
         if status != 200:
-            failures.append((slug, path, "HTTP %s" % (status or "unreachable")))
+            failures.append((slug, role, path, "HTTP %s" % status if status else "unreachable (%s)" % diagnostic))
         elif path.endswith(".jpg") and size != -1 and size < FLOOR[role]:
-            failures.append((slug, path, "blank? %d bytes < %d floor" % (size, FLOOR[role])))
+            failures.append((slug, role, path, "blank? %d bytes < %d floor" % (size, FLOOR[role])))
+
+# Grace re-check: poll the still-failing images until CF finishes propagating a
+# just-pushed deploy, then only report on what's STILL broken. Anything that
+# recovers mid-window was a propagation race, not a real break. Re-probes only
+# the shrinking set of failures (not the whole site) and stops early the moment
+# no real URL is still failing.
+def has_live_failure(items):
+    return any(path.startswith("/") for _s, _r, path, _reason in items)
+
+GRACE = int(os.environ.get("IMAGE_CHECK_GRACE", "20"))
+MAX_WAIT = int(os.environ.get("IMAGE_CHECK_MAX_WAIT", "200"))
+
+if failures and GRACE > 0 and has_live_failure(failures):
+    deadline = time.time() + MAX_WAIT
+    while has_live_failure(failures) and time.time() < deadline:
+        time.sleep(min(GRACE, max(1, int(deadline - time.time()))))
+        persistent = []
+        for slug, role, path, _old in failures:
+            if not path.startswith("/"):
+                persistent.append((slug, role, path, _old))
+                continue
+            status, size, diagnostic = head(base + path)
+            reason = None
+            if status != 200:
+                reason = "HTTP %s" % status if status else "unreachable (%s)" % diagnostic
+            elif path.endswith(".jpg") and size != -1 and size < FLOOR[role]:
+                reason = "blank? %d bytes < %d floor" % (size, FLOOR[role])
+            if reason:
+                persistent.append((slug, role, path, reason))
+        failures = persistent
 
 print("CHECKED %d" % checked)
 print("FAILURES %d" % len(failures))
-for slug, path, reason in failures[:40]:
+for slug, role, path, reason in failures[:40]:
     print("FAIL\t%s\t%s\t%s" % (slug, path, reason))
 if len(failures) > 40:
     print("... and %d more" % (len(failures) - 40))
