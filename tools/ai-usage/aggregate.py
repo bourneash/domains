@@ -199,8 +199,14 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 requested_turns = record.get("requested_max_turns")
                 turns = record.get("num_turns") or 0
                 is_error = bool(record.get("is_error"))
+                # requested_turns == 1 means the role is deliberately single-shot
+                # (e.g. broadwayshowgirls' llm-writer) — num_turns will always
+                # equal that cap on a normal, successful call, so it's not a
+                # runaway signal and would otherwise fire an alert on every
+                # single call the role ever makes. Only flag a real budget
+                # squeeze: a cap that allows more than one turn.
                 hit_max_turns = bool(
-                    isinstance(requested_turns, int) and requested_turns > 0 and turns >= requested_turns
+                    isinstance(requested_turns, int) and requested_turns > 1 and turns >= requested_turns
                 )
                 is_model_drift = bool(record.get("model_drift"))
                 if is_model_drift:

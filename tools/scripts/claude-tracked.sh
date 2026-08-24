@@ -127,6 +127,37 @@ claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
 STATUS=$?
 set -e
 
+# ---- Single same-run retry on a zero-cost, zero-token failure (2026-08-23) ----
+# Fleet audit found ~2s exit=1 failures scattered across sites (americastrikes,
+# rodhat, sinderella), model=null, is_error=true, total_cost_usd=0 — the `claude`
+# binary itself erroring before any billable work started (network preflight
+# above already passed, so it's not the DNS-outage case). Every prior
+# occurrence self-healed on the site's own next scheduled cron tick, which for
+# hourly roles means up to ~an hour of lost turnaround for zero reason — a
+# retry here is free (nothing was billed) and safe (nothing was done, so
+# nothing to duplicate). Retrying only on a verified zero-cost failure, never
+# on a real error that may have done partial billable work.
+if [[ "$STATUS" -ne 0 ]]; then
+  ZERO_COST_FAILURE=$(python3 -c "
+import json, sys
+try:
+    with open('$TMP_JSON', encoding='utf-8') as fh:
+        data = json.load(fh)
+except Exception:
+    print('0'); sys.exit()
+cost = data.get('total_cost_usd') or 0
+print('1' if data.get('is_error') and not cost else '0')
+" 2>/dev/null || echo 0)
+  if [[ "$ZERO_COST_FAILURE" == "1" ]]; then
+    echo "claude-tracked.sh: zero-cost failure (exit=$STATUS) — retrying once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    sleep 3
+    set +e
+    claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
+    STATUS=$?
+    set -e
+  fi
+fi
+
 python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" <<'PYEOF'
 import json
 import subprocess
