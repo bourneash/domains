@@ -15,8 +15,16 @@ WORKDIR /app
 # swallows the failure silently, so a missing `ip` doesn't crash the
 # service, it just 403s every real caller while /health keeps looking
 # fine. Found exactly that way in this container's first e2e test.
+# procps (`pkill`/`pgrep`) is likewise not optional: the nanobanana skill's
+# generate.py shells out to `pkill` in its stale-cloak-session recovery path
+# (_kill_stale_cloak, launch_clean) any time a launch fails and needs a clean
+# retry. python:3.11-slim doesn't ship it either — missing `pkill` raises
+# FileNotFoundError *during* the recovery attempt, which aborts the whole
+# nanobanana call and forces the comfyui fallback on every single request
+# that ever hits this path. Found the same way as the `ip` gotcha above:
+# quietly 100% failing one backend while /health kept reporting fine.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates iproute2 && \
+    ca-certificates iproute2 procps && \
     rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .

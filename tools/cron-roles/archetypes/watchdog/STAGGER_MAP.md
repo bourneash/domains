@@ -42,8 +42,10 @@ bottom, `offset = (last_offset + 37) % 900`), add the row, use that value for
 | weirdgirlstore.com | 777 |
 | wetpages.com | 814 |
 | xxxtea.com | 851 |
+| offshorehookup.com | 888 |
+| unsupervisedmedia.com | 925 |
 
-**Next free slot: 888s.**
+**Next free slot: 962s.**
 
 Rolled out 2026-08-15. Sites not yet on the watchdog role (fishhooklabs.com,
 noveltyguns.com, therareunicorn.com, and others not yet installed) aren't
