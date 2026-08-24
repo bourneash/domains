@@ -33,8 +33,14 @@ Local (host Node — needs `python3`, `git`, and `docker` on PATH):
 
 Containerized:
 
-    docker compose up -d --build
+    tools/fleet-dashboard/bin/fleet-dashboard up
     # panel at http://127.0.0.1:4754
+
+The operator command always loads the shared root `.env`, supplies the host
+Docker group, and waits for the health endpoint. It also supports `restart`,
+`status`, and `token`. `rotate-token` atomically replaces `FD_TOKEN`, preserves
+the `.env` permissions, and recreates the panel. Routine rotation is neither
+required nor recommended; rotate after suspected disclosure.
 
 ## Why it shells out to Python
 
@@ -57,17 +63,16 @@ and presentation.
   `*` to disable.
 - **Token gate:** set `FD_TOKEN=<secret>` to require a token on every `/api/*`
   request. Browsers unlock via a login form (an HttpOnly cookie holding an HMAC
-  of the token, not the token itself); programmatic clients send
-  `x-fd-token: <secret>`.
+  of the token, not the token itself). The cookie has a rolling 30-day idle
+  lifetime, so normal use keeps that browser signed in without weakening the
+  gate for abandoned sessions. Programmatic clients send `x-fd-token: <secret>`.
 - **Off switch — `FD_AUTH=0`:** turns the token gate off entirely while leaving
   `FD_TOKEN` parked in the shared `.env`, so turning it back on is a
-  one-character edit rather than re-issuing a secret. Currently **off** on this
-  host (Jesse, 2026-08-09) — the login was more friction than the threat model
-  warranted for a machine nobody else touches. What you give up: the panel
+  one-character edit rather than re-issuing a secret. What you give up: the panel
   mounts the docker socket and joins `vpn_proxy`, so with the gate off **any
   container on that network can drive the whole fleet and the host**, not just
   people on your LAN. Flip it back with `FD_AUTH=1` in `.env` +
-  `docker compose --env-file ../../.env up -d`.
+  `tools/fleet-dashboard/bin/fleet-dashboard up`.
 - **Refuses to start unsafe (B2):** on a non-loopback bind (`FD_HOST` not
   `127.0.0.1`/`localhost`/`::1`) with no `FD_TOKEN`, the server exits with an
   error instead of coming up unauthenticated. The compose deploy binds `0.0.0.0`

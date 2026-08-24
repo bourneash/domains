@@ -76,6 +76,7 @@ test('authed() accepts the httpOnly cookie set by loginHandler, not an arbitrary
     const res = fakeRes();
     auth.loginHandler({ body: { token: 'correct-horse' } }, res);
     const setCookie = res.setHeader.mock.calls[0].arguments[1];
+    assert.match(setCookie, /; HttpOnly; SameSite=Strict; Path=\/; Max-Age=2592000$/);
     const cookieVal = setCookie.match(/^fd_auth=([^;]+)/)[1];
     assert.equal(auth.authed(mockReq({ cookie: `fd_auth=${cookieVal}` })), true);
     // A guessed/forged cookie value must not authenticate.
@@ -87,6 +88,35 @@ test('authed() accepts the httpOnly cookie set by loginHandler, not an arbitrary
       cookieVal,
       crypto.createHmac('sha256', 'correct-horse').update('fd-auth-v1').digest('hex')
     );
+  });
+});
+
+test('apiGuard renews a valid browser cookie but does not create one for header clients', () => {
+  withAuth({ FD_TOKEN: 'correct-horse' }, auth => {
+    const loginRes = fakeRes();
+    auth.loginHandler({ body: { token: 'correct-horse' } }, loginRes);
+    const cookie = loginRes.setHeader.mock.calls[0].arguments[1].split(';')[0];
+
+    const browserRes = fakeRes();
+    let browserNext = false;
+    auth.apiGuard({ headers: { cookie }, path: '/api/roles' }, browserRes, () => {
+      browserNext = true;
+    });
+    assert.equal(browserNext, true);
+    assert.equal(browserRes.setHeader.mock.callCount(), 1);
+    assert.match(browserRes.setHeader.mock.calls[0].arguments[1], /Max-Age=2592000$/);
+
+    const headerRes = fakeRes();
+    let headerNext = false;
+    auth.apiGuard(
+      { headers: { 'x-fd-token': 'correct-horse' }, path: '/api/roles' },
+      headerRes,
+      () => {
+        headerNext = true;
+      }
+    );
+    assert.equal(headerNext, true);
+    assert.equal(headerRes.setHeader.mock.callCount(), 0);
   });
 });
 
@@ -104,6 +134,19 @@ test('authStatus reports authRequired + whether this caller is authed', () => {
     const res = fakeRes();
     auth.authStatus(mockReq({ headers: { 'x-fd-token': 'correct-horse' } }), res);
     assert.deepEqual(res.json.mock.calls[0].arguments[0], { authRequired: true, authed: true });
+  });
+});
+
+test('authStatus renews an existing valid browser session', () => {
+  withAuth({ FD_TOKEN: 'correct-horse' }, auth => {
+    const loginRes = fakeRes();
+    auth.loginHandler({ body: { token: 'correct-horse' } }, loginRes);
+    const cookie = loginRes.setHeader.mock.calls[0].arguments[1].split(';')[0];
+
+    const res = fakeRes();
+    auth.authStatus(mockReq({ cookie }), res);
+    assert.deepEqual(res.json.mock.calls[0].arguments[0], { authRequired: true, authed: true });
+    assert.equal(res.setHeader.mock.callCount(), 1);
   });
 });
 

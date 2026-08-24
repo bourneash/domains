@@ -29,18 +29,21 @@ const crypto = require('node:crypto');
 // panel mounts the docker socket and joins the shared vpn_proxy network, so with
 // the gate off, any container on that network has full fleet + host control.
 const AUTH_DISABLED = process.env.FD_AUTH === '0';
-const TOKEN = AUTH_DISABLED ? null : (process.env.FD_TOKEN || null);
+const TOKEN = AUTH_DISABLED ? null : process.env.FD_TOKEN || null;
 const COOKIE = 'fd_auth';
+const SESSION_MAX_AGE_SECONDS = 30 * 24 * 3600;
 // The cookie carries an HMAC of a constant under the token, never the token
 // itself — so a leaked cookie doesn't reveal the shared secret.
-const COOKIE_VAL = TOKEN ? crypto.createHmac('sha256', TOKEN).update('fd-auth-v1').digest('hex') : null;
+const COOKIE_VAL = TOKEN
+  ? crypto.createHmac('sha256', TOKEN).update('fd-auth-v1').digest('hex')
+  : null;
 
 const DEFAULT_HOSTS = ['127.0.0.1', 'localhost', '[::1]', '::1', 'fleet-dashboard', 'panel'];
 const ALLOWED_HOSTS = new Set(
   (process.env.FD_ALLOWED_HOSTS ? process.env.FD_ALLOWED_HOSTS.split(',') : [])
-    .map((h) => h.trim().toLowerCase())
+    .map(h => h.trim().toLowerCase())
     .filter(Boolean)
-    .concat(DEFAULT_HOSTS),
+    .concat(DEFAULT_HOSTS)
 );
 
 // Paths reachable without a token so the login screen can bootstrap.
@@ -80,10 +83,29 @@ function parseCookies(req) {
   return out;
 }
 
+function sessionCookieValid(req) {
+  return !!TOKEN && safeEqual(parseCookies(req)[COOKIE] || '', COOKIE_VAL);
+}
+
+function setSessionCookie(res) {
+  res.setHeader(
+    'Set-Cookie',
+    `${COOKIE}=${COOKIE_VAL}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_MAX_AGE_SECONDS}`
+  );
+}
+
+// Browser sessions have a sliding 30-day idle window. A regularly-used
+// dashboard therefore stays signed in, while an abandoned browser loses access
+// without forcing the shared FD_TOKEN itself onto a rotation schedule.
+function renewSessionCookie(req, res) {
+  if (!sessionCookieValid(req)) return;
+  setSessionCookie(res);
+}
+
 function authed(req) {
-  if (!TOKEN) return true;                                  // token gate disabled
-  if (tokenValid(req.headers['x-fd-token'])) return true;   // header (programmatic clients)
-  return safeEqual(parseCookies(req)[COOKIE] || '', COOKIE_VAL);   // cookie (browser)
+  if (!TOKEN) return true; // token gate disabled
+  if (tokenValid(req.headers['x-fd-token'])) return true; // header (programmatic clients)
+  return sessionCookieValid(req); // cookie (browser)
 }
 
 // Layer 1: host allowlist for ALL requests.
@@ -99,7 +121,10 @@ function apiGuard(req, res, next) {
   if (!TOKEN) return next();
   if (!req.path.startsWith('/api/')) return next();
   if (EXEMPT.has(req.path)) return next();
-  if (authed(req)) return next();
+  if (authed(req)) {
+    renewSessionCookie(req, res);
+    return next();
+  }
   return res.status(401).json({ error: 'authentication required' });
 }
 
@@ -107,17 +132,27 @@ function apiGuard(req, res, next) {
 function loginHandler(req, res) {
   if (!TOKEN) return res.json({ ok: true, authRequired: false });
   if (!tokenValid((req.body || {}).token)) return res.status(401).json({ error: 'invalid token' });
-  res.setHeader('Set-Cookie',
-    `${COOKIE}=${COOKIE_VAL}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${30 * 24 * 3600}`);
+  setSessionCookie(res);
   res.json({ ok: true });
 }
 
 // GET /api/auth — whether a token is required and whether this caller has it.
 function authStatus(req, res) {
-  res.json({ authRequired: !!TOKEN, authed: authed(req) });
+  const isAuthed = authed(req);
+  renewSessionCookie(req, res);
+  res.json({ authRequired: !!TOKEN, authed: isAuthed });
 }
 
 module.exports = {
-  hostGuard, apiGuard, loginHandler, authStatus, authed, hostAllowed, tokenValid,
-  TOKEN, AUTH_DISABLED, COOKIE, _parseCookies: parseCookies,
+  hostGuard,
+  apiGuard,
+  loginHandler,
+  authStatus,
+  authed,
+  hostAllowed,
+  tokenValid,
+  TOKEN,
+  AUTH_DISABLED,
+  COOKIE,
+  _parseCookies: parseCookies,
 };

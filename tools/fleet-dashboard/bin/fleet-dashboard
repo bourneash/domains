@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+# Operator entry point for the Fleet Dashboard.
+#
+# This command deliberately owns the otherwise easy-to-forget shared .env
+# wiring. FD_TOKEN stays stable across ordinary starts/restarts; rotate-token is
+# the only command that changes it.
+
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOOL_DIR="$(cd "${HERE}/.." && pwd)"
+DOMAINS_ROOT="${FD_DOMAINS_ROOT:-$(cd "${TOOL_DIR}/../.." && pwd)}"
+ENV_FILE="${FD_ENV_FILE:-${DOMAINS_ROOT}/.env}"
+URL="${FD_DASHBOARD_URL:-http://127.0.0.1:4754}"
+
+usage() {
+  cat <<'EOF'
+Usage: tools/fleet-dashboard/bin/fleet-dashboard <command>
+
+Commands:
+  up            Start or update the dashboard with the shared root .env
+  restart       Restart the dashboard (starts it if it is absent)
+  status        Show container and unauthenticated health/auth status
+  token         Print the current FD_TOKEN for browser login
+  rotate-token  Generate and persist a new FD_TOKEN, then recreate the panel
+  help          Show this help
+
+Routine token renewal is unnecessary. Rotate only after suspected disclosure.
+EOF
+}
+
+die() {
+  printf 'fleet-dashboard: %s\n' "$*" >&2
+  exit 1
+}
+
+require_env_file() {
+  [[ -f "${ENV_FILE}" ]] || die "shared env not found: ${ENV_FILE}"
+}
+
+read_token() {
+  awk '
+    /^FD_TOKEN=/ {
+      sub(/^FD_TOKEN=/, "");
+      token = $0;
+    }
+    END { print token }
+  ' "${ENV_FILE}"
+}
+
+configure_compose_env() {
+  local host_docker_gid
+  host_docker_gid="$(getent group docker 2>/dev/null | awk -F: 'NR == 1 { print $3 }' || true)"
+  export DOCKER_GID="${DOCKER_GID:-${host_docker_gid:-999}}"
+}
+
+compose() {
+  configure_compose_env
+  (
+    cd "${TOOL_DIR}"
+    docker compose --env-file "${ENV_FILE}" "$@"
+  )
+}
+
+wait_until_ready() {
+  local attempts="${FD_HEALTHCHECK_ATTEMPTS:-30}"
+  local delay="${FD_HEALTHCHECK_DELAY:-0.5}"
+  local i
+
+  for ((i = 1; i <= attempts; i++)); do
+    if curl -fsS --max-time 2 "${URL}/healthz" >/dev/null 2>&1; then
+      printf '✓ Fleet Dashboard ready: %s/\n' "${URL}"
+      return 0
+    fi
+    sleep "${delay}"
+  done
+
+  printf 'fleet-dashboard: panel did not become ready at %s/\n' "${URL}" >&2
+  docker logs --tail 30 fleet-dashboard >&2 2>/dev/null || true
+  return 1
+}
+
+replace_token() {
+  local new_token="$1"
+  local temp_env
+  temp_env="$(mktemp "${ENV_FILE}.fd-token.XXXXXX")"
+
+  if ! awk -v token="${new_token}" '
+    BEGIN { replaced = 0 }
+    /^FD_TOKEN=/ {
+      if (!replaced) {
+        print "FD_TOKEN=" token;
+        replaced = 1;
+      }
+      next;
+    }
+    { print }
+    END {
+      if (!replaced) print "FD_TOKEN=" token;
+    }
+  ' "${ENV_FILE}" > "${temp_env}"; then
+    rm -f "${temp_env}"
+    return 1
+  fi
+
+  if ! chmod --reference="${ENV_FILE}" "${temp_env}"; then
+    rm -f "${temp_env}"
+    return 1
+  fi
+  if ! mv "${temp_env}" "${ENV_FILE}"; then
+    rm -f "${temp_env}"
+    return 1
+  fi
+}
+
+print_token_hint() {
+  printf 'Retrieve it locally when needed with:\n  %s token\n' "$0"
+}
+
+command="${1:-help}"
+case "${command}" in
+  up|start)
+    require_env_file
+    [[ -n "$(read_token)" ]] || die "FD_TOKEN is missing from ${ENV_FILE}"
+    compose up -d panel
+    wait_until_ready
+    ;;
+
+  restart)
+    require_env_file
+    [[ -n "$(read_token)" ]] || die "FD_TOKEN is missing from ${ENV_FILE}"
+    if docker inspect fleet-dashboard >/dev/null 2>&1; then
+      compose restart panel
+    else
+      compose up -d panel
+    fi
+    wait_until_ready
+    ;;
+
+  status)
+    require_env_file
+    compose ps panel
+    if auth_status="$(curl -fsS --max-time 2 "${URL}/api/auth" 2>/dev/null)"; then
+      printf 'health: ready\nauth:   %s\n' "${auth_status}"
+    else
+      printf 'health: unavailable (%s/)\n' "${URL}"
+      exit 1
+    fi
+    ;;
+
+  token|show-token)
+    require_env_file
+    token="$(read_token)"
+    [[ -n "${token}" ]] || die "FD_TOKEN is missing from ${ENV_FILE}"
+    printf '%s\n' "${token}"
+    ;;
+
+  rotate-token)
+    require_env_file
+    new_token="$(openssl rand -hex 32)"
+    [[ "${new_token}" =~ ^[0-9a-f]{64}$ ]] || die "openssl returned an invalid token"
+    replace_token "${new_token}"
+    printf 'FD_TOKEN rotated in %s. Existing browser sessions are invalid.\n' "${ENV_FILE}"
+    if ! compose up -d --force-recreate panel; then
+      printf 'fleet-dashboard: panel recreation failed; the new token remains persisted.\n' >&2
+      print_token_hint >&2
+      exit 1
+    fi
+    if ! wait_until_ready; then
+      printf 'fleet-dashboard: the new token remains persisted.\n' >&2
+      print_token_hint >&2
+      exit 1
+    fi
+    printf 'Fleet Dashboard is running with the new token.\n'
+    print_token_hint
+    ;;
+
+  help|-h|--help)
+    usage
+    ;;
+
+  *)
+    usage >&2
+    die "unknown command: ${command}"
+    ;;
+esac
