@@ -1,5 +1,13 @@
 # HANDOFF — move fleet-level host cron into a container
 
+> **Superseded 2026-08-23.** Per-site `ops/docker/Dockerfile.cron`,
+> `Dockerfile.worker` and `entrypoint-cron.sh` no longer exist. All 26 sites run
+> two shared images built from `tools/fleet-images/` (`fleet-site-cron`,
+> `fleet-site-worker`), and the crontab is BIND-MOUNTED rather than baked, so
+> rescheduling needs no rebuild. References to those per-site files below are
+> retained for historical context only — see `tools/fleet-images/README.md`.
+
+
 **Status:** DONE — 2026-08-15. All six jobs migrated to `tools/fleet-cron`,
 verified per §8, host crontab reduced to the two `@reboot` lines plus the
 untouched `home_energy` line. See `README.md` for the operating doc going

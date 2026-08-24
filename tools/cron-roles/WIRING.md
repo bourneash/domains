@@ -1,5 +1,13 @@
 # WIRING.md — the archetype-agnostic install engine
 
+> **Superseded 2026-08-23.** Per-site `ops/docker/Dockerfile.cron`,
+> `Dockerfile.worker` and `entrypoint-cron.sh` no longer exist. All 26 sites run
+> two shared images built from `tools/fleet-images/` (`fleet-site-cron`,
+> `fleet-site-worker`), and the crontab is BIND-MOUNTED rather than baked, so
+> rescheduling needs no rebuild. References to those per-site files below are
+> retained for historical context only — see `tools/fleet-images/README.md`.
+
+
 This is the **one** mechanical procedure for installing ANY cron-role archetype
 (`engineer`, `affiliate-editor`, `content-writer`, `planner`, `seo-analyst`, …) into a
 portfolio site under `sites/<domain>/`. The per-archetype `domains-cron-role-<name>`

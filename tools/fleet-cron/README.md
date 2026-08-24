@@ -1,5 +1,13 @@
 # tools/fleet-cron
 
+> **Superseded 2026-08-23.** Per-site `ops/docker/Dockerfile.cron`,
+> `Dockerfile.worker` and `entrypoint-cron.sh` no longer exist. All 26 sites run
+> two shared images built from `tools/fleet-images/` (`fleet-site-cron`,
+> `fleet-site-worker`), and the crontab is BIND-MOUNTED rather than baked, so
+> rescheduling needs no rebuild. References to those per-site files below are
+> retained for historical context only — see `tools/fleet-images/README.md`.
+
+
 Fleet-level scheduler container. Runs the seven cross-cutting jobs that used
 to live on jesse's host crontab — self-heal for site schedulers, the
 SecurityScanner temp-scans purge, the stuck-worker reaper, the Claude Code

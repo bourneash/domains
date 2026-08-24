@@ -83,8 +83,30 @@ if [[ "${#IDS[@]}" -eq 0 && -f "$REGISTRY" ]]; then
   mapfile -t IDS < <(grep -oE "id:\s*['\"][^'\"]+['\"]" "$REGISTRY" 2>/dev/null | sed -E "s/.*['\"]([^'\"]+)['\"].*/\1/" | sort -u)
   [[ "${#IDS[@]}" -gt 0 ]] && ID_SOURCE="$REGISTRY"
 fi
+# Last resort: DIRECT mode, for sites with no cloak layer at all.
+#
+# amputeenews.com has no _redirects, no /go/ pages and no registry ids — its
+# component builds the Amazon URL at render time from an ASIN
+# (`/dp/${asin}?${params}`). So there is no link to sweep, only ASINs, and they
+# live in the CONTENT files (40 of them), not the registry.
+#
+# Do NOT try to regex literal URLs out of source: this site's only matches were
+# the template literals themselves ("https://www.amazon.com/dp/${asin}?..."),
+# which are not URLs and curl to nothing. Extract ASINs and build the canonical
+# product URL instead.
+DIRECT_MODE=0
 if [[ "${#IDS[@]}" -eq 0 ]]; then
-  echo "no affiliate ids found (checked $REDIRECTS, site/src/pages${GO_PREFIX}, $REGISTRY) — nothing to check"; exit 0
+  mapfile -t ASINS < <(grep -rhoE '\b[B][0-9A-Z]{9}\b' site/src 2>/dev/null | sort -u)
+  if [[ "${#ASINS[@]}" -gt 0 ]]; then
+    DIRECT_MODE=1
+    ID_SOURCE="ASINs in site/src (no cloak layer on this site)"
+    IDS=()
+    for _a in "${ASINS[@]}"; do IDS+=("https://www.amazon.com/dp/${_a}"); done
+  fi
+fi
+
+if [[ "${#IDS[@]}" -eq 0 ]]; then
+  echo "no affiliate ids found (checked $REDIRECTS, site/src/pages${GO_PREFIX}, $REGISTRY, raw amazon links) — nothing to check"; exit 0
 fi
 echo "checking ${#IDS[@]} affiliate id(s) from ${ID_SOURCE} against ${BASE_URL}"
 
@@ -104,9 +126,14 @@ classify_one() {
   # appended. Checking only the slashed form reported 8 of its 101 links as
   # broken redirects when every one of them works as published. Healthy on
   # EITHER form means healthy.
-  url_bare="${BASE_URL}${GO_PREFIX}${id}"
-  url_slash="${url_bare}/"
-  url="$url_bare"
+  if [[ "${DIRECT_MODE:-0}" == "1" ]]; then
+    # id IS the destination URL; there is no cloak to check.
+    url_bare="$id"; url_slash="$id"; url="$id"
+  else
+    url_bare="${BASE_URL}${GO_PREFIX}${id}"
+    url_slash="${url_bare}/"
+    url="$url_bare"
+  fi
 
   # STEP 1 — the CLOAK's own health, measured WITHOUT -L.
   # This is the only thing that can legitimately produce a "broken redirect".
@@ -134,6 +161,15 @@ classify_one() {
     if [[ -z "$cloak_code" || "$cloak_code" == "000" || "$cloak_code" -ge 400 ]]; then
       cloak_code="$(cloak_check "$url_slash")"
       [[ -n "$cloak_code" && "$cloak_code" != "000" && "$cloak_code" -lt 400 ]] && url="$url_slash"
+    fi
+  fi
+  # REDIRECT_FAIL is meaningless in direct mode — there IS no cloak, so a
+  # non-2xx here is Amazon refusing curl, exactly like the anti-bot case. An
+  # earlier version reported both of amputeenews.com's links as broken
+  # redirects on a site that has no redirects at all.
+  if [[ -z "$cloak_code" || "$cloak_code" == "000" || "$cloak_code" -ge 400 ]]; then
+    if [[ "${DIRECT_MODE:-0}" == "1" ]]; then
+      printf 'ANTIBOT\t%s\t%s\n' "$id" "destination returned HTTP ${cloak_code:-000} to curl (direct link, no cloak)"; return
     fi
   fi
   if [[ -z "$cloak_code" || "$cloak_code" == "000" ]]; then
@@ -194,7 +230,7 @@ classify_one() {
   printf 'OK\t%s\t\n' "$id"
 }
 export -f classify_one
-export BASE_URL GO_PREFIX CURL_TIMEOUT
+export BASE_URL GO_PREFIX CURL_TIMEOUT DIRECT_MODE
 
 RESULTS="$(printf '%s\n' "${IDS[@]}" | xargs -P "$PARALLEL" -I{} bash -c 'classify_one "$@"' _ {} )"
 
@@ -237,11 +273,14 @@ pages_for() { grep -rl "${GO_PREFIX}$1/" ${CONTENT_PATH} 2>/dev/null | head -5 |
 
 filed=0
 file_task() {
-  local kind="$1" id="$2" detail="$3" ttype path
+  local kind="$1" id="$2" detail="$3" ttype path slug
+  # In direct mode the id is a full URL; derive a filesystem-safe slug so task
+  # filenames stay sane (and stay stable for the idempotency check).
+  slug="$(printf '%s' "$id" | sed -E 's#^https?://##; s#[^A-Za-z0-9._-]+#-#g; s#^-+|-+$##g' | tail -c 80)"
   case "$kind" in
-    dead)     ttype=content;     path="$TASK_DIR/${TODAY}-broken-affiliate-${id}.md" ;;
-    redirect) ttype=engineering; path="$TASK_DIR/${TODAY}-broken-redirect-${id}.md" ;;
-    oos)      ttype=content;     path="$TASK_DIR/${TODAY}-oos-affiliate-${id}.md" ;;
+    dead)     ttype=content;     path="$TASK_DIR/${TODAY}-broken-affiliate-${slug}.md" ;;
+    redirect) ttype=engineering; path="$TASK_DIR/${TODAY}-broken-redirect-${slug}.md" ;;
+    oos)      ttype=content;     path="$TASK_DIR/${TODAY}-oos-affiliate-${slug}.md" ;;
   esac
   # Idempotent: never refile the same problem for the same id on the same day.
   [[ -e "$path" ]] && { echo "  task already exists: $path"; return; }

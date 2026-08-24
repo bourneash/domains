@@ -314,6 +314,43 @@ else:
 
 with open(ledger_path, "a", encoding="utf-8") as fh:
     fh.write(json.dumps(record, sort_keys=True) + "\n")
+
+# ── explain a failure IN THE ROLE LOG, not only in the ledger ───────────────
+# Role wrappers alert Slack by quoting the last few lines of the role log. Until
+# now the reason for a failure only ever reached the LEDGER, so an alert read:
+#
+#     :x: newmomshop.com engineer failed (exit=1)
+#     --- Wrote 19 picks ... [run-role] engineer: invoking Claude --- exit=1
+#
+# ...which is indistinguishable from a crash. The actual cause was
+# subtype=error_max_turns: the role hit its 21-turn cap on a large task, and the
+# NEXT scheduled run completed the work normally. Benign, self-healing, and
+# alarming for no reason — someone reading that at 8pm cannot tell it apart from
+# a broken deploy.
+#
+# Printing the reason on stderr puts it in the role log, so every existing
+# alerter picks it up with no per-site change — the same central-fix approach
+# used for the model pin.
+if record.get("is_error") or int(status or 0) != 0:
+    sub = record.get("subtype") or "unknown"
+    turns = record.get("num_turns")
+    cap = requested_max_turns or "?"
+    EXPLAIN = {
+        "error_max_turns": (
+            f"hit its turn cap ({turns}/{cap}) — the task was larger than the budget, "
+            "NOT a crash. The next scheduled run normally finishes the work. "
+            "Raise --max-turns for this role, or split the task, if it recurs."
+        ),
+        "error_during_execution": "the model errored mid-run; usually transient, retried next tick.",
+        "network_preflight_failed": "no network before the call was made — no tokens were spent.",
+        "parse_error": "the CLI returned output this wrapper could not parse; see the raw log.",
+    }
+    why = EXPLAIN.get(sub, f"subtype={sub}")
+    print(
+        f"claude-tracked.sh: FAILURE REASON — {why} "
+        f"(site={site} role={role} subtype={sub} turns={turns} exit={status})",
+        file=sys.stderr,
+    )
 PYEOF
 
 exit "$STATUS"
