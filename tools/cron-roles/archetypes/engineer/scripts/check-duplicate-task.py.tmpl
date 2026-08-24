@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+"""check-duplicate-task.py — companion to enqueue-engineer-task.sh.
+
+Root cause this exists for: sinderella.org's voice-auditor filed the SAME
+recurring bug (internal pipeline scoring metadata leaking into published
+horoscopes) as 4 separate engineering task files over a month
+(2026-07-30, 08-12, 08-17, 08-23) — nothing ever noticed they were the same
+issue, so nobody ever consolidated them into one task an engineer could
+actually chip away at, and the underlying bug went unfixed for a month
+while each occurrence cost a paid Claude rewrite to clean up. 2026-08-23
+token-usage audit: closing that loop generically, fleet-wide.
+
+Given a candidate task title, scans OPEN tasks (backlog/ + in-progress/ —
+NOT done/: a bug that recurred after a real fix shipped is legitimately a
+new report, not a duplicate) for significant keyword overlap. On a match
+above SIMILARITY_THRESHOLD, prints the matching file's path to stdout and
+exits 0 (signal to the caller: don't create a new file, this one already
+tracks it) and appends a recurrence note + escalates priority in that file.
+No match: prints nothing, exits 1.
+
+(Generic across all domains — no per-project values; ship as-is.)
+
+Usage:
+    check-duplicate-task.py "<candidate title>" <backlog_dir> <in_progress_dir> ["<new body text>"]
+"""
+import glob
+import os
+import re
+import sys
+from datetime import datetime, timezone
+
+SIMILARITY_THRESHOLD = 0.4
+MIN_SHARED_WORDS = 3
+STOPWORDS = {
+    "the", "and", "for", "with", "into", "from", "that", "this", "have",
+    "been", "were", "which", "when", "does", "about", "their", "there",
+    "your", "will", "than", "then", "over", "each", "some", "only", "also",
+}
+
+
+def _keywords(title):
+    """Significant words, stemmed to a 4-char prefix for words of 5+ chars
+    (no stemmer in stdlib — this is a cheap approximation) so "scoring" vs
+    "score", "leaking" vs "leak", "published" vs "publish" etc. match as the
+    same concept instead of missing each other as distinct exact strings.
+    Risk: an occasional unrelated collision ("content" vs "context") — an
+    acceptable false-positive rate for a heuristic safety net a human/
+    engineer reads before acting on, not a strict identity check."""
+    words = re.findall(r"[a-z0-9]+", title.lower())
+    stems = set()
+    for w in words:
+        if len(w) < 4 or w in STOPWORDS:
+            continue
+        stems.add(w[:4] if len(w) >= 5 else w)
+    return stems
+
+
+def _load_task(path):
+    try:
+        text = open(path, encoding="utf-8").read()
+    except Exception:
+        return None
+    if not text.startswith("---"):
+        return None
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return None
+    fm, body = parts[1], parts[2]
+    data = {}
+    for line in fm.splitlines():
+        m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$", line.rstrip())
+        if not m:
+            continue
+        key, val = m.group(1), m.group(2).strip()
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in "\"'":
+            val = val[1:-1]
+        data[key] = val
+    data["_body"] = body
+    data["_raw_fm"] = fm
+    return data
+
+
+def _similarity(a, b):
+    if not a or not b:
+        return 0.0
+    shared = a & b
+    if len(shared) < MIN_SHARED_WORDS:
+        return 0.0
+    return len(shared) / min(len(a), len(b))
+
+
+def find_duplicate(candidate_title, *dirs):
+    candidate_kw = _keywords(candidate_title)
+    best_path, best_score = None, 0.0
+    for d in dirs:
+        if not os.path.isdir(d):
+            continue
+        for path in glob.glob(os.path.join(d, "*.md")):
+            data = _load_task(path)
+            if not data or not data.get("title"):
+                continue
+            score = _similarity(candidate_kw, _keywords(data["title"]))
+            if score > best_score:
+                best_path, best_score = path, score
+    if best_score >= SIMILARITY_THRESHOLD:
+        return best_path
+    return None
+
+
+def escalate(path, new_body_text):
+    text = open(path, encoding="utf-8").read()
+    parts = text.split("---", 2)
+    fm, body = parts[1], parts[2]
+
+    m = re.search(r"^priority:\s*(\d+)\s*$", fm, re.MULTILINE)
+    if m:
+        priority = int(m.group(1))
+        if priority > 1:
+            fm = re.sub(
+                r"^priority:\s*\d+\s*$", f"priority: {priority - 1}", fm, flags=re.MULTILINE
+            )
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    note = f"\n\n---\n\n**Recurred {today}** — same issue reported again"
+    if new_body_text:
+        note += f":\n\n{new_body_text.strip()}\n\n"
+    else:
+        note += " (no new detail supplied).\n\n"
+    note += "Priority escalated — this is not a one-off, fix the root cause."
+
+    open(path, "w", encoding="utf-8").write(f"---{fm}---{body.rstrip()}{note}\n")
+
+
+def main():
+    if len(sys.argv) < 4:
+        print(__doc__, file=sys.stderr)
+        sys.exit(2)
+    title = sys.argv[1]
+    backlog_dir = sys.argv[2]
+    in_progress_dir = sys.argv[3]
+    new_body = sys.argv[4] if len(sys.argv) > 4 else ""
+
+    match = find_duplicate(title, backlog_dir, in_progress_dir)
+    if match:
+        try:
+            escalate(match, new_body)
+        except Exception as exc:
+            print(f"check-duplicate-task.py: found duplicate but failed to escalate it: {exc}", file=sys.stderr)
+        print(match)
+        sys.exit(0)
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

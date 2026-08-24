@@ -17,7 +17,24 @@ BODY="${3:-}"
 TYPE="${4:-engineering}"
 
 BACKLOG="$REPO_ROOT/ops/tasks/backlog"
+IN_PROGRESS="$REPO_ROOT/ops/tasks/in-progress"
 mkdir -p "$BACKLOG"
+
+# Dedup check (2026-08-23): before filing a new task, see if an open one
+# already tracks the same issue by title-keyword overlap. On a match, that
+# task gets a recurrence note + an escalated priority instead of a silent
+# duplicate file — see check-duplicate-task.py's docstring for the incident
+# this fixes (the same bug filed 4 separate times over a month, nobody
+# noticing, nobody consolidating). Best-effort: a missing/broken checker
+# never blocks filing the task.
+DUP_CHECK="$(dirname "$0")/check-duplicate-task.py"
+if [[ -f "$DUP_CHECK" ]]; then
+  if EXISTING=$(python3 "$DUP_CHECK" "$TITLE" "$BACKLOG" "$IN_PROGRESS" "$BODY" 2>/dev/null); then
+    echo "enqueue-engineer-task.sh: duplicate of an open task, escalated instead of refiling: $EXISTING" >&2
+    echo "$EXISTING"
+    exit 0
+  fi
+fi
 
 TODAY="$(date -u +%Y-%m-%d)"
 SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-48)
