@@ -108,6 +108,45 @@ _NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
 _UA = {"User-Agent": "Mozilla/5.0 (affiliate-link-check)"}
 
 
+def _classify_landing_body(land_status: int, body: str):
+    """Shared final classification step: given a landing-page HTTP status and
+    body, decide dead / oos / inconclusive / healthy. Used both after a /go/
+    cloak resolves (check_link) and for direct-link sites with no cloak hop
+    at all (check_link_direct) — same Amazon-side failure modes either way,
+    so the classification logic shouldn't be duplicated per site shape."""
+    if land_status != 200:
+        # Amazon-side error (rate-limit, 5xx, etc.) — not our infra's fault.
+        return {"classification": "inconclusive", "detail": f"landing page HTTP {land_status}"}
+    body_lower = body.lower()
+    if any(m in body_lower for m in ANTI_BOT_MARKERS):
+        return {"classification": "inconclusive", "detail": "anti-bot wall"}
+    if OOS_MARKER in body_lower:
+        return {"classification": "oos", "detail": OOS_MARKER}
+    for marker in SOFT_404_MARKERS:
+        if marker.lower() in body_lower:
+            return {"classification": "dead", "detail": marker}
+    return {"classification": "healthy", "detail": None}
+
+
+def check_link_direct(url: str, timeout: int):
+    """For sites with NO local cloak/redirect (e.g. broadwayshowgirls.com's
+    direct `https://www.amazon.com/dp/<ASIN>/?tag=...` links, per its
+    affiliate-editor.md: "This site uses DIRECT affiliate links — there is
+    NO /go/ cloaking"). One fetch, classified the same way a resolved /go/
+    redirect's landing page would be — there's no "our infra broke the
+    redirect" failure mode to distinguish here, since there's no redirect."""
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=_UA), timeout=timeout) as resp:
+            status = resp.status
+            body = resp.read(200_000).decode("utf-8", errors="ignore")
+    except urllib.error.HTTPError as e:
+        status = e.code
+        body = e.read(200_000).decode("utf-8", errors="ignore") if e.fp else ""
+    except Exception as e:
+        return {"classification": "inconclusive", "detail": f"request failed: {e}"}
+    return _classify_landing_body(status, body)
+
+
 def check_link(go_url: str, timeout: int):
     """Two-hop check, classified by WHO owns the failure:
     - our /go/<id> cloak not resolving to a redirect at all -> broken-redirect
@@ -167,19 +206,7 @@ def check_link(go_url: str, timeout: int):
     except Exception as e2:
         return {"classification": "inconclusive", "detail": f"landing page request failed: {e2}"}
 
-    if land_status != 200:
-        # Amazon-side error (rate-limit, 5xx, etc.) — not our cloak's fault.
-        return {"classification": "inconclusive", "detail": f"landing page HTTP {land_status}"}
-
-    body_lower = body.lower()
-    if any(m in body_lower for m in ANTI_BOT_MARKERS):
-        return {"classification": "inconclusive", "detail": "anti-bot wall"}
-    if OOS_MARKER in body_lower:
-        return {"classification": "oos", "detail": OOS_MARKER}
-    for marker in SOFT_404_MARKERS:
-        if marker.lower() in body_lower:
-            return {"classification": "dead", "detail": marker}
-    return {"classification": "healthy", "detail": None}
+    return _classify_landing_body(land_status, body)
 
 
 def grep_referencing_pages(content_path: Path, go_prefix: str, product_id: str):
@@ -195,10 +222,34 @@ def grep_referencing_pages(content_path: Path, go_prefix: str, product_id: str):
         return []
 
 
+def grep_referencing_pages_direct(repo_root: Path, asin: str):
+    """Direct-link sites (no /go/<id>/ cloak) don't reference products by id
+    in content — they render from the registry via productUrl(asin). Grep
+    the whole repo for the ASIN itself instead, same spirit as the role
+    doc's own instruction ("grep site/src/ and ops/affiliate/products.json
+    for the asin")."""
+    if not asin:
+        return []
+    try:
+        out = subprocess.run(
+            ["grep", "-rl", asin, str(repo_root / "site" / "src")],
+            capture_output=True, text=True, timeout=10,
+        )
+        return [line.strip() for line in out.stdout.splitlines() if line.strip()]
+    except Exception:
+        return []
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-root", required=True)
-    ap.add_argument("--base-url", required=True)
+    ap.add_argument("--base-url", required=False, default="",
+                     help="required unless --direct (direct-link sites check "
+                          "https://www.amazon.com/dp/<asin>/ directly, no local base URL involved)")
+    ap.add_argument("--direct", action="store_true",
+                     help="no /go/<id>/ cloak — check the ASIN's Amazon URL directly "
+                          "(e.g. broadwayshowgirls.com: 'DIRECT affiliate links — there is "
+                          "NO /go/ cloaking' per its affiliate-editor.md). Requires --tag.")
     ap.add_argument("--go-prefix", default="/go/")
     ap.add_argument("--content-path", default="site/src/content")
     ap.add_argument("--affiliate-registry", default="site/src/lib/affiliate.ts")
@@ -215,6 +266,13 @@ def main():
                           "'inconclusive' (not false 'broken', so it fails safe, but a "
                           "small delay keeps the fleet's real weekly detection rate high)")
     args = ap.parse_args()
+
+    if args.direct and not args.tag:
+        log("--direct requires --tag (used to build the direct Amazon URL) — exiting")
+        sys.exit(2)
+    if not args.direct and not args.base_url:
+        log("--base-url is required unless --direct is set — exiting")
+        sys.exit(2)
 
     repo_root = Path(args.repo_root)
     registry = repo_root / args.affiliate_registry
@@ -239,8 +297,17 @@ def main():
     for i, p in enumerate(products):
         if i > 0 and args.delay > 0:
             time.sleep(args.delay)
-        url = f"{args.base_url.rstrip('/')}{args.go_prefix}{p['id']}/"
-        results[p["id"]] = {**p, "url": url, **check_link(url, args.timeout)}
+        if args.direct:
+            if not p.get("asin"):
+                results[p["id"]] = {**p, "url": None, "classification": "broken-redirect",
+                                     "detail": "no asin in registry"}
+                log(f"{p['id']}: broken-redirect (no asin in registry)")
+                continue
+            url = f"https://www.amazon.com/dp/{p['asin']}/?tag={args.tag}"
+            results[p["id"]] = {**p, "url": url, **check_link_direct(url, args.timeout)}
+        else:
+            url = f"{args.base_url.rstrip('/')}{args.go_prefix}{p['id']}/"
+            results[p["id"]] = {**p, "url": url, **check_link(url, args.timeout)}
         log(f"{p['id']}: {results[p['id']]['classification']} ({results[p['id']]['detail']})")
 
     seen_oos_ids = {pid for pid, r in results.items() if r["classification"] == "oos"}
@@ -294,19 +361,24 @@ def main():
                 subprocess.run(["bash", str(notify), args.slack_channel, text], cwd=str(repo_root))
         sys.exit(0)
 
+    def _referencing_pages(pid, r):
+        if args.direct:
+            return grep_referencing_pages_direct(repo_root, r.get("asin"))
+        return grep_referencing_pages(repo_root / args.content_path, args.go_prefix, pid)
+
     findings = {
         "generated_at": today,
         "dead": {
             pid: {
                 **r,
-                "referencing_pages": grep_referencing_pages(repo_root / args.content_path, args.go_prefix, pid),
+                "referencing_pages": _referencing_pages(pid, r),
             }
             for pid, r in dead.items()
         },
         "oos_to_file": {
             pid: {
                 **results[pid],
-                "referencing_pages": grep_referencing_pages(repo_root / args.content_path, args.go_prefix, pid),
+                "referencing_pages": _referencing_pages(pid, results[pid]),
             }
             for pid in oos_to_file
         },
