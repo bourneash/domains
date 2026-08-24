@@ -513,10 +513,9 @@ sites:
     - manual
     manual: {}
   deadlymaracas.com:
-    active: true
+    active: false
     cf_zone: deadlymaracas.com
     github: bourneash/deadlymaracas.com
-    smoke_string: Deadly Maracas
     applies_to:
     - cf
     - http
