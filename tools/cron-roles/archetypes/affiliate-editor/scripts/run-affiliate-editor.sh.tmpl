@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+# Affiliate-link sentinel — ZERO AI.
+#
+# WHY THIS IS A SCRIPT AND NOT AN AGENT
+# This role used to be a claude-sonnet-4-6 prompt. That prompt handed the model a
+# complete bash loop and said "run this", then asked it to classify the output
+# against five fixed string markers and emit templated task files. There is no
+# judgment anywhere in it — every branch is a deterministic rule:
+#
+#   soft-404 marker present   -> file a content task
+#   /go/ path itself fails    -> file an engineering task
+#   "currently unavailable"   -> file a content task, but only on the SECOND
+#                                consecutive run (products restock)
+#   captcha / Robot Check     -> inconclusive, never a task (Amazon anti-bot)
+#   anything else             -> healthy
+#
+# Measured before the conversion: one amputeenews.com run cost $1.18 across 21
+# turns. Twelve sites on a weekly cadence is roughly $600/year to run curl in a
+# loop. Same reasoning the fleet already applies to deployer/engineer/watchdog —
+# bash does the deterministic work; the model is for decisions.
+#
+# Behaviour is intended to be identical to the prompt it replaces, including the
+# false-positive guards that were learned the hard way:
+#   - A 200 "Redirecting…" interstitial is HEALTHY. It is the cloak working as
+#     designed, not a dead link. Never file a task for it.
+#   - Amazon returns HTTP 200 for dead products, so the BODY is authoritative and
+#     the status code is not.
+#   - Anti-bot walls are Amazon blocking curl, not a dead product. Never a task.
+#
+# Exit codes: 0 always (a sentinel must never fail a cron tick); real problems
+# are reported as task files + Slack, not as a non-zero exit.
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+BASE_URL="{{BASE_URL}}"
+GO_PREFIX="{{GO_PREFIX}}"
+AFFILIATE_TAG="{{AFFILIATE_TAG}}"
+REDIRECTS="site/public/_redirects"
+REGISTRY="site/src/lib/affiliate.ts"
+CONTENT_PATH="{{CONTENT_PATH}}"
+
+LOG_DIR=ops/logs
+STATE_DIR=ops/state
+TASK_DIR=ops/tasks/backlog
+mkdir -p "$LOG_DIR" "$STATE_DIR" "$TASK_DIR"
+LOG="$LOG_DIR/affiliate-editor-$(date +%Y-%m-%d-%H%M).log"
+# Tracks consecutive out-of-stock observations per id, so the "two consecutive
+# runs" rule survives across ticks without an agent remembering it.
+OOS_STATE="$STATE_DIR/affiliate-oos-streak.json"
+
+TODAY="$(date +%Y-%m-%d)"
+CURL_TIMEOUT="${AFFILIATE_CURL_TIMEOUT:-20}"
+PARALLEL="${AFFILIATE_PARALLEL:-8}"
+DRY_RUN="${AFFILIATE_DRY_RUN:-0}"
+
+exec > >(tee -a "$LOG") 2>&1
+echo "=== affiliate-editor (zero-AI) $(date -Iseconds) ==="
+
+[ -f ".env.shared" ] && { set -a; . ".env.shared"; set +a; }
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+
+# The authoritative id list is the left column of _redirects, per the role spec.
+# ── id discovery ────────────────────────────────────────────────────────────
+# _redirects is NOT universal. Several sites migrated their cloak to a static
+# /go/[id].astro interstitial because _redirects-based /go/ 404s on Cloudflare
+# Workers, and those sites have no _redirects file at all. Others keep the
+# registry as the only complete list. Try each source in turn rather than
+# assuming, and say which one was used.
+ID_SOURCE=""
+IDS=()
+if [[ -f "$REDIRECTS" ]]; then
+  mapfile -t IDS < <(grep -oE "^${GO_PREFIX}[^ /]+" "$REDIRECTS" 2>/dev/null | sed "s#^${GO_PREFIX}##" | sort -u)
+  [[ "${#IDS[@]}" -gt 0 ]] && ID_SOURCE="$REDIRECTS"
+fi
+if [[ "${#IDS[@]}" -eq 0 ]] && compgen -G "site/src/pages${GO_PREFIX}*" >/dev/null 2>&1; then
+  mapfile -t IDS < <(ls "site/src/pages${GO_PREFIX}" 2>/dev/null | sed -E 's/\.(astro|md|ts)$//' | grep -vE '^\[|^index$' | sort -u)
+  [[ "${#IDS[@]}" -gt 0 ]] && ID_SOURCE="site/src/pages${GO_PREFIX}"
+fi
+if [[ "${#IDS[@]}" -eq 0 && -f "$REGISTRY" ]]; then
+  mapfile -t IDS < <(grep -oE "id:\s*['\"][^'\"]+['\"]" "$REGISTRY" 2>/dev/null | sed -E "s/.*['\"]([^'\"]+)['\"].*/\1/" | sort -u)
+  [[ "${#IDS[@]}" -gt 0 ]] && ID_SOURCE="$REGISTRY"
+fi
+if [[ "${#IDS[@]}" -eq 0 ]]; then
+  echo "no affiliate ids found (checked $REDIRECTS, site/src/pages${GO_PREFIX}, $REGISTRY) — nothing to check"; exit 0
+fi
+echo "checking ${#IDS[@]} affiliate id(s) from ${ID_SOURCE} against ${BASE_URL}"
+
+# ── sweep ───────────────────────────────────────────────────────────────────
+# One curl per id, run in parallel. -L follows the interstitial's redirect so the
+# body we grep is the final Amazon page, which is what carries the soft-404
+# markers. Classification order matters: anti-bot is checked BEFORE the dead
+# markers, because a captcha page can coincidentally contain other strings.
+classify_one() {
+  local id="$1" url cloak_code final_code body
+  url="${BASE_URL}${GO_PREFIX}${id}/"
+
+  # STEP 1 — the CLOAK's own health, measured WITHOUT -L.
+  # This is the only thing that can legitimately produce a "broken redirect".
+  # A 2xx interstitial and a 3xx redirect are both healthy; the fleet runs both
+  # designs (a 200 "Redirecting…" stub on some sites, a real 302 on others).
+  cloak_code="$(curl -s -o /dev/null --max-time "$CURL_TIMEOUT" -w '%{http_code}' "$url" 2>/dev/null)"
+  if [[ -z "$cloak_code" || "$cloak_code" == "000" ]]; then
+    printf 'REDIRECT_FAIL\t%s\t%s\n' "$id" "no response from the cloak path"; return
+  fi
+  if [[ "$cloak_code" -ge 400 ]]; then
+    printf 'REDIRECT_FAIL\t%s\t%s\n' "$id" "cloak path returned HTTP $cloak_code"; return
+  fi
+
+  # STEP 2 — follow to the destination and judge on the BODY.
+  #
+  # The destination's STATUS CODE IS NOT EVIDENCE and must never be treated as
+  # such. Amazon serves 4xx/5xx to unattended curl as a bot-mitigation measure:
+  # measured on americastrikes.com, 43 of 57 links returned HTTP 500 from Amazon
+  # while every single cloak was a healthy 302 pointing at the correctly-tagged
+  # product URL. An earlier version of this script keyed on the followed status
+  # and would have filed 43 bogus "broken redirect" engineering tasks in one
+  # run — worse than the agent it replaced, and precisely the false-positive
+  # class the original role prompt warned about.
+  #
+  # So: a non-2xx from the destination is INCONCLUSIVE, never a task. Only
+  # explicit soft-404 markers in the body count, because Amazon also returns
+  # HTTP 200 for genuinely de-listed products.
+  body="$(curl -sL --max-time "$CURL_TIMEOUT" -w '\n__HTTP__%{http_code}' "$url" 2>/dev/null)"
+  final_code="${body##*__HTTP__}"
+  body="${body%__HTTP__*}"
+
+  # Strip <script>/<style> before ANY marker matching. Amazon ships a
+  # client-side i18n dictionary on every product page containing
+  #   "currentlyUnavailableMessage":"Currently unavailable."
+  # so a naive body grep reports every healthy product as out of stock.
+  # Measured on sinderella.org/go/yeti-roadie-cooler: 2 raw matches, 0 after
+  # stripping. Ten of its twenty-seven links were false OOS before this.
+  body="$(printf '%s' "$body" | sed -E ':a;N;$!ba;s#<script[^>]*>.*?</script>##gI;s#<style[^>]*>.*?</style>##gI' 2>/dev/null || printf '%s' "$body")"
+
+  if grep -qiE 'captcha|Robot Check' <<<"$body"; then
+    printf 'ANTIBOT\t%s\t%s\n' "$id" "anti-bot wall"; return
+  fi
+  if [[ -n "$final_code" && "$final_code" != "000" && "$final_code" -ge 400 ]]; then
+    printf 'ANTIBOT\t%s\t%s\n' "$id" "destination returned HTTP $final_code to curl (bot mitigation; cloak was $cloak_code)"; return
+  fi
+
+  local marker
+  # "Looking for something" is DELIBERATELY ABSENT, despite the role prompt this
+  # script replaces listing it as a soft-404 marker. It is ordinary English and
+  # matches healthy product copy: saveusfarms.com/go/omnivores-dilemma is a live
+  # book page whose own description reads "...looking for something to eat,
+  # peeled open the husk...". It produced a confident false "dead link" on the
+  # first fleet-wide dry run. A marker that appears in prose cannot be evidence.
+  for marker in "Sorry! We couldn't find that page" "dog of the day" "404 Not Found"; do
+    if grep -qiF "$marker" <<<"$body"; then
+      printf 'DEAD\t%s\t%s\n' "$id" "$marker"; return
+    fi
+  done
+  if grep -qiF 'currently unavailable' <<<"$body"; then
+    printf 'OOS\t%s\t%s\n' "$id" "currently unavailable"; return
+  fi
+  printf 'OK\t%s\t\n' "$id"
+}
+export -f classify_one
+export BASE_URL GO_PREFIX CURL_TIMEOUT
+
+RESULTS="$(printf '%s\n' "${IDS[@]}" | xargs -P "$PARALLEL" -I{} bash -c 'classify_one "$@"' _ {} )"
+
+n_ok=$(grep -c '^OK'            <<<"$RESULTS" || true)
+n_anti=$(grep -c '^ANTIBOT'     <<<"$RESULTS" || true)
+n_dead=$(grep -c '^DEAD'        <<<"$RESULTS" || true)
+n_oos=$(grep -c '^OOS'          <<<"$RESULTS" || true)
+n_rfail=$(grep -c '^REDIRECT_FAIL' <<<"$RESULTS" || true)
+echo "sweep: ok=$n_ok antibot=$n_anti dead=$n_dead oos=$n_oos redirect_fail=$n_rfail"
+
+# ── out-of-stock streak state (the "two consecutive runs" rule) ──────────────
+python3 - "$OOS_STATE" <<PYEOF > "$STATE_DIR/.oos-actionable"
+import json, sys, os
+path = sys.argv[1]
+prev = {}
+if os.path.exists(path):
+    try: prev = json.load(open(path))
+    except Exception: prev = {}
+current = set()
+for line in """$RESULTS""".splitlines():
+    parts = line.split("\t")
+    if len(parts) >= 2 and parts[0] == "OOS":
+        current.add(parts[1])
+new_state, actionable = {}, []
+for cid in current:
+    streak = int(prev.get(cid, 0)) + 1
+    new_state[cid] = streak
+    # Only the SECOND consecutive sighting is actionable — products restock.
+    if streak >= 2:
+        actionable.append(cid)
+json.dump(new_state, open(path, "w"), indent=2, sort_keys=True)
+print("\n".join(sorted(actionable)))
+PYEOF
+mapfile -t OOS_ACTIONABLE < <(grep -v '^$' "$STATE_DIR/.oos-actionable" 2>/dev/null || true)
+rm -f "$STATE_DIR/.oos-actionable"
+
+# ── task emission ───────────────────────────────────────────────────────────
+asin_for() { grep -oE "asin:\s*['\"]([A-Z0-9]{10})['\"]" "$REGISTRY" 2>/dev/null | head -1 | grep -oE '[A-Z0-9]{10}' || true; }
+pages_for() { grep -rl "${GO_PREFIX}$1/" ${CONTENT_PATH} 2>/dev/null | head -5 | sed 's/^/  - /' || true; }
+
+filed=0
+file_task() {
+  local kind="$1" id="$2" detail="$3" ttype path
+  case "$kind" in
+    dead)     ttype=content;     path="$TASK_DIR/${TODAY}-broken-affiliate-${id}.md" ;;
+    redirect) ttype=engineering; path="$TASK_DIR/${TODAY}-broken-redirect-${id}.md" ;;
+    oos)      ttype=content;     path="$TASK_DIR/${TODAY}-oos-affiliate-${id}.md" ;;
+  esac
+  # Idempotent: never refile the same problem for the same id on the same day.
+  [[ -e "$path" ]] && { echo "  task already exists: $path"; return; }
+  if [[ "$DRY_RUN" == "1" ]]; then echo "  [dry-run] would file $path"; return; fi
+  {
+    echo "---"
+    case "$kind" in
+      dead)     echo "title: \"Dead affiliate link: ${id}\"" ;;
+      redirect) echo "title: \"Broken /go/ redirect: ${id}\"" ;;
+      oos)      echo "title: \"Out of stock (2+ runs): ${id}\"" ;;
+    esac
+    echo "priority: 2"
+    echo "type: ${ttype}"
+    echo "estimated_turns: 3"
+    echo "created: ${TODAY}"
+    echo "assigned_role: content-writer"
+    echo "---"
+    echo
+    echo "Filed automatically by the affiliate-editor sentinel (zero-AI)."
+    echo
+    echo "- id: \`${id}\`"
+    echo "- url checked: ${BASE_URL}${GO_PREFIX}${id}/"
+    echo "- observed: ${detail}"
+    echo "- registry: \`${REGISTRY}\`"
+    echo
+    echo "Referencing pages:"
+    pages_for "$id" || echo "  (none found)"
+    echo
+    case "$kind" in
+      dead)     echo "Amazon returns HTTP 200 for de-listed products, so this was matched on the response BODY, not the status code." ;;
+      redirect) echo "This is a broken cloak in \`${REDIRECTS}\`, not a dead product. Expected target: https://www.amazon.com/dp/<ASIN>?tag=${AFFILIATE_TAG}" ;;
+      oos)      echo "Seen unavailable on two consecutive runs, so this is not a transient restock gap." ;;
+    esac
+  } > "$path"
+  echo "  filed: $path"
+  filed=$((filed+1))
+}
+
+while IFS=$'\t' read -r kind id detail; do
+  case "$kind" in
+    DEAD)          file_task dead "$id" "$detail" ;;
+    REDIRECT_FAIL) file_task redirect "$id" "$detail" ;;
+  esac
+done <<<"$RESULTS"
+for id in "${OOS_ACTIONABLE[@]:-}"; do
+  [[ -n "$id" ]] && file_task oos "$id" "currently unavailable on two consecutive runs"
+done
+
+# ── commit ──────────────────────────────────────────────────────────────────
+# NO-DEPLOY sentinel: the ONLY writes are task files and the streak state.
+# Never touches the registry, _redirects, content, or .deploy-needed.
+if (( filed > 0 )) && [[ "$DRY_RUN" != "1" ]]; then
+  git add "$TASK_DIR" "$OOS_STATE" 2>/dev/null || true
+  if ! git diff --cached --quiet 2>/dev/null; then
+    git commit -q -m "affiliate: flag ${filed} broken link(s) (automated sentinel)" && echo "committed ${filed} task(s)"
+    git push -q 2>/dev/null && echo "pushed" || echo "push failed (will retry next run)"
+  fi
+fi
+
+# ── summary ─────────────────────────────────────────────────────────────────
+# A line starting with ** is what the Slack notifier picks up.
+SUMMARY="**Affiliate check: ${n_ok}/${#IDS[@]} resolved (${n_anti} inconclusive anti-bot, ${n_dead} dead, ${n_oos} out-of-stock, ${n_rfail} broken redirect).**"
+echo "$SUMMARY"
+
+# Healthy = SILENT, matching the engineer/watchdog convention. Only speak up
+# when a human has something to act on.
+if (( n_dead > 0 || n_rfail > 0 || filed > 0 )); then
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$SUMMARY ${filed} task(s) filed." "warning" 2>/dev/null || true
+fi
+
+exit 0

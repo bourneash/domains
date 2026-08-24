@@ -4,14 +4,14 @@ name: affiliate-editor
 # build-gate validator rigor; xxxtea explicit engineering handoff.
 source: reviewtattoo.com/affiliate-tester
 schedule: "0 7 * * 3"            # Wed 7am — 2-3 day buffer before weekend content runs
-model: claude-sonnet-4-6
+model: none                      # ZERO-AI as of 2026-08-23 — deterministic sentinel, see scripts/
 owns_task_types: [affiliate]
 produces_task_types: [content, engineering]   # dead ASIN -> content; broken /go/ redirect -> engineering
 worker_deps: []                  # curl-based; no headless browser
 needs_rebuild_verify: true       # crontab.docker is baked into the cron image
 self_notifies: true              # role posts to Slack itself via notify-slack.sh (## Notify section)
 deploy: false                    # NO-DEPLOY sentinel — only files tasks
-scripts: []
+scripts: [run-affiliate-editor.sh]
 gitignore: []
 placeholders: [BASE_URL, SITE_BRAND, GO_PREFIX, AFFILIATE_TAG, CONTENT_PATH, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, MODEL]
 placeholder_detection:
