@@ -29,8 +29,17 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
+
+# A just-deployed image can still be propagating to Cloudflare's edge when this
+# runs right after deploy — Slack's own fetcher then can't retrieve it and
+# rejects the whole block (invalid_blocks). Retry WITH the image after a short
+# backoff before giving up on it, instead of immediately falling back to a
+# text-only card (see saveusfarms.com 2026-08-24: ~93% of posts were losing
+# their image this way).
+IMAGE_RETRY_DELAYS = (5, 15)
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 
@@ -232,9 +241,16 @@ def main():
         blocks, fallback = build_card(cfg, slug, fm)
         err = post_to_slack(token, channel, blocks, fallback)
         if err == "invalid_blocks":
+            for delay in IMAGE_RETRY_DELAYS:
+                print("  ⟳ invalid_blocks (image likely still propagating) — retrying with image in %ds" % delay)
+                time.sleep(delay)
+                err = post_to_slack(token, channel, blocks, fallback)
+                if err != "invalid_blocks":
+                    break
+        if err == "invalid_blocks":
             no_img = [b for b in blocks if b.get("type") != "image"]
             if len(no_img) != len(blocks):
-                print("  ⟳ retrying Slack card without image block (invalid_blocks)")
+                print("  ⟳ giving up on the image — retrying Slack card without it (invalid_blocks)")
                 err = post_to_slack(token, channel, no_img, fallback)
         if err is None:
             state[slug] = now.isoformat()
