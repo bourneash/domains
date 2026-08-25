@@ -140,11 +140,12 @@ picked up yet. It reuses amz-stats' `AMZClient`, item parsing, and — crucially
 — `taskfiler.http_confirms_dead`, so there is exactly one definition of "dead"
 in the fleet.
 
-`amz-stats`' own auto-taskfiler still files dead-ASIN tasks. On sites running
-the sentinel that is redundant; the sentinel's `file_task` de-duplicates
-against existing backlog/in-progress tasks by slug, but the two use different
-slugs, so expect one duplicate task per genuinely dead ASIN until amz-stats'
-taskfiler is gated off for sentinel-enabled sites.
+`amz-stats`' own auto-taskfiler now stands down on sentinel-managed sites
+(`taskfiler.sentinel_owns_site`), which it detects from the
+`ops/state/affiliate-sentinel.json` this tool writes every run — no central
+enable-list to drift out of sync with the host crontab. If that file goes more
+than 7 days stale the sentinel is evidently not running there, and amz-stats
+resumes filing so a site never ends up with nobody watching it.
 
 ## Tests
 

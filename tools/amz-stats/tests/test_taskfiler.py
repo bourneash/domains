@@ -278,3 +278,81 @@ class TestProcess:
         taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-02", state_path, push=True, http_confirm=stub)
 
         assert posted == []
+
+
+class TestSentinelHandoff:
+    """tools/affiliate-sentinel owns dead ASINs on the sites it runs on.
+
+    It confirms death the same way this module does, then auto-replaces the
+    product and deploys — so filing our own task there produces a second,
+    differently-slugged card for work already in flight. Our slug does not match
+    the sentinel's, so _existing_task_mentions() cannot dedupe it away.
+    """
+
+    @staticmethod
+    def _mark_sentinel(site_root: Path, age_seconds: float = 0.0) -> Path:
+        import os
+        import time
+
+        state = site_root / "ops" / "state" / "affiliate-sentinel.json"
+        state.parent.mkdir(parents=True, exist_ok=True)
+        state.write_text('{"version": 2, "streaks": {}}')
+        if age_seconds:
+            stamp = time.time() - age_seconds
+            os.utime(state, (stamp, stamp))
+        return state
+
+    def _run_to_threshold(self, tmp_path: Path):
+        domains_root = tmp_path
+        site_root = _make_site(domains_root, "example.com", [("widget-a", "B000000001")])
+        asins_by_site = {"example.com": ["B000000001"]}
+        catalog = {"asins": {}, "errors": []}
+        state_path = tmp_path / "state.json"
+        return domains_root, site_root, asins_by_site, catalog, state_path
+
+    def test_skips_sentinel_managed_site(self, tmp_path: Path):
+        domains_root, site_root, asins_by_site, catalog, state_path = self._run_to_threshold(tmp_path)
+        self._mark_sentinel(site_root)
+
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-01", state_path, push=False)
+        filed = taskfiler.process(
+            domains_root, asins_by_site, catalog, "2026-01-02", state_path, push=False,
+            http_confirm=lambda asin: True,
+        )
+
+        assert filed == []
+        backlog = site_root / "ops" / "tasks" / "backlog"
+        assert list(backlog.glob("*widget-a*")) == []
+
+    def test_still_files_when_sentinel_has_gone_stale(self, tmp_path: Path):
+        """A site that stopped running the sentinel must not end up with nobody watching."""
+        domains_root, site_root, asins_by_site, catalog, state_path = self._run_to_threshold(tmp_path)
+        self._mark_sentinel(site_root, age_seconds=8 * 24 * 3600)
+
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-01", state_path, push=False)
+        filed = taskfiler.process(
+            domains_root, asins_by_site, catalog, "2026-01-02", state_path, push=False,
+            http_confirm=lambda asin: True,
+        )
+
+        assert filed == ["example.com:widget-a (B000000001)"]
+
+    def test_unmanaged_site_is_unaffected(self, tmp_path: Path):
+        domains_root, site_root, asins_by_site, catalog, state_path = self._run_to_threshold(tmp_path)
+
+        taskfiler.process(domains_root, asins_by_site, catalog, "2026-01-01", state_path, push=False)
+        filed = taskfiler.process(
+            domains_root, asins_by_site, catalog, "2026-01-02", state_path, push=False,
+            http_confirm=lambda asin: True,
+        )
+
+        assert filed == ["example.com:widget-a (B000000001)"]
+
+    def test_detector_requires_a_fresh_state_file(self, tmp_path: Path):
+        site_root = tmp_path / "sites" / "example.com"
+        site_root.mkdir(parents=True)
+        assert not taskfiler.sentinel_owns_site(site_root)
+        self._mark_sentinel(site_root)
+        assert taskfiler.sentinel_owns_site(site_root)
+        self._mark_sentinel(site_root, age_seconds=8 * 24 * 3600)
+        assert not taskfiler.sentinel_owns_site(site_root)

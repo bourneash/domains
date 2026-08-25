@@ -19,6 +19,7 @@ import logging
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -215,6 +216,25 @@ amz-stats automated PA-API sweep — {today}
     return path
 
 
+def sentinel_owns_site(site_root: Path) -> bool:
+    """True when tools/affiliate-sentinel is live on this site.
+
+    Detected by the state file the sentinel writes on every run, rather than a
+    central enable-list: the sentinel is deliberately configured per-site with
+    nothing tracked centrally, and a list here would be one more thing to drift
+    out of sync with the host crontab that actually schedules it. A site that
+    stops running the sentinel goes stale rather than disappearing, so the
+    freshness window is what makes this honest.
+    """
+    state = site_root / "ops" / "state" / "affiliate-sentinel.json"
+    if not state.is_file():
+        return False
+    # If the sentinel has not run in a week it is not managing anything, and we
+    # should go back to filing tasks rather than both of us staying silent.
+    age = time.time() - state.stat().st_mtime
+    return age < 7 * 24 * 3600
+
+
 def process(
     domains_root: Path,
     asins_by_site: dict[str, list[str]],
@@ -236,6 +256,15 @@ def process(
     filed: list[str] = []
 
     for site, site_asins in asins_by_site.items():
+        if sentinel_owns_site(domains_root / "sites" / site):
+            # tools/affiliate-sentinel runs daily on this site and owns dead-ASIN
+            # handling end to end: it confirms the death the same way we do, then
+            # auto-replaces the product and deploys. Filing our own task here just
+            # puts a second, differently-slugged card on the board for work that is
+            # already done or in flight — and our slug does not match the
+            # sentinel's, so _existing_task_mentions() cannot dedupe it away.
+            log.debug("taskfiler: %s is sentinel-managed, skipping", site)
+            continue
         for asin in site_asins:
             key = f"{site}:{asin}"
             entry = state.get(key, {"consecutive_missing": 0, "task_filed": False})
