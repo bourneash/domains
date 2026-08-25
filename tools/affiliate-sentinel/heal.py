@@ -36,6 +36,11 @@ import registry as registry_mod
 
 MAX_HEALS_PER_RUN = 3  # a run that wants to swap more than this is a systemic problem, not link rot
 
+# Must NOT be cc_lib's default profile dir: launch() pkill -9's anything bound to
+# the profile it is opening, so sharing one would let a sentinel run kill another
+# tool's browser mid-flight (the same trap tools/affiliate-audit documents).
+_SENTINEL_PROFILE = "/tmp/cloak-driver/sentinel-profile"
+
 
 @dataclass
 class HealResult:
@@ -85,11 +90,10 @@ def _browser_candidates(keywords: str, exclude: set[str], limit: int = 8) -> lis
     from urllib.parse import quote_plus
 
     try:
-        ctx = cc_lib.launch(profile="/tmp/cloak-driver/sentinel-profile", headless=True)
+        ctx, page = cc_lib.launch(profile=_SENTINEL_PROFILE, headless=True)
     except Exception:
         return []
     try:
-        page = ctx.new_page() if hasattr(ctx, "new_page") else ctx.pages[0]
         page.goto(f"https://www.amazon.com/s?k={quote_plus(keywords)}", timeout=45000)
         asins = page.eval_on_selector_all(
             'div[data-component-type="s-search-result"]',
@@ -110,6 +114,78 @@ def _browser_candidates(keywords: str, exclude: set[str], limit: int = 8) -> lis
         if len(out) >= limit:
             break
     return out
+
+
+_RATING_JS = """
+() => {
+  const el = document.querySelector('#acrPopover, [data-hook="rating-out-of-text"], .a-icon-alt');
+  if (!el) return null;
+  const t = el.getAttribute('title') || el.textContent || '';
+  const m = t.match(/([\\d.]+)\\s*out of/i);
+  return m ? parseFloat(m[1]) : null;
+}
+"""
+
+_REVIEWS_JS = """
+() => {
+  const el = document.querySelector('#acrCustomerReviewText, [data-hook="total-review-count"]');
+  if (!el) return null;
+  const m = (el.textContent || '').replace(/,/g, '').match(/(\\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+"""
+
+
+def scrape_rating_and_reviews(asin: str, log) -> tuple[float | None, int | None]:
+    """Pull rating + review count off the product page.
+
+    The Creators API accepts `customerReviews.starRating`/`.count` as resources
+    but returns them EMPTY for this account — which is worse than a rejection,
+    because it reads as "this product has no reviews". Without these, every heal
+    would leave the DEAD product's rating sitting under a new product's name (a
+    fabricated number on a live page) and file a task asking a human to go and
+    look it up. Scraping is the only way to make an auto-heal actually finish.
+
+    Returns (None, None) on any failure; the caller then flags the fields as
+    unverified rather than inventing them.
+    """
+    for p in (
+        Path(__file__).resolve().parents[1] / "creator-connections",
+        Path("/work/.monorepo-tools/creator-connections"),
+    ):
+        if p.is_dir() and str(p) not in sys.path:
+            sys.path.insert(0, str(p))
+    try:
+        import cc_lib
+    except ImportError:
+        log("heal: cc_lib unavailable — cannot source rating/reviews")
+        return None, None
+
+    ctx = None
+    try:
+        # launch() returns (ctx, page) — not a single context.
+        ctx, page = cc_lib.launch(profile=_SENTINEL_PROFILE, headless=True)
+        page.goto(f"https://www.amazon.com/dp/{asin}", timeout=45000)
+        rating = page.evaluate(_RATING_JS)
+        reviews = page.evaluate(_REVIEWS_JS)
+    except Exception as exc:
+        log(f"heal: rating/review scrape failed ({type(exc).__name__}) — will flag as unverified")
+        return None, None
+    finally:
+        if ctx is not None:
+            try:
+                ctx.close()
+            except Exception:
+                pass
+
+    # A rating outside 1-5 means we matched the wrong element; do not ship it.
+    if rating is not None and not (0 < float(rating) <= 5):
+        log(f"heal: scraped rating {rating} is out of range — discarding")
+        rating = None
+    if reviews is not None and int(reviews) < 0:
+        reviews = None
+    log(f"heal: scraped rating={rating} reviews={reviews} for {asin}")
+    return rating, reviews
 
 
 def _prompt(product, dead_asin: str, candidates, site_brand: str) -> str:
@@ -350,14 +426,22 @@ def heal_product(
         status = recheck.status if recheck else "no response"
         return HealResult(product.id, dead_asin, False, reason=f"chosen ASIN re-check failed ({status})")
 
+    # The API cannot supply these; scrape them rather than ship the dead
+    # product's numbers under a new product's name.
+    rating, reviews = recheck.rating, recheck.review_count
+    if rating is None or reviews is None:
+        scraped_rating, scraped_reviews = scrape_rating_and_reviews(chosen.asin, log)
+        rating = rating if rating is not None else scraped_rating
+        reviews = reviews if reviews is not None else scraped_reviews
+
     updates: dict = {"asin": chosen.asin}
     for key, value in (
         ("name", decision.get("name")),
         ("brand", decision.get("brand") or chosen.brand),
         ("price", recheck.price),
         ("blurb", decision.get("blurb")),
-        ("rating", recheck.rating),
-        ("reviewCount", recheck.review_count),
+        ("rating", rating),
+        ("reviewCount", reviews),
         ("pros", decision.get("pros")),
         ("cons", decision.get("cons")),
         ("searchQuery", decision.get("name") and f"{decision.get('brand') or ''} {decision['name']}".strip()),

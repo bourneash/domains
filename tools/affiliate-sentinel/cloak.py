@@ -15,6 +15,7 @@ deterministic — no captchas, no soft-404 string matching, no false positives.
 """
 from __future__ import annotations
 
+import html
 import re
 from dataclasses import dataclass
 
@@ -25,15 +26,23 @@ _UA = "Mozilla/5.0 (compatible; affiliate-sentinel/1.0; +fleet-ops)"
 # The interstitial pattern: a static page that bounces via meta-refresh and/or
 # a JS location assignment. Both are matched because sites differ in which
 # they emit, and some emit only one with the other as a plain <a> fallback.
+#
+# Each pattern captures the opening quote and reads until the SAME quote, rather
+# than "until any quote". Amazon search URLs routinely carry an unencoded
+# apostrophe (ultrarough's `?k=griot's garage...`), and a `[^"']+` class
+# truncated the URL right there — chopping off the affiliate tag and reporting a
+# perfectly good, fully tagged link as an untagged revenue leak.
 _META_REFRESH_RE = re.compile(
-    r"""<meta[^>]+http-equiv=["']?refresh["']?[^>]+content=["'][^"']*?url=([^"'\s>]+)""",
+    r"""<meta[^>]+http-equiv=(["']?)refresh\1[^>]+content=(["'])[^"']*?url=(.*?)\2""",
     re.I,
 )
 _JS_LOCATION_RE = re.compile(
-    r"""(?:location(?:\.href)?\s*=\s*|location\.replace\(\s*)["']([^"']+)["']""",
+    r"""(?:location(?:\.href)?\s*=\s*|location\.replace\(\s*)(["'])(.*?)\1""",
     re.I,
 )
-_ANCHOR_RE = re.compile(r"""<a[^>]+href=["'](https?://(?:www\.)?amazon\.[^"']+)["']""", re.I)
+_ANCHOR_RE = re.compile(
+    r"""<a[^>]+href=(["'])(https?://(?:www\.)?amazon\..*?)\1""", re.I
+)
 
 
 @dataclass
@@ -57,7 +66,11 @@ def _extract_target(status: int, headers, body: str) -> str | None:
     for rx in (_META_REFRESH_RE, _JS_LOCATION_RE, _ANCHOR_RE):
         m = rx.search(body)
         if m:
-            return m.group(1)
+            # Last group is the URL in every pattern; earlier groups are the
+            # quote characters used for delimiter matching. Unescape because a
+            # URL pulled out of HTML carries &amp; rather than & — which would
+            # otherwise turn every assertion below into a substring coin-flip.
+            return html.unescape(m.groups()[-1])
     return None
 
 
@@ -82,18 +95,33 @@ def check(
     against those would report every partner link as broken forever, so when the
     registry names a non-Amazon destination we assert against THAT host instead.
     """
-    url = f"{base_url.rstrip('/')}{go_prefix}{product_id}/"
-    try:
-        # No redirect following: the Location header IS the assertion, and
-        # following it would put us back on amazon.com and reintroduce the
-        # anti-bot class this design exists to remove.
-        r = client.get(url, follow_redirects=False)
-    except httpx.HTTPError as exc:
-        return CloakResult(product_id, False, None, None, f"request failed: {type(exc).__name__}")
+    base = f"{base_url.rstrip('/')}{go_prefix}{product_id}"
+    # Try the slashed form first (what the site's own links use), then the bare
+    # form. Sites declare one, the other, or both, and a link that works without
+    # a trailing slash but 404s with one is a real defect worth naming precisely
+    # — not the same thing as a cloak that is simply gone. Checking only one
+    # form reported 9 working-but-unslashed ultrarough links as flatly broken.
+    attempts = [(base + "/", True), (base, False)]
+    r = None
+    status = None
+    slashed_404 = False
+    for url, is_slashed in attempts:
+        try:
+            # No redirect following: the Location header IS the assertion, and
+            # following it would put us back on amazon.com and reintroduce the
+            # anti-bot class this design exists to remove.
+            r = client.get(url, follow_redirects=False)
+        except httpx.HTTPError as exc:
+            return CloakResult(product_id, False, None, None, f"request failed: {type(exc).__name__}")
+        status = r.status_code
+        if status != 404:
+            break
+        if is_slashed:
+            slashed_404 = True
+        r = None
 
-    status = r.status_code
-    if status == 404:
-        return CloakResult(product_id, False, status, None, "cloak route 404s on the live site")
+    if r is None:
+        return CloakResult(product_id, False, 404, None, "cloak route 404s on the live site")
     if status >= 400:
         return CloakResult(product_id, False, status, None, f"cloak returned HTTP {status}")
 
@@ -146,6 +174,15 @@ def check(
         return CloakResult(
             product_id, False, status, target,
             f"redirect target does not point at the registry ASIN {expected_asin}",
+        )
+
+    if slashed_404:
+        # Resolves, but only without the trailing slash. Anything that appends
+        # one — a browser, a copied link, another redirect — gets a 404.
+        return CloakResult(
+            product_id, False, status, target,
+            f"{go_prefix}{product_id}/ (with trailing slash) 404s; only the "
+            f"un-slashed form resolves — needs both variants declared",
         )
 
     return CloakResult(product_id, True, status, target, "")

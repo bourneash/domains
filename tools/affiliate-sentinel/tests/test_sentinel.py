@@ -306,6 +306,19 @@ def test_cloak_classification():
     r = cloak.check(_Client(_Resp(200, {}, "<html>nothing here</html>")), base, pre, "p", "B1", "x-20")
     check("200 with no redirect target is a failure", not r.ok)
 
+    # An unencoded apostrophe inside the href used to truncate the URL right
+    # there, chopping the tag off and reporting a good link as a revenue leak.
+    body = (
+        """<a href="https://www.amazon.com/s?k=griot's garage&amp;tag=x-20">go</a>"""
+    )
+    r = cloak.check(_Client(_Resp(200, {}, body)), base, pre, "p", None, "x-20")
+    check("apostrophe inside the href does not truncate the URL", r.ok, f"target={r.target}")
+    check("HTML entities are unescaped", r.target and "&amp;" not in r.target)
+
+    body = """<a href='https://www.amazon.com/dp/B1?tag=x-20'>go</a>"""
+    r = cloak.check(_Client(_Resp(200, {}, body)), base, pre, "p", "B1", "x-20")
+    check("single-quoted href works too", r.ok)
+
 
 def test_state_streaks():
     print("state streaks")
