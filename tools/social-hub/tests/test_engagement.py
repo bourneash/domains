@@ -118,3 +118,35 @@ def test_fit_trims_on_a_word_boundary_and_keeps_the_link():
 
     out = Tiny().fit("word " * 30, "https://x.co/1")
     assert len(out) <= 40 and out.endswith("https://x.co/1")
+
+
+def test_adult_sites_can_self_label_their_posts(synced, monkeypatch):
+    """Bluesky requires the poster to label adult material. The label has to
+    reach the adapter as a send option, not be left to tone."""
+    from social_hub import publisher
+    from social_hub.config import SiteConfig
+
+    post = {
+        "id": 1, "site": "alpha.com", "platform": "fake", "kind": "post",
+        "body": "A review of a very spicy book.", "link": "https://alpha.com/r/1",
+        "media": ["/img/cover.jpg"], "source_id": None, "reply_to_remote_id": "",
+    }
+    cfg = SiteConfig("alpha.com", {"content_label": "sexual"})
+    out = publisher.build_outgoing(post, cfg)
+
+    assert out.options["content_label"] == "sexual"
+    assert not out.images, "a labeled post takes the image-free send path"
+
+
+def test_link_facets_use_utf8_byte_offsets():
+    """A self-labeled post is written through create_record, which does not
+    build facets — and a character-based offset mislinks any post containing
+    a non-ASCII character before the URL."""
+    from social_hub.platforms.bluesky import link_facets
+
+    text = "Café — read https://example.com/x now"
+    facet = link_facets(text)[0]
+    raw = text.encode("utf-8")
+
+    assert raw[facet.index.byte_start : facet.index.byte_end] == b"https://example.com/x"
+    assert facet.features[0].uri == "https://example.com/x"

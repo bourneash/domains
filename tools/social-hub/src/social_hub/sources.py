@@ -151,7 +151,19 @@ def _load_collection(root: Path, domain: str, spec: dict) -> list[dict]:
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
-        fm = _parse_frontmatter(text)
+        # A catalog site's items are one JSON file each rather than markdown
+        # with frontmatter. Same field mapping either way — only the parser
+        # differs, so `format: json` is all a site has to say.
+        if spec.get("format") == "json" or path.suffix == ".json":
+            try:
+                fm = json.loads(text)
+            except ValueError:
+                continue
+            if not isinstance(fm, dict):
+                continue
+            text = ""
+        else:
+            fm = _parse_frontmatter(text)
         context = {
             "domain": domain,
             "slug": path.stem,
@@ -172,13 +184,18 @@ def _load_collection(root: Path, domain: str, spec: dict) -> list[dict]:
         title = (
             _format(spec["title_template"], context)
             if spec.get("title_template")
-            else str(_first(fm, ["title", "news_thread"]) or path.stem)
+            else str(_first(fm, ["title", "name", "news_thread"]) or path.stem)
         )
-        summary = (
-            _summary_from_body(text)
-            if spec.get("summary_from") == "body"
-            else str(_first(fm, ["excerpt", "description", "summary"]) or "")
-        )
+        summary_from = spec.get("summary_from")
+        if summary_from == "body":
+            summary = _summary_from_body(text)
+        elif summary_from:
+            summary = str(fm.get(summary_from) or "")
+        else:
+            summary = str(
+                _first(fm, ["excerpt", "description", "summary", "caption", "tagline", "blurb"])
+                or ""
+            )
 
         items.append(
             {
@@ -188,7 +205,7 @@ def _load_collection(root: Path, domain: str, spec: dict) -> list[dict]:
                 "url": _format(spec.get("url_template", "https://{domain}/{slug}/"), context),
                 "summary": summary[:600],
                 "tags": [str(t) for t in (_first(fm, ["keywords", "tags"], []) or [])],
-                "image_url": _first(fm, ["image", "heroImage"], None),
+                "image_url": _first(fm, ["image", "heroImage", "hero", "cover"], None),
                 "published_at": published,
             }
         )

@@ -64,7 +64,7 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
     platform_cfg = cfg.for_platform(post["platform"])
     source = _source_for(post)
     options = dict(platform_cfg.get("options") or {})
-    for key in ("subreddit", "board_id"):
+    for key in ("subreddit", "board_id", "content_label"):
         value = platform_cfg.get(key)
         if value:
             options[key] = value
@@ -79,7 +79,14 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
     # Replies never carry the article's cover — it belongs to the original
     # post, and re-attaching it to an answer reads like a bot.
     images: list[Image] = []
-    if media_refs and post["kind"] != "reply" and capabilities(post["platform"]).media:
+    # A self-labeled (adult) post takes a different, image-free send path —
+    # see BlueskyAdapter._send_labeled.
+    if (
+        media_refs
+        and post["kind"] != "reply"
+        and not options.get("content_label")
+        and capabilities(post["platform"]).media
+    ):
         for ref in media_refs[:1]:
             data = media.load_image(ref, post["site"])
             if data:

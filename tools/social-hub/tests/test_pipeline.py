@@ -323,3 +323,47 @@ def test_collection_items_keep_their_own_source_type(fake_fleet, fake_adapter):
     row = db.one("SELECT source_type, url FROM sources WHERE site = 'alpha.com'")
     assert row["source_type"] == "signals"
     assert row["url"] == "https://alpha.com/signals/s1/"
+
+
+def test_a_json_catalog_collection_is_ingestable(fake_fleet, fake_adapter):
+    """Catalog sites keep one JSON file per item, not markdown with
+    frontmatter — same field mapping, different parser."""
+    import json as jsonlib
+
+    products = fake_fleet / "sites" / "alpha.com" / "site" / "src" / "content" / "products"
+    products.mkdir(parents=True, exist_ok=True)
+    (products / "weird-lamp.json").write_text(
+        jsonlib.dumps(
+            {
+                "id": "weird-lamp",
+                "title": "A lamp shaped like a goose",
+                "caption": "It honks when you dim it. That is the entire product.",
+                "category": "home-decor-weird",
+                "image": "/img/goose.jpg",
+            }
+        ),
+        encoding="utf-8",
+    )
+    make_site(
+        fake_fleet, "alpha.com", articles=0,
+        config_yaml=(
+            "platforms: [fake]\n"
+            "max_source_age_hours: 100000\n"
+            "sources:\n"
+            "  collections:\n"
+            "    - name: product\n"
+            '      glob: "site/src/content/products/*.json"\n'
+            "      format: json\n"
+            '      url_template: "https://{domain}/category/{category}/#{slug}"\n'
+            "      summary_from: caption\n"
+        ),
+    )
+    cfg = load_site_config("alpha.com")
+    found = sources.discover("alpha.com", cfg)
+
+    assert len(found) == 1
+    item = found[0]
+    assert item["title"] == "A lamp shaped like a goose"
+    assert item["summary"].startswith("It honks")
+    assert item["url"] == "https://alpha.com/category/home-decor-weird/#weird-lamp"
+    assert item["image_url"] == "/img/goose.jpg"

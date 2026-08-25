@@ -9,6 +9,8 @@ here, and it is what americastrikes.com and 0daynews.com run on first.
 
 from __future__ import annotations
 
+import re
+from datetime import datetime, timezone
 from typing import Any
 
 from social_hub.platforms.base import (
@@ -27,6 +29,37 @@ def _handle_to_url(handle: str, rkey: str) -> str:
 
 def _rkey(uri: str) -> str:
     return uri.rsplit("/", 1)[-1]
+
+
+#: Bluesky self-label values that mark a post as adult content.
+ADULT_LABELS = {"sexual", "nudity", "porn", "graphic-media"}
+_URL_RE = re.compile(rb"https?://[^\s\]\)]+")
+
+
+def link_facets(text: str) -> list:
+    """Byte-offset link facets for every URL in *text*.
+
+    `send_post` builds these automatically, but a self-labeled post has to be
+    written through create_record, which does not — and without facets the
+    trailing URL renders as dead plain text. Offsets are in UTF-8 bytes, not
+    characters: any non-ASCII earlier in the post (an em dash, an accent) would
+    shift a character-based index and mislink the URL.
+    """
+    from atproto import models
+
+    raw = text.encode("utf-8")
+    facets = []
+    for match in _URL_RE.finditer(raw):
+        url = match.group(0).rstrip(b".,);:").decode("utf-8", "ignore")
+        facets.append(
+            models.AppBskyRichtextFacet.Main(
+                index=models.AppBskyRichtextFacet.ByteSlice(
+                    byte_start=match.start(), byte_end=match.start() + len(url.encode("utf-8"))
+                ),
+                features=[models.AppBskyRichtextFacet.Link(uri=url)],
+            )
+        )
+    return facets
 
 
 class BlueskyAdapter(Adapter):
@@ -78,6 +111,36 @@ class BlueskyAdapter(Adapter):
         return {"handle": getattr(client.me, "handle", self.identifier())}
 
     # --- verbs ------------------------------------------------------------
+    def _send_labeled(self, text: str, label: str, reply_ref=None) -> PostRef:
+        """Post with a self-label (adult content).
+
+        Bluesky's rules require adult material to be labeled by the poster, and
+        the SDK's convenience helpers don't carry labels — so this writes the
+        record directly. Images are deliberately not supported on this path:
+        an unlabeled-image mistake on an adult account costs the account.
+        """
+        from atproto import models
+
+        client = self.client()
+        record = models.AppBskyFeedPost.Record(
+            text=text,
+            created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            facets=link_facets(text) or None,
+            reply=reply_ref,
+            labels=models.ComAtprotoLabelDefs.SelfLabels(
+                values=[models.ComAtprotoLabelDefs.SelfLabel(val=label)]
+            ),
+        )
+        try:
+            resp = client.com.atproto.repo.create_record(
+                models.ComAtprotoRepoCreateRecord.Data(
+                    repo=client.me.did, collection="app.bsky.feed.post", record=record
+                )
+            )
+        except Exception as exc:
+            raise AdapterError(f"bluesky labeled post failed: {exc}") from exc
+        return PostRef(remote_id=resp.uri, url=_handle_to_url(self.identifier(), _rkey(resp.uri)))
+
     def _send(self, text: str, out: Outgoing, reply_ref=None) -> PostRef:
         """One send path for posts and replies, with or without a picture.
 
@@ -85,6 +148,10 @@ class BlueskyAdapter(Adapter):
         losing the post entirely — the copy is the payload, the cover is a
         bonus.
         """
+        label = str((out.options or {}).get("content_label") or "").strip()
+        if label:
+            return self._send_labeled(text, label, reply_ref)
+
         client = self.client()
         image = next((i for i in out.images if i.data), None)
         kwargs = {"reply_to": reply_ref} if reply_ref else {}
