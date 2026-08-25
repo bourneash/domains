@@ -1,0 +1,5 @@
+reports/
+state.json
+fleet-test.log
+fleet-test.log.1
+.fleet-test.lock

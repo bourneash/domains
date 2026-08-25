@@ -44,13 +44,26 @@ def test_wait_for_message_raises_on_error():
 
 
 @respx.mock
-def test_api_key_sent_as_header():
+def test_api_key_sent_as_bearer_header():
+    # The email-client API authenticates with `Authorization: Bearer <key>`
+    # (api/tests/test_auth.py over in that project). This test asserted the
+    # older `x-api-key` header and went stale when the client was corrected —
+    # the code is right, the assertion was not.
     route = respx.post(f"{API}/mailbox/{MAILBOX}/wait").mock(
         return_value=httpx.Response(200, json={"message": {"id": 1, "to": "x@y.com", "body_text": ""}})
     )
     client = EmailClient(MAILBOX, api_key="secret-key")
     client.wait_for_message("x@y.com", timeout=5)
-    assert route.calls[0].request.headers["x-api-key"] == "secret-key"
+    assert route.calls[0].request.headers["authorization"] == "Bearer secret-key"
+
+
+@respx.mock
+def test_no_auth_header_without_api_key():
+    route = respx.post(f"{API}/mailbox/{MAILBOX}/wait").mock(
+        return_value=httpx.Response(200, json={"message": {"id": 1, "to": "x@y.com", "body_text": ""}})
+    )
+    EmailClient(MAILBOX).wait_for_message("x@y.com", timeout=5)
+    assert "authorization" not in route.calls[0].request.headers
 
 
 @respx.mock

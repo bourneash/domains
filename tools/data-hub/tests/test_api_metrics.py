@@ -1,7 +1,21 @@
+from datetime import date, timedelta
+
 from fastapi.testclient import TestClient
 from datahub.api import create_app
 from datahub.config import Settings, AnalyticsSite
 from datahub import store
+
+
+def _days_ago(n: int) -> str:
+    """Dates for the window-scoped endpoints must be relative to today.
+
+    These tests were written with literal dates that sat inside the default
+    28-day window when they were written and silently fell out of it five
+    weeks later — four unrelated tests all went red on the same day for the
+    same reason. Anything asserting against `/metrics/summary` or
+    `/metrics/top` must anchor to now.
+    """
+    return (date.today() - timedelta(days=n)).isoformat()
 
 
 def _app(db, sites=None):
@@ -20,7 +34,7 @@ def _ga4_row(date, sessions=10):
 
 
 def test_metrics_ga4_endpoint_returns_site_rows(db):
-    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row("2026-07-18")])
+    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row(_days_ago(1))])
     client = _app(db)
     r = client.get("/metrics/ga4?site=xxxtea.com")
     assert r.status_code == 200
@@ -34,7 +48,7 @@ def test_metrics_ga4_endpoint_requires_site(db):
 
 
 def test_metrics_gsc_endpoint_returns_rows(db):
-    store.upsert_gsc_metrics(db, "xxxtea.com", [{"date": "2026-07-18", "grain": "site", "dim_key": "",
+    store.upsert_gsc_metrics(db, "xxxtea.com", [{"date": _days_ago(1), "grain": "site", "dim_key": "",
                                                  "clicks": 5, "impressions": 100, "ctr": 0.05, "position": 6.0}])
     client = _app(db)
     r = client.get("/metrics/gsc?site=xxxtea.com")
@@ -50,7 +64,7 @@ def test_metrics_summary_flags_site_with_no_data_as_absent_not_zero(db):
 
 
 def test_metrics_summary_totals_sessions_over_window(db):
-    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row("2026-07-17", 10), _ga4_row("2026-07-18", 20)])
+    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row(_days_ago(2), 10), _ga4_row(_days_ago(1), 20)])
     client = _app(db)
     r = client.get("/metrics/summary?site=xxxtea.com&window=28")
     body = r.json()
@@ -59,7 +73,7 @@ def test_metrics_summary_totals_sessions_over_window(db):
 
 
 def test_metrics_summary_omits_gsc_keys_when_gsc_absent(db):
-    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row("2026-07-18", 10)])
+    store.upsert_ga4_metrics(db, "xxxtea.com", [_ga4_row(_days_ago(1), 10)])
     client = _app(db)
     r = client.get("/metrics/summary?site=xxxtea.com&window=28")
     body = r.json()
@@ -70,7 +84,7 @@ def test_metrics_summary_omits_gsc_keys_when_gsc_absent(db):
 
 
 def test_metrics_summary_omits_ga4_keys_when_ga4_absent(db):
-    store.upsert_gsc_metrics(db, "xxxtea.com", [{"date": "2026-07-18", "grain": "site", "dim_key": "",
+    store.upsert_gsc_metrics(db, "xxxtea.com", [{"date": _days_ago(1), "grain": "site", "dim_key": "",
                                                  "clicks": 5, "impressions": 100, "ctr": 0.05, "position": 6.0}])
     client = _app(db)
     r = client.get("/metrics/summary?site=xxxtea.com&window=28")
@@ -86,8 +100,8 @@ def test_metrics_summary_omits_ga4_keys_when_ga4_absent(db):
 
 def test_metrics_top_returns_pages_sorted_by_metric(db):
     store.upsert_ga4_metrics(db, "xxxtea.com", [
-        {**_ga4_row("2026-07-18"), "grain": "page", "dim_key": "/a", "sessions": 5},
-        {**_ga4_row("2026-07-18"), "grain": "page", "dim_key": "/b", "sessions": 50},
+        {**_ga4_row(_days_ago(1)), "grain": "page", "dim_key": "/a", "sessions": 5},
+        {**_ga4_row(_days_ago(1)), "grain": "page", "dim_key": "/b", "sessions": 50},
     ])
     client = _app(db)
     r = client.get("/metrics/top?site=xxxtea.com&source=ga4&metric=sessions&limit=1")
@@ -98,7 +112,7 @@ def test_metrics_top_returns_pages_sorted_by_metric(db):
 
 def test_metrics_top_rejects_unknown_metric(db):
     store.upsert_ga4_metrics(db, "xxxtea.com", [
-        {**_ga4_row("2026-07-18"), "grain": "page", "dim_key": "/a", "sessions": 5},
+        {**_ga4_row(_days_ago(1)), "grain": "page", "dim_key": "/a", "sessions": 5},
     ])
     client = _app(db)
     r = client.get("/metrics/top?site=xxxtea.com&source=ga4&metric=not_a_real_metric")

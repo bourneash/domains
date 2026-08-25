@@ -1,0 +1,71 @@
+# fleet-test — which tool test suites the fleet runs, and how.
+#
+# Why a manifest instead of pure globbing: a glob for `test_*.py` under tools/
+# hits ~50 vendored files that are NOT ours — `domain-developer/state/*/
+# agent-sdk-venv/.../site-packages/annotated_types/test_cases.py` and the whole
+# upstream `lama-cleaner/iopaint-src/` checkout. Running third-party test suites
+# would produce permanent red that nobody can fix, which is how a quality gate
+# dies. So: an explicit roster, plus a drift check (`--check-drift`) that fails
+# when a tool grows first-party tests and is not listed here. New tools cannot
+# silently escape the sweep, and vendored code cannot silently join it.
+#
+# runner:
+#   pytest     — `python -m pytest` with cwd = the tool dir. Uses the tool's
+#                own `.venv/bin/python` when it has one, else system python3.
+#   node-test  — `npm test` when package.json declares a test script, else
+#                `node --test <files>`.
+#   skip       — listed on purpose, with a reason. Counted, never run.
+#
+# timeout: seconds, per suite (default 300).
+
+suites:
+  affiliate-audit:   { runner: pytest }
+  ai-inventory:      { runner: pytest }
+  ai-optimizer:      { runner: pytest }
+  ai-usage:          { runner: pytest }
+  amz-stats:         { runner: pytest }
+  cf-stats:          { runner: pytest }
+  data-hub:          { runner: pytest, timeout: 600 }
+  data-hub-images:   { runner: pytest, timeout: 600 }
+  fleet-registry:    { runner: pytest }
+  ga4-provision:     { runner: pytest }
+  gh-stats:          { runner: pytest }
+  google-auth:       { runner: pytest }
+  gsc-verify:        { runner: pytest }
+  media-gen:         { runner: pytest }
+  personas:          { runner: pytest }
+  product-feed:      { runner: pytest }
+  site-tracker:      { runner: pytest, timeout: 600 }
+  social-lib:        { runner: pytest }
+  social-poster:     { runner: pytest }
+  social-setup:      { runner: pytest }
+  fleet-dashboard:   { runner: node-test, timeout: 600 }
+  fleet-git:         { runner: node-test }
+
+  # Standalone node test file, no package.json of its own — the client shim
+  # that ships alongside the python service.
+  data-hub-images-client:
+    runner: node-test
+    dir: data-hub-images
+    files: [client/datahub-images-client.test.js]
+
+  domain-developer:
+    runner: skip
+    reason: >-
+      No first-party tests. Every `test_*.py` under it is vendored python
+      inside per-site `state/*/agent-sdk-venv/` site-packages.
+  lama-cleaner:
+    runner: skip
+    reason: >-
+      `iopaint-src/` is an upstream IOPaint checkout, not fleet code. Its
+      suite needs GPU model downloads and is not ours to keep green.
+
+# Paths that never contain first-party tests. Used by the drift check.
+vendored_markers:
+  - /.venv/
+  - /node_modules/
+  - /site-packages/
+  - /__pycache__/
+  - /out/
+  - domain-developer/state/
+  - lama-cleaner/iopaint-src/

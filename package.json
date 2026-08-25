@@ -6,7 +6,8 @@
   },
   "scripts": {
     "format": "prettier --write 'sites/*/site/src/**/*.{ts,tsx,js,astro}'",
-    "format:check": "prettier --check 'sites/*/site/src/**/*.{ts,tsx,js,astro}'"
+    "format:check": "prettier --check 'sites/*/site/src/**/*.{ts,tsx,js,astro}'",
+    "test": "python3 tools/fleet-test/run_tests.py",
+    "test:drift": "python3 tools/fleet-test/run_tests.py --check-drift"
   }
 }
-

@@ -131,6 +131,24 @@
 # fleet-image-smoke gates the promotion, so a bad base cannot reach :latest.
 30 5 * * 1 /home/jesse/projects/domains/tools/fleet-images/bin/fleet-image-bases --check
 
+
+# --- Job 13: fleet tool-test sweep FRESHNESS watchdog ---
+# The sweep itself (tools/scripts/fleet-test-cron.sh) is the ONE fleet job that
+# cannot live in this container. It runs 25 tool test suites whose dependency
+# toolchain — pytest, fastapi, httpx, respx, playwright, PIL, atproto, the
+# google client stack — exists only in the host's pyenv 3.11.10. That
+# interpreter is glibc-2.38-linked and will not load in this Alpine/musl
+# container, nor in fleet-site-worker (Debian bookworm, glibc 2.36 — verified,
+# it errors on libm GLIBC_2.38). Reproducing the toolchain in a pinned image is
+# the right long-term answer and is tracked as follow-up work; until then the
+# sweep runs from the host crontab, where the toolchain actually is.
+#
+# Host cron's failure mode is that a wiped crontab is SILENT — the exact thing
+# the fleet-cron migration existed to kill. This watchdog is what buys that
+# back: it asserts a sweep report landed in the last 26h and Slacks if not. So
+# the host runs it, and the fleet notices when the host stops.
+30 8 * * * /home/jesse/projects/domains/tools/scripts/fleet-test-freshness.sh
+
 # --- Job 14: fleet git-hygiene sweep ---
 # Classifies every dirty path in the monorepo + all sites/* submodules against
 # tools/fleet-git/policy.json, then commits / ignores / pushes what policy
