@@ -101,6 +101,12 @@ if [[ $IMG_STATUS -ne 0 ]]; then
 fi
 
 # --- Commit (harness-owned, not Claude's — see role prompt) ---
+# `-A ops/guide-queue/ideas/` is load-bearing: move_item already deleted the
+# idea stub on disk, but a path-scoped `git add` never stages a DELETION that
+# isn't named. Leaving it unstaged meant the stub survived in HEAD and came
+# back on the next container checkout, so the writer re-drafted an already
+# released guide and permanently wedged the publisher (reviewtattoo, 2026-08-25).
+git add -A "ops/guide-queue/ideas/" 2>/dev/null || true
 git add "ops/guide-queue/drafted/$DRAFT_FILE" "ops/guide-queue/drafted-assets/" "site/src/lib/affiliate.ts" 2>/dev/null || true
 if ! git diff --cached --quiet; then
   git commit -m "guide-queue: draft \"$IDEA_TITLE\"" -q
