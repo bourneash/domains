@@ -1,0 +1,7 @@
+state.json
+*.tar.gz
+backup.log
+backup.log.1
+run.out
+.freshness-alerted
+__pycache__/

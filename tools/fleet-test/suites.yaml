@@ -28,6 +28,7 @@ suites:
   data-hub:          { runner: pytest, timeout: 600 }
   data-hub-images:   { runner: pytest, timeout: 600 }
   env-broker:        { runner: pytest }
+  fleet-backup:      { runner: pytest }
   fleet-registry:    { runner: pytest }
   ga4-provision:     { runner: pytest }
   gh-stats:          { runner: pytest }

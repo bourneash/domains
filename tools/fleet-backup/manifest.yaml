@@ -1,0 +1,74 @@
+# fleet-backup — what leaves this host, and what must never.
+#
+# Git covers code. Nothing covered the STATE: the only historical Cloudflare
+# record (cf-stats, 197 MB of JSONL nobody can regenerate), the data-hub and
+# site-tracker databases, Gatus' uptime history, the dashboard's action log.
+# A host loss erased all of it. `tools/credential-vault-backup` covers only
+# Vaultwarden.
+#
+# Deliberately NOT in scope: the 61 GB of working media under sites/*/Artwork
+# and friends. That needs a lifecycle policy and an object store of its own,
+# not a nightly tarball — tracked separately as B7.
+
+destination:
+  bucket: fleet-backup
+  # R2, via the CF_* S3 credentials already in the shared .env.
+  prefix: fleet
+
+retention_days: 30
+
+# NEVER back up. Asserted in code before any archive is written, not merely
+# filtered: an offsite copy of the fleet's credentials is a worse outcome than
+# no backup at all, and this is the one mistake a backup tool must not make.
+never:
+  - .env
+  - .env.shared
+  - tools/env-broker/rendered
+  - .session_cache
+  - id_rsa
+  - .credentials.json
+  - automation-account.env
+
+groups:
+  dashboard-actionlog:
+    paths: [tools/fleet-dashboard/data]
+    why: mutation audit trail — who pushed/restarted what, unreproducible
+
+  site-tracker:
+    paths: [tools/site-tracker/data, tools/site-tracker/sites.yml]
+    why: per-site verification facts, hand-maintained
+
+  gatus-history:
+    paths: [tools/fleet-gatus/data]
+    why: uptime/availability history — the input to any future SLO
+
+  # These live in named Docker volumes, not on a host path — tarred out of a
+  # throwaway container. Missing this is how a "complete" backup quietly
+  # excludes the two databases the fleet's analytics actually run on.
+  data-hub:
+    volume: data-hub_datahub-data
+    why: collected feeds + GA4/GSC metrics; re-collection cannot recover the past
+  data-hub-images:
+    volume: data-hub-images_datahub-images-data
+    # 1.8 GB of that volume is `blobs/` — regenerable image bytes, and the
+    # same class of problem as the 61 GB under sites/ (B7). The index is what
+    # cannot be rebuilt, and it is 5 MB.
+    volume_exclude: [blobs]
+    why: image asset index built by the collector (blobs excluded — regenerable)
+
+  registry:
+    paths:
+      - registry/fleet.yaml
+      - tools/env-broker/policy.yaml     # the allowlist, NOT the rendered values
+      - tools/fleet-test/suites.yaml
+    why: small, hand-owned policy files that define the fleet
+
+  cf-stats:
+    paths: [tools/cf-stats/out]
+    why: the only historical Cloudflare record; ~5 MB/day of JSONL
+    incremental: true      # only files modified since the last successful run
+
+  gh-stats:
+    paths: [tools/gh-stats/out]
+    why: per-repo GitHub history feeding the Developer dashboard
+    incremental: true

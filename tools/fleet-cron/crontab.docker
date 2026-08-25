@@ -302,3 +302,27 @@
 # It DOES always alert if it cannot query docker at all — a blind watchdog
 # reporting "all clear" is worse than no watchdog.
 23 * * * * /home/jesse/projects/domains/tools/scripts/container-watch-cron.sh
+
+# --- Job 19: fleet offsite backup ---
+# Git covers the code; nothing covered the STATE. cf-stats' JSONL is the only
+# historical Cloudflare record anywhere, data-hub and site-tracker hold
+# databases (data-hub's lives in a named Docker volume, so a filesystem-only
+# backup silently skips it), Gatus holds the uptime history, and the dashboard
+# holds the only record of which agent pushed or restarted what. A host loss
+# erased all of it — tools/credential-vault-backup covers Vaultwarden alone.
+#
+# Uploads to R2, verifies each object by length + sha256 before recording the
+# run, prunes past 30 days. Secrets ABORT the run rather than being filtered:
+# an offsite copy of the fleet's credentials is worse than no backup at all.
+# Incremental for the append-only groups.
+#
+# Runs at 03:20, before the 03:40 docker GC and well clear of the 04:45
+# retention sweep that prunes the very files this is backing up.
+# Like the tool-test sweep (Job 13), the backup itself cannot run in this
+# container: it needs boto3, which is not installed here and would have to be
+# baked into an Alpine image to be. It runs from the host crontab where the
+# toolchain is, and THIS job is the freshness watchdog that makes a wiped host
+# crontab loud instead of silent — the failure mode the fleet-cron migration
+# existed to kill. A backup that stopped running and told nobody is not a
+# backup.
+40 8 * * * /home/jesse/projects/domains/tools/scripts/fleet-backup-freshness.sh
