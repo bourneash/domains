@@ -21,16 +21,33 @@ services:
     environment:
       - GATUS_CONFIG_PATH=/config/config.yaml
       - TZ=America/New_York
+    # Host-network services (media-gen-api binds 0.0.0.0:4780 on the host)
+    # have no container name to resolve — reach them through the gateway.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - default
       # Shared with fleet-dashboard (tools/fleet-dashboard/docker-compose.yml)
       # so the panel container can reach this one by container name
       # (http://fleet-gatus:8080/...) instead of the host's loopback, which
       # is a different network namespace from inside another container.
+      # Also how the fleet-internal checks reach fleet-dashboard, datahub-api
+      # and datahub-images-api.
       - vpn_proxy
+      # Joined solely so the fleet-internal checks can reach these two by
+      # container name; their ports are published on the host's loopback only,
+      # which is unreachable from inside another container.
+      - product_feed
+      - domain_developer
 
 networks:
   default:
   vpn_proxy:
     external: true
     name: vpn-proxy_default
+  product_feed:
+    external: true
+    name: product-feed_default
+  domain_developer:
+    external: true
+    name: domain-developer_default

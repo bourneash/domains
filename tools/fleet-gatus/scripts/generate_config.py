@@ -25,6 +25,40 @@ CHECK_INTERVAL = "5m"          # real uptime detection, not a twice-daily digest
 FAILURE_THRESHOLD = 2          # consecutive fails before alerting (kills single-blip noise)
 SUCCESS_THRESHOLD = 2          # consecutive passes before "recovered"
 
+# Channel for the fleet's own machinery (not a specific site's channel).
+INTERNAL_CHANNEL = os.environ.get("SLACK_CHANNEL_FLEET", "#fleet-ops")
+
+# --- The fleet's own services -------------------------------------------------
+#
+# Every check above this line watches the PRODUCT — public site URLs. Nothing
+# watched the MACHINERY that produces it. 15 of 55 running fleet containers
+# carry no healthcheck at all, so for those "the process is up" was the only
+# liveness signal, and a wedged process (blocked event loop, dead upstream,
+# full disk) reports as up forever. That is the same class of bug as the
+# `pgrep -f supercronic` healthcheck that could never fail.
+#
+# These are request-level checks, which is the point: they prove the service
+# still ANSWERS, not merely that its PID exists.
+#
+# `url` is resolved from inside the Gatus container, so each entry needs a
+# network it shares with that service — see docker-compose.yml. Host-network
+# services are reached via host.docker.internal.
+INTERNAL_SERVICES = [
+    {"name": "Fleet Dashboard", "url": "http://fleet-dashboard:4754/healthz"},
+    {"name": "Data Hub API", "url": "http://datahub-api:4760/health"},
+    {"name": "Data Hub Images API", "url": "http://datahub-images-api:4770/health"},
+    {"name": "Product Feed API", "url": "http://product-feed-api:4761/health"},
+    {"name": "Media Gen API", "url": "http://host.docker.internal:4780/health"},
+    {"name": "Dev Sandboxes panel", "url": "http://dd-panel:7777/api/health"},
+]
+
+# Deliberately NOT here: cf-stats, gh-stats, amz-stats, datahub-collector,
+# datahub-images-collector, product-feed-collector, cf-grafana-ingest. They are
+# batch collectors with no HTTP surface at all, so an HTTP probe cannot say
+# anything about them. They need a heartbeat/freshness signal instead (the shape
+# tools/cron-roles' engineer pulse already uses) — listing them here with a
+# fake check would be worse than the current honest gap.
+
 
 def discover_sites():
     """Every sites/<domain>/ops/smoke.yaml."""
@@ -110,9 +144,33 @@ def build_endpoints(sites):
     return endpoints, skipped_sites, skipped_checks
 
 
+def build_internal_endpoints():
+    """Checks for the fleet's own services, grouped separately from the sites."""
+    out = []
+    for svc in INTERNAL_SERVICES:
+        out.append({
+            "name": svc["name"],
+            "group": "fleet-internal",
+            "url": svc["url"],
+            "interval": CHECK_INTERVAL,
+            "conditions": ["[STATUS] == 200"],
+            "alerts": [{
+                "type": "custom",
+                "enabled": True,
+                "failure-threshold": FAILURE_THRESHOLD,
+                "success-threshold": SUCCESS_THRESHOLD,
+                "send-on-resolved": True,
+                "provider-override": {"body": slack_alert_body(INTERNAL_CHANNEL)},
+            }],
+        })
+    return out
+
+
 def main():
     sites = discover_sites()
     endpoints, skipped_sites, skipped_checks = build_endpoints(sites)
+    internal = build_internal_endpoints()
+    endpoints = internal + endpoints
     config = {
         "storage": {
             "type": "sqlite",
@@ -137,7 +195,8 @@ def main():
         "# GENERATED FILE — do not edit by hand.",
         "# Regenerate with: python3 scripts/generate_config.py",
         "# Source of truth for checks is each site's own sites/<domain>/ops/smoke.yaml",
-        f"# Auto-discovered {live} sites, {len(endpoints)} endpoints.",
+        f"# Auto-discovered {live} sites, {len(endpoints)} endpoints "
+        f"({len(internal)} of them the fleet's own services).",
     ]
     if skipped_sites:
         header_lines.append(f"# Skipped (enabled: false): {', '.join(skipped_sites)}")
@@ -148,7 +207,8 @@ def main():
     with open(OUT_PATH, "w") as f:
         f.write(header)
         yaml.safe_dump(config, f, sort_keys=False, width=100)
-    print(f"Wrote {OUT_PATH} — {len(endpoints)} endpoints across {live} sites")
+    print(f"Wrote {OUT_PATH} — {len(endpoints)} endpoints across {live} sites "
+          f"(+{len(internal)} internal services)")
     if skipped_sites:
         print(f"  skipped sites (enabled: false): {', '.join(skipped_sites)}")
     if skipped_checks:
