@@ -71,6 +71,7 @@ def _safe_get(obj: dict | None, *keys: str):
 def _parse_item(item: dict) -> dict:
     """Extract the canonical fields from a single API item dict."""
     offers_v2 = item.get("offersV2")
+    availability_type = None
     if offers_v2 is None:
         availability = "UNKNOWN"
         price = None
@@ -78,7 +79,17 @@ def _parse_item(item: dict) -> dict:
         listings = offers_v2.get("listings") or []
         if listings:
             availability = "IN_STOCK"
-            price = _safe_get(listings[0], "price", "displayAmount")
+            # The displayAmount lives under price.money, NOT directly under
+            # price. Reading it one level too shallow silently recorded
+            # `price: null` for every ASIN in every snapshot since PA-API went
+            # live — nothing crashed, the column was just always empty.
+            price = _safe_get(listings[0], "price", "money", "displayAmount")
+            if price is None:  # tolerate an older/flatter shape if it reappears
+                price = _safe_get(listings[0], "price", "displayAmount")
+            # Buy-box listing's availability type: IN_STOCK, AVAILABLE_DATE
+            # (preorder/backorder), etc. Exposed separately rather than folded
+            # into `availability` so existing consumers keep their semantics.
+            availability_type = _safe_get(listings[0], "availability", "type")
         else:
             availability = "OOS"
             price = None
@@ -88,6 +99,7 @@ def _parse_item(item: dict) -> dict:
         "brand": _safe_get(item, "itemInfo", "byLineInfo", "brand", "displayValue"),
         "price": price,
         "availability": availability,
+        "availability_type": availability_type,
         "rating": _safe_get(item, "customerReviews", "starRating", "value"),
         "review_count": _safe_get(item, "customerReviews", "count"),
         "image_url": _safe_get(item, "images", "primary", "medium", "url"),

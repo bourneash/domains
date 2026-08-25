@@ -184,3 +184,33 @@ class AMZClient:
                 "marketplace": self.marketplace,
             },
         )
+
+    def search_items(
+        self,
+        keywords: str,
+        resources: list[str] | None = None,
+        item_count: int = 10,
+        search_index: str | None = None,
+    ) -> dict[str, Any]:
+        """POST /catalog/v1/searchItems — keyword product discovery.
+
+        Verified live 2026-08-25 against the reviewtattoo-20 store: the
+        Creators API exposes searchItems alongside getItems, so replacement
+        sourcing does NOT need a Playwright/CloakBrowser pass in the common
+        case (see tools/affiliate-sentinel). Note `/catalog/v1/search` (no
+        `Items`) exists but returns InternalFailure — it is not the endpoint.
+
+        Response shape is `{"searchResult": {"items": [...]}}`, whereas
+        getItems returns `{"itemsResult": {"items": [...]}}` — callers must
+        not assume they are interchangeable.
+        """
+        body: dict[str, Any] = {
+            "keywords": keywords,
+            "resources": resources if resources is not None else DEFAULT_RESOURCES,
+            "partnerTag": self.store_id,
+            "marketplace": self.marketplace,
+            "itemCount": item_count,
+        }
+        if search_index:
+            body["searchIndex"] = search_index
+        return self._request("POST", "/catalog/v1/searchItems", json=body)
