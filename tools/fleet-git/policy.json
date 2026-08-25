@@ -20,7 +20,7 @@
     ".wrangler/",
     ".astro/",
     "site/.astro/",
-    "ops/logs/",
+    "ops/logs/*",
     "ops/health/",
     "ops/.locks/",
     "ops/board/last-run.json",
@@ -33,10 +33,9 @@
     ".superpowers/",
     ".DS_Store",
     "**/.claude/settings.local.json",
-    "ops/cache/",
-    "*.log",
     "test-results/",
-    "playwright-report/"
+    "playwright-report/",
+    "!**/.gitkeep"
   ],
   "rules": [
     {
@@ -88,7 +87,12 @@
         "**/.pytest_cache/**",
         "**/.pytest_cache/"
       ],
-      "reason": "python bytecode cache"
+      "reason": "python bytecode cache",
+      "except": [
+        "**/.gitkeep",
+        "**/token-usage-*.jsonl",
+        "ops/cache/**"
+      ]
     },
     {
       "id": "ignore-build-artifacts",
@@ -103,7 +107,12 @@
         ".wrangler/**",
         "**/.wrangler/**"
       ],
-      "reason": "build output / installed deps"
+      "reason": "build output / installed deps",
+      "except": [
+        "**/.gitkeep",
+        "**/token-usage-*.jsonl",
+        "ops/cache/**"
+      ]
     },
     {
       "id": "ignore-runtime-state",
@@ -120,7 +129,12 @@
         "**/.deploy-attempts",
         "**/.deploy-needed.failed"
       ],
-      "reason": "per-run runtime state, regenerated every cron tick"
+      "reason": "per-run runtime state, regenerated every cron tick",
+      "except": [
+        "**/.gitkeep",
+        "**/token-usage-*.jsonl",
+        "ops/cache/**"
+      ]
     },
     {
       "id": "ignore-claude-local-settings",
