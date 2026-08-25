@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Social Hub</title>
+<link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">social&#8203;<span>hub</span></div>
+  <nav id="tabs">
+    <button data-view="overview" class="active">Overview</button>
+    <button data-view="queue">Queue</button>
+    <button data-view="calendar">Calendar</button>
+    <button data-view="inbox">Inbox</button>
+    <button data-view="channels">Channels</button>
+    <button data-view="activity">Activity</button>
+  </nav>
+  <div class="controls">
+    <select id="siteFilter"><option value="">all sites</option></select>
+    <button id="composeBtn" class="primary">Compose</button>
+    <button id="tickBtn">Run tick</button>
+  </div>
+</header>
+
+<main id="view"></main>
+
+<dialog id="composeDlg">
+  <form method="dialog" id="composeForm">
+    <h2>New post</h2>
+    <label>Site<select name="site" id="composeSite"></select></label>
+    <label>Platform<select name="platform" id="composePlatform"></select></label>
+    <label>Body <span class="hint">leave empty to have the model draft it from the latest article</span>
+      <textarea name="body" rows="5" placeholder="Write the post…"></textarea>
+    </label>
+    <label class="row"><input type="checkbox" name="schedule" /> approve &amp; schedule immediately</label>
+    <menu>
+      <button value="cancel">Cancel</button>
+      <button value="create" class="primary">Create</button>
+    </menu>
+  </form>
+</dialog>
+
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

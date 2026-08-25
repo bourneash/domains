@@ -1,0 +1,157 @@
+"""Bluesky adapter — the fleet's most complete channel.
+
+Bluesky is the one platform where every account in the fleet is already
+provisioned and vaulted ([[project_social_media_vault_rollout_2026-08]]), the
+API is open, and mentions/replies are readable without an approval process.
+It is therefore the reference implementation: post, reply, and inbox all work
+here, and it is what americastrikes.com and 0daynews.com run on first.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from social_hub.platforms.base import (
+    Adapter,
+    AdapterError,
+    Capabilities,
+    Mention,
+    Outgoing,
+    PostRef,
+)
+
+
+def _handle_to_url(handle: str, rkey: str) -> str:
+    return f"https://bsky.app/profile/{handle}/post/{rkey}"
+
+
+def _rkey(uri: str) -> str:
+    return uri.rsplit("/", 1)[-1]
+
+
+class BlueskyAdapter(Adapter):
+    name = "bluesky"
+    caps = Capabilities(
+        publish=True, reply=True, mentions=True, media=False, max_chars=300
+    )
+    # An app password is strongly preferred, but the fleet's older Bluesky
+    # items only carry the account password — accept either rather than
+    # locking every existing account out of the hub.
+    required_creds = ("BLUESKY_HANDLE",)
+
+    def __init__(self, creds: dict | None = None):
+        super().__init__(creds)
+        self._client: Any = None
+
+    # --- plumbing ---------------------------------------------------------
+    def identifier(self) -> str:
+        return self.creds.get("BLUESKY_HANDLE") or self.creds.get("BLUESKY_USERNAME") or ""
+
+    def password(self) -> str:
+        return self.creds.get("BLUESKY_APP_PASSWORD") or self.creds.get("BLUESKY_PASSWORD") or ""
+
+    def missing_creds(self) -> list[str]:
+        missing = super().missing_creds()
+        if not self.password():
+            missing.append("BLUESKY_APP_PASSWORD")
+        return missing
+
+    def client(self):
+        if self._client is not None:
+            return self._client
+        missing = self.missing_creds()
+        if missing:
+            raise AdapterError(f"bluesky: missing creds {missing}", retryable=False)
+        from atproto import Client  # imported lazily: keeps CLI startup cheap
+
+        client = Client()
+        try:
+            client.login(self.identifier(), self.password())
+        except Exception as exc:
+            raise AdapterError(f"bluesky login failed: {exc}", retryable=False) from exc
+        self._client = client
+        return client
+
+    def _verify(self) -> dict:
+        client = self.client()
+        return {"handle": getattr(client.me, "handle", self.identifier())}
+
+    # --- verbs ------------------------------------------------------------
+    def publish(self, out: Outgoing) -> PostRef:
+        client = self.client()
+        text = self.fit(out.body, out.link if out.link else "")
+        try:
+            # send_post builds facets (link/mention detection) for us, so the
+            # trailing URL renders as a real link instead of plain text.
+            resp = client.send_post(text=text)
+        except Exception as exc:
+            raise AdapterError(f"bluesky post failed: {exc}") from exc
+        handle = self.identifier()
+        return PostRef(remote_id=resp.uri, url=_handle_to_url(handle, _rkey(resp.uri)))
+
+    def reply(self, out: Outgoing) -> PostRef:
+        if not out.reply_to_remote_id:
+            raise AdapterError("bluesky: reply requires reply_to_remote_id", retryable=False)
+        client = self.client()
+        from atproto import models
+
+        parent_uri = out.reply_to_remote_id
+        try:
+            thread = client.get_posts([parent_uri]).posts
+        except Exception as exc:
+            raise AdapterError(f"bluesky: cannot load parent post: {exc}") from exc
+        if not thread:
+            raise AdapterError("bluesky: parent post not found", retryable=False)
+        parent = thread[0]
+        parent_ref = models.ComAtprotoRepoStrongRef.Main(uri=parent.uri, cid=parent.cid)
+        # Reply must carry the *thread root*, not just the immediate parent —
+        # replying to a reply with root=parent silently detaches the thread.
+        root = getattr(getattr(parent.record, "reply", None), "root", None)
+        root_ref = (
+            models.ComAtprotoRepoStrongRef.Main(uri=root.uri, cid=root.cid)
+            if root
+            else parent_ref
+        )
+        text = self.fit(out.body, out.link if out.link else "")
+        try:
+            resp = client.send_post(
+                text=text,
+                reply_to=models.AppBskyFeedPost.ReplyRef(parent=parent_ref, root=root_ref),
+            )
+        except Exception as exc:
+            raise AdapterError(f"bluesky reply failed: {exc}") from exc
+        handle = self.identifier()
+        return PostRef(remote_id=resp.uri, url=_handle_to_url(handle, _rkey(resp.uri)))
+
+    def fetch_mentions(self, limit: int = 25, since: str | None = None) -> list[Mention]:
+        client = self.client()
+        try:
+            resp = client.app.bsky.notification.list_notifications({"limit": min(limit, 100)})
+        except Exception as exc:
+            raise AdapterError(f"bluesky notifications failed: {exc}") from exc
+
+        out: list[Mention] = []
+        for note in getattr(resp, "notifications", []) or []:
+            reason = getattr(note, "reason", "")
+            if reason not in ("mention", "reply", "quote"):
+                continue
+            record = getattr(note, "record", None)
+            text = getattr(record, "text", "") or ""
+            author = getattr(note, "author", None)
+            handle = getattr(author, "handle", "") if author else ""
+            created = getattr(note, "indexed_at", "") or ""
+            if since and created and created <= since:
+                continue
+            out.append(
+                Mention(
+                    remote_id=note.uri,
+                    text=text,
+                    author=(getattr(author, "display_name", "") or handle) if author else "",
+                    author_handle=handle,
+                    url=_handle_to_url(handle, _rkey(note.uri)),
+                    parent_remote_id=note.uri,
+                    created_at=created,
+                    kind="reply" if reason == "reply" else "mention",
+                )
+            )
+        return out

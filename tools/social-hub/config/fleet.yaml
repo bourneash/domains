@@ -1,0 +1,51 @@
+# tools/social-hub/config/fleet.yaml
+#
+# Fleet-wide defaults for every hub-managed site. A site overrides any of this
+# in its own sites/<domain>/ops/social/hub.yaml — this file is the floor, not
+# the law. Nothing here opts a site in; only the presence of that per-site file
+# does.
+
+defaults:
+  enabled: true
+  platforms: [bluesky]
+
+  # manual = every draft waits for a human in the queue.
+  # auto   = drafts are approved and scheduled as they are generated.
+  approval: manual
+
+  # How many alternative phrasings the model writes per article. Only the first
+  # is ever auto-scheduled; the rest are swap-ins for a human.
+  variants_per_source: 1
+
+  # Sources drafted per tick. Drafting is the only stage that spends money, and
+  # the tick runs every 15 minutes — keep this small. Drafting also stops
+  # entirely once a platform's queue holds two days of sends.
+  max_sources_per_run: 2
+
+  # Content older than this is recorded but never queued — so a hub that was
+  # down for a week doesn't wake up and blast the back catalogue.
+  max_source_age_hours: 72
+
+  cadence:
+    per_platform_per_day: 3
+    min_gap_minutes: 90
+    # UTC window the fleet stays silent in (roughly US overnight).
+    quiet_hours: [3, 11]
+    slots: ["12:20", "17:40", "21:10"]
+    stagger: true
+
+  reply:
+    enabled: true
+    approval: manual        # replies default to manual even where posts are auto
+    max_per_day: 12
+    poll_limit: 25
+    ignore_keywords: []
+    ignore_authors: []
+
+  ai:
+    backend: auto           # auto -> api if ANTHROPIC_API_KEY, else claude-tracked.sh, else templates
+    model: claude-sonnet-4-6
+    max_tokens: 1200
+
+  link_style: append
+  hashtags: []
