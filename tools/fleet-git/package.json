@@ -1,0 +1,9 @@
+{
+  "name": "fleet-git",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fleet-wide git hygiene: policy-driven classify → ignore/commit/push, with a review queue for the rest",
+  "bin": { "fleet-git": "bin/fleet-git.js" },
+  "scripts": { "test": "node --test test/*.test.js" },
+  "dependencies": {}
+}

@@ -386,6 +386,190 @@ async function runEngineerNow(site, btn) {
 }
 
 /* ===================== GIT ===================== */
+// ---- Git Hygiene ------------------------------------------------------------
+// Control surface for tools/fleet-git. Everything on this board is a call into
+// the SAME library the hourly cron sweep runs, so a decision made here and a
+// decision made unattended cannot drift apart. The board itself is cheap to
+// poll: it reads the last sweep report and the review queue off disk and makes
+// no git calls of its own — only the two buttons do.
+async function renderGitHygiene() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading hygiene board…</div>';
+  let b;
+  try {
+    b = await api('GET', '/api/git/hygiene');
+  } catch (e) {
+    app.innerHTML = `<div class="empty">Hygiene board failed: ${esc(e.message)}</div>`;
+    return;
+  }
+
+  const last = b.lastSweep;
+  const summary = (last && last.summary) || [];
+  const notClean = summary.filter(r => !r.clean);
+  const blocked = (last && last.blocked) || [];
+  const skipped = (last && last.skipped) || [];
+
+  const when = last ? `${esc(last.at)}` : 'never';
+  const head = `
+    <div class="task-toolbar">
+      <strong>Git Hygiene</strong>
+      <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${notClean.length} not clean · ${b.queue.length} to review` : ''}</span>
+      <button class="btn sm" id="gh-audit" style="margin-left:auto"${b.running ? ' disabled' : ''}>Audit (dry run)</button>
+      <button class="btn sm" id="gh-sweep"${b.running ? ' disabled' : ''}>⚙ Sweep now</button>
+    </div>`;
+
+  const blockedCard = blocked.length
+    ? `<div class="card"><h3 style="color:var(--red,#e5534b)">⛔ Blocked — credential-shaped paths</h3><table>
+        <thead><tr><th>Site</th><th>Path</th><th>Why</th></tr></thead><tbody>${blocked
+          .map(
+            x =>
+              `<tr><td class="site">${esc(x.slug)}</td><td class="mono">${esc(x.path)}</td><td>${esc(x.reason)}</td></tr>`
+          )
+          .join('')}</tbody></table>
+        <p class="muted">A repo with a blocked path is not committed, ignored or pushed at all until this is cleared by hand.</p></div>`
+    : '';
+
+  const skipCard = skipped.length
+    ? `<div class="card"><h3>Skipped repos</h3><table>
+        <thead><tr><th>Site</th><th>Why</th></tr></thead><tbody>${skipped
+          .map(x => `<tr><td class="site">${esc(x.slug)}</td><td>${esc(x.why)}</td></tr>`)
+          .join('')}</tbody></table></div>`
+    : '';
+
+  const q = b.queue;
+  const queueRows = q.length
+    ? q
+        .map(
+          (i, n) => `<tr data-gh-i="${n}" data-fleet-row data-site="${esc(i.slug)}">
+      <td class="site">${esc(i.slug)}</td>
+      <td class="mono">${esc(i.path)}</td>
+      <td><span class="muted">${esc(i.reason)}</span></td>
+      <td class="mono muted">${esc((i.first_seen || '').slice(0, 10))}</td>
+      <td class="nowrap">
+        <button class="btn sm gh-act" data-act="commit" data-i="${n}" title="Commit this path once">Commit</button>
+        <button class="btn sm gh-act" data-act="ignore" data-i="${n}" title="Add to this repo's .gitignore and untrack it">Ignore</button>
+        <button class="btn sm gh-act" data-act="always-commit" data-i="${n}" title="Commit AND add a policy rule so this class never asks again">Always commit</button>
+        <button class="btn sm gh-act" data-act="always-ignore" data-i="${n}" title="Ignore AND add a policy rule so this class never asks again">Always ignore</button>
+        <button class="btn sm gh-act" data-act="dismiss" data-i="${n}" title="Drop from the queue without touching the repo">Dismiss</button>
+      </td></tr>`
+        )
+        .join('')
+    : '<tr><td colspan="5" class="muted">Nothing to review — policy covered every dirty path in the fleet.</td></tr>';
+
+  const stateRows = summary.length
+    ? summary
+        .map(
+          r => `<tr data-fleet-row data-site="${esc(r.slug)}">
+        <td class="site">${esc(r.slug)}</td>
+        <td>${r.clean ? '<span class="badge b-green">clean</span>' : '<span class="badge b-yellow">dirty</span>'}</td>
+        <td>${r.commits || 0}</td>
+        <td>${r.pushed ? '<span class="badge b-blue">pushed</span>' : '<span class="muted">—</span>'}</td>
+        <td>${r.review ? `<span class="badge b-yellow">${r.review}</span>` : '<span class="muted">0</span>'}</td>
+        <td>${r.errors ? `<span class="badge b-red">${r.errors}</span>` : '<span class="muted">0</span>'}</td>
+      </tr>`
+        )
+        .join('')
+    : '<tr><td colspan="6" class="muted">No sweep has been recorded yet. Run one above.</td></tr>';
+
+  app.innerHTML = `${head}${blockedCard}
+    <div class="card"><h3>Review queue (${q.length})</h3><table>
+      <thead><tr><th>Site</th><th>Path</th><th>Why it needs you</th><th>Since</th><th>Decision</th></tr></thead>
+      <tbody>${queueRows}</tbody></table>
+      <p class="muted">"Always…" writes a rule into <span class="mono">tools/fleet-git/policy.json</span> so the whole class is handled unattended from the next sweep on.</p>
+    </div>
+    ${skipCard}
+    <div class="card"><h3>Last sweep</h3><table>
+      <thead><tr><th>Site</th><th>Tree</th><th>Commits</th><th>Remote</th><th>Review</th><th>Errors</th></tr></thead>
+      <tbody>${stateRows}</tbody></table></div>
+    <div class="card"><h3>Policy</h3>
+      <p class="muted">${b.policy.rules.length} rules · managed .gitignore block: ${b.policy.ignoreBlock.length} lines ·
+      max ${b.policy.limits.max_files_per_commit} files/commit</p>
+      <button class="btn sm" id="gh-ignore-sync">Preview .gitignore adoption</button>
+      <button class="btn sm" id="gh-ignore-sync-apply">Adopt managed block fleet-wide</button>
+    </div>`;
+
+  const sweepBtn = async apply => {
+    const btn = apply ? $('#gh-sweep') : $('#gh-audit');
+    btn.disabled = true;
+    btn.textContent = apply ? 'Sweeping…' : 'Auditing…';
+    try {
+      const rep = await api('POST', '/api/git/hygiene/sweep', { apply });
+      toast(
+        `${apply ? 'Sweep' : 'Audit'}: ${rep.dirty.length} repo(s) not clean, ${rep.reviewCount} to review` +
+          (rep.errors.length ? `, ${rep.errors.length} error(s)` : ''),
+        rep.errors.length || rep.blocked.length ? 'err' : 'ok'
+      );
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+    renderGitHygiene();
+  };
+  $('#gh-audit').addEventListener('click', () => sweepBtn(false));
+  $('#gh-sweep').addEventListener('click', () => {
+    if (confirm('Sweep the whole fleet: commit, ignore and push everything policy recognises?'))
+      sweepBtn(true);
+  });
+
+  $$('.gh-act').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const item = q[Number(btn.dataset.i)];
+      const act = btn.dataset.act;
+      const remember = act.startsWith('always-');
+      const decision = act === 'dismiss' ? 'dismiss' : act.replace('always-', '');
+      let glob = true;
+      if (remember) {
+        // The rule is only as good as its glob — let the operator widen
+        // "ops/tasks/hold/x.md" into "ops/tasks/**" before it is written.
+        glob = prompt(
+          'Rule pattern (glob). Widen it to cover the whole class, e.g. ops/tasks/**',
+          item.path
+        );
+        if (!glob) return;
+      }
+      const scope =
+        remember && confirm('Apply this rule to the WHOLE fleet? (Cancel = this site only)')
+          ? 'fleet'
+          : 'site';
+      btn.disabled = true;
+      try {
+        await api('POST', '/api/git/hygiene/resolve', {
+          slug: item.slug,
+          path: item.path,
+          decision,
+          remember: remember ? glob : false,
+          scope,
+          untrack: decision === 'ignore',
+        });
+        toast(`${item.slug}: ${item.path} → ${decision}`, 'ok');
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+      renderGitHygiene();
+    })
+  );
+
+  const syncBtn = async apply => {
+    try {
+      const r = await api('POST', '/api/git/hygiene/ignore-sync', { apply });
+      toast(
+        r.changed.length
+          ? `${apply ? 'Updated' : 'Would update'} ${r.changed.length} .gitignore: ${r.changed.map(c => c.slug).join(', ')}`
+          : 'Every repo already matches the managed block',
+        'ok'
+      );
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  $('#gh-ignore-sync').addEventListener('click', () => syncBtn(false));
+  $('#gh-ignore-sync-apply').addEventListener('click', () => {
+    if (confirm('Write the fleet-managed .gitignore block into every site repo?')) syncBtn(true);
+  });
+
+  applyFleetFilter();
+  stamp();
+}
+
 async function renderGit() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Scanning repos…</div>';
@@ -6709,6 +6893,7 @@ const NAV_GROUPS = {
       ['cron', 'Cron'],
       ['containers', 'Containers'],
       ['git', 'Git'],
+      ['githygiene', 'Git Hygiene'],
       ['tasks', 'Tasks'],
       ['deploys', 'Deploys'],
       ['domains', 'Domains'],
@@ -6817,6 +7002,7 @@ function render() {
   else if (STATE.view === 'agent') renderAgent(STATE.agent);
   else if (STATE.view === 'containers') renderContainers();
   else if (STATE.view === 'git') renderGit();
+  else if (STATE.view === 'githygiene') renderGitHygiene();
   else if (STATE.view === 'gitstashes') renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') renderTasks();
   else if (STATE.view === 'taskbudget') renderTaskBudget();

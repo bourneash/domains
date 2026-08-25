@@ -8,6 +8,7 @@ const crypto = require('node:crypto');
 const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
 const git = require('./git');
+const githygiene = require('./githygiene');
 const tasks = require('./tasks');
 const guideQueue = require('./guideQueue');
 const aiOptimizer = require('./aioptimizer');
@@ -623,6 +624,45 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/cron/systems/:slug/jobs/:role/:action', (req, res) => {
     try {
       res.json(cron.jobFlag(root, req.params.slug, req.params.role, req.params.action));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  // ---- Git Hygiene (tools/fleet-git) ------------------------------------
+  // Defined BEFORE /api/git/:slug so "hygiene" is never captured as a slug.
+  app.get('/api/git/hygiene', (_req, res) => {
+    try {
+      res.json(githygiene.board());
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Dry run by default; { apply: true } is the only thing that writes.
+  app.post('/api/git/hygiene/sweep', async (req, res) => {
+    try {
+      const b = req.body || {};
+      const only = Array.isArray(b.only) && b.only.length ? b.only : null;
+      res.json(await githygiene.run(root, { apply: b.apply === true, only }));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/git/hygiene/resolve', async (req, res) => {
+    try {
+      res.json(await githygiene.resolve(root, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/git/hygiene/ignore-sync', async (req, res) => {
+    try {
+      const b = req.body || {};
+      const only = Array.isArray(b.only) && b.only.length ? b.only : null;
+      res.json(await githygiene.ignoreSync(root, { apply: b.apply === true, only }));
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "_comment": "Fleet git-hygiene policy. Machine-writable (the Fleet Dashboard appends rules here when an operator says 'always ignore'/'always commit'). Human-readable docs live in README.md. Rules are evaluated in order: first match wins. 'block' rules are evaluated BEFORE everything else. Unmatched paths default to 'review'.",
+
+  "limits": {
+    "max_files_per_commit": 200,
+    "max_file_bytes": 5242880
+  },
+
+  "ignore_block": [
+    "node_modules/",
+    "dist/",
+    ".env",
+    ".env.*",
+    "!.env.example",
+    ".deploy-needed",
+    ".deploy-attempts",
+    ".deploy-needed.failed",
+    ".wrangler/",
+    ".astro/",
+    "site/.astro/",
+    "ops/logs/",
+    "ops/health/",
+    "ops/.locks/",
+    "ops/.*-disabled",
+    "ops/board/last-run.json",
+    "ops/facts.yaml",
+    "__pycache__/",
+    "*.pyc",
+    ".monorepo-tools/",
+    ".aider.*",
+    ".playwright-mcp/",
+    ".superpowers/",
+    ".DS_Store"
+  ],
+
+  "rules": [
+    {
+      "id": "block-secrets",
+      "action": "block",
+      "scope": "fleet",
+      "match": ["**/.env", "**/.env.*", "**/*.pem", "**/*.key", "**/*.p12", "**/id_rsa*", "**/id_ed25519*", "**/.npmrc", "**/*credentials*.json", "**/*service-account*.json"],
+      "except": ["**/.env.example", "**/.env.sample"],
+      "reason": "credential material must never be staged or committed"
+    },
+
+    {
+      "id": "ignore-python-cache",
+      "action": "ignore",
+      "scope": "fleet",
+      "untrack": true,
+      "match": ["**/__pycache__/**", "**/__pycache__/", "**/*.pyc", "**/.pytest_cache/**", "**/.pytest_cache/"],
+      "reason": "python bytecode cache"
+    },
+    {
+      "id": "ignore-build-artifacts",
+      "action": "ignore",
+      "scope": "fleet",
+      "untrack": true,
+      "match": ["**/.astro/**", "**/node_modules/**", "dist/**", "**/dist/**", ".wrangler/**", "**/.wrangler/**"],
+      "reason": "build output / installed deps"
+    },
+    {
+      "id": "ignore-runtime-state",
+      "action": "ignore",
+      "scope": "fleet",
+      "untrack": true,
+      "match": ["ops/logs/**", "ops/health/**", "ops/.locks/**", "ops/board/last-run.json", "ops/facts.yaml", "**/.deploy-needed", "**/.deploy-attempts", "**/.deploy-needed.failed"],
+      "reason": "per-run runtime state, regenerated every cron tick"
+    },
+    {
+      "id": "ignore-tool-scratch",
+      "action": "ignore",
+      "scope": "fleet",
+      "match": ["**/.aider.*", ".playwright-mcp/**", ".superpowers/**", "**/.DS_Store", "**/*.swp", "**/.claude/worktrees/**"],
+      "reason": "local tooling scratch files"
+    },
+    {
+      "id": "ignore-root-media-scratch",
+      "action": "ignore",
+      "scope": ["domains"],
+      "match": ["*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.mp4", "*.zip"],
+      "reason": "monorepo root is not an asset store — screenshots/downloads land here by accident"
+    },
+    {
+      "id": "ignore-audit-reports",
+      "action": "ignore",
+      "scope": ["domains"],
+      "match": ["Findings-*.md", "*-report-*.md"],
+      "reason": "timestamped generated audit output; archive under docs/history/ if one matters"
+    },
+
+    {
+      "id": "commit-tasks",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "tasks",
+      "message": "chore(ops): sync task board",
+      "match": ["ops/tasks/**"],
+      "reason": "task board is real, reviewable ops state"
+    },
+    {
+      "id": "commit-guide-queue",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "guide-queue",
+      "message": "chore(ops): sync guide queue",
+      "match": ["ops/guide-queue/**"],
+      "reason": "guide-queue churn is the queue role doing its job"
+    },
+    {
+      "id": "commit-quarantine",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "ops",
+      "message": "chore(ops): sync quarantine",
+      "match": ["ops/quarantine/**"],
+      "reason": "quarantined drafts are auditable content"
+    },
+    {
+      "id": "commit-board",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "board",
+      "message": "chore(ops): update role board",
+      "match": ["ops/board/**"],
+      "reason": "role logs/boards are the audit trail for autonomous runs"
+    },
+    {
+      "id": "commit-social",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "social",
+      "message": "chore(ops): sync social queue",
+      "match": ["ops/social/**"],
+      "reason": "social queue state is committed history on this fleet"
+    },
+    {
+      "id": "commit-content",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "content",
+      "message": "content: sync generated articles",
+      "match": ["site/src/content/**", "site/src/data/**"],
+      "reason": "writer-role output"
+    },
+    {
+      "id": "commit-media",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "media",
+      "message": "chore(media): add generated images",
+      "match": ["site/public/images/**", "site/public/og/**"],
+      "reason": "generated site media referenced by content"
+    },
+    {
+      "id": "commit-ops-catchall",
+      "action": "commit",
+      "scope": "fleet",
+      "group": "ops",
+      "message": "chore(ops): sync ops state",
+      "match": ["ops/**"],
+      "reason": "remaining ops/ churn is cron-role bookkeeping"
+    }
+  ]
+}
