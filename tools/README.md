@@ -19,6 +19,7 @@ Local utilities shared across all domain projects under `/home/jesse/projects/do
 | [`deployment-tester/`](./deployment-tester/) | Probes every site repo's Cloudflare Workers Builds push-to-deploy pipeline (`.deploy-probe` bump → push → `--verify` worker version) to catch broken deploys. |
 | [`domain-developer/`](./domain-developer/) | Per-site sandboxed Claude dev containers (CLI + web panel) — only that site's dir bind-mounted, host filesystem protected under `--dangerously-skip-permissions`. |
 | [`engineer-fleet/`](./engineer-fleet/) | Dynamic, read-only, zero-token audit of the Engineer cron role across every site (`engineer-status.py`). |
+| [`env-broker/`](./env-broker/) | Renders each site container a **minimal** `.env` (~4 keys) from Vaultwarden instead of the 60-key shared fleet file. Allowlist in `policy.yaml`, drift check re-derives real usage from each site's `ops/`. Containers never talk to the vault. |
 | [`fleet-dashboard/`](./fleet-dashboard/) | Portfolio control-plane web app at `localhost:4754` — Domain Control matrix, agent pages, containers, git, tasks, cron. |
 | [`fleet-gatus/`](./fleet-gatus/) | Gatus-based health-check + alerting layer for every domain in the portfolio — dashboard, threshold-based Slack alerts, surfaced natively in `fleet-dashboard`'s Health tab. |
 | [`fleet-test/`](./fleet-test/) | Runs every first-party tool test suite under `tools/` in one pass (~2 min, zero-AI, offline). Roster in `suites.yaml` + a drift check so a new tool can't silently escape the sweep. Scheduled daily; healthy = silent. |

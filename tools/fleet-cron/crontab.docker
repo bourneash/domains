@@ -238,3 +238,21 @@
 #
 # Healthy = SILENT.
 41 * * * * /home/jesse/projects/domains/tools/scripts/fleet-cron-host-watchdog.sh
+
+# --- Job 14: env-broker credential-policy drift check ---
+# Site containers no longer mount the fleet .env. Each gets a rendered file
+# holding only the keys its ops/ actually references (~4, vs the 60-key shared
+# file that included GITHUB_TOKEN, the Amazon secret, the PIA password and
+# FD_TOKEN — the Fleet Dashboard operator token — handed to containers that run
+# `claude -p` over scraped, attacker-influenced input).
+#
+# Two ways that quietly breaks: a role starts using a key the policy does not
+# grant (fails at runtime hours later, looking like anything but a credential
+# problem), or a key stays granted after the script needing it is gone (blast
+# radius nobody is paying for). This re-derives usage from the ops trees and
+# diffs it against the allowlist, and checks each rendered file still exists
+# and is 0400.
+#
+# DETECTION ONLY — never re-renders. Rollouts stay deliberate
+# (feedback_no_auto_rollout_tool). Healthy = SILENT, 24h alert cooldown.
+25 7 * * * /home/jesse/projects/domains/tools/scripts/env-broker-check-cron.sh

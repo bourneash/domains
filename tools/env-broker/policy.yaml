@@ -1,0 +1,100 @@
+# env-broker policy — which secrets each site container is allowed to see.
+#
+# THIS FILE HOLDS NO SECRETS. It is the allowlist; the values live in
+# Vaultwarden (collection "Fleet Env"), with the shared root .env as the
+# bootstrap/fallback source. Policy in git, secrets in the vault.
+#
+# WHY THIS EXISTS
+# Every site cron container used to mount the whole fleet .env — 60 keys
+# including CLOUDFLARE_API_TOKEN, GITHUB_TOKEN, SLACK_BOT_TOKEN, the Amazon
+# Creators secret, the PIA password and FD_TOKEN (the Fleet Dashboard operator
+# token). Those containers run `claude -p` over attacker-influenced input
+# (scraped feeds, product pages, social replies). One prompt injection in any
+# one site meant the whole fleet: push to 48 repos, redeploy every worker,
+# drive the dashboard, spend the Amazon account.
+#
+# Measured against what the ops trees actually reference, a typical site needs
+# FOUR of those 60 keys. 25 of them are referenced by no site at all.
+#
+# HOW A SITE'S KEY SET IS BUILT
+#   1. `defaults.keys`
+#   2. its own SLACK_CHANNEL_* var (derived from registry/fleet.yaml's
+#      slack_channel_env, so the many irregular names — SLACK_CHANNEL_RC9,
+#      SLACK_CHANNEL_AMERICA_STRIKES, SLACK_CHANNEL_AMPUTEENEWS_COM — stay
+#      single-sourced rather than re-guessed here)
+#   3. `sites.<domain>.extra_keys`
+#   4. minus `sites.<domain>.deny_keys`
+#
+# `env_broker.py --check` re-derives what each site's ops/ actually references
+# and fails on drift in either direction: a key a site needs but is not
+# granted (would break a role), or a key granted but unreferenced (needless
+# blast radius). Run it after touching any ops script.
+
+defaults:
+  keys:
+    # Deploy verification hits /accounts/<id>/workers/... — account-scoped, so
+    # a per-zone token cannot replace this. Narrowing it to a Workers:read
+    # token is tracked separately; it is the biggest remaining exposure here.
+    - CLOUDFLARE_API_TOKEN
+    - CLOUDFLARE_ACCOUNT_ID
+    - SLACK_BOT_TOKEN
+
+# Keys no site may ever receive, whatever else says. Belt to the allowlist's
+# braces: these are the fleet-wide credentials whose leak is unrecoverable.
+never_grant:
+  - GITHUB_TOKEN
+  - FD_TOKEN
+  - FD_AUTH
+  - AMAZON_CREATORS_KEY_ID
+  - AMAZON_CREATORS_KEY_SECRET
+  - AMAZON_CREATORS_APPLICATION_ID
+  - AMAZON_CREATORS_VERSION
+  - AMAZON_ASSOCIATES_STORE_ID
+  - VPN_PIA_USERNAME
+  - VPN_PIA_PASSWORD
+  - CF_ACCESS_KEY_ID
+  - CF_SECRET_ACCESS_KEY      # B13 fixed 2026-08-25: key renamed in the live .env
+  - CF_S3_API_ENDPOINT
+  - CF_API_TOKEN
+  - CF_ACCOUNT_ID
+  - ED_USERNAME
+  - ED_PASSWORD
+  - RESEND_API_KEY
+
+sites:
+  americastrikes.com:
+    extra_keys: [DVIDS_API_KEY, PEXELS_API_KEY, UNSPLASH_ACCESS_KEY]
+  saveusfarms.com:
+    extra_keys: [PEXELS_API_KEY, UNSPLASH_ACCESS_KEY]
+  amputeenews.com:
+    # Public RUM beacon token — shipped to browsers, not a secret. No CF API
+    # credentials: this site's ops never call the Cloudflare API.
+    extra_keys: [PUBLIC_CF_BEACON_TOKEN]
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  allthingsmasonic.com:
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  fishhooklabs.com:
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  newmomshop.com:
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  weirdgirlstore.com:
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  weirdassstuff.com:
+    deny_keys: [CLOUDFLARE_ACCOUNT_ID]
+  oventoheaven.com:
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, SLACK_BOT_TOKEN]
+
+# Vault layout. Grouped by provider rather than one 60-field blob so a single
+# provider can be rotated (and later scoped to its own collection) without
+# touching the rest.
+vault:
+  collection: Fleet Env
+  groups:
+    cloudflare:  [CLOUDFLARE_, CF_, PUBLIC_CF_]
+    slack:       [SLACK_, DATAHUB_IMAGES_ALERT_CHANNEL]
+    amazon:      [AMAZON_]
+    media-apis:  [UNSPLASH_, PEXELS_, PIXABAY_, DVIDS_]
+    vpn:         [VPN_]
+    github:      [GITHUB_]
+    dashboard:   [FD_]
+    email:       [RESEND_, ED_]
