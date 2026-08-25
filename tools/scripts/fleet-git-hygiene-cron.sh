@@ -50,8 +50,31 @@ print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3],
 
 [[ -f "$FG" ]] || { log "fleet-git not found at $FG"; exit 0; }
 
-out="$(node "$FG" sweep --apply --json 2>&1)"
+# Transport: every site repo's remote is the ssh-config alias
+# `git@github-bourneash:...`. Inside a container that alias is not resolvable
+# (no ~/.ssh/config on the container HOME), so the push fails with
+# "Could not resolve hostname github-bourneash". Pin the identity and map the
+# alias to the real host explicitly — same form the fleet-dashboard container
+# uses. Not overridden if the caller already set one.
+if [[ -z "${GIT_SSH_COMMAND:-}" && -f "$HOME/.ssh/github-bourneash" ]]; then
+  export GIT_SSH_COMMAND="ssh -F /dev/null -i $HOME/.ssh/github-bourneash -o UserKnownHostsFile=$HOME/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
+fi
+
+# Identity fallback for a repo that has no user.name/user.email of its own.
+# fleet-git applies this via `-c` ONLY when git cannot resolve an identity, so
+# each site's own bot author is preserved.
+export FLEET_GIT_IDENTITY_NAME="${FLEET_GIT_IDENTITY_NAME:-Fleet Git Hygiene}"
+export FLEET_GIT_IDENTITY_EMAIL="${FLEET_GIT_IDENTITY_EMAIL:-ops@fleet.local}"
+
+# stderr must NOT be folded into stdout: the report is parsed as JSON, and one
+# stray warning line would make the whole sweep look like a failure.
+ERR_TMP="$(mktemp)"
+out="$(node "$FG" sweep --apply --json 2>"$ERR_TMP")"
 rc=$?
+if [[ -s "$ERR_TMP" ]]; then
+  log "stderr: $(tr '\n' ' ' < "$ERR_TMP" | cut -c1-800)"
+fi
+rm -f "$ERR_TMP"
 
 # Parse the report with python (jq is not guaranteed on every host here).
 REPORT_TMP="$(mktemp)"; trap 'rm -f "$REPORT_TMP"' EXIT

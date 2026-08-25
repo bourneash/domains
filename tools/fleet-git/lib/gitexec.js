@@ -2,13 +2,24 @@
 
 const { execFile } = require('node:child_process');
 
-// GIT_DIR / GIT_INDEX_FILE / GIT_WORK_TREE in the ambient env take precedence
-// over `-C <cwd>` in real git — if this ever runs from inside a git hook, every
-// call below would be silently redirected at the WRONG repo. Strip them so
-// `-C` is the sole source of truth. GIT_SSH_COMMAND is kept: it carries the
-// deploy identity the fleet pushes with. (Same guard as fleet-dashboard/server/git.js.)
+// Repo-LOCATION variables in the ambient env take precedence over `-C <cwd>` in
+// real git — if this ever runs from inside a git hook, every call below would be
+// silently redirected at the WRONG repo. Strip exactly those, and nothing else:
+// GIT_SSH_COMMAND (transport) and GIT_AUTHOR_*/GIT_COMMITTER_* (identity) are
+// how a container that has no ~/.gitconfig can still push and commit.
+const GIT_LOCATION_VARS = new Set([
+  'GIT_DIR',
+  'GIT_WORK_TREE',
+  'GIT_INDEX_FILE',
+  'GIT_COMMON_DIR',
+  'GIT_OBJECT_DIRECTORY',
+  'GIT_ALTERNATE_OBJECT_DIRECTORIES',
+  'GIT_NAMESPACE',
+  'GIT_PREFIX',
+  'GIT_CEILING_DIRECTORIES',
+]);
 const CLEAN_GIT_ENV = Object.fromEntries(
-  Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_') || k === 'GIT_SSH_COMMAND')
+  Object.entries(process.env).filter(([k]) => !GIT_LOCATION_VARS.has(k))
 );
 
 function git(cwd, args, { timeout = 120000 } = {}) {
@@ -85,4 +96,21 @@ async function status(cwd) {
   return { isRepo: true, ...parsePorcelain(r.out) };
 }
 
-module.exports = { git, status, parsePorcelain };
+// Committer identity for a repo that has none of its own. Every site repo in
+// this fleet sets a local user.name/user.email (its own bot desk), but the
+// containers that run the sweep have no ~/.gitconfig, so a repo that never set
+// one fails with "Author identity unknown". Resolved per repo and applied via
+// `-c` ONLY when git genuinely cannot resolve an identity — `-c` outranks repo
+// config, so applying it unconditionally would rewrite every site's bot author.
+async function identityArgs(cwd) {
+  const r = await git(cwd, ['var', 'GIT_COMMITTER_IDENT']);
+  if (r.ok && r.out.trim()) return [];
+  return [
+    '-c',
+    `user.name=${process.env.FLEET_GIT_IDENTITY_NAME || 'Fleet Git Hygiene'}`,
+    '-c',
+    `user.email=${process.env.FLEET_GIT_IDENTITY_EMAIL || 'ops@fleet.local'}`,
+  ];
+}
+
+module.exports = { git, status, parsePorcelain, identityArgs, GIT_LOCATION_VARS };

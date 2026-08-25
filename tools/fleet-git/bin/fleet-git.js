@@ -73,8 +73,12 @@ async function main() {
 
 function report(rep, applied) {
   if (JSON_OUT) {
+    // process.exit() does NOT flush an async pipe write — a ~200KB report piped
+    // to a consumer arrives truncated and unparseable. Set the code and let the
+    // process end naturally instead.
     console.log(JSON.stringify(rep, null, 2));
-    process.exit(rep.blocked.length || rep.errors.length ? 1 : rep.reviewCount ? 1 : 0);
+    process.exitCode = rep.blocked.length || rep.errors.length || rep.reviewCount ? 1 : 0;
+    return;
   }
   const mode = applied ? 'SWEEP (applied)' : 'AUDIT (dry run)';
   console.log(`fleet-git ${mode} — ${rep.repos} repo(s) @ ${rep.at}\n`);
@@ -114,7 +118,7 @@ function report(rep, applied) {
       `${rep.blocked.length} blocked · ${rep.errors.length} error(s)`
   );
   for (const e of rep.errors) console.log(`  ${C.r('error')} ${e}`);
-  process.exit(bad ? 1 : rep.reviewCount || rep.dirty.length ? 1 : 0);
+  process.exitCode = bad || rep.reviewCount || rep.dirty.length ? 1 : 0;
 }
 
 function showQueue() {

@@ -69,6 +69,13 @@
       "reason": "per-run runtime state, regenerated every cron tick"
     },
     {
+      "id": "ignore-claude-local-settings",
+      "action": "ignore",
+      "scope": "fleet",
+      "match": ["**/.claude/settings.local.json"],
+      "reason": "per-operator local Claude permissions; never shared state"
+    },
+    {
       "id": "ignore-tool-scratch",
       "action": "ignore",
       "scope": "fleet",

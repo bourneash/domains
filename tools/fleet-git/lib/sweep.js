@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { git, status } = require('./gitexec');
+const { git, status, identityArgs } = require('./gitexec');
 const { discover } = require('./repos');
 const { load: loadPolicy } = require('./policy');
 const { plan, isClean } = require('./classify');
@@ -18,6 +18,9 @@ async function executeRepo(repo, p, policy, { apply, push }) {
   const acts = [];
   const errors = [];
   const cwd = repo.dir;
+  // Empty for every repo that has its own committer identity (all of them, in
+  // practice); only a repo with none gets a fallback injected.
+  const ident = apply ? await identityArgs(cwd) : [];
   const note = (action, detail, extra = {}) => acts.push({ action, detail, ...extra });
 
   if (p.blocked.length) {
@@ -50,7 +53,16 @@ async function executeRepo(repo, p, policy, { apply, push }) {
       errors.push(`git add failed in ${repo.slug}: ${add.err.trim()}`);
       continue;
     }
-    const c = await git(cwd, ['commit', '-m', g.message, '-m', HYGIENE_TRAILER, '--', ...g.paths]);
+    const c = await git(cwd, [
+      ...ident,
+      'commit',
+      '-m',
+      g.message,
+      '-m',
+      HYGIENE_TRAILER,
+      '--',
+      ...g.paths,
+    ]);
     if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
       errors.push(`git commit failed in ${repo.slug}: ${(c.err || c.out).trim()}`);
   }
@@ -104,12 +116,21 @@ async function executeRepo(repo, p, policy, { apply, push }) {
           await git(cwd, ['add', '--', '.gitignore']);
           const rm = await git(cwd, ['rm', '--cached', '-r', '--quiet', '--', ...untrack]);
           if (!rm.ok) errors.push(`git rm --cached failed in ${repo.slug}: ${rm.err.trim()}`);
-          const c = await git(cwd, ['commit', '-m', msg, '-m', HYGIENE_TRAILER]);
+          const c = await git(cwd, [...ident, 'commit', '-m', msg, '-m', HYGIENE_TRAILER]);
           if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
             errors.push(`git commit failed in ${repo.slug}: ${(c.err || c.out).trim()}`);
         }
       } else {
-        const c = await git(cwd, ['commit', '-m', msg, '-m', HYGIENE_TRAILER, '--', '.gitignore']);
+        const c = await git(cwd, [
+          ...ident,
+          'commit',
+          '-m',
+          msg,
+          '-m',
+          HYGIENE_TRAILER,
+          '--',
+          '.gitignore',
+        ]);
         if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
           errors.push(`git commit failed in ${repo.slug}: ${(c.err || c.out).trim()}`);
       }
@@ -216,7 +237,9 @@ async function sweep(root, opts = {}) {
       if (apply) {
         const add = await git(parent.dir, ['add', '--', ...bump]);
         if (!add.ok) errors.push(`parent git add failed: ${add.err.trim()}`);
+        const pident = await identityArgs(parent.dir);
         const c = await git(parent.dir, [
+          ...pident,
           'commit',
           '-m',
           msg,
