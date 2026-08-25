@@ -34,6 +34,12 @@ instead of aborting the run, so missing scopes don't kill the snapshot.
 Two artifacts in `out/` (gitignored):
 
 - `cf-stats-YYYY-MM-DD.jsonl` — one snapshot appended per run, dense JSON, per-day rotation.
+
+**Retention.** Ledgers older than 30 days are gzipped in place (`cf-stats-YYYY-MM-DD.jsonl.gz`)
+by `tools/scripts/prune-fleet-data.py`, run nightly as fleet-cron job 18. Nothing is ever
+deleted — this directory is the only historical Cloudflare record on the host and nothing backs
+it up. Any new reader must glob `*.jsonl.gz` alongside `*.jsonl`; `tools/cf-grafana/ingest.py`
+is the reference implementation (`ledgers()` / `open_ledger()`).
 - `latest.json` — pretty-printed most recent snapshot (overwritten each run).
 - `cron.log` — stdout/stderr from the cron-driven runs (one summary line per run).
 

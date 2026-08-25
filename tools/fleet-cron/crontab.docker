@@ -256,3 +256,35 @@
 # DETECTION ONLY — never re-renders. Rollouts stay deliberate
 # (feedback_no_auto_rollout_tool). Healthy = SILENT, 24h alert cooldown.
 25 7 * * * /home/jesse/projects/domains/tools/scripts/env-broker-check-cron.sh
+
+# --- Job 18: fleet local-data retention sweep ---
+# Nothing on this host had a retention step of any kind. Measured 2026-08-25:
+# tools/cf-stats/out at 423 MB across 112 daily JSONL files growing ~5 MB/day,
+# and sites/*/ops/logs at 74,185 files, on a root filesystem at 70%.
+#
+# It COMPRESSES, it does not delete. cf-stats is the only historical
+# Cloudflare record on this host and nothing backs it up; the site role logs
+# are the audit trail for autonomous publishing runs and get read during
+# incidents. Ledgers older than 30d are gzipped in place; site .log/.txt/.png
+# older than 30d roll into one tar.gz per site per DAY — day-bucketing so every
+# file sharing an mtime date ages out on the same run and each bucket is
+# written exactly once, which is what makes a daily job idempotent with no
+# archive-merging problem. First run: 135 ledgers + 19,781 log files, 247 MB
+# reclaimed, 26s, zero errors.
+#
+# The *.jsonl under ops/logs are deliberately OUT of scope — they are ledgers,
+# not logs (tools/ai-usage/aggregate.py globs token-usage-*.jsonl,
+# tools/engineer-fleet/engineer-status.py reads engineer-heartbeat-*.jsonl).
+# Archiving them would silently truncate fleet AI-cost history for 8 MB.
+#
+# Paired with tools/cf-grafana/ingest.py, which now globs .jsonl.gz as well as
+# .jsonl. Those two must stay in step: compressing under an ingester that only
+# sees plain .jsonl drops fleet history from Grafana without erroring anywhere.
+# Verified by ingesting to a scratch DB before and after the first run — all
+# eight tables identical, 2,548 snapshots either way.
+#
+# Every compression is verified before the original goes: the .gz is
+# decompressed and sha256-compared, the tar reopened and its members counted.
+# A failure leaves the original in place and retries next run. Supports
+# --dry-run. Healthy = SILENT; Slacks only on errors or a >=500 MB reclaim.
+45 4 * * * /home/jesse/projects/domains/tools/scripts/prune-fleet-data-cron.sh

@@ -4,11 +4,15 @@
 Run any time you want fresh data:
     python ingest.py
 
-Reads:  ../cf-stats/out/cf-stats-*.jsonl
+Reads:  ../cf-stats/out/cf-stats-*.jsonl  (and the .gz the retention sweep leaves
+        behind — tools/scripts/prune-fleet-data.py compresses ledgers older
+        than 30 days in place, so an ingester that only globs *.jsonl would
+        silently lose every month but the current one)
 Writes: data/cf-stats.db  (mounted read-only into Grafana)
 """
 from __future__ import annotations
 
+import gzip
 import json
 import os
 import sqlite3
@@ -18,6 +22,25 @@ from pathlib import Path
 OUT_DIR = Path(os.environ.get("CF_STATS_OUT", Path(__file__).parent.parent / "cf-stats" / "out"))
 DB_PATH = Path(os.environ.get("CF_STATS_DB",  Path(__file__).parent / "data" / "cf-stats.db"))
 GH_STATS_OUT = Path(os.environ.get("GH_STATS_OUT", Path(__file__).parent.parent / "gh-stats" / "out"))
+
+
+def ledgers(directory: Path, stem: str) -> list[Path]:
+    """Every daily ledger for `stem`, plain or gzipped, in date order.
+
+    The retention sweep compresses in place, so a given day exists as exactly
+    one of `<stem>-<date>.jsonl` or `<stem>-<date>.jsonl.gz`. Sorting on the
+    name with `.gz` stripped keeps mixed old/new directories in true date
+    order rather than clustering all the .gz files after the plain ones.
+    """
+    found = list(directory.glob(f"{stem}-*.jsonl")) + list(directory.glob(f"{stem}-*.jsonl.gz"))
+    return sorted(found, key=lambda p: p.name.removesuffix(".gz"))
+
+
+def open_ledger(path: Path):
+    """Text handle for a ledger, transparently decompressing a .gz."""
+    if path.suffix == ".gz":
+        return gzip.open(path, "rt", encoding="utf-8")
+    return open(path, encoding="utf-8")
 
 
 def init(conn: sqlite3.Connection) -> None:
@@ -185,9 +208,9 @@ def main() -> None:
     init(conn)
 
     total = 0
-    for path in sorted(OUT_DIR.glob("cf-stats-*.jsonl")):
+    for path in ledgers(OUT_DIR, "cf-stats"):
         n = 0
-        with open(path) as f:
+        with open_ledger(path) as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -201,9 +224,9 @@ def main() -> None:
         total += n
 
     gh_total = 0
-    for path in sorted(GH_STATS_OUT.glob("gh-stats-*.jsonl")):
+    for path in ledgers(GH_STATS_OUT, "gh-stats"):
         n = 0
-        with open(path) as f:
+        with open_ledger(path) as f:
             for line in f:
                 line = line.strip()
                 if not line:
