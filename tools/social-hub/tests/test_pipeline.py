@@ -367,3 +367,17 @@ def test_a_json_catalog_collection_is_ingestable(fake_fleet, fake_adapter):
     assert item["summary"].startswith("It honks")
     assert item["url"] == "https://alpha.com/category/home-decor-weird/#weird-lamp"
     assert item["image_url"] == "/img/goose.jpg"
+
+
+def test_a_fleet_tick_is_budgeted_and_fair(synced, monkeypatch):
+    """At fleet scale a full pass outlasts the gap between cron runs, so a tick
+    covers what it can and the next one continues where it stopped."""
+    monkeypatch.setattr(worker, "TICK_BUDGET_SECONDS", 0)
+    first = worker.tick(publish=False)
+
+    assert len(first["sites"]) == 1, "budget stops the sweep after the first site"
+    assert first["deferred"], "the rest are reported as deferred, not dropped"
+
+    # The next tick starts with a site the first one did not reach.
+    second = worker.tick(publish=False)
+    assert set(second["sites"]) != set(first["sites"])

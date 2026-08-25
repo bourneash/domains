@@ -16,6 +16,8 @@ recorded on the run row and in the event log.
 from __future__ import annotations
 
 import json
+import os
+import time
 import traceback
 
 from social_hub import (
@@ -95,16 +97,46 @@ def tick_site(site: str, cfg: SiteConfig | None = None, *, publish: bool = True)
     return stats
 
 
+#: Wall-clock budget for a fleet-wide tick, in seconds. At two dozen managed
+#: sites a full pass takes longer than the gap between cron runs, so a tick
+#: covers as many sites as it can and the next one continues where this one
+#: stopped (see _tick_order). Better a rolling sweep than overlapping runs
+#: piling up on the same first few sites.
+TICK_BUDGET_SECONDS = int(os.environ.get("SOCIAL_HUB_TICK_BUDGET", "600"))
+
+
+def _tick_order(configs: dict) -> list[str]:
+    """Least-recently-ticked first, so a budget-limited sweep is fair."""
+    last: dict[str, str] = {}
+    for row in db.query(
+        "SELECT site, MAX(started_at) AS last FROM runs WHERE kind = 'tick' "
+        "AND site IS NOT NULL GROUP BY site"
+    ):
+        last[row["site"]] = row["last"] or ""
+    return sorted(configs, key=lambda name: last.get(name, ""))
+
+
 def tick(site: str | None = None, *, publish: bool = True, notify_review: bool = False) -> dict:
-    """Run a tick for one site or every managed site."""
+    """Run a tick for one site, or a fair budgeted sweep of every managed site."""
     if site:
         configs = {site: load_site_config(site) or SiteConfig(site, {})}
     else:
         configs = load_all()
 
     out: dict = {"sites": {}, "at": db.utcnow()}
-    for name, cfg in configs.items():
-        out["sites"][name] = tick_site(name, cfg, publish=publish)
+    started = time.monotonic()
+    for name in _tick_order(configs):
+        # Always run at least one site: a sweep that returns having done
+        # nothing is worse than one that runs slightly over budget.
+        if out["sites"] and not site and time.monotonic() - started > TICK_BUDGET_SECONDS:
+            out["deferred"] = [n for n in _tick_order(configs) if n not in out["sites"]]
+            db.log_event(
+                "tick.budget",
+                message=f"stopped after {len(out['sites'])} site(s); "
+                f"{len(out['deferred'])} deferred to the next run",
+            )
+            break
+        out["sites"][name] = tick_site(name, configs[name], publish=publish)
         if notify_review:
             _maybe_notify(name)
     return out

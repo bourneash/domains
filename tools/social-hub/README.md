@@ -95,6 +95,11 @@ and `sites/0daynews.com/ops/social/hub.yaml` (manual review, 2 variants).
 | metrics | refreshes engagement counts on recent posts (often on day one, rarely after) |
 | publish | sends everything due, mirrors it to the site's `post-log.jsonl` |
 
+At fleet scale a full pass takes longer than the gap between cron runs, so a
+sweep is budgeted (`SOCIAL_HUB_TICK_BUDGET`, default 600s) and ordered
+least-recently-ticked first: each run covers what it can and the next one
+continues where it stopped. Every site still gets swept regularly; none starves.
+
 Overlapping runs are safe: publishing claims rows (`status='publishing'`),
 ingestion is keyed on `(site, source_id)`, and drafting checks for an existing
 draft first.

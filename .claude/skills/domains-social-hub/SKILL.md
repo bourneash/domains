@@ -51,6 +51,21 @@ social-hub doctor                       # env check: channels, creds, AI backend
 4. `social-hub tick --site <domain> --no-publish`, then review the queue.
 5. Flip `approval: auto` per site or per platform only once the copy reads right.
 
+## Who approves what
+
+**americastrikes.com is the only site that posts unattended** (`approval: auto`).
+Every other managed site is `approval: manual`: drafts sit in the queue until a
+human approves them — nothing and nobody else approves them, and the tick only
+publishes what is already approved. Replies are manual everywhere.
+
+`approved_by` records the interface that approved ('ui', 'fleet-dashboard',
+'cli', 'auto'), never a person's name it cannot verify.
+
+Compose-only sites (no ingester — their catalog lives in TS modules, or they
+are tools): xxxtea, totaljerks, oventoheaven, wetpages, weapontester,
+0xroulette, trainingsharks, rc-9, unsupervisedmedia. Post with
+`social-hub compose <site> bluesky --body "…"`.
+
 ## Rules that matter
 
 - **Voice and guardrails are per site, in the site's own config.** Never put
@@ -61,6 +76,9 @@ social-hub doctor                       # env check: channels, creds, AI backend
   decline (`SKIP`). There is no canned fallback reply; silence beats a bot reply.
 - **The tick is idempotent** and safe to run overlapping — publishing claims
   rows, ingestion is keyed, drafting checks for an existing draft.
+- **A fleet sweep is budgeted** (`SOCIAL_HUB_TICK_BUDGET`, default 600s) and
+  ordered least-recently-ticked first, so a 26-site pass rolls across
+  consecutive cron runs instead of overlapping.
 - **AI spend is tracked**: the `cli` backend goes through `claude-tracked.sh`
   with `CRON_ROLE=social-hub`, so it lands in the AI Usage tab per site.
   `SOCIAL_HUB_AI_BACKEND=fake` disables model calls entirely (templated copy).
@@ -78,7 +96,8 @@ social-hub doctor                       # env check: channels, creds, AI backend
 
 ## Platform reality
 
-bluesky (post/reply/inbox, every fleet account vaulted) · mastodon (full,
+bluesky (post/reply/inbox/images/metrics, every fleet account vaulted; adult
+sites set `content_label` for Bluesky self-labeling) · mastodon (full,
 token only) · x (post/reply; mentions need a paid tier) · reddit (complete but
 **parked fleet-wide** — OAuth app creation is blocked) · pinterest (needs a
 business account + approved app) · console (local outbox, always available).
