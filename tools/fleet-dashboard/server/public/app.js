@@ -6731,6 +6731,7 @@ const NAV_GROUPS = {
       ['analytics', 'Analytics'],
       ['social', 'Social'],
       ['aiusage', 'AI Usage'],
+      ['aioptimizer', 'AI Optimizer'],
       ['aiinventory', 'AI Inventory'],
       ['taskbudget', 'Task Budget'],
     ],
@@ -6821,6 +6822,7 @@ function render() {
   else if (STATE.view === 'taskbudget') renderTaskBudget();
   else if (STATE.view === 'aiinventory') renderAIInventory();
   else if (STATE.view === 'aiusage') renderAIUsage();
+  else if (STATE.view === 'aioptimizer') renderAIOptimizer();
   else if (STATE.view === 'datahub') renderDataHub();
   else if (STATE.view === 'datahubimages') renderDataHubImages();
   else if (STATE.view === 'productfeed') renderProductFeed();
@@ -7358,3 +7360,152 @@ function wireGuardrails() {
 }
 
 boot();
+
+/* ---- AI Optimizer (fleet AI-cost finding queue, tools/ai-optimizer) ----
+ * Decide-only board: tickets are filed by the analyst role through the Python
+ * CLI (which enforces the evidence bar), and this tab is where a human
+ * approves / denies / defers them. There is no "new ticket" button on purpose.
+ */
+const AIOPT = { status: 'proposed' };
+
+function aioptRiskBadge(risk) {
+  const cls = risk === 'high' ? 'b-red' : risk === 'medium' ? 'b-yellow' : 'b-green';
+  return `<span class="badge ${cls}">${esc(risk || '—')}</span>`;
+}
+
+function aioptScope(t) {
+  if (t.scope === 'fleet')
+    return '<span class="badge b-blue" title="Applies across the fleet">fleet</span>';
+  const sites = t.sites || [];
+  if (!sites.length) return '<span class="muted">—</span>';
+  const shown = sites
+    .slice(0, 3)
+    .map(s => siteLink(s))
+    .join(', ');
+  return shown + (sites.length > 3 ? ` <span class="muted">+${sites.length - 3}</span>` : '');
+}
+
+function aioptCard(t) {
+  const save = t.estimated_savings_usd_per_day;
+  // Every ticket carries the evidence that got it past validation — surfacing
+  // it here is the point: a human approving a fix should see the file refs and
+  // the git check, not just a dollar number and a claim.
+  const evidence = (t.evidence_files || [])
+    .map(f => `<code class="mono">${esc(f)}</code>`)
+    .join(' ');
+  const buttons = (t.allowed_moves || [])
+    .map(to => {
+      const label =
+        { approved: 'Approve', rejected: 'Reject', deferred: 'Defer', applied: 'Mark applied' }[
+          to
+        ] || to;
+      const cls = to === 'approved' ? 'primary' : to === 'rejected' ? 'danger' : '';
+      return `<button class="btn sm ${cls}" data-aiopt-move="${esc(t.status)}|${esc(t.file)}|${esc(to)}">${label}</button>`;
+    })
+    .join(' ');
+  return `<div class="card" style="margin-bottom:10px">
+    <div class="task-toolbar">
+      <strong>${esc(t.title)}</strong>
+      ${aioptRiskBadge(t.risk)}
+      <span class="muted mono">${esc(t.finding_class || '')}</span>
+    </div>
+    <div style="padding:0 12px 10px">
+      <div style="margin-bottom:6px">
+        ${aioptScope(t)}
+        ${t.role ? `<span class="badge b-gray mono">${esc(t.role)}</span>` : ''}
+        <span class="muted">measured <strong>${fmtUSD(t.measured_cost_usd)}</strong>
+          over ${esc(t.window_from || '?')} → ${esc(t.window_to || '?')}</span>
+        ${save != null ? `<span class="badge b-green" title="Analyst's estimate">saves ~${fmtUSD(save)}/day</span>` : ''}
+      </div>
+      <div class="muted" style="margin-bottom:6px">${esc(t.excerpt || '')}</div>
+      ${evidence ? `<div style="margin-bottom:4px"><span class="muted">evidence:</span> ${evidence}</div>` : ''}
+      ${t.verified_git_check ? `<div class="muted" style="margin-bottom:6px">git check: ${esc(t.verified_git_check)}</div>` : ''}
+      ${t.decision_note ? `<div class="muted">note: ${esc(t.decision_note)}</div>` : ''}
+      ${t.applied_commit ? `<div class="muted">commit: <code class="mono">${esc(t.applied_commit)}</code></div>` : ''}
+      ${buttons ? `<div style="margin-top:8px">${buttons}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+async function renderAIOptimizer() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading AI-cost findings…</div>';
+  let data;
+  try {
+    data = await api('GET', '/api/ai-optimizer');
+  } catch (e) {
+    app.innerHTML = `<div class="empty">AI optimizer queue failed: ${esc(e.message)}</div>`;
+    return;
+  }
+  const s = data.summary || { counts: {} };
+  const tickets = data.tickets || {};
+  const rows = tickets[AIOPT.status] || [];
+
+  const pills = ['proposed', 'approved', 'applied', 'deferred', 'rejected']
+    .map(st => {
+      const n = (s.counts || {})[st] || 0;
+      const on = AIOPT.status === st;
+      return `<button class="pill ${on ? 'active' : ''}" data-aiopt-status="${st}">${st} (${n})</button>`;
+    })
+    .join(' ');
+
+  app.innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div class="task-toolbar">
+        <strong>AI Optimizer</strong>
+        <span class="muted">AI-cost findings filed by the analyst — approve, deny, or let sit</span>
+      </div>
+      <div style="padding:0 12px 12px">
+        <div style="margin-bottom:8px">
+          <span class="badge b-yellow">${(s.counts || {}).proposed || 0} awaiting decision</span>
+          <span class="badge b-blue">${(s.counts || {}).approved || 0} approved, not yet applied</span>
+          <span class="muted">open est. savings <strong>${fmtUSD(s.open_savings_usd_per_day)}/day</strong>
+            · approved <strong>${fmtUSD(s.approved_savings_usd_per_day)}/day</strong>
+            · realised <strong>${fmtUSD(s.applied_savings_usd_per_day)}/day</strong></span>
+        </div>
+        <div>${pills}</div>
+      </div>
+    </div>
+    ${rows.length ? rows.map(aioptCard).join('') : `<div class="empty">No ${esc(AIOPT.status)} findings.</div>`}
+  `;
+
+  $$('[data-aiopt-status]').forEach(b =>
+    b.addEventListener('click', () => {
+      AIOPT.status = b.dataset.aioptStatus;
+      renderAIOptimizer();
+    })
+  );
+
+  $$('[data-aiopt-move]').forEach(b =>
+    b.addEventListener('click', async () => {
+      const [status, file, to] = b.dataset.aioptMove.split('|');
+      // A denial is a lasting decision — it permanently suppresses this
+      // finding class from being re-filed — so make the reason mandatory.
+      let note = '';
+      if (to === 'rejected') {
+        note = prompt(
+          'Why reject? (recorded on the ticket; suppresses this finding from being re-filed)'
+        );
+        if (note === null) return;
+      } else if (to === 'applied') {
+        note = prompt('Commit hash (optional):') || '';
+      }
+      b.disabled = true;
+      try {
+        await api(
+          'POST',
+          `/api/ai-optimizer/${encodeURIComponent(status)}/${encodeURIComponent(file)}/move`,
+          {
+            to,
+            note: to === 'rejected' ? note : undefined,
+            commit: to === 'applied' ? note : undefined,
+          }
+        );
+        await renderAIOptimizer();
+      } catch (e) {
+        alert(`Move failed: ${e.message}`);
+        b.disabled = false;
+      }
+    })
+  );
+}

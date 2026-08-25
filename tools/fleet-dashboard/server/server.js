@@ -10,6 +10,7 @@ const audit = require('./audit');
 const git = require('./git');
 const tasks = require('./tasks');
 const guideQueue = require('./guideQueue');
+const aiOptimizer = require('./aioptimizer');
 const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
@@ -919,6 +920,38 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           req.params.file,
           (req.body || {}).to
         ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  // AI Optimizer — fleet AI-cost finding queue (tools/ai-optimizer). Read-and-
+  // decide only: tickets are FILED by the analyst role via the Python CLI,
+  // which enforces the evidence bar. The dashboard just approves/denies them,
+  // so there is deliberately no POST-create route here.
+  app.get('/api/ai-optimizer', (_req, res) => {
+    try {
+      res.json({ summary: aiOptimizer.summary(root), tickets: aiOptimizer.list(root) });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get('/api/ai-optimizer/:status/:file', (req, res) => {
+    try {
+      res.json(aiOptimizer.get(root, req.params.status, req.params.file));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/ai-optimizer/:status/:file/move', (req, res) => {
+    try {
+      const body = req.body || {};
+      res.json({
+        ok: true,
+        ...aiOptimizer.move(root, req.params.status, req.params.file, body.to, body),
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
