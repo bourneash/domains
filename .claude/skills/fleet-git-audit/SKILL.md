@@ -5,6 +5,13 @@ description: Use when the user asks whether any site (sites/*) or the parent dom
 
 # Fleet Git Audit
 
+> **Read-only recon only.** For the *automated* side — classifying dirty paths
+> against policy and actually committing / ignoring / pushing them — use
+> `tools/fleet-git` (`node tools/fleet-git/bin/fleet-git.js audit|sweep --apply`)
+> and the Fleet Dashboard's **Ops → Git Hygiene** tab. An hourly cron sweep
+> (`tools/scripts/fleet-git-hygiene-cron.sh`) keeps the fleet clean on its own;
+> this skill is for answering a question, not for cleanup.
+
 Scans the parent `domains` repo plus every `sites/*` submodule for git state that
 hasn't made it to `main` / hasn't been pushed. Wraps a plain bash script, not an
 agent loop — deterministic, fast (~5-10s for the whole fleet), no LLM judgment
