@@ -57,6 +57,11 @@ sites:
     ga4_measurement_id: G-NHEWL0M01E
     gsc_property: sc-domain:newmomshop.com
     consent_gated: false
+  offshorehookup.com:
+    ga4_property_id: '551079049'
+    ga4_measurement_id: G-KBBXZGNV61
+    gsc_property: sc-domain:offshorehookup.com
+    consent_gated: false
   oventoheaven.com:
     ga4_property_id: '546574620'
     ga4_measurement_id: G-RY7R673EL5
@@ -92,6 +97,11 @@ sites:
     ga4_measurement_id: G-Q378G15KZZ
     gsc_property: sc-domain:sinderella.org
     consent_gated: false
+  stinkyleftfoot.com:
+    ga4_property_id: '551675161'
+    ga4_measurement_id: G-ND0L33SP6S
+    gsc_property: sc-domain:stinkyleftfoot.com
+    consent_gated: true
   totaljerks.com:
     ga4_property_id: '539694930'
     ga4_measurement_id: G-R72CH4D2CR
@@ -106,6 +116,11 @@ sites:
     ga4_property_id: '539753693'
     ga4_measurement_id: G-2WSKDPGPXV
     gsc_property: sc-domain:ultrarough.com
+    consent_gated: false
+  unsupervisedmedia.com:
+    ga4_property_id: '551151919'
+    ga4_measurement_id: G-66KS8C31JD
+    gsc_property: sc-domain:unsupervisedmedia.com
     consent_gated: false
   weapontester.com:
     ga4_property_id: '539755626'
