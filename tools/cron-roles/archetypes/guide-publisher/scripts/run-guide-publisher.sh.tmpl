@@ -54,43 +54,59 @@ fi
 # ready/ is empty so an unattended queue still releases on cadence without
 # requiring a human to click "accept" in the dashboard (the ack/accept flag
 # is an optional gate on top of this, not a hard requirement).
-CANDIDATE=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" ready)
-SOURCE_STATUS="ready"
-if [[ "$CANDIDATE" == "null" ]]; then
-  CANDIDATE=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" drafted)
-  SOURCE_STATUS="drafted"
-fi
-if [[ "$CANDIDATE" == "null" ]]; then
-  echo "[guide-publisher] release is due but nothing is ready/drafted to release"
-  exit 0
-fi
+# Try up to 3 candidates in a single tick. A draft whose slug is already live
+# exits 75 from guide-publish.sh ("quarantined, keep going") — before this, the
+# same poisoned head-of-queue item was re-selected and re-failed on EVERY tick
+# forever, .last-released never advanced, and nothing behind it could ship
+# (the failure mode that wedged reviewtattoo.com 2026-08-22 .. 2026-08-25).
+ATTEMPT=0
+while (( ATTEMPT < 3 )); do
+  ATTEMPT=$(( ATTEMPT + 1 ))
 
-CANDIDATE_FILE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['file'])")
-CANDIDATE_TITLE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['meta'].get('title',''))")
-echo "[guide-publisher] releasing from $SOURCE_STATUS/: $CANDIDATE_FILE — $CANDIDATE_TITLE"
+  CANDIDATE=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" ready)
+  SOURCE_STATUS="ready"
+  if [[ "$CANDIDATE" == "null" ]]; then
+    CANDIDATE=$(python3 "$GQ_CLI" oldest "$REPO_ROOT" drafted)
+    SOURCE_STATUS="drafted"
+  fi
+  if [[ "$CANDIDATE" == "null" ]]; then
+    echo "[guide-publisher] release is due but nothing is ready/drafted to release"
+    exit 0
+  fi
 
-RUN_NAME="{{SITE_NAME_SLUG}}-guide-publish-$$"
-cleanup_container() { docker rm -f "$RUN_NAME" >/dev/null 2>&1 || true; }
-trap cleanup_container EXIT INT TERM
+  CANDIDATE_FILE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['file'])")
+  CANDIDATE_TITLE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['meta'].get('title',''))")
+  echo "[guide-publisher] releasing from $SOURCE_STATUS/: $CANDIDATE_FILE — $CANDIDATE_TITLE"
 
-set +e
-timeout -k 30 900 docker compose run --rm --name "$RUN_NAME" --entrypoint bash worker \
-  ops/scripts/guide-publish.sh "$SOURCE_STATUS" "$CANDIDATE_FILE"
-STATUS=$?
-set -e
+  RUN_NAME="{{SITE_NAME_SLUG}}-guide-publish-$$-$ATTEMPT"
+  cleanup_container() { docker rm -f "$RUN_NAME" >/dev/null 2>&1 || true; }
+  trap cleanup_container EXIT INT TERM
 
-if [[ $STATUS -ne 0 ]]; then
-  echo "[guide-publisher] publish failed (exit=$STATUS) for $CANDIDATE_FILE" >&2
-  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-publisher failed releasing \"$CANDIDATE_TITLE\" (exit=$STATUS) — item left in $SOURCE_STATUS/ for retry next cadence tick" "danger" 2>/dev/null || true
-  exit $STATUS
-fi
+  set +e
+  timeout -k 30 900 docker compose run --rm --name "$RUN_NAME" --entrypoint bash worker \
+    ops/scripts/guide-publish.sh "$SOURCE_STATUS" "$CANDIDATE_FILE"
+  STATUS=$?
+  set -e
 
-echo "$NOW" > "$LAST_RELEASED_FILE"
-git add "$LAST_RELEASED_FILE" 2>/dev/null || true
-if ! git diff --cached --quiet 2>/dev/null; then
-  git commit -m "guide-queue: update last-released timestamp" -q || true
-  git_push_retry 2>&1 | tail -3 || true
-fi
+  if [[ $STATUS -eq 75 ]]; then
+      echo "[guide-publisher] $CANDIDATE_FILE was a duplicate — quarantined, trying next candidate"
+      continue
+    fi
+
+    if [[ $STATUS -ne 0 ]]; then
+    echo "[guide-publisher] publish failed (exit=$STATUS) for $CANDIDATE_FILE" >&2
+    [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-publisher failed releasing \"$CANDIDATE_TITLE\" (exit=$STATUS) — item left in $SOURCE_STATUS/ for retry next cadence tick" "danger" 2>/dev/null || true
+    exit $STATUS
+  fi
+
+  echo "$NOW" > "$LAST_RELEASED_FILE"
+  git add "$LAST_RELEASED_FILE" 2>/dev/null || true
+  if ! git diff --cached --quiet 2>/dev/null; then
+    git commit -m "guide-queue: update last-released timestamp" -q || true
+    git_push_retry 2>&1 | tail -3 || true
+  fi
+    break
+done
 
 echo "[guide-publisher] done"
 exit 0

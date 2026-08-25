@@ -58,6 +58,17 @@ qid = meta.get("queue_id") or gq.slugify(meta.get("title", filename))
 #           site/src/pages/guides/[...slug].astro)
 #   card -> site/public/images/guides/cards/<id>.webp, referenced by adding
 #           this guide's id to site/src/lib/guideIcons.ts's guideIconMap
+guides_dir = repo_root / "site" / "src" / "content" / "guides"
+guide_path = guides_dir / f"{qid}.md"
+if guide_path.exists():
+    # Checked FIRST, before anything is written. The image copies below used to
+    # run ahead of this and silently overwrote the LIVE hero/card of the
+    # already-published guide on every one of these failed runs.
+    print(json.dumps({"ok": False, "duplicate": True, "qid": qid,
+                      "title": meta.get("title", qid),
+                      "error": f"{guide_path} already exists — refusing to overwrite"}))
+    sys.exit(0)
+
 heroes_dir = repo_root / "site" / "public" / "guides" / "heroes"
 cards_dir = repo_root / "site" / "public" / "images" / "guides" / "cards"
 heroes_dir.mkdir(parents=True, exist_ok=True)
@@ -84,12 +95,8 @@ if got_card:
 
 final_meta = gq.strip_queue_fields(meta)
 
-guides_dir = repo_root / "site" / "src" / "content" / "guides"
 guides_dir.mkdir(parents=True, exist_ok=True)
 guide_path = guides_dir / f"{qid}.md"
-if guide_path.exists():
-    print(json.dumps({"ok": False, "error": f"{guide_path} already exists — refusing to overwrite"}))
-    sys.exit(0)
 guide_path.write_text(gq.serialize_item(final_meta, body), encoding="utf-8")
 
 # Deliberately NOT moving the queue item to released/ here — that has to
@@ -108,6 +115,28 @@ PY
 
 echo "[guide-publish] $RESULT_JSON"
 OK=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin)['ok'])")
+DUP=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('duplicate',False))")
+
+if [[ "$OK" != "True" && "$DUP" == "True" ]]; then
+  # Quarantine to rejected/ and exit 75 — the caller reads 75 as "queue head
+  # cleared, pick the next candidate now", NOT as a publish success (so the
+  # cadence clock is deliberately left unstamped).
+  DUP_TITLE=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('title',''))")
+  echo "[guide-publish] duplicate of an already-live guide — quarantining to rejected/"
+  GUIDE_QUEUE_LIB_DIR="$GUIDE_QUEUE_LIB_DIR" REPO_ROOT="$REPO_ROOT" SOURCE_STATUS="$SOURCE_STATUS" FILE="$FILE" python3 - <<'PYDUP'
+import os, sys
+sys.path.insert(0, os.environ["GUIDE_QUEUE_LIB_DIR"])
+import guide_queue as gq
+gq.move_item(os.environ["REPO_ROOT"], os.environ["SOURCE_STATUS"], os.environ["FILE"], "rejected")
+PYDUP
+  git add -A "ops/guide-queue/" 2>/dev/null || true
+  git diff --cached --quiet || {
+    git commit -m "guide-queue: quarantine duplicate draft \"$DUP_TITLE\" (already live)" -q
+    git push origin main -q 2>&1 | tail -3 || true
+  }
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":warning: *{{SITE_NAME}}* guide-publisher skipped \"$DUP_TITLE\" — a guide with that slug is already live; draft moved to rejected/" "warning" 2>/dev/null || true
+  exit 75
+fi
 if [[ "$OK" != "True" ]]; then
   ERR=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error','unknown'))")
   fail "$ERR"
