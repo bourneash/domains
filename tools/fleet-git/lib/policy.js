@@ -52,6 +52,10 @@ function compilePolicy(raw) {
       ...(raw.limits || {}),
     },
     ignoreBlock: raw.ignore_block || [],
+    // Directories under sites/ that are deliberately NOT submodules. Reporting
+    // them every sweep trains an operator to ignore the whole warning, which
+    // is the opposite of what it is for.
+    unregisteredOk: raw.unregistered_ok || {},
     rules: [...blocks, ...rest],
   };
 }

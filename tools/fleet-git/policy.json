@@ -7,6 +7,9 @@
     "max_deletions_per_commit": 10,
     "max_untrack_per_repo": 10
   },
+  "unregistered_ok": {
+    "sites/nsfwpixles.com": "intentional typo-redirect asset (nsfwpixels.com), CF-edge only \u2014 no repo, no worker. Its own THIS_IS_A_INTENTIONAL_TYPEO.md asks audits not to flag it."
+  },
   "ignore_block": [
     "node_modules/",
     "dist/",

@@ -205,7 +205,11 @@ async function sweep(root, opts = {}) {
 }
 
 async function runSweep(root, { apply, push, only, policy, now }) {
-  const { repos, unregistered } = await discover(root);
+  const { repos, unregistered: allUnregistered } = await discover(root);
+  // A directory under sites/ that is not a submodule resolves its git commands
+  // against the PARENT repo — which is how "site X is dirty" can silently be
+  // the monorepo's own status. Report the unexplained ones only.
+  const unregistered = allUnregistered.filter(p => !policy.unregisteredOk[p]);
   const submodulePaths = new Set(repos.filter(r => r.subPath).map(r => r.subPath));
 
   const subs = repos.filter(r => !r.parent).filter(r => !only || only.includes(r.slug));

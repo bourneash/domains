@@ -150,6 +150,10 @@ Directories under `sites/` that are **not** registered submodules. Git commands
 run inside one of those silently operate on the parent monorepo — which is how
 a "site is dirty" report can actually be the monorepo's own status.
 
+Deliberate exceptions go in `policy.json -> unregistered_ok` with a reason, so
+the warning keeps meaning "this is unexplained" instead of becoming background
+noise an operator learns to skip.
+
 ## Tests
 
 ```bash
