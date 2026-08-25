@@ -41,6 +41,17 @@ analyst actually went and looked:
 
 Filing fails loudly (exit 3) if any of that is missing. That is the point.
 
+One more rule lives in the analyst prompt rather than in code, because it needs
+judgement: **before proposing any throughput reduction, measure the backlog.**
+"Make the role do less per run" only saves money when the role is keeping up —
+if it is already deferring work, the cut converts a cost problem into a
+correctness problem that surfaces weeks later. A throughput cut on a role with
+any backlog is `risk: high` (never auto-applied). This rule exists because it
+was violated: a ticket proposed halving sinderella's voice-auditor rewrites
+while 106 files were pending and the last run had logged "5 deferred (cost
+cap)". Human review caught it — which is the last line of defence, not the
+intended one.
+
 ## Dedup
 
 `dedupe_key = sha256(finding_class | scope | sites | role)` — deliberately not

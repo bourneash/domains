@@ -80,11 +80,48 @@ Duplicates are suppressed automatically against every column *including
 rejected* — if you re-find something a human already denied, it is silently
 dropped. Do not use `--force` to get around that.
 
+### Before proposing ANY throughput reduction — check the queue depth
+
+A large class of cheap-looking wins is "make the role do less per run": fewer
+files sampled, fewer rewrites, fewer items processed, a lower cap. These are
+only safe when the role is *keeping up*. If it already has a backlog, cutting
+its per-run budget does not save money — it converts a cost problem into a
+correctness problem, silently, and the damage shows up weeks later as stale or
+unprocessed work.
+
+**So: before you propose lowering any per-run limit, measure the backlog.**
+
+- How many items are waiting? (`grep -rl "<pending marker>"`, queue dir count,
+  unprocessed-task count — whatever that role's pending state actually is)
+- Did recent runs finish their batch, or defer/truncate for hitting the cap?
+  Read the role's last 1-2 logs. "N deferred (cost cap)" means the role is
+  ALREADY under-provisioned.
+- Is the backlog trending up or down across recent runs?
+
+If the role is deferring work or the backlog is growing, **do not file a
+throughput cut.** The honest finding is the opposite one, and it is worth
+saying: this role is under-provisioned. File that instead, or file nothing.
+
+This rule exists because it was violated. A ticket proposed cutting
+`sinderella.org`'s voice-auditor from 5 rewrites/run to 3 on pure cost
+grounds. Live state at the time: **106 files pending** and the previous run had
+logged *"5 rewritten, 5 deferred (cost cap)"* — already capped out. The change
+would have grown the backlog, and that role's own doc records a 2026-06-13
+incident where stalled rewrites wedged the site's deploy indefinitely. The
+proposal was caught at human review, which is the last line of defence, not the
+intended one. Catch it here.
+
+Put the numbers you found in `verified_git_check` or the body, so the human can
+see you actually looked rather than taking your word for it.
+
 ### Setting `risk` honestly
 
 - **low** — mechanical, behaviour-preserving (quieting a log, a turn budget).
 - **medium** — changes what the model sees or how much work it does. Anything
   that trades quality/coverage for cost is AT LEAST medium.
+- A throughput cut on a role with ANY backlog is **high**, not medium — see the
+  queue-depth rule above. If you are proposing it at all, you have already
+  established the role is keeping up, and you must show that evidence.
 - **high** — could silently degrade output, or touches many sites at once.
 
 Under-stating risk to get a ticket approved is the worst thing you can do here.
