@@ -60,14 +60,26 @@ print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3],
 
 [[ -r "$DETECTOR" ]] || { log "detector not readable at $DETECTOR"; exit 0; }
 
-out="$(python3 "$DETECTOR" 2>&1)"
+# Findings on stdout, the COVERAGE line on stderr — captured separately so a
+# clean run still records HOW MUCH it actually checked. "exit 0" alone cannot
+# distinguish "asserted all 26 sites" from "asserted nothing, every container
+# was too young"; logging coverage every run is what keeps the green honest.
+cov_file="$(mktemp)"
+trap 'rm -f "$cov_file"' EXIT
+out="$(python3 "$DETECTOR" 2>"$cov_file")"
 rc=$?
+coverage="$(grep '^COVERAGE ' "$cov_file" 2>/dev/null | tail -1)"
+# Anything else on stderr is a real error from the detector, not coverage.
+stderr_noise="$(grep -v '^COVERAGE ' "$cov_file" 2>/dev/null | grep -c . || true)"
+if (( stderr_noise > 0 )); then
+  log "detector stderr: $(grep -v '^COVERAGE ' "$cov_file" | head -20 | tr '\n' ' ')"
+fi
 
 # rc 2 is the detector failing to run at all (can't read sites/). That is a
 # real problem with the watchdog itself, and staying quiet about it would
 # reproduce the exact silence this whole tier exists to remove.
 if (( rc == 2 )); then
-  log "DETECTOR ERROR: $out"
+  log "DETECTOR ERROR: $out ${coverage:+[$coverage]}"
   NOTIFY ":rotating_light: cron-freshness detector failed to run:
 \`\`\`
 ${out:0:1500}
@@ -76,7 +88,7 @@ ${out:0:1500}
 fi
 
 if (( rc == 0 )); then
-  log "ok — every site cron container fired inside its own schedule window"
+  log "ok — no findings [${coverage:-COVERAGE unavailable}]"
   # Clear the cooldown so a NEW wedge alerts immediately rather than being
   # swallowed by a stale timestamp from a previous, already-resolved one.
   rm -f "$STATE"
@@ -84,7 +96,7 @@ if (( rc == 0 )); then
 fi
 
 count="$(printf '%s\n' "$out" | grep -c . || true)"
-log "FINDINGS ($count):"
+log "FINDINGS ($count) [${coverage:-COVERAGE unavailable}]:"
 printf '%s\n' "$out" | sed 's/^/  /' >> "$LOG"
 
 now="$(date +%s)"

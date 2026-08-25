@@ -213,6 +213,49 @@ check_site() {
     else
       bad "runs as uid ${uid}, not 1000 — root writes into the mounted repo corrupt .git/objects"
     fi
+
+    # ── tier-1 scheduler liveness probe.
+    #
+    # Three separate assertions, because the interesting failure is not a
+    # MISSING healthcheck — it is a PRESENT one that cannot fail. Two sites
+    # shipped `pgrep -f supercronic`, where `-f` matches the whole command
+    # line and the probe's own `sh -c "pgrep -f supercronic"` contains the
+    # string, so pgrep always found itself and the container reported healthy
+    # through anything. Verified at the time: `pgrep -f NOSUCHPROCXYZ` also
+    # exited 0. A green light that cannot turn red is worse than no light.
+    local hctest
+    hctest="$(docker inspect "$cname" --format '{{json .Config.Healthcheck.Test}}' 2>/dev/null)"
+    if [[ -z "$hctest" || "$hctest" == "null" ]]; then
+      bad "no healthcheck — a wedged supercronic keeps the container 'Up' forever"
+      note "add the probe + autoheal label: see any sites/*/docker-compose.yml cron service"
+    elif [[ "$hctest" == *'pgrep'*'-f'* ]]; then
+      bad "healthcheck uses \`pgrep -f\` — that probe SELF-MATCHES and can never fail"
+      note "use: test: [\"CMD\", \"grep\", \"-qx\", \"supercronic\", \"/proc/1/comm\"]"
+    else
+      ok "healthcheck declared"
+      # Prove it. Run the SAME predicate against a target that must not exist
+      # and require a nonzero exit. This is the only check that distinguishes
+      # "a probe" from "a probe that works", and it is the one that would have
+      # caught the pgrep defect on the day it shipped. One exec per site per
+      # run, which is why it lives here and not in the container's own loop.
+      if docker exec "$cname" grep -qx supercronic /proc/1/comm 2>/dev/null \
+         && ! docker exec "$cname" grep -qx supercronic-NOSUCHTARGET /proc/1/comm 2>/dev/null; then
+        ok "probe is failable (passes on the real target, fails on a bogus one)"
+      else
+        bad "probe did NOT behave as expected — it may be unfailable, or PID 1 is not supercronic"
+      fi
+    fi
+
+    # Docker never restarts a container for going unhealthy. Without this label
+    # vpn-autoheal ignores it and the healthcheck above is pure decoration.
+    local ahlabel
+    ahlabel="$(docker inspect "$cname" --format '{{index .Config.Labels "autoheal"}}' 2>/dev/null)"
+    if [[ "$ahlabel" == "true" ]]; then
+      ok "autoheal label set (unhealthy -> restart)"
+    else
+      bad "no autoheal=true label — nothing acts on an unhealthy verdict"
+      note "recreate with: (cd ${dir} && docker compose up -d --force-recreate cron)"
+    fi
   else
     bad "container ${cname} is ${status}"
   fi

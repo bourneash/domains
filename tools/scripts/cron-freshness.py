@@ -15,14 +15,19 @@ ONE host-side process for the whole fleet, on a 30-minute cron. That split —
 cheap liveness in the container, expensive freshness on the host — is the
 budget rule this file exists to honour. See tools/fleet-images/README.md.
 
-The alert threshold is derived per site, never hardcoded: we parse that site's
-ops/docker/crontab.docker, walk the union of its jobs minute-by-minute over the
-next 8 days (8, to catch weekly schedules), and take the longest legitimate
-silence. A site whose only job is `35 6 * * 1` must not be called stale on
-Tuesday afternoon.
+The alert threshold is derived per site, never hardcoded: we parse the crontab
+that site is ACTUALLY running (resolved from the live container's bind mount,
+not an assumed filename — broadwayshowgirls mounts `ops/docker/crontab` with no
+suffix), walk the union of its jobs minute-by-minute over the next 8 days (8, to
+catch weekly schedules), and take the longest legitimate silence. A site whose
+only job is `35 6 * * 1` must not be called stale on Tuesday afternoon.
 
 Output is one finding per line on stdout, empty when the fleet is healthy —
-the caller (cron-freshness-cron.sh) owns Slack, logging, and cooldown.
+the caller (cron-freshness-cron.sh) owns Slack, logging, and cooldown. A
+COVERAGE line goes to stderr on every run: exit 0 alone cannot distinguish
+"asserted every site" from "asserted nothing because every container was too
+young to judge", and an unfalsifiable green is the exact defect this tier was
+built to replace.
 """
 from __future__ import annotations
 
@@ -43,6 +48,11 @@ GRACE_SEC = int(os.environ.get("CRON_FRESHNESS_GRACE_SEC", "900"))
 # How far ahead to simulate when measuring the longest gap. Must exceed a week
 # or weekly-only schedules measure as "never fires".
 HORIZON_DAYS = 8
+
+# Restart count at which a container that is perpetually too young to assert
+# against is treated as flapping rather than merely fresh. One or two restarts
+# are ordinary (an image roll, a deliberate recreate).
+FLAP_RESTARTS = int(os.environ.get("CRON_FRESHNESS_FLAP_RESTARTS", "3"))
 
 # supercronic's own structured output. `msg=starting` is emitted for every job
 # it dispatches; its presence is the proof the scheduler is still firing.
@@ -199,6 +209,25 @@ def container_name(compose_path: str) -> str | None:
     return None
 
 
+def crontab_path(site_dir: str, name: str) -> str | None:
+    """Resolve the crontab this container is ACTUALLY running.
+
+    Read from the live container's bind mounts, not from a assumed filename.
+    The conventional source is ops/docker/crontab.docker, but broadwayshowgirls
+    mounts `ops/docker/crontab` (no suffix) to the same destination — and it is
+    healthy, scheduling 18 jobs. Hardcoding the source path made this detector
+    silently skip that site: it dropped out of `eligible` entirely and the run
+    still reported clean. Silently narrowing coverage is the same failure class
+    as an unfailable probe, so resolve what the daemon actually applied.
+    """
+    fmt = '{{range .Mounts}}{{if eq .Destination "/etc/crontab.docker"}}{{.Source}}{{end}}{{end}}'
+    src = docker("inspect", "-f", fmt, name)
+    if src and os.path.isfile(src):
+        return src
+    fallback = os.path.join(site_dir, "ops", "docker", "crontab.docker")
+    return fallback if os.path.isfile(fallback) else None
+
+
 def uptime_sec(name: str) -> int | None:
     started = docker("inspect", "-f", "{{.State.StartedAt}}", name)
     if not started:
@@ -219,6 +248,7 @@ def uptime_sec(name: str) -> int | None:
 
 def main() -> int:
     findings = []
+    asserted = skipped_young = eligible = 0
     try:
         sites = sorted(os.listdir(SITES_DIR))
     except OSError as exc:
@@ -227,16 +257,17 @@ def main() -> int:
 
     for site in sites:
         site_dir = os.path.join(SITES_DIR, site)
-        crontab = os.path.join(site_dir, "ops", "docker", "crontab.docker")
         compose = os.path.join(site_dir, "docker-compose.yml")
-        # A site with no compose file or no crontab is a scaffold, not a
-        # regression. Silence is correct for those.
-        if not (os.path.isfile(crontab) and os.path.isfile(compose)):
+        # A site with no compose file, or one that declares no cron service, is
+        # a scaffold — silence is correct for those. Anything that DOES declare
+        # a scheduler is eligible, and from here on an unresolvable site is a
+        # finding rather than a quiet skip.
+        if not os.path.isfile(compose):
             continue
         name = container_name(compose)
         if not name:
-            findings.append(f"{site}: docker-compose.yml declares no *-cron container_name")
             continue
+        eligible += 1
 
         state = docker("inspect", "-f", "{{.State.Status}}", name)
         if not state:
@@ -246,10 +277,19 @@ def main() -> int:
             findings.append(f"{site}: cron container `{name}` is {state}, not running")
             continue
 
+        crontab = crontab_path(site_dir, name)
+        if crontab is None:
+            findings.append(
+                f"{site}: cannot resolve the crontab `{name}` is running "
+                f"(no /etc/crontab.docker bind mount, no ops/docker/crontab.docker) "
+                f"— freshness cannot be asserted for this site"
+            )
+            continue
+
         gap, njobs, skipped = max_gap_sec(crontab)
         if skipped:
             findings.append(
-                f"{site}: {skipped} unparseable line(s) in crontab.docker — "
+                f"{site}: {skipped} unparseable line(s) in {os.path.basename(crontab)} — "
                 f"freshness window derived from the {njobs} that did parse"
             )
         if gap is None:
@@ -266,10 +306,27 @@ def main() -> int:
         up = uptime_sec(name)
         if up is not None and up < window:
             # Not enough history to judge; a freshly restarted container has
-            # legitimately not fired anything yet.
+            # legitimately not fired anything yet. Counted, not silent — see
+            # the coverage line below.
+            skipped_young += 1
+            # ...unless it is FLAPPING. A container that keeps restarting is
+            # never up long enough to assert against, so it would sit in this
+            # branch forever and the sweep would report a clean run having
+            # checked nothing. That is the same unfalsifiable-green defect as
+            # the `pgrep -f` probe this tier was built to replace, so it gets
+            # caught rather than counted. One restart is normal (a roll, a
+            # deliberate recreate); repeated ones with no stable window are not.
+            restarts = docker("inspect", "-f", "{{.RestartCount}}", name)
+            if restarts.isdigit() and int(restarts) >= FLAP_RESTARTS:
+                findings.append(
+                    f"{site}: `{name}` has restarted {restarts}x and is still "
+                    f"younger than its {window // 60}m freshness window — "
+                    f"flapping, so freshness has never been asserted"
+                )
             continue
 
         logs = docker("logs", f"--since={window}s", name, merge_stderr=True)
+        asserted += 1
         if not FIRED_RE.search(logs):
             findings.append(
                 f"{site}: `{name}` up but supercronic fired NOTHING in "
@@ -279,6 +336,16 @@ def main() -> int:
 
     for f in findings:
         print(f)
+    # Coverage goes to stderr so it never contaminates the findings contract on
+    # stdout. Without it, exit 0 means both "asserted all 26 sites" and
+    # "asserted nothing because every container was too young" — indistinguishable
+    # to the caller, which is exactly the kind of green this tier exists to stop
+    # trusting. The wrapper logs this line on every run, healthy or not.
+    print(
+        f"COVERAGE asserted={asserted} skipped_young={skipped_young} "
+        f"eligible={eligible}",
+        file=sys.stderr,
+    )
     return 1 if findings else 0
 
 
