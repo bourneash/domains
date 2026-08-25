@@ -33,7 +33,23 @@ from pathlib import Path
 # to check while amz-stats was reporting 13 live ASINs for it.
 _STR = r"""(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")"""
 
-_ID_RE = re.compile(r"\bid:\s*" + _STR)
+# Field names are NOT uniform across the fleet — these registries were written
+# by hand over months. Every alias below is in live use:
+#   id      | slug                      (oventoheaven keys on slug)
+#   asin    | searchOrAsin | url        (rodhat overloads one field for both;
+#                                        oventoheaven only stores a full URL)
+#   name    | label | title
+#   image   | imageUrl
+# Assuming the reviewtattoo shape made two sites parse to zero products while
+# their /go/ cloaks were live, so the parser matches on meaning, not on one
+# spelling.
+_ID_KEYS = ("id", "slug")
+_NAME_KEYS = ("name", "label", "title")
+_IMAGE_KEYS = ("image", "imageUrl")
+_ASIN_RE = re.compile(r"^[A-Z0-9]{10}$")
+_DP_RE = re.compile(r"/dp/([A-Z0-9]{10})")
+
+_ID_RE = re.compile(r"\b(?:" + "|".join(_ID_KEYS) + r"):\s*" + _STR)
 
 
 def _first_group(m: re.Match) -> str | None:
@@ -58,6 +74,7 @@ class Product:
     category: str | None = None
     search_query: str | None = None
     image: str | None = None
+    url: str | None = None
     fields: dict[str, str] = field(default_factory=dict)
 
     @property
@@ -73,7 +90,7 @@ class Product:
         entries. Treating a shelf as a product invented four `/go/` links that
         were never meant to exist and reported them as broken.
         """
-        return bool(self.asin or self.search_query or self.image)
+        return bool(self.asin or self.search_query or self.image or self.url)
 
     def search_seed(self) -> str:
         """Best available keyword string for sourcing a replacement.
@@ -93,6 +110,14 @@ class Product:
 def _scalar(obj_text: str, key: str) -> str | None:
     m = re.search(rf"\b{re.escape(key)}:\s*" + _STR, obj_text)
     return _first_group(m) if m else None
+
+
+def _first_of(obj_text: str, keys: tuple[str, ...]) -> str | None:
+    for k in keys:
+        v = _scalar(obj_text, k)
+        if v:
+            return v
+    return None
 
 
 def _match_brace(text: str, open_idx: int) -> int:
@@ -123,6 +148,56 @@ def _match_brace(text: str, open_idx: int) -> int:
                 return i + 1
         i += 1
     raise ValueError(f"unbalanced braces starting at offset {open_idx}")
+
+
+# Ordered by how canonical the location is. `lib/affiliate.ts` is the fleet
+# standard (23 of 25 sites), but two sites keep theirs under `data/` — and a
+# hardcoded path meant the sentinel silently reported "no registry, nothing to
+# check" for them while their /go/ cloaks were live and unmonitored. Searching
+# rather than assuming is the same principle as everything else here: discover
+# it from the site, don't keep a list.
+_REGISTRY_GLOBS = (
+    "site/src/lib/affiliate.ts",
+    "site/src/data/affiliate.ts",
+    "site/src/data/affiliates.ts",
+    "site/src/lib/affiliate*.ts",
+    "site/src/data/affiliate*.ts",
+    "site/src/**/affiliate*.ts",
+)
+
+# Test files sit right next to the real thing and parse to zero products, but
+# there is no reason to even open them.
+_NOT_A_REGISTRY = (".test.", ".spec.", "__tests__", "/node_modules/", "/.claude/")
+
+
+def find_registry(site_root: Path) -> Path | None:
+    """Locate this site's product registry, wherever it actually lives.
+
+    Returns the candidate that yields the most parsed products, so a site with
+    both a real registry and a stray helper file gets the real one.
+    """
+    seen: list[Path] = []
+    for pattern in _REGISTRY_GLOBS:
+        for candidate in sorted(site_root.glob(pattern)):
+            if not candidate.is_file():
+                continue
+            posix = candidate.as_posix()
+            if any(bad in posix for bad in _NOT_A_REGISTRY):
+                continue
+            if candidate not in seen:
+                seen.append(candidate)
+
+    best: Path | None = None
+    best_n = -1
+    for candidate in seen:
+        try:
+            n = len(parse(candidate))
+        except (OSError, UnicodeDecodeError):
+            continue
+        # First match wins ties, preserving the canonical-path ordering above.
+        if n > best_n:
+            best, best_n = candidate, n
+    return best
 
 
 def parse(registry_path: Path) -> list[Product]:
@@ -164,21 +239,38 @@ def parse(registry_path: Path) -> list[Product]:
         # An interface/type declaration (`id: string;`) also contains `id:` but
         # no string literal, so _scalar returns None and the block is skipped —
         # which is what keeps type blocks out of the product list.
-        pid = _scalar(obj, "id")
+        pid = _first_of(obj, _ID_KEYS)
         if not pid:
             continue
+        url = _scalar(obj, "url")
+        # searchOrAsin is one field doing two jobs: an ASIN if it looks like
+        # one, otherwise a search phrase. A URL can also carry the ASIN.
+        combo = _scalar(obj, "searchOrAsin")
+        asin = _scalar(obj, "asin")
+        if not asin and combo and _ASIN_RE.match(combo):
+            asin = combo
+        if not asin and url:
+            m_dp = _DP_RE.search(url)
+            if m_dp:
+                asin = m_dp.group(1)
+
+        search_query = _scalar(obj, "searchQuery") or _scalar(obj, "query")
+        if not search_query and combo and not _ASIN_RE.match(combo):
+            search_query = combo
+
         products.append(
             Product(
                 id=pid,
                 start=start,
                 end=end,
                 text=obj,
-                asin=_scalar(obj, "asin"),
-                name=_scalar(obj, "name"),
+                asin=asin,
+                name=_first_of(obj, _NAME_KEYS),
                 brand=_scalar(obj, "brand"),
                 category=_scalar(obj, "category"),
-                search_query=_scalar(obj, "searchQuery"),
-                image=_scalar(obj, "image"),
+                search_query=search_query,
+                image=_first_of(obj, _IMAGE_KEYS),
+                url=url,
             )
         )
 

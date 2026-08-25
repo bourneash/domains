@@ -161,12 +161,13 @@ def main() -> int:
     log = _log_factory(site_root / "ops" / "logs" / f"affiliate-sentinel-{today}.log")
     log(f"=== affiliate-sentinel {site_name} (dry_run={args.dry_run} heal={not args.no_heal}) ===")
 
-    registry_path = site_root / "site" / "src" / "lib" / "affiliate.ts"
-    if not registry_path.is_file():
-        log(f"no registry at {registry_path} — nothing to check")
+    registry_path = registry_mod.find_registry(site_root)
+    if registry_path is None:
+        log("no affiliate registry found anywhere under site/src — nothing to check")
         return 0
 
     products = registry_mod.parse(registry_path)
+    log(f"registry: {registry_path.relative_to(site_root)}")
     go_prefix = discover.detect_go_prefix(site_root)
     base_url = args.base_url or detect_base_url(site_root)
     tag = args.tag or detect_tag(registry_path)
@@ -292,7 +293,10 @@ def main() -> int:
                 # point at the dead ASIN; don't report that as a cloak fault.
                 if any(h.product_id == pid and h.healed for h in heals):
                     expected_asin = None
-                res = cloak.check(client, base_url, go_prefix, pid, expected_asin, tag)
+                res = cloak.check(
+                    client, base_url, go_prefix, pid, expected_asin, tag,
+                    expected_url=(p.url if p else None),
+                )
                 cloak_checked += 1
                 if res.retired:
                     cloak_retired.append(res)

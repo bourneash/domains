@@ -61,6 +61,11 @@ def _extract_target(status: int, headers, body: str) -> str | None:
     return None
 
 
+def _host(url: str) -> str:
+    m = re.match(r"https?://([^/]+)", url or "")
+    return (m.group(1) if m else "").removeprefix("www.").lower()
+
+
 def check(
     client: httpx.Client,
     base_url: str,
@@ -68,7 +73,15 @@ def check(
     product_id: str,
     expected_asin: str | None,
     expected_tag: str | None,
+    expected_url: str | None = None,
 ) -> CloakResult:
+    """`expected_url` is the destination the registry itself declares.
+
+    Not every cloak points at Amazon — rodhat mixes Amazon picks with direct
+    partner-program links in one registry. Asserting "must be an Amazon URL"
+    against those would report every partner link as broken forever, so when the
+    registry names a non-Amazon destination we assert against THAT host instead.
+    """
     url = f"{base_url.rstrip('/')}{go_prefix}{product_id}/"
     try:
         # No redirect following: the Location header IS the assertion, and
@@ -90,6 +103,17 @@ def check(
         return CloakResult(
             product_id, False, status, None,
             f"HTTP {status} but no redirect target found (no Location, meta-refresh, or JS bounce)",
+        )
+
+    # A registry-declared non-Amazon destination: check it goes where the
+    # registry says, and skip the Amazon-specific tag/ASIN assertions below.
+    if expected_url and "amazon." not in expected_url:
+        want = _host(expected_url)
+        if want and _host(target) == want:
+            return CloakResult(product_id, True, status, target, "")
+        return CloakResult(
+            product_id, False, status, target,
+            f"redirect target does not go to the declared partner host ({want or expected_url})",
         )
 
     if "amazon." not in target:

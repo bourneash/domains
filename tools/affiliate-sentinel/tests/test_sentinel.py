@@ -155,6 +155,65 @@ def test_registry_double_quotes_and_non_products():
         check("old double-quoted asin gone", "0201896842" not in new)
 
 
+ALIAS_REGISTRY = """
+export const PRODUCTS = [
+  { slug: 'urn', url: 'https://www.amazon.com/dp/B0BPF23C8D', network: 'amazon',
+    label: 'Rosewood Urn' },
+  { id: 'book', kind: 'amazon', name: 'A Book', searchOrAsin: 'B000000001' },
+  { id: 'phrase', kind: 'amazon', name: 'Some Thing', searchOrAsin: 'some thing' },
+  { id: 'partner', kind: 'partner', name: 'Partner', url: 'https://partner.example/ref/x' },
+];
+"""
+
+
+def test_registry_field_aliases():
+    print("registry: field aliases across fleet shapes")
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "affiliates.ts"
+        p.write_text(ALIAS_REGISTRY)
+        by_id = {x.id: x for x in registry_mod.parse(p)}
+        check("slug works as an id", "urn" in by_id, f"got {list(by_id)}")
+        check("ASIN recovered from a /dp/ url", by_id["urn"].asin == "B0BPF23C8D")
+        check("label works as a name", by_id["urn"].name == "Rosewood Urn")
+        check("searchOrAsin read as an ASIN when it looks like one",
+              by_id["book"].asin == "B000000001")
+        check("searchOrAsin read as a query when it does not",
+              by_id["phrase"].asin is None and by_id["phrase"].search_query == "some thing")
+        check("partner entry keeps its url", by_id["partner"].url == "https://partner.example/ref/x")
+        check("partner entry counts as a product", by_id["partner"].is_product)
+
+
+def test_find_registry_locates_non_standard_paths():
+    print("registry.find_registry")
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        (root / "site" / "src" / "data").mkdir(parents=True)
+        (root / "site" / "src" / "lib").mkdir(parents=True)
+        (root / "site" / "src" / "data" / "affiliates.ts").write_text(ALIAS_REGISTRY)
+        found = registry_mod.find_registry(root)
+        check("finds a registry under data/", found is not None and found.name == "affiliates.ts")
+
+        # A test file next door must never win.
+        (root / "site" / "src" / "lib" / "affiliate.test.ts").write_text(SAMPLE_REGISTRY)
+        found = registry_mod.find_registry(root)
+        check("ignores *.test.ts", found is not None and "test" not in found.name)
+
+        check("returns None when there is no registry at all",
+              registry_mod.find_registry(Path(d) / "nope") is None)
+
+
+def test_partner_cloak_is_not_flagged():
+    print("cloak: non-Amazon partner destinations")
+    partner = "https://partner.example/ref/x"
+    r = cloak.check(_Client(_Resp(302, {"location": "https://partner.example/ref/x?u=1"})),
+                    "https://example.com", "/go/", "p", None, "x-20", expected_url=partner)
+    check("partner link to the declared host is healthy", r.ok)
+
+    r = cloak.check(_Client(_Resp(302, {"location": "https://somewhere-else.example/"})),
+                    "https://example.com", "/go/", "p", None, "x-20", expected_url=partner)
+    check("partner link to the wrong host is a failure", not r.ok)
+
+
 def test_has_cloak():
     print("discover.has_cloak")
     with tempfile.TemporaryDirectory() as d:
@@ -362,6 +421,9 @@ def main() -> int:
     for fn in (
         test_registry_parse,
         test_registry_double_quotes_and_non_products,
+        test_registry_field_aliases,
+        test_find_registry_locates_non_standard_paths,
+        test_partner_cloak_is_not_flagged,
         test_has_cloak,
         test_registry_apply_updates,
         test_registry_stale_guard,
