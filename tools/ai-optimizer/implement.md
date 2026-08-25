@@ -52,3 +52,14 @@ SUMMARY: <one line>
 
 `abandoned` means the ticket did not match reality and nothing was changed —
 that is a legitimate, useful result, not a failure to be papered over.
+
+**`applied` means A COMMIT EXISTS.** Not "the files are written", not "it just
+needs a manual commit" — if `COMMIT` is `none`, the result is `failed`, always.
+The wrapper checks the git SHA rather than trusting this line, so misreporting
+only misleads the human reading the log; it changes nothing mechanically. Say
+what actually happened.
+
+If your tooling is broken and you cannot run commands, that is `failed` with the
+reason. Do not describe the change as done and leave instructions for someone
+else to finish it — the wrapper will revert your edits, so those instructions
+would point at files that no longer exist.

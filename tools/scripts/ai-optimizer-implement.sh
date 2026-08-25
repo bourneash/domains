@@ -42,6 +42,11 @@ log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 
 [[ -f "$DOMAINS_ROOT/.env" ]] && { set -a; . "$DOMAINS_ROOT/.env"; set +a; }
 
+# Give claude -p a writable config dir — fleet-cron's ~/.claude is RO and every
+# Bash tool call would otherwise die with EROFS. See the helper for the full why.
+source "$DOMAINS_ROOT/tools/scripts/ai-optimizer-claude-env.sh"
+ai_optimizer_claude_env
+
 # --- Pick the oldest approved, auto-appliable ticket -----------------------
 PICK="$(python3 - <<'PY'
 import sys
@@ -89,6 +94,11 @@ else
   WORK_DIR="$DOMAINS_ROOT"
 fi
 BEFORE_SHA="$(git -C "$WORK_DIR" rev-parse HEAD 2>/dev/null)"
+# Snapshot untracked paths so a later revert can delete ONLY what this session
+# created. A blanket `git clean -fd` would also take untracked files that were
+# already here before we ran (the start-of-run dirty check deliberately ignores
+# untracked, so there can legitimately be some).
+BEFORE_UNTRACKED="$(git -C "$WORK_DIR" ls-files --others --exclude-standard | sort)"
 
 TICKET_BODY="$(python3 "$TOOL_DIR/cli.py" show "$TICKET" 2>>"$LOG")"
 if [[ -z "$TICKET_BODY" ]]; then
@@ -140,9 +150,21 @@ notify() {
 if [[ "$BEFORE_SHA" == "$AFTER_SHA" ]]; then
   # Abandoned (ticket didn't match reality) or failed. Either way the ticket
   # stays approved for a human to look at — we do NOT silently reject it.
-  if [[ -n "$(git -C "$WORK_DIR" status --porcelain --untracked-files=no)" ]]; then
+  if [[ -n "$(git -C "$WORK_DIR" status --porcelain)" ]]; then
+    # Revert BOTH tracked edits and any new files the session created. The
+    # first cut only ran `git checkout -- .`, which reverts tracked files and
+    # leaves untracked ones behind — the 2026-08-25 run left an orphan
+    # ops/scripts/filter-feed.py sitting in the tree after its edits were
+    # rolled back, i.e. a half-applied change that no ticket describes. Either
+    # the whole change lands as a commit or none of it stays.
     log "session left uncommitted changes and no commit — reverting to keep the tree clean"
     git -C "$WORK_DIR" checkout -- . 2>>"$LOG"
+    AFTER_UNTRACKED="$(git -C "$WORK_DIR" ls-files --others --exclude-standard | sort)"
+    while IFS= read -r f; do
+      [[ -n "$f" ]] || continue
+      log "removing session-created file: $f"
+      rm -f "$WORK_DIR/$f" 2>>"$LOG"
+    done < <(comm -13 <(printf '%s\n' "$BEFORE_UNTRACKED") <(printf '%s\n' "$AFTER_UNTRACKED"))
   fi
   log "no commit produced — leaving $TICKET approved for human review"
   notify warn "AI-cost fix not applied: $TICKET" \

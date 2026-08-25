@@ -40,6 +40,11 @@ log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 
 [[ -f "$DOMAINS_ROOT/.env" ]] && { set -a; . "$DOMAINS_ROOT/.env"; set +a; }
 
+# Give claude -p a writable config dir — fleet-cron's ~/.claude is RO and every
+# Bash tool call would otherwise die with EROFS. See the helper for the full why.
+source "$DOMAINS_ROOT/tools/scripts/ai-optimizer-claude-env.sh"
+ai_optimizer_claude_env
+
 log "=== analyst run start (window=${WINDOW_DAYS}d) ==="
 
 # --- 1. Evidence packet (zero AI) ---
