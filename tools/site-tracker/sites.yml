@@ -817,7 +817,7 @@ sites:
     - manual
     manual: {}
   stinkyleftfoot.com:
-    active: false
+    active: true
     cf_zone: stinkyleftfoot.com
     github: bourneash/stinkyleftfoot.com
     applies_to:

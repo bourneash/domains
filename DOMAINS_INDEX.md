@@ -72,7 +72,7 @@
 | sexvendor.com 		|   ⬜   | 
 | shoptopless.com 		|   ⬜   | Satire Jeep 'topless' accessories affiliate amazon store |
 | therareunicorn.com 	|   ⬜   | Scaffolded, brief TBD |
-| stinkyleftfoot.com 	|   ⬜   | 
+| stinkyleftfoot.com 	|   ✅   | Rocket League guides + gaming gear affiliate hub — Amazon Associates, esports-broadcast voice 		|
 | totaljerks.com 		|   ⬜   |
 | vibratorporn.com 		|   ⬜   | Adult-toy review authority — ultrarough.com playbook applied to vibrators 					|
 | wetslit.com 			|   ⬜   | Adult niche — angle TBD 																		|
