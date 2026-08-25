@@ -129,6 +129,12 @@ replies generated for it.
   insights (engagement + top posts), channels, activity log.
 - **API** — same host under `/api`, OpenAPI at `/api/docs`. Set
   `SOCIAL_HUB_TOKEN` to require a bearer token.
+- **Fleet Dashboard** — Growth ▸ **Social Hub** (http://127.0.0.1:4754/#socialhub)
+  shows per-site queue state, everything awaiting review with approve/reject,
+  and 30-day engagement. It proxies this API, so the hub must be running and
+  reachable from the panel's container: `social-hub serve --host 0.0.0.0` with
+  `SOCIAL_HUB_TOKEN` set (the hub refuses to bind off-loopback without one).
+  Both are installed in cron — a 15-minute tick and an `@reboot` serve.
 - **CLI** — `social-hub --help`; `status`, `queue`, `compose`, `approve`,
   `publish`, `inbox`, `metrics`, `channels`, `tick`, `doctor`.
 

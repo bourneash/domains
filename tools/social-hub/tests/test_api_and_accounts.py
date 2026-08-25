@@ -180,3 +180,15 @@ def test_responses_carry_no_referrer_policy(synced, monkeypatch):
     guarded = TestClient(app)
     r = guarded.get("/api/health", headers={"Authorization": "Bearer s3cret"})
     assert r.headers.get("Referrer-Policy") == "no-referrer"
+
+
+def test_serve_refuses_to_bind_off_loopback_without_a_token(monkeypatch):
+    """Reachable-by-the-panel must not silently become reachable-by-anything."""
+    from click.testing import CliRunner
+
+    from social_hub.cli import cli
+
+    monkeypatch.delenv("SOCIAL_HUB_TOKEN", raising=False)
+    result = CliRunner().invoke(cli, ["serve", "--host", "0.0.0.0"])
+    assert result.exit_code != 0
+    assert "SOCIAL_HUB_TOKEN" in result.output

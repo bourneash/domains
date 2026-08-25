@@ -395,7 +395,20 @@ def metrics(site: str | None, days: int, refresh: bool):
 @click.option("--reload", is_flag=True)
 def serve(host: str, port: int, reload: bool):
     """Run the API + web UI."""
+    import os
+
     from social_hub.api import serve as _serve
+
+    # Binding off loopback (so the Fleet Dashboard container can reach this
+    # over host.docker.internal) is allowed, but only with a token set — the
+    # same fail-closed posture the dashboard itself uses for FD_TOKEN. Refusing
+    # here is the difference between "reachable by the panel" and "reachable by
+    # anything on the network".
+    if host not in ("127.0.0.1", "localhost", "::1") and not os.environ.get("SOCIAL_HUB_TOKEN"):
+        raise click.ClickException(
+            f"refusing to bind {host} without SOCIAL_HUB_TOKEN set — "
+            "export a token (see the fleet .env) or bind 127.0.0.1"
+        )
 
     console.print(f"social-hub on http://{host}:{port}")
     _serve(host=host, port=port, reload=reload)

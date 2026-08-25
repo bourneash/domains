@@ -697,3 +697,22 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .soc-hist { max-height: 200px; overflow: auto; font-size: 12px; display: grid; gap: 6px; }
 .soc-hist-note { color: var(--muted); padding-left: 10px; border-left: 2px solid var(--border); margin-top: 2px; }
 body[data-view="social"] main { max-width: none; }
+
+/* ---- Social Hub tab (tools/social-hub proxy) ---------------------------- */
+.sh-cards { margin-bottom: 18px; }
+.sh-site .sh-kv { display: flex; justify-content: space-between; font-size: 12px; padding: 1px 0; }
+.sh-site .sh-kv b.warn { color: var(--yellow, #d29922); }
+.sh-site .sh-kv b.bad { color: var(--red, #f85149); }
+.sh-chans { margin-top: 6px; font-size: 11px; }
+.sh-h { margin: 20px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; opacity: .75; }
+.sh-post {
+  border: 1px solid var(--line, #2a323d);
+  border-left: 3px solid var(--yellow, #d29922);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.sh-post-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; font-size: 11px; }
+.sh-post-body { white-space: pre-wrap; font-size: 13px; }
+.sh-link { display: inline-block; margin-top: 4px; font-size: 11px; opacity: .75; }
+.sh-post-acts { display: flex; gap: 6px; margin-top: 8px; }

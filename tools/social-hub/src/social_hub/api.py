@@ -238,7 +238,10 @@ def patch_post(post_id: int, payload: dict = Body(...)) -> dict:
 
 @app.post("/api/posts/{post_id}/approve")
 def approve_post(post_id: int, payload: dict = Body(default={})) -> dict:
-    post = queue.approve(post_id, by=payload.get("by", "human"))
+    # Default attribution is the interface, never a person's name. Who approved
+    # a post is an audit fact — an automated caller must not be able to leave a
+    # human's name on it by omission.
+    post = queue.approve(post_id, by=str(payload.get("by") or "ui"))
     if not post:
         raise HTTPException(404, "post not found")
     return post
@@ -246,7 +249,7 @@ def approve_post(post_id: int, payload: dict = Body(default={})) -> dict:
 
 @app.post("/api/posts/{post_id}/reject")
 def reject_post(post_id: int, payload: dict = Body(default={})) -> dict:
-    post = queue.reject(post_id, by=payload.get("by", "human"), reason=payload.get("reason", ""))
+    post = queue.reject(post_id, by=str(payload.get("by") or "ui"), reason=payload.get("reason", ""))
     if not post:
         raise HTTPException(404, "post not found")
     return post

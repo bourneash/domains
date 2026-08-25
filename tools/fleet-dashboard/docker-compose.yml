@@ -38,6 +38,12 @@ services:
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770
       PRODUCTFEED_API: http://product-feed-api:4761
+      # tools/social-hub runs on the host (it needs the Vaultwarden CLI), so it
+      # is reached over host.docker.internal. The hub refuses to bind
+      # off-loopback without this token, so the panel always has one to send.
+      SOCIALHUB_API: ${SOCIALHUB_API:-http://host.docker.internal:4772}
+      SOCIALHUB_PUBLIC_URL: ${SOCIALHUB_PUBLIC_URL:-http://127.0.0.1:4772}
+      SOCIAL_HUB_TOKEN: ${SOCIAL_HUB_TOKEN:-}
       # Every site repo in the fleet pushes over the same github-bourneash SSH
       # identity (confirmed across sites — one shared account). -F /dev/null
       # skips ~/.ssh/config entirely: root's default config-file lookup is

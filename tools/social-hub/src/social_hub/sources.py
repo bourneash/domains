@@ -15,6 +15,7 @@ re-ingesting an existing article never resets its state or re-queues drafts.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from datetime import datetime, timedelta, timezone
@@ -85,6 +86,122 @@ def _builtin_scan(domain: str, cfg: SiteConfig | None) -> list[dict]:
     return found
 
 
+def _body_after_frontmatter(text: str) -> str:
+    match = FRONTMATTER_RE.match(text)
+    body = text[match.end():] if match else text
+    return re.sub(r"\s+", " ", body).strip()
+
+
+def _summary_from_body(text: str, limit: int = 400) -> str:
+    """First sentences of the body, for content that carries no description.
+
+    Some collections are pure prose with structural frontmatter only (a daily
+    horoscope has a sign and a date, no title and no summary). The opening
+    lines are the only honest summary available, so take them rather than
+    letting the model write from a title alone.
+    """
+    body = _body_after_frontmatter(text)
+    if len(body) <= limit:
+        return body
+    cut = body[:limit]
+    stop = max(cut.rfind(". "), cut.rfind("? "), cut.rfind("! "))
+    return (cut[: stop + 1] if stop > 120 else cut.rsplit(" ", 1)[0]) .strip()
+
+
+def _pick_one_per_day(items: list[dict]) -> list[dict]:
+    """Collapse a day's worth of sibling items to a single deterministic pick.
+
+    A daily horoscope collection has one file per sign per day. Posting twelve
+    of those is spam; posting the same sign every day is favouritism and looks
+    automated. Hashing the date rotates the choice in a way that is stable
+    across runs — the same day always resolves to the same item, so re-ingesting
+    never produces a second post for a day already covered.
+    """
+    by_day: dict[str, list[dict]] = {}
+    for item in items:
+        by_day.setdefault((item.get("published_at") or "")[:10], []).append(item)
+    out = []
+    for day, group in by_day.items():
+        group.sort(key=lambda i: i["source_id"])
+        index = int(hashlib.sha256(day.encode()).hexdigest(), 16) % len(group)
+        out.append(group[index])
+    return out
+
+
+def _format(template: str, context: dict) -> str:
+    try:
+        return template.format(**context)
+    except (KeyError, IndexError):
+        return template
+
+
+def _load_collection(root: Path, domain: str, spec: dict) -> list[dict]:
+    """Load one configured collection.
+
+    This is the escape hatch for content that isn't article-shaped. Everything
+    a site needs to describe such a collection — where the files are, how to
+    build their URL, where the title/summary/date come from, and how many of a
+    day's siblings are postable — lives in that site's own hub.yaml.
+    """
+    glob = spec.get("glob")
+    if not glob:
+        return []
+    items: list[dict] = []
+    for path in sorted(root.glob(glob)):
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        fm = _parse_frontmatter(text)
+        context = {
+            "domain": domain,
+            "slug": path.stem,
+            "parent": path.parent.name,
+            "Parent": path.parent.name.replace("-", " ").title(),
+            "collection": path.parent.name,
+            **{k: v for k, v in fm.items() if isinstance(v, (str, int, float))},
+        }
+
+        date_from = spec.get("date_from")
+        if date_from == "slug":
+            published = path.stem
+        elif date_from:
+            published = str(fm.get(date_from, ""))
+        else:
+            published = str(_first(fm, ["published", "pubDate", "date", "generated_at"]))
+
+        title = (
+            _format(spec["title_template"], context)
+            if spec.get("title_template")
+            else str(_first(fm, ["title", "news_thread"]) or path.stem)
+        )
+        summary = (
+            _summary_from_body(text)
+            if spec.get("summary_from") == "body"
+            else str(_first(fm, ["excerpt", "description", "summary"]) or "")
+        )
+
+        items.append(
+            {
+                "source_id": _format(spec.get("id_template", "{slug}"), context),
+                "source_type": spec.get("name", "article"),
+                "title": title,
+                "url": _format(spec.get("url_template", "https://{domain}/{slug}/"), context),
+                "summary": summary[:600],
+                "tags": [str(t) for t in (_first(fm, ["keywords", "tags"], []) or [])],
+                "image_url": _first(fm, ["image", "heroImage"], None),
+                "published_at": published,
+            }
+        )
+
+    pick = spec.get("pick", "all")
+    if pick == "one_per_day":
+        items = _pick_one_per_day(items)
+    elif pick == "latest":
+        items.sort(key=lambda i: i.get("published_at") or "", reverse=True)
+        items = items[:1]
+    return items
+
+
 def _via_social_poster(domain: str) -> list[dict]:
     try:
         from social_poster.content_loader import load_latest_articles
@@ -112,7 +229,11 @@ def discover(domain: str, cfg: SiteConfig | None = None) -> list[dict]:
     """Candidate source items for *domain*, newest first, unfiltered."""
     sources_cfg = (cfg.get("sources") if cfg else None) or {}
     items: list[dict] = []
-    if sources_cfg.get("globs"):
+    if sources_cfg.get("collections"):
+        root = site_root(domain)
+        for spec in sources_cfg["collections"]:
+            items.extend(_load_collection(root, domain, spec))
+    if not items and sources_cfg.get("globs"):
         items = _builtin_scan(domain, cfg)
     if not items:
         items = _via_social_poster(domain)
@@ -147,9 +268,10 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
     now = db.utcnow()
 
     for item in found:
+        source_type = item.get("source_type", "article")
         existing = db.one(
             "SELECT id FROM sources WHERE site = ? AND source_type = ? AND source_id = ?",
-            (domain, "article", item["source_id"]),
+            (domain, source_type, item["source_id"]),
         )
         if existing:
             continue
@@ -158,7 +280,7 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
             "sources",
             {
                 "site": domain,
-                "source_type": "article",
+                "source_type": source_type,
                 "source_id": item["source_id"],
                 "title": item["title"],
                 "url": item["url"],

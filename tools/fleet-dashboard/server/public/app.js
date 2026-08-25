@@ -6875,6 +6875,161 @@ function socPersonaModal(personaId) {
 }
 
 /* ===================== SHELL ===================== */
+
+// ---------------------------------------------------------------- Social Hub
+// Panel view over tools/social-hub (host process, own full UI on :4772).
+// Scope on purpose: what is waiting for a human, and the two decisions that
+// unblock it — approve or reject. Composing, the calendar, reply threads and
+// insights stay in the hub's own UI, which this links out to.
+const SH = { data: null };
+
+function shPostCard(p) {
+  const when = p.scheduled_at ? new Date(p.scheduled_at).toLocaleString() : '—';
+  return `
+    <div class="sh-post" data-id="${p.id}">
+      <div class="sh-post-meta">
+        <span class="badge b-blue">${esc(p.site)}</span>
+        <span class="badge">${esc(p.platform)}</span>
+        ${p.kind === 'reply' ? '<span class="badge b-yellow">reply</span>' : ''}
+        <span class="muted mono">#${p.id}</span>
+        <span class="muted">${p.body.length} chars</span>
+        <span class="muted">${esc(p.ai_model || p.origin || '')}</span>
+        <span class="muted">${esc(when)}</span>
+      </div>
+      <div class="sh-post-body">${esc(p.body)}</div>
+      ${p.link ? `<a class="sh-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.link)}</a>` : ''}
+      <div class="sh-post-acts">
+        <button class="btn sm sh-act" data-act="approve" data-id="${p.id}">Approve</button>
+        <button class="btn sm sh-act" data-act="reject" data-id="${p.id}">Reject</button>
+      </div>
+    </div>`;
+}
+
+async function renderSocialHub() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Reading the social queue…</div>';
+  let data;
+  try {
+    data = await api('GET', '/api/socialhub');
+  } catch (e) {
+    app.innerHTML = `<div class="empty">Social Hub proxy failed: ${esc(e.message)}</div>`;
+    return;
+  }
+  SH.data = data;
+
+  if (!data.available) {
+    app.innerHTML = `
+      <div class="page-head"><h2 class="page-title">Social Hub</h2></div>
+      <div class="empty">
+        <p><strong>social-hub is not reachable.</strong></p>
+        <p class="muted">${esc(data.error || '')}</p>
+        <p class="muted">${esc(data.hint || '')}</p>
+      </div>`;
+    return;
+  }
+
+  const sites = Object.entries(data.sites);
+  const drafts = data.drafts;
+  const posts = drafts.filter(p => p.kind !== 'reply');
+  const replies = drafts.filter(p => p.kind === 'reply');
+
+  const siteCards = sites
+    .map(([name, info]) => {
+      const c = info.counts || {};
+      const next = info.next_send ? new Date(info.next_send).toLocaleString() : 'nothing scheduled';
+      const live = (info.channels || []).filter(ch => ch.enabled).map(ch => ch.platform);
+      return `
+        <div class="card sh-site">
+          <h3>${esc(name)}</h3>
+          <div class="sh-kv"><span>awaiting review</span><b class="${c.draft ? 'warn' : ''}">${c.draft || 0}</b></div>
+          <div class="sh-kv"><span>scheduled</span><b>${c.scheduled || 0}</b></div>
+          <div class="sh-kv"><span>posted</span><b>${c.posted || 0}</b></div>
+          <div class="sh-kv"><span>failed</span><b class="${c.failed ? 'bad' : ''}">${c.failed || 0}</b></div>
+          <div class="sh-kv"><span>inbox</span><b>${info.inbox_new || 0}</b></div>
+          <div class="sh-kv"><span>next send</span><b>${esc(next)}</b></div>
+          <div class="muted sh-chans">${esc([...new Set(live)].join(', ') || 'no live channels')}</div>
+        </div>`;
+    })
+    .join('');
+
+  const platformRows = Object.entries(data.metrics.platforms || {})
+    .map(
+      ([platform, m]) => `<tr>
+        <td>${esc(platform)}</td><td>${m.posts}</td><td>${m.likes}</td>
+        <td>${m.reposts}</td><td>${m.replies}</td><td>${m.avg_engagement}</td>
+      </tr>`
+    )
+    .join('');
+
+  app.innerHTML = `
+    <div class="page-head">
+      <h2 class="page-title">Social Hub</h2>
+      <span class="muted">${sites.length} managed site${sites.length === 1 ? '' : 's'} ·
+        ${posts.length} post${posts.length === 1 ? '' : 's'} and
+        ${replies.length} repl${replies.length === 1 ? 'y' : 'ies'} awaiting review</span>
+      <span class="soc-stats">
+        <button id="sh-tick" class="btn sm">Run tick</button>
+        <a class="btn sm" href="${esc(data.url)}" target="_blank" rel="noopener">Open full UI ↗</a>
+      </span>
+    </div>
+
+    <div class="cards sh-cards">${siteCards || '<div class="empty">No managed sites.</div>'}</div>
+
+    <h3 class="sh-h">Awaiting review — posts (${posts.length})</h3>
+    ${posts.length ? posts.map(shPostCard).join('') : '<div class="empty">Queue is clear.</div>'}
+
+    <h3 class="sh-h">Awaiting review — replies (${replies.length})</h3>
+    ${replies.length ? replies.map(shPostCard).join('') : '<div class="empty">No replies waiting.</div>'}
+
+    <h3 class="sh-h">Engagement — last ${data.metrics.days || 30} days</h3>
+    ${
+      platformRows
+        ? `<table class="tbl"><thead><tr><th>Platform</th><th>Posts</th><th>Likes</th>
+             <th>Reposts</th><th>Replies</th><th>Avg</th></tr></thead>
+           <tbody>${platformRows}</tbody></table>`
+        : '<div class="empty">Nothing published in this window yet.</div>'
+    }`;
+
+  $$('.sh-act').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const { act, id } = btn.dataset;
+      btn.disabled = true;
+      try {
+        if (act === 'reject') {
+          const reason = prompt('Reject reason (optional):') || '';
+          await api('POST', `/api/socialhub/posts/${id}/reject`, { reason });
+          toast(`Post ${id} rejected`);
+        } else {
+          const res = await api('POST', `/api/socialhub/posts/${id}/approve`);
+          toast(`Post ${id} scheduled for ${res.scheduled_at || 'the next slot'}`);
+        }
+        renderSocialHub();
+      } catch (e) {
+        toast(e.message, 'err');
+        btn.disabled = false;
+      }
+    })
+  );
+
+  const tickBtn = $('#sh-tick');
+  if (tickBtn) {
+    tickBtn.addEventListener('click', async () => {
+      tickBtn.disabled = true;
+      tickBtn.textContent = 'Running…';
+      try {
+        const res = await api('POST', '/api/socialhub/tick', {});
+        const sent = Object.values(res.sites || {}).reduce((n, s) => n + (s.published || 0), 0);
+        toast(`Tick complete — ${sent} published`);
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+      tickBtn.disabled = false;
+      tickBtn.textContent = 'Run tick';
+      renderSocialHub();
+    });
+  }
+}
+
 // NAV_GROUPS is defined further down (grouped nav), before parseHash() needs
 // it — declared here as a forward reference via var hoisting is unsafe with
 // const, so TOP_VIEWS is assembled lazily the first time it's read.
@@ -6915,6 +7070,7 @@ const NAV_GROUPS = {
     items: [
       ['analytics', 'Analytics'],
       ['social', 'Social'],
+      ['socialhub', 'Social Hub'],
       ['aiusage', 'AI Usage'],
       ['aioptimizer', 'AI Optimizer'],
       ['aiinventory', 'AI Inventory'],
@@ -7024,6 +7180,7 @@ function render() {
   else if (STATE.view === 'guides') renderGuides();
   else if (STATE.view === 'guardrails') renderGuardrails();
   else if (STATE.view === 'social') renderSocial();
+  else if (STATE.view === 'socialhub') renderSocialHub();
   else if (STATE.view === 'domains') renderDomains();
 }
 

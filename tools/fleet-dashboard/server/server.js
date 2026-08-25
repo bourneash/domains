@@ -36,6 +36,7 @@ const errorscan = require('./errorscan');
 const guardrails = require('./guardrails');
 const domains = require('./domains');
 const social = require('./social');
+const socialhub = require('./socialhub');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -466,6 +467,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // half). Exposed for inspection/debugging.
   app.get('/api/deploy-health', (_req, res) => res.json(deployhealth.all()));
   app.get('/api/gatus', (_req, res) => res.json(gatushealth.all()));
+
+  // Social Hub (tools/social-hub) — proxied; see socialhub.js for why.
+  socialhub.registerRoutes(app);
 
   // Background fleet-wide error/warn log scan (server/errorscan.js). Read-only
   // rollup; :id/lines below is guarded implicitly — errorscan only ever tracks

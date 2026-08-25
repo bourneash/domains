@@ -256,3 +256,70 @@ def test_a_platform_can_borrow_another_platform_s_copy(fake_fleet, fake_adapter)
     posts = {p["platform"]: p for p in queue.list_posts(site="alpha.com")}
     assert posts["console"]["body"] == posts["fake"]["body"]
     assert posts["console"]["ai_model"] == "copy:fake"
+
+
+def test_a_collection_can_pick_one_item_per_day(fake_fleet, fake_adapter):
+    """Content with many sibling files per day (a horoscope per sign) must
+    collapse to a single deterministic post, not one per sibling."""
+    site = fake_fleet / "sites" / "alpha.com"
+    for day in ("2026-08-24", "2026-08-25"):
+        for sign in ("aries", "libra", "virgo"):
+            path = site / "site" / "src" / "content" / "daily" / sign / f"{day}.md"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                f"---\nsign: {sign}\n---\n\nThe moon is at 5 percent and the market is flat. "
+                f"That is the whole reading for {sign}.\n",
+                encoding="utf-8",
+            )
+    make_site(
+        fake_fleet, "alpha.com", articles=0,
+        config_yaml=(
+            "platforms: [fake]\n"
+            "max_source_age_hours: 100000\n"
+            "sources:\n"
+            "  collections:\n"
+            "    - name: horoscope\n"
+            '      glob: "site/src/content/daily/*/*.md"\n'
+            '      url_template: "https://{domain}/daily/{parent}/{slug}/"\n'
+            '      id_template: "{parent}-{slug}"\n'
+            '      title_template: "{Parent} — {slug}"\n'
+            "      summary_from: body\n"
+            "      date_from: slug\n"
+            "      pick: one_per_day\n"
+        ),
+    )
+    cfg = load_site_config("alpha.com")
+    found = sources.discover("alpha.com", cfg)
+
+    assert len(found) == 2, "two days of content, one pick each"
+    assert {i["published_at"] for i in found} == {"2026-08-24", "2026-08-25"}
+    assert all(i["summary"] and i["title"] for i in found)
+    # Deterministic: the same day always resolves to the same sibling.
+    assert [i["source_id"] for i in found] == [i["source_id"] for i in sources.discover("alpha.com", cfg)]
+
+
+def test_collection_items_keep_their_own_source_type(fake_fleet, fake_adapter):
+    make_site(
+        fake_fleet, "alpha.com", articles=0,
+        config_yaml=(
+            "platforms: [fake]\n"
+            "max_source_age_hours: 100000\n"
+            "sources:\n"
+            "  collections:\n"
+            "    - name: signals\n"
+            '      glob: "site/src/content/articles/*.md"\n'
+            '      url_template: "https://{domain}/signals/{slug}/"\n'
+        ),
+    )
+    articles = fake_fleet / "sites" / "alpha.com" / "site" / "src" / "content" / "articles"
+    articles.mkdir(parents=True, exist_ok=True)
+    (articles / "s1.md").write_text(
+        "---\ntitle: A signals read\nexcerpt: Short excerpt.\ndate: '2026-08-25'\n---\n\nBody.\n",
+        encoding="utf-8",
+    )
+    cfg = load_site_config("alpha.com")
+    sources.ingest("alpha.com", cfg)
+
+    row = db.one("SELECT source_type, url FROM sources WHERE site = 'alpha.com'")
+    assert row["source_type"] == "signals"
+    assert row["url"] == "https://alpha.com/signals/s1/"
