@@ -60,6 +60,16 @@ qid = meta.get("queue_id") or gq.slugify(meta.get("title", filename))
 #           this guide's id to site/src/lib/guideIcons.ts's guideIconMap
 guides_dir = repo_root / "site" / "src" / "content" / "guides"
 guide_path = guides_dir / f"{qid}.md"
+if len(body.strip()) < 400:
+    # A writer run that died mid-way leaves a body-less item stranded in
+    # drafted/ — and nothing ever retries a drafted item, the writer only reads
+    # ideas/. Without this the next cadence tick ships an empty guide (seen on
+    # shoptopless.com 2026-08-25). Same quarantine path as a duplicate.
+    print(json.dumps({"ok": False, "duplicate": True, "qid": qid,
+                      "title": meta.get("title", qid),
+                      "error": f"body is only {len(body.strip())} chars — draft was never written"}))
+    sys.exit(0)
+
 if guide_path.exists():
     # Checked FIRST, before anything is written. The image copies below used to
     # run ahead of this and silently overwrote the LIVE hero/card of the
@@ -122,7 +132,8 @@ if [[ "$OK" != "True" && "$DUP" == "True" ]]; then
   # cleared, pick the next candidate now", NOT as a publish success (so the
   # cadence clock is deliberately left unstamped).
   DUP_TITLE=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('title',''))")
-  echo "[guide-publish] duplicate of an already-live guide — quarantining to rejected/"
+  DUP_WHY=$(echo "$RESULT_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error',''))")
+  echo "[guide-publish] unpublishable draft — quarantining to rejected/: $DUP_WHY"
   GUIDE_QUEUE_LIB_DIR="$GUIDE_QUEUE_LIB_DIR" REPO_ROOT="$REPO_ROOT" SOURCE_STATUS="$SOURCE_STATUS" FILE="$FILE" python3 - <<'PYDUP'
 import os, sys
 sys.path.insert(0, os.environ["GUIDE_QUEUE_LIB_DIR"])
@@ -131,10 +142,10 @@ gq.move_item(os.environ["REPO_ROOT"], os.environ["SOURCE_STATUS"], os.environ["F
 PYDUP
   git add -A "ops/guide-queue/" 2>/dev/null || true
   git diff --cached --quiet || {
-    git commit -m "guide-queue: quarantine duplicate draft \"$DUP_TITLE\" (already live)" -q
+    git commit -m "guide-queue: quarantine draft \"$DUP_TITLE\" — $DUP_WHY" -q
     git push origin main -q 2>&1 | tail -3 || true
   }
-  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":warning: *{{SITE_NAME}}* guide-publisher skipped \"$DUP_TITLE\" — a guide with that slug is already live; draft moved to rejected/" "warning" 2>/dev/null || true
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":warning: *{{SITE_NAME}}* guide-publisher skipped \"$DUP_TITLE\" — $DUP_WHY; draft moved to rejected/" "warning" 2>/dev/null || true
   exit 75
 fi
 if [[ "$OK" != "True" ]]; then
@@ -161,8 +172,14 @@ gq.move_item(os.environ["REPO_ROOT"], os.environ["SOURCE_STATUS"], os.environ["F
 PYMOVE
 
 # --- Commit + push ---
+# Stamp the cadence clock HERE, in the same commit as the release, because this
+# is the container that can actually push. Writing it afterwards in the CRON
+# container left origin/main carrying a release with no matching cadence bump,
+# so anything reading from a fresh clone saw "never released" and republished.
+date +%s > "$REPO_ROOT/ops/guide-queue/.last-released"
+
 git add "$GUIDE_PATH" "site/public/guides/heroes/" "site/public/images/guides/cards/" \
-  "site/src/lib/guideIcons.ts" "ops/guide-queue/" 2>/dev/null || true
+  "site/src/lib/guideIcons.ts" "ops/guide-queue/" "ops/guide-queue/.last-released" 2>/dev/null || true
 if git diff --cached --quiet; then
   fail "nothing staged after a successful write — unexpected"
 fi

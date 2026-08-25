@@ -71,8 +71,15 @@ STATUS=$?
 set -e
 
 if [[ $STATUS -ne 0 ]]; then
-  echo "[guide-writer] Claude turn failed (exit=$STATUS) — leaving draft in place for next run's retry" >&2
+  echo "[guide-writer] Claude turn failed (exit=$STATUS) — returning the item to ideas/ for next run's retry" >&2
   [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-writer failed writing \"$IDEA_TITLE\" (exit=$STATUS)" "danger" 2>/dev/null || true
+  # Put the item BACK in ideas/ so the next run genuinely retries it. Without
+  # this the idea is consumed, the half-written draft is stranded in drafted/
+  # (nothing retries a drafted item — the writer only reads ideas/), and the
+  # publisher would ship it as an empty guide.
+  python3 "$GQ_CLI" move "$REPO_ROOT" drafted "$DRAFT_FILE" ideas >/dev/null 2>&1 || true
+  git add -A "ops/guide-queue/ideas/" "ops/guide-queue/drafted/" 2>/dev/null || true
+  git diff --cached --quiet || git commit -m "guide-queue: return \"$IDEA_TITLE\" to ideas/ after a failed write" -q
   exit $STATUS
 fi
 
@@ -86,7 +93,14 @@ print('ok' if ok else 'incomplete')
 ")
 if [[ "$VALID" != "ok" ]]; then
   echo "[guide-writer] draft is missing required fields or body after Claude's turn — treating as failure" >&2
-  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-writer produced an incomplete draft for \"$IDEA_TITLE\" — needs manual review at ops/guide-queue/drafted/$DRAFT_FILE" "danger" 2>/dev/null || true
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-writer produced an incomplete draft for \"$IDEA_TITLE\" — returned to ideas/ for a retry next run" "danger" 2>/dev/null || true
+  # Put the item BACK in ideas/ so the next run genuinely retries it. Without
+  # this the idea is consumed, the half-written draft is stranded in drafted/
+  # (nothing retries a drafted item — the writer only reads ideas/), and the
+  # publisher would ship it as an empty guide.
+  python3 "$GQ_CLI" move "$REPO_ROOT" drafted "$DRAFT_FILE" ideas >/dev/null 2>&1 || true
+  git add -A "ops/guide-queue/ideas/" "ops/guide-queue/drafted/" 2>/dev/null || true
+  git diff --cached --quiet || git commit -m "guide-queue: return \"$IDEA_TITLE\" to ideas/ after a failed write" -q
   exit 1
 fi
 
