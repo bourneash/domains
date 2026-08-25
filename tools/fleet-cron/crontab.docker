@@ -130,3 +130,21 @@
 #     tools/fleet-images/bin/fleet-image-build all --version <next>
 # fleet-image-smoke gates the promotion, so a bad base cannot reach :latest.
 30 5 * * 1 /home/jesse/projects/domains/tools/fleet-images/bin/fleet-image-bases --check
+
+# --- Job 14: fleet git-hygiene sweep ---
+# Classifies every dirty path in the monorepo + all sites/* submodules against
+# tools/fleet-git/policy.json, then commits / ignores / pushes what policy
+# recognises and queues the rest on the Fleet Dashboard's Git Hygiene tab.
+#
+# This is the standing fix for the drift class that keeps recurring: a cron
+# role writes files, "succeeds", and never pushes — so the site is silently
+# stale, and the parent repo's submodule pointer never moves either. The sweep
+# also bumps those pointers, but ONLY for a site it left clean AND pushed.
+#
+# Safety lives in the tool, not here: never `git add -A`; a credential-shaped
+# path halts that repo entirely; a repo behind upstream or on a detached HEAD
+# is reported, never acted on; an unrecognised path is queued, never guessed.
+#
+# Healthy = SILENT, same contract as the lint/test sweeps. Slack fires only on
+# a blocked credential, a git error, or a review item unresolved for >24h.
+17 * * * * /home/jesse/projects/domains/tools/scripts/fleet-git-hygiene-cron.sh
