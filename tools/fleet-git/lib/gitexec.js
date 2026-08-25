@@ -2,32 +2,48 @@
 
 const { execFile } = require('node:child_process');
 
-// Repo-LOCATION variables in the ambient env take precedence over `-C <cwd>` in
-// real git — if this ever runs from inside a git hook, every call below would be
-// silently redirected at the WRONG repo. Strip exactly those, and nothing else:
-// GIT_SSH_COMMAND (transport) and GIT_AUTHOR_*/GIT_COMMITTER_* (identity) are
-// how a container that has no ~/.gitconfig can still push and commit.
-const GIT_LOCATION_VARS = new Set([
-  'GIT_DIR',
-  'GIT_WORK_TREE',
-  'GIT_INDEX_FILE',
-  'GIT_COMMON_DIR',
-  'GIT_OBJECT_DIRECTORY',
-  'GIT_ALTERNATE_OBJECT_DIRECTORIES',
-  'GIT_NAMESPACE',
-  'GIT_PREFIX',
-  'GIT_CEILING_DIRECTORIES',
-]);
+// ALLOWLIST, not a denylist. The cron wrapper sources the fleet `.env` — CF
+// tokens, the Slack bot token, affiliate credentials — into its own process.
+// A denylist would hand all of that to every `git` child in 49 repos, and git
+// honours per-repo `.git/config` (`core.sshCommand`, `credential.helper`,
+// aliases), so a single compromised submodule becomes a token-exfiltration
+// primitive. Pass only what git actually needs.
+//
+// Repo-LOCATION vars (GIT_DIR, GIT_INDEX_FILE, GIT_WORK_TREE...) are absent by
+// construction here: they take precedence over `-C <cwd>` in real git, so
+// inheriting them from a git hook would silently redirect every call at the
+// WRONG repo. `-C` stays the only thing that chooses the repo.
+const GIT_ENV_ALLOW = [
+  'PATH',
+  'HOME',
+  'LANG',
+  'LC_ALL',
+  'TZ',
+  'TMPDIR',
+  'SSH_AUTH_SOCK',
+  'GIT_SSH_COMMAND',
+  'GIT_AUTHOR_NAME',
+  'GIT_AUTHOR_EMAIL',
+  'GIT_COMMITTER_NAME',
+  'GIT_COMMITTER_EMAIL',
+  'GIT_TERMINAL_PROMPT',
+];
 const CLEAN_GIT_ENV = Object.fromEntries(
-  Object.entries(process.env).filter(([k]) => !GIT_LOCATION_VARS.has(k))
+  GIT_ENV_ALLOW.filter(k => process.env[k] !== undefined).map(k => [k, process.env[k]])
 );
+// Never let git stop for an interactive credential prompt in a cron container.
+CLEAN_GIT_ENV.GIT_TERMINAL_PROMPT = '0';
 
-function git(cwd, args, { timeout = 120000 } = {}) {
+// `indexFile` is the ONE sanctioned way to point git at a non-default index:
+// an explicit, per-call scratch index (see lib/scratchindex.js), never an
+// inherited ambient GIT_INDEX_FILE.
+function git(cwd, args, { timeout = 120000, indexFile = null } = {}) {
+  const env = indexFile ? { ...CLEAN_GIT_ENV, GIT_INDEX_FILE: indexFile } : CLEAN_GIT_ENV;
   return new Promise(resolve => {
     execFile(
       'git',
       ['-C', cwd, ...args],
-      { timeout, maxBuffer: 16 * 1024 * 1024, env: CLEAN_GIT_ENV },
+      { timeout, maxBuffer: 64 * 1024 * 1024, env },
       (err, stdout, stderr) =>
         resolve({
           ok: !err,
@@ -82,17 +98,36 @@ function parsePorcelain(out) {
     else if (x === 'D' || y === 'D') kind = 'deleted';
     else if (x !== ' ') kind = 'staged';
     else kind = 'modified';
-    if (x === 'R' || x === 'C') i += 1; // rename/copy carries a second path
-    if (kind !== 'ignored')
+    // A rename/copy carries a SECOND NUL-separated path: the original. It must
+    // still be classified — `git mv .env ops/config.txt` otherwise presents the
+    // classifier with only `ops/config.txt`, which matches an innocuous commit
+    // rule while the blob is the credential file.
+    let renamedFrom = null;
+    if (x === 'R' || x === 'C') {
+      renamedFrom = parts[i + 1] || null;
+      i += 1;
+    }
+    if (kind !== 'ignored') {
       files.push({ code: x + y, kind, path: p, staged: x !== ' ' && x !== '?' });
+      if (renamedFrom)
+        files.push({ code: x + y, kind: 'renamed-from', path: renamedFrom, staged: true });
+    }
   }
   return { branch, upstream, ahead, behind, detached, files };
 }
 
 async function status(cwd) {
   const r = await git(cwd, ['status', '--porcelain=v1', '--branch', '--untracked-files=all', '-z']);
-  if (!r.ok && !r.out)
-    return { isRepo: false, error: r.err.trim() || 'not a git repository', files: [] };
+  // A non-zero exit with PARTIAL stdout is exactly what execFile produces on a
+  // maxBuffer overflow or a timeout kill. Parsing that partial output yields a
+  // silently TRUNCATED file list — which reads as "clean" to the pointer-bump
+  // check and to the board. Any failure is an unusable status, full stop.
+  if (!r.ok)
+    return {
+      isRepo: false,
+      error: (r.err || '').trim() || `git status failed (exit ${r.code})`,
+      files: [],
+    };
   return { isRepo: true, ...parsePorcelain(r.out) };
 }
 
@@ -113,4 +148,4 @@ async function identityArgs(cwd) {
   ];
 }
 
-module.exports = { git, status, parsePorcelain, identityArgs, GIT_LOCATION_VARS };
+module.exports = { git, status, parsePorcelain, identityArgs, GIT_ENV_ALLOW, CLEAN_GIT_ENV };

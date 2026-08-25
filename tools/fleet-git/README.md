@@ -38,25 +38,56 @@ the review queue.
 
 ## Safety properties
 
-These are the invariants, each covered by a test in `test/`:
+These are the invariants. Every one has a test in `test/` — several of them
+exist *because* an adversarial review found the claim was false when first
+written.
 
-- **Never `git add -A`.** Every commit is path-limited to the paths policy chose.
-- **A secret halts the repo.** `.env`, `*.pem`, `*.key`, `*credentials*.json`… → `block`.
-  `.env.example` is explicitly exempt.
-- **A repo behind upstream is never acted on** — a merge is an operator decision.
-  Same for a detached HEAD.
-- **Untracking is opt-in per rule**, and is skipped (never forced) if the repo has
-  unrelated staged work, because `git rm --cached` needs an index commit.
+- **Never `git add -A`.** Commits of content are path-limited to the paths policy
+  chose (so the shared pre-commit content-guardrails hook still runs on them).
+  The mechanical `.gitignore`/untrack commit and the parent pointer commit are
+  built in a **scratch index** (`lib/scratchindex.js`) and land via a
+  compare-and-swap on `HEAD` — each site is a repo its own cron container also
+  stages and commits into, and a live-index commit would sweep that in-flight
+  work in. A concurrent `git add` can neither ride along nor be unstaged.
+- **A secret halts the repo.** `.env*`, `*.pem/key/p12/jks`, `id_rsa*`, `.netrc`,
+  `**/*secret*`, `**/*token*`, `**/*credential*`, `**/*.env` and friends → `block`;
+  nothing in that repo is committed, ignored or pushed. A **rename** is classified
+  on its ORIGINAL path too, so `git mv .env ops/config.txt` cannot launder one.
+  `.env.example` / `.env.sample` are explicitly exempt.
+- **Deletions are not edits.** A rule must opt in with `allow_deletes` before a
+  deletion is committed unattended (queues that legitimately drain do; published
+  content and media do not), and a burst over `max_deletions_per_commit` goes to
+  review — an emptied bind mount is not a queue draining.
+- **A repo behind upstream, or on a detached HEAD, is never acted on.** The sweep
+  `git fetch`es first, so `behind` is measured against the real remote rather than
+  a stale local ref.
+- **Untracking is opt-in per rule, capped per repo** (`max_untrack_per_repo`), and
+  on the dashboard it is a separate explicit confirmation — clicking *Ignore*
+  never implies `git rm --cached`.
+- **Operator globs cannot be universal.** `policy.json` refuses `**`, `*`, `**/*`
+  and unsupported syntax (a leading `/`, `!`, `[...]`) at load time — a pattern
+  that would silently never match is how a `block` rule fails open.
 - **Oversize guards**: a commit group over `max_files_per_commit`, or a file over
-  `max_file_bytes`, is routed to review instead of rubber-stamped.
+  `max_file_bytes`, goes to review instead of being rubber-stamped.
 - **No silent fleet rollout.** The sweep only maintains the managed `.gitignore`
   block in repos that already adopted it; adoption is the deliberate
   `ignore-sync --apply` step.
-- **Submodule pointers are bumped last, and only for a site the sweep left clean
-  AND pushed.** A parent pointer commit referencing an unpushed submodule commit
-  is exactly the "silently stale site" bug this tool exists to end.
-- **`GIT_DIR`/`GIT_WORK_TREE` are stripped** from the environment, so `-C <repo>`
-  is the only thing that decides which repo a command touches.
+- **Submodule pointers are bumped last, and only for a site whose HEAD is provably
+  the commit on its remote** — not merely `ahead === 0`, which is also true of a
+  branch with no upstream. The verified SHA is pinned with `update-index
+  --cacheinfo`, so a submodule that moves mid-sweep cannot substitute an unpushed
+  commit into the pointer commit.
+- **A failed `git status` is never parsed.** A timeout or buffer overflow returns
+  partial stdout, which would read as a *clean* repo; any non-zero exit is treated
+  as an unusable status.
+- **One sweep at a time across every caller** — CLI, cron and the dashboard (a
+  different container) share a lock file in the repo, not a per-process flag.
+- **The git environment is an allowlist.** The cron sources a `.env` full of live
+  tokens; only `PATH`/`HOME`/`GIT_SSH_COMMAND`/identity vars reach a `git` child.
+  Repo-location vars (`GIT_DIR`, `GIT_INDEX_FILE`, ...) never do, so `-C <repo>` is
+  the only thing choosing the repo. Slack/log output is redacted for token shapes.
+- **State files are written atomically** and a corrupt queue throws (and is copied
+  aside) rather than being silently replaced by an empty one.
 
 ## The managed .gitignore block
 
@@ -97,5 +128,6 @@ a "site is dirty" report can actually be the monorepo's own status.
 cd tools/fleet-git && npm test
 ```
 
-Includes end-to-end tests that create a real repo + bare remote in a temp dir
-and assert on the resulting history — the mutating paths are not mocked.
+Includes end-to-end tests that build real repos + bare remotes in a temp dir —
+including a **parent repo with a real submodule** — and assert on the resulting
+history. The mutating paths are not mocked.

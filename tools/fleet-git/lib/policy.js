@@ -2,7 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { compile } = require('./glob');
+const { compile, validatePattern, isUniversal } = require('./glob');
 
 const POLICY_PATH = path.join(__dirname, '..', 'policy.json');
 
@@ -20,6 +20,17 @@ function compilePolicy(raw) {
     if (!ACTIONS.has(r.action)) throw new Error(`policy rule ${r.id || i}: bad action ${r.action}`);
     if (!Array.isArray(r.match) || !r.match.length)
       throw new Error(`policy rule ${r.id || i}: empty match`);
+    for (const pat of [...r.match, ...(r.except || [])]) {
+      const bad = validatePattern(pat);
+      if (bad) throw new Error(`policy rule ${r.id || i}: pattern ${JSON.stringify(pat)} — ${bad}`);
+    }
+    // A universal glob is only ever a mistake or an attack. Refuse it outright
+    // for the destructive actions; an `ignore` with `untrack` on `**` would
+    // untrack every dirty tracked file in every repo on the next sweep.
+    if (r.action !== 'block' && r.match.some(isUniversal))
+      throw new Error(
+        `policy rule ${r.id || i}: refuses a universal glob (${r.match.filter(isUniversal).join(', ')})`
+      );
     return {
       ...r,
       order: i,
@@ -33,7 +44,13 @@ function compilePolicy(raw) {
   return {
     raw,
     version: raw.version,
-    limits: { max_files_per_commit: 200, max_file_bytes: 5 * 1024 * 1024, ...(raw.limits || {}) },
+    limits: {
+      max_files_per_commit: 200,
+      max_file_bytes: 5 * 1024 * 1024,
+      max_deletions_per_commit: 10,
+      max_untrack_per_repo: 10,
+      ...(raw.limits || {}),
+    },
     ignoreBlock: raw.ignore_block || [],
     rules: [...blocks, ...rest],
   };
@@ -62,10 +79,21 @@ function addRule(rule, policyPath = POLICY_PATH) {
   const raw = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
   if ((raw.rules || []).some(r => r.id === rule.id))
     throw new Error(`policy already has a rule id "${rule.id}"`);
-  compilePolicy({ ...raw, rules: [...(raw.rules || []), rule] }); // validate before write
+  // compilePolicy is the gate: it rejects unsupported and universal globs, so a
+  // pattern typed into the dashboard prompt cannot become a fleet-wide
+  // `git rm --cached`. Validate the WHOLE resulting policy before writing.
+  compilePolicy({ ...raw, rules: [...(raw.rules || []), rule] });
   raw.rules = [...(raw.rules || []), rule];
-  fs.writeFileSync(policyPath, JSON.stringify(raw, null, 2) + '\n');
+  writeAtomic(policyPath, JSON.stringify(raw, null, 2) + '\n');
   return rule;
+}
+
+// truncate-then-write leaves a window where a concurrent reader sees a partial
+// file. Write beside it and rename (atomic within a filesystem).
+function writeAtomic(p, contents) {
+  const tmp = `${p}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, contents);
+  fs.renameSync(tmp, p);
 }
 
 // Which of a rule's globs actually matched. Used when a path has to be written

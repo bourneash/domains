@@ -7,17 +7,38 @@ const STATE_DIR = path.join(__dirname, '..', 'state');
 const QUEUE_PATH = path.join(STATE_DIR, 'queue.json');
 const LAST_PATH = path.join(STATE_DIR, 'last-sweep.json');
 
+// A parse failure is NOT the same as "no file". Silently returning an empty
+// queue on a half-written read, then persisting that, deletes every open review
+// item and every `first_seen` — so the >24h nag can never fire again. Missing
+// file → fallback; corrupt file → preserve it and throw.
 function readJson(p, fallback) {
+  let raw;
   try {
-    return JSON.parse(fs.readFileSync(p, 'utf8'));
-  } catch {
-    return fallback;
+    raw = fs.readFileSync(p, 'utf8');
+  } catch (e) {
+    if (e.code === 'ENOENT') return fallback;
+    throw e;
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    const bak = `${p}.corrupt-${Date.now()}`;
+    try {
+      fs.copyFileSync(p, bak);
+    } catch {
+      /* best effort */
+    }
+    throw new Error(`${p} is not valid JSON (copy kept at ${bak}): ${e.message}`);
   }
 }
 
+// Write beside the target and rename — atomic within a filesystem, so a reader
+// never sees a partial file. The cron sweep and the dashboard both write here.
 function writeJson(p, v) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
-  fs.writeFileSync(p, JSON.stringify(v, null, 2) + '\n');
+  const tmp = `${p}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, JSON.stringify(v, null, 2) + '\n');
+  fs.renameSync(tmp, p);
 }
 
 const key = (slug, p) => `${slug}:${p}`;

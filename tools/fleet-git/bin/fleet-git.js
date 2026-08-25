@@ -21,7 +21,8 @@ const { load: loadPolicy, addRule } = require('../lib/policy');
 const queue = require('../lib/queue');
 const gitignore = require('../lib/gitignore');
 const { discover } = require('../lib/repos');
-const { git } = require('../lib/gitexec');
+const { git, identityArgs } = require('../lib/gitexec');
+const { commitViaScratchIndex } = require('../lib/scratchindex');
 
 const argv = process.argv.slice(2);
 const cmd = argv[0] || 'audit';
@@ -143,6 +144,12 @@ async function resolve() {
     console.error('resolve needs --slug, --path and --action');
     process.exit(2);
   }
+  // Same guard the HTTP surface applies: nothing that could escape the repo or
+  // be read by git as an option flag.
+  if (p.startsWith('-') || p.startsWith('/') || p.split('/').includes('..')) {
+    console.error(`invalid path: ${p}`);
+    process.exit(2);
+  }
   const { repos } = await discover(ROOT);
   const repo = repos.find(r => r.slug === slug);
   if (!repo) {
@@ -184,19 +191,36 @@ async function resolve() {
   }
 
   if (action === 'ignore' || action === 'always-ignore') {
-    gitignore.appendLocal(repo.dir, p);
-    const tracked = await git(repo.dir, ['ls-files', '--error-unmatch', '--', p]);
-    if (tracked.ok) await git(repo.dir, ['rm', '--cached', '-r', '--quiet', '--', p]);
-    await git(repo.dir, ['add', '--', '.gitignore']);
-    await git(repo.dir, ['commit', '-m', `chore(git-hygiene): ignore ${p}`]);
-    console.log(`ignored ${p} in ${slug}`);
+    const line = gitignore.anchorPattern(val('glob') || p);
+    gitignore.appendLocal(repo.dir, line);
+    const isTracked = (await git(repo.dir, ['ls-files', '--error-unmatch', '--', p])).ok;
+    // `--untrack` is opt-in: removing a path from version control is a separate
+    // decision from ignoring it going forward.
+    const remove = isTracked && flag('untrack') ? [p] : [];
+    const ident = await identityArgs(repo.dir);
+    const res = await commitViaScratchIndex(repo.dir, {
+      add: ['.gitignore'],
+      remove,
+      message: `chore(git-hygiene): ${remove.length ? 'untrack' : 'ignore'} ${p}`,
+      ident,
+    });
+    if (!res.ok) {
+      console.error(res.err);
+      process.exitCode = 1;
+      return;
+    }
+    console.log(
+      `${remove.length ? 'untracked' : 'ignored'} ${p} in ${slug}${isTracked && !remove.length ? ' (left tracked — pass --untrack to remove it from git)' : ''}`
+    );
   } else if (action === 'commit' || action === 'always-commit') {
     const msg = val('message') || `chore(ops): sync ${p}`;
+    const ident = await identityArgs(repo.dir);
     await git(repo.dir, ['add', '--', p]);
-    const c = await git(repo.dir, ['commit', '-m', msg, '--', p]);
+    const c = await git(repo.dir, [...ident, 'commit', '-m', msg, '--', p]);
     if (!c.ok && !/nothing to commit/i.test(c.out + c.err)) {
       console.error((c.err || c.out).trim());
-      process.exit(1);
+      process.exitCode = 1;
+      return;
     }
     console.log(`committed ${p} in ${slug}`);
   } else if (action !== 'drop' && action !== 'always-ignore' && action !== 'always-commit') {

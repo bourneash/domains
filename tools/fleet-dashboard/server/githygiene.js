@@ -16,7 +16,8 @@ const { load: loadPolicy, addRule } = require(path.join(FG, 'lib', 'policy'));
 const queue = require(path.join(FG, 'lib', 'queue'));
 const gitignore = require(path.join(FG, 'lib', 'gitignore'));
 const { discover } = require(path.join(FG, 'lib', 'repos'));
-const { git } = require(path.join(FG, 'lib', 'gitexec'));
+const { git, identityArgs } = require(path.join(FG, 'lib', 'gitexec'));
+const { commitViaScratchIndex } = require(path.join(FG, 'lib', 'scratchindex'));
 
 function httpErr(status, msg) {
   const e = new Error(msg);
@@ -134,20 +135,22 @@ async function resolve(
 
   if (decision === 'ignore') {
     gitignore.appendLocal(repo.dir, p);
-    const tracked = await git(repo.dir, ['ls-files', '--error-unmatch', '--', p]);
-    if (tracked.ok) {
-      const pre = await git(repo.dir, ['diff', '--cached', '--name-only']);
-      if (pre.ok && pre.out.trim())
-        throw httpErr(
-          409,
-          'repo has staged changes — commit or unstage them before untracking a file'
-        );
-      await git(repo.dir, ['rm', '--cached', '-r', '--quiet', '--', p]);
-    }
-    await git(repo.dir, ['add', '--', '.gitignore']);
-    const c = await git(repo.dir, ['commit', '-m', `chore(git-hygiene): ignore ${p}`]);
-    if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
-      throw httpErr(500, (c.err || c.out).trim() || 'git commit failed');
+    const isTracked = (await git(repo.dir, ['ls-files', '--error-unmatch', '--', p])).ok;
+    // Untracking removes a file from version control going forward. That is a
+    // separate, explicit decision from "stop showing me this" and is never
+    // implied by clicking Ignore.
+    const remove = isTracked && untrack ? [p] : [];
+    const ident = await identityArgs(repo.dir);
+    // Scratch index, not the live one: each site is a repo its OWN cron
+    // container stages and commits into, so committing the live index here
+    // would sweep that in-flight work into an "ignore <path>" commit.
+    const res = await commitViaScratchIndex(repo.dir, {
+      add: ['.gitignore'],
+      remove,
+      message: `chore(git-hygiene): ${remove.length ? 'untrack' : 'ignore'} ${p}`,
+      ident,
+    });
+    if (!res.ok) throw httpErr(500, res.err || 'git commit failed');
   } else if (decision === 'commit') {
     const msg = (message || '').trim() || `chore(ops): sync ${p}`;
     const add = await git(repo.dir, ['add', '--', p]);

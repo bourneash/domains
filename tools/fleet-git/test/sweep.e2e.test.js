@@ -124,7 +124,7 @@ test('a credential in the tree halts the repo — nothing is committed or pushed
   assert.equal(sh(work, 'log', '--format=%s', 'origin/main').trim(), 'init', 'nothing was pushed');
 });
 
-test('untracking is skipped (not forced) when the repo has unrelated staged work', async () => {
+test('a concurrent `git add` cannot ride along in the hygiene commit, and is not unstaged either', async () => {
   const { work } = makeRepo();
   gitignore.sync(work, policy.ignoreBlock);
   write(work, 'ops/board/last-run.json', '{}\n');
@@ -134,17 +134,34 @@ test('untracking is skipped (not forced) when the repo has unrelated staged work
   sh(work, 'commit', '-m', 'seed');
   write(work, 'ops/board/last-run.json', '{"b":2}\n');
 
-  // simulate the site's own cron staging something mid-sweep
   const st = await status(work);
   const p = plan(st, { slug: 'test.com', policy });
-  write(work, 'keep.md', 'changed\n');
+
+  // Simulate the site's OWN cron container staging work mid-sweep. Previously
+  // this either got swept into the hygiene commit (live-index commit) or forced
+  // the untrack to be skipped. With a scratch index it must do neither.
+  write(work, 'keep.md', 'changed by the site cron\n');
   sh(work, 'add', 'keep.md');
 
   const { errors } = await executeRepo({ slug: 'test.com', dir: work }, p, policy, {
     apply: true,
     push: false,
   });
-  assert.equal(errors.length, 1);
-  assert.match(errors[0], /unrelated staged changes/);
-  assert.ok(sh(work, 'ls-files').includes('ops/board/last-run.json'), 'still tracked — not forced');
+  assert.deepEqual(errors, [], 'untracking is no longer blocked by unrelated staged work');
+
+  // The block was already adopted and already ignores this path, so .gitignore
+  // needs no edit — the commit is the untrack alone.
+  const head = sh(work, 'show', '--name-only', '--format=', 'HEAD').trim().split('\n').sort();
+  assert.deepEqual(head, ['ops/board/last-run.json'], 'commit holds ONLY our paths');
+
+  assert.equal(
+    sh(work, 'ls-files').includes('ops/board/last-run.json'),
+    false,
+    'the generated file really was untracked'
+  );
+  assert.match(
+    sh(work, 'diff', '--cached', '--name-only'),
+    /keep\.md/,
+    "the other process's staged work is still staged, not committed and not reset"
+  );
 });

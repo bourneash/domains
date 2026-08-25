@@ -36,8 +36,20 @@ log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 
 [[ -f "$DOMAINS_ROOT/.env" ]] && { set -a; . "$DOMAINS_ROOT/.env"; set +a; }
 
+# Strip credential material from anything about to be logged or posted.
+redact() {
+  sed -E \
+    -e 's#(https?://)[^/@[:space:]]+@#\1***@#g' \
+    -e 's#(xox[baprs]-)[A-Za-z0-9-]+#\1***#g' \
+    -e 's#(gh[pousr]_)[A-Za-z0-9]+#\1***#g' \
+    -e 's#(sk-[A-Za-z0-9_-]{6})[A-Za-z0-9_-]+#\1***#g' \
+    -e 's#(cfut_)[A-Za-z0-9]+#\1***#g'
+}
+
 NOTIFY() {
-  local text="$1" color="${2:-warning}"
+  local text color
+  text="$(printf '%s' "$1" | redact)"
+  color="${2:-warning}"
   [[ -z "${SLACK_BOT_TOKEN:-}" ]] && return 0
   local payload
   payload=$(python3 -c "
@@ -72,7 +84,10 @@ ERR_TMP="$(mktemp)"
 out="$(node "$FG" sweep --apply --json 2>"$ERR_TMP")"
 rc=$?
 if [[ -s "$ERR_TMP" ]]; then
-  log "stderr: $(tr '\n' ' ' < "$ERR_TMP" | cut -c1-800)"
+  # git stderr can echo a remote URL with an embedded token
+  # (https://x-access-token:TOKEN@github.com/...). This line lands in a file on
+  # disk and, for `errors[]`, in a Slack message — redact before either.
+  log "stderr: $(redact < "$ERR_TMP" | tr '\n' ' ' | cut -c1-800)"
 fi
 rm -f "$ERR_TMP"
 

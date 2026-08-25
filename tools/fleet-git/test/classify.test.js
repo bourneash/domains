@@ -91,3 +91,61 @@ test('an oversized commit group is routed to review instead of rubber-stamped', 
   assert.equal(p.commit.length, 0);
   assert.equal(p.review.length, 250);
 });
+
+test('a DELETION is not committed by a rule that has not opted in', () => {
+  // site/src/content is a `commit` rule WITHOUT allow_deletes: unpublishing a
+  // live page is never routine churn.
+  const p = plan(st([f('site/src/content/posts/live.md', 'deleted')]), P);
+  assert.equal(p.commit.length, 0);
+  assert.match(p.review[0].reason, /DELETION/);
+});
+
+test('a DELETION is committed by a rule that opted in (a queue draining)', () => {
+  const p = plan(st([f('ops/guide-queue/ideas/used.md', 'deleted')]), P);
+  assert.equal(p.commit.length, 1);
+  assert.deepEqual(p.commit[0].deletes, ['ops/guide-queue/ideas/used.md']);
+});
+
+test('a BURST of deletions is routed to review even in an allow_deletes group', () => {
+  const many = Array.from({ length: 40 }, (_, i) => f(`ops/tasks/${i}.md`, 'deleted'));
+  const p = plan(st(many), P);
+  assert.equal(p.commit.length, 0, 'an emptied bind mount is not a queue draining');
+  assert.equal(p.review.length, 40);
+  assert.match(p.review[0].reason, /deletes 40 files/);
+});
+
+test('the untrack list is capped — one bad rule cannot gut a repo in one sweep', () => {
+  const many = Array.from({ length: 25 }, (_, i) => f(`ops/logs/${i}.log`));
+  const p = plan(st(many), P);
+  assert.equal(p.ignore.filter(i => i.untrack).length, 0, 'nothing is untracked');
+  assert.match(p.review[0].reason, /would be untracked in one sweep/);
+});
+
+test('credential shapes beyond .env are blocked, including under a commit-rule dir', () => {
+  for (const secret of [
+    '.env.local',
+    '.env.production',
+    'ops/keys/deploy.key',
+    'ops/config/prod.env',
+    'ops/slack-token.txt',
+    'ops/secrets.yaml',
+    'site/service-account.json',
+    'ops/.netrc',
+  ]) {
+    const p = plan(st([f(secret), f('ops/tasks/a.md')]), P);
+    assert.equal(p.blocked.length, 1, `${secret} should be blocked`);
+    assert.equal(p.commit.length, 0, `${secret} must halt the whole repo`);
+  }
+});
+
+test('a rename cannot smuggle a secret past the classifier via its new name', () => {
+  // `git mv .env ops/config.txt` reports the NEW path plus the original; only
+  // the original reveals what the blob actually is.
+  const files = [
+    { path: 'ops/config.txt', kind: 'staged', code: 'R ' },
+    { path: '.env', kind: 'renamed-from', code: 'R ', staged: true },
+  ];
+  const p = plan(st(files), P);
+  assert.equal(p.blocked.length, 1);
+  assert.equal(p.commit.length, 0);
+});

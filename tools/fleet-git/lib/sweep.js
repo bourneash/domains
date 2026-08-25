@@ -8,9 +8,50 @@ const { discover } = require('./repos');
 const { load: loadPolicy } = require('./policy');
 const { plan, isClean } = require('./classify');
 const gitignore = require('./gitignore');
+const { commitViaScratchIndex } = require('./scratchindex');
 const queue = require('./queue');
 
 const HYGIENE_TRAILER = 'fleet-git: automated hygiene sweep';
+
+// One sweep at a time across ALL callers — cron, the CLI, and the dashboard's
+// "Sweep now" button (which lives in a different container). A per-process
+// flag cannot do that, and the cron's `flock` on /tmp is not shared with the
+// dashboard container. The lock file lives in the repo, which every caller has
+// bind-mounted at the same path, so it is the one place they all agree on.
+const LOCK_PATH = path.join(__dirname, '..', 'state', 'sweep.lock');
+const LOCK_STALE_MS = 45 * 60 * 1000;
+
+function acquireLock() {
+  fs.mkdirSync(path.dirname(LOCK_PATH), { recursive: true });
+  const payload = JSON.stringify({ pid: process.pid, at: new Date().toISOString() });
+  try {
+    fs.writeFileSync(LOCK_PATH, payload, { flag: 'wx' });
+    return true;
+  } catch (e) {
+    if (e.code !== 'EEXIST') throw e;
+  }
+  // A holder killed mid-sweep would otherwise wedge the fleet forever. Steal a
+  // lock that is older than any plausible sweep.
+  let age = Infinity;
+  try {
+    age = Date.now() - fs.statSync(LOCK_PATH).mtimeMs;
+  } catch {
+    /* vanished between calls — treat as stale */
+  }
+  if (age > LOCK_STALE_MS) {
+    fs.writeFileSync(LOCK_PATH, payload);
+    return true;
+  }
+  return false;
+}
+
+function releaseLock() {
+  try {
+    fs.unlinkSync(LOCK_PATH);
+  } catch {
+    /* already gone */
+  }
+}
 
 // Execute one repo's plan. `apply=false` is a full dry run: every decision is
 // computed and reported, nothing is written.
@@ -84,9 +125,10 @@ async function executeRepo(repo, p, policy, { apply, push }) {
       if (!ci.ok) {
         // Write the rule's PATTERN, not the literal path — otherwise every
         // new .pyc adds another line to the repo's .gitignore forever.
-        gitignore.appendLocal(cwd, item.pattern || item.path, { write: true });
+        const line = gitignore.anchorPattern(item.pattern || item.path);
+        gitignore.appendLocal(cwd, line, { write: true });
         ignoreTouched = true;
-        note('gitignore-local', `${item.pattern || item.path} (rule ${item.ruleId})`);
+        note('gitignore-local', `${line} (rule ${item.ruleId})`);
       }
     } else {
       note('gitignore-check', `${item.path} (rule ${item.ruleId})`);
@@ -102,38 +144,20 @@ async function executeRepo(repo, p, policy, { apply, push }) {
       paths: ['.gitignore', ...untrack],
     });
     if (apply) {
-      if (untrack.length) {
-        // `git rm --cached` is an INDEX change; a path-limited commit can't
-        // express it, so this has to be a plain index commit — which is only
-        // safe if nothing else is staged. Re-check right before, because the
-        // site's own cron may have staged something since the sweep started.
-        const pre = await git(cwd, ['diff', '--cached', '--name-only']);
-        if (pre.ok && pre.out.trim()) {
-          errors.push(
-            `${repo.slug}: skipped untracking (${untrack.join(', ')}) — repo has unrelated staged changes`
-          );
-        } else {
-          await git(cwd, ['add', '--', '.gitignore']);
-          const rm = await git(cwd, ['rm', '--cached', '-r', '--quiet', '--', ...untrack]);
-          if (!rm.ok) errors.push(`git rm --cached failed in ${repo.slug}: ${rm.err.trim()}`);
-          const c = await git(cwd, [...ident, 'commit', '-m', msg, '-m', HYGIENE_TRAILER]);
-          if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
-            errors.push(`git commit failed in ${repo.slug}: ${(c.err || c.out).trim()}`);
-        }
-      } else {
-        const c = await git(cwd, [
-          ...ident,
-          'commit',
-          '-m',
-          msg,
-          '-m',
-          HYGIENE_TRAILER,
-          '--',
-          '.gitignore',
-        ]);
-        if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
-          errors.push(`git commit failed in ${repo.slug}: ${(c.err || c.out).trim()}`);
-      }
+      // Both shapes go through a SCRATCH index (see lib/scratchindex.js). The
+      // old code committed the live index after checking that nothing else was
+      // staged — a check that is not atomic against the site's own cron
+      // container running `git add -A` in the same repo. A scratch index makes
+      // the race unreachable instead of merely unlikely, and its compare-and-
+      // swap on HEAD refuses rather than clobbers if that cron commits midway.
+      const res = await commitViaScratchIndex(cwd, {
+        add: ['.gitignore'],
+        remove: untrack,
+        message: msg,
+        trailer: HYGIENE_TRAILER,
+        ident,
+      });
+      if (!res.ok) errors.push(`git-hygiene commit failed in ${repo.slug}: ${res.err}`);
     }
   }
 
@@ -167,6 +191,18 @@ async function sweep(root, opts = {}) {
     now = new Date().toISOString(),
   } = opts;
 
+  if (apply && !acquireLock())
+    throw Object.assign(new Error('another fleet-git sweep is already running'), {
+      httpStatus: 409,
+    });
+  try {
+    return await runSweep(root, { apply, push, only, policy, now });
+  } finally {
+    if (apply) releaseLock();
+  }
+}
+
+async function runSweep(root, { apply, push, only, policy, now }) {
   const { repos, unregistered } = await discover(root);
   const submodulePaths = new Set(repos.filter(r => r.subPath).map(r => r.subPath));
 
@@ -179,12 +215,26 @@ async function sweep(root, opts = {}) {
   const errors = [];
 
   for (const repo of subs) {
+    // `behind` in porcelain output compares against the LOCAL origin/* ref. With
+    // no fetch, a repo someone pushed to from elsewhere reports behind: 0, gets
+    // committed, and the push is rejected non-fast-forward. Refresh the ref
+    // first; a fetch failure is non-fatal (offline is not a reason to stop) but
+    // is surfaced so "behind is enforced" is not a claim made on stale data.
+    if (apply) {
+      const f = await git(repo.dir, ['fetch', '--quiet', '--no-tags'], { timeout: 60000 });
+      if (!f.ok)
+        errors.push(`fetch failed in ${repo.slug} (ref state may be stale): ${f.err.trim()}`);
+    }
     const st = await status(repo.dir);
     const p = plan(st, { slug: repo.slug, policy });
     const { acts, errors: e } = await executeRepo(repo, p, policy, { apply, push });
     errors.push(...e);
     reviewsBySlug[repo.slug] = p.review;
-    sweptSlugs.add(repo.slug);
+    // A skipped repo produced NO review list (plan() returns early), so marking
+    // it swept would make reconcile() delete all of its open items as "operator
+    // fixed it", then re-add them with a fresh first_seen next time — the >24h
+    // nag could never fire on an intermittently-skipped repo.
+    if (!p.skip) sweptSlugs.add(repo.slug);
     const post = apply ? await status(repo.dir) : null;
     results.push({
       slug: repo.slug,
@@ -198,58 +248,78 @@ async function sweep(root, opts = {}) {
 
   // --- parent repo: own files, then submodule pointer bumps.
   if (parent && (!only || only.includes('domains'))) {
+    if (apply) {
+      const f = await git(parent.dir, ['fetch', '--quiet', '--no-tags'], { timeout: 60000 });
+      if (!f.ok) errors.push(`fetch failed in domains (ref state may be stale): ${f.err.trim()}`);
+    }
     const st = await status(parent.dir);
     const p = plan(st, { slug: 'domains', policy, submodulePaths, isParent: true });
     const { acts, errors: e } = await executeRepo(parent, p, policy, { apply, push: false });
     errors.push(...e);
 
-    // Only bump a pointer whose submodule is clean AND fully pushed. The
-    // submodule's live status is re-read here rather than trusted from this
-    // sweep's own results, because a pointer commit is also reachable via
-    // `--site domains` (which sweeps no submodules at all) and because a
-    // site's own cron may have moved HEAD since we swept it.
+    // Only bump a pointer whose submodule is clean AND whose HEAD actually
+    // exists on its remote. `ahead === 0` is NOT that test: a branch with no
+    // upstream also reports ahead 0, so the old check could write a gitlink
+    // pointing at a commit that exists on exactly one disk — the "permanently
+    // unreachable site state" this tool exists to prevent.
+    //
+    // The SHA is captured HERE and applied via `update-index --cacheinfo`
+    // rather than `git add <gitlink>`: `git add` records whatever the submodule
+    // HEAD is at add-time, and ~49 sequential status calls leave a wide window
+    // for that site's own cron to commit-without-pushing in between.
     const bump = [];
     const held = [];
     for (const ptr of p.pointers) {
-      const s2 = await status(path.join(root, ptr.path));
+      const subDir = path.join(root, ptr.path);
+      const s2 = await status(subDir);
       if (!s2.isRepo) {
-        held.push({ path: ptr.path, why: 'submodule is not an initialised repo' });
+        held.push({ path: ptr.path, why: `submodule status unavailable: ${s2.error}` });
         continue;
       }
       if (s2.files.length) {
         held.push({ path: ptr.path, why: `submodule has ${s2.files.length} uncommitted file(s)` });
         continue;
       }
-      if (s2.ahead > 0) {
-        held.push({ path: ptr.path, why: `submodule has ${s2.ahead} unpushed commit(s)` });
+      if (!s2.upstream) {
+        held.push({
+          path: ptr.path,
+          why: 'submodule branch has no upstream — its HEAD exists on one disk only',
+        });
         continue;
       }
-      bump.push(ptr.path);
+      const local = await git(subDir, ['rev-parse', 'HEAD']);
+      const remote = await git(subDir, ['rev-parse', '@{u}']);
+      if (!local.ok || !remote.ok) {
+        held.push({ path: ptr.path, why: 'cannot resolve submodule HEAD vs upstream' });
+        continue;
+      }
+      if (local.out.trim() !== remote.out.trim()) {
+        held.push({ path: ptr.path, why: 'submodule HEAD is not the commit on its remote' });
+        continue;
+      }
+      bump.push({ path: ptr.path, sha: local.out.trim() });
     }
+    const bumpPaths = bump.map(b => b.path);
     if (bump.length) {
       const msg = `chore: bump ${bump.length} site pointer(s)`;
       acts.push({
         action: 'commit',
-        detail: `${msg} [${bump.join(', ')}]`,
+        detail: `${msg} [${bumpPaths.join(', ')}]`,
         group: 'pointers',
-        paths: bump,
+        paths: bumpPaths,
       });
       if (apply) {
-        const add = await git(parent.dir, ['add', '--', ...bump]);
-        if (!add.ok) errors.push(`parent git add failed: ${add.err.trim()}`);
         const pident = await identityArgs(parent.dir);
-        const c = await git(parent.dir, [
-          ...pident,
-          'commit',
-          '-m',
-          msg,
-          '-m',
-          HYGIENE_TRAILER,
-          '--',
-          ...bump,
-        ]);
-        if (!c.ok && !/nothing to commit/i.test(c.out + c.err))
-          errors.push(`parent commit failed: ${(c.err || c.out).trim()}`);
+        // Each gitlink is written from the SHA verified above, in a scratch
+        // index, so a submodule that moves mid-sweep cannot substitute an
+        // unpushed commit into this pointer commit.
+        const res = await commitViaScratchIndex(parent.dir, {
+          gitlinks: bump,
+          message: msg,
+          trailer: HYGIENE_TRAILER,
+          ident: pident,
+        });
+        if (!res.ok) errors.push(`parent pointer commit failed: ${res.err}`);
       }
     }
     for (const h of held) acts.push({ action: 'hold', detail: `${h.path} — ${h.why}` });
@@ -268,7 +338,7 @@ async function sweep(root, opts = {}) {
     }
 
     reviewsBySlug.domains = p.review;
-    sweptSlugs.add('domains');
+    if (!p.skip) sweptSlugs.add('domains');
     const post = apply ? await status(parent.dir) : null;
     results.push({
       slug: 'domains',

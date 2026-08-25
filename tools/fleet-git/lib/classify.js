@@ -56,6 +56,7 @@ function plan(status, { slug, policy, submodulePaths = new Set(), isParent = fal
   for (const f of status.files || []) {
     const p = normPath(f.path);
     const tracked = f.kind !== 'untracked';
+    const deleted = f.kind === 'deleted';
 
     // Parent-repo gitlink bump: `sites/x.com` modified means the submodule's
     // HEAD moved. It is committed by the pointer pass, not as a normal file,
@@ -100,20 +101,52 @@ function plan(status, { slug, policy, submodulePaths = new Set(), isParent = fal
       continue;
     }
     // commit
+    // Committing a DELETION is categorically not the same decision as
+    // committing an edit: an empty bind mount, a bad checkout or a misfiring
+    // cleanup script turns into a deletion-only commit that is pushed and
+    // deployed, and the site 404s while the sweep stays silent. Only rules that
+    // opted in (`allow_deletes`) may commit deletions unattended, and even then
+    // only up to `max_deletions_per_commit`.
+    if (deleted && !rule.allow_deletes) {
+      out.review.push({
+        path: p,
+        kind: f.kind,
+        reason: `rule ${rule.id} would commit this, but it is a DELETION and the rule does not allow deletes`,
+      });
+      continue;
+    }
+
     const key = rule.group || rule.id;
     if (!groups.has(key))
       groups.set(key, {
         group: key,
         message: rule.message || `chore: sync ${key}`,
         paths: [],
+        deletes: [],
         ruleIds: new Set(),
       });
     const g = groups.get(key);
     g.paths.push(p);
+    if (deleted) g.deletes.push(p);
     g.ruleIds.add(rule.id);
   }
 
+  // An uncapped untrack list is a `git rm --cached` of arbitrary size on the
+  // next unattended run. Cap it the same way commit groups are capped.
+  const maxUntrack = policy.limits.max_untrack_per_repo;
+  const untracking = out.ignore.filter(i => i.tracked && i.untrack);
+  if (untracking.length > maxUntrack) {
+    for (const i of untracking)
+      out.review.push({
+        path: i.path,
+        kind: 'bulk-untrack',
+        reason: `${untracking.length} paths would be untracked in one sweep (limit ${maxUntrack})`,
+      });
+    out.ignore = out.ignore.filter(i => !(i.tracked && i.untrack));
+  }
+
   const maxFiles = policy.limits.max_files_per_commit;
+  const maxDeletes = policy.limits.max_deletions_per_commit;
   for (const g of groups.values()) {
     // A commit far larger than any normal cron tick is a signal something went
     // wrong (a bad checkout, a tool writing into the wrong tree) — not
@@ -127,10 +160,23 @@ function plan(status, { slug, policy, submodulePaths = new Set(), isParent = fal
         });
       continue;
     }
+    // A burst of deletions in an allow_deletes group is still the shape of an
+    // accident (an empty bind mount, a bad checkout), not of a queue draining
+    // one item at a time.
+    if (g.deletes.length > maxDeletes) {
+      for (const p of g.paths)
+        out.review.push({
+          path: p,
+          kind: 'bulk-delete',
+          reason: `group "${g.group}" deletes ${g.deletes.length} files (limit ${maxDeletes})`,
+        });
+      continue;
+    }
     out.commit.push({
       group: g.group,
       message: g.message,
       paths: g.paths,
+      deletes: g.deletes,
       ruleIds: [...g.ruleIds],
     });
   }

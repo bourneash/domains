@@ -57,4 +57,28 @@ function matchesAny(regexes, p) {
   return regexes.some(re => re.test(s));
 }
 
-module.exports = { toRegex, normPath, compile, matchesAny };
+// The supported subset is deliberately small. Anything outside it (a leading
+// `/`, a `!` negation, a `[...]` class) compiles to a regex that can never
+// match a normalised path — i.e. a rule written that way fails OPEN and
+// silently. For a `block` rule that means a credential slips through. Reject
+// at load time instead.
+function validatePattern(pattern) {
+  const pat = String(pattern);
+  if (!pat.trim()) return 'empty pattern';
+  if (pat.startsWith('/'))
+    return 'leading "/" is not supported (paths are repo-relative, unrooted)';
+  if (pat.startsWith('!')) return '"!" negation is not supported in rules (use an `except` list)';
+  if (/[[\]]/.test(pat)) return '"[...]" character classes are not supported';
+  if (pat.includes('\\')) return 'backslashes are not supported (use "/" separators)';
+  return null;
+}
+
+// A glob that matches essentially everything. Such a rule is never a real
+// policy decision — as an `ignore` + `untrack` rule it would `git rm --cached`
+// entire repositories on the next unattended sweep.
+const UNIVERSAL = new Set(['**', '*', '**/*', '**/**', '.', './**', '*/**']);
+function isUniversal(pattern) {
+  return UNIVERSAL.has(String(pattern).trim().replace(/\/+$/, ''));
+}
+
+module.exports = { toRegex, normPath, compile, matchesAny, validatePattern, isUniversal };
