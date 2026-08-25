@@ -22,6 +22,7 @@ host.docker.internal wiring site containers need to reach it.
 from __future__ import annotations
 
 import ipaddress
+import time
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
@@ -86,15 +87,45 @@ def _discover_docker_bridge_nets(ip_addr_output: str) -> list[ipaddress.IPv4Netw
     return nets
 
 
+def _read_bridge_nets() -> list[ipaddress.IPv4Network]:
+    """Ask the host which docker bridges exist RIGHT NOW."""
+    try:
+        import subprocess
+        out = subprocess.run(
+            ["ip", "-4", "-o", "addr", "show"], capture_output=True, text=True, timeout=2,
+        ).stdout
+        return _discover_docker_bridge_nets(out)
+    except Exception:
+        return []  # docker not present / ip unavailable — loopback-only is still correct
+
+
 _ALLOWED_NETS = [ipaddress.ip_network("127.0.0.0/8")]
-try:
-    import subprocess
-    _ip_out = subprocess.run(
-        ["ip", "-4", "-o", "addr", "show"], capture_output=True, text=True, timeout=2,
-    ).stdout
-    _ALLOWED_NETS.extend(_discover_docker_bridge_nets(_ip_out))
-except Exception:
-    pass  # docker not present / ip unavailable — loopback-only is still correct
+_ALLOWED_NETS.extend(_read_bridge_nets())
+
+# Discovering bridges ONCE at import made the allowlist a snapshot of whatever
+# docker networks existed when this process started. Every compose project gets
+# its own `br-*` bridge on its own 172.x subnet, so any site whose stack was
+# created — or recreated; `compose down` frees the subnet and `up` may take a
+# different one — after this process booted got a hard 403 with no way back
+# except an operator restarting media-gen. Found 2026-08-25: stinkyleftfoot.com's
+# bridge was created two days after this process started, so its guide-writer
+# silently shipped art-less drafts. Re-read the bridge table on a miss instead.
+# This does NOT widen the policy — the answer still comes from the same
+# docker0/br-* enumeration; it just stops the answer from going stale. Rate
+# limited so an unauthorized caller can't spin the subprocess in a loop.
+_REFRESH_INTERVAL_S = 30.0
+_last_refresh = 0.0
+
+
+def _refresh_allowed_nets() -> None:
+    global _last_refresh
+    now = time.monotonic()
+    if now - _last_refresh < _REFRESH_INTERVAL_S:
+        return
+    _last_refresh = now
+    for net in _read_bridge_nets():
+        if net not in _ALLOWED_NETS:
+            _ALLOWED_NETS.append(net)
 
 
 class _RestrictToLocalAndDocker(BaseHTTPMiddleware):
@@ -104,6 +135,10 @@ class _RestrictToLocalAndDocker(BaseHTTPMiddleware):
             addr = ipaddress.ip_address(client)
         except (TypeError, ValueError):
             addr = None
+        if addr is not None and not any(addr in net for net in _ALLOWED_NETS):
+            # Could be a bridge that appeared after we booted — re-read the
+            # table and re-check before rejecting.
+            _refresh_allowed_nets()
         if addr is None or not any(addr in net for net in _ALLOWED_NETS):
             return JSONResponse(status_code=403, content={"detail": "forbidden — not host-local or docker0"})
         return await call_next(request)

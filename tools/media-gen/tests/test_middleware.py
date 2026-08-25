@@ -71,3 +71,38 @@ def test_discover_docker_bridge_nets_includes_project_bridges_not_just_docker0()
     assert ipaddress.ip_network("172.30.53.0/24") in nets      # a second, different project bridge
     assert ipaddress.ip_network("10.0.2.0/24") not in nets     # eth0/LAN must NOT be swept in
     assert len(nets) == 3
+
+
+def test_bridge_created_after_boot_is_admitted_on_refresh(monkeypatch):
+    """Regression (2026-08-25): the allowlist was a boot-time snapshot, so a
+    compose project whose bridge was created later got a permanent 403 —
+    stinkyleftfoot.com's guide-writer silently shipped art-less drafts for
+    exactly this reason. A miss must re-read the bridge table before rejecting.
+    """
+    import ipaddress
+
+    from media_gen import api
+
+    monkeypatch.setattr(api, "_ALLOWED_NETS", [ipaddress.ip_network("127.0.0.0/8")])
+    monkeypatch.setattr(api, "_last_refresh", 0.0)
+    monkeypatch.setattr(api, "_read_bridge_nets", lambda: [ipaddress.ip_network("172.30.63.0/24")])
+
+    from starlette.testclient import TestClient as STC
+    c = STC(app, client=("172.30.63.4", 12345))
+    assert c.get("/health").status_code == 200
+
+
+def test_refresh_still_rejects_a_genuinely_foreign_client(monkeypatch):
+    """The refresh must not widen the policy — re-reading the table is only
+    allowed to admit addresses that are on an actual docker bridge."""
+    import ipaddress
+
+    from media_gen import api
+
+    monkeypatch.setattr(api, "_ALLOWED_NETS", [ipaddress.ip_network("127.0.0.0/8")])
+    monkeypatch.setattr(api, "_last_refresh", 0.0)
+    monkeypatch.setattr(api, "_read_bridge_nets", lambda: [ipaddress.ip_network("172.30.63.0/24")])
+
+    from starlette.testclient import TestClient as STC
+    c = STC(app, client=("203.0.113.5", 12345))
+    assert c.get("/health").status_code == 403
