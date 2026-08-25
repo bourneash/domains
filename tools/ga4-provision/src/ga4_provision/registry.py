@@ -12,10 +12,21 @@ REGISTRY_PATH = Path(
     "/home/jesse/projects/domains/tools/data-hub/registry/sites-analytics.yaml"
 )
 
-# GA4 loads only after explicit consent on these sites, so their numbers
-# undercount real traffic and must never be ranked against ungated sites.
-CONSENT_GATED = {"saveusfarms.com", "weapontester.com", "allthingsmasonic.com",
-                 "fishhooklabs.com", "shoptopless.com", "stinkyleftfoot.com"}
+# Consent gating is the fleet standard: every site loads gtag ONLY after the
+# visitor accepts the cookie banner, so every site's GA4 numbers undercount
+# real traffic and none may be ranked against an "ungated" baseline.
+#
+# This used to be an allowlist of gated sites, which silently drifted — it named
+# 5 sites while 29 were actually gated, so two dozen sites reported consented-only
+# traffic with no undercount caveat. Verified 2026-08-25 by loading every site in
+# a fresh browser context with no consent given: 0 of 29 fired a googletagmanager
+# request, and spot-checks confirmed the tag does fire after accepting.
+#
+# So the default is now inverted: gated unless explicitly excepted. A new site
+# inherits the correct (gated) value instead of the wrong one, which is the
+# failure mode that caused the drift. Add a domain here only after confirming
+# its gtag fires with no consent given.
+CONSENT_UNGATED: set[str] = set()
 
 HEADER = (
     "# Canonical site -> GA4 property / GSC property mapping.\n"
@@ -34,7 +45,10 @@ def build_registry(
     A site with no known measurement ID gets None, not "" — absence must stay
     distinguishable from a real value.
     """
-    gated = CONSENT_GATED if consent_gated is None else consent_gated
+    # `consent_gated` pins an explicit set of GATED sites (used by tests and any
+    # caller that wants to override); None means "use the fleet default", which
+    # is gated-unless-excepted.
+    explicit_gated = consent_gated
     sites: dict[str, dict] = {}
 
     # Sort ascending by property_id so a display_name collision deterministically
@@ -57,7 +71,8 @@ def build_registry(
             "ga4_property_id": prop.property_id,
             "ga4_measurement_id": (measurement_map.get(site) or "").strip() or None,
             "gsc_property": f"sc-domain:{site}",
-            "consent_gated": site in gated,
+            "consent_gated": (site in explicit_gated) if explicit_gated is not None
+                             else (site not in CONSENT_UNGATED),
         }
 
     return {"sites": sites}

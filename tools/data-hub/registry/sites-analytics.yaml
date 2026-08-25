@@ -6,22 +6,22 @@ sites:
     ga4_property_id: '544645637'
     ga4_measurement_id: G-F9JRVHH3MW
     gsc_property: sc-domain:0daynews.com
-    consent_gated: false
+    consent_gated: true
   0xroulette.com:
     ga4_property_id: '542247993'
     ga4_measurement_id: G-KQH7L26D95
     gsc_property: sc-domain:0xroulette.com
-    consent_gated: false
+    consent_gated: true
   3boobs.com:
     ga4_property_id: '540969570'
     ga4_measurement_id: null
     gsc_property: sc-domain:3boobs.com
-    consent_gated: false
+    consent_gated: true
   aliencouncil.com:
     ga4_property_id: '539754450'
     ga4_measurement_id: G-8Z6YMDR3VX
     gsc_property: sc-domain:aliencouncil.com
-    consent_gated: false
+    consent_gated: true
   allthingsmasonic.com:
     ga4_property_id: '549245276'
     ga4_measurement_id: G-EEHYHLL8Q0
@@ -31,22 +31,22 @@ sites:
     ga4_property_id: '539753593'
     ga4_measurement_id: G-ZHHXBF92TY
     gsc_property: sc-domain:americastrikes.com
-    consent_gated: false
+    consent_gated: true
   amputeenews.com:
     ga4_property_id: '548086783'
     ga4_measurement_id: G-B7QK9WYK2C
     gsc_property: sc-domain:amputeenews.com
-    consent_gated: false
+    consent_gated: true
   broadwayshowgirls.com:
     ga4_property_id: '542413111'
     ga4_measurement_id: G-SKQPE8V8JB
     gsc_property: sc-domain:broadwayshowgirls.com
-    consent_gated: false
+    consent_gated: true
   deeppenetrations.com:
     ga4_property_id: '540547540'
     ga4_measurement_id: G-LXCYBEFKC1
     gsc_property: sc-domain:deeppenetrations.com
-    consent_gated: false
+    consent_gated: true
   fishhooklabs.com:
     ga4_property_id: '549997086'
     ga4_measurement_id: G-381S20FDFZ
@@ -56,32 +56,32 @@ sites:
     ga4_property_id: '548108194'
     ga4_measurement_id: G-NHEWL0M01E
     gsc_property: sc-domain:newmomshop.com
-    consent_gated: false
+    consent_gated: true
   offshorehookup.com:
     ga4_property_id: '551079049'
     ga4_measurement_id: G-KBBXZGNV61
     gsc_property: sc-domain:offshorehookup.com
-    consent_gated: false
+    consent_gated: true
   oventoheaven.com:
     ga4_property_id: '546574620'
     ga4_measurement_id: G-RY7R673EL5
     gsc_property: sc-domain:oventoheaven.com
-    consent_gated: false
+    consent_gated: true
   rc-9.com:
     ga4_property_id: '539712309'
     ga4_measurement_id: null
     gsc_property: sc-domain:rc-9.com
-    consent_gated: false
+    consent_gated: true
   reviewtattoo.com:
     ga4_property_id: '539754267'
     ga4_measurement_id: G-JRCG92YYCB
     gsc_property: sc-domain:reviewtattoo.com
-    consent_gated: false
+    consent_gated: true
   rodhat.com:
     ga4_property_id: '548062354'
     ga4_measurement_id: G-GXHMCZ25QC
     gsc_property: sc-domain:rodhat.com
-    consent_gated: false
+    consent_gated: true
   saveusfarms.com:
     ga4_property_id: '542493246'
     ga4_measurement_id: G-GDYX2GPMMJ
@@ -96,7 +96,7 @@ sites:
     ga4_property_id: '539773741'
     ga4_measurement_id: G-Q378G15KZZ
     gsc_property: sc-domain:sinderella.org
-    consent_gated: false
+    consent_gated: true
   stinkyleftfoot.com:
     ga4_property_id: '551675161'
     ga4_measurement_id: G-ND0L33SP6S
@@ -106,22 +106,22 @@ sites:
     ga4_property_id: '539694930'
     ga4_measurement_id: G-R72CH4D2CR
     gsc_property: sc-domain:totaljerks.com
-    consent_gated: false
+    consent_gated: true
   trainingsharks.com:
     ga4_property_id: '549359949'
     ga4_measurement_id: G-ESRJQXFM0Z
     gsc_property: sc-domain:trainingsharks.com
-    consent_gated: false
+    consent_gated: true
   ultrarough.com:
     ga4_property_id: '539753693'
     ga4_measurement_id: G-2WSKDPGPXV
     gsc_property: sc-domain:ultrarough.com
-    consent_gated: false
+    consent_gated: true
   unsupervisedmedia.com:
     ga4_property_id: '551151919'
     ga4_measurement_id: G-66KS8C31JD
     gsc_property: sc-domain:unsupervisedmedia.com
-    consent_gated: false
+    consent_gated: true
   weapontester.com:
     ga4_property_id: '539755626'
     ga4_measurement_id: G-HYYSTD9NW8
@@ -131,19 +131,19 @@ sites:
     ga4_property_id: '549558311'
     ga4_measurement_id: G-M3RMTTHB71
     gsc_property: sc-domain:weirdassstuff.com
-    consent_gated: false
+    consent_gated: true
   weirdgirlstore.com:
     ga4_property_id: '548108381'
     ga4_measurement_id: G-DQ2B7ZK6Q3
     gsc_property: sc-domain:weirdgirlstore.com
-    consent_gated: false
+    consent_gated: true
   wetpages.com:
     ga4_property_id: '539774170'
     ga4_measurement_id: G-L1285EE0NE
     gsc_property: sc-domain:wetpages.com
-    consent_gated: false
+    consent_gated: true
   xxxtea.com:
     ga4_property_id: '539743210'
     ga4_measurement_id: G-P889LLFBNK
     gsc_property: sc-domain:xxxtea.com
-    consent_gated: false
+    consent_gated: true

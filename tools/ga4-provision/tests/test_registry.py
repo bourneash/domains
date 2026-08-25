@@ -14,13 +14,26 @@ def test_build_registry_maps_sites():
 
 
 def test_consent_gated_sites_are_flagged():
+    """Every fleet site gates GA4 behind the cookie banner, so both are True.
+
+    This previously asserted xxxtea.com was UNGATED. That encoded the drifted
+    allowlist rather than reality — verified 2026-08-25 by loading each live
+    site with no consent given, where 0 of 29 fired a googletagmanager request.
+    Ungated is now the explicit exception (registry.CONSENT_UNGATED), so the
+    override path is what this pins.
+    """
     props = [
         Property("1", "saveusfarms.com", "396394354"),
         Property("2", "xxxtea.com", "396394354"),
     ]
     data = registry.build_registry(props, {})
     assert data["sites"]["saveusfarms.com"]["consent_gated"] is True
-    assert data["sites"]["xxxtea.com"]["consent_gated"] is False
+    assert data["sites"]["xxxtea.com"]["consent_gated"] is True
+
+    # An explicit gated-set override still narrows it.
+    pinned = registry.build_registry(props, {}, consent_gated={"saveusfarms.com"})
+    assert pinned["sites"]["saveusfarms.com"]["consent_gated"] is True
+    assert pinned["sites"]["xxxtea.com"]["consent_gated"] is False
 
 
 def test_unknown_measurement_id_is_null_not_empty_string():
