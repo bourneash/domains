@@ -1,0 +1,13 @@
+{
+  "_comment": "Canonical exact versions for the dependencies that decide whether a site builds and deploys. Exact, never a caret: these repos all build with `npm ci`, so a range does not float at build time — it floats at LOCK-REFRESH time, independently per site, and nobody notices until two sites behave differently on the same commit. Bumping a version here is a deliberate fleet decision; run tools/dep-pins/check_pins.py --json to see who is off it.",
+  "pins": {
+    "astro": "7.2.6",
+    "@astrojs/cloudflare": "14.2.4",
+    "wrangler": "4.125.0"
+  },
+  "exempt": {
+    "0xroulette.com": "React/Vite SPA, not Astro — no adapter, and its wrangler major is pinned to its own stack",
+    "rc-9.com": "not an Astro site",
+    "trainingsharks.com": "WASM poker tool, not an Astro site"
+  }
+}

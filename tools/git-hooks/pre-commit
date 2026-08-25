@@ -35,6 +35,13 @@ if [ -f "$TOOLS_ROOT/fleet-images/precommit_check.sh" ]; then
   sh "$TOOLS_ROOT/fleet-images/precommit_check.sh" || exit 1
 fi
 
+# --- 1d. Fleet dependency-pin guard (no caret ranges on the pinned deps) ---
+# Fires only on a staged package.json that changes astro / @astrojs/cloudflare /
+# wrangler away from the fleet pin. See that script's header for the override.
+if [ -f "$TOOLS_ROOT/dep-pins/precommit_check.sh" ]; then
+  sh "$TOOLS_ROOT/dep-pins/precommit_check.sh" || exit 1
+fi
+
 # --- 2. Run the test suite of any tools/<name>/ that has staged changes ---
 # Opt-in per tool: only fires when tools/<name>/package.json declares a "test"
 # script AND deps are already installed (node_modules present) — so a tool
