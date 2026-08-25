@@ -97,6 +97,10 @@ CREATE TABLE IF NOT EXISTS posts (
     ai_model       TEXT,
     approved_by    TEXT,
     approved_at    TEXT,
+    likes          INTEGER,
+    reposts        INTEGER,
+    replies        INTEGER,
+    metrics_at     TEXT,
     created_at     TEXT NOT NULL,
     updated_at     TEXT NOT NULL
 );
@@ -167,8 +171,27 @@ def connect() -> sqlite3.Connection:
     conn = sqlite3.connect(str(path), timeout=30, isolation_level=None)
     conn.row_factory = sqlite3.Row
     conn.executescript(SCHEMA)
+    _migrate(conn)
     setattr(_local, key, conn)
     return conn
+
+
+#: Columns added after the first release. `CREATE TABLE IF NOT EXISTS` does
+#: nothing for an existing database, so new columns are added here instead.
+#: Additive only — never a destructive migration on a live queue.
+MIGRATIONS: list[tuple[str, str, str]] = [
+    ("posts", "likes", "INTEGER"),
+    ("posts", "reposts", "INTEGER"),
+    ("posts", "replies", "INTEGER"),
+    ("posts", "metrics_at", "TEXT"),
+]
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    for table, column, decl in MIGRATIONS:
+        existing = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+        if column not in existing:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
 
 
 def reset_connections() -> None:

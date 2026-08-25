@@ -115,7 +115,9 @@ def fake_adapter(monkeypatch):
 
     class FakeAdapter(Adapter):
         name = "fake"
-        caps = Capabilities(publish=True, reply=True, mentions=True, max_chars=200)
+        caps = Capabilities(
+            publish=True, reply=True, mentions=True, media=True, metrics=True, max_chars=200
+        )
         required_creds = ()
         sent: list = []
         inbox: list = []

@@ -18,7 +18,17 @@ from __future__ import annotations
 import json
 import traceback
 
-from social_hub import accounts, db, engagement, generator, notify, publisher, queue, sources
+from social_hub import (
+    accounts,
+    db,
+    engagement,
+    generator,
+    metrics,
+    notify,
+    publisher,
+    queue,
+    sources,
+)
 from social_hub.config import SiteConfig, load_all, load_site_config
 
 UI_URL = "http://127.0.0.1:4772/"
@@ -73,6 +83,7 @@ def tick_site(site: str, cfg: SiteConfig | None = None, *, publish: bool = True)
         _stage(stats, site, "generate", generator.generate, site, cfg)
         _stage(stats, site, "inbox", engagement.poll_site, site, cfg)
         _stage(stats, site, "replies", engagement.draft_replies, site, cfg)
+        _stage(stats, site, "metrics", metrics.refresh_site, site)
         if publish:
             due = [p for p in publisher.publish_due(limit=25) if p]
             stats["published"] = sum(1 for r in due if r.get("ok"))

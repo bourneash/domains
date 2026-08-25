@@ -30,6 +30,7 @@ class Capabilities:
     reply: bool = False
     mentions: bool = False
     media: bool = False
+    metrics: bool = False
     max_chars: int = 5000
     # Some platforms count a URL as a fixed-length token (X: 23 chars).
     url_weight: Optional[int] = None
@@ -55,6 +56,19 @@ class Mention:
 
 
 @dataclass
+class Image:
+    """A picture already resolved to bytes, with the URL it came from.
+
+    Both forms are carried because platforms differ: Bluesky and Mastodon
+    upload a blob, Pinterest wants a URL it can fetch itself.
+    """
+
+    data: bytes = b""
+    alt: str = ""
+    url: str = ""
+
+
+@dataclass
 class Outgoing:
     """What the scheduler hands an adapter."""
 
@@ -62,6 +76,9 @@ class Outgoing:
     link: str = ""
     title: str = ""
     media: list[str] = field(default_factory=list)
+    #: media resolved to bytes — populated by the publisher for adapters whose
+    #: caps.media is true, so adapters never touch the filesystem themselves.
+    images: list[Image] = field(default_factory=list)
     reply_to_remote_id: str = ""
     # Free-form platform routing hints from config (subreddit, board id, ...).
     options: dict = field(default_factory=dict)
@@ -102,6 +119,15 @@ class Adapter:
 
     def fetch_mentions(self, limit: int = 25, since: str | None = None) -> list[Mention]:
         return []
+
+    def fetch_metrics(self, remote_ids: list[str]) -> dict[str, dict]:
+        """Engagement counts keyed by remote id: {likes, reposts, replies}.
+
+        Batched on purpose — every platform that exposes counts exposes them
+        for many posts at once, and per-post polling is how you get rate
+        limited.
+        """
+        return {}
 
     # --- helpers ----------------------------------------------------------
     def fit(self, body: str, link: str = "") -> str:

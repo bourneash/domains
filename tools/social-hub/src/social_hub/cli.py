@@ -13,7 +13,17 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from social_hub import accounts, db, engagement, generator, publisher, queue, sources, worker
+from social_hub import (
+    accounts,
+    db,
+    engagement,
+    generator,
+    metrics as metrics_mod,
+    publisher,
+    queue,
+    sources,
+    worker,
+)
 from social_hub.config import load_all, load_site_config, managed_sites, site_config_path
 
 console = Console()
@@ -346,6 +356,37 @@ def tick(site: str | None, no_publish: bool, notify: bool, as_json: bool):
             f"published {stats.get('published', 0)}"
             + (f" [red]errors: {stats['errors']}[/red]" if stats.get("errors") else "")
         )
+
+
+@cli.command()
+@click.option("--site", default=None)
+@click.option("--days", default=30, show_default=True)
+@click.option("--refresh", is_flag=True, help="Pull fresh counts from the platforms first")
+def metrics(site: str | None, days: int, refresh: bool):
+    """Engagement on what we published — per platform, plus the top posts."""
+    if refresh:
+        for name in ([site] if site else managed_sites()):
+            console.print(f"{name}: {metrics_mod.refresh_site(name)}")
+
+    data = metrics_mod.summary(site, days=days)
+    table = Table(title=f"Engagement — last {days} days")
+    for col in ("Platform", "Posts", "Measured", "Likes", "Reposts", "Replies", "Avg"):
+        table.add_column(col)
+    for platform, row in sorted(data["platforms"].items()):
+        table.add_row(
+            platform, str(row["posts"]), str(row["measured"]), str(row["likes"]),
+            str(row["reposts"]), str(row["replies"]), str(row["avg_engagement"]),
+        )
+    console.print(table)
+
+    top = metrics_mod.top_posts(site, days=days, limit=5)
+    if top:
+        console.print("\n[bold]Top posts[/bold]")
+        for post in top:
+            console.print(
+                f"  [green]{metrics_mod.engagement(post):>4}[/green] "
+                f"{post['platform']:<9} {post['body'][:80]}"
+            )
 
 
 @cli.command()

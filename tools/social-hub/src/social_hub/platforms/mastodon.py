@@ -21,7 +21,9 @@ from social_hub.platforms.base import (
 
 class MastodonAdapter(Adapter):
     name = "mastodon"
-    caps = Capabilities(publish=True, reply=True, mentions=True, media=False, max_chars=500)
+    caps = Capabilities(
+        publish=True, reply=True, mentions=True, media=True, metrics=True, max_chars=500
+    )
     required_creds = ("MASTODON_INSTANCE", "MASTODON_ACCESS_TOKEN")
 
     def _base(self) -> str:
@@ -51,15 +53,35 @@ class MastodonAdapter(Adapter):
         me = self._request("GET", "/api/v1/accounts/verify_credentials")
         return {"handle": me.get("acct", "")}
 
-    def _status(self, text: str, reply_to: str = "") -> PostRef:
-        payload = {"status": text}
+    def _upload(self, image) -> str | None:
+        """Upload one attachment, returning its media id. Best effort: losing
+        the picture must not lose the post."""
+        try:
+            resp = httpx.post(
+                f"{self._base()}/api/v2/media",
+                headers=self._headers(),
+                files={"file": ("image.jpg", image.data, "image/jpeg")},
+                data={"description": image.alt} if image.alt else None,
+                timeout=60,
+            )
+            if resp.status_code >= 400:
+                return None
+            return str(resp.json().get("id") or "") or None
+        except httpx.HTTPError:
+            return None
+
+    def _status(self, text: str, reply_to: str = "", images=()) -> PostRef:
+        payload: dict = {"status": text}
         if reply_to:
             payload["in_reply_to_id"] = reply_to
+        media_ids = [mid for mid in (self._upload(i) for i in images if i.data) if mid]
+        if media_ids:
+            payload["media_ids"] = media_ids
         data = self._request("POST", "/api/v1/statuses", json=payload)
         return PostRef(remote_id=str(data["id"]), url=data.get("url", ""))
 
     def publish(self, out: Outgoing) -> PostRef:
-        return self._status(self.fit(out.body, out.link))
+        return self._status(self.fit(out.body, out.link), images=out.images)
 
     def reply(self, out: Outgoing) -> PostRef:
         if not out.reply_to_remote_id:
@@ -97,3 +119,17 @@ def _strip_html(html: str) -> str:
 
     text = re.sub(r"<br\s*/?>|</p>", "\n", html)
     return re.sub(r"<[^>]+>", "", text).strip()
+
+    def fetch_metrics(self, remote_ids: list[str]) -> dict[str, dict]:
+        out: dict[str, dict] = {}
+        for remote_id in remote_ids:
+            try:
+                status = self._request("GET", f"/api/v1/statuses/{remote_id}")
+            except AdapterError:
+                continue  # deleted or unavailable — skip, don't fail the batch
+            out[remote_id] = {
+                "likes": int(status.get("favourites_count") or 0),
+                "reposts": int(status.get("reblogs_count") or 0),
+                "replies": int(status.get("replies_count") or 0),
+            }
+        return out

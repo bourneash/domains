@@ -26,6 +26,7 @@ from social_hub import (
     db,
     engagement,
     generator,
+    metrics,
     publisher,
     queue,
     scheduler,
@@ -337,6 +338,21 @@ def run_tick(payload: dict = Body(default={})) -> dict:
         publish=bool(payload.get("publish", True)),
         notify_review=bool(payload.get("notify", False)),
     )
+
+
+@app.get("/api/metrics")
+def get_metrics(site: str | None = None, days: int = 30, limit: int = 10) -> dict:
+    return {
+        "summary": metrics.summary(site, days=days),
+        "top": metrics.top_posts(site, days=days, limit=limit),
+    }
+
+
+@app.post("/api/metrics/refresh")
+def refresh_metrics(payload: dict = Body(default={})) -> dict:
+    site = payload.get("site")
+    targets = [site] if site else managed_sites()
+    return {name: metrics.refresh_site(name) for name in targets}
 
 
 @app.get("/api/runs")

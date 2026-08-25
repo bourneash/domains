@@ -13,9 +13,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from social_hub import accounts, db, notify, queue
+from social_hub import accounts, db, media, notify, queue
 from social_hub.config import SiteConfig, load_site_config, site_root
-from social_hub.platforms import AdapterError, Outgoing, get_adapter
+from social_hub.platforms import AdapterError, Image, Outgoing, capabilities, get_adapter
 
 
 def _site_post_log(site: str) -> Path:
@@ -71,17 +71,28 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
     link = post.get("link") or (source or {}).get("url") or ""
     if platform_cfg.get("link_style") == "none":
         link = ""
-    media = post.get("media") or []
-    if not media and source and source.get("image_url"):
-        image = source["image_url"]
-        if image.startswith("/"):
-            image = f"https://{post['site']}{image}"
-        media = [image]
+    media_refs = list(post.get("media") or [])
+    if not media_refs and source and source.get("image_url"):
+        # Keep the site-absolute path as-is: media.load_image prefers the local
+        # checkout, which works even before the image has deployed.
+        media_refs = [source["image_url"]]
+    # Replies never carry the article's cover — it belongs to the original
+    # post, and re-attaching it to an answer reads like a bot.
+    images: list[Image] = []
+    if media_refs and post["kind"] != "reply" and capabilities(post["platform"]).media:
+        for ref in media_refs[:1]:
+            data = media.load_image(ref, post["site"])
+            if data:
+                images.append(
+                    Image(data=data, alt=media.alt_text((source or {}).get("title", "")), url=ref)
+                )
+
     return Outgoing(
         body=post["body"],
         link="" if post["kind"] == "reply" else link,
         title=(source or {}).get("title", "") or post["body"][:120],
-        media=media,
+        media=media_refs,
+        images=images,
         reply_to_remote_id=post.get("reply_to_remote_id") or "",
         options=options,
     )

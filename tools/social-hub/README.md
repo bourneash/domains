@@ -86,6 +86,7 @@ and `sites/0daynews.com/ops/social/hub.yaml` (manual review, 2 variants).
 | generate | drafts copy per platform, in the site's voice, under the platform's char limit |
 | inbox | pulls mentions/replies for channels whose platform supports it |
 | replies | filters, then drafts answers (the model may decline; there is no canned fallback) |
+| metrics | refreshes engagement counts on recent posts (often on day one, rarely after) |
 | publish | sends everything due, mirrors it to the site's `post-log.jsonl` |
 
 Overlapping runs are safe: publishing claims rows (`status='publishing'`),
@@ -102,14 +103,14 @@ draft ──approve──▶ scheduled ──▶ posted
 
 ## Platforms
 
-| Platform | Post | Reply | Inbox | Notes |
-|---|:--:|:--:|:--:|---|
-| bluesky | ✅ | ✅ | ✅ | reference implementation; accounts vaulted fleet-wide |
-| mastodon | ✅ | ✅ | ✅ | token only, no app review |
-| x | ✅ | ✅ | ⚠️ | mentions need a paid tier; degrades to post-only |
-| reddit | ✅ | ✅ | ✅ | parked fleet-wide (OAuth app creation blocked) |
-| pinterest | ✅ | — | — | needs a business account + approved v5 app |
-| console | ✅ | ✅ | ✅ | local JSONL outbox — onboard new sites here first |
+| Platform | Post | Reply | Inbox | Images | Metrics | Notes |
+|---|:--:|:--:|:--:|:--:|:--:|---|
+| bluesky | ✅ | ✅ | ✅ | ✅ | ✅ | reference implementation; accounts vaulted fleet-wide |
+| mastodon | ✅ | ✅ | ✅ | ✅ | ✅ | token only, no app review |
+| x | ✅ | ✅ | ⚠️ | — | ⚠️ | mentions/metrics need a paid tier; degrades to post-only |
+| reddit | ✅ | ✅ | ✅ | — | — | parked fleet-wide (OAuth app creation blocked) |
+| pinterest | ✅ | — | — | ✅ | — | needs a business account + approved v5 app |
+| console | ✅ | ✅ | ✅ | ✅ | — | local JSONL outbox — onboard new sites here first |
 
 Adding one is a single file in `platforms/` plus a line in the registry; the
 scheduler routes by declared capability, so a post-only platform never has
@@ -119,11 +120,11 @@ replies generated for it.
 
 - **UI** — `social-hub serve`, then http://127.0.0.1:4772 — overview, queue
   (inline editing, approve/reject/post-now/reschedule), 14-day calendar, inbox,
-  channels, activity log.
+  insights (engagement + top posts), channels, activity log.
 - **API** — same host under `/api`, OpenAPI at `/api/docs`. Set
   `SOCIAL_HUB_TOKEN` to require a bearer token.
 - **CLI** — `social-hub --help`; `status`, `queue`, `compose`, `approve`,
-  `publish`, `inbox`, `channels`, `tick`, `doctor`.
+  `publish`, `inbox`, `metrics`, `channels`, `tick`, `doctor`.
 
 ## Operations
 
@@ -137,6 +138,22 @@ Health rules of thumb: `social-hub status` shows per-site queue counts, next
 send, and inbox depth; `social-hub doctor` catches missing channels and
 credentials; failures and review backlogs go to the site's Slack channel, and
 healthy runs stay silent.
+
+## Images
+
+Posts carry the article's cover automatically on platforms that support it.
+The image is read from the site checkout first (`site/public/...`), falling
+back to HTTP, resized under the ~950KB blob ceiling, and captioned with the
+article title as alt text. A missing or oversized image costs the post its
+picture, never its publication. `SOCIAL_HUB_NO_MEDIA=1` disables attachments.
+
+## Engagement
+
+`social-hub metrics [--refresh]` reports likes/reposts/replies per platform
+and the top posts, and the tick refreshes counts on a decaying ladder — every
+45 minutes on a post's first six hours, daily after three days, not at all
+after two weeks. Deliberately shallow: enough to answer "which copy worked",
+without needing an analytics-tier API.
 
 ## Data
 

@@ -393,6 +393,76 @@ async function renderChannels(root) {
   );
 }
 
+// ---------------------------------------------------------------- insights
+async function renderInsights(root) {
+  const { summary, top } = await api(`/metrics?days=30&limit=10&${siteQuery()}`);
+  const platforms = Object.entries(summary.platforms || {});
+  root.append(el('h2', {}, `Engagement — last ${summary.days} days`));
+  if (!platforms.length) {
+    root.append(el('div', { className: 'empty' }, 'Nothing published in this window yet.'));
+    return;
+  }
+  const table = el(
+    'table',
+    {},
+    el(
+      'tr',
+      {},
+      ...['Platform', 'Posts', 'Measured', 'Likes', 'Reposts', 'Replies', 'Avg'].map(h =>
+        el('th', {}, h)
+      )
+    )
+  );
+  for (const [platform, row] of platforms.sort()) {
+    table.append(
+      el(
+        'tr',
+        {},
+        el('td', {}, platform),
+        el('td', {}, String(row.posts)),
+        el('td', {}, String(row.measured)),
+        el('td', {}, String(row.likes)),
+        el('td', {}, String(row.reposts)),
+        el('td', {}, String(row.replies)),
+        el('td', {}, String(row.avg_engagement))
+      )
+    );
+  }
+  root.append(table);
+
+  root.append(el('h2', {}, 'Top posts'));
+  if (!top.length) {
+    root.append(
+      el('div', { className: 'empty' }, 'No engagement measured yet — counts refresh as posts age.')
+    );
+    return;
+  }
+  for (const post of top) root.append(postCard(post, { onChange: render }));
+
+  root.append(
+    el(
+      'div',
+      { className: 'actions' },
+      el(
+        'button',
+        {
+          onclick: async () => {
+            const res = await api('/metrics/refresh', {
+              method: 'POST',
+              body: { site: state.site || null },
+            });
+            toast(
+              `refreshed: ${Object.values(res).reduce((n, r) => n + (r.updated || 0), 0)} posts`
+            );
+            render();
+          },
+        },
+        'Refresh counts now'
+      )
+    )
+  );
+}
+
 // ---------------------------------------------------------------- activity
 async function renderActivity(root) {
   const { events } = await api(`/events?limit=120&${siteQuery()}`);
@@ -422,6 +492,7 @@ const VIEWS = {
   queue: renderQueue,
   calendar: renderCalendar,
   inbox: renderInbox,
+  insights: renderInsights,
   channels: renderChannels,
   activity: renderActivity,
 };

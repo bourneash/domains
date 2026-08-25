@@ -23,7 +23,8 @@ from social_hub.platforms.base import (
 class XAdapter(Adapter):
     name = "x"
     caps = Capabilities(
-        publish=True, reply=True, mentions=True, media=False, max_chars=280, url_weight=23
+        publish=True, reply=True, mentions=True, media=False, metrics=True,
+        max_chars=280, url_weight=23,
     )
     required_creds = (
         "X_API_KEY",
@@ -121,4 +122,25 @@ class XAdapter(Adapter):
                     kind="mention",
                 )
             )
+        return out
+
+    def fetch_metrics(self, remote_ids: list[str]) -> dict[str, dict]:
+        if not remote_ids:
+            return {}
+        try:
+            resp = self.client().get_tweets(
+                ids=remote_ids[:100], tweet_fields=["public_metrics"]
+            )
+        except Exception as exc:
+            if "403" in str(exc):
+                return {}  # not entitled on this tier
+            raise AdapterError(f"x metrics failed: {exc}") from exc
+        out: dict[str, dict] = {}
+        for tweet in resp.data or []:
+            metrics = getattr(tweet, "public_metrics", None) or {}
+            out[str(tweet.id)] = {
+                "likes": int(metrics.get("like_count", 0)),
+                "reposts": int(metrics.get("retweet_count", 0)),
+                "replies": int(metrics.get("reply_count", 0)),
+            }
         return out

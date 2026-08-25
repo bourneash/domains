@@ -32,7 +32,7 @@ def _rkey(uri: str) -> str:
 class BlueskyAdapter(Adapter):
     name = "bluesky"
     caps = Capabilities(
-        publish=True, reply=True, mentions=True, media=False, max_chars=300
+        publish=True, reply=True, mentions=True, media=True, metrics=True, max_chars=300
     )
     # An app password is strongly preferred, but the fleet's older Bluesky
     # items only carry the account password — accept either rather than
@@ -42,6 +42,7 @@ class BlueskyAdapter(Adapter):
     def __init__(self, creds: dict | None = None):
         super().__init__(creds)
         self._client: Any = None
+        self._last_image_error: str = ""
 
     # --- plumbing ---------------------------------------------------------
     def identifier(self) -> str:
@@ -77,17 +78,36 @@ class BlueskyAdapter(Adapter):
         return {"handle": getattr(client.me, "handle", self.identifier())}
 
     # --- verbs ------------------------------------------------------------
-    def publish(self, out: Outgoing) -> PostRef:
+    def _send(self, text: str, out: Outgoing, reply_ref=None) -> PostRef:
+        """One send path for posts and replies, with or without a picture.
+
+        A failed image upload falls back to the text-only post rather than
+        losing the post entirely — the copy is the payload, the cover is a
+        bonus.
+        """
         client = self.client()
-        text = self.fit(out.body, out.link if out.link else "")
-        try:
-            # send_post builds facets (link/mention detection) for us, so the
-            # trailing URL renders as a real link instead of plain text.
-            resp = client.send_post(text=text)
-        except Exception as exc:
-            raise AdapterError(f"bluesky post failed: {exc}") from exc
-        handle = self.identifier()
-        return PostRef(remote_id=resp.uri, url=_handle_to_url(handle, _rkey(resp.uri)))
+        image = next((i for i in out.images if i.data), None)
+        kwargs = {"reply_to": reply_ref} if reply_ref else {}
+        resp = None
+        if image:
+            try:
+                resp = client.send_image(
+                    text=text, image=image.data, image_alt=image.alt, **kwargs
+                )
+            except Exception as exc:
+                resp = None
+                self._last_image_error = str(exc)
+        if resp is None:
+            try:
+                # send_post builds facets (link/mention detection) for us, so
+                # the trailing URL renders as a real link, not plain text.
+                resp = client.send_post(text=text, **kwargs)
+            except Exception as exc:
+                raise AdapterError(f"bluesky post failed: {exc}") from exc
+        return PostRef(remote_id=resp.uri, url=_handle_to_url(self.identifier(), _rkey(resp.uri)))
+
+    def publish(self, out: Outgoing) -> PostRef:
+        return self._send(self.fit(out.body, out.link if out.link else ""), out)
 
     def reply(self, out: Outgoing) -> PostRef:
         if not out.reply_to_remote_id:
@@ -112,16 +132,11 @@ class BlueskyAdapter(Adapter):
             if root
             else parent_ref
         )
-        text = self.fit(out.body, out.link if out.link else "")
-        try:
-            resp = client.send_post(
-                text=text,
-                reply_to=models.AppBskyFeedPost.ReplyRef(parent=parent_ref, root=root_ref),
-            )
-        except Exception as exc:
-            raise AdapterError(f"bluesky reply failed: {exc}") from exc
-        handle = self.identifier()
-        return PostRef(remote_id=resp.uri, url=_handle_to_url(handle, _rkey(resp.uri)))
+        return self._send(
+            self.fit(out.body, out.link if out.link else ""),
+            out,
+            reply_ref=models.AppBskyFeedPost.ReplyRef(parent=parent_ref, root=root_ref),
+        )
 
     def fetch_mentions(self, limit: int = 25, since: str | None = None) -> list[Mention]:
         client = self.client()
@@ -154,4 +169,24 @@ class BlueskyAdapter(Adapter):
                     kind="reply" if reason == "reply" else "mention",
                 )
             )
+        return out
+
+    def fetch_metrics(self, remote_ids: list[str]) -> dict[str, dict]:
+        client = self.client()
+        out: dict[str, dict] = {}
+        # get_posts takes at most 25 URIs per call.
+        for start in range(0, len(remote_ids), 25):
+            chunk = [uri for uri in remote_ids[start : start + 25] if uri.startswith("at://")]
+            if not chunk:
+                continue
+            try:
+                posts = client.get_posts(chunk).posts
+            except Exception as exc:
+                raise AdapterError(f"bluesky metrics failed: {exc}") from exc
+            for post in posts:
+                out[post.uri] = {
+                    "likes": int(getattr(post, "like_count", 0) or 0),
+                    "reposts": int(getattr(post, "repost_count", 0) or 0),
+                    "replies": int(getattr(post, "reply_count", 0) or 0),
+                }
         return out
