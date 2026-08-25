@@ -62,3 +62,4 @@ tools/fleet-registry/drift.log
 tools/fleet-registry/drift.log.1
 tools/fleet-registry/.drift.lock
 tools/fleet-registry/.drift-state.json
+Findings-*.md
