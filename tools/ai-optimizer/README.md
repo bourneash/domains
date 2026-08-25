@@ -146,6 +146,13 @@ They are independent on purpose — pausing filing should not stop you applying
 a fix you already approved, and vice versa. Resuming the implementer asks for
 confirmation (it is the direction that starts changing code again).
 
+Each job also has a **Run now** button and a last-run stamp (hover it for the
+log tail). On-demand runs fire the exact command supercronic does, detached in
+the fleet-cron container; both scripts hold an flock, so triggering one while a
+scheduled run is in flight is a safe no-op rather than a double run. A paused
+job refuses to run on demand — the scripts exit 0 silently on their own
+disabled flag, which would otherwise look like a successful run.
+
 Same flag-file convention as a site role's pause, so the CLI still works and
 the cron scripts only ever test for existence:
 

@@ -997,6 +997,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  // On-demand run of either job — same command supercronic fires, detached
+  // inside fleet-cron. The scripts' own flock makes a concurrent trigger a
+  // safe no-op. Refuses when the job is paused (see aioptimizer.run).
+  app.post('/api/ai-optimizer/run/:job', async (req, res) => {
+    try {
+      res.json(await aiOptimizer.run(root, req.params.job));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
   app.post('/api/ai-optimizer/:status/:file/move', (req, res) => {
     try {
       const body = req.body || {};

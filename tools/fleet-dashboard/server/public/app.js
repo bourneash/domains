@@ -7634,13 +7634,18 @@ async function renderAIOptimizer() {
   const toggleRow = Object.entries(tg)
     .map(([job, t]) => {
       const on = t.enabled;
-      return `<span style="margin-right:18px">
-        <button class="btn sm ${on ? '' : 'danger'}" data-aiopt-toggle="${esc(job)}" data-aiopt-next="${on ? '0' : '1'}">
-          ${on ? '⏸ Pause' : '▶ Resume'} ${esc(t.label)}
-        </button>
+      const last =
+        t.last_run && t.last_run.at ? `last run ${cmRel(t.last_run.at) || '?'}` : 'never run';
+      return `<div style="margin-bottom:8px">
+        <strong>${esc(t.label)}</strong>
         <span class="badge ${on ? 'b-green' : 'b-red'}">${on ? 'running' : 'PAUSED'}</span>
-        <span class="muted">${esc(t.detail || '')}</span>
-      </span>`;
+        <button class="btn sm ${on ? '' : 'danger'}" data-aiopt-toggle="${esc(job)}" data-aiopt-next="${on ? '0' : '1'}">
+          ${on ? '⏸ Pause' : '▶ Resume'}
+        </button>
+        <button class="btn sm" data-aiopt-run="${esc(job)}" ${on ? '' : 'disabled title="paused"'}>▶ Run now</button>
+        <span class="muted" title="${esc((t.last_run && t.last_run.tail) || '')}">${esc(last)}</span>
+        <span class="muted">· ${esc(t.detail || '')}</span>
+      </div>`;
     })
     .join('');
 
@@ -7679,6 +7684,32 @@ async function renderAIOptimizer() {
     b.addEventListener('click', () => {
       AIOPT.status = b.dataset.aioptStatus;
       renderAIOptimizer();
+    })
+  );
+
+  $$('[data-aiopt-run]').forEach(b =>
+    b.addEventListener('click', async () => {
+      const job = b.dataset.aioptRun;
+      if (
+        job === 'implement' &&
+        !confirm(
+          'Run the implementer now? It will apply the oldest approved ticket to its canary site and push.'
+        )
+      )
+        return;
+      const orig = b.textContent;
+      b.disabled = true;
+      b.textContent = '⏳ started…';
+      try {
+        await api('POST', `/api/ai-optimizer/run/${encodeURIComponent(job)}`);
+        // Detached — the run takes minutes. Re-render after a beat so the
+        // last-run stamp updates; the log tail is on the hover title.
+        setTimeout(renderAIOptimizer, 4000);
+      } catch (e) {
+        alert(`Run failed: ${e.message}`);
+        b.disabled = false;
+        b.textContent = orig;
+      }
     })
   );
 

@@ -164,3 +164,34 @@ test('summary exposes toggles so the tab renders them without a second call', ()
   assert.equal(s.toggles.implement.enabled, false);
   assert.equal(s.toggles.analyst.enabled, true);
 });
+
+test('run refuses while the job is paused', async () => {
+  const root = tmpRoot();
+  ai.setToggle(root, 'analyst', false);
+  // Must be an explicit refusal, not a silent no-op: the script itself would
+  // exit 0 on the disabled flag, which would look like a successful run.
+  await assert.rejects(() => ai.run(root, 'analyst'), /paused/);
+});
+
+test('run rejects an unknown job', async () => {
+  const root = tmpRoot();
+  await assert.rejects(() => ai.run(root, 'nope'), /unknown job/);
+});
+
+test('lastRun reports never-run cleanly and reads a real log tail', () => {
+  const root = tmpRoot();
+  assert.deepEqual(ai.lastRun(root, 'analyst'), { at: null, tail: null });
+
+  const logFp = path.join(root, 'tools', 'ai-optimizer', 'analyst.log');
+  fs.writeFileSync(logFp, 'line one\nline two\nline three\n');
+  const lr = ai.lastRun(root, 'analyst');
+  assert.ok(lr.at, 'reports a timestamp once the log exists');
+  assert.match(lr.tail, /line three/);
+});
+
+test('toggles carry last_run so the tab renders it in one call', () => {
+  const root = tmpRoot();
+  const t = ai.toggles(root);
+  assert.ok('last_run' in t.analyst);
+  assert.equal(t.analyst.last_run.at, null);
+});

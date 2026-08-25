@@ -16,6 +16,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const yaml = require('js-yaml');
+const { execFile } = require('node:child_process');
 
 const STATUSES = ['proposed', 'approved', 'applied', 'rejected', 'deferred'];
 
@@ -245,11 +246,15 @@ function move(root, fromStatus, file, toStatus, payload = {}) {
 const JOBS = {
   analyst: {
     flag: '.analyst-disabled',
+    script: 'ai-optimizer-cron.sh',
+    log: 'analyst.log',
     label: 'Daily analyst',
     detail: 'Files new findings at 06:45 ET. Off = no new tickets.',
   },
   implement: {
     flag: '.implement-disabled',
+    script: 'ai-optimizer-implement.sh',
+    log: 'implement.log',
     label: 'Implementer',
     detail: 'Applies approved tickets (:11/:31/:51). Off = approvals queue up, nothing changes.',
   },
@@ -265,9 +270,65 @@ function toggles(root) {
   return Object.fromEntries(
     Object.entries(JOBS).map(([k, j]) => [
       k,
-      { enabled: !fs.existsSync(flagPath(root, k)), label: j.label, detail: j.detail },
+      {
+        enabled: !fs.existsSync(flagPath(root, k)),
+        label: j.label,
+        detail: j.detail,
+        last_run: lastRun(root, k),
+      },
     ])
   );
+}
+
+// Last-run info for the tab, so "Run now" has visible feedback. Read straight
+// off the script's own rotating log — no extra state file to drift.
+function lastRun(root, job) {
+  const j = JOBS[job];
+  if (!j) throw httpErr(400, `unknown job ${job}`);
+  const fp = path.join(root, 'tools', 'ai-optimizer', j.log);
+  let st;
+  try {
+    st = fs.statSync(fp);
+  } catch {
+    return { at: null, tail: null };
+  }
+  // Logs are small (rotated at 5MB) but only the tail is interesting.
+  let tail = null;
+  try {
+    const text = fs.readFileSync(fp, 'utf8');
+    const lines = text.trimEnd().split('\n').filter(Boolean);
+    tail = lines.slice(-4).join('\n');
+  } catch {
+    /* unreadable is not fatal — the timestamp alone is still useful */
+  }
+  return { at: new Date(st.mtimeMs).toISOString(), tail };
+}
+
+// Fire a job immediately, detached, inside the fleet-cron container — the exact
+// command supercronic runs. Both scripts hold an flock, so triggering one while
+// a scheduled run is in flight no-ops safely rather than double-running.
+//
+// A paused job refuses to run: the toggle would not stop this path (the scripts
+// check their own flag and exit 0 silently, which would look like a successful
+// run in the UI), so the refusal has to be explicit and visible here.
+//
+// async so the paused/unknown-job guards REJECT rather than throwing
+// synchronously — otherwise one failure mode is a sync throw and the other a
+// rejection, and every caller has to handle both.
+async function run(root, job) {
+  const j = JOBS[job];
+  if (!j) throw httpErr(400, `unknown job ${job}`);
+  if (fs.existsSync(flagPath(root, job))) {
+    throw httpErr(409, `${j.label} is paused — resume it before running on demand`);
+  }
+  const script = `${root}/tools/scripts/${j.script}`;
+  return new Promise((resolve, reject) => {
+    execFile('docker', ['exec', '-d', 'fleet-cron', 'bash', script], { timeout: 15000 }, err =>
+      err
+        ? reject(httpErr(409, `could not start: ${err.message}`))
+        : resolve({ ok: true, job, started: true })
+    );
+  });
 }
 
 function setToggle(root, job, enabled) {
@@ -309,6 +370,8 @@ module.exports = {
   summary,
   toggles,
   setToggle,
+  run,
+  lastRun,
   parseTicket,
   serializeTicket,
   queueRoot,
