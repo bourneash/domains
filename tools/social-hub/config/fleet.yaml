@@ -39,6 +39,10 @@ defaults:
     approval: manual        # replies default to manual even where posts are auto
     max_per_day: 12
     poll_limit: 25
+    # Spam terms only. Prompt-injection phrasing is blocked unconditionally by
+    # engagement.INJECTION_MARKERS and is NOT configurable here — a per-site
+    # config replaces this list rather than extending it, so security filtering
+    # must not live in it.
     ignore_keywords: []
     ignore_authors: []
 

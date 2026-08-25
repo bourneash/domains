@@ -104,6 +104,33 @@ def poll_site(site: str, cfg: SiteConfig | None = None) -> dict:
 # --------------------------------------------------------------------------
 # filtering
 # --------------------------------------------------------------------------
+# Always applied, on every site, regardless of config. These are not spam
+# filtering — they are the cheapest layer of prompt-injection defence, running
+# before draft_reply() so a hostile mention never reaches the model at all.
+#
+# Deliberately NOT part of `reply.ignore_keywords`: a per-site config REPLACES
+# that list rather than extending it, so the first site to add its own spam word
+# would silently switch injection defence off for itself and nobody would
+# notice. Site config tunes spam; this is not tunable.
+INJECTION_MARKERS = (
+    "ignore previous",
+    "ignore all previous",
+    "ignore the above",
+    "disregard previous",
+    "disregard the above",
+    "system prompt",
+    "your instructions",
+    "you are now",
+    "jailbreak",
+    "prompt injection",
+    "reveal your",
+    "repeat the words above",
+    "--dangerously",
+    "rm -rf",
+    "<script",
+)
+
+
 def should_ignore(mention: dict, cfg: SiteConfig) -> str | None:
     """Reason to ignore this mention, or None to proceed."""
     handle = (mention.get("author_handle") or "").lower()
@@ -114,6 +141,9 @@ def should_ignore(mention: dict, cfg: SiteConfig) -> str | None:
     if allow and handle.lstrip("@") not in allow:
         return "author not on allow list"
     text = (mention.get("text") or "").lower()
+    for marker in INJECTION_MARKERS:
+        if marker in text:
+            return f"matched injection marker '{marker}'"
     for word in cfg.get("reply.ignore_keywords") or []:
         if str(word).lower() in text:
             return f"matched ignore keyword '{word}'"
