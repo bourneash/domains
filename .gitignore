@@ -78,3 +78,10 @@ Findings-*.md
 # Runtime data, same convention every site uses for its own ops/logs/*.
 ops/logs/*
 !ops/logs/.gitkeep
+
+# Design-review screenshots that land at the repo root during a site build.
+# `/*.png` below already keeps them out of git; this is the parking spot for
+# ones nothing has touched in a week, so the root stays legible while an
+# in-flight design session keeps writing fresh ones (B14, 2026-08-25).
+# Nothing reads from here — delete it whenever.
+.screenshots-archive/
