@@ -279,7 +279,20 @@ function startContainer(site) {
   // daemon resolves them; it doesn't see our container's view).
   const { ttyd: ttydPort, dev: devPort } = allocPorts(site);
   const hostSiteDir = path.join(HOST_DOMAINS_ROOT, 'sites', site);
-  const hostSharedEnv = path.join(HOST_DOMAINS_ROOT, '.env');
+  // Site-scoped creds, not the fleet's. These containers run Claude with
+  // --dangerously-skip-permissions, so handing them the 61-key shared .env
+  // (GITHUB_TOKEN, the Amazon secret, the PIA password, FD_TOKEN) is the same
+  // exposure tools/env-broker just removed from the cron containers. Fails
+  // CLOSED: if no render exists we mount nothing rather than fall back to the
+  // fleet file — a dev box without creds is an inconvenience, a dev box with
+  // all of them is the incident.
+  const hostSharedEnv = path.join(
+    HOST_DOMAINS_ROOT,
+    'tools',
+    'env-broker',
+    'rendered',
+    `${site}.env`
+  );
 
   // Per-site claude project dir (Option A architecture):
   //   - Site is bind-mounted at the SAME host path inside the container so
@@ -387,6 +400,11 @@ function startContainer(site) {
   }
   if (fs.existsSync(hostSharedEnv)) {
     args.push('-v', `${hostSharedEnv}:${hostSiteDir}/.env.shared:ro`);
+  } else {
+    console.warn(
+      `[dd] no rendered env for ${site} — starting with NO credentials. ` +
+        `Run: python3 tools/env-broker/env_broker.py render --site ${site}`
+    );
   }
   args.push(IMAGE);
 

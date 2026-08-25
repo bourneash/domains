@@ -37,9 +37,13 @@ services:
       # Sites dir at SAME path → both fs.readdir (in-container) and
       # docker -v paths (resolved on host) work consistently.
       - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/sites:${DOMAINS_ROOT:-/home/jesse/projects/domains}/sites:ro
-      # Shared .env at SAME path — panel only checks existsSync; the
-      # daemon mounts it RO into workers. The :ro here is panel-side.
-      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/.env:${DOMAINS_ROOT:-/home/jesse/projects/domains}/.env:ro
+      # Rendered per-site envs at SAME path — panel only checks existsSync
+      # (the path it hands `docker run` is resolved on the host), so the dir
+      # must be visible here too or the check fails closed for every site.
+      # This replaced the shared fleet .env: these workers run Claude with
+      # --dangerously-skip-permissions, and handing them all 61 fleet keys is
+      # the exposure tools/env-broker removed from the cron containers.
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/env-broker/rendered:${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/env-broker/rendered:ro
       # State file — port-per-site assignments persist here.
       - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/domain-developer/state.json:/app/state.json
       # Per-site Claude state now lives on HOST BINDS under here (not named

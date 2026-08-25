@@ -54,7 +54,11 @@ ENV_LINE = re.compile(r"^([A-Z0-9_]+)=(.*)$")
 SKIP_PARTS = ("/logs/", "/node_modules/", "/.venv/", "/board/", "/__pycache__/", "/out/")
 
 
-def load_env_file(path: Path = ENV_FILE) -> dict[str, str]:
+def load_env_file(path: Path | None = None) -> dict[str, str]:
+    # Resolved at call time, not bound as a default: a default argument is
+    # evaluated once at import, which freezes ENV_FILE and makes the function
+    # untestable (and unaffected by any later override of the module global).
+    path = path or ENV_FILE
     if not path.exists():
         return {}
     out = {}
@@ -270,7 +274,11 @@ def cmd_render(args, policy, slack) -> int:
         with os.fdopen(fd, "w") as fh:
             fh.write(body)
         os.replace(tmp, out)
-        print(f"{domain:26s} {len(keys):2d} keys -> {out.relative_to(ROOT)}")
+        try:
+            shown = out.relative_to(ROOT)
+        except ValueError:      # RENDER_DIR moved outside the repo
+            shown = out
+        print(f"{domain:26s} {len(keys):2d} keys -> {shown}")
     return rc
 
 

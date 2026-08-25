@@ -81,7 +81,17 @@ start_or_attach() {
         persist_state_dir="$(cd "${state_root}/${site}/persist" && pwd)"
 
         local extra=()
-        [[ -f "${ROOT_REPO}/.env" ]] && extra+=(-v "${ROOT_REPO}/.env:${dir}/.env.shared:ro")
+        # Site-scoped creds, not the fleet's. This container runs Claude with
+        # --dangerously-skip-permissions; the 61-key shared .env is the exposure
+        # tools/env-broker removed from the cron containers. Fails CLOSED — no
+        # render means no credentials, never a fall back to the fleet file.
+        local rendered_env="${ROOT_REPO}/tools/env-broker/rendered/${site}.env"
+        if [[ -f "${rendered_env}" ]]; then
+            extra+=(-v "${rendered_env}:${dir}/.env.shared:ro")
+        else
+            echo "warning: no rendered env for ${site} — starting with NO credentials." >&2
+            echo "         run: python3 tools/env-broker/env_broker.py render --site ${site}" >&2
+        fi
         # RO shares from host ~/.claude/, only if they exist:
         #   plugins/commands/hooks  — shared skills/commands/hooks (usable, not editable)
         #   skills                  — personal skills (~/.claude/skills)

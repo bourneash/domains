@@ -82,6 +82,21 @@ rotated without touching the rest.
 - Renders are not automatic. Job 14 only *detects* drift — deliberate rollouts,
   per `feedback_no_auto_rollout_tool`.
 
+## Who consumes the rendered files
+
+- **Site cron + worker containers** — `sites/*/docker-compose.yml` (all 27).
+- **domain-developer dev containers** — `tools/domain-developer` (`bin/domain-developer`
+  and `server/server.js`). These run Claude with `--dangerously-skip-permissions`,
+  so they were the same exposure through a second door. Both spawn paths now
+  **fail closed**: no rendered file means no credentials mounted, never a
+  fallback to the fleet `.env`. The panel needs `rendered/` bind-mounted at the
+  same host path, because it resolves `docker run -v` paths for the host but
+  runs `existsSync` inside its own container.
+
+Tool containers (`amz-stats`, `cf-stats`, `gh-stats`) still mount the shared
+`.env`: they legitimately need the Amazon / Cloudflare / GitHub credentials and
+are not per-site. Narrowing those is separate work.
+
 ## What this does not fix
 
 `CLOUDFLARE_API_TOKEN` is still fleet-wide: site ops call
