@@ -37,8 +37,15 @@ def _provision_platform(name: str, brand: BrandContext, force: bool = False, inc
     """Provision a single platform. Returns status string."""
     cls = ALL_PLATFORMS[name]
 
-    # New-style platforms (BasePlatform subclass) carry _style = "new".
-    if getattr(cls, '_style', 'old') == 'new':
+    # Dispatch on what the class can actually DO, not on a declared flag.
+    # `_style = "new"` is set on BasePlatform, and PlatformProvisioner (the
+    # OLD-style base) inherits from it — so every old-style provisioner
+    # (bluesky, pinterest, reddit, tiktok, x) silently inherited _style="new"
+    # and got routed to the new-style path, which constructs `cls()` with no
+    # brand and dies with "missing 1 required positional argument: 'brand'".
+    # New-style platforms implement provision(domain, brand, page); old-style
+    # ones implement signup(page). That distinction is unambiguous.
+    if hasattr(cls, 'provision'):
         return _provision_new_style(name, cls, brand, force=force, include_meta=include_meta)
 
     # Old-style platforms (PlatformProvisioner subclass with signup(page))
