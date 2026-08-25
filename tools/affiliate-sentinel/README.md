@@ -63,14 +63,15 @@ Cap of `MAX_HEALS_PER_RUN = 3`: a run that wants to swap more than three
 products is a systemic problem (expired credentials, an API change), not link
 rot, and should not rewrite a catalog unattended.
 
-### Known limitation: rating and review count
+### Rating and review count
 
 `customerReviews.starRating` / `.count` are valid API resources but return
 **empty** for this account — worse than a rejection, because it reads as "no
-reviews" rather than "not permitted". So a heal cannot source them. Rather than
-carry the dead product's numbers onto a new product (fabricated data on a live
-page, a hard fleet rule), the sentinel leaves them, flags them in Slack, and
-files a `content` task to correct them by hand.
+reviews" rather than "not permitted". A heal therefore scrapes them off the
+product page via CloakBrowser (`heal.scrape_rating_and_reviews`) so the
+replacement ships with real numbers rather than the dead product's. If the
+scrape also fails, those fields are flagged in Slack and a `content` task is
+filed rather than shipping a fabricated rating on a live page.
 
 ## Usage
 
@@ -150,8 +151,16 @@ resumes filing so a site never ends up with nobody watching it.
 ## Tests
 
 ```sh
-python3 tools/affiliate-sentinel/tests/test_sentinel.py
+python3 tools/affiliate-sentinel/tests/test_sentinel.py     # unit, no network
+tools/affiliate-sentinel/tests/integration_heal.sh          # heal, live API + real build
 ```
+
+`integration_heal.sh` clones a site to a throwaway dir with no git remote,
+injects a confirmed-dead ASIN, and asserts the whole heal: replacement chosen,
+registry and `_redirects` updated, build gate passed, deploy queued, commit made.
+It costs one Sonnet turn and is not scheduled — run it after touching `heal.py`,
+`registry.py`, or `amz.py`. The heal never runs on a healthy fleet, so it is
+exactly the code that rots unnoticed.
 
 Covers the registry editor's surgical guarantees, model-output validation
 (including hallucinated ASINs and `"choice": true`), the build-gate revert, the
