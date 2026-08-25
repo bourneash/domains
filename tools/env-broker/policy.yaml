@@ -73,8 +73,6 @@ sites:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   allthingsmasonic.com:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
-  fishhooklabs.com:
-    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   newmomshop.com:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   weirdgirlstore.com:
@@ -83,6 +81,33 @@ sites:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
   oventoheaven.com:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, SLACK_BOT_TOKEN]
+
+# Tool containers under tools/. Not sites: no defaults, no Slack-channel
+# derivation, just an explicit list of what each one is measured to use.
+# Before this they mounted the same 61-key file the sites did, which meant the
+# Amazon collector could read the Cloudflare token, the GitHub collector could
+# read the Amazon secret, and all three could read FD_TOKEN — the Fleet
+# Dashboard operator token.
+tools:
+  amz-stats:
+    keys:
+      - AMAZON_ASSOCIATES_STORE_ID
+      - AMAZON_CREATORS_APPLICATION_ID
+      - AMAZON_CREATORS_KEY_ID
+      - AMAZON_CREATORS_KEY_SECRET
+      - AMAZON_CREATORS_VERSION   # config, not a secret; read by the Creators client
+      - SLACK_BOT_TOKEN
+  cf-stats:
+    keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  gh-stats:
+    keys: [GITHUB_TOKEN]
+  site-tracker:
+    keys:
+      - CLOUDFLARE_API_TOKEN
+      - CLOUDFLARE_ACCOUNT_ID
+      - GITHUB_TOKEN
+      - SLACK_BOT_TOKEN
+      - RESEND_API_KEY
 
 # Vault layout. Grouped by provider rather than one 60-field blob so a single
 # provider can be rotated (and later scoped to its own collection) without

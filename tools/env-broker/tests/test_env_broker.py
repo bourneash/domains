@@ -238,3 +238,33 @@ def test_load_env_file_ignores_comments_and_blanks(tmp_path):
 
 def test_load_env_file_missing_is_empty_not_an_error(tmp_path):
     assert eb.load_env_file(tmp_path / "nope") == {}
+
+
+# --- tool recipients ---------------------------------------------------------
+
+TOOL_POLICY = {**POLICY, "tools": {"amz-stats": {"keys": ["AMAZON_KEY", "SLACK_BOT_TOKEN"]}}}
+
+
+def test_tool_keys_are_explicit_not_derived():
+    assert eb.tool_keys("amz-stats", TOOL_POLICY) == ["AMAZON_KEY", "SLACK_BOT_TOKEN"]
+
+
+def test_never_grant_does_not_apply_to_tools():
+    """gh-stats legitimately IS the GitHub collector. The list exists so no
+    *site* holds a fleet-wide credential, not so nothing may."""
+    policy = {**POLICY, "tools": {"gh-stats": {"keys": ["GITHUB_TOKEN"]}}}
+    assert eb.tool_keys("gh-stats", policy) == ["GITHUB_TOKEN"]
+
+
+def test_unlisted_tool_renders_nothing_rather_than_a_default_set():
+    assert eb.tool_keys("not-in-policy", TOOL_POLICY) == []
+
+
+def test_tool_consumers_skips_env_broker_itself(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "TOOLS_ROOT", tmp_path)
+    for name in ("amz-stats", "env-broker"):
+        d = tmp_path / name
+        d.mkdir()
+        (d / "docker-compose.yml").write_text(
+            "    - ${HOME}/projects/domains/.env:/work/.env.shared:ro\n")
+    assert eb.tool_consumers() == ["amz-stats"]

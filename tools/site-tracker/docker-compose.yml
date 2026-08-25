@@ -27,4 +27,4 @@ services:
       - ${HOME:-/home/jesse}/projects/domains:/work
       # The shared .env (CF token, GitHub PAT) bind-mounted at the spot
       # entrypoint.sh sources.
-      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-site-tracker.env:/work/.env.shared:ro

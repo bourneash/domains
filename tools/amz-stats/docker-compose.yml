@@ -33,7 +33,7 @@ services:
       # same way whether a script reads them via `~` or an absolute path.
       HOME: ${HOME:-/home/jesse}
     volumes:
-      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-amz-stats.env:/work/.env.shared:ro
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
       - ${HOME:-/home/jesse}/.ssh:${HOME:-/home/jesse}/.ssh:ro
       - ${HOME:-/home/jesse}/.gitconfig:${HOME:-/home/jesse}/.gitconfig:ro

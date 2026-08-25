@@ -44,6 +44,7 @@ import yaml
 
 TOOL_DIR = Path(__file__).resolve().parent
 ROOT = TOOL_DIR.parent.parent
+TOOLS_ROOT = ROOT / "tools"
 ENV_FILE = ROOT / ".env"
 REGISTRY = ROOT / "registry" / "fleet.yaml"
 RENDER_DIR = TOOL_DIR / "rendered"
@@ -110,6 +111,31 @@ def consumers() -> list[str]:
         if "domains/.env:" in text or "env-broker/rendered/" in text:
             out.append(compose.parent.name)
     return out
+
+
+def tool_consumers() -> list[str]:
+    """Tool containers under tools/ whose compose mounts a fleet env."""
+    out = []
+    for compose in sorted(TOOLS_ROOT.glob("*/docker-compose.yml")):
+        name = compose.parent.name
+        if name == "env-broker":
+            continue
+        try:
+            text = compose.read_text(errors="ignore")
+        except OSError:
+            continue
+        if "domains/.env:" in text or "env-broker/rendered/" in text:
+            out.append(name)
+    return out
+
+
+def tool_keys(name: str, policy: dict) -> list[str]:
+    spec = (policy.get("tools") or {}).get(name) or {}
+    keys = set(spec.get("keys") or [])
+    # never_grant does not apply to tools: gh-stats legitimately IS the GitHub
+    # collector and amz-stats IS the Amazon one. The point of the list is that
+    # no *site* holds a fleet-wide credential, not that nothing may.
+    return sorted(keys)
 
 
 def granted_keys(domain: str, policy: dict, slack: dict[str, str]) -> list[str]:
@@ -254,10 +280,14 @@ def cmd_render(args, policy, slack) -> int:
             values = {**file_values, **values}
 
     targets = [args.site] if args.site else consumers()
+    tool_targets = [] if args.site else tool_consumers()
     rc = 0
     RENDER_DIR.mkdir(exist_ok=True)
-    for domain in targets:
-        keys = granted_keys(domain, policy, slack)
+    for domain in [*targets, *(f"tool:{t}" for t in tool_targets)]:
+        is_tool = domain.startswith("tool:")
+        name = domain[5:] if is_tool else domain
+        keys = tool_keys(name, policy) if is_tool else granted_keys(domain, policy, slack)
+        domain = name
         body, missing = render(domain, keys, values)
         if missing:
             print(f"{domain}: no value for {', '.join(missing)}", file=sys.stderr)
@@ -266,7 +296,7 @@ def cmd_render(args, policy, slack) -> int:
             print(f"--- {domain} ({len(keys)} keys) ---")
             print(body, end="")
             continue
-        out = RENDER_DIR / f"{domain}.env"
+        out = RENDER_DIR / (f"tool-{domain}.env" if is_tool else f"{domain}.env")
         # Write via a private temp file: a 0644 window between create and
         # chmod is all an attacker needs on a shared box.
         tmp = out.with_suffix(".env.tmp")
@@ -308,6 +338,17 @@ def cmd_check(args, policy, slack) -> int:
             print(f"EXTRA     {domain}: granted {', '.join(granted_unused)} "
                   f"but ops/ never references it — needless exposure")
 
+    for name in tool_consumers():
+        keys = set(tool_keys(name, policy))
+        if not keys:
+            drift = True
+            print(f"UNLISTED  tools/{name}: mounts a fleet env but has no entry "
+                  f"under `tools:` in policy.yaml — it would render an EMPTY file")
+        gone = sorted(k for k in keys if k not in values)
+        if gone:
+            drift = True
+            print(f"NOVALUE   tools/{name}: no value for {', '.join(gone)}")
+
     missing_values = sorted(k for d in consumers()
                             for k in granted_keys(d, policy, slack) if k not in values)
     if missing_values:
@@ -318,7 +359,10 @@ def cmd_check(args, policy, slack) -> int:
     if not drift:
         n = len(consumers())
         total = sum(len(granted_keys(d, policy, slack)) for d in consumers())
-        print(f"policy ok — {n} sites, {total / n:.1f} keys each on average "
+        tn = len(tool_consumers())
+        ttotal = sum(len(tool_keys(t, policy)) for t in tool_consumers())
+        print(f"policy ok — {n} sites, {total / n:.1f} keys each on average; "
+              f"{tn} tools, {ttotal} keys total "
               f"(the shared .env has {len(load_env_file())})")
     return 2 if drift else 0
 

@@ -23,7 +23,7 @@ services:
       TZ: UTC
     volumes:
       # Shared CF + affiliate creds (same pattern as americastrikes.com)
-      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-cf-stats.env:/work/.env.shared:ro
       # Snapshot output — appended to from inside, read by cf-grafana's ingest.
       # Host path stays identical to pre-container layout so consumers
       # (tools/status, tools/cf-grafana/ingest.py) don't need to change.

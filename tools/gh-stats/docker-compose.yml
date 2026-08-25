@@ -19,7 +19,7 @@ services:
     environment:
       TZ: UTC
     volumes:
-      - ${HOME:-/home/jesse}/projects/domains/.env:/work/.env.shared:ro
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-gh-stats.env:/work/.env.shared:ro
       # Read sites.yml (domain→repo map) from the live site-tracker config.
       - ${HOME:-/home/jesse}/projects/domains/tools/site-tracker/sites.yml:/work/tools/site-tracker/sites.yml:ro
       # Snapshot output — read by cf-grafana's ingest.

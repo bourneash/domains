@@ -93,9 +93,15 @@ rotated without touching the rest.
   same host path, because it resolves `docker run -v` paths for the host but
   runs `existsSync` inside its own container.
 
-Tool containers (`amz-stats`, `cf-stats`, `gh-stats`) still mount the shared
-`.env`: they legitimately need the Amazon / Cloudflare / GitHub credentials and
-are not per-site. Narrowing those is separate work.
+- **Tool containers** — `amz-stats` (6 keys), `cf-stats` (2), `gh-stats` (1),
+  `site-tracker` (5), declared explicitly under `tools:` in `policy.yaml`. No
+  defaults, no Slack derivation, and `never_grant` does not apply: gh-stats
+  legitimately *is* the GitHub collector. The point of that list is that no
+  *site* holds a fleet-wide credential, not that nothing may. Before this they
+  mounted the same 61-key file the sites did, so the Amazon collector could
+  read the Cloudflare token and all of them could read `FD_TOKEN`.
+
+**No container on this host mounts the shared fleet `.env` any more.**
 
 ## What this does not fix
 
