@@ -1,0 +1,10 @@
+# Runtime state — logs, locks, kill switches. The QUEUE itself is committed
+# on purpose: a ticket's history (who approved what, and which findings were
+# denied) is the audit trail, and rejected/ is what stops a denied finding
+# being re-filed forever.
+*.log
+*.log.1
+.*.lock
+.analyst-disabled
+.implement-disabled
+__pycache__/

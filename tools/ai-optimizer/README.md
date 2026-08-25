@@ -88,12 +88,52 @@ after one approve round-trip. The Node dump is pinned to
 instead of returning `">-"`, and `aioptimizer.crosslang.test.js` fails if either
 regresses.
 
-## Not built yet
+## The full loop (all four parts are live)
 
-- **The daily analyst role** — a cron role that runs the audit and files
-  findings. Format proves out first, against hand-filed real tickets.
-- **The implementer** — picks up `approved/` and applies the fix. When built it
-  should be **canary-first**: apply to one site, verify, then require a
-  *second* approval to fan out. Blast radius of a fleet-wide auto-apply is the
-  reason the June 2026 auto-rollout tool was rejected; an approval gate changes
-  that, a blank cheque does not.
+```
+06:45 ET daily   ai-optimizer-cron.sh
+                 └─ analyst.py            ZERO AI: ledger + git before/after
+                    └─ excludes roles already fixed mid-window
+                    └─ no live candidates?  exits, spends nothing
+                 └─ claude -p             verifies live code, FILES tickets
+                 └─ Slack                 only if a ticket was actually filed
+
+   you           Fleet Dashboard -> Growth -> AI Optimizer
+                 approve / reject / defer.  No deadline; nothing expires.
+
+:11 :31 :51      ai-optimizer-implement.sh
+                 └─ picks ONE approved ticket (never risk:high)
+                 └─ aborts if the tree is dirty
+                 └─ claude -p applies it to ONE canary site + verifies
+                 └─ commit, push, bump submodule pointer
+                 └─ ticket -> applied (records the commit)
+                 └─ multi-site ticket?  files a FAN-OUT ticket
+                                        needing a SECOND approval
+```
+
+Both jobs are in `tools/fleet-cron/crontab.docker` (jobs 16 and 17).
+
+**Latency you actually see:** a finding appears the morning after it becomes
+true. Once you approve, the fix lands within ~20 minutes. A fleet-wide change
+needs two approvals — canary first, then fan-out — and the gap between them is
+however long you want.
+
+## Guardrails on the implementer
+
+| Guard | Why |
+|---|---|
+| One ticket per run | Blast radius over throughput |
+| One canary site, even for a fleet ticket | Second approval before anything fans out |
+| `risk: high` never auto-applies | Left approved, flagged for a human to drive |
+| Dirty tree aborts the run | Never mix our change into uncommitted work; keeps revert clean |
+| No commit produced → ticket stays `approved` | An abandoned ticket is surfaced, not silently closed |
+| Push failure → loud Slack, ticket not marked applied | A local-only commit must not read as shipped |
+
+`AI_IMPL_DRY_RUN=1` picks and logs a ticket without touching anything.
+
+## Kill switches
+
+```bash
+touch tools/ai-optimizer/.analyst-disabled     # stop filing
+touch tools/ai-optimizer/.implement-disabled   # stop applying
+```

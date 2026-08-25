@@ -195,3 +195,29 @@
 #
 # Healthy = SILENT, same contract as the lint/git/image sweeps.
 23,53 * * * * /home/jesse/projects/domains/tools/scripts/cron-freshness-cron.sh
+
+# --- Job 16: daily AI-cost analyst (ai-optimizer) ---
+# Answers the standing "what can we improve about our AI usage?" question once
+# a day instead of from scratch each morning. analyst.py builds the evidence
+# packet with ZERO AI (ledger + a git before/after check per candidate role,
+# which auto-excludes roles someone already fixed mid-window); a claude -p
+# session runs only if there are live candidates, and only ever FILES tickets
+# — it never changes code. Healthy is SILENT: Slack fires only when a new
+# ticket was actually filed.
+# Review at Fleet Dashboard -> Growth -> AI Optimizer.
+# 06:45 ET — after the lint sweep (:20) and registry drift (:35), so the
+# morning batch stays sequential rather than three heavy jobs at once.
+# Kill switch: touch tools/ai-optimizer/.analyst-disabled
+45 6 * * *    /home/jesse/projects/domains/tools/scripts/ai-optimizer-cron.sh
+
+# --- Job 17: AI-cost fix implementer (ai-optimizer) ---
+# Applies ONE human-approved ticket per run, to ONE canary site, then files a
+# SEPARATE fan-out ticket that needs its own approval before any other site is
+# touched (two human yeses for anything fleet-wide — see
+# project_ai_optimizer_queue / feedback_no_auto_rollout_tool). risk:high
+# tickets are never auto-applied. Exits in milliseconds at zero cost when
+# nothing is approved, which is most ticks — the frequent cadence only exists
+# so an approval lands within ~20 min instead of waiting for tomorrow.
+# Kill switch: touch tools/ai-optimizer/.implement-disabled
+# Dry run:     AI_IMPL_DRY_RUN=1 tools/scripts/ai-optimizer-implement.sh
+11,31,51 * * * *   /home/jesse/projects/domains/tools/scripts/ai-optimizer-implement.sh
