@@ -1,0 +1,18 @@
+{
+  "_comment": "Thresholds and deliberate exclusions for the host-wide container watchdog. Ignore entries REQUIRE a reason: an exclusion nobody wrote down becomes the next invisible failure. Optional \"until\" (YYYY-MM-DD) makes an exclusion expire on its own so a temporary mute cannot become permanent.",
+  "thresholds": {
+    "dead_after_hours": 6,
+    "restart_count_warn": 5,
+    "unhealthy_after_minutes": 30,
+    "crashloop_window_minutes": 60,
+    "benign_exit_codes": [
+      0,
+      143
+    ]
+  },
+  "ignore": {
+    "names": {},
+    "projects": {},
+    "images": {}
+  }
+}

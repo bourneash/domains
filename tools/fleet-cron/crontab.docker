@@ -288,3 +288,17 @@
 # A failure leaves the original in place and retries next run. Supports
 # --dry-run. Healthy = SILENT; Slacks only on errors or a >=500 MB reclaim.
 45 4 * * * /home/jesse/projects/domains/tools/scripts/prune-fleet-data-cron.sh
+
+# --- Job 15: host-wide container watchdog ---
+# The Fleet Dashboard's Containers tab scopes to compose projects inside the
+# domains checkout. That is correct for the tab and wrong for a watchdog: an
+# Exited(255) container from another project sat dead for six days with nothing
+# reporting it (B11), because nobody owned it. This scans EVERY container on the
+# host for four states that all look fine from a distance — dead-nonzero,
+# stopped-despite-restart-policy, crashlooping, and failing its own healthcheck.
+#
+# Healthy = SILENT. It alerts only when the finding set CHANGES, so a container
+# unhealthy for a week does not re-alert hourly until the alert means nothing.
+# It DOES always alert if it cannot query docker at all — a blind watchdog
+# reporting "all clear" is worse than no watchdog.
+23 * * * * /home/jesse/projects/domains/tools/scripts/container-watch-cron.sh
