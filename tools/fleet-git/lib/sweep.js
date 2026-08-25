@@ -182,26 +182,26 @@ async function sweep(root, opts = {}) {
     const { acts, errors: e } = await executeRepo(parent, p, policy, { apply, push: false });
     errors.push(...e);
 
-    // Only bump a pointer whose submodule this sweep left clean and pushed.
-    const cleanSubs = new Map(results.map(r => [r.subPath, r]));
+    // Only bump a pointer whose submodule is clean AND fully pushed. The
+    // submodule's live status is re-read here rather than trusted from this
+    // sweep's own results, because a pointer commit is also reachable via
+    // `--site domains` (which sweeps no submodules at all) and because a
+    // site's own cron may have moved HEAD since we swept it.
     const bump = [];
     const held = [];
     for (const ptr of p.pointers) {
-      const sub = cleanSubs.get(ptr.path);
-      if (!only && !sub) {
-        held.push({ path: ptr.path, why: 'submodule not swept' });
+      const s2 = await status(path.join(root, ptr.path));
+      if (!s2.isRepo) {
+        held.push({ path: ptr.path, why: 'submodule is not an initialised repo' });
         continue;
       }
-      if (sub && !sub.clean) {
-        held.push({ path: ptr.path, why: 'submodule still dirty/unpushed' });
+      if (s2.files.length) {
+        held.push({ path: ptr.path, why: `submodule has ${s2.files.length} uncommitted file(s)` });
         continue;
       }
-      if (sub) {
-        const s = await status(sub_dir(root, ptr.path));
-        if (s.ahead > 0) {
-          held.push({ path: ptr.path, why: 'submodule has unpushed commits' });
-          continue;
-        }
+      if (s2.ahead > 0) {
+        held.push({ path: ptr.path, why: `submodule has ${s2.ahead} unpushed commit(s)` });
+        continue;
       }
       bump.push(ptr.path);
     }
@@ -278,10 +278,6 @@ async function sweep(root, opts = {}) {
     ? queue.open()
     : Object.entries(reviewsBySlug).flatMap(([slug, rs]) => rs.map(r => ({ slug, ...r })));
   return report;
-}
-
-function sub_dir(root, subPath) {
-  return path.join(root, subPath);
 }
 
 function summarize(r) {

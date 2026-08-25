@@ -16,8 +16,18 @@ const gitignore = require('../lib/gitignore');
 
 const policy = loadPolicy();
 
+// These tests are also run by the shared pre-commit hook, whose environment
+// carries GIT_DIR / GIT_INDEX_FILE for the repo being committed — and those
+// take precedence over `-C <cwd>` in real git. Without stripping them, every
+// helper call below would silently operate on the MONOREPO's index instead of
+// the temp repo. (The library under test strips them for the same reason; the
+// test harness has to do it too.)
+const CLEAN_ENV = Object.fromEntries(
+  Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_'))
+);
+
 function sh(cwd, ...args) {
-  return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' });
+  return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: CLEAN_ENV });
 }
 
 function write(dir, rel, body) {
@@ -29,8 +39,8 @@ function makeRepo() {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-git-e2e-'));
   const remote = path.join(base, 'remote.git');
   const work = path.join(base, 'work');
-  execFileSync('git', ['init', '--bare', '-b', 'main', remote]);
-  execFileSync('git', ['init', '-b', 'main', work]);
+  execFileSync('git', ['init', '--bare', '-b', 'main', remote], { env: CLEAN_ENV });
+  execFileSync('git', ['init', '-b', 'main', work], { env: CLEAN_ENV });
   sh(work, 'config', 'user.email', 'test@example.com');
   sh(work, 'config', 'user.name', 'test');
   sh(work, 'config', 'commit.gpgsign', 'false');
