@@ -237,6 +237,54 @@ function move(root, fromStatus, file, toStatus, payload = {}) {
   return { from: fromStatus, to: toStatus, file: name };
 }
 
+// --- Kill switches -------------------------------------------------------
+// The two cron jobs (fleet-cron 16 + 17) each honour a flag file, same
+// convention as every site role's ops/.<role>-disabled — see roles.setEnabled.
+// Surfaced here because a kill switch you have to SSH in to flip is one you
+// will not reach for at the moment you actually want it.
+const JOBS = {
+  analyst: {
+    flag: '.analyst-disabled',
+    label: 'Daily analyst',
+    detail: 'Files new findings at 06:45 ET. Off = no new tickets.',
+  },
+  implement: {
+    flag: '.implement-disabled',
+    label: 'Implementer',
+    detail: 'Applies approved tickets (:11/:31/:51). Off = approvals queue up, nothing changes.',
+  },
+};
+
+function flagPath(root, job) {
+  const j = JOBS[job];
+  if (!j) throw httpErr(400, `unknown job ${job}`);
+  return path.join(root, 'tools', 'ai-optimizer', j.flag);
+}
+
+function toggles(root) {
+  return Object.fromEntries(
+    Object.entries(JOBS).map(([k, j]) => [
+      k,
+      { enabled: !fs.existsSync(flagPath(root, k)), label: j.label, detail: j.detail },
+    ])
+  );
+}
+
+function setToggle(root, job, enabled) {
+  const fp = flagPath(root, job);
+  if (enabled) {
+    try {
+      fs.unlinkSync(fp);
+    } catch (e) {
+      if (e.code !== 'ENOENT') throw e;
+    }
+  } else if (!fs.existsSync(fp)) {
+    // Empty file, matching `touch` — the scripts only test for existence.
+    fs.writeFileSync(fp, '');
+  }
+  return { ok: true, job, enabled };
+}
+
 // Headline numbers for the tab: what's waiting on a human, and what the
 // approved-but-unapplied backlog is theoretically worth per day.
 function summary(root) {
@@ -244,6 +292,7 @@ function summary(root) {
   const sum = (rows, k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
   return {
     counts: Object.fromEntries(STATUSES.map(s => [s, all[s].length])),
+    toggles: toggles(root),
     open_savings_usd_per_day: sum(all.proposed, 'estimated_savings_usd_per_day'),
     approved_savings_usd_per_day: sum(all.approved, 'estimated_savings_usd_per_day'),
     applied_savings_usd_per_day: sum(all.applied, 'estimated_savings_usd_per_day'),
@@ -253,10 +302,13 @@ function summary(root) {
 module.exports = {
   STATUSES,
   ALLOWED_MOVES,
+  JOBS,
   list,
   get,
   move,
   summary,
+  toggles,
+  setToggle,
   parseTicket,
   serializeTicket,
   queueRoot,

@@ -986,6 +986,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  // Kill switches for the two ai-optimizer cron jobs. Same flag-file
+  // convention as a site role's pause toggle (roles.setEnabled).
+  app.put('/api/ai-optimizer/toggle/:job', (req, res) => {
+    try {
+      const enabled = !!(req.body || {}).enabled;
+      res.json(aiOptimizer.setToggle(root, req.params.job, enabled));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
   app.post('/api/ai-optimizer/:status/:file/move', (req, res) => {
     try {
       const body = req.body || {};

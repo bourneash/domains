@@ -116,3 +116,51 @@ test('get returns body plus the moves the UI may offer', () => {
   assert.match(t.body, /Burns the budget/);
   assert.deepEqual(t.allowed_moves, ['approved', 'rejected', 'deferred']);
 });
+
+test('toggles report both jobs as running when no flag file exists', () => {
+  const root = tmpRoot();
+  const t = ai.toggles(root);
+  assert.equal(t.analyst.enabled, true);
+  assert.equal(t.implement.enabled, true);
+  assert.ok(t.implement.detail, 'carries an explanation for the UI');
+});
+
+test('setToggle pauses with an empty flag file and resumes by removing it', () => {
+  const root = tmpRoot();
+  const flag = path.join(root, 'tools', 'ai-optimizer', '.analyst-disabled');
+
+  ai.setToggle(root, 'analyst', false);
+  assert.ok(fs.existsSync(flag), 'pausing creates the flag the cron script tests for');
+  assert.equal(fs.readFileSync(flag, 'utf8'), '', 'flag is empty, matching `touch`');
+  assert.equal(ai.toggles(root).analyst.enabled, false);
+  // The other job must be unaffected — pausing filing should not stop applying.
+  assert.equal(ai.toggles(root).implement.enabled, true);
+
+  ai.setToggle(root, 'analyst', true);
+  assert.ok(!fs.existsSync(flag));
+  assert.equal(ai.toggles(root).analyst.enabled, true);
+});
+
+test('setToggle is idempotent in both directions', () => {
+  const root = tmpRoot();
+  ai.setToggle(root, 'implement', false);
+  ai.setToggle(root, 'implement', false);
+  assert.equal(ai.toggles(root).implement.enabled, false);
+  ai.setToggle(root, 'implement', true);
+  ai.setToggle(root, 'implement', true); // must not throw on an absent flag
+  assert.equal(ai.toggles(root).implement.enabled, true);
+});
+
+test('setToggle rejects an unknown job rather than writing a stray file', () => {
+  const root = tmpRoot();
+  assert.throws(() => ai.setToggle(root, '../../etc/passwd', false), /unknown job/);
+  assert.throws(() => ai.setToggle(root, 'nope', false), /unknown job/);
+});
+
+test('summary exposes toggles so the tab renders them without a second call', () => {
+  const root = tmpRoot();
+  ai.setToggle(root, 'implement', false);
+  const s = ai.summary(root);
+  assert.equal(s.toggles.implement.enabled, false);
+  assert.equal(s.toggles.analyst.enabled, true);
+});

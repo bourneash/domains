@@ -7627,6 +7627,23 @@ async function renderAIOptimizer() {
   const tickets = data.tickets || {};
   const rows = tickets[AIOPT.status] || [];
 
+  // Kill switches. Worth surfacing here rather than leaving as a `touch` on
+  // the host: the moment you want to stop the robot is not the moment you want
+  // to go find a terminal.
+  const tg = s.toggles || {};
+  const toggleRow = Object.entries(tg)
+    .map(([job, t]) => {
+      const on = t.enabled;
+      return `<span style="margin-right:18px">
+        <button class="btn sm ${on ? '' : 'danger'}" data-aiopt-toggle="${esc(job)}" data-aiopt-next="${on ? '0' : '1'}">
+          ${on ? '⏸ Pause' : '▶ Resume'} ${esc(t.label)}
+        </button>
+        <span class="badge ${on ? 'b-green' : 'b-red'}">${on ? 'running' : 'PAUSED'}</span>
+        <span class="muted">${esc(t.detail || '')}</span>
+      </span>`;
+    })
+    .join('');
+
   const pills = ['proposed', 'approved', 'applied', 'deferred', 'rejected']
     .map(st => {
       const n = (s.counts || {})[st] || 0;
@@ -7650,6 +7667,9 @@ async function renderAIOptimizer() {
             · realised <strong>${fmtUSD(s.applied_savings_usd_per_day)}/day</strong></span>
         </div>
         <div>${pills}</div>
+        <div class="aiopt-toggles" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#333)">
+          ${toggleRow}
+        </div>
       </div>
     </div>
     ${rows.length ? rows.map(aioptCard).join('') : `<div class="empty">No ${esc(AIOPT.status)} findings.</div>`}
@@ -7659,6 +7679,31 @@ async function renderAIOptimizer() {
     b.addEventListener('click', () => {
       AIOPT.status = b.dataset.aioptStatus;
       renderAIOptimizer();
+    })
+  );
+
+  $$('[data-aiopt-toggle]').forEach(b =>
+    b.addEventListener('click', async () => {
+      const job = b.dataset.aioptToggle;
+      const enabled = b.dataset.aioptNext === '1';
+      // Pausing is the safe direction, so only confirm on resume-to-apply,
+      // where the next tick can start changing code.
+      if (
+        enabled &&
+        job === 'implement' &&
+        !confirm(
+          'Resume the implementer? Approved tickets will start being applied on the next tick (:11/:31/:51).'
+        )
+      )
+        return;
+      b.disabled = true;
+      try {
+        await api('PUT', `/api/ai-optimizer/toggle/${encodeURIComponent(job)}`, { enabled });
+        await renderAIOptimizer();
+      } catch (e) {
+        alert(`Toggle failed: ${e.message}`);
+        b.disabled = false;
+      }
     })
   );
 

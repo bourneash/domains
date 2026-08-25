@@ -133,6 +133,22 @@ however long you want.
 
 ## Kill switches
 
+Two independent pause toggles, in the tab header (Fleet Dashboard -> Growth ->
+AI Optimizer):
+
+- **Daily analyst** — off = no new tickets get filed. The board keeps whatever
+  is already on it.
+- **Implementer** — off = approvals queue up and nothing changes. This is the
+  one to hit if the robot is doing something you do not like; approving a
+  ticket then becomes purely advisory until you resume it.
+
+They are independent on purpose — pausing filing should not stop you applying
+a fix you already approved, and vice versa. Resuming the implementer asks for
+confirmation (it is the direction that starts changing code again).
+
+Same flag-file convention as a site role's pause, so the CLI still works and
+the cron scripts only ever test for existence:
+
 ```bash
 touch tools/ai-optimizer/.analyst-disabled     # stop filing
 touch tools/ai-optimizer/.implement-disabled   # stop applying
