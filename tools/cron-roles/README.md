@@ -24,7 +24,7 @@ rigor, anti-slop guardrails, reusability), then parameterized.
 | Archetype | Skill | Kind | Owns → Produces | Schedule | Selected from |
 |---|---|---|---|---|---|
 | `engineer` | `domains-cron-role-engineer` | bash-driven sink | engineering → — | `12,42 * * * *` | americastrikes |
-| `affiliate-editor` | `domains-cron-role-affiliate-editor` | LLM, no-deploy sentinel | affiliate → content, engineering | `0 7 * * 3` | reviewtattoo |
+| ~~`affiliate-editor`~~ | `domains-cron-role-affiliate-editor` | **RETIRED 2026-08-25** — superseded by `tools/affiliate-sentinel` (host-side, daily, Creators API + `/go/` check). Do not install. | — | — | — |
 | `content-writer` | `domains-cron-role-content-writer` | LLM, deploy (voice tuned per site) | content, refresh → engineering | `0 7 * * 6` | reviewtattoo |
 | `planner` | `domains-cron-role-planner` | LLM dispatcher | ops, planning → * | `0 6 * * 1` | wetpages |
 | `seo-analyst` | `domains-cron-role-seo-analyst` | LLM, diagnose-only | seo → content, refresh, engineering | `0 6 * * 3` | wetpages |

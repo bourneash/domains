@@ -1,40 +1,74 @@
 ---
 name: domains-cron-role-affiliate-editor
-description: Install (or maintain) the autonomous Affiliate Editor cron role on any portfolio site under /home/jesse/projects/domains/sites/. The affiliate-editor runs every Wednesday at 7am, curl-checks every /go/<id> affiliate cloak link against the live site, classifies results (healthy / soft-404 de-listing / broken redirect / anti-bot wall / out-of-stock), and files typed tasks to the backlog for genuine failures. It is a NO-DEPLOY sentinel: it never edits affiliate.ts, _redirects, or content, and never queues a deploy. Use when the user asks to "add the affiliate editor", "install affiliate link checker", "install affiliate link tester", "add <site> affiliate role", "wire affiliate checking", or "give <site> affiliate link monitoring".
+description: Wire affiliate-link monitoring onto a portfolio site under /home/jesse/projects/domains/sites/. Since 2026-08-25 this is tools/affiliate-sentinel — a host-side daily check that uses the Amazon Creators API for product liveness and a direct /go/ fetch for cloak health, spends zero tokens on a healthy run, and auto-replaces a confirmed-dead ASIN behind a build gate. Use when the user asks to "add the affiliate editor", "install affiliate link checking", "add the affiliate sentinel", "wire affiliate monitoring", "give <site> affiliate link monitoring", or asks why a site's affiliate links are not being checked. The old per-site curl role this replaced is retired — do NOT install it.
 ---
 
-# Install the Affiliate Editor cron role
+# Wire affiliate monitoring onto a site
 
-Archetype library: `tools/cron-roles/archetypes/affiliate-editor/`
-Mechanical procedure: **follow `tools/cron-roles/WIRING.md` exactly**, with
-`<name>` = `affiliate-editor`. Awareness: `tools/cron-roles/handoff-protocol.md`.
+**There is no per-site role to install any more.** `tools/affiliate-sentinel`
+derives everything it needs from the site itself at run time, so onboarding is
+one line in the host crontab.
 
-1. Run WIRING.md Steps 1–13 against the target site, reading this archetype's
-   `meta.yml` for schedule/model/worker_deps/placeholders/gitignore.
-   Affiliate-editor-specific placeholders not covered by WIRING.md's generic
-   Step 2 detection — resolve them using the `placeholder_detection` hints in
-   `meta.yml`:
-   - `GO_PREFIX`: confirm from `site/public/_redirects` (default `/go/`)
-   - `AFFILIATE_TAG`: read from `site/src/lib/affiliate.ts` (e.g. `reviewtattoo-20`)
-   - `CONTENT_PATH`: the content directory to grep for referencing pages (varies
-     per site — inspect `site/src/content/` or `site/src/pages/` to identify the
-     primary content path)
-2. This role is a **NO-DEPLOY sentinel**: `meta.deploy: false`. It OWNS
-   `type: affiliate` tasks and PRODUCES two outgoing handoff types:
-   - `type: content` → dead product / de-listed ASIN (to the content-writer role,
-     or `human-triage` fallback per handoff-protocol.md if no content-writer exists)
-   - `type: engineering` → broken `/go/<id>` redirect itself (to the engineer role,
-     or `human-triage` fallback if no engineer exists)
-   The `<!-- AWARENESS-BLOCK -->` marker in `role.md.tmpl` is filled per-site by
-   WIRING.md Step 4 from handoff-protocol.md — do NOT hardcode role destinations.
-3. This is a normal LLM role (`meta.model: claude-sonnet-4-6`, not bash-driven),
-   so WIRING.md Step 6 uses the **generic/LLM dispatch path**: pass `--model` from
-   `meta.model` (do NOT write a bash-runner branch like the engineer). Add the role
-   to run-role.sh's Slack-notify allowlist (`meta.self_notifies: false`).
-4. `meta.worker_deps` is empty — no Dockerfile.worker changes needed (Step 8
-   skipped). The rebuild in Step 11 is still mandatory: the new crontab line must
-   be baked into the cron image (sinderella guard).
+## Onboarding a site
 
-Maintain mode: if `ops/roles/affiliate-editor.md` already exists, WIRING.md runs
-Steps 4, 10, 11 only (refresh body + awareness, re-verify) — never destroy operator
-edits.
+1. **Check it has a registry.** The sentinel searches for it — `site/src/lib/affiliate.ts`
+   is the fleet standard, but `site/src/data/affiliate.ts` and `affiliates.ts` also
+   work, and field names may vary (`id`/`slug`, `asin`/`searchOrAsin`/`url`,
+   `name`/`label`/`title`). Confirm with a dry run:
+
+   ```sh
+   python3 tools/affiliate-sentinel/sentinel.py --site-root sites/<domain> --dry-run --json
+   ```
+
+   If it reports "no affiliate registry found", the site has nothing to monitor
+   yet — stop here.
+
+2. **Read the dry-run output before scheduling it.** Anything it flags is real
+   and will be filed as a task on the first live run. Sanity-check a couple of
+   findings by hand (`curl -sI https://<domain>/go/<id>/`) so you are not
+   scheduling a run that files a pile of bogus tasks.
+
+3. **Add the site to the host crontab line** (append to the existing one; do not
+   create a second line):
+
+   ```sh
+   crontab -e
+   # 40 3 * * * /home/jesse/projects/domains/tools/affiliate-sentinel/run-fleet.sh <...existing...> <domain>
+   ```
+
+4. **Run it once for real** to confirm the whole path — Slack post, state commit,
+   task filing:
+
+   ```sh
+   bash tools/affiliate-sentinel/run-fleet.sh <domain>
+   ```
+
+## Why it is host-side and not a cron container role
+
+The shared Alpine cron image has no `httpx` (needed by the Amazon client and the
+cloak check), and musl cannot run workerd for the heal's `npm run build` gate —
+the same mismatch that deadlocked broadwayshowgirls' engineer build gate. Same
+precedent as the fleet reaper and the cron-freshness sweep.
+
+## Do NOT install the old role
+
+`tools/cron-roles/archetypes/affiliate-editor/` is **retired**. It curled every
+`/go/` link through to Amazon and grepped the landed HTML for soft-404 strings,
+which meant a large permanent share of every run was "inconclusive — Robot Check"
+(Amazon serves an anti-bot wall to datacenter IPs) and liveness rode on brittle
+English marker strings. Installing it now would double up on the sentinel and
+reintroduce that noise.
+
+`ops/scripts/run-affiliate-editor.sh` is kept **unscheduled** on the sites that
+already have it, as a manual fallback for when the Amazon API is unavailable. If
+a site does not have it, do not add it.
+
+## Maintenance / debugging
+
+- Full docs, including the heal path and its guardrails: `tools/affiliate-sentinel/README.md`
+- Per-run logs: `tools/affiliate-sentinel/logs/run-<date>.log`, plus
+  `<site>/ops/logs/affiliate-sentinel-<date>.log`
+- Streak state: `<site>/ops/state/affiliate-sentinel.json`
+- Check without writing or spending tokens: `--dry-run`
+- Check and file tasks but never auto-replace: `--no-heal`
+- Tests: `python3 tools/affiliate-sentinel/tests/test_sentinel.py`

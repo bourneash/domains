@@ -1,3 +1,22 @@
+# ┌──────────────────────────────────────────────────────────────────────────┐
+# │ RETIRED 2026-08-25 — do NOT install this archetype on a new site.        │
+# │                                                                          │
+# │ Superseded by tools/affiliate-sentinel: host-side, daily, Creators API   │
+# │ for product liveness + a direct /go/ fetch for cloak health. This one    │
+# │ curled every link through to Amazon and grepped for soft-404 strings,    │
+# │ so a large permanent share of every run came back "inconclusive — Robot  │
+# │ Check" (Amazon walls datacenter IPs) and liveness rode on brittle        │
+# │ English markers.                                                         │
+# │                                                                          │
+# │ Kept only so the 15 sites that still carry run-affiliate-editor.sh have  │
+# │ a documented manual fallback for when the Amazon API is unavailable.     │
+# │ It is unscheduled everywhere. See the domains-cron-role-affiliate-editor │
+# │ skill for how to onboard a site now (one host crontab entry).            │
+# └──────────────────────────────────────────────────────────────────────────┘
+retired: true
+retired_on: "2026-08-25"
+superseded_by: tools/affiliate-sentinel
+
 name: affiliate-editor
 # Selected: reviewtattoo.com/affiliate-tester (scored 17/18 — pure no-deploy sentinel,
 # crisp headless contract, anti-bot-wall false-positive guard). Grafted: wetpages
