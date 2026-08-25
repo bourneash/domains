@@ -65,18 +65,47 @@ def platforms_for(site: str, cfg: SiteConfig) -> list[str]:
     return live
 
 
+def _borrowed_copy(site: str, source_id: str, from_platform: str, caps) -> list[ai.Draft] | None:
+    """Reuse another platform's copy for this source, if it exists and fits.
+
+    Two platforms with similar limits rarely need two different sentences, and
+    a second draft is a second model call. `platform_overrides.<p>.copy_from`
+    says "write this one once, borrow it here" — which is exactly right for a
+    mirror channel like `console`, and often right for x/mastodon too.
+    """
+    row = db.one(
+        "SELECT body, ai_model FROM posts WHERE site = ? AND platform = ? AND source_id = ? "
+        "AND status NOT IN ('rejected','cancelled') ORDER BY id LIMIT 1",
+        (site, from_platform, source_id),
+    )
+    if not row or len(row["body"]) > caps.max_chars:
+        return None
+    return [ai.Draft(body=row["body"], model=f"copy:{from_platform}")]
+
+
 def generate_for_source(site: str, source: dict, cfg: SiteConfig) -> list[int]:
     created: list[int] = []
     count = max(1, int(cfg.get("variants_per_source", 1)))
 
-    for platform in platforms_for(site, cfg):
+    # Platforms that borrow copy are generated last, so the platform they
+    # borrow from has already been drafted in this same pass.
+    ordered = sorted(
+        platforms_for(site, cfg),
+        key=lambda p: bool(cfg.for_platform(p).get("copy_from")),
+    )
+    for platform in ordered:
         if queue.already_drafted(site, platform, source["source_id"]):
             continue
         platform_cfg = cfg.for_platform(platform)
         caps = capabilities(platform)
         channel = accounts.pick_channel(site, platform)
         persona = (channel or {}).get("persona") or ""
-        drafts = ai.draft_posts(platform_cfg, source, platform, caps, count, persona)
+        drafts = None
+        borrow = platform_cfg.get("copy_from")
+        if borrow:
+            drafts = _borrowed_copy(site, source["source_id"], str(borrow), caps)
+        if not drafts:
+            drafts = ai.draft_posts(platform_cfg, source, platform, caps, count, persona)
         auto = str(platform_cfg.approval) == "auto"
 
         for index, draft in enumerate(drafts):

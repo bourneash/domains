@@ -70,7 +70,13 @@ ai:
 platform_overrides:
   reddit:
     subreddit: r/example     # community routing is config, never a model choice
+  console:
+    copy_from: bluesky       # mirror channel — reuse the copy, don't pay twice
 ```
+
+`sources.globs` + `sources.url_template` handle sites whose postable content
+isn't `site/src/content/articles/` — `{collection}` in the template resolves to
+the containing directory, so articles and briefings can share one rule.
 
 Live examples: `sites/americastrikes.com/ops/social/hub.yaml` (auto-posting)
 and `sites/0daynews.com/ops/social/hub.yaml` (manual review, 2 variants).

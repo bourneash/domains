@@ -233,3 +233,26 @@ def test_default_source_budget_is_small(synced):
     sources.ingest("alpha.com", cfg)
     result = generator.generate("alpha.com", cfg)  # no explicit limit
     assert result["sources"] == 2
+
+
+def test_a_platform_can_borrow_another_platform_s_copy(fake_fleet, fake_adapter):
+    """copy_from reuses an already-drafted post instead of paying for a second
+    model call — the mirror-channel case."""
+    make_site(
+        fake_fleet, "alpha.com", articles=1,
+        config_yaml=(
+            "platforms: [fake, console]\n"
+            "platform_overrides:\n"
+            "  console:\n"
+            "    copy_from: fake\n"
+        ),
+    )
+    accounts.sync_channels()
+    accounts.ensure_config_channels("alpha.com", ["fake", "console"])
+    cfg = load_site_config("alpha.com")
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+
+    posts = {p["platform"]: p for p in queue.list_posts(site="alpha.com")}
+    assert posts["console"]["body"] == posts["fake"]["body"]
+    assert posts["console"]["ai_model"] == "copy:fake"
