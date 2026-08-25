@@ -189,7 +189,7 @@ def main() -> int:
     if asin_products:
         amz.load_env(site_root, domains_root)
         try:
-            cl = amz.client(site_root / "ops" / "state" / ".amz-token.json")
+            cl = amz.client(amz.token_cache_path())
         except RuntimeError as exc:
             api_error = str(exc)
             log(f"API unavailable: {exc}")

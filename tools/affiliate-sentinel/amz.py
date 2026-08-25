@@ -109,6 +109,26 @@ def load_env(site_root: Path, domains_root: Path) -> None:
             os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
+def token_cache_path() -> Path:
+    """Where the OAuth bearer token is cached — deliberately OUTSIDE any site repo.
+
+    The first cut cached it at `<site>/ops/state/.amz-token.json`, which put a
+    live credential inside 15 git repos that several fleet jobs run `git add -A`
+    over. It was never committed, but the fleet already has a hard rule about
+    keeping secrets out of the trees for exactly this reason
+    (.env.shared must be gitignored), and one process away from a leak is not a
+    margin worth keeping. The token is account-wide, not per-site, so one
+    shared file off to the side is also simply correct.
+    """
+    p = Path(__file__).resolve().parent / ".cache" / "amz-token.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        p.parent.chmod(0o700)
+    except OSError:
+        pass
+    return p
+
+
 def client(cache_file: Path):
     """Build an AMZClient. Raises RuntimeError with an actionable message if unconfigured."""
     _ensure_amz_stats_on_path()

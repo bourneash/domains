@@ -91,6 +91,13 @@ Direct invocation, e.g. from the host:
 python3 tools/affiliate-sentinel/sentinel.py --site-root sites/<domain> --dry-run --json
 ```
 
+## Credentials
+
+Read from `<site>/.env.shared` (containers) or the fleet `.env` (host). The
+OAuth bearer token is cached at `tools/affiliate-sentinel/.cache/amz-token.json`
+(mode 600, gitignored) — deliberately outside every site repo, so no fleet job
+that runs `git add -A` can ever sweep a live credential into a commit.
+
 ## Manual fallbacks (never scheduled)
 
 Both predecessors are kept for the case where the Amazon API is down or an
