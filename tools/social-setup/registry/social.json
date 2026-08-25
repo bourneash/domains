@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-25T18:44:40.956Z",
+  "updatedAt": "2026-08-25T18:49:12.335Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1680,6 +1680,24 @@
       "lastPostedAt": null,
       "createdAt": "2026-08-22T15:51:10.859Z",
       "updatedAt": "2026-08-22T15:51:10.859Z"
+    },
+    {
+      "id": "acc_0ee31af710fa",
+      "site": "stinkyleftfoot.com",
+      "platform": "bluesky",
+      "scope": "brand",
+      "personaId": null,
+      "status": "pending",
+      "handle": "stinkyleftfoot.bsky.social",
+      "statusNote": "Signup reaches the CAPTCHA human-gate and needs an interactive terminal (background runs die on EOFError at browser.py human_gate). Email alias social@stinkyleftfoot.com already created. Resume: cd tools/social-setup && python3 -m social_setup.cli provision stinkyleftfoot.com --platforms bluesky",
+      "profileUrl": "",
+      "notes": "",
+      "tags": [],
+      "credsInVault": false,
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-25T18:49:12.335Z",
+      "updatedAt": "2026-08-25T18:49:12.335Z"
     }
   ]
 }
