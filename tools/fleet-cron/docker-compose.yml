@@ -17,6 +17,26 @@ services:
     cap_drop:
       - ALL
     restart: unless-stopped
+    # Same tier-1 liveness every site cron container carries: supercronic is
+    # PID 1 (entrypoint.sh exec's it), so reading /proc/1/comm is exact, spawns
+    # no process, and cannot match the probe itself the way `pgrep -f` did.
+    #
+    # This container matters more than any single site's: it runs the sweeps —
+    # including cron-freshness (job 15) — that notice when the OTHER schedulers
+    # stop. Honest limit: tier 2 cannot cover this container, because a wedged
+    # fleet-cron is exactly the thing that would fail to run the sweep that
+    # would have reported it. Tier 1 + autoheal covers the DEAD case unattended;
+    # the wedged case still needs an out-of-band checker and does not have one.
+    healthcheck:
+      test: ["CMD", "grep", "-qx", "supercronic", "/proc/1/comm"]
+      interval: 120s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      # Docker never restarts a container for going unhealthy — vpn-autoheal
+      # (tools/vpn-proxy) is what turns unhealthy into a restart.
+      autoheal: "true"
     security_opt:
       - no-new-privileges:true
     volumes:

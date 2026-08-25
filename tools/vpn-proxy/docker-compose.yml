@@ -114,8 +114,18 @@ services:
     # Override the willfarrell/autoheal image's built-in 5s HEALTHCHECK, which
     # was firing a runc exec every 5s. The watchdog interval itself is
     # AUTOHEAL_INTERVAL above (30s); this just controls its own liveness probe.
+    #
+    # The predicate reads PID 1's cmdline rather than using `pgrep -f autoheal`,
+    # which was UNFAILABLE: `-f` matches the whole command line, and the
+    # probe's own `sh -c "pgrep -f autoheal ..."` contains the string, so pgrep
+    # always found itself and exited 0 — this container reported healthy no
+    # matter what. Verified in place: `pgrep -f NOSUCHPROCXYZ` also exited 0.
+    # PID 1 here is `sh /docker-entrypoint autoheal`, so match on cmdline
+    # (-a: treat the NUL-separated file as text) rather than /proc/1/comm,
+    # which is just `sh`. Same defect and same class of fix as every site's
+    # cron container — see any sites/*/docker-compose.yml.
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f autoheal || exit 1"]
+      test: ["CMD", "grep", "-qa", "autoheal", "/proc/1/cmdline"]
       interval: 5m
       timeout: 10s
       retries: 3

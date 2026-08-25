@@ -156,6 +156,23 @@ image and would silently preserve the drift).
   also refuses `--dangerously-skip-permissions` as root.
 - **Need something the shared image lacks?** Add it to the shared image. A site that needs
   its own image is a finding about the shared one, not a private workaround.
+- **Healthcheck budget — no interval below 60s, and nothing but a local predicate.** A
+  container healthcheck may read `/proc`, a file, or a signal. It may not curl, hit the
+  network, shell out to the docker CLI, or run a build. It runs on every container, forever;
+  the fleet has burned itself on this twice — `willfarrell/autoheal`'s baked-in **5s**
+  HEALTHCHECK firing a runc exec every 5s, and fleet-smoke's per-site HTTP sweeps. Anything
+  needing HTTP, cross-container state, or schedule reasoning belongs in a host-side sweep
+  (`tools/scripts/cron-freshness-cron.sh` is the model: one process for the whole fleet,
+  every 30 min, instead of 26 probes on a loop).
+- **A healthcheck that cannot fail is worse than none.** It reports green through an
+  outage. `pgrep -f <name>` is the trap: `-f` matches the whole command line, and the
+  probe's own `sh -c "pgrep -f <name>"` contains the name, so it always finds itself and
+  exits 0. It shipped that way on two site cron containers and on `vpn-autoheal`, and
+  `pgrep -f NOSUCHPROCXYZ` exited 0 on all three. Prove a new probe can fail — run it with
+  a deliberately wrong target and confirm a nonzero exit — before trusting its green.
+- **A healthcheck without `labels: autoheal=true` is decoration.** Docker never restarts a
+  container for going unhealthy; `vpn-autoheal` (`tools/vpn-proxy`) is what turns unhealthy
+  into a restart. Add the probe and the label together or neither.
 
 ## Related
 

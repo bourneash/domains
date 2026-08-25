@@ -165,4 +165,30 @@
 #
 # Healthy = SILENT, same contract as the lint/test sweeps. Slack fires only on
 # a blocked credential, a git error, or a review item unresolved for >24h.
-17 * * * * /home/jesse/projects/domains/tools/scripts/fleet-git-hygiene-cron.sh
+# DISABLED 2026-08-25 pending fixes from the adversarial review (NO-GO):
+# deletions committed unattended, pointer bumps with no upstream check, a
+# TOCTOU on `git add <gitlink>`, and an uncapped untrack path. Re-enable only
+# after those are fixed AND the parent+submodule pointer path has e2e tests.
+# 17 * * * * /home/jesse/projects/domains/tools/scripts/fleet-git-hygiene-cron.sh
+
+# --- Job 15: cron-freshness sweep (tier 2) ---
+# Asserts that every site's supercronic is still FIRING, not merely alive.
+#
+# Tier 1 is the per-container Docker healthcheck each site now carries
+# (`grep -qx supercronic /proc/1/comm`, 120s, + `labels: autoheal=true`), which
+# catches a DEAD scheduler and lets vpn-autoheal restart it unattended. It is
+# deliberately trivial — ~8ms CPU, no shell, no network, no docker CLI — and so
+# it cannot see a supercronic that is alive but wedged: a job that never
+# returned, a lock held forever, a crontab that parsed to zero jobs. That is
+# the 2026-05-17 failure mode, schedulers silently dead for 9 days.
+#
+# Seeing THAT needs schedule reasoning plus log reads. Doing it per container
+# would be 26 heavyweight probes on a loop — the same mistake as autoheal's
+# baked-in 5s HEALTHCHECK firing a runc exec every 5s. So it runs here instead:
+# one host-side process for the whole fleet, ~2.6s wall, every 30 min. The
+# window is derived per site from that site's own crontab (longest legitimate
+# gap x2 + 15m grace), never hardcoded — a weekly-only site must not be called
+# stale on Tuesday.
+#
+# Healthy = SILENT, same contract as the lint/git/image sweeps.
+23,53 * * * * /home/jesse/projects/domains/tools/scripts/cron-freshness-cron.sh
