@@ -150,3 +150,4 @@ def test_shipped_manifest_does_not_back_up_rendered_credentials():
         for p in group.get("paths", []):
             assert "env-broker/rendered" not in p
             assert not p.endswith(".env")
+

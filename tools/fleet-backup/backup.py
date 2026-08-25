@@ -317,6 +317,35 @@ def newest_keys(s3, manifest) -> dict[str, str]:
     return latest
 
 
+def _safe_extract(tar: tarfile.TarFile, dest: Path) -> None:
+    """Extract with tar-slip protection.
+
+    These archives are ours and land in a private bucket, but "the input is
+    trusted" is the assumption every tar-slip writeup starts with — and this
+    code runs during a restore, i.e. exactly when someone is already having a
+    bad day. `filter="data"` (3.11.4+/3.12) rejects absolute paths, `..`
+    escapes, links pointing outside the tree, and device nodes. The fallback
+    does the same checks by hand for older interpreters.
+    """
+    try:
+        tar.extractall(dest, filter="data")
+        return
+    except TypeError:
+        pass
+    root = dest.resolve()
+    for m in tar.getmembers():
+        target = (dest / m.name).resolve()
+        if not str(target).startswith(str(root) + os.sep) and target != root:
+            raise RuntimeError(f"refusing tar member escaping the destination: {m.name!r}")
+        if (m.issym() or m.islnk()):
+            link = (target.parent / m.linkname).resolve()
+            if not str(link).startswith(str(root) + os.sep):
+                raise RuntimeError(f"refusing link escaping the destination: {m.name!r}")
+        if not (m.isfile() or m.isdir() or m.issym() or m.islnk()):
+            raise RuntimeError(f"refusing non-regular tar member: {m.name!r}")
+    tar.extractall(dest)
+
+
 def cmd_drill(manifest) -> int:
     """Restore every group's newest archive into a temp dir and unpack it.
 
@@ -338,7 +367,11 @@ def cmd_drill(manifest) -> int:
                     # comparing against every member reported a perfectly good
                     # archive as a MISMATCH.
                     expected = sum(1 for m in tar.getmembers() if m.isfile())
-                    tar.extractall(Path(tmp) / group)
+                    # filter="data" refuses members that escape the destination
+                    # (absolute paths, "..", links pointing outside). Restore is
+                    # the one path where a tampered or corrupted archive turns
+                    # into arbitrary file write as whoever runs the drill.
+                    _safe_extract(tar, Path(tmp) / group)
                 on_disk = sum(1 for p in (Path(tmp) / group).rglob("*") if p.is_file())
                 ok = on_disk == expected
                 print(f"{group:22s} {expected:5d} files, {on_disk} restored "
@@ -367,7 +400,8 @@ def cmd_restore(args, manifest) -> int:
     into.mkdir(parents=True, exist_ok=True)
     body = s3.get_object(Bucket=manifest["destination"]["bucket"], Key=key)["Body"].read()
     with tarfile.open(fileobj=io.BytesIO(body), mode="r:gz") as tar:
-        tar.extractall(into)
+        # See cmd_drill: never extract an archive unfiltered, even our own.
+        _safe_extract(tar, into)
     print(f"restored {key} -> {into}")
     return 0
 
