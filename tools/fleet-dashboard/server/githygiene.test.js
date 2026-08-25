@@ -40,3 +40,31 @@ test('resolve rejects a slug that is not a real repo', async () => {
     /unknown repo/
   );
 });
+
+test('board() exposes every field the Git Hygiene view renders', () => {
+  // The tab is rendered from this shape. A server-side change that drops a
+  // field should fail here rather than throwing in the browser, where nobody
+  // is watching.
+  const b = gh.board();
+  assert.ok('running' in b);
+  assert.ok('lastSweep' in b, 'header renders lastSweep.at/.repos and the summary table');
+  assert.ok(Array.isArray(b.queue));
+  assert.ok(b.policy && Array.isArray(b.policy.rules));
+  assert.ok(Array.isArray(b.policy.ignoreBlock), 'policy card renders ignoreBlock.length');
+  assert.equal(typeof b.policy.limits.max_files_per_commit, 'number');
+  for (const i of b.queue)
+    for (const k of ['slug', 'path', 'reason', 'first_seen'])
+      assert.ok(k in i, `queue row is missing ${k}`);
+  if (b.lastSweep) {
+    assert.ok(Array.isArray(b.lastSweep.summary), 'the "Last sweep" table iterates summary');
+    assert.ok(Array.isArray(b.lastSweep.blocked));
+    assert.ok(Array.isArray(b.lastSweep.skipped));
+  }
+});
+
+test('board() never leaks the policy file path or raw rule internals', () => {
+  const b = gh.board();
+  const s = JSON.stringify(b);
+  assert.equal(s.includes('_match'), false, 'compiled regexes are not serialised to the browser');
+  assert.equal(s.includes('_scope'), false);
+});

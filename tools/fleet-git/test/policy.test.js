@@ -47,3 +47,27 @@ test('block rules are hoisted without changing which non-block rule wins', () =>
     'relative order of the rest is preserved, so first-match-wins is unchanged'
   );
 });
+
+test('the git environment is an allowlist: no repo-location vars, identity and transport kept', () => {
+  const { GIT_ENV_ALLOW, CLEAN_GIT_ENV } = require('../lib/gitexec');
+  for (const bad of [
+    'GIT_DIR',
+    'GIT_WORK_TREE',
+    'GIT_INDEX_FILE',
+    'GIT_COMMON_DIR',
+    'GIT_OBJECT_DIRECTORY',
+    'GIT_NAMESPACE',
+  ])
+    assert.equal(GIT_ENV_ALLOW.includes(bad), false, `${bad} must never reach a git child`);
+  for (const needed of ['PATH', 'HOME', 'GIT_SSH_COMMAND', 'GIT_AUTHOR_NAME'])
+    assert.ok(GIT_ENV_ALLOW.includes(needed), `${needed} is required`);
+  // The cron sources a .env full of live tokens into this process; none of it
+  // may be handed to git (which honours per-repo core.sshCommand/aliases).
+  for (const secret of ['SLACK_BOT_TOKEN', 'CLOUDFLARE_API_TOKEN', 'ANTHROPIC_API_KEY'])
+    assert.equal(secret in CLEAN_GIT_ENV, false, `${secret} must not be in the git env`);
+  assert.equal(
+    CLEAN_GIT_ENV.GIT_TERMINAL_PROMPT,
+    '0',
+    'git must never block on a credential prompt'
+  );
+});

@@ -116,6 +116,34 @@ review item unresolved for more than `REVIEW_NAG_HOURS` (default 24).
 17 * * * * /home/jesse/projects/domains/tools/scripts/fleet-git-hygiene-cron.sh
 ```
 
+## If a sweep did something wrong
+
+Every commit the tool makes carries the trailer `fleet-git: automated hygiene
+sweep`, so its work is always separable from a human's or a site role's.
+
+```bash
+# What has the sweep done in this repo?
+git log --grep='fleet-git: automated hygiene sweep' --oneline
+
+# Undo one of its commits without rewriting history (safe on a pushed branch)
+git revert <sha>
+
+# Stop it immediately, fleet-wide: comment out job 14 and restart the driver
+#   tools/fleet-cron/crontab.docker   ->  # 17 * * * * .../fleet-git-hygiene-cron.sh
+docker restart fleet-cron
+
+# Stop it for ONE repo only: it never touches a repo whose plan is skipped.
+git -C sites/<site> checkout --detach   # detached HEAD is an unconditional skip
+```
+
+A wedged lock (a sweep killed mid-run) is self-healing after 45 minutes; to
+clear it sooner, delete `tools/fleet-git/state/sweep.lock` — but check
+`state/cron.log` first, because a sweep that is genuinely still running holds
+that file.
+
+The queue and the last report are plain JSON under `state/` and can be read or
+edited by hand; a corrupt one is copied aside rather than silently reset.
+
 ## Also reported (never auto-fixed)
 
 Directories under `sites/` that are **not** registered submodules. Git commands

@@ -10,6 +10,13 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
+// Own lock file: node --test runs test files in parallel, and these tests each
+// take the sweep lock.
+process.env.FLEET_GIT_LOCK = path.join(
+  fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-git-ptrlock-')),
+  'sweep.lock'
+);
+
 const { sweep } = require('../lib/sweep');
 const { load: loadPolicy } = require('../lib/policy');
 

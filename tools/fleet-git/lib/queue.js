@@ -3,7 +3,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const STATE_DIR = path.join(__dirname, '..', 'state');
+// Overridable so tests never touch the LIVE queue. Without this they read,
+// rewrite and restore the real state/queue.json — which races the hourly cron
+// sweep writing the same file, and can drop real review items.
+const STATE_DIR = process.env.FLEET_GIT_STATE_DIR || path.join(__dirname, '..', 'state');
 const QUEUE_PATH = path.join(STATE_DIR, 'queue.json');
 const LAST_PATH = path.join(STATE_DIR, 'last-sweep.json');
 

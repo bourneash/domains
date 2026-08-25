@@ -165,3 +165,23 @@ test('a concurrent `git add` cannot ride along in the hygiene commit, and is not
     "the other process's staged work is still staged, not committed and not reset"
   );
 });
+
+test('a file over max_file_bytes is routed to review, not committed', async () => {
+  const { work } = makeRepo();
+  const big = Buffer.alloc(policy.limits.max_file_bytes + 1024, 'x');
+  fs.mkdirSync(path.join(work, 'ops/tasks'), { recursive: true });
+  fs.writeFileSync(path.join(work, 'ops/tasks/huge.md'), big);
+  write(work, 'ops/tasks/small.md', 'fine\n');
+
+  const st = await status(work);
+  const p = plan(st, { slug: 'test.com', policy });
+  await executeRepo({ slug: 'test.com', dir: work }, p, policy, { apply: true, push: false });
+
+  const committed = sh(work, 'show', '--name-only', '--format=', 'HEAD').trim();
+  assert.match(committed, /small\.md/);
+  assert.equal(committed.includes('huge.md'), false, 'the oversize file was not committed');
+  assert.ok(
+    p.review.some(r => r.path === 'ops/tasks/huge.md' && r.kind === 'oversize'),
+    'and it is queued for an operator'
+  );
+});

@@ -18,7 +18,9 @@ const HYGIENE_TRAILER = 'fleet-git: automated hygiene sweep';
 // flag cannot do that, and the cron's `flock` on /tmp is not shared with the
 // dashboard container. The lock file lives in the repo, which every caller has
 // bind-mounted at the same path, so it is the one place they all agree on.
-const LOCK_PATH = path.join(__dirname, '..', 'state', 'sweep.lock');
+// Overridable so tests (and a second fleet root, should one ever exist) get
+// their own lock instead of contending for this checkout's.
+const LOCK_PATH = process.env.FLEET_GIT_LOCK || path.join(__dirname, '..', 'state', 'sweep.lock');
 const LOCK_STALE_MS = 45 * 60 * 1000;
 
 function acquireLock() {
