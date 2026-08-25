@@ -711,10 +711,11 @@ sites:
     - site-tracker
     - social
   stinkyleftfoot.com:
-    status: scaffold
+    status: live
     repo: bourneash/stinkyleftfoot.com
     worker: stinkyleftfoot-com
     cf_zone: stinkyleftfoot.com
+    slack_channel_env: SLACK_CHANNEL_STINKYLEFTFOOT
     capabilities:
     - site
     - ops
