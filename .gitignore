@@ -63,3 +63,8 @@ tools/fleet-registry/drift.log.1
 tools/fleet-registry/.drift.lock
 tools/fleet-registry/.drift-state.json
 Findings-*.md
+
+# Fleet-level AI ledger written by tools/ai-optimizer's roles (CRON_SITE=_fleet).
+# Runtime data, same convention every site uses for its own ops/logs/*.
+ops/logs/*
+!ops/logs/.gitkeep

@@ -167,8 +167,15 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     if sites_dir.is_dir():
         all_sites = sorted(p.name for p in sites_dir.iterdir() if p.is_dir())
 
-    for site_name in all_sites:
-        log_dir = sites_dir / site_name / "ops" / "logs"
+    # Fleet-level roles (tools/ai-optimizer's analyst + implementer) write to
+    # <root>/ops/logs with CRON_SITE="_fleet" — they belong to no single site.
+    # Without this they were invisible here, which meant the AI-cost optimizer
+    # was the one AI spend the AI-cost dashboard could not see.
+    ledger_dirs = [(name, sites_dir / name / "ops" / "logs") for name in all_sites]
+    if (root / "ops" / "logs").is_dir():
+        ledger_dirs.append(("_fleet", root / "ops" / "logs"))
+
+    for site_name, log_dir in ledger_dirs:
         if not log_dir.is_dir():
             continue
         for ledger in sorted(log_dir.glob("token-usage-*.jsonl")):
