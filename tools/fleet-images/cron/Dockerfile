@@ -42,6 +42,13 @@ FROM alpine:3.20.6@sha256:de4fe7064d8f98419ea6b49190df1abbf43450c1702eeb864fe9ce
 #                    Room data refresh runs at cron level, not in a worker)
 #   docker-cli(+compose) — every role invocation is `docker compose run --rm`
 #   python3        — notify-slack.sh and friends
+#   py3-yaml       — CRON-LEVEL python that isn't a worker role: the shared
+#                    guide-queue CLI (tools/guide-queue, run by
+#                    run-guide-publisher.sh on 4 sites) and 0daynews'
+#                    sync-kev-epss.py both `import yaml` directly in this
+#                    container. Absent here, both die with ModuleNotFoundError
+#                    every tick. Alpine package, not pip: this image has no
+#                    pip3 and PEP 668 would block a global install anyway.
 #   bash           — every ops script has a bash shebang
 # One shared image can afford the union; 27 copies could not, which is exactly
 # why they each carried a different subset and broke differently.
@@ -54,6 +61,7 @@ RUN apk add --no-cache \
     git \
     nodejs \
     npm \
+    py3-yaml \
     python3 \
     tzdata \
     wget

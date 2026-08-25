@@ -97,6 +97,12 @@ RUN npm install -g \
 #            images instead of becoming permanent exceptions.
 #   idna>=3.10  transitive floor pin carried over from sinderella
 #               (GHSA-65pc-fj4g-8rjx)
+#   cloakbrowser  3 sites' entrypoint-worker.sh calls `cloakbrowser install`
+#               unconditionally before dispatching to run-role.sh. It was baked
+#               into their bespoke worker images; dropping it here turned every
+#               product-scout / product-publisher run into an exit-127 at the
+#               entrypoint. The Chromium payload still lives in the per-site
+#               cloakbrowser_cache volume — only the CLI belongs in the image.
 #
 # Installed BOTH system-wide and into a venv: some ops scripts invoke the
 # system python3, others expect an interpreter under a venv path. Providing
@@ -107,12 +113,12 @@ RUN npm install -g \
 ENV FLEET_VENV=/opt/fleet-venv
 RUN pip3 install --break-system-packages --no-cache-dir \
       pyyaml Pillow httpx openai feedparser requests ephem \
-      pytest pytest-mock "idna>=3.10" \
+      pytest pytest-mock "idna>=3.10" cloakbrowser \
     && python3 -m venv "$FLEET_VENV" \
     && "$FLEET_VENV/bin/pip" install --no-cache-dir --upgrade pip \
     && "$FLEET_VENV/bin/pip" install --no-cache-dir \
       pyyaml Pillow httpx openai feedparser requests ephem \
-      pytest pytest-mock "idna>=3.10"
+      pytest pytest-mock "idna>=3.10" cloakbrowser
 
 # ── Playwright browsers: cached PER SITE, not baked ─────────────────────────
 # Two different Playwright consumers exist in this fleet:
