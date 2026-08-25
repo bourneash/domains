@@ -165,11 +165,14 @@
 #
 # Healthy = SILENT, same contract as the lint/test sweeps. Slack fires only on
 # a blocked credential, a git error, or a review item unresolved for >24h.
-# DISABLED 2026-08-25 pending fixes from the adversarial review (NO-GO):
-# deletions committed unattended, pointer bumps with no upstream check, a
-# TOCTOU on `git add <gitlink>`, and an uncapped untrack path. Re-enable only
-# after those are fixed AND the parent+submodule pointer path has e2e tests.
-# 17 * * * * /home/jesse/projects/domains/tools/scripts/fleet-git-hygiene-cron.sh
+# Re-enabled 2026-08-25 after the adversarial review's four criticals were
+# fixed and covered by tests (42 total, incl. a real parent+submodule fixture
+# for the pointer path): deletions now need per-rule opt-in and stay under a
+# cap; a pointer bump requires the submodule HEAD to be provably on its remote
+# and pins the verified SHA; mechanical commits build a scratch index so a
+# site's own cron cannot have its work swept in; operator globs cannot be
+# universal and the untrack list is capped.
+17 * * * * /home/jesse/projects/domains/tools/scripts/fleet-git-hygiene-cron.sh
 
 # --- Job 15: cron-freshness sweep (tier 2) ---
 # Asserts that every site's supercronic is still FIRING, not merely alive.
