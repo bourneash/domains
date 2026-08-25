@@ -63,8 +63,48 @@ in here, and leave exactly **one** host crontab line:
 incident this job exists for). `ensure-up.sh` handles a cold host reboot —
 same belt-and-suspenders gap `home_energy/scripts/cron-reboot.sh` covers for
 that stack. Ordinary "is fleet-cron alive right now" visibility is the Fleet
-Dashboard's Containers tab, not a second watchdog — **do not build one to
-watch this one.**
+Dashboard's Containers tab.
+
+### Narrowed 2026-08-25: that rule used to say "do not build a watchdog for this one"
+
+It now applies only to **liveness**, which is what it was actually reasoning
+about. Two things changed:
+
+1. **Liveness got cheaper and real.** This container carries a Docker
+   healthcheck (`grep -qx supercronic /proc/1/comm`) plus `autoheal=true`, so
+   a dead scheduler is detected and restarted with no watchdog at all. That
+   genuinely needs no second process, and the original rule stands.
+2. **A different failure mode was never covered.** A *wedged* supercronic —
+   alive, container healthy, Dashboard green, firing nothing — is invisible to
+   every mechanism above, because they all report container state, not job
+   activity. That is the 2026-05-17 failure mode (schedulers silently dead for
+   9 days), and for the 26 site schedulers it is now caught by job 15
+   (`cron-freshness-cron.sh`). Job 15 structurally cannot cover this container:
+   a wedged fleet-cron is exactly what would fail to run the sweep that would
+   have reported it.
+
+So there is now one host-side line, approved deliberately:
+
+```
+6,21,36,51 * * * * .../tools/scripts/fleet-cron-freshness-host.sh
+```
+
+and **job 16** (`fleet-cron-host-watchdog.sh`) asserts that line's report
+landed in the last hour — because host cron's failure mode is that a wiped
+crontab is silent, which is the thing this whole tool exists to eliminate.
+Each side watches the other; neither is trusted to notice its own absence.
+Identical shape to the job 13 / `fleet-test-cron.sh` pair.
+
+The rule that survives, restated precisely: **do not build a second process to
+watch whether this container is up.** Do build one for what it is *doing*,
+because nothing else can see that.
+
+The host watchdog also tracks `StartedAt` across runs. `RestartCount` counts
+only restart-policy restarts, so an API-driven `docker restart` leaves it at
+zero — which is what fleet-cron was observed doing on 2026-08-25: four starts
+in two hours, `RestartCount=0`, no autoheal action, and nothing in the host
+crontab or the Dashboard action log to explain it. Unattributed; the tracking
+exists so the next one is caught in a 15-minute window instead of by forensics.
 
 ## Editing the schedule
 

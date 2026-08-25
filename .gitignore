@@ -48,6 +48,16 @@ tools/scripts/.ensure-fleet-cron-alerts/
 tools/scripts/.check-claude-auth-state
 tools/scripts/.check-claude-auth-alerted
 tools/scripts/.dd-auth-state/
+# Scheduler-freshness watchdogs: alert cooldown stamps and the rolling
+# restart-tracking state. Runtime state, not source.
+tools/scripts/.cron-freshness.last-alert
+tools/scripts/.fleet-cron-freshness.state
+tools/scripts/.fleet-cron-freshness.state.alert
+tools/scripts/.fleet-cron-host-watchdog.alerted
+# The host-side fleet-cron watchdog's heartbeat. Its MTIME is the signal that
+# fleet-cron job 16 asserts, so it is rewritten every 15 minutes — committing
+# it would put a churning file in every diff for no gain.
+tools/fleet-cron/.host-freshness-report
 
 # Fleet lint sweep — run artifacts, not source. latest.json changes on every
 # sweep and history.jsonl grows forever; both are host state.

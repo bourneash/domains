@@ -221,3 +221,20 @@
 # Kill switch: touch tools/ai-optimizer/.implement-disabled
 # Dry run:     AI_IMPL_DRY_RUN=1 tools/scripts/ai-optimizer-implement.sh
 11,31,51 * * * *   /home/jesse/projects/domains/tools/scripts/ai-optimizer-implement.sh
+
+# --- Job 16: host-watchdog assertion (the other half of job 15) ---
+# Asserts the HOST-side fleet-cron watchdog is still running.
+#
+# Job 15 covers all 26 site schedulers, but it cannot cover THIS container: a
+# wedged fleet-cron is precisely what would fail to run the sweep that would
+# have reported it. So fleet-cron-freshness-host.sh runs from the host crontab
+# every 15 min. Host cron's failure mode is that a wiped crontab is SILENT —
+# the exact thing the fleet-cron migration existed to kill — so this job
+# asserts that host check's report landed in the last hour.
+#
+# Each side watches the other; neither is trusted to notice its own absence.
+# Same shape as job 13 (fleet-test-freshness.sh) — if you change one, look at
+# the other.
+#
+# Healthy = SILENT.
+41 * * * * /home/jesse/projects/domains/tools/scripts/fleet-cron-host-watchdog.sh

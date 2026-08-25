@@ -209,7 +209,7 @@ def container_name(compose_path: str) -> str | None:
     return None
 
 
-def crontab_path(site_dir: str, name: str) -> str | None:
+def crontab_path(base_dir: str, name: str) -> str | None:
     """Resolve the crontab this container is ACTUALLY running.
 
     Read from the live container's bind mounts, not from a assumed filename.
@@ -224,7 +224,7 @@ def crontab_path(site_dir: str, name: str) -> str | None:
     src = docker("inspect", "-f", fmt, name)
     if src and os.path.isfile(src):
         return src
-    fallback = os.path.join(site_dir, "ops", "docker", "crontab.docker")
+    fallback = os.path.join(base_dir, "ops", "docker", "crontab.docker")
     return fallback if os.path.isfile(fallback) else None
 
 
@@ -246,93 +246,116 @@ def uptime_sec(name: str) -> int | None:
     return int((datetime.now(dt.tzinfo) - dt).total_seconds())
 
 
+def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
+    """Assess one scheduler container. Returns (findings, asserted, skipped_young).
+
+    Deliberately generic over which container it is looking at, so the
+    fleet-cron self-check reuses this exact window math rather than growing a
+    second, subtly-different implementation of it.
+    """
+    findings: list[str] = []
+
+    state = docker("inspect", "-f", "{{.State.Status}}", name)
+    if not state:
+        return [f"{label}: cron container `{name}` does not exist"], 0, 0
+    if state != "running":
+        return [f"{label}: cron container `{name}` is {state}, not running"], 0, 0
+
+    crontab = crontab_path(base_dir, name)
+    if crontab is None:
+        return [
+            f"{label}: cannot resolve the crontab `{name}` is running "
+            f"(no /etc/crontab.docker bind mount, no crontab.docker on disk) "
+            f"— freshness cannot be asserted"
+        ], 0, 0
+
+    gap, njobs, unparseable = max_gap_sec(crontab)
+    if unparseable:
+        findings.append(
+            f"{label}: {unparseable} unparseable line(s) in {os.path.basename(crontab)} — "
+            f"freshness window derived from the {njobs} that did parse"
+        )
+    if gap is None:
+        if njobs == 0:
+            findings.append(f"{label}: {os.path.basename(crontab)} schedules zero jobs")
+        else:
+            findings.append(
+                f"{label}: none of {njobs} job(s) fire within {HORIZON_DAYS}d — "
+                f"schedule is effectively dead"
+            )
+        return findings, 0, 0
+
+    window = gap * 2 + GRACE_SEC
+    up = uptime_sec(name)
+    if up is not None and up < window:
+        # Not enough history to judge; a freshly restarted container has
+        # legitimately not fired anything yet. Counted, not silent — see the
+        # COVERAGE line the caller prints.
+        #
+        # ...unless it is FLAPPING. A container that keeps restarting is never
+        # up long enough to assert against, so it would sit in this branch
+        # forever and the sweep would report a clean run having checked
+        # nothing. That is the same unfalsifiable-green defect as the
+        # `pgrep -f` probe this tier replaced, so it gets caught rather than
+        # counted. One restart is normal (a roll, a deliberate recreate);
+        # repeated ones with no stable window are not.
+        restarts = docker("inspect", "-f", "{{.RestartCount}}", name)
+        if restarts.isdigit() and int(restarts) >= FLAP_RESTARTS:
+            findings.append(
+                f"{label}: `{name}` has restarted {restarts}x and is still "
+                f"younger than its {window // 60}m freshness window — "
+                f"flapping, so freshness has never been asserted"
+            )
+        return findings, 0, 1
+
+    logs = docker("logs", f"--since={window}s", name, merge_stderr=True)
+    if not FIRED_RE.search(logs):
+        findings.append(
+            f"{label}: `{name}` up but supercronic fired NOTHING in "
+            f"{window // 60}m (longest legitimate gap {gap // 60}m, "
+            f"{njobs} job(s)) — scheduler wedged"
+        )
+    return findings, 1, 0
+
+
 def main() -> int:
+    only_fleet_cron = "--fleet-cron" in sys.argv[1:]
     findings = []
     asserted = skipped_young = eligible = 0
-    try:
-        sites = sorted(os.listdir(SITES_DIR))
-    except OSError as exc:
-        print(f"FATAL cannot read {SITES_DIR}: {exc}")
-        return 2
 
-    for site in sites:
-        site_dir = os.path.join(SITES_DIR, site)
-        compose = os.path.join(site_dir, "docker-compose.yml")
-        # A site with no compose file, or one that declares no cron service, is
-        # a scaffold — silence is correct for those. Anything that DOES declare
-        # a scheduler is eligible, and from here on an unresolvable site is a
-        # finding rather than a quiet skip.
-        if not os.path.isfile(compose):
-            continue
-        name = container_name(compose)
-        if not name:
-            continue
-        eligible += 1
+    if only_fleet_cron:
+        # The scheduler-of-schedulers. This mode exists to be run from the HOST
+        # crontab, never from fleet-cron itself: a wedged fleet-cron is exactly
+        # the thing that would fail to run the sweep that would report it, so
+        # self-checking here would be circular by construction.
+        eligible = 1
+        findings, asserted, skipped_young = assess(
+            "fleet-cron", os.path.join(DOMAINS_ROOT, "tools", "fleet-cron"), "fleet-cron"
+        )
+    else:
+        try:
+            sites = sorted(os.listdir(SITES_DIR))
+        except OSError as exc:
+            print(f"FATAL cannot read {SITES_DIR}: {exc}")
+            return 2
 
-        state = docker("inspect", "-f", "{{.State.Status}}", name)
-        if not state:
-            findings.append(f"{site}: cron container `{name}` does not exist")
-            continue
-        if state != "running":
-            findings.append(f"{site}: cron container `{name}` is {state}, not running")
-            continue
-
-        crontab = crontab_path(site_dir, name)
-        if crontab is None:
-            findings.append(
-                f"{site}: cannot resolve the crontab `{name}` is running "
-                f"(no /etc/crontab.docker bind mount, no ops/docker/crontab.docker) "
-                f"— freshness cannot be asserted for this site"
-            )
-            continue
-
-        gap, njobs, skipped = max_gap_sec(crontab)
-        if skipped:
-            findings.append(
-                f"{site}: {skipped} unparseable line(s) in {os.path.basename(crontab)} — "
-                f"freshness window derived from the {njobs} that did parse"
-            )
-        if gap is None:
-            if njobs == 0:
-                findings.append(f"{site}: crontab.docker schedules zero jobs")
-            else:
-                findings.append(
-                    f"{site}: none of {njobs} job(s) fire within {HORIZON_DAYS}d — "
-                    f"schedule is effectively dead"
-                )
-            continue
-
-        window = gap * 2 + GRACE_SEC
-        up = uptime_sec(name)
-        if up is not None and up < window:
-            # Not enough history to judge; a freshly restarted container has
-            # legitimately not fired anything yet. Counted, not silent — see
-            # the coverage line below.
-            skipped_young += 1
-            # ...unless it is FLAPPING. A container that keeps restarting is
-            # never up long enough to assert against, so it would sit in this
-            # branch forever and the sweep would report a clean run having
-            # checked nothing. That is the same unfalsifiable-green defect as
-            # the `pgrep -f` probe this tier was built to replace, so it gets
-            # caught rather than counted. One restart is normal (a roll, a
-            # deliberate recreate); repeated ones with no stable window are not.
-            restarts = docker("inspect", "-f", "{{.RestartCount}}", name)
-            if restarts.isdigit() and int(restarts) >= FLAP_RESTARTS:
-                findings.append(
-                    f"{site}: `{name}` has restarted {restarts}x and is still "
-                    f"younger than its {window // 60}m freshness window — "
-                    f"flapping, so freshness has never been asserted"
-                )
-            continue
-
-        logs = docker("logs", f"--since={window}s", name, merge_stderr=True)
-        asserted += 1
-        if not FIRED_RE.search(logs):
-            findings.append(
-                f"{site}: `{name}` up but supercronic fired NOTHING in "
-                f"{window // 60}m (longest legitimate gap {gap // 60}m, "
-                f"{njobs} job(s)) — scheduler wedged"
-            )
+        for site in sites:
+            site_dir = os.path.join(SITES_DIR, site)
+            compose = os.path.join(site_dir, "docker-compose.yml")
+            # A site with no compose file, or one that declares no cron
+            # service, is a scaffold — silence is correct for those. Anything
+            # that DOES declare a scheduler is eligible, and from there an
+            # unresolvable site is a finding rather than a quiet skip.
+            if not os.path.isfile(compose):
+                continue
+            name = container_name(compose)
+            if not name:
+                continue
+            eligible += 1
+            f, a, s = assess(site, site_dir, name)
+            findings.extend(f)
+            asserted += a
+            skipped_young += s
 
     for f in findings:
         print(f)
