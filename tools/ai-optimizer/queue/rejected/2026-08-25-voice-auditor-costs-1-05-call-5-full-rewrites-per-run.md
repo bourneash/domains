@@ -1,8 +1,9 @@
 ---
 ticket_id: 2026-08-25-voice-auditor-costs-1-05-call-5-full-rewrites-per-run
-status: proposed
+status: rejected
 title: voice-auditor costs ~$1.05/call — 5 full rewrites per run
 created: 2026-08-25
+decided: 2026-08-25
 finding_class: rewrite-scope-cost
 dedupe_key: b644e751ae31198e
 scope: site
@@ -14,8 +15,9 @@ measured_cost_usd: 29.38
 estimated_savings_usd_per_day: 0.8
 risk: medium
 verified_current_code: true
-verified_git_check: "git log -3 ops/roles/voice-auditor.md — last tuned cc470e57 (2026-08-23, cap 40->70). Cost continued AFTER that commit ($0.98/$1.19/$1.06 on 08-24..25), so this is current behaviour, not pre-fix telemetry."
-evidence_files: ["sites/sinderella.org/ops/roles/voice-auditor.md:40", "sites/sinderella.org/ops/scripts/run-role.sh:501"]
+verified_git_check: git log -3 ops/roles/voice-auditor.md — last tuned cc470e57 (2026-08-23, cap 40->70). Cost continued AFTER that commit ($0.98/$1.19/$1.06 on 08-24..25), so this is current behaviour, not pre-fix telemetry.
+evidence_files: [sites/sinderella.org/ops/roles/voice-auditor.md:40, sites/sinderella.org/ops/scripts/run-role.sh:501]
+decided_by: dashboard
 ---
 
 ## Problem
