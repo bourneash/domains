@@ -9,7 +9,10 @@ services:
     # uid 1000 needs the host docker group to read /var/run/docker.sock
     # (root:docker on the host). Same pattern the site cron containers use.
     group_add:
-      - "${DOCKER_GID:-999}"
+      # No numeric fallback: a plausible-but-wrong GID makes the panel look
+      # healthy while every Docker-backed view/poller is dead. The operator
+      # command derives the mounted socket's real numeric group.
+      - "${DOCKER_GID:?run bin/fleet-dashboard so the Docker socket GID is detected}"
     security_opt:
       - no-new-privileges:true
     # Verified across this fleet: nothing here needs a Linux capability, and

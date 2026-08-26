@@ -49,9 +49,24 @@ read_token() {
 }
 
 configure_compose_env() {
-  local host_docker_gid
-  host_docker_gid="$(getent group docker 2>/dev/null | awk -F: 'NR == 1 { print $3 }' || true)"
-  export DOCKER_GID="${DOCKER_GID:-${host_docker_gid:-999}}"
+  local docker_socket socket_gid group_gid
+  [[ -n "${DOCKER_GID:-}" ]] && return 0
+
+  docker_socket="${FD_DOCKER_SOCKET:-/var/run/docker.sock}"
+  socket_gid="$(stat -c %g "${docker_socket}" 2>/dev/null || true)"
+  group_gid="$(getent group docker 2>/dev/null | awk -F: 'NR == 1 { print $3 }' || true)"
+
+  # The socket is the authority. A stale/mismatched `docker` group database
+  # entry leaves the uid-1000 panel apparently healthy but unable to perform
+  # its core Docker reads (including the Errors scanner). Fall back to the
+  # named group only for test/remote contexts where the socket is absent.
+  if [[ "${socket_gid}" =~ ^[0-9]+$ ]]; then
+    export DOCKER_GID="${socket_gid}"
+  elif [[ "${group_gid}" =~ ^[0-9]+$ ]]; then
+    export DOCKER_GID="${group_gid}"
+  else
+    die "cannot determine Docker socket GID from ${docker_socket} or the docker group"
+  fi
 }
 
 compose() {

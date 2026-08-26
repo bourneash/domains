@@ -16,6 +16,7 @@ function fixture() {
   const fakeBin = path.join(root, 'bin');
   const envFile = path.join(root, '.env');
   const dockerCalls = path.join(root, 'docker.calls');
+  const dockerGids = path.join(root, 'docker.gids');
   fs.mkdirSync(fakeBin);
   fs.writeFileSync(envFile, `ALPHA=one\nFD_TOKEN=${OLD_TOKEN}\nOMEGA=two\n`, { mode: 0o400 });
 
@@ -24,6 +25,7 @@ function fixture() {
     `#!/usr/bin/env bash
 set -euo pipefail
 printf '%s\\n' "$*" >> "$FD_TEST_DOCKER_CALLS"
+printf '%s\\n' "\${DOCKER_GID:-}" >> "$FD_TEST_DOCKER_GIDS"
 if [[ "\${1:-}" == "inspect" ]]; then
   [[ "\${FD_TEST_CONTAINER_PRESENT:-0}" == "1" ]]
 fi
@@ -41,6 +43,11 @@ fi
     { mode: 0o755 }
   );
   fs.writeFileSync(
+    path.join(fakeBin, 'stat'),
+    '#!/usr/bin/env bash\nprintf "%s\\n" "${FD_TEST_SOCKET_GID:-1234}"\n',
+    { mode: 0o755 }
+  );
+  fs.writeFileSync(
     path.join(fakeBin, 'openssl'),
     `#!/usr/bin/env bash\nprintf '%s\\n' '${NEW_TOKEN}'\n`,
     { mode: 0o755 }
@@ -55,12 +62,15 @@ fi
         FD_ENV_FILE: envFile,
         FD_HEALTHCHECK_ATTEMPTS: '1',
         FD_TEST_DOCKER_CALLS: dockerCalls,
+        FD_TEST_DOCKER_GIDS: dockerGids,
+        FD_DOCKER_SOCKET: path.join(root, 'docker.sock'),
         ...extraEnv,
       },
     });
     return {
       ...result,
       calls: fs.existsSync(dockerCalls) ? fs.readFileSync(dockerCalls, 'utf8') : '',
+      gids: fs.existsSync(dockerGids) ? fs.readFileSync(dockerGids, 'utf8') : '',
     };
   }
 
@@ -74,7 +84,18 @@ test('up always supplies the shared env file and waits for health', t => {
   const result = f.run(['up']);
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.calls, new RegExp(`^compose --env-file ${f.envFile} up -d panel$`, 'm'));
+  assert.match(result.gids, /^1234$/m);
   assert.match(result.stdout, /Fleet Dashboard ready/);
+});
+
+test('socket numeric GID overrides a mismatched named docker group', t => {
+  const f = fixture();
+  t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+
+  const result = f.run(['up'], { FD_TEST_SOCKET_GID: '4321' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.gids, /^4321$/m);
+  assert.doesNotMatch(result.gids, /^1004$/m);
 });
 
 test('restart starts an absent panel and restarts an existing one', t => {

@@ -1,6 +1,9 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const test = require('node:test');
 const errorscan = require('./errorscan');
 
@@ -27,7 +30,7 @@ test('critical alert excerpt identifies the critical trigger, not a later warnin
     { scope: 'site', oneoff: false },
     [critical, laterWarning],
     null,
-    now,
+    now
   );
   assert.equal(decision.shouldAlert, true);
   assert.equal(decision.label, 'CRIT');
@@ -39,7 +42,12 @@ test('running one-off workers stay scannable but cannot emit duplicate Slack ale
   const now = Date.now();
   const critical = [{ tsMs: now, level: 'crit', line: 'FATAL database unavailable' }];
   const oneoff = errorscan._alertDecision({ scope: 'site', oneoff: true }, critical, null, now);
-  const persistent = errorscan._alertDecision({ scope: 'site', oneoff: false }, critical, null, now);
+  const persistent = errorscan._alertDecision(
+    { scope: 'site', oneoff: false },
+    critical,
+    null,
+    now
+  );
   assert.equal(oneoff.shouldAlert, false);
   assert.equal(persistent.shouldAlert, true);
 });
@@ -51,7 +59,33 @@ test('error threshold and cooldown still gate persistent-container alerts', () =
     level: 'error',
     line: `error ${i}`,
   }));
-  assert.equal(errorscan._alertDecision({ scope: 'site' }, errors.slice(0, 4), null, now).shouldAlert, false);
+  assert.equal(
+    errorscan._alertDecision({ scope: 'site' }, errors.slice(0, 4), null, now).shouldAlert,
+    false
+  );
   assert.equal(errorscan._alertDecision({ scope: 'site' }, errors, null, now).shouldAlert, true);
-  assert.equal(errorscan._alertDecision({ scope: 'site' }, errors, now - 1000, now).shouldAlert, false);
+  assert.equal(
+    errorscan._alertDecision({ scope: 'site' }, errors, now - 1000, now).shouldAlert,
+    false
+  );
+});
+
+test('alert cooldown is claimed atomically and survives dashboard state reset', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-cooldown-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const container = { name: 'example-cron', scope: 'site', oneoff: false };
+  const errors = Array.from({ length: 5 }, (_, i) => ({
+    tsMs: now - i,
+    level: 'error',
+    line: `error ${i}`,
+  }));
+
+  assert.equal(errorscan._claimAlert(root, container, errors, now).shouldAlert, true);
+  assert.equal(errorscan._claimAlert(root, container, errors, now + 1).shouldAlert, false);
+
+  errorscan._resetForTest(); // simulate a panel process restart
+  assert.equal(errorscan._claimAlert(root, container, errors, now + 2).shouldAlert, false);
 });

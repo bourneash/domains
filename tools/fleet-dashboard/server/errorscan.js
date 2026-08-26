@@ -75,6 +75,45 @@ function sh(cmd, args, opts = {}) {
 // id -> { name, slug, kind, scope, running, sinceIso, matches: [{tsMs, level, line}], lastAlertAt }
 let STATE = new Map();
 let lastSweep = 0;
+let ALERT_COOLDOWNS = new Map();
+let alertCooldownRoot = null;
+let sweepInFlight = null;
+
+function alertCooldownFile(root) {
+  return path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-cooldowns.json');
+}
+
+function loadAlertCooldowns(root) {
+  if (alertCooldownRoot === root) return;
+  alertCooldownRoot = root;
+  ALERT_COOLDOWNS = new Map();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(alertCooldownFile(root), 'utf8'));
+    const oldestUseful = Date.now() - ALERT_COOLDOWN_MS;
+    for (const [key, value] of Object.entries(parsed || {})) {
+      const ts = Number(value);
+      if (Number.isFinite(ts) && ts >= oldestUseful) ALERT_COOLDOWNS.set(key, ts);
+    }
+  } catch {
+    /* first run, missing file, or corrupt best-effort state: start empty */
+  }
+}
+
+function persistAlertCooldowns(root) {
+  const file = alertCooldownFile(root);
+  const tmp = `${file}.${process.pid}.tmp`;
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(tmp, `${JSON.stringify(Object.fromEntries(ALERT_COOLDOWNS), null, 2)}\n`);
+    fs.renameSync(tmp, file);
+  } catch {
+    try {
+      fs.unlinkSync(tmp);
+    } catch {
+      /* best-effort state only */
+    }
+  }
+}
 
 // Same "read .env directly" approach deployhealth.js uses for CF creds — the
 // panel's compose environment doesn't forward SLACK_BOT_TOKEN, so this is the
@@ -163,6 +202,23 @@ function alertDecision(c, recent1h, prevAlertAt, now) {
   };
 }
 
+// Claim the alert cooldown synchronously before the async Slack post. The
+// stable container name survives Compose recreation, while the persisted
+// ledger survives dashboard restarts. This also closes the race where two
+// overlapping slow sweeps both captured the same stale STATE entry before
+// either docker-logs call returned.
+function claimAlert(root, c, recent1h, now) {
+  loadAlertCooldowns(root);
+  const key = c.name || `${c.slug || 'unknown'}:${c.kind || 'container'}`;
+  const prevAlertAt = ALERT_COOLDOWNS.get(key) || null;
+  const decision = alertDecision(c, recent1h, prevAlertAt, now);
+  if (decision.shouldAlert) {
+    ALERT_COOLDOWNS.set(key, now);
+    persistAlertCooldowns(root);
+  }
+  return { ...decision, lastAlertAt: decision.shouldAlert ? now : prevAlertAt };
+}
+
 async function scanOne(root, c) {
   const prev = STATE.get(c.id);
   const args = ['logs', '--timestamps'];
@@ -196,8 +252,7 @@ async function scanOne(root, c) {
   // escalate(), so a chronic failure alerts once per window, not every sweep.
   const h1 = now - 60 * 60 * 1000;
   const recent1h = trimmed.filter(m => m.tsMs >= h1);
-  const prevAlertAt = prev ? prev.lastAlertAt : null;
-  const decision = alertDecision(c, recent1h, prevAlertAt, now);
+  const decision = claimAlert(root, c, recent1h, now);
 
   STATE.set(c.id, {
     name: c.name,
@@ -207,7 +262,7 @@ async function scanOne(root, c) {
     running: c.running,
     sinceIso: sinceIso || new Date().toISOString(),
     matches: trimmed,
-    lastAlertAt: decision.shouldAlert ? now : prevAlertAt || null,
+    lastAlertAt: decision.lastAlertAt || null,
   });
 
   if (decision.shouldAlert) {
@@ -244,9 +299,15 @@ async function sweep(root) {
 // timer is unref'd so it never holds the process open on shutdown.
 function start(root) {
   const tick = () => {
-    sweep(root).catch(() => {
-      /* swallow; rollup simply goes stale */
-    });
+    if (sweepInFlight) return sweepInFlight;
+    sweepInFlight = sweep(root)
+      .catch(() => {
+        /* swallow; rollup simply goes stale */
+      })
+      .finally(() => {
+        sweepInFlight = null;
+      });
+    return sweepInFlight;
   };
   tick();
   const t = setInterval(tick, POLL_MS);
@@ -295,6 +356,9 @@ function lines(id, limit) {
 function resetForTest() {
   STATE = new Map();
   lastSweep = 0;
+  ALERT_COOLDOWNS = new Map();
+  alertCooldownRoot = null;
+  sweepInFlight = null;
 }
 
 module.exports = {
@@ -305,6 +369,7 @@ module.exports = {
   _classify: classify,
   _parseLine: parseLine,
   _alertDecision: alertDecision,
+  _claimAlert: claimAlert,
   _sweep: sweep,
   _resetForTest: resetForTest,
 };
