@@ -1,0 +1,28 @@
+name: promoter
+# NEW 2026-08-26 — for sites with no editorial content model (games, tools,
+# static brand pages) that still need a social presence. Where content-writer
+# writes site CONTENT, promoter writes ABOUT the site: feature spotlights,
+# engagement questions, CTAs driving traffic to the live site. It never
+# touches site/src/content — its output is a small evergreen spotlight
+# collection that tools/social-hub drafts posts from directly (see the
+# `sources.collections` wiring this archetype expects in ops/social/hub.yaml).
+source: tools/cron-roles/archetypes/promoter/role.md.tmpl   # authored fresh, no site to fork from
+schedule: "0 8 * * 2,5"          # Tue/Fri 8am — twice-weekly, light cadence
+model: claude-sonnet-4-6
+owns_task_types: [promo]
+produces_task_types: [engineering]   # e.g. notices a dead link on the live site mid-write
+worker_deps: []
+needs_rebuild_verify: true
+self_notifies: false
+deploy: false                     # writes to ops/social/spotlight/, never to site/ — no deploy needed
+scripts: []
+gitignore: []
+placeholders: [SITE_NAME, BASE_URL, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT, SITE_DESCRIPTION, GO_PREFIX]
+placeholder_detection:
+  SITE_NAME: "brand/site name from package.json name field, or basename of site dir if missing"
+  BASE_URL: "https://<domain> — from CLAUDE.md header line or wrangler.toml routes[0].pattern"
+  MODEL: "claude-sonnet-4-6"
+  SLACK_CHANNEL_VAR: "SLACK_CHANNEL_* var name from ops/scripts/run-role.sh (grep -oP 'SLACK_CHANNEL_\\w+')"
+  SLACK_CHANNEL_DEFAULT: "fallback channel string from run-role.sh default, e.g. domain-<short>-com"
+  SITE_DESCRIPTION: "one sentence: what the site actually is and does — from CLAUDE.md/INCOME_PLAN.md/package.json description. This is the ONLY thing the role writes about; get it right."
+  GO_PREFIX: "affiliate cloak path if the site has one, e.g. /go/ — otherwise 'none'"
