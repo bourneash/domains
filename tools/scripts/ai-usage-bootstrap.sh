@@ -29,3 +29,15 @@ if [[ ! -x "$CLAUDE_TRACKED" ]]; then
   return 127 2>/dev/null || exit 127
 fi
 export CLAUDE_TRACKED
+
+# Return success when a claude-tracked stdout/result file describes a shared
+# account outage rather than a site/role failure.  Callers with their own Slack
+# alerters can defer cleanly and let check-claude-auth.sh send the single
+# fleet-level outage/recovery notification.
+claude_tracked_is_global_outage() {
+  local result_file="${1:-}"
+  [[ -n "$result_file" && -f "$result_file" ]] || return 1
+  grep -qiE \
+    'out of (extra )?usage|usage limit|limit reached.*resets|not logged in|please run /login|failed to authenticate|authentication_error|oauth.*(expired|revoked|could not be refreshed|refresh failed)|invalid.*api.?key' \
+    "$result_file"
+}

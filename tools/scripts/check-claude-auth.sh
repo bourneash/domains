@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Fleet-wide Claude Code auth health check.
+# Fleet-wide Claude Code account/auth health check.
 #
 # Every site's cron/worker containers bind-mount the SAME host OAuth session
-# (~/.claude/.credentials.json) read-write. When that session expires, EVERY
-# AI-driven cron role across the whole fleet fails simultaneously — but each
-# site's own watchdog is blind to this: it only detects live-site/build/deploy
-# symptoms, and its own auto-repair pass tries to fix things via more `claude`
-# calls, which fail on the exact same dead session. The result (observed
+# (~/.claude/.credentials.json) read-write and draw from the same account usage
+# pool. When that session expires OR the account exhausts usage, EVERY AI-driven
+# cron role across the whole fleet fails simultaneously — but each site's own
+# watchdog is blind to this: it only detects live-site/build/deploy symptoms,
+# and its own auto-repair pass tries to fix things via more `claude` calls,
+# which fail on the same account-level condition. The result (observed
 # 2026-08-02 through 2026-08-08): a week of silent, fleet-wide content outage
 # with no alert anyone actually saw, because 20 separate watchdogs each spent
 # days grinding through their own 3-attempt cooldown cycles before escalating.
@@ -76,21 +77,23 @@ print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3],
     -d "$payload" https://slack.com/api/chat.postMessage >/dev/null 2>&1 || true
 }
 
-# Known auth-failure signatures — same strings that fired all week across
-# every site's cron logs during the 2026-08 outage. Kept as a list (not a
-# single grep -E) so a new signature is a one-line addition, easy to diff.
-AUTH_FAIL_PATTERNS=(
+# Known account-unavailable signatures — auth errors plus usage exhaustion.
+# Kept as a list (not a single grep -E) so a new signature is a one-line
+# addition, easy to diff.
+ACCOUNT_FAIL_PATTERNS=(
   'Not logged in'
   'Please run /login'
   'OAuth session expired'
   'could not be refreshed'
   'authentication_error'
   'invalid.*api.?key'
+  'out of (extra )?usage'
+  'usage limit'
 )
 
-matches_auth_failure() {
+matches_account_failure() {
   local text="$1" pat
-  for pat in "${AUTH_FAIL_PATTERNS[@]}"; do
+  for pat in "${ACCOUNT_FAIL_PATTERNS[@]}"; do
     grep -qiE "$pat" <<<"$text" && return 0
   done
   return 1
@@ -99,13 +102,15 @@ matches_auth_failure() {
 OUTPUT="$(timeout "$TIMEOUT_SEC" "$CLAUDE_BIN" -p "Reply with exactly one word: OK" --model claude-haiku-4-5-20251001 --dangerously-skip-permissions 2>&1)"
 EXIT_CODE=$?
 
-read -r PREV_COUNT < "$STATE" 2>/dev/null || PREV_COUNT=0
+# Redirect stderr before opening the optional state file; otherwise bash emits
+# a noisy "No such file" on the very first run before `2>/dev/null` applies.
+read -r PREV_COUNT 2>/dev/null < "$STATE" || PREV_COUNT=0
 [[ "$PREV_COUNT" =~ ^[0-9]+$ ]] || PREV_COUNT=0
 
 if [[ "$EXIT_CODE" -eq 0 ]] && grep -qi '\bOK\b' <<<"$OUTPUT"; then
   log "healthy — claude -p responded OK"
   if [[ -f "$ALERT_MARKER" ]]; then
-    NOTIFY ":white_check_mark: *Fleet Claude Code auth recovered* — the shared OAuth session (~/.claude/.credentials.json) is working again. Every site's cron roles should resume on their normal schedule." "good"
+    NOTIFY ":white_check_mark: *Fleet Claude Code account recovered* — the shared account is accepting \`claude -p\` calls again. Every site's cron roles should resume on their normal schedule." "good"
     log "posted recovery notice (had been down for $PREV_COUNT consecutive tick(s))"
     rm -f "$ALERT_MARKER"
   fi
@@ -127,14 +132,21 @@ fi
 now="$(date +%s)"; last_alert=0
 [[ -f "$ALERT_MARKER" ]] && last_alert="$(stat -c %Y "$ALERT_MARKER" 2>/dev/null || echo 0)"
 if (( now - last_alert >= ALERT_COOLDOWN )); then
-  IS_AUTH="not-classified"
-  matches_auth_failure "$OUTPUT" && IS_AUTH="confirmed"
-  NOTIFY ":rotating_light: <!here> *Fleet-wide Claude Code auth is DOWN* — \`claude -p\` has failed ${NEW_COUNT} consecutive checks (~$(( NEW_COUNT * 15 ))min so far).
+  FAILURE_KIND="unknown"
+  FIX="Inspect the output below; if it is an auth error, run \`claude /login\` as the \`jesse\` user."
+  if grep -qiE 'out of (extra )?usage|usage limit' <<<"$OUTPUT"; then
+    FAILURE_KIND="usage exhausted"
+    FIX="Wait for the reset time shown below or enable more usage on the shared Claude account."
+  elif matches_account_failure "$OUTPUT"; then
+    FAILURE_KIND="authentication"
+    FIX="Refresh the host session — run \`claude /login\` as the \`jesse\` user."
+  fi
+  NOTIFY ":rotating_light: <!here> *Fleet-wide Claude Code account is UNAVAILABLE* — \`claude -p\` has failed ${NEW_COUNT} consecutive checks (~$(( NEW_COUNT * 15 ))min so far).
 Every site's cron/worker containers share this same host OAuth session — this means EVERY AI-driven cron role fleet-wide (content-writer, engineer, affiliate-editor, seo-analyst, watchdog auto-repair, ...) is silently failing right now, not just one site.
-Signature match: ${IS_AUTH}
+Failure kind: ${FAILURE_KIND}
 Output: \`$(head -c 200 <<<"$OUTPUT" | tr '\n' ' ')\`
 
-*Fix:* refresh the host session — run \`claude /login\` as the \`jesse\` user. The fleet has no \`ANTHROPIC_API_KEY\` fallback by design (only one auth path to keep straight). This will re-alert hourly (\`AUTH_CHECK_ALERT_COOLDOWN\`) while still down and post a recovery notice once fixed." "danger"
+*Fix:* ${FIX} The fleet has no \`ANTHROPIC_API_KEY\` fallback by design (only one auth path to keep straight). This will re-alert hourly (\`AUTH_CHECK_ALERT_COOLDOWN\`) while still down and post a recovery notice once fixed." "danger"
   log "ALERTED — posted to #$CHANNEL"
   touch "$ALERT_MARKER"
 else

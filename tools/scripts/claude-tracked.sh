@@ -152,10 +152,50 @@ fi
 TMP_JSON="$(mktemp)"
 trap 'rm -f "$TMP_JSON"' EXIT
 
+# Claude Code 2.1.x reports several account-level failures with the internally
+# contradictory shape `subtype=success, is_error=true, exit=1`.  The useful
+# explanation lives only in `.result` (for example, "out of extra usage" or
+# "OAuth access token has expired").  Classify that field explicitly instead
+# of treating every zero-cost failure as a transient CLI crash.
+classify_claude_result() {
+  python3 - "$1" <<'PYEOF'
+import json
+import re
+import sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        data = json.load(fh)
+except Exception:
+    print("parse_error")
+    raise SystemExit
+
+if not data.get("is_error"):
+    print("none")
+    raise SystemExit
+
+message = str(data.get("result") or "")
+if re.search(r"out of (?:extra )?usage|usage limit|limit reached.*resets|resets .*(?:am|pm)", message, re.I):
+    print("account_usage_exhausted")
+elif (
+    re.search(r"not logged in|please run /login|failed to authenticate|authentication_error", message, re.I)
+    or re.search(r"oauth.*(?:expired|revoked|could not be refreshed|refresh failed)", message, re.I)
+    or re.search(r"invalid.*api.?key", message, re.I)
+):
+    print("authentication_failed")
+elif not (data.get("total_cost_usd") or 0):
+    print("zero_cost_failure")
+else:
+    print("execution_failure")
+PYEOF
+}
+
 set +e
 claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
 STATUS=$?
 set -e
+
+FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
 
 # ---- Single same-run retry on a zero-cost, zero-token failure (2026-08-23) ----
 # Fleet audit found ~2s exit=1 failures scattered across sites (americastrikes,
@@ -165,36 +205,41 @@ set -e
 # occurrence self-healed on the site's own next scheduled cron tick, which for
 # hourly roles means up to ~an hour of lost turnaround for zero reason — a
 # retry here is free (nothing was billed) and safe (nothing was done, so
-# nothing to duplicate). Retrying only on a verified zero-cost failure, never
-# on a real error that may have done partial billable work.
+# nothing to duplicate). Retrying only on an UNCLASSIFIED zero-cost failure,
+# never on deterministic account exhaustion/authentication errors (which do
+# not heal three seconds later) or a real error that may have done partial
+# billable work.
+#
+# parse_error also retries here (2026-08-26): every worker container copies
+# the HOST's ~/.claude.json into its own /home/ops/.claude.json on startup
+# (see entrypoint-worker.sh). A concurrent host-side `claude` write can leave
+# that shared file transiently non-JSON, which the CLI reports as a
+# "Configuration error" text blob instead of JSON — our own parse failure,
+# not a real model error. Observed 2026-08-26 06:00-06:05 hitting three sites
+# (americastrikes, reviewtattoo, totaljerks) at once from one bad host write;
+# the host file self-healed within minutes on its own next `claude` call. A
+# same-run retry a few seconds later is free (nothing was billed) and usually
+# lands after the host file has been rewritten cleanly.
 if [[ "$STATUS" -ne 0 ]]; then
-  ZERO_COST_FAILURE=$(python3 -c "
-import json, sys
-try:
-    with open('$TMP_JSON', encoding='utf-8') as fh:
-        data = json.load(fh)
-except Exception:
-    print('0'); sys.exit()
-cost = data.get('total_cost_usd') or 0
-print('1' if data.get('is_error') and not cost else '0')
-" 2>/dev/null || echo 0)
-  if [[ "$ZERO_COST_FAILURE" == "1" ]]; then
-    echo "claude-tracked.sh: zero-cost failure (exit=$STATUS) — retrying once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
-    sleep 3
+  if [[ "$FAILURE_CLASS" == "zero_cost_failure" || "$FAILURE_CLASS" == "parse_error" ]]; then
+    echo "claude-tracked.sh: $FAILURE_CLASS (exit=$STATUS) — retrying once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    sleep "${CLAUDE_TRACKED_RETRY_DELAY_SECONDS:-3}"
     set +e
     claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
     STATUS=$?
     set -e
+    FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
   fi
 fi
 
-python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" <<'PYEOF'
+python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" "$FAILURE_CLASS" <<'PYEOF'
 import json
 import subprocess
 import sys
 import time
 
-tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns, repo_root = sys.argv[1:9]
+tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns, repo_root, failure_class = sys.argv[1:10]
+failure_class = None if failure_class == "none" else failure_class
 
 # ---- Model-drift alert (2026-08-20) ----
 # The CLI may resolve --model to something other than what was requested
@@ -247,6 +292,7 @@ except (OSError, json.JSONDecodeError):
 
 if data is not None:
     sys.stdout.write(data.get("result", ""))
+    error_message = " ".join(str(data.get("result") or "").split())[:500] or None
     usage = data.get("usage", {}) or {}
     model_usage = data.get("modelUsage", {}) or {}
     # modelUsage can hold more than one model per session — e.g. Claude
@@ -278,6 +324,8 @@ if data is not None:
         "requested_model": requested_model or None,
         "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": data.get("subtype"),
+        "failure_class": failure_class,
+        "error_message": error_message if data.get("is_error") else None,
         "is_error": data.get("is_error"),
         "exit_status": int(status),
         "num_turns": data.get("num_turns"),
@@ -300,6 +348,8 @@ else:
         "requested_model": requested_model or None,
         "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": "parse_error",
+        "failure_class": failure_class or "parse_error",
+        "error_message": None,
         "is_error": True,
         "exit_status": int(status),
         "num_turns": None,
@@ -333,9 +383,19 @@ with open(ledger_path, "a", encoding="utf-8") as fh:
 # used for the model pin.
 if record.get("is_error") or int(status or 0) != 0:
     sub = record.get("subtype") or "unknown"
+    failure = record.get("failure_class") or sub
     turns = record.get("num_turns")
     cap = requested_max_turns or "?"
     EXPLAIN = {
+        "account_usage_exhausted": (
+            "the shared Claude account is out of usage; no model work ran. "
+            "The fleet auth monitor owns the outage/recovery alert."
+        ),
+        "authentication_failed": (
+            "the shared Claude credentials are expired, revoked, or logged out; no model work ran. "
+            "The fleet auth monitor owns the outage/recovery alert."
+        ),
+        "zero_cost_failure": "the Claude CLI failed before model execution; no tokens were spent.",
         "error_max_turns": (
             f"hit its turn cap ({turns}/{cap}) — the task was larger than the budget, "
             "NOT a crash. The next scheduled run normally finishes the work. "
@@ -345,10 +405,13 @@ if record.get("is_error") or int(status or 0) != 0:
         "network_preflight_failed": "no network before the call was made — no tokens were spent.",
         "parse_error": "the CLI returned output this wrapper could not parse; see the raw log.",
     }
-    why = EXPLAIN.get(sub, f"subtype={sub}")
+    why = EXPLAIN.get(failure, EXPLAIN.get(sub, f"subtype={sub}"))
+    detail = record.get("error_message")
+    if detail:
+        why = f"{why} Claude said: {detail}"
     print(
         f"claude-tracked.sh: FAILURE REASON — {why} "
-        f"(site={site} role={role} subtype={sub} turns={turns} exit={status})",
+        f"(site={site} role={role} class={failure} subtype={sub} turns={turns} exit={status})",
         file=sys.stderr,
     )
 PYEOF
