@@ -248,6 +248,19 @@ def _has_column(table: str, column: str) -> bool:
     return any(r["name"] == column for r in query(f"PRAGMA table_info({table})"))
 
 
+def get_setting(key: str) -> str | None:
+    row = one("SELECT value FROM settings WHERE key = ?", (key,))
+    return row["value"] if row else None
+
+
+def set_setting(key: str, value: str) -> None:
+    execute(
+        "INSERT INTO settings (key, value) VALUES (?, ?) "
+        "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+        (key, value),
+    )
+
+
 def log_event(
     kind: str,
     *,

@@ -11,7 +11,14 @@ defaults:
 
   # manual = every draft waits for a human in the queue.
   # auto   = drafts are approved and scheduled as they are generated.
-  approval: manual
+  #
+  # Fleet-wide auto since 2026-08-26 — a human can't review every draft
+  # across 26 sites. The guardrails that make this safe: the injection
+  # filter in engagement.py, the per-platform queue ceiling in
+  # generator.py, and the once-a-day Slack digest (not per-post) in
+  # worker._maybe_notify so problems still surface. A site can still opt
+  # back into manual review in its own ops/social/hub.yaml.
+  approval: auto
 
   # How many alternative phrasings the model writes per article. Only the first
   # is ever auto-scheduled; the rest are swap-ins for a human.

@@ -70,6 +70,24 @@ def test_due_posts_only_returns_scheduled_and_past_due(synced):
     assert past in ids and future not in ids and draft not in ids
 
 
+def test_immediate_skips_fixed_slots():
+    """Breaking-news sites (cadence.immediate) post as soon as cap/gap/quiet
+    hours allow, not on the next fixed calendar slot."""
+    cfg = SiteConfig("alpha.com", {"cadence": {"slots": ["23:59"], "per_platform_per_day": 9,
+                                               "min_gap_minutes": 10, "quiet_hours": [],
+                                               "stagger": False, "immediate": True}})
+    chosen = scheduler.parse(scheduler.next_slot("alpha.com", "fake", cfg, after=at(9)))
+    assert chosen.hour == 9, "immediate mode must not wait for the 23:59 slot"
+
+
+def test_immediate_still_respects_quiet_hours_and_gap():
+    cfg = SiteConfig("alpha.com", {"cadence": {"slots": ["12:00"], "per_platform_per_day": 9,
+                                               "min_gap_minutes": 30, "quiet_hours": [9, 11],
+                                               "stagger": False, "immediate": True}})
+    chosen = scheduler.parse(scheduler.next_slot("alpha.com", "fake", cfg, after=at(9)))
+    assert chosen.hour == 11, "immediate mode still may not land inside quiet hours"
+
+
 def test_saturated_queue_still_gets_a_slot():
     """With every lookahead slot taken, a post must still be placed rather than
     dropped."""

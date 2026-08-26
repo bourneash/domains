@@ -19,6 +19,7 @@ import json
 import os
 import time
 import traceback
+from datetime import datetime, timedelta, timezone
 
 from social_hub import (
     accounts,
@@ -142,11 +143,26 @@ def tick(site: str | None = None, *, publish: bool = True, notify_review: bool =
     return out
 
 
+#: How often a site may get a "drafts awaiting review" nudge. This is a daily
+#: digest, not a per-tick alert — a manual-approval queue sits non-empty by
+#: design (see queue_ceiling in generator.py), so without this gate every tick
+#: that finds a nonzero queue pings Slack again, 4x/hour x every managed site.
+NOTIFY_DIGEST_INTERVAL_HOURS = int(os.environ.get("SOCIAL_HUB_NOTIFY_HOURS", "24"))
+
+
 def _maybe_notify(site: str) -> None:
     drafts = len(queue.list_posts(site=site, status="draft", kind="post", limit=100))
     replies = len(queue.list_posts(site=site, status="draft", kind="reply", limit=100))
-    if drafts or replies:
-        notify.notify_needs_review(site, drafts, replies, f"{UI_URL}#queue?site={site}")
+    if not (drafts or replies):
+        return
+    key = f"notify_digest:{site}"
+    last = db.get_setting(key)
+    if last:
+        elapsed = datetime.now(timezone.utc) - datetime.fromisoformat(last)
+        if elapsed < timedelta(hours=NOTIFY_DIGEST_INTERVAL_HOURS):
+            return
+    notify.notify_needs_review(site, drafts, replies, f"{UI_URL}#queue?site={site}")
+    db.set_setting(key, db.utcnow())
 
 
 def _needs_creds(platform: str) -> bool:

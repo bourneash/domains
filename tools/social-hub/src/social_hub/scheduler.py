@@ -93,6 +93,16 @@ def candidate_times(cfg: SiteConfig, start: datetime) -> list[datetime]:
     return sorted(out)
 
 
+def _immediate_candidates(start: datetime, gap: timedelta) -> list[datetime]:
+    """A fine-grained walk from `start`, `gap` apart, instead of fixed daily
+    slots — for sites where "wait for the next calendar slot" is the wrong
+    behavior (a breaking story is stale by the next 12:20/17:40/21:10 slot)."""
+    step = max(gap, timedelta(minutes=1))
+    horizon = timedelta(days=LOOKAHEAD_DAYS)
+    steps = int(horizon / step) + 1
+    return [start + step * i for i in range(steps)]
+
+
 def next_slot(
     site: str,
     platform: str,
@@ -108,7 +118,13 @@ def next_slot(
     gap = timedelta(minutes=int(cfg.get("cadence.min_gap_minutes", 90)))
     quiet = cfg.get("cadence.quiet_hours")
 
-    for candidate in candidate_times(cfg, start):
+    # Breaking-news sites skip the fixed daily slots and post as soon as the
+    # cap/gap/quiet-hours rules allow, so a story doesn't sit stale waiting
+    # for the next scheduled window.
+    immediate = bool(cfg.get("cadence.immediate"))
+    candidates = _immediate_candidates(start, gap) if immediate else candidate_times(cfg, start)
+
+    for candidate in candidates:
         if candidate < start:
             continue
         if in_quiet_hours(candidate, quiet):
