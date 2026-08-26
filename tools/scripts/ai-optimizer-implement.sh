@@ -73,6 +73,14 @@ if [[ "$TICKET" == "NONE" ]]; then
 fi
 log "=== implementing $TICKET (canary=$CANARY scope=$SCOPE sites=$NSITES) ==="
 
+notify() {
+  [[ "$NOTIFY_ENABLED" == "1" && -n "${SLACK_BOT_TOKEN:-}" ]] || return 0
+  timeout 30 python3 "$DOMAINS_ROOT/tools/role-notify/notify_role.py" \
+    --mode structured --site "_fleet" --role "ai-optimizer" --status "$1" \
+    --headline "$2" --detail "$3" \
+    --channel-env AI_OPT_CHANNEL --channel-default "domain-ops" >/dev/null 2>&1 || true
+}
+
 if [[ "$DRY_RUN" == "1" ]]; then
   log "DRY_RUN=1 — would implement $TICKET on $CANARY; stopping"
   exit 0
@@ -93,12 +101,26 @@ fi
 # retry after that re-runs a no-op session and re-fires the Slack alert.
 # implement.md requires the implementer to cite the ticket id in its commit
 # message, so check for that before spending another session on it.
-EXISTING_SHA="$(git -C "$WORK_DIR" log --all --grep="$TICKET" --format=%H -1 2>/dev/null)"
+#
+# Scoped to HEAD only (not --all): a commit only counts as "applied" if it's
+# reachable from what this repo actually pushes/deploys from. --all would
+# also match a commit sitting on some stale/abandoned branch, or one that
+# was later reverted on main but still lives in history — either would be a
+# false "already applied" that leaves the real fix un-shipped and silent.
+EXISTING_SHA="$(git -C "$WORK_DIR" log --grep="$TICKET" --format=%H -1 HEAD 2>/dev/null)"
 if [[ -n "$EXISTING_SHA" ]]; then
-  log "ticket already applied in existing commit ${EXISTING_SHA:0:8} — closing without a new session"
-  python3 "$TOOL_DIR/cli.py" move "$TICKET" --to applied \
-    --commit "${EXISTING_SHA:0:8}" --by "ai-optimizer-implement" \
-    --note "detected already applied (pre-check) on $CANARY" >>"$LOG" 2>&1
+  if python3 "$TOOL_DIR/cli.py" move "$TICKET" --to applied \
+      --commit "${EXISTING_SHA:0:8}" --by "ai-optimizer-implement" \
+      --note "detected already applied (pre-check) on $CANARY" >>"$LOG" 2>&1; then
+    log "ticket already applied in existing commit ${EXISTING_SHA:0:8} — closed without a new session"
+  else
+    # Don't go silent: if we can't file the ticket as applied, fall back to
+    # the same human-visible alert the no-commit path uses, so this doesn't
+    # disappear without either a fix landing or a person seeing it.
+    log "ticket already applied in ${EXISTING_SHA:0:8} but cli.py move FAILED — ticket left approved"
+    notify warn "AI-cost fix applied but ticket bookkeeping failed: $TICKET" \
+      "Commit \`${EXISTING_SHA:0:8}\` on *$CANARY* already covers this ticket, but moving it to applied/ failed. See tools/ai-optimizer/implement.log"
+  fi
   exit 0
 fi
 
@@ -157,14 +179,6 @@ timeout "$TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" \
 rc=$?
 AFTER_SHA="$(git -C "$WORK_DIR" rev-parse HEAD 2>/dev/null)"
 log "implementer session exit=$rc  before=$BEFORE_SHA after=$AFTER_SHA"
-
-notify() {
-  [[ "$NOTIFY_ENABLED" == "1" && -n "${SLACK_BOT_TOKEN:-}" ]] || return 0
-  timeout 30 python3 "$DOMAINS_ROOT/tools/role-notify/notify_role.py" \
-    --mode structured --site "_fleet" --role "ai-optimizer" --status "$1" \
-    --headline "$2" --detail "$3" \
-    --channel-env AI_OPT_CHANNEL --channel-default "domain-ops" >/dev/null 2>&1 || true
-}
 
 # --- No commit means nothing was applied ----------------------------------
 if [[ "$BEFORE_SHA" == "$AFTER_SHA" ]]; then
