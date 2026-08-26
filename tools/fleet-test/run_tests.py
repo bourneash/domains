@@ -41,6 +41,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -61,6 +62,8 @@ PYTEST_COUNT = re.compile(r"\b(\d+)\s+(passed|failed|error|errors|skipped|xfaile
 # after stripping colour — otherwise a fully green 142-test run reports zero
 # tests, which looks identical to a suite that never ran.
 NODE_COUNT = re.compile(r"^[#\u2139]\s+(pass|fail|skipped)\s+(\d+)\s*$", re.M)
+# emitted by the shell-test runner's own summary line (see build_cmd)
+SHELL_COUNT = re.compile(r"^(\d+) passed, (\d+) failed$", re.M)
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
 
@@ -73,7 +76,7 @@ def first_party_test_files(manifest: dict) -> dict[str, list[str]]:
     """Every test file under tools/ that is ours, grouped by tool dir name."""
     markers = manifest.get("vendored_markers") or []
     found: dict[str, list[str]] = {}
-    for pattern in ("test_*.py", "*.test.js", "*.test.mjs"):
+    for pattern in ("test_*.py", "*.test.js", "*.test.mjs", "*.test.sh"):
         for p in TOOLS_ROOT.rglob(pattern):
             rel = str(p.relative_to(TOOLS_ROOT))
             hay = "/" + rel
@@ -131,6 +134,28 @@ def build_cmd(name: str, spec: dict, tool_path: Path) -> tuple[list[str], dict]:
                 pass
         return ["node", "--test"], env
 
+    if runner == "shell-test":
+        # One suite can bundle several independent *.test.sh scripts. Each is
+        # a self-contained assertion script (set -euo pipefail, exits nonzero
+        # on the first failed check) — there's no shared test framework to
+        # collect results, so run each as its own subprocess and tally pass/
+        # fail ourselves. `bash -c` (not a plain list of files) because
+        # `bash a.sh b.sh` would run only a.sh and pass b.sh as $1, not run
+        # both.
+        files = spec.get("files")
+        if not files:
+            raise ValueError(f"{name}: shell-test requires a 'files' list")
+        loop = "; ".join([
+            "pass=0", "fail=0",
+            f"for f in {' '.join(shlex.quote(f) for f in files)}",
+            'do if bash "$f"; then pass=$((pass+1)); '
+            'else fail=$((fail+1)); echo "FAILED: $f" >&2; fi',
+            "done",
+            'echo "$pass passed, $fail failed"',
+            '[ "$fail" -eq 0 ]',
+        ])
+        return ["bash", "-c", loop], env
+
     raise ValueError(f"{name}: unknown runner {runner!r}")
 
 
@@ -141,6 +166,10 @@ def parse_counts(runner: str, out: str) -> dict:
         for n, kind in PYTEST_COUNT.findall(out):
             key = "errored" if kind.startswith("error") else kind
             counts[key] = counts.get(key, 0) + int(n)
+    elif runner == "shell-test":
+        m = SHELL_COUNT.search(out)
+        if m:
+            counts["passed"], counts["failed"] = int(m.group(1)), int(m.group(2))
     else:
         for kind, n in NODE_COUNT.findall(out):
             counts["passed" if kind == "pass" else "failed" if kind == "fail" else "skipped"] = int(n)

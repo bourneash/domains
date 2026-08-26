@@ -14,6 +14,9 @@
 #                own `.venv/bin/python` when it has one, else system python3.
 #   node-test  — `npm test` when package.json declares a test script, else
 #                `node --test <files>`.
+#   shell-test — each file in `files:` is a self-contained *.test.sh
+#                assertion script (set -euo pipefail, nonzero exit = fail).
+#                Run individually, tallied, never globbed automatically.
 #   skip       — listed on purpose, with a reason. Counted, never run.
 #
 # timeout: seconds, per suite (default 300).
@@ -54,6 +57,11 @@ suites:
     runner: node-test
     dir: data-hub-images
     files: [client/datahub-images-client.test.js]
+
+  scripts-shell:
+    runner: shell-test
+    dir: scripts
+    files: [tests/ensure-fleet-cron.test.sh]
 
   domain-developer:
     runner: skip
