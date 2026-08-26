@@ -34,7 +34,9 @@ from social_hub import (
 )
 from social_hub.config import SiteConfig, load_all, load_site_config
 
-UI_URL = "http://127.0.0.1:4772/"
+# social-hub ships no UI of its own — the Fleet Dashboard's Social Hub tab
+# (server/public/app.js) is the only review UI. Point notifications there.
+UI_URL = "http://127.0.0.1:4754/"
 
 
 def _start_run(kind: str, site: str | None) -> int:
@@ -161,7 +163,7 @@ def _maybe_notify(site: str) -> None:
         elapsed = datetime.now(timezone.utc) - datetime.fromisoformat(last)
         if elapsed < timedelta(hours=NOTIFY_DIGEST_INTERVAL_HOURS):
             return
-    notify.notify_needs_review(site, drafts, replies, f"{UI_URL}#queue?site={site}")
+    notify.notify_needs_review(site, drafts, replies, f"{UI_URL}#socialhub")
     db.set_setting(key, db.utcnow())
 
 
