@@ -43,11 +43,14 @@ notify_role() {  # usage: notify_role --status ok|fail --headline "..." [--detai
     [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "deploy ($*)" "warning" 2>/dev/null || true
     return
   fi
-  local err
+  local err rc
   err="$(python3 "$ROLE_NOTIFY" --mode structured --site {{DOMAIN}} --role deployer \
     --channel-env {{SLACK_CHANNEL_VAR}} --channel-default {{SLACK_CHANNEL_DEFAULT}} \
-    "$@" "${extra[@]}" 2>&1)" || true
-  [ -n "$err" ] && echo "[$(date -Iseconds)] WARNING: notify_role failed: $err" >&2
+    "$@" "${extra[@]}" 2>&1)"; rc=$?
+  # notify_role.py exits 0 and prints normal status lines (e.g. the intentional
+  # "deployer success — suppressed" no-op) even when nothing went wrong — only
+  # a non-zero exit is an actual failure worth a WARNING line.
+  [ "$rc" -ne 0 ] && echo "[$(date -Iseconds)] WARNING: notify_role failed (exit $rc): $err" >&2
   return 0
 }
 emit_incident() {  # usage: emit_incident --class c --summary s   (no-op if this site has no watchdog consumer for it)
