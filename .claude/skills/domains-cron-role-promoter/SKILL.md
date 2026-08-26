@@ -36,46 +36,39 @@ sources:
       url_template: "{url}"     # each item's own frontmatter `url:` field
 ```
 
-**CRITICAL — read `tools/social-hub/src/social_hub/sources.py::discover()`
-before touching any site's `hub.yaml`.** The three source styles are NOT
-additive with each other — `discover()` tries `collections` first, and if
-that list is non-empty it NEVER falls through to `globs` or the built-in
-default scan. Concretely:
+**This is safe on every site regardless of its existing `sources:` shape**
+(`collections`, `globs`, or no block at all relying on the implicit
+default/`social_poster` fallback) — `discover()` in
+`tools/social-hub/src/social_hub/sources.py` special-cases the collection
+named exactly `spotlight`: it is filtered out of the collections/globs
+exclusivity chain and always appended on top of whatever a site's real
+primary source resolves to, so wiring promoter in can never silently
+displace a site's existing article/guide/product drafting. (This fix
+shipped 2026-08-26 specifically so promoter could go in fleet-wide — before
+that, a bare `collections: [spotlight]` on a site with no other `sources:`
+block WOULD have killed its real source. Don't reintroduce that bug: the
+collection name must be exactly `spotlight`, and never rename it.)
 
-- **Site's `hub.yaml` already has `sources: collections: [...]`** (e.g.
-  amputeenews, allthingsmasonic) — safe to just append a `spotlight` entry
-  to that existing list. Both entries are `collections`, both get read.
-- **Site's `hub.yaml` has `sources: globs: [...]`** (e.g. saveusfarms,
-  broadwayshowgirls) or **has no `sources:` block at all** (relying on the
-  built-in default scan of `site/src/content/articles/*.md` — e.g.
-  americastrikes, 0daynews) — do **NOT** add a bare `collections: [spotlight]`
-  block. Doing so makes `collections` non-empty, which silently DISABLES
-  that site's article drafting entirely (the existing `globs`/default-scan
-  branch never runs). Instead, convert the article source into an explicit
-  `collections` entry in the SAME block, so both are read via the same
-  mechanism:
+Just add the block above — do not also re-declare the site's real article
+source, that's unnecessary now. **Still verify after wiring**, since a typo
+in the collection `name:` (anything other than `spotlight`) reintroduces the
+old exclusivity bug silently:
 
-  ```yaml
-  sources:
-    collections:
-      - name: article                              # re-declare the site's real article source —
-        glob: "site/src/content/articles/*.md"      # match its actual path/URL pattern, do not guess
-        url_template: "https://{domain}/articles/{slug}/"
-      - name: spotlight
-        glob: "ops/social/spotlight/*.md"
-        url_template: "{url}"
-  ```
+```bash
+cd tools/social-hub && python3 -c "
+import sys; sys.path.insert(0, 'src')
+sys.path.insert(0, '../social-poster/src')
+import yaml
+from social_hub import sources
+cfg = yaml.safe_load(open('../../sites/<domain>/ops/social/hub.yaml'))
+items = sources.discover('<domain>', cfg)
+print(len(items), 'items —', sum(1 for i in items if i.get('source_type') == 'spotlight'), 'spotlight')
+"
+```
 
-  Confirm the real glob + URL pattern for that site's article collection
-  first (check its content-writer/news-writer role body, or an existing
-  published article's live URL) — do not assume `/articles/`, several sites
-  use `/wire/`, `/posts/`, `/guides/`, etc.
-- **Verify after wiring, don't just trust the YAML**: run
-  `python3 -c "from social_hub.sources import discover; from social_hub.config import load_site_config; print(len(discover('<domain>', load_site_config('<domain>'))))"`
-  (or the hub's own ingest/dry-run CLI if simpler) and confirm the count
-  includes BOTH existing articles and the new spotlight items — a count
-  that dropped to just the spotlight items means the site's real content
-  source got silently cut off.
+Confirm the count is **at least** what it was before your edit (real
+articles/guides/products still present) **plus** the new spotlight items —
+a count that dropped to just the spotlight items means something broke.
 
 ## Step-by-step
 
