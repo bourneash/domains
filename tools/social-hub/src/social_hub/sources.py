@@ -243,12 +243,27 @@ def _via_social_poster(domain: str) -> list[dict]:
 
 
 def discover(domain: str, cfg: SiteConfig | None = None) -> list[dict]:
-    """Candidate source items for *domain*, newest first, unfiltered."""
+    """Candidate source items for *domain*, newest first, unfiltered.
+
+    The `spotlight` collection (the promoter role's evergreen self-promotion
+    items) is always additive: it never enters the collections/globs/default
+    exclusivity chain below, so wiring it onto a site does not silently
+    displace that site's real article/guide/product source. Everything
+    else keeps the original fallback semantics — collections, if configured,
+    win outright; otherwise globs; otherwise social_poster's loader; otherwise
+    the bare articles/*.md scan. ingest() is idempotent per
+    (site, source_type, source_id), so any overlap is just a skipped
+    duplicate, never a wrong or missing post.
+    """
     sources_cfg = (cfg.get("sources") if cfg else None) or {}
+    all_collections = sources_cfg.get("collections") or []
+    primary_collections = [c for c in all_collections if c.get("name") != "spotlight"]
+    spotlight_collections = [c for c in all_collections if c.get("name") == "spotlight"]
+
     items: list[dict] = []
-    if sources_cfg.get("collections"):
+    if primary_collections:
         root = site_root(domain)
-        for spec in sources_cfg["collections"]:
+        for spec in primary_collections:
             items.extend(_load_collection(root, domain, spec))
     if not items and sources_cfg.get("globs"):
         items = _builtin_scan(domain, cfg)
@@ -256,6 +271,12 @@ def discover(domain: str, cfg: SiteConfig | None = None) -> list[dict]:
         items = _via_social_poster(domain)
     if not items:
         items = _builtin_scan(domain, cfg)
+
+    if spotlight_collections:
+        root = site_root(domain)
+        for spec in spotlight_collections:
+            items.extend(_load_collection(root, domain, spec))
+
     items.sort(key=lambda i: i.get("published_at") or "", reverse=True)
     return items
 
