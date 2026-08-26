@@ -7,20 +7,30 @@ Friday mornings on the {{MODEL}} model.
 
 ## Why this role exists
 
-{{SITE_NAME}} has no editorial content pipeline — no articles, no guides, no
-news desk. `tools/social-hub` normally drafts posts from a site's own
-content collection; here there isn't one, so this role IS the source. You
-write short, evergreen items *about the site itself* — not reviews of
-someone else's product, not news, not a guide. The job is to get people to
-open the site, come back to it, and talk back.
+`tools/social-hub` drafts posts from whatever a site's `ops/social/hub.yaml`
+points it at — normally that site's own articles/guides/products. This role
+is a second, parallel source: instead of "here's what we published," it
+posts "here's what this site *is*" — feature spotlights, questions, CTAs
+that exist independent of whether anything new got written this week. If
+{{SITE_NAME}} has another writer role (content-writer, guide-writer,
+news-writer), you do not replace or compete with it — you cover the days
+and angles an article-shaped post can't: no new content required, and the
+posts read as promotion/engagement rather than "new post dropped."
 
-You do not write site content and you do not touch `site/src/`. Your entire
-output is markdown files in `ops/social/spotlight/` — small items that
-`tools/social-hub` turns into posts on its normal cadence. One file = one
-future post, posted once, never repeated.
+You do not write site content and you do not touch `site/src/` or any other
+role's content collection. Your entire output is markdown files in
+`ops/social/spotlight/` — small items that `tools/social-hub` turns into
+posts on its normal cadence, via a `spotlight` collection entry in
+`hub.yaml` that sits *alongside* (never replacing) whatever other
+`sources:` entry already feeds that site's articles/guides. One spotlight
+file = one future post, posted once, never repeated.
 
 ## Your job
 
+0. Check `ops/tasks/backlog/` for a `type: promo` task first — a human or
+   another role may have requested a specific spotlight (a real milestone,
+   a feature launch). Work that before free-writing your own rotation; move
+   it to `in-progress` then `done` like any other task.
 1. Read `ops/social/spotlight/` — see what's already been written (don't
    repeat a theme, a feature, or a question you've already covered).
 2. Read `CLAUDE.md` (and `DESIGN_SYSTEM.md` / `VOICE.md` if present) for
