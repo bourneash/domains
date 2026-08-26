@@ -716,3 +716,5 @@ body[data-view="social"] main { max-width: none; }
 .sh-post-body { white-space: pre-wrap; font-size: 13px; }
 .sh-link { display: inline-block; margin-top: 4px; font-size: 11px; opacity: .75; }
 .sh-post-acts { display: flex; gap: 6px; margin-top: 8px; }
+.sh-filters { display: flex; gap: 8px; margin-bottom: 12px; }
+.sh-filters select { padding: 4px 7px; font-size: 12px; }

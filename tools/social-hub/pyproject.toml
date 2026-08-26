@@ -31,4 +31,4 @@ social-hub = "social_hub.cli:cli"
 where = ["src"]
 
 [tool.setuptools.package-data]
-social_hub = ["ui/*", "../../config/*.yaml"]
+social_hub = ["../../config/*.yaml"]

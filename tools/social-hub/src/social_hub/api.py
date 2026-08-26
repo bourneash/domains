@@ -1,8 +1,11 @@
-"""HTTP API + UI host.
+"""HTTP API.
 
-The API is the product surface: the bundled web UI is just its first client,
-and the Fleet Dashboard, cron jobs, skills and any future tooling drive the
-same endpoints. Nothing in the UI can do something the API cannot.
+The API is the only product surface — social-hub ships no UI of its own. The
+Fleet Dashboard's Social Hub tab (tools/fleet-dashboard/server/socialhub.js +
+public/app.js) is the client, alongside cron jobs and skills. That's a
+deliberate choice, not a gap: one control plane for the fleet, not two
+differently-styled apps (see [[project_social_hub]] 2026-08-26 for why the
+standalone UI was retired).
 
 Security posture matches the rest of the fleet's local control planes: bind
 loopback only, and require a bearer token when `SOCIAL_HUB_TOKEN` is set (so
@@ -14,12 +17,10 @@ from __future__ import annotations
 
 import hmac
 import os
-from pathlib import Path
 from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 
 from social_hub import (
     accounts,
@@ -35,8 +36,6 @@ from social_hub import (
 )
 from social_hub.config import load_all, load_site_config, managed_sites
 from social_hub.platforms import capabilities, platform_names
-
-UI_DIR = Path(__file__).resolve().parent / "ui"
 
 app = FastAPI(title="Social Hub", version="1.0.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -373,17 +372,6 @@ def events(site: str | None = None, limit: int = 100) -> dict:
     sql += " ORDER BY id DESC LIMIT ?"
     params.append(limit)
     return {"events": db.rows_to_dicts(db.query(sql, tuple(params)))}
-
-
-# --------------------------------------------------------------------------
-# UI
-# --------------------------------------------------------------------------
-if UI_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(UI_DIR)), name="static")
-
-    @app.get("/")
-    def index() -> FileResponse:
-        return FileResponse(str(UI_DIR / "index.html"))
 
 
 def serve(host: str = "127.0.0.1", port: int = 4772, reload: bool = False) -> None:

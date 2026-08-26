@@ -36,7 +36,7 @@ pip install -e tools/social-hub --no-deps       # deps are already fleet-wide
 social-hub doctor                               # environment check
 social-hub channels sync                        # mirror the social registry
 social-hub tick --site americastrikes.com       # one full pipeline pass
-social-hub serve                                # UI + API on 127.0.0.1:4772
+social-hub serve                                # API on 127.0.0.1:4772 (UI is the Fleet Dashboard)
 ```
 
 ## Opting a site in
@@ -129,15 +129,16 @@ replies generated for it.
 
 ## Interfaces
 
-- **UI** — `social-hub serve`, then http://127.0.0.1:4772 — overview, queue
-  (inline editing, approve/reject/post-now/reschedule), 14-day calendar, inbox,
-  insights (engagement + top posts), channels, activity log.
-- **API** — same host under `/api`, OpenAPI at `/api/docs`. Set
-  `SOCIAL_HUB_TOKEN` to require a bearer token.
-- **Fleet Dashboard** — Growth ▸ **Social Hub** (http://127.0.0.1:4754/#socialhub)
-  shows per-site queue state, everything awaiting review with approve/reject,
-  and 30-day engagement. It proxies this API, so the hub must be running and
-  reachable from the panel's container: `social-hub serve --host 0.0.0.0` with
+- **API** — `social-hub serve`, http://127.0.0.1:4772/api, OpenAPI at
+  `/api/docs`. Set `SOCIAL_HUB_TOKEN` to require a bearer token. This is the
+  only server surface — social-hub ships no UI of its own (see below).
+- **Fleet Dashboard** — Growth ▸ **Social Hub**
+  (http://127.0.0.1:4754/#socialhub) is the UI: Overview (per-site state +
+  30-day engagement), Queue (every post at every status — inline
+  editing, approve/reject/publish-now/reschedule/cancel), Inbox (mentions,
+  draft/approve/reject replies), Channels (enable/disable/verify), Events
+  (audit log). It proxies this API, so the hub must be running and reachable
+  from the panel's container: `social-hub serve --host 0.0.0.0` with
   `SOCIAL_HUB_TOKEN` set (the hub refuses to bind off-loopback without one).
   Both are installed in cron — a 15-minute tick and an `@reboot` serve.
 - **CLI** — `social-hub --help`; `status`, `queue`, `compose`, `approve`,

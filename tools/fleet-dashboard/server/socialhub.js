@@ -1,12 +1,11 @@
 'use strict';
 
-// Social Hub panel — a thin proxy onto tools/social-hub's HTTP API.
+// Social Hub panel — the fleet's only client onto tools/social-hub's HTTP API.
 //
-// The hub is a host process with its own full UI on :4772; this module exists
-// so the fleet's single control plane can answer "what is waiting for me" and
-// let you approve or reject a post without opening a second, differently
-// styled app. Deep work (composing, calendar, inbox threads, insights) still
-// belongs in the hub's own UI, and the panel links out to it.
+// The hub itself ships no UI of its own (see api.py) beyond the raw API — this
+// panel is it. Everything a human does with the hub (review the queue, browse
+// post history, manage the inbox and channels, read the event log) happens
+// here so there is one control plane, not two differently-styled apps.
 //
 // Everything degrades: when the hub is not running the tab renders an explicit
 // "hub is not reachable" state rather than an error, because the hub being down
@@ -15,7 +14,8 @@
 // Auth: the hub binds loopback by default. To be reachable from inside this
 // container it must bind off-loopback, and it refuses to do that without
 // SOCIAL_HUB_TOKEN set — so the token is always present when the proxy is
-// actually needed, and is forwarded as a bearer header (never a query string).
+// actually needed, and is forwarded as a bearer header (never a query string,
+// never handed to the browser).
 
 const API = process.env.SOCIALHUB_API || 'http://host.docker.internal:4772';
 const TOKEN = process.env.SOCIAL_HUB_TOKEN || '';
@@ -67,9 +67,9 @@ async function call(path, { method = 'GET', body, timeout = TIMEOUT_MS } = {}) {
   }
 }
 
-// One round trip for the whole tab: per-site state, everything awaiting
-// review, and 30-day engagement. Three small local calls beat making the
-// browser orchestrate three proxied ones.
+// One round trip for the whole overview tab: per-site state, everything
+// awaiting review, and 30-day engagement. Three small local calls beat making
+// the browser orchestrate three proxied ones.
 async function overview() {
   try {
     const [status, drafts, metrics] = await Promise.all([
@@ -79,7 +79,6 @@ async function overview() {
     ]);
     return {
       available: true,
-      url: publicUrl(),
       sites: status.sites || {},
       drafts: drafts.posts || [],
       metrics: metrics.summary || { platforms: {} },
@@ -89,7 +88,6 @@ async function overview() {
   } catch (e) {
     return {
       available: false,
-      url: publicUrl(),
       error: e.message,
       hint: e.unreachable
         ? 'Start it on the host: `social-hub serve --host 0.0.0.0` (SOCIAL_HUB_TOKEN must be set)'
@@ -98,10 +96,15 @@ async function overview() {
   }
 }
 
-// The browser reaches the hub directly on the host, not through this
-// container's address for it.
-function publicUrl() {
-  return process.env.SOCIALHUB_PUBLIC_URL || 'http://127.0.0.1:4772';
+function qs(params) {
+  const parts = Object.entries(params || {})
+    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+  return parts.length ? `?${parts.join('&')}` : '';
+}
+
+async function listPosts(params) {
+  return call(`/api/posts${qs(params)}`);
 }
 
 async function approve(id) {
@@ -117,11 +120,50 @@ async function reject(id, reason) {
   });
 }
 
-async function edit(id, bodyText) {
-  return call(`/api/posts/${id}`, {
-    method: 'PATCH',
-    body: { body: String(bodyText || '').slice(0, 4000), editor: 'fleet-dashboard' },
-  });
+async function patchPost(id, payload) {
+  const body = { editor: 'fleet-dashboard' };
+  if (payload.body !== undefined) body.body = String(payload.body).slice(0, 4000);
+  if (payload.link !== undefined) body.link = String(payload.link).slice(0, 2000);
+  if (payload.scheduled_at !== undefined) body.scheduled_at = payload.scheduled_at;
+  return call(`/api/posts/${id}`, { method: 'PATCH', body });
+}
+
+async function publishNow(id) {
+  return call(`/api/posts/${id}/publish`, { method: 'POST', timeout: TICK_TIMEOUT_MS });
+}
+
+async function cancelPost(id) {
+  return call(`/api/posts/${id}/cancel`, { method: 'POST' });
+}
+
+async function channels(site) {
+  return call(`/api/channels${qs({ site })}`);
+}
+
+async function patchChannel(id, payload) {
+  const body = {};
+  if (payload.enabled !== undefined) body.enabled = !!payload.enabled;
+  return call(`/api/channels/${id}`, { method: 'PATCH', body });
+}
+
+async function verifyChannel(id) {
+  return call(`/api/channels/${id}/verify`, { method: 'POST', timeout: TICK_TIMEOUT_MS });
+}
+
+async function inbox(site, status) {
+  return call(`/api/inbox${qs({ site, status })}`);
+}
+
+async function draftReply(id) {
+  return call(`/api/inbox/${id}/draft`, { method: 'POST', timeout: TICK_TIMEOUT_MS });
+}
+
+async function mentionStatus(id, status) {
+  return call(`/api/inbox/${id}/status`, { method: 'POST', body: { status } });
+}
+
+async function events(site, limit) {
+  return call(`/api/events${qs({ site, limit })}`);
 }
 
 async function tick(site) {
@@ -145,6 +187,18 @@ function registerRoutes(app) {
     }
   };
 
+  app.get(
+    '/api/socialhub/posts',
+    forward(req =>
+      listPosts({
+        site: req.query.site,
+        platform: req.query.platform,
+        kind: req.query.kind,
+        status: req.query.status,
+        limit: req.query.limit || 100,
+      })
+    )
+  );
   app.post(
     '/api/socialhub/posts/:id/approve',
     forward(req => approve(Number(req.params.id)))
@@ -155,7 +209,43 @@ function registerRoutes(app) {
   );
   app.patch(
     '/api/socialhub/posts/:id',
-    forward(req => edit(Number(req.params.id), req.body && req.body.body))
+    forward(req => patchPost(Number(req.params.id), req.body || {}))
+  );
+  app.post(
+    '/api/socialhub/posts/:id/publish',
+    forward(req => publishNow(Number(req.params.id)))
+  );
+  app.post(
+    '/api/socialhub/posts/:id/cancel',
+    forward(req => cancelPost(Number(req.params.id)))
+  );
+  app.get(
+    '/api/socialhub/channels',
+    forward(req => channels(req.query.site))
+  );
+  app.patch(
+    '/api/socialhub/channels/:id',
+    forward(req => patchChannel(Number(req.params.id), req.body || {}))
+  );
+  app.post(
+    '/api/socialhub/channels/:id/verify',
+    forward(req => verifyChannel(Number(req.params.id)))
+  );
+  app.get(
+    '/api/socialhub/inbox',
+    forward(req => inbox(req.query.site, req.query.status))
+  );
+  app.post(
+    '/api/socialhub/inbox/:id/draft',
+    forward(req => draftReply(Number(req.params.id)))
+  );
+  app.post(
+    '/api/socialhub/inbox/:id/status',
+    forward(req => mentionStatus(Number(req.params.id), req.body && req.body.status))
+  );
+  app.get(
+    '/api/socialhub/events',
+    forward(req => events(req.query.site, req.query.limit || 150))
   );
   app.post(
     '/api/socialhub/tick',
@@ -163,4 +253,21 @@ function registerRoutes(app) {
   );
 }
 
-module.exports = { overview, approve, reject, edit, tick, registerRoutes, publicUrl };
+module.exports = {
+  overview,
+  listPosts,
+  approve,
+  reject,
+  patchPost,
+  publishNow,
+  cancelPost,
+  channels,
+  patchChannel,
+  verifyChannel,
+  inbox,
+  draftReply,
+  mentionStatus,
+  events,
+  tick,
+  registerRoutes,
+};
