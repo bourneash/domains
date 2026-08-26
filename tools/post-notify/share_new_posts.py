@@ -39,7 +39,7 @@ import urllib.request
 # backoff before giving up on it, instead of immediately falling back to a
 # text-only card (see saveusfarms.com 2026-08-24: ~93% of posts were losing
 # their image this way).
-IMAGE_RETRY_DELAYS = (5, 15)
+IMAGE_RETRY_DELAYS = (10, 30, 60)
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 
