@@ -159,16 +159,18 @@ class BlueskyAdapter(Adapter):
         if image:
             try:
                 resp = client.send_image(
-                    text=text, image=image.data, image_alt=image.alt, **kwargs
+                    text=text, image=image.data, image_alt=image.alt,
+                    facets=link_facets(text) or None, **kwargs
                 )
             except Exception as exc:
                 resp = None
                 self._last_image_error = str(exc)
         if resp is None:
             try:
-                # send_post builds facets (link/mention detection) for us, so
-                # the trailing URL renders as a real link, not plain text.
-                resp = client.send_post(text=text, **kwargs)
+                # send_post only builds facets when given a TextBuilder — a
+                # plain str leaves facets=None and the URL renders as dead
+                # text, so we compute them ourselves here too.
+                resp = client.send_post(text=text, facets=link_facets(text) or None, **kwargs)
             except Exception as exc:
                 raise AdapterError(f"bluesky post failed: {exc}") from exc
         return PostRef(remote_id=resp.uri, url=_handle_to_url(self.identifier(), _rkey(resp.uri)))
