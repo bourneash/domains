@@ -40,6 +40,7 @@ suites:
   media-gen:         { runner: pytest }
   personas:          { runner: pytest }
   product-feed:      { runner: pytest }
+  scripts:           { runner: pytest }
   site-tracker:      { runner: pytest, timeout: 600 }
   social-lib:        { runner: pytest }
   social-poster:     { runner: pytest }
