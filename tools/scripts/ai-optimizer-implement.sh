@@ -81,17 +81,37 @@ fi
 # --- Refuse to work on a dirty tree ---------------------------------------
 SITE_DIR="$DOMAINS_ROOT/sites/$CANARY"
 if [[ "$CANARY" != "-" && -d "$SITE_DIR" ]]; then
+  WORK_DIR="$SITE_DIR"
+else
+  WORK_DIR="$DOMAINS_ROOT"
+fi
+
+# --- Skip if a prior run already committed this ticket ---------------------
+# A commit can land (and get pushed) but the ticket still gets left in
+# approved/ if the session's shell dies right after (EROFS tmpdir, a DNS
+# blip on push-check, an auth outage) before it can move the file. Every
+# retry after that re-runs a no-op session and re-fires the Slack alert.
+# implement.md requires the implementer to cite the ticket id in its commit
+# message, so check for that before spending another session on it.
+EXISTING_SHA="$(git -C "$WORK_DIR" log --all --grep="$TICKET" --format=%H -1 2>/dev/null)"
+if [[ -n "$EXISTING_SHA" ]]; then
+  log "ticket already applied in existing commit ${EXISTING_SHA:0:8} — closing without a new session"
+  python3 "$TOOL_DIR/cli.py" move "$TICKET" --to applied \
+    --commit "${EXISTING_SHA:0:8}" --by "ai-optimizer-implement" \
+    --note "detected already applied (pre-check) on $CANARY" >>"$LOG" 2>&1
+  exit 0
+fi
+
+if [[ "$CANARY" != "-" && -d "$SITE_DIR" ]]; then
   if [[ -n "$(git -C "$SITE_DIR" status --porcelain --untracked-files=no 2>/dev/null)" ]]; then
     log "ABORT: $CANARY has uncommitted changes — refusing to mix our change into them"
     exit 0
   fi
-  WORK_DIR="$SITE_DIR"
 else
   if [[ -n "$(git -C "$DOMAINS_ROOT" status --porcelain --untracked-files=no -- tools/ 2>/dev/null)" ]]; then
     log "ABORT: tools/ has uncommitted changes — refusing to mix our change into them"
     exit 0
   fi
-  WORK_DIR="$DOMAINS_ROOT"
 fi
 BEFORE_SHA="$(git -C "$WORK_DIR" rev-parse HEAD 2>/dev/null)"
 # Snapshot untracked paths so a later revert can delete ONLY what this session
