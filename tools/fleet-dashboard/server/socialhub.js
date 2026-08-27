@@ -107,6 +107,16 @@ async function listPosts(params) {
   return call(`/api/posts${qs(params)}`);
 }
 
+async function calendar(site, days) {
+  // The hub owns the scheduling rules and its /api/calendar endpoint is the
+  // authoritative upcoming-post view. Keep the browser away from that service
+  // (and its bearer token) by proxying it through the dashboard like every
+  // other Social Hub surface. Bound the horizon so a typo cannot ask the hub
+  // for an unhelpfully large result set.
+  const horizon = Math.min(31, Math.max(1, Number(days) || 7));
+  return call(`/api/calendar${qs({ site, days: horizon })}`);
+}
+
 async function approve(id) {
   // Attribution is an audit fact: an approval made from this panel says so,
   // and never carries a person's name it cannot verify.
@@ -199,6 +209,10 @@ function registerRoutes(app) {
       })
     )
   );
+  app.get(
+    '/api/socialhub/calendar',
+    forward(req => calendar(req.query.site, req.query.days))
+  );
   app.post(
     '/api/socialhub/posts/:id/approve',
     forward(req => approve(Number(req.params.id)))
@@ -256,6 +270,7 @@ function registerRoutes(app) {
 module.exports = {
   overview,
   listPosts,
+  calendar,
   approve,
   reject,
   patchPost,

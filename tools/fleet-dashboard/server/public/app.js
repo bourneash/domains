@@ -6883,8 +6883,78 @@ function socPersonaModal(personaId) {
 // (per-site state + engagement), Queue (every post at every status — this is
 // "history of posts from an account"), Inbox (mention replies), Channels
 // (enable/disable/verify), Events (the audit log).
-const SH = { tab: 'overview', site: '', status: 'draft', kind: '', inboxStatus: 'new,drafted' };
+const SH = {
+  tab: 'overview',
+  site: '',
+  status: 'draft',
+  kind: '',
+  queuePlatform: '__public__',
+  platforms: [],
+  platformsBySite: {},
+  inboxStatus: 'new,drafted',
+  queueSearch: '',
+  queueSort: 'when',
+  queueDir: 'desc',
+  calendarDays: 7,
+  calendarPlatform: '__public__',
+  inboxSearch: '',
+  inboxSort: 'when',
+  inboxDir: 'desc',
+  eventsSearch: '',
+  eventsSort: 'when',
+  eventsDir: 'desc',
+};
 const SH_STATUSES = ['draft', 'approved', 'scheduled', 'posted', 'failed', 'rejected', 'cancelled'];
+const SH_PUBLIC_PLATFORMS = '__public__';
+const SH_TABS = ['overview', 'queue', 'calendar', 'inbox', 'channels', 'events'];
+
+// Social Hub filters live in the fragment so review links can open an exact
+// fleet/site/platform slice without requiring a server-side route. Slack uses
+// these links, and changing Queue controls keeps the current URL shareable.
+function shApplyRoute(params) {
+  if (!params) return false;
+  const before = JSON.stringify([
+    SH.tab,
+    SH.site,
+    SH.status,
+    SH.kind,
+    SH.queuePlatform,
+    SH.queueSearch,
+  ]);
+  const tab = SH_TABS.includes(params.tab) ? params.tab : 'overview';
+  SH.tab = tab;
+  const site = String(params.site || '').trim();
+  SH.site = site.length <= 253 && /^[a-z0-9.-]+$/i.test(site) ? site : '';
+  if (tab === 'queue') {
+    SH.status = SH_STATUSES.includes(params.status) ? params.status : 'draft';
+    SH.kind = ['post', 'reply'].includes(params.kind) ? params.kind : '';
+    const platform = String(params.platform || '');
+    SH.queuePlatform =
+      platform === SH_PUBLIC_PLATFORMS || /^[a-z0-9_.-]{1,50}$/i.test(platform)
+        ? platform
+        : SH_PUBLIC_PLATFORMS;
+    SH.queueSearch = String(params.q || '').slice(0, 200);
+    SH.queueSort = 'when';
+    SH.queueDir = ['approved', 'scheduled'].includes(SH.status) ? 'asc' : 'desc';
+  }
+  return (
+    before !==
+    JSON.stringify([SH.tab, SH.site, SH.status, SH.kind, SH.queuePlatform, SH.queueSearch])
+  );
+}
+
+function shSyncRoute() {
+  if (STATE.view !== 'socialhub') return;
+  const params = new URLSearchParams({ tab: SH.tab });
+  if (SH.site) params.set('site', SH.site);
+  if (SH.tab === 'queue') {
+    params.set('status', SH.status);
+    params.set('platform', SH.queuePlatform || SH_PUBLIC_PLATFORMS);
+    if (SH.kind) params.set('kind', SH.kind);
+    if (SH.queueSearch) params.set('q', SH.queueSearch);
+  }
+  history.replaceState(null, '', `#socialhub?${params.toString()}`);
+}
 
 function shBadgeStatus(status) {
   const cls =
@@ -6896,6 +6966,71 @@ function shBadgeStatus(status) {
       draft: 'b-yellow',
     }[status] || 'b-blue';
   return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+
+function shFmtDate(ts) {
+  return ts ? new Date(ts).toLocaleString() : '—';
+}
+
+function shDateParts(ts) {
+  const d = ts ? new Date(ts) : null;
+  if (!d || Number.isNaN(d.getTime())) return null;
+  return {
+    date: d.toLocaleDateString([], {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+    time: d.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    }),
+  };
+}
+
+// Queue dates need to read as schedule facts, not as an ambiguous timestamp.
+// Browser-local time is intentional: the underlying ISO value remains in the
+// datetime attribute and the visible timezone removes any UTC/local guesswork.
+function shWhenCell(p) {
+  const ts = p.posted_at || p.scheduled_at;
+  const parts = shDateParts(ts);
+  if (!parts) return '<span class="muted">Not scheduled</span>';
+  const label = p.posted_at ? 'Posted' : 'Scheduled';
+  return `<time class="sh-when" datetime="${esc(ts)}" title="${esc(ts)}">
+    <span class="sh-when-label">${label}</span>
+    <strong>${esc(parts.date)}</strong>
+    <span>${esc(parts.time)}</span>
+  </time>`;
+}
+
+// Truncate to n chars for a table cell, keeping the full text in a title
+// tooltip so nothing is lost — just not stretched across the row.
+function shTrunc(text, n) {
+  const t = text || '';
+  const short = t.length > n ? t.slice(0, n - 1) + '…' : t;
+  return `<span class="sh-trunc" title="${esc(t)}">${esc(short) || "<span class='muted'>—</span>"}</span>`;
+}
+
+function shSortHeader(view, label, key) {
+  const active = SH[`${view}Sort`] === key;
+  const arrow = active ? (SH[`${view}Dir`] === 'asc' ? ' ↑' : ' ↓') : '';
+  return `<th><button class="sh-sort${active ? ' active' : ''}" data-sh-sort="${key}" data-sh-view="${view}" title="Sort by ${esc(label)}">${esc(label)}<span aria-hidden="true">${arrow}</span></button></th>`;
+}
+
+function shBindSort(view, container, onSort) {
+  $$('[data-sh-sort]', container).forEach(btn =>
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.shSort;
+      if (SH[`${view}Sort`] === key) SH[`${view}Dir`] = SH[`${view}Dir`] === 'asc' ? 'desc' : 'asc';
+      else {
+        SH[`${view}Sort`] = key;
+        SH[`${view}Dir`] = 'desc';
+      }
+      onSort();
+    })
+  );
 }
 
 function shActions(p) {
@@ -6920,38 +7055,44 @@ function shActions(p) {
   return [];
 }
 
-function shPostCard(p) {
-  const when = p.scheduled_at ? new Date(p.scheduled_at).toLocaleString() : '—';
-  const posted = p.posted_at ? new Date(p.posted_at).toLocaleString() : null;
+// One post as a table row — fixed columns instead of free-flowing badges, so
+// nothing stretches unpredictably across the page.
+function shPostRow(p) {
+  const when = p.posted_at || p.scheduled_at;
   const eng =
-    p.status === 'posted' && (p.likes || p.reposts || p.replies)
-      ? `<span class="muted">❤ ${p.likes || 0} ↻ ${p.reposts || 0} ↩ ${p.replies || 0}</span>`
-      : '';
+    p.status === 'posted'
+      ? `<span class="muted mono">❤${p.likes || 0} ↻${p.reposts || 0} ↩${p.replies || 0}</span>`
+      : '<span class="muted">—</span>';
+  const acts = shActions(p)
+    .map(
+      ([act, label]) =>
+        `<button class="btn sm sh-act" data-act="${esc(act)}" data-id="${esc(p.id)}">${esc(label)}</button>`
+    )
+    .join('');
+  // Two distinct links, easy to conflate: `remote_url` is the post as it
+  // actually landed on the platform (only exists once posted); `link` is
+  // whatever site article/page the post body itself links out to.
+  const remoteHref = safeHref(p.remote_url || '');
+  const siteHref = safeHref(p.link || '');
+  const links = `
+        ${remoteHref ? `<a class="sh-link" href="${remoteHref}" target="_blank" rel="noopener">↗ view on ${esc(p.platform)}</a>` : p.status === 'posted' ? '<span class="muted sh-link">no post URL recorded</span>' : ''}
+        ${siteHref ? `<a class="sh-link" href="${siteHref}" target="_blank" rel="noopener">🔗 links to ${esc(new URL(siteHref).pathname || siteHref)}</a>` : ''}`;
   return `
-    <div class="sh-post" data-id="${p.id}">
-      <div class="sh-post-meta">
-        <span class="badge b-blue">${esc(p.site)}</span>
-        <span class="badge">${esc(p.platform)}</span>
-        ${p.kind === 'reply' ? '<span class="badge b-yellow">reply</span>' : ''}
-        ${shBadgeStatus(p.status)}
-        <span class="muted mono">#${p.id}</span>
-        <span class="muted">${(p.body || '').length} chars</span>
-        <span class="muted">${esc(p.ai_model || p.origin || '')}</span>
-        <span class="muted">${posted ? `posted ${esc(posted)}` : esc(when)}</span>
-        ${eng}
-      </div>
-      <div class="sh-post-body">${esc(p.body || '')}</div>
-      ${p.link ? `<a class="sh-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.link)}</a>` : ''}
-      ${p.error ? `<div class="muted" style="color:var(--red)">${esc(p.error)}</div>` : ''}
-      <div class="sh-post-acts">
-        ${shActions(p)
-          .map(
-            ([act, label]) =>
-              `<button class="btn sm sh-act" data-act="${act}" data-id="${p.id}">${label}</button>`
-          )
-          .join('')}
-      </div>
-    </div>`;
+    <tr data-sh-post data-fleet-row data-site="${esc(p.site)}" data-id="${esc(p.id)}" data-when="${esc(when || '')}" data-chars="${(p.body || '').length}">
+      <td>${shWhenCell(p)}</td>
+      <td><span class="badge b-blue">${esc(p.site)}</span></td>
+      <td>${esc(p.platform)}${p.kind === 'reply' ? ' <span class="badge b-yellow">reply</span>' : ''}</td>
+      <td>${shBadgeStatus(p.status)}</td>
+      <td class="mono muted">${(p.body || '').length}</td>
+      <td class="muted">${esc(p.ai_model || p.origin || '—')}</td>
+      <td>${eng}</td>
+      <td class="sh-body-cell">
+        ${shTrunc(p.body, 140)}
+        ${p.error ? `<div class="sh-err" title="${esc(p.error)}">⚠ ${esc(p.error.slice(0, 80))}${p.error.length > 80 ? '…' : ''}</div>` : ''}
+      </td>
+      <td class="sh-body-cell sh-links-cell">${links || '<span class="muted">—</span>'}</td>
+      <td class="sh-acts-cell">${acts || '<span class="muted">—</span>'}</td>
+    </tr>`;
 }
 
 function shSiteOptions(selected) {
@@ -6965,20 +7106,46 @@ function shSiteOptions(selected) {
   return opts;
 }
 
+function shPlatformLabel(platform) {
+  return platform === 'console' ? 'console (local preview)' : platform;
+}
+
+function shQueuePlatforms() {
+  return SH.site ? SH.platformsBySite[SH.site] || [] : SH.platforms;
+}
+
+function shQueuePlatformOptions(selected) {
+  return [
+    `<option value="${SH_PUBLIC_PLATFORMS}" ${selected === SH_PUBLIC_PLATFORMS ? 'selected' : ''}>All public platforms</option>`,
+  ]
+    .concat(
+      shQueuePlatforms().map(
+        platform =>
+          `<option value="${esc(platform)}" ${platform === selected ? 'selected' : ''}>${esc(shPlatformLabel(platform))}</option>`
+      )
+    )
+    .join('');
+}
+
 async function shPostAction(btn) {
   const { act, id } = btn.dataset;
   btn.disabled = true;
   try {
-    if (act === 'reject') {
-      const reason = prompt('Reject reason (optional):') || '';
+    if (act === 'reject' || act === 'deny') {
+      if (act === 'deny' && !confirm('Deny this post and remove it from the upcoming calendar?')) {
+        btn.disabled = false;
+        return;
+      }
+      const reason = prompt(`${act === 'deny' ? 'Deny' : 'Reject'} reason (optional):`) || '';
       await api('POST', `/api/socialhub/posts/${id}/reject`, { reason });
-      toast(`Post ${id} rejected`);
+      toast(`Post ${id} ${act === 'deny' ? 'denied' : 'rejected'}`);
     } else if (act === 'approve') {
       const res = await api('POST', `/api/socialhub/posts/${id}/approve`);
       toast(`Post ${id} scheduled for ${res.scheduled_at || 'the next slot'}`);
     } else if (act === 'edit') {
-      const card = btn.closest('.sh-post');
-      const current = card ? card.querySelector('.sh-post-body').textContent : '';
+      const post = btn.closest('[data-sh-post]');
+      const trunc = post ? post.querySelector('.sh-trunc') : null;
+      const current = trunc ? trunc.title || trunc.textContent : '';
       const body = prompt('Edit post body:', current);
       if (body == null) {
         btn.disabled = false;
@@ -7041,10 +7208,22 @@ async function renderSocialHub() {
 
   const sites = Object.keys(overview.sites);
   if (!STATE.sites || !STATE.sites.length) STATE.sites = sites;
+  SH.platformsBySite = Object.fromEntries(
+    Object.entries(overview.sites).map(([site, info]) => [
+      site,
+      [...new Set((info.channels || []).map(channel => channel.platform).filter(Boolean))].sort(),
+    ])
+  );
+  SH.platforms = [...new Set(Object.values(SH.platformsBySite).flat())].sort();
+  if (SH.site && !sites.includes(SH.site)) SH.site = '';
+  if (SH.queuePlatform !== SH_PUBLIC_PLATFORMS && !shQueuePlatforms().includes(SH.queuePlatform))
+    SH.queuePlatform = SH_PUBLIC_PLATFORMS;
+  shSyncRoute();
 
   const tabs = [
     ['overview', 'Overview'],
     ['queue', 'Queue'],
+    ['calendar', 'Calendar'],
     ['inbox', 'Inbox'],
     ['channels', 'Channels'],
     ['events', 'Events'],
@@ -7087,12 +7266,14 @@ async function renderSocialHub() {
   $$('[data-sh-tab]').forEach(b =>
     b.addEventListener('click', () => {
       SH.tab = b.dataset.shTab;
+      shSyncRoute();
       renderSocialHub();
     })
   );
 
   if (SH.tab === 'overview') shRenderOverview(overview);
   else if (SH.tab === 'queue') shRenderQueue();
+  else if (SH.tab === 'calendar') shRenderCalendar();
   else if (SH.tab === 'inbox') shRenderInbox();
   else if (SH.tab === 'channels') shRenderChannels();
   else if (SH.tab === 'events') shRenderEvents();
@@ -7100,22 +7281,32 @@ async function renderSocialHub() {
 
 function shRenderOverview(data) {
   const body = $('#sh-body');
-  const sites = Object.entries(data.sites);
+  const sites = Object.entries(data.sites).sort(([a], [b]) => a.localeCompare(b));
+  const stat = (label, value, cls) =>
+    `<div class="sh-stat"><span class="sh-stat-label">${esc(label)}</span><b class="sh-stat-val${cls ? ' ' + cls : ''}">${value}</b></div>`;
   const siteCards = sites
     .map(([name, info]) => {
       const c = info.counts || {};
-      const next = info.next_send ? new Date(info.next_send).toLocaleString() : 'nothing scheduled';
-      const live = (info.channels || []).filter(ch => ch.enabled).map(ch => ch.platform);
+      const next = info.next_send ? shFmtDate(info.next_send) : 'nothing scheduled';
+      const live = [
+        ...new Set((info.channels || []).filter(ch => ch.enabled).map(ch => ch.platform)),
+      ];
+      const total = (info.channels || []).length;
       return `
-        <div class="card sh-site">
-          <h3>${esc(name)}</h3>
-          <div class="sh-kv"><span>awaiting review</span><b class="${c.draft ? 'warn' : ''}">${c.draft || 0}</b></div>
-          <div class="sh-kv"><span>scheduled</span><b>${c.scheduled || 0}</b></div>
-          <div class="sh-kv"><span>posted</span><b>${c.posted || 0}</b></div>
-          <div class="sh-kv"><span>failed</span><b class="${c.failed ? 'bad' : ''}">${c.failed || 0}</b></div>
-          <div class="sh-kv"><span>inbox</span><b>${info.inbox_new || 0}</b></div>
-          <div class="sh-kv"><span>next send</span><b>${esc(next)}</b></div>
-          <div class="muted sh-chans">${esc([...new Set(live)].join(', ') || 'no live channels')}</div>
+        <div class="card sh-site" data-fleet-row data-site="${esc(name)}" data-rk="sh-site-${esc(name)}">
+          <div class="sh-site-head">
+            <h3>${esc(name)}</h3>
+            <span class="muted sh-site-chancount">${live.length}/${total || 0} channels live</span>
+          </div>
+          <div class="sh-stat-grid">
+            ${stat('awaiting review', c.draft || 0, c.draft ? 'warn' : '')}
+            ${stat('scheduled', c.scheduled || 0)}
+            ${stat('posted', c.posted || 0)}
+            ${stat('failed', c.failed || 0, c.failed ? 'bad' : '')}
+            ${stat('inbox', info.inbox_new || 0, info.inbox_new ? 'warn' : '')}
+          </div>
+          <div class="sh-kv-row"><span class="muted">next send</span><span>${esc(next)}</span></div>
+          <div class="sh-chans">${live.length ? live.map(p => `<span class="badge">${esc(p)}</span>`).join(' ') : '<span class="muted">no live channels</span>'}</div>
         </div>`;
     })
     .join('');
@@ -7123,8 +7314,8 @@ function shRenderOverview(data) {
   const platformRows = Object.entries(data.metrics.platforms || {})
     .map(
       ([platform, m]) => `<tr>
-        <td>${esc(platform)}</td><td>${m.posts}</td><td>${m.likes}</td>
-        <td>${m.reposts}</td><td>${m.replies}</td><td>${m.avg_engagement}</td>
+        <td>${esc(platform)}</td><td class="mono">${m.posts}</td><td class="mono">${m.likes}</td>
+        <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${m.avg_engagement}</td>
       </tr>`
     )
     .join('');
@@ -7139,62 +7330,352 @@ function shRenderOverview(data) {
            <tbody>${platformRows}</tbody></table>`
         : '<div class="empty">Nothing published in this window yet.</div>'
     }`;
+  applyFleetFilter();
 }
 
 async function shRenderQueue() {
   const body = $('#sh-body');
   body.innerHTML = `
-    <div class="sh-filters">
-      <select id="sh-f-site">${shSiteOptions(SH.site)}</select>
-      <select id="sh-f-status">
+    <div class="task-toolbar sh-toolbar">
+      <select id="sh-f-status" class="cm-input">
         ${SH_STATUSES.map(s => `<option value="${s}" ${s === SH.status ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
-      <select id="sh-f-kind">
+      <select id="sh-f-site" class="cm-input">${shSiteOptions(SH.site)}</select>
+      <select id="sh-f-platform" class="cm-input" title="Console is a local preview channel; it writes to the Social Hub outbox instead of a public network">
+        ${shQueuePlatformOptions(SH.queuePlatform)}
+      </select>
+      <select id="sh-f-kind" class="cm-input">
         <option value="" ${SH.kind === '' ? 'selected' : ''}>posts + replies</option>
         <option value="post" ${SH.kind === 'post' ? 'selected' : ''}>posts only</option>
         <option value="reply" ${SH.kind === 'reply' ? 'selected' : ''}>replies only</option>
       </select>
+      <label class="compliance-search-wrap"><span class="muted">Search</span><input id="sh-f-search" class="cm-input" type="search" placeholder="Search post body…" value="${esc(SH.queueSearch)}" autocomplete="off"></label>
+      <span id="sh-queue-count" class="muted" style="margin-left:auto"></span>
     </div>
     <div id="sh-queue-list" class="loading">Loading…</div>`;
 
   $('#sh-f-site').addEventListener('change', e => {
     SH.site = e.target.value;
+    if (
+      SH.queuePlatform !== SH_PUBLIC_PLATFORMS &&
+      SH.queuePlatform &&
+      !shQueuePlatforms().includes(SH.queuePlatform)
+    )
+      SH.queuePlatform = SH_PUBLIC_PLATFORMS;
+    shSyncRoute();
+    shRenderQueue();
+  });
+  $('#sh-f-platform').addEventListener('change', e => {
+    SH.queuePlatform = e.target.value;
+    shSyncRoute();
     shRenderQueue();
   });
   $('#sh-f-status').addEventListener('change', e => {
     SH.status = e.target.value;
+    SH.queueSort = 'when';
+    SH.queueDir = ['approved', 'scheduled'].includes(SH.status) ? 'asc' : 'desc';
+    shSyncRoute();
     shRenderQueue();
   });
   $('#sh-f-kind').addEventListener('change', e => {
     SH.kind = e.target.value;
+    shSyncRoute();
     shRenderQueue();
+  });
+  let searchT;
+  $('#sh-f-search').addEventListener('input', e => {
+    clearTimeout(searchT);
+    const val = e.target.value;
+    searchT = setTimeout(() => {
+      SH.queueSearch = val;
+      shSyncRoute();
+      shQueueRedraw(posts);
+    }, 150);
+  });
+
+  let data;
+  try {
+    const publicOnly = SH.queuePlatform === SH_PUBLIC_PLATFORMS;
+    const platform = publicOnly ? '' : SH.queuePlatform;
+    data = await api(
+      'GET',
+      `/api/socialhub/posts?status=${SH.status}&kind=${SH.kind}&site=${encodeURIComponent(SH.site)}&platform=${encodeURIComponent(platform)}&limit=${publicOnly ? 500 : 100}`
+    );
+  } catch (e) {
+    $('#sh-queue-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    return;
+  }
+  var posts = (data.posts || [])
+    .filter(post => SH.queuePlatform !== SH_PUBLIC_PLATFORMS || post.platform !== 'console')
+    .slice(0, 100);
+
+  function shQueueRedraw(posts) {
+    const q = SH.queueSearch.trim().toLowerCase();
+    const filtered = posts.filter(p => !q || (p.body || '').toLowerCase().includes(q));
+    filtered.sort((a, b) => {
+      const dir = SH.queueDir === 'asc' ? 1 : -1;
+      const key = SH.queueSort;
+      let av, bv;
+      if (key === 'when') {
+        av = a.posted_at || a.scheduled_at || '';
+        bv = b.posted_at || b.scheduled_at || '';
+      } else if (key === 'chars') {
+        av = (a.body || '').length;
+        bv = (b.body || '').length;
+      } else {
+        av = a[key] || '';
+        bv = b[key] || '';
+      }
+      return av < bv ? -1 * dir : av > bv ? 1 * dir : 0;
+    });
+    $('#sh-queue-count').textContent = `${filtered.length} of ${posts.length} shown`;
+    const list = $('#sh-queue-list');
+    const whenHeading =
+      SH.status === 'posted'
+        ? 'Posted at'
+        : ['approved', 'scheduled'].includes(SH.status)
+          ? 'Scheduled for'
+          : 'Date';
+    list.innerHTML = filtered.length
+      ? `<div class="card sh-table-wrap"><table class="tbl sh-table">
+          <thead><tr>
+            ${shSortHeader('queue', whenHeading, 'when')}
+            ${shSortHeader('queue', 'Site', 'site')}
+            ${shSortHeader('queue', 'Platform', 'platform')}
+            ${shSortHeader('queue', 'Status', 'status')}
+            ${shSortHeader('queue', 'Chars', 'chars')}
+            <th>Model</th><th>Engagement</th><th>Post</th><th>Links</th><th>Actions</th>
+          </tr></thead>
+          <tbody>${filtered.map(shPostRow).join('')}</tbody>
+        </table></div>`
+      : `<div class="empty">No ${esc(SH.status)} posts${q ? ' matching your search' : ''}.</div>`;
+    shBindSort('queue', list, () => shQueueRedraw(posts));
+    $$('.sh-act', list).forEach(btn => btn.addEventListener('click', () => shPostAction(btn)));
+    applyFleetFilter();
+  }
+
+  shQueueRedraw(posts);
+}
+
+function shCalendarDayKey(ts) {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function shCalendarDayLabel(posts) {
+  const d = new Date(posts[0].scheduled_at);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const key = shCalendarDayKey(d);
+  const relative =
+    key === shCalendarDayKey(today)
+      ? 'Today'
+      : key === shCalendarDayKey(tomorrow)
+        ? 'Tomorrow'
+        : '';
+  return {
+    weekday: relative || d.toLocaleDateString([], { weekday: 'long' }),
+    date: d.toLocaleDateString([], { month: 'short', day: 'numeric' }),
+  };
+}
+
+function shCalendarPost(p) {
+  const parts = shDateParts(p.scheduled_at);
+  const time = parts ? parts.time : 'Time unavailable';
+  const overdue = p.scheduled_at && new Date(p.scheduled_at).getTime() < Date.now();
+  const reviewable = p.status === 'approved' || p.status === 'scheduled';
+  const reviewActs = reviewable
+    ? `<div class="sh-cal-review-actions" aria-label="Review post">
+        <button class="btn sm sh-act sh-cal-approve" data-act="approve" data-id="${esc(p.id)}" title="Approve this post and keep its scheduled time">Approve</button>
+        <button class="btn sm sh-act sh-cal-deny" data-act="deny" data-id="${esc(p.id)}" title="Deny this post and remove it from the calendar">Deny</button>
+      </div>`
+    : '';
+  const acts = shActions(p)
+    .map(
+      ([act, label]) =>
+        `<button class="btn sm sh-act" data-act="${esc(act)}" data-id="${esc(p.id)}">${esc(label)}</button>`
+    )
+    .join('');
+  return `
+    <article class="sh-cal-post${overdue ? ' overdue' : ''}" data-sh-post data-fleet-row data-site="${esc(p.site)}" data-id="${esc(p.id)}">
+      <div class="sh-cal-post-head">
+        <time datetime="${esc(p.scheduled_at || '')}" title="${esc(p.scheduled_at || '')}">${esc(time)}</time>
+        ${shBadgeStatus(p.status)}
+      </div>
+      <div class="sh-cal-meta">
+        <span class="badge b-blue">${esc(p.site)}</span>
+        <span class="badge">${esc(p.platform)}</span>
+        ${p.kind === 'reply' ? '<span class="badge b-yellow">reply</span>' : ''}
+      </div>
+      <div class="sh-cal-body">${shTrunc(p.body, 110)}</div>
+      ${overdue ? '<div class="sh-cal-overdue">Past due</div>' : ''}
+      ${reviewActs}
+      <div class="sh-acts-cell">${acts || '<span class="muted">—</span>'}</div>
+    </article>`;
+}
+
+async function shRenderCalendar() {
+  const body = $('#sh-body');
+  body.innerHTML = `
+    <div class="task-toolbar sh-toolbar">
+      <select id="sh-cal-site" class="cm-input">${shSiteOptions(SH.site)}</select>
+      <select id="sh-cal-platform" class="cm-input" disabled><option value="">All platforms</option></select>
+      <select id="sh-cal-days" class="cm-input">
+        <option value="7" ${SH.calendarDays === 7 ? 'selected' : ''}>Next 7 days</option>
+        <option value="14" ${SH.calendarDays === 14 ? 'selected' : ''}>Next 14 days</option>
+      </select>
+      <span id="sh-calendar-count" class="muted" style="margin-left:auto"></span>
+    </div>
+    <div id="sh-calendar-list" class="loading">Loading upcoming schedule…</div>`;
+
+  $('#sh-cal-site').addEventListener('change', e => {
+    SH.site = e.target.value;
+    shRenderCalendar();
+  });
+  $('#sh-cal-days').addEventListener('change', e => {
+    SH.calendarDays = Number(e.target.value) || 7;
+    shRenderCalendar();
   });
 
   let data;
   try {
     data = await api(
       'GET',
-      `/api/socialhub/posts?status=${SH.status}&kind=${SH.kind}&site=${encodeURIComponent(SH.site)}&limit=100`
+      `/api/socialhub/calendar?site=${encodeURIComponent(SH.site)}&days=${SH.calendarDays}`
     );
   } catch (e) {
-    $('#sh-queue-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    $('#sh-calendar-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
     return;
   }
-  const posts = data.posts || [];
-  $('#sh-queue-list').innerHTML = posts.length
-    ? posts.map(shPostCard).join('')
-    : `<div class="empty">No ${esc(SH.status)} posts.</div>`;
-  $$('.sh-act', $('#sh-queue-list')).forEach(btn =>
-    btn.addEventListener('click', () => shPostAction(btn))
-  );
+  const posts = (data.posts || []).filter(p => p.scheduled_at);
+  const platforms = [...new Set(posts.map(p => p.platform).filter(Boolean))].sort();
+  if (
+    SH.calendarPlatform !== SH_PUBLIC_PLATFORMS &&
+    SH.calendarPlatform &&
+    !platforms.includes(SH.calendarPlatform)
+  )
+    SH.calendarPlatform = SH_PUBLIC_PLATFORMS;
+  const platformSelect = $('#sh-cal-platform');
+  platformSelect.innerHTML = [
+    `<option value="${SH_PUBLIC_PLATFORMS}" ${SH.calendarPlatform === SH_PUBLIC_PLATFORMS ? 'selected' : ''}>All public platforms</option>`,
+  ]
+    .concat(
+      platforms.map(
+        platform =>
+          `<option value="${esc(platform)}" ${platform === SH.calendarPlatform ? 'selected' : ''}>${esc(shPlatformLabel(platform))}</option>`
+      )
+    )
+    .join('');
+  platformSelect.disabled = platforms.length === 0;
+  platformSelect.addEventListener('change', e => {
+    SH.calendarPlatform = e.target.value;
+    shCalendarRedraw();
+  });
+
+  function shCalendarRedraw() {
+    const filtered = posts
+      .filter(p =>
+        SH.calendarPlatform === SH_PUBLIC_PLATFORMS
+          ? p.platform !== 'console'
+          : !SH.calendarPlatform || p.platform === SH.calendarPlatform
+      )
+      .sort((a, b) => (a.scheduled_at || '').localeCompare(b.scheduled_at || ''));
+    const groups = new Map();
+    filtered.forEach(p => {
+      const key = shCalendarDayKey(p.scheduled_at);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(p);
+    });
+    $('#sh-calendar-count').textContent =
+      `${filtered.length} upcoming post${filtered.length === 1 ? '' : 's'}`;
+    const list = $('#sh-calendar-list');
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty">Nothing scheduled in the next ${SH.calendarDays} days for this filter.</div>`;
+      return;
+    }
+    const days = [...groups.values()];
+    list.innerHTML = `
+      <div class="sh-calendar-summary">
+        <div><strong>${filtered.length}</strong><span>upcoming</span></div>
+        <div><strong>${days.length}</strong><span>active day${days.length === 1 ? '' : 's'}</span></div>
+        <div><strong>${Math.max(...days.map(day => day.length))}</strong><span>busiest day</span></div>
+      </div>
+      <div class="sh-calendar-wrap">
+        <div class="sh-calendar-grid" style="--sh-calendar-days:${days.length}">
+          ${days
+            .map(day => {
+              const label = shCalendarDayLabel(day);
+              return `<section class="sh-cal-day">
+                <header><div><strong>${esc(label.weekday)}</strong><span>${esc(label.date)}</span></div><span class="badge b-gray">${day.length}</span></header>
+                <div class="sh-cal-day-posts">${day.map(shCalendarPost).join('')}</div>
+              </section>`;
+            })
+            .join('')}
+        </div>
+      </div>`;
+    $$('.sh-act', list).forEach(btn => btn.addEventListener('click', () => shPostAction(btn)));
+    applyFleetFilter();
+  }
+
+  shCalendarRedraw();
+}
+
+function shMentionBadge(status) {
+  const cls =
+    { answered: 'b-green', blocked: 'b-red', ignored: 'b-gray', drafted: 'b-blue' }[status] ||
+    'b-yellow';
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+
+// One inbox mention as a table row. The drafted reply (if any) shows as a
+// compact sub-row instead of a full nested card.
+function shMentionRow(m) {
+  const acts = [
+    !m.reply
+      ? `<button class="btn sm sh-mention-draft" data-id="${m.id}">Draft reply</button>`
+      : '',
+    `<button class="btn sm sh-mention-status" data-id="${m.id}" data-status="answered">Mark answered</button>`,
+    `<button class="btn sm sh-mention-status" data-id="${m.id}" data-status="ignored">Ignore</button>`,
+    `<button class="btn sm sh-mention-status" data-id="${m.id}" data-status="blocked">Block author</button>`,
+  ]
+    .filter(Boolean)
+    .join('');
+  return `
+    <tr data-fleet-row data-site="${esc(m.site)}" data-id="${m.id}" data-when="${esc(m.created_at || '')}">
+      <td class="mono muted">${shFmtDate(m.created_at)}</td>
+      <td><span class="badge b-blue">${esc(m.site)}</span></td>
+      <td>${esc(m.platform)}</td>
+      <td>${shMentionBadge(m.status)}</td>
+      <td>@${esc(m.author || 'unknown')}</td>
+      <td class="sh-body-cell">${shTrunc(m.text, 140)}</td>
+      <td class="sh-body-cell">
+        ${
+          m.reply
+            ? `${shBadgeStatus(m.reply.status)} ${shTrunc(m.reply.body, 90)}
+               ${safeHref(m.reply.remote_url || '') ? `<a class="sh-link" href="${safeHref(m.reply.remote_url)}" target="_blank" rel="noopener">↗ view on ${esc(m.platform)}</a>` : ''}
+               <div class="sh-acts-cell">${shActions(m.reply)
+                 .map(
+                   ([act, label]) =>
+                     `<button class="btn sm sh-act" data-act="${act}" data-id="${m.reply.id}">${label}</button>`
+                 )
+                 .join('')}</div>`
+            : '<span class="muted">no reply drafted</span>'
+        }
+      </td>
+      <td class="sh-acts-cell">${acts}</td>
+    </tr>`;
 }
 
 async function shRenderInbox() {
   const body = $('#sh-body');
   body.innerHTML = `
-    <div class="sh-filters">
-      <select id="sh-f-isite">${shSiteOptions(SH.site)}</select>
-      <select id="sh-f-istatus">
+    <div class="task-toolbar sh-toolbar">
+      <select id="sh-f-istatus" class="cm-input">
         ${['new,drafted', 'new', 'drafted', 'answered', 'ignored', 'blocked']
           .map(
             s =>
@@ -7202,6 +7683,9 @@ async function shRenderInbox() {
           )
           .join('')}
       </select>
+      <select id="sh-f-isite" class="cm-input">${shSiteOptions(SH.site)}</select>
+      <label class="compliance-search-wrap"><span class="muted">Search</span><input id="sh-f-isearch" class="cm-input" type="search" placeholder="Search mention text…" value="${esc(SH.inboxSearch)}" autocomplete="off"></label>
+      <span id="sh-inbox-count" class="muted" style="margin-left:auto"></span>
     </div>
     <div id="sh-inbox-list" class="loading">Loading…</div>`;
 
@@ -7212,6 +7696,15 @@ async function shRenderInbox() {
   $('#sh-f-istatus').addEventListener('change', e => {
     SH.inboxStatus = e.target.value;
     shRenderInbox();
+  });
+  let searchT;
+  $('#sh-f-isearch').addEventListener('input', e => {
+    clearTimeout(searchT);
+    const val = e.target.value;
+    searchT = setTimeout(() => {
+      SH.inboxSearch = val;
+      shInboxRedraw(mentions);
+    }, 150);
   });
 
   let data;
@@ -7224,70 +7717,80 @@ async function shRenderInbox() {
     $('#sh-inbox-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
     return;
   }
-  const mentions = data.mentions || [];
-  $('#sh-inbox-list').innerHTML = mentions.length
-    ? mentions.map(shMentionCard).join('')
-    : '<div class="empty">Nothing in the inbox at this filter.</div>';
+  var mentions = data.mentions || [];
 
-  $$('.sh-act', $('#sh-inbox-list')).forEach(btn =>
-    btn.addEventListener('click', () => shPostAction(btn))
-  );
-  $$('.sh-mention-draft').forEach(btn =>
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      try {
-        const res = await api('POST', `/api/socialhub/inbox/${btn.dataset.id}/draft`, {});
-        toast(res.ok ? 'Reply drafted' : `Declined: ${res.reason || 'no reply generated'}`);
-        shRenderInbox();
-      } catch (e) {
-        toast(e.message, 'err');
-        btn.disabled = false;
-      }
-    })
-  );
-  $$('.sh-mention-status').forEach(btn =>
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      try {
-        await api('POST', `/api/socialhub/inbox/${btn.dataset.id}/status`, {
-          status: btn.dataset.status,
-        });
-        toast(`Marked ${btn.dataset.status}`);
-        shRenderInbox();
-      } catch (e) {
-        toast(e.message, 'err');
-        btn.disabled = false;
-      }
-    })
-  );
-}
+  function shInboxRedraw(mentions) {
+    const q = SH.inboxSearch.trim().toLowerCase();
+    const filtered = mentions.filter(
+      m =>
+        !q || (m.text || '').toLowerCase().includes(q) || (m.author || '').toLowerCase().includes(q)
+    );
+    filtered.sort((a, b) => {
+      const dir = SH.inboxDir === 'asc' ? 1 : -1;
+      const key = SH.inboxSort;
+      const av = key === 'when' ? a.created_at || '' : a[key] || '';
+      const bv = key === 'when' ? b.created_at || '' : b[key] || '';
+      return av < bv ? -1 * dir : av > bv ? 1 * dir : 0;
+    });
+    $('#sh-inbox-count').textContent = `${filtered.length} of ${mentions.length} shown`;
+    const list = $('#sh-inbox-list');
+    list.innerHTML = filtered.length
+      ? `<div class="card sh-table-wrap"><table class="tbl sh-table">
+          <thead><tr>
+            ${shSortHeader('inbox', 'When', 'when')}
+            ${shSortHeader('inbox', 'Site', 'site')}
+            ${shSortHeader('inbox', 'Platform', 'platform')}
+            ${shSortHeader('inbox', 'Status', 'status')}
+            ${shSortHeader('inbox', 'Author', 'author')}
+            <th>Mention</th><th>Reply</th><th>Actions</th>
+          </tr></thead>
+          <tbody>${filtered.map(shMentionRow).join('')}</tbody>
+        </table></div>`
+      : `<div class="empty">Nothing in the inbox at this filter${q ? ' matching your search' : ''}.</div>`;
+    shBindSort('inbox', list, () => shInboxRedraw(mentions));
 
-function shMentionCard(m) {
-  const when = m.created_at ? new Date(m.created_at).toLocaleString() : '';
-  return `
-    <div class="sh-post">
-      <div class="sh-post-meta">
-        <span class="badge b-blue">${esc(m.site)}</span>
-        <span class="badge">${esc(m.platform)}</span>
-        <span class="badge b-gray">${esc(m.status)}</span>
-        <span class="muted">@${esc(m.author || 'unknown')}</span>
-        <span class="muted">${esc(when)}</span>
-      </div>
-      <div class="sh-post-body">${esc(m.text || '')}</div>
-      ${m.reply ? shPostCard(m.reply) : ''}
-      <div class="sh-post-acts">
-        ${!m.reply ? `<button class="btn sm sh-mention-draft" data-id="${m.id}">Draft reply</button>` : ''}
-        <button class="btn sm sh-mention-status" data-id="${m.id}" data-status="answered">Mark answered</button>
-        <button class="btn sm sh-mention-status" data-id="${m.id}" data-status="ignored">Ignore</button>
-        <button class="btn sm sh-mention-status" data-id="${m.id}" data-status="blocked">Block author</button>
-      </div>
-    </div>`;
+    $$('.sh-act', list).forEach(btn => btn.addEventListener('click', () => shPostAction(btn)));
+    $$('.sh-mention-draft', list).forEach(btn =>
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          const res = await api('POST', `/api/socialhub/inbox/${btn.dataset.id}/draft`, {});
+          toast(res.ok ? 'Reply drafted' : `Declined: ${res.reason || 'no reply generated'}`);
+          shRenderInbox();
+        } catch (e) {
+          toast(e.message, 'err');
+          btn.disabled = false;
+        }
+      })
+    );
+    $$('.sh-mention-status', list).forEach(btn =>
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          await api('POST', `/api/socialhub/inbox/${btn.dataset.id}/status`, {
+            status: btn.dataset.status,
+          });
+          toast(`Marked ${btn.dataset.status}`);
+          shRenderInbox();
+        } catch (e) {
+          toast(e.message, 'err');
+          btn.disabled = false;
+        }
+      })
+    );
+    applyFleetFilter();
+  }
+
+  shInboxRedraw(mentions);
 }
 
 async function shRenderChannels() {
   const body = $('#sh-body');
   body.innerHTML = `
-    <div class="sh-filters"><select id="sh-f-csite">${shSiteOptions(SH.site)}</select></div>
+    <div class="task-toolbar sh-toolbar">
+      <select id="sh-f-csite" class="cm-input">${shSiteOptions(SH.site)}</select>
+      <span id="sh-channels-count" class="muted" style="margin-left:auto"></span>
+    </div>
     <div id="sh-channels-list" class="loading">Loading…</div>`;
   $('#sh-f-csite').addEventListener('change', e => {
     SH.site = e.target.value;
@@ -7301,13 +7804,23 @@ async function shRenderChannels() {
     $('#sh-channels-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
     return;
   }
-  const rows = (data.channels || [])
+  const channels = (data.channels || []).sort(
+    (a, b) => a.site.localeCompare(b.site) || a.platform.localeCompare(b.platform)
+  );
+  $('#sh-channels-count').textContent =
+    `${channels.length} channel${channels.length === 1 ? '' : 's'}`;
+  const rows = channels
     .map(
-      c => `<tr data-id="${c.id}">
-        <td>${esc(c.site)}</td><td>${esc(c.platform)}</td><td>${esc(c.scope || '')}</td>
-        <td>${esc(c.handle || '')}</td><td>${esc(c.status || '')}</td>
+      c => `<tr data-fleet-row data-site="${esc(c.site)}" data-id="${c.id}">
+        <td><span class="badge b-blue">${esc(c.site)}</span></td>
+        <td>${esc(c.platform)}</td>
+        <td class="muted">${esc(c.scope || '—')}</td>
+        <td class="mono">${esc(c.handle || '—')}</td>
+        <td>${esc(c.status || '—')}</td>
         <td>${c.enabled ? '<span class="badge b-green">on</span>' : '<span class="badge b-gray">off</span>'}</td>
-        <td>
+        <td class="mono muted">${c.last_verified_at ? shFmtDate(c.last_verified_at) : 'never'}</td>
+        <td class="sh-body-cell">${c.error ? `<span class="sh-err" title="${esc(c.error)}">⚠ ${esc(c.error.slice(0, 60))}${c.error.length > 60 ? '…' : ''}</span>` : '<span class="muted">—</span>'}</td>
+        <td class="sh-acts-cell">
           <button class="btn sm sh-chan-toggle" data-id="${c.id}" data-enabled="${c.enabled ? 0 : 1}">${c.enabled ? 'Disable' : 'Enable'}</button>
           <button class="btn sm sh-chan-verify" data-id="${c.id}">Verify</button>
         </td>
@@ -7315,8 +7828,8 @@ async function shRenderChannels() {
     )
     .join('');
   $('#sh-channels-list').innerHTML = rows
-    ? `<table class="tbl"><thead><tr><th>Site</th><th>Platform</th><th>Scope</th><th>Handle</th>
-         <th>Status</th><th>Enabled</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+    ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr><th>Site</th><th>Platform</th><th>Scope</th><th>Handle</th>
+         <th>Status</th><th>Enabled</th><th>Last verified</th><th>Error</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
     : '<div class="empty">No channels for this filter.</div>';
 
   $$('.sh-chan-toggle').forEach(btn =>
@@ -7350,16 +7863,30 @@ async function shRenderChannels() {
       btn.textContent = 'Verify';
     })
   );
+  applyFleetFilter();
 }
 
 async function shRenderEvents() {
   const body = $('#sh-body');
   body.innerHTML = `
-    <div class="sh-filters"><select id="sh-f-esite">${shSiteOptions(SH.site)}</select></div>
+    <div class="task-toolbar sh-toolbar">
+      <select id="sh-f-esite" class="cm-input">${shSiteOptions(SH.site)}</select>
+      <label class="compliance-search-wrap"><span class="muted">Search</span><input id="sh-f-esearch" class="cm-input" type="search" placeholder="Search event message…" value="${esc(SH.eventsSearch)}" autocomplete="off"></label>
+      <span id="sh-events-count" class="muted" style="margin-left:auto"></span>
+    </div>
     <div id="sh-events-list" class="loading">Loading…</div>`;
   $('#sh-f-esite').addEventListener('change', e => {
     SH.site = e.target.value;
     shRenderEvents();
+  });
+  let searchT;
+  $('#sh-f-esearch').addEventListener('input', e => {
+    clearTimeout(searchT);
+    const val = e.target.value;
+    searchT = setTimeout(() => {
+      SH.eventsSearch = val;
+      shEventsRedraw(events);
+    }, 150);
   });
 
   let data;
@@ -7369,20 +7896,48 @@ async function shRenderEvents() {
     $('#sh-events-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
     return;
   }
-  const rows = (data.events || [])
-    .map(
-      ev => `<tr>
-        <td class="muted mono">${esc(new Date(ev.ts).toLocaleString())}</td>
-        <td>${esc(ev.site || '')}</td>
-        <td><span class="badge b-gray">${esc(ev.kind)}</span></td>
-        <td>${esc(ev.message || '')}</td>
-      </tr>`
-    )
-    .join('');
-  $('#sh-events-list').innerHTML = rows
-    ? `<table class="tbl"><thead><tr><th>When</th><th>Site</th><th>Event</th><th>Message</th></tr></thead>
-         <tbody>${rows}</tbody></table>`
-    : '<div class="empty">No events for this filter.</div>';
+  var events = data.events || [];
+
+  function shEventsRedraw(events) {
+    const q = SH.eventsSearch.trim().toLowerCase();
+    const filtered = events.filter(
+      ev =>
+        !q ||
+        (ev.message || '').toLowerCase().includes(q) ||
+        (ev.kind || '').toLowerCase().includes(q)
+    );
+    filtered.sort((a, b) => {
+      const dir = SH.eventsDir === 'asc' ? 1 : -1;
+      const key = SH.eventsSort;
+      const av = key === 'when' ? a.ts || '' : a[key] || '';
+      const bv = key === 'when' ? b.ts || '' : b[key] || '';
+      return av < bv ? -1 * dir : av > bv ? 1 * dir : 0;
+    });
+    $('#sh-events-count').textContent = `${filtered.length} of ${events.length} shown`;
+    const rows = filtered
+      .map(
+        ev => `<tr${ev.site ? ` data-fleet-row data-site="${esc(ev.site)}"` : ''}>
+          <td class="mono muted">${shFmtDate(ev.ts)}</td>
+          <td>${ev.site ? `<span class="badge b-blue">${esc(ev.site)}</span>` : '<span class="muted">—</span>'}</td>
+          <td><span class="badge b-gray">${esc(ev.kind)}</span></td>
+          <td class="sh-body-cell">${esc(ev.message || '')}</td>
+        </tr>`
+      )
+      .join('');
+    const list = $('#sh-events-list');
+    list.innerHTML = filtered.length
+      ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr>
+           ${shSortHeader('events', 'When', 'when')}
+           ${shSortHeader('events', 'Site', 'site')}
+           ${shSortHeader('events', 'Event', 'kind')}
+           <th>Message</th></tr></thead>
+           <tbody>${rows}</tbody></table></div>`
+      : `<div class="empty">No events for this filter${q ? ' matching your search' : ''}.</div>`;
+    shBindSort('events', list, () => shEventsRedraw(events));
+    applyFleetFilter();
+  }
+
+  shEventsRedraw(events);
 }
 
 // NAV_GROUPS is defined further down (grouped nav), before parseHash() needs
@@ -7450,7 +8005,10 @@ const NAV_GROUP_VIEWS = Object.values(NAV_GROUPS).flatMap(g => g.items.map(([v])
 // Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
 function parseHash() {
-  const h = (location.hash || '').replace(/^#/, '');
+  const raw = (location.hash || '').replace(/^#/, '');
+  const queryAt = raw.indexOf('?');
+  const h = queryAt === -1 ? raw : raw.slice(0, queryAt);
+  const query = queryAt === -1 ? '' : raw.slice(queryAt + 1);
   if (!h) return { view: 'control', agent: null };
   const parts = h.split('/');
   const [a, b, c] = parts;
@@ -7459,7 +8017,12 @@ function parseHash() {
   if (a === 'roles') return { view: 'control', agent: null };
   if (a === 'git' && b && c === 'stashes')
     return { view: 'gitstashes', agent: null, gitSlug: decodeURIComponent(b) };
-  if (topViews().includes(a)) return { view: a, agent: null };
+  if (topViews().includes(a))
+    return {
+      view: a,
+      agent: null,
+      socialHub: a === 'socialhub' && query ? Object.fromEntries(new URLSearchParams(query)) : null,
+    };
   return { view: 'control', agent: null };
 }
 function hashFor(view, agent) {
@@ -7807,6 +8370,7 @@ async function boot() {
   STATE.view = r.view;
   STATE.agent = r.agent;
   STATE.gitSlug = r.gitSlug || null;
+  if (r.view === 'socialhub') shApplyRoute(r.socialHub);
   buildAgentsMenu();
   buildNavGroupMenus();
   $$('.tab[data-view]').forEach(t => t.addEventListener('click', () => go(t.dataset.view)));
@@ -7870,7 +8434,13 @@ async function boot() {
   setInterval(logFollowTick, 3000); // live-tail open log surfaces
   window.addEventListener('hashchange', () => {
     const n = parseHash();
-    if (n.view !== STATE.view || n.agent !== STATE.agent || (n.gitSlug || null) !== STATE.gitSlug) {
+    const socialHubChanged = n.view === 'socialhub' && shApplyRoute(n.socialHub);
+    if (
+      n.view !== STATE.view ||
+      n.agent !== STATE.agent ||
+      (n.gitSlug || null) !== STATE.gitSlug ||
+      socialHubChanged
+    ) {
       STATE.view = n.view;
       STATE.agent = n.agent;
       STATE.gitSlug = n.gitSlug || null;

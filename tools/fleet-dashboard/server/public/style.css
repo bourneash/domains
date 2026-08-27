@@ -122,6 +122,7 @@ main { padding: 20px; max-width: 1280px; margin: 0 auto; }
    columns fit without horizontal scrolling. */
 body[data-view="control"] main { max-width: none; }
 body[data-view="compliance"] main { max-width: none; }
+body[data-view="socialhub"] main { max-width: none; }
 .muted { color: var(--muted); font-size: 12.5px; }
 .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
 .icon-btn:hover { color: #fff; }
@@ -699,22 +700,70 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 body[data-view="social"] main { max-width: none; }
 
 /* ---- Social Hub tab (tools/social-hub proxy) ---------------------------- */
-.sh-cards { margin-bottom: 18px; }
-.sh-site .sh-kv { display: flex; justify-content: space-between; font-size: 12px; padding: 1px 0; }
-.sh-site .sh-kv b.warn { color: var(--yellow, #d29922); }
-.sh-site .sh-kv b.bad { color: var(--red, #f85149); }
-.sh-chans { margin-top: 6px; font-size: 11px; }
+.sh-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.sh-site-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.sh-site-head h3 { margin: 0; font-size: 14px; }
+.sh-site-chancount { font-size: 11px; white-space: nowrap; }
+/* Fixed label/value columns instead of loose flex rows — nothing stretches. */
+.sh-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 10px; margin-bottom: 8px; }
+.sh-stat { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px; font-size: 12px; padding: 3px 0; border-bottom: 1px solid var(--line, #2a323d); }
+.sh-stat-label { color: var(--muted); }
+.sh-stat-val { font-variant-numeric: tabular-nums; }
+.sh-stat-val.warn { color: var(--yellow, #d29922); }
+.sh-stat-val.bad { color: var(--red, #f85149); }
+.sh-kv-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-top: 1px solid var(--line, #2a323d); margin-top: 2px; }
+.sh-chans { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
 .sh-h { margin: 20px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; opacity: .75; }
-.sh-post {
-  border: 1px solid var(--line, #2a323d);
-  border-left: 3px solid var(--yellow, #d29922);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
+
+.sh-toolbar select, .sh-toolbar .compliance-search-wrap .cm-input { min-width: 130px; }
+
+/* Queue / Inbox / Channels / Events tables: fixed columns, no card sprawl. */
+.sh-table-wrap { overflow: auto; padding: 0; }
+.sh-table { min-width: 900px; }
+.sh-table th, .sh-table td { white-space: nowrap; vertical-align: top; padding-top: 8px; padding-bottom: 8px; }
+.sh-sort { appearance: none; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
+.sh-sort:hover, .sh-sort.active { color: var(--text); }
+.sh-sort span { color: var(--accent); }
+.sh-body-cell { white-space: normal; max-width: 340px; font-size: 12.5px; }
+.sh-trunc { white-space: pre-wrap; }
+.sh-when { display: grid; gap: 1px; min-width: 150px; font-size: 11px; white-space: nowrap; }
+.sh-when strong { color: var(--text); font-size: 12px; }
+.sh-when-label { color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.sh-link { display: block; margin-top: 4px; font-size: 11px; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.sh-links-cell { min-width: 180px; }
+.sh-err { color: var(--red, #f85149); font-size: 11px; margin-top: 3px; }
+.sh-acts-cell { display: flex; flex-wrap: wrap; gap: 5px; white-space: normal; }
+
+/* Schedule calendar: horizontally scrollable day columns keep dense fleet
+   queues readable without shrinking event details into a month-grid dot. */
+.sh-calendar-summary { display: flex; gap: 10px; margin-bottom: 10px; }
+.sh-calendar-summary > div { display: flex; align-items: baseline; gap: 6px; border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px; background: var(--panel); }
+.sh-calendar-summary strong { font-size: 16px; font-variant-numeric: tabular-nums; }
+.sh-calendar-summary span { color: var(--muted); font-size: 11px; }
+.sh-calendar-wrap { overflow-x: auto; padding-bottom: 8px; }
+.sh-calendar-grid { display: grid; grid-template-columns: repeat(var(--sh-calendar-days), minmax(245px, 1fr)); gap: 10px; align-items: start; }
+.sh-cal-day { border: 1px solid var(--border); border-radius: 9px; background: var(--panel); overflow: hidden; }
+.sh-cal-day > header { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 10px; border-bottom: 1px solid var(--border); background: var(--panel-2); }
+.sh-cal-day > header div { display: grid; gap: 1px; }
+.sh-cal-day > header strong { font-size: 13px; }
+.sh-cal-day > header span:not(.badge) { color: var(--muted); font-size: 11px; }
+.sh-cal-day-posts { display: grid; gap: 7px; padding: 7px; max-height: 68vh; overflow-y: auto; }
+.sh-cal-post { display: grid; gap: 7px; padding: 8px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 7px; background: var(--bg); }
+.sh-cal-post.overdue { border-left-color: var(--red, #f85149); }
+.sh-cal-post-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sh-cal-post-head time { color: var(--text); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sh-cal-meta { display: flex; flex-wrap: wrap; gap: 4px; }
+.sh-cal-body { min-height: 32px; font-size: 12px; line-height: 1.35; }
+.sh-cal-overdue { color: var(--red, #f85149); font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
+.sh-cal-review-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 2px; border-top: 1px solid var(--border); }
+.sh-cal-review-actions .btn { width: 100%; }
+.sh-cal-approve { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, var(--border)); background: color-mix(in srgb, var(--green) 10%, var(--panel-2)); }
+.sh-cal-approve:hover { color: #fff; border-color: var(--green); }
+.sh-cal-deny { color: var(--red); border-color: color-mix(in srgb, var(--red) 55%, var(--border)); background: color-mix(in srgb, var(--red) 8%, var(--panel-2)); }
+.sh-cal-deny:hover { color: #fff; border-color: var(--red); }
+.sh-cal-post .sh-acts-cell { padding-top: 2px; border-top: 1px solid var(--border); }
+
+@media (max-width: 720px) {
+  .sh-calendar-summary { flex-wrap: wrap; }
+  .sh-calendar-grid { grid-template-columns: repeat(var(--sh-calendar-days), minmax(220px, 1fr)); }
 }
-.sh-post-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; font-size: 11px; }
-.sh-post-body { white-space: pre-wrap; font-size: 13px; }
-.sh-link { display: inline-block; margin-top: 4px; font-size: 11px; opacity: .75; }
-.sh-post-acts { display: flex; gap: 6px; margin-top: 8px; }
-.sh-filters { display: flex; gap: 8px; margin-bottom: 12px; }
-.sh-filters select { padding: 4px 7px; font-size: 12px; }
