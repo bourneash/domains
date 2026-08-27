@@ -106,7 +106,8 @@ def test_bluesky_adapter_posts_contain_url():
     with patch("social_poster.adapters.bluesky.Client") as MockClient:
         MockClient.return_value.send_post.return_value = MagicMock(uri="at://did/post/456")
         result = adapter.post(_article(), creds)
-    call_text = MockClient.return_value.send_post.call_args[1]["text"]
+    builder = MockClient.return_value.send_post.call_args[0][0]
+    call_text = builder.build_text()
     assert "americastrikes.com/articles/test-article" in call_text
     assert len(call_text) <= 300
 
@@ -117,8 +118,8 @@ def test_bluesky_adapter_enforces_300_char_limit():
     with patch("social_poster.adapters.bluesky.Client") as MockClient:
         MockClient.return_value.send_post.return_value = MagicMock(uri="at://did/post/789")
         adapter.post(_long_article(), creds)
-    call_text = MockClient.return_value.send_post.call_args[1]["text"]
-    assert len(call_text) <= 300
+    builder = MockClient.return_value.send_post.call_args[0][0]
+    assert len(builder.build_text()) <= 300
 
 
 # ---------------------------------------------------------------------------
