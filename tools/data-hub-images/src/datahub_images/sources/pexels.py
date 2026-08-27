@@ -46,7 +46,13 @@ def search(query: str, limit: int, proxy: str | None, client=None) -> list[dict]
                 "license": "Pexels License",
                 "url": p.get("photographer_url") or source_url,
             },
+            # Pexels never returns tags, but its "alt" field carries a short
+            # accessibility description — used by scoring.has_topical_overlap
+            # as a relevance backstop instead of leaving Pexels candidates
+            # with zero topical signal (see americastrikes image incident:
+            # a "tanker attack" query returned an aquarium fish-tank photo).
             "tags": [],
+            "description": p.get("alt") or "",
         })
         if len(results) >= limit:
             break

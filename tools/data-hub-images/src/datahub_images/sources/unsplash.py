@@ -52,6 +52,13 @@ def search(query: str, limit: int, proxy: str | None, client=None) -> list[dict]
                 "url": source_url,
             },
             "tags": [t.get("title") for t in (item.get("tags") or []) if t.get("title")],
+            # Free-text description Unsplash's own tags rarely cover — used
+            # by scoring.has_topical_overlap as a relevance backstop so an
+            # off-topic photo (Unsplash's search is fuzzy/conceptual, not a
+            # keyword match) can be rejected instead of accepted outright.
+            "description": " ".join(
+                filter(None, [item.get("description"), item.get("alt_description")])
+            ),
             "download_location": links.get("download_location"),
         })
         if len(results) >= limit:

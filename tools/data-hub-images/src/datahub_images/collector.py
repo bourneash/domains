@@ -156,6 +156,16 @@ def _process_candidate(
         if any(scoring.is_near_dup(phash, p) for p in pool_phashes):
             return None
 
+        # Relevance gate — stock sources only. Documentary sources (dvids,
+        # wikimedia, ...) already get a relevance guard via the query ladder
+        # in fetch_on_demand (_query_ladder never falls to a lone weak
+        # keyword). Stock search has no such guard: it's relevance-ranked
+        # full-text, and its top hit can be confidently off-topic (e.g. a
+        # "tanker attack" query returning an aquarium photo). Reject rather
+        # than accept whatever the API ranked first.
+        if source.kind not in DOCUMENTARY_KINDS and not scoring.has_topical_overlap(cand, topic):
+            return None
+
         # Score on REAL, downloaded dimensions — not provider-claimed
         # ones, which are often 0/absent and would otherwise trigger a
         # spurious small/portrait penalty.

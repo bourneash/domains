@@ -881,9 +881,9 @@ def test_archival_documentary_ranks_below_stock(tmp_path, monkeypatch):
     # Both stock (pexels) and archival documentary (wikimedia) have a match.
     # wikimedia must NOT win — it ranks below stock now.
     monkeypatch.setattr("datahub_images.sources.wikimedia.search",
-        lambda q, limit, proxy, client=None: [_cand("wikimedia")])
+        lambda q, limit, proxy, client=None: [_cand("wikimedia", tag="tanker")])
     monkeypatch.setattr("datahub_images.sources.pexels.search",
-        lambda q, limit, proxy, client=None: [_cand("pexels")])
+        lambda q, limit, proxy, client=None: [_cand("pexels", tag="tanker")])
 
     st = _settings(tmp_path)
     # Registry-ish order; wikimedia listed BEFORE pexels to prove it's the rank,
@@ -960,9 +960,9 @@ def _allow_plan(monkeypatch):
         "datahub_images.collector._download", lambda url, proxy, http: (_jpg(), "jpg"))
 
 
-def _cand(source):
+def _cand(source, tag="t"):
     return dict(source_image_key=source + "1", url=f"http://img/{source}.jpg",
-                width=1300, height=800, license="x", credit={"source": source}, tags=["t"])
+                width=1300, height=800, license="x", credit={"source": source}, tags=[tag])
 
 
 def test_documentary_guard_denies_weak_single_keyword_match(tmp_path, monkeypatch):
@@ -971,9 +971,9 @@ def test_documentary_guard_denies_weak_single_keyword_match(tmp_path, monkeypatc
     # dvids ONLY matches the lone keyword "OPEC" — never the full or first-two
     # query. The guard must refuse it and let stock (unsplash) serve instead.
     monkeypatch.setattr("datahub_images.sources.dvids.search",
-        lambda q, limit, proxy, client=None: [_cand("dvids")] if q == "OPEC" else [])
+        lambda q, limit, proxy, client=None: [_cand("dvids", tag="oil")] if q == "OPEC" else [])
     monkeypatch.setattr("datahub_images.sources.unsplash.search",
-        lambda q, limit, proxy, client=None: [_cand("unsplash")])
+        lambda q, limit, proxy, client=None: [_cand("unsplash", tag="markets")])
 
     st = _settings(tmp_path)
     srcs = [Source(id="unsplash", kind="unsplash"), Source(id="dvids", kind="dvids")]
@@ -1007,3 +1007,54 @@ def test_documentary_preferred_on_strong_firsttwo_match(tmp_path, monkeypatch):
     assert row["source_id"] == "dvids"  # strong first-two match preferred
     reached = {r["source_id"] for r in conn.execute("SELECT source_id FROM egress_log").fetchall()}
     assert "unsplash" not in reached  # stopped at want before stock
+
+
+def test_stock_candidate_with_no_topical_overlap_is_rejected(tmp_path, monkeypatch):
+    # Regression test for the americastrikes image incident: a "tanker
+    # attack strait of hormuz" query returned an Unsplash aquarium photo
+    # (tags/description entirely off-topic) as the top hit, and it got
+    # accepted and published because nothing checked relevance. The stock
+    # candidate here has zero overlap with the query and must be refused —
+    # the site falls through to the next source / editorial card instead.
+    conn = store.connect(str(tmp_path / "t.db")); store.init_schema(conn)
+    _allow_plan(monkeypatch)
+    monkeypatch.setattr(
+        "datahub_images.sources.unsplash.search",
+        lambda q, limit, proxy, client=None: [dict(
+            source_image_key="u1", url="http://img/u.jpg", width=1300, height=800,
+            license="unsplash", credit={"source": "Unsplash"},
+            tags=["aquarium", "fish"], description="a school of fish swimming in a tank",
+        )],
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="unsplash", kind="unsplash")]
+    out = collector.fetch_on_demand(
+        conn, ["tanker", "attack", "strait of hormuz"], "iran", st, srcs,
+        "2026-07-04T00:00:00Z", want=1, per_source_limit=5)
+
+    assert out == []
+
+
+def test_stock_candidate_matching_description_is_accepted(tmp_path, monkeypatch):
+    # Companion to the rejection test above: a candidate with no tag overlap
+    # but a matching free-text description (Pexels' `alt`, Unsplash's
+    # description/alt_description) must still be accepted.
+    conn = store.connect(str(tmp_path / "t.db")); store.init_schema(conn)
+    _allow_plan(monkeypatch)
+    monkeypatch.setattr(
+        "datahub_images.sources.pexels.search",
+        lambda q, limit, proxy, client=None: [dict(
+            source_image_key="p1", url="http://img/p.jpg", width=1300, height=800,
+            license="pexels", credit={"source": "Pexels"},
+            tags=[], description="an oil tanker docked in the strait of hormuz",
+        )],
+    )
+
+    st = _settings(tmp_path)
+    srcs = [Source(id="pexels", kind="pexels")]
+    out = collector.fetch_on_demand(
+        conn, ["tanker", "hormuz"], "iran", st, srcs,
+        "2026-07-04T00:00:00Z", want=1, per_source_limit=5)
+
+    assert len(out) == 1

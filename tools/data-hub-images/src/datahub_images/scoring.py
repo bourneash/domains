@@ -33,6 +33,32 @@ def validate(b, min_w=1200, min_entropy=4.0):
     return w >= min_w and h >= int(min_w * 0.5) and entropy(b) >= min_entropy
 
 
+def has_topical_overlap(cand: dict, topic: Topic) -> bool:
+    """True if the candidate's tags or free-text description share a
+    meaningful (>3 char) word with the topic's queries/tags — or the topic
+    carries no query/tag terms to check against (nothing to reject on).
+
+    Stock search (Unsplash/Pexels/...) is relevance-ranked full-text, not a
+    keyword filter — a long, specific query ("tanker attack strait of hormuz")
+    can still return a confidently wrong top result (a fish-tank photo for
+    "tanker"). Unlike score_candidate's soft nudge, this is a hard gate used
+    by the collector to refuse a stock candidate with zero topical signal
+    rather than accept whatever the API ranked first.
+    """
+    terms = [t.lower() for t in (topic.tags + topic.queries)]
+    if not terms:
+        return True
+    tset = {t.lower() for t in cand.get("tags", [])}
+    desc = (cand.get("description") or "").lower()
+    for term in terms:
+        for w in term.split():
+            if len(w) <= 3:
+                continue
+            if w in tset or w in desc:
+                return True
+    return False
+
+
 def score_candidate(cand: dict, topic: Topic) -> float:
     s = 0.0
     if cand["height"] > cand["width"]:
