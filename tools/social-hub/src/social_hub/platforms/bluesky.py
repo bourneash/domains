@@ -10,6 +10,7 @@ here, and it is what americastrikes.com and 0daynews.com run on first.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -146,9 +147,14 @@ class BlueskyAdapter(Adapter):
 
     @staticmethod
     def _persist_session(client, cache_path: Path) -> None:
+        # A session string is a live bearer credential — same care as the
+        # vault itself, not group/world-readable on a shared box.
         try:
-            cache_path.parent.mkdir(parents=True, exist_ok=True)
-            cache_path.write_text(client.export_session_string())
+            os.makedirs(cache_path.parent, mode=0o700, exist_ok=True)
+            os.chmod(cache_path.parent, 0o700)  # defensive if it pre-existed looser
+            fd = os.open(str(cache_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(client.export_session_string())
         except Exception:
             pass  # best-effort — a missed cache write just costs the next real login
 
