@@ -349,6 +349,15 @@ import sys; sys.path.insert(0, 'tools/social-lib/src')
 from social_lib.credentials import has_creds
 print({p: has_creds('$DOMAIN', p) for p in ['bluesky','pinterest','reddit']})
 "
+
+# 6. Fill out the profile — display name, bio+link, avatar. Do this every time,
+#    right after signup succeeds. See §7 below for the full picture (why this
+#    step exists, avatar-sourcing order, persona handling).
+python3 tools/social-setup/scripts/bsky_fill_profile.py $DOMAIN \
+  --display-name "$BRAND" \
+  --bio "One or two honest sentences — the site's own positioning, never invented (see project CLAUDE.md's 'What This Is')." \
+  --website "https://$DOMAIN" \
+  --favicon-fallback   # or --avatar /path/to/a/real/logo.png if one exists
 ```
 
 Write each result into the registry the moment it lands (§6) — that's what
@@ -471,7 +480,87 @@ rows yet.
   registry marks genuinely-real people with a `realPerson` flag on the persona;
   everyone else is pseudonymous.
 
-### Open decisions (unresolved, ask Jesse)
+## 7. Filling out the profile (display name, bio, avatar) — do this every signup
+
+**Why this section exists:** a 2026-08-27 audit found ~30 of the fleet's
+Bluesky accounts (brand and persona) had working logins but blank profiles —
+no display name, no bio, no avatar. Signup scripts got accounts to "exists
+and can post," never to "looks like a real account." Backfilled that day;
+don't let new signups drift back into the same state — treat profile-fill as
+part of provisioning, not an optional follow-up.
+
+**Do this via the API, not CloakBrowser.** Unlike signup, an account that can
+already log in needs no captcha to edit its own profile — Bluesky's AT
+Protocol exposes `com.atproto.repo.putRecord` on
+`app.bsky.actor.profile`/`self` directly. `tools/social_lib/bluesky_profile.py`
+(`fill_profile()`) and its CLI wrapper
+`tools/social-setup/scripts/bsky_fill_profile.py` do this — reads creds from
+the vault the normal way (`<domain>` or `<domain>::<persona-slug>`), logs in,
+uploads an avatar blob if given, and writes display name / bio / avatar in
+one `putRecord` call. Seconds per account, no browser window, safe to batch.
+
+**The one non-obvious bug that cost time here:** to check what a profile
+currently has (so re-runs don't clobber a real photo with a placeholder),
+use `client.com.atproto.repo.get_record(...)` — the raw repo record, with
+real `BlobRef` objects. **Not** `client.app.bsky.actor.get_profile(...)` —
+that's the app-view aggregate and returns `avatar`/`banner` as CDN display
+**URL strings**, which fail Pydantic validation if you try to feed them back
+into a new `putRecord` call as if they were blob refs. `fill_profile()`
+already does this correctly; if you're writing something new against this
+API, don't repeat the mistake.
+
+**Idempotent by default** (`overwrite=False`): only fills a field that's
+currently blank on the live profile, so it's safe to call again later — it
+won't stomp a real photo or a hand-written bio with a generic one. Pass
+`--overwrite` deliberately when you actually want to replace something.
+
+**Bio content — never invent brand positioning.** Pull the one-or-two
+sentence description straight from the site's own `CLAUDE.md` ("What This
+Is" section) or, for a persona, from its `role`/`bio` fields in
+`site/src/content/personas/<slug>.json`. If a site's positioning is
+genuinely TBD (its CLAUDE.md says so explicitly), don't fabricate one — use
+a bare factual line ("Updates from `<domain>`.") instead. Always append the
+site's own URL so the bio functions as a link, even though Bluesky profiles
+have no dedicated "website" field in the app UI — a bare URL on its own line
+auto-links.
+
+**Avatar sourcing, in priority order — check each before generating anything
+new:**
+1. **A real existing logo/photo asset already on the site.** e.g.
+   `sites/americastrikes.com/site/public/logo-square.png` (the actual brand
+   mark, reused as-is), or a persona's existing author-avatar image, e.g.
+   `sites/americastrikes.com/site/public/authors/<slug>.png` (that site's
+   `scripts/generate-author-avatars.mjs` already generates these — check for
+   an equivalent before assuming a persona has nothing).
+2. **The site's own `favicon.svg`, rasterized.** Most sites' favicons are
+   real, deliberate, on-brand marks (not generic placeholders) — checked by
+   hand across the fleet 2026-08-27, true for every site sampled.
+   `bsky_fill_profile.py --favicon-fallback` does this automatically via
+   `cairosvg.svg2png(..., output_width=512, output_height=512)` (`pip install
+   cairosvg` — no other local SVG rasterizer was available: no
+   `rsvg-convert`, no `inkscape`, no `@resvg/resvg-js` outside
+   americastrikes.com's own `node_modules`). Square favicons crop cleanly
+   into Bluesky's circular avatar mask.
+3. **A generated monogram**, for a persona (or a brand with no favicon at
+   all — `trainingsharks.com` had none) with zero existing visual identity.
+   Plain Pillow: initials on a rounded-square in a color pulled from the
+   site's own palette, one PNG, no model call — see the pattern in
+   `sites/americastrikes.com/site/scripts/generate-author-avatars.mjs`
+   (the established fleet convention for fictional bylines) and replicate it
+   rather than generating a synthetic "photo" of a person who doesn't
+   exist — a monogram is honest about being a placeholder mark; a fabricated
+   photorealistic headshot for a pseudonymous byline is not.
+4. **`tools/media-gen`** (see `reference_media_gen_tool` memory) only if
+   none of the above apply and a real generated image is actually wanted —
+   `comfyui` backend, square (`width=height=1024`), and keep the prompt to
+   the visual scene only (no site name, no "logo"/"avatar" framing — see
+   that tool's own prompting gotcha).
+
+**Banners:** not part of the 2026-08-27 backfill — a filled displayName +
+bio + avatar already reads as a complete, professional profile; skip banner
+generation unless Jesse specifically asks for one on a given account.
+
+## Open decisions (unresolved, ask Jesse)
 
 - Does every persona get a social presence, or only the lead/most-active
   byline per site?
