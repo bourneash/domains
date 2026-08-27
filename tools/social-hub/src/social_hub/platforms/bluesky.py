@@ -9,8 +9,10 @@ here, and it is what americastrikes.com and 0daynews.com run on first.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from social_hub.platforms.base import (
@@ -21,6 +23,24 @@ from social_hub.platforms.base import (
     Outgoing,
     PostRef,
 )
+
+# Every worker pass (publish, poll mentions, poll metrics, verify) builds its
+# own Adapter instance and used to call client.login(handle, password) fresh
+# every time — that's a full createSession call, which Bluesky rate-limits to
+# 10/24h *per account*. A handful of accounts with several passes per tick
+# burned through that fast (saveusfarms.com's brand channel hit it 5x on
+# 2026-08-26). Session tokens survive across processes via
+# export_session_string()/login(session_string=...), which uses a refresh
+# call instead of createSession and isn't subject to the same limit — so
+# cache one per handle on disk and only fall back to a real password login
+# when there's no cached session or it's actually expired/revoked.
+_SESSION_CACHE_DIR = Path(__file__).resolve().parents[3] / "data" / "bluesky-sessions"
+
+
+def _session_cache_path(handle: str) -> Path:
+    # Handle is already a safe filename in practice (a Bluesky handle), but
+    # hash it anyway so a weird future handle can't escape the directory.
+    return _SESSION_CACHE_DIR / f"{hashlib.sha256(handle.encode()).hexdigest()[:16]}.txt"
 
 
 def _handle_to_url(handle: str, rkey: str) -> str:
@@ -98,13 +118,39 @@ class BlueskyAdapter(Adapter):
             raise AdapterError(f"bluesky: missing creds {missing}", retryable=False)
         from atproto import Client  # imported lazily: keeps CLI startup cheap
 
+        handle = self.identifier()
+        cache_path = _session_cache_path(handle)
         client = Client()
+
+        # Keep the cache fresh if the SDK auto-refreshes the token mid-use
+        # (a long-lived process holding one client across several calls).
+        client.on_session_change(lambda *_a, **_kw: self._persist_session(client, cache_path))
+
+        cached = cache_path.read_text().strip() if cache_path.exists() else ""
+        if cached:
+            try:
+                client.login(session_string=cached)
+                self._client = client
+                self._persist_session(client, cache_path)
+                return client
+            except Exception:
+                pass  # cached session dead/revoked — fall through to a real login
+
         try:
             client.login(self.identifier(), self.password())
         except Exception as exc:
             raise AdapterError(f"bluesky login failed: {exc}", retryable=False) from exc
         self._client = client
+        self._persist_session(client, cache_path)
         return client
+
+    @staticmethod
+    def _persist_session(client, cache_path: Path) -> None:
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            cache_path.write_text(client.export_session_string())
+        except Exception:
+            pass  # best-effort — a missed cache write just costs the next real login
 
     def _verify(self) -> dict:
         client = self.client()
