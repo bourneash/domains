@@ -41,7 +41,15 @@ echo "[$(date -Iseconds)] run-watchdog: detect rc=$rc — spinning worker for re
 # Full repair pass in the worker container (has claude + node + npm + git).
 # Signal kills (130/143) are infrastructure events, not failures.
 set +e
-docker compose run --rm --entrypoint bash worker ops/scripts/watchdog.sh
+# NOTE: pass "watchdog" as the container CMD, not an --entrypoint override.
+# The site's entrypoint-worker.sh does required setup before dispatch (e.g.
+# repairing GIT_DIR/GIT_WORK_TREE for the submodule gitdir) the same way it
+# does for "deployer" — an --entrypoint bash override skips that setup
+# entirely and breaks git inside the container (see 2026-08-27 amputeenews.com
+# incident: "fatal: not a git repository"). entrypoint-worker.sh MUST have a
+#   if [[ "${1:-}" == "watchdog" ]]; then exec bash ops/scripts/watchdog.sh; fi
+# dispatch case for this to work.
+docker compose run --rm worker watchdog
 wd_exit=$?
 set -e
 if [[ "$wd_exit" -eq 130 || "$wd_exit" -eq 143 ]]; then

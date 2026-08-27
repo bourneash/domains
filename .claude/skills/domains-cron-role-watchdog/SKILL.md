@@ -60,6 +60,21 @@ bash "$REPO_ROOT/ops/scripts/emit-incident.sh" --role deployer --class npm-audit
 Without this, the watchdog still catches `site-down` and `deploy-stuck` via its own
 probes, but misses audit/build aborts — the very case it exists for.
 
+**D2. Wire the entrypoint dispatch case (REQUIRED).** `run-watchdog.sh`'s repair
+pass runs `docker compose run --rm worker watchdog` (CMD, not `--entrypoint`
+override — see the comment in `run-watchdog.sh.tmpl`), so `ops/docker/entrypoint-worker.sh`
+must have a dispatch case for it, mirroring the existing `deployer` one:
+```bash
+if [[ "${1:-}" == "watchdog" ]]; then
+  exec bash ops/scripts/watchdog.sh
+fi
+```
+Without this, the container falls through to `ops/scripts/run-role.sh watchdog`
+(wrong) or — if an old-style `--entrypoint bash` override is used instead —
+skips entrypoint-worker.sh's submodule-gitdir repair entirely, breaking every
+git operation in the repair pass with `fatal: not a git repository:
+/work/../../.git/modules/sites/<site>` (2026-08-27 amputeenews.com incident).
+
 **E. crontab (WIRING Step 7, cron-direct form) + gitignore (Step 9).** Idempotently
 append to `ops/docker/crontab.docker` (skip if a `run-watchdog.sh` line exists):
 ```
