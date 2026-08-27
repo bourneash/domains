@@ -44,9 +44,14 @@ bottom, `offset = (last_offset + 37) % 900`), add the row, use that value for
 | xxxtea.com | 851 |
 | offshorehookup.com | 888 |
 | unsupervisedmedia.com | 925 |
+| oventoheaven.com | 962 |
 
-**Next free slot: 962s.**
+**Next free slot: 999s** (wraps: `(962 + 37) % 900 = 99` — 99s is still free,
+verify against this table before reusing it).
 
 Rolled out 2026-08-15. Sites not yet on the watchdog role (fishhooklabs.com,
 noveltyguns.com, therareunicorn.com, and others not yet installed) aren't
-listed — assign them a slot when they're onboarded.
+listed — assign them a slot when they're onboarded. Note: fishhooklabs.com's
+`run-watchdog.sh` was stood up 2026-08-25 with a hardcoded `sleep 40` instead
+of a table-assigned offset — a process gap, not corrected here (out of scope
+for the oventoheaven.com standup); flag if it collides with something later.
