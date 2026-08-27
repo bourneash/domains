@@ -67,10 +67,11 @@ sites:
   saveusfarms.com:
     extra_keys: [PEXELS_API_KEY, UNSPLASH_ACCESS_KEY]
   amputeenews.com:
-    # Public RUM beacon token — shipped to browsers, not a secret. No CF API
-    # credentials: this site's ops never call the Cloudflare API.
+    # Public RUM beacon token — shipped to browsers, not a secret.
+    # NOTE: deny_keys [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID] removed
+    # 2026-08-27 — ops/scripts/deploy.sh now calls `wrangler deploy` and needs
+    # both (see defaults.keys). The deny predated that script.
     extra_keys: [PUBLIC_CF_BEACON_TOKEN]
-    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   allthingsmasonic.com:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   newmomshop.com:
@@ -79,8 +80,11 @@ sites:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
-  oventoheaven.com:
-    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, SLACK_BOT_TOKEN]
+  # No deny_keys: 2026-08-26 ops standup gave this site real scripts
+  # (deploy.sh polls the CF Workers Builds API; every role notifies via
+  # notify-slack.sh) that need the defaults. The original deny_keys here (from
+  # this policy's first commit) was a byproduct of measuring an EMPTY ops/
+  # tree, not a deliberate security decision — see `env_broker.py --check`.
 
 # Tool containers under tools/. Not sites: no defaults, no Slack-channel
 # derivation, just an explicit list of what each one is measured to use.
