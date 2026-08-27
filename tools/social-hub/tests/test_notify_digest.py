@@ -16,7 +16,14 @@ from social_hub import db, queue, worker
 def _stub_notify(monkeypatch, calls):
     from social_hub import notify
 
-    monkeypatch.setattr(notify, "post_message", lambda site, text, blocks=None: calls.append(site) or True)
+    monkeypatch.setattr(
+        notify,
+        "post_message",
+        lambda site, text, blocks=None: calls.append(
+            {"site": site, "text": text, "blocks": blocks}
+        )
+        or True,
+    )
 
 
 def test_maybe_notify_is_silent_with_an_empty_queue(monkeypatch):
@@ -36,6 +43,13 @@ def test_maybe_notify_fires_once_then_suppresses_same_day(monkeypatch):
     worker._maybe_notify("alpha.com")
 
     assert len(calls) == 1, "a nonzero queue must not re-notify every tick"
+    assert calls[0]["site"] == "alpha.com"
+    message = calls[0]["blocks"][0]["text"]["text"]
+    assert "Review filtered queue" in message
+    assert (
+        "#socialhub?tab=queue&status=draft&site=alpha.com&platform=__public__&kind=post"
+        in message
+    )
 
 
 def test_maybe_notify_fires_again_after_the_digest_window(monkeypatch):
@@ -59,4 +73,14 @@ def test_maybe_notify_is_per_site(monkeypatch):
     worker._maybe_notify("alpha.com")
     worker._maybe_notify("beta.com")
 
-    assert sorted(calls) == ["alpha.com", "beta.com"]
+    assert sorted(call["site"] for call in calls) == ["alpha.com", "beta.com"]
+
+
+def test_maybe_notify_excludes_console_previews(monkeypatch):
+    calls: list[dict] = []
+    _stub_notify(monkeypatch, calls)
+    queue.create_post(site="alpha.com", platform="console", body="preview", status="draft")
+
+    worker._maybe_notify("alpha.com")
+
+    assert calls == []

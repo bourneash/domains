@@ -34,10 +34,6 @@ from social_hub import (
 )
 from social_hub.config import SiteConfig, load_all, load_site_config
 
-# social-hub ships no UI of its own — the Fleet Dashboard's Social Hub tab
-# (server/public/app.js) is the only review UI. Point notifications there.
-UI_URL = "http://127.0.0.1:4754/"
-
 
 def _start_run(kind: str, site: str | None) -> int:
     return db.insert("runs", {"kind": kind, "site": site, "started_at": db.utcnow()})
@@ -153,8 +149,15 @@ NOTIFY_DIGEST_INTERVAL_HOURS = int(os.environ.get("SOCIAL_HUB_NOTIFY_HOURS", "24
 
 
 def _maybe_notify(site: str) -> None:
-    drafts = len(queue.list_posts(site=site, status="draft", kind="post", limit=100))
-    replies = len(queue.list_posts(site=site, status="draft", kind="reply", limit=100))
+    # Console rows are local previews, hidden by default in the dashboard, and
+    # should not make the public review digest look larger than its deep link.
+    pending = [
+        post
+        for post in queue.list_posts(site=site, status="draft", limit=500)
+        if post["platform"] != "console"
+    ]
+    drafts = sum(post["kind"] == "post" for post in pending)
+    replies = sum(post["kind"] == "reply" for post in pending)
     if not (drafts or replies):
         return
     key = f"notify_digest:{site}"
@@ -163,7 +166,7 @@ def _maybe_notify(site: str) -> None:
         elapsed = datetime.now(timezone.utc) - datetime.fromisoformat(last)
         if elapsed < timedelta(hours=NOTIFY_DIGEST_INTERVAL_HOURS):
             return
-    notify.notify_needs_review(site, drafts, replies, f"{UI_URL}#socialhub")
+    notify.notify_needs_review(site, drafts, replies)
     db.set_setting(key, db.utcnow())
 
 

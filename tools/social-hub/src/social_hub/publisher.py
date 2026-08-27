@@ -163,6 +163,7 @@ def publish_post(post_id: int, *, cfg: SiteConfig | None = None, claim: bool = T
                 "UPDATE sources SET state = 'done' WHERE site = ? AND source_id = ?",
                 (final["site"], final["source_id"]),
             )
+        notify.notify_published(final)
     return {"ok": True, "post": final, "url": ref.url, "remote_id": ref.remote_id}
 
 
