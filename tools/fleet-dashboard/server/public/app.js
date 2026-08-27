@@ -6271,11 +6271,30 @@ const SOC = {
   mode: 'matrix',
   q: '',
   group: 'site',
-  sortKey: 'site',
-  sortDir: 1,
+  sort: {
+    matrix: { key: 'site', dir: 1 },
+    list: { key: 'site', dir: 1 },
+  },
   f: { platform: '', status: '', scope: '', category: '', attention: false },
+  // The matrix and flat list each keep their own column filters. Toolbar
+  // filters apply to every lens; column filters are deliberately scoped to
+  // the table where they are visible.
+  matrixFilters: { site: '', personas: '', platforms: {} },
+  listFilters: {
+    site: '',
+    who: '',
+    email: '',
+    platform: '',
+    handle: '',
+    status: '',
+    credsInVault: '',
+    updatedAt: '',
+    statusNote: '',
+  },
   open: new Set(), // sites expanded to show persona rows in matrix mode
 };
+
+const SOC_COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
 const socStatus = k =>
   (SOC.data.statuses || []).find(s => s.key === k) || { label: k, tone: 'gray' };
@@ -6295,34 +6314,161 @@ function socAccountsFor(site, platform, scope) {
   );
 }
 
-// Does this account survive the current search + filter set?
-function socMatch(a) {
+function socNorm(value) {
+  return String(value ?? '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+// Search is word-based instead of treating the whole input as one exact
+// substring. Quoted phrases stay together and a leading minus excludes a
+// term: `america bluesky -blocked`.
+function socQueryTerms(query) {
+  return (String(query || '').match(/-?"[^"]+"|-?\S+/g) || [])
+    .map(raw => {
+      const exclude = raw.startsWith('-') && raw.length > 1;
+      let value = exclude ? raw.slice(1) : raw;
+      if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+      return { exclude, value: socNorm(value) };
+    })
+    .filter(term => term.value);
+}
+
+function socTextMatch(values, query) {
+  const terms = socQueryTerms(query);
+  if (!terms.length) return true;
+  const haystack = socNorm(values.filter(v => v !== null && v !== undefined).join(' '));
+  return terms.every(term =>
+    term.exclude ? !haystack.includes(term.value) : haystack.includes(term.value)
+  );
+}
+
+function socSiteCategory(site) {
+  return (SOC.data.sites.find(s => s.site === site) || {}).category || 'active';
+}
+
+function socAccountSearchValues(a) {
+  const status = socStatus(a.status);
+  return [
+    a.site,
+    socSiteCategory(a.site),
+    a.platform,
+    socPlatform(a.platform).label,
+    a.scope,
+    a.personaName || 'brand',
+    a.email,
+    a.handle,
+    a.status,
+    status.label,
+    status.describe,
+    a.action,
+    a.statusNote,
+    a.notes,
+    (a.tags || []).join(' '),
+    a.credsInVault ? 'vault credentials' : 'no vault credentials',
+    a.updatedAt,
+  ];
+}
+
+// Does this account survive the shared toolbar filters? Search is handled
+// separately so matrix rows can search across the complete site record.
+function socAccountFilterMatch(a) {
   const f = SOC.f;
   if (f.platform && a.platform !== f.platform) return false;
   if (f.status && a.status !== f.status) return false;
   if (f.scope && a.scope !== f.scope) return false;
   if (f.attention && !a.needsAttention) return false;
-  if (f.category) {
-    const s = SOC.data.sites.find(x => x.site === a.site);
-    if (((s && s.category) || 'active') !== f.category) return false;
-  }
-  const q = SOC.q.trim().toLowerCase();
-  if (!q) return true;
-  return [a.site, a.platform, a.handle, a.personaName, a.email, a.statusNote, a.notes]
-    .join(' ')
-    .toLowerCase()
-    .includes(q);
+  if (f.category && socSiteCategory(a.site) !== f.category) return false;
+  return true;
 }
 
-function socSitesFiltered() {
-  const q = SOC.q.trim().toLowerCase();
+function socMatch(a) {
+  return socAccountFilterMatch(a) && socTextMatch(socAccountSearchValues(a), SOC.q);
+}
+
+function socMatrixPlatformMatch(site, platform, wanted) {
+  if (!wanted) return true;
+  const rows = socAccountsFor(site, platform, 'brand');
+  if (wanted === '__missing') return !rows.length;
+  if (wanted === '__present') return rows.length > 0;
+  if (wanted === '__live') return rows.some(a => a.live);
+  if (wanted === '__attention') return rows.some(a => a.needsAttention);
+  return rows.some(a => a.status === wanted);
+}
+
+function socSiteSearchValues(s) {
+  const accounts = SOC.data.accounts.filter(a => a.site === s.site);
+  const personas = SOC.data.personas.filter(p => p.site === s.site);
+  return [
+    s.site,
+    s.category || 'active',
+    s.note,
+    ...accounts.flatMap(socAccountSearchValues),
+    ...personas.flatMap(p => [p.name, p.email, p.beat, p.notes]),
+  ];
+}
+
+function socMatrixSites() {
+  const accountFiltersActive = Boolean(SOC.f.status || SOC.f.scope || SOC.f.attention);
   return SOC.data.sites.filter(s => {
     if (SOC.f.category && (s.category || 'active') !== SOC.f.category) return false;
-    if (!q) return true;
-    if (s.site.toLowerCase().includes(q)) return true;
-    // A site also survives if any of its accounts match the search.
-    return SOC.data.accounts.some(a => a.site === s.site && socMatch(a));
+    if (!socTextMatch([s.site], SOC.matrixFilters.site)) return false;
+    if (!socTextMatch(socSiteSearchValues(s), SOC.q)) return false;
+
+    const personas = SOC.data.personas.filter(p => p.site === s.site);
+    if (SOC.matrixFilters.personas === 'with' && !personas.length) return false;
+    if (SOC.matrixFilters.personas === 'without' && personas.length) return false;
+
+    if (accountFiltersActive) {
+      const matches = SOC.data.accounts.some(a => a.site === s.site && socAccountFilterMatch(a));
+      if (!matches) return false;
+    }
+
+    return Object.entries(SOC.matrixFilters.platforms)
+      .filter(([platform]) => !SOC.f.platform || SOC.f.platform === platform)
+      .every(([platform, wanted]) => socMatrixPlatformMatch(s.site, platform, wanted));
   });
+}
+
+function socListColumnMatch(a) {
+  const f = SOC.listFilters;
+  if (!socTextMatch([a.site], f.site)) return false;
+  if (!socTextMatch([a.personaName || 'brand', a.scope], f.who)) return false;
+  if (!socTextMatch([a.email], f.email)) return false;
+  if (f.platform && a.platform !== f.platform) return false;
+  if (!socTextMatch([a.handle, a.profileUrl], f.handle)) return false;
+  if (f.status && a.status !== f.status) return false;
+  if (f.credsInVault && String(a.credsInVault) !== f.credsInVault) return false;
+  if (!socTextMatch([(a.updatedAt || '').slice(0, 10)], f.updatedAt)) return false;
+  if (!socTextMatch([a.statusNote, a.notes, a.action], f.statusNote)) return false;
+  return true;
+}
+
+function socListRows() {
+  return SOC.data.accounts.filter(a => socMatch(a) && socListColumnMatch(a));
+}
+
+function socActiveFilterCount() {
+  let count = SOC.q.trim() ? 1 : 0;
+  count += Object.entries(SOC.f).filter(([, value]) => Boolean(value)).length;
+  if (SOC.mode === 'matrix') {
+    if (SOC.matrixFilters.site) count += 1;
+    if (SOC.matrixFilters.personas) count += 1;
+    count += Object.entries(SOC.matrixFilters.platforms).filter(
+      ([platform, value]) => value && (!SOC.f.platform || SOC.f.platform === platform)
+    ).length;
+  } else if (SOC.mode === 'list') {
+    count += Object.values(SOC.listFilters).filter(Boolean).length;
+  }
+  return count;
+}
+
+function socResetFilters() {
+  SOC.q = '';
+  SOC.f = { platform: '', status: '', scope: '', category: '', attention: false };
+  SOC.matrixFilters = { site: '', personas: '', platforms: {} };
+  for (const key of Object.keys(SOC.listFilters)) SOC.listFilters[key] = '';
 }
 
 async function renderSocial() {
@@ -6356,7 +6502,7 @@ async function renderSocial() {
         ${s.needsAttention ? socToneBadge('red', `${s.needsAttention} need attention`) : socToneBadge('gray', 'none broken')}
       </span>
     </div>
-    <div class="task-toolbar">
+    <div class="task-toolbar soc-toolbar">
       <div class="soc-modes">
         ${['matrix', 'list', 'personas']
           .map(
@@ -6365,10 +6511,13 @@ async function renderSocial() {
           )
           .join('')}
       </div>
-      <input id="soc-q" class="cm-input" placeholder="Search site, handle, persona, note…" value="${esc(SOC.q)}" style="width:250px" />
-      <select id="soc-f-platform">${opt(data.platforms, SOC.f.platform, 'All platforms')}</select>
-      <select id="soc-f-status">${opt(data.statuses, SOC.f.status, 'All statuses')}</select>
-      <select id="soc-f-scope">${opt(
+      <label class="soc-search-wrap">
+        <span class="muted">Search</span>
+        <input id="soc-q" class="cm-input" type="search" placeholder='Words, "exact phrase", -exclude…' value="${esc(SOC.q)}" autocomplete="off" spellcheck="false" title='Search every field. Separate words may match anywhere; use quotes for a phrase or -word to exclude it.' />
+      </label>
+      <select id="soc-f-platform" aria-label="Filter by platform">${opt(data.platforms, SOC.f.platform, 'All platforms')}</select>
+      <select id="soc-f-status" aria-label="Filter by status">${opt(data.statuses, SOC.f.status, 'All statuses')}</select>
+      <select id="soc-f-scope" aria-label="Filter by account scope">${opt(
         [
           { key: 'brand', label: 'Brand' },
           { key: 'persona', label: 'Persona' },
@@ -6376,9 +6525,11 @@ async function renderSocial() {
         SOC.f.scope,
         'Brand + persona'
       )}</select>
-      <select id="soc-f-category">${opt(data.siteCategories, SOC.f.category, 'All site buckets')}</select>
+      <select id="soc-f-category" aria-label="Filter by site bucket">${opt(data.siteCategories, SOC.f.category, 'All site buckets')}</select>
       <label class="soc-check"><input type="checkbox" id="soc-f-attention" ${SOC.f.attention ? 'checked' : ''} /> needs attention</label>
       ${SOC.mode === 'list' ? `<label class="muted">Group</label><select id="soc-group">${['site', 'platform', 'status', 'scope', 'none'].map(g => `<option value="${g}" ${SOC.group === g ? 'selected' : ''}>${g}</option>`).join('')}</select>` : ''}
+      <span id="soc-visible-count" class="muted soc-visible-count"></span>
+      <button class="btn sm soc-clear" id="soc-clear" type="button">Clear filters</button>
       <button class="btn sm primary" id="soc-add" style="margin-left:auto">+ Account</button>
       <button class="btn sm" id="soc-add-persona">+ Persona</button>
     </div>
@@ -6414,23 +6565,55 @@ async function renderSocial() {
     });
   $('#soc-add').addEventListener('click', () => socAccountModal(null, {}));
   $('#soc-add-persona').addEventListener('click', () => socPersonaModal(null));
+  $('#soc-clear').addEventListener('click', () => {
+    socResetFilters();
+    FRESH = false;
+    renderSocial();
+  });
 
   socRenderBody();
   if (!FRESH) applyUISnap();
 }
 
-function socRenderBody() {
+function socRenderBody(preserveFocus = false) {
   const body = $('#soc-body');
   if (!body) return;
+  const active = preserveFocus ? document.activeElement : null;
+  const focusKey = active && active.dataset ? active.dataset.socFilter : '';
+  const selection =
+    focusKey && typeof active.selectionStart === 'number'
+      ? [active.selectionStart, active.selectionEnd]
+      : null;
   if (SOC.mode === 'matrix') body.innerHTML = socMatrixHTML();
   else if (SOC.mode === 'list') body.innerHTML = socListHTML();
   else body.innerHTML = socPersonasHTML();
   socWireBody();
+  if (focusKey) {
+    const next = $(`[data-soc-filter="${CSS.escape(focusKey)}"]`, body);
+    if (next) {
+      next.focus();
+      if (selection && typeof next.setSelectionRange === 'function') {
+        next.setSelectionRange(selection[0], selection[1]);
+      }
+    }
+  }
+  const result = $('[data-soc-results]', body);
+  const count = $('#soc-visible-count');
+  if (count && result) {
+    count.textContent = `Showing ${result.dataset.visible} of ${result.dataset.total} ${result.dataset.unit}`;
+  }
+  const clear = $('#soc-clear');
+  if (clear) {
+    const activeCount = socActiveFilterCount();
+    clear.disabled = !activeCount;
+    clear.textContent = activeCount ? `Clear filters (${activeCount})` : 'Clear filters';
+  }
 }
 
 function socWireBody() {
   $$('[data-soc-cell]').forEach(el =>
-    el.addEventListener('click', () => {
+    el.addEventListener('click', event => {
+      if (event.target.closest('a, button, input, select, label')) return;
       const { site, platform, accountId } = el.dataset;
       if (accountId) socAccountModal(accountId);
       else socAccountModal(null, { site, platform, scope: 'brand' });
@@ -6447,11 +6630,33 @@ function socWireBody() {
   $$('[data-soc-sort]').forEach(el =>
     el.addEventListener('click', () => {
       const k = el.dataset.socSort;
-      SOC.sortDir = SOC.sortKey === k ? -SOC.sortDir : 1;
-      SOC.sortKey = k;
+      const mode = el.dataset.socSortMode || SOC.mode;
+      const sort = SOC.sort[mode];
+      if (!sort) return;
+      sort.dir = sort.key === k ? -sort.dir : 1;
+      sort.key = k;
       socRenderBody();
     })
   );
+  $$('[data-soc-filter]').forEach(el => {
+    const eventName = el.tagName === 'INPUT' ? 'input' : 'change';
+    el.addEventListener(eventName, () => {
+      const [area, key, subkey] = el.dataset.socFilter.split(':');
+      if (area === 'matrix' && key === 'platform') {
+        if (el.value) SOC.matrixFilters.platforms[subkey] = el.value;
+        else delete SOC.matrixFilters.platforms[subkey];
+      } else if (area === 'matrix') {
+        SOC.matrixFilters[key] = el.value;
+      } else if (area === 'list') {
+        SOC.listFilters[key] = el.value;
+      } else if (area === 'global') {
+        SOC.f[key] = el.value;
+        const toolbar = $(`#soc-f-${CSS.escape(key)}`);
+        if (toolbar) toolbar.value = el.value;
+      }
+      socRenderBody(eventName === 'input');
+    });
+  });
   $$('[data-soc-persona]').forEach(el =>
     el.addEventListener('click', () => socPersonaModal(el.dataset.socPersona))
   );
@@ -6478,8 +6683,7 @@ function socCell(site, platform, scope, personaId) {
       a.site === site &&
       a.platform === platform &&
       a.scope === scope &&
-      (personaId === undefined || a.personaId === personaId) &&
-      socMatch(a)
+      (personaId === undefined || a.personaId === personaId)
   );
   if (!rows.length) {
     return `<td class="soc-c"><span class="soc-dot t-none" data-soc-cell data-site="${esc(site)}" data-platform="${esc(platform)}" title="not started — click to record one">·</span></td>`;
@@ -6498,10 +6702,72 @@ function socCell(site, platform, scope, personaId) {
   return `<td class="soc-c"><span class="soc-dot t-${esc(a.tone)}" data-soc-cell data-account-id="${esc(a.id)}" title="${esc(tip)}"></span>${extra}</td>`;
 }
 
+function socCompare(a, b, dir = 1) {
+  const aEmpty = a === null || a === undefined || a === '';
+  const bEmpty = b === null || b === undefined || b === '';
+  // Unknown/missing values stay at the bottom in either direction.
+  if (aEmpty !== bEmpty) return aEmpty ? 1 : -1;
+  if (aEmpty) return 0;
+  const result =
+    typeof a === 'number' && typeof b === 'number'
+      ? a - b
+      : SOC_COLLATOR.compare(String(a), String(b));
+  return result * dir;
+}
+
+function socSortHeader(mode, key, label, className = '', title = '') {
+  const sort = SOC.sort[mode];
+  const active = sort.key === key;
+  const direction = active ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none';
+  const arrow = active ? (sort.dir > 0 ? '↑' : '↓') : '↕';
+  return `<th class="${esc(className)}" aria-sort="${direction}"><button class="soc-sort-button ${active ? 'active' : ''}" type="button" data-soc-sort-mode="${esc(mode)}" data-soc-sort="${esc(key)}" title="${esc(title || `Sort by ${label}`)}"><span>${esc(label)}</span><span class="soc-sort-arrow" aria-hidden="true">${arrow}</span></button></th>`;
+}
+
+function socMatrixSortValue(site, key) {
+  if (key === 'site') return site.site;
+  if (key === 'category') {
+    const category = SOC.data.siteCategories.find(c => c.key === (site.category || 'active'));
+    return (category || {}).label || site.category || 'active';
+  }
+  if (key === 'personas') {
+    return SOC.data.personas.filter(p => p.site === site.site).length;
+  }
+  if (key.startsWith('platform:')) {
+    const platform = key.slice('platform:'.length);
+    const accounts = socAccountsFor(site.site, platform, 'brand');
+    return accounts.length ? TONE_RANK[worstTone(accounts)] : null;
+  }
+  return '';
+}
+
+function socMatrixStatusOptions(current) {
+  const options = [
+    ['', 'Any state'],
+    ['__present', 'Has account'],
+    ['__missing', 'No record'],
+    ['__live', 'Live'],
+    ['__attention', 'Needs attention'],
+    ...SOC.data.statuses.map(status => [status.key, status.label]),
+  ];
+  return options
+    .map(
+      ([value, label]) =>
+        `<option value="${esc(value)}" ${value === current ? 'selected' : ''}>${esc(label)}</option>`
+    )
+    .join('');
+}
+
 function socMatrixHTML() {
-  const platforms = SOC.data.platforms;
-  const sites = socSitesFiltered();
-  if (!sites.length) return '<div class="empty">No sites match.</div>';
+  const platforms = SOC.f.platform
+    ? SOC.data.platforms.filter(p => p.key === SOC.f.platform)
+    : SOC.data.platforms;
+  const sites = socMatrixSites();
+  const sort = SOC.sort.matrix;
+  sites.sort(
+    (a, b) =>
+      socCompare(socMatrixSortValue(a, sort.key), socMatrixSortValue(b, sort.key), sort.dir) ||
+      SOC_COLLATOR.compare(a.site, b.site)
+  );
   const cats = SOC.data.siteCategories;
   const rows = sites
     .map(s => {
@@ -6536,13 +6802,39 @@ function socMatrixHTML() {
       return main + sub;
     })
     .join('');
-  return `<div class="card"><table class="soc-matrix">
+  const filterRow = `<tr class="soc-filter-row">
+    <th><input class="soc-column-input" type="search" data-soc-filter="matrix:site" value="${esc(SOC.matrixFilters.site)}" placeholder="Filter domain…" aria-label="Filter Site column" autocomplete="off" /></th>
+    <th><select class="soc-column-select" data-soc-filter="global:category" aria-label="Filter Bucket column">${
+      `<option value="">Any bucket</option>` +
+      cats
+        .map(
+          c =>
+            `<option value="${esc(c.key)}" ${SOC.f.category === c.key ? 'selected' : ''}>${esc(c.label)}</option>`
+        )
+        .join('')
+    }</select></th>
+    ${platforms
+      .map(
+        p =>
+          `<th class="soc-c"><select class="soc-column-select soc-platform-filter" data-soc-filter="matrix:platform:${esc(p.key)}" aria-label="Filter ${esc(p.label)} column">${socMatrixStatusOptions(SOC.matrixFilters.platforms[p.key] || '')}</select></th>`
+      )
+      .join('')}
+    <th><select class="soc-column-select" data-soc-filter="matrix:personas" aria-label="Filter Personas column">
+      <option value="">Any count</option>
+      <option value="with" ${SOC.matrixFilters.personas === 'with' ? 'selected' : ''}>Has personas</option>
+      <option value="without" ${SOC.matrixFilters.personas === 'without' ? 'selected' : ''}>No personas</option>
+    </select></th>
+  </tr>`;
+  const empty = `<tr><td colspan="${platforms.length + 3}" class="muted soc-empty-row">No domains match the current filters.</td></tr>`;
+  return `<div data-soc-results data-visible="${sites.length}" data-total="${SOC.data.sites.length}" data-unit="domains">
+    <div class="card soc-table-card"><table class="soc-matrix">
     <thead><tr>
-      <th>Site</th><th>Bucket</th>
-      ${platforms.map(p => `<th class="soc-c" title="${esc(p.key)}">${esc(p.label)}</th>`).join('')}
-      <th>Personas</th>
-    </tr></thead>
-    <tbody>${rows}</tbody></table></div>
+      ${socSortHeader('matrix', 'site', 'Site')}
+      ${socSortHeader('matrix', 'category', 'Bucket')}
+      ${platforms.map(p => socSortHeader('matrix', `platform:${p.key}`, p.label, 'soc-c', `Sort by ${p.label} account status`)).join('')}
+      ${socSortHeader('matrix', 'personas', 'Personas')}
+    </tr>${filterRow}</thead>
+    <tbody>${rows || empty}</tbody></table></div>
     <div class="muted soc-legend">${SOC.data.statuses
       .map(
         st =>
@@ -6550,7 +6842,7 @@ function socMatrixHTML() {
       )
       .join('')}
       <span class="soc-lg"><span class="soc-dot t-none">·</span> not recorded</span>
-      — click any cell to edit; ▸ expands a site's personas.</div>`;
+      <span>Click a cell to edit; ▸ expands a site's personas.</span></div></div>`;
 }
 
 /* ---- list ---- */
@@ -6567,20 +6859,52 @@ const SOC_COLS = [
 ];
 
 function socSortVal(a, key) {
-  if (key === 'who') return a.personaName || '';
+  if (key === 'who') return a.personaName || 'brand';
+  if (key === 'platform') return socPlatform(a.platform).label;
+  if (key === 'status') return socStatus(a.status).label;
   if (key === 'credsInVault') return a.credsInVault ? 1 : 0;
   return a[key] ?? '';
 }
 
+function socListFilterControl(column) {
+  const key = column.key;
+  const current = SOC.listFilters[key] || '';
+  if (key === 'platform') {
+    return `<select class="soc-column-select" data-soc-filter="list:platform" aria-label="Filter Platform column"><option value="">Any</option>${SOC.data.platforms.map(p => `<option value="${esc(p.key)}" ${current === p.key ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select>`;
+  }
+  if (key === 'status') {
+    return `<select class="soc-column-select" data-soc-filter="list:status" aria-label="Filter Status column"><option value="">Any</option>${SOC.data.statuses.map(s => `<option value="${esc(s.key)}" ${current === s.key ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select>`;
+  }
+  if (key === 'credsInVault') {
+    return `<select class="soc-column-select" data-soc-filter="list:credsInVault" aria-label="Filter Vault column">
+      <option value="">Any</option>
+      <option value="true" ${current === 'true' ? 'selected' : ''}>In vault</option>
+      <option value="false" ${current === 'false' ? 'selected' : ''}>Not in vault</option>
+    </select>`;
+  }
+  const placeholders = {
+    site: 'Domain…',
+    who: 'Brand / persona…',
+    email: 'Email…',
+    handle: 'Handle…',
+    updatedAt: 'YYYY-MM-DD…',
+    statusNote: 'Note…',
+  };
+  return `<input class="soc-column-input" type="search" data-soc-filter="list:${esc(key)}" value="${esc(current)}" placeholder="${esc(placeholders[key] || 'Filter…')}" aria-label="Filter ${esc(column.label)} column" autocomplete="off" />`;
+}
+
 function socListHTML() {
-  const rows = SOC.data.accounts.filter(socMatch);
-  if (!rows.length) return '<div class="empty">No accounts match.</div>';
+  const rows = socListRows();
+  const sort = SOC.sort.list;
   rows.sort((x, y) => {
-    const a = socSortVal(x, SOC.sortKey);
-    const b = socSortVal(y, SOC.sortKey);
-    const c = typeof a === 'number' ? a - b : String(a).localeCompare(String(b));
+    const a = socSortVal(x, sort.key);
+    const b = socSortVal(y, sort.key);
     return (
-      (c || x.site.localeCompare(y.site) || x.platform.localeCompare(y.platform)) * SOC.sortDir
+      socCompare(a, b, sort.dir) ||
+      SOC_COLLATOR.compare(x.site, y.site) ||
+      SOC_COLLATOR.compare(socPlatform(x.platform).label, socPlatform(y.platform).label) ||
+      SOC_COLLATOR.compare(x.personaName || 'brand', y.personaName || 'brand') ||
+      SOC_COLLATOR.compare(x.id, y.id)
     );
   });
 
@@ -6600,12 +6924,25 @@ function socListHTML() {
     groups.get(k).push(a);
   }
 
-  const head = `<thead><tr>${SOC_COLS.map(
-    c =>
-      `<th class="soc-sortable" data-soc-sort="${c.key}">${esc(c.label)}${SOC.sortKey === c.key ? (SOC.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`
-  ).join('')}</tr></thead>`;
+  const head = `<thead><tr>${SOC_COLS.map(c => socSortHeader('list', c.key, c.label)).join(
+    ''
+  )}</tr><tr class="soc-filter-row">${SOC_COLS.map(c => `<th>${socListFilterControl(c)}</th>`).join('')}</tr></thead>`;
 
-  const body = [...groups.entries()]
+  const grouped = [...groups.entries()];
+  if (SOC.group !== 'none') {
+    const groupSortKeys = { site: 'site', platform: 'platform', status: 'status', scope: 'who' };
+    grouped.sort((a, b) => {
+      if (groupSortKeys[SOC.group] === sort.key) return socCompare(a[0], b[0], sort.dir);
+      // Keep grouping without making another column's sort look broken: order
+      // groups by their first (already-sorted) row, then sort within the group.
+      return (
+        socCompare(socSortVal(a[1][0], sort.key), socSortVal(b[1][0], sort.key), sort.dir) ||
+        SOC_COLLATOR.compare(a[0], b[0])
+      );
+    });
+  }
+
+  const body = grouped
     .map(([g, list]) => {
       const gh = g
         ? `<tr class="soc-group"><td colspan="${SOC_COLS.length}">${esc(g)}<span class="dd-count">${list.length}</span></td></tr>`
@@ -6634,25 +6971,30 @@ function socListHTML() {
     })
     .join('');
 
-  return `<div class="card"><table class="soc-list">${head}<tbody>${body}</tbody></table></div>
-    <div class="muted soc-legend">${rows.length} row(s) — click a row to edit.</div>`;
+  const empty = `<tr><td colspan="${SOC_COLS.length}" class="muted soc-empty-row">No accounts match the current filters.</td></tr>`;
+  const sortedLabel = SOC_COLS.find(c => c.key === sort.key)?.label || sort.key;
+  return `<div data-soc-results data-visible="${rows.length}" data-total="${SOC.data.accounts.length}" data-unit="accounts">
+    <div class="card soc-table-card"><table class="soc-list">${head}<tbody>${body || empty}</tbody></table></div>
+    <div class="muted soc-legend"><span>Grouped by ${esc(SOC.group)}.</span><span>Sorted by ${esc(sortedLabel)} ${sort.dir > 0 ? 'ascending' : 'descending'}.</span><span>Click a row to edit.</span></div></div>`;
 }
 
 /* ---- personas ---- */
 function socPersonasHTML() {
-  const q = SOC.q.trim().toLowerCase();
-  const personas = SOC.data.personas.filter(
-    p =>
-      (!SOC.f.category ||
-        ((SOC.data.sites.find(s => s.site === p.site) || {}).category || 'active') ===
-          SOC.f.category) &&
-      (!q || `${p.site} ${p.name} ${p.beat || ''}`.toLowerCase().includes(q))
+  const accountFiltersActive = Boolean(
+    SOC.f.platform || SOC.f.status || SOC.f.scope || SOC.f.attention
   );
-  if (!personas.length)
-    return '<div class="empty">No personas yet. Use + Persona to add a byline.</div>';
+  const personas = SOC.data.personas.filter(p => {
+    if (SOC.f.category && socSiteCategory(p.site) !== SOC.f.category) return false;
+    const accounts = SOC.data.accounts.filter(a => a.personaId === p.id);
+    if (accountFiltersActive && !accounts.some(socAccountFilterMatch)) return false;
+    return socTextMatch(
+      [p.site, p.name, p.email, p.beat, p.notes, ...accounts.flatMap(socAccountSearchValues)],
+      SOC.q
+    );
+  });
   const rows = personas
     .map(p => {
-      const accts = SOC.data.accounts.filter(a => a.personaId === p.id && socMatch(a));
+      const accts = SOC.data.accounts.filter(a => a.personaId === p.id && socAccountFilterMatch(a));
       const chips = accts.length
         ? accts
             .map(
@@ -6671,10 +7013,12 @@ function socPersonasHTML() {
       </tr>`;
     })
     .join('');
-  return `<div class="card"><table>
+  const empty = `<tr><td colspan="6" class="muted soc-empty-row">${SOC.data.personas.length ? 'No personas match the current filters.' : 'No personas yet. Use + Persona to add a byline.'}</td></tr>`;
+  return `<div data-soc-results data-visible="${personas.length}" data-total="${SOC.data.personas.length}" data-unit="personas">
+    <div class="card soc-table-card"><table>
     <thead><tr><th>Site</th><th>Persona</th><th>Email</th><th>Beat</th><th>Accounts</th><th></th></tr></thead>
-    <tbody>${rows}</tbody></table></div>
-    <div class="muted soc-legend">${personas.length} persona(s) — click a name to edit, a platform chip to edit that account.</div>`;
+    <tbody>${rows || empty}</tbody></table></div>
+    <div class="muted soc-legend"><span>Click a name to edit; click a platform chip to edit that account.</span></div></div>`;
 }
 
 /* ---- account editor ---- */

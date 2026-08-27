@@ -657,9 +657,33 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 /* ---- Social registry tab ---- */
 .soc-stats { display: inline-flex; gap: 6px; margin-left: auto; }
 .soc-modes { display: inline-flex; gap: 4px; }
+.soc-toolbar { gap: 8px; }
+.soc-search-wrap { display: inline-flex; align-items: center; gap: 7px; }
+.soc-search-wrap .cm-input { width: 290px; }
+.soc-visible-count { min-width: 128px; font-variant-numeric: tabular-nums; }
+.soc-clear:disabled { cursor: default; opacity: .45; border-color: var(--border); color: var(--muted); }
 .soc-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); cursor: pointer; }
 .soc-check input { width: auto; }
+.soc-table-card { overflow: auto; max-height: calc(100vh - 245px); }
+.soc-table-card table { width: max-content; min-width: 100%; }
+.soc-list { min-width: 1480px !important; }
+.soc-table-card thead th { position: sticky; z-index: 3; background: var(--panel); }
+.soc-table-card thead tr:first-child th { top: 0; }
+.soc-table-card thead tr.soc-filter-row th { top: 35px; z-index: 4; padding: 5px 6px 7px; background: var(--panel-2); }
+.soc-table-card th:first-child, .soc-table-card td:first-child { position: sticky; left: 0; z-index: 2; background: var(--panel); box-shadow: 1px 0 0 var(--border); }
+.soc-table-card thead th:first-child { z-index: 6; }
+.soc-table-card thead tr.soc-filter-row th:first-child { background: var(--panel-2); }
+.soc-table-card tbody tr:hover td:first-child { background: var(--panel-2); }
+.soc-sort-button { display: inline-flex; align-items: center; gap: 5px; appearance: none; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
+.soc-sort-button:hover, .soc-sort-button.active { color: var(--text); }
+.soc-sort-arrow { color: var(--accent); font-size: 10px; min-width: 9px; opacity: .5; }
+.soc-sort-button.active .soc-sort-arrow { opacity: 1; }
+.soc-column-input, .soc-column-select { display: block; width: 100%; min-width: 104px; height: 28px; padding: 3px 6px; border-radius: 5px; font-size: 11.5px; text-transform: none; letter-spacing: normal; }
+.soc-column-input::placeholder { color: #687386; }
+.soc-platform-filter { min-width: 116px; }
+.soc-empty-row { padding: 24px !important; text-align: center; }
 .soc-matrix th.soc-c, .soc-matrix td.soc-c { text-align: center; padding-left: 6px; padding-right: 6px; }
+.soc-matrix th.soc-c .soc-sort-button { justify-content: center; width: 100%; }
 .soc-matrix td, .soc-list td { padding-top: 7px; padding-bottom: 7px; }
 .soc-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; cursor: pointer; transition: transform .12s; }
 .soc-dot:hover { transform: scale(1.4); }
@@ -682,8 +706,6 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .soc-plink:hover { text-decoration: underline; }
 .soc-group td { background: var(--panel-2); font-weight: 650; font-size: 12px; letter-spacing: .3px; }
 .soc-group .dd-count { margin-left: 8px; }
-.soc-sortable { cursor: pointer; user-select: none; }
-.soc-sortable:hover { color: var(--text); }
 .soc-row { cursor: pointer; }
 .soc-row:hover td { background: var(--panel-2); }
 .soc-handle a { color: var(--text); text-decoration: none; }
@@ -698,6 +720,12 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .soc-hist { max-height: 200px; overflow: auto; font-size: 12px; display: grid; gap: 6px; }
 .soc-hist-note { color: var(--muted); padding-left: 10px; border-left: 2px solid var(--border); margin-top: 2px; }
 body[data-view="social"] main { max-width: none; }
+
+@media (max-width: 900px) {
+  .soc-search-wrap { width: 100%; }
+  .soc-search-wrap .cm-input { flex: 1; width: auto; }
+  .soc-visible-count { min-width: 0; }
+}
 
 /* ---- Social Hub tab (tools/social-hub proxy) ---------------------------- */
 .sh-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 18px; }
