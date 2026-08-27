@@ -42,6 +42,23 @@ MAX_TURNS="${WATCHDOG_MAX_TURNS:-30}"
 DRY_RUN="${WATCHDOG_DRY_RUN:-0}"
 
 INC_DIR="$REPO_ROOT/ops/health/incidents"
+# Cross-fingerprint block cache (2026-08-27): one broken deploy pipeline
+# surfaces as up to 3 DIFFERENT incident classes back-to-back — live-
+# verification (content didn't go live), deploy-stuck (.deploy-needed never
+# drained), wrangler-deploy (the push itself failed) — each gets its own
+# fingerprint and its own attempts=0/3 counter, so the per-fingerprint
+# cooldown/attempt-cap above never engages across them. Observed 2026-08-27:
+# amputeenews burned 3 full $0.65-0.99 sonnet repair passes re-diagnosing the
+# SAME env-broker policy.yaml misconfig (each attempt correctly identified it,
+# but couldn't fix it from inside the :ro-mounted container) before landing a
+# workaround on the 4th. When any DEPLOY_PIPELINE_CLASSES repair pass reports
+# "could not fix", cache that verdict so the other classes in the family skip
+# their own paid repair pass until it clears (fixed, or a human resolves it).
+BLOCKED_FILE="$REPO_ROOT/ops/health/.watchdog-blocked.json"
+BLOCKED_TTL="${WATCHDOG_BLOCKED_TTL:-3600}"  # 1h — longer than COOLDOWN; host fixes take longer than a retry
+DEPLOY_PIPELINE_CLASSES="live-verification deploy-stuck wrangler-deploy deploy-failed"
+is_deploy_pipeline_class() { [[ " $DEPLOY_PIPELINE_CLASSES " == *" $1 "* ]]; }
+clear_blocked_cache() { rm -f "$BLOCKED_FILE" 2>/dev/null || true; }
 LOCK="$REPO_ROOT/ops/.locks/watchdog.lock"
 LOG="$REPO_ROOT/ops/logs/watchdog-$(date -u +%Y%m%d).log"
 KILL="$REPO_ROOT/ops/.watchdog-disabled"
@@ -226,6 +243,20 @@ print(d.get('fingerprint',''), d.get('role',''), d.get('class',''), d.get('sever
 " "$TARGET")"
 log "target=$FP role=$ROLE class=$CLASS sev=$SEV attempts=$ATTEMPTS — $SUMMARY"
 
+# ================= 2b. Cross-fingerprint block-cache short-circuit =================
+if is_deploy_pipeline_class "$CLASS" && [[ -f "$BLOCKED_FILE" ]]; then
+  BLOCKED_AGE=$(( $(date +%s) - $(python3 -c "import json,sys; print(int(json.load(open(sys.argv[1])).get('blocked_at',0)))" "$BLOCKED_FILE" 2>/dev/null || echo 0) ))
+  if (( BLOCKED_AGE < BLOCKED_TTL )); then
+    BLOCKED_REASON=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('reason',''))" "$BLOCKED_FILE" 2>/dev/null || true)
+    log "skipping repair pass for $FP ($CLASS) — deploy pipeline already known blocked ${BLOCKED_AGE}s ago: $BLOCKED_REASON"
+    set_field last_attempt "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    set_field last_outcome "skipped-blocked-cache: $BLOCKED_REASON"
+    exit 0
+  fi
+  log "block-cache stale (${BLOCKED_AGE}s > ${BLOCKED_TTL}s) — clearing and proceeding normally"
+  clear_blocked_cache
+fi
+
 set_field() {  # $1=key $2=value (string)
   python3 - "$TARGET" "$1" "$2" <<'PY' 2>/dev/null || true
 import json,sys
@@ -240,6 +271,7 @@ PY
 escalate() {  # $1=reason
   local reason="$1"
   log "ESCALATING $FP: $reason"
+  clear_blocked_cache  # a human owns it now — a stale cache would silently mute the other fingerprints too
   set_field status escalated
   local task="$REPO_ROOT/ops/tasks/backlog/$(date -u +%Y%m%d-%H%M%S)-watchdog-${FP}.md"
   mkdir -p "$REPO_ROOT/ops/tasks/backlog" 2>/dev/null || true
@@ -385,6 +417,11 @@ fi
 if [[ "$FIXED" != "1" ]]; then
   log "model could not safely fix it: $RSUMMARY"
   set_field status open; set_field last_outcome "model-no-fix: $RSUMMARY"
+  if is_deploy_pipeline_class "$CLASS"; then
+    python3 -c "import json,sys,time; json.dump({'reason': sys.argv[1], 'class': sys.argv[2], 'blocked_at': int(time.time())}, open(sys.argv[3], 'w'))" \
+      "${RDETAIL:-$RSUMMARY}" "$CLASS" "$BLOCKED_FILE" 2>/dev/null || true
+    log "cached block for deploy-pipeline classes ($DEPLOY_PIPELINE_CLASSES) — cleared on fix or escalation"
+  fi
   [[ "$NEW_ATTEMPTS" -ge "$MAX_ATTEMPTS" ]] && { ATTEMPTS="$NEW_ATTEMPTS"; escalate "model could not fix after ${NEW_ATTEMPTS} attempt(s): $RSUMMARY"; }
   exit 0
 fi
@@ -432,6 +469,7 @@ ${RSUMMARY}" "danger"
 fi
 
 # ---- Resolve (in place — status lifecycle, file is pruned later) ----
+clear_blocked_cache
 set_field status resolved
 set_field last_outcome "fixed: $RSUMMARY"
 slack "🔧 *{{SITE_SHORT}} watchdog* auto-fixed \`$CLASS\` · ${NOW_ET}

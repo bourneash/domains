@@ -35,10 +35,24 @@ PYTHON_CLAUDE_CALL = re.compile(r"[\[\(]\s*['\"]claude['\"]\s*,\s*['\"]-p['\"]")
 LOCAL_MODEL_CALL = re.compile(r"(?:chat\.completions\.create|/api/chat|/v1/chat/completions)")
 
 
+# failure_class values claude-tracked.sh already retries once, in-run, for free
+# (see its "Single same-run retry" comment) — the CLI hiccupped before any
+# billable work started and the wrapper's own retry usually clears it. A record
+# still tagged with one of these after that retry cost nothing and self-heals
+# on the site's next scheduled tick, so counting it alongside a real failure
+# (a stuck deploy, a bad diagnosis, a genuine account/auth problem) makes a
+# healthy fleet look like it has a reliability problem when it doesn't
+# (2026-08-27 audit: weirdgirlstore/amputeenews "errors" were entirely this).
+TRANSIENT_FAILURE_CLASSES = frozenset({
+    "zero_cost_failure", "parse_error", "network_preflight_failed",
+})
+
+
 def _empty_totals() -> dict:
     return {
         "calls": 0,
         "errors": 0,
+        "transient_errors": 0,
         "input_tokens": 0,
         "output_tokens": 0,
         "cache_creation_input_tokens": 0,
@@ -50,7 +64,10 @@ def _empty_totals() -> dict:
 def _add(totals: dict, record: dict) -> None:
     totals["calls"] += 1
     if record.get("is_error"):
-        totals["errors"] += 1
+        if record.get("failure_class") in TRANSIENT_FAILURE_CLASSES:
+            totals["transient_errors"] += 1
+        else:
+            totals["errors"] += 1
     for field in NUMERIC_FIELDS:
         totals[field] += record.get(field) or 0
     totals["total_cost_usd"] += record.get("total_cost_usd") or 0.0
@@ -280,7 +297,7 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
 
     fleet_totals = _empty_totals()
     for totals in by_site.values():
-        for field in (*NUMERIC_FIELDS, "calls", "errors"):
+        for field in (*NUMERIC_FIELDS, "calls", "errors", "transient_errors"):
             fleet_totals[field] += totals[field]
         fleet_totals["total_cost_usd"] += totals["total_cost_usd"]
 
@@ -350,7 +367,9 @@ def main(argv: list[str] | None = None) -> None:
 
     summary = report["summary"]
     print(f"Sites instrumented: {summary['sites_instrumented']}/{summary['sites_total']}")
-    print(f"Total calls: {summary['calls']} ({summary['errors']} errors)")
+    transient_note = (f", {summary['transient_errors']} self-healed (zero-cost, ignore)"
+                       if summary["transient_errors"] else "")
+    print(f"Total calls: {summary['calls']} ({summary['errors']} errors{transient_note})")
     print(f"Total cost (USD): {summary['total_cost_usd']:.2f}")
     print(f"Input tokens: {summary['input_tokens']:,}  Output tokens: {summary['output_tokens']:,}")
     print(f"Cache read: {summary['cache_read_input_tokens']:,}  "

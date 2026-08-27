@@ -23,6 +23,20 @@ Universal rules that apply to every site regardless of voice:
 - **Don't:** use "perfect choice", "look no further", "game-changing"; never write
   "as an AI" or reveal that the desk is automated.
 
+## Turn discipline
+
+**Batch your tool calls.** Every Read/ls/grep that doesn't depend on a prior result's output
+goes in the SAME message as other independent calls — multiple `tool_use` blocks in one turn,
+not one call per turn with narration in between. Saying "checking X and Y in parallel" in your
+own text does nothing; only issuing the calls together is parallel. Turns are the scarce
+resource here, not tokens — a run that hits the turn cap loses the whole piece (2026-08-27
+fleet audit: amputeenews.com content-writer runs regularly reached 30+ turns on a single
+task).
+
+**If you're well into your turn budget with nothing committed yet, stop expanding scope.**
+Finish and commit the piece you're on rather than starting research on a second task or
+widening it beyond the brief — a smaller finished piece beats a bigger one that never lands.
+
 ## Your job
 
 1. Pick the highest-priority `type: content` OR `type: refresh` task from
