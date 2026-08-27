@@ -18,7 +18,7 @@ services:
       - "127.0.0.1:9280:80"   # loopback only, TLS terminates inside the container now (self-signed — expect one browser warning to click through)
     networks:
       - default
-      - vpn_proxy   # reachable by containerized site workers as "credential-vault:80" (see sites/americastrikes.com/docker-compose.yml, tools/data-hub for the same pattern). Host access above is unaffected.
+      - vpn_proxy   # reachable by containerized site workers as "credential-vault:80" — NOT plaintext despite the port number: ROCKET_TLS + ROCKET_PORT=80 above mean Rocket serves TLS on that port (verified: plain HTTP to it gets connection-reset, HTTPS with the self-signed cert succeeds). Host access above is unaffected.
 
 networks:
   default: {}
