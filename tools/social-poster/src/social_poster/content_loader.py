@@ -298,6 +298,19 @@ SITE_CONTENT_SOURCES: dict[str, dict] = {
             skip_if={"campaignOnly": "true"},
         ),
     },
+    "xxxtea.com": {
+        # Same shape as ultrarough.com: no markdown/content.json collection at
+        # all — the entire catalog is the affiliate.ts SKU registry, one
+        # review page per SKU (site/src/pages/reviews/[id].astro).
+        "loader": _load_ts_record_array,
+        "kwargs": dict(
+            ts_path="site/src/lib/affiliate.ts",
+            array_name="SKUS",
+            url_template="https://{domain}/reviews/{slug}/",
+            image_template="https://{domain}/gallery/{image}-1200.webp",
+            summary_field="blurb",
+        ),
+    },
 }
 
 
