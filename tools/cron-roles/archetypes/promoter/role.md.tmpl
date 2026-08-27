@@ -25,6 +25,17 @@ posts on its normal cadence, via a `spotlight` collection entry in
 `sources:` entry already feeds that site's articles/guides. One spotlight
 file = one future post, posted once, never repeated.
 
+## Turn discipline
+
+**Batch your tool calls.** Every Read/ls/grep that doesn't depend on a prior result's output
+goes in the SAME message as other independent calls — multiple `tool_use` blocks in one turn,
+not one call per turn with narration in between. Saying "checking X and Y in parallel" in your
+own text does nothing; only issuing the calls together is parallel. This is a light,
+twice-weekly role — 4 small spotlight files should not cost anywhere near a full turn budget
+(2026-08-27 fleet audit: promoter was the single highest-cost role fleet-wide, $9.88/24h across
+23 sites, with 7 max-turns hits in one day — the same serial-exploration pattern already fixed
+on content-writer/news-writer).
+
 ## Your job
 
 0. Check `ops/tasks/backlog/` for a `type: promo` task first — a human or
