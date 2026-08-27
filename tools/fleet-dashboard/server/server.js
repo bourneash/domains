@@ -1335,15 +1335,68 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Kick off the background CF deploy-health poller (re-discovers sites each
   // sweep so new sites are picked up without a restart). Skipped under test so
   // its outbound CF fetch doesn't race a test's stubbed global.fetch.
-  if (process.env.NODE_ENV !== 'test') deployhealth.start(root, () => discoverSites(root));
-  if (process.env.NODE_ENV !== 'test') gatushealth.start();
-  if (process.env.NODE_ENV !== 'test') errorscan.start(root);
-  // Site Facts background sweep (hourly — these change rarely). Same
-  // skip-under-test convention as the deploy-health poller above.
-  if (process.env.NODE_ENV !== 'test') sitefacts.start(() => discoverSites(root));
-  if (process.env.NODE_ENV !== 'test') compliance.start(() => discoverSites(root));
+  //
+  // Gated by a PID-file lock (see acquireBackgroundJobLock below), NOT just
+  // NODE_ENV: a stray second `node server.js` on a different FD_PORT (a
+  // forgotten local dev session) used to run these same pollers a second
+  // time, independently, against the same docker containers — duplicate
+  // Slack alerts every sweep with no cooldown coordination between the two
+  // processes (2026-08-27 amputeenews.com incident: 3 leaked host processes
+  // from Aug 25 dev sessions each fired their own errorscan alert burst).
+  // Only the lock-holding process runs these; every other process still
+  // serves the HTTP API/UI normally.
+  const ownsBackgroundJobs = process.env.NODE_ENV !== 'test' && acquireBackgroundJobLock(root);
+  if (ownsBackgroundJobs) {
+    deployhealth.start(root, () => discoverSites(root));
+    gatushealth.start();
+    errorscan.start(root);
+    // Site Facts background sweep (hourly — these change rarely). Same
+    // skip-under-test convention as the deploy-health poller above.
+    sitefacts.start(() => discoverSites(root));
+    compliance.start(() => discoverSites(root));
+  } else if (process.env.NODE_ENV !== 'test') {
+    console.warn(
+      `[fleet-dashboard] pid ${process.pid}: background pollers (errorscan, deploy-health, ` +
+        'gatus, site-facts, compliance) already owned by another live process — serving ' +
+        'HTTP only. Remove tools/fleet-dashboard/data/server.lock only if that process is ' +
+        'actually gone.'
+    );
+  }
 
   return app;
+}
+
+// One process per repo root may run the side-effecting background pollers
+// (errorscan posts to Slack, deploy-health/gatus/compliance write shared
+// state) — everything else is safe to run N-up (e.g. local dev on another
+// FD_PORT). A PID-file lock enforces that regardless of port: readers check
+// the held PID is actually alive (kill -0) before trusting the lock, so a
+// crashed/killed owner never wedges the fleet without a poller.
+function acquireBackgroundJobLock(root) {
+  const file = path.join(root, 'tools', 'fleet-dashboard', 'data', 'server.lock');
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const held = fs.existsSync(file) ? parseInt(fs.readFileSync(file, 'utf8').trim(), 10) : NaN;
+    if (Number.isFinite(held) && held !== process.pid) {
+      try {
+        process.kill(held, 0); // throws ESRCH if that pid is not alive
+        return false; // another live process already owns the pollers
+      } catch {
+        /* stale lock (owner exited without cleanup, e.g. kill -9) — reclaim it below */
+      }
+    }
+    fs.writeFileSync(file, String(process.pid));
+    process.on('exit', () => {
+      try {
+        if (parseInt(fs.readFileSync(file, 'utf8').trim(), 10) === process.pid) fs.unlinkSync(file);
+      } catch {
+        /* best effort — a leftover lock naturally self-heals via the liveness check above */
+      }
+    });
+    return true;
+  } catch {
+    return true; // lock bookkeeping failed (e.g. read-only fs) — don't block startup over it
+  }
 }
 
 // A pure-loopback bind is the only case where a missing token is safe. Note this
