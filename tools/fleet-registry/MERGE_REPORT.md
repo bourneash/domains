@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **48** (live 27, scaffold 20, parked 0, redirect 1)
+`sites/` directories merged: **49** (live 29, scaffold 19, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -10,12 +10,12 @@ provenance only; absence there is a choice, not drift.
 
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
-| `site-tracker/sites.yml` | fleet-wide | 47/48 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 26/48 | offshorehookup.com |
-| `DOMAINS_INDEX.md` | fleet-wide | 48/48 | — |
-| `social registry` | fleet-wide | 47/48 | offshorehookup.com |
-| `data-hub/subscriptions.yaml` | opt-in | 7/48 | n/a |
-| `product-feed/subscriptions.yaml` | opt-in | 2/48 | n/a |
+| `site-tracker/sites.yml` | fleet-wide | 48/49 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 29/49 | — |
+| `DOMAINS_INDEX.md` | fleet-wide | 49/49 | — |
+| `social registry` | fleet-wide | 47/49 | offshorehookup.com, unsupervisedmedia.com |
+| `data-hub/subscriptions.yaml` | opt-in | 7/49 | n/a |
+| `product-feed/subscriptions.yaml` | opt-in | 2/49 | n/a |
 
 ## Gaps on live sites
 
@@ -44,7 +44,7 @@ Sites the index files under a bucket that contradicts disk evidence:
 - `pokererotic.com` — indexed **parked**, actually **scaffold**
 - `rodhat.com` — indexed **parked**, actually **live**
 - `shoptopless.com` — indexed **parked**, actually **live**
-- `stinkyleftfoot.com` — indexed **parked**, actually **scaffold**
+- `stinkyleftfoot.com` — indexed **parked**, actually **live**
 - `therareunicorn.com` — indexed **parked**, actually **scaffold**
 - `totaljerks.com` — indexed **parked**, actually **live**
 - `vibratorporn.com` — indexed **parked**, actually **scaffold**

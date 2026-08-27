@@ -177,6 +177,7 @@ sites:
     - ops
     - cron
     - smoke
+    - tasks
     - affiliate
     - analytics
     - social
@@ -350,9 +351,9 @@ sites:
     - domains-index
     - site-tracker
     - social
-    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
+    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -522,7 +523,9 @@ sites:
     capabilities:
     - site
     - ops
+    - cron
     - smoke
+    - tasks
     - analytics
     - social
     analytics:
@@ -841,6 +844,7 @@ sites:
     - site
     - ops
     - cron
+    - smoke
     - tasks
     - analytics
     analytics:
