@@ -18,6 +18,18 @@ committed partial result is a success; running to the turn cap with nothing comm
 failure (all work is lost). Never re-read a file you've already read. Never retry a git
 command more than once.
 
+**Batch your tool calls.** Every ls/grep/wc/read that doesn't depend on a prior result's
+output goes in the SAME message as other independent calls — multiple tool_use blocks in
+one turn, not one call per turn with narration in between. Saying "checking X and Y in
+parallel" in your own text does nothing; only issuing the calls together is parallel. Turns
+are the scarce resource here, not tokens — a run that hits the turn cap loses all its work.
+
+**Run the fact-collector first.** `ops/scripts/collect-seo-facts.sh` does the mechanical
+survey (dist/schema/RSS/IndexNow presence, per-collection word counts and FAQ coverage,
+template internal-link counts, rough orphan-page check) in one call. Run it before any
+manual ls/grep exploration of the site — only chase details by hand for something it didn't
+cover or a finding you need to confirm before filing a task on it.
+
 ## Inputs
 
 Read in this order before deciding anything:

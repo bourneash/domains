@@ -13,7 +13,8 @@ worker_deps: []
 needs_rebuild_verify: true        # crontab.docker is baked into the cron image
 self_notifies: false              # LLM role; run-role.sh handles notify
 deploy: false                     # files tasks; does not ship content itself
-scripts: []
+scripts:
+  - collect-seo-facts.sh   # not templated — generic, no site-specific tokens
 gitignore: []
 placeholders: [SITE_NAME, BASE_URL, BASE_URL_HOST, MODEL, SLACK_CHANNEL_VAR, SLACK_CHANNEL_DEFAULT]
 placeholder_detection:
