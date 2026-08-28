@@ -43,11 +43,19 @@ bottom, `offset = (last_offset + 37) % 900`), add the row, use that value for
 | wetpages.com | 814 |
 | xxxtea.com | 851 |
 | offshorehookup.com | 888 |
-| unsupervisedmedia.com | 925 |
-| oventoheaven.com | 962 |
+| unsupervisedmedia.com | 25 |
+| oventoheaven.com | 62 |
 
-**Next free slot: 999s** (wraps: `(962 + 37) % 900 = 99` — 99s is still free,
-verify against this table before reusing it).
+2026-08-28: `unsupervisedmedia.com` and `oventoheaven.com` were assigned raw
+sequential offsets (925s, 962s) that overran the 900s cron window itself —
+the `sleep` alone took longer than the watchdog's own 15-minute schedule, so
+every other scheduled run was skipped (`not starting: job is still running`)
+and the one that did run always logged supercronic's `job took too long to
+run` warning. Rewrapped both to `offset % 900` (25s, 62s) per this table's
+own math; fixed in `ops/scripts/run-watchdog.sh` on both sites.
+
+**Next free slot: 99s** (`(62 + 37) % 900 = 99` — verify against this table
+before reusing it).
 
 Rolled out 2026-08-15. Sites not yet on the watchdog role (fishhooklabs.com,
 noveltyguns.com, therareunicorn.com, and others not yet installed) aren't
