@@ -59,6 +59,14 @@ const SUPPRESS_RE = [
   // guide/article it belongs to has already been generated successfully via
   // the fallback. Expected contention, not an incident.
   /another Nano Banana generation is already running fleet-wide/i,
+  // SecurityScanner's structlog executor logs scan_state_transitioned at
+  // [info] with the scan's result (including sub-tool stdout/stderr) dumped
+  // verbatim into `metadata`. Grype/Syft's own diagnostic chatter — e.g.
+  // "WARN no explicit name and version provided for directory source" — gets
+  // swept in by WARN_RE even though the scan itself completed cleanly and
+  // the executor already classified the line as info. Trust the app's own
+  // level over a nested tool's WARN string appearing inside a JSON blob.
+  /^\[info\s*\]\s*scan_state_transitioned\b.*\bWARN\b/i,
 ];
 
 function sh(cmd, args, opts = {}) {
