@@ -37,6 +37,7 @@ const guardrails = require('./guardrails');
 const domains = require('./domains');
 const social = require('./social');
 const socialhub = require('./socialhub');
+const automation = require('./automation');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -470,6 +471,45 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   // Social Hub (tools/social-hub) — proxied; see socialhub.js for why.
   socialhub.registerRoutes(app);
+
+  // Unified automation controls: tracked Social Hub YAML, worker schedules,
+  // enable flags, and role prompt files. The module validates and writes the
+  // existing source-of-truth files; the dashboard adds the audit record.
+  app.get('/api/automation/:slug', requireSite, (req, res) => {
+    try {
+      res.json(automation.get(root, req.params.slug));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/automation/:slug/social', requireSite, (req, res) => {
+    try {
+      res.json(automation.patchSocial(root, req.params.slug, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.put('/api/automation/:slug/social', requireSite, (req, res) => {
+    try {
+      res.json(automation.replaceSocialYaml(root, req.params.slug, req.body && req.body.raw));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/automation/:slug/roles/:role', requireSite, (req, res) => {
+    try {
+      res.json(automation.updateRole(root, req.params.slug, req.params.role, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/automation/:slug/roles', requireSite, (req, res) => {
+    try {
+      res.json(automation.createRole(root, req.params.slug, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
 
   // Background fleet-wide error/warn log scan (server/errorscan.js). Read-only
   // rollup; :id/lines below is guarded implicitly — errorscan only ever tracks

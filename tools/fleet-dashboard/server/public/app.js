@@ -1527,6 +1527,78 @@ function errLevelBadge(level) {
   return '<span class="badge b-green">clean</span>';
 }
 
+const ERRORS_UI = { q: '', level: '', scope: '', sort: 'count1h', dir: -1, page: 1, pageSize: 25 };
+
+function errorSortValue(r, key) {
+  if (key === 'name' || key === 'slug' || key === 'lastLevel' || key === 'lastLine')
+    return String(r[key] || '').toLowerCase();
+  return Number(r[key]) || 0;
+}
+
+function errorSortButton(key, label) {
+  const active = ERRORS_UI.sort === key;
+  const arrow = active ? (ERRORS_UI.dir < 0 ? '↓' : '↑') : '↕';
+  return `<th aria-sort="${active ? (ERRORS_UI.dir < 0 ? 'descending' : 'ascending') : 'none'}"><button class="error-sort${active ? ' active' : ''}" data-error-sort="${key}" type="button" title="Sort by ${esc(label)}">${esc(label)} <span aria-hidden="true">${arrow}</span></button></th>`;
+}
+
+function ensureErrorDrawer() {
+  let shell = $('#error-drawer-shell');
+  if (shell) return shell;
+  shell = document.createElement('div');
+  shell.id = 'error-drawer-shell';
+  shell.className = 'err-drawer-shell hidden';
+  shell.innerHTML = `<div class="err-drawer-backdrop" data-error-drawer-close></div><aside class="err-drawer" role="dialog" aria-modal="true" aria-labelledby="err-drawer-title"><div class="err-drawer-head"><div><h2 id="err-drawer-title">Error logs</h2><span id="err-drawer-subtitle" class="muted"></span></div><button class="icon-btn" type="button" data-error-drawer-close aria-label="Close error logs">×</button></div><div class="err-drawer-toolbar"><button id="err-drawer-copy" class="btn sm" type="button">Copy logs</button><button id="err-drawer-refresh" class="btn sm" type="button">↻ Refresh</button><span class="muted">retained matching lines</span></div><pre id="err-drawer-log" class="err-drawer-log">Select a container to view its logs.</pre></aside>`;
+  document.body.appendChild(shell);
+  $$('[data-error-drawer-close]', shell).forEach(el =>
+    el.addEventListener('click', closeErrorDrawer)
+  );
+  $('#err-drawer-refresh', shell).addEventListener('click', () =>
+    openErrorDrawer(shell.dataset.id)
+  );
+  $('#err-drawer-copy', shell).addEventListener('click', () =>
+    copyErrorText($('#err-drawer-log', shell).textContent, 'Logs')
+  );
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !shell.classList.contains('hidden')) closeErrorDrawer();
+  });
+  return shell;
+}
+
+function closeErrorDrawer() {
+  const shell = $('#error-drawer-shell');
+  if (shell) shell.classList.add('hidden');
+}
+
+async function copyErrorText(value, label) {
+  if (!value || value === 'Select a container to view its logs.') return;
+  try {
+    await navigator.clipboard.writeText(value);
+    toast(`${label} copied`);
+  } catch {
+    const area = document.createElement('textarea');
+    area.value = value;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+    toast(`${label} copied`);
+  }
+}
+
+async function openErrorDrawer(id) {
+  const shell = ensureErrorDrawer();
+  shell.dataset.id = id;
+  shell.classList.remove('hidden');
+  const row = $(`tr.err-row[data-error-id="${CSS.escape(id)}"]`);
+  $('#err-drawer-title', shell).textContent = row?.dataset.name || 'Error logs';
+  $('#err-drawer-subtitle', shell).textContent = row?.dataset.site
+    ? `${row.dataset.site} · live retained log`
+    : 'tool container · live retained log';
+  const log = $('#err-drawer-log', shell);
+  log.textContent = 'loading…';
+  log.textContent = await fetchErrorLines(id);
+}
+
 async function renderErrors() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading error scan…</div>';
@@ -1538,34 +1610,48 @@ async function renderErrors() {
     return;
   }
 
-  const rows = (d.containers || [])
-    .slice()
-    .sort(
-      (a, b) =>
-        b.count1h - a.count1h || (b.lastAt || 0) - (a.lastAt || 0) || a.name.localeCompare(b.name)
+  const rows = (d.containers || []).map(r => ({ ...r, slug: r.scope === 'site' ? r.slug : '' }));
+  const q = ERRORS_UI.q.trim().toLowerCase();
+  const filtered = rows.filter(r => {
+    const haystack = [r.name, r.slug, r.lastLevel, r.lastLine].join(' ').toLowerCase();
+    return (
+      (!q || haystack.includes(q)) &&
+      (!ERRORS_UI.level || (r.lastLevel || 'clean') === ERRORS_UI.level) &&
+      (!ERRORS_UI.scope || r.scope === ERRORS_UI.scope)
     );
+  });
+  filtered.sort((a, b) => {
+    const av = errorSortValue(a, ERRORS_UI.sort),
+      bv = errorSortValue(b, ERRORS_UI.sort);
+    const cmp =
+      typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    return cmp * ERRORS_UI.dir;
+  });
+  const pageCount = Math.max(1, Math.ceil(filtered.length / ERRORS_UI.pageSize));
+  ERRORS_UI.page = Math.min(ERRORS_UI.page, pageCount);
+  const start = (ERRORS_UI.page - 1) * ERRORS_UI.pageSize;
+  const pageRows = filtered.slice(start, start + ERRORS_UI.pageSize);
 
   const noisy1h = rows.filter(r => r.count1h > 0).length;
   const noisy24h = rows.filter(r => r.count24h > 0).length;
   const crit24h = rows.reduce((n, r) => n + r.crit24h, 0);
 
-  const body = rows
+  const body = pageRows
     .map(r => {
       const level = r.count24h > 0 ? r.lastLevel : null;
       const when = r.lastAt ? fmtAge((Date.now() - r.lastAt) / 1000) + ' ago' : '—';
-      return `<tr class="err-row" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}">
+      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row tabindex="0" title="Click to view retained logs">
       <td class="mono">${esc(r.name)}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${r.count1h ? `<span class="badge b-red">${r.count1h}</span>` : '<span class="muted">0</span>'}</td>
       <td>${r.count24h ? `<span class="badge ${r.count1h ? 'b-red' : 'b-yellow'}">${r.count24h}</span>` : '<span class="muted">0</span>'}</td>
       <td>${errLevelBadge(level)}</td>
       <td class="mono muted">${esc(when)}</td>
-      <td class="mono muted err-snippet" title="${esc(r.lastLine || '')}">${esc((r.lastLine || '—').slice(0, 90))}</td>
-      <td><button class="btn sm err-toggle" data-id="${esc(r.id)}">📜 Lines</button></td>
-    </tr>
-    <tr class="err-detail-row hidden" data-detail="${esc(r.id)}" data-rk="err:${esc(r.id)}"><td colspan="8">
-      <div class="cn-log-toolbar muted"><span>matched lines (retained window) · <span class="live-tag">live</span></span></div>
-      <pre class="cn-logs-box" id="el-${esc(r.id)}" data-rkh="err:${esc(r.id)}"></pre></td></tr>`;
+      <td class="mono muted err-line-cell"><span class="err-snippet" data-tooltip="${esc(r.lastLine || 'No matching line')}" title="${esc(r.lastLine || 'No matching line')}">${esc((r.lastLine || '—').slice(0, 90))}</span><button class="btn sm err-copy" data-id="${esc(r.id)}" type="button" title="Copy the full last line">Copy</button></td>
+      <td class="err-actions"><button class="btn sm err-toggle" data-id="${esc(r.id)}" type="button">📜 Logs</button></td>
+    </tr>`;
     })
     .join('');
 
@@ -1573,13 +1659,20 @@ async function renderErrors() {
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide log scan — error/warn lines tailed from every in-repo container's docker logs.</span></div>
     <div class="task-toolbar">
-      <strong>${rows.length} containers scanned</strong>
+      <strong>${filtered.length} matching · ${rows.length} containers scanned</strong>
       <span class="muted">${dotLegend('overdue', noisy1h + ' erroring now')} · ${dotLegend('paused', noisy24h + ' in last 24h')}${crit24h ? ' · ' + dotLegend('overdue', crit24h + ' crit') : ''} · last swept ${esc(swept)}</span>
     </div>
-    <div class="card"><table>
-      <thead><tr><th>Container</th><th>Site</th><th>1h</th><th>24h</th><th>Level</th><th>Last</th><th>Last line</th><th></th></tr></thead>
-      <tbody>${body || '<tr><td colspan="8" class="muted">No containers scanned yet — the poller sweeps every 3 minutes in the background.</td></tr>'}</tbody>
+    <div class="task-toolbar errors-toolbar">
+      <label>Search<input id="errors-q" class="cm-input" type="search" placeholder="Container, site, log text…" value="${esc(ERRORS_UI.q)}" autocomplete="off"></label>
+      <label>Level<select id="errors-level" class="cm-input"><option value="">All levels</option>${['crit', 'error', 'warn', 'clean'].map(l => `<option value="${l}" ${ERRORS_UI.level === l ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Scope<select id="errors-scope" class="cm-input"><option value="">All containers</option><option value="site" ${ERRORS_UI.scope === 'site' ? 'selected' : ''}>Site containers</option><option value="tool" ${ERRORS_UI.scope === 'tool' ? 'selected' : ''}>Tool containers</option></select></label>
+      <label>Per page<select id="errors-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${ERRORS_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    </div>
+    <div class="card error-card"><table>
+      <thead><tr>${errorSortButton('name', 'Container')}${errorSortButton('slug', 'Site')}${errorSortButton('count1h', '1h')}${errorSortButton('count24h', '24h')}${errorSortButton('lastLevel', 'Level')}${errorSortButton('lastAt', 'Last')}${errorSortButton('lastLine', 'Last line')}<th>Actions</th></tr></thead>
+      <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No containers match the current filters.' : 'No containers scanned yet — the poller sweeps every 3 minutes in the background.'}</td></tr>`}</tbody>
     </table></div>
+    <div class="activity-pagination error-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ERRORS_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 containers'}</span><button id="errors-prev" class="btn sm" type="button" ${ERRORS_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ERRORS_UI.page} of ${pageCount}</span><button id="errors-next" class="btn sm" type="button" ${ERRORS_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
     <p class="muted" style="margin-top:12px">Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p>`;
 
   wireErrorRows();
@@ -1589,30 +1682,80 @@ async function renderErrors() {
 }
 
 function wireErrorRows() {
-  $$('.err-toggle').forEach(b => b.addEventListener('click', () => toggleErrorLines(b.dataset.id)));
+  $$('.err-row').forEach(row => {
+    row.addEventListener('click', e => {
+      if (!e.target.closest('button')) openErrorDrawer(row.dataset.errorId);
+    });
+    row.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openErrorDrawer(row.dataset.errorId);
+      }
+    });
+  });
+  $$('.err-toggle').forEach(b =>
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      openErrorDrawer(b.dataset.id);
+    })
+  );
+  $$('.err-copy').forEach(b =>
+    b.addEventListener('click', async e => {
+      e.stopPropagation();
+      const row = b.closest('.err-row');
+      await copyErrorText(row?.dataset.lastLine || '', 'Last line');
+    })
+  );
+  $$('.error-sort').forEach(b =>
+    b.addEventListener('click', () => {
+      const key = b.dataset.errorSort;
+      if (ERRORS_UI.sort === key) ERRORS_UI.dir *= -1;
+      else {
+        ERRORS_UI.sort = key;
+        ERRORS_UI.dir = ['name', 'slug', 'lastLevel', 'lastLine'].includes(key) ? 1 : -1;
+      }
+      ERRORS_UI.page = 1;
+      renderErrors();
+    })
+  );
+  $('#errors-q').addEventListener('change', e => {
+    ERRORS_UI.q = e.target.value;
+    ERRORS_UI.page = 1;
+    renderErrors();
+  });
+  $('#errors-level').addEventListener('change', e => {
+    ERRORS_UI.level = e.target.value;
+    ERRORS_UI.page = 1;
+    renderErrors();
+  });
+  $('#errors-scope').addEventListener('change', e => {
+    ERRORS_UI.scope = e.target.value;
+    ERRORS_UI.page = 1;
+    renderErrors();
+  });
+  $('#errors-page-size').addEventListener('change', e => {
+    ERRORS_UI.pageSize = Number(e.target.value) || 25;
+    ERRORS_UI.page = 1;
+    renderErrors();
+  });
+  $('#errors-prev').addEventListener('click', () => {
+    ERRORS_UI.page--;
+    renderErrors();
+  });
+  $('#errors-next').addEventListener('click', () => {
+    ERRORS_UI.page++;
+    renderErrors();
+  });
 }
 
-async function toggleErrorLines(id) {
-  const row = $(`tr.err-detail-row[data-detail="${CSS.escape(id)}"]`);
-  const box = $(`#el-${CSS.escape(id)}`);
-  if (!row || !box) return;
-  if (!row.classList.contains('hidden')) {
-    row.classList.add('hidden');
-    return;
-  }
-  row.classList.remove('hidden');
-  box.textContent = 'loading…';
-  await fetchErrorLines(id, box);
-}
-
-async function fetchErrorLines(id, box) {
+async function fetchErrorLines(id) {
   try {
     const r = await api('GET', `/api/errors/${encodeURIComponent(id)}/lines?limit=500`);
-    box.textContent = r.lines.length
+    return r.lines.length
       ? r.lines.map(l => `${new Date(l.tsMs).toISOString()} [${l.level}] ${l.line}`).join('\n')
       : '(no matched lines in the retained window)';
   } catch (e) {
-    box.textContent = `error: ${e.message}`;
+    return `error: ${e.message}`;
   }
 }
 
@@ -1625,6 +1768,24 @@ function activitySiteFromPath(p) {
   );
   return m ? decodeURIComponent(m[1]) : null;
 }
+
+const ACTIVITY_UI = { q: '', status: '', method: '', sort: 'ts', dir: -1, page: 1, pageSize: 50 };
+let activityFilterTimer = null;
+
+function activitySortValue(a, key) {
+  if (key === 'ts') return new Date(a.ts || 0).getTime() || 0;
+  if (key === 'site') return activitySiteFromPath(a.path) || '';
+  if (key === 'status') return Number(a.status) || 0;
+  if (key === 'ms') return Number(a.ms) || 0;
+  return String(a[key] || '').toLowerCase();
+}
+
+function activitySortButton(key, label) {
+  const active = ACTIVITY_UI.sort === key;
+  const arrow = active ? (ACTIVITY_UI.dir < 0 ? '↓' : '↑') : '↕';
+  return `<th aria-sort="${active ? (ACTIVITY_UI.dir < 0 ? 'descending' : 'ascending') : 'none'}"><button class="activity-sort${active ? ' active' : ''}" data-activity-sort="${key}" type="button" title="Sort by ${esc(label)}">${esc(label)} <span aria-hidden="true">${arrow}</span></button></th>`;
+}
+
 async function renderActivity() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading action log…</div>';
@@ -1636,12 +1797,34 @@ async function renderActivity() {
     return;
   }
 
-  const rows = data.actions || [];
+  const rows = (data.actions || []).map(a => ({ ...a, site: activitySiteFromPath(a.path) || '' }));
+  const q = ACTIVITY_UI.q.trim().toLowerCase();
+  const filtered = rows.filter(a => {
+    const haystack = [a.actor, a.method, a.path, a.site, a.status, a.ip].join(' ').toLowerCase();
+    return (
+      (!q || haystack.includes(q)) &&
+      (!ACTIVITY_UI.status || (a.ok ? 'ok' : 'failed') === ACTIVITY_UI.status) &&
+      (!ACTIVITY_UI.method || String(a.method || '').toUpperCase() === ACTIVITY_UI.method)
+    );
+  });
+  filtered.sort((a, b) => {
+    const av = activitySortValue(a, ACTIVITY_UI.sort),
+      bv = activitySortValue(b, ACTIVITY_UI.sort);
+    const cmp =
+      typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    return cmp * ACTIVITY_UI.dir;
+  });
+  const pageCount = Math.max(1, Math.ceil(filtered.length / ACTIVITY_UI.pageSize));
+  ACTIVITY_UI.page = Math.min(ACTIVITY_UI.page, pageCount);
+  const start = (ACTIVITY_UI.page - 1) * ACTIVITY_UI.pageSize;
+  const pageRows = filtered.slice(start, start + ACTIVITY_UI.pageSize);
   const failed = rows.filter(a => !a.ok).length;
 
-  const body = rows
+  const body = pageRows
     .map(a => {
-      const site = activitySiteFromPath(a.path);
+      const site = a.site;
       return `<tr${site ? ` data-fleet-row data-site="${esc(site)}"` : ''}>
       <td class="mono muted">${esc((a.ts || '').replace('T', ' ').slice(0, 19))}</td>
       <td class="mono">${esc(a.actor)}</td>
@@ -1657,15 +1840,61 @@ async function renderActivity() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Activity</h2><span class="muted">durable audit trail of every mutating dashboard action — newest first</span></div>
-    <div class="task-toolbar">
-      <strong>${rows.length} actions</strong>
+    <div class="task-toolbar activity-toolbar">
+      <label>Search<input id="activity-q" class="cm-input" type="search" placeholder="Path, actor, site…" value="${esc(ACTIVITY_UI.q)}" autocomplete="off"></label>
+      <label>Status<select id="activity-status" class="cm-input"><option value="">All statuses</option><option value="ok" ${ACTIVITY_UI.status === 'ok' ? 'selected' : ''}>Succeeded</option><option value="failed" ${ACTIVITY_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select></label>
+      <label>Method<select id="activity-method" class="cm-input"><option value="">All methods</option>${['POST', 'PUT', 'PATCH', 'DELETE'].map(m => `<option value="${m}" ${ACTIVITY_UI.method === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+      <label>Per page<select id="activity-page-size" class="cm-input">${[25, 50, 100].map(n => `<option value="${n}" ${ACTIVITY_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <strong class="activity-count">${filtered.length} matching · ${rows.length} loaded</strong>
       <span class="muted">${failed ? `<span class="flag">${failed} failed</span>` : 'all succeeded'}</span>
     </div>
     <div class="card"><table>
-      <thead><tr><th>Time</th><th>Actor</th><th>Method</th><th>Path</th><th>Site</th><th>Status</th><th>Duration</th><th>IP</th></tr></thead>
-      <tbody>${body || '<tr><td colspan="8" class="muted">No actions recorded yet.</td></tr>'}</tbody>
+      <thead><tr>${activitySortButton('ts', 'Time')}${activitySortButton('actor', 'Actor')}${activitySortButton('method', 'Method')}${activitySortButton('path', 'Path')}${activitySortButton('site', 'Site')}${activitySortButton('status', 'Status')}${activitySortButton('ms', 'Duration')}${activitySortButton('ip', 'IP')}</tr></thead>
+      <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No actions match the current filters.' : 'No actions recorded yet.'}</td></tr>`}</tbody>
     </table></div>
+    <div class="activity-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ACTIVITY_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 actions'}</span><button id="activity-prev" class="btn sm" type="button" ${ACTIVITY_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ACTIVITY_UI.page} of ${pageCount}</span><button id="activity-next" class="btn sm" type="button" ${ACTIVITY_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
     <p class="muted" style="margin-top:12px">Every completed POST/PUT/DELETE to the dashboard's API, including rejected attempts (401/403). <b>Actor</b> is a non-reversible fingerprint of the caller's token/cookie, never the secret itself.</p>`;
+  $('#activity-q').addEventListener('input', e => {
+    ACTIVITY_UI.q = e.target.value;
+    ACTIVITY_UI.page = 1;
+    clearTimeout(activityFilterTimer);
+    activityFilterTimer = setTimeout(() => renderActivity(), 250);
+  });
+  $('#activity-status').addEventListener('change', e => {
+    ACTIVITY_UI.status = e.target.value;
+    ACTIVITY_UI.page = 1;
+    renderActivity();
+  });
+  $('#activity-method').addEventListener('change', e => {
+    ACTIVITY_UI.method = e.target.value;
+    ACTIVITY_UI.page = 1;
+    renderActivity();
+  });
+  $('#activity-page-size').addEventListener('change', e => {
+    ACTIVITY_UI.pageSize = Number(e.target.value) || 50;
+    ACTIVITY_UI.page = 1;
+    renderActivity();
+  });
+  $$('.activity-sort').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.activitySort;
+      if (ACTIVITY_UI.sort === key) ACTIVITY_UI.dir *= -1;
+      else {
+        ACTIVITY_UI.sort = key;
+        ACTIVITY_UI.dir = key === 'ts' ? -1 : 1;
+      }
+      ACTIVITY_UI.page = 1;
+      renderActivity();
+    })
+  );
+  $('#activity-prev').addEventListener('click', () => {
+    ACTIVITY_UI.page--;
+    renderActivity();
+  });
+  $('#activity-next').addEventListener('click', () => {
+    ACTIVITY_UI.page++;
+    renderActivity();
+  });
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -2621,10 +2850,13 @@ function logFollowTick() {
     });
   }
   if (STATE.view === 'errors') {
-    $$('.err-detail-row:not(.hidden)').forEach(r => {
-      const box = $(`#el-${CSS.escape(r.dataset.detail)}`);
-      if (box) fetchErrorLines(r.dataset.detail, box);
-    });
+    const drawer = $('#error-drawer-shell');
+    if (drawer && !drawer.classList.contains('hidden') && drawer.dataset.id) {
+      fetchErrorLines(drawer.dataset.id).then(text => {
+        if (!drawer.classList.contains('hidden') && drawer.dataset.id)
+          $('#err-drawer-log', drawer).textContent = text;
+      });
+    }
   }
   if (ROLE_OPEN && !$('#modal').classList.contains('hidden'))
     fetchRoleLog(ROLE_OPEN.site, ROLE_OPEN.role);
@@ -8325,6 +8557,7 @@ const NAV_GROUPS = {
       ['analytics', 'Analytics'],
       ['social', 'Social'],
       ['socialhub', 'Social Hub'],
+      ['automation', 'Automation'],
       ['aiusage', 'AI Usage'],
       ['aioptimizer', 'AI Optimizer'],
       ['aiinventory', 'AI Inventory'],
@@ -8408,6 +8641,260 @@ function applyUISnap() {
   if (typeof s.scroll === 'number') window.scrollTo(0, s.scroll);
 }
 
+// ---------------------------------------------------------------- Automation
+// One management surface for the controls that are otherwise split across
+// hub.yaml, role markdown, and per-site crontabs.
+let AUTO_SITE = '';
+
+const AUTO_SCHEDULE_PRESETS = [
+  ['*/15 * * * *', 'Every 15 minutes'],
+  ['*/30 * * * *', 'Every 30 minutes'],
+  ['0 * * * *', 'Every hour'],
+  ['0 */2 * * *', 'Every 2 hours'],
+  ['0 6 * * *', 'Every day at 6:00 AM'],
+  ['0 9 * * 1-5', 'Weekdays at 9:00 AM'],
+  ['0 9 * * 1', 'Every Monday at 9:00 AM'],
+  ['0 9 1 * *', 'First day of every month at 9:00 AM'],
+];
+
+function automationSchedulePicker(id, value) {
+  const preset = AUTO_SCHEDULE_PRESETS.find(([expr]) => expr === value);
+  return `<div class="auto-schedule-picker" data-auto-schedule-picker>
+    <select id="${esc(id)}-preset" class="cm-input auto-schedule-preset" aria-label="Choose a schedule">
+      <option value="">Choose a common schedule…</option>
+      ${AUTO_SCHEDULE_PRESETS.map(([expr, label]) => `<option value="${esc(expr)}" ${expr === value ? 'selected' : ''}>${esc(label)}</option>`).join('')}
+      <option value="__custom__" ${preset ? '' : 'selected'}>Custom cron schedule…</option>
+    </select>
+    <input id="${esc(id)}" class="cm-input auto-role-schedule${preset ? ' hidden' : ''}" type="text" value="${esc(value)}" placeholder="minute hour day month weekday" spellcheck="false" autocomplete="off" aria-label="Custom five-field cron schedule" />
+    <span class="muted auto-schedule-help">${preset ? esc(preset[1]) : 'Use custom five-field cron, for example: 15 8 * * 1-5'}</span>
+  </div>`;
+}
+
+function wireAutomationSchedulePickers() {
+  $$('[data-auto-schedule-picker]').forEach(picker => {
+    const select = $('.auto-schedule-preset', picker);
+    const input = $('.auto-role-schedule', picker);
+    const help = $('.auto-schedule-help', picker);
+    select.addEventListener('change', () => {
+      const custom = select.value === '__custom__';
+      if (!custom && select.value) input.value = select.value;
+      input.classList.toggle('hidden', !custom);
+      const preset = AUTO_SCHEDULE_PRESETS.find(([expr]) => expr === input.value);
+      help.textContent = custom
+        ? 'Use custom five-field cron, for example: 15 8 * * 1-5'
+        : preset
+          ? preset[1]
+          : 'Choose a schedule above';
+    });
+  });
+}
+
+function automationSiteOptions(selected) {
+  return ['<option value="">Select a site…</option>']
+    .concat(
+      (STATE.sites || []).map(
+        s => `<option value="${esc(s)}" ${s === selected ? 'selected' : ''}>${esc(s)}</option>`
+      )
+    )
+    .join('');
+}
+
+function cycleAutomationSite(direction) {
+  const sites = STATE.sites || [];
+  if (!sites.length) return;
+  const selectedIndex = sites.indexOf(AUTO_SITE);
+  const current = selectedIndex === -1 ? (direction > 0 ? -1 : 0) : selectedIndex;
+  AUTO_SITE = sites[(current + direction + sites.length) % sites.length];
+  renderAutomation();
+}
+
+async function renderAutomation() {
+  if (FRESH) app.innerHTML = '<div class="loading">Loading automation controls…</div>';
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Automation</h2><span class="muted">Approval, cadence, worker switches, schedules, and prompts — per site</span></div>
+    <div class="task-toolbar auto-site-toolbar"><button id="auto-site-prev" class="btn sm auto-site-nav" type="button" aria-label="Previous site" title="Previous site">←</button><select id="auto-site" class="cm-input" aria-label="Automation site">${automationSiteOptions(AUTO_SITE)}</select><button id="auto-site-next" class="btn sm auto-site-nav" type="button" aria-label="Next site" title="Next site">→</button><span class="muted">Changes are written to tracked site ops files.</span></div>
+    <div id="auto-body" class="loading">Select a site to manage its automation.</div>`;
+  $('#auto-site').addEventListener('change', e => {
+    AUTO_SITE = e.target.value;
+    renderAutomation();
+  });
+  $('#auto-site-prev').addEventListener('click', () => cycleAutomationSite(-1));
+  $('#auto-site-next').addEventListener('click', () => cycleAutomationSite(1));
+  const siteNavDisabled = !(STATE.sites || []).length;
+  $('#auto-site-prev').disabled = siteNavDisabled;
+  $('#auto-site-next').disabled = siteNavDisabled;
+  if (!AUTO_SITE) {
+    if (!FRESH) applyUISnap();
+    return;
+  }
+  let data;
+  try {
+    data = await api('GET', `/api/automation/${encodeURIComponent(AUTO_SITE)}`);
+  } catch (e) {
+    $('#auto-body').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    if (!FRESH) applyUISnap();
+    return;
+  }
+  const cfg = data.social.config || {};
+  const cadence = cfg.cadence || {};
+  const reply = cfg.reply || {};
+  const roles = data.roles || [];
+  const platformRows = (cfg.platforms || [])
+    .map((platform, i) => {
+      const override = (cfg.platform_overrides || {})[platform] || {};
+      const approval = override.approval || cfg.approval || 'auto';
+      return `<label>${esc(platform)} approval<select id="auto-platform-${i}" data-platform-approval="${esc(platform)}" class="cm-input"><option value="auto" ${approval === 'auto' ? 'selected' : ''}>Automatic</option><option value="manual" ${approval === 'manual' ? 'selected' : ''}>Require human approval</option></select></label>`;
+    })
+    .join('');
+  $('#auto-body').innerHTML = `
+    <div class="cards">
+      <section class="card">
+        <div class="page-head"><h3>Social Hub policy</h3><span class="muted">${esc(data.social.file)}</span></div>
+        <div class="form-grid">
+          <label>Public post approval<select id="auto-approval" class="cm-input"><option value="auto" ${cfg.approval === 'auto' ? 'selected' : ''}>Automatic</option><option value="manual" ${cfg.approval === 'manual' ? 'selected' : ''}>Require human approval</option></select></label>
+          <label>Max source age (hours)<input id="auto-age" class="cm-input" type="number" min="0" step="1" value="${esc(cfg.max_source_age_hours ?? '')}"></label>
+          <label>Posts per platform/day<input id="auto-per-day" class="cm-input" type="number" min="0" step="1" value="${esc(cadence.per_platform_per_day ?? '')}"></label>
+          <label>Minimum gap (minutes)<input id="auto-gap" class="cm-input" type="number" min="0" step="1" value="${esc(cadence.min_gap_minutes ?? '')}"></label>
+          <label>Sources per tick<input id="auto-source-limit" class="cm-input" type="number" min="0" step="1" value="${esc(cfg.max_sources_per_run ?? '')}"></label>
+          <label>Reply approval<select id="auto-reply-approval" class="cm-input"><option value="manual" ${reply.approval === 'manual' ? 'selected' : ''}>Require human approval</option><option value="auto" ${reply.approval === 'auto' ? 'selected' : ''}>Automatic</option></select></label>
+        </div>
+        ${platformRows ? `<div class="page-head"><strong>Per-platform post approval</strong><span class="muted">Overrides the global policy above.</span></div><div class="form-grid">${platformRows}</div>` : ''}
+        <div class="task-actions"><button id="auto-social-save" class="btn primary">Save policy</button><button id="auto-rebuild" class="btn">Rebuild cron container</button><span id="auto-social-msg" class="muted"></span></div>
+        <details class="auto-raw"><summary>Advanced: edit complete hub.yaml</summary><textarea id="auto-social-raw" class="cm-input" rows="20" spellcheck="false">${esc(data.social.raw)}</textarea><div class="task-actions"><button id="auto-raw-save" class="btn">Save complete YAML</button></div></details>
+      </section>
+    </div>
+    <section class="card"><div class="page-head"><h3>Scheduled roles</h3><span class="muted">Disable, change cadence, or edit the full role prompt. Schedule changes require a cron rebuild.</span></div>
+      <details class="auto-role"><summary><strong>＋ Add worker role</strong><span class="muted">Create a separate writer, promotion, or breaking-news loop.</span></summary>
+        <div class="form-grid"><label>Role name<input id="auto-new-role" class="cm-input" placeholder="news-writer" pattern="[a-z0-9-]+"></label><label>Schedule${automationSchedulePicker('auto-new-schedule', '0 */2 * * *')}</label><label>Start enabled<select id="auto-new-enabled" class="cm-input"><option value="true">On</option><option value="false">Off</option></select></label></div>
+        <label>Prompt / role instructions<textarea id="auto-new-prompt" class="cm-input" rows="10" placeholder="# News Writer\nDescribe the role's job, guardrails, and output contract." spellcheck="false"></textarea></label>
+        <div class="task-actions"><button id="auto-new-save" class="btn primary">Add worker role</button></div>
+      </details>
+      ${
+        roles.length
+          ? roles
+              .map(
+                (
+                  r,
+                  i
+                ) => `<details class="auto-role" data-auto-role="${esc(r.role)}"><summary><span class="badge ${r.enabled ? 'b-green' : 'b-gray'}">${r.enabled ? 'on' : 'off'}</span> <strong>${esc(r.role)}</strong><span class="muted mono">${esc(r.schedule)}</span>${r.entries.length > 1 ? `<span class="badge b-yellow">${r.entries.length} schedules</span>` : ''}</summary>
+        <div class="form-grid"><label>Enabled<select class="cm-input auto-role-enabled" ${r.worker ? '' : 'disabled'}><option value="true" ${r.enabled ? 'selected' : ''}>On</option><option value="false" ${!r.enabled ? 'selected' : ''}>Off</option></select>${r.worker ? '' : '<span class="muted">Dedicated job; use its script/container controls.</span>'}</label><label>Schedule${automationSchedulePicker(`auto-role-schedule-${i}`, r.schedule)}</label></div>
+        <label>Prompt / role instructions<textarea class="cm-input auto-role-prompt" rows="14" spellcheck="false">${esc(r.prompt || '')}</textarea></label>
+        <div class="task-actions"><button class="btn primary auto-role-save" data-role="${esc(r.role)}">Save ${esc(r.role)}</button><span class="muted">${esc(r.promptPath || 'no prompt file; saving creates one')}</span></div>
+      </details>`
+              )
+              .join('')
+          : '<div class="empty">No scheduled worker roles found.</div>'
+      }
+    </section>`;
+
+  wireAutomationSchedulePickers();
+
+  $('#auto-social-save').addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      const platformApprovals = {};
+      $$('[data-platform-approval]').forEach(select => {
+        platformApprovals[select.dataset.platformApproval] = select.value;
+      });
+      await api('PATCH', `/api/automation/${encodeURIComponent(AUTO_SITE)}/social`, {
+        approval: $('#auto-approval').value,
+        platformApprovals,
+        max_source_age_hours: Number($('#auto-age').value),
+        max_sources_per_run: Number($('#auto-source-limit').value),
+        cadence: {
+          per_platform_per_day: Number($('#auto-per-day').value),
+          min_gap_minutes: Number($('#auto-gap').value),
+        },
+        reply: { approval: $('#auto-reply-approval').value },
+      });
+      $('#auto-social-msg').textContent = 'Saved.';
+      toast('Social Hub policy saved');
+    } catch (err) {
+      toast(err.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  $('#auto-raw-save').addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      await api('PUT', `/api/automation/${encodeURIComponent(AUTO_SITE)}/social`, {
+        raw: $('#auto-social-raw').value,
+      });
+      toast('Complete hub.yaml saved');
+      renderAutomation();
+    } catch (err) {
+      toast(err.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  $('#auto-rebuild').addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    $('#auto-social-msg').textContent = 'Rebuilding…';
+    try {
+      const res = await fetch(`/api/cron/systems/${encodeURIComponent(AUTO_SITE)}/rebuild`, {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+      const text = await res.text();
+      if (!res.ok || !text.includes('@@VERDICT ok'))
+        throw new Error(text.slice(-500) || `rebuild failed (${res.status})`);
+      $('#auto-social-msg').textContent = 'Cron container rebuilt and verified.';
+      toast('Cron container rebuilt');
+    } catch (err) {
+      $('#auto-social-msg').textContent = err.message;
+      toast(err.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  $('#auto-new-save').addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      await api('POST', `/api/automation/${encodeURIComponent(AUTO_SITE)}/roles`, {
+        role: $('#auto-new-role').value,
+        schedule: $('#auto-new-schedule').value,
+        enabled: $('#auto-new-enabled').value === 'true',
+        prompt: $('#auto-new-prompt').value,
+      });
+      toast('Worker role added');
+      renderAutomation();
+    } catch (err) {
+      toast(err.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  $$('.auto-role-save').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const card = btn.closest('[data-auto-role]');
+      btn.disabled = true;
+      try {
+        await api(
+          'PATCH',
+          `/api/automation/${encodeURIComponent(AUTO_SITE)}/roles/${encodeURIComponent(btn.dataset.role)}`,
+          {
+            enabled: card.querySelector('.auto-role-enabled').value === 'true',
+            schedule: card.querySelector('.auto-role-schedule').value,
+            prompt: card.querySelector('.auto-role-prompt').value,
+          }
+        );
+        toast(`${btn.dataset.role} saved`);
+        renderAutomation();
+      } catch (err) {
+        toast(err.message, 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    })
+  );
+  if (!FRESH) applyUISnap();
+}
+
 function render() {
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -8415,40 +8902,41 @@ function render() {
   document.body.dataset.view = STATE.view; // lets CSS widen specific views
   syncAgentsMenuActive();
   syncNavGroupsActive();
-  if (STATE.view === 'control') renderControl();
-  else if (STATE.view === 'cron') renderCron();
-  else if (STATE.view === 'agent') renderAgent(STATE.agent);
-  else if (STATE.view === 'containers') renderContainers();
-  else if (STATE.view === 'git') renderGit();
-  else if (STATE.view === 'githygiene') renderGitHygiene();
-  else if (STATE.view === 'gitstashes') renderGitStashes(STATE.gitSlug);
-  else if (STATE.view === 'tasks') renderTasks();
-  else if (STATE.view === 'taskbudget') renderTaskBudget();
-  else if (STATE.view === 'aiinventory') renderAIInventory();
-  else if (STATE.view === 'aiusage') renderAIUsage();
-  else if (STATE.view === 'aioptimizer') renderAIOptimizer();
-  else if (STATE.view === 'datahub') renderDataHub();
-  else if (STATE.view === 'datahubimages') renderDataHubImages();
-  else if (STATE.view === 'productfeed') renderProductFeed();
-  else if (STATE.view === 'analytics') renderAnalytics();
-  else if (STATE.view === 'compliance') renderCompliance();
-  else if (STATE.view === 'lint') renderLint();
-  else if (STATE.view === 'deploys') renderDeployHealth();
-  else if (STATE.view === 'health') renderHealth();
-  else if (STATE.view === 'errors') renderErrors();
-  else if (STATE.view === 'activity') renderActivity();
-  else if (STATE.view === 'devsandbox') renderDevSandbox();
-  else if (STATE.view === 'sitefacts') renderSiteFacts();
-  else if (STATE.view === 'guides') renderGuides();
-  else if (STATE.view === 'guardrails') renderGuardrails();
-  else if (STATE.view === 'social') renderSocial();
-  else if (STATE.view === 'socialhub') renderSocialHub();
-  else if (STATE.view === 'domains') renderDomains();
+  if (STATE.view === 'control') return renderControl();
+  else if (STATE.view === 'cron') return renderCron();
+  else if (STATE.view === 'agent') return renderAgent(STATE.agent);
+  else if (STATE.view === 'containers') return renderContainers();
+  else if (STATE.view === 'git') return renderGit();
+  else if (STATE.view === 'githygiene') return renderGitHygiene();
+  else if (STATE.view === 'gitstashes') return renderGitStashes(STATE.gitSlug);
+  else if (STATE.view === 'tasks') return renderTasks();
+  else if (STATE.view === 'taskbudget') return renderTaskBudget();
+  else if (STATE.view === 'aiinventory') return renderAIInventory();
+  else if (STATE.view === 'aiusage') return renderAIUsage();
+  else if (STATE.view === 'aioptimizer') return renderAIOptimizer();
+  else if (STATE.view === 'datahub') return renderDataHub();
+  else if (STATE.view === 'datahubimages') return renderDataHubImages();
+  else if (STATE.view === 'productfeed') return renderProductFeed();
+  else if (STATE.view === 'analytics') return renderAnalytics();
+  else if (STATE.view === 'compliance') return renderCompliance();
+  else if (STATE.view === 'lint') return renderLint();
+  else if (STATE.view === 'deploys') return renderDeployHealth();
+  else if (STATE.view === 'health') return renderHealth();
+  else if (STATE.view === 'errors') return renderErrors();
+  else if (STATE.view === 'activity') return renderActivity();
+  else if (STATE.view === 'devsandbox') return renderDevSandbox();
+  else if (STATE.view === 'sitefacts') return renderSiteFacts();
+  else if (STATE.view === 'guides') return renderGuides();
+  else if (STATE.view === 'guardrails') return renderGuardrails();
+  else if (STATE.view === 'social') return renderSocial();
+  else if (STATE.view === 'socialhub') return renderSocialHub();
+  else if (STATE.view === 'automation') return renderAutomation();
+  else if (STATE.view === 'domains') return renderDomains();
 }
 
 function renderAgent(role) {
-  if (role === 'engineer') renderEngineers();
-  else renderGenericAgent(role);
+  if (role === 'engineer') return renderEngineers();
+  return renderGenericAgent(role);
 }
 
 // In-place refresh of the current view: capture UI state, repaint without the
@@ -8456,7 +8944,13 @@ function renderAgent(role) {
 function softRender() {
   UISNAP = captureUI();
   FRESH = false;
-  render();
+  const pending = render();
+  Promise.resolve(pending).then(() => {
+    if (FRESH) return;
+    requestAnimationFrame(() => {
+      if (!FRESH) applyUISnap();
+    });
+  });
 }
 
 function go(view, agent) {
