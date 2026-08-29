@@ -85,3 +85,4 @@ ops/logs/*
 # in-flight design session keeps writing fresh ones (B14, 2026-08-25).
 # Nothing reads from here — delete it whenever.
 .screenshots-archive/
+**/__pycache__/**
