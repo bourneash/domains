@@ -1,6 +1,6 @@
 ---
 name: skills-domain-social-setup
-description: Provision social media accounts (Bluesky, Pinterest, Reddit) for a domain site using CloakBrowser + full-automation scripts, with credentials in the fleet's Vaultwarden instance and status tracked in the fleet social registry (Fleet Dashboard Social tab / social_registry.py). Use when onboarding a new site's social presence, resuming a stalled/failed signup, re-provisioning an account the platform suspended or closed, or extending the automation to a new platform. Captures the exact operational pattern (live captcha hand-off with Jesse, verify-before-claim discipline, known per-platform bugs) worked out across the first fleet-wide rollout — read this before re-deriving any of it from scratch.
+description: Provision social media accounts (Bluesky, Pinterest, Reddit, X/Twitter) for a domain site using CloakBrowser + full-automation scripts, with credentials in the fleet's Vaultwarden instance and status tracked in the fleet social registry (Fleet Dashboard Social tab / social_registry.py). Use when onboarding a new site's social presence, resuming a stalled/failed signup, re-provisioning an account the platform suspended or closed, or extending the automation to a new platform. Captures the exact operational pattern (live captcha hand-off with Jesse, verify-before-claim discipline, known per-platform bugs) worked out across the first fleet-wide rollout — read this before re-deriving any of it from scratch.
 ---
 
 # Fleet Social Media Setup
@@ -104,7 +104,8 @@ first.
 ## 2. The signup scripts
 
 Location: `tools/social-setup/scripts/` — `bsky_signup.py`,
-`pinterest_signup.py`, `reddit_signup.py`, `bsky_finish_onboarding.py`.
+`pinterest_signup.py`, `reddit_signup.py`, `x_signup.py`,
+`bsky_finish_onboarding.py`, `bsky_fill_profile.py`, `x_fill_profile.py`.
 
 All follow the same shape:
 
@@ -289,6 +290,174 @@ Jesse's attention with no way to tell which was which:
   Jesse 2026-08-14** — don't retry without spacing attempts out much
   further (hours/days, not minutes) or changing egress IP.
 
+### X / Twitter (`x_signup.py`) — fully automated as of 2026-08-29
+
+Needs a real (non-VoIP) phone number — X rejects Twilio-class numbers, so
+`x_signup.py` rents one from **SMSPool** per account
+(`social_lib.sms_gate.smspool_order/wait_for_code/cancel`,
+`SMSPOOL_API_KEY` in `.env`, service id `948` for X/Twitter). Rent the
+number *before* opening the browser so its ~20min expiry isn't racing
+browser/DOM flakiness.
+
+```bash
+python3 tools/social-setup/scripts/x_signup.py <domain> "<Display Name>" <handle> [persona-slug]
+```
+
+**The real signup flow** (confirmed live 2026-08-29, shoptopless.com — very
+different from what a naive first draft assumed, and different from every
+other platform's shape here, so don't pattern-match off Bluesky/Pinterest):
+1. `/i/flow/signup` lands on a combined login/signup chooser. "Continue
+   with phone" itself starts account creation — there's no separate
+   "Create account" link.
+2. Phone-only screen — **no name field, no birthdate here**, contrary to
+   the rest of the fleet's DOB-up-front pattern.
+3. SMS code screen.
+4. A **standalone** "When's your birthday?" screen — comes *after* code
+   verification, defaults to *today's date* if left untouched.
+5. A **combined** Name + Username + Password screen, all three fields at
+   once, with inline per-keystroke "unavailable" feedback on the username.
+6. Onboarding: topic-pack picker ("Follow the top posters"), skip/next
+   screens. The account is fully created well before this settles — **don't
+   gate success on reaching the home timeline**, it may never quite get
+   there within any reasonable poll window.
+7. `/settings/screen_name` to claim the desired handle over the
+   auto-generated one X assigns.
+
+**The click-registration bug that ate the first live attempt:** X renders
+the *disabled* "Continue" button from the dimmed chooser screen underneath
+the active modal, and it has the exact same text as the real, enabled
+"Continue" button in the modal on top of it. Playwright's `is_visible()`
+only checks CSS/bounding-box, not actual occlusion, so a plain
+`get_by_text("Continue", exact=True).first.click()` can silently resolve to
+the dead background button — no exception, the screen just sits there
+unsubmitted. Fixed by scoping every click to the topmost
+`get_by_role("dialog")` container and requiring the matched element be
+`is_enabled()`, not just visible — see `dialog_scope()`/`click_text()` in
+`x_signup.py`. If you ever see "stuck on Continue, nothing happens" on X
+again, this is almost certainly why; it is not something Jesse needs to
+click through by hand.
+
+**Captcha:** Arkose Labs (FunCaptcha), not reCAPTCHA/hCaptcha — different
+iframe fingerprint (`iframe[src*="arkoselabs"]` etc), already handled in
+`captcha_present()`.
+
+**Verify-before-write, same discipline as every other platform:** after
+whatever the form claims as the final username, re-read
+`/settings/screen_name`'s actual field value before writing to the vault —
+don't trust the in-form value, X can silently swap in a random suffix. The
+current script does this and falls back to parsing the handle off the
+account-switcher button in the nav if the settings field ever reads back
+empty (a same-race-condition bug as Pinterest's settings-page check, §3
+above — X's settings page can render the nav before the form body).
+
+### X / Twitter profile fill (`x_fill_profile.py`)
+
+Browser-driven, not API-driven — filling your own profile needs no
+elevated API access, and a brand-new account has no Developer App/keys yet
+(see the API keys section below). Reads `X_HANDLE`/`X_PASSWORD` back out of
+the vault the normal way, reuses the same persistent CloakBrowser profile
+the account was signed up with (already logged in, no captcha to edit your
+own profile).
+
+```bash
+python3 tools/social-setup/scripts/x_fill_profile.py <domain> \
+  --display-name "..." --bio "..." --website "https://<domain>" \
+  --favicon-fallback   # or --avatar /path/to/square.png
+```
+
+Same idempotent-by-default / `--overwrite` / favicon-rasterize-fallback
+contract as `bsky_fill_profile.py` (see §7) — bio content and avatar
+sourcing priority are identical, read §7, don't re-derive it for X.
+
+Two gotchas specific to X, both confirmed live and already fixed in the
+script:
+- **Don't click "Set up profile."** A brand-new account's own profile page
+  shows a "Set up profile" button (from the onboarding checklist) instead
+  of the usual "Edit profile" — it opens a different, flaky wizard widget
+  that reliably errors ("Something went wrong. Try reloading."). Go
+  straight to `https://x.com/settings/profile` instead, which reliably
+  opens the real edit-profile form.
+- **The avatar file input is index 1, not 0.** The edit-profile
+  dialog has three `<input type="file">` elements with identical `accept`
+  attributes (so no selector can tell them apart): `[0]` banner/header
+  photo, `[1]` avatar photo, `[2]` the post-composer sitting underneath the
+  dialog (unrelated). `.first` silently uploads to the banner — no error,
+  the avatar just stays a gray placeholder after Save. Always target index
+  1 for the avatar.
+
+### X / Twitter Developer App + API keys — required separately for posting
+
+Signup creds (`X_HANDLE`/`X_PASSWORD`) are enough to log in and edit the
+profile, but **not** enough to post — `social-hub`'s X adapter
+(`tools/social-hub/src/social_hub/platforms/x.py`) posts via `tweepy`
+against the v2 API and needs 4 OAuth1.0a values in the vault:
+`X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET`.
+
+Getting them is a browser flow through `developer.x.com` /
+`console.x.com`, driven the same way as everything else (fill forms,
+screenshot to verify) — no CAPTCHA involved, so it doesn't need Jesse's
+attention, but **every step that fills a form and then clicks something
+must happen in the same script run**. Navigating to a settings page in a
+fresh script invocation reloads it from scratch and silently drops
+whatever an earlier, separate script run had typed in but not yet saved —
+this cost a full redo live on 2026-08-29.
+
+Recipe, in order:
+1. `https://developer.x.com/en/portal/dashboard` (redirects to
+   `console.x.com/onboarding` for a first-time account) — a one-time
+   "Developer Agreement & Policy" form: an Account Name field, a free-text
+   "describe your use case" textarea, 3 agreement checkboxes, Submit. Fill
+   honestly (e.g. "Automated posting of our own site's own content to our
+   own account, no third-party data access, no resale") and submit — this
+   auto-creates a Default Project (Pay Per Use) and one App under it.
+2. Open the App → **Settings** tab (not Keys & Tokens) and set, in one
+   script run, before generating anything:
+   - **App permissions → "Read and write"** (default is read-only; a
+     token generated before this change comes back scoped read-only and
+     posting fails)
+   - **Type of App → "Web App, Automated App or Bot" (Confidential
+     client)**, not "Native App" — this is a server-side bot, not a public
+     client
+   - Callback URI / Redirect URL and Website URL are both marked
+     `(required)` even though this flow does no OAuth2 user-login redirect
+     — fill both with `https://<domain>/` and Save. Saving with the type
+     changed to Confidential client also regenerates and reveals the
+     OAuth2 Client ID/Secret (not used by the current tweepy adapter, but
+     capture and vault them anyway — one-time reveal).
+3. Back on the App's **Keys & Tokens** tab: the Consumer Key was already
+   auto-generated when the project was created, but its Secret was never
+   shown/captured then — click **Regenerate** on Consumer Key to reveal
+   both (one-time reveal dialog), then click **Generate** on the OAuth1.0
+   **Access Token** row (this is a different, unlabeled "Generate" — the
+   page has 3 buttons that all say exactly "Generate": Bearer Token, the
+   OAuth1.0 Access Token, and the OAuth2.0 Access Token, in that DOM
+   order — target index 1). Confirms scope shows "Read and write" next to
+   the Access Token row once step 2 has actually saved.
+4. `write_creds(domain, "x", {...})` — merge into whatever `X_HANDLE`/
+   `X_PASSWORD` already exist, don't overwrite them.
+
+**Regenerating a key is credential rotation** — Claude Code's auto-mode
+classifier blocks it and needs an explicit one-time approval from Jesse
+per site the first time you hit it (confirmed 2026-08-29). Ask, don't try
+to work around the denial.
+
+**X killed its free API tier.** A freshly-created Default Project shows
+$0.00 across Total Balance / Credits / Free Credits, and the only project
+types offered under "Start a new project" are Ads / Enterprise / Community
+Notes (all sales-managed, irrelevant here) — there is no free-tier project
+type to switch to instead. Posting via the API returns `402 Payment
+Required: credits depleted` until real credits are purchased on the
+account. **As of 2026-08-29 this is unresolved fleet-wide** — Jesse wants
+to look at credit pricing / buy credits himself later (headed browser is
+already the default — `launch_browser()` always runs `headless=False` — so
+no tooling change needed there, just a billing decision. Don't spend
+Jesha's money without him explicitly greenlighting a purchase). Until
+credits exist on an account, `social-poster post <domain> --platforms x`
+will always fail with this exact 402 — that is not a bug to chase, it's
+this known blocker. Check `has_creds(domain, "x")` + a quick
+`social-poster post <domain> --platforms x --dry-run` to confirm creds are
+wired, but don't expect a live post to succeed until credits are bought.
+
 ## 4. Reading verification codes from email
 
 `social@<domain>` forwards to `jessetamburino@hotmail.com` (CF Email
@@ -343,14 +512,20 @@ nohup python3 tools/social-setup/scripts/pinterest_signup.py $DOMAIN "$BRAND" > 
 # 4. Reddit — SKIP for now (see §3, fleet-wide blocker). Revisit once the
 #    verification-send issue is understood/fixed.
 
-# 5. Verify what actually landed in the vault
+# 5. X/Twitter — needs SMSPOOL_API_KEY set (real phone rental, not VoIP).
+#    Fully automated as of 2026-08-29 — see the X subsection of §3 for the
+#    real (non-obvious) signup flow and its click-registration bug.
+nohup python3 tools/social-setup/scripts/x_signup.py $DOMAIN "$BRAND" $HANDLE > /tmp/x.log 2>&1 &
+tail -f /tmp/x.log
+
+# 6. Verify what actually landed in the vault
 python3 -c "
 import sys; sys.path.insert(0, 'tools/social-lib/src')
 from social_lib.credentials import has_creds
-print({p: has_creds('$DOMAIN', p) for p in ['bluesky','pinterest','reddit']})
+print({p: has_creds('$DOMAIN', p) for p in ['bluesky','pinterest','reddit','x']})
 "
 
-# 6. Fill out the profile — display name, bio+link, avatar. Do this every time,
+# 7. Fill out the profile — display name, bio+link, avatar. Do this every time,
 #    right after signup succeeds. See §7 below for the full picture (why this
 #    step exists, avatar-sourcing order, persona handling).
 python3 tools/social-setup/scripts/bsky_fill_profile.py $DOMAIN \
@@ -358,6 +533,18 @@ python3 tools/social-setup/scripts/bsky_fill_profile.py $DOMAIN \
   --bio "One or two honest sentences — the site's own positioning, never invented (see project CLAUDE.md's 'What This Is')." \
   --website "https://$DOMAIN" \
   --favicon-fallback   # or --avatar /path/to/a/real/logo.png if one exists
+
+python3 tools/social-setup/scripts/x_fill_profile.py $DOMAIN \
+  --display-name "$BRAND" \
+  --bio "Same bio text as Bluesky above." \
+  --website "https://$DOMAIN" \
+  --favicon-fallback
+
+# 8. X posting also needs a Developer App + 4 OAuth1.0a keys, separate from
+#    signup — see the "X Developer App + API keys" subsection of §3. As of
+#    2026-08-29 this always ends in a 402 Payment Required (X killed its
+#    free API tier) until credits are purchased on the account — expect
+#    that, don't treat it as a bug to chase.
 ```
 
 Write each result into the registry the moment it lands (§6) — that's what

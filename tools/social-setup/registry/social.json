@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-25T19:57:05.956Z",
+  "updatedAt": "2026-08-29T11:36:54.427Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1698,6 +1698,24 @@
       "lastPostedAt": null,
       "createdAt": "2026-08-25T18:49:12.335Z",
       "updatedAt": "2026-08-25T19:57:05.956Z"
+    },
+    {
+      "id": "acc_9cff62da21db",
+      "site": "shoptopless.com",
+      "platform": "x",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "shoptoplessjeep",
+      "credsInVault": true,
+      "profileUrl": "",
+      "statusNote": "",
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-29T11:36:54.426Z",
+      "updatedAt": "2026-08-29T11:36:54.426Z"
     }
   ]
 }
