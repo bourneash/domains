@@ -37,7 +37,9 @@ role body**: stamp-once means installed bodies are tuned per site. In maintain m
 overwrite only the regenerable regions (e.g. the `<!-- AWARENESS-BLOCK -->` span and any
 heading the archetype declares as canonical-required); leave hand-written sections
 intact. If you cannot refresh without clobbering operator prose, stop and report rather
-than overwrite.
+than overwrite. On a content-writer maintain pass, also check whether the install
+predates the archetype's "Turn discipline" section (added 2026-08-27) and backfill it
+by hand if missing — see git history for the pattern.
 
 A fresh install runs all 13 steps in order.
 
