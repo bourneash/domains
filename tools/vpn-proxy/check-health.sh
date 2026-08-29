@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-health.sh — verify both VPN containers are up and show exit IPs
+# check-health.sh — verify VPN containers are up and show exit IPs
 set -euo pipefail
 
 RED='\033[0;31m'
@@ -36,5 +36,6 @@ echo "VPN Proxy Health Check — $(date -u '+%Y-%m-%d %H:%M UTC')"
 
 check_node "vpn-us" 8181
 check_node "vpn-eu" 8182
+check_node "vpn-random" 8183
 
 echo ""

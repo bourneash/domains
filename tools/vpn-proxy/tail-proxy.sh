@@ -6,6 +6,7 @@
 #   ./tail-proxy.sh        # both nodes side by side
 #   ./tail-proxy.sh us     # US exit only
 #   ./tail-proxy.sh eu     # EU exit only
+#   ./tail-proxy.sh random # random exit only
 
 set -euo pipefail
 
@@ -38,17 +39,23 @@ case "$node" in
     echo -e "${YEL}Tailing vpn-eu (logs since last start) — Ctrl-C to stop${NC}"
     stream_node vpn-eu "$YEL" "EU"
     ;;
+  random)
+    echo -e "Tailing vpn-random (logs since last start) — Ctrl-C to stop"
+    stream_node vpn-random "${NC}" "RANDOM"
+    ;;
   all)
-    echo -e "Tailing ${CYAN}vpn-us${NC} + ${YEL}vpn-eu${NC} (logs since last start) — Ctrl-C to stop"
+    echo -e "Tailing ${CYAN}vpn-us${NC} + ${YEL}vpn-eu${NC} + vpn-random (logs since last start) — Ctrl-C to stop"
     stream_node vpn-us "$CYAN" "US" &
     PID_US=$!
     stream_node vpn-eu "$YEL" "EU" &
     PID_EU=$!
-    trap "kill $PID_US $PID_EU 2>/dev/null; exit 0" INT TERM
+    stream_node vpn-random "${NC}" "RANDOM" &
+    PID_RANDOM=$!
+    trap "kill $PID_US $PID_EU $PID_RANDOM 2>/dev/null; exit 0" INT TERM
     wait
     ;;
   *)
-    echo "Usage: $0 [us|eu|all]" >&2
+    echo "Usage: $0 [us|eu|random|all]" >&2
     exit 1
     ;;
 esac

@@ -1,4 +1,4 @@
-# tools/vpn-proxy — dual-location PIA VPN proxy for fleet scrapers.
+# tools/vpn-proxy — multi-location PIA VPN proxy for fleet scrapers.
 #
 # Bring up:       docker compose up -d
 # Check health:   ./check-health.sh
@@ -8,6 +8,7 @@
 # Scrapers use:
 #   HTTP_PROXY=http://127.0.0.1:8181   (US exit)
 #   HTTP_PROXY=http://127.0.0.1:8182   (EU exit)
+#   HTTP_PROXY=http://127.0.0.1:8183   (random global exit, rotates every 15m)
 #
 # Required vars in /home/jesse/projects/domains/.env (see .env.example):
 #   VPN_PIA_USERNAME, VPN_PIA_PASSWORD, VPN_REGION_US, VPN_REGION_EU
@@ -95,6 +96,61 @@ services:
     ports:
       - "127.0.0.1:8182:8888"  # HTTP proxy — scrapers use this
       - "127.0.0.1:9282:8000"  # gluetun control/health API
+
+  # ── Random global exit node ─────────────────────────────────────────────────
+  # Leaving SERVER_REGIONS unset lets Gluetun choose from the full PIA server
+  # list. The controller below asks Gluetun to stop/start only its VPN tunnel
+  # every 15 minutes; the container and proxy listener stay in place.
+  vpn-random:
+    <<: *vpn-base
+    container_name: vpn-random
+    environment:
+      VPN_SERVICE_PROVIDER: private internet access
+      VPN_TYPE: openvpn
+      OPENVPN_USER: ${VPN_PIA_USERNAME:?set VPN_PIA_USERNAME in .env}
+      OPENVPN_PASSWORD: ${VPN_PIA_PASSWORD:?set VPN_PIA_PASSWORD in .env}
+
+      # Deliberately no SERVER_REGIONS/SERVER_COUNTRIES filter: use all PIA
+      # locations so each reconnect can select a different global exit.
+      HTTPPROXY: "on"
+      HTTPPROXY_LOG: "on"
+      HTTPPROXY_LISTENING_ADDRESS: ":8888"
+
+      DOT: "on"
+      DOT_PROVIDERS: cloudflare
+      FIREWALL_INPUT_PORTS: "8888"
+
+      UPDATER_PERIOD: 24h
+      TZ: UTC
+      # Keep the control API private even to other Docker-network peers.
+      HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE: '{"auth":"apikey","apikey":"${VPN_RANDOM_CONTROL_API_KEY:?set VPN_RANDOM_CONTROL_API_KEY in .env}"}'
+    ports:
+      - "127.0.0.1:8183:8888"  # HTTP proxy — random global exit
+      - "127.0.0.1:9283:8000"  # gluetun control/health API
+
+  # Tunnel rotation is intentionally separate from Gluetun. It does not
+  # recreate or restart vpn-random, which avoids dropping the proxy socket and
+  # preserves the container's network identity for its consumers.
+  vpn-random-rotator:
+    image: qmcgaw/gluetun:latest
+    container_name: vpn-random-rotator
+    restart: unless-stopped
+    depends_on:
+      vpn-random:
+        condition: service_started
+    environment:
+      ROTATION_INTERVAL_SECONDS: ${VPN_RANDOM_ROTATION_SECONDS:-900}
+      GLUETUN_CONTROL_URL: http://vpn-random:8000
+      GLUETUN_CONTROL_API_KEY: ${VPN_RANDOM_CONTROL_API_KEY:?set VPN_RANDOM_CONTROL_API_KEY in .env}
+    volumes:
+      - ./rotate-random.sh:/rotate-random.sh:ro
+    entrypoint: ["/bin/sh", "/rotate-random.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   # ── Autoheal watchdog ───────────────────────────────────────────────────────
   # Watches for containers with label autoheal=true that go unhealthy and

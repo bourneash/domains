@@ -1,12 +1,13 @@
 # tools/vpn-proxy
 
-Dual-location PIA VPN HTTP proxy for fleet scrapers. Two gluetun containers — one US exit, one EU exit — each exposing a local HTTP proxy that routes all traffic through the VPN.
+PIA VPN HTTP proxies for fleet scrapers: fixed US and EU exits plus a global exit that changes PIA regions every 15 minutes.
 
 **Security properties (all on by default):**
 - Kill switch — iptables blocks all non-VPN egress; container can't leak plaintext
 - DNS-over-TLS — Cloudflare DoT resolver, no DNS leaks
 - Localhost-only bind — proxy ports only reachable on `127.0.0.1`
 - `restart: unless-stopped` — survives host reboots and VPN drops
+- `vpn-random` keeps its container and proxy listener while only the VPN tunnel is reconnected
 
 ## Setup
 
@@ -18,6 +19,8 @@ VPN_PIA_USERNAME=p1234567      # your PIA account ID (format: p + digits)
 VPN_PIA_PASSWORD=...           # your PIA password
 VPN_REGION_US=US East          # optional, this is the default
 VPN_REGION_EU=Netherlands      # optional, this is the default
+VPN_RANDOM_ROTATION_SECONDS=900 # optional, 15 minutes; minimum 60
+VPN_RANDOM_CONTROL_API_KEY=...  # required; generate with: openssl rand -hex 32
 ```
 
 See `.env.example` for region name options.
@@ -49,6 +52,7 @@ Expected output shows `healthy` + a non-home IP for each node.
 |------|-----------|-------------|
 | US exit | `http://127.0.0.1:8181` | `http://127.0.0.1:9281` |
 | EU exit | `http://127.0.0.1:8182` | `http://127.0.0.1:9282` |
+| Random global exit | `http://127.0.0.1:8183` | `http://127.0.0.1:9283` |
 
 ## Using in Scrapers
 
@@ -100,6 +104,7 @@ services:
 # Logs
 docker compose --env-file ../../.env logs -f vpn-us
 docker compose --env-file ../../.env logs -f vpn-eu
+docker compose --env-file ../../.env logs -f vpn-random-rotator
 
 # Force reconnect to a new VPN server
 docker compose --env-file ../../.env restart vpn-us
@@ -110,7 +115,12 @@ docker compose --env-file ../../.env up -d vpn-us
 # Manual IP check via API
 curl http://127.0.0.1:9281/v1/publicip/ip
 curl http://127.0.0.1:9282/v1/publicip/ip
+curl http://127.0.0.1:9283/v1/publicip/ip
 ```
+
+### Random-region rotation
+
+`vpn-random` intentionally has no `SERVER_REGIONS` or `SERVER_COUNTRIES` filter, so Gluetun selects from the full PIA server list. Every 15 minutes, `vpn-random-rotator` uses Gluetun's control API to stop and start only the tunnel. The proxy endpoint and container remain present, but existing connections can still fail during the VPN handoff; callers should use bounded retries with backoff. The Gluetun kill switch stays enabled throughout, so traffic fails closed rather than falling back to the host connection.
 
 ## Upgrading to WireGuard (faster)
 
