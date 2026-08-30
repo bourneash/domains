@@ -53,6 +53,12 @@ ENV_LINE = re.compile(r"^([A-Z0-9_]+)=(.*)$")
 # Directories whose contents are output, not source — scanning them produces
 # phantom "references" from logged command lines.
 SKIP_PARTS = ("/logs/", "/node_modules/", "/.venv/", "/board/", "/__pycache__/", "/out/")
+# Matched as a path-segment prefix, not a substring: catches venv dirs with a
+# suffix (ops/.venv-social-poster/) that the /.venv/ literal above misses —
+# env_broker --check was flagging their vendored site-packages copies of
+# fleet libs (e.g. social_lib/sms_gate.py's SMSPOOL_API_KEY) as if the site's
+# own ops/ scripts used the key.
+SKIP_PREFIXES = (".venv",)
 
 
 def load_env_file(path: Path | None = None) -> dict[str, str]:
@@ -157,6 +163,8 @@ def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
     found: set[str] = set()
     for f in (ROOT / "sites" / domain / "ops").rglob("*"):
         if not f.is_file() or any(p in str(f) for p in SKIP_PARTS):
+            continue
+        if any(part.startswith(SKIP_PREFIXES) for part in f.parts):
             continue
         try:
             if f.stat().st_size > 2_000_000:
