@@ -53,13 +53,29 @@ function buildPageList() {
 
 const PAGES = buildPageList();
 
-function fetchRaw(url) {
+const CURL_TRANSIENT_RE = /Could not resolve host|Couldn't resolve host|Connection reset|Connection refused|Operation timed out|Failed to connect/i;
+
+function fetchRawOnce(url) {
   const out = execFileSync("curl", ["-sS", "-L", "--max-time", "20", "-w", "\\n__HTTP__%{http_code}", url],
     { encoding: "utf8", maxBuffer: 12 * 1024 * 1024 });
   const idx = out.lastIndexOf("\n__HTTP__");
   const body = idx >= 0 ? out.slice(0, idx) : out;
   const status = idx >= 0 ? parseInt(out.slice(idx + 9), 10) : 0;
   return { body, status };
+}
+
+// Retry once on a transient curl error (e.g. DNS blip during a VPN-proxy
+// rotation window — vpn-proxy rotates its tunnel every 15min and the container
+// can briefly lose resolution). A single-shot failure here used to escalate to
+// Slack as "DNS not resolving" even though the domain was fine seconds later.
+function fetchRaw(url) {
+  try {
+    return fetchRawOnce(url);
+  } catch (e) {
+    const msg = String(e.message || e);
+    if (!CURL_TRANSIENT_RE.test(msg)) throw e;
+    return fetchRawOnce(url);
+  }
 }
 
 function evalRaw(pg, body, status) {
@@ -88,19 +104,19 @@ async function runBrowser() {
     browser = await chromium.launch({ executablePath: execPath, args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"] });
   } catch { return null; }
 
-  const results = [];
-  const ctx = await browser.newContext({ userAgent: "{{SITE_SHORT}}-EngineerBot/1.0 (+health-check)" });
-  for (const pg of PAGES) {
-    const url = BASE + pg.path;
-    if (pg.raw) {
-      try { const { body, status } = fetchRaw(url); results.push(evalRaw(pg, body, status)); }
-      catch (e) { results.push({ page: pg.path, kind: pg.kind, ok: false, status: 0, bytes: 0, note: String(e.message || e).slice(0, 120) }); }
-      continue;
-    }
+  // Retry once on a transient network error — the container network may not be
+  // fully ready at startup, or vpn-proxy (tools/vpn-proxy) may be mid-rotation
+  // (it rotates its tunnel every 15min), causing a DNS lookup or connection to
+  // fail even though the domain is fine. A single-shot failure here used to
+  // escalate to Slack as "DNS not resolving" for a blip that cleared itself
+  // within seconds.
+  const TRANSIENT_RE = /Timeout|ERR_SOCKET_NOT_CONNECTED|ERR_CONNECTION_RESET|ERR_NETWORK_CHANGED|ERR_NAME_NOT_RESOLVED|ERR_CONNECTION_REFUSED/i;
+
+  async function evalBrowserPage(ctx, pg, url, timeoutMs = 20000) {
     const res = { page: pg.path, kind: pg.kind, ok: false, status: 0, bytes: 0, note: "" };
     const page = await ctx.newPage();
     try {
-      const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
+      const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
       res.status = resp ? resp.status() : 0;
       const body = await page.evaluate(() => document.documentElement.outerHTML);
       res.bytes = body.length;
@@ -117,6 +133,25 @@ async function runBrowser() {
       }
     } catch (e) { res.note = String(e.message || e).slice(0, 120); }
     await page.close();
+    return res;
+  }
+
+  const results = [];
+  const ctx = await browser.newContext({ userAgent: "{{SITE_SHORT}}-EngineerBot/1.0 (+health-check)" });
+  for (const pg of PAGES) {
+    const url = BASE + pg.path;
+    if (pg.raw) {
+      try { const { body, status } = fetchRaw(url); results.push(evalRaw(pg, body, status)); }
+      catch (e) { results.push({ page: pg.path, kind: pg.kind, ok: false, status: 0, bytes: 0, note: String(e.message || e).slice(0, 120) }); }
+      continue;
+    }
+    let res = await evalBrowserPage(ctx, pg, url, 20000);
+    if (!res.ok && TRANSIENT_RE.test(res.note)) {
+      await new Promise(r => setTimeout(r, 3000));
+      const retry = await evalBrowserPage(ctx, pg, url, 30000);
+      if (!retry.ok && retry.note) retry.note = `retry: ${retry.note}`;
+      res = retry;
+    }
     results.push(res);
   }
   await browser.close();
