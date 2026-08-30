@@ -16,7 +16,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const yaml = require('js-yaml');
-const { execFile } = require('node:child_process');
+const { execFile, execFileSync } = require('node:child_process');
 
 const STATUSES = ['proposed', 'approved', 'applied', 'rejected', 'deferred'];
 
@@ -248,6 +248,7 @@ const JOBS = {
     flag: '.analyst-disabled',
     script: 'ai-optimizer-cron.sh',
     log: 'analyst.log',
+    lock: '.analyst.lock',
     label: 'Daily analyst',
     detail: 'Files new findings at 06:45 ET. Off = no new tickets.',
   },
@@ -255,6 +256,7 @@ const JOBS = {
     flag: '.implement-disabled',
     script: 'ai-optimizer-implement.sh',
     log: 'implement.log',
+    lock: '.implement.lock',
     label: 'Implementer',
     detail: 'Applies approved tickets (:11/:31/:51). Off = approvals queue up, nothing changes.',
   },
@@ -266,12 +268,36 @@ function flagPath(root, job) {
   return path.join(root, 'tools', 'ai-optimizer', j.flag);
 }
 
+// Both cron scripts hold an flock (see ai-optimizer-cron.sh / -implement.sh)
+// for their entire run, including the multi-minute claude -p session — that's
+// the actual "is this job doing something right now" signal, not just a log
+// timestamp (the log is touched immediately at run start, long before the
+// session that takes the time finishes). `flock -n ... -c true` is a
+// non-blocking probe: it exits 0 only if it could take the lock itself,
+// meaning nobody else holds it.
+function jobRunning(root, job) {
+  const j = JOBS[job];
+  if (!j) return false;
+  const fp = path.join(root, 'tools', 'ai-optimizer', j.lock);
+  if (!fs.existsSync(fp)) return false;
+  try {
+    execFileSync('flock', ['-n', fp, '-c', 'true'], { timeout: 2000, stdio: 'ignore' });
+    return false;
+  } catch {
+    // Either the lock is held (real "running") or the probe itself failed
+    // (missing `flock` binary, timeout) — treat both as "can't confirm idle"
+    // rather than risk reporting a live run as stopped.
+    return true;
+  }
+}
+
 function toggles(root) {
   return Object.fromEntries(
     Object.entries(JOBS).map(([k, j]) => [
       k,
       {
         enabled: !fs.existsSync(flagPath(root, k)),
+        running: jobRunning(root, k),
         label: j.label,
         detail: j.detail,
         last_run: lastRun(root, k),

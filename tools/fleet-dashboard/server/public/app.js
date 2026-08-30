@@ -9472,7 +9472,49 @@ boot();
  * CLI (which enforces the evidence bar), and this tab is where a human
  * approves / denies / defers them. There is no "new ticket" button on purpose.
  */
-const AIOPT = { status: 'proposed' };
+// `optimistic`: job → trigger timestamp, set the instant "Run now" is
+// clicked so the button flips to "running" immediately instead of waiting
+// for the server to actually grab its flock (a beat — the script has to
+// exec into the fleet-cron container first). `pollers`: job → timer handle,
+// so a poll loop survives repeated renderAIOptimizer() calls (each render
+// rebuilds the DOM, but this object is module-level and outlives that).
+const AIOPT = { status: 'proposed', optimistic: {}, pollers: {} };
+
+// Runs are minutes-long `claude -p` sessions, not the few-second HTTP call
+// that starts them — poll while this tab is open so "Run now" reflects
+// reality instead of reverting to idle after one fixed timeout. Server truth
+// (`t.running`, backed by the job's own flock) is what actually ends the
+// poll; the optimistic flag only bridges the gap before the script grabs
+// that lock.
+function aioptStartPoll(job) {
+  if (AIOPT.pollers[job]) return; // already polling this job
+  const startedAt = Date.now();
+  const tick = async () => {
+    // Give up well past the job's own 45-minute timeout rather than poll
+    // forever if something on the server side wedges.
+    if (Date.now() - startedAt > 50 * 60 * 1000) {
+      delete AIOPT.pollers[job];
+      delete AIOPT.optimistic[job];
+      return;
+    }
+    let running = true;
+    try {
+      const data = await (STATE.view === 'aioptimizer' ? renderAIOptimizer() : api('GET', '/api/ai-optimizer'));
+      const t = data?.summary?.toggles?.[job] || {};
+      if (t.running) delete AIOPT.optimistic[job];
+      running = t.running || !!AIOPT.optimistic[job];
+    } catch {
+      /* transient fetch failure — keep polling, next tick tries again */
+    }
+    if (running) {
+      AIOPT.pollers[job] = setTimeout(tick, 8000);
+    } else {
+      delete AIOPT.pollers[job];
+      if (STATE.view === 'aioptimizer') renderAIOptimizer();
+    }
+  };
+  AIOPT.pollers[job] = setTimeout(tick, 3000);
+}
 
 function aioptRiskBadge(risk) {
   const cls = risk === 'high' ? 'b-red' : risk === 'medium' ? 'b-yellow' : 'b-green';
@@ -9541,7 +9583,7 @@ async function renderAIOptimizer() {
     data = await api('GET', '/api/ai-optimizer');
   } catch (e) {
     app.innerHTML = `<div class="empty">AI optimizer queue failed: ${esc(e.message)}</div>`;
-    return;
+    return data;
   }
   const s = data.summary || { counts: {} };
   const tickets = data.tickets || {};
@@ -9554,15 +9596,24 @@ async function renderAIOptimizer() {
   const toggleRow = Object.entries(tg)
     .map(([job, t]) => {
       const on = t.enabled;
+      // Server truth (backed by the job's own flock) OR the optimistic flag
+      // set the instant "Run now" is clicked, still within its grace window —
+      // see aioptStartPoll.
+      const isRunning =
+        t.running || (AIOPT.optimistic[job] && Date.now() - AIOPT.optimistic[job] < 10000);
+      if (isRunning) aioptStartPoll(job);
       const last =
         t.last_run && t.last_run.at ? `last run ${cmRel(t.last_run.at) || '?'}` : 'never run';
       return `<div style="margin-bottom:8px">
         <strong>${esc(t.label)}</strong>
-        <span class="badge ${on ? 'b-green' : 'b-red'}">${on ? 'running' : 'PAUSED'}</span>
+        <span class="badge ${on ? 'b-green' : 'b-red'}">${on ? 'enabled' : 'PAUSED'}</span>
+        ${isRunning ? '<span class="badge b-blue">⏳ running now</span>' : ''}
         <button class="btn sm ${on ? '' : 'danger'}" data-aiopt-toggle="${esc(job)}" data-aiopt-next="${on ? '0' : '1'}">
           ${on ? '⏸ Pause' : '▶ Resume'}
         </button>
-        <button class="btn sm" data-aiopt-run="${esc(job)}" ${on ? '' : 'disabled title="paused"'}>▶ Run now</button>
+        <button class="btn sm" data-aiopt-run="${esc(job)}" ${on && !isRunning ? '' : 'disabled'} title="${isRunning ? 'a run is already in progress' : on ? '' : 'paused'}">
+          ${isRunning ? '⏳ running…' : '▶ Run now'}
+        </button>
         <span class="muted" title="${esc((t.last_run && t.last_run.tail) || '')}">${esc(last)}</span>
         <span class="muted">· ${esc(t.detail || '')}</span>
       </div>`;
@@ -9617,18 +9668,20 @@ async function renderAIOptimizer() {
         )
       )
         return;
-      const orig = b.textContent;
       b.disabled = true;
       b.textContent = '⏳ started…';
       try {
         await api('POST', `/api/ai-optimizer/run/${encodeURIComponent(job)}`);
-        // Detached — the run takes minutes. Re-render after a beat so the
-        // last-run stamp updates; the log tail is on the hover title.
-        setTimeout(renderAIOptimizer, 4000);
+        // Detached — the run takes minutes, not seconds. Flip the button to
+        // "running" right away and poll until the job's own flock says it's
+        // actually done (see aioptStartPoll), instead of a single fixed-delay
+        // re-render that reverts to idle while the run is still in flight.
+        AIOPT.optimistic[job] = Date.now();
+        await renderAIOptimizer();
       } catch (e) {
         alert(`Run failed: ${e.message}`);
         b.disabled = false;
-        b.textContent = orig;
+        b.textContent = '▶ Run now';
       }
     })
   );
@@ -9690,4 +9743,6 @@ async function renderAIOptimizer() {
       }
     })
   );
+
+  return data;
 }
