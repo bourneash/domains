@@ -113,6 +113,36 @@ def click_if_present(page, *selectors, timeout=3000):
     return False
 
 
+def _hit_tests(cand) -> bool:
+    """True if `cand`'s own center point actually resolves (via
+    elementFromPoint) to `cand` itself or one of its ancestors/descendants
+    — i.e. a real click at that point would land on this element, not on
+    some other element stacked on top of/behind it at the same screen
+    position. X repeatedly renders more than one element with identical
+    text at different DOM depths (a live, front-most one plus a stale one
+    left over from an earlier screen) with no reliable rule for which is
+    first vs last in the DOM — dialog-scoping and DOM-order heuristics
+    were both tried live (2026-08-29, 0daynews.com) and both silently
+    matched the wrong one on different screens. A hit-test is the only
+    check that mirrors what a real click actually does."""
+    try:
+        box = cand.bounding_box()
+        if not box or box["width"] <= 0 or box["height"] <= 0:
+            return False
+        cx = box["x"] + box["width"] / 2
+        cy = box["y"] + box["height"] / 2
+        return bool(cand.evaluate(
+            """(el, pt) => {
+                const top = document.elementFromPoint(pt.x, pt.y);
+                if (!top) return false;
+                return top === el || el.contains(top) || top.contains(el);
+            }""",
+            {"x": cx, "y": cy},
+        ))
+    except Exception:
+        return False
+
+
 def click_text(page, *texts, timeout=3000):
     """X's button labels aren't reliably matched by CSS :has-text() — the
     visible text is often split across nested spans, so a single-element
@@ -121,20 +151,23 @@ def click_text(page, *texts, timeout=3000):
     this for every X-rendered button/label, reserve CSS selectors for real
     form inputs (input[name=...] etc).
 
-    Scoped to the topmost dialog and filtered to enabled elements — the
-    disabled "Continue" button on the dimmed chooser screen behind the
-    active modal has the exact same text as the real one and was
-    confirmed live to eat a `.first` click otherwise (see module
-    docstring). Tries an EXACT match first, falling back to substring —
-    substring-only is ambiguous ("Continue" also substring-matches
-    "Continue with phone"/"Continue with Google").
+    Filters candidates to visible + enabled + hit-test-passing (see
+    `_hit_tests`) before clicking — this replaced both an earlier
+    role=dialog scope AND a "click the last DOM match" heuristic, neither
+    of which held up across screens (confirmed live 2026-08-29,
+    0daynews.com: the real button was inside the last dialog on one
+    screen and outside every dialog on the next). Always prints a STATUS
+    line with what it found so a stuck run's log shows why, instead of a
+    silent 0-effect click. Tries an EXACT match first, falling back to
+    substring — substring-only is ambiguous ("Continue" also
+    substring-matches "Continue with phone"/"Continue with Google").
     """
-    scope = dialog_scope(page)
     for text in texts:
         for exact in (True, False):
             try:
-                loc = scope.get_by_text(text, exact=exact)
+                loc = page.get_by_text(text, exact=exact)
                 n = loc.count()
+                visible_enabled = []
                 for i in range(n):
                     cand = loc.nth(i)
                     if not cand.is_visible():
@@ -144,11 +177,21 @@ def click_text(page, *texts, timeout=3000):
                             continue
                     except Exception:
                         pass  # not all elements support is_enabled(); allow through
-                    cand.click(timeout=timeout)
+                    visible_enabled.append(cand)
+                hit = [c for c in visible_enabled if _hit_tests(c)]
+                chosen = hit[0] if hit else (visible_enabled[-1] if visible_enabled else None)
+                if chosen is not None:
+                    print(
+                        f"STATUS click_text({text!r}, exact={exact}): "
+                        f"{n} matched, {len(visible_enabled)} visible+enabled, "
+                        f"{len(hit)} hit-tested — clicking",
+                        flush=True,
+                    )
+                    chosen.click(timeout=timeout)
                     time.sleep(1.2)
                     return True
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"STATUS click_text({text!r}) attempt failed: {e}", flush=True)
     return False
 
 
@@ -242,12 +285,29 @@ order_id = order.get("order_id") or order.get("orderid")
 phone_local = order.get("phonenumber") or str(order.get("number"))
 print(f"STATUS rented {phone_local} (order {order_id}) from SMSPool", flush=True)
 
-context, page = launch_browser(PROFILE_KEY, "x")
+# Routed through the fleet's VPN proxy (tools/vpn-proxy) — 2026-08-29,
+# after 9 straight identical "Something went wrong" rejections from X's
+# phone-verify step on the FIXED US EXIT (8181), reproduced across a VPN
+# pop switch AND a fresh CloakBrowser profile. See
+# [[reference_vpn_rotating_proxy]]. Switched to the random-global exit
+# (8183) 2026-08-30 per Jesse — different ASN than 8181 (GSL Networks vs
+# Cogent), may dodge whatever datacenter-fingerprint block X is applying.
+# NOTE: the random exit rotates PIA regions every 15min and landed in an
+# EU-ish region once before, serving a GDPR cookie-consent flow this
+# script isn't built for — verify the exit is US before a long run
+# (`curl -x http://127.0.0.1:8183 https://ipinfo.io/json`), and if a run
+# starts failing on an unexpected consent banner, that's likely why.
+context, page = launch_browser(PROFILE_KEY, "x", proxy="http://127.0.0.1:8183")
 success = False
 claimed_username = ""
 try:
     page.goto("https://x.com/i/flow/signup", wait_until="domcontentloaded", timeout=30000)
     time.sleep(4)
+    # A GDPR-style cookie banner shows up on some (EU-ish) exits and sits
+    # underneath the signup dialog — dismiss it defensively before doing
+    # anything else. Privacy-preserving default per house policy: decline
+    # non-essential rather than accept-all.
+    click_text(page, "Refuse non-essential cookies", "Decline optional cookies", "Reject non-essential")
     shot(page, "01-landing.png")
 
     # /i/flow/signup lands on a combined login/signup chooser ("See what's
@@ -262,10 +322,26 @@ try:
         phone_input = page.locator('input[type="tel"]')
     shot(page, "01b-after-continue-with-phone.png")
 
+    def phone_value_ok() -> bool:
+        """The masked phone input has been seen losing a digit mid-flow
+        (2026-08-29, 0daynews.com — "2297144885" became "229744885" after
+        a click/hover nearby, tripping X's own "Please enter a valid
+        value" check and permanently disabling Continue). Compare digits
+        only since the field is visually space-formatted."""
+        try:
+            val = phone_input.first.input_value(timeout=3000)
+        except Exception:
+            return False
+        return "".join(ch for ch in val if ch.isdigit()) == phone_local
+
     # This screen is phone-only — no name field, no DOB selects (confirmed
     # live; those come on later, separate screens).
     if phone_input.count():
         phone_input.first.fill(phone_local)
+        if not phone_value_ok():
+            print("STATUS phone field misfilled, re-filling", flush=True)
+            phone_input.first.fill("")
+            phone_input.first.fill(phone_local)
     else:
         email_input = page.locator('input[name="email"], input[type="email"]')
         if email_input.count():
@@ -273,8 +349,49 @@ try:
 
     shot(page, "02-step1-filled.png")
     wait_for_captcha_clear(page, "step1")
-    click_text(page, "Continue", "Next")
-    time.sleep(2)
+    # The phone input staying on-screen after a click does NOT mean the
+    # click didn't land — confirmed live (2026-08-29, 0daynews.com) that a
+    # real submit can go through and X re-renders the SAME phone form with
+    # a "Something went wrong, please try again!" banner. A tight retry
+    # loop keyed only on "input still present" can't tell that apart from
+    # a genuinely no-op click, and re-firing Continue every ~1.5s just
+    # resubmits the still-pending/just-failed request repeatedly — that
+    # resubmission storm is what produced the error in the first place.
+    # Cap attempts, pace them out, and log the error banner explicitly so
+    # a real X-side rejection is visible in the log rather than looking
+    # like a stuck click. Also re-verify (and repair) the field value each
+    # pass, per the digit-loss bug above.
+    #
+    # Also confirmed live (same session) that a hit-tested, "successful"
+    # click on this specific button can STILL be a total no-op — 4
+    # consecutive clicks reported success (right hit-test target, right
+    # element) with the page never advancing at all, no error banner
+    # either. CloakBrowser's humanized click on this control isn't
+    # reliably registering as a trusted interaction. Press Enter in the
+    # phone field first (a real key event, not a synthesized click) and
+    # only fall back to click_text if that doesn't move things along.
+    error_banner = page.get_by_text("Something went wrong", exact=False)
+    for attempt in range(3):
+        if phone_input.count() == 0:
+            break
+        if not phone_value_ok():
+            print("STATUS phone field misfilled before retry, re-filling", flush=True)
+            phone_input.first.fill("")
+            phone_input.first.fill(phone_local)
+            time.sleep(1)
+        if attempt == 0:
+            try:
+                phone_input.first.press("Enter", timeout=3000)
+                print("STATUS pressed Enter in phone field", flush=True)
+            except Exception as e:
+                print(f"STATUS Enter press failed: {e}", flush=True)
+        else:
+            click_text(page, "Continue", "Next")
+        time.sleep(3)
+        phone_input = page.locator('input[type="tel"]')
+        if phone_input.count() > 0 and error_banner.count() > 0 and error_banner.first.is_visible():
+            print(f"STATUS phone-continue error banner seen (attempt {attempt + 1}/3), pausing before retry", flush=True)
+            time.sleep(5)
     # X sometimes shows a "confirm your info" review screen before sending
     # the code — one more Next/Continue if so.
     click_text(page, "Sign up", "Continue", "Next")

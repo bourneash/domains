@@ -81,3 +81,7 @@ def status(domain: str, limit: int):
         table.add_row(p.get("platform", ""), slug, posted_at)
 
     console.print(table)
+
+
+if __name__ == "__main__":
+    cli()

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-29T11:36:54.427Z",
+  "updatedAt": "2026-08-30T02:40:10.134Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1716,6 +1716,42 @@
       "lastPostedAt": null,
       "createdAt": "2026-08-29T11:36:54.426Z",
       "updatedAt": "2026-08-29T11:36:54.426Z"
+    },
+    {
+      "id": "acc_4be9970f9b1e",
+      "site": "0daynews.com",
+      "platform": "x",
+      "scope": "brand",
+      "personaId": null,
+      "status": "blocked",
+      "statusNote": "9 signup attempts 2026-08-29, all fail identically at phone-verify submit with X's own 'Something went wrong, please try again!' — reproduced across a VPN pop switch AND a completely fresh CloakBrowser profile, so it's not profile-fingerprint or single-IP related. Fixed 3 real script bugs along the way (see x_signup.py comments: dialog-scope click misdetection, phone-field digit-loss under humanized fill, resubmit storm from a naive retry loop) but this failure is server-side, not a click bug. Suspect either SMSPool's twitter/x number range is currently flagged by X, or this VPN's egress is still fingerprinted as datacenter/VPN traffic. Don't keep burning SMSPool rentals retrying blind — needs either a different number source or confirmed-clean residential-style egress before resuming.",
+      "handle": "",
+      "profileUrl": "",
+      "notes": "",
+      "tags": [],
+      "credsInVault": false,
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-29T15:09:32.230Z",
+      "updatedAt": "2026-08-29T15:09:32.230Z"
+    },
+    {
+      "id": "acc_43a99546b81e",
+      "site": "reviewtattoo.com",
+      "platform": "x",
+      "scope": "brand",
+      "personaId": null,
+      "status": "stuck",
+      "statusNote": "Signup never leaves the phone-number screen — same click-registration bug as the 0daynews.com blocker, but this time neither the Enter-key press nor the click_text fallback (3 attempts) register at all, and the onboarding-drive loop then spins clicking a dead 'Continue' indefinitely (had to kill the process manually after several minutes; script has no outer deadline on that loop). Tried on the random-global VPN exit (8183, confirmed US/New York, GSL Networks ASN) instead of the fixed US exit (8181, Cogent ASN) per Jesse's suggestion — different ASN, same failure. No captcha ever appeared. No SMSPool credit lost (order cancelled/refunded). Needs a script fix (missing deadline on the onboarding loop; investigate why Continue click is a total no-op this time) before retrying.",
+      "handle": "",
+      "profileUrl": "",
+      "notes": "",
+      "tags": [],
+      "credsInVault": false,
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-08-30T02:40:10.134Z",
+      "updatedAt": "2026-08-30T02:40:10.134Z"
     }
   ]
 }

@@ -22,8 +22,15 @@ def profile_dir(domain: str, platform: str) -> str:
     return str(d)
 
 
-def launch_browser(domain: str, platform: str):
-    """Launch CloakBrowser with persistent profile. Returns (browser, context, page)."""
+def launch_browser(domain: str, platform: str, proxy: str | None = None):
+    """Launch CloakBrowser with persistent profile. Returns (browser, context, page).
+
+    `proxy` is an HTTP proxy URL (e.g. "http://127.0.0.1:8183" for the
+    rotating VPN exit in tools/vpn-proxy — see
+    [[reference_vpn_rotating_proxy]]). Opt-in per caller, not a default,
+    since not every platform's automation wants its egress routed through
+    the VPN proxy.
+    """
     try:
         from cloakbrowser import launch_persistent_context
     except ImportError:
@@ -37,6 +44,7 @@ def launch_browser(domain: str, platform: str):
         pdir,
         headless=False,
         humanize=True,
+        proxy=proxy,
     )
     page = context.new_page()
     return context, page

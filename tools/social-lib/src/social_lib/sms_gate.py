@@ -72,6 +72,16 @@ def smspool_order(platform: str, country: int = SMSPOOL_COUNTRY_US) -> dict:
     return data
 
 
+def smspool_check(order_id: str) -> dict:
+    """Single sms/check poll, raw response dict — for a caller that wants
+    to race SMSPool's own delivery against another signal (e.g. a human
+    typing the code straight into a visible browser window) rather than
+    just blocking on smspool_wait_for_code."""
+    key = _smspool_key()
+    resp = httpx.get(f"{SMSPOOL_BASE}/sms/check", params={"key": key, "orderid": order_id}, timeout=20)
+    return resp.json()
+
+
 def smspool_wait_for_code(order_id: str, timeout: int = 600, poll: int = 8) -> str | None:
     """Poll sms/check until a code lands or timeout. Returns the code string,
     or None if it never arrives (caller should then smspool_cancel — a
