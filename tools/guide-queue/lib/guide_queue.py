@@ -80,10 +80,22 @@ def parse_item(text: str) -> tuple[dict, str]:
         return {}, text
     try:
         meta = yaml.safe_load(m.group(1)) or {}
-    except yaml.YAMLError:
-        meta = {}
+    except yaml.YAMLError as e:
+        # 2026-08-31: this used to swallow the error and return {} — a
+        # writer role that emits a frontmatter value with an unescaped quote
+        # (e.g. `lede: "Search bait" is not...`, a plain scalar starting
+        # with a quoted phrase) produced invalid YAML, and every field
+        # silently vanished instead of failing loudly. Worse, a downstream
+        # metadata-restore step would then treat the empty {} as the item's
+        # real current state and discard every already-correct field
+        # (tags, relatedCategory, hero_image, ...) it didn't own — silent
+        # data loss, not just a validation gap. Raise instead: every caller
+        # (cli.py, guide_writer_meta.py) already has a clear error path for
+        # this and a broken file staying visibly broken is much safer than
+        # one that quietly reads back empty.
+        raise GuideQueueError(f"invalid YAML frontmatter: {e}") from e
     if not isinstance(meta, dict):
-        meta = {}
+        raise GuideQueueError("frontmatter did not parse to a mapping")
     return meta, m.group(2)
 
 
@@ -116,7 +128,26 @@ def list_status(site_root: Path, status: str) -> list[dict]:
     items = []
     if d.is_dir():
         for f in sorted(d.glob("*.md")):
-            meta, body = _read(f)
+            # A single corrupt file (unparseable frontmatter) must not sink
+            # the whole scan — `oldest()` backs the writer's "is anything
+            # pending?" gate, and one broken drafted item would otherwise
+            # block every other idea/site from ever being picked up. Surface
+            # it as a flagged, meta-less item instead so callers that care
+            # (get_item on that exact file, or a human scanning the list)
+            # still see it broke, without wedging everything behind it.
+            try:
+                meta, body = _read(f)
+            except GuideQueueError as e:
+                items.append(
+                    {
+                        "file": f.name,
+                        "status": status,
+                        "meta": {},
+                        "excerpt": "",
+                        "parse_error": str(e),
+                    }
+                )
+                continue
             items.append(
                 {
                     "file": f.name,
