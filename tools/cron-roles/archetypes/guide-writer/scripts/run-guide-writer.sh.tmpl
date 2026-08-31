@@ -84,13 +84,28 @@ if [[ $STATUS -ne 0 ]]; then
 fi
 
 # --- Validate the draft actually got real frontmatter, not a no-op ---
-VALID=$(python3 "$GQ_CLI" get "$REPO_ROOT" drafted "$DRAFT_FILE" | python3 -c "
+# NOTE (2026-08-31): every live install of this archetype has since diverged
+# ahead of this template with a sentinel-seed + guide_writer_meta.py
+# immutable-field-restore step and, on totaljerks.com, a corrective-retry
+# turn (see that site's run-guide-writer.sh + guide_writer_meta.py) — this
+# template predates that whole mechanism and should be resynced to it
+# separately. The guard below is the minimum fix: tools/guide-queue/lib's
+# parse_item now raises on unparseable YAML instead of silently returning
+# {} (see guide_queue.py), so a `get` here can now fail where it never used
+# to — without this guard that would crash the script under `set -e` before
+# ever reaching the bounce-to-ideas/ fallback below.
+GET_OUT=$(python3 "$GQ_CLI" get "$REPO_ROOT" drafted "$DRAFT_FILE" 2>&1) && GET_STATUS=0 || GET_STATUS=$?
+if [[ $GET_STATUS -ne 0 ]]; then
+  VALID="incomplete"
+else
+  VALID=$(echo "$GET_OUT" | python3 -c "
 import json, sys
 item = json.load(sys.stdin)
 m = item['meta']
 ok = bool(m.get('title')) and bool(m.get('description')) and bool(m.get('category')) and len(item['body'].strip()) > 400
 print('ok' if ok else 'incomplete')
 ")
+fi
 if [[ "$VALID" != "ok" ]]; then
   echo "[guide-writer] draft is missing required fields or body after Claude's turn — treating as failure" >&2
   [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-writer produced an incomplete draft for \"$IDEA_TITLE\" — returned to ideas/ for a retry next run" "danger" 2>/dev/null || true

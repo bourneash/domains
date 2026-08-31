@@ -19,6 +19,12 @@ other guide-queue item.
    - Keep the existing queue-only fields exactly as they are: `queue_id`,
      `queue_status`, `source`, `created`, `brief`. Never edit these.
    - Fill in the real content frontmatter fields for {{CONTENT_COLLECTION}}.
+   - YAML caution on every free-text frontmatter field: never start a
+     value with a literal `"` or `'` character (e.g. `description: "Doors
+     off" means...` is invalid YAML — a leading quote is parsed as a quoted
+     scalar, and anything after it breaks parsing). Either wrap the entire
+     value in one matching pair of quotes, or don't lead with a quote mark
+     at all.
    - Do NOT set `hero_image` / `card_image` — the harness fills those in
      after your turn, deterministically, so every guide gets the same
      visual treatment.
