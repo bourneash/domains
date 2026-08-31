@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# fleet-worker-ensure — self-heal check for the shared worker image.
+#
+# WHY THIS EXISTS
+# 2026-08-30: oventoheaven-cron went FATAL ("fleet-site-worker:latest
+# missing") and wetpages/xxxtea/weapontester-cron logged repeated
+# "exit status 18" on every worker role for hours before anyone read a log.
+# Root cause: fleet-site-worker:latest is TAGGED but, being cattle
+# (`docker compose run --rm`, no long-lived container), has nothing holding
+# a reference to it between runs. gc-docker.sh (the sanctioned nightly
+# pruner) never touches tagged images and was NOT the cause — but a raw
+# `docker system prune -a` / `docker image prune -a` run outside that script
+# sees the shared worker image as unused and deletes it, silently breaking
+# every site's worker on this host at once.
+#
+# The per-site cron entrypoint (tools/fleet-images/cron/entrypoint.sh)
+# already detects this — but ONLY at cron-container startup, and it
+# deliberately does not rebuild ("shared images are built centrally"). A
+# cron container that has been up for days never re-checks, so every job on
+# it fails until someone notices the alert storm.
+#
+# This script is the fix: call it from ops/scripts/run-worker.sh, from the
+# site root, immediately before `docker compose run worker`. It re-checks on
+# EVERY invocation (cheap: one `docker image inspect`) and rebuilds centrally
+# — once, lock-guarded — if the image is gone, instead of failing per-job
+# until a human runs `fleet-image-build worker` by hand.
+#
+# Usage: fleet-worker-ensure   (run with cwd = the site root)
+# Exit 0: image present (already, or after a successful rebuild).
+# Exit 1: image missing and the rebuild failed or timed out — the caller's
+#         `docker compose run` will then fail loudly, which is correct.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STAMP() { printf '[%s] fleet-worker-ensure: %s\n' "$(date -Iseconds)" "$*" >&2; }
+
+IMG="$(docker compose config --images worker 2>/dev/null | head -1)"
+IMG="${IMG:-fleet-site-worker:latest}"
+
+# Only self-heal the SHARED fleet image. A site still on its own per-site
+# tag (pre-migration, or a legitimate scaffold exception) is not this
+# script's problem — and this script has no idea how to rebuild it anyway.
+case "$IMG" in
+  fleet-site-worker:*) ;;
+  *) exit 0 ;;
+esac
+
+docker image inspect "$IMG" >/dev/null 2>&1 && exit 0
+
+STAMP "${IMG} missing — rebuilding centrally via fleet-image-build (was this host pruned with a raw 'docker ... prune -a' instead of gc-docker.sh?)"
+
+# Fleet-wide lock: several sites' cron containers can hit this within the
+# same minute (this is exactly what happened 2026-08-30). Only one may
+# build; the rest wait for it and re-check rather than racing BuildKit.
+LOCK="/tmp/fleet-worker-ensure.lock"
+exec 8>"$LOCK"
+if ! flock -w 900 8; then
+  STAMP "FATAL: could not acquire build lock within 900s — giving up"
+  exit 1
+fi
+
+# Re-check post-lock: the holder we waited on may have just fixed this.
+if docker image inspect "$IMG" >/dev/null 2>&1; then
+  STAMP "${IMG} now present (built by a concurrent invocation) — proceeding"
+  exit 0
+fi
+
+if "${HERE}/fleet-image-build" worker; then
+  STAMP "rebuilt ${IMG} — proceeding"
+  exit 0
+else
+  STAMP "FATAL: fleet-image-build worker failed — this role invocation will fail"
+  exit 1
+fi

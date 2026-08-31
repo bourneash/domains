@@ -76,7 +76,16 @@ check_image_versions() {
   worker_v="$(image_version "$WORKER_IMAGE")"
   cur_site="shared images"
   if [[ -z "$cron_v" || -z "$worker_v" ]]; then
-    pend "one of the shared images is missing locally (cron='${cron_v:-none}' worker='${worker_v:-none}')"
+    # 2026-08-30: a missing shared image took down oventoheaven-cron (FATAL)
+    # plus silent per-job "exit status 18" failures on wetpages/xxxtea/
+    # weapontester for hours, because this used to report PENDING here —
+    # which does not fail the sweep (see main()'s `[[ "$fail" -eq 0 ]]`) and
+    # so never tripped the every-6h Slack watchdog (fleet-images-drift-cron.sh)
+    # either. A site left un-migrated is now covered by checks 7/8 per-site
+    # (which correctly PEND); by the time this repo reaches this check, the
+    # images are expected to exist, so their absence is a real failure, not a
+    # rollout-in-progress state.
+    bad "one of the shared images is missing locally (cron='${cron_v:-none}' worker='${worker_v:-none}') — run: tools/fleet-images/bin/fleet-image-build <cron|worker>"
     return
   fi
   if [[ "$cron_v" == "$worker_v" ]]; then
