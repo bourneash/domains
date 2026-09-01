@@ -76,6 +76,15 @@ TIMEOUT = 15
 # already have their own auditor (domains-audit-article-images) and assets fail
 # loudly in the build. Duplicating them here would mean two tools disagreeing.
 A_HREF = re.compile(rb"""<a\b[^>]*?\bhref\s*=\s*["']([^"'>]+)["']""", re.I)
+
+# Inline <script>/<style> bodies are stripped before anchors are matched. A
+# client-side renderer that builds markup from a template string puts a literal
+# `<a href="${item.href}">` in the page source; minified, that reads
+# `${t.href}`, and the anchor regex above happily reports it as a broken link
+# to /articles/${t.href}. It was the first false positive this sweep produced
+# (saveusfarms.com, 2026-09-01). Those anchors are not links until the script
+# runs, and what they resolve to is not knowable from the HTML.
+SCRIPT_STYLE = re.compile(rb"(?is)<(script|style)\b.*?</\1\s*>")
 SITEMAP_LOC = re.compile(rb"<loc>\s*([^<\s]+)\s*</loc>", re.I)
 
 # Schemes that are not web links and must never be reported as broken.
@@ -265,7 +274,7 @@ def sweep_site(domain: str, fleet_hosts: set[str], *, max_pages: int, outbound: 
         if status != 200 or not body:
             return page, [], (status, err)
         found = []
-        for m in A_HREF.finditer(body):
+        for m in A_HREF.finditer(SCRIPT_STYLE.sub(b"", body)):
             href = m.group(1).decode("utf-8", "replace")
             c = classify(href, page, domain, fleet_hosts)
             if c:
