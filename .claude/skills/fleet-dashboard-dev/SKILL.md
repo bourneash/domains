@@ -41,10 +41,46 @@ tools/fleet-dashboard/
     git.js                # git status / commit (path-limited) / ignore (gitignore+untrack) / push
     tasks.js              # per-site ops/tasks board CRUD (markdown + frontmatter)
     public/
-      index.html          # shell: topbar, tabs, Agents dropdown, modal
+      index.html          # shell: topbar, (now-hidden) tabs, Agents dropdown, modal
       app.js              # the entire SPA: router, all render*() views, fetch helpers, patterns
-      style.css           # all styles (dark theme, CSS vars in :root)
+      style.css           # component/geometry layer — token-driven, flat single-class selectors
+      theme.css           # design system: tokens, surfaces, motion, nav rail, matrix (loaded AFTER style.css)
+      shell.js            # vitals rail, command palette, nav rail, motion (loaded AFTER app.js)
 ```
+
+### The three-layer frontend (read this before restyling anything)
+
+`style.css` is the **component layer**: every rule is a flat single-class
+selector driven by the `:root` tokens. `theme.css` loads after it and is the
+**design system** — redefining the tokens re-skins the whole app, and its
+equal-specificity overrides win on source order. **Restyle in `theme.css`;
+touch `style.css` only to change a component's geometry.**
+
+`shell.js` is a **progressive-enhancement layer that knows nothing about
+app.js internals**. It only observes the DOM app.js already produces:
+
+- the **nav rail** is a *projection* of the topbar nav, not a fork of it. Each
+  rail item is bound to a real `.tab[data-view]` / `.dd-item` node and
+  navigates by clicking it; active state is read back off those same nodes. So
+  **app.js stays the single source of truth for routes, `NAV_GROUPS` and the
+  agent roster** — add a view there and the rail picks it up for free. The old
+  topbar nav is still in the DOM, hidden, because app.js owns its handlers.
+- `build()` **diffs a signature of the nav's shape** before rebuilding. app.js
+  repaints the agents/group menus on every render; rebuilding on each one wiped
+  scroll position and cut collapse animations. Don't remove that guard.
+- everything interpolated into `innerHTML` there goes through a local `esc()`.
+  Labels are read back via `textContent`, so they arrive **decoded** —
+  re-injecting them raw would undo app.js's own escaping.
+- it also synthesises a `.page-head` for the views app.js renders without one
+  (Guides, Tasks, Containers, Git…), rather than editing a dozen render fns.
+
+Two CSS invariants worth knowing: `.card` (and the `dh-panel` / `dhi-panel` /
+`soc-table-card` / `compliance-table` / `cm-card` family) is `overflow: auto`,
+so a table wider than its card scrolls instead of painting outside it —
+`.error-card` stays `visible` for its hover tooltip. And **`th` is deliberately
+not `position: sticky`**: most tables live inside a card whose overflow is not
+`visible`, which scopes sticky to a non-scrolling container and shoves the
+header row down over the first data row.
 
 ## Deploy mechanics — THE thing to get right
 
@@ -55,7 +91,7 @@ what each kind of change needs:
 
 | You changed… | How to ship it | Why |
 |---|---|---|
-| `server/public/*` (app.js, style.css, index.html) | **Nothing** — it's already live. Hard-refresh the page (or wait — open tabs self-update). | Static files served straight from the bind mount. |
+| `server/public/*` (app.js, style.css, theme.css, shell.js, index.html) | **Nothing** — it's already live. Hard-refresh the page (or wait — open tabs self-update). | Static files served straight from the bind mount. All five are in `assetVersion()`'s fingerprint, so a change to any of them triggers the self-update. |
 | `server/*.js` (server.js, roles.js, …) | `tools/fleet-dashboard/bin/fleet-dashboard restart` | Node loads them once at startup; restart re-execs against the bind-mounted host files. **No rebuild.** The operator command supplies the shared env and host Docker GID. |
 | `Dockerfile` / new npm dep / new apk pkg | `cd tools/fleet-dashboard && docker compose --env-file ../../.env up -d --build` | Image must be rebuilt; new deps land in the image / host `node_modules`. |
 
@@ -115,6 +151,8 @@ NOT an OAuth/external token; there is nothing to "log into." How it works:
   guard).
 
 ## Frontend architecture (server/public/app.js)
+
+(For the CSS/shell layers around it, see "The three-layer frontend" above.)
 
 One file. Read it top-to-bottom once; it's organized into sections
 (`/* ===== ENGINEERS ===== */`, `ROLES`, `CONTAINERS`, `TASKS`, `SHELL`).
