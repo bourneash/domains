@@ -45,6 +45,7 @@ bottom, `offset = (last_offset + 37) % 900`), add the row, use that value for
 | offshorehookup.com | 888 |
 | unsupervisedmedia.com | 25 |
 | oventoheaven.com | 62 |
+| arttogogh.com | 99 |
 
 2026-08-28: `unsupervisedmedia.com` and `oventoheaven.com` were assigned raw
 sequential offsets (925s, 962s) that overran the 900s cron window itself —
@@ -54,7 +55,20 @@ and the one that did run always logged supercronic's `job took too long to
 run` warning. Rewrapped both to `offset % 900` (25s, 62s) per this table's
 own math; fixed in `ops/scripts/run-watchdog.sh` on both sites.
 
-**Next free slot: 99s** (`(62 + 37) % 900 = 99` — verify against this table
+2026-09-01: `arttogogh.com` was installed with `sleep 25`, a straight
+duplicate of `unsupervisedmedia.com` — the one thing this table's rule tells
+you not to do. Reassigned to the documented free slot (99s).
+
+Still off-map and colliding, not yet fixed — each needs its own free slot
+(136, 173, 210) and a commit in its own submodule:
+
+| Site | Current offset | Collides with |
+|---|---|---|
+| eastcoastrappers.com | 25 | unsupervisedmedia.com |
+| fishhooklabs.com | 40 | stinkyleftfoot.com |
+| stinkyleftfoot.com | 40 | fishhooklabs.com |
+
+**Next free slot: 136s** (`(99 + 37) % 900 = 136` — verify against this table
 before reusing it).
 
 Rolled out 2026-08-15. Sites not yet on the watchdog role (fishhooklabs.com,
@@ -63,3 +77,4 @@ listed — assign them a slot when they're onboarded. Note: fishhooklabs.com's
 `run-watchdog.sh` was stood up 2026-08-25 with a hardcoded `sleep 40` instead
 of a table-assigned offset — a process gap, not corrected here (out of scope
 for the oventoheaven.com standup); flag if it collides with something later.
+| arttogogh.com | 25 |
