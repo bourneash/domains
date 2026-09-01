@@ -310,6 +310,12 @@ sites:
     - domains-index
     - site-tracker
     - social
+  eastcoastrappers.com:
+    status: scaffold
+    worker: eastcoastrappers-com
+    cf_zone: eastcoastrappers.com
+    capabilities:
+    - site
   elevatorfriends.com:
     status: scaffold
     repo: bourneash/elevatorfriends.com
@@ -392,6 +398,14 @@ sites:
     - domains-index
     - site-tracker
     - social
+  girlpain.com:
+    status: staging
+    worker: girlpain-com
+    cf_zone: girlpain.com
+    capabilities:
+    - site
+    - ops
+    - smoke
   infrainnovator.com:
     status: scaffold
     repo: bourneash/infrainnovator.com
