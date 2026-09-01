@@ -7,7 +7,24 @@ name: promoter
 # collection that tools/social-hub drafts posts from directly (see the
 # `sources.collections` wiring this archetype expects in ops/social/hub.yaml).
 source: tools/cron-roles/archetypes/promoter/role.md.tmpl   # authored fresh, no site to fork from
-schedule: "0 8 * * 2,5"          # Tue/Fri 8am — twice-weekly, light cadence
+schedule: "MM 8 * * 2,5"          # Tue/Fri, twice-weekly, light cadence.
+# MM IS A PLACEHOLDER — PICK AN UNUSED SLOT, DO NOT STAMP A LITERAL 0.
+# This archetype shipped with a literal "0 8 * * 2,5" on 2026-08-26 and was
+# installed verbatim on 22 sites. On 2026-09-01 12:00 UTC all 22 promoter
+# containers started within 5 seconds of each other, every one of them
+# bind-mounting the SAME ~/.claude/.credentials.json read-write. They raced to
+# refresh one OAuth token; the rotation invalidated the copy the others were
+# holding and the whole burst died on "401 OAuth access token has been
+# revoked" -- along with two unrelated roles (0daynews news-writer,
+# americastrikes update) that merely happened to run in the same window.
+#
+# Promoter runs on a 5-minute grid offset by 3 (:03 :08 :13 :23 :28 :33 :38
+# :43 :48 :53 :58 in hour 8, then the same in hour 9), which dodges the
+# minutes the fleet stagger map already reserves for scraper/breaking/deployer
+# (:00 :05 :15 :30 :35 :45) and watchdog (:02 :17 :32 :47). 8:18 belongs to
+# oventoheaven.com. Grep the fleet for the free ones before stamping:
+#   grep -h "run-worker.sh promoter" sites/*/ops/docker/crontab.docker
+# See the "Promoter" section of the fleet cron stagger map.
 model: claude-sonnet-4-6
 owns_task_types: [promo]
 produces_task_types: [engineering]   # e.g. notices a dead link on the live site mid-write
