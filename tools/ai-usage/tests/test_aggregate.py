@@ -182,6 +182,36 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(report["by_requested_model"][0]["requested_model"], "claude-sonnet")
         self.assertEqual(report["alerts"][0]["requested_max_turns"], 10)
 
+    def test_zero_cost_failures_outrank_costly_max_turn_alerts(self):
+        """A $0.00 auth failure must not be buried under routine max-turns rows.
+
+        Regression for 2026-09-01: 24 roles across 10 sites died on a revoked
+        OAuth token, billing $0.00 each. Ranking alerts by cost alone put every
+        one of them below the day's ordinary hit-max-turns rows, which cost real
+        money, so the Fleet Dashboard's alerts.slice(0, 10) showed exactly ONE
+        of the 24. A fleet-wide auth outage was invisible for precisely the
+        reason it was severe: a call that never authenticates never bills.
+        """
+        root = self.root()
+        self.write_ledger(root, "busy.com", "2026-09-01", [
+            record(site="busy.com", role="writer", total_cost_usd=1.44,
+                   num_turns=25, requested_max_turns=25),
+            record(site="busy.com", role="writer", total_cost_usd=0.67,
+                   num_turns=25, requested_max_turns=25),
+        ])
+        self.write_ledger(root, "broke.com", "2026-09-01", [
+            record(site="broke.com", role="promoter", total_cost_usd=0.0,
+                   is_error=True, exit_status=1, subtype="error_during_execution"),
+        ])
+
+        report = aggregate.collect(root)
+
+        self.assertTrue(
+            report["alerts"][0]["is_error"],
+            "a zero-cost failure must lead the alert list, not trail the costly max-turns rows",
+        )
+        self.assertEqual(report["alerts"][0]["role"], "promoter")
+
     def test_model_drift_records_surface_in_alerts_and_summary(self):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [

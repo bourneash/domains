@@ -340,7 +340,18 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         "by_model": model_rows,
         "by_requested_model": requested_model_rows,
         "by_site_role_model_drift": model_drift_rows,
-        "alerts": sorted(alerts, key=lambda row: (-row["total_cost_usd"], row["day"])),
+        # Hard failures rank above cost. Ranking purely by spend buried the
+        # 2026-09-01 outage: 24 roles across 10 sites died on "401 OAuth access
+        # token has been revoked", and because a call that never authenticates
+        # bills $0.00 they sorted to the BOTTOM of this list -- below ordinary
+        # expensive-but-healthy calls -- and fell off the Fleet Dashboard's
+        # top-10 (public/app.js takes alerts.slice(0, 10)). A whole-fleet auth
+        # outage was invisible for exactly the reason it was severe. A failed
+        # call is the cheapest and the worst thing in this list, so is_error
+        # leads the sort and cost only breaks ties within each group.
+        "alerts": sorted(
+            alerts, key=lambda row: (not row["is_error"], -row["total_cost_usd"], row["day"])
+        ),
         "filters": {"from": start_day, "to": end_day},
         "coverage": coverage,
     }
