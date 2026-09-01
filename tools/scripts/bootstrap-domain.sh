@@ -91,6 +91,24 @@ no audience defined yet. All of that gets written *after* Jesse provides the bri
 CLAUDEEOF
 
 # package.json
+#
+# The build-critical deps are read from tools/dep-pins/pins.json rather than
+# written as carets. A caret here does not float at build time (`npm ci`) — it
+# floats at scaffold time, so every new site landed on whatever was latest that
+# day and immediately showed up as drift in check_pins.py. Four sites did
+# exactly that between 2026-08 and 2026-09. Sourcing the pin means a new site
+# is born conformant, and a deliberate fleet bump (edit pins.json) carries
+# forward to the next scaffold for free.
+read -r PIN_ASTRO PIN_CF PIN_WRANGLER <<<"$(python3 - "${DOMAINS_ROOT}/tools/dep-pins/pins.json" <<'PINEOF'
+import json, sys
+p = json.load(open(sys.argv[1]))["pins"]
+print(p["astro"], p["@astrojs/cloudflare"], p["wrangler"])
+PINEOF
+)"
+: "${PIN_ASTRO:?could not read astro pin from tools/dep-pins/pins.json}"
+: "${PIN_CF:?could not read @astrojs/cloudflare pin from tools/dep-pins/pins.json}"
+: "${PIN_WRANGLER:?could not read wrangler pin from tools/dep-pins/pins.json}"
+
 cat > "${TMPSCAFFOLD}/site/package.json" << PKGEOF
 {
   "name": "${SITE_NAME}",
@@ -109,13 +127,13 @@ cat > "${TMPSCAFFOLD}/site/package.json" << PKGEOF
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14",
+    "@astrojs/cloudflare": "${PIN_CF}",
     "@astrojs/rss": "^4",
     "@astrojs/sitemap": "^3",
-    "astro": "^7"
+    "astro": "${PIN_ASTRO}"
   },
   "devDependencies": {
-    "wrangler": "^4"
+    "wrangler": "${PIN_WRANGLER}"
   }
 }
 PKGEOF

@@ -67,6 +67,24 @@ tools/lint-fleet/.lint-sweep.lock
 tools/lint-fleet/reports/
 .aider*
 
+# Fleet link-rot sweep — run artifacts, not source. Same contract as
+# tools/lint-fleet: latest.json changes every sweep, history.jsonl grows
+# forever, and .baseline.json/.last-run.json are scratch for the cron wrapper.
+tools/link-rot/*.log
+tools/link-rot/*.log.1
+tools/link-rot/.link-sweep.lock
+tools/link-rot/.baseline.json
+tools/link-rot/.last-run.json
+tools/link-rot/reports/
+
+# Fleet web-vitals sweep — run artifacts and the pinned Lighthouse install.
+tools/web-vitals/*.log
+tools/web-vitals/*.log.1
+tools/web-vitals/.vitals-sweep.lock
+tools/web-vitals/.baseline.json
+tools/web-vitals/.last-run.json
+tools/web-vitals/reports/
+
 # fleet-registry runtime state
 tools/fleet-registry/drift.log
 tools/fleet-registry/drift.log.1

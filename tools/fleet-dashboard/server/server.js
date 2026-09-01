@@ -35,6 +35,7 @@ const lintfleet = require('./lintfleet');
 const errorscan = require('./errorscan');
 const guardrails = require('./guardrails');
 const domains = require('./domains');
+const scaffolds = require('./scaffolds');
 const social = require('./social');
 const socialhub = require('./socialhub');
 const automation = require('./automation');
@@ -149,7 +150,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // keep running stale JS.
   function assetVersion() {
     const h = crypto.createHash('sha1');
-    for (const f of ['index.html', 'app.js', 'style.css']) {
+    for (const f of ['index.html', 'app.js', 'style.css', 'theme.css', 'shell.js']) {
       try {
         const st = fs.statSync(path.join(__dirname, 'public', f));
         h.update(`${f}:${st.mtimeMs}:${st.size};`);
@@ -468,6 +469,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // half). Exposed for inspection/debugging.
   app.get('/api/deploy-health', (_req, res) => res.json(deployhealth.all()));
   app.get('/api/gatus', (_req, res) => res.json(gatushealth.all()));
+
+  // Parked inventory (F51) — registry entries with status: scaffold. Read
+  // straight from registry/fleet.yaml, not from site discovery: a scaffold
+  // runs nothing, so it is invisible to every other roster in this panel.
+  app.get('/api/scaffolds', (req, res) =>
+    res.json(scaffolds.all(root, { fresh: req.query.fresh === '1' })));
 
   // Social Hub (tools/social-hub) — proxied; see socialhub.js for why.
   socialhub.registerRoutes(app);

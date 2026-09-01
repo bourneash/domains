@@ -1,0 +1,8 @@
+{
+  "name": "fleet-web-vitals",
+  "private": true,
+  "description": "Fleet Core Web Vitals + accessibility sweep (Lighthouse, headless Chrome)",
+  "dependencies": {
+    "lighthouse": "12.8.2"
+  }
+}
