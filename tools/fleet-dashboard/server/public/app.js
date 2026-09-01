@@ -8038,32 +8038,108 @@ async function renderSocialHub() {
 
 function shRenderOverview(data) {
   const body = $('#sh-body');
-  const sites = Object.entries(data.sites).sort(([a], [b]) => a.localeCompare(b));
-  const stat = (label, value, cls) =>
-    `<div class="sh-stat"><span class="sh-stat-label">${esc(label)}</span><b class="sh-stat-val${cls ? ' ' + cls : ''}">${value}</b></div>`;
-  const siteCards = sites
-    .map(([name, info]) => {
-      const c = info.counts || {};
-      const next = info.next_send ? shFmtDate(info.next_send) : 'nothing scheduled';
-      const live = [
-        ...new Set((info.channels || []).filter(ch => ch.enabled).map(ch => ch.platform)),
-      ];
-      const total = (info.channels || []).length;
+  const entries = Object.entries(data.sites);
+
+  // Roll each site up to the two numbers that actually demand an operator:
+  // posts awaiting review, and posts that failed to send.
+  const rolled = entries.map(([name, info]) => {
+    const c = info.counts || {};
+    const channels = info.channels || [];
+    const live = [...new Set(channels.filter(ch => ch.enabled).map(ch => ch.platform))];
+    // a site can run several accounts on one platform, so collapse to one chip
+    // per platform carrying "live/total" rather than repeating the name N times
+    const byPlatform = [];
+    for (const ch of channels) {
+      const row = byPlatform.find(x => x[0] === ch.platform);
+      if (row) {
+        row[1]++;
+        if (ch.enabled) row[2]++;
+      } else byPlatform.push([ch.platform, 1, ch.enabled ? 1 : 0]);
+    }
+    return {
+      byPlatform,
+      name,
+      info,
+      c,
+      live,
+      total: channels.length,
+      draft: c.draft || 0,
+      failed: c.failed || 0,
+      scheduled: c.scheduled || 0,
+      posted: c.posted || 0,
+      inbox: info.inbox_new || 0,
+      idle: !info.next_send && !(c.scheduled || 0),
+    };
+  });
+
+  const sum = k => rolled.reduce((n, r) => n + r[k], 0);
+  const totals = {
+    draft: sum('draft'),
+    scheduled: sum('scheduled'),
+    posted: sum('posted'),
+    failed: sum('failed'),
+    inbox: sum('inbox'),
+    idle: rolled.filter(r => r.idle).length,
+  };
+
+  const filter = SH.ovFilter || 'all';
+  let shown = rolled;
+  if (filter === 'review') shown = shown.filter(r => r.draft > 0);
+  else if (filter === 'failing') shown = shown.filter(r => r.failed > 0);
+  else if (filter === 'idle') shown = shown.filter(r => r.idle);
+  // trouble first, then volume of pending work, then name — an alphabetical
+  // wall of 25 identical cards told you nothing about where to look
+  shown = shown
+    .slice()
+    .sort(
+      (a, b) =>
+        b.failed - a.failed || b.draft - a.draft || b.inbox - a.inbox || a.name.localeCompare(b.name)
+    );
+
+  const tile = (k, label, value, tone) =>
+    `<button class="sh-tile${tone ? ' ' + tone : ''}" data-sh-jump="${k}" title="Open the queue filtered to ${esc(label)}">
+       <span class="sh-tile-v">${value}</span><span class="sh-tile-k">${esc(label)}</span>
+     </button>`;
+
+  const chip = (k, label, n) =>
+    `<button class="seg-btn${filter === k ? ' active' : ''}" data-sh-ov="${k}">${esc(label)}<span class="ctl-n">${n}</span></button>`;
+
+  const siteCards = shown
+    .map(r => {
+      const tone = r.failed ? 'is-bad' : r.draft ? 'is-warn' : r.idle ? 'is-idle' : 'is-ok';
+      const next = r.info.next_send ? shFmtDate(r.info.next_send) : 'nothing scheduled';
+      const pill = (label, n, cls) =>
+        n
+          ? `<span class="sh-pill${cls ? ' ' + cls : ''}">${n}<i>${esc(label)}</i></span>`
+          : '';
       return `
-        <div class="card sh-site" data-fleet-row data-site="${esc(name)}" data-rk="sh-site-${esc(name)}">
+        <div class="card sh-site ${tone}" data-fleet-row data-site="${esc(r.name)}" data-rk="sh-site-${esc(r.name)}">
           <div class="sh-site-head">
-            <h3>${esc(name)}</h3>
-            <span class="muted sh-site-chancount">${live.length}/${total || 0} channels live</span>
+            <h3>${esc(r.name)}</h3>
+            <span class="muted sh-site-chancount">${r.live.length}/${r.total || 0} live</span>
           </div>
-          <div class="sh-stat-grid">
-            ${stat('awaiting review', c.draft || 0, c.draft ? 'warn' : '')}
-            ${stat('scheduled', c.scheduled || 0)}
-            ${stat('posted', c.posted || 0)}
-            ${stat('failed', c.failed || 0, c.failed ? 'bad' : '')}
-            ${stat('inbox', info.inbox_new || 0, info.inbox_new ? 'warn' : '')}
+          <div class="sh-site-lead">
+            <span class="sh-lead-v${r.draft ? ' warn' : ''}">${r.draft}</span>
+            <span class="sh-lead-k">awaiting review</span>
           </div>
-          <div class="sh-kv-row"><span class="muted">next send</span><span>${esc(next)}</span></div>
-          <div class="sh-chans">${live.length ? live.map(p => `<span class="badge">${esc(p)}</span>`).join(' ') : '<span class="muted">no live channels</span>'}</div>
+          <div class="sh-pills">
+            ${pill('scheduled', r.scheduled)}
+            ${pill('posted', r.posted)}
+            ${pill('failed', r.failed, 'bad')}
+            ${pill('inbox', r.inbox, 'warn')}
+            ${r.scheduled || r.posted || r.failed || r.inbox ? '' : '<span class="sh-pill muted-pill">quiet</span>'}
+          </div>
+          <div class="sh-kv-row"><span class="muted">next send</span><span${r.idle ? ' class="muted"' : ''}>${esc(next)}</span></div>
+          <div class="sh-chans">${
+            r.byPlatform.length
+              ? r.byPlatform
+                  .map(
+                    ([platform, n, on]) =>
+                      `<span class="sh-chan${on ? ' on' : ''}" title="${esc(shPlatformLabel(platform))} — ${on}/${n} live">${esc(shPlatformLabel(platform))}${n > 1 ? `<b>${on}/${n}</b>` : ''}</span>`
+                  )
+                  .join('')
+              : '<span class="muted">no channels</span>'
+          }</div>
         </div>`;
     })
     .join('');
@@ -8071,14 +8147,29 @@ function shRenderOverview(data) {
   const platformRows = Object.entries(data.metrics.platforms || {})
     .map(
       ([platform, m]) => `<tr>
-        <td>${esc(platform)}</td><td class="mono">${m.posts}</td><td class="mono">${m.likes}</td>
+        <td>${esc(shPlatformLabel(platform))}</td><td class="mono">${m.posts}</td><td class="mono">${m.likes}</td>
         <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${m.avg_engagement}</td>
       </tr>`
     )
     .join('');
 
   body.innerHTML = `
-    <div class="cards sh-cards">${siteCards || '<div class="empty">No managed sites.</div>'}</div>
+    <div class="sh-tiles">
+      ${tile('draft', 'awaiting review', totals.draft, totals.draft ? 'warn' : '')}
+      ${tile('scheduled', 'scheduled', totals.scheduled)}
+      ${tile('posted', 'posted', totals.posted)}
+      ${tile('failed', 'failed', totals.failed, totals.failed ? 'bad' : '')}
+    </div>
+    <div class="ctl-bar sh-ov-bar">
+      <div class="seg sm">
+        ${chip('all', 'All sites', rolled.length)}
+        ${chip('review', 'Needs review', rolled.filter(r => r.draft).length)}
+        ${chip('failing', 'Failing', rolled.filter(r => r.failed).length)}
+        ${chip('idle', 'Idle', totals.idle)}
+      </div>
+      <span class="ctl-count muted">${shown.length} of ${rolled.length} sites${totals.inbox ? ` · ${totals.inbox} unread inbox` : ''}</span>
+    </div>
+    <div class="cards sh-cards">${siteCards || '<div class="empty">No site matches this filter.</div>'}</div>
     <h3 class="sh-h">Engagement — last ${data.metrics.days || 30} days</h3>
     ${
       platformRows
@@ -8087,6 +8178,22 @@ function shRenderOverview(data) {
            <tbody>${platformRows}</tbody></table>`
         : '<div class="empty">Nothing published in this window yet.</div>'
     }`;
+
+  $$('[data-sh-ov]').forEach(b =>
+    b.addEventListener('click', () => {
+      SH.ovFilter = b.dataset.shOv;
+      shRenderOverview(data);
+    })
+  );
+  // a summary tile is a question ("what are those 84 drafts?") — send it to the
+  // queue already filtered rather than making the operator refilter by hand
+  $$('[data-sh-jump]').forEach(b =>
+    b.addEventListener('click', () => {
+      SH.status = b.dataset.shJump;
+      SH.site = '';
+      $('[data-sh-tab="queue"]')?.click();
+    })
+  );
   applyFleetFilter();
 }
 

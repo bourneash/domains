@@ -883,3 +883,80 @@ tbody tr:hover td.rcell.hot-stale   { background: rgba(240,180,41,.12); }
 tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 
 .rmatrix td.rsite { padding-right: 16px; }
+
+/* ============================================================================
+   Social Hub — overview
+   25 identical alphabetical cards gave equal weight to "awaiting review" and
+   "posted", so nothing told you which site needed a human. Cards now lead with
+   the one actionable number, carry a state edge, and sort trouble-first.
+   ========================================================================== */
+.sh-tiles {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px; margin-bottom: 14px;
+}
+.sh-tile {
+  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+  padding: 12px 14px; border-radius: 13px; cursor: pointer; text-align: left;
+  background: var(--grad-panel), linear-gradient(180deg, rgba(19,24,34,.86), rgba(13,17,25,.86));
+  border: 1px solid rgba(255,255,255,.07);
+  box-shadow: var(--sh-2);
+  transition: transform .18s var(--ease-out), border-color .18s var(--ease), box-shadow .18s var(--ease);
+}
+.sh-tile:hover { transform: translateY(-2px); border-color: rgba(94,169,255,.45); box-shadow: var(--sh-3); }
+.sh-tile-v {
+  font-size: 23px; font-weight: 700; letter-spacing: -.035em; line-height: 1.15;
+  font-variant-numeric: tabular-nums; color: var(--text-hi);
+}
+.sh-tile-k { font-size: 9.5px; letter-spacing: .11em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+.sh-tile.warn .sh-tile-v { color: var(--yellow); }
+.sh-tile.bad  .sh-tile-v { color: var(--red); }
+.sh-tile.warn { border-color: rgba(240,180,41,.28); }
+.sh-tile.bad  { border-color: rgba(255,107,107,.32); }
+
+.sh-ov-bar { margin-bottom: 14px; }
+
+/* ---- site cards ---- */
+.sh-cards { grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); }
+.sh-cards > .sh-site { position: relative; padding: 13px 15px 14px; }
+.sh-site::before {
+  content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 2px;
+  border-radius: 0 3px 3px 0; background: var(--green); opacity: .8;
+}
+.sh-site.is-warn::before { background: var(--yellow); }
+.sh-site.is-bad::before  { background: var(--red); box-shadow: 0 0 12px -2px var(--red); }
+.sh-site.is-idle::before { background: var(--faint); opacity: .5; }
+.sh-site.is-bad { border-color: rgba(255,107,107,.26); }
+
+.sh-site-lead { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 9px; }
+.sh-lead-v {
+  font-size: 27px; font-weight: 700; letter-spacing: -.04em; line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--faint);
+}
+.sh-lead-v.warn { color: var(--yellow); }
+.sh-lead-k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+
+.sh-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.sh-pill {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 2px 8px; border-radius: 999px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+  font-size: 11.5px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;
+}
+.sh-pill i { font-style: normal; font-weight: 550; font-size: 10.5px; color: var(--faint); }
+.sh-pill.bad  { background: rgba(255,107,107,.13); border-color: rgba(255,107,107,.26); color: var(--red); }
+.sh-pill.bad i  { color: rgba(255,107,107,.75); }
+.sh-pill.warn { background: rgba(240,180,41,.12); border-color: rgba(240,180,41,.24); color: var(--yellow); }
+.sh-pill.warn i { color: rgba(240,180,41,.75); }
+.sh-pill.muted-pill { color: var(--faint); font-weight: 550; }
+
+/* ---- channel chips: live vs configured-but-off, at a glance ---- */
+.sh-chans { gap: 5px; }
+.sh-chan {
+  padding: 2px 8px; border-radius: 7px; font-size: 10.5px; font-weight: 600;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  color: var(--faint);
+}
+.sh-chan.on {
+  background: rgba(61,220,151,.11); border-color: rgba(61,220,151,.24); color: var(--green);
+}
+.sh-chan b { font-weight: 700; margin-left: 4px; opacity: .75; font-variant-numeric: tabular-nums; }
