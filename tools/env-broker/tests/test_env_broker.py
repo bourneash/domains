@@ -356,3 +356,63 @@ def test_render_leaves_the_last_good_file_when_the_vault_is_down(tmp_path, monke
     assert "FD_TOKEN=live-token" in out.read_text(), \
         "the vault-only key was blanked by an outage"
     assert "SKIPPED" in capsys.readouterr().err
+
+
+# --- rendered-file staleness -------------------------------------------------
+#
+# `--check` used to verify policy-vs-usage, file existence and mode, but never
+# CONTENTS — so a site whose policy was corrected and whose file was never
+# re-rendered reported "policy ok" while its container ran without the key.
+# That is not hypothetical: arttogogh.com sat in exactly that state on
+# 2026-09-01, green in the daily check, with a role that would have failed.
+
+def test_rendered_drift_is_silent_when_the_file_matches(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    (tmp_path / "plain.com.env").write_text("# header\nA=1\nB=2\n")
+    assert eb.rendered_drift("plain.com", ["A", "B"], {"A": "1", "B": "2"}) is None
+
+
+def test_rendered_drift_catches_a_key_the_policy_now_grants(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    (tmp_path / "plain.com.env").write_text("A=1\n")
+    msg = eb.rendered_drift("plain.com", ["A", "B"], {"A": "1", "B": "2"})
+    assert "missing B" in msg and "role will break" in msg
+
+
+def test_rendered_drift_catches_a_key_the_policy_no_longer_grants(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    (tmp_path / "plain.com.env").write_text("A=1\nOLD=x\n")
+    assert "still holds OLD" in eb.rendered_drift("plain.com", ["A"], {"A": "1"})
+
+
+def test_rendered_drift_catches_a_rotated_value_without_printing_it(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    (tmp_path / "plain.com.env").write_text("A=old-secret\n")
+    msg = eb.rendered_drift("plain.com", ["A"], {"A": "new-secret"})
+    assert "stale value for A" in msg
+    # The whole point of this tool is that secrets stay in files, not in the
+    # daily Slack alert this message ends up inside.
+    assert "old-secret" not in msg and "new-secret" not in msg
+
+
+def test_rendered_drift_reads_the_tool_prefixed_filename(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    (tmp_path / "tool-fleet-dashboard.env").write_text("FD_TOKEN=t\n")
+    # Same basename, no prefix — a tool must never be checked against this.
+    (tmp_path / "fleet-dashboard.env").write_text("FD_TOKEN=wrong\n")
+    assert eb.rendered_drift("fleet-dashboard", ["FD_TOKEN"], {"FD_TOKEN": "t"},
+                             is_tool=True) is None
+    assert "stale value" in eb.rendered_drift(
+        "fleet-dashboard", ["FD_TOKEN"], {"FD_TOKEN": "t"})
+
+
+def test_rendered_drift_defers_a_missing_file_to_the_cron_existence_check(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    assert eb.rendered_drift("gone.com", ["A"], {"A": "1"}) is None
+
+
+def test_rendered_drift_ignores_a_value_the_source_does_not_have(tmp_path, monkeypatch):
+    # render() omits keys with no value; the check must not then call that a drop.
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
+    (tmp_path / "plain.com.env").write_text("A=1\n")
+    assert eb.rendered_drift("plain.com", ["A", "NOVALUE"], {"A": "1"}) is None

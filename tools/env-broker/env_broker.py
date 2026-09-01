@@ -405,6 +405,41 @@ def cmd_set_secret(args, policy, slack) -> int:
     return cmd_render(args, policy, slack)
 
 
+def rendered_drift(name: str, keys: list[str], values: dict[str, str],
+                   is_tool: bool = False) -> str | None:
+    """Does the file on disk still match what policy would render today?
+
+    `--check` verified policy-vs-usage and the file's existence and mode, but
+    never its contents — so a site whose policy was corrected but whose file was
+    never re-rendered reported "policy ok" while its container ran without the
+    key. That is the silent failure this tool exists to prevent, and it happened
+    (arttogogh.com, 2026-09-01). Values are compared but NEVER printed.
+    """
+    out = RENDER_DIR / (f"tool-{name}.env" if is_tool else f"{name}.env")
+    try:
+        on_disk = {k: v for k, v in (
+            line.split("=", 1) for line in out.read_text().splitlines()
+            if "=" in line and not line.startswith("#"))}
+    except OSError:
+        return None                     # existence is the cron script's job
+
+    expected = {k: values[k] for k in keys if k in values}
+    added = sorted(set(expected) - set(on_disk))
+    dropped = sorted(set(on_disk) - set(expected))
+    changed = sorted(k for k in set(expected) & set(on_disk)
+                     if expected[k] != on_disk[k])
+    if not (added or dropped or changed):
+        return None
+
+    parts = []
+    if added:
+        parts.append(f"missing {', '.join(added)} — its role will break")
+    if dropped:
+        parts.append(f"still holds {', '.join(dropped)}")
+    if changed:
+        parts.append(f"stale value for {', '.join(changed)}")
+    return "; ".join(parts)
+
 def cmd_check(args, policy, slack) -> int:
     values = load_env_vault(policy) if args.source == "vault" else load_env_file()
     values = merge_vault_only(values, policy)
@@ -432,6 +467,13 @@ def cmd_check(args, policy, slack) -> int:
             print(f"EXTRA     {domain}: granted {', '.join(granted_unused)} "
                   f"but ops/ never references it — needless exposure")
 
+        stale = rendered_drift(domain, sorted(keys), values)
+        if stale:
+            drift = True
+            print(f"STALE     {domain}: rendered file {stale} — re-render, then "
+                  f"RESTART its container (a file bind mount pins the old inode, "
+                  f"so a running container never sees a re-render)")
+
     for name in tool_consumers():
         keys = set(tool_keys(name, policy))
         if not keys:
@@ -442,6 +484,12 @@ def cmd_check(args, policy, slack) -> int:
         if gone:
             drift = True
             print(f"NOVALUE   tools/{name}: no value for {', '.join(gone)}")
+
+        stale = rendered_drift(name, sorted(keys), values, is_tool=True)
+        if stale:
+            drift = True
+            print(f"STALE     tools/{name}: rendered file {stale} — re-render, "
+                  f"then RESTART the container")
 
     missing_values = sorted(k for d in consumers()
                             for k in granted_keys(d, policy, slack) if k not in values)

@@ -77,6 +77,15 @@ vault. A site's key set is:
       - sites.<domain>.deny_keys
       - never_grant          # fleet-wide credentials no site may ever hold
 
+`--check` also compares each rendered file's **contents** against what policy
+would produce today, because existence and mode were never the interesting
+question: arttogogh.com sat green in the daily check on 2026-09-01 while its
+container ran a file missing the Slack channel its role needed. Values are
+compared but never printed — this message ends up in a Slack alert. Note that
+re-rendering alone does not fix a running container: compose bind-mounts these
+as individual **files**, so the container is pinned to the old inode until it is
+restarted.
+
 `--check` re-derives what each site's `ops/` actually references and fails on
 drift **in both directions**: a key a site needs but is not granted (its role
 will break), and a key granted but never referenced (needless exposure). Run it
