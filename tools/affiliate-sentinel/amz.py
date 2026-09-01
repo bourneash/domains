@@ -185,8 +185,15 @@ def check_health(cl, asins: list[str], batch_size: int = 10) -> dict[str, AsinHe
         try:
             resp = cl.get_items(batch, resources=HEALTH_RESOURCES)
         except AMZError as exc:
+            # Keep the API's own words. "API error 403" alone is unactionable —
+            # a 403 for an eligibility revocation and a 403 for a bad key need
+            # completely different responses, and the caller cannot tell them
+            # apart from the status code.
+            detail = str(exc).strip().replace("\n", " ")
+            if len(detail) > 220:
+                detail = detail[:220].rstrip() + "…"
             for a in batch:
-                out[a] = AsinHealth(a, ERROR, note=f"API error {exc.status}")
+                out[a] = AsinHealth(a, ERROR, note=f"API error {exc.status}: {detail}")
             continue
 
         items = (resp.get("itemsResult") or {}).get("items") or []

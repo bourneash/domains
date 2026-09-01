@@ -168,6 +168,34 @@ def main() -> int:
 
     products = registry_mod.parse(registry_path)
     log(f"registry: {registry_path.relative_to(site_root)}")
+
+    # A registry file that exists but parses to nothing is a PARSER failure, not
+    # a site with no products. It has happened twice for real: 0xroulette's
+    # double-quoted entries, and a site whose registry was a computed
+    # `products.map(...)` projection this static parser cannot evaluate. Both
+    # times the run reported a cheerful "0/0 ASINs live, 0 cloaks OK" and exited
+    # 0 — the most dangerous possible output, because it looks like a pass.
+    # Treat it as an infrastructure failure (exit 3) so run-fleet.sh alerts.
+    if not products:
+        log(
+            f"FATAL: {registry_path.relative_to(site_root)} exists but parsed to ZERO products. "
+            "This is a parser/registry-shape failure, not an empty catalog — the file would not "
+            "be here otherwise. Common causes: entries built by a .map()/computed expression "
+            "(this parser is a static regex and cannot evaluate one), or a quoting/field-name "
+            "shape the parser does not recognise (see registry.py's alias lists). "
+            "NOT reporting green."
+        )
+        notify.post(
+            site_root=site_root,
+            channel=args.slack_channel or f"domain-{site_name.replace('.', '-')}",
+            text=(
+                f"🚨 {site_name} affiliate sentinel: registry "
+                f"`{registry_path.relative_to(site_root)}` parsed to 0 products. "
+                "No cloaks or ASINs were checked. This site is currently UNMONITORED."
+            ),
+            color="danger",
+        )
+        return 3
     go_prefix = discover.detect_go_prefix(site_root)
     base_url = args.base_url or detect_base_url(site_root)
     tag = args.tag or detect_tag(registry_path)
@@ -205,6 +233,19 @@ def main() -> int:
                         for k in (amz.OK, amz.OOS, amz.SUSPECT_MISSING, amz.ERROR)
                     )
                 )
+
+                # If EVERY ASIN check errored, the API is down or the account
+                # lost access — that is not "0 of 16 ASINs are live", which is
+                # what the clean-verdict branch would cheerfully report. It ran
+                # that way against the whole fleet while PA-API answered 403
+                # "account does not currently meet the eligibility
+                # requirements" for every single call.
+                errored = [h for h in health.values() if h.status == amz.ERROR]
+                if health and len(errored) == len(health):
+                    api_error = errored[0].note or "every ASIN check failed"
+                    log(f"API DOWN: all {len(health)} ASIN check(s) failed — {api_error}")
+                    log("not reporting ASIN health this run; cloak checks still apply")
+                    health = {}
 
                 # Confirmation gate: PA-API "missing" is a suspicion, not a verdict.
                 for h in health.values():
@@ -439,7 +480,14 @@ def main() -> int:
         if actionable_oos:
             bits.append(f"{len(actionable_oos)} out of stock")
         if api_error:
-            bits.append("Amazon API unavailable")
+            # Name the count and the API's own reason. "Amazon API unavailable"
+            # on its own reads as transient and got ignored; it was a standing
+            # account-eligibility revocation, and every ASIN on the site was
+            # going unchecked behind it.
+            bits.append(
+                f"Amazon API unavailable — {len(asin_products)} ASIN(s) UNCHECKED "
+                f"({api_error})"
+            )
         verdict = ", ".join(bits)
     else:
         emoji, color = notify.CLEAN

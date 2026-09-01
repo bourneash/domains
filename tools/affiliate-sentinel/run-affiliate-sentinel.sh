@@ -16,18 +16,26 @@
 #   ... run-affiliate-sentinel.sh --dry-run     # report only, never write
 #   ... run-affiliate-sentinel.sh --no-heal     # file tasks, spend zero tokens
 #
-# Exit code is always 0 — a sentinel that fails a cron tick is a sentinel
-# someone has to babysit. Real problems surface as Slack + task files.
+# Exit code: 0 when the sentinel ran, whatever it found — a sentinel that fails
+# a cron tick over a dead ASIN is a sentinel someone has to babysit, and real
+# findings surface as Slack + task files. But an INFRASTRUCTURE failure (no
+# usable interpreter, missing sentinel.py, an unhandled traceback) exits
+# non-zero so run-fleet.sh can count it and alert. Those two cases were
+# conflated before, which is how three days of import crashes read as green.
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 # When invoked through the container's read-only tools mount, $0's directory is
 # the tool, not the site — so the site root is the caller's cwd.
 SITE_ROOT="$(pwd)"
-[[ -d "$SITE_ROOT/ops" ]] || { echo "[sentinel] not a site repo root: $SITE_ROOT" >&2; exit 0; }
+[[ -d "$SITE_ROOT/ops" ]] || { echo "[sentinel] not a site repo root: $SITE_ROOT" >&2; exit 3; }
 
 SENTINEL="$REPO_ROOT/sentinel.py"
-[[ -f "$SENTINEL" ]] || { echo "[sentinel] sentinel.py missing at $SENTINEL" >&2; exit 0; }
+[[ -f "$SENTINEL" ]] || { echo "[sentinel] sentinel.py missing at $SENTINEL" >&2; exit 3; }
+
+# Interpreter resolution is explicit — never the ambient `python3`. See
+# bin/ensure-venv for why (cron's PATH gets a different python than a shell's).
+PYTHON="$("$REPO_ROOT/bin/ensure-venv")" || exit 3
 
 # .env.shared carries the Amazon + Slack credentials in the containers.
 if [[ -f "$SITE_ROOT/.env.shared" ]]; then
@@ -41,7 +49,7 @@ if [[ -f "$SITE_ROOT/ops/facts.yaml" ]]; then
            | sed -E 's/^\s*brand:\s*//; s/^["'"'"']//; s/["'"'"']$//')"
 fi
 
-exec python3 "$SENTINEL" \
+exec "$PYTHON" "$SENTINEL" \
   --site-root "$SITE_ROOT" \
   ${BRAND:+--site-brand "$BRAND"} \
   "$@"

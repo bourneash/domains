@@ -1,0 +1,13 @@
+# affiliate-sentinel runtime dependencies.
+#
+# Pinned, and installed into this tool's own .venv (see bin/ensure-venv).
+# Do NOT rely on the ambient python3: under cron there is no PATH, so python3
+# resolves to /usr/bin/python3 — a DIFFERENT interpreter from the pyenv one an
+# interactive shell gets, and one that has never had httpx. That mismatch made
+# every nightly run of this tool crash on import for at least three days while
+# still reporting success (see bin/ensure-venv and run-fleet.sh's rc capture).
+httpx==0.28.1
+
+# Test-only, kept in the same pin set so `bin/setup-venv` produces an env that
+# can run the suite — a venv you cannot test in is how the last drift survived.
+pytest==8.3.4

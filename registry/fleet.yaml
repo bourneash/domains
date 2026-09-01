@@ -198,6 +198,7 @@ sites:
     repo: bourneash/arttogogh.com
     worker: arttogogh-com
     cf_zone: arttogogh.com
+    slack_channel_env: SLACK_CHANNEL_ARTTOGOGH
     capabilities:
     - site
     - ops
@@ -338,6 +339,7 @@ sites:
     - cron
     - smoke
     - tasks
+    - affiliate
     registered_in:
     - domains-index
     - site-tracker
@@ -382,9 +384,9 @@ sites:
     - domains-index
     - site-tracker
     - social
+    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
-    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -428,13 +430,24 @@ sites:
     repo: bourneash/girlpain.com
     worker: girlpain-com
     cf_zone: girlpain.com
+    slack_channel_env: SLACK_CHANNEL_GIRLPAIN
     capabilities:
     - site
     - ops
+    - cron
     - smoke
+    - tasks
     registered_in:
     - domains-index
     - site-tracker
+  greatamericanlakes.com:
+    status: scaffold
+    repo: bourneash/greatamericanlakes.com
+    worker: greatamericanlakes-com
+    cf_zone: greatamericanlakes.com
+    capabilities:
+    - site
+    - affiliate
   howfishthink.com:
     status: scaffold
     repo: bourneash/howfishthink.com
@@ -460,6 +473,19 @@ sites:
     - domains-index
     - site-tracker
     - social
+  marineactivity.com:
+    status: scaffold
+    repo: bourneash/marineactivity.com
+    worker: marineactivity-com
+    cf_zone: marineactivity.com
+    capabilities:
+    - site
+    - ops
+    - tasks
+    - affiliate
+    registered_in:
+    - domains-index
+    - site-tracker
   mynewgm.com:
     status: scaffold
     repo: bourneash/mynewgm.com
@@ -730,10 +756,9 @@ sites:
     cf_zone: seedstosauce.com
     capabilities:
     - site
+    - ops
+    - tasks
     - affiliate
-    - analytics
-    analytics:
-      consent_gated: true
     registered_in:
     - domains-index
     - site-tracker
@@ -742,9 +767,11 @@ sites:
     repo: bourneash/shoppinkflamingo.com
     worker: shoppinkflamingo-com
     cf_zone: shoppinkflamingo.com
+    slack_channel_env: SLACK_CHANNEL_SHOPPINKFLAMINGO
     capabilities:
     - site
     - ops
+    - cron
     - smoke
     - tasks
     - affiliate

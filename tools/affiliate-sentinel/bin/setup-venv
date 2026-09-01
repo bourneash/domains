@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# (Re)build the sentinel's pinned virtualenv. Idempotent; safe to re-run.
+set -euo pipefail
+TOOL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PY="${PYTHON:-python3}"
+"$PY" -m venv "$TOOL_DIR/.venv"
+"$TOOL_DIR/.venv/bin/pip" install -q --disable-pip-version-check -r "$TOOL_DIR/requirements.txt"
+"$TOOL_DIR/.venv/bin/python" - <<'PYCHK'
+import httpx
+print(f"affiliate-sentinel venv ready — httpx {httpx.__version__}")
+PYCHK

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Resolve a python interpreter that can actually run the sentinel, and print it.
+#
+# WHY THIS EXISTS
+# The tool's entire nightly fleet run crashed on `import httpx` for days while
+# reporting success. The package was never the problem: cron has no PATH, so
+# `python3` resolved to /usr/bin/python3 (3.12, no httpx) while every
+# interactive shell got pyenv's 3.11 (which has it). "Works when I run it by
+# hand" is exactly the shape of that bug, so interpreter choice is no longer
+# allowed to depend on who invoked us.
+#
+# Resolution order:
+#   1. $SENTINEL_PYTHON            — explicit override, checked like the rest
+#   2. <tool>/.venv/bin/python     — the pinned, reproducible default
+#   3. any python3 on PATH         — container fallback (the worker image
+#                                    ships the deps; a host venv symlinked to
+#                                    host paths would be broken in there)
+# A candidate is only accepted if it can import every runtime dep. If none can,
+# we exit non-zero with a message naming the fix — never silently degrade.
+set -uo pipefail
+
+# Resolved with bash builtins only. `dirname`/`cat` live in coreutils, and this
+# script's whole job is surviving a degraded PATH — depending on external
+# binaries to report "your PATH is broken" is circular.
+_self="${BASH_SOURCE[0]}"
+_dir="${_self%/*}"
+[[ "$_dir" == "$_self" ]] && _dir="."
+TOOL_DIR="$(cd "$_dir/.." 2>/dev/null && printf '%s' "$PWD")"
+DEPS=(httpx)
+
+_can_run() {
+  local py="$1"
+  [[ -x "$py" ]] || command -v "$py" >/dev/null 2>&1 || return 1
+  local m
+  for m in "${DEPS[@]}"; do
+    "$py" -c "import $m" >/dev/null 2>&1 || return 1
+  done
+  return 0
+}
+
+for candidate in "${SENTINEL_PYTHON:-}" "$TOOL_DIR/.venv/bin/python" python3; do
+  [[ -n "$candidate" ]] || continue
+  if _can_run "$candidate"; then
+    command -v "$candidate" 2>/dev/null || echo "$candidate"
+    exit 0
+  fi
+done
+
+{
+  printf '[sentinel] FATAL: no python found that can import: %s\n' "${DEPS[*]}"
+  printf '  tried: SENTINEL_PYTHON=%s, %s/.venv/bin/python, python3 on PATH=%s\n' \
+    "${SENTINEL_PYTHON:-<unset>}" "$TOOL_DIR" "${PATH:-<empty>}"
+  printf '  fix:   bash %s/bin/setup-venv\n' "$TOOL_DIR"
+} >&2
+exit 1
