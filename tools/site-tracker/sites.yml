@@ -734,6 +734,24 @@ sites:
     - branding
     - manual
     manual: {}
+  greatamericanlakes.com:
+    active: true
+    cf_zone: greatamericanlakes.com
+    github: bourneash/greatamericanlakes.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   howfishthink.com:
     active: true
     cf_zone: howfishthink.com
