@@ -18,10 +18,15 @@
 | xxxtea.com 			|   ✅   | Fragrance-ad tea + tea-ware review site — "restraint is the joke" voice, honey/amber on oolong-dark, affiliate 				|
 | allthingsmasonic.com |   ✅   | Masonic gear catalog + guides — scale-first affiliate framework with an Amazon relevance gate; live, ops/cron active |
 | amputeenews.com 		|   ✅   | Amputee News — source-backed practical news/guide desk for amputees and limb-different people; live on CF Workers Builds, ops/cron autonomy active, Amazon Associates pending real tag 	|
+| eastcoastrappers.com 	|   ✅   | East Coast rap gear, guides, scenes, and shows — dark editorial affiliate site; live on Cloudflare Worker, email routing configured, Workers Builds pending connection |
 | newmomshop.com 	|   🟢   | Dana-led pregnancy, postpartum, and newborn gear-guide affiliate site; static v1 built, Workers Builds connection pending |
 | weirdassstuff.com 	|   🟢   | "You didn't know you needed this" — DudeIWantThat-style weird/novelty product-stream feed, 39-item launch catalog across 9 categories, autonomous scout/publish pipeline; Workers Builds connection pending |
 | offshorehookup.com 	|   🟢   | Offshore/inshore saltwater fishing gear affiliate — RedBull-energy, guide/rig/technique-focused, edgy maximalist voice; scaffolded + live, build in progress |
 | unsupervisedmedia.com |   ✅   | Unsupervised Media LLC — the business/design-studio site fronting the whole portfolio; loud graffiti/RedBull visual identity, curated portfolio showcase, about/contact; live, no editorial content pipeline |
+| arttogogh.com |   🟢   | Late-night art discovery affiliate — Christie's polish through a 2am drive-through window; prints, frames, supplies, and art books |
+| shoppinkflamingo.com |   ✅   | Loud Florida flamingo-everything affiliate guide — lawn decor, art, gifts, poolside, party; live on CF Worker, ops wiring in progress |
+| girlpain.com |   ✅   | Candid practical editorial for women — periods/hormones, body logistics, sleep & stress, skin/hair/sweat; Amazon Associates picks, links inactive until real tag |
+| howfishthink.com |   🟢   | Fish-behavior simulation tool site — block-based lure/rig design sandbox (Minecraft/Stormworks shape) tested against an honest fish decision model; BOM-affiliate revenue, separate Sonar Trainer track; scaffolded + live, build in progress |
 
 
 

@@ -193,6 +193,23 @@ sites:
     - domains-index
     - site-tracker
     - social
+  arttogogh.com:
+    status: live
+    repo: bourneash/arttogogh.com
+    worker: arttogogh-com
+    cf_zone: arttogogh.com
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - social
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
   broadwayshowgirls.com:
     status: live
     repo: bourneash/broadwayshowgirls.com
@@ -312,10 +329,16 @@ sites:
     - social
   eastcoastrappers.com:
     status: scaffold
+    repo: bourneash/eastcoastrappers.com
     worker: eastcoastrappers-com
     cf_zone: eastcoastrappers.com
     capabilities:
     - site
+    - ops
+    - tasks
+    registered_in:
+    - domains-index
+    - site-tracker
   elevatorfriends.com:
     status: scaffold
     repo: bourneash/elevatorfriends.com
@@ -400,12 +423,28 @@ sites:
     - social
   girlpain.com:
     status: staging
+    repo: bourneash/girlpain.com
     worker: girlpain-com
     cf_zone: girlpain.com
     capabilities:
     - site
     - ops
     - smoke
+  howfishthink.com:
+    status: scaffold
+    repo: bourneash/howfishthink.com
+    worker: howfishthink-com
+    cf_zone: howfishthink.com
+    slack_channel_env: SLACK_CHANNEL_HOWFISHTHINK
+    capabilities:
+    - site
+    - ops
+    - tasks
+    - affiliate
+    - analytics
+    registered_in:
+    - domains-index
+    - site-tracker
   infrainnovator.com:
     status: scaffold
     repo: bourneash/infrainnovator.com
@@ -682,6 +721,19 @@ sites:
     - domains-index
     - site-tracker
     - social
+  shoppinkflamingo.com:
+    status: live
+    repo: bourneash/shoppinkflamingo.com
+    worker: shoppinkflamingo-com
+    cf_zone: shoppinkflamingo.com
+    capabilities:
+    - site
+    - ops
+    - tasks
+    - affiliate
+    registered_in:
+    - domains-index
+    - site-tracker
   shoptopless.com:
     status: live
     repo: bourneash/shoptopless.com

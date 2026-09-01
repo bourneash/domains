@@ -156,3 +156,9 @@
 [submodule "sites/eastcoastrappers.com"]
 	path = sites/eastcoastrappers.com
 	url = git@github-bourneash:bourneash/eastcoastrappers.com.git
+[submodule "sites/seedstosauce.com"]
+	path = sites/seedstosauce.com
+	url = git@github-bourneash:bourneash/seedstosauce.com.git
+[submodule "sites/howfishthink.com"]
+	path = sites/howfishthink.com
+	url = git@github-bourneash:bourneash/howfishthink.com.git

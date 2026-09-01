@@ -3,6 +3,40 @@ config:
   auto_push: false
   domains_root: /work
 sites:
+  arttogogh.com:
+    active: true
+    cf_zone: arttogogh.com
+    github: bourneash/arttogogh.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  girlpain.com:
+    active: true
+    cf_zone: girlpain.com
+    github: bourneash/girlpain.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   offshorehookup.com:
     active: true
     cf_zone: offshorehookup.com
@@ -89,6 +123,25 @@ sites:
     - sitemap
     - tls
     - git
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  eastcoastrappers.com:
+    active: true
+    cf_zone: eastcoastrappers.com
+    github: bourneash/eastcoastrappers.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
     - github
     - ads
     - contact
@@ -645,6 +698,24 @@ sites:
     - branding
     - manual
     manual: {}
+  howfishthink.com:
+    active: true
+    cf_zone: howfishthink.com
+    github: bourneash/howfishthink.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   infrainnovator.com:
     active: false
     cf_zone: infrainnovator.com
@@ -801,6 +872,25 @@ sites:
     active: true
     cf_zone: shoptopless.com
     github: bourneash/shoptopless.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  shoppinkflamingo.com:
+    active: true
+    cf_zone: shoppinkflamingo.com
+    github: bourneash/shoppinkflamingo.com
     applies_to:
     - cf
     - http
