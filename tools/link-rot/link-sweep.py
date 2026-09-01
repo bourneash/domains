@@ -270,13 +270,25 @@ def sweep_site(domain: str, fleet_hosts: set[str], *, max_pages: int, outbound: 
     refs: dict[str, list[tuple[str, str]]] = {}
 
     def load(page: str):
-        status, _final, _hops, body, err = fetch(page)
+        status, final, _hops, body, err = fetch(page)
         if status != 200 or not body:
             return page, [], (status, err)
+        # A page that redirects OFF this host is not this site's page any more.
+        # The /go/* affiliate interstitials 302 to Amazon, so following them
+        # meant parsing Amazon's search results and resolving ITS relative
+        # hrefs against the shoppinkflamingo.com base — 1,599 imaginary broken
+        # links in one sweep (2026-09-01). Whatever is at the far end belongs to
+        # someone else and is not ours to audit.
+        if urllib.parse.urlparse(final).netloc.lower().removeprefix("www.") != domain:
+            return page, [], None
         found = []
         for m in A_HREF.finditer(SCRIPT_STYLE.sub(b"", body)):
             href = m.group(1).decode("utf-8", "replace")
-            c = classify(href, page, domain, fleet_hosts)
+            # Resolve against the URL the content actually came from, not the
+            # one requested: with an on-host redirect (/a -> /a/) those differ,
+            # and a relative href resolved against the pre-redirect path lands
+            # one directory too high.
+            c = classify(href, final, domain, fleet_hosts)
             if c:
                 found.append(c)
         return page, found, None
