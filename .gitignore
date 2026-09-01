@@ -86,3 +86,4 @@ ops/logs/*
 # Nothing reads from here — delete it whenever.
 .screenshots-archive/
 **/__pycache__/**
+**/.wrangler/**
