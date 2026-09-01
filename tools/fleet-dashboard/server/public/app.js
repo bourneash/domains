@@ -2954,7 +2954,10 @@ async function renderControl() {
       <thead><tr>${head}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>. The <b>deployer</b> column reflects deploy health (main vs origin): ${lg('fresh', 'in sync — live via push-to-deploy')} · ${lg('overdue', 'unpushed commits not deployed')}.</p>`;
+    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>. The <b>deployer</b> column reflects deploy health (main vs origin): ${lg('fresh', 'in sync — live via push-to-deploy')} · ${lg('overdue', 'unpushed commits not deployed')}.</p>
+    <div id="parked-inventory"></div>`;
+
+  renderParked(); // fills #parked-inventory once its fetch lands — never blocks the matrix
 
   $$('.rdot[data-site]').forEach(d =>
     d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role))
@@ -2969,6 +2972,64 @@ async function renderControl() {
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
+}
+
+/* ---- parked inventory (F51) ----
+ * The role matrix above only shows domains that RUN something. The scaffolds
+ * — bought, bootstrapped to a COMING SOON page, then left — run nothing, so
+ * they were previously visible only inside registry/fleet.yaml. They still
+ * cost registrar renewal every year. This panel puts that inventory on the
+ * same screen as the fleet it is being compared against.
+ *
+ * Rendered after the matrix and out-of-band: a slow or failed /api/scaffolds
+ * must never delay or blank the thing people actually opened this tab for.
+ */
+async function renderParked() {
+  const el = $('#parked-inventory');
+  if (!el) return;
+  let d;
+  try {
+    d = await api('GET', '/api/scaffolds');
+  } catch {
+    return; // silent: this is supplementary, not the page
+  }
+  if (!d || !d.ok || !d.rows.length) return;
+
+  const s = d.summary;
+  const rows = d.rows
+    .map(r => {
+      // Anything past a year parked has had every chance. Flag it rather than
+      // making the reader do date arithmetic across 23 rows.
+      const cls = r.days_parked == null ? '' : r.days_parked >= 365 ? 'r-overdue' : r.days_parked >= 180 ? 'r-stale' : '';
+      const parked = r.days_parked == null ? '<span class="muted">unknown</span>' : `${r.days_parked}d`;
+      const renew =
+        r.registrar_expires == null
+          ? '<span class="muted">unknown</span>'
+          : `${esc(r.registrar_expires)}${r.days_to_renewal != null ? ` <span class="muted">(${r.days_to_renewal}d)</span>` : ''}`;
+      // Capabilities beyond the bare site/ops pair mean prior investment
+      // (social accounts provisioned, a feed wired) that a sunset discards.
+      const extra = r.capabilities.filter(c => c !== 'site' && c !== 'ops');
+      return `<tr>
+        <td>${esc(r.domain)}</td>
+        <td class="${cls}">${parked}</td>
+        <td>${r.scaffolded_on ? esc(r.scaffolded_on) : '<span class="muted">—</span>'}</td>
+        <td>${renew}</td>
+        <td>${extra.length ? extra.map(c => `<span class="chip">${esc(c)}</span>`).join(' ') : '<span class="muted">none</span>'}</td>
+      </tr>`;
+    })
+    .join('');
+
+  el.innerHTML = `
+    <div class="page-head" style="margin-top:28px"><h2 class="page-title">Parked inventory</h2><span class="muted">registry entries with <code>status: scaffold</code> — bought and bootstrapped, never built</span></div>
+    <div class="task-toolbar">
+      <strong>${s.scaffolds} parked</strong>
+      <span class="muted">${s.parked_pct}% of ${s.total_registry_entries} registry entries · oldest ${s.oldest_days_parked ?? '?'}d · ${s.unknown_renewal} with no renewal date recorded</span>
+    </div>
+    <div class="card"><table class="rmatrix">
+      <thead><tr><th>Domain</th><th>Parked</th><th>Scaffolded</th><th>Renewal</th><th>Also provisioned</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px"><b>Parked</b> is measured from the site repo's first commit — bootstrap-domain.sh's initial push — so it cannot drift. <b>Renewal</b> reads the hand-owned <code>registrar_expires</code> field in <code>registry/fleet.yaml</code>; it is never inferred, so "unknown" means nobody has recorded it yet.</p>`;
 }
 
 // F13: pause/resume one role across every site that schedules it as a
