@@ -190,8 +190,90 @@ else:
 PYEOF
 }
 
+# ---- Cross-container OAuth refresh mutex (2026-09-01) ----
+# Every worker container in the fleet bind-mounts the SAME
+# ~/.claude/.credentials.json read-write. The CLI reads that file at startup and,
+# when the access token is close to expiry, refreshes it -- and the refresh
+# ROTATES the refresh token. If two containers read the file before either has
+# rotated, the second one presents a refresh token the server has already
+# retired, which reads as token reuse and revokes the whole family. Everyone in
+# the window then dies on "401 OAuth access token has been revoked".
+#
+# That is exactly what happened on 2026-09-01 12:00 UTC: 22 promoter containers
+# started within 5 seconds of each other (the archetype had shipped a literal
+# `0 8 * * 2,5` and every install stamped it verbatim), and took two unrelated
+# roles down with them. Staggering the crons makes it improbable; this makes it
+# impossible, for any co-firing from any cause.
+#
+# The lock is held only across the CLI's startup/auth window, NOT for the whole
+# session -- serializing every model call fleet-wide would be far worse than the
+# bug. One process at a time reads-and-maybe-rotates the credential; the next
+# one starts afterwards and therefore reads the rotated file rather than a stale
+# copy of it.
+#
+# flock(2) on the bind-mounted lock file works across containers because they
+# share the host inode. Every failure path here is fail-OPEN: no lock file, no
+# flock binary, a timeout, anything -- we log and run unlocked, because a
+# missing mutex costs an occasional retry while a hard failure here would take
+# the whole fleet's AI work offline.
+CLAUDE_AUTH_LOCK="${CLAUDE_AUTH_LOCK:-$HOME/.claude/.credentials.lock}"
+# Window/wait are sized against each other on purpose. The auth handshake is one
+# HTTPS round trip at process start -- the 2026-09-01 failures all died 2.0-2.6s
+# in -- so 12s is generous cover. The wait must then exceed (worst realistic
+# burst - 1) * window, or the tail of a burst times out, fails open, and races
+# exactly as before: 22 co-firing sites * 12s = 252s, comfortably inside 600s.
+# Raise the wait, not the window, if a role set ever grows past ~50 sites.
+CLAUDE_AUTH_LOCK_WAIT="${CLAUDE_AUTH_LOCK_WAIT:-600}"    # seconds to queue behind others
+CLAUDE_AUTH_WINDOW="${CLAUDE_AUTH_WINDOW:-12}"           # seconds to hold past process start
+
+run_claude_locked() {
+  local lockfd="" pid rc=0 waited=0
+
+  # `exec {fd}>file` must carry NO other redirection: `exec` with redirections
+  # and no command applies them to the SHELL, permanently -- an appended
+  # `2>/dev/null` here silently discards every later diagnostic this script
+  # writes, including the claude CLI's own stderr. So probe writability first
+  # and let the exec stand alone.
+  if [[ "${CLAUDE_AUTH_LOCK}" != "none" ]] && command -v flock >/dev/null 2>&1; then
+    if [[ -e "$CLAUDE_AUTH_LOCK" ]] || : > "$CLAUDE_AUTH_LOCK" 2>/dev/null; then
+      exec {lockfd}>>"$CLAUDE_AUTH_LOCK" || lockfd=""
+    fi
+  fi
+
+  if [[ -n "$lockfd" ]]; then
+    if ! flock -w "$CLAUDE_AUTH_LOCK_WAIT" -x "$lockfd" 2>/dev/null; then
+      echo "claude-tracked.sh: auth mutex timed out after ${CLAUDE_AUTH_LOCK_WAIT}s — proceeding unlocked (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+      exec {lockfd}>&-
+      lockfd=""
+    fi
+  fi
+
+  # NOTE: this function must not touch `set -e`. The callers below wrap it in
+  # their own `set +e`, and re-enabling errexit in here would leak out and abort
+  # the script the moment a failing call returned -- losing the ledger row for
+  # exactly the failures the ledger exists to record.
+  claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON" &
+  pid=$!
+
+  if [[ -n "$lockfd" ]]; then
+    # Release as soon as the auth window has passed, or earlier if the call has
+    # already finished (the ~2s auth failures this guards against exit well
+    # inside the window).
+    while (( waited < CLAUDE_AUTH_WINDOW )) && kill -0 "$pid" 2>/dev/null; do
+      sleep 1
+      waited=$(( waited + 1 ))
+    done
+    flock -u "$lockfd" 2>/dev/null || true
+    exec {lockfd}>&-
+  fi
+
+  wait "$pid"
+  rc=$?
+  return "$rc"
+}
+
 set +e
-claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
+run_claude_locked
 STATUS=$?
 set -e
 
@@ -225,7 +307,7 @@ if [[ "$STATUS" -ne 0 ]]; then
     echo "claude-tracked.sh: $FAILURE_CLASS (exit=$STATUS) — retrying once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
     sleep "${CLAUDE_TRACKED_RETRY_DELAY_SECONDS:-3}"
     set +e
-    claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON"
+    run_claude_locked
     STATUS=$?
     set -e
     FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
