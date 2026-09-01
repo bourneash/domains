@@ -87,3 +87,5 @@ ops/logs/*
 .screenshots-archive/
 **/__pycache__/**
 **/.wrangler/**
+**/.astro/**
+**/dist/**
