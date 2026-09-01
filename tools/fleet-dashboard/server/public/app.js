@@ -3094,6 +3094,80 @@ function controlDraw() {
   applyFleetFilter();
 }
 
+/* ---- fleet-doctor (F33) ----
+ * The fleet's container/image invariants, from tools/fleet-images/bin/fleet-doctor.
+ * The script stays the source of truth; this only renders what it reported.
+ *
+ * A TRUNCATED sweep is rendered as a failure, not a result with a footnote.
+ * fleet-doctor exists because "all green" over an incomplete sweep is the exact
+ * lie that let 53 hand-maintained image definitions accumulate, so the panel
+ * must not be able to show a reassuring green bar over 1 of 33 sites.
+ */
+async function renderDoctor() {
+  const app = $('#app');
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div><p class="muted">Loading\u2026</p>`;
+
+  let d;
+  try {
+    d = await api('GET', '/api/fleet-doctor');
+  } catch (e) {
+    app.innerHTML += `<p class="r-overdue">Could not reach /api/fleet-doctor: ${esc(String(e))}</p>`;
+    return;
+  }
+
+  if (!d.ok) {
+    app.innerHTML = `
+      <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants</span></div>
+      <div class="card"><p class="r-overdue">No result yet${d.error ? `: ${esc(d.error)}` : ''}.</p>
+      <p class="muted">${d.running ? 'A sweep is running now \u2014 it takes about a minute.' : 'Press Re-run to start a sweep.'}</p>
+      <button class="btn" id="doctor-run">Re-run</button></div>`;
+    $('#doctor-run')?.addEventListener('click', doctorRun);
+    return;
+  }
+
+  const t = d.totals || {};
+  const failing = (d.sites || []).filter(s => s.fail > 0);
+  const banner = d.truncated
+    ? `<p class="r-overdue"><b>INVALID SWEEP</b> \u2014 only ${t.sites_checked} of ${t.sites_expected} sites were checked. Treat this run as meaningless, not as a pass.</p>`
+    : failing.length
+      ? `<p class="r-overdue"><b>${failing.length} site(s) failing</b></p>`
+      : `<p class="r-fresh">All ${t.sites_checked} sites pass all ${t.pass} checks.</p>`;
+
+  const rows = failing.map(s => `<tr>
+       <td>${esc(s.site)}</td>
+       <td class="r-overdue">${s.fail}</td>
+       <td>${s.pending || 0}</td>
+       <td>${s.failures.map(f => `<div>${esc(f)}</div>`).join('')}</td>
+     </tr>`).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div>
+    <div class="task-toolbar">
+      <strong>${t.pass || 0} passed \u00b7 ${t.fail || 0} failed \u00b7 ${t.pending || 0} pending</strong>
+      <span class="muted">${t.sites_checked || 0}/${t.sites_expected || 0} sites \u00b7 last run ${d.last_run ? esc(String(d.last_run).replace('T', ' ').slice(0, 16)) : 'never'}</span>
+      <button class="btn" id="doctor-run" ${d.running ? 'disabled' : ''}>${d.running ? 'Running\u2026' : 'Re-run'}</button>
+    </div>
+    ${banner}
+    ${rows ? `<div class="card"><table class="rmatrix">
+      <thead><tr><th>Site</th><th>Failed</th><th>Pending</th><th>What failed</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>` : ''}
+    <p class="muted" style="margin-top:12px">Source: <code>tools/fleet-images/bin/fleet-doctor --json</code>, re-swept every 15 minutes in the background. Checks each cron-capable site for the shared image, a bind-mounted (never baked) crontab, a running container on the current image ID, uid 1000, dropped capabilities, and a failable healthcheck.</p>`;
+
+  $('#doctor-run')?.addEventListener('click', doctorRun);
+  stamp();
+}
+
+async function doctorRun() {
+  const b = $('#doctor-run');
+  if (b) { b.disabled = true; b.textContent = 'Running\u2026'; }
+  try {
+    await api('POST', '/api/fleet-doctor/run');
+  } catch {
+    /* fall through to a re-render, which surfaces the error */
+  }
+  renderDoctor();
+}
+
 /* ---- parked inventory (F51) ----
  * The role matrix above only shows domains that RUN something. The scaffolds
  * — bought, bootstrapped to a COMING SOON page, then left — run nothing, so
@@ -3122,10 +3196,13 @@ async function renderParked() {
       // making the reader do date arithmetic across 23 rows.
       const cls = r.days_parked == null ? '' : r.days_parked >= 365 ? 'r-overdue' : r.days_parked >= 180 ? 'r-stale' : '';
       const parked = r.days_parked == null ? '<span class="muted">unknown</span>' : `${r.days_parked}d`;
+      // auto_renew decides whether a date needs anyone's attention: an expiry
+      // 40 days out is routine if it renews itself, and an emergency if not.
       const renew =
         r.registrar_expires == null
           ? '<span class="muted">unknown</span>'
-          : `${esc(r.registrar_expires)}${r.days_to_renewal != null ? ` <span class="muted">(${r.days_to_renewal}d)</span>` : ''}`;
+          : `${esc(r.registrar_expires)}${r.days_to_renewal != null ? ` <span class="muted">(${r.days_to_renewal}d)</span>` : ''}` +
+            (r.auto_renew === false ? ' <span class="r-overdue">auto-renew OFF</span>' : '');
       // Capabilities beyond the bare site/ops pair mean prior investment
       // (social accounts provisioned, a feed wired) that a sunset discards.
       const extra = r.capabilities.filter(c => c !== 'site' && c !== 'ops');
@@ -3143,13 +3220,13 @@ async function renderParked() {
     <div class="page-head" style="margin-top:28px"><h2 class="page-title">Parked inventory</h2><span class="muted">registry entries with <code>status: scaffold</code> — bought and bootstrapped, never built</span></div>
     <div class="task-toolbar">
       <strong>${s.scaffolds} parked</strong>
-      <span class="muted">${s.parked_pct}% of ${s.total_registry_entries} registry entries · oldest ${s.oldest_days_parked ?? '?'}d · ${s.unknown_renewal} with no renewal date recorded</span>
+      <span class="muted">${s.parked_pct}% of ${s.total_registry_entries} registry entries · oldest ${s.oldest_days_parked ?? '?'}d${s.unknown_renewal ? ` · ${s.unknown_renewal} with no renewal date` : ''}${s.auto_renew_off ? ` · <b class="r-overdue">${s.auto_renew_off} with auto-renew OFF</b>` : ''}</span>
     </div>
     <div class="card"><table class="rmatrix">
       <thead><tr><th>Domain</th><th>Parked</th><th>Scaffolded</th><th>Renewal</th><th>Also provisioned</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px"><b>Parked</b> is measured from the site repo's first commit — bootstrap-domain.sh's initial push — so it cannot drift. <b>Renewal</b> reads the hand-owned <code>registrar_expires</code> field in <code>registry/fleet.yaml</code>; it is never inferred, so "unknown" means nobody has recorded it yet.</p>`;
+    <p class="muted" style="margin-top:12px"><b>Parked</b> is measured from the site repo's first commit — bootstrap-domain.sh's initial push — so it cannot drift. <b>Renewal</b> comes from Cloudflare Registrar via <code>tools/registrar</code>, refreshed daily; a hand-owned <code>registrar_expires</code> in <code>registry/fleet.yaml</code> overrides it for domains registered elsewhere. "unknown" means neither source has it.</p>`;
 }
 
 // F13: pause/resume one role across every site that schedules it as a
@@ -8827,6 +8904,7 @@ const NAV_GROUPS = {
       ['deploys', 'Deploys'],
       ['domains', 'Domains'],
       ['guardrails', 'Guardrails'],
+      ['doctor', 'Doctor'],
     ],
   },
   content: {
@@ -9220,6 +9298,7 @@ function render() {
   else if (STATE.view === 'socialhub') return renderSocialHub();
   else if (STATE.view === 'automation') return renderAutomation();
   else if (STATE.view === 'domains') return renderDomains();
+  else if (STATE.view === 'doctor') return renderDoctor();
 }
 
 function renderAgent(role) {

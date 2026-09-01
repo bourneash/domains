@@ -85,6 +85,14 @@ tools/web-vitals/.baseline.json
 tools/web-vitals/.last-run.json
 tools/web-vitals/reports/
 
+# Registrar collector — run artifacts. The cache is regenerated daily from
+# Cloudflare and is host state, not source.
+tools/registrar/cache/
+tools/registrar/*.log
+tools/registrar/*.log.1
+tools/registrar/.registrar.lock
+tools/registrar/.last-run.json
+
 # fleet-registry runtime state
 tools/fleet-registry/drift.log
 tools/fleet-registry/drift.log.1

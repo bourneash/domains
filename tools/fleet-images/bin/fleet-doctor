@@ -35,6 +35,7 @@ CRON_IMAGE="${FLEET_CRON_IMAGE:-fleet-site-cron:latest}"
 WORKER_IMAGE="${FLEET_WORKER_IMAGE:-fleet-site-worker:latest}"
 
 QUIET=0
+JSON=0
 ONLY=""
 PROBE=0
 for a in "$@"; do
@@ -47,6 +48,7 @@ for a in "$@"; do
     # no side effects. Off by default because it costs a container start per
     # site; on for rollout gates.
     --probe-worker) PROBE=1 ;;
+    --json) JSON=1; QUIET=1 ;;
     -h|--help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --*) echo "unknown flag: $a" >&2; exit 1 ;;
     *) ONLY="$a" ;;
@@ -54,11 +56,23 @@ for a in "$@"; do
 done
 
 pass=0; fail=0; pending=0
+# JSON sink. Every check appends one record here regardless of --quiet, so the
+# machine-readable view is never a lossy summary of the human one. --json was
+# DOCUMENTED in this script's header from day one and never implemented — it
+# printed nothing at all. The Fleet Dashboard needs it (F33).
+JSON_ROWS="$(mktemp)"
+JSON_SITE="fleet"
+trap 'rm -f "$JSON_ROWS"' EXIT
+_jrow() {
+  (( JSON )) || return 0
+  local msg=${2//\\/\\\\}; msg=${msg//\"/\\\"}
+  printf '{"site":"%s","status":"%s","message":"%s"}\n' "$JSON_SITE" "$1" "$msg" >> "$JSON_ROWS"
+}
 cur_site=""
 _hdr() { (( QUIET )) && return 0; [[ -n "$cur_site" ]] && printf '\n\033[1m%s\033[0m\n' "$cur_site"; cur_site=""; }
-ok()   { pass=$((pass+1)); (( QUIET )) && return 0; _hdr; printf '  \033[32m✓\033[0m %s\n' "$1"; }
-bad()  { fail=$((fail+1)); _hdr; printf '  \033[31m✗\033[0m %s\n' "$1"; }
-pend() { pending=$((pending+1)); (( QUIET )) && return 0; _hdr; printf '  \033[33m…\033[0m %s\n' "$1"; }
+ok()   { pass=$((pass+1)); _jrow pass "$1"; (( QUIET )) && return 0; _hdr; printf '  \033[32m✓\033[0m %s\n' "$1"; }
+bad()  { fail=$((fail+1)); _jrow fail "$1"; _hdr; printf '  \033[31m✗\033[0m %s\n' "$1"; }
+pend() { pending=$((pending+1)); _jrow pending "$1"; (( QUIET )) && return 0; _hdr; printf '  \033[33m…\033[0m %s\n' "$1"; }
 note() { (( QUIET )) && return 0; printf '    \033[2m%s\033[0m\n' "$1"; }
 
 want_cron_id="$(docker image inspect --format '{{.Id}}' "$CRON_IMAGE" 2>/dev/null || true)"
@@ -119,6 +133,7 @@ check_site() {
   local compose="${dir}/docker-compose.yml"
   local cname="${site%%.*}-cron"
   cur_site="$site"
+  JSON_SITE="$site"
 
   # ── 1. compose uses the shared cron image
   if grep -qE 'image:\s*fleet-site-cron:' "$compose" 2>/dev/null; then
@@ -364,13 +379,50 @@ main() {
     checked=$((checked+1))
   done 3<<< "$sites"
 
-  printf '\n\033[1mfleet-doctor: %d passed, %d failed, %d pending  (%d/%d sites checked)\033[0m\n' \
-      "$pass" "$fail" "$pending" "$checked" "$expected"
+  if (( JSON )); then
+    # Roll the per-check rows into one document. `truncated` is deliberately a
+    # first-class field rather than an inferred one: a consumer must be able to
+    # see that a sweep covered 1 of 26 sites, because all-green over an
+    # incomplete sweep is precisely the lie this gate exists to prevent.
+    python3 - "$JSON_ROWS" "$pass" "$fail" "$pending" "$checked" "$expected" <<'PYJSON'
+import json, sys
+rows_path, p, f, pend, checked, expected = sys.argv[1:7]
+checks = []
+with open(rows_path) as fh:
+    for line in fh:
+        line = line.strip()
+        if line:
+            try:
+                checks.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+sites = {}
+for c in checks:
+    s = sites.setdefault(c["site"], {"site": c["site"], "pass": 0, "fail": 0, "pending": 0, "failures": []})
+    s[c["status"]] = s.get(c["status"], 0) + 1
+    if c["status"] == "fail":
+        s["failures"].append(c["message"])
+print(json.dumps({
+    "tool": "fleet-doctor",
+    "totals": {
+        "pass": int(p), "fail": int(f), "pending": int(pend),
+        "sites_checked": int(checked), "sites_expected": int(expected),
+    },
+    "truncated": int(checked) != int(expected),
+    "ok": int(f) == 0 and int(checked) == int(expected),
+    "sites": [sites[k] for k in sorted(sites)],
+    "checks": checks,
+}, indent=2))
+PYJSON
+  else
+    printf '\n\033[1mfleet-doctor: %d passed, %d failed, %d pending  (%d/%d sites checked)\033[0m\n' \
+        "$pass" "$fail" "$pending" "$checked" "$expected"
+  fi
 
   # Explicitly fail on an incomplete sweep. Reporting all-green after checking
   # 1 of 26 sites is exactly the failure this gate exists to prevent.
   if [[ "$checked" -ne "$expected" ]]; then
-    printf '\033[31m[FATAL]\033[0m only %d of %d sites were checked — the sweep was truncated, treat this run as INVALID\n' "$checked" "$expected"
+    (( JSON )) || printf '\033[31m[FATAL]\033[0m only %d of %d sites were checked — the sweep was truncated, treat this run as INVALID\n' "$checked" "$expected"
     return 1
   fi
   [[ "$fail" -eq 0 ]]

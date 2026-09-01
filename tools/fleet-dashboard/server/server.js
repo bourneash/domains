@@ -36,6 +36,8 @@ const errorscan = require('./errorscan');
 const guardrails = require('./guardrails');
 const domains = require('./domains');
 const scaffolds = require('./scaffolds');
+const registrar = require('./registrar');
+const fleetdoctor = require('./fleetdoctor');
 const social = require('./social');
 const socialhub = require('./socialhub');
 const automation = require('./automation');
@@ -475,6 +477,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // runs nothing, so it is invisible to every other roster in this panel.
   app.get('/api/scaffolds', (req, res) =>
     res.json(scaffolds.all(root, { fresh: req.query.fresh === '1' })));
+
+  // Domain renewals (F51) — served from tools/registrar's cache, never a live
+  // Cloudflare call. auto_renew matters more than the date: an expiry 40 days
+  // out is routine if it renews itself and an emergency if it does not.
+  app.get('/api/registrar', (req, res) =>
+    res.json(registrar.all(root, { fresh: req.query.fresh === '1' })));
+
+  // fleet-doctor (F33) — container/image invariants across every cron site.
+  // Served from a background sweep; POST re-runs it on demand.
+  app.get('/api/fleet-doctor', (_req, res) => res.json(fleetdoctor.all()));
+  app.post('/api/fleet-doctor/run', async (_req, res) => {
+    await fleetdoctor.run(root);
+    res.json(fleetdoctor.all());
+  });
 
   // Social Hub (tools/social-hub) — proxied; see socialhub.js for why.
   socialhub.registerRoutes(app);
@@ -1396,6 +1412,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   if (ownsBackgroundJobs) {
     deployhealth.start(root, () => discoverSites(root));
     gatushealth.start();
+    fleetdoctor.start(root);
     errorscan.start(root);
     // Site Facts background sweep (hourly — these change rarely). Same
     // skip-under-test convention as the deploy-health poller above.

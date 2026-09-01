@@ -24,10 +24,11 @@
 //   commit in the site's submodule is when it was scaffolded, and that date
 //   cannot drift or be forgotten. A site with no repo on disk reports null
 //   rather than guessing.
-// * **renewal date is optional and never invented.** `registrar_expires` in
-//   the registry is hand-owned; absent means the column reads "unknown". The
-//   alternative — deriving it from WHOIS on a timer — is a different tool and
-//   a network dependency this panel does not need.
+// * **renewal dates come from the registrar, not from anyone's memory.**
+//   tools/registrar collects them from Cloudflare on a schedule and this reads
+//   its cache. The registry's hand-owned `registrar_expires` still WINS when
+//   set — it is the escape hatch for a domain registered somewhere Cloudflare
+//   cannot see — but nothing has to be typed by hand for the common case.
 // * Cached like every other sweep here: the git calls are O(scaffolds) spawns,
 //   far too slow to run inside each GET.
 
@@ -35,6 +36,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const yaml = require('js-yaml');
+const registrar = require('./registrar');
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const GIT_TIMEOUT_MS = 5000;
@@ -88,6 +90,9 @@ function readRegistry(root) {
 
 function build(root) {
   const sites = readRegistry(root);
+  // Registrar facts, keyed by domain. Empty object when the collector has not
+  // run yet — the column degrades to "unknown", it never blocks the panel.
+  const renewals = registrar.byDomain(root);
   if (!sites) {
     return { ok: false, error: 'registry/fleet.yaml not found or has no sites: key', rows: [] };
   }
@@ -96,7 +101,14 @@ function build(root) {
   for (const [domain, entry] of Object.entries(sites)) {
     if (!entry || entry.status !== 'scaffold') continue;
     const scaffolded = firstCommitDay(root, domain);
-    const expires = typeof entry.registrar_expires === 'string' ? entry.registrar_expires : null;
+    // Hand-owned registry value wins; otherwise the registrar cache.
+    const fromRegistrar = renewals[domain] || null;
+    const expires =
+      typeof entry.registrar_expires === 'string'
+        ? entry.registrar_expires
+        : fromRegistrar && fromRegistrar.expires_at
+          ? String(fromRegistrar.expires_at).slice(0, 10)
+          : null;
     rows.push({
       domain,
       repo: entry.repo || null,
@@ -112,6 +124,14 @@ function build(root) {
       days_parked: daysSince(scaffolded),
       registrar_expires: expires,
       days_to_renewal: daysUntil(expires),
+      // A renewal date means very little on its own: whether it renews itself
+      // is the part that decides if anyone needs to act.
+      auto_renew: fromRegistrar ? fromRegistrar.auto_renew : null,
+      renewal_source: typeof entry.registrar_expires === 'string'
+        ? 'registry'
+        : fromRegistrar
+          ? 'cloudflare'
+          : null,
     });
   }
 
@@ -131,6 +151,7 @@ function build(root) {
       oldest_days_parked: rows.length ? rows[0].days_parked : null,
       renewals_due_90d: rows.filter((r) => r.days_to_renewal !== null && r.days_to_renewal <= 90).length,
       unknown_renewal: rows.filter((r) => r.registrar_expires === null).length,
+      auto_renew_off: rows.filter((r) => r.auto_renew === false).length,
     },
     generated_at: new Date().toISOString(),
   };

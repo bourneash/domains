@@ -385,6 +385,92 @@ def sweep_site(domain: str, fleet_hosts: set[str], *, max_pages: int, outbound: 
 # ---------------------------------------------------------------- reporting
 
 
+TASK_TMPL = """---
+title: "Fix {count} dead internal link(s)"
+priority: 3
+type: engineering
+estimated_turns: 6
+created: {date}
+assigned_role: engineer
+source: tools/link-rot/link-sweep.py
+---
+These links are published on this site and return 404 (or do not resolve at
+all). An internal dead end costs twice: crawl budget spent on nothing, and a
+reader who clicked something that went nowhere.
+
+{items}
+
+Fix the LINK unless the target genuinely does not exist, in which case say so
+and close the task — do not repoint a link at an unrelated page to make the
+error go away, and do not add a redirect to paper over a typo.
+
+The three causes behind every dead link found in the first fleet sweep
+(2026-09-01), in the order they were common:
+
+- **Wrong route prefix.** The href used the CONTENT COLLECTION name instead of
+  the published route (`/articles/<slug>` when `src/pages/news/[slug].astro`
+  renders that collection at `/news/`). Check what route actually renders the
+  collection before assuming the slug is wrong.
+- **A relative href.** `](slug)`, `](./slug)` or `](../coll/slug)` written on a
+  page served at `/coll/other/` resolves *under* that directory. Internal links
+  should be root-absolute, with the trailing slash the site serves.
+- **A link to a taxonomy term with no page.** `getStaticPaths` generates term
+  pages only for terms that have entries, so a template that links every term
+  emits 404s for the empty ones. Fix this at the template by deriving the
+  linkable set from the same expression `getStaticPaths` uses — see
+  wetpages.com `TROPES_WITH_PAGES` or fishhooklabs.com `GEAR_STAGES`.
+
+One more, rarer: an href built by slugifying the target's TITLE rather than
+reading its actual slug. If the slug looks like a sentence, that is what
+happened.
+"""
+
+
+def file_tasks(root: Path, report: dict) -> list[str]:
+    """Escalate dead links to each site's own engineer role via its task board.
+
+    Same contract as tools/lint-fleet/lint-sweep.py: this is the only path here
+    that leads to an AI invocation, and it is deliberately indirect — write a
+    task file, let the site's existing engineer pick it up on its own schedule.
+    Idempotent: one open task per site, never stacked.
+
+    Outbound links are excluded even when --outbound was used. A third party's
+    404 is not this site's engineer's work, and filing it would train the role
+    to close tasks it cannot fix.
+    """
+    written = []
+    today = time.strftime("%Y-%m-%d")
+    for row in report["sites"]:
+        if row.get("error"):
+            continue
+        dead = [
+            f for f in row["findings"]
+            if f["issue"] in ("broken", "unreachable", "page-unreachable")
+            and f["kind"] != "outbound"
+        ]
+        if not dead:
+            continue
+        board = root / "sites" / row["site"] / "ops" / "tasks"
+        if not (board / "backlog").is_dir():
+            continue
+        name = "dead-internal-links.md"
+        # Already queued or being worked — don't stack duplicates.
+        if any((board / d / name).exists() for d in ("backlog", "in-progress")):
+            continue
+        items = "\n".join(
+            f"- `{f['url']}` — {f['issue']}"
+            + (f" {f['status']}" if f.get("status") else "")
+            + (f"\n  linked from {f['on'][0]}" if f.get("on") else "")
+            for f in dead
+        )
+        (board / "backlog" / name).write_text(
+            TASK_TMPL.format(count=len(dead), date=today, items=items),
+            encoding="utf-8",
+        )
+        written.append(f"{row['site']}/ops/tasks/backlog/{name}")
+    return written
+
+
 def counts(findings: list[dict]) -> dict:
     c: dict[str, int] = defaultdict(int)
     for f in findings:
@@ -465,6 +551,11 @@ def main() -> int:
         help="exit 1 only when a finding appeared that was not in the previous run",
     )
     ap.add_argument("--no-write", action="store_true", help="do not touch reports/")
+    ap.add_argument(
+        "--file-tasks",
+        action="store_true",
+        help="queue an engineering task on each affected site's board (one open task per site)",
+    )
     args = ap.parse_args()
 
     sites = load_live_sites(args.site)
@@ -506,6 +597,13 @@ def main() -> int:
 
     if not args.no_write:
         write_reports(payload)
+
+    # After the report is written: the task references the report, so a failure
+    # here must never cost us the sweep's own record of what it found.
+    if args.file_tasks:
+        payload["tasks_filed"] = file_tasks(ROOT, payload)
+        for path in payload["tasks_filed"]:
+            log(f"filed {path}")
 
     if args.json:
         print(json.dumps(payload, indent=2))

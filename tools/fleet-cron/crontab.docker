@@ -326,3 +326,21 @@
 # existed to kill. A backup that stopped running and told nobody is not a
 # backup.
 40 8 * * * /home/jesse/projects/domains/tools/scripts/fleet-backup-freshness.sh
+
+# --- Job 20: domain renewal collection ---
+# Renewals are the portfolio's largest recurring hard cost and nothing tracked
+# them until 2026-09-01. Pulls expiry + auto_renew from Cloudflare Registrar
+# into tools/registrar/cache/latest.json, which the Fleet Dashboard's
+# parked-inventory panel and /api/registrar read — so the panel never makes a
+# live Cloudflare call to render a tab.
+#
+# Runs in THIS container (unlike jobs 13/19): it needs only python3 stdlib, the
+# repo mount and outbound HTTPS, all of which are here.
+#
+# Healthy = SILENT. Alerts only when a domain has auto-renew OFF and a renewal
+# inside 90 days — a date on its own is not news, a date with nothing set to
+# renew it is — or when collection fails, which would otherwise leave the
+# dashboard serving silently ageing dates.
+#
+# 05:40: clear of the 03:20 backup, 03:40 docker GC and 04:45 retention sweep.
+40 5 * * * /home/jesse/projects/domains/tools/scripts/registrar-cron.sh

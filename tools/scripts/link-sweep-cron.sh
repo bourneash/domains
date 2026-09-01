@@ -20,6 +20,10 @@
 # Env toggles:
 #   LINK_SWEEP_NOTIFY=0        no Slack at all (still writes reports + log)
 #   LINK_SWEEP_MAX_PAGES=N     pages per site (default 60)
+#   LINK_SWEEP_FILE_TASKS=0    stop queueing engineering tasks (default: ON —
+#                              a dead link should get FIXED, not just reported,
+#                              so each affected site's engineer role gets one
+#                              open task; it is idempotent and never stacks)
 #   LINK_SWEEP_CHANNEL=<chan>  route every alert to one ops channel instead of
 #                              fanning out to each site's domain-<host> channel
 set -uo pipefail
@@ -61,7 +65,10 @@ BASELINE="$TOOL_DIR/.baseline.json"
 rm -f "$BASELINE"
 [[ -f "$PREV" ]] && cp -f "$PREV" "$BASELINE"
 
-if ! timeout 3600 python3 "$TOOL_DIR/link-sweep.py" --max-pages "$MAX_PAGES" --json \
+SWEEP_ARGS=(--max-pages "$MAX_PAGES" --json)
+[[ "${LINK_SWEEP_FILE_TASKS:-1}" == "1" ]] && SWEEP_ARGS+=(--file-tasks)
+
+if ! timeout 3600 python3 "$TOOL_DIR/link-sweep.py" "${SWEEP_ARGS[@]}" \
      >"$TOOL_DIR/.last-run.json" 2>>"$LOG"; then
   rc=$?
   log "sweep failed (exit $rc)"
