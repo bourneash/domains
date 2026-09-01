@@ -12,18 +12,27 @@ Fix: `run-watchdog.sh` sleeps a fixed per-site offset before probing, spreading
 the fleet evenly across the 15-minute window instead of firing in the same
 second. 24 sites, 900s window, 37s step (`900 // 24`).
 
-**Installing a new site:** take the next free slot below (append to the
-bottom, `offset = (last_offset + 37) % 900`), add the row, use that value for
+**Installing a new site:** the original `(last_offset + 37) % 900` rule is
+RETIRED — the grid is full (see "Grid is saturated" below). Pick the midpoint
+of the widest gap in the table, add the row, and use that value for
 `WATCHDOG_STAGGER_SECONDS`. Never reuse an existing offset.
 
 | Site | Offset (s) |
 |---|---|
 | 0daynews.com | 0 |
+| unsupervisedmedia.com | 25 |
 | 0xroulette.com | 37 |
+| fishhooklabs.com | 40 |
+| oventoheaven.com | 62 |
 | 3boobs.com | 74 |
+| stinkyleftfoot.com | 86 |
+| arttogogh.com | 99 |
 | aliencouncil.com | 111 |
+| eastcoastrappers.com | 130 |
 | allthingsmasonic.com | 148 |
+| girlpain.com | 167 |
 | americastrikes.com | 185 |
+| shoppinkflamingo.com | 204 |
 | amputeenews.com | 222 |
 | broadwayshowgirls.com | 259 |
 | deeppenetrations.com | 296 |
@@ -43,9 +52,6 @@ bottom, `offset = (last_offset + 37) % 900`), add the row, use that value for
 | wetpages.com | 814 |
 | xxxtea.com | 851 |
 | offshorehookup.com | 888 |
-| unsupervisedmedia.com | 25 |
-| oventoheaven.com | 62 |
-| arttogogh.com | 99 |
 
 2026-08-28: `unsupervisedmedia.com` and `oventoheaven.com` were assigned raw
 sequential offsets (925s, 962s) that overran the 900s cron window itself —
@@ -59,24 +65,46 @@ own math; fixed in `ops/scripts/run-watchdog.sh` on both sites.
 duplicate of `unsupervisedmedia.com` — the one thing this table's rule tells
 you not to do. Reassigned to the documented free slot (99s).
 
-Still off-map and colliding, not yet fixed — each needs its own free slot
-(136, 173, 210) and a commit in its own submodule:
+2026-09-01 (later): the remaining duplicate pair was cleared —
+`fishhooklabs.com` and `stinkyleftfoot.com` had both been installed on an
+off-map `sleep 40`. fishhooklabs keeps 40; stinkyleftfoot moved to 86.
+`eastcoastrappers.com` had already been moved to 130 separately. The table
+above is now regenerated from the live `run-watchdog.sh` files and has no
+duplicates.
 
-| Site | Current offset | Collides with |
-|---|---|---|
-| eastcoastrappers.com | 25 | unsupervisedmedia.com |
-| fishhooklabs.com | 40 | stinkyleftfoot.com |
-| stinkyleftfoot.com | 40 | fishhooklabs.com |
+**Grid is saturated — read this before the next install.** The 37s step was
+sized `900 // 24` for 24 sites. There are now 33 watchdogs and every slot on
+the original grid (0..888) is allocated, which is why recent installs landed
+off-map or duplicated an existing offset. `(last + 37) % 900` no longer
+finds free space; it wraps into occupied territory. Before adding another
+site, either re-space the fleet on a smaller step (~27s for 33 sites) or move
+some sites to a second crontab minute. Until then, pick a free gap from the
+table above by inspection and verify with:
 
-**Next free slot: 136s** (`(99 + 37) % 900 = 136` — verify against this table
-before reusing it).
+    for f in sites/*/ops/scripts/run-watchdog.sh; do \
+      grep -m1 '^sleep ' "$f" | awk '{print $2}'; done | sort -n | uniq -d
 
-Rolled out 2026-08-15. Sites not yet on the watchdog role (fishhooklabs.com,
-noveltyguns.com, therareunicorn.com, and others not yet installed) aren't
-listed — assign them a slot when they're onboarded. Note: fishhooklabs.com's
-`run-watchdog.sh` was stood up 2026-08-25 with a hardcoded `sleep 40` instead
-of a table-assigned offset — a process gap, not corrected here (out of scope
-for the oventoheaven.com standup); flag if it collides with something later.
+**Next free slot: 240s** — the midpoint of the largest remaining gap
+(222..259). The old `(last + 37) % 900` rule is retired; it assumed a grid
+with room left. Pick the widest gap instead:
+
+    # occupied offsets, ascending — read the gaps off this list
+    for f in sites/*/ops/scripts/run-watchdog.sh; do \
+      grep -m1 '^sleep ' "$f" | awk '{print $2}'; done | sort -n
+
+    # and confirm your pick is not already taken
+    for f in sites/*/ops/scripts/run-watchdog.sh; do \
+      grep -m1 '^sleep ' "$f" | awk '{print $2}'; done | sort -n | uniq -d
+
+Rolled out 2026-08-15. Sites not yet on the watchdog role (noveltyguns.com,
+therareunicorn.com, and others not yet installed) aren't listed — assign them
+a slot when they're onboarded.
+
+The 2026-08-25 note here predicted that fishhooklabs.com's hardcoded `sleep
+40` would "collide with something later". It did: stinkyleftfoot.com was
+stood up on the same hardcoded 40. Closed 2026-09-01 — fishhooklabs keeps 40,
+stinkyleftfoot moved to 86. The lesson is that a hardcoded offset is not a
+harmless shortcut; every site that skips this table is a future duplicate.
 
 **Map went stale 2026-09-01.** Several installed sites never got a row here —
 `unsupervisedmedia.com` (25), `fishhooklabs.com` (40), `stinkyleftfoot.com` (40),
