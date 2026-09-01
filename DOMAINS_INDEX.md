@@ -8,6 +8,7 @@
 | 3boobs.com 			|   ✅   | Adult novelty / affiliate — CF Workers Builds wired, KV session, auto-deploy verified 2026-06-07 								|
 | aliencouncil.com 		|   ✅   | "The Council" — credible UAP/disclosure editorial brand riding the 2026 disclosure wave (ads + affiliate + member tier) 		|
 | americastrikes.com 	|   ✅   | Autonomous geopolitics/defense news brand; speed-to-publish play on the Iran cycle, growing into permanent geopolitics brief |
+| marineactivity.com |   🟢   | Live AIS vessel-tracking portal — open-feed ship positions (Digitraffic/Baltic), vessel + flag + ship-type pages, AIS reference guides; marine-electronics affiliate; D1 store + 20-min ingest worker; scaffolded + live, build in progress |
 | oventoheaven.com 		|   ✅   | Scaffolded, live on CF Workers Builds — brief/positioning TBD 																|
 | rc-9.com 				|   ✅   | "Remote Command" browser artillery game; monetized via HTML5 game portals + rewarded ads + AI battle stream 					|
 | reviewtattoo.com 		|   ✅   | Tattoo review & discovery site (cities/styles/guides); affiliate + future paid artist listings 								|
@@ -21,6 +22,7 @@
 | eastcoastrappers.com 	|   ✅   | East Coast rap gear, guides, scenes, and shows — dark editorial affiliate site; live on Cloudflare Worker, email routing configured, Workers Builds pending connection |
 | newmomshop.com 	|   🟢   | Dana-led pregnancy, postpartum, and newborn gear-guide affiliate site; static v1 built, Workers Builds connection pending |
 | weirdassstuff.com 	|   🟢   | "You didn't know you needed this" — DudeIWantThat-style weird/novelty product-stream feed, 39-item launch catalog across 9 categories, autonomous scout/publish pipeline; Workers Builds connection pending |
+| seedstosauce.com 	|   🟢   | Seed-packet-to-sealed-jar Amazon affiliate — pick the sauce, the site reverse-engineers the garden; Plan Builder app computes a zone-dated sowing calendar, plant counts and a phase-grouped shopping list; 8 sauces / 13 crop grow-files / 7 guides / 67 verified products; live on CF Worker, Workers Builds + GA4 pending |
 | offshorehookup.com 	|   🟢   | Offshore/inshore saltwater fishing gear affiliate — RedBull-energy, guide/rig/technique-focused, edgy maximalist voice; scaffolded + live, build in progress |
 | unsupervisedmedia.com |   ✅   | Unsupervised Media LLC — the business/design-studio site fronting the whole portfolio; loud graffiti/RedBull visual identity, curated portfolio showcase, about/contact; live, no editorial content pipeline |
 | arttogogh.com |   🟢   | Late-night art discovery affiliate — Christie's polish through a 2am drive-through window; prints, frames, supplies, and art books |

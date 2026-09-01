@@ -77,4 +77,19 @@ listed — assign them a slot when they're onboarded. Note: fishhooklabs.com's
 `run-watchdog.sh` was stood up 2026-08-25 with a hardcoded `sleep 40` instead
 of a table-assigned offset — a process gap, not corrected here (out of scope
 for the oventoheaven.com standup); flag if it collides with something later.
-| arttogogh.com | 25 |
+
+**Map went stale 2026-09-01.** Several installed sites never got a row here —
+`unsupervisedmedia.com` (25), `fishhooklabs.com` (40), `stinkyleftfoot.com` (40),
+`oventoheaven.com` (62) — so "next free slot on the 37s grid" silently handed out
+a duplicate. arttogogh.com was stamped 25, collided with unsupervisedmedia.com,
+and its own engineer caught and fixed it the same hour. The 37s grid is now
+fully consumed; the four rows below sit in the gaps instead. Before stamping a
+new site, derive the used set from the tree, not from this table:
+
+    for f in sites/*/ops/scripts/run-watchdog.sh; do \
+      grep -m1 -oP '^sleep \K[0-9]+' "$f"; done | sort -n | uniq
+
+| arttogogh.com | 99 |
+| eastcoastrappers.com | 130 |
+| girlpain.com | 167 |
+| shoppinkflamingo.com | 204 |

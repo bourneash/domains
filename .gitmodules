@@ -162,3 +162,9 @@
 [submodule "sites/howfishthink.com"]
 	path = sites/howfishthink.com
 	url = git@github-bourneash:bourneash/howfishthink.com.git
+[submodule "sites/marineactivity.com"]
+	path = sites/marineactivity.com
+	url = git@github-bourneash:bourneash/marineactivity.com.git
+[submodule "sites/greatamericanlakes.com"]
+	path = sites/greatamericanlakes.com
+	url = git@github-bourneash:bourneash/greatamericanlakes.com.git

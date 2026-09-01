@@ -37,6 +37,42 @@ sites:
     - branding
     - manual
     manual: {}
+  marineactivity.com:
+    active: true
+    cf_zone: marineactivity.com
+    github: bourneash/marineactivity.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  seedstosauce.com:
+    active: true
+    cf_zone: seedstosauce.com
+    github: bourneash/seedstosauce.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
   offshorehookup.com:
     active: true
     cf_zone: offshorehookup.com
