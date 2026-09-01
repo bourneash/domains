@@ -2862,6 +2862,41 @@ function logFollowTick() {
     fetchRoleLog(ROLE_OPEN.site, ROLE_OPEN.role);
 }
 
+// Domain Control view state. Module-level so a soft refresh (or a redraw
+// after a filter click) keeps the operator's sort/filter choice.
+const CONTROL = { sort: 'name', filter: 'all' };
+
+// Per-site roll-up of every role's state — drives the Health column, the row
+// sort and the filter counts. Paused roles are excluded from the denominator:
+// a deliberately-off role is not a health problem.
+function siteRollup(s) {
+  const t = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
+  Object.values(s.cells).forEach(c => {
+    t[c.state]++;
+  });
+  const live = t.fresh + t.stale + t.overdue + t.never;
+  return {
+    ...t,
+    live,
+    problems: t.stale + t.overdue + t.never,
+    // weighted so "worst first" leads with hard failures, not with whichever
+    // site happens to have the most no-log roles
+    severity: t.overdue * 5 + t.stale * 2 + t.never,
+    pct: live ? Math.round((t.fresh / live) * 100) : null,
+  };
+}
+
+const STATE_ORDER = ['fresh', 'stale', 'overdue', 'never', 'paused'];
+
+// A stacked proportional bar. Used both per-site (Health column) and per-role
+// (under each column header) so a bad row and a bad column read the same way.
+function stateBar(t, cls) {
+  const segs = STATE_ORDER.filter(k => t[k] > 0)
+    .map(k => `<i class="r-${k}" style="flex:${t[k]}"></i>`)
+    .join('');
+  return `<span class="${cls}">${segs || '<i class="r-none" style="flex:1"></i>'}</span>`;
+}
+
 async function renderControl() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Reading role status…</div>';
@@ -2873,6 +2908,42 @@ async function renderControl() {
     return;
   }
   ROLEMATRIX = data;
+
+  app.innerHTML = `
+    <div class="page-head">
+      <h2 class="page-title">Domain Control</h2>
+      <span class="muted">every role on every site · a column header opens that agent, a cell opens its log</span>
+    </div>
+    <div id="ctl-bar"></div>
+    <div id="ctl-matrix"></div>
+    <details class="ctl-help">
+      <summary>How to read this</summary>
+      <p class="muted">Each cell is one role scheduled on one site.
+      ${dotLegend('fresh', 'ran within its cadence')} ·
+      ${dotLegend('stale', 'overdue &gt;1×')} ·
+      ${dotLegend('overdue', 'overdue &gt;2×')} ·
+      ${dotLegend('paused', 'paused (.&lt;role&gt;-disabled)')} ·
+      ${dotLegend('never', 'scheduled, no log found')} ·
+      <span class="rdot r-none">·</span> not installed.
+      <b>Health</b> is the share of a site's non-paused roles that are fresh.
+      Bespoke per-site roles are grouped under <b>other</b>.
+      The <b>deployer</b> column reflects deploy health (main vs origin):
+      ${dotLegend('fresh', 'in sync — live via push-to-deploy')} ·
+      ${dotLegend('overdue', 'unpushed commits not deployed')}.</p>
+    </details>
+    <div id="parked-inventory"></div>`;
+
+  controlDraw();
+  renderParked(); // fills #parked-inventory once its fetch lands — never blocks the matrix
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+// Builds the toolbar + matrix from the cached ROLEMATRIX. Split out of
+// renderControl so a sort/filter click repaints instantly without refetching.
+function controlDraw() {
+  const data = ROLEMATRIX;
+  if (!data) return;
   const sites = data.sites;
 
   // Columns = roles scheduled on ≥2 sites (common roles); per-site singletons
@@ -2893,13 +2964,47 @@ async function renderControl() {
     })
   );
 
+  const rolled = sites.map(s => ({ s, r: siteRollup(s) }));
+  const nAttention = rolled.filter(x => x.r.problems > 0).length;
+  const nPaused = rolled.filter(x => x.r.paused > 0).length;
+
+  let rows = rolled;
+  if (CONTROL.filter === 'attention') rows = rows.filter(x => x.r.problems > 0);
+  else if (CONTROL.filter === 'paused') rows = rows.filter(x => x.r.paused > 0);
+  rows =
+    CONTROL.sort === 'health'
+      ? rows.slice().sort((a, b) => b.r.severity - a.r.severity || (a.r.pct ?? 101) - (b.r.pct ?? 101) || a.s.site.localeCompare(b.s.site))
+      : rows.slice().sort((a, b) => a.s.site.localeCompare(b.s.site));
+
+  const seg = (k, label, n) =>
+    `<button class="seg-btn${CONTROL.filter === k ? ' active' : ''}" data-ctl-filter="${k}">${label}<span class="ctl-n">${n}</span></button>`;
+
+  $('#ctl-bar').innerHTML = `
+    <div class="ctl-bar">
+      <div class="seg sm">
+        ${seg('all', 'All sites', sites.length)}
+        ${seg('attention', 'Needs attention', nAttention)}
+        ${seg('paused', 'Has paused', nPaused)}
+      </div>
+      <div class="seg sm">
+        <button class="seg-btn${CONTROL.sort === 'name' ? ' active' : ''}" data-ctl-sort="name">A–Z</button>
+        <button class="seg-btn${CONTROL.sort === 'health' ? ' active' : ''}" data-ctl-sort="health">Worst first</button>
+      </div>
+      <span class="ctl-legend">
+        ${dotLegend('fresh', tally.fresh + ' fresh')} ${dotLegend('stale', tally.stale + ' stale')}
+        ${dotLegend('overdue', tally.overdue + ' overdue')} ${dotLegend('paused', tally.paused + ' paused')}
+        ${dotLegend('never', tally.never + ' no-log')}
+      </span>
+      <span class="ctl-count muted">${rows.length} of ${sites.length} sites · ${core.length} common roles</span>
+    </div>`;
+
   const agentSet = new Set((STATE.agents || []).map(a => a.role));
   // F13: fleet-wide pause/resume per role, next to the column header. Only
   // shown when at least one site's cell for this role is worker-controllable
   // (the same gate roles.setEnabled() enforces server-side); the icon/action
   // reflects the majority state so one click flips the whole column.
   const head =
-    '<th class="rsite-h">Site</th>' +
+    '<th class="rsite-h">Site</th><th class="rhealth-h">Health</th>' +
     core
       .map(r => {
         const cells = sites.map(s => s.cells[r]).filter(Boolean);
@@ -2909,19 +3014,27 @@ async function renderControl() {
           ? `<button class="rcol-bulk" data-role="${esc(r)}" data-act="${anyEnabled ? 'pause' : 'resume'}" title="${anyEnabled ? 'Pause' : 'Resume'} ${esc(r)} on all ${controllable.length} site(s)">${anyEnabled ? '⏸' : '▶'}</button>`
           : '';
         const label = agentSet.has(r)
-          ? `<a class="rcol-link" data-role="${esc(r)}" title="Open the ${esc(agentLabel(r))} agent page">${esc(r)} →</a>`
-          : `<span>${esc(r)}</span>`;
-        return `<th class="rcol">${label}${bulkBtn}</th>`;
+          ? `<a class="rcol-link" data-role="${esc(r)}" title="Open the ${esc(agentLabel(r))} agent page">${esc(agentLabel(r))}</a>`
+          : `<span>${esc(agentLabel(r))}</span>`;
+        // per-role fleet roll-up, so an unhealthy COLUMN is as visible as an
+        // unhealthy row without reading every dot in it
+        const rt = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
+        cells.forEach(c => rt[c.state]++);
+        const tip = STATE_ORDER.filter(k => rt[k]).map(k => `${rt[k]} ${STATE_LABEL[k] || k}`).join(' · ');
+        return `<th class="rcol"><span class="rcol-t">${label}${bulkBtn}</span>${stateBar(rt, 'rcol-bar')}<span class="rcol-tip">${esc(tip)}</span></th>`;
       })
       .join('') +
-    '<th class="rcol">other</th>';
+    '<th class="rcol"><span class="rcol-t"><span>Other</span></span></th>';
 
-  const body = sites
-    .map(s => {
+  const body = rows
+    .map(({ s, r: roll }) => {
       const cells = core
         .map(r => {
           const c = s.cells[r];
-          return `<td class="rcell">${c ? roleDot(s.site, r, c) : '<span class="rdot r-none">·</span>'}</td>`;
+          if (!c) return '<td class="rcell"><span class="rdot r-none">·</span></td>';
+          // tint the cell itself so clusters of trouble read as a heatmap
+          const hot = c.state === 'overdue' || c.state === 'stale' ? ` hot-${c.state}` : '';
+          return `<td class="rcell${hot}">${roleDot(s.site, r, c)}</td>`;
         })
         .join('');
       const others = Object.keys(s.cells).filter(r => !coreSet.has(r));
@@ -2939,25 +3052,22 @@ async function renderControl() {
           .join('\n');
         otherCell = `<td class="rcell"><span class="rcount r-${worst}" title="${esc(tip)}">${others.length}</span></td>`;
       }
-      return `<tr data-fleet-row data-site="${esc(s.site)}"><td class="rsite">${siteLink(s.site)}${toolLinks(s.site)}</td>${cells}${otherCell}</tr>`;
+      const htip = STATE_ORDER.filter(k => roll[k]).map(k => `${roll[k]} ${STATE_LABEL[k] || k}`).join(' · ');
+      const tone = roll.problems === 0 ? 'ok' : roll.overdue ? 'bad' : 'warn';
+      const health = `<td class="rhealth" title="${esc(htip)}">
+          ${stateBar(roll, 'rh-bar')}
+          <span class="rh-n rh-${tone}">${roll.pct == null ? '—' : roll.pct + '%'}</span>
+        </td>`;
+      return `<tr data-fleet-row data-site="${esc(s.site)}"><td class="rsite">${siteLink(s.site)}${toolLinks(s.site)}</td>${health}${cells}${otherCell}</tr>`;
     })
     .join('');
 
-  const lg = dotLegend;
-  app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Domain Control</h2><span class="muted">fleet roles across ${sites.length} sites · column headers open an agent page</span></div>
-    <div class="task-toolbar">
-      <strong>${core.length} common roles</strong>
-      <span class="muted">${lg('fresh', tally.fresh + ' fresh')} · ${lg('stale', tally.stale + ' stale')} · ${lg('overdue', tally.overdue + ' overdue')} · ${lg('paused', tally.paused + ' paused')} · ${lg('never', tally.never + ' no-log')}</span>
-    </div>
-    <div class="card rmatrix-card"><table class="rmatrix">
-      <thead><tr>${head}</tr></thead>
-      <tbody>${body}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px">Each cell = a role scheduled on that site. ${lg('fresh', 'ran within its cadence')} · ${lg('stale', 'overdue >1×')} · ${lg('overdue', 'overdue >2×')} · ${lg('paused', 'paused (.&lt;role&gt;-disabled)')} · ${lg('never', 'scheduled, no log found')} · <span class="rdot r-none">·</span> not installed. Click a column header to open that agent's page, or a cell for its latest log + pause/resume. Bespoke per-site roles are grouped under <b>other</b>. The <b>deployer</b> column reflects deploy health (main vs origin): ${lg('fresh', 'in sync — live via push-to-deploy')} · ${lg('overdue', 'unpushed commits not deployed')}.</p>
-    <div id="parked-inventory"></div>`;
-
-  renderParked(); // fills #parked-inventory once its fetch lands — never blocks the matrix
+  $('#ctl-matrix').innerHTML = rows.length
+    ? `<div class="card rmatrix-card"><table class="rmatrix">
+        <thead><tr>${head}</tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>`
+    : '<div class="card"><div class="empty">No site matches this filter.</div></div>';
 
   $$('.rdot[data-site]').forEach(d =>
     d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role))
@@ -2969,9 +3079,19 @@ async function renderControl() {
       bulkToggleRole(b.dataset.role, b.dataset.act);
     })
   );
-  if (!FRESH) applyUISnap();
+  $$('[data-ctl-filter]').forEach(b =>
+    b.addEventListener('click', () => {
+      CONTROL.filter = b.dataset.ctlFilter;
+      controlDraw();
+    })
+  );
+  $$('[data-ctl-sort]').forEach(b =>
+    b.addEventListener('click', () => {
+      CONTROL.sort = b.dataset.ctlSort;
+      controlDraw();
+    })
+  );
   applyFleetFilter();
-  stamp();
 }
 
 /* ---- parked inventory (F51) ----

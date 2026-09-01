@@ -798,3 +798,88 @@ body.has-rail .actions { margin-left: 0; }
 .rail-folded .rl-pulse { justify-content: center; padding: 8px 0; }
 .rail-folded .rl-pulse-t, .rail-folded .rl-pulse-v { display: none; }
 @media (max-width: 980px) { .rl-pulse-t, .rl-pulse-v { display: none; } .rl-pulse { justify-content: center; } }
+
+/* ============================================================================
+   Domain Control — matrix
+   A 16-column grid of dots was scannable only cell-by-cell: you could not see
+   which SITE was in trouble without reading its whole row, nor which ROLE was
+   in trouble fleet-wide without reading its whole column. Both now carry a
+   proportional state bar, and unhealthy cells tint so clusters read as a heat
+   map rather than as isolated dots.
+   ========================================================================== */
+.ctl-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.ctl-n {
+  display: inline-block; margin-left: 7px; padding: 0 6px;
+  border-radius: 8px; background: rgba(255,255,255,.09); color: var(--faint);
+  font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.seg-btn.active .ctl-n { background: rgba(94,169,255,.26); color: #dcebff; }
+.ctl-legend { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ctl-count { margin-left: auto; font-size: 12px; }
+
+.ctl-help { margin-top: 14px; }
+.ctl-help > summary {
+  cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--faint); padding: 4px 0;
+}
+.ctl-help > summary::-webkit-details-marker { display: none; }
+.ctl-help > summary::before { content: '▸'; font-size: 10px; transition: transform .15s var(--ease); }
+.ctl-help[open] > summary::before { transform: rotate(90deg); }
+.ctl-help > summary:hover { color: var(--muted); }
+.ctl-help p { margin: 4px 0 0; max-width: 92ch; line-height: 1.65; }
+
+/* ---- shared proportional state bar ---- */
+.rh-bar, .rcol-bar {
+  display: flex; align-items: stretch; gap: 1px;
+  height: 5px; border-radius: 3px; overflow: hidden;
+  background: rgba(255,255,255,.05);
+}
+.rh-bar i, .rcol-bar i { display: block; min-width: 2px; }
+.rh-bar .r-fresh,   .rcol-bar .r-fresh   { background: var(--green); }
+.rh-bar .r-stale,   .rcol-bar .r-stale   { background: var(--yellow); }
+.rh-bar .r-overdue, .rcol-bar .r-overdue { background: var(--red); }
+.rh-bar .r-never,   .rcol-bar .r-never   { background: #4a5568; }
+.rh-bar .r-paused,  .rcol-bar .r-paused  { background: rgba(255,255,255,.14); }
+.rh-bar .r-none,    .rcol-bar .r-none    { background: rgba(255,255,255,.06); }
+
+/* ---- Health column ---- */
+.rmatrix th.rhealth-h { width: 128px; }
+.rmatrix td.rhealth { width: 128px; padding: 8px 12px; }
+.rh-bar { width: 76px; }
+.rh-n {
+  display: inline-block; margin-left: 9px; vertical-align: 1px;
+  font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.rh-ok   { color: var(--green); }
+.rh-warn { color: var(--yellow); }
+.rh-bad  { color: var(--red); }
+td.rhealth { white-space: nowrap; }
+td.rhealth .rh-bar { display: inline-flex; }
+
+/* ---- column headers ---- */
+.rmatrix th.rcol { text-align: left; padding: 8px 9px; vertical-align: bottom; min-width: 104px; }
+.rcol-t { display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
+.rmatrix th.rcol .rcol-link, .rmatrix th.rcol .rcol-t > span {
+  font-size: 11px; font-weight: 650; letter-spacing: -.005em; text-transform: none;
+  color: var(--muted); white-space: nowrap;
+}
+.rmatrix th.rcol .rcol-link:hover { color: var(--a1); }
+.rcol-bar { width: 100%; }
+.rcol-tip {
+  display: block; margin-top: 5px;
+  font-size: 9.5px; font-weight: 500; letter-spacing: 0; text-transform: none;
+  color: var(--faint); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 128px;
+}
+
+/* ---- cells: tint trouble so clusters are visible at a glance ---- */
+.rmatrix td.rcell { text-align: center; padding: 8px 9px; }
+td.rcell.hot-stale   { background: rgba(240,180,41,.075); box-shadow: inset 0 0 0 1px rgba(240,180,41,.1); }
+td.rcell.hot-overdue { background: rgba(255,107,107,.1);  box-shadow: inset 0 0 0 1px rgba(255,107,107,.16); }
+tbody tr:hover td.rcell.hot-stale   { background: rgba(240,180,41,.12); }
+tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
+
+.rmatrix td.rsite { padding-right: 16px; }
