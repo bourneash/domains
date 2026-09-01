@@ -371,10 +371,22 @@
   }
 
   let bound = new WeakMap();
+  let sig = '';
   function build() {
     const nav = $('.rl-nav', rail);
     const secs = sections();
     if (!secs.length) return;
+
+    // app.js repaints the agents/group menus on every render, which fires our
+    // childList observer. Rebuilding then would wipe the rail mid-interaction:
+    // scroll position lost, a collapse animation cut off, a just-toggled
+    // section snapped back. So rebuild ONLY when the nav's shape actually
+    // changed; otherwise just re-read active state.
+    const next = secs.map(x => x.id + ':' + x.items.map(i => i.key + '|' + i.label + '|' + i.count).join(',')).join(';');
+    if (next === sig) return sync();
+    sig = next;
+    const scroll = nav.scrollTop;
+
     nav.innerHTML = secs.map(s => {
       // Agents is 30+ entries — collapsed by default so the rail stays scannable;
       // sync() re-opens whichever section holds the active view.
@@ -393,7 +405,9 @@
           <span class="rl-t">${esc(it.label)}</span>
           ${it.count ? `<span class="rl-n">${esc(it.count)}</span>` : ''}
         </button>`).join('');
-      return `<div class="rl-sec${open ? ' open' : ''}" data-sec="${esc(s.id)}">${head}<div class="rl-items">${items}</div></div>`;
+      // items live in a SINGLE inner wrapper: the 0fr/1fr collapse only sizes
+      // the grid's first row, so multiple direct children never collapse.
+      return `<div class="rl-sec${open ? ' open' : ''}" data-sec="${esc(s.id)}">${head}<div class="rl-items"><div class="rl-items-in">${items}</div></div></div>`;
     }).join('');
 
     bound = new WeakMap();
@@ -414,6 +428,7 @@
       prefs['s:' + sec.dataset.sec] = open;
       save();
     }));
+    nav.scrollTop = scroll;
     sync();
   }
 
@@ -446,6 +461,23 @@
     }
   }
 
+  /* Several views (Guides, Tasks, Containers, Git…) render straight into a
+     toolbar with no heading, so the page had no identity of its own. app.js
+     owns #app's innerHTML and repaints it on every refresh, so rather than
+     editing a dozen render functions we re-assert a heading whenever one is
+     missing, using the label the rail already resolved. */
+  function ensureTitle() {
+    const app = $('#app');
+    if (!app || !app.firstElementChild) return;                       // loading placeholder
+    if (app.querySelector(':scope > .page-head, :scope > .crumbs')) return;
+    const label = $('#ctx .ctx-v')?.textContent?.trim();
+    if (!label || label === 'Fleet') return;
+    const h = document.createElement('div');
+    h.className = 'page-head fd-title';
+    h.innerHTML = `<h1 class="page-title">${esc(label)}</h1>`;
+    app.insertBefore(h, app.firstChild);
+  }
+
   function fold(on) {
     document.body.classList.toggle('rail-folded', on);
     prefs.folded = on; save();
@@ -472,7 +504,9 @@
     // app.js fills the agents/group menus asynchronously and re-toggles .active
     // on every render — rebuild when the menus change, re-sync on every route.
     new MutationObserver(() => build()).observe($('.tabs'), { childList: true, subtree: true });
-    new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['data-view'] });
+    new MutationObserver(() => { sync(); ensureTitle(); })
+      .observe(document.body, { attributes: true, attributeFilter: ['data-view'] });
+    new MutationObserver(ensureTitle).observe($('#app'), { childList: true });
     setInterval(sync, 1500);   // catches same-view active swaps (agent → agent)
 
     addEventListener('keydown', e => {
