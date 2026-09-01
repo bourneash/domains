@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 # Operator entry point for the Fleet Dashboard.
 #
-# This command deliberately owns the otherwise easy-to-forget shared .env
-# wiring. FD_TOKEN stays stable across ordinary starts/restarts; rotate-token is
-# the only command that changes it.
+# FD_TOKEN no longer lives in the shared fleet .env (B2). Vaultwarden is its
+# home and tools/env-broker renders it into a 0400 file holding three keys, which
+# compose loads via env_file:. This command owns that wiring. FD_TOKEN stays
+# stable across ordinary starts/restarts; rotate-token is the only command that
+# changes it, and it rotates in the VAULT then re-renders — writing the rendered
+# file directly would be silently reverted by the next `env_broker.py render`.
 
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOL_DIR="$(cd "${HERE}/.." && pwd)"
 DOMAINS_ROOT="${FD_DOMAINS_ROOT:-$(cd "${TOOL_DIR}/../.." && pwd)}"
-ENV_FILE="${FD_ENV_FILE:-${DOMAINS_ROOT}/.env}"
+BROKER="${FD_ENV_BROKER:-${DOMAINS_ROOT}/tools/env-broker/env_broker.py}"
+ENV_FILE="${FD_ENV_FILE:-${DOMAINS_ROOT}/tools/env-broker/rendered/tool-fleet-dashboard.env}"
 URL="${FD_DASHBOARD_URL:-http://127.0.0.1:4754}"
 
 usage() {
@@ -18,11 +22,11 @@ usage() {
 Usage: tools/fleet-dashboard/bin/fleet-dashboard <command>
 
 Commands:
-  up            Start or update the dashboard with the shared root .env
+  up            Start or update the dashboard with its env-broker render
   restart       Restart the dashboard (starts it if it is absent)
   status        Show container and unauthenticated health/auth status
   token         Print the current FD_TOKEN for browser login
-  rotate-token  Generate and persist a new FD_TOKEN, then recreate the panel
+  rotate-token  Generate a new FD_TOKEN in Vaultwarden, re-render, recreate
   help          Show this help
 
 Routine token renewal is unnecessary. Rotate only after suspected disclosure.
@@ -35,7 +39,8 @@ die() {
 }
 
 require_env_file() {
-  [[ -f "${ENV_FILE}" ]] || die "shared env not found: ${ENV_FILE}"
+  [[ -f "${ENV_FILE}" ]] || die "scoped env not found: ${ENV_FILE}
+Render it first:  ${BROKER} render --all"
 }
 
 read_token() {
@@ -96,36 +101,13 @@ wait_until_ready() {
 }
 
 replace_token() {
+  # Vaultwarden is FD_TOKEN's only home, so rotation is a vault write followed
+  # by a re-render — the broker owns both. Writing the rendered file directly
+  # would look like it worked and be reverted by the next `render --all`,
+  # leaving every browser session dead with no obvious cause.
   local new_token="$1"
-  local temp_env
-  temp_env="$(mktemp "${ENV_FILE}.fd-token.XXXXXX")"
-
-  if ! awk -v token="${new_token}" '
-    BEGIN { replaced = 0 }
-    /^FD_TOKEN=/ {
-      if (!replaced) {
-        print "FD_TOKEN=" token;
-        replaced = 1;
-      }
-      next;
-    }
-    { print }
-    END {
-      if (!replaced) print "FD_TOKEN=" token;
-    }
-  ' "${ENV_FILE}" > "${temp_env}"; then
-    rm -f "${temp_env}"
-    return 1
-  fi
-
-  if ! chmod --reference="${ENV_FILE}" "${temp_env}"; then
-    rm -f "${temp_env}"
-    return 1
-  fi
-  if ! mv "${temp_env}" "${ENV_FILE}"; then
-    rm -f "${temp_env}"
-    return 1
-  fi
+  printf '%s' "${new_token}" | "${BROKER}" set-secret --group dashboard --key FD_TOKEN >/dev/null || return 1
+  [[ "$(read_token)" == "${new_token}" ]] || return 1
 }
 
 print_token_hint() {
@@ -174,8 +156,9 @@ case "${command}" in
     require_env_file
     new_token="$(openssl rand -hex 32)"
     [[ "${new_token}" =~ ^[0-9a-f]{64}$ ]] || die "openssl returned an invalid token"
-    replace_token "${new_token}"
-    printf 'FD_TOKEN rotated in %s. Existing browser sessions are invalid.\n' "${ENV_FILE}"
+    replace_token "${new_token}" || die "rotation failed; FD_TOKEN is unchanged"
+    printf 'FD_TOKEN rotated in Vaultwarden and re-rendered to %s.\n' "${ENV_FILE}"
+    printf 'Existing browser sessions are invalid.\n'
     if ! compose up -d --force-recreate panel; then
       printf 'fleet-dashboard: panel recreation failed; the new token remains persisted.\n' >&2
       print_token_hint >&2

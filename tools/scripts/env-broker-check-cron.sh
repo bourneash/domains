@@ -40,19 +40,33 @@ log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 REPORT="$(cd "$DOMAINS_ROOT" && timeout 300 python3 "$TOOL_DIR/env_broker.py" --check 2>&1)"
 rc=$?
 
-# Rendered-file health. A site is a recipient if its compose mounts one.
+# Rendered-file health. A container is a recipient if its compose mounts one --
+# via a volume (sites, most tools) or env_file (fleet-dashboard). Tool composes
+# are covered too: the dashboard's rendered file holds FD_TOKEN, and its absence
+# would silently bring the panel back up with the gate OFF.
 FILE_PROBLEMS=""
+check_rendered() {
+  local label="$1" f="$2" mode
+  if [[ ! -f "$f" ]]; then
+    FILE_PROBLEMS+="missing: $(basename "$f") — $label has NO credentials"$'\n'
+    return
+  fi
+  mode="$(stat -c %a "$f")"
+  [[ "$mode" == "400" ]] || FILE_PROBLEMS+="mode $mode (want 400): $(basename "$f")"$'\n'
+}
+
 while IFS= read -r compose; do
   domain="$(basename "$(dirname "$compose")")"
   grep -q "env-broker/rendered/" "$compose" 2>/dev/null || continue
-  f="$TOOL_DIR/rendered/$domain.env"
-  if [[ ! -f "$f" ]]; then
-    FILE_PROBLEMS+="missing: $domain.env — that container has NO credentials"$'\n'
-  else
-    mode="$(stat -c %a "$f")"
-    [[ "$mode" == "400" ]] || FILE_PROBLEMS+="mode $mode (want 400): $domain.env"$'\n'
-  fi
+  check_rendered "that container" "$TOOL_DIR/rendered/$domain.env"
 done < <(find "$DOMAINS_ROOT/sites" -maxdepth 2 -name docker-compose.yml 2>/dev/null)
+
+while IFS= read -r compose; do
+  tool="$(basename "$(dirname "$compose")")"
+  [[ "$tool" == "env-broker" ]] && continue
+  grep -q "env-broker/rendered/" "$compose" 2>/dev/null || continue
+  check_rendered "tools/$tool" "$TOOL_DIR/rendered/tool-$tool.env"
+done < <(find "$DOMAINS_ROOT/tools" -maxdepth 2 -name docker-compose.yml 2>/dev/null)
 
 if (( rc == 0 )) && [[ -z "$FILE_PROBLEMS" ]]; then
   log "ok — $(printf '%s' "$REPORT" | tail -1)"

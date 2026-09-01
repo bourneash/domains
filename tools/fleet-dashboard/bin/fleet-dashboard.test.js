@@ -14,11 +14,33 @@ const NEW_TOKEN = '2'.repeat(64);
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-dashboard-cli-'));
   const fakeBin = path.join(root, 'bin');
-  const envFile = path.join(root, '.env');
+  const envFile = path.join(root, 'tool-fleet-dashboard.env');
+  const broker = path.join(root, 'env_broker.py');
+  const brokerCalls = path.join(root, 'broker.calls');
   const dockerCalls = path.join(root, 'docker.calls');
   const dockerGids = path.join(root, 'docker.gids');
   fs.mkdirSync(fakeBin);
   fs.writeFileSync(envFile, `ALPHA=one\nFD_TOKEN=${OLD_TOKEN}\nOMEGA=two\n`, { mode: 0o400 });
+
+  // Stands in for `env_broker.py set-secret`: the real one writes the token to
+  // Vaultwarden and re-renders. Both ends of that are the broker's contract, so
+  // the CLI test asserts only that the launcher delegates and then sees the new
+  // value in the rendered file it reads.
+  fs.writeFileSync(
+    broker,
+    `#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\\n' "$*" >> "$FD_TEST_BROKER_CALLS"
+[[ "\${FD_TEST_BROKER_FAIL:-0}" == "1" ]] && exit 1
+value="$(cat)"
+umask 077
+tmp="$(mktemp)"
+sed "s/^FD_TOKEN=.*/FD_TOKEN=\${value}/" "$FD_ENV_FILE" > "$tmp"
+chmod --reference="$FD_ENV_FILE" "$tmp"
+mv "$tmp" "$FD_ENV_FILE"
+`,
+    { mode: 0o755 }
+  );
 
   fs.writeFileSync(
     path.join(fakeBin, 'docker'),
@@ -60,6 +82,8 @@ fi
         ...process.env,
         PATH: `${fakeBin}:${process.env.PATH}`,
         FD_ENV_FILE: envFile,
+        FD_ENV_BROKER: broker,
+        FD_TEST_BROKER_CALLS: brokerCalls,
         FD_HEALTHCHECK_ATTEMPTS: '1',
         FD_TEST_DOCKER_CALLS: dockerCalls,
         FD_TEST_DOCKER_GIDS: dockerGids,
@@ -70,11 +94,12 @@ fi
     return {
       ...result,
       calls: fs.existsSync(dockerCalls) ? fs.readFileSync(dockerCalls, 'utf8') : '',
+      brokerCalls: fs.existsSync(brokerCalls) ? fs.readFileSync(brokerCalls, 'utf8') : '',
       gids: fs.existsSync(dockerGids) ? fs.readFileSync(dockerGids, 'utf8') : '',
     };
   }
 
-  return { root, envFile, run };
+  return { root, envFile, broker, run };
 }
 
 test('up always supplies the shared env file and waits for health', t => {
@@ -113,12 +138,15 @@ test('restart starts an absent panel and restarts an existing one', t => {
   assert.match(presentResult.calls, /compose .* restart panel/);
 });
 
-test('rotate-token atomically replaces the secret, preserves permissions, and recreates the panel', t => {
+test('rotate-token routes the new secret through the broker, preserves permissions, and recreates the panel', t => {
   const f = fixture();
   t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
 
   const result = f.run(['rotate-token']);
   assert.equal(result.status, 0, result.stderr);
+  // The vault is FD_TOKEN's only home: rotating by editing the rendered file
+  // directly would be reverted by the next `env_broker.py render --all`.
+  assert.match(result.brokerCalls, /set-secret --group dashboard --key FD_TOKEN/);
   assert.equal(fs.readFileSync(f.envFile, 'utf8'), `ALPHA=one\nFD_TOKEN=${NEW_TOKEN}\nOMEGA=two\n`);
   assert.equal(fs.statSync(f.envFile).mode & 0o777, 0o400);
   assert.match(result.calls, /compose .* up -d --force-recreate panel/);
@@ -146,4 +174,17 @@ test('a failed recreate clearly reports that the newly persisted token remains i
   assert.match(result.stderr, /new token remains persisted/);
   assert.match(result.stderr, /token$/m);
   assert.doesNotMatch(`${result.stdout}${result.stderr}`, new RegExp(NEW_TOKEN));
+});
+
+test('a broker/vault failure aborts rotation with the old token still in effect', t => {
+  const f = fixture();
+  t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+
+  const result = f.run(['rotate-token'], { FD_TEST_BROKER_FAIL: '1' });
+  assert.equal(result.status, 1);
+  // Half-rotating is the dangerous outcome: a panel recreated against a token
+  // the vault never accepted would lock the operator out with no way back.
+  assert.match(fs.readFileSync(f.envFile, 'utf8'), new RegExp(`^FD_TOKEN=${OLD_TOKEN}$`, 'm'));
+  assert.match(result.stderr, /rotation failed; FD_TOKEN is unchanged/);
+  assert.doesNotMatch(result.calls, /force-recreate/);
 });

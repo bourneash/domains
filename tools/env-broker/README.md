@@ -6,6 +6,7 @@ Renders each site container a **minimal** `.env` instead of the fleet's.
     env_broker.py render --all               # rendered/<domain>.env, mode 0400
     env_broker.py --source vault render --all
     env_broker.py import-to-vault            # push .env into the Fleet Env items
+    env_broker.py set-secret --group dashboard --key FD_TOKEN   # value on stdin
 
 ## Why
 
@@ -41,6 +42,28 @@ file mount cannot be "down".
 Vaultwarden is the source of truth; the shared `.env` stays as bootstrap and
 offline fallback. A vault-sourced render is byte-identical to a file-sourced
 one (that equivalence is the migration's acceptance test).
+
+## `vault_only` — keys with no `.env` fallback
+
+`FD_TOKEN` is the exception to "the `.env` is the fallback". It gates the Fleet
+Dashboard, which holds the host's Docker socket and can push to all 48 repos, so
+leaving it in the bootstrap blob made that gate decorative (B2). It is listed
+under `vault_only:` and the vault is its **only** source:
+
+- it is read from the vault whatever `--source` says, so a plain
+  `render --all` still produces it and `--check` does not cry `NOVALUE`;
+- only the vault group that actually covers it is read — one `bw` call, not a
+  full vault load;
+- if the vault is unreachable, the affected target is **skipped, not written**.
+  Rendering a body without the key would replace a live credential with nothing
+  and the panel would come back up unauthenticated on its next restart, hours
+  after the warning scrolled past;
+- `import-to-vault` reads the `.env`, where these keys by definition are not —
+  so it reads the group back and carries them over rather than deleting them.
+
+Rotate one with `set-secret` (value on stdin), which writes the vault, verifies
+the read-back, and re-renders. `tools/fleet-dashboard/bin/fleet-dashboard
+rotate-token` is a thin wrapper over exactly that.
 
 ## Policy
 

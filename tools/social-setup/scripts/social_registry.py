@@ -48,12 +48,20 @@ RESET = "\033[0m"
 
 
 def _token():
-    """FD_TOKEN from the environment, else the shared repo .env."""
+    """FD_TOKEN from the environment, else the env-broker's scoped render.
+
+    Not the shared fleet .env: FD_TOKEN was moved out of it (B2) so the one
+    credential that drives the whole dashboard stops riding along with 60
+    unrelated keys. Vaultwarden is its home; this file is what the broker
+    renders from it.
+    """
     tok = os.environ.get("FD_TOKEN")
     if tok:
         return tok
+    rendered = os.path.join(REPO, "tools", "env-broker", "rendered",
+                            "tool-fleet-dashboard.env")
     try:
-        with open(os.path.join(REPO, ".env"), encoding="utf-8") as fh:
+        with open(rendered, encoding="utf-8") as fh:
             for line in fh:
                 if line.startswith("FD_TOKEN="):
                     return line.split("=", 1)[1].strip().strip("'\"")

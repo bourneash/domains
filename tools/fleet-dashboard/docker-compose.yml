@@ -22,21 +22,27 @@ services:
     # Loopback-only publish — same posture as cron-manager / domain-developer.
     ports:
       - "127.0.0.1:4754:4754"
+    # FD_TOKEN + SOCIAL_HUB_TOKEN come from the env-broker's scoped render, not
+    # the shared fleet .env (B2): the token that gates this panel — which holds
+    # the Docker socket and can push to all 48 repos — has no business sitting
+    # in the same bootstrap file as 60 other keys. Vaultwarden is its home;
+    # `env_broker.py --source vault render --all` writes this file 0400.
+    # Regenerate with: tools/env-broker/env_broker.py render --all
+    env_file:
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-fleet-dashboard.env
     environment:
       # Repo root, bind-mounted at the SAME absolute path inside the container
       # so the engineer-status.py audit resolves sites/* correctly and the
       # git/task file paths line up with the host.
       FD_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
       FD_HOST: 0.0.0.0
-      # This panel mounts the docker socket AND joins the shared vpn_proxy
-      # network, so any container on that network can reach it — the token is the
-      # only real gate (B2). REQUIRED: `docker compose up` fails fast unless
-      # FD_TOKEN is set in the environment (e.g. in the shared .env or your shell).
-      FD_TOKEN: ${FD_TOKEN:?set FD_TOKEN in the environment before starting the panel}
-      # Off switch. FD_AUTH=0 in the shared .env disables the login entirely
-      # (the token above stays parked so turning it back on is a one-character
-      # edit). Anything other than 0 -- including unset -- keeps the gate on.
-      FD_AUTH: ${FD_AUTH:-1}
+      # FD_TOKEN and FD_AUTH are NOT set here on purpose: an `environment:` entry
+      # overrides `env_file:`, so listing them would shadow the scoped render
+      # above with a shell/.env value. This panel mounts the docker socket AND
+      # joins the shared vpn_proxy network, so any container on that network can
+      # reach it — the token is the only real gate (B2). bin/fleet-dashboard
+      # refuses to start without one; FD_AUTH=0 in the rendered file is the
+      # explicit off switch, and anything else (including unset) keeps it on.
       HOME: ${HOME:-/home/jesse}
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770
@@ -46,7 +52,7 @@ services:
       # off-loopback without this token, so the panel always has one to send.
       SOCIALHUB_API: ${SOCIALHUB_API:-http://host.docker.internal:4772}
       SOCIALHUB_PUBLIC_URL: ${SOCIALHUB_PUBLIC_URL:-http://127.0.0.1:4772}
-      SOCIAL_HUB_TOKEN: ${SOCIAL_HUB_TOKEN:-}
+      # SOCIAL_HUB_TOKEN also arrives via env_file: above — see the note there.
       # Every site repo in the fleet pushes over the same github-bourneash SSH
       # identity (confirmed across sites — one shared account). -F /dev/null
       # skips ~/.ssh/config entirely: root's default config-file lookup is

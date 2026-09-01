@@ -268,3 +268,91 @@ def test_tool_consumers_skips_env_broker_itself(tmp_path, monkeypatch):
         (d / "docker-compose.yml").write_text(
             "    - ${HOME}/projects/domains/.env:/work/.env.shared:ro\n")
     assert eb.tool_consumers() == ["amz-stats"]
+
+
+# --- vault_only keys ---------------------------------------------------------
+#
+# FD_TOKEN gates the Fleet Dashboard, which holds the host's Docker socket and
+# can push to all 48 repos. It was moved out of the shared fleet .env (B2), so
+# the vault is its ONLY source. Two failure modes matter more than the happy
+# path: a `--source file` run must not report it missing, and a vault outage
+# must never blank a working credential.
+
+VO_POLICY = {
+    "defaults": {"keys": ["SLACK_BOT_TOKEN"]},
+    "never_grant": ["FD_TOKEN"],
+    "vault_only": ["FD_TOKEN"],
+    "sites": {},
+    "tools": {"fleet-dashboard": {"keys": ["FD_TOKEN", "FD_AUTH"]}},
+    "vault": {"groups": {"dashboard": ["FD_"], "slack": ["SLACK_"]}},
+}
+
+
+def test_never_grant_still_blocks_a_vault_only_key_from_sites():
+    # vault_only is about where a value comes from, not who may hold it.
+    assert "FD_TOKEN" not in eb.granted_keys("any.com", VO_POLICY, {})
+
+
+def test_tools_may_hold_a_vault_only_key():
+    assert eb.tool_keys("fleet-dashboard", VO_POLICY) == ["FD_AUTH", "FD_TOKEN"]
+
+
+def test_merge_vault_only_overlays_a_key_absent_from_the_env_file(monkeypatch):
+    monkeypatch.setattr(eb, "_vault_read",
+                        lambda name: {"FD_TOKEN": "t0k", "FD_AUTH": "1"}
+                        if name == "fleet — env-dashboard" else {})
+    out = eb.merge_vault_only({"SLACK_BOT_TOKEN": "s"}, VO_POLICY)
+    assert out["FD_TOKEN"] == "t0k"
+    # Only the vault-only key is overlaid — merge_vault_only is not a backdoor
+    # for pulling the rest of a group's fields into a file-sourced render.
+    assert "FD_AUTH" not in out
+
+
+def test_merge_vault_only_reads_only_the_groups_that_cover_a_wanted_key(monkeypatch):
+    seen = []
+    monkeypatch.setattr(eb, "_vault_read", lambda name: seen.append(name) or {})
+    eb.merge_vault_only({}, VO_POLICY)
+    assert seen == ["fleet — env-dashboard"]
+
+
+def test_merge_vault_only_leaves_values_untouched_when_the_vault_is_down(monkeypatch):
+    def boom(name):
+        raise RuntimeError("bw: vault is locked")
+    monkeypatch.setattr(eb, "_vault_read", boom)
+    values = {"SLACK_BOT_TOKEN": "s"}
+    assert eb.merge_vault_only(values, VO_POLICY) == {"SLACK_BOT_TOKEN": "s"}
+
+
+def test_merge_vault_only_does_not_reread_a_key_the_source_already_had(monkeypatch):
+    monkeypatch.setattr(eb, "_vault_read",
+                        lambda name: pytest.fail("should not touch the vault"))
+    assert eb.merge_vault_only({"FD_TOKEN": "already"}, VO_POLICY)["FD_TOKEN"] == "already"
+
+
+def test_render_leaves_the_last_good_file_when_the_vault_is_down(tmp_path, monkeypatch, capsys):
+    """A vault outage must not silently replace a live token with nothing.
+
+    The panel would come back up unauthenticated on its next restart, and the
+    cause — a `render --all` that printed a warning hours earlier — is exactly
+    the kind of thing nobody correlates.
+    """
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path / "rendered")
+    monkeypatch.setattr(eb, "ENV_FILE", tmp_path / "fleet.env")
+    eb.ENV_FILE.write_text("SLACK_BOT_TOKEN=s\nFD_AUTH=1\n")
+    monkeypatch.setattr(eb, "consumers", lambda: [])
+    monkeypatch.setattr(eb, "tool_consumers", lambda: ["fleet-dashboard"])
+    args = type("A", (), {"source": "file", "site": None, "stdout": False})()
+
+    # A good render first — this is the file that must survive.
+    monkeypatch.setattr(eb, "_vault_read", lambda name: {"FD_TOKEN": "live-token"})
+    assert eb.cmd_render(args, VO_POLICY, {}) == 0
+    out = eb.RENDER_DIR / "tool-fleet-dashboard.env"
+    assert "FD_TOKEN=live-token" in out.read_text()
+
+    def down(name):
+        raise RuntimeError("bw: vault is locked")
+    monkeypatch.setattr(eb, "_vault_read", down)
+    assert eb.cmd_render(args, VO_POLICY, {}) == 1
+    assert "FD_TOKEN=live-token" in out.read_text(), \
+        "the vault-only key was blanked by an outage"
+    assert "SKIPPED" in capsys.readouterr().err

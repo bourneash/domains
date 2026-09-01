@@ -254,12 +254,50 @@ def import_to_vault(policy: dict, dry_run: bool) -> int:
     groups: dict[str, dict[str, str]] = {}
     for k, val in env.items():
         groups.setdefault(group_for(k, policy["vault"]["groups"]), {})[k] = val
+    # _vault_write replaces an item's fields wholesale, and vault-only keys are
+    # by definition absent from the .env this import reads — so a plain import
+    # would DELETE FD_TOKEN from the vault, its only home. Carry them over.
+    vault_only = set(policy.get("vault_only") or [])
     for name, data in sorted(groups.items()):
+        preserved = {}
+        if vault_only:
+            existing = _vault_read(f"fleet — env-{name}")
+            preserved = {k: v for k, v in existing.items()
+                         if k in vault_only and k not in data}
+            data = {**data, **preserved}
+        note = f", preserving {', '.join(sorted(preserved))}" if preserved else ""
         print(f"{'would write' if dry_run else 'writing'} vault item "
-              f"'fleet — env-{name}' ({len(data)} keys)")
+              f"'fleet — env-{name}' ({len(data)} keys){note}")
         if not dry_run:
             _vault_write(f"fleet — env-{name}", data)
     return 0
+
+
+def vault_only_keys(policy: dict) -> list[str]:
+    return list(policy.get("vault_only") or [])
+
+
+def merge_vault_only(values: dict[str, str], policy: dict) -> dict[str, str]:
+    """Overlay the vault-only keys, whatever --source the caller asked for.
+
+    These keys are deliberately absent from the shared .env (that is the point
+    of the list), so a `--source file` run would otherwise report them missing
+    and render a file without them. Only the vault groups that actually cover a
+    vault-only key are read, so this costs one `bw` call, not a full vault
+    load, and a vault outage leaves `values` untouched rather than half-filled.
+    """
+    wanted = [k for k in vault_only_keys(policy) if k not in values]
+    if not wanted:
+        return values
+    groups = policy["vault"]["groups"]
+    for group in sorted({group_for(k, groups) for k in wanted}):
+        try:
+            found = _vault_read(f"fleet — env-{group}")
+        except Exception as exc:                        # vault down / locked
+            print(f"warning: vault unreachable for {group}: {exc}", file=sys.stderr)
+            continue
+        values.update({k: v for k, v in found.items() if k in wanted})
+    return values
 
 
 # --- render -----------------------------------------------------------------
@@ -286,6 +324,8 @@ def cmd_render(args, policy, slack) -> int:
             print(f"warning: vault returned {len(values)} keys, .env has "
                   f"{len(file_values)} — filling the gap from .env", file=sys.stderr)
             values = {**file_values, **values}
+    values = merge_vault_only(values, policy)
+    vault_only = set(vault_only_keys(policy))
 
     targets = [args.site] if args.site else consumers()
     tool_targets = [] if args.site else tool_consumers()
@@ -300,6 +340,15 @@ def cmd_render(args, policy, slack) -> int:
         if missing:
             print(f"{domain}: no value for {', '.join(missing)}", file=sys.stderr)
             rc = 1
+        blocked = sorted(set(missing) & vault_only)
+        if blocked:
+            # Writing a body without these would replace a working credential
+            # with nothing — the panel would come back up unauthenticated on
+            # the next restart. Leave the last good render in place instead.
+            print(f"{domain}: SKIPPED — {', '.join(blocked)} unavailable; "
+                  f"the existing rendered file is left untouched",
+                  file=sys.stderr)
+            continue
         if args.stdout:
             print(f"--- {domain} ({len(keys)} keys) ---")
             print(body, end="")
@@ -320,8 +369,45 @@ def cmd_render(args, policy, slack) -> int:
     return rc
 
 
+def cmd_set_secret(args, policy, slack) -> int:
+    """Write one key into its vault group, then re-render.
+
+    The vault is the only home for `vault_only` keys, so rotating one means a
+    vault write — editing the rendered file directly looks like it worked and is
+    reverted by the next render. `bw edit` replaces an item's fields wholesale,
+    so the group is read back and rewritten around the single changed key.
+    """
+    value = sys.stdin.read().strip()
+    if not value:
+        print("set-secret: no value on stdin", file=sys.stderr)
+        return 1
+
+    item = f"fleet — env-{args.group}"
+    fields = _vault_read(item)
+    if not fields:
+        print(f"set-secret: vault item {item!r} not found — refusing to create "
+              f"it blind", file=sys.stderr)
+        return 1
+    if args.key not in fields:
+        print(f"set-secret: {args.key} is not a field of {item!r}; the group is "
+              f"probably wrong (has: {', '.join(sorted(fields))})", file=sys.stderr)
+        return 1
+
+    fields[args.key] = value
+    _vault_write(item, fields)
+    if _vault_read(item).get(args.key) != value:
+        print("set-secret: vault write did not read back — NOT rotated",
+              file=sys.stderr)
+        return 1
+    print(f"{item}: {args.key} updated")
+
+    args.site, args.all, args.stdout, args.source = None, True, False, "file"
+    return cmd_render(args, policy, slack)
+
+
 def cmd_check(args, policy, slack) -> int:
     values = load_env_vault(policy) if args.source == "vault" else load_env_file()
+    values = merge_vault_only(values, policy)
     all_keys = sorted(set(load_env_file()) | set(values))
     never = set(policy.get("never_grant") or [])
     drift = False
@@ -439,6 +525,11 @@ def main() -> int:
 
     iv = sub.add_parser("import-to-vault", help="push the shared .env into Fleet Env items")
     iv.add_argument("--dry-run", action="store_true")
+
+    ss = sub.add_parser("set-secret",
+                        help="write one key (value on stdin) to its vault group, then re-render")
+    ss.add_argument("--group", required=True, help="vault group, e.g. dashboard")
+    ss.add_argument("--key", required=True, help="key name, e.g. FD_TOKEN")
     ap.add_argument("--check", action="store_true", help="policy/usage drift check")
 
     args = ap.parse_args()
@@ -456,6 +547,8 @@ def main() -> int:
         return cmd_cutover(args, policy, slack)
     if args.cmd == "import-to-vault":
         return import_to_vault(policy, args.dry_run)
+    if args.cmd == "set-secret":
+        return cmd_set_secret(args, policy, slack)
     return 1
 
 

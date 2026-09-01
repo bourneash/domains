@@ -36,11 +36,15 @@ Containerized:
     tools/fleet-dashboard/bin/fleet-dashboard up
     # panel at http://127.0.0.1:4754
 
-The operator command always loads the shared root `.env`, supplies the host
-Docker group, and waits for the health endpoint. It also supports `restart`,
-`status`, and `token`. `rotate-token` atomically replaces `FD_TOKEN`, preserves
-the `.env` permissions, and recreates the panel. Routine rotation is neither
-required nor recommended; rotate after suspected disclosure.
+The operator command loads the panel's scoped credential file
+(`tools/env-broker/rendered/tool-fleet-dashboard.env` — see **Safety** below,
+*not* the shared root `.env`), supplies the host Docker group, and waits for the
+health endpoint. It also supports `restart`, `status`, and `token`.
+`rotate-token` writes a new `FD_TOKEN` to **Vaultwarden**, re-renders, and
+recreates the panel — a vault failure aborts with the old token still in effect,
+because a panel recreated against a token the vault never accepted would lock you
+out with no way back. Routine rotation is neither required nor recommended;
+rotate after suspected disclosure.
 
 ## Why it shells out to Python
 
@@ -66,18 +70,28 @@ and presentation.
   of the token, not the token itself). The cookie has a rolling 30-day idle
   lifetime, so normal use keeps that browser signed in without weakening the
   gate for abandoned sessions. Programmatic clients send `x-fd-token: <secret>`.
+- **Where the token lives (B2):** **not** in the shared fleet `.env`. That file
+  is the fleet's bootstrap credential blob, and parking the panel's own gate in
+  it meant the secret guarding the docker socket travelled with 60 unrelated
+  keys — the gate documented right here was, as wired, decorative. FD_TOKEN's
+  home is **Vaultwarden**; `tools/env-broker` renders it into
+  `tools/env-broker/rendered/tool-fleet-dashboard.env` (mode 0400, three keys),
+  which compose loads via `env_file:`. Regenerate with
+  `tools/env-broker/env_broker.py render --all` — the broker pulls `FD_TOKEN`
+  from the vault whatever `--source` says, and a vault outage leaves the last
+  good file untouched rather than blanking the credential.
 - **Off switch — `FD_AUTH=0`:** turns the token gate off entirely while leaving
-  `FD_TOKEN` parked in the shared `.env`, so turning it back on is a
+  `FD_TOKEN` parked in the rendered file, so turning it back on is a
   one-character edit rather than re-issuing a secret. What you give up: the panel
   mounts the docker socket and joins `vpn_proxy`, so with the gate off **any
   container on that network can drive the whole fleet and the host**, not just
-  people on your LAN. Flip it back with `FD_AUTH=1` in `.env` +
-  `tools/fleet-dashboard/bin/fleet-dashboard up`.
+  people on your LAN. Flip it back with `env_broker.py set-secret
+  --group dashboard --key FD_AUTH` + `tools/fleet-dashboard/bin/fleet-dashboard up`.
 - **Refuses to start unsafe (B2):** on a non-loopback bind (`FD_HOST` not
   `127.0.0.1`/`localhost`/`::1`) with no `FD_TOKEN`, the server exits with an
   error instead of coming up unauthenticated. The compose deploy binds `0.0.0.0`
-  and joins `vpn_proxy`, so `FD_TOKEN` is **required** there (the compose file
-  fails fast if it's unset). Override only with `FD_ALLOW_INSECURE=1` if you
+  and joins `vpn_proxy`, so `FD_TOKEN` is **required** there (`bin/fleet-dashboard`
+  refuses to start without a rendered file carrying one). Override only with `FD_ALLOW_INSECURE=1` if you
   accept the risk. Note: on `vpn_proxy` the token is the *only* real gate — a
   peer container reaches the panel's container IP regardless of the bind address.
 - **Host allowlist (always on)** defeats DNS-rebinding (see above).
@@ -99,7 +113,7 @@ and presentation.
 |-----|---------|---------|
 | `FD_PORT` | `4754` | listen port |
 | `FD_HOST` | `127.0.0.1` | bind address |
-| `FD_TOKEN` | _(unset)_ | if set, require this token on `/api/*`; **required** on a non-loopback bind unless `FD_AUTH=0` |
+| `FD_TOKEN` | _(from the vault, via `rendered/tool-fleet-dashboard.env`)_ | require this token on `/api/*`; **required** on a non-loopback bind unless `FD_AUTH=0`. Rotate with `bin/fleet-dashboard rotate-token` (writes the vault, then re-renders) |
 | `FD_AUTH` | `1` | set `0` to disable the token gate while keeping `FD_TOKEN` parked (explicit opt-out) |
 | `FD_ALLOW_INSECURE` | _(unset)_ | set `1` to allow a non-loopback bind with no token (accepts the risk) |
 | `FD_ALLOWED_HOSTS` | loopback + compose names | extra allowed `Host` values (or `*`) |

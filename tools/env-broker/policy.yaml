@@ -39,6 +39,17 @@ defaults:
     - CLOUDFLARE_ACCOUNT_ID
     - SLACK_BOT_TOKEN
 
+# Keys with no home in the shared .env — Vaultwarden is their only source.
+# FD_TOKEN gates the Fleet Dashboard, which can push to every repo, redeploy
+# every worker and drive the host's Docker socket. Parking it in the same
+# bootstrap file as 60 other keys is what made the gate decorative (B2); it now
+# lives in the vault and reaches exactly one rendered file. These keys are read
+# from the vault whatever --source says, and a target missing one is NOT
+# written — a vault outage must leave the last good render in place, never
+# blank the credential.
+vault_only:
+  - FD_TOKEN
+
 # Keys no site may ever receive, whatever else says. Belt to the allowlist's
 # braces: these are the fleet-wide credentials whose leak is unrecoverable.
 never_grant:
@@ -103,6 +114,11 @@ tools:
       - SLACK_BOT_TOKEN
   cf-stats:
     keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  fleet-dashboard:
+    # The panel's own auth gate + the social-hub token it forwards. FD_AUTH is a
+    # flag, not a secret, but it is interpolated by the same compose file so it
+    # rides along rather than keeping a second env source alive.
+    keys: [FD_TOKEN, FD_AUTH, SOCIAL_HUB_TOKEN]
   gh-stats:
     keys: [GITHUB_TOKEN]
   site-tracker:
