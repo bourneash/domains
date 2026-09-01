@@ -150,3 +150,9 @@
 [submodule "sites/shoppinkflamingo.com"]
 	path = sites/shoppinkflamingo.com
 	url = git@github-bourneash:bourneash/shoppinkflamingo.com.git
+[submodule "sites/arttogogh.com"]
+	path = sites/arttogogh.com
+	url = git@github-bourneash:bourneash/arttogogh.com.git
+[submodule "sites/eastcoastrappers.com"]
+	path = sites/eastcoastrappers.com
+	url = git@github-bourneash:bourneash/eastcoastrappers.com.git
