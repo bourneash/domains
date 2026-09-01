@@ -15,6 +15,13 @@
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* Labels here are read back out of app.js-rendered nodes via textContent, so
+     they arrive DECODED. Re-injecting them into innerHTML would undo app.js's
+     own escaping — a role name from disk containing markup would round-trip
+     into live HTML. Everything interpolated below goes through esc(). */
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
   /* ---------------------------------------------------------- 1. VITALS -- */
   const railHTML = `
     <div class="vt" data-vt="sites"      style="--vt-c:var(--a1)"><div class="vt-k">Fleet</div><div class="vt-v">—</div><div class="vt-sub">sites discovered</div><div class="vt-meter"><i></i></div></div>
@@ -107,7 +114,7 @@
       if (foot) {
         const tone = healthPct >= 90 ? 'ok' : healthPct >= 70 ? 'warn' : 'bad';
         foot.innerHTML = `
-          <div class="rl-pulse ${tone}" title="${fresh}/${live} roles fresh · ${running}/${cts.length} containers running">
+          <div class="rl-pulse ${tone}" title="${esc(`${fresh}/${live} roles fresh · ${running}/${cts.length} containers running`)}">
             <span class="rl-pulse-dot"></span>
             <span class="rl-pulse-t">Fleet health</span>
             <span class="rl-pulse-v">${healthPct}%</span>
@@ -169,7 +176,7 @@
       .sort((a, b) => b.s - a.s).slice(0, 40);
     sel = 0;
     pList.innerHTML = items.length
-      ? items.map((i, n) => `<div class="cmdk-row${n === 0 ? ' sel' : ''}" data-n="${n}"><span class="cmdk-ico">${i.ico}</span><span></span><span class="cmdk-grp">${i.group}</span></div>`).join('')
+      ? items.map((i, n) => `<div class="cmdk-row${n === 0 ? ' sel' : ''}" data-n="${n}"><span class="cmdk-ico">${esc(i.ico)}</span><span></span><span class="cmdk-grp">${esc(i.group)}</span></div>`).join('')
       : '<div class="cmdk-empty">Nothing matches that.</div>';
     $$('.cmdk-row', pList).forEach((r, n) => {
       r.children[1].textContent = items[n].label;
@@ -276,6 +283,8 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const LS = 'fd.rail';
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
   /* 24px stroke icons, keyed by view. Anything unmapped falls back to a dot,
      so a new view never renders broken. */
@@ -374,17 +383,17 @@
       const head = s.always ? '' : `
         <button class="rl-h" type="button" data-sec="${s.id}" aria-expanded="${open}">
           ${icon(GRP[s.id] || s.id)}
-          <span class="rl-h-t">${s.label}</span>
+          <span class="rl-h-t">${esc(s.label)}</span>
           <span class="rl-h-n">${s.items.length}</span>
           <svg class="rl-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 10.5 12 14l3.5-3.5"/></svg>
         </button>`;
       const items = s.items.map((it, n) => `
-        <button class="rl-it" type="button" data-sec="${s.id}" data-n="${n}" title="${it.label}">
+        <button class="rl-it" type="button" data-sec="${esc(s.id)}" data-n="${n}" title="${esc(it.label)}">
           ${icon(s.id === 'agents' ? 'agent' : it.key)}
-          <span class="rl-t">${it.label}</span>
-          ${it.count ? `<span class="rl-n">${it.count}</span>` : ''}
+          <span class="rl-t">${esc(it.label)}</span>
+          ${it.count ? `<span class="rl-n">${esc(it.count)}</span>` : ''}
         </button>`).join('');
-      return `<div class="rl-sec${open ? ' open' : ''}" data-sec="${s.id}">${head}<div class="rl-items">${items}</div></div>`;
+      return `<div class="rl-sec${open ? ' open' : ''}" data-sec="${esc(s.id)}">${head}<div class="rl-items">${items}</div></div>`;
     }).join('');
 
     bound = new WeakMap();
@@ -432,8 +441,8 @@
       const grp = activeSec && activeSec !== 'pinned'
         ? ($(`.rl-sec[data-sec="${activeSec}"] .rl-h-t`, rail)?.textContent || '') : '';
       ctx.innerHTML = grp
-        ? `<span class="ctx-g">${grp}</span><span class="ctx-s">/</span><span class="ctx-v">${activeLabel}</span>`
-        : `<span class="ctx-v">${activeLabel || 'Fleet'}</span>`;
+        ? `<span class="ctx-g">${esc(grp)}</span><span class="ctx-s">/</span><span class="ctx-v">${esc(activeLabel)}</span>`
+        : `<span class="ctx-v">${esc(activeLabel || 'Fleet')}</span>`;
     }
   }
 
