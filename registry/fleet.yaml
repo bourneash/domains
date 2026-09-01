@@ -449,7 +449,7 @@ sites:
     - site
     - affiliate
   howfishthink.com:
-    status: scaffold
+    status: live
     repo: bourneash/howfishthink.com
     worker: howfishthink-com
     cf_zone: howfishthink.com
@@ -457,7 +457,14 @@ sites:
     - site
     - ops
     - tasks
+    - analytics
+    analytics:
+      ga4_property_id: '552451383'
+      ga4_measurement_id: G-QZW41GM4CY
+      gsc_property: sc-domain:howfishthink.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
   infrainnovator.com:
