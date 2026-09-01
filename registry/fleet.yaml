@@ -204,7 +204,6 @@ sites:
     - cron
     - smoke
     - tasks
-    - affiliate
     - social
     registered_in:
     - domains-index
@@ -328,13 +327,16 @@ sites:
     - site-tracker
     - social
   eastcoastrappers.com:
-    status: scaffold
+    status: live
     repo: bourneash/eastcoastrappers.com
     worker: eastcoastrappers-com
     cf_zone: eastcoastrappers.com
+    slack_channel_env: SLACK_CHANNEL_EASTCOASTRAPPERS
     capabilities:
     - site
     - ops
+    - cron
+    - smoke
     - tasks
     registered_in:
     - domains-index
@@ -380,9 +382,9 @@ sites:
     - domains-index
     - site-tracker
     - social
-    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
+    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -430,18 +432,18 @@ sites:
     - site
     - ops
     - smoke
+    registered_in:
+    - domains-index
+    - site-tracker
   howfishthink.com:
     status: scaffold
     repo: bourneash/howfishthink.com
     worker: howfishthink-com
     cf_zone: howfishthink.com
-    slack_channel_env: SLACK_CHANNEL_HOWFISHTHINK
     capabilities:
     - site
     - ops
     - tasks
-    - affiliate
-    - analytics
     registered_in:
     - domains-index
     - site-tracker
@@ -721,6 +723,20 @@ sites:
     - domains-index
     - site-tracker
     - social
+  seedstosauce.com:
+    status: live
+    repo: bourneash/seedstosauce.com
+    worker: seedstosauce-com
+    cf_zone: seedstosauce.com
+    capabilities:
+    - site
+    - affiliate
+    - analytics
+    analytics:
+      consent_gated: true
+    registered_in:
+    - domains-index
+    - site-tracker
   shoppinkflamingo.com:
     status: live
     repo: bourneash/shoppinkflamingo.com
@@ -729,6 +745,7 @@ sites:
     capabilities:
     - site
     - ops
+    - smoke
     - tasks
     - affiliate
     registered_in:
