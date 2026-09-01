@@ -428,7 +428,23 @@ print('\n'.join(lines))
 fi
 fi  # end NO_EMAIL guard
 
-# ── 6. Cleanup tmp ─────────────────────────────────────────────────────────
+# ── 6. Scoped Cloudflare token ─────────────────────────────────────────────
+# Without this a new site inherits the FLEET Cloudflare token — the exact
+# exposure tools/cf-tokens exists to retire — and the fix silently rots one
+# site at a time. Non-fatal: a site with no token still works, it is just
+# still sharing, and `env_broker.py --check` reports it as FLEETWIDE.
+if [[ -x "${SCRIPT_DIR}/../cf-tokens/mint.py" ]]; then
+  echo ""
+  echo "── Minting a zone-scoped Cloudflare token for ${DOMAIN} ──"
+  if "${SCRIPT_DIR}/../cf-tokens/mint.py" --site "${DOMAIN}"; then
+    echo "  scoped token stored in the vault"
+  else
+    echo "  WARNING: mint failed — ${DOMAIN} will share the fleet token." >&2
+    echo "  Retry with: tools/cf-tokens/mint.py --site ${DOMAIN}" >&2
+  fi
+fi
+
+# ── 7. Cleanup tmp ─────────────────────────────────────────────────────────
 rm -rf "${TMPSCAFFOLD}"
 
 echo ""

@@ -416,3 +416,87 @@ def test_rendered_drift_ignores_a_value_the_source_does_not_have(tmp_path, monke
     monkeypatch.setattr(eb, "RENDER_DIR", tmp_path)
     (tmp_path / "plain.com.env").write_text("A=1\n")
     assert eb.rendered_drift("plain.com", ["A", "NOVALUE"], {"A": "1"}) is None
+
+
+# --- per-site values ---------------------------------------------------------
+#
+# Cloudflare tokens are per-site (tools/cf-tokens): a site's own credential must
+# win over the fleet-wide one, and a site item must never be able to widen what
+# that site receives.
+
+PS_POLICY = {
+    "defaults": {"keys": ["CLOUDFLARE_API_TOKEN", "SLACK_BOT_TOKEN"]},
+    "never_grant": [],
+    "per_site_vault": ["CLOUDFLARE_API_TOKEN"],
+    "sites": {},
+    "tools": {"cf-stats": {"keys": ["CLOUDFLARE_API_TOKEN"]}},
+    "vault": {"groups": {"cloudflare": ["CLOUDFLARE_"]}},
+}
+
+
+def test_site_values_keeps_only_the_declared_per_site_keys(monkeypatch):
+    monkeypatch.setattr(eb, "_vault_read_sites", lambda: {
+        "a.com": {"CLOUDFLARE_API_TOKEN": "scoped", "GITHUB_TOKEN": "sneaky"}})
+    # A site item is not a second allowlist — a stray field must not be granted.
+    assert eb.site_values(PS_POLICY) == {"a.com": {"CLOUDFLARE_API_TOKEN": "scoped"}}
+
+
+def test_site_values_ignores_an_empty_value(monkeypatch):
+    # An empty field would otherwise shadow the fleet token with "" and the
+    # site's deploys would fail authentication rather than fall back.
+    monkeypatch.setattr(eb, "_vault_read_sites", lambda: {"a.com": {"CLOUDFLARE_API_TOKEN": ""}})
+    assert eb.site_values(PS_POLICY) == {"a.com": {}}
+
+
+def test_site_values_falls_back_to_fleet_wide_when_the_vault_is_down(monkeypatch, capsys):
+    def boom():
+        raise RuntimeError("bw: locked")
+    monkeypatch.setattr(eb, "_vault_read_sites", boom)
+    assert eb.site_values(PS_POLICY) == {}
+    assert "falling back" in capsys.readouterr().err
+
+
+def test_a_sites_own_token_wins_over_the_fleet_one(tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path / "rendered")
+    monkeypatch.setattr(eb, "ENV_FILE", tmp_path / "fleet.env")
+    eb.ENV_FILE.write_text("CLOUDFLARE_API_TOKEN=FLEET\nSLACK_BOT_TOKEN=s\n")
+    monkeypatch.setattr(eb, "consumers", lambda: ["a.com", "b.com"])
+    monkeypatch.setattr(eb, "tool_consumers", lambda: [])
+    monkeypatch.setattr(eb, "_vault_read_sites",
+                        lambda: {"a.com": {"CLOUDFLARE_API_TOKEN": "SCOPED-A"}})
+
+    args = type("A", (), {"source": "file", "site": None, "stdout": False})()
+    assert eb.cmd_render(args, PS_POLICY, {}) == 0
+    assert "CLOUDFLARE_API_TOKEN=SCOPED-A" in (eb.RENDER_DIR / "a.com.env").read_text()
+    # b.com has not been migrated yet and must still get a working credential.
+    assert "CLOUDFLARE_API_TOKEN=FLEET" in (eb.RENDER_DIR / "b.com.env").read_text()
+
+
+def test_tools_keep_the_account_scoped_token(tmp_path, monkeypatch):
+    # cf-stats and site-tracker aggregate ACROSS the fleet; handing either a
+    # single site's zone-scoped token would silently break fleet reporting.
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path / "rendered")
+    monkeypatch.setattr(eb, "ENV_FILE", tmp_path / "fleet.env")
+    eb.ENV_FILE.write_text("CLOUDFLARE_API_TOKEN=FLEET\n")
+    monkeypatch.setattr(eb, "consumers", lambda: [])
+    monkeypatch.setattr(eb, "tool_consumers", lambda: ["cf-stats"])
+    monkeypatch.setattr(eb, "_vault_read_sites",
+                        lambda: {"cf-stats": {"CLOUDFLARE_API_TOKEN": "WRONG"}})
+
+    args = type("A", (), {"source": "file", "site": None, "stdout": False})()
+    assert eb.cmd_render(args, PS_POLICY, {}) == 0
+    assert "CLOUDFLARE_API_TOKEN=FLEET" in (eb.RENDER_DIR / "tool-cf-stats.env").read_text()
+
+
+# --- inline comments ---------------------------------------------------------
+
+def test_inline_comment_is_stripped_the_way_source_would(tmp_path, monkeypatch):
+    """CLOUDFLARE_ACCOUNT_ID carried `   # from dash.cloudflare.com right-sidebar`
+    into 31 rendered files. Invisible for months because every consumer was
+    shell, which strips it. The first non-shell consumer put the comment inside
+    a Cloudflare resource name and the API rejected it.
+    """
+    env = tmp_path / "f.env"
+    env.write_text('A=abc   # trailing note\nB=plain\nC="has # inside"\nD=no#space\n')
+    got = eb.load_env_file(env)
+    assert got == {"A": "abc", "B": "plain", "C": '"has # inside"', "D": "no#space"}

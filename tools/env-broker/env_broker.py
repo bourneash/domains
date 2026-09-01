@@ -72,8 +72,32 @@ def load_env_file(path: Path | None = None) -> dict[str, str]:
     for line in path.read_text().splitlines():
         m = ENV_LINE.match(line.strip())
         if m:
-            out[m.group(1)] = m.group(2)
+            out[m.group(1)] = _strip_inline_comment(m.group(2))
     return out
+
+
+def _strip_inline_comment(value: str) -> str:
+    """Drop a trailing ` # comment`, the way `source`ing the file would.
+
+    These files are read two ways: shell `set -a; . .env.shared` (which treats
+    whitespace-then-# on an unquoted word as a comment) and direct parsers like
+    this one (which did not). CLOUDFLARE_ACCOUNT_ID carried
+    `   # from dash.cloudflare.com right-sidebar` into 31 rendered files and
+    stayed invisible for exactly that reason — every consumer happened to be
+    shell. The first non-shell consumer got the comment inside an API resource
+    name and Cloudflare rejected it.
+
+    A quoted value is left entirely alone: shell would keep a `#` inside quotes,
+    and a credential is perfectly entitled to contain one.
+    """
+    v = value.strip()
+    if v[:1] in ('"', "'"):
+        return value
+    cut = v.find(" #")
+    tab = v.find("\t#")
+    if tab != -1 and (cut == -1 or tab < cut):
+        cut = tab
+    return v[:cut].rstrip() if cut != -1 else value
 
 
 def load_policy() -> dict:
@@ -232,6 +256,51 @@ def _vault_read(name: str) -> dict[str, str]:
     return {f["name"]: f.get("value", "") for f in item.get("fields", [])}
 
 
+SITE_ITEM_PREFIX = "fleet — site-"
+
+
+def _vault_read_sites() -> dict[str, dict[str, str]]:
+    """Every per-site vault item in ONE `bw` call, as {domain: {key: value}}.
+
+    Thirty sequential reads would make `render --all` take minutes, and a slow
+    render is a render people skip.
+    """
+    v = _vault()
+    v._ensure_unlocked()
+    items = json.loads(v._bw(["list", "items", "--search", SITE_ITEM_PREFIX]))
+    out: dict[str, dict[str, str]] = {}
+    for item in items:
+        name = item.get("name", "")
+        if not name.startswith(SITE_ITEM_PREFIX):
+            continue
+        domain = name[len(SITE_ITEM_PREFIX):]
+        out[domain] = {f["name"]: f.get("value", "")
+                       for f in item.get("fields", [])}
+    return out
+
+
+def per_site_keys(policy: dict) -> list[str]:
+    return list(policy.get("per_site_vault") or [])
+
+
+def site_values(policy: dict) -> dict[str, dict[str, str]]:
+    """Per-site overrides, restricted to the keys policy says are per-site.
+
+    A site item is not a second allowlist: only `per_site_vault` keys are
+    honoured, so a stray field in one item can never widen what that site gets.
+    """
+    wanted = set(per_site_keys(policy))
+    if not wanted:
+        return {}
+    try:
+        raw = _vault_read_sites()
+    except Exception as exc:
+        print(f"warning: per-site vault read failed ({exc}) — falling back to "
+              f"the fleet-wide values", file=sys.stderr)
+        return {}
+    return {d: {k: v for k, v in fields.items() if k in wanted and v}
+            for d, fields in raw.items()}
+
 def group_for(key: str, groups: dict[str, list[str]]) -> str:
     for name, prefixes in groups.items():
         if any(key.startswith(p) or key == p for p in prefixes):
@@ -326,6 +395,7 @@ def cmd_render(args, policy, slack) -> int:
             values = {**file_values, **values}
     values = merge_vault_only(values, policy)
     vault_only = set(vault_only_keys(policy))
+    per_site = site_values(policy)
 
     targets = [args.site] if args.site else consumers()
     tool_targets = [] if args.site else tool_consumers()
@@ -336,7 +406,11 @@ def cmd_render(args, policy, slack) -> int:
         name = domain[5:] if is_tool else domain
         keys = tool_keys(name, policy) if is_tool else granted_keys(domain, policy, slack)
         domain = name
-        body, missing = render(domain, keys, values)
+        # A site's own credential wins over the fleet-wide one. Tools are
+        # deliberately excluded: cf-stats and site-tracker aggregate ACROSS the
+        # fleet, so an account-scoped token is what they legitimately need.
+        vals = values if is_tool else {**values, **per_site.get(domain, {})}
+        body, missing = render(domain, keys, vals)
         if missing:
             print(f"{domain}: no value for {', '.join(missing)}", file=sys.stderr)
             rc = 1
@@ -388,9 +462,12 @@ def cmd_set_secret(args, policy, slack) -> int:
         print(f"set-secret: vault item {item!r} not found — refusing to create "
               f"it blind", file=sys.stderr)
         return 1
-    if args.key not in fields:
+    if args.key not in fields and not args.create:
+        # Default-refuse: a typo'd key would otherwise silently add a second
+        # field alongside the real one and rotate nothing (cf. CF_SECRETE_ACCESS_KEY).
         print(f"set-secret: {args.key} is not a field of {item!r}; the group is "
-              f"probably wrong (has: {', '.join(sorted(fields))})", file=sys.stderr)
+              f"probably wrong (has: {', '.join(sorted(fields))}). Pass --create "
+              f"if you really are adding a new key.", file=sys.stderr)
         return 1
 
     fields[args.key] = value
@@ -443,6 +520,7 @@ def rendered_drift(name: str, keys: list[str], values: dict[str, str],
 def cmd_check(args, policy, slack) -> int:
     values = load_env_vault(policy) if args.source == "vault" else load_env_file()
     values = merge_vault_only(values, policy)
+    per_site = site_values(policy)
     all_keys = sorted(set(load_env_file()) | set(values))
     never = set(policy.get("never_grant") or [])
     drift = False
@@ -467,7 +545,14 @@ def cmd_check(args, policy, slack) -> int:
             print(f"EXTRA     {domain}: granted {', '.join(granted_unused)} "
                   f"but ops/ never references it — needless exposure")
 
-        stale = rendered_drift(domain, sorted(keys), values)
+        own = per_site.get(domain, {})
+        shared = sorted(k for k in per_site_keys(policy) if k in keys and k not in own)
+        if shared:
+            print(f"FLEETWIDE {domain}: still on the shared "
+                  f"{', '.join(shared)} — mint a scoped one "
+                  f"(tools/cf-tokens/mint.py --site {domain})")
+
+        stale = rendered_drift(domain, sorted(keys), {**values, **own})
         if stale:
             drift = True
             print(f"STALE     {domain}: rendered file {stale} — re-render, then "
@@ -578,6 +663,8 @@ def main() -> int:
                         help="write one key (value on stdin) to its vault group, then re-render")
     ss.add_argument("--group", required=True, help="vault group, e.g. dashboard")
     ss.add_argument("--key", required=True, help="key name, e.g. FD_TOKEN")
+    ss.add_argument("--create", action="store_true",
+                    help="allow adding a key the group does not have yet")
     ap.add_argument("--check", action="store_true", help="policy/usage drift check")
 
     args = ap.parse_args()

@@ -39,6 +39,16 @@ defaults:
     - CLOUDFLARE_ACCOUNT_ID
     - SLACK_BOT_TOKEN
 
+# Keys whose value differs PER SITE. Sourced from that site's own vault item
+# (`fleet — site-<domain>`), falling back to the fleet-wide value when the site
+# has none. Cloudflare's model is why: a token can be scoped to one zone, so a
+# compromised container can no longer touch another site's DNS. It canNOT be
+# scoped to one Worker (`Workers Scripts Write` exists only at account scope —
+# verified against all 395 permission groups on 2026-09-01), so this is a real
+# reduction in blast radius, not a fix for it. Mint with tools/cf-tokens.
+per_site_vault:
+  - CLOUDFLARE_API_TOKEN
+
 # Keys with no home in the shared .env — Vaultwarden is their only source.
 # FD_TOKEN gates the Fleet Dashboard, which can push to every repo, redeploy
 # every worker and drive the host's Docker socket. Parking it in the same
@@ -49,11 +59,17 @@ defaults:
 # blank the credential.
 vault_only:
   - FD_TOKEN
+  # Mints the per-site Cloudflare tokens. It can create tokens carrying any
+  # permission it holds, so a container that could read it could grant itself
+  # account-wide Workers + DNS — strictly worse than the fleet token this whole
+  # exercise exists to retire. Host provisioning path only; never rendered.
+  - CLOUDFLARE_PROVISION_TOKEN
 
 # Keys no site may ever receive, whatever else says. Belt to the allowlist's
 # braces: these are the fleet-wide credentials whose leak is unrecoverable.
 never_grant:
   - GITHUB_TOKEN
+  - CLOUDFLARE_PROVISION_TOKEN
   - FD_TOKEN
   - FD_AUTH
   - AMAZON_CREATORS_KEY_ID

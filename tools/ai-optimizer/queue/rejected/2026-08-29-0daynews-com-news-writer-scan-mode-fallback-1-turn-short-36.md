@@ -1,14 +1,7 @@
 ---
 ticket_id: 2026-08-29-0daynews-com-news-writer-scan-mode-fallback-1-turn-short-36
 status: rejected
-rejected_reason: >
-  Wrong direction — raising the cap papers over the overrun instead of fixing
-  it. Jesse wants turn usage DOWN, not the ceiling UP. Root cause addressed
-  instead: news-writer.md now reads ops/cache/feed-candidates.json (top-30,
-  scored) instead of the full 200-item news-feed.json, cutting the per-turn
-  cache-read context ~90% and removing the reasoning load that was driving
-  the overrun in the first place. See ops/roles/news-writer.md and
-  ops/scripts/filter-feed.py (2026-08-29 cutover).
+rejected_reason: "Wrong direction — raising the cap papers over the overrun instead of fixing it. Jesse wants turn usage DOWN, not the ceiling UP. Root cause addressed instead: news-writer.md now reads ops/cache/feed-candidates.json (top-30, scored) instead of the full 200-item news-feed.json, cutting the per-turn cache-read context ~90% and removing the reasoning load that was driving the overrun in the first place. See ops/roles/news-writer.md and ops/scripts/filter-feed.py (2026-08-29 cutover)."
 title: 0daynews.com news-writer scan-mode fallback 1 turn short — 36/35 failures still occurring post-fix
 created: 2026-08-29
 finding_class: turn-budget-scan-mode-undercount

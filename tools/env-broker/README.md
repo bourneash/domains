@@ -43,6 +43,24 @@ Vaultwarden is the source of truth; the shared `.env` stays as bootstrap and
 offline fallback. A vault-sourced render is byte-identical to a file-sourced
 one (that equivalence is the migration's acceptance test).
 
+## `per_site_vault` — keys whose value differs per site
+
+`CLOUDFLARE_API_TOKEN` is no longer one value. Each site has its own
+zone-scoped token in its own vault item (`fleet — site-<domain>`), minted by
+`tools/cf-tokens`, and a site's own value wins over the fleet-wide one at render
+time. All per-site items are read in **one** `bw` call, not one per site — a
+render that takes minutes is a render people skip.
+
+A site item is not a second allowlist: only keys listed under `per_site_vault`
+are honoured, so a stray field can never widen what that site receives. An empty
+value is ignored rather than shadowing the fleet token with `""`, which would
+fail authentication instead of falling back. Tools are excluded entirely —
+`cf-stats` and `site-tracker` aggregate *across* the fleet and need the
+account-scoped token.
+
+Sites still on the shared credential print as `FLEETWIDE` in `--check`, so the
+migration has a visible countdown instead of being something you remember.
+
 ## `vault_only` — keys with no `.env` fallback
 
 `FD_TOKEN` is the exception to "the `.env` is the fallback". It gates the Fleet
