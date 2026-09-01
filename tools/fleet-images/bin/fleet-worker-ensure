@@ -34,6 +34,56 @@ set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STAMP() { printf '[%s] fleet-worker-ensure: %s\n' "$(date -Iseconds)" "$*" >&2; }
 
+# ── named-volume mountpoints ────────────────────────────────────────────────
+# 2026-09-01: every site had a root-owned, empty site/node_modules on the HOST,
+# which made `npm ci` on the host fail with EACCES and blocked local builds on
+# 28 sites at once.
+#
+# This is NOT the usual "container ran as root" fault — fleet-site-worker and
+# fleet-site-cron both run as uid 1000 (ops), exactly as policy requires. The
+# culprit is the Docker DAEMON, which always runs as root: the worker mounts a
+# named volume at /work/site/node_modules, a path INSIDE the `.:/work` bind
+# mount, so before the container starts the daemon has to materialise that
+# mountpoint in the bind source — i.e. on the host, as root, mode 755.
+#
+# `docker compose create` alone is enough to do it; the container never has to
+# run. And once the directory exists root-owned, nothing on the host can write
+# into it again.
+#
+# Docker only creates the mountpoint when it is missing, so creating it here
+# first — as the invoking user, which is uid 1000 from the host and uid 1000
+# from inside the cron container — permanently settles the ownership. The
+# volume still shadows it inside the container, so the musl/glibc isolation the
+# volume exists for is unchanged; the host just gets a directory it can use.
+#
+# Must run BEFORE the image-present early-exit below, or it only fires on the
+# rare invocation where the image is missing.
+ensure_volume_mountpoints() {
+  local rel
+  # ONLY `type: volume` mounts under /work. Bind mounts must never be touched:
+  # .env.shared and .monorepo-tools are also mounted under /work, and mkdir-ing
+  # a path that is bind-mounted from a FILE makes the mount fail outright.
+  #
+  # COMPOSE_PROFILES='*' is required, not defensive padding — worker is declared
+  # under profiles: ["manual"], so a bare `docker compose config` omits it
+  # entirely and this loop would silently never run. (Same trap documented in
+  # tools/fleet-images/cron/entrypoint.sh.)
+  while read -r rel; do
+    [[ -n "$rel" ]] || continue
+    [[ -e "$rel" ]] && continue
+    mkdir -p -- "$rel" 2>/dev/null &&
+      STAMP "pre-created ${rel} so the docker daemon does not create it as root"
+  done < <(
+    COMPOSE_PROFILES='*' docker compose config 2>/dev/null |
+      awk '
+        /^[[:space:]]*-[[:space:]]*type:[[:space:]]*volume[[:space:]]*$/ { isvol = 1; next }
+        /^[[:space:]]*-[[:space:]]*type:/                                { isvol = 0; next }
+        isvol && $1 == "target:" && $2 ~ "^/work/" { sub("^/work/", "", $2); print $2 }
+      '
+  )
+}
+ensure_volume_mountpoints
+
 IMG="$(docker compose config --images worker 2>/dev/null | head -1)"
 IMG="${IMG:-fleet-site-worker:latest}"
 
