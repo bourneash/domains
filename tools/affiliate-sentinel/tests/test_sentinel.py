@@ -21,6 +21,7 @@ import cloak  # noqa: E402
 import discover  # noqa: E402
 import heal as heal_mod  # noqa: E402
 import registry as registry_mod  # noqa: E402
+import sentinel  # noqa: E402
 import state as state_mod  # noqa: E402
 
 FAILURES: list[str] = []
@@ -553,6 +554,57 @@ def test_markdown_frontmatter_collection_registry():
               registry_mod.unknown_keys(eps, {"asin": "x", "nope": "y"}) == ["nope"])
 
 
+def test_unregistered_cloak_is_unverified_not_broken():
+    """rc-9 routes /go/ from its worker with no registry file anywhere.
+
+    Every id is then unknown, so "not an Amazon URL" is an assertion nothing
+    licensed us to make — but a route that resolves nowhere still is a fault.
+    """
+    print("cloak: unregistered destinations on a cloak-only site")
+    ext = _Resp(302, {"location": "https://partner.example/portal"})
+    r = cloak.check(_Client(ext), "https://example.com", "/go/", "p", None, None,
+                    registry_known=False)
+    check("external destination is healthy-but-unverified", r.ok)
+    check("reason says why it could not be verified", "unverified" in r.reason)
+
+    r = cloak.check(_Client(ext), "https://example.com", "/go/", "p", None, None)
+    check("the same target still fails when a registry exists", not r.ok)
+
+    r = cloak.check(_Client(_Resp(404, {})), "https://example.com", "/go/", "p", None, None,
+                    registry_known=False)
+    check("a dead route is still a failure", not r.ok)
+
+
+def test_tag_detection_ignores_lookalike_strings():
+    """`'under-25'` in a price-band union read as the Associates tag once.
+
+    Every one of allthingsmasonic's 429 cloaks then failed with "missing the
+    affiliate tag" — a fleet-scale false alarm out of one loose regex.
+    """
+    print("detect_tag: lookalikes")
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        lib = root / "site" / "src" / "lib"
+        lib.mkdir(parents=True)
+        bands = lib / "catalog.ts"
+        bands.write_text(
+            "export function priceBand(p: Product): 'under-25' | '25-50' {\n"
+            "  return 'under-25';\n}\n"
+        )
+        check("a price band is not mistaken for a tag", sentinel._tag_in(bands) is None)
+
+        (lib / "affiliate.ts").write_text("export const AMAZON_TAG = 'example-20';\n")
+        check("the real tag is still found",
+              sentinel.detect_tag(root, bands) == "example-20")
+
+        # The loose fallback stays available where the file really is about
+        # Amazon links but spells the constant differently.
+        odd = lib / "links.ts"
+        odd.write_text("const T = 'other-20';\nconst u = `https://www.amazon.com/dp/X?tag=${T}`;\n")
+        check("loose fallback still works in an Amazon-link file",
+              sentinel._tag_in(odd) == "other-20")
+
+
 def main() -> int:
     for fn in (
         test_registry_parse,
@@ -562,6 +614,8 @@ def main() -> int:
         test_registry_field_aliases,
         test_find_registry_locates_non_standard_paths,
         test_partner_cloak_is_not_flagged,
+        test_unregistered_cloak_is_unverified_not_broken,
+        test_tag_detection_ignores_lookalike_strings,
         test_has_cloak,
         test_registry_apply_updates,
         test_registry_stale_guard,

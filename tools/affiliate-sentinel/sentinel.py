@@ -130,9 +130,17 @@ def _tag_in(registry_path: Path) -> str | None:
     for rx in (
         r"AMAZON_TAG[^=]*=\s*(?:[^;]*?\|\|\s*)?['\"]([a-z0-9-]+-\d{2})['\"]",
         r"tag=([a-z0-9-]+-\d{2})",
-        r"['\"]([a-z0-9-]+-\d{2})['\"]",
     ):
         m = re.search(rx, text)
+        if m:
+            return m.group(1)
+    # Last resort: any `'word-NN'` string. That shape is not unique to an
+    # Associates tag — allthingsmasonic's catalog.ts declares price bands
+    # (`'under-25'`), and reading one as the tag made every one of its 429
+    # cloaks fail with "redirect target is missing the affiliate tag". Only
+    # trust it in a file that is demonstrably about Amazon links.
+    if re.search(r"amazon\.com|amzn\.to", text):
+        m = re.search(r"['\"]([a-z0-9-]+-\d{2})['\"]", text)
         if m:
             return m.group(1)
     return None
@@ -242,8 +250,15 @@ def main() -> int:
     registry_path = registry_mod.find_registry(site_root)
     collection_dir = registry_mod.find_collection(site_root)
     if registry_path is None and collection_dir is None:
-        log("no affiliate registry found anywhere under site/src — nothing to check")
-        return 0
+        # No registry does NOT mean nothing to check. rc-9 routes `/go/` from
+        # its worker with no registry file anywhere, and the old early return
+        # reported "nothing to check" and exited 0 — a live outbound link the
+        # sentinel had quietly stopped looking at. The cloak check needs ids
+        # and a tag, neither of which comes from the registry, so run it.
+        if not discover.has_cloak(site_root, discover.detect_go_prefix(site_root)):
+            log("no affiliate registry and no /go/ routes — nothing to check")
+            return 0
+        log("no affiliate registry found under site/src — cloak-only run")
 
     products = registry_mod.parse_all(site_root, registry_path)
     # Name every file the products actually came from: a split catalog has no
@@ -263,7 +278,7 @@ def main() -> int:
     # times the run reported a cheerful "0/0 ASINs live, 0 cloaks OK" and exited
     # 0 — the most dangerous possible output, because it looks like a pass.
     # Treat it as an infrastructure failure (exit 3) so run-fleet.sh alerts.
-    if not products:
+    if not products and (registry_path or collection_dir):
         log(
             f"FATAL: {where} exists but parsed to ZERO products. "
             "This is a parser/registry-shape failure, not an empty catalog — the file would not "
@@ -287,6 +302,15 @@ def main() -> int:
     go_prefix = discover.detect_go_prefix(site_root)
     base_url = args.base_url or detect_base_url(site_root)
     tag = args.tag or detect_tag(site_root, registry_path)
+    if not tag:
+        # A tag of None makes every cloak's "is our tag on the outbound URL?"
+        # assertion pass vacuously — the check most directly tied to whether
+        # the site earns anything. Never let that be a silent condition.
+        log(
+            "WARNING: no Associates tag found (looked for AMAZON_TAG in "
+            "lib/affiliate.ts, data/affiliate.ts, and the registry) — cloak "
+            "checks cannot verify the outbound tag this run"
+        )
     channel = args.slack_channel or f"domain-{site_name.replace('.', '-')}"
     log(f"registry: {len(products)} products | go_prefix={go_prefix} | base_url={base_url} | tag={tag}")
 
@@ -440,6 +464,10 @@ def main() -> int:
                 res = cloak.check(
                     client, base_url, go_prefix, pid, expected_asin, tag,
                     expected_url=(p.url if p else None),
+                    # Lenient ONLY on a cloak-only run (nothing parsed at
+                    # all). On a site that does have a registry, an id missing
+                    # from it is a stale route worth flagging, as before.
+                    registry_known=(p is not None or bool(products)),
                 )
                 cloak_checked += 1
                 if res.retired:

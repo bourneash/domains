@@ -87,6 +87,7 @@ def check(
     expected_asin: str | None,
     expected_tag: str | None,
     expected_url: str | None = None,
+    registry_known: bool = True,
 ) -> CloakResult:
     """`expected_url` is the destination the registry itself declares.
 
@@ -158,6 +159,16 @@ def check(
             return CloakResult(
                 product_id, True, status, target,
                 "", retired=True,
+            )
+        # An id no registry declares (rc-9 routes `/go/` straight from its
+        # worker and has no registry file at all) gives us nothing to assert
+        # against: "not Amazon" is only a fault when something said it should
+        # be Amazon. The route resolving to a live external destination is
+        # everything we can honestly verify, so verify that and say so.
+        if not registry_known and re.match(r"https?://", target or ""):
+            return CloakResult(
+                product_id, True, status, target,
+                "unverified: no registry entry declares this id's destination",
             )
         return CloakResult(product_id, False, status, target, "redirect target is not an Amazon URL")
 
