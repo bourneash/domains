@@ -260,6 +260,15 @@ _REGISTRY_GLOBS = (
     # `with { type: 'json' }`), rather than a TS literal or a per-product
     # collection dir. `parse()` handles JSON text fine (see `_ID_RE`) — it
     # just needs to be found.
+    # A single JSON or TS array under `data/`, which is neither a hand-written
+    # `affiliate.ts` nor a one-file-per-product collection directory
+    # (seedstosauce keeps 67 products in data/products.json; shoppinkflamingo
+    # keeps 10 in data/products.ts). Both sites alerted as UNMONITORED nightly
+    # because the globs only ever looked for the word "affiliate".
+    "site/src/data/products.ts",
+    "site/src/data/products.json",
+    "site/src/data/catalog.json",
+    "site/src/lib/products.ts",
     "ops/affiliate/products.json",
     "ops/affiliate/*.json",
 )

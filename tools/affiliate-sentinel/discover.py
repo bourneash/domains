@@ -57,6 +57,44 @@ def _from_pages(site_root: Path, go_prefix: str) -> set[str]:
     return ids
 
 
+# A fourth source, added after weapontester.com: sites that deploy as a Worker
+# can route `/go/<id>` in the Worker itself, with `public/_redirects` left
+# deliberately empty (the static-assets binding would otherwise intercept and
+# serve stale targets before the worker runs). Neither of the file-based
+# sources sees those routes, so a 31-link site reported "0 cloaks OK" — the
+# green that means nothing was checked.
+_WORKER_ROUTE_RE = re.compile(
+    r"""['"]([a-z0-9][a-z0-9._-]*)['"]\s*:\s*(?:[A-Za-z_$][\w$]*\(|['"]https?://)"""
+)
+
+
+def _worker_files(site_root: Path, go_prefix: str) -> list[Path]:
+    """Worker sources that route the cloak prefix. Two layouts are in use:
+    `site/worker/` (weapontester) and `site/src/worker/` (trainingsharks)."""
+    prefix = go_prefix.strip("/")
+    found: list[Path] = []
+    for d in (site_root / "site" / "worker", site_root / "site" / "src" / "worker"):
+        if not d.is_dir():
+            continue
+        for f in sorted(d.rglob("*")):
+            if f.suffix not in {".js", ".ts", ".mjs"} or not f.is_file():
+                continue
+            if f"/{prefix}/" in f.read_text(encoding="utf-8", errors="replace"):
+                found.append(f)
+    return found
+
+
+def _from_worker(site_root: Path, go_prefix: str) -> set[str]:
+    ids: set[str] = set()
+    for f in _worker_files(site_root, go_prefix):
+        # Only worker files that actually route the cloak: any other id-keyed
+        # map (security headers, redirect tables) would otherwise donate ids
+        # for routes that do not exist.
+        text = f.read_text(encoding="utf-8", errors="replace")
+        ids |= {m.group(1) for m in _WORKER_ROUTE_RE.finditer(text)}
+    return ids
+
+
 def detect_go_prefix(site_root: Path) -> str:
     """Return the site's cloak prefix, defaulting to the fleet standard `/go/`.
 
@@ -92,6 +130,12 @@ def has_cloak(site_root: Path, go_prefix: str) -> bool:
     d = site_root / "site" / "src" / "pages" / go_prefix.strip("/")
     if d.is_dir() and any(d.iterdir()):
         return True
+    # A worker that routes the prefix counts even when it lists no ids of its
+    # own: trainingsharks builds its map straight from the registry
+    # (`new Map(PRODUCTS.map(...))`), so the registry IS the route list, and
+    # returning False here dropped all 7 of its live cloaks.
+    if _worker_files(site_root, go_prefix):
+        return True
     return False
 
 
@@ -102,12 +146,14 @@ def go_ids(site_root: Path, go_prefix: str, registry_ids: set[str]) -> tuple[set
 
     from_redirects = _from_redirects(site_root, go_prefix)
     from_pages = _from_pages(site_root, go_prefix)
+    from_worker = _from_worker(site_root, go_prefix)
     # Registry ids are routes only where a cloak actually exists.
     from_registry = set(registry_ids) if has_cloak(site_root, go_prefix) else set()
 
     for label, found in (
         ("_redirects", from_redirects),
         (f"src/pages{go_prefix}", from_pages),
+        ("worker", from_worker),
         ("affiliate.ts", from_registry),
     ):
         if found:

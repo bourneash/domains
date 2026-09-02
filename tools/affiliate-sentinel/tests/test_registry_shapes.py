@@ -133,3 +133,52 @@ export const PRODUCTS = [
     )
     assert registry.find_registry(site) == site / rel
     assert len(registry.parse_all(site, registry.find_registry(site))) == 2
+
+
+def test_json_array_registry_under_data(tmp_path: Path):
+    """seedstosauce: 67 products in `site/src/data/products.json`.
+
+    Not an `affiliate*.ts` and not a one-file-per-product directory, so both
+    discovery paths missed it and the site alerted as UNMONITORED nightly.
+    """
+    site = tmp_path / "seedstosauce.com"
+    _write(
+        site,
+        "site/src/data/products.json",
+        """[
+  {"id": "garlic-bulbs", "name": "Seed Garlic", "asin": "B0D3C243MT", "searchQuery": "hardneck seed garlic"},
+  {"id": "canning-jars", "name": "Canning Jars", "asin": "B0D3C243MU", "searchQuery": "wide mouth canning jars"}
+]
+""",
+    )
+    _write(site, "site/src/lib/affiliate.ts", "export const AMAZON_TAG = 'seedstosauce-20';\n")
+
+    products = registry.parse_all(site, registry.find_registry(site))
+    assert {p.id for p in products} == {"garlic-bulbs", "canning-jars"}
+    assert all(p.is_asin_backed for p in products)
+
+
+def test_ts_array_registry_under_data(tmp_path: Path):
+    """shoppinkflamingo: products in `data/products.ts`, keyed on `slug`."""
+    site = tmp_path / "shoppinkflamingo.com"
+    _write(
+        site,
+        "site/src/data/products.ts",
+        """
+export const categories = [
+  { slug: 'yard', name: 'Yard & Garden', icon: '✦', desc: 'Make the neighbors wonder.' },
+];
+export const products = [
+  { slug: 'classic-yard-flamingo', name: 'The Classic', image: '/a.webp', search: 'pink flamingo lawn ornament' },
+  { slug: 'flamingo-pool-float', name: 'Pool Float', image: '/b.webp', search: 'flamingo pool float giant' },
+];
+""",
+    )
+    products = {p.id: p for p in registry.parse_all(site, registry.find_registry(site))}
+    assert {p.id for p in products.values() if p.is_product} == {
+        "classic-yard-flamingo",
+        "flamingo-pool-float",
+    }
+    # A category is navigation, not a buy-link: it has an id and a name, and
+    # cloaking it would invent /go/yard.
+    assert not products["yard"].is_product
