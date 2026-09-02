@@ -22,6 +22,9 @@
 # usable interpreter, missing sentinel.py, an unhandled traceback) exits
 # non-zero so run-fleet.sh can count it and alert. Those two cases were
 # conflated before, which is how three days of import crashes read as green.
+# Exit 4 is neither: it means the run was fine but the Amazon API was down and
+# that was the only finding, so the site stayed quiet and run-fleet.sh reports
+# the whole fleet's outage in one line. run-fleet.sh treats 4 as checked.
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"

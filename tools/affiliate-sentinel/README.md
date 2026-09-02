@@ -114,8 +114,23 @@ python3 tools/affiliate-audit/run.py --site <domain>
 ```
 
 If the API is unavailable, the sentinel degrades rather than failing: it still
-runs the cloak check, still posts to Slack, reports `Amazon API unavailable`
-as a ⚠️, and never heals on missing data.
+runs the cloak check, still reports `Amazon API unavailable` with the number of
+ASINs left UNCHECKED, and never heals on missing data.
+
+Where that report lands depends on whether the site has any problem of its own.
+An account-wide outage (the standing PA-API 403 "account does not currently
+meet the eligibility requirements") is one fact, not one per site, and repeating
+it in 26 site channels every night is how a real alert gets tuned out. So when
+the outage is the **only** finding, the sentinel logs the line, skips the
+per-site post, and exits 4; `run-fleet.sh` then names every affected site, the
+total unchecked ASIN count, and the API's own reason in a single `⚠️` message to
+`domain-fleet-ops`. The moment a site has a finding of its own — a dead ASIN, a
+broken cloak — it is no longer outage-only and posts in its own channel again,
+UNCHECKED count included. `--post-api-outage` forces the per-site line back on.
+
+This does not reintroduce the silent-sentinel failure mode: the fleet digest
+fires every night the outage lasts, so a quiet ops channel still means the
+sweep itself is dead.
 
 ## Cadence
 
@@ -128,7 +143,8 @@ confirmation gate closes in 24 hours instead of two weeks.
 One line per run, always:
 
 - `✅` all clear
-- `⚠️` broken cloak, out of stock, or the API was unavailable
+- `⚠️` broken cloak, out of stock, or the API was unavailable alongside another finding
+  (an API outage on its own goes to `domain-fleet-ops` once for the whole fleet)
 - `🚨` a dead product that could not be auto-replaced — needs a human
 - `🔧` a dead product was auto-replaced and deployed
 

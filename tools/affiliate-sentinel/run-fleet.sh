@@ -56,20 +56,24 @@ if [[ -f "$DOMAINS_ROOT/.env" ]]; then
   set -a; . "$DOMAINS_ROOT/.env"; set +a
 fi
 
-# Post to the fleet ops channel. Used only for infrastructure failures — per-site
-# findings are already reported by the sentinel itself.
-alert_fleet() {
-  local msg="$1"
-  echo "[$(date -Iseconds)] ALERT: $msg" >>"${RUN_LOG:-/dev/stderr}"
+# Post to the fleet ops channel. Used for infrastructure failures and for the
+# one-line account-wide API outage digest — ordinary per-site findings are
+# reported by the sentinel itself, in the site's own channel.
+post_fleet() {
+  local emoji="$1" msg="$2"
+  echo "[$(date -Iseconds)] $emoji $msg" >>"${RUN_LOG:-/dev/stderr}"
   [[ -n "${SLACK_BOT_TOKEN:-}" ]] || return 0
   curl -sS -X POST https://slack.com/api/chat.postMessage \
     -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
     -H 'Content-type: application/json; charset=utf-8' \
     --data "$(printf '{"channel":"%s","text":%s}' \
       "${SLACK_CHANNEL_FLEET_OPS:-domain-fleet-ops}" \
-      "$(printf '%s' "🚨 affiliate-sentinel: $msg" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))' 2>/dev/null || echo '"affiliate-sentinel failure"')")" \
+      "$(printf '%s' "$emoji affiliate-sentinel: $msg" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))' 2>/dev/null || echo '"affiliate-sentinel failure"')")" \
     >/dev/null 2>&1 || true
 }
+
+alert_fleet() { post_fleet "🚨" "$1"; }
+warn_fleet()  { post_fleet "⚠️" "$1"; }
 
 STAMP="$(date +%Y-%m-%d)"
 RUN_LOG="$LOG_DIR/run-$STAMP.log"
@@ -84,6 +88,13 @@ fi
 echo "[$(date -Iseconds)] preflight OK — interpreter: $PY_RESOLVED" >>"$RUN_LOG"
 
 INFRA_FAILURES=()
+# Sites whose ONLY finding was the Amazon API being unavailable (sentinel exit
+# 4). They deliberately said nothing in their own channels; they are collapsed
+# into one fleet line below, because an account-wide outage is one fact and 26
+# identical nightly warnings is how a real signal gets tuned out.
+API_OUTAGE=()
+OUTAGE_ASINS=0
+OUTAGE_REASON=""
 CHECKED=0
 
 for site in "${SITES[@]}"; do
@@ -112,17 +123,43 @@ for site in "${SITES[@]}"; do
 
   case "$site_rc" in
     0) CHECKED=$((CHECKED + 1)) ;;
+    4)
+      CHECKED=$((CHECKED + 1))
+      API_OUTAGE+=("$site")
+      # The sentinel leaves today's ASIN count and the API's own reason here.
+      # The date guard matters: a marker left by an earlier run must never be
+      # counted as tonight's evidence.
+      MARK="$SITE_ROOT/ops/logs/.affiliate-sentinel-api-outage"
+      if [[ -f "$MARK" ]]; then
+        IFS=$'\t' read -r m_date m_asins m_reason <"$MARK" || true
+        if [[ "${m_date:-}" == "$STAMP" ]]; then
+          OUTAGE_ASINS=$((OUTAGE_ASINS + ${m_asins:-0}))
+          [[ -n "$OUTAGE_REASON" ]] || OUTAGE_REASON="${m_reason:-}"
+        fi
+      fi
+      ;;
     3) INFRA_FAILURES+=("$site (infrastructure)") ;;
     *) INFRA_FAILURES+=("$site (rc=$site_rc)") ;;
   esac
 done
+
+if [[ "${#API_OUTAGE[@]}" -gt 0 ]]; then
+  # Never claim a count the markers did not actually supply — "0 ASIN(s)
+  # UNCHECKED" reads as reassuring and would be exactly backwards.
+  if [[ "$OUTAGE_ASINS" -gt 0 ]]; then
+    SCOPE="${OUTAGE_ASINS} ASIN(s) across ${#API_OUTAGE[@]} site(s) UNCHECKED"
+  else
+    SCOPE="every ASIN on ${#API_OUTAGE[@]} site(s) UNCHECKED (count unavailable)"
+  fi
+  warn_fleet "Amazon API unavailable — ${SCOPE}${OUTAGE_REASON:+ ($OUTAGE_REASON)}. Cloak checks still ran and are clean; per-site alerts suppressed while this is account-wide. Sites: ${API_OUTAGE[*]}"
+fi
 
 if [[ "${#INFRA_FAILURES[@]}" -gt 0 ]]; then
   alert_fleet "$((${#INFRA_FAILURES[@]}))/$(( ${#SITES[@]} )) site(s) did not complete: ${INFRA_FAILURES[*]}. See $RUN_LOG"
 elif [[ "$CHECKED" -eq 0 ]]; then
   alert_fleet "sweep ran but checked 0 sites — every site was skipped or locked. See $RUN_LOG"
 fi
-echo "[$(date -Iseconds)] sweep complete: $CHECKED/${#SITES[@]} site(s) checked, ${#INFRA_FAILURES[@]} failure(s)" >>"$RUN_LOG"
+echo "[$(date -Iseconds)] sweep complete: $CHECKED/${#SITES[@]} site(s) checked, ${#INFRA_FAILURES[@]} failure(s), ${#API_OUTAGE[@]} api-outage" >>"$RUN_LOG"
 
 # Keep 30 days of host-side run logs.
 find "$LOG_DIR" -name 'run-*.log' -mtime +30 -delete 2>/dev/null

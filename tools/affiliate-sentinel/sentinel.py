@@ -24,8 +24,14 @@ and nothing to keep in sync.
 Usage:
     sentinel.py --site-root /work [--dry-run] [--no-heal] [--json]
 
-Exit codes: 0 always. A sentinel that fails a cron tick is a sentinel someone
-has to babysit; real problems are reported as Slack + task files.
+Exit codes:
+    0  ran, reported whatever it found in the site's own Slack channel.
+    3  INFRASTRUCTURE failure — nothing was checked (see run-fleet.sh).
+    4  ran, but the ONLY finding was the Amazon API being unavailable. The
+       per-site post is suppressed and run-fleet.sh reports every affected
+       site in one fleet-ops line instead. See the report section for why.
+A sentinel that fails a cron tick over a dead ASIN is a sentinel someone has to
+babysit; real findings surface as Slack + task files, not as an exit code.
 """
 from __future__ import annotations
 
@@ -48,6 +54,7 @@ import registry as registry_mod  # noqa: E402
 import state as state_mod  # noqa: E402
 
 DEFAULT_MODEL = "claude-sonnet-4-6"
+MAX_CLOAK_CHECKS = 200  # per run; larger catalogs rotate (see --max-cloak-checks)
 CONFIRM_RUNS = 2
 
 
@@ -97,7 +104,26 @@ def detect_base_url(site_root: Path) -> str | None:
     return None
 
 
-def detect_tag(registry_path: Path) -> str | None:
+def detect_tag(site_root: Path, registry_path: Path | None) -> str | None:
+    """Find the Associates tag, which does not always live with the products.
+
+    A split or collection-backed catalog carries only ids and search phrases;
+    the tag stays in `lib/affiliate.ts` next to the URL builder. Looking only
+    where the products are finds nothing, and every cloak is then checked
+    against a tag of `None` — which passes vacuously.
+    """
+    for path in (
+        site_root / "site" / "src" / "lib" / "affiliate.ts",
+        site_root / "site" / "src" / "data" / "affiliate.ts",
+        registry_path,
+    ):
+        tag = _tag_in(path) if path is not None else None
+        if tag:
+            return tag
+    return None
+
+
+def _tag_in(registry_path: Path) -> str | None:
     if not registry_path.is_file():
         return None
     text = registry_path.read_text(encoding="utf-8")
@@ -134,6 +160,22 @@ def file_task(site_root: Path, slug: str, task_type: str, title: str, body: str,
     return path
 
 
+def write_outage_marker(site_root: Path, today: str, n_asins: int, reason: str | None) -> None:
+    """Hand run-fleet.sh the numbers for its single fleet-wide outage line.
+
+    A file rather than stdout because the cron wrapper's output is already
+    redirected wholesale into the shared sweep log. It is always written OR
+    removed, never left behind: a marker from a past run would silently inflate
+    a later digest, which is the same class of lie as a stale green check.
+    """
+    path = site_root / "ops" / "logs" / ".affiliate-sentinel-api-outage"
+    if reason is None:
+        path.unlink(missing_ok=True)
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"{today}\t{n_asins}\t{reason}\n", encoding="utf-8")
+
+
 def git(args: list[str], cwd: Path) -> bool:
     r = subprocess.run(["git", *args], cwd=str(cwd), capture_output=True, text=True)
     return r.returncode == 0
@@ -148,9 +190,21 @@ def main() -> int:
     ap.add_argument("--tag", default=None, help="override; normally read from affiliate.ts")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--confirm-runs", type=int, default=CONFIRM_RUNS)
+    ap.add_argument(
+        "--max-cloak-checks",
+        type=int,
+        default=MAX_CLOAK_CHECKS,
+        help="cloak routes to probe per run (0 = all); larger catalogs rotate across runs",
+    )
     ap.add_argument("--dry-run", action="store_true", help="check and report; never write, heal, or deploy")
     ap.add_argument("--no-heal", action="store_true", help="file tasks instead of auto-replacing (zero AI)")
     ap.add_argument("--json", action="store_true", help="dump the full result object to stdout")
+    ap.add_argument(
+        "--post-api-outage",
+        action="store_true",
+        help="post the per-site Slack line even when an API outage is the only finding "
+             "(default: suppress it; run-fleet.sh digests the fleet in one message)",
+    )
     args = ap.parse_args()
 
     site_root = Path(args.site_root).resolve()
@@ -162,12 +216,23 @@ def main() -> int:
     log(f"=== affiliate-sentinel {site_name} (dry_run={args.dry_run} heal={not args.no_heal}) ===")
 
     registry_path = registry_mod.find_registry(site_root)
-    if registry_path is None:
+    collection_dir = registry_mod.find_collection(site_root)
+    if registry_path is None and collection_dir is None:
         log("no affiliate registry found anywhere under site/src — nothing to check")
         return 0
 
-    products = registry_mod.parse(registry_path)
-    log(f"registry: {registry_path.relative_to(site_root)}")
+    products = registry_mod.parse_all(site_root, registry_path)
+    # Name every file the products actually came from: a split catalog has no
+    # single registry path, and naming one of three files understates what was
+    # (or was not) checked.
+    where = ", ".join(
+        sorted({str(p.source.relative_to(site_root)) for p in products if p.source})
+    ) or ", ".join(
+        str(p.relative_to(site_root))
+        for p in (registry_path, collection_dir)
+        if p is not None
+    )
+    log(f"registry: {where}")
 
     # A registry file that exists but parses to nothing is a PARSER failure, not
     # a site with no products. It has happened twice for real: 0xroulette's
@@ -178,11 +243,12 @@ def main() -> int:
     # Treat it as an infrastructure failure (exit 3) so run-fleet.sh alerts.
     if not products:
         log(
-            f"FATAL: {registry_path.relative_to(site_root)} exists but parsed to ZERO products. "
+            f"FATAL: {where} exists but parsed to ZERO products. "
             "This is a parser/registry-shape failure, not an empty catalog — the file would not "
             "be here otherwise. Common causes: entries built by a .map()/computed expression "
             "(this parser is a static regex and cannot evaluate one), or a quoting/field-name "
-            "shape the parser does not recognise (see registry.py's alias lists). "
+            "shape the parser does not recognise (see registry.py's alias lists), or a "
+            "per-product content collection in a directory registry.py does not look in. "
             "NOT reporting green."
         )
         notify.post(
@@ -190,7 +256,7 @@ def main() -> int:
             channel=args.slack_channel or f"domain-{site_name.replace('.', '-')}",
             text=(
                 f"🚨 {site_name} affiliate sentinel: registry "
-                f"`{registry_path.relative_to(site_root)}` parsed to 0 products. "
+                f"`{where}` parsed to 0 products. "
                 "No cloaks or ASINs were checked. This site is currently UNMONITORED."
             ),
             color="danger",
@@ -198,7 +264,7 @@ def main() -> int:
         return 3
     go_prefix = discover.detect_go_prefix(site_root)
     base_url = args.base_url or detect_base_url(site_root)
-    tag = args.tag or detect_tag(registry_path)
+    tag = args.tag or detect_tag(site_root, registry_path)
     channel = args.slack_channel or f"domain-{site_name.replace('.', '-')}"
     log(f"registry: {len(products)} products | go_prefix={go_prefix} | base_url={base_url} | tag={tag}")
 
@@ -291,7 +357,7 @@ def main() -> int:
                         heals.append(
                             heal_mod.heal_product(
                                 site_root=site_root,
-                                registry_path=registry_path,
+                                registry_path=p.source or registry_path,
                                 product=p,
                                 dead_asin=p.asin,
                                 cl=cl,
@@ -304,7 +370,7 @@ def main() -> int:
                         if heals[-1].healed:
                             state_mod.clear(st, f"dead:{p.id}")
                             # Re-parse: offsets shift after every applied edit.
-                            products = registry_mod.parse(registry_path)
+                            products = registry_mod.parse_all(site_root, registry_path)
                             by_id = {q.id: q for q in products}
                     if len(actionable_dead) > heal_mod.MAX_HEALS_PER_RUN:
                         log(
@@ -325,9 +391,24 @@ def main() -> int:
     cloak_retired: list[cloak.CloakResult] = []
     cloak_checked = 0
     site_gated: str | None = None
-    if base_url and ids:
+    check_ids = sorted(ids)
+    # Content-collection sites carry hundreds to thousands of cloak routes, and
+    # probing every one every night is a needless self-DDoS for no extra
+    # signal — cloak breakage is near-always systemic (a bad route, a gated
+    # site), not one link in isolation. Probe a bounded window and rotate the
+    # starting point in state so full coverage still happens, just across runs.
+    if args.max_cloak_checks and len(check_ids) > args.max_cloak_checks:
+        offset = int(st.get("cloak_cursor", 0)) % len(check_ids)
+        rotated = check_ids[offset:] + check_ids[:offset]
+        check_ids = rotated[: args.max_cloak_checks]
+        st["cloak_cursor"] = (offset + args.max_cloak_checks) % len(ids)
+        log(
+            f"cloak: {len(ids)} routes exceed --max-cloak-checks="
+            f"{args.max_cloak_checks}; checking window from offset {offset}"
+        )
+    if base_url and check_ids:
         with cloak.make_client() as client:
-            for pid in sorted(ids):
+            for pid in check_ids:
                 p = by_id.get(pid)
                 expected_asin = p.asin if p else None
                 # A product we are about to replace will legitimately still
@@ -438,7 +519,11 @@ def main() -> int:
 
         healed_any = any(r.healed for r in heals)
         if healed_any:
-            changed.append(registry_path)
+            # Heals land in the registry file, in per-product JSON files, or
+            # both, depending on the site's shape.
+            changed.extend(
+                sorted({r.edited_path for r in heals if r.healed and r.edited_path})
+            )
             git(["add", "-A", "site/public"], site_root)
 
         if changed:
@@ -514,7 +599,34 @@ def main() -> int:
 
     text = "\n".join(lines)
     log(text)
-    if not args.dry_run:
+
+    # A standing account-wide API outage is ONE fact, not 26 of them. When it is
+    # the only thing wrong, saying so in every site channel every night trains
+    # everyone to scroll past the sentinel — which costs more than the outage.
+    # So: suppress the per-site line, exit 4, and let run-fleet.sh name every
+    # affected site in a single fleet-ops message.
+    #
+    # This does not reintroduce silence. That digest fires every night the
+    # outage lasts, so a quiet fleet channel still means the sweep itself is
+    # dead; and the instant a site has any finding of its OWN — a dead ASIN, a
+    # broken cloak — it is no longer outage-only and speaks in its own channel
+    # again, with the UNCHECKED count included.
+    api_outage_only = bool(api_error) and not (
+        healed or unhealed or actionable_dead or cloak_failures or actionable_oos or site_gated
+    )
+    # Written on a dry run too: it is diagnostics that live beside the log file
+    # a dry run already writes, and skipping it made --dry-run sweeps report a
+    # dishonest "0 ASIN(s) UNCHECKED" digest.
+    write_outage_marker(
+        site_root, today, len(asin_products), api_error if api_outage_only else None
+    )
+    suppressed = api_outage_only and not args.post_api_outage
+    if suppressed:
+        log(
+            "per-site Slack suppressed: an API outage is the only finding — "
+            "reported once fleet-wide instead (exit 4)"
+        )
+    if not args.dry_run and not suppressed:
         notify.post(site_root, channel, text, color)
 
     if args.json:
@@ -530,9 +642,10 @@ def main() -> int:
             "unhealed": [r.__dict__ for r in unhealed],
             "api_error": api_error,
             "verdict": verdict,
+            "api_outage_only": api_outage_only,
         }, indent=2, default=str))
 
-    return 0
+    return 4 if suppressed else 0
 
 
 if __name__ == "__main__":

@@ -170,3 +170,40 @@ class TestApiOutageIsNotAPass:
             "a bare status code cannot distinguish an eligibility revocation "
             "from a bad key"
         )
+
+
+class TestApiOutageDigest:
+    """An account-wide outage is ONE fact. It used to be 26 nightly ⚠️s, one per
+    site channel — the reliable way to teach everyone to ignore the sentinel.
+    Now it is suppressed per-site and digested once to fleet ops. The guards
+    below exist because the obvious "fix" (just don't post) would recreate the
+    silent-sentinel outage this whole tool was hardened against."""
+
+    def test_outage_only_is_narrow(self):
+        src = (TOOL / "sentinel.py").read_text()
+        idx = src.index("api_outage_only = ")
+        window = src[idx : idx + 400]
+        # Any finding of the site's own must keep it talking in its own channel.
+        for other in ("healed", "unhealed", "actionable_dead", "cloak_failures",
+                      "actionable_oos", "site_gated"):
+            assert other in window, f"{other} must disqualify outage-only silence"
+
+    def test_suppressed_run_still_signals_via_exit_code(self):
+        src = (TOOL / "sentinel.py").read_text()
+        assert "return 4 if suppressed else 0" in src, (
+            "silence in the site channel is only safe if the sweep is told"
+        )
+
+    def test_fleet_digest_replaces_the_per_site_noise(self):
+        src = (TOOL / "run-fleet.sh").read_text()
+        assert "API_OUTAGE" in src and "warn_fleet" in src
+        assert "4)" in src, "exit 4 must be its own case, not an infra failure"
+        assert "ASIN(s) across" in src, "the digest must name the blast radius"
+
+    def test_stale_marker_cannot_inflate_a_later_digest(self):
+        src = (TOOL / "run-fleet.sh").read_text()
+        assert '"${m_date:-}" == "$STAMP"' in src, "marker must be date-guarded"
+        sentinel = (TOOL / "sentinel.py").read_text()
+        assert "path.unlink(missing_ok=True)" in sentinel, (
+            "a marker must be removed when the outage clears"
+        )
