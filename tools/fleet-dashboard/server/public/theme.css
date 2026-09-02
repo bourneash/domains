@@ -59,6 +59,11 @@
   --radius-sm: 9px;
 
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  /* Native controls (select popups, date pickers, spinners) are painted by the
+     UA, not by our CSS. Without this they render on a light base — and since
+     <option> inherits our near-white text, the list came out light-on-light. */
+  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -272,11 +277,22 @@ select, input, textarea, .cm-input {
   border-radius: 9px; color: var(--text);
   transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
 }
+/* A <select>'s popup list is painted with the control's own background, so a
+   translucent one composites against white. Selects get an OPAQUE surface, and
+   the options are given explicit colours for the UAs that don't inherit. */
+select, select.cm-input { background-color: var(--panel-2); }
+option, optgroup {
+  background-color: #171c28;
+  color: var(--text);
+}
+option:checked, option:hover { background-color: #22293a; color: var(--text-hi); }
+
 select:hover, input:hover, textarea:hover { border-color: rgba(255,255,255,.16); }
 select:focus, input:focus, textarea:focus, .cm-input:focus {
   border-color: rgba(94,169,255,.6); background: rgba(94,169,255,.06);
   box-shadow: 0 0 0 3px rgba(94,169,255,.13);
 }
+select:focus, select.cm-input:focus { background-color: #1b2231; }
 ::placeholder { color: var(--faint); }
 
 /* --------------------------------------------------------------- surface -- */
