@@ -469,6 +469,7 @@ sites:
     capabilities:
     - site
     - ops
+    - smoke
     - tasks
     - analytics
     analytics:
