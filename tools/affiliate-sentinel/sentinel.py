@@ -599,7 +599,31 @@ def main() -> int:
     unhealed = [r for r in heals if not r.healed]
     ok_count = sum(1 for h in health.values() if h.status == amz.OK)
 
-    if healed:
+    # A run that checked NOTHING is the last shape that could still look green:
+    # zero cloaks probed and zero ASIN verdicts obtained means every assertion
+    # this tool makes was vacuous. It outranks the API-outage digest — an
+    # outage on a site with cloaks still verifies the cloaks, but here nothing
+    # was verified at all, so the site must say so in its own channel.
+    nothing_checked = cloak_checked == 0 and not health
+
+    if nothing_checked:
+        emoji, color = notify.DEAD
+        why = []
+        if not base_url:
+            why.append("no base_url could be detected")
+        elif not ids:
+            why.append(f"no {go_prefix} routes were discovered")
+        if not asin_products:
+            why.append("the registry declares no ASINs")
+        elif api_error:
+            why.append(f"the Amazon API is unavailable ({api_error})")
+        verdict = (
+            f"checked NOTHING — 0 cloaks and 0 ASINs verified across "
+            f"{len(products)} registry entr{'y' if len(products) == 1 else 'ies'}"
+            + (f" ({'; '.join(why)})" if why else "")
+            + ". This site is effectively UNMONITORED"
+        )
+    elif healed:
         emoji, color = notify.HEALED
         verdict = f"{len(healed)} dead product(s) auto-replaced and deployed"
     elif unhealed or actionable_dead:
@@ -662,7 +686,8 @@ def main() -> int:
     # broken cloak — it is no longer outage-only and speaks in its own channel
     # again, with the UNCHECKED count included.
     api_outage_only = bool(api_error) and not (
-        healed or unhealed or actionable_dead or cloak_failures or actionable_oos or site_gated
+        healed or unhealed or actionable_dead or cloak_failures or actionable_oos
+        or site_gated or nothing_checked
     )
     # Written on a dry run too: it is diagnostics that live beside the log file
     # a dry run already writes, and skipping it made --dry-run sweeps report a
@@ -693,8 +718,13 @@ def main() -> int:
             "api_error": api_error,
             "verdict": verdict,
             "api_outage_only": api_outage_only,
+            "nothing_checked": nothing_checked,
         }, indent=2, default=str))
 
+    if nothing_checked:
+        # Exit 5, not 0: run-fleet.sh counts it as a site that did not really
+        # complete, so a vacuous run can never be part of a clean sweep line.
+        return 5
     return 4 if suppressed else 0
 
 

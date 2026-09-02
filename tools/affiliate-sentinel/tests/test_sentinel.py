@@ -657,6 +657,39 @@ def test_tag_detection_ignores_lookalike_strings():
               sentinel._tag_in(odd) == "other-20")
 
 
+def test_a_run_that_checks_nothing_exits_5():
+    """The last shape that could still look green.
+
+    A site whose registry parses but has no ASINs and no `/go/` routes probes
+    nothing and verifies nothing, and used to exit 0 into a clean sweep line.
+    """
+    print("sentinel: vacuous run")
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d) / "example.com"
+        (root / "ops").mkdir(parents=True)
+        lib = root / "site" / "src" / "lib"
+        lib.mkdir(parents=True)
+        (lib / "affiliate.ts").write_text(
+            "export const AMAZON_TAG = 'example-20';\n"
+            "export const PRODUCTS = [\n"
+            "  { id: 'alpha', name: 'Alpha', searchQuery: 'alpha thing' },\n"
+            "];\n"
+        )
+        argv = sys.argv
+        sys.argv = ["sentinel.py", "--site-root", str(root), "--dry-run", "--no-heal"]
+        try:
+            rc = sentinel.main()
+        finally:
+            sys.argv = argv
+        check("exits 5, not 0", rc == 5, f"got {rc}")
+
+        log = (root / "ops" / "logs").glob("affiliate-sentinel-*.log")
+        text = "\n".join(f.read_text() for f in log)
+        check("says it checked nothing", "checked NOTHING" in text)
+        check("names the site as unmonitored", "UNMONITORED" in text)
+        check("says why", "no /go/ routes were discovered" in text)
+
+
 def main() -> int:
     for fn in (
         test_registry_parse,
@@ -675,6 +708,7 @@ def main() -> int:
         test_discover_unions_sources,
         test_cloak_classification,
         test_state_streaks,
+        test_a_run_that_checks_nothing_exits_5,
         test_redirects_rewrite_is_precise,
         test_heal_validation_and_revert,
     ):

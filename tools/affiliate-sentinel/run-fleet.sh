@@ -28,7 +28,8 @@
 #      sentinel's. It was structurally incapable of logging a failure.
 #   2. Nothing aggregated or alerted on per-site failures anyway.
 # Now: rc is captured on its own line before anything else runs, infrastructure
-# failures (exit 3) are counted separately from findings, and any of them raises
+# failures (exit 3) and vacuous runs (exit 5 — the sentinel completed but
+# verified nothing) are counted separately from findings, and any of them raises
 # a Slack alert. Still exits 0 so one bad site cannot abort the fleet sweep.
 set -uo pipefail
 
@@ -139,6 +140,10 @@ for site in "${SITES[@]}"; do
       fi
       ;;
     3) INFRA_FAILURES+=("$site (infrastructure)") ;;
+    # The sentinel ran fine and verified nothing: 0 cloaks probed, 0 ASIN
+    # verdicts. That used to be indistinguishable from a clean sweep, which is
+    # how a site goes unmonitored for weeks while the fleet line says all-green.
+    5) INFRA_FAILURES+=("$site (checked nothing — 0 cloaks, 0 ASINs)") ;;
     *) INFRA_FAILURES+=("$site (rc=$site_rc)") ;;
   esac
 done
