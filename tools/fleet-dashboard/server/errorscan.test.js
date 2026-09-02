@@ -118,3 +118,91 @@ test('an active alert emits one recovery transition and persists across restart'
   errorscan._resetForTest();
   assert.equal(errorscan._claimAlert(root, container, [], now + 3).shouldResolve, false);
 });
+
+test('alert signature strips per-run noise but keeps the failing command distinct', () => {
+  const line1 =
+    'time="2026-08-30T20:06:01-04:00" level=error msg="error running command: exit status 18" ' +
+    'iteration=196 job.command="bash ops/scripts/run-worker.sh engineer" job.position=1 job.schedule="6,36 * * * *"';
+  const line2 =
+    'time="2026-08-30T22:36:00-04:00" level=error msg="error running command: exit status 18" ' +
+    'iteration=200 job.command="bash ops/scripts/run-worker.sh engineer" job.position=1 job.schedule="6,36 * * * *"';
+  const line3 =
+    'time="2026-08-30T21:52:00-04:00" level=error msg="error running command: exit status 18" ' +
+    'iteration=195 job.command="bash ops/scripts/run-worker.sh scrape" job.position=13 job.schedule="14,44 * * * *"';
+  const decisionFor = line => ({ label: 'repeated ERROR', trigger: { line } });
+  assert.equal(errorscan._alertSignature(decisionFor(line1)), errorscan._alertSignature(decisionFor(line2)));
+  assert.notEqual(errorscan._alertSignature(decisionFor(line1)), errorscan._alertSignature(decisionFor(line3)));
+});
+
+test('correlation collapses a fleet-wide signature into one notify and one all-clear', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-correlate-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const decision = { label: 'repeated ERROR', trigger: { line: 'shared root cause' } };
+  const sig = errorscan._alertSignature(decision);
+
+  const a = errorscan._noteCorrelation(root, sig, decision, 'site-a-cron', now);
+  const b = errorscan._noteCorrelation(root, sig, decision, 'site-b-cron', now + 1);
+  const c = errorscan._noteCorrelation(root, sig, decision, 'site-c-cron', now + 60_000);
+
+  assert.equal(a.count, 1);
+  assert.equal(a.justNotified, false);
+  assert.equal(b.justNotified, false);
+  assert.equal(c.count, 3);
+  assert.equal(c.justNotified, true, 'the 3rd distinct site should cross the threshold');
+
+  // A 4th site joining after notification folds in silently (no re-notify).
+  const d = errorscan._noteCorrelation(root, sig, decision, 'site-d-cron', now + 120_000);
+  assert.equal(d.justNotified, false);
+
+  // Sites resolve one at a time; the incident only clears once ALL are gone.
+  const resolveA = errorscan._resolveCorrelation(root, 'site-a-cron', now + 200_000);
+  assert.equal(resolveA.inIncident, true);
+  assert.equal(resolveA.wasNotified, true);
+  assert.equal(resolveA.incidentCleared, false, 'b, c, d still open');
+
+  errorscan._resolveCorrelation(root, 'site-b-cron', now + 200_001);
+  errorscan._resolveCorrelation(root, 'site-c-cron', now + 200_002);
+  const resolveD = errorscan._resolveCorrelation(root, 'site-d-cron', now + 200_003);
+  assert.equal(resolveD.incidentCleared, true, 'last site resolving clears the incident');
+
+  // Correlation state persists across a process restart.
+  errorscan._resetForTest();
+  const notInIncident = errorscan._resolveCorrelation(root, 'site-a-cron', now + 300_000);
+  assert.equal(notInIncident.inIncident, false, 'incident was already cleared and persisted as such');
+});
+
+test('below-threshold correlation resolves quietly with no fleet notify', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-correlate-below-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const decision = { label: 'repeated ERROR', trigger: { line: 'isolated failure' } };
+  const sig = errorscan._alertSignature(decision);
+
+  errorscan._noteCorrelation(root, sig, decision, 'site-a-cron', now);
+  const only = errorscan._noteCorrelation(root, sig, decision, 'site-b-cron', now + 1);
+  assert.equal(only.count, 2);
+  assert.equal(only.justNotified, false, 'never crossed CORRELATE_MIN_SITES');
+
+  const resolved = errorscan._resolveCorrelation(root, 'site-a-cron', now + 2);
+  assert.equal(resolved.wasNotified, false, 'caller should fall back to a normal per-site recovery post');
+});
+
+test('stale correlations are pruned so an incident cannot live forever without an all-clear', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-correlate-stale-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const decision = { label: 'repeated ERROR', trigger: { line: 'stuck incident' } };
+  const sig = errorscan._alertSignature(decision);
+  errorscan._noteCorrelation(root, sig, decision, 'site-a-cron', now);
+
+  errorscan._pruneStaleCorrelations(root, now + 25 * 60 * 60 * 1000);
+  const after = errorscan._resolveCorrelation(root, 'site-a-cron', now + 25 * 60 * 60 * 1000 + 1);
+  assert.equal(after.inIncident, false, 'stale incident should have been dropped');
+});
