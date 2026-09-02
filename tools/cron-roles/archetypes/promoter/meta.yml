@@ -19,12 +19,15 @@ schedule: "MM 8 * * 2,5"          # Tue/Fri, twice-weekly, light cadence.
 # americastrikes update) that merely happened to run in the same window.
 #
 # Promoter runs on a 5-minute grid offset by 3 (:03 :08 :13 :23 :28 :33 :38
-# :43 :48 :53 :58 in hour 8, then the same in hour 9), which dodges the
+# :43 :48 :53 :58 in hour 8, then the same in hour 9, extending into hour 10
+# when the fleet needs more slots), which dodges the
 # minutes the fleet stagger map already reserves for scraper/breaking/deployer
 # (:00 :05 :15 :30 :35 :45) and watchdog (:02 :17 :32 :47). 8:18 belongs to
 # oventoheaven.com. Grep the fleet for the free ones before stamping:
 #   grep -h "run-worker.sh promoter" sites/*/ops/docker/crontab.docker
 # See the "Promoter" section of the fleet cron stagger map.
+# The fleet now has 26 promoter installs; always check for duplicate slots
+# before adding or repairing one, including schedules in hour 10 and later.
 model: claude-sonnet-4-6
 owns_task_types: [promo]
 produces_task_types: [engineering]   # e.g. notices a dead link on the live site mid-write

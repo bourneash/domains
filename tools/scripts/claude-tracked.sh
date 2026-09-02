@@ -212,16 +212,16 @@ PYEOF
 # copy of it.
 #
 # flock(2) on the bind-mounted lock file works across containers because they
-# share the host inode. Every failure path here is fail-OPEN: no lock file, no
-# flock binary, a timeout, anything -- we log and run unlocked, because a
-# missing mutex costs an occasional retry while a hard failure here would take
-# the whole fleet's AI work offline.
+# share the host inode. Lock failures are fail-CLOSED by default. Running
+# unlocked after a missing mount, missing flock binary, or queue timeout would
+# silently recreate the refresh-token race this mutex exists to prevent. The
+# explicit `none` value remains available for controlled diagnostics/tests.
 CLAUDE_AUTH_LOCK="${CLAUDE_AUTH_LOCK:-$HOME/.claude/.credentials.lock}"
 # Window/wait are sized against each other on purpose. The auth handshake is one
 # HTTPS round trip at process start -- the 2026-09-01 failures all died 2.0-2.6s
 # in -- so 12s is generous cover. The wait must then exceed (worst realistic
-# burst - 1) * window, or the tail of a burst times out, fails open, and races
-# exactly as before: 22 co-firing sites * 12s = 252s, comfortably inside 600s.
+# burst - 1) * window, or the tail of a burst times out. The default wait is
+# sized for the former 22-site burst: 22 * 12s = 264s, inside 600s.
 # Raise the wait, not the window, if a role set ever grows past ~50 sites.
 CLAUDE_AUTH_LOCK_WAIT="${CLAUDE_AUTH_LOCK_WAIT:-600}"    # seconds to queue behind others
 CLAUDE_AUTH_WINDOW="${CLAUDE_AUTH_WINDOW:-12}"           # seconds to hold past process start
@@ -240,11 +240,25 @@ run_claude_locked() {
     fi
   fi
 
+  if [[ "${CLAUDE_AUTH_LOCK}" != "none" && -z "$lockfd" ]]; then
+    if [[ "${CLAUDE_AUTH_LOCK_FAIL_OPEN:-0}" == "1" ]]; then
+      echo "claude-tracked.sh: auth mutex unavailable — proceeding unlocked by explicit override (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    else
+      echo "claude-tracked.sh: auth mutex unavailable — refusing to start Claude (lock=$CLAUDE_AUTH_LOCK, CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+      return 75
+    fi
+  fi
+
   if [[ -n "$lockfd" ]]; then
     if ! flock -w "$CLAUDE_AUTH_LOCK_WAIT" -x "$lockfd" 2>/dev/null; then
-      echo "claude-tracked.sh: auth mutex timed out after ${CLAUDE_AUTH_LOCK_WAIT}s — proceeding unlocked (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
       exec {lockfd}>&-
       lockfd=""
+      if [[ "${CLAUDE_AUTH_LOCK_FAIL_OPEN:-0}" == "1" ]]; then
+        echo "claude-tracked.sh: auth mutex timed out after ${CLAUDE_AUTH_LOCK_WAIT}s — proceeding unlocked by explicit override (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+      else
+        echo "claude-tracked.sh: auth mutex timed out after ${CLAUDE_AUTH_LOCK_WAIT}s — refusing to start Claude (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+        return 75
+      fi
     fi
   fi
 
