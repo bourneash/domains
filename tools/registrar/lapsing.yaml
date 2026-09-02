@@ -1,0 +1,12 @@
+# Domains deliberately left to expire — not a renewal decision pending, a
+# renewal decision already made. Listed here so the daily Slack alert stops
+# nagging about them; they still show up in the table/JSON with an explicit
+# "lapsing (intentional)" note instead of silently vanishing.
+#
+# Add an entry when you decide a domain should NOT renew. Remove it if the
+# decision changes (or once the domain is gone and Cloudflare stops listing
+# it, at which point it drops out of the collector output on its own).
+
+domains:
+  securityplaces.com: { since: "2026-09-02", note: "meant to lapse" }
+  sexvendor.com:       { since: "2026-09-02", note: "meant to lapse" }

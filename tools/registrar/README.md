@@ -53,3 +53,10 @@ cannot see is exactly the one that bites.
 
 Domains in the fleet registry that Cloudflare does not hold are listed
 separately rather than assumed fine — they may be registered elsewhere.
+
+## Domains meant to lapse
+
+`lapsing.yaml` lists domains where "let it expire" IS the decision — not one
+still pending. Listing a domain there stops the daily Slack nag for it; the
+table/JSON still show it, flagged `lapsing (intentional)` instead of just
+going quiet, so it stays visible without paging anyone.

@@ -50,6 +50,7 @@ TOOL_DIR = Path(__file__).resolve().parent
 ROOT = TOOL_DIR.parent.parent
 CACHE = TOOL_DIR / "cache"
 REGISTRY = ROOT / "registry" / "fleet.yaml"
+LAPSING = TOOL_DIR / "lapsing.yaml"
 API = "https://api.cloudflare.com/client/v4"
 
 # Renewal windows. 90 days is the "start thinking about it" horizon for a
@@ -104,6 +105,29 @@ def registry_domains() -> dict[str, str]:
         s = raw.strip()
         if current and s.startswith("status:"):
             out[current] = s.split(":", 1)[1].strip()
+    return out
+
+
+def lapsing_domains() -> set[str]:
+    """Domains deliberately left to expire — see lapsing.yaml. Narrow reader,
+    same rationale as registry_domains(): no PyYAML dependency for a two-level
+    map of `domain: { since, note }`."""
+    out: set[str] = set()
+    if not LAPSING.exists():
+        return out
+    in_domains = False
+    for raw in LAPSING.read_text(encoding="utf-8").splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        if raw.startswith("domains:"):
+            in_domains = True
+            continue
+        if not in_domains:
+            continue
+        if raw.startswith("  ") and not raw.startswith("    "):
+            name = raw.strip().split(":", 1)[0].strip()
+            if name:
+                out.add(name)
     return out
 
 
@@ -172,6 +196,7 @@ def days_until(iso: str | None) -> int | None:
 def build(account: str, token: str) -> dict:
     raw, claimed = fetch_registrar(account, token)
     reg = registry_domains()
+    lapsing = lapsing_domains()
 
     rows = []
     by_name = {}
@@ -192,7 +217,12 @@ def build(account: str, token: str) -> dict:
         # An expiry inside the window is only a problem if nothing renews it
         # automatically. Say which of the two situations this is, rather than
         # colouring every upcoming date red and training people to ignore it.
-        if row["days_to_renewal"] is None:
+        if name in lapsing:
+            # A decision already made, not one pending — don't alert on it,
+            # but say so rather than making the domain look clean.
+            row["attention"] = None
+            row["lapsing"] = True
+        elif row["days_to_renewal"] is None:
             row["attention"] = "no expiry date returned"
         elif not row["auto_renew"] and row["days_to_renewal"] <= WARN_DAYS:
             row["attention"] = "auto-renew OFF and renewal due"
@@ -200,6 +230,7 @@ def build(account: str, token: str) -> dict:
             row["attention"] = "expires soon, auto-renew OFF"
         else:
             row["attention"] = None
+        row.setdefault("lapsing", False)
         rows.append(row)
         by_name[name] = row
 
@@ -249,7 +280,7 @@ def table(p: dict, days: int | None) -> None:
         exp = (r["expires_at"] or "")[:10] or "-"
         dd = "-" if r["days_to_renewal"] is None else f"{r['days_to_renewal']}d"
         auto = "yes" if r["auto_renew"] else "NO"
-        flag = r["attention"] or (r["registry_status"] or "not in registry")
+        flag = r["attention"] or ("lapsing (intentional)" if r["lapsing"] else (r["registry_status"] or "not in registry"))
         print(f"{r['domain']:<28} {exp:<12} {dd:>6}  {auto:<4}  {flag}")
     print("-" * 72)
     print(
