@@ -324,7 +324,14 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
+    analytics:
+      ga4_property_id: '552518971'
+      ga4_measurement_id: G-WL70TCXZ0G
+      gsc_property: sc-domain:eastcoastrappers.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
   elevatorfriends.com:
@@ -452,6 +459,7 @@ sites:
     - smoke
     - tasks
     - analytics
+    - social
     analytics:
       ga4_property_id: '552451383'
       ga4_measurement_id: G-QZW41GM4CY
@@ -461,6 +469,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   infrainnovator.com:
     status: scaffold
     repo: bourneash/infrainnovator.com
@@ -486,7 +495,7 @@ sites:
     - analytics
     analytics:
       ga4_property_id: '552468567'
-      ga4_measurement_id: null
+      ga4_measurement_id: G-CMYJXJCHPZ
       gsc_property: sc-domain:marineactivity.com
       consent_gated: true
     registered_in:
@@ -779,7 +788,14 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
+    analytics:
+      ga4_property_id: '552507950'
+      ga4_measurement_id: G-71Y5MH51ER
+      gsc_property: sc-domain:shoppinkflamingo.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
   shoptopless.com:

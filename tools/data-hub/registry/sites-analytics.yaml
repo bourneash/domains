@@ -47,10 +47,30 @@ sites:
     ga4_measurement_id: G-LXCYBEFKC1
     gsc_property: sc-domain:deeppenetrations.com
     consent_gated: true
+  eastcoastrappers.com:
+    ga4_property_id: '552518971'
+    ga4_measurement_id: G-WL70TCXZ0G
+    gsc_property: sc-domain:eastcoastrappers.com
+    consent_gated: true
   fishhooklabs.com:
     ga4_property_id: '549997086'
     ga4_measurement_id: G-381S20FDFZ
     gsc_property: sc-domain:fishhooklabs.com
+    consent_gated: true
+  greatamericanlakes.com:
+    ga4_property_id: '552472191'
+    ga4_measurement_id: G-5SNBLYR02W
+    gsc_property: sc-domain:greatamericanlakes.com
+    consent_gated: true
+  howfishthink.com:
+    ga4_property_id: '552451383'
+    ga4_measurement_id: G-QZW41GM4CY
+    gsc_property: sc-domain:howfishthink.com
+    consent_gated: true
+  marineactivity.com:
+    ga4_property_id: '552468567'
+    ga4_measurement_id: G-CMYJXJCHPZ
+    gsc_property: sc-domain:marineactivity.com
     consent_gated: true
   newmomshop.com:
     ga4_property_id: '548108194'
@@ -86,6 +106,16 @@ sites:
     ga4_property_id: '542493246'
     ga4_measurement_id: G-GDYX2GPMMJ
     gsc_property: sc-domain:saveusfarms.com
+    consent_gated: true
+  seedstosauce.com:
+    ga4_property_id: '552472503'
+    ga4_measurement_id: G-WXXZM2REG4
+    gsc_property: sc-domain:seedstosauce.com
+    consent_gated: true
+  shoppinkflamingo.com:
+    ga4_property_id: '552507950'
+    ga4_measurement_id: G-71Y5MH51ER
+    gsc_property: sc-domain:shoppinkflamingo.com
     consent_gated: true
   shoptopless.com:
     ga4_property_id: '539755746'

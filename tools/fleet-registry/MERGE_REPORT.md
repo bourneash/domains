@@ -11,16 +11,16 @@ provenance only; absence there is a choice, not drift.
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
 | `site-tracker/sites.yml` | fleet-wide | 56/57 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 33/57 | arttogogh.com, eastcoastrappers.com, girlpain.com, shoppinkflamingo.com |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 35/57 | arttogogh.com, girlpain.com |
 | `DOMAINS_INDEX.md` | fleet-wide | 57/57 | — |
-| `social registry` | fleet-wide | 26/57 | 3boobs.com, arttogogh.com, deeppenetrations.com, eastcoastrappers.com, girlpain.com, greatamericanlakes.com, howfishthink.com, seedstosauce.com, shoppinkflamingo.com, stinkyleftfoot.com |
+| `social registry` | fleet-wide | 27/57 | 3boobs.com, arttogogh.com, deeppenetrations.com, eastcoastrappers.com, girlpain.com, greatamericanlakes.com, seedstosauce.com, shoppinkflamingo.com, stinkyleftfoot.com |
 | `data-hub/subscriptions.yaml` | opt-in | 7/57 | n/a |
 | `product-feed/subscriptions.yaml` | opt-in | 2/57 | n/a |
 
 ## Gaps on live sites
 
 - No `ops/smoke.yaml` (invisible to fleet-gatus): —
-- No Slack channel env: greatamericanlakes.com, howfishthink.com, seedstosauce.com
+- No Slack channel env: —
 - No worker name in wrangler config: 0xroulette.com, trainingsharks.com
 
 ## Stale DOMAINS_INDEX buckets
