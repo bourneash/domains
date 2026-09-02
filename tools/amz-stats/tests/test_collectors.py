@@ -343,7 +343,14 @@ def test_build_summary_with_oos_and_unknown():
     assert summary["totals"]["unknown_count"] == 1
 
 
-def test_build_summary_with_delisted():
+def test_build_summary_with_api_errors():
+    """An ASIN whose API call FAILED is unchecked, not delisted.
+
+    This test previously asserted the opposite. That assertion encoded the bug:
+    on 2026-07-30 a transient PA-API 403 put all 412 ASINs into `errors` and the
+    run reported "delisted=412" — an Amazon hiccup rendered as a catalog-wide
+    product wipe. A failed call carries no information about the product.
+    """
     asins_by_site = {
         "site-a.com": ["B001AAAAAA", "B002BBBBBB"],
     }
@@ -353,9 +360,11 @@ def test_build_summary_with_delisted():
     )
     summary = build_summary(asins_by_site, catalog)
 
-    assert summary["per_site"]["site-a.com"]["delisted_count"] == 1
+    assert summary["per_site"]["site-a.com"]["unchecked_count"] == 1
+    assert summary["per_site"]["site-a.com"]["delisted_count"] == 0
     assert summary["per_site"]["site-a.com"]["asin_count"] == 2
-    assert summary["totals"]["delisted_count"] == 1
+    assert summary["totals"]["unchecked_count"] == 1
+    assert summary["totals"]["delisted_count"] == 0
     assert summary["totals"]["error_count"] == 1
 
 

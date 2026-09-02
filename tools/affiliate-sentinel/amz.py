@@ -182,18 +182,36 @@ def check_health(cl, asins: list[str], batch_size: int = 10) -> dict[str, AsinHe
         batch = ordered[i : i + batch_size]
         if i:
             time.sleep(1.0)  # same inter-batch pacing amz-stats needed to stop 429s
-        try:
-            resp = cl.get_items(batch, resources=HEALTH_RESOURCES)
-        except AMZError as exc:
+        # 429 AND 403 get one retry with backoff. PA-API returns
+        # "Your account does not currently meet the eligibility requirements"
+        # TRANSIENTLY: on 2026-09-01 the same credentials and partner tag
+        # succeeded at 06:17 (691 ASINs, zero errors) and returned 403 for every
+        # call at 18:26. Treating it as a standing verdict is what made a whole
+        # fleet run look unverifiable — and, in amz-stats, made 412 live products
+        # read as delisted.
+        resp = None
+        last_exc = None
+        for attempt in (0, 1):
+            try:
+                resp = cl.get_items(batch, resources=HEALTH_RESOURCES)
+                break
+            except AMZError as exc:
+                last_exc = exc
+                if attempt == 0 and getattr(exc, "status", None) in (429, 403):
+                    time.sleep(5.0)
+                    continue
+                break
+
+        if resp is None:
             # Keep the API's own words. "API error 403" alone is unactionable —
-            # a 403 for an eligibility revocation and a 403 for a bad key need
-            # completely different responses, and the caller cannot tell them
-            # apart from the status code.
-            detail = str(exc).strip().replace("\n", " ")
+            # a 403 for a revoked account and a 403 for a bad key need completely
+            # different responses, and the status code cannot tell them apart.
+            detail = str(last_exc).strip().replace("\n", " ")
             if len(detail) > 220:
                 detail = detail[:220].rstrip() + "…"
+            status = getattr(last_exc, "status", "?")
             for a in batch:
-                out[a] = AsinHealth(a, ERROR, note=f"API error {exc.status}: {detail}")
+                out[a] = AsinHealth(a, ERROR, note=f"API error {status}: {detail}")
             continue
 
         items = (resp.get("itemsResult") or {}).get("items") or []

@@ -146,21 +146,25 @@ def collect_catalog(
         try:
             response = client.get_items(batch)
         except AMZError as exc:
-            if exc.status == 429:
-                # Client already retried internally; back off harder and try this
-                # batch once more before giving up on it.
-                log.warning("collect_catalog: batch %d rate-limited, backing off %.1fs and retrying",
-                            batch_count, batch_delay * 5)
+            # 403 is retried alongside 429. PA-API returns
+            # "Your account does not currently meet the eligibility requirements"
+            # transiently — observed succeeding and failing within the same hour
+            # on the same credentials and partner tag (2026-09-01), and it took
+            # out a whole run on 2026-07-30. Treating it as a permanent verdict
+            # was what turned an Amazon hiccup into "412 products delisted".
+            if exc.status in (429, 403):
+                log.warning("collect_catalog: batch %d got %s, backing off %.1fs and retrying",
+                            batch_count, exc.status, batch_delay * 5)
                 time.sleep(batch_delay * 5)
                 try:
                     response = client.get_items(batch)
                 except AMZError as exc2:
-                    log.error("collect_catalog: batch %d failed after retry (%s); marking %d ASINs as errors",
+                    log.error("collect_catalog: batch %d failed after retry (%s); recording %d ASINs as UNCHECKED",
                               batch_count, exc2, len(batch))
                     errors.extend(batch)
                     continue
             else:
-                log.error("collect_catalog: batch %d failed (%s); marking %d ASINs as errors",
+                log.error("collect_catalog: batch %d failed (%s); recording %d ASINs as UNCHECKED",
                           batch_count, exc, len(batch))
                 errors.extend(batch)
                 continue
@@ -207,13 +211,19 @@ def build_summary(
                 "unique_asin_count": int,
                 "oos_count": int,
                 "delisted_count": int,
+                "unchecked_count": int,
                 "unknown_count": int,
                 "missing_count": int,
                 "error_count": int,
             },
         }
 
-    - delisted: ASIN appears in ``asins_by_site`` values AND in ``catalog["errors"]``
+    - unchecked: ASIN appears in ``asins_by_site`` values AND in ``catalog["errors"]``
+      — the API call FAILED for it. This is not a product verdict and must never
+      be reported as a delisting: on 2026-07-30 a transient PA-API 403 made all
+      412 ASINs in the catalog read as delisted.
+    - delisted: reserved for a genuine, API-confirmed removal. Nothing sets it
+      from transport errors any more.
     - oos: availability == "OOS"
     - unknown: availability == "UNKNOWN"
     - missing: ASIN appears in ``asins_by_site`` values but in neither ``catalog["asins"]`` nor ``catalog["errors"]``
@@ -226,6 +236,7 @@ def build_summary(
     total_asin_count = 0    # sum of per-site counts (double-counts shared ASINs)
     total_oos = 0
     total_delisted = 0
+    total_unchecked = 0
     total_unknown = 0
     total_missing = 0
     all_unique: set[str] = set()
@@ -233,13 +244,15 @@ def build_summary(
     for site, site_asins in asins_by_site.items():
         oos_count = 0
         delisted_count = 0
+        unchecked_count = 0
         unknown_count = 0
         missing_count = 0
 
         for asin in site_asins:
             all_unique.add(asin)
             if asin in error_set:
-                delisted_count += 1
+                # The call failed — we know nothing about this ASIN.
+                unchecked_count += 1
             elif asin in catalog_items:
                 avail = catalog_items[asin].get("availability")
                 if avail == "OOS":
@@ -253,6 +266,7 @@ def build_summary(
             "asin_count": len(site_asins),
             "oos_count": oos_count,
             "delisted_count": delisted_count,
+            "unchecked_count": unchecked_count,
             "unknown_count": unknown_count,
             "missing_count": missing_count,
             "asins": list(site_asins),
@@ -261,6 +275,7 @@ def build_summary(
         total_asin_count += len(site_asins)
         total_oos += oos_count
         total_delisted += delisted_count
+        total_unchecked += unchecked_count
         total_unknown += unknown_count
         total_missing += missing_count
 
@@ -272,6 +287,7 @@ def build_summary(
             "unique_asin_count": len(all_unique),
             "oos_count": total_oos,
             "delisted_count": total_delisted,
+            "unchecked_count": total_unchecked,
             "unknown_count": total_unknown,
             "missing_count": total_missing,
             "error_count": len(error_set),

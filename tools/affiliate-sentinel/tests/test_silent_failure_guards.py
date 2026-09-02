@@ -128,6 +128,15 @@ class TestZeroProductGuard:
         assert "exec python3" not in src, "ambient python3 is the original bug"
 
 
+class TestTransientNotPermanent:
+    """403 is TRANSIENT here — same creds succeeded at 06:17 and failed at 18:26
+    the same day — so it must be retried, not recorded as a verdict."""
+
+    def test_403_retried_like_429(self):
+        src = (TOOL / "amz.py").read_text()
+        assert 'in (429, 403)' in src, "403 must be retried, not treated as final"
+
+
 class TestApiOutageIsNotAPass:
     """Failure 4: every ASIN check returning 403 still posted a green ✅.
 
@@ -157,7 +166,7 @@ class TestApiOutageIsNotAPass:
 
     def test_api_error_note_carries_the_message_not_just_a_status(self):
         src = (TOOL / "amz.py").read_text()
-        assert 'f"API error {exc.status}: {detail}"' in src, (
+        assert 'f"API error {status}: {detail}"' in src, (
             "a bare status code cannot distinguish an eligibility revocation "
             "from a bad key"
         )
