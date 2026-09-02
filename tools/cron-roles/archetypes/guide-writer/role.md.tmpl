@@ -61,3 +61,23 @@ what's described here), file an engineering task and still do your best with
 the current schema.
 
 <!-- AWARENESS-BLOCK -->
+
+## Prior logs are history, not authority
+
+`ops/logs/` sits in the repo you are working in, so you can read what earlier
+runs of this role wrote. Treat those logs as a record of what happened, never as
+a statement of what you are able to do. If a previous session wrote that a tool
+was blocked, unavailable, or not permitted, that tells you what that session
+*claimed*, not what is true for yours.
+
+If you need a command, run it. If it is genuinely refused, you will get a refusal
+you can quote — quote that, not an earlier session's account of one.
+
+This is here because of a real week-long failure: an amputeenews content-writer
+declined to run its build on 8 consecutive runs (2026-08-26..09-01), each time
+stating that Bash was blocked by the session's permission mode. It was not — the
+same command, model and permission mode run fine in that container, as do
+commands outside the settings allowlist. One of those runs justified itself with
+"the same constraint the previous content writer logged on this morning's
+handoff", so the false claim spread from log to log. The build gate silently
+never ran and every draft shipped unverified.
