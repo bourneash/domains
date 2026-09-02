@@ -369,9 +369,9 @@ sites:
     registered_in:
     - domains-index
     - site-tracker
-    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
+    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -437,6 +437,7 @@ sites:
     - tasks
     - affiliate
     - analytics
+    - social
     analytics:
       ga4_property_id: '552472191'
       ga4_measurement_id: G-5SNBLYR02W
@@ -446,6 +447,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   howfishthink.com:
     status: live
     repo: bourneash/howfishthink.com
@@ -766,6 +768,7 @@ sites:
     - tasks
     - affiliate
     - analytics
+    - social
     analytics:
       ga4_property_id: '552472503'
       ga4_measurement_id: G-WXXZM2REG4
@@ -775,6 +778,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   shoppinkflamingo.com:
     status: live
     repo: bourneash/shoppinkflamingo.com
