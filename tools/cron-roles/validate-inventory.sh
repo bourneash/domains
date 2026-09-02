@@ -42,37 +42,50 @@ for site in "${sites[@]}"; do
   errors=()    # broken instructions — a role is told to talk to something absent
   warns=()     # inert but untidy — a body nothing ever runs
 
-  # 1. Every role a body names must exist, be script-only, or be explicitly
-  #    described as absent/disabled. "Names a role" is deliberately narrow:
-  #    the vocabulary of real role names (the archetype library plus whatever
-  #    is installed) plus any assigned_role: value. Matching every backticked
-  #    token instead flags task types, field names and Slack channels — noise
-  #    that would get this check ignored, which is how the drift survived.
+  # 1. Two different signals, two different severities.
+  #
+  #    ERROR: a literal `assigned_role: <absent-role>` in a task template. This
+  #    is what a model actually copies, so it produces real, silently-dropped
+  #    handoffs regardless of what the surrounding prose says.
+  #
+  #    WARN: a prose mention of an absent role with no disclaimer near it.
+  #
+  #    An earlier version treated prose mentions as errors with a LINE-based
+  #    negation check, and flagged three sites whose bodies plainly said "this
+  #    site has no `engineer` role" — because the disclaimer sat on the previous
+  #    line. Negation is now checked over a window, and prose alone never fails.
   known=" $(ls "$ROOT/tools/cron-roles/archetypes" 2>/dev/null | tr '\n' ' ') $present "
 
   for f in "$ROLES_DIR"/*.md; do
     [[ -f "$f" ]] || continue
     self="$(basename "$f" .md)"
-    refs="$(
-      {
-        grep -ohE '`[a-z][a-z0-9-]{2,}`' "$f" | tr -d '`'
-        grep -ohE 'assigned_role: *`?[a-z][a-z0-9-]+`?' "$f" | sed -E 's/.*assigned_role: *`?//; s/`//'
-      } | sort -u
-    )"
+
+    # -- ERROR: literal assigned_role: pointing at a role that is not installed
     while IFS= read -r referenced; do
       [[ -n "$referenced" ]] || continue
-      [[ "$referenced" == "$self" ]] && continue
-      [[ "$referenced" == "human-triage" ]] && continue
-      # Only consider tokens that are actually role names somewhere in the fleet.
+      [[ "$referenced" == "human-triage" || "$referenced" == "$self" ]] && continue
+      [[ "$present" == *" $referenced "* ]] && continue
+      [[ "$SCRIPT_ONLY" == *" $referenced "* ]] && continue
+      errors+=("$self.md has a task template with 'assigned_role: $referenced' — not installed here, so that work is dropped")
+    done < <(grep -ohE '^ *assigned_role: *`?[a-z][a-z0-9-]+' "$f" \
+             | sed -E 's/.*assigned_role: *`?//' | sort -u)
+
+    # -- WARN: prose naming an absent role with no disclaimer within 3 lines
+    while IFS= read -r referenced; do
+      [[ -n "$referenced" ]] || continue
+      [[ "$referenced" == "$self" || "$referenced" == "human-triage" ]] && continue
       [[ "$known" == *" $referenced "* ]] || continue
       [[ "$present" == *" $referenced "* ]] && continue
       [[ "$SCRIPT_ONLY" == *" $referenced "* ]] && continue
-      # Allowed when every mention marks it absent, disabled, or not installed.
-      if grep -hE "\`$referenced\`|assigned_role: *\`?$referenced" "$f" \
-         | grep -qviE 'no |not |never |absent|disabled|does not exist|human-triage|there is'; then
-        errors+=("$self.md references \`$referenced\` which is not installed here")
+      if ! grep -nE "\`$referenced\`" "$f" \
+         | cut -d: -f1 \
+         | while read -r ln; do
+             sed -n "$((ln>3?ln-3:1)),$((ln+3))p" "$f" \
+               | grep -qiE 'no |not |never |absent|disabled|does not exist|human-triage|there is|retired' && echo ok
+           done | grep -q ok; then
+        warns+=("$self.md mentions \`$referenced\` (not installed) with no nearby disclaimer")
       fi
-    done <<< "$refs"
+    done < <(grep -ohE '`[a-z][a-z0-9-]{2,}`' "$f" | tr -d '`' | sort -u)
   done
 
   # 2. Every installed role with a body must be scheduled, or explicitly
