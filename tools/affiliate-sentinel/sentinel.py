@@ -502,6 +502,33 @@ def main() -> int:
     elif not base_url:
         log("no base_url detected — skipping cloak check")
 
+    # ---- Check 2b: registry <-> _redirects static drift --------------------
+    # The live cloak check above only covers ids it actually probed this run
+    # (no base_url, an access-gated site, or the --max-cloak-checks rotation
+    # window all leave some ids unprobed). `products.json`/`affiliate.ts` and
+    # `_redirects` are two hand-maintained copies of the same ASIN, and a
+    # manual edit to one without the other drifts silently — that's how
+    # broadwayshowgirls' theatre-off-book-tshirt cloak pointed at a retired
+    # ASIN for weeks. This is a local file read, not a network call, so it
+    # runs unconditionally and covers every id the live check didn't reach.
+    redirects_path = site_root / "site" / "public" / "_redirects"
+    if redirects_path.is_file():
+        redirects_text = redirects_path.read_text(encoding="utf-8", errors="replace")
+        live_checked = set(check_ids) if base_url else set()
+        for pid in sorted(ids - live_checked):
+            p = by_id.get(pid)
+            if not p or not p.asin:
+                continue
+            if any(h.product_id == pid and h.healed for h in heals):
+                continue
+            res = cloak.check_static(redirects_text, go_prefix, pid, p.asin, tag)
+            if res is None:
+                continue
+            cloak_checked += 1
+            if not res.ok:
+                cloak_failures.append(res)
+                log(f"cloak FAIL (static, unreached by live check) {pid}: {res.reason}")
+
     # ---- Write state, file tasks, commit -----------------------------------
     changed: list[Path] = []
     if not args.dry_run:

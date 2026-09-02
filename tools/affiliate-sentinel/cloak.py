@@ -201,3 +201,47 @@ def check(
 
 def make_client(timeout: float = 20.0) -> httpx.Client:
     return httpx.Client(headers={"User-Agent": _UA}, timeout=timeout, follow_redirects=False)
+
+
+_GO_LINE_RE_TMPL = r"^{prefix}/{id}/?\s+(\S+)"
+
+
+def check_static(redirects_text: str, go_prefix: str, product_id: str,
+                  expected_asin: str | None, expected_tag: str | None) -> CloakResult | None:
+    """Compare a product's registry ASIN against its own `_redirects` line —
+    no network, no deploy required.
+
+    This is the same assertion `check()` makes against the LIVE site, done
+    against the file on disk instead. It exists because the two are separate,
+    hand-editable copies of the same fact (broadwayshowgirls' `products.json`
+    and `_redirects` drifted for weeks after a manual dead-ASIN fix touched
+    only one of them) and the live check alone only catches that drift once a
+    site is reachable, undeployed changes are already live, and this run's
+    cloak-check window happens to cover the id. A local, always-run pass
+    catches it the same day it's introduced, on every fleet site uniformly,
+    with zero per-site plumbing.
+
+    Returns None when there's nothing to compare: no `_redirects` file (the
+    generated-interstitial sites resolve straight from the registry, so
+    there is no second copy to drift), or no line for this id (handled by
+    `discover.py`'s stale/missing-route checks instead).
+    """
+    if not redirects_text or not expected_asin:
+        return None
+    prefix = re.escape(go_prefix.rstrip("/"))
+    m = re.search(_GO_LINE_RE_TMPL.format(prefix=prefix, id=re.escape(product_id)), redirects_text, re.M)
+    if not m:
+        return None
+    target = m.group(1)
+    if expected_tag and f"tag={expected_tag}" not in target:
+        return CloakResult(
+            product_id, False, None, target,
+            f"_redirects entry is missing the affiliate tag ({expected_tag}) — earns no commission",
+        )
+    if f"/dp/{expected_asin}" not in target and "/s?k=" not in target:
+        return CloakResult(
+            product_id, False, None, target,
+            f"_redirects entry does not carry the current registry ASIN {expected_asin} "
+            f"— registry and _redirects have drifted apart",
+        )
+    return CloakResult(product_id, True, None, target, "")
