@@ -45,6 +45,9 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                     "FAKE_CLAUDE_CALLS": str(calls),
                     "FAKE_CLAUDE_PAYLOAD": json.dumps(payload),
                     "CLAUDE_TRACKED_RETRY_DELAY_SECONDS": "0",
+                    # These tests exercise result classification only. Never
+                    # contend on the developer's real shared auth mutex.
+                    "CLAUDE_AUTH_LOCK": "none",
                 }
             )
             result = subprocess.run(
@@ -84,6 +87,24 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                 "subtype": "success",
                 "is_error": True,
                 "result": "Failed to authenticate. API Error: 401 OAuth access token has expired.",
+                "num_turns": 1,
+                "total_cost_usd": 0,
+                "usage": {},
+                "modelUsage": {},
+            }
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(calls, "x")
+        self.assertIn("shared Claude credentials are expired", result.stderr)
+        self.assertEqual(record["failure_class"], "authentication_failed")
+
+    def test_revoked_authentication_failure_is_explained_and_not_retried(self):
+        result, calls, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "success",
+                "is_error": True,
+                "result": "Failed to authenticate. API Error: 401 OAuth access token has been revoked.",
                 "num_turns": 1,
                 "total_cost_usd": 0,
                 "usage": {},

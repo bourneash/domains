@@ -32,6 +32,12 @@ LOG="${AUTH_CHECK_LOG:-$DOMAINS_ROOT/tools/scripts/check-claude-auth.log}"
 LOCK="${AUTH_CHECK_LOCK:-$DOMAINS_ROOT/tools/scripts/check-claude-auth.lock}"
 STATE="${AUTH_CHECK_STATE:-$DOMAINS_ROOT/tools/scripts/.check-claude-auth-state}"
 TIMEOUT_SEC="${AUTH_CHECK_TIMEOUT:-30}"
+# The probe is another Claude CLI process using the same rotating OAuth
+# credential as every site worker. It must join claude-tracked.sh's startup
+# mutex or the health check itself can race a worker refresh and revoke the
+# shared token family.
+AUTH_LOCK="${AUTH_CHECK_LOCK_FILE:-${HOME}/.claude/.credentials.lock}"
+AUTH_LOCK_WAIT="${AUTH_CHECK_LOCK_WAIT:-600}"
 # Cron's PATH is minimal and does NOT include ~/.local/bin (where the CLI
 # actually lives) — resolve explicitly rather than relying on `claude` being
 # found bare, which fails with exit 127 "no such file" and would otherwise
@@ -83,8 +89,12 @@ print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3],
 ACCOUNT_FAIL_PATTERNS=(
   'Not logged in'
   'Please run /login'
+  'Failed to authenticate'
   'OAuth session expired'
+  'OAuth access token has expired'
+  'OAuth access token has been revoked'
   'could not be refreshed'
+  'refresh token.*revoked'
   'authentication_error'
   'invalid.*api.?key'
   'out of (extra )?usage'
@@ -99,8 +109,28 @@ matches_account_failure() {
   return 1
 }
 
+OUTPUT=""
+EXIT_CODE=0
+AUTH_LOCK_FD=""
+if [[ -r "$AUTH_LOCK" ]] && command -v flock >/dev/null 2>&1; then
+  # Read-only access is sufficient for flock and is required because
+  # fleet-cron mounts ~/.claude read-only. Do not probe unlocked: that would
+  # recreate the refresh-token race this check is meant to detect.
+  exec {AUTH_LOCK_FD}<"$AUTH_LOCK"
+  if ! flock -w "$AUTH_LOCK_WAIT" -x "$AUTH_LOCK_FD" 2>/dev/null; then
+    log "SKIP — shared Claude auth mutex timed out after ${AUTH_LOCK_WAIT}s"
+    exec {AUTH_LOCK_FD}<&-
+    exit 0
+  fi
+else
+  log "SKIP — shared Claude auth mutex unavailable at $AUTH_LOCK"
+  exit 0
+fi
+
 OUTPUT="$(timeout "$TIMEOUT_SEC" "$CLAUDE_BIN" -p "Reply with exactly one word: OK" --model claude-haiku-4-5-20251001 --dangerously-skip-permissions 2>&1)"
 EXIT_CODE=$?
+flock -u "$AUTH_LOCK_FD" 2>/dev/null || true
+exec {AUTH_LOCK_FD}<&-
 
 # Redirect stderr before opening the optional state file; otherwise bash emits
 # a noisy "No such file" on the very first run before `2>/dev/null` applies.
