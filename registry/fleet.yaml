@@ -421,9 +421,11 @@ sites:
     repo: bourneash/greatamericanlakes.com
     worker: greatamericanlakes-com
     cf_zone: greatamericanlakes.com
+    slack_channel_env: SLACK_CHANNEL_GREATAMERICANLAKES
     capabilities:
     - site
     - ops
+    - cron
     - smoke
     - tasks
     - affiliate
@@ -442,9 +444,11 @@ sites:
     repo: bourneash/howfishthink.com
     worker: howfishthink-com
     cf_zone: howfishthink.com
+    slack_channel_env: SLACK_CHANNEL_HOWFISHTHINK
     capabilities:
     - site
     - ops
+    - cron
     - smoke
     - tasks
     - analytics
@@ -744,9 +748,11 @@ sites:
     repo: bourneash/seedstosauce.com
     worker: seedstosauce-com
     cf_zone: seedstosauce.com
+    slack_channel_env: SLACK_CHANNEL_SEEDSTOSAUCE
     capabilities:
     - site
     - ops
+    - cron
     - smoke
     - tasks
     - affiliate
