@@ -10,8 +10,9 @@ Checks (severity):
   2. >=1 VPN exit reported by /health ......................... CRITICAL (both) / WARNING (one)
   3. VPN INTEGRITY — the load-bearing one:
        DIRECT_IP  = our real public egress (no proxy)
-       VPN_IP     = egress THROUGH vpn-us:8888
-     VPN_IP must be non-empty AND != DIRECT_IP ................. CRITICAL if equal (tunnel bypassed)
+       VPN_IP     = egress THROUGH each configured VPN exit
+     At least one VPN exit must be usable; every usable exit must differ from
+     DIRECT_IP ................................................. CRITICAL if none usable or any bypasses
      This discovers the home IP dynamically every run, so it does not depend on
      the broker's static DEFAULT_HOME_IPS list (which drifts).
   4. EGRESS LEAK — no recorded image-fetch exit_ip == DIRECT_IP  CRITICAL if any
@@ -71,6 +72,30 @@ def _echo_ip(proxy=None):
     return None
 
 
+def _vpn_integrity_findings(direct_ip, vpn):
+    """Check all exits and return findings for the independent egress check."""
+    vpn_ips = {}
+    for node, proxy in (("us", PROXY_US), ("eu", PROXY_EU)):
+        if proxy:
+            vpn_ips[node] = _echo_ip(proxy=proxy)
+    usable_vpn_ips = {node: ip for node, ip in vpn_ips.items() if ip}
+    findings = []
+    if direct_ip is None and not usable_vpn_ips:
+        findings.append((WARNING, "IP-echo services unreachable — could not verify VPN egress this run"))
+    elif not usable_vpn_ips:
+        findings.append((CRITICAL, f"VPN egress dead: proxied lookup failed while direct works (home IP {direct_ip}) — fetches would leak or fail"))
+    elif direct_ip is None:
+        findings.append((WARNING, f"could not determine home IP (direct lookup failed); VPN exits: {', '.join(usable_vpn_ips.values())}"))
+
+    for node, vpn_ip in usable_vpn_ips.items():
+        if direct_ip is not None and vpn_ip == direct_ip:
+            findings.append((CRITICAL, f"VPN BYPASS/LEAK: proxied {node} egress == direct egress ({vpn_ip}) — traffic is NOT going through the VPN"))
+        # consistency: broker's probe should agree with our independent lookup
+        if vpn.get(node) and vpn_ip != vpn.get(node):
+            findings.append((WARNING, f"VPN IP mismatch: monitor sees {vpn_ip} via vpn-{node}, broker /health reports {vpn.get(node)}"))
+    return findings
+
+
 def run_checks():
     findings = []  # (severity, message)
 
@@ -98,20 +123,12 @@ def run_checks():
         down = [k for k, v in vpn.items() if not v]
         add(WARNING, f"VPN exit(s) down: {', '.join(down)} (still have {', '.join(up)})")
 
-    # 3. VPN INTEGRITY — dynamic leak check independent of the broker
+    # 3. VPN INTEGRITY — dynamic leak check independent of the broker. Probe
+    # every exit so a healthy EU fallback does not get escalated to CRITICAL
+    # merely because the US exit is the one currently down.
     direct_ip = _echo_ip(proxy=None)
-    vpn_ip = _echo_ip(proxy=PROXY_US)
-    if direct_ip is None and vpn_ip is None:
-        add(WARNING, "IP-echo services unreachable — could not verify VPN egress this run")
-    elif vpn_ip is None:
-        add(CRITICAL, f"VPN egress dead: proxied lookup failed while direct works (home IP {direct_ip}) — fetches would leak or fail")
-    elif direct_ip is not None and vpn_ip == direct_ip:
-        add(CRITICAL, f"VPN BYPASS/LEAK: proxied egress == direct egress ({vpn_ip}) — traffic is NOT going through the VPN")
-    elif direct_ip is None:
-        add(WARNING, f"could not determine home IP (direct lookup failed); VPN exit is {vpn_ip}")
-    # consistency: broker's probe should agree with our independent proxied lookup
-    if vpn_ip and vpn.get("us") and vpn_ip != vpn.get("us"):
-        add(WARNING, f"VPN IP mismatch: monitor sees {vpn_ip} via vpn-us, broker /health reports {vpn.get('us')}")
+    for severity, message in _vpn_integrity_findings(direct_ip, vpn):
+        add(severity, message)
 
     # 4. EGRESS LEAK — did any actual image fetch exit via the home IP?
     try:
