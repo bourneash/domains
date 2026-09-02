@@ -27,6 +27,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import yaml
+
 # A TS string value in either quote style, allowing escaped quotes.
 # Both are in active use across the fleet — 0xroulette's registry is entirely
 # double-quoted, and a single-quote-only pattern silently parsed it as ZERO
@@ -90,6 +92,13 @@ class Product:
     # file this entry IS. TS-literal entries leave it None and are addressed by
     # (start, end) inside their `source` file instead.
     data: dict | None = None
+    # The actual key `self.asin` was read from in `data` (e.g. shoptopless's
+    # `amazonAsin`). `apply_updates` always receives a healed value under the
+    # literal key "asin" — without this, writing it back would look for an
+    # "asin" key that isn't there, `if key in data` would be False, and a
+    # heal would silently no-op: the dead ASIN stays live on the page while
+    # the run reports success.
+    asin_key: str | None = None
     # The TS file this literal lives in. A registry can be split across
     # several files (fishhooklabs' catalog is terminal/platform/field), so the
     # file to edit is a property of the product, not of the run.
@@ -329,6 +338,64 @@ _COLLECTION_GLOBS = (
     "site/src/data/products",
 )
 
+# shoptopless.com's shape: same one-file-per-product collection, but each file
+# is markdown with YAML frontmatter (Astro's other native content-collection
+# format) instead of JSON. `amazonAsin` and `hero` are the fleet-specific
+# aliases this site uses; see tools/affiliate-link-check/check_links.py's
+# `parse_products_frontmatter_dir`, which already had to solve this same shape
+# for the same site.
+_MD_FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n?", re.DOTALL)
+_MD_ASIN_KEYS = ("amazonAsin", "asin")
+_MD_IMAGE_KEYS = ("hero", *_IMAGE_KEYS)
+
+
+def _product_from_markdown(path: Path) -> Product | None:
+    raw = path.read_text(encoding="utf-8", errors="ignore")
+    m = _MD_FRONTMATTER_RE.match(raw)
+    if not m:
+        return None
+    try:
+        data = yaml.safe_load(m.group(1))
+    except yaml.YAMLError:
+        return None
+    if not isinstance(data, dict):
+        return None
+
+    def pick(keys: tuple[str, ...]) -> str | None:
+        for k in keys:
+            v = data.get(k)
+            if isinstance(v, str) and v:
+                return v
+        return None
+
+    asin_key = next((k for k in _MD_ASIN_KEYS if isinstance(data.get(k), str) and data[k]), None)
+    asin = data.get(asin_key) if asin_key else None
+    url = pick(("url",))
+    if not asin and url:
+        m_dp = _DP_RE.search(url)
+        if m_dp:
+            asin = m_dp.group(1)
+            asin_key = None  # recovered from `url`, not a dedicated field
+
+    return Product(
+        id=path.stem,
+        # Same as a JSON collection entry: the whole file is the span, and
+        # `data` (not this text) is what edits are made against.
+        start=0,
+        end=len(raw),
+        text=raw,
+        asin=asin,
+        name=pick(_NAME_KEYS),
+        brand=pick(("brand",)),
+        category=pick(("category",)),
+        search_query=pick(_QUERY_KEYS),
+        image=pick(_MD_IMAGE_KEYS),
+        url=url,
+        source=path,
+        data=data,
+        asin_key=asin_key,
+    )
+
 
 def _product_from_json(path: Path) -> Product | None:
     try:
@@ -350,6 +417,10 @@ def _product_from_json(path: Path) -> Product | None:
     url = pick(("url",))
     combo = pick(("searchOrAsin",))
     asin = pick(("asin",))
+    # Only a literal `asin` key is writable by `apply_updates`; an ASIN
+    # recovered from `searchOrAsin` or a `/dp/` URL below has no dedicated
+    # field to heal into, so `asin_key` stays unset for those.
+    asin_key = "asin" if asin else None
     if not asin and combo and _ASIN_RE.match(combo):
         asin = combo
     if not asin and url:
@@ -376,20 +447,23 @@ def _product_from_json(path: Path) -> Product | None:
         url=url,
         source=path,
         data=data,
+        asin_key=asin_key,
     )
 
 
 def find_collection(site_root: Path) -> Path | None:
-    """The per-product JSON collection directory, if this site uses one."""
+    """The per-product JSON or markdown-frontmatter collection directory, if
+    this site uses one."""
     for rel in _COLLECTION_GLOBS:
         d = site_root / rel
-        if d.is_dir() and any(d.glob("*.json")):
+        if d.is_dir() and (any(d.glob("*.json")) or any(d.glob("*.md"))):
             return d
     return None
 
 
 def parse_collection(collection_dir: Path) -> list[Product]:
     products = [_product_from_json(f) for f in sorted(collection_dir.glob("*.json"))]
+    products += [_product_from_markdown(f) for f in sorted(collection_dir.glob("*.md"))]
     return [p for p in products if p is not None]
 
 
@@ -559,8 +633,20 @@ def apply_updates(registry_path: Path, product: Product, updates: dict) -> str:
     if product.data is not None:
         data = dict(product.data)
         for key, value in updates.items():
+            key = _resolve_key(product, key)
             if key in data:
                 data[key] = value
+        if target.suffix == ".md":
+            # A frontmatter entry's body (prose below the `---` fence) has no
+            # equivalent in `data` — re-serialising just the YAML and keeping
+            # the original body byte-for-byte is what keeps this surgical, the
+            # same guarantee the TS path gets from never re-emitting the file.
+            m = _MD_FRONTMATTER_RE.match(text)
+            body = text[m.end() :] if m else ""
+            frontmatter = yaml.safe_dump(
+                data, default_flow_style=False, sort_keys=False, allow_unicode=True
+            )
+            return f"---\n{frontmatter}---\n{body}"
         trailing = "\n" if text.endswith("\n") else ""
         return json.dumps(data, indent=2, ensure_ascii=False) + trailing
 
@@ -577,6 +663,20 @@ def apply_updates(registry_path: Path, product: Product, updates: dict) -> str:
     return text[: product.start] + obj + text[product.end :]
 
 
+def _resolve_key(product: Product, key: str) -> str:
+    """Translate a heal's field name to the key it's actually stored under.
+
+    `heal_product` always builds `updates` with the literal key "asin" — the
+    one name every TS registry shape uses. A collection entry can store it
+    under something else (shoptopless's `amazonAsin`); without this, `key in
+    data` is False and the write silently no-ops, leaving the dead ASIN live
+    on the page while the run reports success.
+    """
+    if key == "asin" and product.asin_key:
+        return product.asin_key
+    return key
+
+
 def has_field(product: Product, key: str) -> bool:
     """Does this entry already declare `key`?
 
@@ -585,7 +685,7 @@ def has_field(product: Product, key: str) -> bool:
     directly would report every field as absent and silently skip every edit.
     """
     if product.data is not None:
-        return key in product.data
+        return _resolve_key(product, key) in product.data
     return bool(re.search(rf"\b{re.escape(key)}\"?:\s*", product.text))
 
 

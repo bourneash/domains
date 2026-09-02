@@ -26,7 +26,7 @@ _self="${BASH_SOURCE[0]}"
 _dir="${_self%/*}"
 [[ "$_dir" == "$_self" ]] && _dir="."
 TOOL_DIR="$(cd "$_dir/.." 2>/dev/null && printf '%s' "$PWD")"
-DEPS=(httpx)
+DEPS=(httpx yaml)
 
 _can_run() {
   local py="$1"

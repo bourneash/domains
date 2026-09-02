@@ -494,10 +494,70 @@ def test_content_collection_registry():
         check("source attributed to the registry", any("affiliate.ts" in s for s in sources))
 
 
+def test_markdown_frontmatter_collection_registry():
+    """The shape that made shoptopless.com (82 products) report ZERO.
+
+    Its collection is Astro's markdown-frontmatter flavor rather than JSON,
+    and the ASIN lives under `amazonAsin`, not `asin` — a parser that only
+    globs `*.json` and a healer hardcoded to the key `asin` both silently
+    treat this site as empty.
+    """
+    print("registry markdown frontmatter collection")
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        lib = root / "site" / "src" / "lib"
+        lib.mkdir(parents=True)
+        (lib / "affiliate.ts").write_text(
+            "export const AMAZON_TAG = 'example-20';\n"
+            "export function goPath(id: string): string { return `/go/${id}/`; }\n"
+        )
+        coll = root / "site" / "src" / "content" / "products"
+        coll.mkdir(parents=True)
+        (coll / "epsilon-widget.md").write_text(
+            "---\n"
+            "name: \"Epsilon Widget\"\n"
+            "brand: \"EpsilonCo\"\n"
+            "category: gadgets\n"
+            "amazonAsin: B000000005\n"
+            "price: 24.99\n"
+            "featured: false\n"
+            "---\n"
+            "Body prose that is not part of the frontmatter at all.\n"
+        )
+        (coll / "zeta-widget.md").write_text(
+            "---\nname: \"Zeta Widget\"\nurl: https://www.amazon.com/dp/B000000006?tag=x\n---\n"
+        )
+
+        reg = registry_mod.find_registry(root)
+        prods = registry_mod.parse_all(root, reg)
+        check("markdown entries parsed", len(prods) == 2, f"got {len(prods)}")
+        by_id = {p.id: p for p in prods}
+        check("keyed on filename stem", set(by_id) == {"epsilon-widget", "zeta-widget"})
+        eps = by_id["epsilon-widget"]
+        check("asin read from amazonAsin alias", eps.asin == "B000000005")
+        check("markdown entry counts as a product", eps.is_product and eps.is_asin_backed)
+        check("asin_key records the alias", eps.asin_key == "amazonAsin")
+        check("has_field resolves through the alias", registry_mod.has_field(eps, "asin"))
+        zeta = by_id["zeta-widget"]
+        check("asin recovered from /dp/ url", zeta.asin == "B000000006")
+        check("url-recovered asin has no writable key", zeta.asin_key is None)
+
+        # Healing writes under "asin" — must land in `amazonAsin`, not be dropped.
+        out = registry_mod.apply_updates(reg, eps, {"asin": "B0NEWNEWNEW", "nope": "x"})
+        check("amazonAsin key rewritten via alias", "amazonAsin: B0NEWNEWNEW" in out)
+        check("undeclared key not injected", "nope" not in out)
+        check("body prose preserved byte-for-byte",
+              out.endswith("Body prose that is not part of the frontmatter at all.\n"))
+        check("registry ts left alone", "B0NEWNEWNEW" not in (lib / "affiliate.ts").read_text())
+        check("unknown_keys flags a field the frontmatter never declared",
+              registry_mod.unknown_keys(eps, {"asin": "x", "nope": "y"}) == ["nope"])
+
+
 def main() -> int:
     for fn in (
         test_registry_parse,
         test_content_collection_registry,
+        test_markdown_frontmatter_collection_registry,
         test_registry_double_quotes_and_non_products,
         test_registry_field_aliases,
         test_find_registry_locates_non_standard_paths,

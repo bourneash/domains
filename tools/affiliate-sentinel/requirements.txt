@@ -7,6 +7,7 @@
 # every nightly run of this tool crash on import for at least three days while
 # still reporting success (see bin/ensure-venv and run-fleet.sh's rc capture).
 httpx==0.28.1
+pyyaml==6.0.2
 
 # Test-only, kept in the same pin set so `bin/setup-venv` produces an env that
 # can run the suite — a venv you cannot test in is how the last drift survived.

@@ -7,5 +7,6 @@ PY="${PYTHON:-python3}"
 "$TOOL_DIR/.venv/bin/pip" install -q --disable-pip-version-check -r "$TOOL_DIR/requirements.txt"
 "$TOOL_DIR/.venv/bin/python" - <<'PYCHK'
 import httpx
-print(f"affiliate-sentinel venv ready — httpx {httpx.__version__}")
+import yaml
+print(f"affiliate-sentinel venv ready — httpx {httpx.__version__}, pyyaml {yaml.__version__}")
 PYCHK
