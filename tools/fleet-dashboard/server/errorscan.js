@@ -184,6 +184,57 @@ function persistAlertState(root) {
   }
 }
 
+const MAX_POST_FAILURES = 30;
+let POST_FAILURES = [];
+let postFailuresRoot = null;
+
+function postFailuresFile(root) {
+  return path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-post-failures.json');
+}
+
+function loadPostFailures(root) {
+  if (postFailuresRoot === root) return;
+  postFailuresRoot = root;
+  POST_FAILURES = [];
+  try {
+    const parsed = JSON.parse(fs.readFileSync(postFailuresFile(root), 'utf8'));
+    if (Array.isArray(parsed)) POST_FAILURES = parsed.slice(-MAX_POST_FAILURES);
+  } catch {
+    /* first run, missing, or corrupt best-effort state: start empty */
+  }
+}
+
+function persistPostFailures(root) {
+  const file = postFailuresFile(root);
+  const tmp = `${file}.${process.pid}.tmp`;
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(tmp, `${JSON.stringify(POST_FAILURES, null, 2)}\n`);
+    fs.renameSync(tmp, file);
+  } catch {
+    try {
+      fs.unlinkSync(tmp);
+    } catch {
+      /* best-effort state only */
+    }
+  }
+}
+
+// A Slack post silently failing (bad token, wrong/renamed channel, rate limit)
+// used to mean nobody ever saw a threshold alert OR its all-clear, with zero
+// trace anywhere it had even been attempted (2026-09-02: deeppenetrations-cron's
+// resolve fired — ACTIVE_ALERTS/error-alert-state.json show it cleared — but
+// no all-clear ever reached Slack, and there was nothing to say why). Record
+// every failed attempt here (never throw — a broken notify must still never
+// break the sweep) so the dashboard can show "resolved, but the Slack post
+// failed" instead of indistinguishable silence.
+function recordPostFailure(root, entry) {
+  loadPostFailures(root);
+  POST_FAILURES.push({ at: Date.now(), ...entry });
+  if (POST_FAILURES.length > MAX_POST_FAILURES) POST_FAILURES = POST_FAILURES.slice(-MAX_POST_FAILURES);
+  persistPostFailures(root);
+}
+
 function correlatedFile(root) {
   return path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-correlated.json');
 }
@@ -240,14 +291,30 @@ async function postFleetSlack(root, text, color = 'danger') {
   if (!token) return;
   const channel = fleetChannel(envText);
   try {
-    await fetch('https://slack.com/api/chat.postMessage', {
+    const res = await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ channel, attachments: [{ color, text }] }),
       signal: AbortSignal.timeout(10000),
     });
-  } catch {
-    /* swallow — see postSlackAlert comment */
+    let body = null;
+    try {
+      body = await res.json();
+    } catch {
+      /* non-JSON body */
+    }
+    if (!res.ok || !body?.ok) {
+      recordPostFailure(root, {
+        channel,
+        status: res.status,
+        error: body?.error || `http_${res.status}`,
+        textPreview: text.slice(0, 200),
+      });
+    }
+  } catch (err) {
+    // Never throw — see comment above recordPostFailure — but never swallow
+    // silently either.
+    recordPostFailure(root, { channel, status: null, error: String(err?.message || err), textPreview: text.slice(0, 200) });
   }
 }
 
@@ -331,21 +398,36 @@ function channelForSlug(envText, slug) {
 
 // Threshold alert → the site's Slack channel. Mirrors every other notifier in
 // this repo: silently no-ops without SLACK_BOT_TOKEN, never throws (a broken
-// notify must never break the sweep).
+// notify must never break the sweep) — but a failed attempt is now recorded
+// (recordPostFailure) instead of vanishing with no trace.
 async function postSlackAlert(root, slug, text, color = 'danger') {
   const envText = loadEnvText(root);
   const token = envVar(envText, 'SLACK_BOT_TOKEN');
   if (!token) return;
   const channel = channelForSlug(envText, slug);
   try {
-    await fetch('https://slack.com/api/chat.postMessage', {
+    const res = await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ channel, attachments: [{ color, text }] }),
       signal: AbortSignal.timeout(10000),
     });
-  } catch {
-    /* swallow — see comment above */
+    let body = null;
+    try {
+      body = await res.json();
+    } catch {
+      /* non-JSON body */
+    }
+    if (!res.ok || !body?.ok) {
+      recordPostFailure(root, {
+        channel,
+        status: res.status,
+        error: body?.error || `http_${res.status}`,
+        textPreview: text.slice(0, 200),
+      });
+    }
+  } catch (err) {
+    recordPostFailure(root, { channel, status: null, error: String(err?.message || err), textPreview: text.slice(0, 200) });
   }
 }
 
@@ -517,6 +599,8 @@ async function scanOne(root, c) {
 }
 
 async function sweep(root) {
+  loadAlertState(root); // so rollup()'s active-alert flags are populated even before any alert fires this process
+  loadPostFailures(root); // ditto for postFailures — otherwise a restart hides prior failures until the next one
   const list = await containers.list(root);
   const seen = new Set(list.map(c => c.id));
   // Drop containers that no longer exist — a restart/rebuild gets a fresh id,
@@ -583,9 +667,20 @@ function rollup() {
       lastAt: last ? last.tsMs : null,
       lastLevel: last ? last.level : null,
       lastLine: last ? last.line : null,
+      // Still open per errorscan's own bookkeeping (claimAlert has seen the
+      // threshold cross but not yet a clean sweep) — independent of whether
+      // the Slack post for it (or its eventual all-clear) actually landed.
+      activeAlert: ACTIVE_ALERTS.has(c.name),
     };
   });
-  return { lastSweep, containers: out };
+  return {
+    lastSweep,
+    containers: out,
+    activeAlerts: [...ACTIVE_ALERTS].sort(),
+    // Most recent first — a failed Slack post (alert or all-clear) with no
+    // other trace anywhere. See recordPostFailure.
+    postFailures: POST_FAILURES.slice(-20).reverse(),
+  };
 }
 
 // Full matched-line detail for one container, most recent first.
@@ -606,6 +701,8 @@ function resetForTest() {
   sweepInFlight = null;
   CORRELATED_INCIDENTS = new Map();
   correlatedRoot = null;
+  POST_FAILURES = [];
+  postFailuresRoot = null;
 }
 
 module.exports = {
@@ -623,4 +720,5 @@ module.exports = {
   _noteCorrelation: noteCorrelation,
   _resolveCorrelation: resolveCorrelation,
   _pruneStaleCorrelations: pruneStaleCorrelations,
+  _recordPostFailure: recordPostFailure,
 };

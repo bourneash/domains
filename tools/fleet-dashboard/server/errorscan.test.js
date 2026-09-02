@@ -206,3 +206,23 @@ test('stale correlations are pruned so an incident cannot live forever without a
   const after = errorscan._resolveCorrelation(root, 'site-a-cron', now + 25 * 60 * 60 * 1000 + 1);
   assert.equal(after.inIncident, false, 'stale incident should have been dropped');
 });
+
+test('a failed Slack post is recorded instead of vanishing silently', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-postfail-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  errorscan._recordPostFailure(root, {
+    channel: 'domain-deeppenetrations-com',
+    status: 200,
+    error: 'channel_not_found',
+    textPreview: ':white_check_mark: recovered',
+  });
+
+  const file = path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-post-failures.json');
+  const persisted = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(persisted.length, 1);
+  assert.equal(persisted[0].error, 'channel_not_found');
+  assert.equal(persisted[0].channel, 'domain-deeppenetrations-com');
+  assert.equal(typeof persisted[0].at, 'number');
+});

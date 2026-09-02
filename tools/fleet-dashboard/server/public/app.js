@@ -1637,13 +1637,15 @@ async function renderErrors() {
   const noisy1h = rows.filter(r => r.count1h > 0).length;
   const noisy24h = rows.filter(r => r.count24h > 0).length;
   const crit24h = rows.reduce((n, r) => n + r.crit24h, 0);
+  const activeAlerts = d.activeAlerts || [];
+  const postFailures = d.postFailures || [];
 
   const body = pageRows
     .map(r => {
       const level = r.count24h > 0 ? r.lastLevel : null;
       const when = r.lastAt ? fmtAge((Date.now() - r.lastAt) / 1000) + ' ago' : '—';
       return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row tabindex="0" title="Click to view retained logs">
-      <td class="mono">${esc(r.name)}</td>
+      <td class="mono">${esc(r.name)}${r.activeAlert ? ' <span class="badge b-red" title="errorscan considers this an open alert — a Slack post (threshold or all-clear) may still be pending or may have failed silently">🔔 active</span>' : ''}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${r.count1h ? `<span class="badge b-red">${r.count1h}</span>` : '<span class="muted">0</span>'}</td>
       <td>${r.count24h ? `<span class="badge ${r.count1h ? 'b-red' : 'b-yellow'}">${r.count24h}</span>` : '<span class="muted">0</span>'}</td>
@@ -1662,6 +1664,24 @@ async function renderErrors() {
       <strong>${filtered.length} matching · ${rows.length} containers scanned</strong>
       <span class="muted">${dotLegend('overdue', noisy1h + ' erroring now')} · ${dotLegend('paused', noisy24h + ' in last 24h')}${crit24h ? ' · ' + dotLegend('overdue', crit24h + ' crit') : ''} · last swept ${esc(swept)}</span>
     </div>
+    ${
+      activeAlerts.length
+        ? `<div class="card error-card" style="margin-bottom:10px"><div class="cn-log-head">🔔 ${activeAlerts.length} open alert(s) — errorscan hasn't seen a clean sweep since these last crossed threshold</div><p class="muted" style="margin:4px 0 0">${activeAlerts.map(esc).join(', ')}</p></div>`
+        : ''
+    }
+    ${
+      postFailures.length
+        ? `<div class="card error-card" style="margin-bottom:10px"><div class="cn-log-head">⚠️ ${postFailures.length} failed Slack post(s) — an alert or all-clear that never reached Slack</div><table>
+      <thead><tr><th>When</th><th>Channel</th><th>Error</th><th>Message</th></tr></thead>
+      <tbody>${postFailures
+        .map(
+          f =>
+            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.at) / 1000) + ' ago')}</td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted">${esc((f.textPreview || '').slice(0, 80))}</td></tr>`
+        )
+        .join('')}</tbody>
+    </table></div>`
+        : ''
+    }
     <div class="task-toolbar errors-toolbar">
       <label>Search<input id="errors-q" class="cm-input" type="search" placeholder="Container, site, log text…" value="${esc(ERRORS_UI.q)}" autocomplete="off"></label>
       <label>Level<select id="errors-level" class="cm-input"><option value="">All levels</option>${['crit', 'error', 'warn', 'clean'].map(l => `<option value="${l}" ${ERRORS_UI.level === l ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
@@ -8143,6 +8163,7 @@ async function renderSocialHub() {
       <h2 class="page-title">Social Hub</h2>
       <span class="muted">${sites.length} managed site${sites.length === 1 ? '' : 's'}</span>
       <span class="soc-stats">
+        <button id="sh-compose" class="btn sm primary">＋ New post</button>
         <button id="sh-tick" class="btn sm">Run tick</button>
       </span>
     </div>
@@ -8172,6 +8193,8 @@ async function renderSocialHub() {
     renderSocialHub();
   });
 
+  $('#sh-compose').addEventListener('click', () => shComposerModal());
+
   $$('[data-sh-tab]').forEach(b =>
     b.addEventListener('click', () => {
       SH.tab = b.dataset.shTab;
@@ -8186,6 +8209,69 @@ async function renderSocialHub() {
   else if (SH.tab === 'inbox') shRenderInbox();
   else if (SH.tab === 'channels') shRenderChannels();
   else if (SH.tab === 'events') shRenderEvents();
+}
+
+function shComposerModal() {
+  const modal = $('#modal');
+  const title = $('#modal-title');
+  const body = $('#modal-body');
+  const sites = Object.keys(SH.platformsBySite || {}).sort();
+  const selectedSite = SH.site && sites.includes(SH.site) ? SH.site : sites[0] || '';
+  const platformOptions = site =>
+    (SH.platformsBySite[site] || SH.platforms || [])
+      .map(platform => `<option value="${esc(platform)}">${esc(shPlatformLabel(platform))}</option>`)
+      .join('');
+  title.textContent = 'New social post';
+  body.innerHTML = `
+    <p class="muted sh-composer-help">Write your own post, or leave the body blank and Social Hub will draft one from the newest known source using this site’s content direction.</p>
+    <div class="form-grid sh-composer-grid">
+      <label>Site<select id="sh-compose-site" class="cm-input">${sites.map(site => `<option value="${esc(site)}" ${site === selectedSite ? 'selected' : ''}>${esc(site)}</option>`).join('')}</select></label>
+      <label>Platform<select id="sh-compose-platform" class="cm-input">${platformOptions(selectedSite)}</select></label>
+    </div>
+    <label class="sh-composer-label">Post body <span class="muted">optional for an AI draft</span><textarea id="sh-compose-body" class="cm-input" rows="6" maxlength="4000" placeholder="Share an update, insight, question, or leave blank for an AI draft…"></textarea></label>
+    <label class="sh-composer-label">Link <span class="muted">optional</span><input id="sh-compose-link" class="cm-input" type="url" placeholder="https://…" /></label>
+    <label class="sh-composer-schedule"><input id="sh-compose-scheduled" type="checkbox" /> Schedule for a specific time</label>
+    <label id="sh-compose-when-wrap" class="sh-composer-label hidden">Scheduled time <input id="sh-compose-when" class="cm-input" type="datetime-local" /></label>
+    <div class="modal-foot"><button class="btn" id="sh-compose-cancel">Cancel</button><button class="btn" id="sh-compose-draft">Save draft</button><button class="btn primary" id="sh-compose-submit">Schedule post</button></div>`;
+  modal.classList.remove('hidden');
+
+  const siteSelect = $('#sh-compose-site');
+  const platformSelect = $('#sh-compose-platform');
+  siteSelect.addEventListener('change', () => {
+    platformSelect.innerHTML = platformOptions(siteSelect.value);
+  });
+  $('#sh-compose-scheduled').addEventListener('change', e => {
+    $('#sh-compose-when-wrap').classList.toggle('hidden', !e.target.checked);
+  });
+  $('#sh-compose-cancel').onclick = closeModal;
+
+  async function submit(schedule) {
+    const submit = schedule ? $('#sh-compose-submit') : $('#sh-compose-draft');
+    const whenInput = $('#sh-compose-when');
+    submit.disabled = true;
+    try {
+      const scheduled = schedule && $('#sh-compose-scheduled').checked;
+      const when = scheduled && whenInput.value ? new Date(whenInput.value) : null;
+      if (when && Number.isNaN(when.getTime())) throw new Error('Scheduled time is invalid');
+      await api('POST', '/api/socialhub/posts', {
+        site: siteSelect.value,
+        platform: platformSelect.value,
+        body: $('#sh-compose-body').value,
+        link: $('#sh-compose-link').value.trim(),
+        schedule,
+        scheduled_at: when ? when.toISOString() : undefined,
+      });
+      toast(schedule ? 'Post scheduled' : 'Draft saved');
+      closeModal();
+      FRESH = false;
+      renderSocialHub();
+    } catch (e) {
+      toast(e.message, 'err');
+      submit.disabled = false;
+    }
+  }
+  $('#sh-compose-draft').onclick = () => submit(false);
+  $('#sh-compose-submit').onclick = () => submit(true);
 }
 
 function shRenderOverview(data) {
@@ -8482,8 +8568,8 @@ function shCalendarDayKey(ts) {
   return `${y}-${m}-${day}`;
 }
 
-function shCalendarDayLabel(posts) {
-  const d = new Date(posts[0].scheduled_at);
+function shCalendarDayLabel(date) {
+  const d = new Date(date);
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -8538,12 +8624,16 @@ function shCalendarPost(p) {
 async function shRenderCalendar() {
   const body = $('#sh-body');
   body.innerHTML = `
-    <div class="task-toolbar sh-toolbar">
+    <div class="task-toolbar sh-toolbar sh-calendar-toolbar">
       <select id="sh-cal-site" class="cm-input">${shSiteOptions(SH.site)}</select>
       <select id="sh-cal-platform" class="cm-input" disabled><option value="">All platforms</option></select>
-      <select id="sh-cal-days" class="cm-input">
-        <option value="7" ${SH.calendarDays === 7 ? 'selected' : ''}>Next 7 days</option>
-        <option value="14" ${SH.calendarDays === 14 ? 'selected' : ''}>Next 14 days</option>
+      <label class="sh-calendar-view-label" for="sh-cal-days">View</label>
+      <select id="sh-cal-days" class="cm-input" aria-label="Calendar view">
+        <option value="1" ${SH.calendarDays === 1 ? 'selected' : ''}>1 day</option>
+        <option value="2" ${SH.calendarDays === 2 ? 'selected' : ''}>2 days</option>
+        <option value="3" ${SH.calendarDays === 3 ? 'selected' : ''}>3 days</option>
+        <option value="5" ${SH.calendarDays === 5 ? 'selected' : ''}>5 days</option>
+        <option value="7" ${SH.calendarDays === 7 ? 'selected' : ''}>7 days</option>
       </select>
       <span id="sh-calendar-count" class="muted" style="margin-left:auto"></span>
     </div>
@@ -8610,25 +8700,43 @@ async function shRenderCalendar() {
     $('#sh-calendar-count').textContent =
       `${filtered.length} upcoming post${filtered.length === 1 ? '' : 's'}`;
     const list = $('#sh-calendar-list');
-    if (!filtered.length) {
-      list.innerHTML = `<div class="empty">Nothing scheduled in the next ${SH.calendarDays} days for this filter.</div>`;
-      return;
-    }
-    const days = [...groups.values()];
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const days = Array.from({ length: SH.calendarDays }, (_, index) => {
+      const date = new Date(start);
+      date.setDate(start.getDate() + index);
+      return { date, posts: groups.get(shCalendarDayKey(date)) || [] };
+    });
+    const activeDays = days.filter(day => day.posts.length);
+    const busiest = activeDays.length ? Math.max(...activeDays.map(day => day.posts.length)) : 0;
     list.innerHTML = `
+      <div class="sh-calendar-intro">
+        <div>
+          <span class="sh-calendar-kicker">Publishing schedule</span>
+          <h3>Upcoming content</h3>
+          <p>Review what is planned across your connected channels.</p>
+        </div>
+        <div class="sh-calendar-legend" aria-label="Calendar legend">
+          <span><i class="sh-legend-dot scheduled"></i>Scheduled</span>
+          <span><i class="sh-legend-dot review"></i>Needs review</span>
+          <span><i class="sh-legend-dot overdue"></i>Past due</span>
+        </div>
+      </div>
       <div class="sh-calendar-summary">
-        <div><strong>${filtered.length}</strong><span>upcoming</span></div>
-        <div><strong>${days.length}</strong><span>active day${days.length === 1 ? '' : 's'}</span></div>
-        <div><strong>${Math.max(...days.map(day => day.length))}</strong><span>busiest day</span></div>
+        <div><strong>${filtered.length}</strong><span>upcoming post${filtered.length === 1 ? '' : 's'}</span></div>
+        <div><strong>${activeDays.length}</strong><span>active day${activeDays.length === 1 ? '' : 's'}</span></div>
+        <div><strong>${busiest}</strong><span>busiest day</span></div>
       </div>
       <div class="sh-calendar-wrap">
         <div class="sh-calendar-grid" style="--sh-calendar-days:${days.length}">
           ${days
             .map(day => {
-              const label = shCalendarDayLabel(day);
-              return `<section class="sh-cal-day">
-                <header><div><strong>${esc(label.weekday)}</strong><span>${esc(label.date)}</span></div><span class="badge b-gray">${day.length}</span></header>
-                <div class="sh-cal-day-posts">${day.map(shCalendarPost).join('')}</div>
+              const label = shCalendarDayLabel(day.date);
+              const today = shCalendarDayKey(day.date) === shCalendarDayKey(new Date());
+              const weekend = [0, 6].includes(day.date.getDay());
+              return `<section class="sh-cal-day${today ? ' is-today' : ''}${weekend ? ' is-weekend' : ''}">
+                <header><div><strong>${esc(label.weekday)}</strong><span>${esc(label.date)}</span></div><span class="badge ${day.posts.length ? 'b-blue' : 'b-gray'}">${day.posts.length}</span></header>
+                <div class="sh-cal-day-posts">${day.posts.length ? day.posts.map(shCalendarPost).join('') : '<div class="sh-cal-empty"><span>—</span><small>No posts</small></div>'}</div>
               </section>`;
             })
             .join('')}
@@ -9179,6 +9287,10 @@ async function renderAutomation() {
   const cfg = data.social.config || {};
   const cadence = cfg.cadence || {};
   const reply = cfg.reply || {};
+  const ai = cfg.ai || {};
+  const quietHours = cadence.quiet_hours || [3, 11];
+  const slots = cadence.slots || ['12:20', '17:40', '21:10'];
+  const hashtags = Array.isArray(cfg.hashtags) ? cfg.hashtags.join(', ') : '';
   const roles = data.roles || [];
   const platformRows = (cfg.platforms || [])
     .map((platform, i) => {
@@ -9190,15 +9302,39 @@ async function renderAutomation() {
   $('#auto-body').innerHTML = `
     <div class="cards">
       <section class="card">
-        <div class="page-head"><h3>Social Hub policy</h3><span class="muted">${esc(data.social.file)}</span></div>
-        <div class="form-grid">
-          <label>Public post approval<select id="auto-approval" class="cm-input"><option value="auto" ${cfg.approval === 'auto' ? 'selected' : ''}>Automatic</option><option value="manual" ${cfg.approval === 'manual' ? 'selected' : ''}>Require human approval</option></select></label>
-          <label>Max source age (hours)<input id="auto-age" class="cm-input" type="number" min="0" step="1" value="${esc(cfg.max_source_age_hours ?? '')}"></label>
-          <label>Posts per platform/day<input id="auto-per-day" class="cm-input" type="number" min="0" step="1" value="${esc(cadence.per_platform_per_day ?? '')}"></label>
-          <label>Minimum gap (minutes)<input id="auto-gap" class="cm-input" type="number" min="0" step="1" value="${esc(cadence.min_gap_minutes ?? '')}"></label>
-          <label>Sources per tick<input id="auto-source-limit" class="cm-input" type="number" min="0" step="1" value="${esc(cfg.max_sources_per_run ?? '')}"></label>
+        <div class="page-head"><div><h3>Social Hub policy</h3><span class="muted">${esc(data.social.file)}</span></div><span class="badge ${cfg.enabled !== false ? 'b-green' : 'b-gray'}">${cfg.enabled !== false ? 'enabled' : 'disabled'}</span></div>
+        <p class="auto-section-help">Controls how new site content becomes social drafts, scheduled posts, and replies. Changes apply to this site only.</p>
+        <div class="auto-settings-section"><h4>Publishing</h4><div class="form-grid">
+          <label>Social Hub<select id="auto-enabled" class="cm-input"><option value="true" ${cfg.enabled !== false ? 'selected' : ''}>Enabled</option><option value="false" ${cfg.enabled === false ? 'selected' : ''}>Disabled</option></select><small>Stops this site from being managed by the hub.</small></label>
+          <label>Public post approval<select id="auto-approval" class="cm-input"><option value="auto" ${cfg.approval === 'auto' ? 'selected' : ''}>Automatic</option><option value="manual" ${cfg.approval === 'manual' ? 'selected' : ''}>Require human approval</option></select><small>Automatic approval also schedules the first draft.</small></label>
+          <label>Variants per article<input id="auto-variants" class="cm-input" type="number" min="1" step="1" value="${esc(cfg.variants_per_source ?? 1)}"><small>Only the first variant can be auto-scheduled.</small></label>
+          <label>Max source age (hours)<input id="auto-age" class="cm-input" type="number" min="0" step="1" value="${esc(cfg.max_source_age_hours ?? 72)}"><small>Older content is recorded but not queued.</small></label>
+          <label>Sources per tick<input id="auto-source-limit" class="cm-input" type="number" min="0" step="1" value="${esc(cfg.max_sources_per_run ?? 2)}"><small>Drafting budget per 15-minute hub tick.</small></label>
+          <label>Link style<select id="auto-link-style" class="cm-input"><option value="append" ${cfg.link_style !== 'none' ? 'selected' : ''}>Append article link</option><option value="none" ${cfg.link_style === 'none' ? 'selected' : ''}>No article link</option></select></label>
+        </div></div>
+        <div class="auto-settings-section"><h4>Post timing</h4><div class="form-grid">
+          <label>Posts per platform/day<input id="auto-per-day" class="cm-input" type="number" min="0" step="1" value="${esc(cadence.per_platform_per_day ?? 3)}"></label>
+          <label>Minimum gap (minutes)<input id="auto-gap" class="cm-input" type="number" min="0" step="1" value="${esc(cadence.min_gap_minutes ?? 90)}"></label>
+          <label>Preferred send times<input id="auto-slots" class="cm-input" type="text" value="${esc(slots.join(', '))}" placeholder="12:20, 17:40, 21:10"><small>UTC, comma-separated. The scheduler uses the next available slot.</small></label>
+          <label>Quiet hours<input id="auto-quiet-start" class="cm-input" type="number" min="0" max="23" step="1" value="${esc(quietHours[0])}"><input id="auto-quiet-end" class="cm-input auto-inline-input" type="number" min="0" max="23" step="1" value="${esc(quietHours[1])}"><small>UTC hours, from start (inclusive) to end (exclusive).</small></label>
+          <label>Immediate mode<select id="auto-immediate" class="cm-input"><option value="false" ${cadence.immediate ? '' : 'selected'}>Use preferred times</option><option value="true" ${cadence.immediate ? 'selected' : ''}>Post as soon as allowed</option></select><small>Still respects caps, gaps, and quiet hours.</small></label>
+          <label>Site staggering<select id="auto-stagger" class="cm-input"><option value="true" ${cadence.stagger !== false ? 'selected' : ''}>Stagger sites</option><option value="false" ${cadence.stagger === false ? 'selected' : ''}>Use exact slot times</option></select></label>
+        </div></div>
+        <div class="auto-settings-section"><h4>Replies and AI</h4><div class="form-grid">
+          <label>Reply handling<select id="auto-reply-enabled" class="cm-input"><option value="true" ${reply.enabled !== false ? 'selected' : ''}>Monitor replies</option><option value="false" ${reply.enabled === false ? 'selected' : ''}>Ignore replies</option></select></label>
           <label>Reply approval<select id="auto-reply-approval" class="cm-input"><option value="manual" ${reply.approval === 'manual' ? 'selected' : ''}>Require human approval</option><option value="auto" ${reply.approval === 'auto' ? 'selected' : ''}>Automatic</option></select></label>
-        </div>
+          <label>Replies per day<input id="auto-reply-max" class="cm-input" type="number" min="0" step="1" value="${esc(reply.max_per_day ?? 12)}"></label>
+          <label>Reply poll limit<input id="auto-reply-poll" class="cm-input" type="number" min="0" step="1" value="${esc(reply.poll_limit ?? 25)}"><small>Maximum mentions checked per tick.</small></label>
+          <label>AI backend<select id="auto-ai-backend" class="cm-input"><option value="auto" ${ai.backend === 'auto' || !ai.backend ? 'selected' : ''}>Automatic</option><option value="cli" ${ai.backend === 'cli' ? 'selected' : ''}>Tracked Claude CLI</option><option value="api" ${ai.backend === 'api' ? 'selected' : ''}>Anthropic API</option><option value="fake" ${ai.backend === 'fake' ? 'selected' : ''}>Test/fallback only</option></select></label>
+          <label>AI model<input id="auto-ai-model" class="cm-input" type="text" value="${esc(ai.model ?? 'claude-sonnet-4-6')}"></label>
+          <label>Max AI tokens<input id="auto-ai-tokens" class="cm-input" type="number" min="1" step="1" value="${esc(ai.max_tokens ?? 1200)}"></label>
+          <label>Hashtags<input id="auto-hashtags" class="cm-input" type="text" value="${esc(hashtags)}" placeholder="#infosec, #news"><small>Comma-separated; leave blank for none.</small></label>
+        </div></div>
+        <div class="auto-settings-section"><h4>Brand voice and guardrails</h4><div class="form-grid auto-wide-fields">
+          <label>Brand voice<textarea id="auto-voice" class="cm-input" rows="4" placeholder="How should this brand sound?">${esc(cfg.voice || '')}</textarea></label>
+          <label>Content direction and ideas<textarea id="auto-direction" class="cm-input" rows="4" placeholder="Topics, angles, recurring series, and ideas the writers should prioritize…">${esc(cfg.content_direction || '')}</textarea><small>Guides new AI social drafts for this site; it does not rewrite existing posts.</small></label>
+          <label>AI guardrails<textarea id="auto-guardrails" class="cm-input" rows="4" placeholder="What must the model never say or do?">${esc(ai.guardrails || '')}</textarea></label>
+        </div></div>
         ${platformRows ? `<div class="page-head"><strong>Per-platform post approval</strong><span class="muted">Overrides the global policy above.</span></div><div class="form-grid">${platformRows}</div>` : ''}
         <div class="task-actions"><button id="auto-social-save" class="btn primary">Save policy</button><button id="auto-rebuild" class="btn">Rebuild cron container</button><span id="auto-social-msg" class="muted"></span></div>
         <details class="auto-raw"><summary>Advanced: edit complete hub.yaml</summary><textarea id="auto-social-raw" class="cm-input" rows="20" spellcheck="false">${esc(data.social.raw)}</textarea><div class="task-actions"><button id="auto-raw-save" class="btn">Save complete YAML</button></div></details>
@@ -9238,16 +9374,45 @@ async function renderAutomation() {
       $$('[data-platform-approval]').forEach(select => {
         platformApprovals[select.dataset.platformApproval] = select.value;
       });
+      const slots = $('#auto-slots').value
+        .split(',')
+        .map(slot => slot.trim())
+        .filter(Boolean);
+      const hashtags = $('#auto-hashtags').value
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(Boolean);
       await api('PATCH', `/api/automation/${encodeURIComponent(AUTO_SITE)}/social`, {
+        enabled: $('#auto-enabled').value === 'true',
         approval: $('#auto-approval').value,
         platformApprovals,
         max_source_age_hours: Number($('#auto-age').value),
+        variants_per_source: Number($('#auto-variants').value),
         max_sources_per_run: Number($('#auto-source-limit').value),
+        voice: $('#auto-voice').value,
+        content_direction: $('#auto-direction').value,
+        hashtags,
+        link_style: $('#auto-link-style').value,
         cadence: {
           per_platform_per_day: Number($('#auto-per-day').value),
           min_gap_minutes: Number($('#auto-gap').value),
+          slots,
+          quiet_hours: [Number($('#auto-quiet-start').value), Number($('#auto-quiet-end').value)],
+          immediate: $('#auto-immediate').value === 'true',
+          stagger: $('#auto-stagger').value === 'true',
         },
-        reply: { approval: $('#auto-reply-approval').value },
+        reply: {
+          enabled: $('#auto-reply-enabled').value === 'true',
+          approval: $('#auto-reply-approval').value,
+          max_per_day: Number($('#auto-reply-max').value),
+          poll_limit: Number($('#auto-reply-poll').value),
+        },
+        ai: {
+          backend: $('#auto-ai-backend').value,
+          model: $('#auto-ai-model').value.trim(),
+          max_tokens: Number($('#auto-ai-tokens').value),
+          guardrails: $('#auto-guardrails').value,
+        },
       });
       $('#auto-social-msg').textContent = 'Saved.';
       toast('Social Hub policy saved');
