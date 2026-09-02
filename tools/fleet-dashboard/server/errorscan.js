@@ -85,6 +85,8 @@ let STATE = new Map();
 let lastSweep = 0;
 let ALERT_COOLDOWNS = new Map();
 let alertCooldownRoot = null;
+let ACTIVE_ALERTS = new Set();
+let alertStateRoot = null;
 let sweepInFlight = null;
 
 function alertCooldownFile(root) {
@@ -123,6 +125,40 @@ function persistAlertCooldowns(root) {
   }
 }
 
+function alertStateFile(root) {
+  return path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-state.json');
+}
+
+function loadAlertState(root) {
+  if (alertStateRoot === root) return;
+  alertStateRoot = root;
+  ACTIVE_ALERTS = new Set();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(alertStateFile(root), 'utf8'));
+    for (const key of Array.isArray(parsed) ? parsed : []) {
+      if (typeof key === 'string' && key) ACTIVE_ALERTS.add(key);
+    }
+  } catch {
+    /* first run, missing, or corrupt best-effort state: start empty */
+  }
+}
+
+function persistAlertState(root) {
+  const file = alertStateFile(root);
+  const tmp = `${file}.${process.pid}.tmp`;
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(tmp, `${JSON.stringify([...ACTIVE_ALERTS].sort(), null, 2)}\n`);
+    fs.renameSync(tmp, file);
+  } catch {
+    try {
+      fs.unlinkSync(tmp);
+    } catch {
+      /* best effort state only */
+    }
+  }
+}
+
 // Same "read .env directly" approach deployhealth.js uses for CF creds — the
 // panel's compose environment doesn't forward SLACK_BOT_TOKEN, so this is the
 // only way to reach it from inside the container.
@@ -146,7 +182,7 @@ function channelForSlug(envText, slug) {
 // Threshold alert → the site's Slack channel. Mirrors every other notifier in
 // this repo: silently no-ops without SLACK_BOT_TOKEN, never throws (a broken
 // notify must never break the sweep).
-async function postSlackAlert(root, slug, text) {
+async function postSlackAlert(root, slug, text, color = 'danger') {
   const envText = loadEnvText(root);
   const token = envVar(envText, 'SLACK_BOT_TOKEN');
   if (!token) return;
@@ -155,7 +191,7 @@ async function postSlackAlert(root, slug, text) {
     await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ channel, attachments: [{ color: 'danger', text }] }),
+      body: JSON.stringify({ channel, attachments: [{ color, text }] }),
       signal: AbortSignal.timeout(10000),
     });
   } catch {
@@ -206,6 +242,7 @@ function alertDecision(c, recent1h, prevAlertAt, now) {
     errorish1h,
     trigger,
     label,
+    alertEligible,
     shouldAlert: alertEligible && overThreshold && outsideCooldown,
   };
 }
@@ -217,14 +254,26 @@ function alertDecision(c, recent1h, prevAlertAt, now) {
 // either docker-logs call returned.
 function claimAlert(root, c, recent1h, now) {
   loadAlertCooldowns(root);
+  loadAlertState(root);
   const key = c.name || `${c.slug || 'unknown'}:${c.kind || 'container'}`;
   const prevAlertAt = ALERT_COOLDOWNS.get(key) || null;
   const decision = alertDecision(c, recent1h, prevAlertAt, now);
+  const shouldResolve =
+    decision.alertEligible && ACTIVE_ALERTS.has(key) && !decision.hasCrit1h && decision.errorish1h < ALERT_ERROR_1H_THRESHOLD;
   if (decision.shouldAlert) {
     ALERT_COOLDOWNS.set(key, now);
     persistAlertCooldowns(root);
+    ACTIVE_ALERTS.add(key);
+    persistAlertState(root);
+  } else if (shouldResolve) {
+    ACTIVE_ALERTS.delete(key);
+    persistAlertState(root);
   }
-  return { ...decision, lastAlertAt: decision.shouldAlert ? now : prevAlertAt };
+  return {
+    ...decision,
+    shouldResolve,
+    lastAlertAt: decision.shouldAlert ? now : prevAlertAt,
+  };
 }
 
 async function scanOne(root, c) {
@@ -279,6 +328,12 @@ async function scanOne(root, c) {
       `Trigger: \`${((decision.trigger && decision.trigger.line) || '').slice(0, 300)}\`\n` +
       'Fleet Dashboard → Errors tab for detail.';
     postSlackAlert(root, c.slug, text).catch(() => {});
+  }
+  if (decision.shouldResolve) {
+    const text =
+      `:white_check_mark: *${c.name}* — recovered; error condition cleared\n` +
+      'No critical or repeated error lines remain in the last hour.';
+    postSlackAlert(root, c.slug, text, 'good').catch(() => {});
   }
 }
 
@@ -366,6 +421,8 @@ function resetForTest() {
   lastSweep = 0;
   ALERT_COOLDOWNS = new Map();
   alertCooldownRoot = null;
+  ACTIVE_ALERTS = new Set();
+  alertStateRoot = null;
   sweepInFlight = null;
 }
 

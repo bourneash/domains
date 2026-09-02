@@ -89,3 +89,25 @@ test('alert cooldown is claimed atomically and survives dashboard state reset', 
   errorscan._resetForTest(); // simulate a panel process restart
   assert.equal(errorscan._claimAlert(root, container, errors, now + 2).shouldAlert, false);
 });
+
+test('an active alert emits one recovery transition and persists across restart', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-recovery-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const container = { name: 'example-cron', scope: 'site', oneoff: false };
+  const errors = Array.from({ length: 5 }, (_, i) => ({
+    tsMs: now - i,
+    level: 'error',
+    line: `error ${i}`,
+  }));
+
+  assert.equal(errorscan._claimAlert(root, container, errors, now).shouldAlert, true);
+  const recovered = errorscan._claimAlert(root, container, [], now + 1);
+  assert.equal(recovered.shouldResolve, true);
+  assert.equal(errorscan._claimAlert(root, container, [], now + 2).shouldResolve, false);
+
+  errorscan._resetForTest();
+  assert.equal(errorscan._claimAlert(root, container, [], now + 3).shouldResolve, false);
+});
