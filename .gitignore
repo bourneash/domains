@@ -13,6 +13,7 @@
 
 # Tooling artifacts at repo root
 .worktrees/
+.locks/
 .playwright-mcp/
 playwright-report/
 test-results/
