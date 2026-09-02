@@ -1,0 +1,78 @@
+# Fleet data retention policy — the one place retention is declared.
+#
+# Consumed by tools/scripts/prune-fleet-data.py (cron, daily 04:45) and read by
+# the Fleet Dashboard's Retention view, which can edit it. Before this file the
+# numbers lived as a single --retain-days flag and an env var, so "how long do
+# we keep X" had no answer per data class and no answer anyone could see.
+#
+# THE RULE THIS FILE ENCODES: on this host, retention means COMPRESS, not
+# DELETE. Both classes below are irreplaceable — cf-stats is the only
+# historical record of Cloudflare traffic anywhere and nothing backs it up;
+# the role logs are the audit trail for autonomous publishing and get read
+# during incidents. Both compress 10-15x, so compression buys essentially all
+# of the space back while keeping every byte recoverable. A `delete_after_days`
+# key exists for classes where deletion is genuinely right, but it is null
+# everywhere today and setting it is a deliberate act.
+#
+# An undeclared path is REPORTED, never swept. Silence must not mean "delete
+# it" — a tool that grows a new output directory should show up as an unowned
+# path in the dashboard, not quietly lose data on the next cron tick.
+
+version: 1
+
+defaults:
+  # Anything newer than this is never touched, in any class.
+  retain_days: 30
+  # null = never delete. See the rule above before changing one of these.
+  delete_after_days: null
+
+classes:
+  stats_ledgers:
+    label: Stats ledgers
+    paths:
+      - tools/cf-stats/out
+      - tools/gh-stats/out
+    method: gzip
+    retain_days: 30
+    delete_after_days: null
+    why: >-
+      The only historical record of Cloudflare and GitHub traffic for the
+      fleet, and nothing backs it up. Gzipped in place, one file to one .gz,
+      verified by sha256 before the original is removed. Today's file and
+      latest.json are never touched.
+
+  site_role_logs:
+    label: Site role logs
+    paths:
+      - sites/*/ops/logs
+    method: tar_gz_per_site_day
+    retain_days: 30
+    delete_after_days: null
+    why: >-
+      74k files / 160 MB of content but 283 MB on disk — a FILE-COUNT problem,
+      not a byte problem, so a size threshold would match nothing. Rolled into
+      one archive per site per day, which is idempotent because every file
+      sharing an mtime date ages out on the same run.
+    never_touch:
+      - "*.jsonl"   # LEDGERS, not logs — ai-usage and engineer-status read these
+      - "*.json"    # role state (engineer-render-last.json)
+      - "*.md"
+      - ".gitkeep"
+      - "archive/**"
+
+  sweep_reports:
+    label: Sweep reports
+    paths:
+      - tools/lint-fleet/reports
+      - tools/link-rot/reports
+      - tools/web-vitals/reports
+    method: gzip
+    retain_days: 90
+    delete_after_days: null
+    why: >-
+      latest.json is the baseline every "what changed since last time" diff
+      reads and history.jsonl is the trend substrate for F1/F26 — both are
+      tiny and kept forever. Only dated run artifacts alongside them age out.
+    never_touch:
+      - "latest.json"
+      - "history.jsonl"

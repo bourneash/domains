@@ -18,7 +18,7 @@
 #
 # Env toggles:
 #   VITALS_SWEEP_NOTIFY=0        no Slack at all (still writes reports + log)
-#   VITALS_SWEEP_MOBILE=1        measure mobile instead of desktop
+#   VITALS_SWEEP_DESKTOP=1       measure desktop instead of the mobile default
 #   VITALS_SWEEP_CHANNEL=<chan>  route every alert to one ops channel instead of
 #                                fanning out to each site's domain-<host> channel
 set -uo pipefail
@@ -28,7 +28,7 @@ TOOL_DIR="$DOMAINS_ROOT/tools/web-vitals"
 LOG="${VITALS_SWEEP_LOG:-$TOOL_DIR/vitals-sweep.log}"
 LOCK="${VITALS_SWEEP_LOCK:-$TOOL_DIR/.vitals-sweep.lock}"
 NOTIFY_ENABLED="${VITALS_SWEEP_NOTIFY:-1}"
-MOBILE="${VITALS_SWEEP_MOBILE:-0}"
+DESKTOP="${VITALS_SWEEP_DESKTOP:-0}"
 LOG_MAX_BYTES="${VITALS_SWEEP_LOG_MAX_BYTES:-5242880}"
 
 mkdir -p "$TOOL_DIR"
@@ -48,7 +48,7 @@ log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 [[ -f "$DOMAINS_ROOT/.env" ]] && { set -a; . "$DOMAINS_ROOT/.env"; set +a; }
 
 ARGS=(--json)
-[[ "$MOBILE" == "1" ]] && ARGS+=(--mobile)
+[[ "$DESKTOP" == "1" ]] && ARGS+=(--desktop)
 
 # vitals-sweep.py computes regressions itself against reports/latest.json, so
 # unlike the link sweep this wrapper does not need to hold its own baseline —

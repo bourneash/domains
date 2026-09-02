@@ -3094,6 +3094,81 @@ function controlDraw() {
   applyFleetFilter();
 }
 
+/* ---- retention policy (F20/F43) ----
+ * tools/retention/policy.yaml is the single declaration of how long the fleet
+ * keeps each class of data. This view reads it and can change retain_days.
+ *
+ * delete_after_days is deliberately NOT editable here. On this host retention
+ * means COMPRESS, not delete: cf-stats is the only historical record of
+ * Cloudflare traffic anywhere and nothing backs it up, and the role logs are
+ * the audit trail for autonomous publishing runs. Both compress 10-15x, so
+ * archiving reclaims essentially all of the space and loses nothing. Enabling
+ * deletion should require opening the file and reading that reasoning.
+ */
+async function renderRetention() {
+  const app = $('#app');
+  let d;
+  try {
+    d = await api('GET', '/api/retention');
+  } catch (e) {
+    app.innerHTML = `<p class="r-overdue">Could not load retention policy: ${esc(String(e))}</p>`;
+    return;
+  }
+  if (!d.ok) {
+    app.innerHTML = `<div class="page-head"><h2 class="page-title">Retention</h2></div>
+      <p class="r-overdue">${esc(d.error || 'policy unreadable')}</p>`;
+    return;
+  }
+
+  const rows = d.classes.map(c => `
+    <tr>
+      <td><b>${esc(c.label)}</b><div class="muted">${c.paths.map(esc).join('<br>')}</div></td>
+      <td>${esc(c.method || '-')}</td>
+      <td>
+        <input type="number" min="1" max="3650" value="${c.retain_days}"
+               data-retain="${esc(c.name)}" style="width:5.5em">
+        <span class="muted">days</span>
+      </td>
+      <td>${c.delete_after_days == null ? '<span class="muted">never deleted</span>' : `<span class="r-overdue">after ${c.delete_after_days}d</span>`}</td>
+      <td class="muted">${esc(c.why || '')}${c.never_touch.length ? `<div>never touches: ${c.never_touch.map(esc).join(', ')}</div>` : ''}</td>
+    </tr>`).join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Retention</h2><span class="muted">how long the fleet keeps each class of data</span></div>
+    <div class="task-toolbar">
+      <strong>default ${d.defaults.retain_days} days</strong>
+      <span class="muted">${esc(d.path)}</span>
+      <button class="btn" id="retention-save">Save changes</button>
+      <span id="retention-msg" class="muted"></span>
+    </div>
+    <div class="card"><table class="rmatrix">
+      <thead><tr><th>Class</th><th>Method</th><th>Keep raw</th><th>Deletion</th><th>Why</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <p class="muted" style="margin-top:12px">Retention here means <b>compress, not delete</b>. Files past the window are gzipped (stats ledgers) or rolled into one archive per site per day (role logs), verified, and kept. <b>Deletion is file-only</b> and off everywhere — enabling it means editing <code>tools/retention/policy.yaml</code> directly, on purpose. An undeclared path is reported, never swept: silence must not mean "delete it". Applied nightly at 04:45 by <code>tools/scripts/prune-fleet-data.py</code>.</p>`;
+
+  $('#retention-save')?.addEventListener('click', async () => {
+    const msg = $('#retention-msg');
+    const inputs = $$('[data-retain]');
+    let changed = 0, failed = 0;
+    for (const el of inputs) {
+      const klass = el.dataset.retain;
+      const want = parseInt(el.value, 10);
+      const was = d.classes.find(c => c.name === klass);
+      if (!was || want === was.retain_days) continue;
+      try {
+        const r = await api('POST', '/api/retention', { class: klass, retain_days: want });
+        if (r.ok) changed++; else { failed++; msg.textContent = r.error || 'rejected'; }
+      } catch {
+        failed++;
+      }
+    }
+    if (msg && !failed) msg.textContent = changed ? `Saved ${changed} change(s).` : 'No changes.';
+    if (changed) renderRetention();
+  });
+  stamp();
+}
+
 /* ---- fleet-doctor (F33) ----
  * The fleet's container/image invariants, from tools/fleet-images/bin/fleet-doctor.
  * The script stays the source of truth; this only renders what it reported.
@@ -8905,6 +8980,7 @@ const NAV_GROUPS = {
       ['domains', 'Domains'],
       ['guardrails', 'Guardrails'],
       ['doctor', 'Doctor'],
+      ['retention', 'Retention'],
     ],
   },
   content: {
@@ -9299,6 +9375,7 @@ function render() {
   else if (STATE.view === 'automation') return renderAutomation();
   else if (STATE.view === 'domains') return renderDomains();
   else if (STATE.view === 'doctor') return renderDoctor();
+  else if (STATE.view === 'retention') return renderRetention();
 }
 
 function renderAgent(role) {

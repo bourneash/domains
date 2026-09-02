@@ -38,7 +38,7 @@ Usage
     python3 tools/web-vitals/vitals-sweep.py                 # table, all live sites
     python3 tools/web-vitals/vitals-sweep.py --json
     python3 tools/web-vitals/vitals-sweep.py --site xxxtea.com
-    python3 tools/web-vitals/vitals-sweep.py --mobile        # mobile emulation (default: desktop)
+    python3 tools/web-vitals/vitals-sweep.py --desktop       # desktop instead of the mobile default
     python3 tools/web-vitals/vitals-sweep.py --fail-on-regression
     python3 tools/web-vitals/vitals-sweep.py --budget-fail   # exit 1 on any budget breach
 
@@ -219,13 +219,24 @@ def regressions(now: dict, was: dict | None) -> list[str]:
     return out
 
 
-def load_previous() -> dict:
+def load_previous(form_factor: str) -> dict:
+    """Previous metrics, but ONLY from a run of the same form factor.
+
+    Mobile is CPU-throttled; its LCP and TBT are far worse than desktop's for
+    the same page. Comparing across form factors would report the entire fleet
+    as regressed the first time the default changed (it did change, 2026-09-01,
+    desktop -> mobile) and would then report it all "recovered" if anyone ran
+    --desktop once. A comparison between two different measurements is not a
+    trend, so decline to make one.
+    """
     p = REPORTS / "latest.json"
     if not p.exists():
         return {}
     try:
         prev = json.loads(p.read_text(encoding="utf-8"))
     except Exception:  # noqa: BLE001
+        return {}
+    if prev.get("form_factor") != form_factor:
         return {}
     return {s["site"]: s.get("metrics") for s in prev.get("sites", []) if not s.get("error")}
 
@@ -247,6 +258,11 @@ def write_reports(payload: dict, *, partial: bool) -> None:
         if old_path.exists():
             try:
                 old = json.loads(old_path.read_text(encoding="utf-8"))
+                # Never merge rows measured on a different form factor: the
+                # file carries ONE form_factor label, and mixing would make it
+                # a lie about half its own rows.
+                if old.get("form_factor") != payload.get("form_factor"):
+                    old = {"sites": []}
                 merged = {s["site"]: s for s in old.get("sites", [])}
                 for s in payload["sites"]:
                     merged[s["site"]] = s
@@ -312,7 +328,11 @@ def table(payload: dict) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--site", action="append", help="limit to this domain (repeatable)")
-    ap.add_argument("--mobile", action="store_true", help="mobile emulation (default: desktop)")
+    # Mobile is the default because it is the number that affects revenue:
+    # Google ranks on mobile field data, and mobile is CPU-throttled so its
+    # LCP/TBT are materially worse than desktop's. Desktop is the flattering
+    # measurement, not the useful one. Same ~20min runtime either way.
+    ap.add_argument("--desktop", action="store_true", help="measure desktop instead of mobile")
     ap.add_argument("--timeout", type=int, default=180, help="seconds per site (default 180)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--fail-on-regression", action="store_true", help="exit 1 if any metric regressed")
@@ -328,14 +348,15 @@ def main() -> int:
         log("no Chrome/Chromium found — set CHROME_PATH")
         return 2
 
-    previous = load_previous()
+    form_factor = "desktop" if args.desktop else "mobile"
+    previous = load_previous(form_factor)
     results = []
     # Deliberately serial. Lighthouse's numbers are only comparable when the
     # machine is not otherwise busy; running 8 headless Chromes in parallel
     # would make the sweep fast and the data worthless.
     for d in sites:
         log(f"measuring {d} …")
-        report, err = run_lighthouse(f"https://{d}", mobile=args.mobile, timeout=args.timeout)
+        report, err = run_lighthouse(f"https://{d}", mobile=not args.desktop, timeout=args.timeout)
         if err:
             results.append({"site": d, "error": err})
             continue
@@ -350,7 +371,7 @@ def main() -> int:
 
     payload = {
         "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-        "form_factor": "mobile" if args.mobile else "desktop",
+        "form_factor": form_factor,
         "budgets": {k: {"op": op, "limit": lim} for k, (op, lim) in BUDGETS.items()},
         "totals": {
             "sites": len(results),

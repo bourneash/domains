@@ -38,6 +38,7 @@ const domains = require('./domains');
 const scaffolds = require('./scaffolds');
 const registrar = require('./registrar');
 const fleetdoctor = require('./fleetdoctor');
+const retention = require('./retention');
 const social = require('./social');
 const socialhub = require('./socialhub');
 const automation = require('./automation');
@@ -487,6 +488,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // fleet-doctor (F33) — container/image invariants across every cron site.
   // Served from a background sweep; POST re-runs it on demand.
   app.get('/api/fleet-doctor', (_req, res) => res.json(fleetdoctor.all()));
+
+  // Retention policy (F20/F43) — tools/retention/policy.yaml, the one place
+  // retention is declared. Only retain_days is settable from here;
+  // delete_after_days stays file-only on purpose (see retention.js header:
+  // on this host retention means compress, not delete).
+  app.get('/api/retention', (_req, res) => res.json(retention.read(root)));
+  app.post('/api/retention', (req, res) => {
+    const out = retention.setRetainDays(root, {
+      klass: req.body && req.body.class,
+      days: req.body && req.body.retain_days,
+    });
+    res.status(out.ok ? 200 : 400).json(out);
+  });
   app.post('/api/fleet-doctor/run', async (_req, res) => {
     await fleetdoctor.run(root);
     res.json(fleetdoctor.all());

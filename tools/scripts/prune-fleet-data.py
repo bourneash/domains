@@ -76,7 +76,79 @@ from datetime import date, datetime
 from pathlib import Path
 
 ROOT = Path(os.environ.get("FLEET_DOMAINS_ROOT", "/home/jesse/projects/domains"))
-RETAIN_DAYS_DEFAULT = int(os.environ.get("FLEET_PRUNE_RETAIN_DAYS", "30"))
+
+# Retention is DECLARED, in tools/retention/policy.yaml, not hard-coded here.
+# Before that file the numbers were one flag plus an env var, so "how long do we
+# keep X" had no per-class answer and no answer anyone could read without
+# opening this script. The policy is the config surface the Fleet Dashboard's
+# Retention view edits; this module just consumes it.
+#
+# Precedence, highest first: --retain-days flag > per-class retain_days in the
+# policy > policy defaults.retain_days > 30. A missing or unreadable policy
+# falls back to the old behaviour rather than refusing to run: a retention
+# sweep that stops working because a config file has a typo just lets the disk
+# fill up silently.
+POLICY_PATH = Path(os.environ.get(
+    "FLEET_RETENTION_POLICY", str(ROOT / "tools" / "retention" / "policy.yaml")))
+
+
+def load_policy() -> dict:
+    """Parse the retention policy. Narrow reader: no PyYAML dependency, because
+    this runs from cron on a host where installing one is a deployment step."""
+    if not POLICY_PATH.exists():
+        return {}
+    try:
+        import yaml  # optional; used when available
+        return yaml.safe_load(POLICY_PATH.read_text(encoding="utf-8")) or {}
+    except ImportError:
+        pass
+    except Exception:
+        return {}
+    # Fallback: pull just the scalars this script needs.
+    out, cur, in_classes = {"defaults": {}, "classes": {}}, None, False
+    try:
+        for raw in POLICY_PATH.read_text(encoding="utf-8").splitlines():
+            if not raw.strip() or raw.lstrip().startswith("#"):
+                continue
+            if raw.startswith("classes:"):
+                in_classes = True
+                continue
+            if raw.startswith("defaults:"):
+                in_classes = False
+                cur = "__defaults__"
+                continue
+            if in_classes and raw.startswith("  ") and not raw.startswith("    ") and raw.rstrip().endswith(":"):
+                cur = raw.strip().rstrip(":")
+                out["classes"].setdefault(cur, {})
+                continue
+            s = raw.strip()
+            if s.startswith("retain_days:"):
+                try:
+                    v = int(s.split(":", 1)[1].strip())
+                except ValueError:
+                    continue
+                if cur == "__defaults__":
+                    out["defaults"]["retain_days"] = v
+                elif cur:
+                    out["classes"].setdefault(cur, {})["retain_days"] = v
+    except Exception:
+        return {}
+    return out
+
+
+POLICY = load_policy()
+_DEFAULTS = (POLICY.get("defaults") or {}) if isinstance(POLICY, dict) else {}
+RETAIN_DAYS_DEFAULT = int(os.environ.get(
+    "FLEET_PRUNE_RETAIN_DAYS", _DEFAULTS.get("retain_days", 30)))
+
+
+def class_retain_days(name: str, fallback: int) -> int:
+    """Per-class retention, falling back to the run-wide value."""
+    c = ((POLICY.get("classes") or {}).get(name) or {}) if isinstance(POLICY, dict) else {}
+    try:
+        return int(c["retain_days"])
+    except (KeyError, TypeError, ValueError):
+        return fallback
 
 # <tool>-YYYY-MM-DD.jsonl — the date comes from the NAME, not the mtime. A
 # stray `touch` or a filesystem copy resets mtime; the name is what the writer
@@ -250,8 +322,17 @@ def main() -> int:
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="list every file/bucket, not just the per-target totals")
     ap.add_argument("--retain-days", type=int, default=RETAIN_DAYS_DEFAULT,
-                    help=f"leave anything newer than this untouched (default {RETAIN_DAYS_DEFAULT})")
+                    help=f"override every class (default {RETAIN_DAYS_DEFAULT}, from the policy)")
+    ap.add_argument("--show-policy", action="store_true",
+                    help="print the effective retention policy and exit")
     args = ap.parse_args()
+
+    if args.show_policy:
+        print(f"policy: {POLICY_PATH}{'' if POLICY_PATH.exists() else '  (MISSING — using built-in defaults)'}")
+        print(f"  defaults.retain_days = {RETAIN_DAYS_DEFAULT}")
+        for name in ("stats_ledgers", "site_role_logs", "sweep_reports"):
+            print(f"  {name}.retain_days = {class_retain_days(name, RETAIN_DAYS_DEFAULT)}")
+        return 0
 
     if args.retain_days < 1:
         print("--retain-days must be >= 1", file=sys.stderr)
@@ -266,17 +347,26 @@ def main() -> int:
 
     report: list[str] = []
 
-    report.append(f"stats ledgers (gzip, older than {args.retain_days}d):")
+    # Per-class retention from the policy; an explicit --retain-days overrides
+    # everything, which is what makes a one-off `--retain-days 7` sweep possible
+    # without editing config.
+    explicit = args.retain_days != RETAIN_DAYS_DEFAULT
+    stats_days = args.retain_days if explicit else class_retain_days("stats_ledgers", args.retain_days)
+    logs_days = args.retain_days if explicit else class_retain_days("site_role_logs", args.retain_days)
+    stats_cutoff_day = datetime.fromtimestamp(now - stats_days * 86400).date()
+    logs_cutoff_ts = now - logs_days * 86400
+
+    report.append(f"stats ledgers (gzip, older than {stats_days}d):")
     s_files = s_saved = 0
     for rel in STATS_DIRS:
-        n, saved = sweep_stats_dir(rel, cutoff_day, args.dry_run, args.verbose, report)
+        n, saved = sweep_stats_dir(rel, stats_cutoff_day, args.dry_run, args.verbose, report)
         s_files += n
         s_saved += saved
     if not s_files:
         report.append("  nothing in range")
 
-    report.append(f"site role logs (tar.gz per site-day, older than {args.retain_days}d):")
-    l_files, l_saved = sweep_site_logs(cutoff_ts, args.dry_run, args.verbose, report)
+    report.append(f"site role logs (tar.gz per site-day, older than {logs_days}d):")
+    l_files, l_saved = sweep_site_logs(logs_cutoff_ts, args.dry_run, args.verbose, report)
     if not l_files:
         report.append("  nothing in range")
 
