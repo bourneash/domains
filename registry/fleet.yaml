@@ -766,9 +766,16 @@ sites:
     - ops
     - tasks
     - affiliate
+    - analytics
+    analytics:
+      ga4_property_id: '552472503'
+      ga4_measurement_id: G-WXXZM2REG4
+      gsc_property: sc-domain:seedstosauce.com
+      consent_gated: true
     registered_in:
     - domains-index
     - site-tracker
+    - analytics
   shoppinkflamingo.com:
     status: live
     repo: bourneash/shoppinkflamingo.com
