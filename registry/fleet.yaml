@@ -615,6 +615,7 @@ sites:
     - tasks
     - affiliate
     - analytics
+    - social
     analytics:
       ga4_property_id: '551079049'
       ga4_measurement_id: G-KBBXZGNV61
@@ -624,6 +625,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   oventoheaven.com:
     status: live
     repo: bourneash/oventoheaven.com
@@ -786,6 +788,7 @@ sites:
     capabilities:
     - site
     - ops
+    - smoke
     - tasks
     - affiliate
     - analytics
