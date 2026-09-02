@@ -29,11 +29,25 @@ const crypto = require('node:crypto');
 // panel mounts the docker socket and joins the shared vpn_proxy network, so with
 // the gate off, any container on that network has full fleet + host control.
 const AUTH_DISABLED = process.env.FD_AUTH === '0';
-const TOKEN = AUTH_DISABLED ? null : process.env.FD_TOKEN || null;
+// FD_TOKEN may be a comma-separated list — one credential per client
+// (browser operator, a programmatic caller like Claude) instead of one shared
+// secret everyone reuses, so a single client's token can be added or revoked
+// (edit the vault list, re-render) without invalidating the others. The first
+// token is primary: it's what the browser cookie's HMAC is keyed to, so
+// rotating it still invalidates existing browser sessions exactly as before;
+// any later token in the list authenticates the `x-fd-token` header only, no
+// cookie login, since programmatic clients send the header on every request.
+const TOKENS = AUTH_DISABLED
+  ? []
+  : (process.env.FD_TOKEN || '')
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+const TOKEN = TOKENS[0] || null;
 const COOKIE = 'fd_auth';
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 3600;
-// The cookie carries an HMAC of a constant under the token, never the token
-// itself — so a leaked cookie doesn't reveal the shared secret.
+// The cookie carries an HMAC of a constant under the primary token, never the
+// token itself — so a leaked cookie doesn't reveal the shared secret.
 const COOKIE_VAL = TOKEN
   ? crypto.createHmac('sha256', TOKEN).update('fd-auth-v1').digest('hex')
   : null;
@@ -68,7 +82,10 @@ function safeEqual(a, b) {
 }
 
 function tokenValid(t) {
-  return !!TOKEN && safeEqual(String(t || ''), TOKEN);
+  const s = String(t || '');
+  // Check every configured token, not just the primary — constant work per
+  // candidate regardless of which (if any) matches, so this stays timing-safe.
+  return TOKENS.some(tok => safeEqual(s, tok));
 }
 
 function parseCookies(req) {

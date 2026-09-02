@@ -63,6 +63,16 @@ test('tokenValid accepts only the exact configured token', () => {
   });
 });
 
+test('FD_TOKEN accepts a comma-separated list — any listed token authenticates, the primary still drives the cookie', () => {
+  withAuth({ FD_TOKEN: 'human-token, claude-token ,  ' }, auth => {
+    assert.equal(auth.tokenValid('human-token'), true);
+    assert.equal(auth.tokenValid('claude-token'), true);
+    assert.equal(auth.tokenValid('neither'), false);
+    assert.equal(auth.authed(mockReq({ headers: { 'x-fd-token': 'claude-token' } })), true);
+    assert.equal(auth.TOKEN, 'human-token', 'first token stays primary for the browser cookie');
+  });
+});
+
 test('authed() accepts a valid x-fd-token header', () => {
   withAuth({ FD_TOKEN: 'correct-horse' }, auth => {
     assert.equal(auth.authed(mockReq({ headers: { 'x-fd-token': 'correct-horse' } })), true);
