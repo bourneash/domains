@@ -7,6 +7,28 @@
 name: fleet-gatus
 
 services:
+  # Groups Gatus's per-endpoint alerts into one message per site before they
+  # reach Slack, and names the cause class in plain English. See relay/relay.js
+  # for the incident that motivated it. fleet-gatus posts SITE alerts here;
+  # internal-service alerts still go straight to Slack so this container's own
+  # health check does not depend on this container.
+  alert-relay:
+    build: ./relay
+    image: fleet-alert-relay:latest
+    container_name: fleet-alert-relay
+    restart: unless-stopped
+    env_file:
+      - ../../.env
+    environment:
+      - TZ=America/New_York
+      # Long enough to catch every endpoint of one site in a single Gatus tick
+      # (they are evaluated within a second or two of each other), short enough
+      # that a real outage is still reported promptly.
+      - RELAY_WINDOW_MS=45000
+    # No published port: only fleet-gatus needs to reach it, by container name.
+    networks:
+      - default
+
   fleet-gatus:
     image: twinproduction/gatus:stable
     container_name: fleet-gatus
@@ -15,6 +37,8 @@ services:
       - ../../.env
     ports:
       - "127.0.0.1:8580:8080"   # loopback only — no auth in front of it yet
+    depends_on:
+      - alert-relay
     volumes:
       - ./config:/config:ro
       - ./data:/data

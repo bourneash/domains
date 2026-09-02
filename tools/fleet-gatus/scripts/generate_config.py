@@ -28,6 +28,9 @@ SUCCESS_THRESHOLD = 2          # consecutive passes before "recovered"
 # Channel for the fleet's own machinery (not a specific site's channel).
 INTERNAL_CHANNEL = os.environ.get("SLACK_CHANNEL_FLEET", "#fleet-ops")
 
+# Site alerts are posted here instead of straight to Slack. See relay/relay.js.
+RELAY_URL = os.environ.get("GATUS_RELAY_URL", "http://alert-relay:8581/alert")
+
 # --- The fleet's own services -------------------------------------------------
 #
 # Every check above this line watches the PRODUCT — public site URLs. Nothing
@@ -50,6 +53,10 @@ INTERNAL_SERVICES = [
     {"name": "Product Feed API", "url": "http://product-feed-api:4761/health"},
     {"name": "Media Gen API", "url": "http://host.docker.internal:4780/health"},
     {"name": "Dev Sandboxes panel", "url": "http://dd-panel:7777/api/health"},
+    # Every SITE alert is routed through this process, so if it is down the
+    # fleet is silently unmonitored. It alerts DIRECTLY to Slack (see
+    # slack_alert_body) precisely so it is not reporting on itself.
+    {"name": "Alert relay", "url": "http://alert-relay:8581/health"},
 ]
 
 # Deliberately NOT here: cf-stats, gh-stats, amz-stats, datahub-collector,
@@ -75,10 +82,14 @@ def load_smoke_yaml(site):
 
 
 def slack_alert_body(channel):
-    """Custom-provider body posting through the fleet's existing Slack bot
-    token + each site's existing channel (chat.postMessage) — reuses the
-    fleet's current Slack app membership/channel wiring instead of standing
-    up new webhooks."""
+    """Direct-to-Slack body, used ONLY by the fleet's own internal services.
+
+    Site checks do not use this — they go through the relay (see
+    relay_alert_body) so that a site-wide failure is one grouped message rather
+    than one message per URL. The internal services deliberately stay on this
+    direct path: there are only a handful of them, and if the relay itself dies
+    its own health check has to be able to say so without depending on the relay.
+    """
     payload = {
         "channel": channel,
         "attachments": [{
@@ -93,6 +104,38 @@ def slack_alert_body(channel):
     return json.dumps(payload)
 
 
+def relay_alert_body(channel, site, name, url, total):
+    """Structured event for the alert relay (relay/relay.js).
+
+    Gatus alerts per ENDPOINT, so a site-wide outage fans out to one Slack
+    message per check — girlpain.com's 2026-09-02 DNS flap produced 18 of them,
+    none of which mentioned that all nine failed identically (the one fact that
+    would have identified it as site-wide rather than a page bug). The relay
+    buffers these for a few seconds, groups them by site, and posts one message
+    that leads with scope and names the cause class.
+
+    `total` is how many checks this site has, so the relay can say "9 of 9"
+    (site-wide) versus "1 of 9" (page-scoped) without querying anything back.
+    """
+    # NOT JSON, deliberately. Gatus substitutes [RESULT_ERRORS] as a raw string
+    # and its errors routinely contain double quotes — e.g.
+    #   Get "https://girlpain.com/": dial tcp: lookup girlpain.com ... no such host
+    # which would make a JSON body unparseable exactly when an alert fires, i.e.
+    # the alerts would silently vanish during a real outage. A line-oriented
+    # `key: value` body cannot be broken by the error text, and `errors` is last
+    # so it may contain anything at all, newlines included.
+    lines = [
+        f"channel: {channel}",
+        f"site: {site}",
+        f"name: {name}",
+        f"url: {url}",
+        f"total: {total}",
+        "status: [ALERT_TRIGGERED_OR_RESOLVED]",
+        "errors: [RESULT_ERRORS]",
+    ]
+    return "\n".join(lines)
+
+
 def build_endpoints(sites):
     endpoints = []
     skipped_sites = []
@@ -104,6 +147,12 @@ def build_endpoints(sites):
             continue
         apex = cfg["apex"]
         channel = cfg.get("slack", {}).get("channel")
+        # How many of this site's checks Gatus will actually run. The relay uses
+        # it as the denominator in "N of M checks down", which is what separates
+        # "the site is gone" from "one page regressed".
+        site_check_count = sum(
+            1 for c in cfg.get("checks", []) if c.get("type", "http_status") == "http_status"
+        )
         for check in cfg.get("checks", []):
             name = check["label"]
             path = check["path"]
@@ -137,7 +186,14 @@ def build_endpoints(sites):
                 "success-threshold": SUCCESS_THRESHOLD,
                 "send-on-resolved": True,
                 "provider-override": {
-                    "body": slack_alert_body(channel),
+                    # Site alerts go to the relay, which groups them per site
+                    # before they reach Slack. `url` overrides the global
+                    # provider's Slack endpoint for this alert only.
+                    "url": RELAY_URL,
+                    "headers": {"Content-Type": "text/plain"},
+                    "body": relay_alert_body(
+                        channel, apex, name, f"https://{apex}{path}", site_check_count,
+                    ),
                 },
             }]
             endpoints.append(endpoint)

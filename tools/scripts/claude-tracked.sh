@@ -492,10 +492,19 @@ if record.get("is_error") or int(status or 0) != 0:
             "The fleet auth monitor owns the outage/recovery alert."
         ),
         "zero_cost_failure": "the Claude CLI failed before model execution; no tokens were spent.",
+        # Deliberately no longer says "the next scheduled run normally finishes
+        # the work". On 2026-09-02 girlpain's engineer hit this cap and the next
+        # seven runs did NOT finish the work — they re-entered the same repair
+        # loop, because a role that is stuck cannot tell itself apart from a role
+        # that is merely slow, and this message told everyone reading the channel
+        # to expect the former to resolve itself. Raising the cap on a looping
+        # role just buys the loop more turns.
         "error_max_turns": (
-            f"hit its turn cap ({turns}/{cap}) — the task was larger than the budget, "
-            "NOT a crash. The next scheduled run normally finishes the work. "
-            "Raise --max-turns for this role, or split the task, if it recurs."
+            f"hit its turn cap ({turns}/{cap}) — the run was truncated, NOT a crash. "
+            "If this is the FIRST time for this role, the next run usually finishes "
+            "the work and no action is needed. If it REPEATS, the role is looping "
+            "on something it cannot fix and a bigger cap will not help — read "
+            "ops/board/ and the last run's log and find what it keeps retrying."
         ),
         "error_during_execution": "the model errored mid-run; usually transient, retried next tick.",
         "network_preflight_failed": "no network before the call was made — no tokens were spent.",
