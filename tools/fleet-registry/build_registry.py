@@ -345,39 +345,47 @@ def report(sites: dict, disk: dict, src: dict) -> str:
     return "\n".join(lines)
 
 
+def write_registry() -> tuple[dict, str]:
+    """Rebuild + write registry/fleet.yaml and MERGE_REPORT.md. Used by both
+    `--write` and check_drift.py's `--fix` self-heal path — keep in sync."""
+    sites, disk, src = build()
+    text = report(sites, disk, src)
+    sites = merge_preserved(sites)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    header = (
+        "# Canonical fleet registry — one entry per domain.\n"
+        "#\n"
+        "# Truth model: the filesystem owns *existence* (a dir under sites/ with\n"
+        "# ops/ or site/ is a site); this file owns *policy* (status, ids, which\n"
+        "# tools apply). Consumers read this instead of keeping their own roster.\n"
+        "#\n"
+        "# Derived fields are refreshed by tools/fleet-registry/build_registry.py\n"
+        "# --write. Hand-owned fields (status, tags, notes, capabilities_override)\n"
+        "# survive a rebuild — edit those here freely.\n"
+    )
+    OUT.write_text(
+        header + yaml.safe_dump({"sites": sites}, sort_keys=False, width=100, allow_unicode=True),
+        encoding="utf-8",
+    )
+    REPORT.write_text(text, encoding="utf-8")
+    return sites, text
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--write", action="store_true", help="write registry/fleet.yaml")
     ap.add_argument("--report", action="store_true", help="print the drift report")
     args = ap.parse_args()
 
-    sites, disk, src = build()
-    text = report(sites, disk, src)
-
     if args.write:
-        sites = merge_preserved(sites)
-        OUT.parent.mkdir(parents=True, exist_ok=True)
-        header = (
-            "# Canonical fleet registry — one entry per domain.\n"
-            "#\n"
-            "# Truth model: the filesystem owns *existence* (a dir under sites/ with\n"
-            "# ops/ or site/ is a site); this file owns *policy* (status, ids, which\n"
-            "# tools apply). Consumers read this instead of keeping their own roster.\n"
-            "#\n"
-            "# Derived fields are refreshed by tools/fleet-registry/build_registry.py\n"
-            "# --write. Hand-owned fields (status, tags, notes, capabilities_override)\n"
-            "# survive a rebuild — edit those here freely.\n"
-        )
-        OUT.write_text(
-            header + yaml.safe_dump({"sites": sites}, sort_keys=False, width=100, allow_unicode=True),
-            encoding="utf-8",
-        )
-        REPORT.write_text(text, encoding="utf-8")
+        sites, text = write_registry()
         print(f"wrote {OUT.relative_to(ROOT)} ({len(sites)} sites)")
         print(f"wrote {REPORT.relative_to(ROOT)}")
-
-    if args.report or not args.write:
-        print(text)
+        if args.report:
+            print(text)
+    else:
+        sites, disk, src = build()
+        print(report(sites, disk, src))
     return 0
 
 

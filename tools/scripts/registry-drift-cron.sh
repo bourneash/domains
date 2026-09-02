@@ -6,10 +6,18 @@
 # it appears. A daily "still 16 warnings" post trains everyone to ignore the
 # channel, which is how the last round of drift went unnoticed for months.
 #
+# Self-heals pure-derived drift (capabilities/worker gone stale, or an
+# on-disk site missing its registry entry) via `check_drift.py --fix` before
+# reporting — those ERRORs mean "nobody reran build_registry.py after adding
+# a roster entry," not a real problem, so fixing them here is what stops that
+# class from ever reaching Slack.
+#
 # Notifies on:
-#   - any ERROR (a site with no registry entry, or vice versa) — first tick only
+#   - any remaining ERROR (orphaned registry entry — needs a human delete
+#     call, --fix won't touch it) — first tick only
 #   - a warning that was not present on the previous run
-#   - everything clearing after a non-clean run
+#   - each individual finding clearing (per-site), plus the whole run going
+#     clean after a non-clean one
 #
 # Env toggles:
 #   REGISTRY_DRIFT_NOTIFY=0    no Slack (still logs)
@@ -35,7 +43,7 @@ log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 
 [[ -f "$DOMAINS_ROOT/.env" ]] && { set -a; . "$DOMAINS_ROOT/.env"; set +a; }
 
-REPORT="$(timeout 120 python3 "$TOOL_DIR/check_drift.py" --json 2>>"$LOG")"
+REPORT="$(timeout 120 python3 "$TOOL_DIR/check_drift.py" --fix --json 2>>"$LOG")"
 if [[ -z "$REPORT" ]]; then
   log "drift check produced no output — skipping"
   exit 0
@@ -58,16 +66,25 @@ except (OSError, ValueError):
 
 current = {f"{kind}:{text}" for kind, text in findings}
 new = sorted(current - previous)
+cleared = sorted(previous - current)
 
 print("SUMMARY=%s" % shlex.quote(f'{len(report["errors"])} error(s), {len(report["warnings"])} warning(s)'))
+if report.get("fixed"):
+    print("SELF_HEALED=1")
 print("NEW_COUNT=%d" % len(new))
 print("CLEARED=%d" % (1 if previous and not current else 0))
+print("CLEARED_COUNT=%d" % len(cleared))
 for i, item in enumerate(new):
     kind, text = item.split(":", 1)
     site = text.split(":", 1)[0].strip()
     print("NEW_%d_SITE=%s" % (i, shlex.quote(site)))
     print("NEW_%d_KIND=%s" % (i, shlex.quote(kind)))
     print("NEW_%d_TEXT=%s" % (i, shlex.quote(text.split(":", 1)[1].strip())))
+for i, item in enumerate(cleared):
+    kind, text = item.split(":", 1)
+    site = text.split(":", 1)[0].strip()
+    print("CLEARED_%d_SITE=%s" % (i, shlex.quote(site)))
+    print("CLEARED_%d_TEXT=%s" % (i, shlex.quote(text.split(":", 1)[1].strip())))
 
 os.makedirs(os.path.dirname(state_path), exist_ok=True)
 with open(state_path, "w") as fh:
@@ -75,7 +92,7 @@ with open(state_path, "w") as fh:
 PY
 )"
 
-log "drift check — $SUMMARY, new=$NEW_COUNT"
+log "drift check — $SUMMARY, new=$NEW_COUNT, cleared=$CLEARED_COUNT${SELF_HEALED:+ (self-healed)}"
 
 notify() {
   local site="$1" status="$2" headline="$3"
@@ -95,6 +112,16 @@ for (( i = 0; i < NEW_COUNT; i++ )); do
   [[ "$kind" == "ERROR" ]] && status=fail || status=warn
   notify "$site" "$status" "Fleet registry drift: $text"
   log "notified $site ($kind: $text)"
+done
+
+# Per-finding all-clear: notify the site the moment ITS finding resolves,
+# rather than waiting for the whole fleet-wide run to go clean (which may
+# never happen while unrelated sites carry their own open warnings).
+for (( i = 0; i < CLEARED_COUNT; i++ )); do
+  site_var="CLEARED_${i}_SITE"; text_var="CLEARED_${i}_TEXT"
+  site="${!site_var}"; text="${!text_var}"
+  notify "$site" "ok" "Fleet registry drift resolved: $text"
+  log "cleared $site ($text)"
 done
 
 if [[ "$CLEARED" == "1" ]]; then

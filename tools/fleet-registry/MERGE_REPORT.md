@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **57** (live 34, scaffold 22, parked 0, redirect 1)
+`sites/` directories merged: **57** (live 35, scaffold 21, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -13,14 +13,14 @@ provenance only; absence there is a choice, not drift.
 | `site-tracker/sites.yml` | fleet-wide | 56/57 | — |
 | `data-hub/sites-analytics.yaml` | fleet-wide | 33/57 | arttogogh.com, eastcoastrappers.com, girlpain.com, shoppinkflamingo.com |
 | `DOMAINS_INDEX.md` | fleet-wide | 57/57 | — |
-| `social registry` | fleet-wide | 48/57 | eastcoastrappers.com, girlpain.com, greatamericanlakes.com, offshorehookup.com, shoppinkflamingo.com, unsupervisedmedia.com |
+| `social registry` | fleet-wide | 48/57 | eastcoastrappers.com, girlpain.com, greatamericanlakes.com, howfishthink.com, offshorehookup.com, shoppinkflamingo.com, unsupervisedmedia.com |
 | `data-hub/subscriptions.yaml` | opt-in | 7/57 | n/a |
 | `product-feed/subscriptions.yaml` | opt-in | 2/57 | n/a |
 
 ## Gaps on live sites
 
 - No `ops/smoke.yaml` (invisible to fleet-gatus): —
-- No Slack channel env: greatamericanlakes.com
+- No Slack channel env: greatamericanlakes.com, howfishthink.com
 - No worker name in wrangler config: 0xroulette.com, trainingsharks.com
 
 ## Stale DOMAINS_INDEX buckets

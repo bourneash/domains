@@ -17,6 +17,13 @@ Usage:
     check_drift.py            # human report, exit 1 on any ERROR
     check_drift.py --strict   # exit 1 on WARN too
     check_drift.py --json     # machine-readable, for the watchdog role
+    check_drift.py --fix      # self-heal pure-derived drift, then report
+
+--fix only ever runs `build_registry.py --write`, and only when every current
+ERROR is a derived field gone stale (capabilities/worker) or an on-disk site
+missing its registry entry — the two ERROR kinds a plain rebuild actually
+fixes. An orphaned registry entry (no sites/ dir) needs a human call on
+whether to delete it, so --fix never rebuilds to paper over one of those.
 """
 
 from __future__ import annotations
@@ -39,7 +46,20 @@ FLEET_WIDE = [
 ]
 
 
-def check() -> tuple[list[str], list[str]]:
+AUTO_FIXABLE = ("stale in registry", "worker name stale", "has NO registry entry")
+
+
+def check(fix: bool = False) -> tuple[list[str], list[str], bool]:
+    errors, warnings = _check_once()
+    fixed = False
+    if fix and errors and all(any(m in e for m in AUTO_FIXABLE) for e in errors):
+        B.write_registry()
+        fixed = True
+        errors, warnings = _check_once()
+    return errors, warnings, fixed
+
+
+def _check_once() -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -98,14 +118,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--strict", action="store_true", help="fail on warnings too")
     ap.add_argument("--json", action="store_true", dest="as_json")
+    ap.add_argument("--fix", action="store_true", help="self-heal pure-derived drift first")
     args = ap.parse_args()
 
-    errors, warnings = check()
+    errors, warnings, fixed = check(fix=args.fix)
 
     if args.as_json:
-        print(json.dumps({"errors": errors, "warnings": warnings}, indent=2))
+        print(json.dumps({"errors": errors, "warnings": warnings, "fixed": fixed}, indent=2))
     else:
         print("=== fleet registry drift ===")
+        if fixed:
+            print("  (self-healed derived drift via build_registry.py --write)")
         for line in errors:
             print(f"  ERROR  {line}")
         for line in warnings:
