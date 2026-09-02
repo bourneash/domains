@@ -168,6 +168,22 @@ def _parse(item: dict) -> dict:
     return parsed
 
 
+def _log_api_outcome(outcome: str, count: int) -> None:
+    """Append one JSONL line per PA-API batch to build a real failure history."""
+    import datetime, json as _json
+    try:
+        path = Path(__file__).resolve().parent / "logs" / "api-outcomes.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(_json.dumps({
+                "ts": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "outcome": outcome,
+                "asins": count,
+            }) + "\n")
+    except Exception:
+        pass  # instrumentation must never break the check
+
+
 def check_health(cl, asins: list[str], batch_size: int = 10) -> dict[str, AsinHealth]:
     """getItems every ASIN and classify. Does NOT run the HTTP confirmation gate."""
     _ensure_amz_stats_on_path()
@@ -201,6 +217,15 @@ def check_health(cl, asins: list[str], batch_size: int = 10) -> dict[str, AsinHe
                     time.sleep(5.0)
                     continue
                 break
+
+        # Record every outcome with a timestamp. The 403 is external, intermittent
+        # and undiagnosable from a single run — this is the only way to find out
+        # whether it is diurnal, quota-shaped, or genuinely random, instead of
+        # re-litigating it from one failed probe each time someone notices.
+        _log_api_outcome(
+            "ok" if resp is not None else f"error-{getattr(last_exc, 'status', '?')}",
+            len(batch),
+        )
 
         if resp is None:
             # Keep the API's own words. "API error 403" alone is unactionable —
