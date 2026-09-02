@@ -151,6 +151,7 @@ def client(cache_file: Path):
         os.environ["AMAZON_CREATORS_KEY_SECRET"],
         os.environ["AMAZON_ASSOCIATES_STORE_ID"],
         cache_file,
+        application_id=os.environ.get("AMAZON_CREATORS_APPLICATION_ID"),
     )
 
 

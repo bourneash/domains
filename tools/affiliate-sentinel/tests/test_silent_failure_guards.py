@@ -136,6 +136,14 @@ class TestTransientNotPermanent:
         src = (TOOL / "amz.py").read_text()
         assert 'in (429, 403)' in src, "403 must be retried, not treated as final"
 
+    def test_sentinel_passes_application_id_to_creators_client(self):
+        src = (TOOL / "amz.py").read_text()
+        idx = src.index("return AMZClient(")
+        window = src[idx : idx + 500]
+        assert "application_id=os.environ.get(\"AMAZON_CREATORS_APPLICATION_ID\")" in window, (
+            "the sentinel must send the Creators application ID just like amz-stats"
+        )
+
 
 class TestApiOutageIsNotAPass:
     """Failure 4: every ASIN check returning 403 still posted a green ✅.
