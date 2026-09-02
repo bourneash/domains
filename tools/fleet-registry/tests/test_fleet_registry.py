@@ -49,6 +49,37 @@ def test_capability_override_wins(registry):
     assert R.with_capability("analytics") == ["alpha.com"]
 
 
+def test_read_social_keys_on_active_accounts_not_sitemeta(tmp_path, monkeypatch):
+    """Regression: offshorehookup.com registry-drift, 2026-09-02.
+
+    read_social() must derive from `accounts` (what social-setup actually
+    provisioned), not `siteMeta` (human notes with no writer keeping it in
+    sync). Presence in siteMeta — regardless of category, or with no
+    accounts at all — must not grant the "social" capability; an active
+    account with no siteMeta entry must.
+    """
+    social_dir = tmp_path / "tools" / "social-setup" / "registry"
+    social_dir.mkdir(parents=True)
+    (social_dir / "social.json").write_text(
+        __import__("json").dumps({
+            "siteMeta": {
+                # stale note, category isn't even "active", and zero accounts
+                "no-accounts-but-noted.com": {"category": "positioning_tbd"},
+            },
+            "accounts": [
+                {"site": "has-account-no-note.com", "platform": "bluesky", "status": "active"},
+                {"site": "blocked-only.com", "platform": "bluesky", "status": "blocked"},
+            ],
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(B, "ROOT", tmp_path)
+    social = B.read_social()
+    assert social == {"has-account-no-note.com"}
+    assert "no-accounts-but-noted.com" not in social
+    assert "blocked-only.com" not in social
+
+
 def test_worker_name_read_from_jsonc(tmp_path):
     site = tmp_path / "site"
     site.mkdir()
