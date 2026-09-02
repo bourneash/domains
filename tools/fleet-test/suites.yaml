@@ -27,7 +27,9 @@ suites:
   ai-optimizer:      { runner: pytest }
   ai-usage:          { runner: pytest }
   amz-stats:         { runner: pytest }
+  cf-broker:         { runner: pytest }
   cf-stats:          { runner: pytest }
+  cf-tokens:         { runner: pytest }
   data-hub:          { runner: pytest, timeout: 600 }
   data-hub-images:   { runner: pytest, timeout: 600 }
   env-broker:        { runner: pytest }
@@ -48,6 +50,7 @@ suites:
   social-lib:        { runner: pytest }
   social-poster:     { runner: pytest }
   social-setup:      { runner: pytest }
+  task-budget:       { runner: pytest }
   fleet-dashboard:   { runner: node-test, timeout: 600 }
   fleet-git:         { runner: node-test }
 
