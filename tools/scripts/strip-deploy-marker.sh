@@ -18,8 +18,9 @@ INDEX="${DOMAINS_ROOT}/sites/${DOMAIN}/site/src/pages/index.astro"
 sed -i '/<meta name="x-deploy-test"/d' "${INDEX}"
 
 cd "${DOMAINS_ROOT}/sites/${DOMAIN}"
-git add -A
-git -c commit.gpgsign=false commit -q -m "remove test marker — CF Workers Builds verified"
+# Only the one file this script edited — see add-deploy-marker.sh.
+git -c commit.gpgsign=false commit -q -m "remove test marker — CF Workers Builds verified" \
+  --only -- site/src/pages/index.astro
 git push -q origin main
 
 echo "${DOMAIN}: cleanup pushed ($(git rev-parse --short HEAD))"

@@ -21,8 +21,12 @@ INDEX="${DOMAINS_ROOT}/sites/${DOMAIN}/site/src/pages/index.astro"
 sed -i 's|<meta name="robots" content="noindex" />|<meta name="robots" content="noindex" />\n    <meta name="x-deploy-test" content="cf-builds-verify" />|' "${INDEX}"
 
 cd "${DOMAINS_ROOT}/sites/${DOMAIN}"
-git add -A
-git -c commit.gpgsign=false commit -q -m "test: verify CF Workers Builds GitHub integration"
+# Only the one file this script edited. `git add -A` here would sweep any
+# in-flight work in this site into a commit titled "test: verify CF Workers
+# Builds" — and `--only` is what actually guarantees it, because the index is
+# shared: another session can stage its files between our add and our commit.
+git -c commit.gpgsign=false commit -q -m "test: verify CF Workers Builds GitHub integration" \
+  --only -- site/src/pages/index.astro
 git push -q origin main
 
 echo "${DOMAIN}: marker pushed ($(git rev-parse --short HEAD))"

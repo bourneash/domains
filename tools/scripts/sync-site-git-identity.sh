@@ -34,7 +34,7 @@ CHECK=0
 
 applied=0
 drifted=0
-undeclared=()
+derived=()
 
 for d in "$ROOT"/sites/*/; do
   site="$(basename "$d")"
@@ -44,11 +44,16 @@ for d in "$ROOT"/sites/*/; do
   name="$(grep -oP 'GIT_USER_NAME:\s*"?\K[^"\n]+' "$compose" 2>/dev/null | head -1 || true)"
   email="$(grep -oP 'GIT_USER_EMAIL:\s*"?\K[^"\n]+' "$compose" 2>/dev/null | head -1 || true)"
 
-  # Scaffolds with no ops runtime yet declare no identity. They get one when
-  # their compose is stamped; nothing to do here.
+  # Scaffolds have no docker-compose.yml yet, so nothing declares an identity
+  # for them. Derive one from the domain rather than leaving them on the host's
+  # global identity — that is the whole failure this script exists to stop, and
+  # a scaffold gets committed to (bootstrap, onboarding, link sweeps) long
+  # before it gets an ops runtime. Same shape the stamped sites use, so when a
+  # compose does land it will agree instead of fighting.
   if [[ -z "$name" || -z "$email" ]]; then
-    undeclared+=("$site")
-    continue
+    derived+=("$site")
+    name="${site%%.*} Bot"
+    email="bot@${site}"
   fi
 
   current="$(git -C "$d" config --local user.email 2>/dev/null || true)"
@@ -65,9 +70,9 @@ for d in "$ROOT"/sites/*/; do
   fi
 done
 
-if (( ${#undeclared[@]} )); then
-  printf '\nno identity declared in docker-compose.yml (%d, expected for scaffolds):\n  %s\n' \
-    "${#undeclared[@]}" "${undeclared[*]}"
+if (( ${#derived[@]} )); then
+  printf '\nidentity derived from the domain (%d — no docker-compose.yml yet):\n  %s\n' \
+    "${#derived[@]}" "${derived[*]}"
 fi
 
 if (( CHECK )); then
