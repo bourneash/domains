@@ -22,6 +22,7 @@ that a parse/re-emit round-trip would destroy.
 """
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,12 +45,21 @@ _STR = r"""(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")"""
 # their /go/ cloaks were live, so the parser matches on meaning, not on one
 # spelling.
 _ID_KEYS = ("id", "slug")
+# searchQuery | query | q  (fishhooklabs' catalog names the Amazon search
+# phrase `q`; keyed off `searchQuery` only, all 101 of its entries looked like
+# non-products and the whole site parsed to zero).
+_QUERY_KEYS = ("searchQuery", "query", "searchTerm", "search", "q")
 _NAME_KEYS = ("name", "label", "title")
 _IMAGE_KEYS = ("image", "imageUrl")
 _ASIN_RE = re.compile(r"^[A-Z0-9]{10}$")
 _DP_RE = re.compile(r"/dp/([A-Z0-9]{10})")
 
-_ID_RE = re.compile(r"\b(?:" + "|".join(_ID_KEYS) + r"):\s*" + _STR)
+# `\"?` before the colon makes this tolerate quoted JSON keys (`"id": "..."`)
+# as well as bare TS ones (`id: '...'`) — broadwayshowgirls keeps its whole
+# catalog as a JSON array (`ops/affiliate/products.json`) imported into
+# affiliate.ts rather than a TS object literal, and the unquoted-only pattern
+# silently parsed it to zero products with no error.
+_ID_RE = re.compile(r"\b(?:" + "|".join(_ID_KEYS) + r")\"?:\s*" + _STR)
 
 
 def _first_group(m: re.Match) -> str | None:
@@ -76,6 +86,17 @@ class Product:
     image: str | None = None
     url: str | None = None
     fields: dict[str, str] = field(default_factory=dict)
+    # Set only for collection-backed products: the decoded contents of the JSON
+    # file this entry IS. TS-literal entries leave it None and are addressed by
+    # (start, end) inside their `source` file instead.
+    data: dict | None = None
+    # The TS file this literal lives in. A registry can be split across
+    # several files (fishhooklabs' catalog is terminal/platform/field), so the
+    # file to edit is a property of the product, not of the run.
+    source: Path | None = None
+    # True when this literal encloses other parsed entries — a painting that
+    # owns three buy-links, not a fourth buy-link.
+    is_container: bool = False
 
     @property
     def is_asin_backed(self) -> bool:
@@ -90,6 +111,13 @@ class Product:
         entries. Treating a shelf as a product invented four `/go/` links that
         were never meant to exist and reported them as broken.
         """
+        if self.is_container:
+            # A container's own fields (a title, a hero image) look exactly
+            # like a product's, so shape alone cannot tell them apart. It owns
+            # the real entries; cloaking it invents a /go/ route that no site
+            # ever generated (arttogogh's 24 paintings, each wrapping three
+            # actual buy-links).
+            return False
         return bool(self.asin or self.search_query or self.image or self.url)
 
     def search_seed(self) -> str:
@@ -107,8 +135,56 @@ class Product:
         return " ".join(parts) if parts else self.id.replace("-", " ")
 
 
+def _own_text(obj_text: str) -> str:
+    """The literal's own key/value lines, with nested objects and arrays cut out.
+
+    Entries nest: fishhooklabs items carry a `hook: {...}` spec, arttogogh's
+    paintings carry an `orders: [{ id, search }, ...]` list. A flat regex over
+    the whole span reads the FIRST nested `id:` as the entry's own id, which
+    made every arttogogh painting masquerade as its first order — right id
+    shape, wrong entry, and the other two orders per painting never checked.
+    """
+    out: list[str] = []
+    depth = 0
+    quote: str | None = None
+    i = 0
+    n = len(obj_text)
+    while i < n:
+        ch = obj_text[i]
+        if quote:
+            if ch == "\\":
+                if depth <= 1:
+                    out.append(obj_text[i : i + 2])
+                i += 2
+                continue
+            if ch == quote:
+                quote = None
+            if depth <= 1:
+                out.append(ch)
+            i += 1
+            continue
+        if ch in "'\"`":
+            quote = ch
+            if depth <= 1:
+                out.append(ch)
+        elif ch in "{[":
+            depth += 1
+            if depth <= 1:
+                out.append(ch)
+        elif ch in "}]":
+            if depth <= 1:
+                out.append(ch)
+            depth -= 1
+        elif depth <= 1:
+            out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def _scalar(obj_text: str, key: str) -> str | None:
-    m = re.search(rf"\b{re.escape(key)}:\s*" + _STR, obj_text)
+    # `\"?` tolerates a quoted JSON key (`"asin": "..."`) as well as a bare TS
+    # one (`asin: '...'`) — see the note on `_ID_RE`.
+    m = re.search(rf"\b{re.escape(key)}\"?:\s*" + _STR, obj_text)
     return _first_group(m) if m else None
 
 
@@ -163,6 +239,20 @@ _REGISTRY_GLOBS = (
     "site/src/lib/affiliate*.ts",
     "site/src/data/affiliate*.ts",
     "site/src/**/affiliate*.ts",
+    # Some sites call the product registry a catalog and split it across a
+    # directory of files by section. Nothing about the sentinel needs it to be
+    # one file — only that every product is seen.
+    "site/src/data/catalog.ts",
+    "site/src/data/catalog/*.ts",
+    "site/src/**/catalog*.ts",
+    "site/src/**/catalog/*.ts",
+    # broadwayshowgirls keeps its whole catalog as one JSON array under `ops/`
+    # (its per-writer picks are ops-owned data, imported into the site via
+    # `with { type: 'json' }`), rather than a TS literal or a per-product
+    # collection dir. `parse()` handles JSON text fine (see `_ID_RE`) — it
+    # just needs to be found.
+    "ops/affiliate/products.json",
+    "ops/affiliate/*.json",
 )
 
 # Test files sit right next to the real thing and parse to zero products, but
@@ -170,12 +260,7 @@ _REGISTRY_GLOBS = (
 _NOT_A_REGISTRY = (".test.", ".spec.", "__tests__", "/node_modules/", "/.claude/")
 
 
-def find_registry(site_root: Path) -> Path | None:
-    """Locate this site's product registry, wherever it actually lives.
-
-    Returns the candidate that yields the most parsed products, so a site with
-    both a real registry and a stray helper file gets the real one.
-    """
+def _registry_candidates(site_root: Path) -> list[Path]:
     seen: list[Path] = []
     for pattern in _REGISTRY_GLOBS:
         for candidate in sorted(site_root.glob(pattern)):
@@ -186,18 +271,151 @@ def find_registry(site_root: Path) -> Path | None:
                 continue
             if candidate not in seen:
                 seen.append(candidate)
+    return seen
 
-    best: Path | None = None
-    best_n = -1
-    for candidate in seen:
+
+def find_registries(site_root: Path) -> list[Path]:
+    """Every file that makes up this site's registry, in canonical order.
+
+    A registry is not always one file. fishhooklabs splits its catalog across
+    `data/catalog/{terminal,platform,field}.ts` behind a barrel `index.ts`
+    that only re-exports; picking the single best-scoring file would have
+    monitored a third of that site and reported it as the whole thing.
+
+    Files are grouped by directory and the highest-scoring directory wins, so
+    a stray helper next to the real registry still loses, and the barrel file
+    (zero products) is dropped for free.
+    """
+    by_dir: dict[Path, list[tuple[Path, int]]] = {}
+    for candidate in _registry_candidates(site_root):
         try:
             n = len(parse(candidate))
         except (OSError, UnicodeDecodeError):
             continue
-        # First match wins ties, preserving the canonical-path ordering above.
-        if n > best_n:
-            best, best_n = candidate, n
-    return best
+        if n:
+            by_dir.setdefault(candidate.parent, []).append((candidate, n))
+    if not by_dir:
+        return []
+    # First directory wins ties, preserving the canonical-path ordering above.
+    best_dir = max(by_dir, key=lambda d: sum(n for _f, n in by_dir[d]))
+    return [f for f, _n in by_dir[best_dir]]
+
+
+def find_registry(site_root: Path) -> Path | None:
+    """The single most canonical registry file — the one that carries the tag.
+
+    Prefer `find_registries` for anything that needs every product.
+    """
+    files = find_registries(site_root)
+    if files:
+        return files[0]
+    # Nothing parsed, but a registry file may still exist (an all-computed
+    # registry). Returning it is what makes the "exists but parsed to ZERO"
+    # alarm fire instead of a silent "no registry, nothing to check".
+    candidates = _registry_candidates(site_root)
+    return candidates[0] if candidates else None
+
+
+# Sites past a few dozen products stop keeping a TS array at all: the catalog
+# becomes an Astro content collection, one JSON file per product, and
+# `affiliate.ts` keeps only the tag + helpers (allthingsmasonic has 429 of
+# these and its affiliate.ts documents, at length, why the array is absent).
+# The parser used to read only the TS file, find no array, and hard-fail the
+# whole site as "parsed to ZERO products" — i.e. the largest catalog in the
+# fleet went completely unmonitored while looking like a parser bug.
+_COLLECTION_GLOBS = (
+    "site/src/content/products",
+    "site/src/content/product",
+    "site/src/data/products",
+)
+
+
+def _product_from_json(path: Path) -> Product | None:
+    try:
+        raw = path.read_text(encoding="utf-8")
+        data = json.loads(raw)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+
+    def pick(keys: tuple[str, ...]) -> str | None:
+        for k in keys:
+            v = data.get(k)
+            if isinstance(v, str) and v:
+                return v
+        return None
+
+    pid = pick(_ID_KEYS) or path.stem
+    url = pick(("url",))
+    combo = pick(("searchOrAsin",))
+    asin = pick(("asin",))
+    if not asin and combo and _ASIN_RE.match(combo):
+        asin = combo
+    if not asin and url:
+        m_dp = _DP_RE.search(url)
+        if m_dp:
+            asin = m_dp.group(1)
+    search_query = pick(("searchQuery", "query"))
+    if not search_query and combo and not _ASIN_RE.match(combo):
+        search_query = combo
+
+    return Product(
+        id=pid,
+        # A collection entry IS its file, so the whole file is the span. That
+        # keeps the same "did it change under us?" check working for edits.
+        start=0,
+        end=len(raw),
+        text=raw,
+        asin=asin,
+        name=pick(_NAME_KEYS),
+        brand=pick(("brand",)),
+        category=pick(("category",)),
+        search_query=search_query,
+        image=pick(_IMAGE_KEYS),
+        url=url,
+        source=path,
+        data=data,
+    )
+
+
+def find_collection(site_root: Path) -> Path | None:
+    """The per-product JSON collection directory, if this site uses one."""
+    for rel in _COLLECTION_GLOBS:
+        d = site_root / rel
+        if d.is_dir() and any(d.glob("*.json")):
+            return d
+    return None
+
+
+def parse_collection(collection_dir: Path) -> list[Product]:
+    products = [_product_from_json(f) for f in sorted(collection_dir.glob("*.json"))]
+    return [p for p in products if p is not None]
+
+
+def parse_all(site_root: Path, registry_path: Path | None) -> list[Product]:
+    """Every product this site declares, from both registry shapes.
+
+    Unioned rather than first-hit for the same reason cloak discovery is: a
+    site can legitimately carry a handful of hand-written TS entries *and* a
+    generated collection, and checking only whichever was found first
+    under-monitors the rest. Collection entries win id collisions — the
+    collection is the generated source of truth on the sites that have one.
+    """
+    files = find_registries(site_root)
+    if registry_path and registry_path not in files:
+        files = [registry_path, *files]
+    products: list[Product] = []
+    for f in files:
+        products.extend(parse(f))
+    collection_dir = find_collection(site_root)
+    if collection_dir:
+        from_ts = {p.id: p for p in products}
+        for p in parse_collection(collection_dir):
+            from_ts.pop(p.id, None)
+            products.append(p)
+        products = [p for p in products if p.data is not None or from_ts.get(p.id) is p]
+    return products
 
 
 def parse(registry_path: Path) -> list[Product]:
@@ -236,17 +454,18 @@ def parse(registry_path: Path) -> list[Product]:
         seen_spans.add((start, end))
 
         obj = text[start:end]
+        own = _own_text(obj)
         # An interface/type declaration (`id: string;`) also contains `id:` but
         # no string literal, so _scalar returns None and the block is skipped —
         # which is what keeps type blocks out of the product list.
-        pid = _first_of(obj, _ID_KEYS)
+        pid = _first_of(own, _ID_KEYS)
         if not pid:
             continue
-        url = _scalar(obj, "url")
+        url = _scalar(own, "url")
         # searchOrAsin is one field doing two jobs: an ASIN if it looks like
         # one, otherwise a search phrase. A URL can also carry the ASIN.
-        combo = _scalar(obj, "searchOrAsin")
-        asin = _scalar(obj, "asin")
+        combo = _scalar(own, "searchOrAsin")
+        asin = _scalar(own, "asin")
         if not asin and combo and _ASIN_RE.match(combo):
             asin = combo
         if not asin and url:
@@ -254,7 +473,7 @@ def parse(registry_path: Path) -> list[Product]:
             if m_dp:
                 asin = m_dp.group(1)
 
-        search_query = _scalar(obj, "searchQuery") or _scalar(obj, "query")
+        search_query = _first_of(own, _QUERY_KEYS)
         if not search_query and combo and not _ASIN_RE.match(combo):
             search_query = combo
 
@@ -265,16 +484,23 @@ def parse(registry_path: Path) -> list[Product]:
                 end=end,
                 text=obj,
                 asin=asin,
-                name=_first_of(obj, _NAME_KEYS),
-                brand=_scalar(obj, "brand"),
-                category=_scalar(obj, "category"),
+                name=_first_of(own, _NAME_KEYS),
+                brand=_scalar(own, "brand"),
+                category=_scalar(own, "category"),
                 search_query=search_query,
-                image=_first_of(obj, _IMAGE_KEYS),
+                image=_first_of(own, _IMAGE_KEYS),
                 url=url,
+                source=registry_path,
             )
         )
 
     products.sort(key=lambda p: p.start)
+    for i, outer in enumerate(products):
+        outer.is_container = any(
+            inner.start > outer.start and inner.end <= outer.end
+            for inner in products[i + 1 :]
+            if inner.start < outer.end
+        )
     return products
 
 
@@ -282,18 +508,32 @@ def _ts_string(value: str) -> str:
     return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
 
 
-def _render(value) -> str:
+def _render(value, json_mode: bool = False) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, (int, float)):
         return str(value)
     if isinstance(value, (list, tuple)):
-        return "[" + ", ".join(_render(v) for v in value) + "]"
+        return "[" + ", ".join(_render(v, json_mode) for v in value) + "]"
+    if json_mode:
+        # A JSON-array registry (broadwayshowgirls' `products.json`) still
+        # goes through this text-surgical path, not the dict-based one below —
+        # it is one file holding *many* products, so `product.data` covers
+        # only the single-file-per-product collection shape. Emitting a
+        # single-quoted TS string here would break the file as JSON.
+        return json.dumps(str(value), ensure_ascii=False)
     return _ts_string(str(value))
 
 
+def target_path(product: Product, registry_path: Path) -> Path:
+    """The file an edit to this product actually lands in."""
+    return product.source or registry_path
+
+
 def apply_updates(registry_path: Path, product: Product, updates: dict) -> str:
-    """Rewrite `key: value` pairs inside one product literal; return new file text.
+    """Rewrite `key: value` pairs for one product; return the new text of the
+    file that entry lives in (`target_path`, which is the product's own JSON
+    file for collection-backed entries, not the registry).
 
     Only keys already present in the literal are rewritten — a replacement
     must not invent registry fields that this site's TypeScript type does not
@@ -303,29 +543,52 @@ def apply_updates(registry_path: Path, product: Product, updates: dict) -> str:
     Does not write to disk; the caller writes only after the build gate passes,
     so a failed heal leaves the working tree untouched.
     """
-    text = registry_path.read_text(encoding="utf-8")
+    target = target_path(product, registry_path)
+    text = target.read_text(encoding="utf-8")
     if text[product.start : product.end] != product.text:
         raise ValueError(
             "registry changed on disk since it was parsed — refusing to edit "
             "(re-run the sentinel)"
         )
 
+    # A collection entry is JSON, not a TS literal: rewriting it as text would
+    # emit `price: '$9.99'` into a .json file and break the content-collection
+    # schema at build time. Edit the decoded object and re-serialise instead —
+    # there are no hand-written comments in a generated JSON file to preserve,
+    # which is the only reason the TS path is surgical.
+    if product.data is not None:
+        data = dict(product.data)
+        for key, value in updates.items():
+            if key in data:
+                data[key] = value
+        trailing = "\n" if text.endswith("\n") else ""
+        return json.dumps(data, indent=2, ensure_ascii=False) + trailing
+
+    json_mode = target.suffix == ".json"
     obj = product.text
     for key, value in updates.items():
         pattern = re.compile(
-            rf"(\b{re.escape(key)}:\s*)(?:" + _STR + r"|\[[^\]]*\]|[^,\n]+)(?=\s*,|\s*\n\s*\})"
+            rf"(\b{re.escape(key)}\"?:\s*)(?:" + _STR + r"|\[[^\]]*\]|[^,\n]+)(?=\s*,|\s*\n\s*\})"
         )
         if not pattern.search(obj):
             continue
-        obj = pattern.sub(lambda m: m.group(1) + _render(value), obj, count=1)
+        obj = pattern.sub(lambda m: m.group(1) + _render(value, json_mode), obj, count=1)
 
     return text[: product.start] + obj + text[product.end :]
 
 
+def has_field(product: Product, key: str) -> bool:
+    """Does this entry already declare `key`?
+
+    Shape-agnostic on purpose: a JSON collection entry writes `"price": 9.99`,
+    which the TS-shaped `\bprice:` probe never matches, so asking the text
+    directly would report every field as absent and silently skip every edit.
+    """
+    if product.data is not None:
+        return key in product.data
+    return bool(re.search(rf"\b{re.escape(key)}\"?:\s*", product.text))
+
+
 def unknown_keys(product: Product, updates: dict) -> list[str]:
-    """Keys in `updates` that the literal does not already declare."""
-    return [
-        k
-        for k in updates
-        if not re.search(rf"\b{re.escape(k)}:\s*", product.text)
-    ]
+    """Keys in `updates` that the entry does not already declare."""
+    return [k for k in updates if not has_field(product, k)]

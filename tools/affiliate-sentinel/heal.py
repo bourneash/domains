@@ -51,6 +51,7 @@ class HealResult:
     new_title: str | None = None
     reason: str = ""
     unverified: list = None  # registry fields we could not source real values for
+    edited_path: Path | None = None  # the file the replacement was written to
 
     def __post_init__(self):
         if self.unverified is None:
@@ -457,7 +458,7 @@ def heal_product(
     unverified = [
         k
         for k in ("price", "rating", "reviewCount")
-        if k not in updates and re.search(rf"\b{k}:\s*", product.text)
+        if k not in updates and registry_mod.has_field(product, k)
     ]
     if unverified:
         log(
@@ -469,9 +470,12 @@ def heal_product(
     if skipped:
         log(f"heal: registry entry has no {', '.join(skipped)} field(s) — leaving them alone")
 
+    # On a content-collection site the entry lives in its own JSON file, not
+    # in affiliate.ts — write (and, on a failed build gate, revert) that file.
+    entry_path = registry_mod.target_path(product, registry_path)
     new_text = registry_mod.apply_updates(registry_path, product, updates)
-    original = registry_path.read_text(encoding="utf-8")
-    registry_path.write_text(new_text, encoding="utf-8")
+    original = entry_path.read_text(encoding="utf-8")
+    entry_path.write_text(new_text, encoding="utf-8")
 
     redirects_path = site_root / "site" / "public" / "_redirects"
     redirects_original = (
@@ -489,7 +493,7 @@ def heal_product(
             image_written = dest
 
     if not build_gate(site_root, log):
-        registry_path.write_text(original, encoding="utf-8")
+        entry_path.write_text(original, encoding="utf-8")
         if redirects_original is not None:
             redirects_path.write_text(redirects_original, encoding="utf-8")
         if image_written:
@@ -505,4 +509,5 @@ def heal_product(
         new_title=decision.get("name") or chosen.title,
         reason=decision.get("reason", ""),
         unverified=unverified,
+        edited_path=entry_path,
     )
