@@ -64,6 +64,16 @@ _DP_RE = re.compile(r"/dp/([A-Z0-9]{10})")
 _ID_RE = re.compile(r"\b(?:" + "|".join(_ID_KEYS) + r")\"?:\s*" + _STR)
 
 
+def _pick_with_key(data: dict, keys: tuple[str, ...]) -> tuple[str | None, str | None]:
+    """Like the `pick` closures in the collection parsers, but also returns
+    which key actually matched — the alias info `field_aliases` needs."""
+    for k in keys:
+        v = data.get(k)
+        if isinstance(v, str) and v:
+            return v, k
+    return None, None
+
+
 def _first_group(m: re.Match) -> str | None:
     """Return whichever quote-style alternative actually matched."""
     for g in m.groups():
@@ -99,6 +109,15 @@ class Product:
     # heal would silently no-op: the dead ASIN stays live on the page while
     # the run reports success.
     asin_key: str | None = None
+    # Same problem, generalised: `name` and `searchQuery` are also read
+    # through an alias list (`_NAME_KEYS`, `_QUERY_KEYS` — a collection entry
+    # can spell them `label`/`title` or `query`/`searchTerm`/`search`/`q`),
+    # but `heal_product` always writes updates back under the literal
+    # `"name"` / `"searchQuery"` keys. Maps that literal key to whichever key
+    # this entry's `data` actually uses, so the same alias fix applies
+    # everywhere a collection entry can rename a field heal.py writes to —
+    # not just ASIN.
+    field_aliases: dict[str, str] = field(default_factory=dict)
     # The TS file this literal lives in. A registry can be split across
     # several files (fishhooklabs' catalog is terminal/platform/field), so the
     # file to edit is a property of the product, not of the run.
@@ -386,6 +405,13 @@ def _product_from_markdown(path: Path) -> Product | None:
             asin = m_dp.group(1)
             asin_key = None  # recovered from `url`, not a dedicated field
 
+    name, name_key = _pick_with_key(data, _NAME_KEYS)
+    search_query, query_key = _pick_with_key(data, _QUERY_KEYS)
+    field_aliases = {
+        k: v for k, v in {"name": name_key, "searchQuery": query_key}.items()
+        if v and v != k
+    }
+
     return Product(
         id=path.stem,
         # Same as a JSON collection entry: the whole file is the span, and
@@ -394,15 +420,16 @@ def _product_from_markdown(path: Path) -> Product | None:
         end=len(raw),
         text=raw,
         asin=asin,
-        name=pick(_NAME_KEYS),
+        name=name,
         brand=pick(("brand",)),
         category=pick(("category",)),
-        search_query=pick(_QUERY_KEYS),
+        search_query=search_query,
         image=pick(_MD_IMAGE_KEYS),
         url=url,
         source=path,
         data=data,
         asin_key=asin_key,
+        field_aliases=field_aliases,
     )
 
 
@@ -436,9 +463,16 @@ def _product_from_json(path: Path) -> Product | None:
         m_dp = _DP_RE.search(url)
         if m_dp:
             asin = m_dp.group(1)
-    search_query = pick(("searchQuery", "query"))
+    search_query, query_key = _pick_with_key(data, ("searchQuery", "query"))
     if not search_query and combo and not _ASIN_RE.match(combo):
         search_query = combo
+        query_key = None  # searchOrAsin does double duty, not a dedicated field
+
+    name, name_key = _pick_with_key(data, _NAME_KEYS)
+    field_aliases = {
+        k: v for k, v in {"name": name_key, "searchQuery": query_key}.items()
+        if v and v != k
+    }
 
     return Product(
         id=pid,
@@ -448,7 +482,7 @@ def _product_from_json(path: Path) -> Product | None:
         end=len(raw),
         text=raw,
         asin=asin,
-        name=pick(_NAME_KEYS),
+        name=name,
         brand=pick(("brand",)),
         category=pick(("category",)),
         search_query=search_query,
@@ -457,6 +491,7 @@ def _product_from_json(path: Path) -> Product | None:
         source=path,
         data=data,
         asin_key=asin_key,
+        field_aliases=field_aliases,
     )
 
 
@@ -675,15 +710,17 @@ def apply_updates(registry_path: Path, product: Product, updates: dict) -> str:
 def _resolve_key(product: Product, key: str) -> str:
     """Translate a heal's field name to the key it's actually stored under.
 
-    `heal_product` always builds `updates` with the literal key "asin" — the
-    one name every TS registry shape uses. A collection entry can store it
-    under something else (shoptopless's `amazonAsin`); without this, `key in
-    data` is False and the write silently no-ops, leaving the dead ASIN live
-    on the page while the run reports success.
+    `heal_product` always builds `updates` with fixed literal keys — "asin",
+    "name", "searchQuery" — the names every TS registry shape uses. A
+    collection entry can store any of these under something else
+    (shoptopless's `amazonAsin`; a `label`/`title` for name; a `query` for
+    searchQuery); without this, `key in data` is False and the write silently
+    no-ops on that field — heal still reports success and rewrites the /go/
+    redirect, so the page keeps showing the dead product under a new link.
     """
     if key == "asin" and product.asin_key:
         return product.asin_key
-    return key
+    return product.field_aliases.get(key, key)
 
 
 def has_field(product: Product, key: str) -> bool:

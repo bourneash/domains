@@ -554,6 +554,58 @@ def test_markdown_frontmatter_collection_registry():
               registry_mod.unknown_keys(eps, {"asin": "x", "nope": "y"}) == ["nope"])
 
 
+def test_collection_field_aliases_heal_correctly():
+    """Same silent-no-op class of bug as the ASIN alias, generalised: a
+    collection entry can also rename `name` (label/title) or `searchQuery`
+    (query/searchTerm/search/q), but heal_product always writes updates back
+    under the literal `name`/`searchQuery` keys. Without resolving through
+    the alias, those two fields would silently fail to heal while the ASIN
+    fix made it look like the whole class of bug was closed.
+    """
+    print("registry: name/searchQuery aliases heal through, not just asin")
+    import json
+
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        lib = root / "site" / "src" / "lib"
+        lib.mkdir(parents=True)
+        (lib / "affiliate.ts").write_text("export const AMAZON_TAG = 'example-20';\n")
+        coll = root / "site" / "src" / "content" / "products"
+        coll.mkdir(parents=True)
+        (coll / "theta.json").write_text(json.dumps({
+            "slug": "theta", "label": "Theta Thing", "asin": "B000000007",
+            "query": "theta thing",
+        }, indent=2) + "\n")
+        (coll / "iota.md").write_text(
+            "---\ntitle: \"Iota Thing\"\namazonAsin: B000000008\nsearchTerm: iota thing\n---\n"
+        )
+
+        reg = registry_mod.find_registry(root)
+        prods = registry_mod.parse_all(root, reg)
+        by_id = {p.id: p for p in prods}
+        theta, iota = by_id["theta"], by_id["iota"]
+        check("json: name read through label alias", theta.name == "Theta Thing")
+        check("json: field_aliases records it", theta.field_aliases.get("name") == "label")
+        check("json: searchQuery read through query alias", theta.search_query == "theta thing")
+        check("json: field_aliases records it", theta.field_aliases.get("searchQuery") == "query")
+        check("md: name read through title alias", iota.name == "Iota Thing")
+        check("md: field_aliases records it", iota.field_aliases.get("name") == "title")
+        check("md: searchQuery read through searchTerm alias", iota.search_query == "iota thing")
+        check("md: field_aliases records it", iota.field_aliases.get("searchQuery") == "searchTerm")
+
+        out_theta = json.loads(registry_mod.apply_updates(reg, theta, {"name": "New Theta", "searchQuery": "new theta"}))
+        check("json: heal lands in label, not a phantom name key",
+              out_theta.get("label") == "New Theta" and "name" not in out_theta)
+        check("json: heal lands in query, not a phantom searchQuery key",
+              out_theta.get("query") == "new theta" and "searchQuery" not in out_theta)
+
+        out_iota = registry_mod.apply_updates(reg, iota, {"name": "New Iota", "searchQuery": "new iota"})
+        check("md: heal lands in title, not a phantom name key",
+              "title: New Iota" in out_iota and "\nname:" not in out_iota)
+        check("md: heal lands in searchTerm, not a phantom searchQuery key",
+              "searchTerm: new iota" in out_iota and "\nsearchQuery:" not in out_iota)
+
+
 def test_unregistered_cloak_is_unverified_not_broken():
     """rc-9 routes /go/ from its worker with no registry file anywhere.
 
@@ -610,6 +662,7 @@ def main() -> int:
         test_registry_parse,
         test_content_collection_registry,
         test_markdown_frontmatter_collection_registry,
+        test_collection_field_aliases_heal_correctly,
         test_registry_double_quotes_and_non_products,
         test_registry_field_aliases,
         test_find_registry_locates_non_standard_paths,
