@@ -181,6 +181,30 @@ def git(args: list[str], cwd: Path) -> bool:
     return r.returncode == 0
 
 
+def _describe_sources(site_root: Path, sources: set, fallback) -> str:
+    """A one-line description of where the products came from.
+
+    Collapses per-product files to their directory: a content-collection site
+    has one source file PER PRODUCT, and listing all 429 of them turned both
+    the log line and the Slack alert into a wall of paths.
+    """
+    from collections import Counter
+
+    if not sources:
+        return ", ".join(str(p.relative_to(site_root)) for p in fallback if p is not None)
+    counts = Counter(p.parent for p in sources)
+    parts: list[str] = []
+    for parent, n in sorted(counts.items()):
+        rel = parent.relative_to(site_root)
+        if n > 3:
+            parts.append(f"{rel}/ ({n} files)")
+        else:
+            parts.extend(
+                sorted(str(p.relative_to(site_root)) for p in sources if p.parent == parent)
+            )
+    return ", ".join(parts)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--site-root", default=".", help="site repo root (contains ops/ and site/)")
@@ -225,12 +249,10 @@ def main() -> int:
     # Name every file the products actually came from: a split catalog has no
     # single registry path, and naming one of three files understates what was
     # (or was not) checked.
-    where = ", ".join(
-        sorted({str(p.source.relative_to(site_root)) for p in products if p.source})
-    ) or ", ".join(
-        str(p.relative_to(site_root))
-        for p in (registry_path, collection_dir)
-        if p is not None
+    where = _describe_sources(
+        site_root,
+        {p.source for p in products if p.source},
+        (registry_path, collection_dir),
     )
     log(f"registry: {where}")
 
