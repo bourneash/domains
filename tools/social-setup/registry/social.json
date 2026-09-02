@@ -205,6 +205,11 @@
       "category": "positioning_tbd",
       "note": "Social account setup pending owner provisioning",
       "updatedAt": "2026-09-01T11:15:44.317Z"
+    },
+    "seedstosauce.com": {
+      "category": "positioning_tbd",
+      "note": "Locked brand brief (2026-09-01), engineer cron role live — social accounts not yet provisioned",
+      "updatedAt": "2026-09-02T11:40:00.000Z"
     }
   },
   "personas": [
