@@ -33,10 +33,13 @@
 defaults:
   keys:
     # Deploy verification hits /accounts/<id>/workers/... — account-scoped, so
-    # a per-zone token cannot replace this. Narrowing it to a Workers:read
-    # token is tracked separately; it is the biggest remaining exposure here.
+    # a per-zone token cannot replace it. That is what tools/cf-broker exists
+    # to fix: it performs those reads host-side and the container authenticates
+    # with CF_BROKER_TOKEN instead. Sites migrated onto the broker drop
+    # CLOUDFLARE_API_TOKEN via their own deny_keys, one canary at a time.
     - CLOUDFLARE_API_TOKEN
     - CLOUDFLARE_ACCOUNT_ID
+    - CF_BROKER_TOKEN
     - SLACK_BOT_TOKEN
 
 # Keys whose value differs PER SITE. Sourced from that site's own vault item
@@ -48,6 +51,11 @@ defaults:
 # reduction in blast radius, not a fix for it. Mint with tools/cf-tokens.
 per_site_vault:
   - CLOUDFLARE_API_TOKEN
+  # Authenticates a container to tools/cf-broker, which performs the Cloudflare
+  # READS deploy.sh needs and holds the Cloudflare credential itself. The broker
+  # derives the site from this token, so it is also the container's identity —
+  # which is why it must be per-site and never fleet-wide.
+  - CF_BROKER_TOKEN
 
 # Keys with no home in the shared .env — Vaultwarden is their only source.
 # FD_TOKEN gates the Fleet Dashboard, which can push to every repo, redeploy
@@ -105,6 +113,13 @@ sites:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   weirdgirlstore.com:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  xxxtea.com:
+    # CANARY for tools/cf-broker (B1 step 2): deploy.sh now asks the broker for
+    # build status instead of Cloudflare, so this container holds no Cloudflare
+    # credential at all. That is the part per-site tokens could not fix —
+    # `Workers Scripts Write` is account-scope-only, so any site's token can
+    # deploy any of the 57 workers. Roll the rest of the fleet behind this one.
+    deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
   # No deny_keys: 2026-08-26 ops standup gave this site real scripts
@@ -128,6 +143,10 @@ tools:
       - AMAZON_CREATORS_KEY_SECRET
       - AMAZON_CREATORS_VERSION   # config, not a secret; read by the Creators client
       - SLACK_BOT_TOKEN
+  cf-broker:
+    # Holds the account-scoped token ON BEHALF OF the site containers,
+    # which is the entire point: they stop holding one.
+    keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   cf-stats:
     keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   fleet-dashboard:

@@ -1,0 +1,45 @@
+name: cf-broker
+
+services:
+  broker:
+    build: .
+    image: cf-broker:latest
+    container_name: cf-broker
+    restart: unless-stopped
+    user: "1000:1000"
+    security_opt: [ "no-new-privileges:true" ]
+    cap_drop: [ ALL ]
+    read_only: true
+    tmpfs: [ /tmp ]
+    # NO `ports:`. Deliberate — this process holds the account-scoped
+    # Cloudflare token that site containers are losing, so it must not be
+    # reachable from the host's LAN at all. Site containers reach it by service
+    # name on the private `cf_broker` network below. Binding 0.0.0.0 inside the
+    # container is fine precisely because nothing is published outward.
+    environment:
+      CF_BROKER_HOST: 0.0.0.0
+    env_file:
+      # CLOUDFLARE_API_TOKEN (account-scoped) + CLOUDFLARE_ACCOUNT_ID, rendered
+      # 0400 by tools/env-broker like every other tool.
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-cf-broker.env
+    volumes:
+      # Only two things, both read-only, both minimal:
+      #  - the token -> site map (NOT env-broker's rendered/, which would hand
+      #    this process every site's credentials to answer four GETs)
+      #  - the registry, for domain -> worker name
+      - ${HOME:-/home/jesse}/projects/domains/tools/cf-broker/tokens.json:/app/tokens.json:ro
+      - ${HOME:-/home/jesse}/projects/domains/registry/fleet.yaml:/repo/registry/fleet.yaml:ro
+    healthcheck:
+      # Real probe, not `pgrep python` — a wedged server keeps its process.
+      test: ["CMD", "python3", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:4788/healthz',timeout=3).status==200 else 1)"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+    labels:
+      autoheal: "true"
+    networks: [cf_broker]
+
+networks:
+  cf_broker:
+    name: cf-broker_net
