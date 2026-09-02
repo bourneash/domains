@@ -99,3 +99,32 @@ def test_domains_index_parses_section_buckets(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(B, "ROOT", tmp_path)
     assert B.read_domains_index() == {"alpha.com": "active", "beta.com": "parked"}
+
+
+def _merge(monkeypatch, tmp_path, old, new):
+    out = tmp_path / "fleet.yaml"
+    out.write_text(yaml.safe_dump({"sites": old}), encoding="utf-8")
+    monkeypatch.setattr(B, "OUT", out)
+    return B.merge_preserved(new)
+
+
+def test_merge_upgrades_scaffold_to_live(monkeypatch, tmp_path):
+    """A scaffold that grew cron/smoke really went live; preserving the stored
+    'scaffold' is how greatamericanlakes.com stayed mislabelled after launch."""
+    merged = _merge(monkeypatch, tmp_path,
+                    {"a.com": {"status": "scaffold"}}, {"a.com": {"status": "live"}})
+    assert merged["a.com"]["status"] == "live"
+
+
+def test_merge_never_demotes_hand_set_live(monkeypatch, tmp_path):
+    """'live' set by hand on a deployed site outranks the cron/smoke heuristic."""
+    merged = _merge(monkeypatch, tmp_path,
+                    {"a.com": {"status": "live"}}, {"a.com": {"status": "scaffold"}})
+    assert merged["a.com"]["status"] == "live"
+
+
+@pytest.mark.parametrize("stored", ["parked", "redirect", "staging"])
+def test_merge_preserves_policy_statuses(monkeypatch, tmp_path, stored):
+    merged = _merge(monkeypatch, tmp_path,
+                    {"a.com": {"status": stored}}, {"a.com": {"status": "live"}})
+    assert merged["a.com"]["status"] == stored

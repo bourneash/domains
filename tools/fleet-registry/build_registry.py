@@ -42,6 +42,12 @@ REPORT = Path(__file__).resolve().parent / "MERGE_REPORT.md"
 # Fields a human owns once the file exists — never overwritten by a re-run.
 PRESERVED_KEYS = {"status", "tags", "notes", "capabilities_override", "analytics_external"}
 
+# A stored status is a human policy call and is kept — with one exception: a
+# site stored as "scaffold" that now has cron or smoke on disk really did go
+# live, and preserving the old value is how it stays labelled "scaffold"
+# forever (greatamericanlakes.com, offshorehookup.com). Never auto-*demote*:
+# "live" set by hand on a deployed site outranks our cron/smoke heuristic.
+
 # Directories under sites/ that are not domains.
 NOT_A_SITE = {"example.com"}
 
@@ -263,8 +269,11 @@ def merge_preserved(new: dict) -> dict:
     old = (yaml.safe_load(OUT.read_text(encoding="utf-8")) or {}).get("sites") or {}
     for domain, entry in new.items():
         for key in PRESERVED_KEYS:
-            if domain in old and key in old[domain]:
-                entry[key] = old[domain][key]
+            if domain not in old or key not in old[domain]:
+                continue
+            if key == "status" and old[domain][key] == "scaffold" and entry[key] == "live":
+                continue  # disk shows cron/smoke: the scaffold went live
+            entry[key] = old[domain][key]
     for domain, entry in old.items():
         if domain not in new:  # registry entry with no sites/ dir — keep, flag in report
             entry["orphaned"] = True

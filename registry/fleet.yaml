@@ -384,9 +384,9 @@ sites:
     - domains-index
     - site-tracker
     - social
-    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
+    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -441,13 +441,26 @@ sites:
     - domains-index
     - site-tracker
   greatamericanlakes.com:
-    status: scaffold
+    status: live
     repo: bourneash/greatamericanlakes.com
     worker: greatamericanlakes-com
     cf_zone: greatamericanlakes.com
     capabilities:
     - site
+    - ops
+    - smoke
+    - tasks
     - affiliate
+    - analytics
+    analytics:
+      ga4_property_id: '552472191'
+      ga4_measurement_id: G-5SNBLYR02W
+      gsc_property: sc-domain:greatamericanlakes.com
+      consent_gated: true
+    registered_in:
+    - analytics
+    - domains-index
+    - site-tracker
   howfishthink.com:
     status: live
     repo: bourneash/howfishthink.com
@@ -485,12 +498,20 @@ sites:
     repo: bourneash/marineactivity.com
     worker: marineactivity-com
     cf_zone: marineactivity.com
+    slack_channel_env: SLACK_CHANNEL_MARINEACTIVITY
     capabilities:
     - site
     - ops
     - tasks
     - affiliate
+    - analytics
+    analytics:
+      ga4_property_id: '552468567'
+      ga4_measurement_id: null
+      gsc_property: sc-domain:marineactivity.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
   mynewgm.com:
@@ -580,7 +601,7 @@ sites:
     - domains-index
     - social
   offshorehookup.com:
-    status: scaffold
+    status: live
     repo: bourneash/offshorehookup.com
     worker: offshorehookup-com
     cf_zone: offshorehookup.com
@@ -773,9 +794,9 @@ sites:
       gsc_property: sc-domain:seedstosauce.com
       consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
-    - analytics
   shoppinkflamingo.com:
     status: live
     repo: bourneash/shoppinkflamingo.com
