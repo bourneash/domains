@@ -22,6 +22,13 @@ test('classify suppresses explicit zero-failure summaries but keeps real failure
   assert.equal(errorscan._classify('FATAL database unavailable'), 'crit');
 });
 
+test('classify suppresses scout-event lines even when a product title contains a crit/error keyword', () => {
+  const panic =
+    '[scout-event] {"event": "queued", "asin": "B098KN5STJ", "title": "Moose Master Penguin Panic", ' +
+    '"category": "party-games", "price": "$19.99", "caption": "party game designed to destroy friendships"}';
+  assert.equal(errorscan._classify(panic), null);
+});
+
 test('critical alert excerpt identifies the critical trigger, not a later warning', () => {
   const now = Date.now();
   const critical = { tsMs: now - 2000, level: 'crit', line: 'FATAL database unavailable' };

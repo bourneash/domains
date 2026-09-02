@@ -24,6 +24,21 @@ const FIRST_SCAN_TAIL = '5000'; // bound the backfill cost for a chatty containe
 const ALERT_ERROR_1H_THRESHOLD = 5; // "every run of this cron is failing" signal
 const ALERT_COOLDOWN_MS = 2 * 60 * 60 * 1000; // don't re-alert the same container within this window
 
+// Fleet-wide correlation: shared infra (the worker image, a broker, a VPN
+// pop) breaking hits every site's cron on its own schedule offset, so the
+// same root cause shows up as N per-site alerts minutes to an hour apart
+// instead of one recognizable event (2026-08-30: a docker prune wiped
+// fleet-site-worker:latest and 22 sites alerted individually, one of which
+// reached Slack). Group same-signature alerts within the window; once
+// CORRELATE_MIN_SITES distinct sites share a signature, collapse them into
+// one #fleet-ops incident post and suppress further per-site noise for that
+// signature — individual per-site alerting for the first sites is
+// unavoidable (you can't know it's fleet-wide until the Nth one), but
+// everything past the threshold, and the eventual all-clear, is one message.
+const CORRELATE_MIN_SITES = 3;
+const CORRELATE_WINDOW_MS = 60 * 60 * 1000; // staggered cron offsets across sites can be up to ~1h apart
+const CORRELATE_STALE_MS = 24 * 60 * 60 * 1000; // safety net: drop an incident whose sites never resolve (e.g. container removed)
+
 // Known deviations from the `domain-<slug-with-dashes>` channel-naming
 // convention every other site follows (see tools/role-notify/notify_role.py's
 // --channel-env usage) — keyed by slug -> the .env var to read instead, so a
@@ -67,6 +82,13 @@ const SUPPRESS_RE = [
   // the executor already classified the line as info. Trust the app's own
   // level over a nested tool's WARN string appearing inside a JSON blob.
   /^\[info\s*\]\s*scan_state_transitioned\b.*\bWARN\b/i,
+  // product-scout's [scout-event] lines are structured JSON carrying
+  // arbitrary Amazon product titles/captions, not status text — e.g. a
+  // "Penguin Panic" party game title matches CRIT_RE's "panic", and a
+  // "friendship-destroying" caption matches ERROR_RE's "failure"-family
+  // words purely by coincidence of subject matter (2026-09-02: weirdassstuff
+  // paged on "Moose Master Penguin Panic" queued for publish, exit=0).
+  /^\[scout-event\]\s*\{/i,
 ];
 
 function sh(cmd, args, opts = {}) {
@@ -88,6 +110,9 @@ let alertCooldownRoot = null;
 let ACTIVE_ALERTS = new Set();
 let alertStateRoot = null;
 let sweepInFlight = null;
+// signature -> { sites: { [containerName]: firstAlertAtMs }, notifiedAt: ms|null, firstAt, lastAt, label, sampleLine }
+let CORRELATED_INCIDENTS = new Map();
+let correlatedRoot = null;
 
 function alertCooldownFile(root) {
   return path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-cooldowns.json');
@@ -157,6 +182,131 @@ function persistAlertState(root) {
       /* best effort state only */
     }
   }
+}
+
+function correlatedFile(root) {
+  return path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-correlated.json');
+}
+
+function loadCorrelatedIncidents(root) {
+  if (correlatedRoot === root) return;
+  correlatedRoot = root;
+  CORRELATED_INCIDENTS = new Map();
+  try {
+    const parsed = JSON.parse(fs.readFileSync(correlatedFile(root), 'utf8'));
+    for (const [sig, rec] of Object.entries(parsed || {})) {
+      if (!rec || typeof rec !== 'object') continue;
+      CORRELATED_INCIDENTS.set(sig, { ...rec, sites: { ...(rec.sites || {}) } });
+    }
+  } catch {
+    /* first run, missing file, or corrupt best-effort state: start empty */
+  }
+}
+
+function persistCorrelatedIncidents(root) {
+  const file = correlatedFile(root);
+  const tmp = `${file}.${process.pid}.tmp`;
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(tmp, `${JSON.stringify(Object.fromEntries(CORRELATED_INCIDENTS), null, 2)}\n`);
+    fs.renameSync(tmp, file);
+  } catch {
+    try {
+      fs.unlinkSync(tmp);
+    } catch {
+      /* best-effort state only */
+    }
+  }
+}
+
+// Identify WHAT failed, stripped of per-site/per-run noise (iteration count,
+// schedule offset, timestamp), so the same underlying failure across many
+// sites collapses to one signature. `msg=` and `job.command=` are the parts
+// of a supercronic error line that describe the failure itself.
+function alertSignature(decision) {
+  const line = (decision.trigger && decision.trigger.line) || '';
+  const msg = (line.match(/msg="([^"]*)"/) || [])[1] || line.slice(0, 120);
+  const cmd = (line.match(/job\.command="([^"]*)"/) || [])[1] || '';
+  return `${decision.label}|${msg}|${cmd}`.slice(0, 300);
+}
+
+function fleetChannel(envText) {
+  return envVar(envText, 'SLACK_CHANNEL_FLEET') || '#fleet-ops';
+}
+
+async function postFleetSlack(root, text, color = 'danger') {
+  const envText = loadEnvText(root);
+  const token = envVar(envText, 'SLACK_BOT_TOKEN');
+  if (!token) return;
+  const channel = fleetChannel(envText);
+  try {
+    await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel, attachments: [{ color, text }] }),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch {
+    /* swallow — see postSlackAlert comment */
+  }
+}
+
+// Record this container's alert against its signature's incident. Returns
+// { record, count, justNotified } — count is the distinct-site tally used to
+// decide whether this crosses CORRELATE_MIN_SITES this call.
+function noteCorrelation(root, sig, decision, siteName, now) {
+  loadCorrelatedIncidents(root);
+  let rec = CORRELATED_INCIDENTS.get(sig);
+  if (!rec) {
+    rec = { sites: {}, notifiedAt: null, firstAt: now, lastAt: now, label: decision.label, sampleLine: (decision.trigger && decision.trigger.line) || '' };
+    CORRELATED_INCIDENTS.set(sig, rec);
+  }
+  rec.lastAt = now;
+  if (!(siteName in rec.sites)) rec.sites[siteName] = now;
+  const count = Object.keys(rec.sites).length;
+  let justNotified = false;
+  if (!rec.notifiedAt && count >= CORRELATE_MIN_SITES) {
+    rec.notifiedAt = now;
+    justNotified = true;
+  }
+  persistCorrelatedIncidents(root);
+  return { record: rec, count, justNotified };
+}
+
+// A site recovered. If it belongs to an active incident, fold it out there
+// instead of (or in addition to, once the incident is fully clear) posting a
+// per-site recovery. Returns { inIncident, incidentSig, incidentCleared, record }.
+function resolveCorrelation(root, siteName, now) {
+  loadCorrelatedIncidents(root);
+  for (const [sig, rec] of CORRELATED_INCIDENTS) {
+    if (!(siteName in rec.sites)) continue;
+    delete rec.sites[siteName];
+    const remaining = Object.keys(rec.sites).length;
+    const wasNotified = Boolean(rec.notifiedAt);
+    let incidentCleared = false;
+    if (remaining === 0) {
+      CORRELATED_INCIDENTS.delete(sig);
+      incidentCleared = wasNotified;
+    }
+    persistCorrelatedIncidents(root);
+    return { inIncident: true, incidentSig: sig, incidentCleared, wasNotified, remaining, record: rec };
+  }
+  return { inIncident: false };
+}
+
+// Safety net: an incident's remaining sites can get stuck (container removed,
+// a resolve missed) — drop anything that's gone stale rather than let a
+// #fleet-ops incident live forever with no all-clear.
+function pruneStaleCorrelations(root, now) {
+  loadCorrelatedIncidents(root);
+  let changed = false;
+  for (const [sig, rec] of CORRELATED_INCIDENTS) {
+    if (now - rec.lastAt > CORRELATE_STALE_MS) {
+      CORRELATED_INCIDENTS.delete(sig);
+      changed = true;
+    }
+  }
+  if (changed) persistCorrelatedIncidents(root);
 }
 
 // Same "read .env directly" approach deployhealth.js uses for CF creds — the
@@ -323,17 +473,46 @@ async function scanOne(root, c) {
   });
 
   if (decision.shouldAlert) {
-    const text =
-      `:rotating_light: *${c.name}* — ${decision.label} (${decision.errorish1h} error/crit line(s) in the last hour)\n` +
-      `Trigger: \`${((decision.trigger && decision.trigger.line) || '').slice(0, 300)}\`\n` +
-      'Fleet Dashboard → Errors tab for detail.';
-    postSlackAlert(root, c.slug, text).catch(() => {});
+    const sig = alertSignature(decision);
+    const { record, count, justNotified } = noteCorrelation(root, sig, decision, c.name, now);
+    if (count >= CORRELATE_MIN_SITES) {
+      // Fleet-wide incident: this signature has hit enough distinct sites to
+      // be the same root cause, not a per-site fluke. One #fleet-ops post
+      // covers it (posted once, on the transition) — no per-site ping.
+      if (justNotified) {
+        const text =
+          `:rotating_light: *Fleet-wide ${record.label}* — ${count} site(s) sharing one signature\n` +
+          `Sites: ${Object.keys(record.sites).sort().join(', ')}\n` +
+          `Trigger: \`${(record.sampleLine || '').slice(0, 300)}\`\n` +
+          'Likely shared infra (worker image, broker, network) — check one site, fix once. ' +
+          'Fleet Dashboard → Errors tab for detail. Further sites hitting this signature will be folded in silently; ' +
+          'one all-clear posts here once every affected site recovers.';
+        postFleetSlack(root, text).catch(() => {});
+      }
+    } else {
+      const text =
+        `:rotating_light: *${c.name}* — ${decision.label} (${decision.errorish1h} error/crit line(s) in the last hour)\n` +
+        `Trigger: \`${((decision.trigger && decision.trigger.line) || '').slice(0, 300)}\`\n` +
+        'Fleet Dashboard → Errors tab for detail.';
+      postSlackAlert(root, c.slug, text).catch(() => {});
+    }
   }
   if (decision.shouldResolve) {
-    const text =
-      `:white_check_mark: *${c.name}* — recovered; error condition cleared\n` +
-      'No critical or repeated error lines remain in the last hour.';
-    postSlackAlert(root, c.slug, text, 'good').catch(() => {});
+    const corr = resolveCorrelation(root, c.name, now);
+    if (corr.inIncident && corr.wasNotified) {
+      if (corr.incidentCleared) {
+        const text =
+          `:white_check_mark: *Fleet-wide ${corr.record.label}* — recovered; all affected sites clear\n` +
+          `Recovered: ${Object.keys(corr.record.sites).length ? Object.keys(corr.record.sites).sort().join(', ') : c.name}`;
+        postFleetSlack(root, text, 'good').catch(() => {});
+      }
+      // else: still waiting on other sites in this incident — stay silent for this one
+    } else {
+      const text =
+        `:white_check_mark: *${c.name}* — recovered; error condition cleared\n` +
+        'No critical or repeated error lines remain in the last hour.';
+      postSlackAlert(root, c.slug, text, 'good').catch(() => {});
+    }
   }
 }
 
@@ -355,6 +534,7 @@ async function sweep(root) {
     }
   }
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
+  pruneStaleCorrelations(root, Date.now());
   lastSweep = Date.now();
 }
 
@@ -424,6 +604,8 @@ function resetForTest() {
   ACTIVE_ALERTS = new Set();
   alertStateRoot = null;
   sweepInFlight = null;
+  CORRELATED_INCIDENTS = new Map();
+  correlatedRoot = null;
 }
 
 module.exports = {
@@ -437,4 +619,8 @@ module.exports = {
   _claimAlert: claimAlert,
   _sweep: sweep,
   _resetForTest: resetForTest,
+  _alertSignature: alertSignature,
+  _noteCorrelation: noteCorrelation,
+  _resolveCorrelation: resolveCorrelation,
+  _pruneStaleCorrelations: pruneStaleCorrelations,
 };
