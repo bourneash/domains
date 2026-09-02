@@ -35,11 +35,14 @@ defaults:
     # Deploy verification hits /accounts/<id>/workers/... — account-scoped, so
     # a per-zone token cannot replace it. That is what tools/cf-broker exists
     # to fix: it performs those reads host-side and the container authenticates
-    # with CF_BROKER_TOKEN instead. Sites migrated onto the broker drop
-    # CLOUDFLARE_API_TOKEN via their own deny_keys, one canary at a time.
+    # with CF_BROKER_TOKEN instead. CF_BROKER_TOKEN is NOT a default — the
+    # broker rollout is a one-site canary (xxxtea.com, via its own
+    # extra_keys), so granting it fleet-wide would be 33 sites carrying an
+    # unused credential, the exact problem this policy exists to avoid. Add a
+    # site's own extra_keys entry as it migrates onto the broker; drop
+    # CLOUDFLARE_API_TOKEN via deny_keys once it does.
     - CLOUDFLARE_API_TOKEN
     - CLOUDFLARE_ACCOUNT_ID
-    - CF_BROKER_TOKEN
     - SLACK_BOT_TOKEN
 
 # Keys whose value differs PER SITE. Sourced from that site's own vault item
@@ -119,6 +122,7 @@ sites:
     # credential at all. That is the part per-site tokens could not fix —
     # `Workers Scripts Write` is account-scope-only, so any site's token can
     # deploy any of the 57 workers. Roll the rest of the fleet behind this one.
+    extra_keys: [CF_BROKER_TOKEN]
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
