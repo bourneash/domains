@@ -328,6 +328,17 @@ function noteCorrelation(root, sig, decision, siteName, now) {
     rec = { sites: {}, notifiedAt: null, firstAt: now, lastAt: now, label: decision.label, sampleLine: (decision.trigger && decision.trigger.line) || '' };
     CORRELATED_INCIDENTS.set(sig, rec);
   }
+  // Before a fleet-wide incident is confirmed, membership should only count
+  // sites whose alert is recent enough to plausibly share a cause — without
+  // this, isolated same-signature failures days apart (a flaky role that
+  // just happens to log the same exit code) would eventually accumulate
+  // past CORRELATE_MIN_SITES and fire a false "fleet-wide" alert. Once
+  // confirmed (notifiedAt set), membership is real and stays until resolved.
+  if (!rec.notifiedAt) {
+    for (const [site, at] of Object.entries(rec.sites)) {
+      if (now - at > CORRELATE_WINDOW_MS) delete rec.sites[site];
+    }
+  }
   rec.lastAt = now;
   if (!(siteName in rec.sites)) rec.sites[siteName] = now;
   const count = Object.keys(rec.sites).length;

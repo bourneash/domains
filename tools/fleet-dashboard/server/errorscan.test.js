@@ -207,6 +207,26 @@ test('stale correlations are pruned so an incident cannot live forever without a
   assert.equal(after.inIncident, false, 'stale incident should have been dropped');
 });
 
+test('unconfirmed correlation membership expires so unrelated same-signature flukes never fake a fleet-wide incident', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-correlate-window-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const decision = { label: 'repeated ERROR', trigger: { line: 'coincidental same exit code' } };
+  const sig = errorscan._alertSignature(decision);
+
+  // site-a alerts, then over an hour later (past CORRELATE_WINDOW_MS) two
+  // unrelated sites happen to alert on the same signature. site-a's stale
+  // membership must not count toward the threshold.
+  errorscan._noteCorrelation(root, sig, decision, 'site-a-cron', now);
+  errorscan._noteCorrelation(root, sig, decision, 'site-b-cron', now + 65 * 60 * 1000);
+  const c = errorscan._noteCorrelation(root, sig, decision, 'site-c-cron', now + 65 * 60 * 1000 + 1);
+
+  assert.equal(c.count, 2, 'site-a should have aged out of the window');
+  assert.equal(c.justNotified, false, 'only 2 sites within the window — below CORRELATE_MIN_SITES');
+});
+
 test('a failed Slack post is recorded instead of vanishing silently', t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-postfail-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
