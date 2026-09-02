@@ -13,7 +13,7 @@ provenance only; absence there is a choice, not drift.
 | `site-tracker/sites.yml` | fleet-wide | 56/57 | — |
 | `data-hub/sites-analytics.yaml` | fleet-wide | 33/57 | arttogogh.com, eastcoastrappers.com, girlpain.com, shoppinkflamingo.com |
 | `DOMAINS_INDEX.md` | fleet-wide | 57/57 | — |
-| `social registry` | fleet-wide | 49/57 | eastcoastrappers.com, girlpain.com, greatamericanlakes.com, howfishthink.com, seedstosauce.com, shoppinkflamingo.com, unsupervisedmedia.com |
+| `social registry` | fleet-wide | 26/57 | 3boobs.com, arttogogh.com, deeppenetrations.com, eastcoastrappers.com, girlpain.com, greatamericanlakes.com, howfishthink.com, seedstosauce.com, shoppinkflamingo.com, stinkyleftfoot.com |
 | `data-hub/subscriptions.yaml` | opt-in | 7/57 | n/a |
 | `product-feed/subscriptions.yaml` | opt-in | 2/57 | n/a |
 

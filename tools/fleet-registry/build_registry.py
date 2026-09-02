@@ -150,12 +150,20 @@ def read_domains_index() -> dict[str, str]:
     return out
 
 
-def read_social() -> dict[str, dict]:
+def read_social() -> set[str]:
+    """Sites with at least one live social account.
+
+    Source of truth is `accounts` (what social-setup actually provisioned),
+    not `siteMeta` — that's human notes ("Pinterest stuck", "handle
+    truncated") and nothing writes it automatically, so keying capability
+    detection on it silently drifts every time a new site is onboarded.
+    See offshorehookup.com registry-drift, 2026-09-02.
+    """
     path = ROOT / "tools" / "social-setup" / "registry" / "social.json"
     if not path.exists():
-        return {}
+        return set()
     data = json.loads(path.read_text(encoding="utf-8"))
-    return data.get("siteMeta") or {}
+    return {a["site"] for a in data.get("accounts") or [] if a.get("status") == "active"}
 
 
 def read_slack_channels() -> dict[str, str]:

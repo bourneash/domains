@@ -72,7 +72,6 @@ sites:
     - smoke
     - tasks
     - analytics
-    - social
     analytics:
       ga4_property_id: '540969570'
       ga4_measurement_id: null
@@ -83,7 +82,6 @@ sites:
     - analytics
     - domains-index
     - site-tracker
-    - social
   aliencouncil.com:
     status: live
     repo: bourneash/aliencouncil
@@ -205,11 +203,9 @@ sites:
     - cron
     - smoke
     - tasks
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   broadwayshowgirls.com:
     status: live
     repo: bourneash/broadwayshowgirls.com
@@ -245,11 +241,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   deadlymaracas.com:
     status: scaffold
     repo: bourneash/deadlymaracas.com
@@ -258,11 +252,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   deeppenetrations.com:
     status: live
     repo: bourneash/deeppenetrations.com
@@ -277,7 +269,6 @@ sites:
     - tasks
     - affiliate
     - analytics
-    - social
     analytics:
       ga4_property_id: '540547540'
       ga4_measurement_id: G-LXCYBEFKC1
@@ -287,7 +278,6 @@ sites:
     - analytics
     - domains-index
     - site-tracker
-    - social
   driveford.net:
     status: scaffold
     repo: bourneash/driveford.net
@@ -296,11 +286,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   drivegm.net:
     status: scaffold
     repo: bourneash/drivegm.net
@@ -309,11 +297,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   dumbsluts.com:
     status: scaffold
     repo: bourneash/dumbsluts.com
@@ -322,11 +308,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   eastcoastrappers.com:
     status: live
     repo: bourneash/eastcoastrappers.com
@@ -352,11 +336,9 @@ sites:
     - site
     - ops
     - tasks
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   failbunny.com:
     status: scaffold
     repo: bourneash/failbunny.com
@@ -365,11 +347,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   findyourlostpets.com:
     status: scaffold
     repo: bourneash/findyourlostpets.com
@@ -378,12 +358,10 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     smoke_string: Every trail leads home
     registered_in:
     - domains-index
     - site-tracker
-    - social
     analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
@@ -420,11 +398,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   girlpain.com:
     status: staging
     repo: bourneash/girlpain.com
@@ -489,11 +465,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   marineactivity.com:
     status: scaffold
     repo: bourneash/marineactivity.com
@@ -523,11 +497,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   mynewgm.info:
     status: scaffold
     repo: bourneash/mynewgm.info
@@ -536,11 +508,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   newmomshop.com:
     status: live
     repo: bourneash/newmomshop.com
@@ -575,11 +545,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   nsfwpixels.com:
     status: scaffold
     repo: bourneash/nsfwpixels.com
@@ -588,19 +556,14 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   nsfwpixles.com:
     status: redirect
     cf_zone: nsfwpixles.com
-    capabilities:
-    - social
     registered_in:
     - domains-index
-    - social
   offshorehookup.com:
     status: live
     repo: bourneash/offshorehookup.com
@@ -659,11 +622,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   pokererotic.com:
     status: scaffold
     repo: bourneash/pokererotic.com
@@ -672,11 +633,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   rc-9.com:
     status: live
     repo: bourneash/rc-9
@@ -884,7 +843,6 @@ sites:
     - tasks
     - affiliate
     - analytics
-    - social
     analytics:
       ga4_property_id: '551675161'
       ga4_measurement_id: G-ND0L33SP6S
@@ -894,7 +852,6 @@ sites:
     - analytics
     - domains-index
     - site-tracker
-    - social
   therareunicorn.com:
     status: scaffold
     repo: bourneash/therareunicorn.com
@@ -902,11 +859,9 @@ sites:
     cf_zone: therareunicorn.com
     capabilities:
     - site
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   totaljerks.com:
     status: live
     repo: bourneash/totaljerks.com
@@ -996,6 +951,7 @@ sites:
     - smoke
     - tasks
     - analytics
+    - social
     analytics:
       ga4_property_id: '551151919'
       ga4_measurement_id: G-66KS8C31JD
@@ -1006,6 +962,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
     tags:
     - business-site
     - design-studio
@@ -1017,11 +974,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   weapontester.com:
     status: live
     repo: bourneash/weapontester.com
@@ -1137,11 +1092,9 @@ sites:
     capabilities:
     - site
     - ops
-    - social
     registered_in:
     - domains-index
     - site-tracker
-    - social
   xxxtea.com:
     status: live
     repo: bourneash/xxxtea.com
