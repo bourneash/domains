@@ -10,7 +10,15 @@ class BlueskyAdapter(AbstractAdapter):
 
     def post(self, article: Article, creds: dict) -> str:
         client = Client()
-        client.login(creds["BLUESKY_HANDLE"], creds["BLUESKY_APP_PASSWORD"])
+        # Prefer a real App Password (Bluesky's recommended API auth,
+        # written by bsky_app_password_refresh.py / social_setup.platforms.bluesky),
+        # falling back to the raw account password bsky_signup.py writes by
+        # default — same fallback tools/social-hub's adapter already has.
+        # Without this fallback every site whose signup only ran bsky_signup.py
+        # (creds carry BLUESKY_PASSWORD, no BLUESKY_APP_PASSWORD) hits a bare
+        # KeyError here on every post attempt.
+        password = creds.get("BLUESKY_APP_PASSWORD") or creds.get("BLUESKY_PASSWORD")
+        client.login(creds["BLUESKY_HANDLE"], password)
         hashtags = [f"#{t}" for t in article.tags[:2]]
         tag_suffix = (" " + " ".join(hashtags)) if hashtags else ""
         # 300 char Bluesky limit; reserve room for "\n" + url + tags, truncate title if needed
