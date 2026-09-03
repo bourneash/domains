@@ -49,9 +49,11 @@ RUN npm install -g @anthropic-ai/claude-code@2.1.140
 # `bw` for every vault read/write. It was never installed in this image, so
 # every vault call here failed with "[Errno 2] No such file or directory:
 # 'bw'" and env-broker fell back to fleet-wide values instead of per-site
-# vault reads. Pin to the version already used on the host (see
-# `npm ls -g @bitwarden/cli`) so behavior doesn't drift between the two.
-RUN npm install -g @bitwarden/cli@2026.6.0
+# vault reads. Same ARG name/version as
+# tools/fleet-images/worker/Dockerfile's BITWARDEN_CLI_VERSION so the two
+# images are bumped together, not independently by hand.
+ARG BITWARDEN_CLI_VERSION=2026.6.0
+RUN npm install -g @bitwarden/cli@${BITWARDEN_CLI_VERSION}
 
 ENV TZ=America/New_York
 

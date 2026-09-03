@@ -91,6 +91,14 @@ services:
       # Edit this file + `docker compose restart cron` takes effect
       # immediately; no rebuild. See the crontab.docker header comment.
       - ./crontab.docker:/etc/crontab.docker:ro
+      # Vaultwarden creds store — job 14 (env-broker-check-cron.sh) shells
+      # out to `bw` via tools/social-lib's vault_store.py. Same pattern as
+      # sites/americastrikes.com's docker-compose.yml: read-only, session
+      # cache redirected below since the mount itself can't be written to.
+      # Without this, `bw` fails to find automation-account.env / the TLS
+      # cert and every vault read silently falls back to fleet-wide creds
+      # (2026-09-03 incident — this mount was simply never added).
+      - /mnt/encrypted/projects/credential-vault:/mnt/encrypted/projects/credential-vault:ro
     working_dir: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
     environment:
       TZ: America/New_York
@@ -100,7 +108,37 @@ services:
       # every site's cron container already applies.
       HOME: ${HOME:-/home/jesse}
       FLEET_DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      # Reach Vaultwarden by container name over the shared vpn-proxy network
+      # (see `networks:` below) — "localhost" inside this container is the
+      # container itself, not the host's published 127.0.0.1:9280 (that port
+      # is loopback-only on the host anyway, so host.docker.internal can't
+      # reach it either).
+      #
+      # KNOWN LIMITATION, not fixed by this change: the vault's self-signed
+      # cert (/mnt/encrypted/projects/credential-vault/ssl/cert.pem) only
+      # carries SANs for `localhost` / `127.0.0.1`. Connecting by container
+      # name passes network reachability but fails TLS hostname verification
+      # ("Hostname/IP does not match certificate's altnames") — `bw login`
+      # fails and env-broker's per-site vault reads still fall back to
+      # fleet-wide values, now for that reason instead of a missing mount.
+      # This affects every container-side `bw` user on this network, not
+      # just fleet-cron (sites/americastrikes.com's docker-compose.yml sets
+      # this exact VAULT_SERVER already). Fixing it for real means either
+      # reissuing the vault's cert with the extra SAN(s) containers connect
+      # through, or keeping env-broker host-side per its own header comment
+      # ("Containers do not talk to the vault"). Flagged, not decided here.
+      VAULT_SERVER: "https://credential-vault:80"
+      # The vault mount above is read-only; redirect the session-cache write
+      # into the writable fleet_cron_home volume instead.
+      VAULT_SESSION_CACHE_FILE: "${HOME:-/home/jesse}/.fleet-cron-vault-session-cache"
+    networks: [default, vpn_proxy]
     depends_on: []
+
+networks:
+  default:
+  vpn_proxy:
+    external: true
+    name: vpn-proxy_default
 
 volumes:
   fleet_cron_home:

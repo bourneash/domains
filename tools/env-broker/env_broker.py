@@ -295,11 +295,27 @@ def site_values(policy: dict) -> dict[str, dict[str, str]]:
     try:
         raw = _vault_read_sites()
     except Exception as exc:
+        _fatal_if_missing_binary(exc)
         print(f"warning: per-site vault read failed ({exc}) — falling back to "
               f"the fleet-wide values", file=sys.stderr)
         return {}
     return {d: {k: v for k, v in fields.items() if k in wanted and v}
             for d, fields in raw.items()}
+
+def _fatal_if_missing_binary(exc: Exception) -> None:
+    """A missing `bw` binary is a container/host build defect, not a vault
+    outage — silently falling back to fleet-wide creds would mask it for as
+    long as nobody happens to read stderr. Every other vault error (locked,
+    unreachable, auth expired) is transient and keeps the existing
+    warn-and-fall-back behavior; this is the one that must stop the run.
+    """
+    if isinstance(exc, FileNotFoundError):
+        print(f"FATAL: bw CLI not found ({exc}) — this is a broken install, "
+              f"not a transient vault outage. Falling back would silently "
+              f"hand out fleet-wide credentials instead of per-site scoped "
+              f"ones. Fix the image/PATH, don't ignore this.", file=sys.stderr)
+        sys.exit(1)
+
 
 def group_for(key: str, groups: dict[str, list[str]]) -> str:
     for name, prefixes in groups.items():
@@ -363,6 +379,7 @@ def merge_vault_only(values: dict[str, str], policy: dict) -> dict[str, str]:
         try:
             found = _vault_read(f"fleet — env-{group}")
         except Exception as exc:                        # vault down / locked
+            _fatal_if_missing_binary(exc)
             print(f"warning: vault unreachable for {group}: {exc}", file=sys.stderr)
             continue
         values.update({k: v for k, v in found.items() if k in wanted})

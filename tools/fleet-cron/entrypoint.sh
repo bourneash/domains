@@ -16,4 +16,15 @@ if [ -f "$DOMAINS_ROOT/.env" ]; then
   echo "[$(date -Iseconds)] loaded .env"
 fi
 
+# Fail loud, not quiet, on a missing required CLI. Job 14 (env-broker) and
+# any social_lib.vault_store caller shell out to `bw` — its absence used to
+# surface hours later as "[Errno 2] No such file or directory: 'bw'" deep in
+# a cron log, with env-broker silently falling back to fleet-wide (unscoped)
+# credentials in the meantime instead of anyone noticing the container was
+# built wrong (2026-09-03 incident). Better to refuse to start.
+if ! command -v bw >/dev/null 2>&1; then
+  echo "[$(date -Iseconds)] FATAL: bw CLI not found on PATH — rebuild the image (see Dockerfile's @bitwarden/cli install)" >&2
+  exit 1
+fi
+
 exec /usr/local/bin/supercronic -passthrough-logs /etc/crontab.docker
