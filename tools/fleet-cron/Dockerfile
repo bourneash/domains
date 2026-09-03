@@ -45,6 +45,14 @@ RUN wget -O /usr/local/bin/supercronic \
 # together deliberately, not by accident.
 RUN npm install -g @anthropic-ai/claude-code@2.1.140
 
+# Bitwarden CLI — env-broker (job 14) and social_lib.vault_store shell out to
+# `bw` for every vault read/write. It was never installed in this image, so
+# every vault call here failed with "[Errno 2] No such file or directory:
+# 'bw'" and env-broker fell back to fleet-wide values instead of per-site
+# vault reads. Pin to the version already used on the host (see
+# `npm ls -g @bitwarden/cli`) so behavior doesn't drift between the two.
+RUN npm install -g @bitwarden/cli@2026.6.0
+
 ENV TZ=America/New_York
 
 # uid 1000 / gid 1000 matches the host `jesse` user so bind-mounted files

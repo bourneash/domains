@@ -61,6 +61,13 @@ suites:
     dir: data-hub-images
     files: [client/datahub-images-client.test.js]
 
+  # Standalone node test file, no package.json of its own — the Slack
+  # alert-relay that sits in front of Gatus.
+  fleet-gatus-relay:
+    runner: node-test
+    dir: fleet-gatus
+    files: [relay/relay.test.js]
+
   scripts-shell:
     runner: shell-test
     dir: scripts
