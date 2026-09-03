@@ -194,6 +194,9 @@ def _voice_block(cfg: SiteConfig, persona: str = "") -> str:
     bits = []
     if cfg.voice:
         bits.append(f"Brand voice: {cfg.voice}")
+    direction = cfg.get("content_direction")
+    if direction:
+        bits.append(f"Content direction and ideas: {direction}")
     if persona:
         bits.append(f"You are posting as {persona}, a byline on this site.")
     guard = cfg.get("ai.guardrails")

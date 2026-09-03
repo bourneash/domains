@@ -107,10 +107,15 @@ function get(root, slug) {
 function patchSocial(root, slug, body) {
   const current = loadSocial(root, slug);
   const allowed = [
+    'enabled',
     'approval',
     'max_source_age_hours',
     'variants_per_source',
     'max_sources_per_run',
+    'voice',
+    'content_direction',
+    'hashtags',
+    'link_style',
   ];
   const next = yaml.load(current.raw) || {};
   for (const key of allowed) if (body[key] !== undefined) next[key] = body[key];
@@ -119,6 +124,9 @@ function patchSocial(root, slug, body) {
   }
   if (body.reply && typeof body.reply === 'object') {
     next.reply = { ...(next.reply || {}), ...body.reply };
+  }
+  if (body.ai && typeof body.ai === 'object') {
+    next.ai = { ...(next.ai || {}), ...body.ai };
   }
   if (body.platformApprovals && typeof body.platformApprovals === 'object') {
     next.platform_overrides = { ...(next.platform_overrides || {}) };
@@ -133,6 +141,12 @@ function patchSocial(root, slug, body) {
   }
   if (!['auto', 'manual'].includes(String(next.approval)))
     throw httpErr(400, 'approval must be auto or manual');
+  if (next.enabled !== undefined && typeof next.enabled !== 'boolean')
+    throw httpErr(400, 'enabled must be true or false');
+  if (next.link_style !== undefined && !['append', 'none'].includes(String(next.link_style)))
+    throw httpErr(400, 'link_style must be append or none');
+  if (next.hashtags !== undefined && (!Array.isArray(next.hashtags) || next.hashtags.some(tag => typeof tag !== 'string')))
+    throw httpErr(400, 'hashtags must be a list of strings');
   for (const key of ['max_source_age_hours', 'variants_per_source', 'max_sources_per_run']) {
     if (next[key] !== undefined && (!Number.isFinite(Number(next[key])) || Number(next[key]) < 0))
       throw httpErr(400, `${key} must be a non-negative number`);
@@ -145,6 +159,32 @@ function patchSocial(root, slug, body) {
       )
         throw httpErr(400, `cadence.${key} must be a non-negative number`);
     }
+    if (next.cadence.slots !== undefined) {
+      if (!Array.isArray(next.cadence.slots) || next.cadence.slots.some(slot => !/^([01]?\d|2[0-3]):[0-5]\d$/.test(String(slot))))
+        throw httpErr(400, 'cadence.slots must contain times in HH:MM format');
+    }
+    if (next.cadence.quiet_hours !== undefined) {
+      if (!Array.isArray(next.cadence.quiet_hours) || next.cadence.quiet_hours.length !== 2 || next.cadence.quiet_hours.some(hour => !Number.isInteger(Number(hour)) || Number(hour) < 0 || Number(hour) > 23))
+        throw httpErr(400, 'cadence.quiet_hours must contain two hours from 0 to 23');
+    }
+    for (const key of ['immediate', 'stagger']) {
+      if (next.cadence[key] !== undefined && typeof next.cadence[key] !== 'boolean')
+        throw httpErr(400, `cadence.${key} must be true or false`);
+    }
+  }
+  if (next.reply) {
+    for (const key of ['max_per_day', 'poll_limit']) {
+      if (next.reply[key] !== undefined && (!Number.isFinite(Number(next.reply[key])) || Number(next.reply[key]) < 0))
+        throw httpErr(400, `reply.${key} must be a non-negative number`);
+    }
+    if (next.reply.enabled !== undefined && typeof next.reply.enabled !== 'boolean')
+      throw httpErr(400, 'reply.enabled must be true or false');
+  }
+  if (next.ai) {
+    if (next.ai.backend !== undefined && !['auto', 'api', 'cli', 'fake'].includes(String(next.ai.backend)))
+      throw httpErr(400, 'ai.backend must be auto, api, cli, or fake');
+    if (next.ai.max_tokens !== undefined && (!Number.isFinite(Number(next.ai.max_tokens)) || Number(next.ai.max_tokens) < 1))
+      throw httpErr(400, 'ai.max_tokens must be a positive number');
   }
   atomicWrite(current.file, yaml.dump(next, { noRefs: true, lineWidth: 120 }));
   return get(root, slug);

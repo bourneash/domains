@@ -15,7 +15,7 @@ Two modes:
              cwd == the site's repo root (/work). Reads ops/tasks/backlog/*.md,
              picks the task the role would pick (lowest priority, then oldest
              created, assigned_role == role, not blocked_on), and prints ONE
-             integer: min(hard_cap, max(floor, estimated_turns + buffer)).
+             integer: min(hard_cap, max(floor, estimated_turns + buffer + 1)).
              Falls back to --fallback on any missing/unparseable data — never
              blocks a run.
 
@@ -49,7 +49,11 @@ import sys
 
 DEFAULT_HARD_CAP = 40
 DEFAULT_FLOOR = 10
+# Claude reports the turn that discovers the cap as cap+1 (for example,
+# `21/20`). Keep that bookkeeping turn out of the task estimate's usable
+# budget so a task sized at 12 with the default buffer gets 21 turns, not 20.
 DEFAULT_BUFFER = 8
+CAP_REPORTING_MARGIN = 1
 
 # 2026-08-23 token-usage audit: a completed 0daynews.com task
 # (2026-08-20-cve-2026-19490-*, estimated_turns: 10) never got moved from
@@ -88,7 +92,8 @@ def _parse_frontmatter(fm_text):
 
 def _load_task(path):
     try:
-        text = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as handle:
+            text = handle.read()
     except Exception:
         return None
     if not text.startswith("---"):
@@ -170,7 +175,7 @@ def compute_budget(estimated_turns, hard_cap, floor, buffer_):
         return None
     if est <= 0:
         return None
-    return min(hard_cap, max(floor, est + buffer_))
+    return min(hard_cap, max(floor, est + buffer_ + CAP_REPORTING_MARGIN))
 
 
 def cmd_runtime(args):
@@ -183,6 +188,13 @@ def cmd_runtime(args):
         data.get("estimated_turns"), args.hard_cap, args.floor, args.buffer
     )
     print(budget if budget is not None else args.fallback)
+
+
+def cmd_next_task(args):
+    """Print the selected task path for a caller that wants to preload it."""
+    task = pick_next_task(args.backlog_dir, args.role, skip_types={"ops"})
+    if task:
+        print(task[3])
 
 
 # ---------------------------------------------------------------------------
@@ -400,6 +412,11 @@ def main():
     rt.add_argument("--buffer", type=int, default=DEFAULT_BUFFER)
     rt.add_argument("--fallback", type=int, default=DEFAULT_HARD_CAP)
     rt.set_defaults(func=cmd_runtime)
+
+    nt = sub.add_parser("next-task", help="print the selected task path")
+    nt.add_argument("role")
+    nt.add_argument("--backlog-dir", default="ops/tasks/backlog")
+    nt.set_defaults(func=cmd_next_task)
 
     au = sub.add_parser("audit", help="fleet-wide read-only audit, run on the host")
     au.add_argument("--fleet-root", default=os.path.expanduser("~/projects/domains"))

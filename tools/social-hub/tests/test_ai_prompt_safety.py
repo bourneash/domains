@@ -117,3 +117,11 @@ def test_ordinary_mentions_still_get_through(synced):
     assert engagement.should_ignore(
         {"text": "love this, where can I buy one?", "author_handle": "fan"}, cfg
     ) is None
+
+
+def test_content_direction_is_present_in_post_prompt():
+    from social_hub.config import SiteConfig
+
+    cfg = SiteConfig("alpha.com", {"content_direction": "Prioritize practical buying guides and repair tips."})
+    prompt = ai.post_prompt(cfg, {"title": "A guide", "summary": "Useful context"}, "bluesky", _Caps(), 1)
+    assert "Content direction and ideas: Prioritize practical buying guides and repair tips." in prompt

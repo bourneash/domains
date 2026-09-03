@@ -107,6 +107,25 @@ async function listPosts(params) {
   return call(`/api/posts${qs(params)}`);
 }
 
+async function createPost(payload) {
+  const body = {
+    site: String(payload.site || '').trim(),
+    platform: String(payload.platform || '').trim(),
+    body: String(payload.body || '').slice(0, 4000),
+    link: String(payload.link || '').slice(0, 2000),
+    schedule: payload.schedule === true,
+    author: 'fleet-dashboard',
+  };
+  if (!body.site || !body.platform) {
+    const err = new Error('site and platform are required');
+    err.httpStatus = 400;
+    throw err;
+  }
+  const post = await call('/api/posts', { method: 'POST', body });
+  if (payload.scheduled_at) return patchPost(post.id, { scheduled_at: String(payload.scheduled_at) });
+  return post;
+}
+
 async function calendar(site, days) {
   // The hub owns the scheduling rules and its /api/calendar endpoint is the
   // authoritative upcoming-post view. Keep the browser away from that service
@@ -209,6 +228,7 @@ function registerRoutes(app) {
       })
     )
   );
+  app.post('/api/socialhub/posts', forward(req => createPost(req.body || {})));
   app.get(
     '/api/socialhub/calendar',
     forward(req => calendar(req.query.site, req.query.days))
@@ -271,6 +291,7 @@ module.exports = {
   overview,
   listPosts,
   calendar,
+  createPost,
   approve,
   reject,
   patchPost,

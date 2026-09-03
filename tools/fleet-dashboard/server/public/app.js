@@ -8039,6 +8039,28 @@ function shPlatformLabel(platform) {
   return platform === 'console' ? 'console (local preview)' : platform;
 }
 
+// Channel records are persisted by the hub, but older hub databases and
+// compatibility adapters have used a couple of names for the same fields.
+// Keep that detail at the UI boundary so a partially migrated hub cannot make
+// the Channels tab look empty.
+function shChannelField(channel, ...keys) {
+  for (const key of keys) {
+    const value = channel?.[key];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return '';
+}
+
+function shChannelText(channel, ...keys) {
+  const value = shChannelField(channel, ...keys);
+  return value === '' ? '—' : String(value);
+}
+
+function shChannelDate(channel, ...keys) {
+  const value = shChannelField(channel, ...keys);
+  return value ? shFmtDate(value) : '—';
+}
+
 function shQueuePlatforms() {
   return SH.site ? SH.platformsBySite[SH.site] || [] : SH.platforms;
 }
@@ -8590,13 +8612,16 @@ function shCalendarPost(p) {
   const parts = shDateParts(p.scheduled_at);
   const time = parts ? parts.time : 'Time unavailable';
   const overdue = p.scheduled_at && new Date(p.scheduled_at).getTime() < Date.now();
-  const reviewable = p.status === 'approved' || p.status === 'scheduled';
-  const reviewActs = reviewable
-    ? `<div class="sh-cal-review-actions" aria-label="Review post">
-        <button class="btn sm sh-act sh-cal-approve" data-act="approve" data-id="${esc(p.id)}" title="Approve this post and keep its scheduled time">Approve</button>
-        <button class="btn sm sh-act sh-cal-deny" data-act="deny" data-id="${esc(p.id)}" title="Deny this post and remove it from the calendar">Deny</button>
-      </div>`
-    : '';
+  const statusLabel =
+    {
+      draft: 'Awaiting approval',
+      approved: 'Approved',
+      scheduled: 'Scheduled',
+      posted: 'Published',
+      failed: 'Failed',
+      rejected: 'Rejected',
+      cancelled: 'Cancelled',
+    }[p.status] || p.status || 'Unknown';
   const acts = shActions(p)
     .map(
       ([act, label]) =>
@@ -8607,7 +8632,7 @@ function shCalendarPost(p) {
     <article class="sh-cal-post${overdue ? ' overdue' : ''}" data-sh-post data-fleet-row data-site="${esc(p.site)}" data-id="${esc(p.id)}">
       <div class="sh-cal-post-head">
         <time datetime="${esc(p.scheduled_at || '')}" title="${esc(p.scheduled_at || '')}">${esc(time)}</time>
-        ${shBadgeStatus(p.status)}
+        <span class="badge ${p.status === 'draft' ? 'b-yellow' : p.status === 'posted' ? 'b-green' : p.status === 'failed' || p.status === 'rejected' ? 'b-red' : p.status === 'cancelled' ? 'b-gray' : 'b-blue'}" title="Current approval/publishing state">${esc(statusLabel)}</span>
       </div>
       <div class="sh-cal-meta">
         <span class="badge b-blue">${esc(p.site)}</span>
@@ -8616,7 +8641,6 @@ function shCalendarPost(p) {
       </div>
       <div class="sh-cal-body">${shTrunc(p.body, 110)}</div>
       ${overdue ? '<div class="sh-cal-overdue">Past due</div>' : ''}
-      ${reviewActs}
       <div class="sh-acts-cell">${acts || '<span class="muted">—</span>'}</div>
     </article>`;
 }
@@ -8922,38 +8946,117 @@ async function shRenderChannels() {
   });
 
   let data;
+  let registryData = { accounts: [] };
   try {
     data = await api('GET', `/api/socialhub/channels?site=${encodeURIComponent(SH.site)}`);
   } catch (e) {
     $('#sh-channels-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
     return;
   }
-  const channels = (data.channels || []).sort(
-    (a, b) => a.site.localeCompare(b.site) || a.platform.localeCompare(b.platform)
+  // Registry enrichment is optional; the Hub inventory must remain visible
+  // even when the separate Fleet Social Registry endpoint is unavailable.
+  try {
+    registryData = await api('GET', `/api/social/accounts?site=${encodeURIComponent(SH.site)}`);
+  } catch {
+    registryData = { accounts: [] };
+  }
+  // Accept both the hub's normal envelope and the direct list shape returned
+  // by a few older deployments.
+  const hubChannels = (Array.isArray(data)
+    ? data
+    : Array.isArray(data?.channels)
+      ? data.channels
+      : Array.isArray(data?.data?.channels)
+        ? data.data.channels
+        : [])
+    .slice();
+  const registryAccounts = Array.isArray(registryData?.accounts) ? registryData.accounts : [];
+  const channelKey = c =>
+    [
+      shChannelField(c, 'site', 'domain'),
+      shChannelField(c, 'platform', 'platform_name', 'network'),
+      shChannelField(c, 'personaName', 'persona_name', 'persona') || 'brand',
+    ]
+      .map(value => String(value).toLowerCase())
+      .join('|');
+
+  // The registry is the source of truth for identity and lifecycle state;
+  // the hub mirror owns operational fields such as enabled and timestamps.
+  // Include registry rows that have not been synced yet so they are visible
+  // instead of silently disappearing from this inventory.
+  const byKey = new Map(hubChannels.map(channel => [channelKey(channel), { ...channel }]));
+  for (const account of registryAccounts) {
+    const key = channelKey(account);
+    const hub = byKey.get(key) || {};
+    const merged = {
+      ...hub,
+      ...account,
+      // Registry IDs identify social accounts; channel actions require the
+      // separate numeric ID from Social Hub's mirror.
+      id: hub.id !== undefined && hub.id !== null ? hub.id : '',
+      ...(hub.enabled !== undefined ? { enabled: hub.enabled } : {}),
+      ...(hub.last_posted_at ? { last_posted_at: hub.last_posted_at } : {}),
+      ...(hub.last_polled_at ? { last_polled_at: hub.last_polled_at } : {}),
+      ...(hub.updated_at ? { updated_at: hub.updated_at } : {}),
+    };
+    // A successful hub verification can know the handle even when the
+    // registry account has not been backfilled yet.
+    if (!account.handle && hub.handle) merged.handle = hub.handle;
+    byKey.set(key, merged);
+  }
+  const channels = [...byKey.values()].sort(
+    (a, b) =>
+      shChannelText(a, 'site', 'domain').localeCompare(shChannelText(b, 'site', 'domain')) ||
+      shChannelText(a, 'platform', 'platform_name', 'network').localeCompare(
+        shChannelText(b, 'platform', 'platform_name', 'network')
+      ) ||
+      shChannelText(a, 'personaName', 'persona_name', 'persona', 'scope').localeCompare(
+        shChannelText(b, 'personaName', 'persona_name', 'persona', 'scope')
+      )
   );
   $('#sh-channels-count').textContent =
     `${channels.length} channel${channels.length === 1 ? '' : 's'}`;
   const rows = channels
     .map(
-      c => `<tr data-fleet-row data-site="${esc(c.site)}" data-id="${c.id}">
-        <td><span class="badge b-blue">${esc(c.site)}</span></td>
-        <td>${esc(c.platform)}</td>
-        <td class="muted">${esc(c.scope || '—')}</td>
-        <td class="mono">${esc(c.handle || '—')}</td>
-        <td>${esc(c.status || '—')}</td>
-        <td>${c.enabled ? '<span class="badge b-green">on</span>' : '<span class="badge b-gray">off</span>'}</td>
-        <td class="mono muted">${c.last_verified_at ? shFmtDate(c.last_verified_at) : 'never'}</td>
-        <td class="sh-body-cell">${c.error ? `<span class="sh-err" title="${esc(c.error)}">⚠ ${esc(c.error.slice(0, 60))}${c.error.length > 60 ? '…' : ''}</span>` : '<span class="muted">—</span>'}</td>
-        <td class="sh-acts-cell">
-          <button class="btn sm sh-chan-toggle" data-id="${c.id}" data-enabled="${c.enabled ? 0 : 1}">${c.enabled ? 'Disable' : 'Enable'}</button>
-          <button class="btn sm sh-chan-verify" data-id="${c.id}">Verify</button>
-        </td>
-      </tr>`
+      c => {
+        const site = shChannelText(c, 'site', 'domain');
+        const platform = shChannelText(c, 'platform', 'platform_name', 'network');
+        const persona = shChannelField(c, 'personaName', 'persona_name', 'persona');
+        const scope = shChannelField(c, 'scope') || (persona ? 'persona' : 'brand');
+        const handle = shChannelText(c, 'handle', 'username', 'account', 'account_handle');
+        const status = shChannelText(c, 'status', 'state');
+        const enabled = c.enabled === true || c.enabled === 1 || c.enabled === '1';
+        const hasCreds = c.has_creds === true || c.has_creds === 1 || c.has_creds === '1' || c.credsInVault === true;
+        const note = shChannelText(c, 'note', 'statusNote', 'notes');
+        const error = shChannelField(c, 'error', 'last_error');
+        const id = shChannelField(c, 'id', 'channel_id');
+        const canOperate = id !== '';
+        return `<tr data-fleet-row data-site="${esc(site)}" data-id="${esc(id)}">
+          <td><span class="badge b-blue">${esc(site)}</span></td>
+          <td>${esc(shPlatformLabel(platform))}</td>
+          <td class="muted">${esc(scope)}${persona ? ` <span class="mono">(${esc(persona)})</span>` : ''}</td>
+          <td class="mono">${esc(handle)}</td>
+          <td>${esc(status)}</td>
+          <td>${enabled ? '<span class="badge b-green">on</span>' : '<span class="badge b-gray">off</span>'}</td>
+          <td>${hasCreds ? '<span class="badge b-green">yes</span>' : '<span class="badge b-gray">no</span>'}</td>
+          <td class="mono muted">${esc(shChannelDate(c, 'last_verified_at', 'verified_at', 'updated_at'))}</td>
+          <td class="mono muted">${esc(shChannelDate(c, 'last_posted_at'))}</td>
+          <td class="mono muted">${esc(shChannelDate(c, 'last_polled_at'))}</td>
+          <td class="sh-body-cell" title="${esc(note)}">${esc(note)}</td>
+          <td class="sh-body-cell">${error ? `<span class="sh-err" title="${esc(error)}">⚠ ${esc(String(error).slice(0, 60))}${String(error).length > 60 ? '…' : ''}</span>` : '<span class="muted">—</span>'}</td>
+          <td class="sh-acts-cell">
+            ${canOperate
+              ? `<button class="btn sm sh-chan-toggle" data-id="${esc(id)}" data-enabled="${enabled ? 0 : 1}">${enabled ? 'Disable' : 'Enable'}</button>
+                 <button class="btn sm sh-chan-verify" data-id="${esc(id)}">Verify</button>`
+              : '<span class="muted" title="This registry account has not been synced into Social Hub yet">Registry only</span>'}
+          </td>
+        </tr>`;
+      }
     )
     .join('');
   $('#sh-channels-list').innerHTML = rows
     ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr><th>Site</th><th>Platform</th><th>Scope</th><th>Handle</th>
-         <th>Status</th><th>Enabled</th><th>Last verified</th><th>Error</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
+         <th>Status</th><th>Enabled</th><th>Credentials</th><th>Last checked</th><th>Last posted</th><th>Last polled</th><th>Note</th><th>Error</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
     : '<div class="empty">No channels for this filter.</div>';
 
   $$('.sh-chan-toggle').forEach(btn =>

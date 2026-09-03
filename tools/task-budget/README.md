@@ -15,7 +15,8 @@ budget with nothing committed — this happened on reviewtattoo.com
 
 `turn_budget.py` derives the budget from the task's own `estimated_turns`
 frontmatter field instead: `min(hard_cap, max(floor, estimated_turns +
-buffer))`.
+buffer + 1))`. The extra one-turn margin accounts for Claude reporting the
+turn that discovers the cap as `cap+1` in the failure log.
 
 **Only applies to roles that actually pick a task from `ops/tasks/backlog/`
 as their unit of work.** Some writer roles (news-scanning pipelines, mandate-
