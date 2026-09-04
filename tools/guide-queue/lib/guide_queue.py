@@ -239,8 +239,14 @@ def move_item(site_root: Path, from_status: str, filename: str, to_status: str) 
 
 def oldest(site_root: Path, status: str) -> dict | None:
     """The oldest item in a status column by `created` date (falls back to
-    filename order for items missing that field)."""
-    items = list_status(site_root, status)
+    filename order for items missing that field).
+
+    Corrupt frontmatter is surfaced by ``list_status`` for the dashboard, but
+    it is not a publishable candidate.  Do not let a flagged item become the
+    queue head and make the publisher fail before it can reach valid items
+    behind it.
+    """
+    items = [it for it in list_status(site_root, status) if not it.get("parse_error")]
     items.sort(key=lambda it: (it["meta"].get("created") or "", it["file"]))
     return items[0] if items else None
 
