@@ -100,12 +100,27 @@ def wait_for_dom_settle(page, checks=2, interval=0.8, max_wait=6.0):
         time.sleep(interval)
 
 
+_SELECTED_TOPICS = set()
+_MIN_TOPICS = 3  # Bluesky's onboarding gates Continue on 3+ picks.
+
+
 def pick_one_interest_tag(page):
-    """Select exactly one interest tag from the onboarding interests-picker,
-    waiting for the DOM to settle before AND after the click so the next
-    loop iteration doesn't race a re-render. Returns True if a tag was
-    clicked this pass."""
+    """Select one not-yet-picked interest tag from the onboarding
+    interests-picker, waiting for the DOM to settle before AND after the
+    click so the next loop iteration doesn't race a re-render. Returns True
+    if a tag was clicked this pass.
+
+    _SELECTED_TOPICS persists across calls: the picker's chips stay in the
+    DOM (just re-styled) once selected, so re-scanning _INTEREST_TOPICS from
+    the top without remembering prior picks re-finds and re-clicks the same
+    first match every pass — toggling it on/off forever and never reaching
+    the 3-topic minimum. Stop once that minimum is met so the Next/Continue
+    branch below takes over."""
+    if len(_SELECTED_TOPICS) >= _MIN_TOPICS:
+        return False
     for topic in _INTEREST_TOPICS:
+        if topic in _SELECTED_TOPICS:
+            continue
         try:
             tag = page.get_by_text(topic, exact=True)
             if tag.count() > 0 and tag.first.is_visible():
@@ -113,6 +128,7 @@ def pick_one_interest_tag(page):
                 tag.first.click(timeout=3000)
                 wait_for_dom_settle(page)
                 time.sleep(1)
+                _SELECTED_TOPICS.add(topic)
                 return True
         except Exception:
             continue
