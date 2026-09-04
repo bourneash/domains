@@ -57,14 +57,15 @@ def _token():
     """
     tok = os.environ.get("FD_TOKEN")
     if tok:
-        return tok
+        return tok.split(",", 1)[0].strip()
     rendered = os.path.join(REPO, "tools", "env-broker", "rendered",
                             "tool-fleet-dashboard.env")
     try:
         with open(rendered, encoding="utf-8") as fh:
             for line in fh:
                 if line.startswith("FD_TOKEN="):
-                    return line.split("=", 1)[1].strip().strip("'\"")
+                    raw = line.split("=", 1)[1].strip().strip("'\"")
+                    return raw.split(",", 1)[0].strip()
     except OSError:
         pass
     return None
