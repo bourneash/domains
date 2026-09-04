@@ -29,6 +29,15 @@ test('classify suppresses scout-event lines even when a product title contains a
   assert.equal(errorscan._classify(panic), null);
 });
 
+test('classify suppresses routine AISStream reconnect warnings but preserves escalated errors', () => {
+  const warning =
+    'WARNING stream disconnected (no close frame received or sent); reconnecting in 1s (failure 1)';
+  const escalated =
+    'ERROR stream disconnected (no close frame received or sent); reconnecting in 16s (failure 5)';
+  assert.equal(errorscan._classify(warning), null);
+  assert.equal(errorscan._classify(escalated), 'error');
+});
+
 test('critical alert excerpt identifies the critical trigger, not a later warning', () => {
   const now = Date.now();
   const critical = { tsMs: now - 2000, level: 'crit', line: 'FATAL database unavailable' };

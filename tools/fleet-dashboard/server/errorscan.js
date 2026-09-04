@@ -58,6 +58,9 @@ const WARN_RE = /\bwarn(?:ing)?\b/i;
 // wstatus (an actual failed job) still matches — only the clean-exit case is
 // suppressed. Add more entries here as other fleet-wide noise turns up.
 const SUPPRESS_RE = [
+  // AISStream reconnects automatically after ordinary upstream TCP drops. The
+  // line contains "failure" as a retry counter, but is logged at WARNING.
+  /^WARNING\s+stream disconnected\b.*reconnecting in \d+s \(failure \d+\)/i,
   /reaper cleanup: pid=\d+, wstatus=0\b/i,
   /\bnon-fatal\b/i, // "\bfatal\b" matches inside "non-fatal" — the negation flips the meaning
   // Astro prints every successfully generated route. Article slugs are content,
