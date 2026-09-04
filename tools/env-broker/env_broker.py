@@ -180,15 +180,33 @@ def granted_keys(domain: str, policy: dict, slack: dict[str, str]) -> list[str]:
 
 
 def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
-    """Which fleet keys this site's ops/ actually mentions."""
+    """Which fleet keys this site's ops/ actually mentions.
+
+    Two carve-outs, both surfaced by the 2026-09-04 FORBIDDEN alert firing on
+    every site that has run-engineer.sh:
+    - `KEY=` with an empty value — the shell idiom `CF_API_TOKEN= CLOUDFLARE_
+      API_TOKEN= claude ...` blanks a var so a subprocess (the model pass)
+      can't inherit it. That's revoking the key, not referencing it; scoring
+      it as "used" made every site FORBIDDEN on the never_grant key it was
+      actively defending against.
+    - Markdown files. A role doc's prose (e.g. a "Credentials" section
+      pointing at `tools/env-broker/rendered/...`) quoting a key name isn't a
+      runtime dependency — nothing under ops/ reads env vars out of a .md
+      file. (stinkyleftfoot.com/ops/roles/social-poster.md naming FD_TOKEN.)
+    """
     if not all_keys:
         return set()
-    pat = re.compile(r"\b(" + "|".join(sorted(all_keys, key=len, reverse=True)) + r")\b")
+    pat = re.compile(
+        r"\b(" + "|".join(sorted(all_keys, key=len, reverse=True)) + r")\b"
+        r"(?!=(?=\s|$))"
+    )
     found: set[str] = set()
     for f in (ROOT / "sites" / domain / "ops").rglob("*"):
         if not f.is_file() or any(p in str(f) for p in SKIP_PARTS):
             continue
         if any(part.startswith(SKIP_PREFIXES) for part in f.parts):
+            continue
+        if f.suffix == ".md":
             continue
         try:
             if f.stat().st_size > 2_000_000:
