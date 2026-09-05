@@ -105,6 +105,7 @@ Base URL: `http://127.0.0.1:4760`
 | GET | `/sources` | All registered sources with live state + enabled/overridden |
 | GET | `/egress` | **Outbound** audit: hub→source fetches (exit IP, policy, status, count) |
 | GET | `/pulls` | **Inbound** audit: consumer pulls (site, endpoint, item_count, client IP, when) — params `limit`, `site` |
+| GET | `/metrics/gsc-query-pages` | Exact daily GSC query→canonical-page metrics for a site; params `since`, `until`, `limit` |
 | POST | `/sources/{id}/enabled` | Runtime enable/disable override (`{"enabled": bool}`) |
 
 ### `/items` query params

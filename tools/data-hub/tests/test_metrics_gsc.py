@@ -67,6 +67,18 @@ def test_fetch_pages_sets_page_grain_and_canonical_url_key():
     assert body["dimensions"] == ["date", "page"]
 
 
+def test_fetch_query_pages_preserves_both_dimensions():
+    response = {"rows": [{"keys": ["2026-07-18", "best matcha", "https://xxxtea.com/leaves/matcha"],
+                          "clicks": 9, "impressions": 120, "ctr": 0.075,
+                          "position": 6.2}]}
+    client = FakeClient(response)
+    records = gsc.fetch_query_pages(client, "sc-domain:xxxtea.com", today=date(2026, 7, 19))
+    assert records[0]["query"] == "best matcha"
+    assert records[0]["page"] == "https://xxxtea.com/leaves/matcha"
+    _, body = client.searchanalytics().calls[0]
+    assert body["dimensions"] == ["date", "query", "page"]
+
+
 def test_fetch_site_calls_query_with_correct_site_and_window_and_row_cap():
     client = FakeClient({"rows": []})
     gsc.fetch_site(client, "sc-domain:xxxtea.com", today=date(2026, 7, 19))

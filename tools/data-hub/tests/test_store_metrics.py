@@ -45,6 +45,18 @@ def test_upsert_gsc_metrics_inserts_and_revises(db):
     assert rows[0]["clicks"] == 99
 
 
+def test_upsert_query_page_metrics_preserves_relationship_and_revises(db):
+    record = {"date": "2026-07-10", "query": "best tea", "page": "https://xxxtea.com/tea",
+              "clicks": 4, "impressions": 80, "ctr": 0.05, "position": 7.0}
+    store.upsert_gsc_query_page_metrics(db, "xxxtea.com", [record])
+    store.upsert_gsc_query_page_metrics(db, "xxxtea.com", [{**record, "clicks": 9}])
+    rows = store.query_gsc_query_page_metrics(db, "xxxtea.com")
+    assert len(rows) == 1
+    assert rows[0]["query"] == "best tea"
+    assert rows[0]["page"] == "https://xxxtea.com/tea"
+    assert rows[0]["clicks"] == 9
+
+
 def test_query_ga4_metrics_filters_by_grain_and_dim_key(db):
     store.upsert_ga4_metrics(db, "xxxtea.com", [
         _ga4_record(grain="site", dim_key=""),
@@ -78,5 +90,6 @@ def test_metrics_tables_exempt_from_retention_prune(db):
     deleted = store.prune(db, retention_days=7)
     assert "ga4_metrics" not in deleted
     assert "gsc_metrics" not in deleted
+    assert "gsc_query_page_metrics" not in deleted
     assert len(store.query_ga4_metrics(db, "xxxtea.com")) == 1
     assert len(store.query_gsc_metrics(db, "xxxtea.com")) == 1

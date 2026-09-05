@@ -55,6 +55,18 @@ def test_metrics_gsc_endpoint_returns_rows(db):
     assert r.json()["records"][0]["clicks"] == 5
 
 
+def test_metrics_gsc_query_pages_returns_exact_relationship(db):
+    store.upsert_gsc_query_page_metrics(db, "xxxtea.com", [{
+        "date": _days_ago(1), "query": "best tea", "page": "https://xxxtea.com/tea",
+        "clicks": 3, "impressions": 60, "ctr": 0.05, "position": 8.0,
+    }])
+    client = _app(db)
+    r = client.get("/metrics/gsc-query-pages?site=xxxtea.com")
+    assert r.status_code == 200
+    assert r.json()["records"][0]["query"] == "best tea"
+    assert r.json()["records"][0]["page"] == "https://xxxtea.com/tea"
+
+
 def test_metrics_summary_flags_site_with_no_data_as_absent_not_zero(db):
     client = _app(db)
     r = client.get("/metrics/summary?site=nosuchsite.com")

@@ -26,7 +26,9 @@ def _pull_gsc(conn, site: str, cfg: AnalyticsSite, client) -> str:
     site_records = gsc.fetch_site(client, cfg.gsc_property)
     query_records = gsc.fetch_queries(client, cfg.gsc_property)
     page_records = gsc.fetch_pages(client, cfg.gsc_property)
+    query_page_records = gsc.fetch_query_pages(client, cfg.gsc_property)
     n = store.upsert_gsc_metrics(conn, site, site_records + query_records + page_records)
+    n += store.upsert_gsc_query_page_metrics(conn, site, query_page_records)
     store.record_egress(conn, source_id=f"gsc:{site}", target_host="searchconsole.googleapis.com",
                         policy="direct", exit_node="direct", exit_ip=None,
                         status="ok", item_count=n)

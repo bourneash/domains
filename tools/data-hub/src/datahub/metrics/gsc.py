@@ -48,3 +48,20 @@ def fetch_pages(client, gsc_property: str, *, today: date | None = None) -> list
     start, end = trailing_window(today or date.today())
     response = _query(client, gsc_property, start, end, ["date", "page"])
     return _rows_to_records(response, grain="page", has_dim_key=True)
+
+
+def fetch_query_pages(client, gsc_property: str, *, today: date | None = None) -> list[dict]:
+    """Fetch the exact query-to-canonical-page relationship for each day."""
+    start, end = trailing_window(today or date.today())
+    response = _query(client, gsc_property, start, end, ["date", "query", "page"])
+    records = []
+    for row in response.get("rows") or []:
+        keys = row.get("keys", [])
+        if len(keys) < 3:
+            continue
+        records.append({
+            "date": keys[0], "query": keys[1], "page": keys[2],
+            "clicks": row.get("clicks"), "impressions": row.get("impressions"),
+            "ctr": row.get("ctr"), "position": row.get("position"),
+        })
+    return records

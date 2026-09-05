@@ -108,6 +108,22 @@ CREATE TABLE IF NOT EXISTS gsc_metrics (
 );
 CREATE INDEX IF NOT EXISTS idx_gsc_metrics_site_date ON gsc_metrics(site, date);
 CREATE INDEX IF NOT EXISTS idx_gsc_metrics_lookup ON gsc_metrics(site, grain, dim_key);
+
+CREATE TABLE IF NOT EXISTS gsc_query_page_metrics (
+  id INTEGER PRIMARY KEY,
+  site TEXT NOT NULL,
+  date TEXT NOT NULL,
+  query TEXT NOT NULL,
+  page TEXT NOT NULL,
+  clicks INTEGER,
+  impressions INTEGER,
+  ctr REAL,
+  position REAL,
+  fetched_at TEXT NOT NULL,
+  UNIQUE(site, date, query, page)
+);
+CREATE INDEX IF NOT EXISTS idx_gsc_query_page_site_date ON gsc_query_page_metrics(site, date);
+CREATE INDEX IF NOT EXISTS idx_gsc_query_page_lookup ON gsc_query_page_metrics(site, query, page);
 """
 
 
@@ -421,5 +437,36 @@ def query_gsc_metrics(conn, site: str, *, grain: str = "site", dim_key: str | No
         where.append("date <= ?"); params.append(until)
     sql = ("SELECT site, date, grain, dim_key, clicks, impressions, ctr, position, fetched_at FROM gsc_metrics "
            "WHERE " + " AND ".join(where) + " ORDER BY date ASC LIMIT ?")
+    params.append(int(limit))
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def upsert_gsc_query_page_metrics(conn, site: str, records: list[dict]) -> int:
+    now = _now()
+    for r in records:
+        conn.execute(
+            "INSERT INTO gsc_query_page_metrics (site, date, query, page, clicks, impressions, ctr, position, fetched_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(site, date, query, page) DO UPDATE SET "
+            "clicks=excluded.clicks, impressions=excluded.impressions, ctr=excluded.ctr, "
+            "position=excluded.position, fetched_at=excluded.fetched_at",
+            (site, r["date"], r["query"], r["page"], r.get("clicks"), r.get("impressions"),
+             r.get("ctr"), r.get("position"), now),
+        )
+    conn.commit()
+    return len(records)
+
+
+def query_gsc_query_page_metrics(conn, site: str, *, since: str | None = None,
+                                 until: str | None = None, limit: int = 5000) -> list[dict]:
+    where = ["site = ?"]
+    params: list = [site]
+    if since:
+        where.append("date >= ?"); params.append(since)
+    if until:
+        where.append("date <= ?"); params.append(until)
+    sql = ("SELECT site, date, query, page, clicks, impressions, ctr, position, fetched_at "
+           "FROM gsc_query_page_metrics WHERE " + " AND ".join(where) +
+           " ORDER BY date ASC LIMIT ?")
     params.append(int(limit))
     return [dict(r) for r in conn.execute(sql, params).fetchall()]

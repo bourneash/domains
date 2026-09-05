@@ -48,9 +48,9 @@ def test_run_metrics_cycle_calls_both_apis_for_every_site(db):
     assert summary["ga4_ok"] == 2
     assert summary["gsc_ok"] == 2
     assert summary["errors"] == 0
-    # each site: site + pages = 2 GA4 calls; site + queries + pages = 3 GSC calls
+    # each site: site + pages = 2 GA4 calls; site + queries + pages + query-pages = 4 GSC calls
     assert len(ga4c.calls) == 4
-    assert len(gscc.calls) == 6
+    assert len(gscc.calls) == 8
 
 
 def test_run_metrics_cycle_isolates_one_site_ga4_failure(db):
@@ -94,7 +94,14 @@ def test_run_metrics_cycle_persists_gsc_page_grain(db):
             self.body = body
             return self
         def execute(self):
-            keys = ["2026-07-18", "https://xxxtea.com/guide"] if len(self.body["dimensions"]) > 1 else ["2026-07-18"]
+            dimensions = self.body["dimensions"]
+            keys = ["2026-07-18"]
+            if dimensions == ["date", "query"]:
+                keys.append("widget guide")
+            elif dimensions == ["date", "page"]:
+                keys.append("https://xxxtea.com/guide")
+            elif dimensions == ["date", "query", "page"]:
+                keys.extend(["widget guide", "https://xxxtea.com/guide"])
             return {"rows": [{"keys": keys, "clicks": 2, "impressions": 20,
                               "ctr": 0.1, "position": 4.0}]}
 
@@ -103,3 +110,6 @@ def test_run_metrics_cycle_persists_gsc_page_grain(db):
     pages = store.query_gsc_metrics(db, "xxxtea.com", grain="page")
     assert len(pages) == 1
     assert pages[0]["dim_key"] == "https://xxxtea.com/guide"
+    query_pages = store.query_gsc_query_page_metrics(db, "xxxtea.com")
+    assert len(query_pages) == 1
+    assert query_pages[0]["query"] == "widget guide"

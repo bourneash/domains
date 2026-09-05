@@ -216,6 +216,15 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
                           client_ip=_client_ip(request))
         return {"records": rows}
 
+    @app.get("/metrics/gsc-query-pages")
+    def metrics_gsc_query_pages(request: Request, site: str, since: str | None = None,
+                                until: str | None = None, limit: int = 5000):
+        rows = store.query_gsc_query_page_metrics(
+            conn, site, since=since, until=until, limit=limit)
+        store.record_pull(conn, site=site, endpoint="metrics/gsc-query-pages",
+                          item_count=len(rows), client_ip=_client_ip(request))
+        return {"records": rows}
+
     @app.get("/metrics/summary")
     def metrics_summary(request: Request, site: str, window: int = 28):
         since = (datetime.now(timezone.utc) - timedelta(days=window)).date().isoformat()
