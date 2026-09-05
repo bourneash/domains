@@ -48,9 +48,9 @@ def test_run_metrics_cycle_calls_both_apis_for_every_site(db):
     assert summary["ga4_ok"] == 2
     assert summary["gsc_ok"] == 2
     assert summary["errors"] == 0
-    # each site: fetch_site + fetch_pages = 2 GA4 calls; fetch_site + fetch_queries = 2 GSC calls
+    # each site: site + pages = 2 GA4 calls; site + queries + pages = 3 GSC calls
     assert len(ga4c.calls) == 4
-    assert len(gscc.calls) == 4
+    assert len(gscc.calls) == 6
 
 
 def test_run_metrics_cycle_isolates_one_site_ga4_failure(db):
@@ -82,3 +82,24 @@ def test_run_metrics_cycle_upserts_into_typed_tables(db):
                          ga4_client=OneRowGA4(), gsc_client=FakeGSCClient())
     rows = store.query_ga4_metrics(db, "xxxtea.com", grain="site")
     assert len(rows) == 1
+
+
+def test_run_metrics_cycle_persists_gsc_page_grain(db):
+    class PageAwareGSC(FakeGSCClient):
+        def __init__(self):
+            super().__init__()
+            self.body = None
+        def query(self, siteUrl=None, body=None):
+            self.calls.append(siteUrl)
+            self.body = body
+            return self
+        def execute(self):
+            keys = ["2026-07-18", "https://xxxtea.com/guide"] if len(self.body["dimensions"]) > 1 else ["2026-07-18"]
+            return {"rows": [{"keys": keys, "clicks": 2, "impressions": 20,
+                              "ctr": 0.1, "position": 4.0}]}
+
+    mc.run_metrics_cycle(db, {"xxxtea.com": _sites()["xxxtea.com"]},
+                         ga4_client=FakeGA4Client(), gsc_client=PageAwareGSC())
+    pages = store.query_gsc_metrics(db, "xxxtea.com", grain="page")
+    assert len(pages) == 1
+    assert pages[0]["dim_key"] == "https://xxxtea.com/guide"

@@ -1,4 +1,4 @@
-"""Search Console fetcher — one site's trailing window, site and query grain."""
+"""Search Console fetcher — one site's trailing window at site/query/page grain."""
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -41,3 +41,10 @@ def fetch_queries(client, gsc_property: str, *, today: date | None = None) -> li
     start, end = trailing_window(today or date.today())
     response = _query(client, gsc_property, start, end, ["date", "query"])
     return _rows_to_records(response, grain="query", has_dim_key=True)
+
+
+def fetch_pages(client, gsc_property: str, *, today: date | None = None) -> list[dict]:
+    """Fetch canonical page URLs so search visibility can join GA4 page paths."""
+    start, end = trailing_window(today or date.today())
+    response = _query(client, gsc_property, start, end, ["date", "page"])
+    return _rows_to_records(response, grain="page", has_dim_key=True)
