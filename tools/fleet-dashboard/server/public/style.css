@@ -577,7 +577,7 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .dh-matrix-sub { color: var(--muted,#8a93a6); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin: 10px 0 4px; }
 .dh-egress tbody tr:hover, .dh-sources tbody tr:hover { background: rgba(255,255,255,.03); }
 .dh-sub-h { font-size: 10px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted,#8a93a6); margin-left: 4px; }
-.seo-stats { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.seo-stats { display: grid; grid-template-columns: repeat(6, minmax(130px, 1fr)); gap: 12px; margin-bottom: 14px; }
 .seo-stat { position: relative; overflow: hidden; padding: 14px 16px; border-radius: 10px; }
 .seo-stat::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; }
 .seo-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .09em; font-weight: 700; }
@@ -589,7 +589,7 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .seo-type-row i { display: block; height: 8px; border-radius: 5px; overflow: hidden; }
 .seo-type-row i b { display: block; height: 100%; border-radius: inherit; }
 .seo-type-row strong { text-align: right; font-variant-numeric: tabular-nums; }
-.seo-coverage { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+.seo-coverage { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
 .seo-coverage div { padding: 10px; border-radius: 8px; }
 .seo-coverage b { display: block; font-size: 21px; }
 .seo-coverage span { display: block; font-size: 10px; margin-top: 2px; }
@@ -599,7 +599,7 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .seo-work-head h3 { margin: 0 0 3px; font-size: 16px; }
 .seo-toolbar { margin: 0; }
 .seo-actions { display: grid; grid-template-columns: repeat(3, minmax(260px, 1fr)); gap: 12px; }
-.seo-action { position: relative; display: flex; flex-direction: column; min-height: 230px; padding: 15px 16px; border-radius: 10px; overflow: hidden; }
+.seo-action { position: relative; display: flex; flex-direction: column; min-height: 300px; padding: 15px 16px; border-radius: 10px; overflow: hidden; }
 .seo-action::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; }
 .seo-action-top { display: flex; align-items: center; gap: 6px; }
 .seo-score { margin-left: auto; font-size: 10px; font-family: var(--mono); }
@@ -607,6 +607,8 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .seo-action-site { font-size: 12px; }
 .seo-action p { margin: 10px 0 0; font-size: 12px; line-height: 1.5; }
 .seo-evidence { padding: 8px 10px; border-radius: 7px; }
+.seo-plan { margin: 11px 0 0; padding-left: 22px; font-size: 11px; line-height: 1.45; }
+.seo-plan li + li { margin-top: 4px; }
 .seo-action-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: auto; padding-top: 13px; font-size: 11px; }
 .seo-action-foot b { font-size: 15px; }
 .seo-empty { grid-column: 1 / -1; }

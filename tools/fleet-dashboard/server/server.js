@@ -253,6 +253,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         ? 'engineer'
         : 'seo-analyst';
       const priority = action.priority === 'high' ? 1 : action.priority === 'medium' ? 2 : 3;
+      const executionPlan = (action.plan || []).map((step, index) => `${index + 1}. ${step}`).join('\n');
       const file = tasks.create(root, site, 'backlog', {
         title: action.title,
         priority,
@@ -261,8 +262,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         assigned_role: assignedRole,
         body:
           `## Evidence\n\n${action.evidence}\n\n` +
+          `${action.page ? `Page: https://${site}${action.page}\n\n` : ''}` +
+          `Opportunity score: ${action.score}/100\n\n` +
+          `Value signal: ${action.valueScore || 0}/100 (conversions, sessions, engagement, and search demand; not revenue)\n\n` +
+          `Prioritized rank: ${action.rankScore || action.score}/100\n\n` +
           `## Recommended action\n\n${action.recommendation}\n\n` +
-          `## Verification\n\nRe-run the relevant fleet measurement and compare against this baseline.\n\n` +
+          `## Execution plan\n\n${executionPlan}\n\n` +
+          `## Acceptance criteria\n\nComplete the plan, rerun the relevant fleet measurement, and record the post-change result against this baseline.\n\n` +
           `seo-intelligence-key: ${action.key}\n`,
       });
       seoIntelligence.clearCache();

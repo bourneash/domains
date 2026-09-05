@@ -23,8 +23,11 @@ Key views include:
   Ollama/vLLM from remote Claude, and keeps deterministic rows visible.
 - **SEO Intelligence** — joins first-party GSC demand with GA4 readiness,
   Lighthouse/Web Vitals, link-rot, and crawlability evidence to rank actionable
-  opportunities across the fleet. Operators can filter by site, priority, or
-  opportunity type and file a deduplicated backlog task directly from an action.
+  opportunities across the fleet. Page-level GSC and GA4 data expose content
+  decay, organic page opportunities, and engagement risks; conversions,
+  sessions, engagement, and demand provide an explicit non-revenue value score.
+  Operators can filter by site, priority, or opportunity type and file a
+  deduplicated backlog task with an execution plan directly from an action.
 
 Dynamic: any site under `sites/*/ops/` appears automatically. No registry.
 

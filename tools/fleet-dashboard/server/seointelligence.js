@@ -49,6 +49,57 @@ function aggregateQueries(records) {
   }));
 }
 
+function normalizePage(site, value) {
+  const raw = String(value || '').trim();
+  if (!raw || raw === '(not set)') return null;
+  try {
+    const parsed = new URL(raw, `https://${site}`);
+    let pathname = parsed.pathname.replace(/\/{2,}/g, '/');
+    if (pathname.length > 1) pathname = pathname.replace(/\/$/, '');
+    return pathname || '/';
+  } catch {
+    return null;
+  }
+}
+
+function aggregatePages(site, records, source) {
+  const pages = new Map();
+  for (const row of records || []) {
+    const page = normalizePage(site, row.dim_key);
+    if (!page) continue;
+    const current = pages.get(page) || {
+      page, clicks: 0, impressions: 0, positionWeight: 0,
+      sessions: 0, views: 0, engagedSessions: 0, conversions: 0,
+    };
+    if (source === 'gsc') {
+      const impressions = Number(row.impressions) || 0;
+      current.clicks += Number(row.clicks) || 0;
+      current.impressions += impressions;
+      current.positionWeight += (Number(row.position) || 0) * impressions;
+    } else {
+      current.sessions += Number(row.sessions) || 0;
+      current.views += Number(row.views) || 0;
+      current.engagedSessions += Number(row.engaged_sessions) || 0;
+      current.conversions += Number(row.conversions) || 0;
+    }
+    pages.set(page, current);
+  }
+  return [...pages.values()].map(row => ({
+    ...row,
+    ctr: row.impressions ? row.clicks / row.impressions : 0,
+    position: row.impressions ? row.positionWeight / row.impressions : null,
+    engagementRate: row.sessions ? row.engagedSessions / row.sessions : null,
+  }));
+}
+
+function pageValueScore(row) {
+  return Math.min(100, Math.round(
+    Math.min(55, (Number(row.conversions) || 0) * 11) +
+    Math.min(30, Math.log10((Number(row.sessions) || 0) + 1) * 14) +
+    Math.min(15, Math.log10((Number(row.impressions) || 0) + 1) * 5)
+  ));
+}
+
 function splitWeeks(records) {
   const rows = [...(records || [])].sort((a, b) => String(a.date).localeCompare(String(b.date))).slice(-14);
   return { previous: rows.slice(0, Math.max(0, rows.length - 7)), current: rows.slice(-7) };
@@ -123,6 +174,104 @@ function trendActions(site, records) {
   }];
 }
 
+function pageActions(site, gscRecords, ga4Records) {
+  const search = new Map(aggregatePages(site, gscRecords, 'gsc').map(row => [row.page, row]));
+  const analytics = new Map(aggregatePages(site, ga4Records, 'ga4').map(row => [row.page, row]));
+  const actions = [];
+  for (const row of search.values()) {
+    if (row.impressions < 50 || row.position == null || row.position < 4 || row.position > 20) continue;
+    const ga4 = analytics.get(row.page) || {};
+    const pos = Math.round(row.position * 10) / 10;
+    const valueScore = pageValueScore({
+      impressions: row.impressions,
+      sessions: ga4.sessions,
+      conversions: ga4.conversions,
+    });
+    const base = Math.round(30 + Math.log10(row.impressions + 1) * 14 + (20 - pos) * 1.5);
+    const score = Math.min(100, base + Math.round(valueScore * 0.2));
+    actions.push({
+      id: `${site}:page-opportunity:${row.page}`, site, type: 'page-opportunity',
+      priority: priorityForScore(score), score, valueScore,
+      title: `Grow organic reach for ${row.page}`,
+      evidence: `${row.impressions.toLocaleString()} impressions at position ${pos} · ${row.clicks.toLocaleString()} clicks · ${(ga4.sessions || 0).toLocaleString()} sessions · ${(ga4.conversions || 0).toLocaleString()} conversions`,
+      recommendation: 'Strengthen this page around the search demand it already earns, improve its internal-link support, and preserve any converting intent.',
+      metric: { label: 'page impressions', value: row.impressions },
+      page: row.page,
+    });
+  }
+  for (const row of analytics.values()) {
+    if (row.sessions < 50 || row.conversions > 0 || row.engagementRate == null || row.engagementRate >= 0.35) continue;
+    const valueScore = pageValueScore(row);
+    const score = Math.min(100, Math.round(45 + Math.log10(row.sessions + 1) * 12 + (0.35 - row.engagementRate) * 45));
+    actions.push({
+      id: `${site}:engagement-risk:${row.page}`, site, type: 'engagement-risk',
+      priority: priorityForScore(score), score, valueScore,
+      title: `Improve weak engagement on ${row.page}`,
+      evidence: `${row.sessions.toLocaleString()} sessions · ${Math.round(row.engagementRate * 100)}% engaged · 0 conversions · ${row.views.toLocaleString()} views`,
+      recommendation: 'Check intent alignment, first-screen clarity, navigation paths, and conversion placement before sending more traffic to this page.',
+      metric: { label: 'sessions at risk', value: row.sessions },
+      page: row.page,
+    });
+  }
+  return actions;
+}
+
+function pageDecayActions(site, ga4Records, now = new Date()) {
+  const currentSince = new Date(now.getTime() - 28 * 86400000).toISOString().slice(0, 10);
+  const previousSince = new Date(now.getTime() - 56 * 86400000).toISOString().slice(0, 10);
+  const byPage = new Map();
+  for (const row of ga4Records || []) {
+    const page = normalizePage(site, row.dim_key);
+    if (!page || String(row.date) < previousSince) continue;
+    const bucket = String(row.date) >= currentSince ? 'current' : 'previous';
+    const value = byPage.get(page) || { page, current: 0, previous: 0, currentDays: new Set(), previousDays: new Set(), conversions: 0 };
+    value[bucket] += Number(row.sessions) || 0;
+    value[`${bucket}Days`].add(String(row.date));
+    if (bucket === 'previous') value.conversions += Number(row.conversions) || 0;
+    byPage.set(page, value);
+  }
+  const actions = [];
+  for (const row of byPage.values()) {
+    if (row.currentDays.size < 7 || row.previousDays.size < 7 || row.previous < 30 || row.current >= row.previous * 0.7) continue;
+    const decline = Math.round((1 - row.current / row.previous) * 100);
+    const valueScore = pageValueScore({ sessions: row.previous, conversions: row.conversions });
+    const score = Math.min(100, 58 + Math.round(decline / 2) + Math.round(valueScore * 0.15));
+    actions.push({
+      id: `${site}:content-decay:${row.page}`, site, type: 'content-decay',
+      priority: priorityForScore(score), score, valueScore,
+      title: `Recover declining traffic to ${row.page}`,
+      evidence: `${row.previous.toLocaleString()} sessions in the prior 28 days versus ${row.current.toLocaleString()} now · down ${decline}%`,
+      recommendation: 'Determine whether rankings, demand, freshness, or a site change caused the loss; refresh only after isolating the cause.',
+      metric: { label: 'sessions lost', value: row.previous - row.current },
+      page: row.page,
+    });
+  }
+  return actions;
+}
+
+function actionPlan(action) {
+  const plans = {
+    'page-opportunity': ['Inspect the page’s leading queries and competing results.', 'Improve intent coverage and add relevant internal links.', 'Recheck impressions, position, clicks, and conversions after 28 days.'],
+    'content-decay': ['Compare losing dates, queries, and deploy history.', 'Separate demand loss from ranking, indexing, and content causes.', 'Apply the smallest corrective change and verify against the baseline.'],
+    'engagement-risk': ['Review source intent and the first screen on mobile.', 'Clarify the next useful action and remove interaction friction.', 'Measure engagement and conversions after a full traffic cycle.'],
+    'striking-distance': ['Identify the ranking page and competing result format.', 'Close the intent gap and strengthen contextual internal links.', 'Track the query for 28 days without changing its URL.'],
+    'low-ctr': ['Compare the current snippet with neighboring results.', 'Rewrite title and description around a specific benefit.', 'Monitor CTR while holding the URL and page intent stable.'],
+    'traffic-decline': ['Segment losses by query and landing page.', 'Check indexing, deploys, SERP changes, and seasonality.', 'File targeted fixes only for the confirmed cause.'],
+    'web-vitals': ['Profile the slowest shared template on mobile.', 'Fix the dominant image, font, script, or rendering bottleneck.', 'Rerun the pinned fleet measurement and compare each breached metric.'],
+    'broken-links': ['Export each failing source and destination pair.', 'Replace internal links with the final canonical destination.', 'Rerun link-rot and confirm zero remaining failures.'],
+    crawlability: ['Restore a valid sitemap of canonical indexable URLs.', 'Reference it from robots.txt and verify successful retrieval.', 'Rerun the crawl and confirm discovered page coverage.'],
+  };
+  return plans[action.type] || [action.recommendation, 'Verify the result against the recorded baseline.'];
+}
+
+async function mapLimit(values, limit, iteratee) {
+  const queue = [...values];
+  const workers = Array.from({ length: Math.min(limit, queue.length) }, async () => {
+    while (queue.length) await iteratee(queue.shift());
+  });
+  await Promise.all(workers);
+}
+
 function webVitalsActions(report) {
   const actions = [];
   for (const row of report?.sites || []) {
@@ -175,18 +324,28 @@ function linkActions(report) {
   return actions;
 }
 
-function buildSiteRows(siteNames, queryData, actions) {
-  const bySite = new Map(siteNames.map(site => [site, { site, actions: 0, high: 0, medium: 0, impressions: 0, clicks: 0, queries: 0 }]));
+function buildSiteRows(siteNames, queryData, actions, gscPageData = {}, ga4PageData = {}) {
+  const blank = site => ({ site, actions: 0, high: 0, medium: 0, impressions: 0, clicks: 0, queries: 0, pages: 0, sessions: 0, conversions: 0 });
+  const bySite = new Map(siteNames.map(site => [site, blank(site)]));
   for (const [site, records] of Object.entries(queryData)) {
-    const row = bySite.get(site) || { site, actions: 0, high: 0, medium: 0, impressions: 0, clicks: 0, queries: 0 };
+    const row = bySite.get(site) || blank(site);
     const queries = aggregateQueries(records);
     row.queries = queries.length;
     row.impressions = queries.reduce((n, q) => n + q.impressions, 0);
     row.clicks = queries.reduce((n, q) => n + q.clicks, 0);
     bySite.set(site, row);
   }
+  for (const site of siteNames) {
+    const row = bySite.get(site) || blank(site);
+    const gscPages = aggregatePages(site, gscPageData[site], 'gsc');
+    const ga4Pages = aggregatePages(site, ga4PageData[site], 'ga4');
+    row.pages = new Set([...gscPages.map(page => page.page), ...ga4Pages.map(page => page.page)]).size;
+    row.sessions = ga4Pages.reduce((n, page) => n + page.sessions, 0);
+    row.conversions = ga4Pages.reduce((n, page) => n + page.conversions, 0);
+    bySite.set(site, row);
+  }
   for (const action of actions) {
-    const row = bySite.get(action.site) || { site: action.site, actions: 0, high: 0, medium: 0, impressions: 0, clicks: 0, queries: 0 };
+    const row = bySite.get(action.site) || blank(action.site);
     row.actions += 1;
     if (action.priority === 'high') row.high += 1;
     if (action.priority === 'medium') row.medium += 1;
@@ -231,29 +390,55 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
   }
   const siteNames = Object.keys(health.sites || {}).sort();
   const since = new Date(now.getTime() - days * 86400000).toISOString().slice(0, 10);
+  const pageSince = new Date(now.getTime() - 56 * 86400000).toISOString().slice(0, 10);
   const queryData = {};
   const siteData = {};
-  await Promise.all(siteNames.map(async site => {
-    try {
-      const [queries, totals] = await Promise.all([
-        getJson(`/metrics/gsc?site=${encodeURIComponent(site)}&grain=query&since=${since}&limit=5000`, fetchImpl),
-        getJson(`/metrics/gsc?site=${encodeURIComponent(site)}&grain=site&since=${new Date(now.getTime() - 14 * 86400000).toISOString().slice(0, 10)}&limit=20`, fetchImpl),
-      ]);
-      queryData[site] = queries.records || [];
-      siteData[site] = totals.records || [];
-    } catch (error) {
-      queryData[site] = [];
-      siteData[site] = [];
-      upstreamError ||= String(error.message || error);
+  const gscPageData = {};
+  const ga4PageData = {};
+  // Data Hub records every pull in the same SQLite database it reads. Keep the
+  // portfolio fan-out serial so those tiny audit writes cannot contend with
+  // each other and turn otherwise healthy sources into transient HTTP 500s.
+  await mapLimit(siteNames, 1, async site => {
+    const paths = [
+      `/metrics/gsc?site=${encodeURIComponent(site)}&grain=query&since=${since}&limit=5000`,
+      `/metrics/gsc?site=${encodeURIComponent(site)}&grain=site&since=${new Date(now.getTime() - 14 * 86400000).toISOString().slice(0, 10)}&limit=20`,
+      `/metrics/gsc?site=${encodeURIComponent(site)}&grain=page&since=${pageSince}&limit=10000`,
+      `/metrics/ga4?site=${encodeURIComponent(site)}&grain=page&since=${pageSince}&limit=10000`,
+    ];
+    const results = [];
+    for (const pathname of paths) {
+      try { results.push({ status: 'fulfilled', value: await getJson(pathname, fetchImpl) }); }
+      catch (reason) { results.push({ status: 'rejected', reason }); }
     }
-  }));
+    const records = index => results[index].status === 'fulfilled' ? results[index].value.records || [] : [];
+    queryData[site] = records(0);
+    siteData[site] = records(1);
+    gscPageData[site] = records(2);
+    ga4PageData[site] = records(3);
+    const failed = results.find(result => result.status === 'rejected');
+    if (failed) upstreamError ||= String(failed.reason?.message || failed.reason);
+  });
 
+  const siteValueScores = Object.fromEntries(siteNames.map(site => {
+    const totals = aggregatePages(site, ga4PageData[site], 'ga4').reduce((out, row) => ({
+      sessions: out.sessions + row.sessions,
+      conversions: out.conversions + row.conversions,
+    }), { sessions: 0, conversions: 0 });
+    return [site, pageValueScore(totals)];
+  }));
   const rankedActions = [
     ...Object.entries(queryData).flatMap(([site, rows]) => queryActions(site, rows)),
     ...Object.entries(siteData).flatMap(([site, rows]) => trendActions(site, rows)),
+    ...siteNames.flatMap(site => pageActions(site, gscPageData[site], ga4PageData[site])),
+    ...siteNames.flatMap(site => pageDecayActions(site, ga4PageData[site], now)),
     ...webVitalsActions(webVitals),
     ...linkActions(linkRot),
-  ].sort((a, b) => b.score - a.score || b.metric.value - a.metric.value || a.site.localeCompare(b.site)).slice(0, 200);
+  ].map(action => {
+    const valueScore = action.valueScore || siteValueScores[action.site] || 0;
+    const rankScore = Math.min(100, action.score + Math.round(valueScore * 0.15));
+    const priority = priorityForScore(Math.max(action.score, rankScore));
+    return { ...action, priority, valueScore, rankScore, plan: actionPlan(action) };
+  }).sort((a, b) => b.rankScore - a.rankScore || b.valueScore - a.valueScore || b.metric.value - a.metric.value || a.site.localeCompare(b.site)).slice(0, 200);
   const allSites = [...new Set([
     ...siteNames,
     ...(webVitals?.sites || []).map(s => s.site),
@@ -266,15 +451,19 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
   });
   const types = {};
   for (const action of actions) types[action.type] = (types[action.type] || 0) + 1;
-  const siteRows = buildSiteRows(allSites, queryData, actions);
+  const siteRows = buildSiteRows(allSites, queryData, actions, gscPageData, ga4PageData);
+  const hasAnalyticsEvidence = Object.values(queryData).some(rows => rows.length) ||
+    Object.values(ga4PageData).some(rows => rows.length);
   const value = {
     generatedAt: now.toISOString(),
     windowDays: days,
-    upstream: { ok: !upstreamError, error: upstreamError },
+    upstream: { ok: !upstreamError, partial: Boolean(upstreamError && hasAnalyticsEvidence), error: upstreamError },
     sources: {
       analyticsConfigured: siteNames.length,
       gscReady: Object.values(health.sites || {}).filter(s => (s.gsc?.status || '').startsWith('ok')).length,
       ga4Ready: Object.values(health.sites || {}).filter(s => (s.ga4?.status || '').startsWith('ok')).length,
+      gscPageSites: Object.values(gscPageData).filter(rows => rows.length).length,
+      ga4PageSites: Object.values(ga4PageData).filter(rows => rows.length).length,
       webVitalsSites: webVitals?.sites?.length || 0,
       webVitalsAt: webVitals?.at || null,
       linkRotSites: linkRot?.sites?.length || 0,
@@ -287,6 +476,12 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
       medium: actions.filter(a => a.priority === 'medium').length,
       impressions: siteRows.reduce((n, s) => n + s.impressions, 0),
       clicks: siteRows.reduce((n, s) => n + s.clicks, 0),
+      pagesMeasured: new Set(siteNames.flatMap(site => [
+        ...aggregatePages(site, gscPageData[site], 'gsc').map(row => `${site}:${row.page}`),
+        ...aggregatePages(site, ga4PageData[site], 'ga4').map(row => `${site}:${row.page}`),
+      ])).size,
+      conversions: Object.entries(ga4PageData).reduce((total, [site, rows]) =>
+        total + aggregatePages(site, rows, 'ga4').reduce((sum, row) => sum + row.conversions, 0), 0),
     },
     types,
     sites: siteRows,
@@ -299,6 +494,8 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
 function clearCache() { cache = null; }
 
 module.exports = {
-  API, aggregateQueries, splitWeeks, queryActions, trendActions, webVitalsActions,
-  linkActions, buildSiteRows, actionKey, filedActionKeys, buildSnapshot, clearCache,
+  API, aggregateQueries, normalizePage, aggregatePages, pageValueScore, splitWeeks,
+  queryActions, trendActions, pageActions, pageDecayActions, actionPlan,
+  webVitalsActions, linkActions, buildSiteRows, actionKey, filedActionKeys,
+  buildSnapshot, clearCache,
 };

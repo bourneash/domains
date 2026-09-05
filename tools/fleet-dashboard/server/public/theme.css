@@ -324,6 +324,7 @@ body[data-view="seointelligence"] main { max-width: none; }
 .seo-action.priority-low::before { background: var(--a1); }
 .seo-action-site, .seo-action p { color: var(--muted); }
 .seo-evidence { color: var(--text) !important; background: rgba(94,169,255,.07); border: 1px solid rgba(94,169,255,.12); }
+.seo-plan { color: var(--faint); border-left: 1px solid rgba(255,255,255,.08); }
 .seo-action-foot { color: var(--faint); border-top: 1px solid rgba(255,255,255,.06); }
 
 .card, .help-panel, .filter-panel, .col, .aiu-controls,

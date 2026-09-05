@@ -5858,6 +5858,9 @@ const SEO_TYPE_LABELS = {
   'striking-distance': 'Striking distance',
   'low-ctr': 'Low CTR',
   'traffic-decline': 'Traffic decline',
+  'page-opportunity': 'Page opportunity',
+  'content-decay': 'Content decay',
+  'engagement-risk': 'Engagement risk',
   'web-vitals': 'Web performance',
   'broken-links': 'Broken links',
   crawlability: 'Crawlability',
@@ -5895,13 +5898,16 @@ async function renderSeoIntelligence() {
   const upstream = data.upstream || {};
   const sourceNote = upstream.ok
     ? `${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`
-    : `Search data unavailable: ${upstream.error || 'data-hub offline'} · showing stored technical evidence`;
+    : upstream.partial
+      ? `Partial analytics coverage · ${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`
+      : `Search data unavailable: ${upstream.error || 'data-hub offline'} · showing stored technical evidence`;
   const statCards = [
     ['Actions', data.totals.actions, `${data.totals.sites} sites`, 'var(--a1)'],
     ['High priority', data.totals.high, 'work first', 'var(--red)'],
+    ['Pages measured', seoNum(data.totals.pagesMeasured), `${source.gscPageSites || 0} GSC · ${source.ga4PageSites || 0} GA4 sites`, 'var(--yellow)'],
+    ['Conversions', seoNum(data.totals.conversions), `${data.windowDays} day value signal`, 'var(--green)'],
     ['Search impressions', seoNum(data.totals.impressions), `${data.windowDays} day evidence`, 'var(--purple)'],
     ['Search clicks', seoNum(data.totals.clicks), `${data.windowDays} day evidence`, 'var(--green)'],
-    ['Web vitals', source.webVitalsSites, source.webVitalsAt ? `captured ${String(source.webVitalsAt).slice(0, 10)}` : 'no report', 'var(--yellow)'],
   ].map(([label, value, sub, color]) => `
     <div class="seo-stat" style="--seo-c:${color}">
       <div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div>
@@ -5920,18 +5926,20 @@ async function renderSeoIntelligence() {
     return `<tr data-fleet-row data-site="${esc(row.site)}">
       <td>${siteLink(row.site)}</td><td><b>${row.actions}</b></td>
       <td>${row.high ? `<span class="badge b-red">${row.high}</span>` : '—'}</td>
-      <td>${seoNum(row.impressions)}</td><td>${seoNum(row.clicks)}</td><td>${ctr}</td>
+      <td>${seoNum(row.pages)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td>
+      <td>${seoNum(row.impressions)}</td><td>${ctr}</td>
       <td><button class="btn sm seo-focus" data-site="${esc(row.site)}">Focus</button></td>
     </tr>`;
   }).join('');
 
   const actionRows = filtered.slice(0, 100).map(action => `
     <article class="seo-action priority-${esc(action.priority)}" data-fleet-row data-site="${esc(action.site)}">
-      <div class="seo-action-top">${seoBadge(action.priority)}<span class="badge b-gray">${esc(SEO_TYPE_LABELS[action.type] || action.type)}</span><span class="seo-score">score ${esc(action.score)}</span></div>
+      <div class="seo-action-top">${seoBadge(action.priority)}<span class="badge b-gray">${esc(SEO_TYPE_LABELS[action.type] || action.type)}</span><span class="seo-score">rank ${esc(action.rankScore || action.score)} · value ${esc(action.valueScore || 0)}</span></div>
       <h3>${esc(action.title)}</h3>
       <div class="seo-action-site">${siteLink(action.site)}</div>
       <p class="seo-evidence">${esc(action.evidence)}</p>
       <p>${esc(action.recommendation)}</p>
+      <ol class="seo-plan">${(action.plan || []).map(step => `<li>${esc(step)}</li>`).join('')}</ol>
       <div class="seo-action-foot"><span><b>${seoNum(action.metric && action.metric.value)}</b> ${esc(action.metric && action.metric.label)}</span><button class="btn sm ${action.filed ? '' : 'primary'} seo-file-task" data-site="${esc(action.site)}" data-key="${esc(action.key)}" ${action.filed ? 'disabled' : ''}>${action.filed ? '✓ Filed' : '＋ File task'}</button></div>
     </article>`).join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
 
@@ -5941,13 +5949,13 @@ async function renderSeoIntelligence() {
     <div class="seo-overview-grid">
       <section class="dh-panel"><h3>Opportunity mix</h3><div class="seo-type-bars">${typeBars}</div></section>
       <section class="dh-panel"><h3>Data coverage</h3>
-        <div class="seo-coverage"><div><b>${source.analyticsConfigured || 0}</b><span>analytics configured</span></div><div><b>${source.gscReady || 0}</b><span>GSC current</span></div><div><b>${source.ga4Ready || 0}</b><span>GA4 current</span></div><div><b>${source.linkRotSites || 0}</b><span>link crawls</span></div></div>
-        <p class="muted seo-source-note">Search-derived actions use recorded evidence only. Technical actions remain available when data-hub is offline.</p>
+        <div class="seo-coverage"><div><b>${source.analyticsConfigured || 0}</b><span>analytics configured</span></div><div><b>${source.gscReady || 0}</b><span>GSC current</span></div><div><b>${source.ga4Ready || 0}</b><span>GA4 current</span></div><div><b>${source.gscPageSites || 0}</b><span>GSC page data</span></div><div><b>${source.ga4PageSites || 0}</b><span>GA4 page data</span></div><div><b>${source.linkRotSites || 0}</b><span>link crawls</span></div></div>
+        <p class="muted seo-source-note">Value scores use conversions, sessions, engagement, and search demand—not estimated dollars. Technical actions remain available when data-hub is offline.</p>
       </section>
     </div>
     <section class="dh-panel dh-wide seo-sites"><h3>Site opportunity map</h3>
-      <table class="dh-sources"><thead><tr><th>site</th><th>actions</th><th>high</th><th>impressions</th><th>clicks</th><th>CTR</th><th></th></tr></thead>
-      <tbody>${siteRows || '<tr><td colspan="7" class="muted">No site evidence available.</td></tr>'}</tbody></table>
+      <table class="dh-sources"><thead><tr><th>site</th><th>actions</th><th>high</th><th>pages</th><th>sessions</th><th>conversions</th><th>impressions</th><th>CTR</th><th></th></tr></thead>
+      <tbody>${siteRows || '<tr><td colspan="9" class="muted">No site evidence available.</td></tr>'}</tbody></table>
     </section>
     <section class="seo-work-head">
       <div><h3>Action queue</h3><span class="muted">${filtered.length} of ${allActions.length} evidence-backed items</span></div>
