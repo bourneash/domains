@@ -303,6 +303,28 @@ main { max-width: 1560px; margin: 0 auto 0 0; padding: 24px 22px 64px; }
 body[data-view="control"] main,
 body[data-view="compliance"] main,
 body[data-view="socialhub"] main { max-width: none; }
+body[data-view="seointelligence"] main { max-width: none; }
+
+.seo-stat, .seo-action {
+  background: var(--grad-panel), linear-gradient(180deg, rgba(19,24,34,.92), rgba(14,18,26,.92));
+  border: 1px solid rgba(255,255,255,.075); box-shadow: var(--sh-2);
+}
+.seo-stat::before { background: var(--seo-c, var(--a1)); box-shadow: 0 0 14px -2px var(--seo-c, var(--a1)); }
+.seo-stat-label, .seo-stat-sub, .seo-score, .seo-coverage span { color: var(--faint); }
+.seo-stat-value { color: var(--text-hi); }
+.seo-type-row:hover { color: var(--a1); }
+.seo-type-row i { background: rgba(255,255,255,.06); }
+.seo-type-row i b { background: linear-gradient(90deg, var(--a1), var(--purple)); box-shadow: 0 0 10px -2px var(--a1); }
+.seo-coverage div { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.055); }
+.seo-coverage b { color: var(--text-hi); }
+.seo-action { transition: transform .16s var(--ease-out), border-color .16s var(--ease); }
+.seo-action:hover { transform: translateY(-2px); border-color: rgba(94,169,255,.24); }
+.seo-action.priority-high::before { background: var(--red); }
+.seo-action.priority-medium::before { background: var(--yellow); }
+.seo-action.priority-low::before { background: var(--a1); }
+.seo-action-site, .seo-action p { color: var(--muted); }
+.seo-evidence { color: var(--text) !important; background: rgba(94,169,255,.07); border: 1px solid rgba(94,169,255,.12); }
+.seo-action-foot { color: var(--faint); border-top: 1px solid rgba(255,255,255,.06); }
 
 .card, .help-panel, .filter-panel, .col, .aiu-controls,
 .dh-panel, .dhi-panel, .cm-card, .soc-table-card, .compliance-table, .error-card {

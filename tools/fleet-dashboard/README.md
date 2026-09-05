@@ -21,6 +21,10 @@ Key views include:
   scheduled service. It delegates to `tools/ai-inventory/audit-ai.py --json`,
   follows dedicated engineer/writer/deployer dispatches, distinguishes local
   Ollama/vLLM from remote Claude, and keeps deterministic rows visible.
+- **SEO Intelligence** — joins first-party GSC demand with GA4 readiness,
+  Lighthouse/Web Vitals, link-rot, and crawlability evidence to rank actionable
+  opportunities across the fleet. Operators can filter by site, priority, or
+  opportunity type and file a deduplicated backlog task directly from an action.
 
 Dynamic: any site under `sites/*/ops/` appears automatically. No registry.
 
@@ -119,6 +123,7 @@ and presentation.
 | `FD_ALLOWED_HOSTS` | loopback + compose names | extra allowed `Host` values (or `*`) |
 | `FD_DOMAINS_ROOT` | repo root | path to the domains monorepo |
 | `FD_DATA_DIR` | `./data` | where the action audit log (`actions.jsonl`) is written |
+| `DATAHUB_API` | `http://host.docker.internal:4760` | first-party GSC/GA4 source used by SEO Intelligence |
 | `FD_QUIET` | _(unset)_ | set `1` to silence the request log |
 
 ## Test

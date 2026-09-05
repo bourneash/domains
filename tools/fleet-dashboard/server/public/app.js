@@ -5850,6 +5850,144 @@ async function pollComplianceProgress() {
 
 let ANALYTICS_SITE = null; // persists across soft-refreshes
 
+let SEO_PRIORITY = 'all';
+let SEO_TYPE = 'all';
+let SEO_SITE = 'all';
+
+const SEO_TYPE_LABELS = {
+  'striking-distance': 'Striking distance',
+  'low-ctr': 'Low CTR',
+  'traffic-decline': 'Traffic decline',
+  'web-vitals': 'Web performance',
+  'broken-links': 'Broken links',
+  crawlability: 'Crawlability',
+};
+
+function seoNum(value) {
+  return Number(value || 0).toLocaleString();
+}
+
+function seoBadge(priority) {
+  const cls = priority === 'high' ? 'b-red' : priority === 'medium' ? 'b-yellow' : 'b-blue';
+  return `<span class="badge ${cls}">${esc(priority)}</span>`;
+}
+
+async function renderSeoIntelligence() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="muted">building SEO intelligence…</div>';
+  const data = await api('GET', '/api/seo-intelligence?days=90');
+  if (!data || data.error) {
+    app.innerHTML = `<div class="error-box">${esc((data && data.error) || 'SEO intelligence unavailable')}</div>`;
+    return;
+  }
+
+  const allActions = data.actions || [];
+  const siteNames = (data.sites || []).map(s => s.site).sort();
+  const types = Object.entries(data.types || {}).sort((a, b) => b[1] - a[1]);
+  const maxType = Math.max(1, ...types.map(([, count]) => count));
+  const filtered = allActions.filter(action =>
+    (SEO_PRIORITY === 'all' || action.priority === SEO_PRIORITY) &&
+    (SEO_TYPE === 'all' || action.type === SEO_TYPE) &&
+    (SEO_SITE === 'all' || action.site === SEO_SITE)
+  );
+
+  const source = data.sources || {};
+  const upstream = data.upstream || {};
+  const sourceNote = upstream.ok
+    ? `${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`
+    : `Search data unavailable: ${upstream.error || 'data-hub offline'} · showing stored technical evidence`;
+  const statCards = [
+    ['Actions', data.totals.actions, `${data.totals.sites} sites`, 'var(--a1)'],
+    ['High priority', data.totals.high, 'work first', 'var(--red)'],
+    ['Search impressions', seoNum(data.totals.impressions), `${data.windowDays} day evidence`, 'var(--purple)'],
+    ['Search clicks', seoNum(data.totals.clicks), `${data.windowDays} day evidence`, 'var(--green)'],
+    ['Web vitals', source.webVitalsSites, source.webVitalsAt ? `captured ${String(source.webVitalsAt).slice(0, 10)}` : 'no report', 'var(--yellow)'],
+  ].map(([label, value, sub, color]) => `
+    <div class="seo-stat" style="--seo-c:${color}">
+      <div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div>
+      <div class="seo-stat-sub">${esc(sub)}</div>
+    </div>`).join('');
+
+  const typeBars = types.map(([type, count]) => `
+    <button class="seo-type-row" data-seo-type="${esc(type)}" title="Filter to ${esc(SEO_TYPE_LABELS[type] || type)}">
+      <span>${esc(SEO_TYPE_LABELS[type] || type)}</span>
+      <i><b style="width:${Math.max(4, Math.round(count / maxType * 100))}%"></b></i>
+      <strong>${count}</strong>
+    </button>`).join('') || '<div class="muted">No detected opportunity types.</div>';
+
+  const siteRows = (data.sites || []).slice(0, 40).map(row => {
+    const ctr = row.impressions ? `${(row.clicks / row.impressions * 100).toFixed(1)}%` : '—';
+    return `<tr data-fleet-row data-site="${esc(row.site)}">
+      <td>${siteLink(row.site)}</td><td><b>${row.actions}</b></td>
+      <td>${row.high ? `<span class="badge b-red">${row.high}</span>` : '—'}</td>
+      <td>${seoNum(row.impressions)}</td><td>${seoNum(row.clicks)}</td><td>${ctr}</td>
+      <td><button class="btn sm seo-focus" data-site="${esc(row.site)}">Focus</button></td>
+    </tr>`;
+  }).join('');
+
+  const actionRows = filtered.slice(0, 100).map(action => `
+    <article class="seo-action priority-${esc(action.priority)}" data-fleet-row data-site="${esc(action.site)}">
+      <div class="seo-action-top">${seoBadge(action.priority)}<span class="badge b-gray">${esc(SEO_TYPE_LABELS[action.type] || action.type)}</span><span class="seo-score">score ${esc(action.score)}</span></div>
+      <h3>${esc(action.title)}</h3>
+      <div class="seo-action-site">${siteLink(action.site)}</div>
+      <p class="seo-evidence">${esc(action.evidence)}</p>
+      <p>${esc(action.recommendation)}</p>
+      <div class="seo-action-foot"><span><b>${seoNum(action.metric && action.metric.value)}</b> ${esc(action.metric && action.metric.label)}</span><button class="btn sm ${action.filed ? '' : 'primary'} seo-file-task" data-site="${esc(action.site)}" data-key="${esc(action.key)}" ${action.filed ? 'disabled' : ''}>${action.filed ? '✓ Filed' : '＋ File task'}</button></div>
+    </article>`).join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div>
+    <section class="seo-stats">${statCards}</section>
+    <div class="seo-overview-grid">
+      <section class="dh-panel"><h3>Opportunity mix</h3><div class="seo-type-bars">${typeBars}</div></section>
+      <section class="dh-panel"><h3>Data coverage</h3>
+        <div class="seo-coverage"><div><b>${source.analyticsConfigured || 0}</b><span>analytics configured</span></div><div><b>${source.gscReady || 0}</b><span>GSC current</span></div><div><b>${source.ga4Ready || 0}</b><span>GA4 current</span></div><div><b>${source.linkRotSites || 0}</b><span>link crawls</span></div></div>
+        <p class="muted seo-source-note">Search-derived actions use recorded evidence only. Technical actions remain available when data-hub is offline.</p>
+      </section>
+    </div>
+    <section class="dh-panel dh-wide seo-sites"><h3>Site opportunity map</h3>
+      <table class="dh-sources"><thead><tr><th>site</th><th>actions</th><th>high</th><th>impressions</th><th>clicks</th><th>CTR</th><th></th></tr></thead>
+      <tbody>${siteRows || '<tr><td colspan="7" class="muted">No site evidence available.</td></tr>'}</tbody></table>
+    </section>
+    <section class="seo-work-head">
+      <div><h3>Action queue</h3><span class="muted">${filtered.length} of ${allActions.length} evidence-backed items</span></div>
+      <div class="task-toolbar seo-toolbar">
+        <select id="seo-priority" class="cm-input"><option value="all">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        <select id="seo-type" class="cm-input"><option value="all">All opportunity types</option>${types.map(([type]) => `<option value="${esc(type)}">${esc(SEO_TYPE_LABELS[type] || type)}</option>`).join('')}</select>
+        <select id="seo-site" class="cm-input"><option value="all">All sites</option>${siteNames.map(site => `<option value="${esc(site)}">${esc(site)}</option>`).join('')}</select>
+      </div>
+    </section>
+    <section class="seo-actions">${actionRows}</section>`;
+
+  $('#seo-priority').value = SEO_PRIORITY;
+  $('#seo-type').value = SEO_TYPE;
+  $('#seo-site').value = SEO_SITE;
+  $('#seo-priority').addEventListener('change', e => { SEO_PRIORITY = e.target.value; softRender(); });
+  $('#seo-type').addEventListener('change', e => { SEO_TYPE = e.target.value; softRender(); });
+  $('#seo-site').addEventListener('change', e => { SEO_SITE = e.target.value; softRender(); });
+  $$('.seo-type-row').forEach(button => button.addEventListener('click', () => { SEO_TYPE = button.dataset.seoType; softRender(); }));
+  $$('.seo-focus').forEach(button => button.addEventListener('click', () => { SEO_SITE = button.dataset.site; softRender(); }));
+  $$('.seo-file-task:not([disabled])').forEach(button => button.addEventListener('click', async () => {
+    const original = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Filing…';
+    try {
+      const result = await api('POST', '/api/seo-intelligence/file', {
+        site: button.dataset.site,
+        key: button.dataset.key,
+      });
+      toast(result.duplicate ? 'Task was already filed' : `Filed ${result.file}`);
+      softRender();
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = original;
+      toast(error.message, 'err');
+    }
+  }));
+  applyFleetFilter();
+  if (!FRESH) applyUISnap();
+}
+
 function anDelta(cur, prev) {
   if (prev == null) return '';
   const pct = prev === 0 ? (cur > 0 ? 100 : 0) : Math.round(((cur - prev) / prev) * 100);
@@ -9207,6 +9345,7 @@ const NAV_GROUPS = {
   growth: {
     label: 'Growth',
     items: [
+      ['seointelligence', 'SEO Intelligence'],
       ['analytics', 'Analytics'],
       ['social', 'Social'],
       ['socialhub', 'Social Hub'],
@@ -9627,6 +9766,7 @@ function render() {
   else if (STATE.view === 'datahub') return renderDataHub();
   else if (STATE.view === 'datahubimages') return renderDataHubImages();
   else if (STATE.view === 'productfeed') return renderProductFeed();
+  else if (STATE.view === 'seointelligence') return renderSeoIntelligence();
   else if (STATE.view === 'analytics') return renderAnalytics();
   else if (STATE.view === 'compliance') return renderCompliance();
   else if (STATE.view === 'lint') return renderLint();

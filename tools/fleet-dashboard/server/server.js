@@ -23,6 +23,7 @@ const deployhealth = require('./deployhealth');
 const gatushealth = require('./gatushealth');
 const datahub = require('./datahub');
 const analytics = require('./analytics');
+const seoIntelligence = require('./seointelligence');
 const datahubImages = require('./datahub-images');
 const productFeed = require('./product-feed');
 const auth = require('./auth');
@@ -223,6 +224,53 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     res.json(await fn(req.query.site, req.query.metric, window, limit));
   });
   app.get('/api/analytics/wow', async (req, res) => res.json(await analytics.wow(req.query.site)));
+
+  // SEO Intelligence joins first-party GSC data with the latest fleet-owned
+  // web-vitals and link-rot reports, then emits ranked, evidence-backed work.
+  app.get('/api/seo-intelligence', async (req, res) => {
+    try {
+      const days = Math.max(28, Math.min(parseInt(req.query.days, 10) || 90, 400));
+      res.json(await seoIntelligence.buildSnapshot({ root, days }));
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
+  app.post('/api/seo-intelligence/file', async (req, res) => {
+    try {
+      const site = req.body && req.body.site;
+      const key = req.body && req.body.key;
+      if (!isKnownSite(root, site)) return res.status(404).json({ error: 'unknown site' });
+      if (!/^[a-f0-9]{20}$/.test(String(key || '')))
+        return res.status(400).json({ error: 'invalid intelligence action key' });
+      const snapshot = await seoIntelligence.buildSnapshot({ root });
+      const action = snapshot.actions.find(row => row.site === site && row.key === key);
+      if (!action) return res.status(404).json({ error: 'intelligence action no longer exists' });
+      // Re-read task markers at mutation time instead of trusting the cached
+      // snapshot, so two open dashboard tabs cannot file the same action.
+      if (seoIntelligence.filedActionKeys(root, [site]).has(key))
+        return res.json({ ok: true, duplicate: true });
+      const assignedRole = ['web-vitals', 'broken-links', 'crawlability'].includes(action.type)
+        ? 'engineer'
+        : 'seo-analyst';
+      const priority = action.priority === 'high' ? 1 : action.priority === 'medium' ? 2 : 3;
+      const file = tasks.create(root, site, 'backlog', {
+        title: action.title,
+        priority,
+        type: 'seo',
+        estimated_turns: action.priority === 'high' ? 3 : 2,
+        assigned_role: assignedRole,
+        body:
+          `## Evidence\n\n${action.evidence}\n\n` +
+          `## Recommended action\n\n${action.recommendation}\n\n` +
+          `## Verification\n\nRe-run the relevant fleet measurement and compare against this baseline.\n\n` +
+          `seo-intelligence-key: ${action.key}\n`,
+      });
+      seoIntelligence.clearCache();
+      res.status(201).json({ ok: true, file, site, assigned_role: assignedRole });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
+  });
 
   // Data Hub Images routes — proxy over the data-hub-images FastAPI service
   // (tools/data-hub-images, :4770). Same degrade-to-200 convention as
