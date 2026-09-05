@@ -92,6 +92,37 @@ function aggregatePages(site, records, source) {
   }));
 }
 
+function aggregateQueryPages(site, records) {
+  const pairs = new Map();
+  for (const row of records || []) {
+    const query = String(row.query || '').trim();
+    const page = normalizePage(site, row.page);
+    if (!query || !page) continue;
+    const key = `${query}\u0000${page}`;
+    const impressions = Number(row.impressions) || 0;
+    const current = pairs.get(key) || { query, page, clicks: 0, impressions: 0, positionWeight: 0 };
+    current.clicks += Number(row.clicks) || 0;
+    current.impressions += impressions;
+    current.positionWeight += (Number(row.position) || 0) * impressions;
+    pairs.set(key, current);
+  }
+  return [...pairs.values()].map(row => ({
+    ...row,
+    ctr: row.impressions ? row.clicks / row.impressions : 0,
+    position: row.impressions ? row.positionWeight / row.impressions : null,
+  }));
+}
+
+function expectedCtr(position) {
+  if (position <= 1.5) return 0.25;
+  if (position <= 2.5) return 0.15;
+  if (position <= 3.5) return 0.10;
+  if (position <= 5) return 0.07;
+  if (position <= 10) return 0.035;
+  if (position <= 20) return 0.012;
+  return 0;
+}
+
 function pageValueScore(row) {
   return Math.min(100, Math.round(
     Math.min(55, (Number(row.conversions) || 0) * 11) +
@@ -131,6 +162,7 @@ function queryActions(site, records) {
         evidence: `${row.impressions.toLocaleString()} impressions, ${row.clicks.toLocaleString()} clicks, position ${pos}, ${ctrPct}% CTR`,
         recommendation: 'Identify the ranking page, strengthen its intent match and internal links, then monitor the query for 28 days.',
         metric: { label: 'impressions', value: row.impressions },
+        query: row.query,
       });
       continue;
     }
@@ -147,6 +179,7 @@ function queryActions(site, records) {
         evidence: `${row.impressions.toLocaleString()} impressions at position ${pos}, but only ${ctrPct}% CTR`,
         recommendation: 'Review the ranking page title and description against the live search intent; make the benefit more specific without changing the URL.',
         metric: { label: 'impressions', value: row.impressions },
+        query: row.query,
       });
     }
   }
@@ -216,6 +249,66 @@ function pageActions(site, gscRecords, ga4Records) {
   return actions;
 }
 
+function queryPageActions(site, records, ga4Records) {
+  const pairs = aggregateQueryPages(site, records);
+  const analytics = new Map(aggregatePages(site, ga4Records, 'ga4').map(row => [row.page, row]));
+  const actions = [];
+  for (const row of pairs) {
+    if (row.impressions < 20 || row.position == null || row.position > 20) continue;
+    const targetCtr = expectedCtr(row.position);
+    const estimatedClicks = Math.max(0, Math.round(row.impressions * targetCtr - row.clicks));
+    if (estimatedClicks < 2 || row.ctr >= targetCtr * 0.65) continue;
+    const ga4 = analytics.get(row.page) || {};
+    const valueScore = pageValueScore({ impressions: row.impressions, sessions: ga4.sessions, conversions: ga4.conversions });
+    const pos = Math.round(row.position * 10) / 10;
+    const actualCtr = Math.round(row.ctr * 1000) / 10;
+    const score = Math.min(100, Math.round(48 + Math.log10(row.impressions + 1) * 11 + estimatedClicks * 1.5));
+    actions.push({
+      id: `${site}:click-uplift:${row.query}:${row.page}`, site, type: 'click-uplift',
+      priority: priorityForScore(score), score, valueScore, estimatedClicks,
+      title: `Capture ~${estimatedClicks} more clicks for “${row.query}”`,
+      evidence: `${row.page} · ${row.impressions.toLocaleString()} impressions · ${row.clicks.toLocaleString()} clicks · position ${pos} · ${actualCtr}% CTR versus ${(targetCtr * 100).toFixed(1)}% conservative target`,
+      recommendation: 'Use the exact ranking URL and query to improve SERP appeal and intent coverage without changing the canonical URL.',
+      metric: { label: 'modeled clicks', value: estimatedClicks },
+      page: row.page,
+      query: row.query,
+    });
+  }
+
+  const byQuery = new Map();
+  for (const pair of pairs) {
+    const rows = byQuery.get(pair.query) || [];
+    rows.push(pair);
+    byQuery.set(pair.query, rows);
+  }
+  for (const [query, rows] of byQuery) {
+    const viable = rows.filter(row => row.impressions >= 5 && row.position <= 50)
+      .sort((a, b) => b.clicks - a.clicks || b.impressions - a.impressions || a.position - b.position);
+    const totalImpressions = viable.reduce((sum, row) => sum + row.impressions, 0);
+    if (viable.length < 2 || totalImpressions < 30 || viable[1].impressions < totalImpressions * 0.15) continue;
+    const primary = viable[0];
+    const valueScore = pageValueScore({
+      impressions: totalImpressions,
+      sessions: viable.reduce((sum, row) => sum + (analytics.get(row.page)?.sessions || 0), 0),
+      conversions: viable.reduce((sum, row) => sum + (analytics.get(row.page)?.conversions || 0), 0),
+    });
+    const score = Math.min(100, Math.round(58 + Math.log10(totalImpressions + 1) * 9 + (viable.length - 1) * 5));
+    const pageEvidence = viable.slice(0, 3).map(row =>
+      `${row.page} (${row.impressions.toLocaleString()} imp, pos ${Math.round(row.position * 10) / 10})`).join(' · ');
+    actions.push({
+      id: `${site}:cannibalization:${query}`, site, type: 'cannibalization',
+      priority: priorityForScore(score), score, valueScore,
+      title: `Resolve competing pages for “${query}”`,
+      evidence: `${viable.length} pages share ${totalImpressions.toLocaleString()} impressions · ${pageEvidence}`,
+      recommendation: `Treat ${primary.page} as the current primary candidate; consolidate overlapping intent or clearly differentiate each page before considering redirects.`,
+      metric: { label: 'competing pages', value: viable.length },
+      page: primary.page,
+      query,
+    });
+  }
+  return actions;
+}
+
 function pageDecayActions(site, ga4Records, now = new Date()) {
   const currentSince = new Date(now.getTime() - 28 * 86400000).toISOString().slice(0, 10);
   const previousSince = new Date(now.getTime() - 56 * 86400000).toISOString().slice(0, 10);
@@ -254,6 +347,8 @@ function actionPlan(action) {
     'page-opportunity': ['Inspect the page’s leading queries and competing results.', 'Improve intent coverage and add relevant internal links.', 'Recheck impressions, position, clicks, and conversions after 28 days.'],
     'content-decay': ['Compare losing dates, queries, and deploy history.', 'Separate demand loss from ranking, indexing, and content causes.', 'Apply the smallest corrective change and verify against the baseline.'],
     'engagement-risk': ['Review source intent and the first screen on mobile.', 'Clarify the next useful action and remove interaction friction.', 'Measure engagement and conversions after a full traffic cycle.'],
+    'click-uplift': ['Compare the exact query-page snippet with adjacent results.', 'Improve the title, description, and above-fold intent match without changing the URL.', 'Measure CTR and clicks against the recorded query-page baseline after 28 days.'],
+    cannibalization: ['Confirm whether the competing pages satisfy the same intent.', 'Choose a primary URL, then consolidate overlap or differentiate the secondary pages.', 'Verify that impressions concentrate on the intended page without losing total clicks.'],
     'striking-distance': ['Identify the ranking page and competing result format.', 'Close the intent gap and strengthen contextual internal links.', 'Track the query for 28 days without changing its URL.'],
     'low-ctr': ['Compare the current snippet with neighboring results.', 'Rewrite title and description around a specific benefit.', 'Monitor CTR while holding the URL and page intent stable.'],
     'traffic-decline': ['Segment losses by query and landing page.', 'Check indexing, deploys, SERP changes, and seasonality.', 'File targeted fixes only for the confirmed cause.'],
@@ -324,8 +419,8 @@ function linkActions(report) {
   return actions;
 }
 
-function buildSiteRows(siteNames, queryData, actions, gscPageData = {}, ga4PageData = {}) {
-  const blank = site => ({ site, actions: 0, high: 0, medium: 0, impressions: 0, clicks: 0, queries: 0, pages: 0, sessions: 0, conversions: 0 });
+function buildSiteRows(siteNames, queryData, actions, gscPageData = {}, ga4PageData = {}, queryPageData = {}) {
+  const blank = site => ({ site, actions: 0, high: 0, medium: 0, impressions: 0, clicks: 0, queries: 0, queryPagePairs: 0, pages: 0, sessions: 0, conversions: 0 });
   const bySite = new Map(siteNames.map(site => [site, blank(site)]));
   for (const [site, records] of Object.entries(queryData)) {
     const row = bySite.get(site) || blank(site);
@@ -340,6 +435,7 @@ function buildSiteRows(siteNames, queryData, actions, gscPageData = {}, ga4PageD
     const gscPages = aggregatePages(site, gscPageData[site], 'gsc');
     const ga4Pages = aggregatePages(site, ga4PageData[site], 'ga4');
     row.pages = new Set([...gscPages.map(page => page.page), ...ga4Pages.map(page => page.page)]).size;
+    row.queryPagePairs = aggregateQueryPages(site, queryPageData[site]).length;
     row.sessions = ga4Pages.reduce((n, page) => n + page.sessions, 0);
     row.conversions = ga4Pages.reduce((n, page) => n + page.conversions, 0);
     bySite.set(site, row);
@@ -391,10 +487,12 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
   const siteNames = Object.keys(health.sites || {}).sort();
   const since = new Date(now.getTime() - days * 86400000).toISOString().slice(0, 10);
   const pageSince = new Date(now.getTime() - 56 * 86400000).toISOString().slice(0, 10);
+  const queryPageSince = new Date(now.getTime() - 28 * 86400000).toISOString().slice(0, 10);
   const queryData = {};
   const siteData = {};
   const gscPageData = {};
   const ga4PageData = {};
+  const queryPageData = {};
   // Data Hub records every pull in the same SQLite database it reads. Keep the
   // portfolio fan-out serial so those tiny audit writes cannot contend with
   // each other and turn otherwise healthy sources into transient HTTP 500s.
@@ -404,6 +502,7 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
       `/metrics/gsc?site=${encodeURIComponent(site)}&grain=site&since=${new Date(now.getTime() - 14 * 86400000).toISOString().slice(0, 10)}&limit=20`,
       `/metrics/gsc?site=${encodeURIComponent(site)}&grain=page&since=${pageSince}&limit=10000`,
       `/metrics/ga4?site=${encodeURIComponent(site)}&grain=page&since=${pageSince}&limit=10000`,
+      `/metrics/gsc-query-pages?site=${encodeURIComponent(site)}&since=${queryPageSince}&limit=25000`,
     ];
     const results = [];
     for (const pathname of paths) {
@@ -415,6 +514,7 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
     siteData[site] = records(1);
     gscPageData[site] = records(2);
     ga4PageData[site] = records(3);
+    queryPageData[site] = records(4);
     const failed = results.find(result => result.status === 'rejected');
     if (failed) upstreamError ||= String(failed.reason?.message || failed.reason);
   });
@@ -426,10 +526,18 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
     }), { sessions: 0, conversions: 0 });
     return [site, pageValueScore(totals)];
   }));
+  const searchActions = siteNames.flatMap(site => {
+    const exact = queryPageActions(site, queryPageData[site], ga4PageData[site]);
+    const exactQueries = new Set(exact.map(action => action.query).filter(Boolean));
+    const exactPages = new Set(exact.map(action => action.page).filter(Boolean));
+    const broadQueries = queryActions(site, queryData[site]).filter(action => !exactQueries.has(action.query));
+    const broadPages = pageActions(site, gscPageData[site], ga4PageData[site])
+      .filter(action => action.type !== 'page-opportunity' || !exactPages.has(action.page));
+    return [...exact, ...broadQueries, ...broadPages];
+  });
   const rankedActions = [
-    ...Object.entries(queryData).flatMap(([site, rows]) => queryActions(site, rows)),
+    ...searchActions,
     ...Object.entries(siteData).flatMap(([site, rows]) => trendActions(site, rows)),
-    ...siteNames.flatMap(site => pageActions(site, gscPageData[site], ga4PageData[site])),
     ...siteNames.flatMap(site => pageDecayActions(site, ga4PageData[site], now)),
     ...webVitalsActions(webVitals),
     ...linkActions(linkRot),
@@ -451,9 +559,9 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
   });
   const types = {};
   for (const action of actions) types[action.type] = (types[action.type] || 0) + 1;
-  const siteRows = buildSiteRows(allSites, queryData, actions, gscPageData, ga4PageData);
+  const siteRows = buildSiteRows(allSites, queryData, actions, gscPageData, ga4PageData, queryPageData);
   const hasAnalyticsEvidence = Object.values(queryData).some(rows => rows.length) ||
-    Object.values(ga4PageData).some(rows => rows.length);
+    Object.values(ga4PageData).some(rows => rows.length) || Object.values(queryPageData).some(rows => rows.length);
   const value = {
     generatedAt: now.toISOString(),
     windowDays: days,
@@ -464,6 +572,7 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
       ga4Ready: Object.values(health.sites || {}).filter(s => (s.ga4?.status || '').startsWith('ok')).length,
       gscPageSites: Object.values(gscPageData).filter(rows => rows.length).length,
       ga4PageSites: Object.values(ga4PageData).filter(rows => rows.length).length,
+      queryPageSites: Object.values(queryPageData).filter(rows => rows.length).length,
       webVitalsSites: webVitals?.sites?.length || 0,
       webVitalsAt: webVitals?.at || null,
       linkRotSites: linkRot?.sites?.length || 0,
@@ -482,6 +591,9 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
       ])).size,
       conversions: Object.entries(ga4PageData).reduce((total, [site, rows]) =>
         total + aggregatePages(site, rows, 'ga4').reduce((sum, row) => sum + row.conversions, 0), 0),
+      queryPagePairs: Object.entries(queryPageData).reduce((total, [site, rows]) =>
+        total + aggregateQueryPages(site, rows).length, 0),
+      modeledClicks: actions.reduce((total, action) => total + (action.estimatedClicks || 0), 0),
     },
     types,
     sites: siteRows,
@@ -494,8 +606,9 @@ async function buildSnapshot({ root, fetchImpl = fetch, days = 90, now = new Dat
 function clearCache() { cache = null; }
 
 module.exports = {
-  API, aggregateQueries, normalizePage, aggregatePages, pageValueScore, splitWeeks,
-  queryActions, trendActions, pageActions, pageDecayActions, actionPlan,
+  API, aggregateQueries, normalizePage, aggregatePages, aggregateQueryPages,
+  expectedCtr, pageValueScore, splitWeeks, queryActions, trendActions,
+  pageActions, queryPageActions, pageDecayActions, actionPlan,
   webVitalsActions, linkActions, buildSiteRows, actionKey, filedActionKeys,
   buildSnapshot, clearCache,
 };

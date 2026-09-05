@@ -263,6 +263,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         body:
           `## Evidence\n\n${action.evidence}\n\n` +
           `${action.page ? `Page: https://${site}${action.page}\n\n` : ''}` +
+          `${action.query ? `Query: ${action.query}\n\n` : ''}` +
           `Opportunity score: ${action.score}/100\n\n` +
           `Value signal: ${action.valueScore || 0}/100 (conversions, sessions, engagement, and search demand; not revenue)\n\n` +
           `Prioritized rank: ${action.rankScore || action.score}/100\n\n` +

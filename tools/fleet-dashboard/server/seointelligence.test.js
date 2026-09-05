@@ -64,6 +64,41 @@ test('pageActions flags high-traffic zero-conversion engagement risk', () => {
   assert.match(actions[0].evidence, /20% engaged/);
 });
 
+test('aggregateQueryPages preserves exact query-page pairs', () => {
+  const rows = seo.aggregateQueryPages('example.com', [
+    { query: 'widget guide', page: 'https://example.com/guide/', clicks: 1, impressions: 40, position: 8 },
+    { query: 'widget guide', page: 'https://example.com/guide', clicks: 2, impressions: 60, position: 10 },
+  ]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].query, 'widget guide');
+  assert.equal(rows[0].page, '/guide');
+  assert.equal(rows[0].impressions, 100);
+  assert.equal(rows[0].position, 9.2);
+});
+
+test('queryPageActions estimates conservative click upside for an exact URL', () => {
+  const actions = seo.queryPageActions('example.com', [{
+    query: 'widget guide', page: 'https://example.com/guide', clicks: 0,
+    impressions: 200, position: 7,
+  }], [{ dim_key: '/guide', sessions: 50, conversions: 1 }]);
+  const uplift = actions.find(action => action.type === 'click-uplift');
+  assert.ok(uplift);
+  assert.equal(uplift.page, '/guide');
+  assert.equal(uplift.estimatedClicks, 7);
+  assert.match(uplift.evidence, /conservative target/);
+});
+
+test('queryPageActions detects material multi-page query competition', () => {
+  const actions = seo.queryPageActions('example.com', [
+    { query: 'widget guide', page: 'https://example.com/guide-a', clicks: 2, impressions: 40, position: 8 },
+    { query: 'widget guide', page: 'https://example.com/guide-b', clicks: 0, impressions: 20, position: 11 },
+  ], []);
+  const conflict = actions.find(action => action.type === 'cannibalization');
+  assert.ok(conflict);
+  assert.equal(conflict.metric.value, 2);
+  assert.match(conflict.evidence, /2 pages share 60 impressions/);
+});
+
 test('pageDecayActions compares non-overlapping 28-day periods', () => {
   const rows = [];
   for (let day = 10; day <= 23; day++) {
@@ -91,7 +126,13 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
     if (url.includes('/metrics/health')) payload = { sites: {
       'example.com': { gsc: { status: 'ok' }, ga4: { status: 'ok' } },
     } };
-    else if (url.includes('grain=query')) payload = { records: [] };
+    else if (url.includes('/metrics/gsc-query-pages')) payload = { records: [{
+      date: '2026-08-31', query: 'widget guide', page: 'https://example.com/guide/',
+      clicks: 0, impressions: 200, position: 7,
+    }] };
+    else if (url.includes('grain=query')) payload = { records: [{
+      date: '2026-08-31', dim_key: 'widget guide', clicks: 0, impressions: 200, position: 7,
+    }] };
     else if (url.includes('grain=site')) payload = { records: [] };
     else if (url.includes('/metrics/gsc') && url.includes('grain=page')) payload = { records: [{
       date: '2026-08-31', dim_key: 'https://example.com/guide/', clicks: 4,
@@ -111,7 +152,11 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
   assert.equal(snapshot.totals.conversions, 2);
   assert.equal(snapshot.sources.gscPageSites, 1);
   assert.equal(snapshot.sources.ga4PageSites, 1);
-  assert.equal(snapshot.actions[0].type, 'page-opportunity');
+  assert.equal(snapshot.sources.queryPageSites, 1);
+  assert.equal(snapshot.totals.queryPagePairs, 1);
+  assert.equal(snapshot.actions[0].type, 'click-uplift');
+  assert.equal(snapshot.actions.filter(action => action.query === 'widget guide').length, 1);
+  assert.ok(snapshot.totals.modeledClicks > 0);
   assert.ok(snapshot.actions[0].rankScore >= snapshot.actions[0].score);
   assert.equal(snapshot.actions[0].plan.length, 3);
 });

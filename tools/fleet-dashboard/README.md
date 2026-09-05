@@ -26,6 +26,8 @@ Key views include:
   opportunities across the fleet. Page-level GSC and GA4 data expose content
   decay, organic page opportunities, and engagement risks; conversions,
   sessions, engagement, and demand provide an explicit non-revenue value score.
+  Exact query-page relationships add conservative click-upside estimates and
+  multi-URL keyword-cannibalization detection without guessing the ranking URL.
   Operators can filter by site, priority, or opportunity type and file a
   deduplicated backlog task with an execution plan directly from an action.
 
