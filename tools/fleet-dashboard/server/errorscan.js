@@ -60,7 +60,12 @@ const WARN_RE = /\bwarn(?:ing)?\b/i;
 const SUPPRESS_RE = [
   // AISStream reconnects automatically after ordinary upstream TCP drops. The
   // line contains "failure" as a retry counter, but is logged at WARNING.
-  /^WARNING\s+stream disconnected\b.*reconnecting in \d+s \(failure \d+\)/i,
+  // Not anchored to line start: the app's own `%(asctime)s %(levelname)s`
+  // format puts a timestamp before WARNING, so `docker logs` lines never
+  // start with the level (2026-09-05: this anchor never matched in
+  // production, so every reconnect's "(failure N)" counter tripped
+  // ERROR_RE's \bfailure\b and paged marineactivity-aisstream ~24x/day).
+  /\bWARNING\s+stream disconnected\b.*reconnecting in \d+s \(failure \d+\)/i,
   /reaper cleanup: pid=\d+, wstatus=0\b/i,
   /\bnon-fatal\b/i, // "\bfatal\b" matches inside "non-fatal" — the negation flips the meaning
   // Astro prints every successfully generated route. Article slugs are content,

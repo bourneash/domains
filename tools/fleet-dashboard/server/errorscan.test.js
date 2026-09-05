@@ -38,6 +38,15 @@ test('classify suppresses routine AISStream reconnect warnings but preserves esc
   assert.equal(errorscan._classify(escalated), 'error');
 });
 
+test('classify suppresses AISStream reconnect warnings behind the app\'s own asctime prefix', () => {
+  // The actual line shape docker logs sees: consumer.py logs with
+  // `%(asctime)s %(levelname)s %(message)s`, so WARNING is never at
+  // position 0 of the parsed line.
+  const warning =
+    '2026-09-05 04:40:27,787 WARNING stream disconnected (no close frame received or sent); reconnecting in 1s (failure 1)';
+  assert.equal(errorscan._classify(warning), null);
+});
+
 test('critical alert excerpt identifies the critical trigger, not a later warning', () => {
   const now = Date.now();
   const critical = { tsMs: now - 2000, level: 'crit', line: 'FATAL database unavailable' };
