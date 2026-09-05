@@ -72,8 +72,8 @@ export class MediaGenClient {
   }
 
   /** @returns {Promise<{id:string,url:string,backend:string,width?:number,height?:number,credit:object}>} */
-  async generate({ site, prompt, backend = 'comfyui', slug, negativePrompt, width = 1216, height = 832 }) {
-    const body = { site, prompt, backend, width, height };
+  async generate({ site, prompt, backend = 'comfyui', profile = 'fast', slug, negativePrompt, width = 1216, height = 832 }) {
+    const body = { site, prompt, backend, profile, width, height };
     if (slug) body.slug = slug;
     if (negativePrompt) body.negative_prompt = negativePrompt;
     return this._post('/generate', body);

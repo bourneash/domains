@@ -45,7 +45,7 @@ class ComfyUIError(RuntimeError):
     pass
 
 
-def _workflow(prompt: str, negative: str, width: int, height: int, steps: int, seed: int) -> dict:
+def _fast_workflow(prompt: str, negative: str, width: int, height: int, steps: int, seed: int) -> dict:
     return {
         "4": {"class_type": "CheckpointLoaderSimple",
               "inputs": {"ckpt_name": config.COMFYUI_CHECKPOINT}},
@@ -64,6 +64,36 @@ def _workflow(prompt: str, negative: str, width: int, height: int, steps: int, s
     }
 
 
+def _quality_workflow(prompt: str, width: int, height: int, steps: int, seed: int) -> dict:
+    """FLUX Dev graph for callers that value prompt fidelity over latency."""
+    return {
+        "1": {"class_type": "UNETLoader", "inputs": {
+            "unet_name": config.COMFYUI_DEV_MODEL, "weight_dtype": "fp8_e4m3fn",
+        }},
+        "2": {"class_type": "DualCLIPLoader", "inputs": {
+            "clip_name1": config.COMFYUI_DEV_CLIP_L,
+            "clip_name2": config.COMFYUI_DEV_T5,
+            "type": "flux",
+        }},
+        "3": {"class_type": "VAELoader", "inputs": {"vae_name": config.COMFYUI_DEV_VAE}},
+        "4": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["2", 0]}},
+        "5": {"class_type": "CLIPTextEncode", "inputs": {"text": "", "clip": ["2", 0]}},
+        "6": {"class_type": "FluxGuidance", "inputs": {"conditioning": ["4", 0], "guidance": 3.2}},
+        "7": {"class_type": "EmptyLatentImage", "inputs": {
+            "width": width, "height": height, "batch_size": 1,
+        }},
+        "8": {"class_type": "KSampler", "inputs": {
+            "seed": seed, "steps": steps, "cfg": 1.0, "sampler_name": "euler",
+            "scheduler": "simple", "denoise": 1.0, "model": ["1", 0],
+            "positive": ["6", 0], "negative": ["5", 0], "latent_image": ["7", 0],
+        }},
+        "9": {"class_type": "VAEDecode", "inputs": {"samples": ["8", 0], "vae": ["3", 0]}},
+        "10": {"class_type": "SaveImage", "inputs": {
+            "filename_prefix": "media-gen-quality", "images": ["9", 0],
+        }},
+    }
+
+
 def ping() -> bool:
     try:
         r = httpx.get(f"{config.COMFYUI_URL}/system_stats", timeout=5)
@@ -79,11 +109,20 @@ def generate(
     height: int = 832,
     steps: int = 4,
     seed: int | None = None,
+    profile: str = "fast",
 ) -> tuple[bytes, dict]:
     """Generate one image. Returns (png_bytes, meta_dict). Raises ComfyUIError."""
     seed = seed if seed is not None else uuid.uuid4().int & 0xFFFFFFFF
     negative = negative or _NEGATIVE_DEFAULT
-    workflow = _workflow(prompt, negative, width, height, steps, seed)
+    if profile == "quality":
+        steps = 30 if steps == 4 else steps
+        workflow = _quality_workflow(prompt, width, height, steps, seed)
+        checkpoint = config.COMFYUI_DEV_MODEL
+        output_node = "10"
+    else:
+        workflow = _fast_workflow(prompt, negative, width, height, steps, seed)
+        checkpoint = config.COMFYUI_CHECKPOINT
+        output_node = "9"
     client_id = uuid.uuid4().hex
 
     with httpx.Client(timeout=30) as client:
@@ -120,7 +159,7 @@ def generate(
         if status.get("status_str") == "error":
             raise ComfyUIError(f"ComfyUI job errored: {status}")
 
-        images = history.get("outputs", {}).get("9", {}).get("images") or []
+        images = history.get("outputs", {}).get(output_node, {}).get("images") or []
         if not images:
             raise ComfyUIError(f"ComfyUI finished with no output image: {history}")
 
@@ -133,12 +172,13 @@ def generate(
 
     meta = {
         "backend": "comfyui",
-        "checkpoint": config.COMFYUI_CHECKPOINT,
+        "checkpoint": checkpoint,
+        "profile": profile,
         "prompt": prompt,
         "negative_prompt": negative,
         "width": width, "height": height, "steps": steps, "seed": seed,
         "credit": {
-            "source": f"Media Gen (ComfyUI / {config.COMFYUI_CHECKPOINT})",
+            "source": f"Media Gen (ComfyUI / {checkpoint})",
             "photographer": "AI-generated — no human photographer",
             "license": "Generated on this host — site-owned, no external license",
             "url": "",

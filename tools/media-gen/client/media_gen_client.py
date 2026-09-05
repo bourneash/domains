@@ -112,6 +112,7 @@ class MediaGenClient:
         prompt: str,
         *,
         backend: str = "comfyui",
+        profile: str = "fast",
         slug: str | None = None,
         negative_prompt: str | None = None,
         width: int = 1216,
@@ -120,7 +121,10 @@ class MediaGenClient:
     ) -> dict[str, Any]:
         """Generate one image. If dest_path is given, also downloads the
         bytes there and adds `saved: <path>` to the returned dict."""
-        body = {"site": site, "prompt": prompt, "backend": backend, "width": width, "height": height}
+        body = {
+            "site": site, "prompt": prompt, "backend": backend,
+            "profile": profile, "width": width, "height": height,
+        }
         if slug:
             body["slug"] = slug
         if negative_prompt:

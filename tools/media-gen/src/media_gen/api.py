@@ -156,6 +156,7 @@ class GenerateRequest(BaseModel):
     height: int = 832
     steps: int = 4
     seed: int | None = None
+    profile: Literal["fast", "quality"] = "fast"
     aspect_ratio: str = "3:2"  # nanobanana only — ComfyUI uses width/height directly
     slug: str | None = Field(None, description="Article/page slug, stored for provenance only.")
 
@@ -185,7 +186,10 @@ def backends():
             "reachable": comfyui.ping(),
             "default": True,
             "speed": "seconds to ~1min, synchronous",
-            "notes": "Local GPU generation (flux1-schnell). No browser, no external network.",
+            "notes": (
+                "Local GPU generation. profile=fast uses FLUX Schnell; "
+                "profile=quality uses FLUX Dev at 30 steps. No browser or external network."
+            ),
         },
         "nanobanana": {
             "available": nanobanana.available(),
@@ -206,6 +210,7 @@ def generate(req: GenerateRequest):
             image_bytes, meta = comfyui.generate(
                 prompt=req.prompt, negative=req.negative_prompt,
                 width=req.width, height=req.height, steps=req.steps, seed=req.seed,
+                profile=req.profile,
             )
         except comfyui.ComfyUIError as e:
             raise HTTPException(status_code=503, detail=str(e)) from e

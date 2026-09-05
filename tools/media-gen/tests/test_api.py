@@ -21,9 +21,9 @@ def test_health_reports_both_backends(monkeypatch):
 
 
 def test_generate_comfyui_success(monkeypatch, tmp_path):
-    def fake_generate(prompt, negative=None, width=1216, height=832, steps=4, seed=None):
+    def fake_generate(prompt, negative=None, width=1216, height=832, steps=4, seed=None, profile="fast"):
         return b"fake-image-bytes", {
-            "backend": "comfyui", "width": width, "height": height,
+            "backend": "comfyui", "width": width, "height": height, "profile": profile,
             "credit": {"source": "Media Gen (ComfyUI / fake)", "photographer": "AI-generated",
                        "license": "Generated", "url": ""},
         }
@@ -36,10 +36,33 @@ def test_generate_comfyui_success(monkeypatch, tmp_path):
     body = r.json()
     assert body["backend"] == "comfyui"
     assert body["width"] == 1216
+    assert body["backend"] == "comfyui"
 
     img = client.get(body["url"])
     assert img.status_code == 200
     assert img.content == b"fake-image-bytes"
+
+
+def test_generate_comfyui_forwards_quality_profile(monkeypatch, tmp_path):
+    requested = {}
+
+    def fake_generate(**kwargs):
+        requested.update(kwargs)
+        return b"quality-image", {
+            "backend": "comfyui", "width": kwargs["width"], "height": kwargs["height"],
+            "credit": {"source": "Media Gen", "photographer": "AI-generated",
+                       "license": "Generated", "url": ""},
+        }
+
+    monkeypatch.setattr(comfyui, "generate", fake_generate)
+    from media_gen import store
+    monkeypatch.setattr(store.config, "DATA_DIR", tmp_path)
+
+    r = client.post("/generate", json={
+        "site": "rodhat", "prompt": "a mechanical cutaway", "profile": "quality",
+    })
+    assert r.status_code == 200
+    assert requested["profile"] == "quality"
 
 
 def test_generate_comfyui_error_returns_503(monkeypatch):

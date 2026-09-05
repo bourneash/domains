@@ -155,11 +155,17 @@ Both mirror `tools/data-hub-images`' client shape on purpose.
 
 | Method | Path | |
 |---|---|---|
-| `POST` | `/generate` | `{site, prompt, backend?, negative_prompt?, width?, height?, slug?}` → `{id, url, backend, width, height, credit}` |
+| `POST` | `/generate` | `{site, prompt, backend?, profile?, negative_prompt?, width?, height?, slug?}` → `{id, url, backend, width, height, credit}` |
 | `GET` | `/image/{id}` | Raw image bytes. |
 | `GET` | `/image/{id}/meta` | Full stored metadata (prompt, backend, credit, provenance). |
 | `GET` | `/health` | `{ok, comfyui:{reachable}, nanobanana:{available}}` |
 | `GET` | `/backends` | Capability/speed notes per backend, for a caller deciding which to use. |
+
+For the `comfyui` backend, `profile` defaults to `fast` (FLUX Schnell, four
+steps). Use `profile: "quality"` for FLUX Dev at 30 steps when faithful
+rendering of distinct media, compositions, and art direction matters more than
+latency. The quality profile uses the host's installed split FLUX Dev model,
+CLIP/T5 encoders, and VAE; it does not open a browser or call an external API.
 
 ## Extending
 

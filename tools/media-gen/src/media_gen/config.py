@@ -20,6 +20,16 @@ COMFYUI_CHECKPOINT = os.environ.get(
     "MEDIA_GEN_COMFYUI_CHECKPOINT", "flux1-schnell-fp8.safetensors"
 )
 
+# Opt-in quality profile. This is the FLUX Dev stack already installed on
+# this host and used by the higher-fidelity direct renderer elsewhere.
+COMFYUI_DEV_MODEL = os.environ.get(
+    "MEDIA_GEN_COMFYUI_DEV_MODEL",
+    "FLUX1/flux_dev_fp8_scaled_diffusion_model.safetensors",
+)
+COMFYUI_DEV_CLIP_L = os.environ.get("MEDIA_GEN_COMFYUI_DEV_CLIP_L", "clip_l.safetensors")
+COMFYUI_DEV_T5 = os.environ.get("MEDIA_GEN_COMFYUI_DEV_T5", "t5xxl_fp16.safetensors")
+COMFYUI_DEV_VAE = os.environ.get("MEDIA_GEN_COMFYUI_DEV_VAE", "flux_vae.safetensors")
+
 # Where generated images + their sidecar metadata live. Flat directory,
 # JSON-sidecar-per-image rather than a database — this service generates
 # on the order of "one image per article," not a searchable stock library,
@@ -55,7 +65,7 @@ NANOBANANA_PYTHON = os.environ.get("MEDIA_GEN_NANOBANANA_PYTHON", "python3")
 # Wall-clock budget for a single ComfyUI generation before we give up and
 # return 504. Generous — a cold model load (first request after ComfyUI
 # restarts) can take a while; steady-state is seconds.
-COMFYUI_TIMEOUT_S = float(os.environ.get("MEDIA_GEN_COMFYUI_TIMEOUT_S", "180"))
+COMFYUI_TIMEOUT_S = float(os.environ.get("MEDIA_GEN_COMFYUI_TIMEOUT_S", "300"))
 
 # Nano Banana runs a real visible browser + waits on a Gemini web UI —
 # minutes, not seconds, and occasionally flaky (see the skill's gotchas).
