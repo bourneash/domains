@@ -42,6 +42,7 @@ suites:
   gh-stats:          { runner: pytest }
   google-auth:       { runner: pytest }
   gsc-verify:        { runner: pytest }
+  guide-queue:       { runner: pytest }
   media-gen:         { runner: pytest }
   personas:          { runner: pytest }
   product-feed:      { runner: pytest }
