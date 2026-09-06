@@ -32,6 +32,47 @@ fi
 REPO_ROOT="${REPO_ROOT:-$(pwd)}"
 LOG_DIR="$REPO_ROOT/ops/logs"
 mkdir -p "$LOG_DIR"
+
+# ---- Consecutive-failure circuit breaker (2026-09-05) ----
+# Every scheduled role in the fleet routes its `claude -p` calls through this
+# ONE shared wrapper, which makes it the one place a repeat-failure guard can
+# live without a per-site stamped rollout. Fleet audit (2026-09-05) found three
+# incidents in 24h that this would have caught: ultrarough.com social-hub
+# error_max_turns x2 back-to-back, weirdgirlstore.com product-scout hitting a
+# transient OAuth revoke, and _fleet ai-optimizer-analyst silently parse_error
+# failing on its EROFS auth-mutex lock for 4 STRAIGHT DAYS (2026-09-02 through
+# -05) with zero alert, because that role is deliberately silent on a quiet
+# day and a silently-BROKEN day looks identical to a silently-HEALTHY one.
+#
+# Mechanism: a small per-(site,role) streak counter at
+# ops/.locks/<role>-fail-streak.json, incremented on failure and reset on any
+# success. At CLAUDE_BREAKER_THRESHOLD consecutive failures, this script
+# touches ops/.<role>-disabled — the EXACT kill-switch file run-worker.sh and
+# run-role.sh already check on every site (see their own header comments) —
+# so the very next scheduled tick no-ops before a worker container is even
+# spun up, not just before this script would have run. A human (or another
+# role) resets by `rm`-ing that marker once the root cause is fixed, same as
+# every other disable marker in this codebase; there is no auto-recovery
+# timer, deliberately (see feedback_no_auto_rollout_tool.md — this fleet does
+# not auto-heal cron roles, it stops them and asks a human to look).
+#
+# account_usage_exhausted and authentication_failed are EXEMPT from the
+# streak: those are fleet-wide account outages that fail every site/role
+# simultaneously and are already owned by the fleet auth monitor (see the
+# EXPLAIN dict below) -- tripping N per-role breakers for one shared cause
+# would be noise, not signal, and would require N manual `rm`s to recover from
+# an outage that was never this role's fault.
+#
+# Preflight: check BEFORE doing anything else (including the auth mutex) so a
+# tripped breaker costs nothing at all, ever -- not even a failed auth probe.
+CLAUDE_BREAKER_ENABLED="${CLAUDE_BREAKER_ENABLED:-1}"
+CLAUDE_BREAKER_THRESHOLD="${CLAUDE_BREAKER_THRESHOLD:-3}"
+BREAKER_MARKER="$REPO_ROOT/ops/.${CRON_ROLE}-disabled"
+BREAKER_STREAK_FILE="$REPO_ROOT/ops/.locks/${CRON_ROLE}-fail-streak.json"
+if [[ "$CLAUDE_BREAKER_ENABLED" == "1" && -f "$BREAKER_MARKER" ]]; then
+  echo "claude-tracked.sh: circuit OPEN for $CRON_SITE/$CRON_ROLE ($BREAKER_MARKER present) — skipping Claude entirely (zero cost). rm that file to reset once the root cause is fixed." >&2
+  exit 0
+fi
 LEDGER="$LOG_DIR/token-usage-$(date -u +%Y-%m-%d).jsonl"
 
 # Strip any --output-format (and its value) the caller passed — we own that flag.
@@ -326,6 +367,97 @@ if [[ "$STATUS" -ne 0 ]]; then
     set -e
     FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
   fi
+fi
+
+# ---- Circuit breaker: update the streak, trip + escalate once if needed ----
+# Runs AFTER the same-run retry above, so a failure that already self-healed
+# in-run (zero_cost_failure/parse_error) never touches the streak at all.
+# See the header comment near BREAKER_MARKER for the full design.
+if [[ "$CLAUDE_BREAKER_ENABLED" == "1" ]]; then
+  mkdir -p "$(dirname "$BREAKER_STREAK_FILE")" 2>/dev/null || true
+  python3 - "$BREAKER_STREAK_FILE" "$STATUS" "$FAILURE_CLASS" "$CLAUDE_BREAKER_THRESHOLD" \
+    "$BREAKER_MARKER" "$CRON_SITE" "$CRON_ROLE" "$REPO_ROOT" <<'PYEOF' || true
+import datetime, json, os, subprocess, sys
+
+streak_path, status, failure_class, threshold, marker_path, site, role, repo_root = sys.argv[1:9]
+status = int(status)
+threshold = int(threshold)
+failure_class = None if failure_class == "none" else failure_class
+now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+# Fleet-wide account outages are owned by the fleet auth monitor (see the
+# EXPLAIN dict below in this same script) -- they fail every site/role at
+# once, so a per-role breaker tripping on them is noise, not signal, and
+# would need N manual resets for one shared cause that was never this
+# role's fault.
+EXEMPT_CLASSES = {"account_usage_exhausted", "authentication_failed"}
+
+state = {"count": 0}
+if os.path.exists(streak_path):
+    try:
+        state = json.load(open(streak_path, encoding="utf-8"))
+    except Exception:
+        state = {"count": 0}
+
+if status == 0:
+    state = {"count": 0, "last_at": now, "last_result": "success"}
+elif failure_class in EXEMPT_CLASSES:
+    state["last_at"] = now
+    state["last_result"] = f"exempt:{failure_class}"
+else:
+    state["count"] = int(state.get("count", 0)) + 1
+    state["last_at"] = now
+    state["last_result"] = f"fail:{failure_class or 'unknown'}"
+    state["site"] = site
+    state["role"] = role
+
+json.dump(state, open(streak_path, "w", encoding="utf-8"), indent=2, sort_keys=True)
+
+# Trip exactly once: if the marker already exists, an earlier run already
+# tripped it and already sent the one loud alert -- do not re-notify every
+# tick after that (the marker itself keeps the breaker open).
+tripped_now = (
+    status != 0
+    and failure_class not in EXEMPT_CLASSES
+    and state["count"] >= threshold
+    and not os.path.exists(marker_path)
+)
+if tripped_now:
+    reason = (
+        f"circuit-breaker: {state['count']} consecutive claude-tracked.sh failures "
+        f"for {site}/{role} (latest: {failure_class or 'unknown'}) as of {now}. "
+        f"Auto-disabled by claude-tracked.sh's circuit breaker to stop burning "
+        f"tokens on a role that is not adapting between runs. "
+        f"rm this file to re-enable once the root cause is fixed.\n"
+    )
+    try:
+        with open(marker_path, "w", encoding="utf-8") as fh:
+            fh.write(reason)
+    except OSError:
+        pass  # best-effort -- a marker we can't write is a louder, separate problem
+    notify = os.path.join(repo_root, "ops", "scripts", "notify-slack.sh")
+    if os.path.exists(notify):
+        channel = "domain-ops" if site == "_fleet" else "domain-" + site.replace(".", "-")
+        text = (
+            f":rotating_light: *{site}* `{role}` circuit breaker TRIPPED after "
+            f"{state['count']} consecutive failures (latest: {failure_class or 'unknown'}). "
+            f"Auto-disabled ({marker_path}) — rm the marker to re-enable after the fix."
+        )
+        try:
+            subprocess.run([notify, channel, text, "danger"], timeout=10, check=False,
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+    else:
+        # _fleet and any other REPO_ROOT with no site-level notify-slack.sh:
+        # the marker file + this stderr line are still the record of the trip,
+        # just without a Slack ping. Documented gap, not a silent failure.
+        print(
+            f"claude-tracked.sh: circuit breaker tripped for {site}/{role} but no "
+            f"{notify} found -- marker written, no Slack alert sent.",
+            file=sys.stderr,
+        )
+PYEOF
 fi
 
 python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" "$FAILURE_CLASS" <<'PYEOF'
