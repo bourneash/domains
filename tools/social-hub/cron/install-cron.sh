@@ -1,21 +1,13 @@
 #!/usr/bin/env bash
-# Install the social-hub tick on the host crontab (every 15 minutes).
-#
-# The tick is idempotent and cheap when there is nothing to do, so a short
-# interval costs little and keeps scheduled posts landing close to their slot.
+# Remove the obsolete host-cron tick and host API bootstrap. The versioned
+# fleet-cron schedule owns the tick; Docker's restart policy owns the API.
 set -euo pipefail
 
 ROOT="${DOMAINS_ROOT:-/home/jesse/projects/domains}"
-LOG="$ROOT/tools/social-hub/data/tick.log"
-LINE="*/15 * * * * cd $ROOT && $(command -v social-hub || echo social-hub) tick --notify >> $LOG 2>&1"
-
-mkdir -p "$(dirname "$LOG")"
-
-if crontab -l 2>/dev/null | grep -q "social-hub tick"; then
-  echo "social-hub tick is already installed:"
-  crontab -l | grep "social-hub tick"
-  exit 0
-fi
-
-( crontab -l 2>/dev/null; echo "$LINE" ) | crontab -
-echo "installed: $LINE"
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
+crontab -l 2>/dev/null \
+  | grep -v "social-hub tick" \
+  | grep -v "social-hub serve --host" > "$TMP" || true
+crontab "$TMP"
+echo "removed obsolete host Social Hub jobs; schedule is tools/fleet-cron/crontab.docker"

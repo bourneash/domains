@@ -94,8 +94,11 @@ def test_full_review_cycle_over_http(client):
 def test_reject_over_http(client):
     client.post("/api/tick", json={"site": "alpha.com", "publish": False})
     post_id = client.get("/api/posts?status=draft&site=alpha.com").json()["posts"][0]["id"]
-    rejected = client.post(f"/api/posts/{post_id}/reject", json={"reason": "off voice"}).json()
-    assert rejected["status"] == "rejected" and rejected["error"] == "off voice"
+    rejected = client.post(
+        f"/api/posts/{post_id}/reject", json={"reason": "off voice", "category": "wrong_voice"}
+    ).json()
+    assert rejected["status"] == "needs_rewrite" and rejected["error"] == "off voice"
+    assert rejected["feedback_category"] == "wrong_voice"
 
 
 def test_compose_endpoint_creates_a_manual_post(client):

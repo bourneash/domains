@@ -88,6 +88,9 @@ def test_publish_appends_the_article_link(synced):
 
     _, outgoing = synced.sent[0]
     assert outgoing.link.startswith("https://alpha.com/")
+    assert "utm_source=fake" in outgoing.link
+    assert "utm_content=hub-" in outgoing.link
+    assert queue.get(post["id"])["utm_link"] == outgoing.link
 
 
 def test_failed_publish_retries_then_parks(synced):
@@ -184,7 +187,7 @@ def test_auto_approval_schedules_without_a_human(fake_fleet, fake_adapter):
         fake_fleet,
         "alpha.com",
         articles=1,
-        config_yaml="platforms: [fake]\napproval: auto\ncadence:\n  slots: ['06:00','12:00']\n",
+        config_yaml="platforms: [fake]\napproval: auto\nvoice: Terse and factual.\ncontroller:\n  required_for_public: false\ncadence:\n  slots: ['06:00','12:00']\n",
     )
     accounts.sync_channels()
     cfg = load_site_config("alpha.com")
@@ -193,6 +196,20 @@ def test_auto_approval_schedules_without_a_human(fake_fleet, fake_adapter):
 
     assert not queue.list_posts(site="alpha.com", status="draft")
     assert queue.list_posts(site="alpha.com", status="scheduled")
+
+
+def test_controller_overrides_legacy_public_auto_approval(fake_fleet, fake_adapter):
+    make_site(
+        fake_fleet, "alpha.com", articles=1,
+        config_yaml="platforms: [fake]\napproval: auto\nvoice: Terse and factual.\n",
+    )
+    accounts.sync_channels()
+    cfg = load_site_config("alpha.com")
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+
+    assert queue.list_posts(site="alpha.com", status="draft")
+    assert not queue.list_posts(site="alpha.com", status="scheduled")
 
 
 def test_tick_runs_the_whole_pipeline_for_every_managed_site(synced):

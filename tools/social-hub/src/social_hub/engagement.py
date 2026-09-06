@@ -200,7 +200,9 @@ def draft_reply_for(mention: dict, cfg: SiteConfig) -> int | None:
         return None
 
     platform_cfg = cfg.for_platform(platform)
-    auto = str(platform_cfg.get("reply.approval", "manual")) == "auto"
+    auto = str(platform_cfg.get("reply.approval", "manual")) == "auto" and (
+        mention["platform"] == "console" or not cfg.get("controller.required_for_public", True)
+    )
     post_id = queue.create_post(
         site=mention["site"],
         platform=platform,

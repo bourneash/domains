@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -105,6 +106,7 @@ def sync_channels(sites: list[str] | None = None) -> dict:
                     "enabled": 1 if status in LIVE_STATUSES else 0,
                     "created_at": now,
                     "updated_at": now,
+                    "readiness": "registered" if status in LIVE_STATUSES else "blocked",
                     **payload,
                 },
             )
@@ -114,6 +116,9 @@ def sync_channels(sites: list[str] | None = None) -> dict:
             # the registry says the account is no longer live, which always wins.
             if status not in LIVE_STATUSES:
                 payload["enabled"] = 0
+                payload["readiness"] = "blocked"
+            elif (row["readiness"] or "") in {"", "unverified", "blocked"}:
+                payload["readiness"] = "registered"
             db.update("channels", row["id"], payload)
             updated += 1
 
@@ -154,11 +159,21 @@ def ensure_config_channels(site: str, platforms: list[str]) -> int:
     created = 0
     now = db.utcnow()
     for platform in platforms:
-        if get_channel(site, platform, ""):
-            continue
         try:
             needs_creds = bool(adapter_class(platform).required_creds)
         except KeyError:
+            continue
+        existing = get_channel(site, platform, "")
+        if existing:
+            # Old rows predate readiness tracking. Local no-credential sinks
+            # are intrinsically ready; do not ask operators to "verify" a
+            # console adapter that has no remote account.
+            if not needs_creds and existing.get("readiness") != "ready":
+                db.update(
+                    "channels",
+                    existing["id"],
+                    {"readiness": "ready", "verified_at": now, "updated_at": now},
+                )
             continue
         db.insert(
             "channels",
@@ -171,6 +186,7 @@ def ensure_config_channels(site: str, platforms: list[str]) -> int:
                 "enabled": 0 if needs_creds else 1,
                 "has_creds": 0,
                 "note": "" if not needs_creds else "no account in the social registry",
+                "readiness": "ready" if not needs_creds else "unverified",
                 "created_at": now,
                 "updated_at": now,
             },
@@ -208,16 +224,16 @@ def pick_channel(site: str, platform: str, persona: str | None = None) -> dict |
     else the brand channel, else any enabled channel on that platform."""
     if persona:
         chan = get_channel(site, platform, persona)
-        if chan and chan["enabled"]:
+        if chan and is_available(chan):
             return chan
     brand = get_channel(site, platform, "")
-    if brand and brand["enabled"]:
+    if brand and is_available(brand):
         return brand
     rows = db.query(
-        "SELECT * FROM channels WHERE site = ? AND platform = ? AND enabled = 1 LIMIT 1",
+        "SELECT * FROM channels WHERE site = ? AND platform = ? AND enabled = 1",
         (site, platform),
     )
-    return db.row_to_dict(rows[0]) if rows else None
+    return next((channel for channel in db.rows_to_dicts(rows) if is_available(channel)), None)
 
 
 # --------------------------------------------------------------------------
@@ -327,10 +343,67 @@ def verify_channel(channel: dict) -> dict:
     except KeyError as exc:
         return {"ok": False, "error": str(exc)}
     result = adapter.verify()
-    payload: dict[str, Any] = {"has_creds": 1 if creds else 0}
+    payload: dict[str, Any] = {
+        "has_creds": 1 if creds else 0,
+        "verified_at": db.utcnow(),
+        "readiness": "ready" if result.get("ok") else "blocked",
+    }
     if result.get("ok") and result.get("handle") and not channel.get("handle"):
         payload["handle"] = result["handle"]
     if not result.get("ok"):
         payload["note"] = str(result.get("error", ""))[:400]
     db.update("channels", channel["id"], payload)
+    db.log_event(
+        "channel.verified" if result.get("ok") else "channel.verify_failed",
+        site=channel["site"],
+        ref_type="channel",
+        ref_id=channel["id"],
+        message=str(result.get("handle") or result.get("error") or "verified")[:300],
+        data={"platform": channel["platform"], "readiness": payload["readiness"]},
+    )
     return result
+
+
+def record_publish_result(channel_id: int, *, ok: bool, error: str = "") -> None:
+    """Maintain a small per-channel circuit breaker for repeated API failures."""
+    row = db.one("SELECT * FROM channels WHERE id = ?", (channel_id,))
+    if not row:
+        return
+    if ok:
+        db.update(
+            "channels",
+            channel_id,
+            {"consecutive_failures": 0, "disabled_until": None, "readiness": "ready"},
+        )
+        return
+    failures = int(row["consecutive_failures"] or 0) + 1
+    payload: dict[str, Any] = {"consecutive_failures": failures, "note": error[:400]}
+    if failures >= 4:
+        from datetime import timedelta
+
+        payload.update(
+            {
+                "readiness": "cooldown",
+                "disabled_until": (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat(timespec="seconds"),
+            }
+        )
+        db.log_event(
+            "channel.circuit_open",
+            site=row["site"],
+            ref_type="channel",
+            ref_id=channel_id,
+            message=f"{row['platform']} paused for 2h after {failures} consecutive failures",
+        )
+    db.update("channels", channel_id, payload)
+
+
+def is_available(channel: dict) -> bool:
+    if not channel.get("enabled"):
+        return False
+    until = channel.get("disabled_until")
+    if not until:
+        return True
+    try:
+        return datetime.fromisoformat(until) <= datetime.now(timezone.utc)
+    except ValueError:
+        return False

@@ -130,7 +130,8 @@ def summary(site: str | None = None, days: int = 30) -> dict:
     for row in rows:
         bucket = out.setdefault(
             row["platform"],
-            {"posts": 0, "likes": 0, "reposts": 0, "replies": 0, "measured": 0},
+            {"posts": 0, "likes": 0, "reposts": 0, "replies": 0, "impressions": 0,
+             "clicks": 0, "conversions": 0, "measured": 0},
         )
         bucket["posts"] += 1
         if row.get("metrics_at"):
@@ -138,8 +139,37 @@ def summary(site: str | None = None, days: int = 30) -> dict:
             bucket["likes"] += int(row.get("likes") or 0)
             bucket["reposts"] += int(row.get("reposts") or 0)
             bucket["replies"] += int(row.get("replies") or 0)
+            bucket["impressions"] += int(row.get("impressions") or 0)
+            bucket["clicks"] += int(row.get("clicks") or 0)
+            bucket["conversions"] += int(row.get("conversions") or 0)
     for bucket in out.values():
         measured = bucket["measured"] or 1
         total = bucket["likes"] + bucket["reposts"] + bucket["replies"]
         bucket["avg_engagement"] = round(total / measured, 2)
+        bucket["ctr"] = round(100 * bucket["clicks"] / (bucket["impressions"] or 1), 2)
     return {"days": days, "platforms": out}
+
+
+def insights(site: str | None = None, days: int = 30) -> dict:
+    """Outcome rollup used by writers and the controller's learning loop."""
+    since = (now_utc() - timedelta(days=days)).isoformat(timespec="seconds")
+    sql = "SELECT * FROM posts WHERE status = 'posted' AND posted_at >= ?"
+    params: list = [since]
+    if site:
+        sql += " AND site = ?"
+        params.append(site)
+    rows = db.rows_to_dicts(db.query(sql, tuple(params)))
+    pillars: dict[str, dict] = {}
+    models: dict[str, dict] = {}
+    for row in rows:
+        score = engagement(row)
+        for buckets, key in ((pillars, row.get("content_pillar") or "unclassified"), (models, row.get("ai_model") or row.get("origin") or "unknown")):
+            bucket = buckets.setdefault(key, {"posts": 0, "engagement": 0, "clicks": 0, "conversions": 0})
+            bucket["posts"] += 1
+            bucket["engagement"] += score
+            bucket["clicks"] += int(row.get("clicks") or 0)
+            bucket["conversions"] += int(row.get("conversions") or 0)
+    for buckets in (pillars, models):
+        for bucket in buckets.values():
+            bucket["engagement_per_post"] = round(bucket["engagement"] / (bucket["posts"] or 1), 2)
+    return {"days": days, "pillars": pillars, "models": models}

@@ -87,6 +87,11 @@ services:
       # host-root-equivalent, so this isn't a meaningful blast-radius
       # increase, and fleet-dashboard already runs this exact pattern.
       - ${HOME:-/home/jesse}/.claude:${HOME:-/home/jesse}/.claude:ro
+      # The tracked Claude wrapper opens this ONE shared file read-write before
+      # taking flock(2). Overlay it RW on the otherwise-RO directory so
+      # fleet-cron AI jobs join the cross-container OAuth refresh mutex instead
+      # of correctly failing closed on EROFS. Credentials remain read-only.
+      - ${HOME:-/home/jesse}/.claude/.credentials.lock:${HOME:-/home/jesse}/.claude/.credentials.lock
       # The schedule itself — bind-mounted live, NOT baked into the image.
       # Edit this file + `docker compose restart cron` takes effect
       # immediately; no rebuild. See the crontab.docker header comment.

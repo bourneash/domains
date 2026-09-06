@@ -26,6 +26,7 @@ RUN apk add --no-cache \
     py3-yaml \
     git \
     openssh-client \
+    util-linux \
     tzdata \
     ca-certificates \
     docker-cli \

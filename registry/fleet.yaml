@@ -203,9 +203,11 @@ sites:
     - cron
     - smoke
     - tasks
+    - social
     registered_in:
     - domains-index
     - site-tracker
+    - social
   broadwayshowgirls.com:
     status: live
     repo: bourneash/broadwayshowgirls.com
@@ -325,6 +327,7 @@ sites:
     - tasks
     - affiliate
     - analytics
+    - social
     analytics:
       ga4_property_id: '552518971'
       ga4_measurement_id: G-WL70TCXZ0G
@@ -334,6 +337,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   elevatorfriends.com:
     status: scaffold
     repo: bourneash/elevatorfriends.com
@@ -411,7 +415,7 @@ sites:
   girlpain.com:
     status: staging
     repo: bourneash/girlpain.com
-    worker: girlpain-com
+    worker: girlpain-com-live
     cf_zone: girlpain.com
     slack_channel_env: SLACK_CHANNEL_GIRLPAIN
     capabilities:
@@ -793,6 +797,7 @@ sites:
     - tasks
     - affiliate
     - analytics
+    - social
     analytics:
       ga4_property_id: '552507950'
       ga4_measurement_id: G-71Y5MH51ER
@@ -802,6 +807,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   shoptopless.com:
     status: live
     repo: bourneash/shoptopless.com
@@ -869,6 +875,7 @@ sites:
     - tasks
     - affiliate
     - analytics
+    - social
     analytics:
       ga4_property_id: '551675161'
       ga4_measurement_id: G-ND0L33SP6S
@@ -878,6 +885,7 @@ sites:
     - analytics
     - domains-index
     - site-tracker
+    - social
   therareunicorn.com:
     status: scaffold
     repo: bourneash/therareunicorn.com

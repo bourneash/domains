@@ -106,3 +106,17 @@ def test_fetch_site_maps_metrics_correctly_when_response_header_order_differs_fr
     # reversed_map[-1] is the FIRST entry of METRIC_MAP (sessions), which got value "len-1"
     assert record["conversions"] == 0
     assert record["sessions"] == len(reversed_map) - 1
+
+
+def test_fetch_social_uses_utm_content_and_organic_social_filter():
+    row = {
+        "dimensionValues": [{"value": "20260718"}, {"value": "hub-42"}],
+        "metricValues": [{"value": "5"} for _ in ga4.METRIC_MAP],
+    }
+    client = FakeClient(_response([row]))
+    records, _ = ga4.fetch_social(client, "539743210", today=date(2026, 7, 19))
+    assert records[0]["grain"] == "social"
+    assert records[0]["dim_key"] == "hub-42"
+    _, body = client.properties().calls[0]
+    assert body["dimensions"] == [{"name": "date"}, {"name": "sessionManualAdContent"}]
+    assert body["dimensionFilter"]["filter"]["fieldName"] == "sessionManualMedium"

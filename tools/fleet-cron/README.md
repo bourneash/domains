@@ -36,6 +36,9 @@ and the extra ~150MB hasn't cost anything yet.
 | 5 | `20 6 * * *` | `tools/scripts/lint-sweep-cron.sh` | Fleet prettier parse/format sweep |
 | 6 | `* * * * *` | `tools/scripts/domain-job-runner.sh` | Drain the Fleet Dashboard Domains-tab onboard/offboard spool |
 | 7 | `35 6 * * *` | `tools/scripts/registry-drift-cron.sh` | Fleet registry (`registry/fleet.yaml`) drift check against per-site config |
+| 18 | `0,15,30,45 * * * *` | `tools/social-hub/run-tick.sh` | Run the Social Hub pipeline inside its supervised API container |
+| 19 | `8,23,38,53 * * * *` | `tools/social-controller/run.sh` | Review public Social Hub drafts; zero AI invocation when the queue is empty |
+| 20 | `13,28,43,58 * * * *` | `tools/social-controller/monitor.py` | Alert only on stale/failed runs, old backlogs, rewrite pileups, or pipeline stage errors |
 
 Cadences are unchanged from the host-crontab entries they replace. Each
 script's own header comment carries the incident that justifies its
@@ -162,6 +165,10 @@ docker compose down                                 # full teardown
   because the repo is mounted at the same absolute path, `$DOMAINS_ROOT/.env`
   already IS the real file. No symlink trick needed (contrast with the
   per-site worker containers, which only mount their own site's repo).
+- **Full `util-linux` flock, not BusyBox flock.** `claude-tracked.sh` uses a
+  timed `flock -w` around the shared OAuth refresh window. BusyBox accepts
+  basic locks but not `-w`, which looks like an instant timeout and correctly
+  prevents every fleet-cron AI role from starting.
 - **`docker.sock` mounted RW.** Compose v2 breaks with `:ro`.
 - Claude Code CLI is installed in the image (`@anthropic-ai/claude-code`,
   pinned to the same version as `sites/americastrikes.com/ops/docker/Dockerfile.worker`)

@@ -28,10 +28,12 @@ from social_hub import (
     engagement,
     generator,
     metrics,
+    oversight,
     publisher,
     queue,
     scheduler,
     sources,
+    strategy,
     worker,
 )
 from social_hub.config import load_all, load_site_config, managed_sites
@@ -64,6 +66,13 @@ async def auth_guard(request: Request, call_next):
 @app.get("/api/health")
 def health() -> dict:
     return {"ok": True, "db": str(db.db_path()), "sites": managed_sites()}
+
+
+@app.get("/healthz")
+def healthz() -> dict:
+    """Container liveness endpoint; intentionally outside the bearer gate."""
+    db.connect()
+    return {"ok": True}
 
 
 @app.get("/api/status")
@@ -248,7 +257,12 @@ def approve_post(post_id: int, payload: dict = Body(default={})) -> dict:
 
 @app.post("/api/posts/{post_id}/reject")
 def reject_post(post_id: int, payload: dict = Body(default={})) -> dict:
-    post = queue.reject(post_id, by=str(payload.get("by") or "ui"), reason=payload.get("reason", ""))
+    post = queue.quarantine(
+        post_id,
+        by=str(payload.get("by") or "ui"),
+        category=str(payload.get("category") or "other"),
+        reason=str(payload.get("reason") or "Needs an editorial rewrite."),
+    )
     if not post:
         raise HTTPException(404, "post not found")
     return post
@@ -347,7 +361,25 @@ def get_metrics(site: str | None = None, days: int = 30, limit: int = 10) -> dic
     return {
         "summary": metrics.summary(site, days=days),
         "top": metrics.top_posts(site, days=days, limit=limit),
+        "insights": metrics.insights(site, days=days),
     }
+
+
+@app.post("/api/posts/{post_id}/outcomes")
+def update_outcomes(post_id: int, payload: dict = Body(...)) -> dict:
+    post = queue.get(post_id)
+    if not post:
+        raise HTTPException(404, "post not found")
+    updates = {}
+    for field in ("impressions", "clicks", "conversions"):
+        if field in payload:
+            value = int(payload[field])
+            if value < 0:
+                raise HTTPException(400, f"{field} cannot be negative")
+            updates[field] = value
+    db.update("posts", post_id, updates)
+    db.log_event("post.outcomes_updated", site=post["site"], ref_type="post", ref_id=post_id, data=updates)
+    return queue.get(post_id) or {}
 
 
 @app.post("/api/metrics/refresh")
@@ -372,6 +404,58 @@ def events(site: str | None = None, limit: int = 100) -> dict:
     sql += " ORDER BY id DESC LIMIT ?"
     params.append(limit)
     return {"events": db.rows_to_dicts(db.query(sql, tuple(params)))}
+
+
+@app.get("/api/oversight")
+def get_oversight() -> dict:
+    return oversight.status()
+
+
+@app.get("/api/strategy")
+def get_strategy(site: str | None = None, days: int = 30) -> dict:
+    return strategy.report(site, days=max(1, min(days, 365)))
+
+
+@app.post("/api/oversight/controller")
+def set_controller(payload: dict = Body(...)) -> dict:
+    return oversight.set_enabled(bool(payload.get("enabled")))
+
+
+@app.get("/api/feedback")
+def get_feedback(site: str | None = None, state: str = "open", limit: int = 200) -> dict:
+    sql = "SELECT * FROM feedback WHERE state = ?"
+    params: list = [state]
+    if site:
+        sql += " AND site = ?"
+        params.append(site)
+    sql += " ORDER BY id DESC LIMIT ?"
+    params.append(min(500, max(1, limit)))
+    return {"feedback": db.rows_to_dicts(db.query(sql, tuple(params)))}
+
+
+@app.post("/api/learning-proposals")
+def create_learning_proposal(payload: dict = Body(...)) -> dict:
+    try:
+        return oversight.propose(
+            site=payload.get("site"), scope=str(payload.get("scope") or "site"),
+            target_path=str(payload.get("target_path") or ""),
+            instruction=str(payload.get("instruction") or ""),
+            evidence=list(payload.get("evidence") or []), actor=str(payload.get("actor") or "api"),
+        )
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
+@app.post("/api/learning-proposals/{proposal_id}/review")
+def review_learning_proposal(proposal_id: int, payload: dict = Body(...)) -> dict:
+    try:
+        return oversight.review_proposal(
+            proposal_id, state=str(payload.get("state") or ""), actor=str(payload.get("actor") or "api")
+        )
+    except KeyError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
 
 
 def serve(host: str = "127.0.0.1", port: int = 4772, reload: bool = False) -> None:

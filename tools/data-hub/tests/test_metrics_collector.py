@@ -48,8 +48,9 @@ def test_run_metrics_cycle_calls_both_apis_for_every_site(db):
     assert summary["ga4_ok"] == 2
     assert summary["gsc_ok"] == 2
     assert summary["errors"] == 0
-    # each site: site + pages = 2 GA4 calls; site + queries + pages + query-pages = 4 GSC calls
-    assert len(ga4c.calls) == 4
+    # each site: site + pages + social UTM content = 3 GA4 calls;
+    # site + queries + pages + query-pages = 4 GSC calls
+    assert len(ga4c.calls) == 6
     assert len(gscc.calls) == 8
 
 

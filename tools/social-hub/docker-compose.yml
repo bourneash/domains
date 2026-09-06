@@ -1,0 +1,49 @@
+name: social-hub
+
+services:
+  api:
+    build: .
+    image: social-hub:latest
+    container_name: social-hub-api
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    ports:
+      - "127.0.0.1:4772:4772"
+    env_file:
+      - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-social-hub.env
+    environment:
+      HOME: ${HOME:-/home/jesse}
+      FLEET_DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      # docker exec does not inherit exports made by PID 1's shell. Keep this
+      # at the service level so fleet-cron's tick/maintenance commands import
+      # the bind-mounted Hub and shared social library correctly.
+      PYTHONPATH: ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/social-hub/src:${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/social-lib/src
+      VAULT_SERVER: "https://credential-vault:80"
+      VAULT_SESSION_CACHE_FILE: "${HOME:-/home/jesse}/.social-hub-vault-session-cache"
+      DATAHUB_API: "http://datahub-api:4760"
+    volumes:
+      - social_hub_home:${HOME:-/home/jesse}
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}:${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      - /mnt/encrypted/projects/credential-vault:/mnt/encrypted/projects/credential-vault:ro
+      - ${HOME:-/home/jesse}/.claude:${HOME:-/home/jesse}/.claude:ro
+      - ${HOME:-/home/jesse}/.claude/.credentials.lock:${HOME:-/home/jesse}/.claude/.credentials.lock
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:4772/healthz"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      autoheal: "true"
+    networks: [default, vpn_proxy]
+
+networks:
+  default:
+  vpn_proxy:
+    external: true
+    name: vpn-proxy_default
+
+volumes:
+  social_hub_home:

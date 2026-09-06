@@ -23,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 
 from social_hub import (
     accounts,
+    attribution_sync,
     db,
     engagement,
     generator,
@@ -85,6 +86,7 @@ def tick_site(site: str, cfg: SiteConfig | None = None, *, publish: bool = True)
         _stage(stats, site, "inbox", engagement.poll_site, site, cfg)
         _stage(stats, site, "replies", engagement.draft_replies, site, cfg)
         _stage(stats, site, "metrics", metrics.refresh_site, site)
+        _stage(stats, site, "attribution", attribution_sync.refresh_site, site)
         if publish:
             due = [p for p in publisher.publish_due(limit=25) if p]
             stats["published"] = sum(1 for r in due if r.get("ok"))
@@ -200,9 +202,17 @@ def status(site: str | None = None) -> dict:
                     # Platforms like `console` need no secret at all, so a
                     # bare has_creds=false would read as broken when it isn't.
                     "needs_creds": _needs_creds(c["platform"]),
+                    "readiness": c.get("readiness") or "unverified",
+                    "verified_at": c.get("verified_at"),
+                    "consecutive_failures": int(c.get("consecutive_failures") or 0),
+                    "disabled_until": c.get("disabled_until"),
                 }
                 for c in accounts.list_channels(site=name)
             ],
+            "config": {
+                "voice_ready": bool((load_site_config(name) or SiteConfig(name, {})).voice.strip()),
+                "content_pillars": (load_site_config(name) or SiteConfig(name, {})).get("content_pillars", []),
+            },
             "inbox_new": len(engagement.list_mentions(site=name, status="new", limit=200)),
             "next_send": upcoming[0]["scheduled_at"] if upcoming else None,
             "scheduled_7d": len(upcoming),

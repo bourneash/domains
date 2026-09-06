@@ -70,6 +70,10 @@ per_site_vault:
 # blank the credential.
 vault_only:
   - FD_TOKEN
+  # Shared only by the Social Hub API and its Fleet Dashboard proxy. Keeping
+  # it out of .env makes a diagnostic/source-tree read insufficient to drive
+  # the public publishing control plane.
+  - SOCIAL_HUB_TOKEN
   # Mints the per-site Cloudflare tokens. It can create tokens carrying any
   # permission it holds, so a container that could read it could grant itself
   # account-wide Workers + DNS — strictly worse than the fleet token this whole
@@ -158,6 +162,8 @@ tools:
     # flag, not a secret, but it is interpolated by the same compose file so it
     # rides along rather than keeping a second env source alive.
     keys: [FD_TOKEN, FD_AUTH, SOCIAL_HUB_TOKEN]
+  social-hub:
+    keys: [SOCIAL_HUB_TOKEN]
   gh-stats:
     keys: [GITHUB_TOKEN]
   site-tracker:
@@ -180,5 +186,5 @@ vault:
     media-apis:  [UNSPLASH_, PEXELS_, PIXABAY_, DVIDS_]
     vpn:         [VPN_]
     github:      [GITHUB_]
-    dashboard:   [FD_]
+    dashboard:   [FD_, SOCIAL_HUB_]
     email:       [RESEND_, ED_]

@@ -26,13 +26,15 @@ def trailing_window(today: date, days: int = 7) -> tuple[str, str]:
     return start.isoformat(), end.isoformat()
 
 
-def _run_report(client, property_id: str, start: str, end: str, dimension_names: list[str]) -> dict:
+def _run_report(client, property_id: str, start: str, end: str, dimension_names: list[str], dimension_filter: dict | None = None) -> dict:
     body = {
         "dateRanges": [{"startDate": start, "endDate": end}],
         "dimensions": [{"name": n} for n in dimension_names],
         "metrics": [{"name": n} for n, _ in METRIC_MAP],
         "returnPropertyQuota": True,
     }
+    if dimension_filter:
+        body["dimensionFilter"] = dimension_filter
     return client.properties().runReport(property=f"properties/{property_id}", body=body).execute()
 
 
@@ -68,3 +70,22 @@ def fetch_pages(client, property_id: str, *, today: date | None = None) -> tuple
     start, end = trailing_window(today or date.today())
     response = _run_report(client, property_id, start, end, ["date", "pagePath"])
     return _rows_to_records(response, grain="page", has_dim_key=True), response.get("propertyQuota", {})
+
+
+def fetch_social(client, property_id: str, *, today: date | None = None) -> tuple[list[dict], dict]:
+    """Sessions and conversions keyed by Social Hub's ``utm_content`` value."""
+    start, end = trailing_window(today or date.today())
+    response = _run_report(
+        client,
+        property_id,
+        start,
+        end,
+        ["date", "sessionManualAdContent"],
+        {
+            "filter": {
+                "fieldName": "sessionManualMedium",
+                "stringFilter": {"matchType": "EXACT", "value": "organic_social", "caseSensitive": False},
+            }
+        },
+    )
+    return _rows_to_records(response, grain="social", has_dim_key=True), response.get("propertyQuota", {})

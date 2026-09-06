@@ -838,6 +838,14 @@ body[data-view="social"] main { max-width: none; }
 .sh-kv-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-top: 1px solid var(--line, #2a323d); margin-top: 2px; }
 .sh-chans { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
 .sh-h { margin: 20px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; opacity: .75; }
+.sh-controller-strip { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; padding: 10px 14px; }
+.sh-controller-strip > div:first-child { display: grid; gap: 2px; margin-right: auto; }
+.sh-controller-panel { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 14px 0; }
+.sh-controller-panel h3, .sh-controller-panel p { margin: 0; }
+.sh-controller-panel p { margin-top: 4px; }
+.sh-oversight-grid { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(360px, 1.2fr); gap: 14px; }
+.sh-config-health { max-height: 330px; overflow: auto; }
+.sh-config-health p { margin: 8px 0 0; font-size: 12px; }
 
 .sh-toolbar select, .sh-toolbar .compliance-search-wrap .cm-input { min-width: 130px; }
 

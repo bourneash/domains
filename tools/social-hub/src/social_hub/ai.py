@@ -285,7 +285,11 @@ def _fallback_bodies(source: dict, caps, count: int) -> list[str]:
     candidates = [title, f"{title} — {summary}" if summary else title, summary or title]
     out, seen = [], set()
     for text in candidates:
-        text = text[: max(40, caps.max_chars - len(source.get("url", "")) - 1)].strip()
+        budget = max(40, caps.max_chars - len(source.get("url", "")) - 1)
+        if len(text) > budget:
+            clipped = text[:budget]
+            text = clipped.rsplit(" ", 1)[0].rstrip(" ,;:—-") + "…"
+        text = text.strip()
         if text and text not in seen:
             seen.add(text)
             out.append(text)
@@ -303,17 +307,29 @@ def draft_posts(
     prompt = post_prompt(cfg, source, platform, caps, count, persona)
     model = "fallback"
     bodies: list[str] = []
+    failure = ""
     try:
         raw, model = complete(prompt, site=cfg.site, cfg=cfg)
         bodies = [
             sanitize(b, allowed_url=source.get("url", "")) for b in _extract_list(raw)
         ]
         bodies = [b for b in bodies if len(b) >= 20]
-    except Exception:
+    except Exception as exc:
+        failure = f"{type(exc).__name__}: {exc}"[:400]
         bodies = []
     if not bodies:
         bodies = _fallback_bodies(source, caps, count)
-        model = "fallback"
+        # The explicit fake backend is a test/dry-run facility, not an outage.
+        model = "fake" if resolve_backend(cfg) == "fake" else "fallback"
+        if model == "fallback":
+            from social_hub import db
+
+            db.log_event(
+                "ai.fallback",
+                site=cfg.site,
+                message=f"{platform}: model drafting unavailable; copy quarantined",
+                data={"error": failure or "empty or unusable model response", "source_id": source.get("source_id")},
+            )
     return [Draft(body=b, model=model) for b in bodies[:count]]
 
 

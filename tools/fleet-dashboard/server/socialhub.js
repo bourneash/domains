@@ -7,9 +7,8 @@
 // post history, manage the inbox and channels, read the event log) happens
 // here so there is one control plane, not two differently-styled apps.
 //
-// Everything degrades: when the hub is not running the tab renders an explicit
-// "hub is not reachable" state rather than an error, because the hub being down
-// is a normal condition (it is started by hand / at boot, not by this panel).
+// Everything degrades: when the supervised hub container is not running the
+// tab renders an explicit "hub is not reachable" state rather than hiding it.
 //
 // Auth: the hub binds loopback by default. To be reachable from inside this
 // container it must bind off-loopback, and it refuses to do that without
@@ -17,7 +16,7 @@
 // actually needed, and is forwarded as a bearer header (never a query string,
 // never handed to the browser).
 
-const API = process.env.SOCIALHUB_API || 'http://host.docker.internal:4772';
+const API = process.env.SOCIALHUB_API || 'http://social-hub-api:4772';
 const TOKEN = process.env.SOCIAL_HUB_TOKEN || '';
 const TIMEOUT_MS = 12000;
 // The hub's tick can take minutes (it drafts with an LLM); the panel's button
@@ -72,10 +71,11 @@ async function call(path, { method = 'GET', body, timeout = TIMEOUT_MS } = {}) {
 // the browser orchestrate three proxied ones.
 async function overview() {
   try {
-    const [status, drafts, metrics] = await Promise.all([
+    const [status, drafts, metrics, oversight] = await Promise.all([
       call('/api/status'),
       call('/api/posts?status=draft&limit=100'),
       call('/api/metrics?days=30&limit=5'),
+      call('/api/oversight'),
     ]);
     return {
       available: true,
@@ -83,6 +83,8 @@ async function overview() {
       drafts: drafts.posts || [],
       metrics: metrics.summary || { platforms: {} },
       top: metrics.top || [],
+      insights: metrics.insights || {},
+      oversight,
       generatedAt: new Date().toISOString(),
     };
   } catch (e) {
@@ -90,7 +92,7 @@ async function overview() {
       available: false,
       error: e.message,
       hint: e.unreachable
-        ? 'Start it on the host: `social-hub serve --host 0.0.0.0` (SOCIAL_HUB_TOKEN must be set)'
+        ? 'Start it with `docker compose -f tools/social-hub/docker-compose.yml up -d` and inspect social-hub-api health.'
         : 'The hub responded but rejected the request — check SOCIAL_HUB_TOKEN matches on both sides.',
     };
   }
@@ -142,10 +144,10 @@ async function approve(id) {
   return call(`/api/posts/${id}/approve`, { method: 'POST', body: { by: 'fleet-dashboard' } });
 }
 
-async function reject(id, reason) {
+async function reject(id, reason, category = 'other') {
   return call(`/api/posts/${id}/reject`, {
     method: 'POST',
-    body: { by: 'fleet-dashboard', reason: String(reason || '').slice(0, 300) },
+    body: { by: 'fleet-dashboard', reason: String(reason || '').slice(0, 300), category },
   });
 }
 
@@ -203,6 +205,16 @@ async function tick(site) {
   });
 }
 
+async function setController(enabled) {
+  return call('/api/oversight/controller', { method: 'POST', body: { enabled: !!enabled } });
+}
+
+async function reviewProposal(id, state) {
+  return call(`/api/learning-proposals/${id}/review`, {
+    method: 'POST', body: { state, actor: 'fleet-dashboard' },
+  });
+}
+
 function registerRoutes(app) {
   app.get('/api/socialhub', async (_req, res) => {
     res.json(await overview());
@@ -239,7 +251,7 @@ function registerRoutes(app) {
   );
   app.post(
     '/api/socialhub/posts/:id/reject',
-    forward(req => reject(Number(req.params.id), req.body && req.body.reason))
+    forward(req => reject(Number(req.params.id), req.body && req.body.reason, req.body && req.body.category))
   );
   app.patch(
     '/api/socialhub/posts/:id',
@@ -285,6 +297,14 @@ function registerRoutes(app) {
     '/api/socialhub/tick',
     forward(req => tick(req.body && req.body.site))
   );
+  app.post(
+    '/api/socialhub/controller',
+    forward(req => setController(req.body && req.body.enabled))
+  );
+  app.post(
+    '/api/socialhub/learning/:id/review',
+    forward(req => reviewProposal(Number(req.params.id), req.body && req.body.state))
+  );
 }
 
 module.exports = {
@@ -305,5 +325,7 @@ module.exports = {
   mentionStatus,
   events,
   tick,
+  setController,
+  reviewProposal,
   registerRoutes,
 };

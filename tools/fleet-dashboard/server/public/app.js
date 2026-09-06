@@ -7981,9 +7981,9 @@ const SH = {
   eventsSort: 'when',
   eventsDir: 'desc',
 };
-const SH_STATUSES = ['draft', 'approved', 'scheduled', 'posted', 'failed', 'rejected', 'cancelled'];
+const SH_STATUSES = ['draft', 'needs_rewrite', 'approved', 'scheduled', 'posted', 'failed', 'rejected', 'cancelled'];
 const SH_PUBLIC_PLATFORMS = '__public__';
-const SH_TABS = ['overview', 'queue', 'calendar', 'inbox', 'channels', 'events'];
+const SH_TABS = ['overview', 'oversight', 'queue', 'calendar', 'inbox', 'channels', 'events'];
 
 // Social Hub filters live in the fragment so review links can open an exact
 // fleet/site/platform slice without requiring a server-side route. Slack uses
@@ -8038,6 +8038,7 @@ function shBadgeStatus(status) {
     {
       posted: 'b-green',
       failed: 'b-red',
+      needs_rewrite: 'b-red',
       rejected: 'b-red',
       cancelled: 'b-gray',
       draft: 'b-yellow',
@@ -8111,6 +8112,7 @@ function shBindSort(view, container, onSort) {
 }
 
 function shActions(p) {
+  if (p.status === 'needs_rewrite') return [['edit', 'Rewrite']];
   if (p.status === 'draft')
     return [
       ['approve', 'Approve'],
@@ -8236,7 +8238,8 @@ async function shPostAction(btn) {
         return;
       }
       const reason = prompt(`${act === 'deny' ? 'Deny' : 'Reject'} reason (optional):`) || '';
-      await api('POST', `/api/socialhub/posts/${id}/reject`, { reason });
+      const category = prompt('Feedback category: wrong_voice, weak_hook, unsupported_claim, too_promotional, platform_mismatch, unsafe_or_private, or other', 'other') || 'other';
+      await api('POST', `/api/socialhub/posts/${id}/reject`, { reason, category });
       toast(`Post ${id} ${act === 'deny' ? 'denied' : 'rejected'}`);
     } else if (act === 'approve') {
       const res = await api('POST', `/api/socialhub/posts/${id}/approve`);
@@ -8321,6 +8324,7 @@ async function renderSocialHub() {
 
   const tabs = [
     ['overview', 'Overview'],
+    ['oversight', 'Oversight'],
     ['queue', 'Queue'],
     ['calendar', 'Calendar'],
     ['inbox', 'Inbox'],
@@ -8374,6 +8378,7 @@ async function renderSocialHub() {
   );
 
   if (SH.tab === 'overview') shRenderOverview(overview);
+  else if (SH.tab === 'oversight') shRenderOversight(overview.oversight || {});
   else if (SH.tab === 'queue') shRenderQueue();
   else if (SH.tab === 'calendar') shRenderCalendar();
   else if (SH.tab === 'inbox') shRenderInbox();
@@ -8556,12 +8561,19 @@ function shRenderOverview(data) {
     .map(
       ([platform, m]) => `<tr>
         <td>${esc(shPlatformLabel(platform))}</td><td class="mono">${m.posts}</td><td class="mono">${m.likes}</td>
-        <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${m.avg_engagement}</td>
+        <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${m.clicks || 0}</td>
+        <td class="mono">${m.conversions || 0}</td><td class="mono">${m.ctr || 0}%</td><td class="mono">${m.avg_engagement}</td>
       </tr>`
     )
     .join('');
 
+  const ctrl = data.oversight || {};
   body.innerHTML = `
+    <div class="card sh-controller-strip ${ctrl.enabled === false ? 'is-bad' : ''}">
+      <div><strong>Editorial controller</strong><span class="muted">${ctrl.enabled === false ? 'paused' : 'active'} · next ${esc(shFmtDate(ctrl.next_run))}</span></div>
+      <div><b>${ctrl.pending || 0}</b><span class="muted"> pending</span> · <b>${ctrl.needs_rewrite || 0}</b><span class="muted"> rewrites</span></div>
+      <button class="btn sm" data-sh-open-oversight>Open oversight</button>
+    </div>
     <div class="sh-tiles">
       ${tile('draft', 'awaiting review', totals.draft, totals.draft ? 'warn' : '')}
       ${tile('scheduled', 'scheduled', totals.scheduled)}
@@ -8582,7 +8594,7 @@ function shRenderOverview(data) {
     ${
       platformRows
         ? `<table class="tbl"><thead><tr><th>Platform</th><th>Posts</th><th>Likes</th>
-             <th>Reposts</th><th>Replies</th><th>Avg</th></tr></thead>
+             <th>Reposts</th><th>Replies</th><th>Visits</th><th>Conversions</th><th>CTR</th><th>Avg engagement</th></tr></thead>
            <tbody>${platformRows}</tbody></table>`
         : '<div class="empty">Nothing published in this window yet.</div>'
     }`;
@@ -8593,6 +8605,7 @@ function shRenderOverview(data) {
       shRenderOverview(data);
     })
   );
+  $('[data-sh-open-oversight]')?.addEventListener('click', () => $('[data-sh-tab="oversight"]')?.click());
   // a summary tile is a question ("what are those 84 drafts?") — send it to the
   // queue already filtered rather than making the operator refilter by hand
   $$('[data-sh-jump]').forEach(b =>
@@ -8603,6 +8616,48 @@ function shRenderOverview(data) {
     })
   );
   applyFleetFilter();
+}
+
+function shRenderOversight(data) {
+  const body = $('#sh-body');
+  const last = data.last_run || {};
+  const stats = last.stats || {};
+  const usage = data.usage_30d || {};
+  const categories = Object.entries(data.feedback_categories || {})
+    .map(([name, count]) => `<tr><td>${esc(name)}</td><td class="mono">${count}</td></tr>`).join('');
+  const proposals = (data.learning_proposals || []).map(p => `<tr>
+    <td class="mono">#${esc(p.id)}</td><td>${esc(p.site || 'fleet')}</td><td>${esc(p.target_path)}</td>
+    <td class="sh-body-cell">${esc(p.instruction)}</td><td>${shBadgeStatus(p.state)}</td>
+    <td class="sh-acts-cell">${p.state === 'proposed' ? `<button class="btn sm sh-learn-review" data-id="${esc(p.id)}" data-state="approved">Approve</button><button class="btn sm sh-learn-review" data-id="${esc(p.id)}" data-state="rejected">Reject</button>` : '<span class="muted">—</span>'}</td>
+  </tr>`).join('');
+  const configWarnings = (data.config_health || []).filter(row => !row.ready);
+  body.innerHTML = `
+    <div class="sh-tiles">
+      <div class="sh-tile"><span class="sh-tile-v">${data.pending || 0}</span><span class="sh-tile-k">pending</span></div>
+      <div class="sh-tile warn"><span class="sh-tile-v">${data.needs_rewrite || 0}</span><span class="sh-tile-k">needs rewrite</span></div>
+      <div class="sh-tile ${Number(data.fallback?.percent || 0) ? 'bad' : ''}"><span class="sh-tile-v">${data.fallback?.percent || 0}%</span><span class="sh-tile-k">fallback drafts</span></div>
+      <div class="sh-tile"><span class="sh-tile-v">$${Number(usage.cost_usd || 0).toFixed(2)}</span><span class="sh-tile-k">controller cost · 30d</span></div>
+    </div>
+    <div class="card sh-controller-panel">
+      <div><h3>Controller</h3><p class="muted">Last check ${esc(shFmtDate(last.finished_at || last.started_at))} · next ${esc(shFmtDate(data.next_run))} · ${usage.runs || 0} AI ledger run(s)</p></div>
+      <button id="sh-controller-toggle" class="btn sm ${data.enabled ? '' : 'primary'}">${data.enabled ? 'Pause controller' : 'Enable controller'}</button>
+    </div>
+    <div class="sh-oversight-grid">
+      <div><h3 class="sh-h">Open feedback</h3>${categories ? `<div class="card sh-table-wrap"><table class="tbl"><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>${categories}</tbody></table></div>` : '<div class="empty">No open feedback.</div>'}</div>
+      <div><h3 class="sh-h">Configuration readiness</h3><div class="card sh-config-health"><strong>${data.config_ready || 0}/${(data.config_health || []).length} complete</strong>${configWarnings.slice(0, 12).map(row => `<p><span class="badge b-yellow">${esc(row.site)}</span> ${esc(row.warnings.join(' · '))}</p>`).join('') || '<p class="muted">Every managed site has a complete voice card.</p>'}</div></div>
+    </div>
+    <h3 class="sh-h">Writer learning proposals</h3>
+    ${proposals ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr><th>ID</th><th>Scope</th><th>Target</th><th>Instruction</th><th>State</th><th>Actions</th></tr></thead><tbody>${proposals}</tbody></table></div>` : '<div class="empty">No evidence-backed changes proposed yet.</div>'}`;
+  $('#sh-controller-toggle')?.addEventListener('click', async e => {
+    gdBusy(e.currentTarget, true);
+    try { await api('POST', '/api/socialhub/controller', { enabled: !data.enabled }); toast(!data.enabled ? 'Controller enabled' : 'Controller paused'); renderSocialHub(); }
+    catch (err) { toast(err.message, 'err'); gdBusy(e.currentTarget, false); }
+  });
+  $$('.sh-learn-review').forEach(btn => btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try { await api('POST', `/api/socialhub/learning/${btn.dataset.id}/review`, { state: btn.dataset.state }); toast(`Proposal ${btn.dataset.state}`); renderSocialHub(); }
+    catch (err) { toast(err.message, 'err'); btn.disabled = false; }
+  }));
 }
 
 async function shRenderQueue() {
@@ -9173,6 +9228,7 @@ async function shRenderChannels() {
         const scope = shChannelField(c, 'scope') || (persona ? 'persona' : 'brand');
         const handle = shChannelText(c, 'handle', 'username', 'account', 'account_handle');
         const status = shChannelText(c, 'status', 'state');
+        const readiness = shChannelText(c, 'readiness');
         const enabled = c.enabled === true || c.enabled === 1 || c.enabled === '1';
         const hasCreds = c.has_creds === true || c.has_creds === 1 || c.has_creds === '1' || c.credsInVault === true;
         const note = shChannelText(c, 'note', 'statusNote', 'notes');
@@ -9185,6 +9241,7 @@ async function shRenderChannels() {
           <td class="muted">${esc(scope)}${persona ? ` <span class="mono">(${esc(persona)})</span>` : ''}</td>
           <td class="mono">${esc(handle)}</td>
           <td>${esc(status)}</td>
+          <td><span class="badge ${readiness === 'ready' ? 'b-green' : readiness === 'cooldown' || readiness === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(readiness)}</span></td>
           <td>${enabled ? '<span class="badge b-green">on</span>' : '<span class="badge b-gray">off</span>'}</td>
           <td>${hasCreds ? '<span class="badge b-green">yes</span>' : '<span class="badge b-gray">no</span>'}</td>
           <td class="mono muted">${esc(shChannelDate(c, 'last_verified_at', 'verified_at', 'updated_at'))}</td>
@@ -9204,7 +9261,7 @@ async function shRenderChannels() {
     .join('');
   $('#sh-channels-list').innerHTML = rows
     ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr><th>Site</th><th>Platform</th><th>Scope</th><th>Handle</th>
-         <th>Status</th><th>Enabled</th><th>Credentials</th><th>Last checked</th><th>Last posted</th><th>Last polled</th><th>Note</th><th>Error</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
+         <th>Status</th><th>Readiness</th><th>Enabled</th><th>Credentials</th><th>Last checked</th><th>Last posted</th><th>Last polled</th><th>Note</th><th>Error</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
     : '<div class="empty">No channels for this filter.</div>';
 
   $$('.sh-chan-toggle').forEach(btn =>

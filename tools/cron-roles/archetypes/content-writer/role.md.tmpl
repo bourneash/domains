@@ -39,9 +39,18 @@ widening it beyond the brief — a smaller finished piece beats a bigger one tha
 
 ## Your job
 
-1. Pick the highest-priority `type: content` OR `type: refresh` task from
-   `ops/tasks/backlog/`.
-2. Move it to `ops/tasks/in-progress/`.
+1. Check `ops/tasks/in-progress/` first for a `type: content` OR `type: refresh`
+   task assigned to this role. Resume that task before selecting new work.
+   This must match the task-budget helper (`tools/task-budget/turn_budget.py`),
+   which also sizes the run from `in-progress/` first — if this role logic and
+   the budget helper disagree about which task is "next," the turn budget gets
+   computed from one task while the role actually works a different one,
+   producing a run sized for the wrong job (reviewtattoo.com, 2026-09-05: a
+   completed-but-never-filed task left sitting in `in-progress/` sized the
+   budget at 14 turns while the role picked a fresh, larger backlog task —
+   error_max_turns at 15/14, nothing committed).
+2. If no matching task is in progress, pick the highest-priority matching task
+   from `ops/tasks/backlog/` and move it to `ops/tasks/in-progress/`.
 3. Do the work — write new content or refresh existing content per the
    checklists below.
 4. Commit the change with a clear message.

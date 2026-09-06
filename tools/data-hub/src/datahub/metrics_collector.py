@@ -13,7 +13,8 @@ from .metrics import ga4, gsc
 def _pull_ga4(conn, site: str, cfg: AnalyticsSite, client) -> str:
     site_records, quota = ga4.fetch_site(client, cfg.ga4_property_id)
     page_records, _ = ga4.fetch_pages(client, cfg.ga4_property_id)
-    n = store.upsert_ga4_metrics(conn, site, site_records + page_records)
+    social_records, _ = ga4.fetch_social(client, cfg.ga4_property_id)
+    n = store.upsert_ga4_metrics(conn, site, site_records + page_records + social_records)
     quota_note = f"quota:{quota}" if quota else ""
     store.record_egress(conn, source_id=f"ga4:{site}", target_host="analyticsdata.googleapis.com",
                         policy="direct", exit_node="direct", exit_ip=None,

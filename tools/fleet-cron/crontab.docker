@@ -222,6 +222,22 @@
 # Dry run:     AI_IMPL_DRY_RUN=1 tools/scripts/ai-optimizer-implement.sh
 11,31,51 * * * *   /home/jesse/projects/domains/tools/scripts/ai-optimizer-implement.sh
 
+# --- Job 18: Social Hub pipeline tick ---
+# The supervised API container owns dependencies and live state; fleet-cron
+# owns the versioned quarter-hour schedule and invokes the idempotent tick in it.
+0,15,30,45 * * * * /home/jesse/projects/domains/tools/social-hub/run-tick.sh
+
+# --- Job 19: fleet social editorial controller ---
+# Deterministic SQLite preflight first: when no public Social Hub drafts await
+# review, the script exits before Claude setup/invocation and costs zero tokens.
+# Non-empty runs review every draft against that site's discovered hub.yaml
+# voice, approve/reject through guarded commands, and can feed repeated lessons
+# back into site writer roles. Eight minutes after the quarter-hour hub tick.
+# Kill switch: touch tools/social-controller/.controller-disabled
+8,23,38,53 * * * * /home/jesse/projects/domains/tools/social-controller/run.sh
+13,28,43,58 * * * * /home/jesse/projects/domains/tools/social-controller/monitor.py
+12 4 * * * docker exec social-hub-api python3 -m social_hub.cli maintain
+
 # --- Job 16: host-watchdog assertion (the other half of job 15) ---
 # Asserts the HOST-side fleet-cron watchdog is still running.
 #

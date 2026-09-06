@@ -19,9 +19,11 @@ from social_hub import (
     engagement,
     generator,
     metrics as metrics_mod,
+    maintenance,
     publisher,
     queue,
     sources,
+    strategy as strategy_mod,
     worker,
 )
 from social_hub.config import load_all, load_site_config, managed_sites, site_config_path
@@ -30,6 +32,7 @@ console = Console()
 
 STATUS_STYLE = {
     "draft": "yellow",
+    "needs_rewrite": "red",
     "approved": "cyan",
     "scheduled": "cyan",
     "publishing": "magenta",
@@ -151,6 +154,25 @@ def channels_verify(site: str | None, platform: str | None):
         result = accounts.verify_channel(chan)
         mark = "[green]ok[/green]" if result.get("ok") else f"[red]{result.get('error', 'failed')}[/red]"
         console.print(f"{chan['site']} {chan['platform']}/{chan['persona'] or 'brand'}: {mark}")
+
+
+@channels.command("canary")
+@click.argument("site")
+@click.argument("platform")
+def channels_canary(site: str, platform: str):
+    """Non-publishing readiness canary: config, account, credentials, live auth."""
+    cfg = _require_cfg(site)
+    if platform not in cfg.platforms:
+        raise click.ClickException(f"{platform} is not enabled in {site}'s hub.yaml")
+    channel = accounts.pick_channel(site, platform)
+    if not channel:
+        raise click.ClickException("no enabled channel")
+    result = accounts.verify_channel(channel)
+    if not result.get("ok"):
+        raise click.ClickException(str(result.get("error") or "live verification failed"))
+    if platform == "pinterest" and not cfg.for_platform(platform).get("board_id"):
+        raise click.ClickException("Pinterest requires platform_overrides.pinterest.board_id")
+    console.print(f"[green]ready[/green] {site}/{platform} as {result.get('handle') or channel.get('handle') or 'account'} (no post sent)")
 
 
 @channels.command("enable")
@@ -389,6 +411,43 @@ def metrics(site: str | None, days: int, refresh: bool):
             )
 
 
+@cli.command("feedback")
+@click.option("--site", default=None)
+@click.option("--state", default="open", show_default=True)
+def feedback_cmd(site: str | None, state: str):
+    """Structured editorial feedback for writers and maintainers."""
+    sql = "SELECT * FROM feedback WHERE state = ?"
+    params: list = [state]
+    if site:
+        sql += " AND site = ?"
+        params.append(site)
+    sql += " ORDER BY id DESC LIMIT 100"
+    rows = db.rows_to_dicts(db.query(sql, tuple(params)))
+    if not rows:
+        console.print("[dim]no feedback[/dim]")
+        return
+    table = Table(title="Social editorial feedback")
+    for col in ("ID", "Site", "Category", "Actor", "Reason"):
+        table.add_column(col)
+    for row in rows:
+        table.add_row(str(row["id"]), row["site"], row["category"], row["actor"], row["reason"][:100])
+    console.print(table)
+
+
+@cli.command("strategy")
+@click.option("--site", default=None)
+@click.option("--days", default=30, show_default=True)
+def strategy_cmd(site: str | None, days: int):
+    """Zero-AI content-mix, inbox-health, and evergreen report."""
+    console.print_json(data=strategy_mod.report(site, days))
+
+
+@cli.command("maintain")
+def maintain_cmd():
+    """Cancel stale previews and prune old operational run records."""
+    console.print(maintenance.run())
+
+
 @cli.command()
 @click.option("--host", default="127.0.0.1", show_default=True)
 @click.option("--port", default=4772, show_default=True)
@@ -400,7 +459,7 @@ def serve(host: str, port: int, reload: bool):
     from social_hub.api import serve as _serve
 
     # Binding off loopback (so the Fleet Dashboard container can reach this
-    # over host.docker.internal) is allowed, but only with a token set — the
+    # over its shared Docker network) is allowed, but only with a token set — the
     # same fail-closed posture the dashboard itself uses for FD_TOKEN. Refusing
     # here is the difference between "reachable by the panel" and "reachable by
     # anything on the network".

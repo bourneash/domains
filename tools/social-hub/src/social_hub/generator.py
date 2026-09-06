@@ -2,9 +2,9 @@
 
 One source article fans out to one draft per enabled platform (or
 `variants_per_source` drafts, when a site wants a human to pick the best
-phrasing). Drafts land in the queue in `draft` status unless the site — or that
-one platform — is configured for `approval: auto`, in which case they are
-approved and scheduled in the same pass.
+phrasing). Public AI drafts land in `draft` for the fleet controller. A site's
+`approval: auto` remains useful for private console previews; bypassing public
+review requires the explicit fleet-level controller exception.
 
 Guard rails that matter here:
   * A platform with no enabled channel never gets drafts generated. Producing
@@ -15,9 +15,24 @@ Guard rails that matter here:
 
 from __future__ import annotations
 
-from social_hub import accounts, ai, db, queue, sources
+from social_hub import accounts, ai, db, quality, queue, sources
 from social_hub.config import SiteConfig, load_site_config
 from social_hub.platforms import capabilities
+
+
+def _content_pillar(cfg: SiteConfig, source: dict) -> str:
+    """Choose a configured pillar from source terms; deterministic and cheap."""
+    pillars = cfg.get("content_pillars") or []
+    haystack = " ".join(
+        [str(source.get("title") or ""), str(source.get("summary") or ""), " ".join(source.get("tags") or [])]
+    ).casefold()
+    for pillar in pillars:
+        if isinstance(pillar, str):
+            continue
+        if any(str(term).casefold() in haystack for term in pillar.get("keywords") or []):
+            return str(pillar.get("name") or "")
+    first = pillars[0] if pillars else ""
+    return str(first.get("name") if isinstance(first, dict) else first)
 
 
 def open_queue_depth(site: str, platform: str) -> int:
@@ -53,6 +68,13 @@ def platforms_for(site: str, cfg: SiteConfig) -> list[str]:
             continue
         channel = accounts.pick_channel(site, platform)
         if not (channel and channel["enabled"]):
+            continue
+        required = set(cfg.get("readiness.require_verified_for", []) or [])
+        if platform in required and channel.get("readiness") != "ready":
+            db.log_event(
+                "generate.not_ready", site=site,
+                message=f"{platform}: live verification required before drafting",
+            )
             continue
         if open_queue_depth(site, platform) >= queue_ceiling(cfg, platform):
             db.log_event(
@@ -106,7 +128,9 @@ def generate_for_source(site: str, source: dict, cfg: SiteConfig) -> list[int]:
             drafts = _borrowed_copy(site, source["source_id"], str(borrow), caps)
         if not drafts:
             drafts = ai.draft_posts(platform_cfg, source, platform, caps, count, persona)
-        auto = str(platform_cfg.approval) == "auto"
+        auto = str(platform_cfg.approval) == "auto" and (
+            platform == "console" or not cfg.get("controller.required_for_public", True)
+        )
 
         for index, draft in enumerate(drafts):
             post_id = queue.create_post(
@@ -121,7 +145,26 @@ def generate_for_source(site: str, source: dict, cfg: SiteConfig) -> list[int]:
                 ai_model=draft.model,
                 status="draft",
             )
+            db.update(
+                "posts",
+                post_id,
+                {
+                    "content_pillar": _content_pillar(cfg, source) or None,
+                    "variant_group": f"{site}:{platform}:{source['source_id']}",
+                },
+            )
             created.append(post_id)
+            problems = quality.inspect_post(post_id, cfg)
+            if problems:
+                first = problems[0]
+                queue.quarantine(
+                    post_id,
+                    by="quality-gate",
+                    category=first["category"],
+                    reason=first["reason"],
+                )
+                continue
+            db.update("posts", post_id, {"quality_status": "passed"})
             # Only the first variant is auto-scheduled — the rest are
             # alternatives for a human to swap in, not extra posts.
             if auto and index == 0:

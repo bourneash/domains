@@ -4,10 +4,9 @@
       │                                           │
       └──reject──> rejected                       └──fail(n)──> failed
 
-`draft` is the human-review state: nothing leaves it without an explicit
-approve, unless the site's config says `approval: auto`, in which case drafts
-are born approved. That switch is per-site and per-platform, so a site can let
-Bluesky run itself while still hand-checking anything going to X.
+`draft` is the editorial-review state: nothing leaves it without an explicit
+approval. Generator policy decides whether private previews may be born
+approved; public AI copy crosses the fleet controller by default.
 
 Edits are allowed in any pre-publish state and are always recorded as events —
 "who changed the copy after the model wrote it" is exactly the question you
@@ -22,7 +21,7 @@ from typing import Any
 from social_hub import db
 from social_hub.config import SiteConfig
 
-OPEN_STATUSES = ("draft", "approved", "scheduled")
+OPEN_STATUSES = ("draft", "needs_rewrite", "approved", "scheduled")
 TERMINAL_STATUSES = ("posted", "rejected", "cancelled")
 MAX_ATTEMPTS = 4
 
@@ -142,6 +141,8 @@ def edit(post_id: int, *, body: str | None = None, link: str | None = None,
     if not payload:
         return post
     payload["origin"] = "human" if "body" in payload else post["origin"]
+    if "body" in payload and post["status"] == "needs_rewrite":
+        payload.update({"status": "draft", "error": None, "quality_status": "pending", "feedback_category": None})
     db.update("posts", post_id, payload)
     db.log_event(
         "post.edited",
@@ -199,6 +200,60 @@ def reject(post_id: int, *, by: str = "human", reason: str = "") -> dict | None:
         ref_type="post",
         ref_id=post_id,
         message=reason or f"rejected by {by}",
+    )
+    return get(post_id)
+
+
+def quarantine(
+    post_id: int,
+    *,
+    by: str,
+    category: str,
+    reason: str,
+    severity: str = "rewrite",
+) -> dict | None:
+    """Park bad copy without releasing its source into a costly retry loop."""
+    from social_hub.quality import FEEDBACK_CATEGORIES
+
+    post = get(post_id)
+    if not post:
+        return None
+    category = category if category in FEEDBACK_CATEGORIES else "other"
+    db.update(
+        "posts",
+        post_id,
+        {
+            "status": "needs_rewrite",
+            "error": reason[:500],
+            "approved_by": by,
+            "quality_status": "blocked",
+            "feedback_category": category,
+        },
+    )
+    if post.get("source_id"):
+        db.execute(
+            "UPDATE sources SET state = 'needs_rewrite' WHERE site = ? AND source_id = ?",
+            (post["site"], post["source_id"]),
+        )
+    feedback_id = db.insert(
+        "feedback",
+        {
+            "post_id": post_id,
+            "site": post["site"],
+            "category": category,
+            "severity": severity,
+            "reason": reason[:500],
+            "actor": by,
+            "created_at": db.utcnow(),
+        },
+    )
+    db.log_event(
+        "post.needs_rewrite",
+        site=post["site"],
+        ref_type="post",
+        ref_id=post_id,
+        message=reason[:300],
+        data={"category": category, "feedback_id": feedback_id, "actor": by},
     )
     return get(post_id)
 

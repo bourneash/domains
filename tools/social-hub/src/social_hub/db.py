@@ -156,6 +156,35 @@ CREATE TABLE IF NOT EXISTS settings (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS feedback (
+    id          INTEGER PRIMARY KEY,
+    post_id     INTEGER REFERENCES posts(id) ON DELETE SET NULL,
+    site        TEXT NOT NULL,
+    category    TEXT NOT NULL,
+    severity    TEXT NOT NULL DEFAULT 'rewrite',
+    reason      TEXT NOT NULL,
+    actor       TEXT NOT NULL,
+    state       TEXT NOT NULL DEFAULT 'open',
+    created_at  TEXT NOT NULL,
+    resolved_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_feedback_site ON feedback (site, state, category);
+
+CREATE TABLE IF NOT EXISTS learning_proposals (
+    id           INTEGER PRIMARY KEY,
+    site         TEXT,
+    scope        TEXT NOT NULL,
+    target_path  TEXT NOT NULL,
+    instruction  TEXT NOT NULL,
+    evidence     TEXT NOT NULL DEFAULT '[]',
+    state        TEXT NOT NULL DEFAULT 'proposed',
+    proposed_by  TEXT NOT NULL,
+    reviewed_by  TEXT,
+    created_at   TEXT NOT NULL,
+    reviewed_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_learning_state ON learning_proposals (state, created_at);
 """
 
 
@@ -184,6 +213,18 @@ MIGRATIONS: list[tuple[str, str, str]] = [
     ("posts", "reposts", "INTEGER"),
     ("posts", "replies", "INTEGER"),
     ("posts", "metrics_at", "TEXT"),
+    ("posts", "quality_status", "TEXT"),
+    ("posts", "feedback_category", "TEXT"),
+    ("posts", "utm_link", "TEXT"),
+    ("posts", "content_pillar", "TEXT"),
+    ("posts", "variant_group", "TEXT"),
+    ("posts", "impressions", "INTEGER"),
+    ("posts", "clicks", "INTEGER"),
+    ("posts", "conversions", "INTEGER"),
+    ("channels", "readiness", "TEXT NOT NULL DEFAULT 'unverified'"),
+    ("channels", "verified_at", "TEXT"),
+    ("channels", "consecutive_failures", "INTEGER NOT NULL DEFAULT 0"),
+    ("channels", "disabled_until", "TEXT"),
 ]
 
 
@@ -288,7 +329,7 @@ def row_to_dict(row: sqlite3.Row | None) -> dict | None:
     if row is None:
         return None
     out = dict(row)
-    for key in ("tags", "media", "stats", "data"):
+    for key in ("tags", "media", "stats", "data", "evidence"):
         if key in out and isinstance(out[key], str):
             try:
                 out[key] = json.loads(out[key])

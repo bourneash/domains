@@ -23,6 +23,19 @@ issue() { echo "$1 $2" >> "$ISSUES_FILE"; }   # $1=[warn]|[block]  $2=text
 
 rlog "=== engineer check sweep ($BASE_URL) ==="
 
+# ---- 0. Deploy-in-flight grace window (computed early so the render check below
+# can tell a real 404 apart from ordinary CF Workers Build propagation lag) ----
+# Observed pattern (see engineer-log.md history): a push lands, .deploy-needed is
+# created, and the edge takes ~3-7min to propagate. A render check that fires in
+# that window sees a transient 404 on the just-published page. That is not an
+# engineering issue — it needs zero Claude turns — so give it a grace period before
+# it's allowed to page the model.
+DEPLOY_NEEDED_AGE=999999
+[[ -f "$REPO_ROOT/.deploy-needed" ]] && DEPLOY_NEEDED_AGE=$(( $(date +%s) - $(stat -c %Y "$REPO_ROOT/.deploy-needed" 2>/dev/null || echo "$(date +%s)") ))
+DEPLOY_GRACE_SECS="${ENGINEER_DEPLOY_GRACE_SECS:-900}"   # 15min — 2x the worst observed propagation time
+DEPLOY_IN_FLIGHT=0
+[[ "$DEPLOY_NEEDED_AGE" -lt "$DEPLOY_GRACE_SECS" ]] && DEPLOY_IN_FLIGHT=1
+
 # ---- 1. Render check (Playwright true-render, degrades to curl) ----
 RENDER_PASS=0; RENDER_FAIL=0; RENDER_MODE=error
 if command -v node >/dev/null 2>&1; then
@@ -36,12 +49,21 @@ if command -v node >/dev/null 2>&1; then
   while IFS= read -r line; do
     pg=$(echo "$line" | sed -n 's/.*"page":"\([^"]*\)".*/\1/p')
     note=$(echo "$line" | sed -n 's/.*"note":"\([^"]*\)".*/\1/p')
-    [[ -n "$pg" ]] && issue "[warn]" "render fail $pg — ${note:-unknown}"
+    if [[ -n "$pg" ]]; then
+      if [[ "$DEPLOY_IN_FLIGHT" -eq 1 ]]; then
+        # Known transient: deploy landed <15min ago, edge still propagating. Log it,
+        # don't wake Claude — this exact case burned a full paid pass on nearly every
+        # deploy before this grace window existed (see 2026-09-03..06 engineer-log.md).
+        rlog "render fail $pg — ${note:-unknown} — SUPPRESSED (deploy-needed age=${DEPLOY_NEEDED_AGE}s < ${DEPLOY_GRACE_SECS}s grace, CF build likely still propagating)"
+      else
+        issue "[warn]" "render fail $pg — ${note:-unknown}"
+      fi
+    fi
   done < <(echo "$RENDER_OUT" | grep '"ok":false' || true)
 else
   issue "[warn]" "node not available — render check skipped"
 fi
-rlog "render: pass=$RENDER_PASS fail=$RENDER_FAIL mode=$RENDER_MODE"
+rlog "render: pass=$RENDER_PASS fail=$RENDER_FAIL mode=$RENDER_MODE deploy_in_flight=$DEPLOY_IN_FLIGHT (age=${DEPLOY_NEEDED_AGE}s)"
 
 # ---- 2. Git state ----
 GIT_CLEAN=1; GIT_AHEAD=0; GIT_BEHIND=0; GIT_DIRTY_SRC=0
@@ -92,8 +114,7 @@ DEPLOY_PENDING=0; DEPLOY_STALE=0
 [[ -f "$REPO_ROOT/.deploy-needed.failed" ]] && issue "[block]" ".deploy-needed.failed exists — deployer hit retry cap"
 if [[ -f "$REPO_ROOT/.deploy-needed" ]]; then
   DEPLOY_PENDING=1
-  AGE=$(( $(date +%s) - $(stat -c %Y "$REPO_ROOT/.deploy-needed" 2>/dev/null || echo "$(date +%s)") ))
-  [[ "$AGE" -gt 7200 ]] && { DEPLOY_STALE=1; issue "[warn]" ".deploy-needed is ${AGE}s old — deployer may be stuck"; }
+  [[ "$DEPLOY_NEEDED_AGE" -gt 7200 ]] && { DEPLOY_STALE=1; issue "[warn]" ".deploy-needed is ${DEPLOY_NEEDED_AGE}s old — deployer may be stuck"; }
 fi
 rlog "deploy: pending=$DEPLOY_PENDING stale=$DEPLOY_STALE"
 

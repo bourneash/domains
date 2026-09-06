@@ -85,6 +85,29 @@ BUILTIN_DEFAULTS: dict[str, Any] = {
         "max_tokens": 1200,
         "backend": "auto",  # auto | cli | api | fake
     },
+    "quality": {
+        "allow_fallback": False,
+    },
+    "controller": {
+        "required_for_public": True,
+    },
+    "attribution": {
+        "enabled": True,
+        "medium": "organic_social",
+        "campaign": "always_on",
+    },
+    "readiness": {
+        "require_verified_for": ["pinterest", "reddit", "x"],
+    },
+    "brand": {
+        "audience": "",
+        "purpose": "",
+        "explicitness": "clean",
+        "avoid": [],
+        "good_examples": [],
+        "bad_examples": [],
+    },
+    "content_pillars": [],
     "voice": "",
     "hashtags": [],
     "link_style": "append",  # append | none
@@ -148,7 +171,14 @@ def load_site_config(domain: str) -> SiteConfig | None:
     path = site_config_path(domain)
     if not path.exists():
         return None
-    return SiteConfig(domain, _deep_merge(load_fleet_defaults(), _read_yaml(path)))
+    merged = _deep_merge(load_fleet_defaults(), _read_yaml(path))
+    # A newly discovered site with no usable voice must never inherit fleet
+    # auto-approval. It is managed, but unclassified and manual-only until its
+    # voice card is established.
+    if not str(merged.get("voice") or "").strip():
+        merged["approval"] = "manual"
+        merged.setdefault("brand", {})["state"] = "unclassified"
+    return SiteConfig(domain, merged)
 
 
 def managed_sites() -> list[str]:

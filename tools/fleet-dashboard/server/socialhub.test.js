@@ -72,3 +72,21 @@ test('createPost composes through the hub and applies an exact schedule when sup
   assert.match(requests[1].url, /\/api\/posts\/42$/);
   assert.equal(JSON.parse(requests[0].options.body).author, 'fleet-dashboard');
 });
+
+test('controller controls and learning reviews stay behind the hub proxy', async t => {
+  const originalFetch = global.fetch;
+  const requests = [];
+  t.after(() => { global.fetch = originalFetch; });
+  global.fetch = async (url, options = {}) => {
+    requests.push({ url: String(url), options });
+    return { ok: true, text: async () => '{"ok":true}' };
+  };
+
+  await socialhub.setController(false);
+  await socialhub.reviewProposal(17, 'approved');
+
+  assert.match(requests[0].url, /\/api\/oversight\/controller$/);
+  assert.deepEqual(JSON.parse(requests[0].options.body), { enabled: false });
+  assert.match(requests[1].url, /\/api\/learning-proposals\/17\/review$/);
+  assert.equal(JSON.parse(requests[1].options.body).actor, 'fleet-dashboard');
+});

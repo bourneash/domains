@@ -92,7 +92,7 @@ def test_replies_can_be_auto_approved_per_site(synced, monkeypatch, fake_fleet):
 
     make_site(
         fake_fleet, "alpha.com", articles=1,
-        config_yaml="platforms: [fake]\nreply:\n  enabled: true\n  approval: auto\n  max_per_day: 3\n",
+        config_yaml="platforms: [fake]\ncontroller:\n  required_for_public: false\nreply:\n  enabled: true\n  approval: auto\n  max_per_day: 3\n",
     )
     _reply_text(monkeypatch, "On it.")
     synced.inbox = [mention(remote_id="auto1")]

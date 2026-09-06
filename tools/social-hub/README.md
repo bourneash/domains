@@ -144,6 +144,49 @@ replies generated for it.
 - **CLI** — `social-hub --help`; `status`, `queue`, `compose`, `approve`,
   `publish`, `inbox`, `metrics`, `channels`, `tick`, `doctor`.
 
+## Reliability and learning
+
+Drafts pass a deterministic quality gate before AI editorial review. Unresolved
+templates, invalid links, bare titles, raw summaries, truncated copy, model
+fallbacks, and duplicate/near-duplicate copy are parked as `needs_rewrite` with
+structured feedback. Editing one returns it to `draft`; its source stays parked
+until then, preventing rejection/regeneration cost loops.
+
+Every outgoing link receives stable `utm_source`, `utm_medium`, `utm_campaign`,
+and `utm_content=hub-<post-id>` parameters. Data Hub collects GA4
+`sessionManualAdContent` at `social` grain; the Social Hub tick imports sessions
+and conversions back onto individual posts. `social-hub strategy` reports
+content mix, pillar/model outcomes, inbox health, engagement targets, and
+evergreen candidates without using AI.
+
+`social-hub feedback --site DOMAIN` is the writer-facing correction stream.
+Learning proposals require at least two feedback records. Site-scoped guidance
+stays under that site's `ops/`; shared guidance remains proposed until approved
+from Fleet Dashboard → Social Hub → Oversight.
+
+## Container operation
+
+The API is the supervised `social-hub-api` service in this directory. The
+quarter-hour pipeline schedule lives in `tools/fleet-cron/crontab.docker` and
+invokes `run-tick.sh`; host cron is obsolete.
+
+```bash
+cd tools/social-hub
+docker compose --env-file ../../.env up -d --build
+docker compose logs -f api
+social-hub channels canary SITE PLATFORM   # verifies; never publishes
+```
+
+New sites are discovered from `ops/social/hub.yaml`. A missing voice forces
+manual approval even if a future fleet default changes. A complete voice card
+adds `brand.audience`, `brand.purpose`, `brand.explicitness`, avoid lists,
+examples, and 3–5 `content_pillars`. Explicitness describes the brand register;
+it is not an adult-content classification.
+
+The controller is the final public editorial boundary. Private `console`
+previews may still be automated, but public AI drafts and replies wait for the
+controller even if a site carries an older `approval: auto` override.
+
 ## Operations
 
 Install the cron tick (every 15 minutes):

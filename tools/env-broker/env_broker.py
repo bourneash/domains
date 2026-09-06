@@ -345,7 +345,11 @@ def group_for(key: str, groups: dict[str, list[str]]) -> str:
 def load_env_vault(policy: dict) -> dict[str, str]:
     out: dict[str, str] = {}
     for group in list(policy["vault"]["groups"]) + ["misc"]:
-        out.update(_vault_read(f"fleet — env-{group}"))
+        # A named policy group is authoritative. During migrations a legacy
+        # copy may still exist in `misc`; never let that stale duplicate
+        # override the correctly grouped value loaded first.
+        for key, value in _vault_read(f"fleet — env-{group}").items():
+            out.setdefault(key, value)
     return out
 
 

@@ -30,6 +30,26 @@ from social_hub.config import SiteConfig, site_root
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 
 
+def _sources_config(cfg: SiteConfig | None) -> dict:
+    """Normalize the early list-shaped spotlight syntax into collections."""
+    raw = cfg.get("sources") if cfg else None
+    if isinstance(raw, list):
+        collections = []
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            if item.get("kind") == "spotlight" and item.get("path"):
+                collections.append(
+                    {
+                        "name": "spotlight",
+                        "glob": str(item["path"]).rstrip("/") + "/*.md",
+                        "url_template": "{url}",
+                    }
+                )
+        return {"collections": collections}
+    return raw if isinstance(raw, dict) else {}
+
+
 def _parse_frontmatter(text: str) -> dict:
     match = FRONTMATTER_RE.match(text)
     if not match:
@@ -67,7 +87,7 @@ def _from_frontmatter(path: Path, domain: str, url_template: str) -> dict | None
 
 def _builtin_scan(domain: str, cfg: SiteConfig | None) -> list[dict]:
     root = site_root(domain)
-    sources_cfg = (cfg.get("sources") if cfg else None) or {}
+    sources_cfg = _sources_config(cfg)
     globs = sources_cfg.get("globs") or [
         "site/src/content/articles/*.md",
         "site/src/content/articles/*.mdx",
@@ -255,7 +275,7 @@ def discover(domain: str, cfg: SiteConfig | None = None) -> list[dict]:
     (site, source_type, source_id), so any overlap is just a skipped
     duplicate, never a wrong or missing post.
     """
-    sources_cfg = (cfg.get("sources") if cfg else None) or {}
+    sources_cfg = _sources_config(cfg)
     all_collections = sources_cfg.get("collections") or []
     primary_collections = [c for c in all_collections if c.get("name") != "spotlight"]
     spotlight_collections = [c for c in all_collections if c.get("name") == "spotlight"]

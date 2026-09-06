@@ -20,6 +20,7 @@ from urllib.parse import urlencode, urlparse
 from social_hub.config import domains_root
 
 _env_loaded = False
+_fleet_env: dict[str, str] = {}
 DEFAULT_DASHBOARD_URL = "http://127.0.0.1:4754/"
 
 
@@ -36,19 +37,31 @@ def _load_fleet_env() -> None:
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+        key = key.strip()
+        # This compatibility read predates env-broker. Retain only the Slack
+        # routing values and dashboard URL needed here; never import the
+        # fleet's unrelated provider credentials into this process.
+        if key.startswith("SLACK_") or key == "SOCIAL_HUB_UI_URL":
+            _fleet_env[key] = value.strip().strip('"').strip("'")
+
+
+def _env(key: str, default: str = "") -> str:
+    _load_fleet_env()
+    return os.environ.get(key) or _fleet_env.get(key) or default
 
 
 def channel_for(site: str) -> str:
     _load_fleet_env()
     slug = re.sub(r"[^A-Z0-9]+", "_", site.upper().replace(".COM", "").replace(".ORG", ""))
     for key in (f"SLACK_CHANNEL_{slug}", f"SLACK_CHANNEL_{slug}_COM"):
-        if os.environ.get(key):
-            return os.environ[key]
+        value = _env(key)
+        if value:
+            return value
     # Fall back to a fuzzy match: channel vars are not named uniformly
     # (SLACK_CHANNEL_AMERICA_STRIKES vs SLACK_CHANNEL_ALIENCOUNCIL).
     compact = slug.replace("_", "")
-    for key, value in os.environ.items():
+    values = {**_fleet_env, **os.environ}
+    for key, value in values.items():
         if key.startswith("SLACK_CHANNEL_") and key[14:].replace("_", "") == compact:
             return value
     return ""
@@ -56,7 +69,7 @@ def channel_for(site: str) -> str:
 
 def post_message(site: str, text: str, blocks: list | None = None) -> bool:
     _load_fleet_env()
-    token = os.environ.get("SLACK_BOT_TOKEN")
+    token = _env("SLACK_BOT_TOKEN")
     channel = channel_for(site)
     if not token or not channel or os.environ.get("SOCIAL_HUB_NO_SLACK"):
         return False
@@ -90,7 +103,7 @@ def _dashboard_url(params: dict[str, str]) -> str:
     process first.
     """
     _load_fleet_env()
-    base = (os.environ.get("SOCIAL_HUB_UI_URL") or DEFAULT_DASHBOARD_URL).split("#", 1)[0]
+    base = _env("SOCIAL_HUB_UI_URL", DEFAULT_DASHBOARD_URL).split("#", 1)[0]
     return f"{base.rstrip('/')}/#socialhub?{urlencode(params)}"
 
 
