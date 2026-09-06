@@ -18,6 +18,7 @@ sources:
     exit: any
     fetch:
       source_name: "Amputee Coalition"
+      full_text: true
 
   - id: op-edge
     type: rss
@@ -27,6 +28,7 @@ sources:
     exit: any
     fetch:
       source_name: "The O&P EDGE"
+      full_text: true
 
   - id: va-news-limb-loss
     type: rss

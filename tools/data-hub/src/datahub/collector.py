@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 from . import store
 from . import fetch_rss as fr
+from . import extract
 from . import datasets as ds_pkg
 from .vpn import plan_fetch
 from .config import Source, Settings
@@ -67,6 +68,15 @@ def run_cycle(conn, sources: list[Source], settings: Settings, *,
                 continue
 
             items = fr.fetch_rss(source, proxy=plan.proxy, client=rss_client)
+            if source.fetch.get("full_text") and items:
+                # Only for items not already stored -- fetch_rss re-returns the
+                # live feed's last ~20 entries every cycle regardless of what's
+                # already in the DB, so without this check we'd re-fetch (and
+                # re-extract) the same articles' full text on every single tick.
+                unseen = store.unseen_urls(conn, [it.get("url", "") for it in items])
+                for it in items:
+                    if it.get("url") in unseen:
+                        it["content"] = extract.fetch_article_text(it["url"], proxy=plan.proxy)
             new = store.upsert_items(conn, items)
             store.set_source_state(conn, source_id=source.id, status="ok", stale=False)
             store.record_egress(conn, source_id=source.id, target_host=target,

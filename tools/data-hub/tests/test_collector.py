@@ -130,3 +130,42 @@ def test_direct_policy_skips_vpn_probe(db, monkeypatch):
     eg = store.query_egress(db)
     assert eg[0]["policy"] == "direct"
     assert eg[0]["exit_node"] == "direct"
+
+
+def test_full_text_fetched_for_new_items_only(db, monkeypatch):
+    calls = []
+
+    def fake_extract(url, **kw):
+        calls.append(url)
+        return f"full text of {url}"
+
+    monkeypatch.setattr(collector.extract, "fetch_article_text", fake_extract)
+    monkeypatch.setattr(fr, "fetch_rss", lambda src, **kw: [
+        {"title": "X", "url": "https://x/1", "summary": "", "published_iso": "2026-06-28T10:00:00+00:00",
+         "source_id": src.id, "source_name": src.id, "tags": src.tags, "raw": {}}])
+    sources = [Source(id="opedge", type="rss", url="https://e/o.rss", tags=["prosthetics"],
+                      exit="us", fetch={"full_text": True})]
+
+    collector.run_cycle(db, sources, _settings(), control_client=_control("185.1.1.1"))
+    rows = store.query_items(db, tags_any=["prosthetics"])
+    assert len(rows) == 1
+    assert rows[0]["content"] == "full text of https://x/1"
+    assert calls == ["https://x/1"]
+
+    # Second cycle re-returns the same live-feed entry (fetch_rss doesn't know
+    # what's already stored) -- it must NOT be re-extracted.
+    collector.run_cycle(db, sources, _settings(), control_client=_control("185.1.1.1"))
+    assert calls == ["https://x/1"]
+
+
+def test_full_text_not_attempted_without_flag(db, monkeypatch):
+    def boom(url, **kw):
+        raise AssertionError("must not extract when full_text isn't set")
+    monkeypatch.setattr(collector.extract, "fetch_article_text", boom)
+    monkeypatch.setattr(fr, "fetch_rss", lambda src, **kw: [
+        {"title": "X", "url": "https://x/1", "summary": "", "published_iso": "2026-06-28T10:00:00+00:00",
+         "source_id": src.id, "source_name": src.id, "tags": src.tags, "raw": {}}])
+    sources = [Source(id="reuters", type="rss", url="https://e/r.rss", tags=["world"], exit="us")]
+    collector.run_cycle(db, sources, _settings(), control_client=_control("185.1.1.1"))
+    rows = store.query_items(db, tags_any=["world"])
+    assert rows[0]["content"] == ""

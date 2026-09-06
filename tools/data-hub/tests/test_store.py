@@ -110,3 +110,31 @@ def test_source_state_upsert(db):
     states = {s["source_id"]: s for s in store.get_sources_state(db)}
     assert states["s1"]["status"] == "skipped-vpn-down"
     assert states["s1"]["stale"] == 1
+
+
+def test_unseen_urls(db):
+    store.upsert_items(db, [
+        {"source_id": "s", "source_name": "s", "url": "https://x/old", "title": "old",
+         "summary": "", "published_iso": "2026-06-28T10:00:00+00:00", "tags": [], "raw": {}},
+    ])
+    result = store.unseen_urls(db, ["https://x/old", "https://x/new", ""])
+    assert result == {"https://x/new"}
+
+
+def test_upsert_items_stores_content(db):
+    store.upsert_items(db, [
+        {"source_id": "s", "source_name": "s", "url": "https://x/1", "title": "t",
+         "summary": "sum", "published_iso": "2026-06-28T10:00:00+00:00", "tags": ["a"],
+         "raw": {}, "content": "the full article body"},
+    ])
+    rows = store.query_items(db, tags_any=["a"])
+    assert rows[0]["content"] == "the full article body"
+
+
+def test_upsert_items_content_defaults_empty_string(db):
+    store.upsert_items(db, [
+        {"source_id": "s", "source_name": "s", "url": "https://x/2", "title": "t",
+         "summary": "sum", "published_iso": "2026-06-28T10:00:00+00:00", "tags": ["a"], "raw": {}},
+    ])
+    rows = store.query_items(db, tags_any=["a"])
+    assert rows[0]["content"] == ""

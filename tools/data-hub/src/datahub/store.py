@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS items (
   published_iso TEXT,
   fetched_at TEXT,
   tags TEXT,            -- JSON array
-  raw TEXT              -- JSON object
+  raw TEXT,             -- JSON object
+  content TEXT          -- best-effort full article text (empty if not fetched/extracted)
 );
 CREATE INDEX IF NOT EXISTS idx_items_published ON items(published_iso DESC);
 
@@ -141,7 +142,17 @@ def connect(db_path: str) -> sqlite3.Connection:
 
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
+    _migrate(conn)
     conn.commit()
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Additive, idempotent column migrations for DBs created before a column
+    existed. CREATE TABLE IF NOT EXISTS (above) only helps a brand-new DB; an
+    existing items table on disk needs ALTER TABLE to pick up new columns."""
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(items)").fetchall()}
+    if "content" not in cols:
+        conn.execute("ALTER TABLE items ADD COLUMN content TEXT")
 
 
 # Data lifecycle: which table column carries each row's age. Pruning is by
@@ -169,6 +180,21 @@ def prune(conn, retention_days: int = 7) -> dict:
     return deleted
 
 
+def unseen_urls(conn: sqlite3.Connection, urls: list[str]) -> set[str]:
+    """Which of `urls` are NOT already in seen_urls -- i.e. would actually be
+    inserted by upsert_items. Lets a caller do expensive per-item work (like a
+    full-text fetch) only for items that are genuinely new, instead of redoing
+    it every cycle for the same already-stored articles fetch_rss keeps
+    re-returning from the live feed."""
+    urls = [u for u in urls if u]
+    if not urls:
+        return set()
+    placeholders = ",".join("?" * len(urls))
+    seen = {r["url"] for r in conn.execute(
+        f"SELECT url FROM seen_urls WHERE url IN ({placeholders})", urls).fetchall()}
+    return {u for u in urls if u not in seen}
+
+
 def upsert_items(conn: sqlite3.Connection, items: list[dict]) -> int:
     inserted = 0
     now = _now()
@@ -181,11 +207,12 @@ def upsert_items(conn: sqlite3.Connection, items: list[dict]) -> int:
             continue
         conn.execute(
             "INSERT OR IGNORE INTO items "
-            "(source_id, source_name, url, title, summary, published_iso, fetched_at, tags, raw) "
-            "VALUES (?,?,?,?,?,?,?,?,?)",
+            "(source_id, source_name, url, title, summary, published_iso, fetched_at, tags, raw, content) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?)",
             (it.get("source_id"), it.get("source_name"), url, it.get("title"),
              it.get("summary"), it.get("published_iso"), now,
-             json.dumps(it.get("tags", [])), json.dumps(it.get("raw", {}))),
+             json.dumps(it.get("tags", [])), json.dumps(it.get("raw", {})),
+             it.get("content") or None),
         )
         conn.execute("INSERT OR IGNORE INTO seen_urls (url, first_seen_at) VALUES (?, ?)", (url, now))
         inserted += 1
@@ -226,6 +253,7 @@ def query_items(conn, tags_any=None, tags_all=None, include_sources=None,
             "title": r["title"], "url": r["url"], "summary": r["summary"],
             "published_iso": r["published_iso"], "source": r["source_name"],
             "source_id": r["source_id"], "tags": json.loads(r["tags"] or "[]"),
+            "content": r["content"] or "",
         })
     return out
 
