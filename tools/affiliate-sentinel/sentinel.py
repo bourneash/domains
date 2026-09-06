@@ -46,6 +46,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import amz  # noqa: E402
+import browser_check  # noqa: E402
 import cloak  # noqa: E402
 import discover  # noqa: E402
 import heal as heal_mod  # noqa: E402
@@ -56,6 +57,11 @@ import state as state_mod  # noqa: E402
 DEFAULT_MODEL = "claude-sonnet-4-6"
 MAX_CLOAK_CHECKS = 200  # per run; larger catalogs rotate (see --max-cloak-checks)
 CONFIRM_RUNS = 2
+# A browser launch per ASIN is orders of magnitude slower than an API batch —
+# bounded hard, independent of catalog size. Only spent at all when the API
+# outage would otherwise leave a no-cloak site checking nothing (see
+# browser_check.py).
+MAX_BROWSER_FALLBACK_CHECKS = 20
 
 
 def _log_factory(log_path: Path):
@@ -356,8 +362,44 @@ def main() -> int:
                 if health and len(errored) == len(health):
                     api_error = errored[0].note or "every ASIN check failed"
                     log(f"API DOWN: all {len(health)} ASIN check(s) failed — {api_error}")
-                    log("not reporting ASIN health this run; cloak checks still apply")
                     health = {}
+
+                    # A no-cloak site (amputeenews links straight to Amazon,
+                    # by design — no /go/ route to fall back on) has NOTHING
+                    # left to check once the API is down, and reports itself
+                    # UNMONITORED even though the products are almost
+                    # certainly fine. A cloak site loses nothing by also
+                    # getting this — it's the same soft-404 signal
+                    # `amz.confirm_dead` uses, just rendered through a real
+                    # browser instead of a bare HTTP client. Bounded hard: a
+                    # browser launch per ASIN is not free, and this exists to
+                    # answer "is anything actually dead", not to replace the
+                    # API for a large catalog.
+                    candidates = asin_products[:MAX_BROWSER_FALLBACK_CHECKS]
+                    log(
+                        f"browser fallback: checking {len(candidates)} of "
+                        f"{len(asin_products)} ASIN(s) via direct page render"
+                    )
+                    verified = 0
+                    for p in candidates:
+                        verdict = browser_check.check_alive(p.asin, log)
+                        if verdict is True:
+                            health[p.asin] = amz.AsinHealth(
+                                p.asin,
+                                amz.OK,
+                                note="browser fallback: product page renders while the Creators API is down",
+                            )
+                            verified += 1
+                        elif verdict is False:
+                            health[p.asin] = amz.AsinHealth(
+                                p.asin,
+                                amz.CONFIRMED_DEAD,
+                                note="browser fallback: soft-404 while the Creators API is down",
+                            )
+                            verified += 1
+                        # None (bot wall / timeout / unrecognized page) — leave
+                        # unverified rather than guess.
+                    log(f"browser fallback: verified {verified}/{len(candidates)}")
 
                 # Confirmation gate: PA-API "missing" is a suspicion, not a verdict.
                 for h in health.values():
@@ -669,11 +711,15 @@ def main() -> int:
             # Name the count and the API's own reason. "Amazon API unavailable"
             # on its own reads as transient and got ignored; it was a standing
             # account-eligibility revocation, and every ASIN on the site was
-            # going unchecked behind it.
-            bits.append(
-                f"Amazon API unavailable — {len(asin_products)} ASIN(s) UNCHECKED "
-                f"({api_error})"
-            )
+            # going unchecked behind it. `health` may already hold entries the
+            # browser fallback verified while the API itself was down — those
+            # are checked, just not by the API, so they don't belong in the
+            # UNCHECKED count.
+            unchecked = len(asin_products) - len(health)
+            bit = f"Amazon API unavailable — {unchecked} ASIN(s) UNCHECKED ({api_error})"
+            if health:
+                bit += f"; {len(health)} verified via browser fallback instead"
+            bits.append(bit)
         verdict = ", ".join(bits)
     else:
         emoji, color = notify.CLEAN

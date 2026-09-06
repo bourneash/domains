@@ -690,6 +690,60 @@ def test_a_run_that_checks_nothing_exits_5():
         check("says why", "no /go/ routes were discovered" in text)
 
 
+def test_api_outage_falls_back_to_browser_check_when_no_cloak():
+    """A no-cloak site (amputeenews-shaped: links straight to Amazon) has no
+    other check to fall back on when the Creators API is entirely down. The
+    browser fallback should keep it from reporting checked-NOTHING when it
+    can independently confirm the ASIN is alive.
+    """
+    print("sentinel: browser fallback covers a no-cloak API outage")
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d) / "example.com"
+        (root / "ops").mkdir(parents=True)
+        lib = root / "site" / "src" / "lib"
+        lib.mkdir(parents=True)
+        (lib / "affiliate.ts").write_text(
+            "export const AMAZON_TAG = 'example-20';\n"
+            "export const PRODUCTS: AffiliateProduct[] = [\n"
+            "  { id: 'alpha', name: 'Alpha', brand: 'AlphaCo', category: 'x',\n"
+            "    price: '$1.00', asin: 'B000000001', searchQuery: 'alpha', image: '/a.jpg' },\n"
+            "];\n"
+        )
+
+        class _FakeClient:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+        orig = (sentinel.amz.load_env, sentinel.amz.client, sentinel.amz.check_health,
+                sentinel.browser_check.check_alive)
+        sentinel.amz.load_env = lambda *a, **k: None
+        sentinel.amz.client = lambda *a, **k: _FakeClient()
+        sentinel.amz.check_health = lambda cl, asins: {
+            a: sentinel.amz.AsinHealth(a, sentinel.amz.ERROR, note="API error 403: eligibility")
+            for a in asins
+        }
+        sentinel.browser_check.check_alive = lambda asin, log=None: True
+
+        argv = sys.argv
+        sys.argv = ["sentinel.py", "--site-root", str(root), "--dry-run", "--no-heal"]
+        try:
+            rc = sentinel.main()
+        finally:
+            sys.argv = argv
+            (sentinel.amz.load_env, sentinel.amz.client, sentinel.amz.check_health,
+             sentinel.browser_check.check_alive) = orig
+
+        check("does not exit 5", rc != 5, f"got {rc}")
+        log = (root / "ops" / "logs").glob("affiliate-sentinel-*.log")
+        text = "\n".join(f.read_text() for f in log)
+        check("does not say checked NOTHING", "checked NOTHING" not in text)
+        check("used the browser fallback", "browser fallback" in text)
+        check("verified via fallback", "verified 1/1" in text)
+
+
 def main() -> int:
     for fn in (
         test_registry_parse,
@@ -709,6 +763,7 @@ def main() -> int:
         test_cloak_classification,
         test_state_streaks,
         test_a_run_that_checks_nothing_exits_5,
+        test_api_outage_falls_back_to_browser_check_when_no_cloak,
         test_redirects_rewrite_is_precise,
         test_heal_validation_and_revert,
     ):
