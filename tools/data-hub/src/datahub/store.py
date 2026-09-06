@@ -50,7 +50,11 @@ CREATE TABLE IF NOT EXISTS sources_state (
   last_status TEXT,
   last_error TEXT,
   stale INTEGER DEFAULT 0,
-  consecutive_failures INTEGER DEFAULT 0
+  consecutive_failures INTEGER DEFAULT 0,
+  fulltext_attempts INTEGER DEFAULT 0,  -- full_text-enabled sources only; see record_fulltext_result
+  fulltext_hits INTEGER DEFAULT 0       -- attempts that yielded real content, not "" -- a source
+                                        -- stuck at 0 hits over many attempts is paywalled/broken,
+                                        -- burning VPN egress for nothing
 );
 
 CREATE TABLE IF NOT EXISTS seen_urls (
@@ -153,6 +157,11 @@ def _migrate(conn: sqlite3.Connection) -> None:
     cols = {r["name"] for r in conn.execute("PRAGMA table_info(items)").fetchall()}
     if "content" not in cols:
         conn.execute("ALTER TABLE items ADD COLUMN content TEXT")
+    state_cols = {r["name"] for r in conn.execute("PRAGMA table_info(sources_state)").fetchall()}
+    if "fulltext_attempts" not in state_cols:
+        conn.execute("ALTER TABLE sources_state ADD COLUMN fulltext_attempts INTEGER DEFAULT 0")
+    if "fulltext_hits" not in state_cols:
+        conn.execute("ALTER TABLE sources_state ADD COLUMN fulltext_hits INTEGER DEFAULT 0")
 
 
 # Data lifecycle: which table column carries each row's age. Pruning is by
@@ -326,8 +335,26 @@ def set_source_state(conn, *, source_id, status, error="", stale=False) -> None:
 def get_sources_state(conn) -> list[dict]:
     return [dict(r) for r in conn.execute(
         "SELECT source_id, last_fetch_at, last_status AS status, last_error AS error, "
-        "stale, consecutive_failures FROM sources_state ORDER BY source_id"
+        "stale, consecutive_failures, fulltext_attempts, fulltext_hits "
+        "FROM sources_state ORDER BY source_id"
     ).fetchall()]
+
+
+def record_fulltext_result(conn, *, source_id: str, ok: bool) -> None:
+    """Increment a full_text-enabled source's attempt/hit counters. Called once
+    per item collector.py attempts extraction for (never for a source without
+    `fetch.full_text: true`, since only those ever call extract.fetch_article_text).
+    A source stuck at fulltext_hits=0 across many attempts -- surfaced via
+    /sources and /health -- is silently burning VPN egress on a paywall/wall
+    it will never get past, worth disabling `full_text` for in the registry."""
+    conn.execute(
+        "INSERT INTO sources_state (source_id, fulltext_attempts, fulltext_hits) VALUES (?, 1, ?) "
+        "ON CONFLICT(source_id) DO UPDATE SET "
+        "fulltext_attempts = fulltext_attempts + 1, "
+        "fulltext_hits = fulltext_hits + excluded.fulltext_hits",
+        (source_id, 1 if ok else 0),
+    )
+    conn.commit()
 
 
 def set_source_override(conn, *, source_id: str, enabled: bool) -> None:

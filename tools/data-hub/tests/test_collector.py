@@ -169,3 +169,16 @@ def test_full_text_not_attempted_without_flag(db, monkeypatch):
     collector.run_cycle(db, sources, _settings(), control_client=_control("185.1.1.1"))
     rows = store.query_items(db, tags_any=["world"])
     assert rows[0]["content"] == ""
+
+
+def test_full_text_records_attempt_counters(db, monkeypatch):
+    monkeypatch.setattr(collector.extract, "fetch_article_text", lambda url, **kw: "")
+    monkeypatch.setattr(fr, "fetch_rss", lambda src, **kw: [
+        {"title": "X", "url": "https://x/1", "summary": "", "published_iso": "2026-06-28T10:00:00+00:00",
+         "source_id": src.id, "source_name": src.id, "tags": src.tags, "raw": {}}])
+    sources = [Source(id="paywalled", type="rss", url="https://e/p.rss", tags=["news"],
+                      exit="us", fetch={"full_text": True})]
+    collector.run_cycle(db, sources, _settings(), control_client=_control("185.1.1.1"))
+    state = {s["source_id"]: s for s in store.get_sources_state(db)}["paywalled"]
+    assert state["fulltext_attempts"] == 1
+    assert state["fulltext_hits"] == 0

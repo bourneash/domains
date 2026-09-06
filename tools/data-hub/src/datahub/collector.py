@@ -77,6 +77,7 @@ def run_cycle(conn, sources: list[Source], settings: Settings, *,
                 for it in items:
                     if it.get("url") in unseen:
                         it["content"] = extract.fetch_article_text(it["url"], proxy=plan.proxy)
+                        store.record_fulltext_result(conn, source_id=source.id, ok=bool(it["content"]))
             new = store.upsert_items(conn, items)
             store.set_source_state(conn, source_id=source.id, status="ok", stale=False)
             store.record_egress(conn, source_id=source.id, target_host=target,

@@ -76,6 +76,7 @@ sources:
     exit: any
     fetch:
       source_name: "Al Jazeera"
+      full_text: true
 
   - id: bbc-middle-east
     type: rss
@@ -85,6 +86,7 @@ sources:
     exit: any
     fetch:
       source_name: "BBC Middle East"
+      full_text: true
 
   - id: guardian-iran
     type: rss
@@ -94,6 +96,7 @@ sources:
     exit: any
     fetch:
       source_name: "Guardian Iran"
+      full_text: true
 
   - id: google-news-iran
     type: rss
@@ -112,6 +115,7 @@ sources:
     exit: any
     fetch:
       source_name: "Middle East Monitor"
+      full_text: true
 
   - id: middle-east-eye
     type: rss
@@ -121,6 +125,7 @@ sources:
     exit: any
     fetch:
       source_name: "Middle East Eye"
+      full_text: true
 
   - id: tehran-times
     type: rss
@@ -130,6 +135,7 @@ sources:
     exit: any
     fetch:
       source_name: "Tehran Times"
+      full_text: true
 
   - id: long-war-journal
     type: rss
@@ -143,6 +149,7 @@ sources:
     enabled: false
     fetch:
       source_name: "Long War Journal"
+      full_text: true
 
   - id: defense-news
     type: rss
@@ -152,6 +159,7 @@ sources:
     exit: any
     fetch:
       source_name: "Defense News"
+      full_text: true
 
   # SHARED: americastrikes (defense) + aliencouncil (military) — tags merged
   - id: breaking-defense
@@ -162,6 +170,7 @@ sources:
     exit: any
     fetch:
       source_name: "Breaking Defense"
+      full_text: true
 
   - id: task-and-purpose
     type: rss
@@ -171,6 +180,7 @@ sources:
     exit: any
     fetch:
       source_name: "Task & Purpose"
+      full_text: true
 
   - id: war-on-the-rocks
     type: rss
@@ -180,6 +190,7 @@ sources:
     exit: any
     fetch:
       source_name: "War on the Rocks"
+      full_text: true
 
   - id: politico-defense
     type: rss
@@ -189,6 +200,7 @@ sources:
     exit: any
     fetch:
       source_name: "Politico Defense"
+      full_text: true
 
   - id: google-news-defense
     type: rss
@@ -207,6 +219,7 @@ sources:
     exit: any
     fetch:
       source_name: "OilPrice"
+      full_text: true
 
   - id: marketwatch
     type: rss
@@ -216,6 +229,7 @@ sources:
     exit: any
     fetch:
       source_name: "MarketWatch"
+      full_text: true
 
   - id: wsj-world
     type: rss
@@ -225,6 +239,7 @@ sources:
     exit: any
     fetch:
       source_name: "WSJ World"
+      full_text: true
 
   - id: guardian-world
     type: rss
@@ -234,6 +249,7 @@ sources:
     exit: any
     fetch:
       source_name: "Guardian World"
+      full_text: true
 
   - id: bbc-world
     type: rss
@@ -243,6 +259,7 @@ sources:
     exit: any
     fetch:
       source_name: "BBC World"
+      full_text: true
 
   - id: foreign-policy
     type: rss
@@ -252,6 +269,7 @@ sources:
     exit: any
     fetch:
       source_name: "Foreign Policy"
+      full_text: true
 
   - id: foreign-affairs
     type: rss
@@ -261,6 +279,7 @@ sources:
     exit: any
     fetch:
       source_name: "Foreign Affairs"
+      full_text: true
 
   - id: dod-news
     type: rss
@@ -270,6 +289,7 @@ sources:
     exit: us
     fetch:
       source_name: "DoD News"
+      full_text: true
 
   - id: iaea
     type: rss
@@ -279,6 +299,7 @@ sources:
     exit: us
     fetch:
       source_name: "IAEA"
+      full_text: true
 
   - id: eia
     type: rss
@@ -288,6 +309,7 @@ sources:
     exit: us
     fetch:
       source_name: "EIA"
+      full_text: true
 
   - id: times-of-israel
     type: rss
@@ -297,6 +319,7 @@ sources:
     exit: any
     fetch:
       source_name: "Times of Israel"
+      full_text: true
 
   - id: jerusalem-post
     type: rss
@@ -306,6 +329,7 @@ sources:
     exit: any
     fetch:
       source_name: "Jerusalem Post"
+      full_text: true
 
   - id: the-hill-defense
     type: rss
@@ -315,6 +339,7 @@ sources:
     exit: any
     fetch:
       source_name: "The Hill"
+      full_text: true
 
   - id: the-hill-national-security
     type: rss
@@ -324,6 +349,7 @@ sources:
     exit: any
     fetch:
       source_name: "The Hill"
+      full_text: true
 
   - id: reuters
     type: rss
@@ -355,6 +381,7 @@ sources:
     exit: any
     fetch:
       source_name: "Kyiv Independent"
+      full_text: true
 
   - id: google-news-russia-ukraine
     type: rss
@@ -420,6 +447,7 @@ sources:
     exit: any
     fetch:
       source_name: "The Debrief"
+      full_text: true
 
   - id: the-war-zone
     type: rss
@@ -429,6 +457,7 @@ sources:
     exit: any
     fetch:
       source_name: "The War Zone"
+      full_text: true
 
   - id: google-news-uap
     type: rss
@@ -465,6 +494,7 @@ sources:
     exit: any
     fetch:
       source_name: "Reddit r/UFOs"
+      full_text: true
 
   - id: arxiv-astro-ph
     type: rss
@@ -474,6 +504,7 @@ sources:
     exit: any
     fetch:
       source_name: "arXiv Earth & Planetary"
+      full_text: true
 
   - id: vice
     type: rss
@@ -483,6 +514,7 @@ sources:
     exit: any
     fetch:
       source_name: "VICE"
+      full_text: true
       required_pattern: "uap|ufo|unidentified.aerial|unidentified.flying|disclosure|aaro|grusch|elizondo|whistleblower|alien|extraterrestrial|3i.?atlas|pentagon.*uap|uap.*pentagon"
 
   - id: google-news-pentagon-uap
@@ -515,6 +547,7 @@ sources:
     exit: eu
     fetch:
       source_name: "Playbill"
+      full_text: true
 
   - id: broadway-news
     type: rss
@@ -524,6 +557,7 @@ sources:
     exit: any
     fetch:
       source_name: "Broadway News"
+      full_text: true
 
   - id: theatermania
     type: rss
@@ -533,6 +567,7 @@ sources:
     exit: any
     fetch:
       source_name: "TheaterMania"
+      full_text: true
 
   - id: vulture
     type: rss
@@ -542,6 +577,7 @@ sources:
     exit: any
     fetch:
       source_name: "Vulture"
+      full_text: true
 
   - id: american-theatre
     type: rss
@@ -551,6 +587,7 @@ sources:
     exit: any
     fetch:
       source_name: "American Theatre"
+      full_text: true
 
   - id: variety-legit
     type: rss
@@ -560,6 +597,7 @@ sources:
     exit: any
     fetch:
       source_name: "Variety Legit"
+      full_text: true
 
   - id: nyt-theater
     type: rss
@@ -569,6 +607,7 @@ sources:
     exit: any
     fetch:
       source_name: "NYT"
+      full_text: true
 
   # ── saveusfarms.com ─────────────────────────────────────────────────────────
 
@@ -652,6 +691,7 @@ sources:
     exit: any
     fetch:
       source_name: "Investigate Midwest"
+      full_text: true
 
   - id: civil-eats
     type: rss
@@ -661,6 +701,7 @@ sources:
     exit: any
     fetch:
       source_name: "Civil Eats"
+      full_text: true
 
   - id: farm-journal
     type: rss
@@ -670,6 +711,7 @@ sources:
     exit: any
     fetch:
       source_name: "Farm Journal"
+      full_text: true
 
   - id: farm-progress
     type: rss
@@ -679,6 +721,7 @@ sources:
     exit: any
     fetch:
       source_name: "Farm Progress"
+      full_text: true
 
   - id: umn-extension
     type: rss
@@ -688,6 +731,7 @@ sources:
     exit: any
     fetch:
       source_name: "UMN Extension"
+      full_text: true
 
   - id: food-and-water-watch
     type: rss
@@ -697,6 +741,7 @@ sources:
     exit: any
     fetch:
       source_name: "Food & Water Watch"
+      full_text: true
 
   - id: ewg
     type: rss
@@ -706,6 +751,7 @@ sources:
     exit: any
     fetch:
       source_name: "EWG"
+      full_text: true
 
   - id: politico-agriculture
     type: rss
@@ -715,6 +761,7 @@ sources:
     exit: any
     fetch:
       source_name: "Politico Agriculture"
+      full_text: true
 
   - id: beef-magazine
     type: rss
@@ -724,6 +771,7 @@ sources:
     exit: any
     fetch:
       source_name: "Beef Magazine"
+      full_text: true
 
   - id: grist
     type: rss
@@ -733,6 +781,7 @@ sources:
     exit: any
     fetch:
       source_name: "Grist"
+      full_text: true
 
   - id: modern-farmer
     type: rss
@@ -742,6 +791,7 @@ sources:
     exit: any
     fetch:
       source_name: "Modern Farmer"
+      full_text: true
 
   - id: daily-yonder
     type: rss
@@ -751,6 +801,7 @@ sources:
     exit: any
     fetch:
       source_name: "Daily Yonder"
+      full_text: true
 
   - id: nsac-blog
     type: rss
@@ -760,6 +811,7 @@ sources:
     exit: any
     fetch:
       source_name: "NSAC Blog"
+      full_text: true
 
   - id: nrdc
     type: rss
@@ -769,6 +821,7 @@ sources:
     exit: any
     fetch:
       source_name: "NRDC"
+      full_text: true
 
   - id: foodprint
     type: rss
@@ -778,6 +831,7 @@ sources:
     exit: any
     fetch:
       source_name: "FoodPrint"
+      full_text: true
 
   # ── 0daynews.com ────────────────────────────────────────────────────────────
 
@@ -789,6 +843,7 @@ sources:
     exit: any
     fetch:
       source_name: "BleepingComputer"
+      full_text: true
 
   - id: krebs-on-security
     type: rss
@@ -798,6 +853,7 @@ sources:
     exit: any
     fetch:
       source_name: "Krebs on Security"
+      full_text: true
 
   - id: the-hacker-news
     type: rss
@@ -807,6 +863,7 @@ sources:
     exit: any
     fetch:
       source_name: "The Hacker News"
+      full_text: true
 
   - id: cisa-advisories
     type: rss
@@ -816,6 +873,7 @@ sources:
     exit: us
     fetch:
       source_name: "CISA Advisories"
+      full_text: true
     # Disabled 2026-08-09: CISA's WAF has 403'd every request for ~38 days
     # straight (1838 consecutive failures at the 30-min cadence) — the site
     # blocks our VPN exit IPs/UA outright, not a transient issue. Structured
@@ -833,6 +891,7 @@ sources:
     exit: any
     fetch:
       source_name: "Google Project Zero"
+      full_text: true
 
   - id: talos-intelligence
     type: rss
@@ -842,6 +901,7 @@ sources:
     exit: any
     fetch:
       source_name: "Talos Intelligence"
+      full_text: true
 
   - id: rapid7-blog
     type: rss
@@ -851,6 +911,7 @@ sources:
     exit: any
     fetch:
       source_name: "Rapid7 Blog"
+      full_text: true
 
   # Added 2026-08-09 to widen 0daynews' source pool — the prior 6-feed set
   # was thin enough that a single quiet day on one outlet (The Hacker News
@@ -864,6 +925,7 @@ sources:
     exit: any
     fetch:
       source_name: "SecurityWeek"
+      full_text: true
 
   - id: dark-reading
     type: rss
@@ -873,6 +935,7 @@ sources:
     exit: any
     fetch:
       source_name: "Dark Reading"
+      full_text: true
 
   - id: the-record
     type: rss
@@ -882,6 +945,7 @@ sources:
     exit: any
     fetch:
       source_name: "The Record"
+      full_text: true
 
   - id: sans-isc
     type: rss
@@ -891,6 +955,7 @@ sources:
     exit: any
     fetch:
       source_name: "SANS Internet Storm Center"
+      full_text: true
 
   - id: malwarebytes-labs
     type: rss
@@ -900,6 +965,7 @@ sources:
     exit: any
     fetch:
       source_name: "Malwarebytes Labs"
+      full_text: true
 
   # Hacker News (news.ycombinator.com), keyword-filtered via hnrss.org.
   # Tagged to match 0daynews' existing subscription (tags_any in subscriptions.yaml)
@@ -914,6 +980,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   - id: hn-exploit
     type: rss
@@ -923,6 +990,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   - id: hn-breach
     type: rss
@@ -932,6 +1000,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   - id: hn-cve
     type: rss
@@ -941,6 +1010,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   - id: hn-zero-day
     type: rss
@@ -950,6 +1020,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   # Broader unfiltered HN — general tech/startup coverage, not security-scoped.
   # New tag, not yet consumed by any subscriptions.yaml entry: registered here
@@ -962,6 +1033,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   - id: hn-best
     type: rss
@@ -971,6 +1043,7 @@ sources:
     exit: any
     fetch:
       source_name: "Hacker News"
+      full_text: true
 
   # ── datasets ──────────────────────────────────────────────────────────────
   - id: ephemeris

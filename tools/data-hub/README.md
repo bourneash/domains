@@ -158,6 +158,17 @@ tags from americastrikes + aliencouncil). Fields:
   default** kill-switch (see below)
 - `fetch.source_name` — display name (verbatim from scraper config)
 - `fetch.required_pattern` — optional regex filter on title+summary (VICE only)
+- `fetch.full_text` — optional, default `false`. When `true`, the collector
+  fetches each new item's article (through the same VPN proxy as the feed)
+  and extracts the body with trafilatura into `items.content`, so subscribers
+  get real article text instead of just the RSS title/summary. Best-effort:
+  any failure (network, non-HTML, too-short/paywall-looking result) leaves
+  `content` empty and costs nothing beyond that one fetch. Left off for feeds
+  that hand out a redirect/interstitial instead of the article (Google News
+  search RSS) since a plain fetch can't resolve those. `/sources` and
+  `/health` report `fulltext_attempts`/`fulltext_hits` per source — a source
+  stuck at 0 hits after many attempts is paywalled/broken and worth turning
+  back off.
 
 ### `registry/subscriptions.yaml`
 

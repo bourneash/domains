@@ -138,3 +138,23 @@ def test_upsert_items_content_defaults_empty_string(db):
     ])
     rows = store.query_items(db, tags_any=["a"])
     assert rows[0]["content"] == ""
+
+
+def test_record_fulltext_result_accumulates(db):
+    store.record_fulltext_result(db, source_id="op-edge", ok=True)
+    store.record_fulltext_result(db, source_id="op-edge", ok=True)
+    store.record_fulltext_result(db, source_id="op-edge", ok=False)
+    state = {s["source_id"]: s for s in store.get_sources_state(db)}["op-edge"]
+    assert state["fulltext_attempts"] == 3
+    assert state["fulltext_hits"] == 2
+
+
+def test_record_fulltext_result_survives_set_source_state_either_order(db):
+    # set_source_state runs once per source per cycle, AFTER any per-item
+    # record_fulltext_result calls -- it must not clobber the fulltext counters.
+    store.record_fulltext_result(db, source_id="op-edge", ok=True)
+    store.set_source_state(db, source_id="op-edge", status="ok")
+    state = {s["source_id"]: s for s in store.get_sources_state(db)}["op-edge"]
+    assert state["fulltext_attempts"] == 1
+    assert state["fulltext_hits"] == 1
+    assert state["status"] == "ok"
