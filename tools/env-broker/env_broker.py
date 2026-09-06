@@ -37,6 +37,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -421,6 +422,58 @@ def render(domain: str, keys: list[str], values: dict[str, str]) -> tuple[str, l
     return "\n".join(lines) + "\n", missing
 
 
+def container_name_for(domain: str, is_tool: bool) -> str | None:
+    """The container_name of the compose service that mounts this rendered file.
+
+    Not the compose *project* — a tool compose can define several services
+    (data-hub: collector + api), and only one of them mounts the rendered env.
+    Restarting the wrong sibling would leave the actually-stale container
+    running on the old inode while looking like the fix worked.
+    """
+    compose = (TOOLS_ROOT / domain / "docker-compose.yml" if is_tool
+               else ROOT / "sites" / domain / "docker-compose.yml")
+    if not compose.exists():
+        return None
+    try:
+        spec = yaml.safe_load(compose.read_text()) or {}
+    except yaml.YAMLError:
+        return None
+    needle = f"env-broker/rendered/{'tool-' if is_tool else ''}{domain}.env"
+    for svc in (spec.get("services") or {}).values():
+        # Mounted two different ways across composes: a bind-mounted `volumes:`
+        # entry (most sites, most tools) or a compose `env_file:` entry (e.g.
+        # tools/cf-broker) — both pin an inode the same way, so both count.
+        mounts = list(svc.get("volumes") or []) + list(svc.get("env_file") or [])
+        # A rendered file is often referenced by more than one service in the
+        # same compose (0daynews.com's `worker` AND `cron` both use it) — skip
+        # a match whose service has no container_name rather than stopping on
+        # it, so a later sibling that does name one is still found.
+        if svc.get("container_name") and any(needle in str(v) for v in mounts):
+            return svc.get("container_name")
+    return None
+
+
+def restart_if_running(name: str) -> str:
+    """docker restart, but only a container that exists and is running.
+
+    A stopped/cattle container (e.g. tool containers cron spins up on demand)
+    will pick up the fresh render on its next start regardless — restarting it
+    now would just leave it stopped again, printing false confidence.
+    """
+    probe = subprocess.run(
+        ["docker", "inspect", "-f", "{{.State.Running}}", name],
+        capture_output=True, text=True,
+    )
+    if probe.returncode != 0:
+        return "not running (no such container) — will pick up the new render on next start"
+    if probe.stdout.strip() != "true":
+        return "not running — will pick up the new render on next start"
+    result = subprocess.run(["docker", "restart", name], capture_output=True, text=True)
+    if result.returncode != 0:
+        return f"RESTART FAILED: {result.stderr.strip()}"
+    return "restarted"
+
+
 def cmd_render(args, policy, slack) -> int:
     values = load_env_vault(policy) if args.source == "vault" else load_env_file()
     if args.source == "vault":
@@ -439,6 +492,7 @@ def cmd_render(args, policy, slack) -> int:
     targets = [args.site] if args.site else consumers()
     tool_targets = [] if args.site else tool_consumers()
     rc = 0
+    changed: list[tuple[str, bool]] = []   # (domain, is_tool) whose file content changed
     RENDER_DIR.mkdir(exist_ok=True)
     for domain in [*targets, *(f"tool:{t}" for t in tool_targets)]:
         is_tool = domain.startswith("tool:")
@@ -467,6 +521,10 @@ def cmd_render(args, policy, slack) -> int:
             print(body, end="")
             continue
         out = RENDER_DIR / (f"tool-{domain}.env" if is_tool else f"{domain}.env")
+        try:
+            before = out.read_text()
+        except OSError:
+            before = None
         # Write via a private temp file: a 0644 window between create and
         # chmod is all an attacker needs on a shared box.
         tmp = out.with_suffix(".env.tmp")
@@ -474,11 +532,36 @@ def cmd_render(args, policy, slack) -> int:
         with os.fdopen(fd, "w") as fh:
             fh.write(body)
         os.replace(tmp, out)
+        if body != before:
+            changed.append((domain, is_tool))
         try:
             shown = out.relative_to(ROOT)
         except ValueError:      # RENDER_DIR moved outside the repo
             shown = out
         print(f"{domain:26s} {len(keys):2d} keys -> {shown}")
+
+    if getattr(args, "restart", False):
+        # A bind mount pins the inode a container opened at start — a
+        # re-render alone never reaches an already-running process. This is
+        # the manual, explicit bounce (never scheduled/automatic — see
+        # tools/scripts/env-broker-check-cron.sh) for the one case where
+        # skipping it leaves a container running on stale credentials: the
+        # file it has open actually changed.
+        if not changed:
+            print("--restart: no rendered file changed, nothing to bounce")
+        for domain, is_tool in changed:
+            name = container_name_for(domain, is_tool)
+            label = f"tools/{domain}" if is_tool else domain
+            if not name:
+                print(f"{label:26s} -> no container_name found in its "
+                      f"docker-compose.yml, restart it by hand")
+                continue
+            print(f"{label:26s} -> {name}: {restart_if_running(name)}")
+    elif changed:
+        names = ", ".join(f"tools/{d}" if t else d for d, t in changed)
+        print(f"\n{len(changed)} file(s) changed on disk ({names}) — their "
+              f"containers still hold the OLD one open (bind mount pins the "
+              f"inode). Re-run with --restart, or restart them by hand.")
     return rc
 
 
@@ -517,7 +600,11 @@ def cmd_set_secret(args, policy, slack) -> int:
         return 1
     print(f"{item}: {args.key} updated")
 
-    args.site, args.all, args.stdout, args.source = None, True, False, "file"
+    # A rotated secret is exactly the case a bind mount hides from a running
+    # container, so bounce whatever the re-render actually changes — that is
+    # the whole point of rotating it.
+    args.site, args.all, args.stdout, args.source, args.restart = (
+        None, True, False, "file", True)
     return cmd_render(args, policy, slack)
 
 
@@ -688,6 +775,12 @@ def main() -> int:
     r.add_argument("--site")
     r.add_argument("--all", action="store_true")
     r.add_argument("--stdout", action="store_true")
+    r.add_argument("--restart", action="store_true",
+                   help="also `docker restart` any container whose rendered "
+                        "file actually changed (a bind mount pins the old "
+                        "inode, so a running container never sees a "
+                        "re-render on its own). Manual and explicit only — "
+                        "never run from cron; see env-broker-check-cron.sh.")
 
     c = sub.add_parser("cutover", help="point a site's compose at its rendered env")
     c.add_argument("--site")

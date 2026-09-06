@@ -4,9 +4,24 @@ Renders each site container a **minimal** `.env` instead of the fleet's.
 
     env_broker.py --check                    # policy vs. what ops/ really uses
     env_broker.py render --all               # rendered/<domain>.env, mode 0400
+    env_broker.py render --all --restart     # + docker restart whatever changed
     env_broker.py --source vault render --all
     env_broker.py import-to-vault            # push .env into the Fleet Env items
     env_broker.py set-secret --group dashboard --key FD_TOKEN   # value on stdin
+
+`--restart` is the fix for STALE: a bind mount pins the inode a container
+opened at start, so re-rendering alone never reaches an already-running
+process — someone has to notice, then manually restart every affected
+container. It compares each file's new content to what was already on disk
+and `docker restart`s only the containers that actually changed (via each
+compose file's `container_name`, resolved to the specific service that
+mounts the rendered file — not the first service in the compose project).
+Still entirely manual/explicit — `env-broker-check-cron.sh` only ever
+*detects* drift and alerts; it never calls `render`, with or without
+`--restart` (see `feedback_no_auto_rollout_tool.md` — rollouts stay
+deliberate). `set-secret` always passes `--restart`, since a rotated secret
+is exactly the case where leaving the old container running defeats the
+rotation.
 
 ## Why
 
