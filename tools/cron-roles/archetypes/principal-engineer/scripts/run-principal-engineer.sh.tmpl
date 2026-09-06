@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# run-principal-engineer.sh — cron-container entrypoint for the Principal
+# Engineer role (every 5 min).
+#
+# Mirrors run-watchdog.sh's cost discipline: the cheap half (scan every
+# ops/logs/slack-*.jsonl entry since the last cursor, dedupe against open
+# incidents) runs right here in the lightweight cron container — zero API
+# cost. Only when a distinct, real error/warning surfaces (and isn't already
+# mid-repair or past its attempt cap) do we spin the worker container (which
+# has claude + node + npm + git) to investigate/fix/harden/report.
+#
+# Unlike watchdog (which repairs known infra failure classes it detects
+# itself), this role reacts to WHATEVER already reached Slack as an
+# error/warning — any role's failure, any script's alert — so it needs no
+# per-fault-class wiring to cover a new emitter.
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
+mkdir -p ops/logs ops/.locks ops/health/principal-incidents
+
+LOG="ops/logs/principal-engineer-$(date -u +%Y%m%d).log"
+[[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL_DEFAULT="${{{SLACK_CHANNEL_ENV_VAR}}:-domain-{{SITE_SHORT}}-com}"
+NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
+
+log() { echo "[$(date -Iseconds)] run-principal-engineer: $*" | tee -a "$LOG"; }
+
+# Kill switch
+if [[ -f ops/.principal-engineer-disabled ]]; then
+  exit 0
+fi
+
+# Single-flight — a scan+dispatch already in flight skips this tick rather
+# than piling up. Lock is released automatically when the script exits.
+exec 9>ops/.locks/principal-engineer.lock
+flock -n 9 || { log "prior tick still running — skipping"; exit 0; }
+
+OUT="$(python3 ops/scripts/principal-engineer-scan.py 2>>"$LOG")" || { log "scan failed — treating as no work"; exit 0; }
+ACTION="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("action","none"))' 2>/dev/null || echo none)"
+
+if [[ "$ACTION" != "act" ]]; then
+  exit 0
+fi
+
+FP="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["fp"])')"
+SUMMARY="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["summary"])')"
+OCC="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["occurrence"])')"
+ATTEMPT="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["attempt"])')"
+CHANNEL="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("channel") or "")')"
+[[ -z "$CHANNEL" ]] && CHANNEL="$CHANNEL_DEFAULT"
+
+log "acting on fingerprint=$FP occurrence=$OCC attempt=$ATTEMPT — dispatching worker"
+
+REPEAT_NOTE=""
+[[ "$OCC" -gt 1 ]] && REPEAT_NOTE=" (seen ${OCC}x)"
+[[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "🎯 *principal engineer* is on it${REPEAT_NOTE} · ${NOW_ET}
+${SUMMARY}" good 2>/dev/null || true
+
+set +e
+docker compose run --rm --entrypoint bash worker ops/scripts/principal-engineer.sh "$FP" >>"$LOG" 2>&1
+pe_exit=$?
+set -e
+if [[ "$pe_exit" -eq 130 || "$pe_exit" -eq 143 ]]; then
+  log "worker killed by signal (exit=$pe_exit) — not treated as a failure"
+  exit 0
+fi
+log "worker exited $pe_exit"
+exit 0

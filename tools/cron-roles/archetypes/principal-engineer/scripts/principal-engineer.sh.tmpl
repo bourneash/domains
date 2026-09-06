@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+# principal-engineer.sh — runs INSIDE the worker container (claude + node +
+# npm + git), dispatched by run-principal-engineer.sh when the cheap scan
+# found a distinct, real error/warning to act on.
+#
+# Investigate -> determine real-vs-noise -> fix -> harden -> self-review as a
+# senior engineer -> (build-gated) commit+push -> report to Slack. Full
+# contract is ops/roles/principal-engineer.md.
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO_ROOT/.monorepo-tools/scripts/git-push-retry.sh" 2>/dev/null || source "$REPO_ROOT/../../tools/scripts/git-push-retry.sh"
+cd "$REPO_ROOT"
+export CRON_SITE="{{DOMAIN}}" CRON_ROLE="principal-engineer"
+source "$REPO_ROOT/.monorepo-tools/scripts/ai-usage-bootstrap.sh" 2>/dev/null || source "$REPO_ROOT/../../tools/scripts/ai-usage-bootstrap.sh"
+
+FP="${1:-}"
+[[ -n "$FP" ]] || { echo "usage: $0 <fingerprint>" >&2; exit 1; }
+INCIDENT_FILE="ops/health/principal-incidents/${FP}.json"
+[[ -f "$INCIDENT_FILE" ]] || { echo "no incident record for $FP" >&2; exit 0; }
+
+MODEL="{{MODEL}}"
+MAX_TURNS=30
+WORK_TIMEOUT=2400
+LOG="ops/logs/principal-engineer-$(date -u +%Y%m%d).log"
+NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
+TODAY="$(date -u +%Y-%m-%d)"
+[[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
+NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
+CHANNEL="${{{SLACK_CHANNEL_ENV_VAR}}:-domain-{{SITE_SHORT}}-com}"
+
+log() { echo "[$(date -Iseconds)] principal-engineer: $*" | tee -a "$LOG"; }
+slack() { [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$1" "${2:-good}" 2>/dev/null || true; }
+
+INC_TEXT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("last_text",""))' "$INCIDENT_FILE")"
+INC_OCC="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("occurrences",1))' "$INCIDENT_FILE")"
+INC_ATTEMPT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("attempts",1))' "$INCIDENT_FILE")"
+
+# Network preflight — same DNS-outage hardening as run-engineer.sh: a dead
+# network would otherwise burn a full timed-out claude call for nothing.
+if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthropic.com/" 2>/dev/null; then
+  log "network preflight FAILED — skipping this dispatch (no Claude call made)"
+  exit 0
+fi
+
+RESULT_FILE="$(mktemp)"
+trap 'rm -f "$RESULT_FILE"' EXIT
+
+PROMPT="You are the {{SITE_BRAND}} Principal Engineer. Today is ${TODAY} (${NOW_ET}).
+Working directory: ${REPO_ROOT}. You were woken because a Slack error/warning
+was posted and the cheap scan matched it to fingerprint ${FP} (seen ${INC_OCC}
+time(s) total, this is dispatch attempt ${INC_ATTEMPT}/3 on this fingerprint).
+Your full role contract is in ops/roles/principal-engineer.md — follow it.
+You have ${MAX_TURNS} turns; be efficient.
+
+## The error/warning that triggered you
+${INC_TEXT}
+
+## Your job this run
+1. Investigate. Find the actual source of this message (grep logs/roles/scripts
+   as needed) and determine whether it is a REAL problem or noise/a flake.
+2. If real: fix the root cause, then HARDEN against recurrence (a guard, a
+   test, better error handling — not just a symptom patch).
+3. While in the area, note (but do not chase) other improvements — stay scoped.
+4. Self-review as a senior engineer: was this the right call? Does it need more
+   hardening? If this looks like a pattern worth propagating to OTHER sites in
+   the fleet, do NOT roll it out yourself — write
+   ops/tasks/backlog/fleet-rollout-<short-slug>.md with frontmatter
+   'assigned_role: human-triage' describing the pattern and proposed fix.
+5. If you changed shippable files, run \`cd site && {{BUILD_GATE}}\`
+   yourself to sanity-check before finishing (the wrapper re-runs this
+   authoritatively and will not ship anything that fails it).
+6. Do NOT git commit or git push — the wrapper handles the build-gated commit+push.
+6b. Do NOT deploy. Never run wrangler/npm run deploy/ops/scripts/deploy.sh. If a
+   deploy is needed once shipped, the wrapper handles \`touch .deploy-needed\`.
+5b. Do NOT touch: legal/disclosure/standards pages, _headers CSP (no loosening),
+   runtime/third-party JS.
+
+## Output — your LAST FIVE LINES, exact format, nothing after:
+PE_STATUS=<resolved-real | resolved-noise | escalated>
+PE_ROOT_CAUSE=<one line — what actually caused it, or 'noise: <why>' if not real>
+PE_FIX=<one line — what you changed, or 'none' if noise>
+PE_HARDENING=<one line — what prevents recurrence, or 'none'>
+PE_ROLLOUT_CANDIDATE=<yes | no>
+"
+
+log "invoking Sonnet principal-engineer pass for fp=$FP (max ${MAX_TURNS} turns)..."
+set +e
+GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 CLOUDFLARE_API_TOKEN= CLOUDFLARE_ACCOUNT_ID= CF_API_TOKEN= \
+timeout "$WORK_TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" \
+  --output-format text \
+  --model "$MODEL" \
+  --max-turns "$MAX_TURNS" \
+  --dangerously-skip-permissions \
+  > "$RESULT_FILE" 2>>"$LOG"
+CLAUDE_EXIT=$?
+set -e
+tee -a "$LOG" < "$RESULT_FILE" > /dev/null
+
+PSTATUS=$(grep '^PE_STATUS=' "$RESULT_FILE" | tail -1 | cut -d= -f2- | tr -d ' \r\n' || true); PSTATUS="${PSTATUS:-escalated}"
+ROOT_CAUSE=$(grep '^PE_ROOT_CAUSE=' "$RESULT_FILE" | tail -1 | cut -d= -f2- || true); ROOT_CAUSE="${ROOT_CAUSE:-unknown (pass did not report)}"
+FIX=$(grep '^PE_FIX=' "$RESULT_FILE" | tail -1 | cut -d= -f2- || true); FIX="${FIX:-none}"
+HARDENING=$(grep '^PE_HARDENING=' "$RESULT_FILE" | tail -1 | cut -d= -f2- || true); HARDENING="${HARDENING:-none}"
+ROLLOUT=$(grep '^PE_ROLLOUT_CANDIDATE=' "$RESULT_FILE" | tail -1 | cut -d= -f2- | tr -d ' \r\n' || true); ROLLOUT="${ROLLOUT:-no}"
+
+mark_incident() {  # $1=status
+  python3 -c "
+import json, sys
+p = sys.argv[1]
+try:
+    rec = json.load(open(p))
+except Exception:
+    rec = {}
+rec['status'] = sys.argv[2]
+rec['last_outcome'] = sys.argv[3]
+json.dump(rec, open(p, 'w'), indent=2)
+" "$INCIDENT_FILE" "$1" "${PSTATUS}: ${ROOT_CAUSE}" 2>/dev/null || true
+}
+
+if [[ "$CLAUDE_EXIT" == "124" ]]; then
+  log "pass TIMED OUT after ${WORK_TIMEOUT}s"
+  mark_incident open
+  slack "🔴 *{{SITE_SHORT}} principal engineer* timed out investigating fp=${FP} · ${NOW_ET}" danger
+  exit 1
+fi
+
+PUSHED=0
+CHANGED_SOMETHING=0
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  CHANGED_SOMETHING=1
+fi
+
+if [[ "$CHANGED_SOMETHING" == "1" ]]; then
+  log "worker tree has edits — running authoritative build gate..."
+  _BUILD_LOCK="$REPO_ROOT/ops/.locks/deploy-build.lock"
+  mkdir -p "$(dirname "$_BUILD_LOCK")" 2>/dev/null || true
+  exec 8>"$_BUILD_LOCK"
+  flock -w 900 8 || log "WARNING: build lock not acquired after 900s — proceeding, dist may race a deploy"
+  if ( cd site && rm -rf dist && {{BUILD_GATE}} ) >>"$LOG" 2>&1; then
+    log "build OK — committing + pushing"
+    if [ -d "${HOME:-/root}/.ssh" ]; then
+      mkdir -p /tmp/ssh
+      cp -f "${HOME}/.ssh"/config      /tmp/ssh/config      2>/dev/null || true
+      cp -f "${HOME}/.ssh"/known_hosts /tmp/ssh/known_hosts 2>/dev/null || true
+      for k in "${HOME}/.ssh"/github-* "${HOME}/.ssh"/id_*; do [ -f "$k" ] && cp -f "$k" "/tmp/ssh/$(basename "$k")"; done
+      chmod 700 /tmp/ssh && chmod 600 /tmp/ssh/* 2>/dev/null || true
+      [ -f /tmp/ssh/config ] && export GIT_SSH_COMMAND="ssh -F /tmp/ssh/config -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/tmp/ssh/known_hosts"
+    fi
+    git config --global user.name  "${GIT_USER_NAME:-{{GIT_USER_NAME}}}"
+    git config --global user.email "${GIT_USER_EMAIL:-bot@{{DOMAIN}}}"
+    git config --global --add safe.directory "$REPO_ROOT" 2>/dev/null || true
+    git add -A -- site/ ops/ .github/ 2>/dev/null || true
+    if git diff --cached --quiet; then
+      log "nothing staged after all — skipping commit"
+    else
+      git -c commit.gpgsign=false commit -m "principal-engineer: ${FIX} — ${TODAY} ${NOW_ET}" >>"$LOG" 2>&1 || true
+      if git_push_retry >>"$LOG" 2>&1; then
+        touch .deploy-needed
+        PUSHED=1
+        log "pushed to main — CF Workers Builds will deploy"
+      else
+        log "FAIL: git push failed"
+        mark_incident open
+        slack "🔴 *{{SITE_SHORT}} principal engineer* — fix built but git push FAILED (fp=${FP}) · ${NOW_ET}
+${ROOT_CAUSE}" danger
+        exit 1
+      fi
+    fi
+  else
+    log "FAIL: build gate failed — reverting worker edits, not shipping"
+    git checkout -- . 2>>"$LOG" || true
+    git clean -fd site/ 2>>"$LOG" || true
+    mark_incident open
+    slack "🔴 *{{SITE_SHORT}} principal engineer* — build gate FAILED on fp=${FP}, reverted, not shipped · ${NOW_ET}
+Root cause found: ${ROOT_CAUSE}" danger
+    exit 1
+  fi
+fi
+
+case "$PSTATUS" in
+  resolved-real|resolved-noise)
+    mark_incident resolved
+    ROLLOUT_NOTE=""
+    [[ "$ROLLOUT" == "yes" ]] && ROLLOUT_NOTE="
+_Flagged as a fleet-wide rollout candidate — see ops/tasks/backlog/ (human-triage, not auto-rolled-out)._"
+    if [[ "$PSTATUS" == "resolved-noise" ]]; then
+      slack "✅ *{{SITE_SHORT}} principal engineer* — checked fp=${FP}, not a real issue · ${NOW_ET}
+${ROOT_CAUSE}" good
+    else
+      slack "✅ *{{SITE_SHORT}} principal engineer* — resolved fp=${FP} · ${NOW_ET}
+*Root cause:* ${ROOT_CAUSE}
+*Fix:* ${FIX}
+*Hardening:* ${HARDENING}
+pushed=${PUSHED}${ROLLOUT_NOTE}" good
+    fi
+    ;;
+  *)
+    mark_incident open
+    slack "⚠️ *{{SITE_SHORT}} principal engineer* — escalated fp=${FP}, needs Jesse · ${NOW_ET}
+*Found:* ${ROOT_CAUSE}
+*Tried:* ${FIX}" warning
+    ;;
+esac
+
+log "principal-engineer run complete — fp=$FP status=$PSTATUS pushed=$PUSHED"
+exit 0

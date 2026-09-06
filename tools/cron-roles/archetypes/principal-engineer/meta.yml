@@ -1,0 +1,66 @@
+name: principal-engineer
+# Selected: americastrikes.com is the fleet's reference site for cron-role
+# archetypes (also hosts engineer + watchdog). Piloted 2026-09-06.
+source: americastrikes.com
+
+# KIND: cron-direct (like watchdog), NOT worker-dispatched via run-role.sh.
+# The crontab line runs run-principal-engineer.sh straight in the CRON
+# container; the cheap scan (principal-engineer-scan.py) runs there at ~0
+# cost, and only a distinct/new/eligible error or warning spins a worker for
+# the investigate-fix-harden-report pass.
+kind: cron-direct
+
+schedule: "1,6,11,16,21,26,31,36,41,46,51,56 * * * *"   # every 5 min, offset +1 off deployer(*/5 :00) and scraper(*/15 :00); no overlap with watchdog(2,17,32,47) or engineer(12,42)
+cron_invocation: "bash ops/scripts/run-principal-engineer.sh"
+model: "{{MODEL}}"     # invoked only on a real dispatch, inside the worker container
+owns_task_types: []
+produces_task_types: ["human-triage"]   # fleet-wide rollout candidates are FLAGGED, never auto-rolled-out (see feedback_no_auto_rollout_tool)
+worker_deps: []                          # reuses the existing worker image (claude+node+npm+git)
+needs_rebuild_verify: false              # crontab.docker is bind-mounted live on this site's compose setup — `docker restart <site>-cron` is enough. If the target site's cron container instead COPYs crontab.docker into its image, this flips to true (docker compose build cron && up -d).
+self_notifies: true                      # posts its own ack + resolution/escalation to Slack
+deploy: true                             # build-gated commit+push, same envelope as engineer/watchdog
+
+scripts:
+  - run-principal-engineer.sh.tmpl
+  - principal-engineer.sh.tmpl
+  - principal-engineer-scan.py.tmpl
+
+# PREREQUISITE, not optional: this role reads a disk log that DOES NOT EXIST
+# by default. notify-slack.sh must be patched first (every one of the fleet's
+# 36 copies has drifted — 7 distinct hashes, no shared template — so this is a
+# per-site patch, not a stamp). See NOTIFY-SLACK-PATCH.md in this directory.
+requires_notify_slack_patch: true
+
+gitignore:
+  - "ops/logs/slack-*.jsonl"   # already covered fleet-wide by the blanket `ops/logs/*` rule on every site checked so far — verify before assuming
+  - "ops/health/principal-incidents/"
+  - "ops/.locks/principal-engineer*"
+  - "ops/.principal-engineer-disabled"
+
+placeholders:
+  - SITE_BRAND
+  - DOMAIN
+  - SITE_SHORT
+  - SLACK_CHANNEL_ENV_VAR
+  - SLACK_CHANNEL_DEFAULT
+  - MODEL
+  - BUILD_GATE
+  - GIT_USER_NAME
+  - GIT_USER_EMAIL
+placeholder_detection:
+  SITE_BRAND: "brand string used in the repair prompt, e.g. 'AmericaStrikes.com' — from CLAUDE.md / package.json"
+  DOMAIN: "bare domain, e.g. example.com — the sites/<DOMAIN> directory name"
+  SITE_SHORT: "short slug for Slack lines, e.g. americastrikes — domain without TLD, hyphens stripped"
+  SLACK_CHANNEL_ENV_VAR: "env var holding the Slack channel, e.g. SLACK_CHANNEL_AMERICA_STRIKES — grep ops/scripts/run-role.sh or the site's other run-*.sh scripts"
+  SLACK_CHANNEL_DEFAULT: "fallback channel string, e.g. domain-americastrikes-com — the :- default beside SLACK_CHANNEL_ENV_VAR"
+  MODEL: "repair model id — default claude-sonnet-4-6 (check the claude-api skill for the current Sonnet id)"
+  BUILD_GATE: |
+    The FULL authoritative verify command the wrapper runs from site/ before
+    pushing, e.g. `npm run security:audit:prod && npm run build` or, if the
+    site has no audit script, just `npm run build`. Detect by grepping
+    site/package.json's "scripts" for an audit/verify entry; this is the same
+    value the site's existing engineer/watchdog archetype already uses —
+    reuse it verbatim rather than re-deriving it (grep run-engineer.sh or
+    watchdog.sh for the exact string already in production for this site).
+  GIT_USER_NAME: "commit identity fallback, e.g. 'AmericaStrikes Desk' — match the site's existing run-engineer.sh/watchdog.sh git config default"
+  GIT_USER_EMAIL: "commit identity fallback, e.g. bot@<domain> — match the site's existing git config default"
