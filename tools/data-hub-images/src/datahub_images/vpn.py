@@ -3,6 +3,25 @@ import httpx
 from dataclasses import dataclass
 from .config import Source, Settings
 
+# Fall back across independent IP-echo services before declaring a VPN exit
+# down. A single-URL/single-attempt probe (the old behavior) flips on any one
+# transient timeout/blip against that one third-party service — observed in
+# production as recurring "VPN exit(s) down" Slack alerts that self-recovered
+# on the very next 5-minute check every time (7/7 occurrences over 6 days, no
+# corresponding gluetun error/restart/health-status change). This function
+# also gates real fetch decisions in plan_fetch(), so the old flakiness
+# wasn't just alert noise — it could skip a legitimate fetch through a
+# perfectly healthy exit. Deliberately ONE attempt per URL (no retry loop):
+# this is called synchronously from the /health endpoint, which the monitor
+# polls with a bounded timeout, so worst-case latency (all echo services
+# down = a genuinely dead exit) must stay small, not balloon with retries.
+_IP_ECHO_URLS = (
+    "https://checkip.amazonaws.com",
+    "https://api.ipify.org",
+    "https://ifconfig.me/ip",
+)
+_ECHO_TIMEOUT_S = 5.0
+
 
 def _is_home_ip(ip: str, home_ips) -> bool:
     """True if `ip` exactly matches an entry in `home_ips`, or falls within
@@ -41,11 +60,23 @@ def _node_for(source: Source, settings: Settings):
     return "us", settings.proxy_us
 
 def probe_exit_ip(proxy_url: str, client=None) -> str | None:
-    own = client or httpx.Client(proxy=proxy_url, timeout=8.0)
+    """Return the public IP seen through `proxy_url`, or None if genuinely
+    unreachable. Falls back across _IP_ECHO_URLS so a single transient
+    failure of one echo service (rate limit, blip, slow DNS) doesn't falsely
+    declare the VPN exit down — a real VPN outage still fails all of them
+    and returns None. Bounded worst case: len(_IP_ECHO_URLS) * _ECHO_TIMEOUT_S.
+    """
+    own = client or httpx.Client(proxy=proxy_url, timeout=_ECHO_TIMEOUT_S)
     try:
-        r = own.get("https://checkip.amazonaws.com")
-        return r.text.strip() if r.status_code == 200 else None
-    except Exception:
+        for url in _IP_ECHO_URLS:
+            try:
+                r = own.get(url)
+                if r.status_code == 200:
+                    ip = r.text.strip()
+                    if ip:
+                        return ip
+            except Exception:
+                continue
         return None
     finally:
         if client is None:
