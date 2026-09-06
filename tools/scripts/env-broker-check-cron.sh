@@ -92,5 +92,5 @@ timeout 30 python3 "$DOMAINS_ROOT/tools/role-notify/notify_role.py" \
   --headline "Site credential policy has drifted" \
   --detail "\`\`\`${REPORT:0:1500}\`\`\`" \
   ${FILE_PROBLEMS:+--detail "\`\`\`${FILE_PROBLEMS:0:800}\`\`\`"} \
-  --detail "Fix tools/env-broker/policy.yaml, then re-render and restart the affected cron containers." \
+  --detail "For STALE/policy drift: fix policy.yaml if needed, then \`env_broker.py render --all --restart\` — it only bounces containers whose rendered file actually changed. For MISSING/EXTRA/FORBIDDEN, fix policy.yaml first." \
   --channel-env FLEET_TEST_CHANNEL --channel-default domain-ops >/dev/null 2>&1 || true
