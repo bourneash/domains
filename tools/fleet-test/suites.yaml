@@ -36,6 +36,7 @@ suites:
   fleet-backup:      { runner: pytest }
   affiliate-sentinel: { runner: pytest }
   container-watch:   { runner: pytest }
+  social-controller: { runner: pytest }
   social-hub:        { runner: pytest, timeout: 600 }
   fleet-registry:    { runner: pytest }
   ga4-provision:     { runner: pytest }
