@@ -103,9 +103,15 @@ def run_checks():
         findings.append((sev, msg))
 
     # 1. API + DB
+    # /health now probes each VPN exit across a fallback chain of IP-echo
+    # services (see vpn.probe_exit_ip) run concurrently per exit, so a fully
+    # dead exit can take longer than the old single-URL probe did. Give it
+    # more headroom than the default 12s so that worst case doesn't get
+    # mistaken for "API /health unreachable" instead of the more useful
+    # per-exit finding.
     health = None
     try:
-        health = _get(f"{BROKER}/health")
+        health = _get(f"{BROKER}/health", timeout=30)
         if not health.get("db", False):
             add(CRITICAL, "DB not reachable (health.db=false)")
     except Exception as e:
