@@ -1,6 +1,7 @@
 import os
 import re
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Request
@@ -227,8 +228,15 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
 
     @app.get("/health")
     def health():
-        us = _probe(settings.proxy_us)
-        eu = _probe(settings.proxy_eu)
+        # us/eu probes now fall back across multiple IP-echo services (see
+        # vpn.probe_exit_ip), so worst case per node is a few seconds longer
+        # than before. Run them concurrently rather than sequentially so a
+        # slow/dead node doesn't double the worst-case /health latency.
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            us_fut = pool.submit(_probe, settings.proxy_us)
+            eu_fut = pool.submit(_probe, settings.proxy_eu)
+            us = us_fut.result()
+            eu = eu_fut.result()
         try:
             conn.execute("SELECT 1")
             db_ok = True
