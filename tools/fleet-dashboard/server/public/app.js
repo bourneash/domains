@@ -3691,7 +3691,7 @@ async function renderContainers() {
     <div class="task-toolbar">
       <strong>${rows.length} containers</strong>
       <span class="muted">${dotLegend('fresh', tally.healthy + ' healthy')} · ${dotLegend('overdue', tally.unhealthy + ' unhealthy')} · ${dotLegend('paused', tally.stopped + ' stopped')} · ${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight</span>
-      <button class="btn sm" id="restart-crons" style="margin-left:auto">↻ Restart all crons</button>
+      <button class="btn sm" id="restart-crons" style="margin-left:auto" title="Site cron containers only — fleet-cron itself is excluded, bounce it from its own row">↻ Restart all site crons</button>
     </div>
     <div class="card"><table>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
@@ -3709,7 +3709,7 @@ async function renderContainers() {
 async function restartAllCrons() {
   if (
     !confirm(
-      'Restart ALL cron containers across the fleet?\n\nQuick bounce — re-runs each cron container (picks up crontab / role-flag changes). Takes ~15s.'
+      'Restart all SITE cron containers across the fleet?\n\nQuick bounce — re-runs each site cron container (picks up crontab / role-flag changes). fleet-cron itself is excluded; bounce it from its own row. Takes ~15s.'
     )
   )
     return;

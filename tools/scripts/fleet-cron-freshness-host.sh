@@ -57,6 +57,44 @@ print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3],
 
 [[ -r "$DETECTOR" ]] || { log "detector not readable at $DETECTOR"; exit 0; }
 
+# ── auto-recovery ────────────────────────────────────────────────────────────
+# Everything below this block only detects and alerts — nothing actually
+# brought fleet-cron back if it were stopped/dead, unlike ensure-fleet-cron.sh
+# which does exactly that for the 26 site schedulers. `restart: unless-stopped`
+# covers a daemon restart, but not a container that was stopped/removed by
+# something else (or crashed and stayed down). Recover it the same way
+# ensure-up.sh brings it up at boot: `docker compose up -d` in its own dir —
+# idempotent, and safe to run every tick even when fleet-cron is already up.
+STOPPED_STAMP="${FLEET_CRON_STOPPED_ALERT_STAMP:-$DOMAINS_ROOT/tools/scripts/.fleet-cron-stopped.alerted}"
+now="$(date +%s)"
+status="$(docker inspect -f '{{.State.Status}}' fleet-cron 2>/dev/null || true)"
+if [[ "$status" != "running" ]]; then
+  log "fleet-cron not running (status='${status:-missing}') — attempting recovery via docker compose up -d"
+  recover_out="$(cd "$DOMAINS_ROOT/tools/fleet-cron" && timeout 60 docker compose --env-file "$DOMAINS_ROOT/.env" up -d 2>&1)"
+  recover_rc=$?
+  sleep 3
+  status="$(docker inspect -f '{{.State.Status}}' fleet-cron 2>/dev/null || true)"
+  if [[ "$status" == "running" ]]; then
+    log "fleet-cron recovered — now running"
+    rm -f "$STOPPED_STAMP"
+    NOTIFY ":white_check_mark: fleet-cron was found stopped and has been brought back up automatically (\`docker compose up -d\`)." "good"
+  else
+    log "fleet-cron recovery FAILED (rc=${recover_rc}): ${recover_out:0:500}"
+    last_stopped=0
+    [[ -f "$STOPPED_STAMP" ]] && last_stopped="$(cat "$STOPPED_STAMP" 2>/dev/null || echo 0)"
+    [[ "$last_stopped" =~ ^[0-9]+$ ]] || last_stopped=0
+    if (( now - last_stopped >= ALERT_COOLDOWN_SEC )); then
+      echo "$now" > "$STOPPED_STAMP"
+      NOTIFY ":rotating_light: fleet-cron is DOWN (status='${status:-missing}') and automatic recovery failed:
+\`\`\`
+${recover_out:0:1200}
+\`\`\`
+This is the scheduler that runs every other fleet sweep. Manual intervention needed — check \`docker logs fleet-cron\` and \`docker compose -f $DOMAINS_ROOT/tools/fleet-cron/docker-compose.yml up -d\`." "danger"
+    fi
+    exit 0
+  fi
+fi
+
 # ── restart churn ───────────────────────────────────────────────────────────
 # `.State.RestartCount` counts ONLY restart-policy restarts, so an API-driven
 # `docker restart` leaves it at 0 — which is exactly what fleet-cron was

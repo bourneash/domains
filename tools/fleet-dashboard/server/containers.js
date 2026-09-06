@@ -92,10 +92,16 @@ async function bounce(root, slug) {
   return { ok: true, out: (up.stderr || up.stdout || '').trim() };
 }
 
-// One-click fleet bounce: restart every cron container (sequential to avoid a
-// host load spike). Restart picks up bind-mounted crontab / role-flag changes.
+// One-click fleet bounce: restart every SITE cron container (sequential to
+// avoid a host load spike). Restart picks up bind-mounted crontab / role-flag
+// changes. Excludes fleet-cron itself: it's the scheduler that runs every
+// other fleet sweep (including the one watching the 26 site schedulers), and
+// a stray click here bouncing it too is exactly the kind of unexplained,
+// API-driven (RestartCount stays 0) restart the 2026-09-05 fleet-cron churn
+// incident went looking for. Use its own row (or `docker restart fleet-cron`
+// deliberately) to bounce it.
 async function restartCrons(root) {
-  const crons = (await list(root)).filter((c) => c.kind === 'cron');
+  const crons = (await list(root)).filter((c) => c.kind === 'cron' && c.slug !== 'fleet-cron');
   const results = [];
   for (const c of crons) {
     const r = await sh('docker', ['restart', c.id], { timeout: 60000 });
