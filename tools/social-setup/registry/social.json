@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-04T22:29:23.353Z",
+  "updatedAt": "2026-09-06T22:35:00.665Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -735,11 +735,11 @@
       "site": "newmomshop.com",
       "platform": "pinterest",
       "scope": "brand",
-      "status": "active",
-      "statusNote": "",
+      "status": "suspended",
+      "statusNote": "Account deactivated by Pinterest; confirmed at login while attempting brand avatar update 2026-09-06. Reactivation required before profile can be updated.",
       "credsInVault": true,
       "createdAt": "2026-08-15T13:33:26.968Z",
-      "updatedAt": "2026-08-15T13:33:26.968Z"
+      "updatedAt": "2026-09-06T22:35:00.665Z"
     },
     {
       "id": "acc_000000000011",
