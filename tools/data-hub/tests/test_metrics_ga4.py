@@ -5,7 +5,9 @@ from datahub.metrics import ga4
 class FakeRunReport:
     def __init__(self, response):
         self._response = response
-    def execute(self):
+        self.num_retries = None
+    def execute(self, num_retries=0):
+        self.num_retries = num_retries
         return self._response
 
 
@@ -13,9 +15,12 @@ class FakeProperties:
     def __init__(self, response):
         self._response = response
         self.calls = []
+        self.requests = []
     def runReport(self, property=None, body=None):
         self.calls.append((property, body))
-        return FakeRunReport(self._response)
+        request = FakeRunReport(self._response)
+        self.requests.append(request)
+        return request
 
 
 class FakeClient:
@@ -82,6 +87,7 @@ def test_fetch_site_calls_runreport_with_correct_property_and_window():
     assert body["dateRanges"] == [{"startDate": "2026-07-12", "endDate": "2026-07-18"}]
     assert body["dimensions"] == [{"name": "date"}]
     assert body["returnPropertyQuota"] is True
+    assert client.properties().requests[0].num_retries == ga4.API_RETRIES
 
 
 def test_fetch_site_maps_metrics_correctly_when_response_header_order_differs_from_metric_map():

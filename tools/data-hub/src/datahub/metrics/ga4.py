@@ -17,6 +17,11 @@ METRIC_MAP = [
     ("conversions", "conversions"),
 ]
 
+# googleapiclient does not retry requests unless execute() is given a retry
+# budget. A one-off upstream 5xx would otherwise leave the daily fleet status
+# red for 24 hours even though the property and credentials are healthy.
+API_RETRIES = 3
+
 
 def trailing_window(today: date, days: int = 7) -> tuple[str, str]:
     """(start, end) as ISO date strings. end = yesterday; both APIs finalize
@@ -35,7 +40,7 @@ def _run_report(client, property_id: str, start: str, end: str, dimension_names:
     }
     if dimension_filter:
         body["dimensionFilter"] = dimension_filter
-    return client.properties().runReport(property=f"properties/{property_id}", body=body).execute()
+    return client.properties().runReport(property=f"properties/{property_id}", body=body).execute(num_retries=API_RETRIES)
 
 
 def _rows_to_records(response: dict, grain: str, has_dim_key: bool) -> list[dict]:

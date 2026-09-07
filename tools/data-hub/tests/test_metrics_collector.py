@@ -22,7 +22,7 @@ class FakeGA4Client:
         if property.split("/")[-1] in self.fail_for:
             raise RuntimeError("403 forbidden")
         return self
-    def execute(self):
+    def execute(self, num_retries=0):
         return {"rows": [], "propertyQuota": {}}
 
 
@@ -75,7 +75,7 @@ def test_run_metrics_cycle_writes_direct_policy_egress(db):
 
 def test_run_metrics_cycle_upserts_into_typed_tables(db):
     class OneRowGA4(FakeGA4Client):
-        def execute(self):
+        def execute(self, num_retries=0):
             return {"rows": [{"dimensionValues": [{"value": "20260718"}],
                               "metricValues": [{"value": "1"}] * 8}],
                     "propertyQuota": {}}
