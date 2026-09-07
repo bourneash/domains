@@ -131,6 +131,62 @@ function stamp() {
   $('#updated').textContent = 'updated ' + new Date().toLocaleTimeString();
 }
 
+/* ---- persisted collapsible panels ---- */
+// Shared by any view that wants operator-controlled density. The render helper
+// owns the markup and the wire helper owns localStorage, so future panels only
+// need a stable id rather than another view-specific persistence implementation.
+const UI_COLLAPSE_KEY = 'fd.ui.collapsed-panels.v1';
+const UI_COLLAPSED = (() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(UI_COLLAPSE_KEY) || '[]');
+    return new Set(Array.isArray(saved) ? saved : []);
+  } catch {
+    return new Set();
+  }
+})();
+
+function uiSaveCollapsed() {
+  try {
+    localStorage.setItem(UI_COLLAPSE_KEY, JSON.stringify([...UI_COLLAPSED]));
+  } catch {}
+}
+
+function collapsiblePanel(id, titleHtml, bodyHtml, className = 'dh-panel') {
+  const collapsed = UI_COLLAPSED.has(id);
+  const bodyId = `ui-panel-${id.replace(/[^a-z0-9_-]/gi, '-')}`;
+  return `<section class="${esc(className)} ui-collapsible${collapsed ? ' is-collapsed' : ''}" data-collapse-panel="${esc(id)}">
+    <div class="ui-collapse-head">
+      <h3>${titleHtml}</h3>
+      <button class="ui-collapse-toggle" type="button" aria-expanded="${!collapsed}" aria-controls="${esc(bodyId)}" title="${collapsed ? 'Expand panel' : 'Collapse panel'}">
+        <span aria-hidden="true">${collapsed ? '▸' : '▾'}</span><span class="sr-only">${collapsed ? 'Expand' : 'Collapse'} panel</span>
+      </button>
+    </div>
+    <div class="ui-collapse-body${collapsed ? ' hidden' : ''}" id="${esc(bodyId)}">${bodyHtml}</div>
+  </section>`;
+}
+
+function wireCollapsiblePanels(root = document) {
+  $$('.ui-collapse-toggle', root).forEach(button =>
+    button.addEventListener('click', () => {
+      const panel = button.closest('[data-collapse-panel]');
+      if (!panel) return;
+      const id = panel.dataset.collapsePanel;
+      const collapsed = !UI_COLLAPSED.has(id);
+      if (collapsed) UI_COLLAPSED.add(id);
+      else UI_COLLAPSED.delete(id);
+      uiSaveCollapsed();
+      panel.classList.toggle('is-collapsed', collapsed);
+      $('.ui-collapse-body', panel)?.classList.toggle('hidden', collapsed);
+      button.setAttribute('aria-expanded', String(!collapsed));
+      button.title = collapsed ? 'Expand panel' : 'Collapse panel';
+      const icon = $('span[aria-hidden="true"]', button);
+      const label = $('.sr-only', button);
+      if (icon) icon.textContent = collapsed ? '▸' : '▾';
+      if (label) label.textContent = `${collapsed ? 'Expand' : 'Collapse'} panel`;
+    })
+  );
+}
+
 /* ===================== FLEET ===================== */
 function tier(b) {
   const map = { aligned: 'b-green', PARTIAL: 'b-yellow', LEGACY: 'b-purple', none: 'b-gray' };
@@ -5849,6 +5905,7 @@ async function pollComplianceProgress() {
 }
 
 let ANALYTICS_SITE = null; // persists across soft-refreshes
+let ANALYTICS_SCROLL_TO_DETAIL = false;
 
 let SEO_PRIORITY = 'all';
 let SEO_TYPE = 'all';
@@ -6033,7 +6090,8 @@ async function renderAnalytics() {
       const gate = s.consent_gated
         ? ' <span class="dh-ovr" title="gated behind explicit visitor consent — reports only consented traffic, reads lower than reality">consent-gated</span>'
         : '';
-      return `<tr><td>${siteLink(site)}${gate}</td><td>${stateCell(s.ga4)}</td><td>${stateCell(s.gsc)}</td></tr>`;
+      const selected = site === ANALYTICS_SITE;
+      return `<tr class="an-site-row${selected ? ' is-selected' : ''}" data-an-site="${esc(site)}" tabindex="0" role="button" aria-pressed="${selected}" title="Load analytics for ${esc(site)}"><td><span class="an-site-name">${esc(site)}</span>${gate}</td><td>${stateCell(s.ga4)}</td><td>${stateCell(s.gsc)}</td></tr>`;
     })
     .join('');
   const healthHtml = `
@@ -6081,22 +6139,33 @@ async function renderAnalytics() {
         .join('') || `<tr><td colspan="2" class="muted">no ${label} data</td></tr>`;
 
     detailHtml = `
-      <section class="dh-panel" data-rk="an-summary"><h3>${siteLink(ANALYTICS_SITE)} — Summary</h3>${summaryHtml}</section>
-      <section class="dh-panel" data-rk="an-pages"><h3>Top Pages (sessions)</h3>
-        <table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead>
-        <tbody>${topRows('page', topPages, 'sessions')}</tbody></table></section>
-      <section class="dh-panel" data-rk="an-queries"><h3>Top Queries (clicks)</h3>
-        <table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead>
-        <tbody>${topRows('query', topQueries, 'clicks')}</tbody></table></section>`;
+      ${collapsiblePanel('analytics.summary', `${siteLink(ANALYTICS_SITE)} — Summary`, summaryHtml)}
+      ${collapsiblePanel(
+        'analytics.pages',
+        'Top Pages (sessions)',
+        `<table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table>`
+      )}
+      ${collapsiblePanel(
+        'analytics.queries',
+        'Top Queries (clicks)',
+        `<table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table>`
+      )}`;
   }
 
-  const picker = `<select id="an-site-picker">${siteNames.map(s => `<option value="${esc(s)}" ${s === ANALYTICS_SITE ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>`;
+  const siteIndex = Math.max(0, siteNames.indexOf(ANALYTICS_SITE));
+  const picker = `<div class="an-site-nav">
+    <button class="btn sm an-site-step" type="button" data-step="-1" aria-label="Previous site" title="Previous site"${siteNames.length < 2 ? ' disabled' : ''}>←</button>
+    <label for="an-site-picker" class="sr-only">Analytics site</label>
+    <select id="an-site-picker">${siteNames.map(s => `<option value="${esc(s)}" ${s === ANALYTICS_SITE ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
+    <button class="btn sm an-site-step" type="button" data-step="1" aria-label="Next site" title="Next site"${siteNames.length < 2 ? ' disabled' : ''}>→</button>
+    <span class="an-site-position muted">${siteNames.length ? `${siteIndex + 1} of ${siteNames.length}` : 'No sites'}</span>
+  </div>`;
 
   app.innerHTML = `
     <div class="dh-grid">
-      <section class="dh-panel dh-wide" data-rk="an-health"><h3>Capture Freshness — all sites</h3>${healthHtml}</section>
-      <section class="dh-panel dh-wide" data-rk="an-picker">${picker}</section>
-      ${detailHtml}
+      ${collapsiblePanel('analytics.health', 'Capture Freshness — all sites', healthHtml, 'dh-panel dh-wide')}
+      <section class="dh-panel dh-wide an-picker-panel">${picker}</section>
+      <div class="an-detail-grid" id="an-detail" aria-live="polite">${detailHtml}</div>
     </div>`;
 
   const picked = $('#an-site-picker');
@@ -6106,7 +6175,46 @@ async function renderAnalytics() {
       softRender();
     });
 
+  $$('.an-site-step').forEach(button =>
+    button.addEventListener('click', () => {
+      if (siteNames.length < 2) return;
+      const next =
+        (siteNames.indexOf(ANALYTICS_SITE) + Number(button.dataset.step) + siteNames.length) %
+        siteNames.length;
+      ANALYTICS_SITE = siteNames[next];
+      ANALYTICS_SCROLL_TO_DETAIL = true;
+      softRender();
+    })
+  );
+
+  const selectHealthSite = row => {
+    ANALYTICS_SITE = row.dataset.anSite;
+    ANALYTICS_SCROLL_TO_DETAIL = true;
+    softRender();
+  };
+  $$('.an-site-row').forEach(row => {
+    row.addEventListener('click', () => selectHealthSite(row));
+    row.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      selectHealthSite(row);
+    });
+  });
+
+  wireCollapsiblePanels(app);
+
   if (!FRESH) applyUISnap();
+  if (ANALYTICS_SCROLL_TO_DETAIL) {
+    ANALYTICS_SCROLL_TO_DETAIL = false;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() =>
+        $('#an-detail')?.scrollIntoView({
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'start',
+        })
+      )
+    );
+  }
 }
 
 /* ===================== LINT ===================== */
@@ -7217,6 +7325,24 @@ async function renderSocial() {
   SOC.data = data;
   const s = data.summary;
 
+  // Soft refresh (polling tick, not a real nav/mode change): the toolbar/filter
+  // skeleton is already in the DOM and untouched by fetched data, so just
+  // refresh the stats text and body instead of blowing away every input —
+  // that was causing focus loss / flicker on every 15s tick.
+  const existingBody = $('#soc-body');
+  if (!FRESH && existingBody && STATE.view === 'social') {
+    const statsEl = $('.page-head .soc-stats');
+    if (statsEl) {
+      statsEl.innerHTML = `
+        ${socToneBadge('green', `${s.live} live`)}
+        ${s.needsAttention ? socToneBadge('red', `${s.needsAttention} need attention`) : socToneBadge('gray', 'none broken')}`;
+    }
+    const summaryEl = $('.page-head .muted');
+    if (summaryEl) summaryEl.textContent = `${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites`;
+    socRenderBody();
+    return;
+  }
+
   const opt = (list, cur, blank) =>
     `<option value="">${blank}</option>` +
     list
@@ -7228,7 +7354,7 @@ async function renderSocial() {
 
   app.innerHTML = `
     <div class="page-head">
-      <h2 class="page-title">Social</h2>
+      <h2 class="page-title">Social Accounts</h2>
       <span class="muted">${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites</span>
       <span class="soc-stats">
         ${socToneBadge('green', `${s.live} live`)}
@@ -8332,6 +8458,24 @@ async function renderSocialHub() {
     ['events', 'Events'],
   ];
 
+  // Soft refresh (polling tick): the head/tab-bar skeleton is already there
+  // and doesn't depend on fetched data beyond the site count, so just patch
+  // that in and re-render the active tab body instead of rebuilding
+  // everything — avoids the flash/flicker and focus loss on every tick.
+  const existingBody = $('#sh-body');
+  if (!FRESH && existingBody && STATE.view === 'socialhub') {
+    const countEl = $('.page-head .muted');
+    if (countEl) countEl.textContent = `${sites.length} managed site${sites.length === 1 ? '' : 's'}`;
+    if (SH.tab === 'overview') shRenderOverview(overview);
+    else if (SH.tab === 'oversight') shRenderOversight(overview.oversight || {});
+    else if (SH.tab === 'queue') shRenderQueue();
+    else if (SH.tab === 'calendar') shRenderCalendar();
+    else if (SH.tab === 'inbox') shRenderInbox();
+    else if (SH.tab === 'channels') shRenderChannels();
+    else if (SH.tab === 'events') shRenderEvents();
+    return;
+  }
+
   app.innerHTML = `
     <div class="page-head">
       <h2 class="page-title">Social Hub</h2>
@@ -9414,7 +9558,7 @@ const NAV_GROUPS = {
     items: [
       ['seointelligence', 'SEO Intelligence'],
       ['analytics', 'Analytics'],
-      ['social', 'Social'],
+      ['social', 'Social Accounts'],
       ['socialhub', 'Social Hub'],
       ['automation', 'Automation'],
       ['aiusage', 'AI Usage'],
