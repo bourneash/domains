@@ -27,6 +27,19 @@ NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 
 log() { echo "[$(date -Iseconds)] run-principal-engineer: $*" | tee -a "$LOG"; }
 
+# Zero-token liveness PULSE — written on every tick that actually ran the
+# scan (quiet or not), mirroring the engineer role's heartbeat_touch. This
+# role only appends to $LOG when it dispatches a worker (see below), so
+# hours of legitimate silence during a quiet fleet used to read as "overdue"
+# on the fleet dashboard (roles.js fell back to log-file mtime, which never
+# moved). $1=status, e.g. quiet / dispatched / scan-failed.
+PULSE_STATUS_FILE="$REPO_ROOT/ops/.locks/principal-engineer-status.json"
+pulse() {
+  mkdir -p "$REPO_ROOT/ops/.locks"
+  printf '{"ts":"%s","status":"%s"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${1:-unknown}" \
+    > "$PULSE_STATUS_FILE"
+}
+
 # Kill switch
 if [[ -f ops/.principal-engineer-disabled ]]; then
   exit 0
@@ -37,10 +50,11 @@ fi
 exec 9>ops/.locks/principal-engineer.lock
 flock -n 9 || { log "prior tick still running — skipping"; exit 0; }
 
-OUT="$(python3 ops/scripts/principal-engineer-scan.py 2>>"$LOG")" || { log "scan failed — treating as no work"; exit 0; }
+OUT="$(python3 ops/scripts/principal-engineer-scan.py 2>>"$LOG")" || { log "scan failed — treating as no work"; pulse scan-failed; exit 0; }
 ACTION="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("action","none"))' 2>/dev/null || echo none)"
 
 if [[ "$ACTION" != "act" ]]; then
+  pulse quiet
   exit 0
 fi
 
@@ -64,7 +78,9 @@ pe_exit=$?
 set -e
 if [[ "$pe_exit" -eq 130 || "$pe_exit" -eq 143 ]]; then
   log "worker killed by signal (exit=$pe_exit) — not treated as a failure"
+  pulse dispatched
   exit 0
 fi
 log "worker exited $pe_exit"
+pulse dispatched
 exit 0

@@ -35,7 +35,12 @@
   rail.id = 'vitals';
   rail.className = 'hidden';
   rail.setAttribute('aria-label', 'Fleet vitals');
-  rail.innerHTML = railHTML;
+  // This strip is injected once above <main> and stays fixed across every
+  // view (Domain Control, Social Hub, Containers, ...) — it is NEVER scoped
+  // to the page underneath it. Without a label that reads as "whatever page
+  // I'm on", which it isn't: it's fleet-wide cron-role + container state from
+  // /api/roles and /api/containers, full stop.
+  rail.innerHTML = `<div class="vt-scope">Fleet-wide — every site, every role</div>` + railHTML;
 
   const cell = (k) => $(`.vt[data-vt="${k}"]`, rail);
   const setVal = (k, v, sub) => {

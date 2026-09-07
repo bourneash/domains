@@ -525,6 +525,10 @@ body[data-view="control"] #vitals,
 body[data-view="compliance"] #vitals,
 body[data-view="socialhub"] #vitals { max-width: none; }
 #vitals.hidden { display: none; }
+.vt-scope {
+  flex: 1 1 100%; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--faint); font-weight: 700; margin: 0 0 2px 2px;
+}
 .vt {
   flex: 1 1 150px; min-width: 140px;
   position: relative; overflow: hidden;

@@ -82,6 +82,18 @@ function lastRun(cwd, role) {
       /* fall through */
     }
   }
+  // principal-engineer only appends to ops/logs/principal-engineer-*.log when
+  // it actually dispatches a worker — hours of legitimate quiet (no distinct
+  // Slack error to react to) left the log-mtime fallback below reading as
+  // "overdue". It writes a cheap pulse on every tick instead (see
+  // run-principal-engineer.sh.tmpl); prefer that, same as engineer above.
+  if (role === 'principal-engineer') {
+    try {
+      return fs.statSync(path.join(cwd, 'ops', '.locks', 'principal-engineer-status.json')).mtimeMs;
+    } catch {
+      /* fall through — sites not yet re-stamped with the pulse still judge by log mtime */
+    }
+  }
   const re = logRe(role);
   const dir = path.join(cwd, 'ops', 'logs');
   let newest = 0;
