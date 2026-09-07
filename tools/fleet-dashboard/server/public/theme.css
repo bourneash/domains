@@ -126,6 +126,20 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 
 :focus-visible { outline: 2px solid var(--a1); outline-offset: 2px; border-radius: 4px; }
 
+.ui-collapse-toggle {
+  border: 0; border-radius: 7px; cursor: pointer;
+  background: transparent; color: var(--faint);
+  font: 650 16px/1 var(--mono);
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.ui-collapse-toggle:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.ui-collapsible.is-collapsed { background: rgba(18,23,34,.72); }
+.an-site-row { transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.an-site-row:hover { background: rgba(94,169,255,.08) !important; }
+.an-site-row.is-selected { background: rgba(94,169,255,.13); box-shadow: inset 3px 0 0 var(--a1); }
+.an-site-name { color: var(--a1); }
+.an-picker-panel { background: linear-gradient(135deg, rgba(94,169,255,.07), rgba(167,139,250,.04)); }
+
 /* ---------------------------------------------------------------- topbar -- */
 .topbar {
   gap: 18px;
