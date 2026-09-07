@@ -533,13 +533,39 @@ if data is not None:
     # claude-sonnet-4-6 request on every run that hit max-turns — 2026-08-15
     # investigation). Pick by total token volume instead so the recorded
     # model reflects who actually did the work, not compaction noise.
+    #
+    # 2026-09-07 fix: summing ALL numeric values in the modelUsage entry
+    # (including cacheReadInputTokens, and even non-token fields like
+    # contextWindow/maxOutputTokens/costUSD) still misattributed a run to the
+    # compaction model whenever it re-read a large cached context to produce
+    # its summary — its cacheReadInputTokens alone can outweigh the real
+    # model's entire session (observed: 0xroulette.com engineer, 2026-09-06,
+    # a 26-turn max-turns run recorded as claude-haiku-4-5 even though
+    # sonnet-4-6 produced 11663 output tokens against haiku's 6788 and did
+    # 100% of the real work — a false-positive model-drift Slack alert with
+    # no actual drift). outputTokens is the one field that directly measures
+    # "which model generated the substantive response," so rank on that
+    # first; total relevant token volume (excluding the non-token fields
+    # above) is only a tie-break for a genuine draw.
+    def _model_output_tokens(entry):
+        if not isinstance(entry, dict):
+            return 0
+        return entry.get("outputTokens", 0) or 0
+
     def _model_tokens(entry):
         if not isinstance(entry, dict):
             return 0
-        return sum(v for v in entry.values() if isinstance(v, (int, float)))
+        return sum(
+            entry.get(k, 0) or 0
+            for k in ("inputTokens", "outputTokens",
+                       "cacheCreationInputTokens", "cacheReadInputTokens")
+        )
     model = None
     if model_usage:
-        model = max(model_usage, key=lambda m: _model_tokens(model_usage[m]))
+        model = max(
+            model_usage,
+            key=lambda m: (_model_output_tokens(model_usage[m]), _model_tokens(model_usage[m])),
+        )
     model = model or data.get("model")
     model_drift = _check_model_drift(requested_model, model, site, role, repo_root)
     # ---- num_turns vs requested_max_turns: NOT a bug (investigated 2026-09-06) ----
