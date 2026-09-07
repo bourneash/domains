@@ -22,7 +22,7 @@ mkdir -p ops/logs ops/.locks ops/health/principal-incidents
 LOG="ops/logs/principal-engineer-$(date -u +%Y%m%d).log"
 [[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
 NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
-CHANNEL_DEFAULT="${{{SLACK_CHANNEL_ENV_VAR}}:-domain-{{SITE_SHORT}}-com}"
+CHANNEL_DEFAULT="${{{SLACK_CHANNEL_ENV_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
 NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 
 log() { echo "[$(date -Iseconds)] run-principal-engineer: $*" | tee -a "$LOG"; }

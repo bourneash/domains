@@ -27,7 +27,7 @@ NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 TODAY="$(date -u +%Y-%m-%d)"
 [[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
 NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
-CHANNEL="${{{SLACK_CHANNEL_ENV_VAR}}:-domain-{{SITE_SHORT}}-com}"
+CHANNEL="${{{SLACK_CHANNEL_ENV_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
 
 log() { echo "[$(date -Iseconds)] principal-engineer: $*" | tee -a "$LOG"; }
 slack() { [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$1" "${2:-good}" 2>/dev/null || true; }
