@@ -98,7 +98,11 @@ if app_password:
     # already there (BLUESKY_DID, BLUESKY_EMAIL) instead of dropping it.
     existing = read_creds(VAULT_KEY, "bluesky") or {}
     existing["BLUESKY_HANDLE"] = HANDLE
-    existing["BLUESKY_PASSWORD"] = app_password
+    # Social Hub prefers a dedicated app-password field. Keep the main
+    # account password intact when it is present; older records may already
+    # have the generated app password in BLUESKY_PASSWORD, so mirror it into
+    # the explicit field for compatibility with both readers.
+    existing["BLUESKY_APP_PASSWORD"] = app_password
     existing.pop("BLUESKY_USERNAME", None)  # stale main-password alias, if any
     write_creds(VAULT_KEY, "bluesky", existing)
     print(f"STATUS creds written to vault, handle={HANDLE}", flush=True)

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-08T02:29:24.574Z",
+  "updatedAt": "2026-09-08T22:34:11.092Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1928,6 +1928,24 @@
       "lastPostedAt": null,
       "createdAt": "2026-09-08T02:29:24.573Z",
       "updatedAt": "2026-09-08T02:29:24.573Z"
+    },
+    {
+      "id": "acc_31621b65e971",
+      "site": "girlpain.com",
+      "platform": "bluesky",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "girlpain.bsky.social",
+      "credsInVault": true,
+      "profileUrl": "",
+      "statusNote": "",
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-09-08T22:34:11.092Z",
+      "updatedAt": "2026-09-08T22:34:11.092Z"
     }
   ]
 }
