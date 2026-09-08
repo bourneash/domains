@@ -488,7 +488,7 @@ sites:
     - domains-index
     - site-tracker
   marineactivity.com:
-    status: scaffold
+    status: live
     repo: bourneash/marineactivity.com
     worker: marineactivity-com
     cf_zone: marineactivity.com
@@ -496,6 +496,8 @@ sites:
     capabilities:
     - site
     - ops
+    - cron
+    - smoke
     - tasks
     - affiliate
     - analytics

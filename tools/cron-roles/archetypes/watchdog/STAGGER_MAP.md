@@ -52,6 +52,7 @@ of the widest gap in the table, add the row, and use that value for
 | wetpages.com | 814 |
 | xxxtea.com | 851 |
 | offshorehookup.com | 888 |
+| marineactivity.com | 240 |
 
 2026-08-28: `unsupervisedmedia.com` and `oventoheaven.com` were assigned raw
 sequential offsets (925s, 962s) that overran the 900s cron window itself —
@@ -84,8 +85,8 @@ table above by inspection and verify with:
     for f in sites/*/ops/scripts/run-watchdog.sh; do \
       grep -m1 '^sleep ' "$f" | awk '{print $2}'; done | sort -n | uniq -d
 
-**Next free slot: 240s** — the midpoint of the largest remaining gap
-(222..259). The old `(last + 37) % 900` rule is retired; it assumed a grid
+**Next free slot: 278s** — the midpoint of the largest remaining gap after
+assigning MarineActivity 240s (259..296). The old `(last + 37) % 900` rule is retired; it assumed a grid
 with room left. Pick the widest gap instead:
 
     # occupied offsets, ascending — read the gaps off this list

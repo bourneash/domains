@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **57** (live 36, scaffold 20, parked 0, redirect 1)
+`sites/` directories merged: **57** (live 37, scaffold 19, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -13,7 +13,7 @@ provenance only; absence there is a choice, not drift.
 | `site-tracker/sites.yml` | fleet-wide | 56/57 | — |
 | `data-hub/sites-analytics.yaml` | fleet-wide | 35/57 | arttogogh.com, girlpain.com |
 | `DOMAINS_INDEX.md` | fleet-wide | 57/57 | — |
-| `social registry` | fleet-wide | 33/57 | 3boobs.com, deeppenetrations.com, girlpain.com |
+| `social registry` | fleet-wide | 33/57 | 3boobs.com, deeppenetrations.com, girlpain.com, marineactivity.com |
 | `data-hub/subscriptions.yaml` | opt-in | 7/57 | n/a |
 | `product-feed/subscriptions.yaml` | opt-in | 2/57 | n/a |
 

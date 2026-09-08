@@ -94,10 +94,12 @@ for site in "${sites[@]}"; do
     for f in "$ROLES_DIR"/*.md; do
       [[ -f "$f" ]] || continue
       role="$(basename "$f" .md)"
-      # watchdog is cron-direct: it has a body but is invoked by its own runner.
-      if [[ "$role" == "watchdog" ]]; then
-        grep -q 'run-watchdog.sh' "$CRONTAB" \
-          || warns+=("watchdog has a body but no run-watchdog.sh crontab line")
+      # watchdog and principal-engineer are cron-direct: each has a body but
+      # is invoked by its own cheap scanner/runner rather than run-worker.sh.
+      if [[ "$role" == "watchdog" || "$role" == "principal-engineer" ]]; then
+        runner="run-${role}.sh"
+        grep -q "$runner" "$CRONTAB" \
+          || warns+=("$role has a body but no $runner crontab line")
         continue
       fi
       if ! grep -qE "run-worker\.sh +$role( |\$)" "$CRONTAB"; then
