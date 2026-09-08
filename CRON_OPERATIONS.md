@@ -91,6 +91,18 @@ Two mechanisms (both surfaced in the Cron tab):
   `Rebuild & restart cron` to take effect (the crontab is baked into the
   image via `COPY`).
 
+When intentionally disabling **every** job for a site, also add an explicit
+comment to its crontab:
+
+```cron
+# fleet-cron: disabled pre-launch; no autonomous work is currently authorized
+```
+
+The fleet freshness sweep otherwise treats a zero-job crontab as a
+configuration failure. This marker is honored only while the crontab has zero
+active jobs, so leaving it behind cannot suppress monitoring after a schedule
+is re-enabled.
+
 ## Changes take effect on rebuild
 
 `docker compose build cron` reads the **local working tree**, so edits to

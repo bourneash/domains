@@ -109,10 +109,10 @@ if (( now - last < ALERT_COOLDOWN_SEC )); then
 fi
 echo "$now" > "$STATE"
 
-NOTIFY ":alarm_clock: *Cron freshness* — ${count} site scheduler(s) not firing:
+NOTIFY ":alarm_clock: *Cron freshness* — ${count} site scheduler finding(s):
 \`\`\`
 ${out:0:2500}
 \`\`\`
-Tier-1 healthcheck says supercronic is alive on these, so this is a wedge, not a crash — autoheal will not fix it. Check \`docker logs <container>\` for a job that never returned, then \`docker compose restart cron\` in that site." "danger"
+For \`fired NOTHING\`, check \`docker logs <container>\` for a job that never returned, then restart that site's cron service. For \`schedules zero jobs\`, repair the crontab or add \`# fleet-cron: disabled <reason>\` when the pause is intentional. Missing/stopped containers need their reported lifecycle issue repaired." "danger"
 
 exit 0

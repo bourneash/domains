@@ -60,6 +60,14 @@ FLAP_RESTARTS = int(os.environ.get("CRON_FRESHNESS_FLAP_RESTARTS", "3"))
 # silent job, but it cannot have a silent supercronic.
 FIRED_RE = re.compile(r"level=info msg=starting")
 
+# A zero-job schedule is normally a serious configuration error. Sites whose
+# autonomous operations are deliberately parked must opt out explicitly in the
+# crontab itself; comments explaining the pause to humans are not a safe
+# machine-readable contract. The marker is only honored when zero jobs parse,
+# so accidentally leaving it behind cannot hide a subsequently re-enabled but
+# wedged scheduler.
+DISABLED_RE = re.compile(r"^\s*#\s*fleet-cron:\s*disabled(?:\s|$)", re.IGNORECASE)
+
 FIELD_RANGES = [(0, 59), (0, 23), (1, 31), (1, 12), (0, 6)]
 
 
@@ -175,6 +183,15 @@ def max_gap_sec(path: str) -> tuple[int | None, int, int]:
     return int(max(gaps)), len(jobs), skipped
 
 
+def intentionally_disabled(path: str) -> bool:
+    """Whether a crontab explicitly declares its zero-job state intentional."""
+    try:
+        with open(path) as fh:
+            return any(DISABLED_RE.match(line) for line in fh)
+    except OSError:
+        return False
+
+
 def docker(*args: str, merge_stderr: bool = False) -> str:
     """Run a docker command and return its output.
 
@@ -246,8 +263,8 @@ def uptime_sec(name: str) -> int | None:
     return int((datetime.now(dt.tzinfo) - dt).total_seconds())
 
 
-def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
-    """Assess one scheduler container. Returns (findings, asserted, skipped_young).
+def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int, int]:
+    """Assess one scheduler. Returns findings, asserted, skipped-young, disabled.
 
     Deliberately generic over which container it is looking at, so the
     fleet-cron self-check reuses this exact window math rather than growing a
@@ -257,9 +274,9 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
 
     state = docker("inspect", "-f", "{{.State.Status}}", name)
     if not state:
-        return [f"{label}: cron container `{name}` does not exist"], 0, 0
+        return [f"{label}: cron container `{name}` does not exist"], 0, 0, 0
     if state != "running":
-        return [f"{label}: cron container `{name}` is {state}, not running"], 0, 0
+        return [f"{label}: cron container `{name}` is {state}, not running"], 0, 0, 0
 
     crontab = crontab_path(base_dir, name)
     if crontab is None:
@@ -267,7 +284,7 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
             f"{label}: cannot resolve the crontab `{name}` is running "
             f"(no /etc/crontab.docker bind mount, no crontab.docker on disk) "
             f"— freshness cannot be asserted"
-        ], 0, 0
+        ], 0, 0, 0
 
     gap, njobs, unparseable = max_gap_sec(crontab)
     if unparseable:
@@ -277,13 +294,15 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
         )
     if gap is None:
         if njobs == 0:
+            if intentionally_disabled(crontab):
+                return findings, 0, 0, 1
             findings.append(f"{label}: {os.path.basename(crontab)} schedules zero jobs")
         else:
             findings.append(
                 f"{label}: none of {njobs} job(s) fire within {HORIZON_DAYS}d — "
                 f"schedule is effectively dead"
             )
-        return findings, 0, 0
+        return findings, 0, 0, 0
 
     window = gap * 2 + GRACE_SEC
     up = uptime_sec(name)
@@ -306,7 +325,7 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
                 f"younger than its {window // 60}m freshness window — "
                 f"flapping, so freshness has never been asserted"
             )
-        return findings, 0, 1
+        return findings, 0, 1, 0
 
     logs = docker("logs", f"--since={window}s", name, merge_stderr=True)
     if not FIRED_RE.search(logs):
@@ -315,13 +334,13 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int]:
             f"{window // 60}m (longest legitimate gap {gap // 60}m, "
             f"{njobs} job(s)) — scheduler wedged"
         )
-    return findings, 1, 0
+    return findings, 1, 0, 0
 
 
 def main() -> int:
     only_fleet_cron = "--fleet-cron" in sys.argv[1:]
     findings = []
-    asserted = skipped_young = eligible = 0
+    asserted = skipped_young = disabled = eligible = 0
 
     if only_fleet_cron:
         # The scheduler-of-schedulers. This mode exists to be run from the HOST
@@ -329,7 +348,7 @@ def main() -> int:
         # the thing that would fail to run the sweep that would report it, so
         # self-checking here would be circular by construction.
         eligible = 1
-        findings, asserted, skipped_young = assess(
+        findings, asserted, skipped_young, disabled = assess(
             "fleet-cron", os.path.join(DOMAINS_ROOT, "tools", "fleet-cron"), "fleet-cron"
         )
     else:
@@ -352,10 +371,11 @@ def main() -> int:
             if not name:
                 continue
             eligible += 1
-            f, a, s = assess(site, site_dir, name)
+            f, a, s, d = assess(site, site_dir, name)
             findings.extend(f)
             asserted += a
             skipped_young += s
+            disabled += d
 
     for f in findings:
         print(f)
@@ -366,6 +386,7 @@ def main() -> int:
     # trusting. The wrapper logs this line on every run, healthy or not.
     print(
         f"COVERAGE asserted={asserted} skipped_young={skipped_young} "
+        f"disabled={disabled} "
         f"eligible={eligible}",
         file=sys.stderr,
     )
