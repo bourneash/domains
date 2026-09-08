@@ -237,6 +237,12 @@ self-notifying role (one whose own script posts to Slack — e.g. the engineer's
 allowlist. The wrapper would then post a second message for the same run. Only add roles
 to that allowlist when the role does NOT notify on its own.
 
+**Slack verbosity.** Site `notify-slack.sh` wrappers suppress informational
+(`good`/default-color) workflow messages unless `SLACK_VERBOSE=1`. Warnings and
+errors always post. Dedicated final-result publishers (`tools/post-notify` and
+Social Hub's published-post card) do not use that gate, leaving one final Slack
+result per published item in normal operation.
+
 ---
 
 ## Step 6.5 — Wire token-usage tracking (Fleet Dashboard AI Usage tab)

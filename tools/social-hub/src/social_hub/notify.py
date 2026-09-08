@@ -5,9 +5,10 @@ each site's own channel (`SLACK_CHANNEL_<SITE>`), the same convention as
 [[reference_slack_integration]]. Nothing here is allowed to fail a tick: a
 Slack outage must not stop posts from going out.
 
-The hub speaks up for failures, items awaiting review, and successful public
-posts. Review alerts are rate-limited to one digest per site per day; publish
-alerts are sent once, after the post has been recorded as posted.
+The hub speaks up for failures and successful public posts. Pre-publication
+review digests are quiet by default so each post produces only its final result
+in Slack; set SLACK_VERBOSE=1 to restore them. Publish alerts are sent once,
+after the post has been recorded as posted.
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ from social_hub.config import domains_root
 _env_loaded = False
 _fleet_env: dict[str, str] = {}
 DEFAULT_DASHBOARD_URL = "http://127.0.0.1:4754/"
+TRUTHY = {"1", "true", "yes", "on"}
 
 
 def _load_fleet_env() -> None:
@@ -48,6 +50,11 @@ def _load_fleet_env() -> None:
 def _env(key: str, default: str = "") -> str:
     _load_fleet_env()
     return os.environ.get(key) or _fleet_env.get(key) or default
+
+
+def verbose_enabled() -> bool:
+    """Whether optional setup/progress notifications should reach Slack."""
+    return _env("SLACK_VERBOSE").strip().lower() in TRUTHY
 
 
 def channel_for(site: str) -> str:
@@ -139,6 +146,8 @@ def _slack_link(url: str, label: str) -> str:
 
 
 def notify_needs_review(site: str, drafts: int, replies: int) -> None:
+    if not verbose_enabled():
+        return
     bits = []
     if drafts:
         bits.append(f"{drafts} draft post{'s' if drafts != 1 else ''}")

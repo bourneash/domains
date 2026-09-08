@@ -31,10 +31,11 @@ Usage:
 Silent no-op if SLACK_BOT_TOKEN is unset. Never raises — a broken notification
 must never fail the caller's role/deploy.
 
-Deployer success posts ("Deploy shipped and verified live") are suppressed by
-default fleet-wide — deploys succeed constantly and the cards are pure noise.
-Failures/warnings always post. Set NOTIFY_ROLE_LOUD_OK=1 to restore ok posts
-for the deployer role (e.g. for a site you're actively watching).
+Successful role-run cards are suppressed by default fleet-wide. They are
+intermediate workflow chatter; final published article/social cards are sent
+by their dedicated notifiers. Failures and warnings always post. Set
+SLACK_VERBOSE=1 to restore successful role-run cards while actively watching
+the fleet. NOTIFY_ROLE_LOUD_OK=1 remains a backwards-compatible alias.
 """
 import argparse
 import json
@@ -74,6 +75,22 @@ STATUS_COLOR = {"ok": "#2eb67d", "fail": "#e01e5a", "warn": "#ecb22e"}
 BOLD_LINE_RE = re.compile(r"^\*\*(.+)\*\*\s*$", re.MULTILINE)
 
 MAX_FILES_SHOWN = 10
+
+TRUTHY = {"1", "true", "yes", "on"}
+
+
+def verbose_success_enabled(environ=None):
+    """Return whether routine successful role-run cards should be posted."""
+    environ = os.environ if environ is None else environ
+    return any(
+        str(environ.get(key, "")).strip().lower() in TRUTHY
+        for key in ("SLACK_VERBOSE", "NOTIFY_ROLE_LOUD_OK")
+    )
+
+
+def should_post(status, environ=None):
+    """Failures/warnings are mandatory; only routine success is optional."""
+    return status != "ok" or verbose_success_enabled(environ)
 
 
 def extract_headline_from_log(log_file):
@@ -158,9 +175,8 @@ def main():
         print("[notify-role] SLACK_BOT_TOKEN unset — skipping")
         return 0
 
-    if (args.role == "deployer" and args.status == "ok"
-            and os.environ.get("NOTIFY_ROLE_LOUD_OK") != "1"):
-        print("[notify-role] deployer success — suppressed (set NOTIFY_ROLE_LOUD_OK=1 to enable)")
+    if not should_post(args.status):
+        print("[notify-role] routine success suppressed (set SLACK_VERBOSE=1 to enable)")
         return 0
 
     channel = os.environ.get(args.channel_env) or args.channel_default

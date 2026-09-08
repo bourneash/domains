@@ -26,6 +26,16 @@ def _stub_notify(monkeypatch, calls):
     )
 
 
+def test_maybe_notify_is_quiet_by_default(monkeypatch):
+    calls: list[str] = []
+    _stub_notify(monkeypatch, calls)
+    queue.create_post(site="alpha.com", platform="fake", body="x", status="draft")
+
+    worker._maybe_notify("alpha.com")
+
+    assert calls == []
+
+
 def test_maybe_notify_is_silent_with_an_empty_queue(monkeypatch):
     calls: list[str] = []
     _stub_notify(monkeypatch, calls)
@@ -34,6 +44,7 @@ def test_maybe_notify_is_silent_with_an_empty_queue(monkeypatch):
 
 
 def test_maybe_notify_fires_once_then_suppresses_same_day(monkeypatch):
+    monkeypatch.setenv("SLACK_VERBOSE", "1")
     calls: list[str] = []
     _stub_notify(monkeypatch, calls)
     queue.create_post(site="alpha.com", platform="fake", body="x", status="draft")
@@ -53,6 +64,7 @@ def test_maybe_notify_fires_once_then_suppresses_same_day(monkeypatch):
 
 
 def test_maybe_notify_fires_again_after_the_digest_window(monkeypatch):
+    monkeypatch.setenv("SLACK_VERBOSE", "1")
     calls: list[str] = []
     _stub_notify(monkeypatch, calls)
     queue.create_post(site="alpha.com", platform="fake", body="x", status="draft")
@@ -65,6 +77,7 @@ def test_maybe_notify_fires_again_after_the_digest_window(monkeypatch):
 
 
 def test_maybe_notify_is_per_site(monkeypatch):
+    monkeypatch.setenv("SLACK_VERBOSE", "1")
     calls: list[str] = []
     _stub_notify(monkeypatch, calls)
     queue.create_post(site="alpha.com", platform="fake", body="x", status="draft")

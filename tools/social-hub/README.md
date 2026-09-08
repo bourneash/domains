@@ -197,12 +197,13 @@ tools/social-hub/cron/install-cron.sh
 
 Health rules of thumb: `social-hub status` shows per-site queue counts, next
 send, and inbox depth; `social-hub doctor` catches missing channels and
-credentials. Failures go to the site's Slack channel. Once per day, a public
-review backlog sends a deep link to that site's filtered Fleet Dashboard
-Queue; Console previews are not counted. Each successful public feed post also
-sends a Slack card with the live platform URL, linked site page, and filtered
-publication history. Set `SOCIAL_HUB_UI_URL` when those dashboard links should
-use something other than `http://127.0.0.1:4754/`.
+credentials. Failures always go to the site's Slack channel. Each successful
+public feed post sends one final Slack card with the live platform URL, linked
+site page, and filtered publication history. Pre-publication review-backlog
+digests are suppressed by default; set `SLACK_VERBOSE=1` to restore the daily
+digest with its filtered Fleet Dashboard link. Console previews are not
+counted. Set `SOCIAL_HUB_UI_URL` when dashboard links should use something
+other than `http://127.0.0.1:4754/`.
 
 ## Images
 

@@ -6,6 +6,12 @@ consistent, information-dense format: a per-role emoji, a real ✅/❌/⚠️
 glyph, and — where the caller has it — a headline, extra detail lines, a
 files-changed list, and a live URL.
 
+Routine successful role-run cards are quiet by default so a publish workflow
+leaves only its final article/social result in Slack. Failure and warning cards
+are never suppressed. Set `SLACK_VERBOSE=1` in the fleet environment to restore
+successful role-run cards. The older `NOTIFY_ROLE_LOUD_OK=1` setting is retained
+as an alias for compatibility.
+
 Not the same tool as [`tools/post-notify`](../post-notify/README.md), which
 announces *new articles* with a rich OG-style card. This tool announces
 *role runs* (did the deployer ship, did the update cycle write anything,

@@ -5,6 +5,24 @@ from __future__ import annotations
 from social_hub import db, notify, publisher, queue
 
 
+def test_failure_notification_is_not_gated_by_quiet_mode(monkeypatch):
+    calls: list[dict] = []
+    monkeypatch.delenv("SLACK_VERBOSE", raising=False)
+    monkeypatch.setattr(
+        notify,
+        "post_message",
+        lambda site, text, blocks=None: calls.append(
+            {"site": site, "text": text, "blocks": blocks}
+        )
+        or True,
+    )
+
+    notify.notify_failure("alpha.com", "fake", 42, "credential rejected")
+
+    assert len(calls) == 1
+    assert "failed" in calls[0]["text"]
+
+
 def test_successful_publish_links_platform_source_and_dashboard(synced, monkeypatch):
     calls: list[dict] = []
     monkeypatch.setattr(
