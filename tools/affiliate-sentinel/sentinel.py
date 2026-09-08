@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """affiliate-sentinel — API-driven affiliate health check for the domain fleet.
 
-Replaces the weekly curl-and-grep sweep with two deterministic checks that
-answer two genuinely different questions:
+Replaces the weekly curl-and-grep sweep with deterministic checks that answer
+three genuinely different questions:
 
   1. **Is the product still real?**  Amazon Creators API `getItems`, gated by an
      independent HTTP confirmation and a consecutive-run streak. The API cannot
@@ -12,8 +12,11 @@ answer two genuinely different questions:
      site, asserting the redirect target. The API cannot answer this — and this
      is where the fleet's worst affiliate bug lived (`_redirects` 404ing on
      Workers while every ASIN behind it was perfectly healthy).
+  3. **Does a cloakless search catalog still earn?**  For products deliberately
+     linked straight to Amazon search results, inspect the live site HTML and
+     assert that every registry query carries the right Associates tag.
 
-Neither check costs a token. AI is invoked only when check 1 produces a
+None of the checks costs a token. AI is invoked only when check 1 produces a
 CONFIRMED_DEAD ASIN, and then only to choose among candidates the API has
 already verified (see heal.py).
 
@@ -48,6 +51,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import amz  # noqa: E402
 import browser_check  # noqa: E402
 import cloak  # noqa: E402
+import direct  # noqa: E402
 import discover  # noqa: E402
 import heal as heal_mod  # noqa: E402
 import notify  # noqa: E402
@@ -544,6 +548,36 @@ def main() -> int:
     elif not base_url:
         log("no base_url detected — skipping cloak check")
 
+    # ---- Check 3: direct, search-backed Amazon links ----------------------
+    # A site may intentionally have neither ASINs nor /go/ cloaks. In that
+    # model the monetized thing to verify is the tagged Amazon search URL in
+    # the live HTML itself. Without this branch ShopPinkFlamingo's healthy,
+    # deliberate direct-link architecture was reported as UNMONITORED.
+    direct_results: list[direct.DirectResult] = []
+    direct_pages = 0
+    direct_errors: list[str] = []
+    search_products = [
+        p for p in products
+        if p.is_product and p.search_query and not p.asin and p.id not in ids
+    ]
+    if search_products and base_url:
+        with cloak.make_client() as client:
+            direct_results, direct_pages, direct_errors = direct.check(
+                client, base_url, search_products, tag
+            )
+        for err in direct_errors:
+            log(f"direct-link fetch: {err}")
+        if direct_results:
+            direct_ok = sum(1 for result in direct_results if result.ok)
+            log(f"direct links: {direct_ok}/{len(direct_results)} healthy across {direct_pages} page(s)")
+            for result in direct_results:
+                if not result.ok:
+                    log(f"direct-link FAIL {result.id}: {result.reason}")
+        else:
+            log("direct links: no live pages could be inspected")
+
+    direct_failures = [result for result in direct_results if not result.ok]
+
     # ---- Check 2b: registry <-> _redirects static drift --------------------
     # The live cloak check above only covers ids it actually probed this run
     # (no base_url, an access-gated site, or the --max-cloak-checks rotation
@@ -602,6 +636,21 @@ def main() -> int:
                 f"Out of stock: {p.name or p.id}",
                 f"ASIN `{p.asin}` has been out of stock on {args.confirm_runs} consecutive runs.\n\n"
                 f"Not auto-replaced — out-of-stock is usually temporary. Swap it if it stays gone.",
+                log,
+            )
+            if t:
+                changed.append(t)
+
+        if direct_failures:
+            details = "\n".join(
+                f"- `{result.id}`: {result.reason}"
+                for result in direct_failures
+            )
+            t = file_task(
+                site_root, "broken-direct-affiliate-links", "engineering",
+                "Broken direct affiliate links",
+                "The affiliate sentinel could not verify these search-backed Amazon links "
+                "in the live site HTML:\n\n" + details,
                 log,
             )
             if t:
@@ -673,7 +722,9 @@ def main() -> int:
     # this tool makes was vacuous. It outranks the API-outage digest — an
     # outage on a site with cloaks still verifies the cloaks, but here nothing
     # was verified at all, so the site must say so in its own channel.
-    nothing_checked = cloak_checked == 0 and not health
+    direct_checked = len(direct_results)
+    direct_ok = sum(1 for result in direct_results if result.ok)
+    nothing_checked = cloak_checked == 0 and not health and direct_checked == 0
 
     if nothing_checked:
         emoji, color = notify.DEAD
@@ -682,12 +733,14 @@ def main() -> int:
             why.append("no base_url could be detected")
         elif not ids:
             why.append(f"no {go_prefix} routes were discovered")
+        if direct_errors:
+            why.append("live pages for direct links could not be fetched")
         if not asin_products:
             why.append("the registry declares no ASINs")
         elif api_error:
             why.append(f"the Amazon API is unavailable ({api_error})")
         verdict = (
-            f"checked NOTHING — 0 cloaks and 0 ASINs verified across "
+            f"checked NOTHING — 0 cloaks, 0 direct links, and 0 ASINs verified across "
             f"{len(products)} registry entr{'y' if len(products) == 1 else 'ies'}"
             + (f" ({'; '.join(why)})" if why else "")
             + ". This site is effectively UNMONITORED"
@@ -698,13 +751,15 @@ def main() -> int:
     elif unhealed or actionable_dead:
         emoji, color = notify.DEAD
         verdict = f"{len(actionable_dead)} dead product(s) — needs a human"
-    elif cloak_failures or actionable_oos or api_error or site_gated:
+    elif cloak_failures or direct_failures or actionable_oos or api_error or site_gated:
         emoji, color = notify.WARN
         bits = []
         if site_gated:
             bits.append(f"site is access-gated — {cloak_checked} cloaks unverifiable")
         if cloak_failures:
             bits.append(f"{len(cloak_failures)} broken cloak(s)")
+        if direct_failures:
+            bits.append(f"{len(direct_failures)} broken direct affiliate link(s)")
         if actionable_oos:
             bits.append(f"{len(actionable_oos)} out of stock")
         if api_error:
@@ -723,7 +778,10 @@ def main() -> int:
         verdict = ", ".join(bits)
     else:
         emoji, color = notify.CLEAN
-        verdict = f"{ok_count}/{len(asin_products)} ASINs live, {cloak_checked} cloaks OK"
+        verdict = (
+            f"{ok_count}/{len(asin_products)} ASINs live, "
+            f"{cloak_checked} cloaks OK, {direct_ok} direct links OK"
+        )
         if cloak_retired:
             verdict += f" ({len(cloak_retired)} retired)"
 
@@ -741,6 +799,8 @@ def main() -> int:
         lines.append(
             f"• ⚠️ {notify.link(f'{base_url}{go_prefix}{res.id}/', res.id)}: {res.reason}"
         )
+    for result in direct_failures[:8]:
+        lines.append(f"• ⚠️ `{result.id}`: {result.reason}")
     for p, _h in actionable_oos[:5]:
         lines.append(f"• ⚠️ `{p.id}` out of stock ({p.asin})")
 

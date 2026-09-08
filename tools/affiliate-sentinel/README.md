@@ -2,7 +2,7 @@
 
 API-driven affiliate health check for the domain fleet. Replaces the weekly
 `curl`-and-grep sweep (`tools/affiliate-link-check`, the zero-AI bash sentinel)
-with two deterministic checks plus an AI heal that fires only on a confirmed
+with three deterministic checks plus an AI heal that fires only on a confirmed
 failure.
 
 ## Why this replaced the curl sweep
@@ -37,8 +37,11 @@ fleet's worst affiliate bug actually lived (`_redirects`-based `/go/` silently
    following the redirect* and assert the target is Amazon, carries the right
    affiliate tag, and points at the registry's ASIN. Never touches amazon.com,
    so there is no anti-bot failure class at all.
-4. **Heal** (the only token spend) — only for a `CONFIRMED_DEAD` ASIN. See below.
-5. **Report** — one Slack line, every run, clean or not.
+4. **Check direct links** (zero tokens) — for intentional search-backed
+   catalogs with no cloak, match each registry search phrase to the Amazon URL
+   rendered on the live site and verify its Associates tag.
+5. **Heal** (the only token spend) — only for a `CONFIRMED_DEAD` ASIN. See below.
+6. **Report** — one Slack line, every run, clean or not.
 
 ## The heal path
 

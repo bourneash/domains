@@ -1,0 +1,6 @@
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+enabled = true

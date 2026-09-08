@@ -55,6 +55,7 @@ tools/scripts/.cron-freshness.last-alert
 tools/scripts/.fleet-cron-freshness.state
 tools/scripts/.fleet-cron-freshness.state.alert
 tools/scripts/.fleet-cron-host-watchdog.alerted
+tools/scripts/.fleet-images-drift.last-alert
 # The host-side fleet-cron watchdog's heartbeat. Its MTIME is the signal that
 # fleet-cron job 16 asserts, so it is rewritten every 15 minutes — committing
 # it would put a churning file in every diff for no gain.

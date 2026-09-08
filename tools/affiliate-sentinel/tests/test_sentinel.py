@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import cloak  # noqa: E402
+import direct  # noqa: E402
 import discover  # noqa: E402
 import heal as heal_mod  # noqa: E402
 import registry as registry_mod  # noqa: E402
@@ -672,7 +673,7 @@ def test_a_run_that_checks_nothing_exits_5():
         (lib / "affiliate.ts").write_text(
             "export const AMAZON_TAG = 'example-20';\n"
             "export const PRODUCTS = [\n"
-            "  { id: 'alpha', name: 'Alpha', searchQuery: 'alpha thing' },\n"
+            "  { id: 'alpha', name: 'Alpha', image: '/alpha.jpg' },\n"
             "];\n"
         )
         argv = sys.argv
@@ -688,6 +689,40 @@ def test_a_run_that_checks_nothing_exits_5():
         check("says it checked nothing", "checked NOTHING" in text)
         check("names the site as unmonitored", "UNMONITORED" in text)
         check("says why", "no /go/ routes were discovered" in text)
+
+
+def test_direct_search_links_are_verified():
+    """A direct-link search registry is monitored without inventing /go/ routes."""
+    print("direct links: tagged search registry")
+
+    class _Resp:
+        status_code = 200
+        text = (
+            '<a href="https://www.amazon.com/s?k=alpha%20thing&amp;tag=example-20">A</a>'
+            '<a href="https://www.amazon.com/s?k=beta%20thing">B</a>'
+        )
+
+    class _Client:
+        def get(self, *_args, **_kwargs):
+            return _Resp()
+
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "affiliate.ts"
+        p.write_text(
+            "export const PRODUCTS = [\n"
+            "  { id: 'alpha', searchQuery: 'alpha thing' },\n"
+            "  { id: 'beta', searchQuery: 'beta thing' },\n"
+            "];\n"
+        )
+        products = registry_mod.parse(p)
+        results, pages, errors = direct.check(
+            _Client(), "https://example.com", products, "example-20"
+        )
+        by_id = {result.id: result for result in results}
+        check("inspected a live page", pages == 1 and not errors)
+        check("tagged link is healthy", by_id["alpha"].ok)
+        check("untagged link is a finding", not by_id["beta"].ok)
+        check("finding names lost commission", "earns no commission" in by_id["beta"].reason)
 
 
 def test_api_outage_falls_back_to_browser_check_when_no_cloak():
@@ -763,6 +798,7 @@ def main() -> int:
         test_cloak_classification,
         test_state_streaks,
         test_a_run_that_checks_nothing_exits_5,
+        test_direct_search_links_are_verified,
         test_api_outage_falls_back_to_browser_check_when_no_cloak,
         test_redirects_rewrite_is_precise,
         test_heal_validation_and_revert,

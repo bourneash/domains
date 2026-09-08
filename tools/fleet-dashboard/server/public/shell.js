@@ -60,7 +60,14 @@
       ]);
       if (!rRes.ok || !cRes.ok) { rail.classList.add('hidden'); return; }
       const roles = await rRes.json();
-      const cts = await cRes.json();
+      const allCts = await cRes.json();
+      // The containers tile is the one cell that gets scoped to whatever page
+      // it's sitting above: on Social Hub it has no business showing the
+      // fleet's 70+ containers (dev sandboxes, every site's crons, ...) when
+      // Social Hub itself runs as a single container (social-hub-api). Every
+      // other view keeps the fleet-wide list.
+      const socialScoped = document.body.dataset.view === 'socialhub';
+      const cts = socialScoped ? allCts.filter(c => /social-hub/i.test(c.name || '')) : allCts;
 
       let fresh = 0, stale = 0, overdue = 0, paused = 0, total = 0;
       for (const s of (roles.sites || [])) {
@@ -74,6 +81,11 @@
         }
       }
       const live = total - paused || 1;
+      // Fleet-wide, regardless of the containers tile's scoping below — the
+      // health tile and the nav-rail foot mirror both describe the WHOLE
+      // fleet and must never quietly narrow to whatever page is showing.
+      const runningAll = allCts.filter(c => c.running).length;
+      const unhealthyAll = allCts.filter(c => c.unhealthy).length;
       const running = cts.filter(c => c.running).length;
       const unhealthy = cts.filter(c => c.unhealthy).length;
       const healthPct = Math.round((fresh / live) * 100);
@@ -93,7 +105,15 @@
       setVal('paused', String(paused), 'disabled by flag');
       setMeter('paused', (paused / (total || 1)) * 100);
 
-      setVal('containers', `${running}<small>/${cts.length}</small>`, unhealthy ? `${unhealthy} unhealthy` : 'all healthy');
+      const ctsLabel = cell('containers') && $('.vt-k', cell('containers'));
+      if (ctsLabel) ctsLabel.textContent = socialScoped ? 'Social Hub container' : 'Containers';
+      setVal(
+        'containers',
+        `${running}<small>/${cts.length}</small>`,
+        socialScoped
+          ? (cts.length ? (unhealthy ? `${unhealthy} unhealthy` : 'all healthy') : 'not running')
+          : (unhealthy ? `${unhealthy} unhealthy` : 'all healthy')
+      );
       const bars = $('.vt-bars', cell('containers'));
       if (bars) {
         const slice = cts.slice(0, 26);
@@ -108,18 +128,18 @@
 
       const hCell = cell('health');
       if (hCell) hCell.style.setProperty('--vt-c', healthPct >= 90 ? 'var(--green)' : healthPct >= 70 ? 'var(--yellow)' : 'var(--red)');
-      setVal('health', `${healthPct}<small>%</small>`, unhealthy ? 'container degradation' : 'weighted uptime');
+      setVal('health', `${healthPct}<small>%</small>`, unhealthyAll ? 'container degradation' : 'weighted uptime');
       setMeter('health', healthPct);
 
       rail.classList.remove('hidden');
 
       // compact mirror in the nav rail's foot, so health is on screen even
-      // when you've scrolled the vitals off the top
+      // when you've scrolled the vitals off the top — always fleet-wide.
       const foot = document.querySelector('#rail .rl-foot');
       if (foot) {
         const tone = healthPct >= 90 ? 'ok' : healthPct >= 70 ? 'warn' : 'bad';
         foot.innerHTML = `
-          <div class="rl-pulse ${tone}" title="${esc(`${fresh}/${live} roles fresh · ${running}/${cts.length} containers running`)}">
+          <div class="rl-pulse ${tone}" title="${esc(`${fresh}/${live} roles fresh · ${runningAll}/${allCts.length} containers running`)}">
             <span class="rl-pulse-dot"></span>
             <span class="rl-pulse-t">Fleet health</span>
             <span class="rl-pulse-v">${healthPct}%</span>
@@ -222,7 +242,11 @@
     new MutationObserver(() => {
       const v = document.body.dataset.view;
       if (v === last) return;
+      const enteringOrLeavingSocial = v === 'socialhub' || last === 'socialhub';
       last = v;
+      // The containers tile scopes to Social Hub — refetch immediately on
+      // entering/leaving it instead of waiting up to 30s for the next poll.
+      if (enteringOrLeavingSocial) loadVitals();
       if (reduce) return;
       main.classList.remove('view-enter');
       void main.offsetWidth;

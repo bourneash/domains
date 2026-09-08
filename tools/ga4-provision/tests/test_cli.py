@@ -99,6 +99,13 @@ def test_measurement_id_found_outside_the_legacy_glob_paths(tmp_path):
     assert cli.measurement_ids_from_sites(tmp_path) == {"rodhat.com": "G-GXHMCZ25QC"}
 
 
+def test_measurement_id_found_in_static_public_script(tmp_path):
+    public = tmp_path / "rc-9.com" / "site" / "public"
+    public.mkdir(parents=True)
+    (public / "consent.js").write_text("var TRACKING_ID = 'G-R2H86NCJ2F';")
+    assert cli.measurement_ids_from_sites(tmp_path) == {"rc-9.com": "G-R2H86NCJ2F"}
+
+
 def test_site_without_a_src_tree_is_skipped(tmp_path):
     (tmp_path / "parked.com").mkdir()
     assert cli.measurement_ids_from_sites(tmp_path) == {}

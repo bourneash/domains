@@ -16,9 +16,9 @@ PLACEHOLDERS = {"G-PLACEHOLDER", "G-XXXXXXXXXX"}
 
 # The fleet wires GA4 in more places than the three this used to check
 # (lib/analytics.ts, layouts/*.astro, components/*.astro) — rodhat.com puts it
-# in site/src/data/site-config.ts, which made the scraper report "no ID wired"
-# for a site that had been shipping gtag for weeks. Walk the whole src tree
-# instead of guessing paths; it's a few hundred files per site, once, by hand.
+# in site/src/data/site-config.ts, while static sites such as rc-9.com keep the
+# consent loader in site/public. Walk both source roots instead of guessing
+# paths; this remains a small, bounded scan and avoids build output/node_modules.
 SEARCH_EXTS = {".astro", ".ts", ".tsx", ".js", ".mjs"}
 
 
@@ -31,17 +31,18 @@ def measurement_ids_from_sites(sites_dir: Path | None = None) -> dict[str, str]:
         site = site_path.name
         if site.startswith("DISABLED-"):
             continue
-        src = site_path / "site" / "src"
-        if not src.is_dir():
-            continue
-        for path in sorted(p for p in src.rglob("*") if p.suffix in SEARCH_EXTS):
-            try:
-                text = path.read_text(errors="ignore")
-            except OSError:
-                continue
-            for match in GA_ID_RE.findall(text):
-                if match not in PLACEHOLDERS:
-                    found.setdefault(site, match)
+        roots = [site_path / "site" / "src", site_path / "site" / "public"]
+        for source_root in (root for root in roots if root.is_dir()):
+            for path in sorted(p for p in source_root.rglob("*") if p.suffix in SEARCH_EXTS):
+                try:
+                    text = path.read_text(errors="ignore")
+                except OSError:
+                    continue
+                for match in GA_ID_RE.findall(text):
+                    if match not in PLACEHOLDERS:
+                        found.setdefault(site, match)
+                        break
+                if site in found:
                     break
             if site in found:
                 break

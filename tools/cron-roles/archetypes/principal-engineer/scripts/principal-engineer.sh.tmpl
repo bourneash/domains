@@ -41,6 +41,16 @@ CHANNEL="${{{SLACK_CHANNEL_ENV_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
 log() { echo "[$(date -Iseconds)] principal-engineer: $*" | tee -a "$LOG"; }
 slack() { [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$1" "${2:-good}" 2>/dev/null || true; }
 
+# Never let one failed/truncated pass leave edits that a later pass mistakes
+# for its own. The worker must start from a clean shippable scope; otherwise
+# stop and preserve the tree for human inspection.
+PREEXISTING_EDITS="$(git status --porcelain -- site/ ops/ .github/ 2>/dev/null || true)"
+if [[ -n "$PREEXISTING_EDITS" ]]; then
+  log "refusing to run: shippable scope already has edits"
+  slack "🔴 *{{SITE_SHORT}} principal engineer* refused to start fp=${FP}: site/ops/.github already has uncommitted edits. Nothing was changed or shipped. · ${NOW_ET}" danger
+  exit 1
+fi
+
 # INC_TEXT is untrusted: it's whatever text some role/script posted to Slack,
 # and any role's failure text can echo external content (scraped news,
 # affiliate landing pages, etc.) — so this is a real prompt-injection surface
@@ -158,6 +168,27 @@ if [[ "$CLAUDE_EXIT" == "124" ]]; then
   log "pass TIMED OUT after ${WORK_TIMEOUT}s"
   mark_incident open
   slack "🔴 *{{SITE_SHORT}} principal engineer* timed out investigating fp=${FP} · ${NOW_ET}" danger
+  exit 1
+fi
+
+# A max-turns/error exit can still leave a buildable worktree. Before this
+# gate existed, that partial tree was committed and pushed with fallback
+# metadata (`principal-engineer: none`), then the incident claimed "unknown".
+# Buildability is not a substitute for a completed worker result contract.
+if [[ "$CLAUDE_EXIT" != "0" ]]; then
+  log "pass FAILED (rc=${CLAUDE_EXIT}) before a complete result — partial edits preserved locally, not built or shipped"
+  mark_incident open
+  slack "🔴 *{{SITE_SHORT}} principal engineer* worker failed before completing fp=${FP} (rc=${CLAUDE_EXIT}). Partial edits were NOT committed or shipped. · ${NOW_ET}" danger
+  exit 1
+fi
+if ! grep -Eq '^PE_STATUS=(resolved-real|resolved-noise|escalated)$' "$RESULT_FILE" \
+  || ! grep -q '^PE_ROOT_CAUSE=.' "$RESULT_FILE" \
+  || ! grep -q '^PE_FIX=.' "$RESULT_FILE" \
+  || ! grep -q '^PE_HARDENING=.' "$RESULT_FILE" \
+  || ! grep -Eq '^PE_ROLLOUT_CANDIDATE=(yes|no)$' "$RESULT_FILE"; then
+  log "pass returned rc=0 without the complete result contract — partial edits preserved locally, not built or shipped"
+  mark_incident open
+  slack "🔴 *{{SITE_SHORT}} principal engineer* returned no complete result for fp=${FP}. Partial edits were NOT committed or shipped. · ${NOW_ET}" danger
   exit 1
 fi
 

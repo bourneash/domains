@@ -14,7 +14,7 @@ sites:
     consent_gated: true
   3boobs.com:
     ga4_property_id: '540969570'
-    ga4_measurement_id: null
+    ga4_measurement_id: G-Q3L0F7B9LD
     gsc_property: sc-domain:3boobs.com
     consent_gated: true
   aliencouncil.com:
@@ -89,7 +89,7 @@ sites:
     consent_gated: true
   rc-9.com:
     ga4_property_id: '539712309'
-    ga4_measurement_id: null
+    ga4_measurement_id: G-R2H86NCJ2F
     gsc_property: sc-domain:rc-9.com
     consent_gated: true
   reviewtattoo.com:

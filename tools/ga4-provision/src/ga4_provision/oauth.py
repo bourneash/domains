@@ -6,6 +6,7 @@ on it, so its expiry is never a production concern.
 """
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -20,6 +21,7 @@ TOKEN_CACHE_PATH = Path("/home/jesse/projects/domains/.gcp/ga4-provision-token.j
 USER_SCOPES = [
     "https://www.googleapis.com/auth/analytics.readonly",
     "https://www.googleapis.com/auth/analytics.manage.users",
+    "https://www.googleapis.com/auth/analytics.edit",
 ]
 
 
@@ -32,7 +34,15 @@ def user_credentials(
 
     creds = None
     if token_path.exists():
-        creds = Credentials.from_authorized_user_file(token_path, USER_SCOPES)
+        # OAuth refresh tokens cannot acquire scopes that were not granted in
+        # the original consent flow. Treat a real, scoped cache as stale when
+        # provisioning gains a required scope so we prompt once instead of
+        # attempting an impossible refresh. Older/test caches without an
+        # explicit scope list retain the library's normal behavior.
+        cached = json.loads(token_path.read_text())
+        granted_scopes = set(cached.get("scopes") or [])
+        if not granted_scopes or set(USER_SCOPES).issubset(granted_scopes):
+            creds = Credentials.from_authorized_user_file(token_path, USER_SCOPES)
 
     if creds and creds.valid:
         return creds
