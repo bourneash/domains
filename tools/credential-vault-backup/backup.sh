@@ -18,7 +18,8 @@
 
 set -euo pipefail
 
-VAULT_SRC="/mnt/encrypted/projects/credential-vault"
+VAULT_SRC="${VAULTWARDEN_ROOT:-/mnt/encrypted/projects/credential-vault}"
+VAULT_DB="${VAULTWARDEN_DB:-$VAULT_SRC/data/db.sqlite3}"
 BACKUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DATA_OUT="$BACKUP_DIR/data"
 
@@ -26,7 +27,7 @@ mkdir -p "$DATA_OUT"
 
 # Consistent point-in-time snapshot via SQLite's backup API — NOT a raw
 # cp, which can grab a torn copy while the DB is open in WAL mode.
-sqlite3 "$VAULT_SRC/data/db.sqlite3" ".backup '$DATA_OUT/db.sqlite3'"
+sqlite3 "$VAULT_DB" ".backup '$DATA_OUT/db.sqlite3'"
 
 cp "$VAULT_SRC/docker-compose.yml" "$BACKUP_DIR/docker-compose.yml"
 

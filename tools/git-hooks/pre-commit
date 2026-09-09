@@ -13,6 +13,16 @@
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")" && pwd)"
 TOOLS_ROOT="$(cd "$HOOK_DIR/.." && pwd)"
 
+# --- 0. Vaultwarden snapshot (monorepo host only) ---
+# The repository uses core.hooksPath=tools/git-hooks, so a hook installed in
+# .git/hooks is ignored. Keep the vault snapshot in this shared, versioned
+# hook instead. The helper no-ops in site repos and on machines that do not
+# have the local vault mount; when the live DB is available, a failed snapshot
+# or failed stage blocks the commit rather than silently leaving Git stale.
+if [ -x "$TOOLS_ROOT/credential-vault-backup/pre-commit-hook.sh" ]; then
+  "$TOOLS_ROOT/credential-vault-backup/pre-commit-hook.sh" || exit 1
+fi
+
 # --- 1. Identity/content guardrail check (blocked/warn lists) ---
 # Runs against whatever's staged, for every commit, regardless of file type.
 if [ -f "$TOOLS_ROOT/content-guardrails/check.js" ]; then

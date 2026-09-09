@@ -8,7 +8,7 @@ dies, this is the only recovery path.
 
 ## What's here
 
-- `data/db.sqlite3` — a point-in-time snapshot of the vault's sqlite DB,
+- `data/db.sqlite3` — a point-in-time snapshot of the vault's SQLite DB,
   taken via `sqlite3 .backup` (not a raw file copy — the source is opened
   in WAL mode by the running container, so a raw `cp` can grab a torn
   copy). All item contents in here are Bitwarden client-side-encrypted
@@ -19,8 +19,9 @@ dies, this is the only recovery path.
 
 ## What's NOT here (on purpose)
 
-Stays local-only on this box. Back these up yourself, offsite, separately
-from git — restoring `data/db.sqlite3` above is useless without them:
+Stays local-only on this box. Never commit these plaintext recovery and
+administrative credentials to Git. Keep them in a separate encrypted,
+access-controlled recovery backup:
 
 - `/mnt/encrypted/projects/credential-vault/.env` — `ADMIN_TOKEN`
 - `/mnt/encrypted/projects/credential-vault/automation-account.env` —
@@ -37,12 +38,19 @@ from git — restoring `data/db.sqlite3` above is useless without them:
 
 ## Updating the snapshot
 
-Runs automatically on every commit to this repo via a pre-commit hook
-(install once per clone/box):
+Runs automatically on every monorepo commit through the versioned shared hook
+at `tools/git-hooks/pre-commit`. On a machine where the live vault is mounted,
+a failed snapshot blocks the commit instead of silently leaving the backup
+stale. Machines without that mount skip the snapshot.
+
+Ensure a clone uses the shared hook path (normally already configured):
 
 ```bash
 tools/credential-vault-backup/install.sh
 ```
+
+Do not install this under `.git/hooks/pre-commit`: Git ignores that directory
+when `core.hooksPath=tools/git-hooks` is set.
 
 To snapshot manually instead: `tools/credential-vault-backup/backup.sh`.
 
