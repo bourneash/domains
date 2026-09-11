@@ -122,12 +122,34 @@ rlog "deploy: pending=$DEPLOY_PENDING stale=$DEPLOY_STALE"
 # ops/.engineer-paused → monitor-only (no task pickup). ENGINEER_MAX_TASKS caps pickups.
 # Tasks whose FILENAME starts with HOLD- or HOLD_ (case-insensitive) are on hold:
 # skipped and not counted (rename to drop the prefix to re-activate).
+# A task left in backlog/ with status: done in its frontmatter (completed but never
+# moved to done/) must NOT count as eligible work — otherwise it re-triggers Claude
+# on every tick forever. Only the YAML frontmatter block (between the first two `---`
+# lines) is checked, so a mention of "done" in the task body doesn't false-positive.
+# 2026-09-10: hardened after newmomshop.com burned $15.60 over 6 days on exactly this.
+_fm_status_is_done() {
+  awk '/^---[[:space:]]*$/{c++; next} c==1' "$1" 2>/dev/null \
+    | grep -qiE '^[[:space:]]*status:[[:space:]]*"?'\''?done'\''?"?[[:space:]]*$'
+}
 MAX_TASKS="${ENGINEER_MAX_TASKS:-3}"
-ENG_ELIGIBLE=$(grep -rl 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null \
-  | grep -viE '/HOLD[-_]' | sort || true)
+_ENG_ALL=$(grep -rli 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null | sort || true)
+ENG_ELIGIBLE=""
+ENG_DONE_STUCK=""
+while IFS= read -r _f; do
+  [[ -z "$_f" ]] && continue
+  if [[ "$_f" =~ /HOLD[-_] ]]; then continue; fi
+  if _fm_status_is_done "$_f"; then
+    ENG_DONE_STUCK+="$_f"$'\n'
+    continue
+  fi
+  ENG_ELIGIBLE+="$_f"$'\n'
+done <<< "$_ENG_ALL"
 QUEUE_COUNT=$(printf '%s\n' "$ENG_ELIGIBLE" | grep -c . || true); QUEUE_COUNT=${QUEUE_COUNT:-0}
-HELD_COUNT=$(grep -rl 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null \
-  | grep -ciE '/HOLD[-_]' || true); HELD_COUNT=${HELD_COUNT:-0}
+HELD_COUNT=$(printf '%s\n' "$_ENG_ALL" | grep -ciE '/HOLD[-_]' || true); HELD_COUNT=${HELD_COUNT:-0}
+DONE_STUCK_COUNT=$(printf '%s\n' "$ENG_DONE_STUCK" | grep -c . || true); DONE_STUCK_COUNT=${DONE_STUCK_COUNT:-0}
+if [[ "$DONE_STUCK_COUNT" -gt 0 ]]; then
+  rlog "queue: $DONE_STUCK_COUNT completed task(s) stuck in backlog/ (status: done, never moved to done/) — excluded from pickup: $(printf '%s' "$ENG_DONE_STUCK" | awk -F/ '{print $NF}' | paste -sd ',' -)"
+fi
 ENGINEER_PAUSED=0
 if [[ -f "$REPO_ROOT/ops/.engineer-paused" ]]; then
   ENGINEER_PAUSED=1; QUEUE_TASKS=""
