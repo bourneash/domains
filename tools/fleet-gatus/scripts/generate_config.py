@@ -167,12 +167,36 @@ def build_endpoints(sites):
                 skipped_checks.append((site, name))
                 continue
             expect = check["expect"]
+            conditions = [f"[STATUS] == {expect}"]
+            # Homepage-only content check: a status-only condition is blind to a
+            # domain-clobber (a Cloudflare custom-domain binding or worker asset
+            # manifest pointed at the WRONG site's worker) — that returns a clean
+            # 200 with someone else's HTML, and every check above would report
+            # healthy. eastcoastrappers.com served girlpain.com's homepage for
+            # ~36h in 2026-09 undetected this way. The apex domain string is a
+            # cheap, near-universal signal: every fleet site's homepage contains
+            # its own domain somewhere (canonical link, og:url, or literal
+            # title="<domain>" placeholder) and there is no plausible reason
+            # another site's page would contain it. One assertion, on the
+            # homepage only, catches the whole class without a per-site brand
+            # string to keep in sync.
+            #
+            # Not universal: verified against all 37 live sites before turning
+            # this on and 3 genuinely don't emit their own domain anywhere in
+            # the homepage body (password/preview gates with no canonical/og
+            # meta) — 3boobs.com, shoppinkflamingo.com, weapontester.com. Their
+            # smoke.yaml sets `skip_brand_check: true` on the homepage check to
+            # opt out rather than silently passing a check that would always
+            # fail. Re-verify any new `skip_brand_check` addition the same way
+            # before trusting it — this is not a per-site style knob.
+            if path == "/" and str(expect) == "200" and not check.get("skip_brand_check"):
+                conditions.append(f"[BODY] == pat(*{apex}*)")
             endpoint = {
                 "name": name,
                 "group": apex,
                 "url": f"https://{apex}{path}",
                 "interval": CHECK_INTERVAL,
-                "conditions": [f"[STATUS] == {expect}"],
+                "conditions": conditions,
             }
             if str(expect).startswith("3"):
                 # e.g. /go/* affiliate redirects (expect: 302) — without this
