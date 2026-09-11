@@ -389,7 +389,7 @@
 
 | Platform | Handle | Password | Status | Notes |
 |----------|--------|---------|--------|-------|
-| X (Twitter) | @0xRoulette | | Pending | |
+| X (Twitter) | @Play0xRoulette | | Active | Secured and confirmed working 2026-09-09; signup phone removed. Exact handle was taken; avatar and profile text may still need review. Do not use a `dotcom` handle fallback |
 | Reddit | u/0xRoulette | | Pending | r/hacking, r/netsec, r/gaming |
 | TikTok | @0xroulette | | Pending | |
 | Instagram | @0xroulette | | Pending | |

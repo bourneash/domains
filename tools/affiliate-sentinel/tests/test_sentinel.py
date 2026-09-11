@@ -753,13 +753,14 @@ def test_api_outage_falls_back_to_browser_check_when_no_cloak():
                 return False
 
         orig = (sentinel.amz.load_env, sentinel.amz.client, sentinel.amz.check_health,
-                sentinel.browser_check.check_alive)
+                sentinel.browser_check.runtime_error, sentinel.browser_check.check_alive)
         sentinel.amz.load_env = lambda *a, **k: None
         sentinel.amz.client = lambda *a, **k: _FakeClient()
         sentinel.amz.check_health = lambda cl, asins: {
             a: sentinel.amz.AsinHealth(a, sentinel.amz.ERROR, note="API error 403: eligibility")
             for a in asins
         }
+        sentinel.browser_check.runtime_error = lambda: None
         sentinel.browser_check.check_alive = lambda asin, log=None: True
 
         argv = sys.argv
@@ -769,7 +770,7 @@ def test_api_outage_falls_back_to_browser_check_when_no_cloak():
         finally:
             sys.argv = argv
             (sentinel.amz.load_env, sentinel.amz.client, sentinel.amz.check_health,
-             sentinel.browser_check.check_alive) = orig
+             sentinel.browser_check.runtime_error, sentinel.browser_check.check_alive) = orig
 
         check("does not exit 5", rc != 5, f"got {rc}")
         log = (root / "ops" / "logs").glob("affiliate-sentinel-*.log")

@@ -8,6 +8,8 @@
 # still reporting success (see bin/ensure-venv and run-fleet.sh's rc capture).
 httpx==0.28.1
 pyyaml==6.0.2
+cloakbrowser==0.3.31
+playwright==1.49.1
 
 # Test-only, kept in the same pin set so `bin/setup-venv` produces an env that
 # can run the suite — a venv you cannot test in is how the last drift survived.

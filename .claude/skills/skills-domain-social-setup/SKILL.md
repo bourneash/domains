@@ -18,9 +18,10 @@ front-loads every mistake so you don't repeat them.
 2. **Per-platform standalone scripts** — not one big CLI. Each platform
    (Bluesky, Pinterest, Reddit) has its own script that drives the *entire*
    signup + onboarding flow itself, only pausing for a genuine captcha.
-3. **Live human-in-the-loop for captchas only** — Jesse sits at the desktop,
-   solves whatever CloakBrowser window pops up, says "done", you verify and
-   continue. Everything else is unattended.
+3. **Small, explicit human handoffs** — captchas still pause the browser;
+   X also pauses after account confirmation so the owner can add/verify
+   recovery email, enable authenticator-app 2FA, save backup codes, and remove
+   the temporary signup phone. Everything before that handoff is unattended.
 
 ## 1. The vault
 
@@ -290,7 +291,7 @@ Jesse's attention with no way to tell which was which:
   Jesse 2026-08-14** — don't retry without spacing attempts out much
   further (hours/days, not minutes) or changing egress IP.
 
-### X / Twitter (`x_signup.py`) — fully automated as of 2026-08-29
+### X / Twitter (`x_signup.py`) — signup automation + human security handoff
 
 Needs a real (non-VoIP) phone number — X rejects Twilio-class numbers, so
 `x_signup.py` rents one from **SMSPool** per account
@@ -320,8 +321,8 @@ other platform's shape here, so don't pattern-match off Bluesky/Pinterest):
    screens. The account is fully created well before this settles — **don't
    gate success on reaching the home timeline**, it may never quite get
    there within any reasonable poll window.
-7. `/settings/screen_name` to claim the desired handle over the
-   auto-generated one X assigns.
+7. Logged-in home/account switcher confirms the account; settings are handed
+   to the owner after credentials are saved.
 
 **The click-registration bug that ate the first live attempt:** X renders
 the *disabled* "Continue" button from the dimmed chooser screen underneath
@@ -341,14 +342,25 @@ click through by hand.
 iframe fingerprint (`iframe[src*="arkoselabs"]` etc), already handled in
 `captcha_present()`.
 
-**Verify-before-write, same discipline as every other platform:** after
-whatever the form claims as the final username, re-read
-`/settings/screen_name`'s actual field value before writing to the vault —
-don't trust the in-form value, X can silently swap in a random suffix. The
-current script does this and falls back to parsing the handle off the
-account-switcher button in the nav if the settings field ever reads back
-empty (a same-race-condition bug as Pinterest's settings-page check, §3
-above — X's settings page can render the nav before the form body).
+**Stop after confirmation:** once the name/username/password submit succeeds,
+the script confirms the logged-in home/account switcher, writes credentials,
+and prints a compact human handoff. It does not visit X settings, edit the
+profile, change the handle, or attempt recovery/2FA changes. This avoids the
+known flaky settings routes and makes the flow suitable for a small local
+model.
+
+**Human handoff (required before marking X fully secured):**
+
+1. Add and verify the site's recovery email (`social@<domain>`).
+2. Enable authenticator-app 2FA and save the backup codes in the approved
+   password-vault entry.
+3. Remove the temporary SMSPool signup phone number.
+
+Keep the verified recovery email. If the operator literally asks to remove
+the email instead, confirm that another recovery method is configured first;
+never remove the only recovery path. The script records these three items as
+pending Vaultwarden metadata and the registry note should remain active but
+explicitly say “human security handoff pending” until confirmed.
 
 ### X / Twitter profile fill (`x_fill_profile.py`)
 
@@ -525,9 +537,9 @@ from social_lib.credentials import has_creds
 print({p: has_creds('$DOMAIN', p) for p in ['bluesky','pinterest','reddit','x']})
 "
 
-# 7. Fill out the profile — display name, bio+link, avatar. Do this every time,
-#    right after signup succeeds. See §7 below for the full picture (why this
-#    step exists, avatar-sourcing order, persona handling).
+# 7. After the script prints HANDOFF, give the browser to the owner for the
+#    three X security steps above. Do not launch settings automation first.
+#    Profile fill is optional and can happen later after security is confirmed.
 python3 tools/social-setup/scripts/bsky_fill_profile.py $DOMAIN \
   --display-name "$BRAND" \
   --bio "One or two honest sentences — the site's own positioning, never invented (see project CLAUDE.md's 'What This Is')." \

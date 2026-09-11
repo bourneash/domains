@@ -49,6 +49,8 @@ FILL:VOICE_RULES (bulleted)
   outward-facing address — never `hello@`.
 - CI: `.github/workflows/security-and-build.yml` (npm audit + astro build on push/PR).
 - Auto-deploy: CF Workers Builds GitHub integration (one-time dashboard connect, human step).
+  Configure Build watch paths to include only `site/*` and `.deploy-probe` (no excludes), and
+  enable Build Cache. Do not leave the default `*`, which rebuilds on ops-only commits.
 - Worker name on CF: `FILL:WORKER_NAME` (dots become dashes, e.g. `newmomshop-com`).
 
 **Load-bearing gotchas from past fleet incidents — apply from the start:**

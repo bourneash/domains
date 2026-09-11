@@ -116,7 +116,7 @@ git -C "$CLONE" add -A >/dev/null 2>&1
 git -C "$CLONE" commit -qm "baseline with an injected dead ASIN" >/dev/null 2>&1
 
 echo "=== running the sentinel for real (heal enabled) ==="
-python3 "$TOOL_DIR/sentinel.py" --site-root "$CLONE" --site-brand "IntegrationTest" --json \
+python3 "$TOOL_DIR/sentinel.py" --site-root "$CLONE" --site-brand "IntegrationTest" --heal --json \
     > "$SANDBOX/result.json" 2>"$SANDBOX/run.log"
 sed 's/^/    /' "$SANDBOX/run.log" | grep -E "heal:|api:|dead streak|cloak:|✅|⚠️|🚨|🔧" || true
 

@@ -11,6 +11,7 @@ Local utilities shared across all domain projects under `/home/jesse/projects/do
 | [`amz-stats/`](./amz-stats/) | Daily Amazon affiliate catalog snapshot — scans every site's `affiliate.ts` for ASINs, checks availability/pricing via the Amazon Creators API, writes JSONL + `latest.json`. |
 | [`cf-grafana/`](./cf-grafana/) | Grafana stack on the cf-stats SQLite — auto-ingests cf-stats JSONL, serves portfolio + zone-detail dashboards at `localhost:4741`. Bring up with `docker compose up -d`. |
 | [`cf-stats/`](./cf-stats/) | Hourly **Cloudflare** account/usage snapshot — token health + expiry, zones, DNS, workers, custom domains, email routing, 24h request/error totals. JSONL per day + `latest.json`. Runs as a supercronic container; no host cron. |
+| [`camofox-browser/`](./camofox-browser/) | Pinned Camofox/Camoufox anti-detection browser server for agent-driven REST automation; persistent isolated sessions alongside CloakBrowser. |
 | [`creator-connections/`](./creator-connections/) | Shared Amazon Creator Connections lib (`cc_lib.py`) — `pull`/`submit`/`submit_all` campaign flow, dashboard-only, used across 6 sites. |
 | [`cron-bouncer/`](./cron-bouncer/) | `bounce-crons.sh` — restarts stuck/hung fleet cron containers. |
 | [`cron-roles/`](./cron-roles/) | Reusable cron-role library + installer skills (engineer, affiliate-editor, content-writer, planner, seo-analyst, maintainer, watchdog, social-poster) — stamp-once, dynamic handoff. |

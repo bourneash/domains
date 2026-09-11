@@ -6262,6 +6262,7 @@ async function renderAnalytics() {
   if (!ANALYTICS_SITE || !siteNames.includes(ANALYTICS_SITE)) ANALYTICS_SITE = siteNames[0] || null;
 
   const health = await api('GET', '/api/analytics/health');
+  const amazonRevenue = await api('GET', '/api/revenue/amazon');
   const healthSites = (health && health.sites) || {};
 
   const healthRows = Object.keys(healthSites)
@@ -6285,15 +6286,22 @@ async function renderAnalytics() {
       <thead><tr><th>site</th><th>GA4</th><th>Search Console</th></tr></thead>
       <tbody>${healthRows || '<tr><td colspan="3" class="muted">no sites</td></tr>'}</tbody>
     </table>`;
+  const amazonHtml = amazonRevenue && amazonRevenue.has_data
+    ? `<div>Amazon clicks <b>${esc(String(amazonRevenue.clicks))}</b> · ordered <b>${esc(String(amazonRevenue.ordered_items))}</b> · shipped <b>${esc(String(amazonRevenue.shipped_items))}</b> · commission <b>$${esc(Number(amazonRevenue.commission_income).toFixed(2))}</b></div><div class="dh-sub-h">account-wide · ${esc(amazonRevenue.from || '—')} through ${esc(amazonRevenue.through || '—')}</div>`
+    : `<div class="muted">${esc((amazonRevenue && amazonRevenue.message) || 'Amazon earnings data unavailable')}</div>`;
 
   let detailHtml = '<div class="muted">select a site</div>';
   if (ANALYTICS_SITE) {
-    const [summary, wow, topPages, topQueries] = await Promise.all([
+    const [summary, wow, topPages, topConvertingPages, topQueries] = await Promise.all([
       api('GET', `/api/analytics/summary?site=${encodeURIComponent(ANALYTICS_SITE)}&window=28`),
       api('GET', `/api/analytics/wow?site=${encodeURIComponent(ANALYTICS_SITE)}`),
       api(
         'GET',
         `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=ga4&metric=sessions&window=28&limit=10`
+      ),
+      api(
+        'GET',
+        `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=ga4&metric=conversions&window=28&limit=10`
       ),
       api(
         'GET',
@@ -6307,7 +6315,7 @@ async function renderAnalytics() {
     } else {
       const ga4Line =
         'sessions' in summary
-          ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · conversions <b>${esc(String(summary.conversions))}</b></div>`
+          ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · affiliate clicks <b>${esc(String(summary.conversions))}</b> · click/session <b>${summary.sessions ? esc(`${(summary.conversions / summary.sessions * 100).toFixed(2)}%`) : '—'}</b></div>`
           : '<div class="muted">no GA4 data</div>';
       const gscLine =
         'clicks' in summary
@@ -6332,6 +6340,11 @@ async function renderAnalytics() {
         `<table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table>`
       )}
       ${collapsiblePanel(
+        'analytics.converting-pages',
+        'Affiliate Funnel — click origin pages',
+        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><table class="dh-datasets"><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', topConvertingPages, 'conversions')}</tbody></table>`
+      )}
+      ${collapsiblePanel(
         'analytics.queries',
         'Top Queries (clicks)',
         `<table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table>`
@@ -6350,6 +6363,7 @@ async function renderAnalytics() {
   app.innerHTML = `
     <div class="dh-grid">
       ${collapsiblePanel('analytics.health', 'Capture Freshness — all sites', healthHtml, 'dh-panel dh-wide')}
+      ${collapsiblePanel('analytics.amazon', 'Amazon Associates — revenue outcome', amazonHtml, 'dh-panel dh-wide')}
       <section class="dh-panel dh-wide an-picker-panel">${picker}</section>
       <div class="an-detail-grid" id="an-detail" aria-live="polite">${detailHtml}</div>
     </div>`;

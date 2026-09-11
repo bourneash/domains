@@ -85,6 +85,11 @@ social-setup provision americastrikes.com --platforms bluesky --force
    - Captures API keys where available
 4. Writes credentials to `sites/<domain>/ops/social/.<platform>-creds` (chmod 600)
 
+For X, signup stops after logged-in confirmation and prints a compact human
+handoff: add/verify recovery email, enable authenticator-app 2FA and save
+backup codes, then remove the temporary signup phone. It does not automate X
+settings pages.
+
 ## Credential files
 
 Written to each site's existing `ops/social/` directory. All files chmod 600 and gitignored.

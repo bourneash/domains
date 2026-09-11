@@ -8,5 +8,13 @@ PY="${PYTHON:-python3}"
 "$TOOL_DIR/.venv/bin/python" - <<'PYCHK'
 import httpx
 import yaml
-print(f"affiliate-sentinel venv ready — httpx {httpx.__version__}, pyyaml {yaml.__version__}")
+from importlib.metadata import version
+import cloakbrowser
+import playwright.sync_api
+
+print(
+    "affiliate-sentinel venv ready — "
+    f"httpx {httpx.__version__}, pyyaml {yaml.__version__}, "
+    f"cloakbrowser {version('cloakbrowser')}, playwright {version('playwright')}"
+)
 PYCHK

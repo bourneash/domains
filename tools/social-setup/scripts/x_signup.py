@@ -1,6 +1,8 @@
-"""Full-auto X (Twitter) signup for any domain — real SMSPool number rented
-per account (X requires phone verification, and rejects VoIP/Twilio-class
-numbers — see reference_sms_verification_smspool memory for why).
+"""Create an X account, then hand security settings to the owner.
+
+SMSPool supplies the one-time signup number. After the logged-in account is
+confirmed, this script stops: the owner adds/verifies recovery email, enables
+authenticator-app 2FA, and removes the temporary signup phone.
 Usage: x_signup.py <domain> <display-name> <desired-handle> [persona-slug]
 
 Without persona-slug: the domain-level brand account (email social@<domain>,
@@ -24,8 +26,8 @@ the first draft of this script was wrong on several points, corrected here):
      never quite gets there within the poll window — the account is
      already fully created well before this finishes, so don't gate
      success on reaching /home.
-  7. /settings/screen_name to claim the desired handle over the
-     auto-generated one.
+  7. Logged-in home/account switcher confirmation; settings are handed to the
+     owner after credentials are saved.
 
 KEY BUG (confirmed live): X renders the *disabled* "Continue" button from
 the chooser screen underneath the modal AND the modal's own enabled
@@ -36,6 +38,7 @@ the dead one. Fix: scope every click to the topmost dialog
 (`get_by_role("dialog")`) when one exists, and require the element be
 enabled, not just visible.
 """
+import os
 import random
 import re
 import sys
@@ -64,6 +67,7 @@ PASSWORD = gen_password()
 SHOT_DIR = Path("/home/jesse/projects/domains/.cloak-screenshots")
 SHOT_DIR.mkdir(parents=True, exist_ok=True)
 PREFIX = f"x-{DOMAIN.split('.')[0]}" + (f"-{PERSONA}" if PERSONA else "")
+VERBOSE = os.environ.get("X_VERBOSE") == "1"
 
 
 def shot(page, name):
@@ -181,17 +185,19 @@ def click_text(page, *texts, timeout=3000):
                 hit = [c for c in visible_enabled if _hit_tests(c)]
                 chosen = hit[0] if hit else (visible_enabled[-1] if visible_enabled else None)
                 if chosen is not None:
-                    print(
-                        f"STATUS click_text({text!r}, exact={exact}): "
-                        f"{n} matched, {len(visible_enabled)} visible+enabled, "
-                        f"{len(hit)} hit-tested — clicking",
-                        flush=True,
-                    )
+                    if VERBOSE:
+                        print(
+                            f"STATUS click_text({text!r}, exact={exact}): "
+                            f"{n} matched, {len(visible_enabled)} visible+enabled, "
+                            f"{len(hit)} hit-tested — clicking",
+                            flush=True,
+                        )
                     chosen.click(timeout=timeout)
                     time.sleep(1.2)
                     return True
             except Exception as e:
-                print(f"STATUS click_text({text!r}) attempt failed: {e}", flush=True)
+                if VERBOSE:
+                    print(f"STATUS click_text({text!r}) attempt failed: {e}", flush=True)
     return False
 
 
@@ -246,58 +252,97 @@ def fill_name_username_password_screen(page, deadline_s=20) -> str:
     Bluesky's handle-taken retry)."""
     scope = dialog_scope(page)
     deadline = time.time() + deadline_s
-    name_input = scope.locator('input[name="name"], input[autocomplete="name"]')
+    name_input = scope.locator(
+        'input[name="name"], input[autocomplete="name"], input[placeholder="Full name"]'
+    )
     while name_input.count() == 0 and time.time() < deadline:
         time.sleep(1)
-        name_input = scope.locator('input[name="name"], input[autocomplete="name"]')
+        name_input = scope.locator(
+            'input[name="name"], input[autocomplete="name"], input[placeholder="Full name"]'
+        )
     if name_input.count() == 0:
         return ""
 
     name_input.first.fill(DISPLAY_NAME)
 
     username_input = scope.locator(
-        'input[name="username"], input[autocomplete="username"]'
+        'input[name="username"], input[autocomplete="username"], input[placeholder="Username"]'
     )
-    candidate = HANDLE_BASE
+    # X can leave a stale/hidden username input in the dialog while the
+    # current one is rendered later.  Filling the first DOM match can update
+    # the wrong field and make the screenshot look unchanged.
+    visible_username_inputs = []
+    for i in range(username_input.count()):
+        candidate_input = username_input.nth(i)
+        try:
+            if candidate_input.is_visible():
+                visible_username_inputs.append(candidate_input)
+        except Exception:
+            pass
+    username_input = visible_username_inputs[-1] if visible_username_inputs else username_input
+    candidate = ""
     if username_input.count():
-        for attempt in range(4):
-            username_input.first.fill(candidate)
+        # X reports both "Username unavailable" and "Username already
+        # taken".  Try a useful secondary immediately, then a couple of
+        # deterministic fallbacks before adding a random suffix.  Checking
+        # the rendered dialog text is more reliable than a locator for the
+        # error: X often leaves the previous error node mounted but hidden.
+        configured_alternatives = [
+            value.strip()
+            for value in os.environ.get("X_HANDLE_ALTERNATIVES", "").split(",")
+            if value.strip()
+        ]
+        candidates = [HANDLE_BASE] + configured_alternatives
+        if not configured_alternatives:
+            candidates += [
+                f"{HANDLE_BASE}hq",
+                f"{HANDLE_BASE}desk",
+                f"{HANDLE_BASE}ecr",
+                f"{HANDLE_BASE}{random.randint(10, 99)}",
+            ]
+        for proposed in candidates:
+            username_input.first.click()
+            username_input.first.press("Control+A")
+            username_input.first.fill(proposed)
+            username_input.first.press("Tab")
             time.sleep(1.5)
-            taken = scope.get_by_text("unavailable", exact=False)
-            if taken.count() > 0 and taken.first.is_visible():
-                candidate = f"{HANDLE_BASE}{random.randint(10, 99)}"
-                continue
-            break
+            try:
+                entered = username_input.first.input_value().strip().lower()
+            except Exception:
+                entered = ""
+            rejected = False
+            for phrase in ("already taken", "unavailable", "not available"):
+                errors = scope.get_by_text(phrase, exact=False)
+                if any(errors.nth(i).is_visible() for i in range(errors.count())):
+                    rejected = True
+                    break
+            if entered == proposed.lower() and not rejected:
+                candidate = proposed
+                break
+            print(f"STATUS X username rejected, trying secondary: {proposed}", flush=True)
+        if not candidate:
+            return ""
 
-    pw_input = scope.locator('input[name="password"], input[type="password"]')
+    pw_input = scope.locator(
+        'input[name="password"], input[type="password"], input[placeholder="Password"]'
+    )
     if pw_input.count():
         pw_input.first.fill(PASSWORD)
 
     return candidate
 
 
-print(f"Generated password: {PASSWORD}", flush=True)
-
 # --- rent the number BEFORE opening the browser, so we're not racing
 # SMSPool's ~20min expiry window against browser/DOM flakiness ---
 order = smspool_order("twitter")
 order_id = order.get("order_id") or order.get("orderid")
 phone_local = order.get("phonenumber") or str(order.get("number"))
-print(f"STATUS rented {phone_local} (order {order_id}) from SMSPool", flush=True)
+print("STATUS SMSPool signup number rented", flush=True)
 
-# Routed through the fleet's VPN proxy (tools/vpn-proxy) — 2026-08-29,
-# after 9 straight identical "Something went wrong" rejections from X's
-# phone-verify step on the FIXED US EXIT (8181), reproduced across a VPN
-# pop switch AND a fresh CloakBrowser profile. See
-# [[reference_vpn_rotating_proxy]]. Switched to the random-global exit
-# (8183) 2026-08-30 per Jesse — different ASN than 8181 (GSL Networks vs
-# Cogent), may dodge whatever datacenter-fingerprint block X is applying.
-# NOTE: the random exit rotates PIA regions every 15min and landed in an
-# EU-ish region once before, serving a GDPR cookie-consent flow this
-# script isn't built for — verify the exit is US before a long run
-# (`curl -x http://127.0.0.1:8183 https://ipinfo.io/json`), and if a run
-# starts failing on an unexpected consent banner, that's likely why.
-context, page = launch_browser(PROFILE_KEY, "x", proxy="http://127.0.0.1:8183")
+# Use the known-good US exit by default; override with CAMOFOX_PROXY_PORT only
+# after checking that exit is US.
+proxy_port = os.environ.get("CAMOFOX_PROXY_PORT", "8181")
+context, page = launch_browser(PROFILE_KEY, "x", proxy=f"http://127.0.0.1:{proxy_port}")
 success = False
 claimed_username = ""
 try:
@@ -454,14 +499,17 @@ try:
         print("STATUS name/username/password screen not found — check screenshot", flush=True)
     shot(page, "09-post-signup-submit.png")
 
-    # Drive whatever's left of onboarding (topic packs/interests/skip) for
-    # up to 2min. The account is fully created well before this settles —
-    # don't gate `success` on reaching the home timeline specifically.
-    deadline = time.time() + 2 * 60
+    # Give optional onboarding a short best-effort pass. The account is
+    # created before this settles; do not spend two minutes on nonessential
+    # topic/follow screens.
+    deadline = time.time() + 30
     while time.time() < deadline:
         wait_for_captcha_clear(page, "onboarding")
-        if page.locator('a[data-testid="AppTabBar_Home_Link"]').count() > 0:
-            print("STATUS reached home timeline", flush=True)
+        if (
+            page.locator('a[data-testid="AppTabBar_Home_Link"]').count() > 0
+            or "/post_signup" in page.url
+        ):
+            print("STATUS post-signup confirmation reached", flush=True)
             success = True
             break
         progressed = click_text(page, "Skip for now", "Not now", "Maybe later", "Next", "Continue")
@@ -480,82 +528,25 @@ except Exception as e:
 if claimed_username:
     success = True
 
-# X may still have swapped in a random suffix if our chosen username lost a
-# same-millisecond race, or the field never got read back correctly here —
-# always re-verify against the settings page rather than trusting the form
-# value, same "verify before vault-write" discipline as every other
-# platform's script.
+# Confirm the logged-in account without touching X settings. Security/profile
+# settings are deliberately a human handoff because X's settings routes are
+# flaky and require owner judgment.
 actual_handle = ""
 try:
-    settings_deadline = time.time() + 20
-    while time.time() < settings_deadline:
-        page.goto("https://x.com/settings/screen_name", wait_until="domcontentloaded", timeout=20000)
-        time.sleep(3)
-        handle_field = page.locator('input[name="screen_name"]')
-        if handle_field.count():
-            try:
-                val = handle_field.first.input_value(timeout=5000)
-            except Exception:
-                val = ""
-            if val:
-                actual_handle = val
-                break
-        time.sleep(2)
-    shot(page, "11-username-settings.png")
-
-    if claimed_username and actual_handle and actual_handle.lower() != claimed_username.lower():
-        # Try to claim the intended handle explicitly now that we're on
-        # the settings page directly (belt-and-suspenders — the signup
-        # screen's own username field should have already claimed it).
-        handle_field = page.locator('input[name="screen_name"]')
-        if handle_field.count():
-            candidate = claimed_username
-            for attempt in range(3):
-                handle_field.first.fill(candidate)
-                time.sleep(1.5)
-                taken = page.get_by_text("already taken")
-                unavailable = page.get_by_text("unavailable", exact=False)
-                if (taken.count() > 0 and taken.first.is_visible()) or (
-                    unavailable.count() > 0 and unavailable.first.is_visible()
-                ):
-                    candidate = f"{claimed_username}{random.randint(10, 99)}"
-                    continue
-                break
-            click_text(page, "Save")
-            time.sleep(3)
-            page.goto("https://x.com/settings/screen_name", wait_until="domcontentloaded", timeout=20000)
-            time.sleep(3)
-            handle_field = page.locator('input[name="screen_name"]')
-            if handle_field.count():
-                try:
-                    reread = handle_field.first.input_value(timeout=5000)
-                    if reread:
-                        actual_handle = reread
-                except Exception:
-                    pass
+    page.goto("https://x.com/home", wait_until="domcontentloaded", timeout=20000)
+    time.sleep(3)
+    acct_link = page.locator('[data-testid="SideNav_AccountSwitcher_Button"]')
+    if acct_link.count():
+        txt = acct_link.first.inner_text(timeout=5000)
+        m = re.search(r"@([A-Za-z0-9_]+)", txt)
+        if m:
+            actual_handle = m.group(1)
 except Exception as e:
-    print(f"handle-claim note: {e}", flush=True)
-
-# Fall back to the profile page's own display of the handle if the settings
-# input never read back cleanly, rather than declaring failure on an
-# account we know (from claimed_username) was actually created.
-if not actual_handle:
-    try:
-        page.goto("https://x.com/home", wait_until="domcontentloaded", timeout=20000)
-        time.sleep(3)
-        acct_link = page.locator('[data-testid="SideNav_AccountSwitcher_Button"]')
-        if acct_link.count():
-            txt = acct_link.first.inner_text(timeout=5000)
-            m = re.search(r"@(\w+)", txt)
-            if m:
-                actual_handle = m.group(1)
-    except Exception as e:
-        print(f"profile-fallback note: {e}", flush=True)
+    print(f"STATUS logged-in confirmation note: {e}", flush=True)
 
 if not actual_handle:
-    actual_handle = claimed_username
+    print("STATUS account not confirmed — no credentials written", flush=True)
 
-print(f"HANDLE_FOUND:{actual_handle}", flush=True)
 context.close()
 
 if success and actual_handle:
@@ -563,9 +554,13 @@ if success and actual_handle:
         "X_HANDLE": actual_handle,
         "X_PASSWORD": PASSWORD,
         "X_EMAIL": EMAIL,
-        "X_PHONE": phone_local,
+        "X_EMAIL_VERIFICATION_REQUIRED": "true",
+        "X_2FA_SETUP_REQUIRED": "true",
+        "X_PHONE_REMOVAL_REQUIRED": "true",
     })
-    print(f"STATUS creds written to vault, handle={actual_handle}", flush=True)
+    print(f"STATUS account confirmed and credentials saved (@{actual_handle})", flush=True)
+    print("HANDOFF: add+verify recovery email; enable authenticator-app 2FA; remove temporary signup phone; save backup codes", flush=True)
+    print(f"HANDOFF_EMAIL: {EMAIL}", flush=True)
 else:
     print("STATUS SIGNUP DID NOT SUCCEED — no creds written, needs retry/recovery", flush=True)
 

@@ -48,7 +48,7 @@ for arg in "$@"; do
 done
 
 if [[ "${#SITES[@]}" -eq 0 ]]; then
-  echo "usage: $0 [--dry-run|--no-heal] <site.com> [site2.com ...]" >&2
+  echo "usage: $0 [--dry-run|--heal|--no-heal] <site.com> [site2.com ...]" >&2
   exit 0
 fi
 

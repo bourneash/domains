@@ -9,6 +9,11 @@ Cloudflare Workers Build), and — with `--verify` — polls the CF API to confi
 new worker version actually shipped. Repos that push but never get a new version
 are the misconfigured ones.
 
+The fleet's Workers Builds watch-path contract is includes `site/*` and
+`.deploy-probe`, no excludes, with Build Cache enabled. Keeping `.deploy-probe`
+in the allowlist lets this test force a deployment without making unrelated
+`ops/**` state commits deploy the site.
+
 ## Quick start
 
 ```bash

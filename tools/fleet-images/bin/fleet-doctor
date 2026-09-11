@@ -187,15 +187,20 @@ check_site() {
       note "roll it: tools/fleet-images/bin/fleet-image-build cron --roll --sites ${site}"
     fi
 
-    # Scheduling ZERO jobs means the container is up and doing nothing — which
-    # looks identical to healthy in `docker ps`. Assert it actually loaded a
-    # schedule.
+    # Scheduling ZERO jobs normally means the container is up and doing
+    # nothing — which looks identical to healthy in `docker ps`. A deliberately
+    # parked site may opt out with the same machine-readable marker enforced by
+    # cron-freshness.py. Honor it only for a zero-job schedule, so a stale marker
+    # cannot hide a subsequently re-enabled but wedged scheduler.
     local sched
     sched="$(docker logs "$cname" 2>&1 | grep -oE 'scheduling [0-9]+ job' | tail -1 | grep -oE '[0-9]+' || true)"
     if [[ -z "$sched" ]]; then
       pend "could not read scheduled-job count from ${cname} logs"
     elif [[ "$sched" -gt 0 ]]; then
       ok "scheduler loaded ${sched} job(s)"
+    elif [[ -n "$ct_src" ]] \
+      && grep -qiE '^\s*#\s*fleet-cron:\s*disabled([[:space:]]|$)' "${dir}/${ct_src#./}" 2>/dev/null; then
+      ok "scheduler intentionally disabled (0 jobs; fleet-cron marker present)"
     else
       bad "scheduler loaded 0 jobs — container is up but doing nothing"
     fi

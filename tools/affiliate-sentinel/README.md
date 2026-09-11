@@ -2,8 +2,8 @@
 
 API-driven affiliate health check for the domain fleet. Replaces the weekly
 `curl`-and-grep sweep (`tools/affiliate-link-check`, the zero-AI bash sentinel)
-with three deterministic checks plus an AI heal that fires only on a confirmed
-failure.
+with three deterministic checks. Scheduled and default runs use zero AI; an
+AI-assisted heal is available only through the explicit `--heal` option.
 
 ## Why this replaced the curl sweep
 
@@ -40,7 +40,8 @@ fleet's worst affiliate bug actually lived (`_redirects`-based `/go/` silently
 4. **Check direct links** (zero tokens) — for intentional search-backed
    catalogs with no cloak, match each registry search phrase to the Amazon URL
    rendered on the live site and verify its Associates tag.
-5. **Heal** (the only token spend) — only for a `CONFIRMED_DEAD` ASIN. See below.
+5. **File** — confirmed failures become tasks. An explicit `--heal` run may
+   instead use the optional AI-assisted replacement path described below.
 6. **Report** — one Slack line, every run, clean or not.
 
 ## The heal path
@@ -82,11 +83,11 @@ filed rather than shipping a fabricated rating on a live page.
 # from a site repo root
 bash .monorepo-tools/affiliate-sentinel/run-affiliate-sentinel.sh
 
-# report only — no writes, no heal, no deploy, no tokens
+# report only — no writes, no deploy, no AI
 bash .monorepo-tools/affiliate-sentinel/run-affiliate-sentinel.sh --dry-run
 
-# check + file tasks, but never auto-replace (zero tokens)
-bash .monorepo-tools/affiliate-sentinel/run-affiliate-sentinel.sh --no-heal
+# manual opt-in only: allow AI-assisted replacement of confirmed-dead products
+bash .monorepo-tools/affiliate-sentinel/run-affiliate-sentinel.sh --heal
 ```
 
 Direct invocation, e.g. from the host:

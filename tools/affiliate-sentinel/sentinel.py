@@ -16,16 +16,17 @@ three genuinely different questions:
      linked straight to Amazon search results, inspect the live site HTML and
      assert that every registry query carries the right Associates tag.
 
-None of the checks costs a token. AI is invoked only when check 1 produces a
-CONFIRMED_DEAD ASIN, and then only to choose among candidates the API has
-already verified (see heal.py).
+None of the checks costs a token. AI healing is disabled by default. A manual
+run may opt into it with --heal after check 1 produces a CONFIRMED_DEAD ASIN;
+the model then only chooses among candidates the API already verified (see
+heal.py).
 
 Everything is discovered per-run from the site itself — the registry and the
 cloak routes — so products added later are picked up with no configuration
 and nothing to keep in sync.
 
 Usage:
-    sentinel.py --site-root /work [--dry-run] [--no-heal] [--json]
+    sentinel.py --site-root /work [--dry-run] [--heal] [--json]
 
 Exit codes:
     0  ran, reported whatever it found in the site's own Slack channel.
@@ -239,7 +240,16 @@ def main() -> int:
         help="cloak routes to probe per run (0 = all); larger catalogs rotate across runs",
     )
     ap.add_argument("--dry-run", action="store_true", help="check and report; never write, heal, or deploy")
-    ap.add_argument("--no-heal", action="store_true", help="file tasks instead of auto-replacing (zero AI)")
+    heal_mode = ap.add_mutually_exclusive_group()
+    heal_mode.add_argument(
+        "--heal", dest="no_heal", action="store_false",
+        help="opt into AI-assisted replacement after a confirmed-dead verdict",
+    )
+    heal_mode.add_argument(
+        "--no-heal", dest="no_heal", action="store_true",
+        help="file tasks instead of auto-replacing (default; retained for compatibility)",
+    )
+    ap.set_defaults(no_heal=True)
     ap.add_argument("--json", action="store_true", help="dump the full result object to stdout")
     ap.add_argument(
         "--post-api-outage",
@@ -372,38 +382,43 @@ def main() -> int:
                     # by design — no /go/ route to fall back on) has NOTHING
                     # left to check once the API is down, and reports itself
                     # UNMONITORED even though the products are almost
-                    # certainly fine. A cloak site loses nothing by also
-                    # getting this — it's the same soft-404 signal
+                    # certainly fine. It uses the same soft-404 signal
                     # `amz.confirm_dead` uses, just rendered through a real
                     # browser instead of a bare HTTP client. Bounded hard: a
                     # browser launch per ASIN is not free, and this exists to
                     # answer "is anything actually dead", not to replace the
-                    # API for a large catalog.
-                    candidates = asin_products[:MAX_BROWSER_FALLBACK_CHECKS]
-                    log(
-                        f"browser fallback: checking {len(candidates)} of "
-                        f"{len(asin_products)} ASIN(s) via direct page render"
-                    )
-                    verified = 0
-                    for p in candidates:
-                        verdict = browser_check.check_alive(p.asin, log)
-                        if verdict is True:
-                            health[p.asin] = amz.AsinHealth(
-                                p.asin,
-                                amz.OK,
-                                note="browser fallback: product page renders while the Creators API is down",
+                    # API for a large catalog. Sites with /go/ routes retain
+                    # the cheaper cloak assertion and skip this browser batch.
+                    if not ids:
+                        dependency_error = browser_check.runtime_error()
+                        if dependency_error:
+                            log(f"browser fallback unavailable — {dependency_error}")
+                        else:
+                            candidates = asin_products[:MAX_BROWSER_FALLBACK_CHECKS]
+                            log(
+                                f"browser fallback: checking {len(candidates)} of "
+                                f"{len(asin_products)} ASIN(s) via direct page render"
                             )
-                            verified += 1
-                        elif verdict is False:
-                            health[p.asin] = amz.AsinHealth(
-                                p.asin,
-                                amz.CONFIRMED_DEAD,
-                                note="browser fallback: soft-404 while the Creators API is down",
-                            )
-                            verified += 1
-                        # None (bot wall / timeout / unrecognized page) — leave
-                        # unverified rather than guess.
-                    log(f"browser fallback: verified {verified}/{len(candidates)}")
+                            verified = 0
+                            for p in candidates:
+                                verdict = browser_check.check_alive(p.asin, log)
+                                if verdict is True:
+                                    health[p.asin] = amz.AsinHealth(
+                                        p.asin,
+                                        amz.OK,
+                                        note="browser fallback: product page renders while the Creators API is down",
+                                    )
+                                    verified += 1
+                                elif verdict is False:
+                                    health[p.asin] = amz.AsinHealth(
+                                        p.asin,
+                                        amz.CONFIRMED_DEAD,
+                                        note="browser fallback: soft-404 while the Creators API is down",
+                                    )
+                                    verified += 1
+                                # None (bot wall / timeout / unrecognized page)
+                                # — leave unverified rather than guess.
+                            log(f"browser fallback: verified {verified}/{len(candidates)}")
 
                 # Confirmation gate: PA-API "missing" is a suspicion, not a verdict.
                 for h in health.values():
@@ -470,10 +485,10 @@ def main() -> int:
                             f"{heal_mod.MAX_HEALS_PER_RUN} this run — remainder retried next run"
                         )
                 elif actionable_dead:
-                    log(f"--no-heal: {len(actionable_dead)} dead product(s) will be filed as tasks")
+                    log(f"AI healing disabled: {len(actionable_dead)} dead product(s) will be filed as tasks")
                     for p, _h in actionable_dead:
                         heals.append(
-                            heal_mod.HealResult(p.id, p.asin, False, reason="healing disabled (--no-heal)")
+                            heal_mod.HealResult(p.id, p.asin, False, reason="AI healing disabled")
                         )
     else:
         log("registry has no ASINs (search-URL registry) — API check not applicable")

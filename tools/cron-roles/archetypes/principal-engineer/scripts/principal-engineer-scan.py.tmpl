@@ -43,6 +43,18 @@ SELF_SIGNATURE = "principal engineer"
 TEST_PREFIXES = ("test ", "[test]", "test:")
 SYNTHETIC_MARKER = "synthetic failure"
 
+# claude-tracked explicitly delegates these shared-account outages to the
+# fleet auth monitor.  A role can emit two Slack errors for one failed turn:
+# its short, role-specific failure and run-role.sh's detailed failure.  Keep a
+# small correlation window so neither half wakes a principal engineer that
+# would immediately fail on the same unavailable credentials.
+FLEET_AUTH_MARKERS = (
+    "class=authentication_failed",
+    "class=account_usage_exhausted",
+    "fleet auth monitor owns the outage/recovery alert",
+)
+AUTH_COMPANION_WINDOW_SECS = 15
+
 STOP = {"the", "a", "an", "is", "are", "was", "were", "and", "or", "but", "for",
         "to", "of", "in", "on", "at", "by", "it", "its", "this", "that", "must",
         "needs", "need", "owner", "jesse", "check", "fix", "keeps", "every",
@@ -126,7 +138,34 @@ def read_slack_lines(since_dt):
                     lines.append(rec)
         except Exception:
             continue
-    return lines
+
+    auth_failures = []
+    for rec in lines:
+        text = rec.get("text", "").lower()
+        if not any(marker in text for marker in FLEET_AUTH_MARKERS):
+            continue
+        role_match = re.search(r"\brole=([a-z0-9_-]+)", text)
+        auth_failures.append((
+            rec.get("channel", ""),
+            parse_ts(rec.get("ts", "")),
+            role_match.group(1) if role_match else None,
+        ))
+
+    def owned_by_auth_monitor(rec):
+        text = rec.get("text", "").lower()
+        if any(marker in text for marker in FLEET_AUTH_MARKERS):
+            return True
+        ts = parse_ts(rec.get("ts", ""))
+        if ts is None or "failed" not in text or not re.search(r"\bexit\s*[= ]\s*\d+", text):
+            return False
+        for channel, auth_ts, role in auth_failures:
+            if channel != rec.get("channel", "") or auth_ts is None or not role:
+                continue
+            if role in text and abs((ts - auth_ts).total_seconds()) <= AUTH_COMPANION_WINDOW_SECS:
+                return True
+        return False
+
+    return [rec for rec in lines if not owned_by_auth_monitor(rec)]
 
 
 def load_incidents():

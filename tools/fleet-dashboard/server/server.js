@@ -24,6 +24,7 @@ const cloudflarebuilds = require('./cloudflarebuilds');
 const gatushealth = require('./gatushealth');
 const datahub = require('./datahub');
 const analytics = require('./analytics');
+const revenue = require('./revenue');
 const seoIntelligence = require('./seointelligence');
 const datahubImages = require('./datahub-images');
 const productFeed = require('./product-feed');
@@ -225,6 +226,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     res.json(await fn(req.query.site, req.query.metric, window, limit));
   });
   app.get('/api/analytics/wow', async (req, res) => res.json(await analytics.wow(req.query.site)));
+  app.get('/api/revenue/amazon', (_req, res) => res.json(revenue.amazonSummary(root)));
 
   // SEO Intelligence joins first-party GSC data with the latest fleet-owned
   // web-vitals and link-rot reports, then emits ranked, evidence-backed work.

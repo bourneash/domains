@@ -1,0 +1,15 @@
+{
+  "name": "@domains/camofox-browser-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pinned fleet runtime for jo-inc/camofox-browser",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "camofox-browser"
+  },
+  "dependencies": {
+    "@askjo/camofox-browser": "1.14.0"
+  }
+}

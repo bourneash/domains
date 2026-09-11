@@ -12,9 +12,10 @@
 # Run from the site repo root:
 #   bash .monorepo-tools/affiliate-sentinel/run-affiliate-sentinel.sh
 #
-# Flags are passed straight through, so the manual fallbacks are:
+# Flags are passed straight through:
+#   ... run-affiliate-sentinel.sh               # default: file tasks, zero AI
 #   ... run-affiliate-sentinel.sh --dry-run     # report only, never write
-#   ... run-affiliate-sentinel.sh --no-heal     # file tasks, spend zero tokens
+#   ... run-affiliate-sentinel.sh --heal        # explicit AI-assisted replacement
 #
 # Exit code: 0 when the sentinel ran, whatever it found — a sentinel that fails
 # a cron tick over a dead ASIN is a sentinel someone has to babysit, and real

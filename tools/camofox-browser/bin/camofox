@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TOOL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OUT_DIR="$TOOL_DIR/out"
+PID_FILE="$OUT_DIR/camofox.pid"
+LOG_FILE="$OUT_DIR/camofox.log"
+PORT="${CAMOFOX_PORT:-9377}"
+
+mkdir -p "$OUT_DIR/profiles" "$OUT_DIR/traces" "$OUT_DIR/uploads"
+
+export CAMOFOX_PORT="$PORT"
+export CAMOFOX_BIND_HOST="127.0.0.1"
+export CAMOFOX_PROFILE_DIR="$OUT_DIR/profiles"
+export CAMOFOX_TRACES_DIR="$OUT_DIR/traces"
+export CAMOFOX_UPLOADS_DIR="$OUT_DIR/uploads"
+export CAMOFOX_CRASH_REPORT_ENABLED="false"
+export CAMOFOX_INTERACTIVE="${CAMOFOX_INTERACTIVE:-off}"
+
+# Match social-setup's current X routing by default. Set CAMOFOX_PROXY=off
+# to use the host's direct egress, or override CAMOFOX_PROXY_PORT.
+if [[ "${CAMOFOX_PROXY:-on}" != "off" ]]; then
+  export PROXY_HOST="${CAMOFOX_PROXY_HOST:-127.0.0.1}"
+  export PROXY_PORT="${CAMOFOX_PROXY_PORT:-8183}"
+fi
+
+is_running() {
+  [[ -f "$PID_FILE" ]] || return 1
+  local pid
+  pid="$(<"$PID_FILE")"
+  [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
+case "${1:-foreground}" in
+  foreground)
+    cd "$TOOL_DIR"
+    echo "$$" >"$PID_FILE"
+    exec "$TOOL_DIR/node_modules/.bin/camofox-browser"
+    ;;
+  start)
+    if is_running; then
+      echo "camofox-browser already running (pid $(<"$PID_FILE"), port $PORT)"
+      exit 0
+    fi
+    cd "$TOOL_DIR"
+    nohup "$TOOL_DIR/node_modules/.bin/camofox-browser" >>"$LOG_FILE" 2>&1 &
+    pid=$!
+    echo "$pid" >"$PID_FILE"
+    for _ in {1..60}; do
+      if curl -fsS --max-time 2 "http://127.0.0.1:$PORT/health" >/dev/null; then
+        echo "camofox-browser ready (pid $pid, http://127.0.0.1:$PORT)"
+        exit 0
+      fi
+      if ! kill -0 "$pid" 2>/dev/null; then
+        echo "camofox-browser exited during startup; see $LOG_FILE" >&2
+        exit 1
+      fi
+      sleep 1
+    done
+    echo "camofox-browser did not become healthy; see $LOG_FILE" >&2
+    exit 1
+    ;;
+  status)
+    if ! is_running; then
+      echo "camofox-browser is stopped"
+      exit 1
+    fi
+    curl -fsS --max-time 5 "http://127.0.0.1:$PORT/health"
+    echo
+    ;;
+  stop)
+    if ! is_running; then
+      echo "camofox-browser is stopped"
+      exit 0
+    fi
+    pid="$(<"$PID_FILE")"
+    kill "$pid"
+    for _ in {1..20}; do
+      kill -0 "$pid" 2>/dev/null || break
+      sleep 0.25
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+      echo "camofox-browser did not stop cleanly (pid $pid)" >&2
+      exit 1
+    fi
+    rm -f "$PID_FILE"
+    echo "camofox-browser stopped"
+    ;;
+  *)
+    echo "usage: $0 {foreground|start|status|stop}" >&2
+    exit 2
+    ;;
+esac

@@ -39,8 +39,20 @@ class TestInterpreterResolution:
         r = _run("bin/ensure-venv")
         assert r.returncode == 0
         py = r.stdout.strip()
-        check = subprocess.run([py, "-c", "import httpx"], capture_output=True, timeout=60)
-        assert check.returncode == 0, "resolver returned a python that cannot import httpx"
+        check = subprocess.run(
+            [py, "-c", "import httpx, yaml, cloakbrowser, playwright.sync_api"],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert check.returncode == 0, (
+            "resolver returned a python missing a runtime dependency: " + check.stderr
+        )
+
+    def test_browser_fallback_deps_are_pinned_and_preflighted(self):
+        requirements = (TOOL / "requirements.txt").read_text()
+        resolver = (TOOL / "bin" / "ensure-venv").read_text()
+        for dep in ("cloakbrowser", "playwright"):
+            assert f"{dep}==" in requirements, f"{dep} must be pinned"
+            assert dep in resolver, f"{dep} must be checked before a fleet run"
 
     def test_fails_loudly_when_nothing_usable(self, tmp_path):
         # A resolver that silently falls back to a broken interpreter is the
@@ -126,6 +138,24 @@ class TestZeroProductGuard:
         assert "exit 3" in src, "infra failures must not be flattened to 0"
         assert 'exec "$PYTHON"' in src, "must use the resolved interpreter"
         assert "exec python3" not in src, "ambient python3 is the original bug"
+
+
+class TestZeroAiDefault:
+    """The scheduled/default health check must never spend model tokens."""
+
+    def test_healing_requires_explicit_opt_in(self):
+        src = (TOOL / "sentinel.py").read_text()
+        assert '"--heal", dest="no_heal", action="store_false"' in src
+        assert "ap.set_defaults(no_heal=True)" in src
+        assert "actionable_dead and not args.no_heal" in src
+
+    def test_heal_integration_explicitly_opts_in(self):
+        src = (TOOL / "tests" / "integration_heal.sh").read_text()
+        invocation = next(
+            line for line in src.splitlines()
+            if '"$TOOL_DIR/sentinel.py"' in line
+        )
+        assert "--heal" in invocation
 
 
 class TestTransientNotPermanent:

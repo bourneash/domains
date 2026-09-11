@@ -53,6 +53,19 @@ def _cc_lib():
     return cc_lib
 
 
+def runtime_error() -> str | None:
+    """Return a useful dependency error before a fallback batch starts."""
+    cc_lib = _cc_lib()
+    if cc_lib is None:
+        return "cc_lib is unavailable"
+    try:
+        import cloakbrowser  # noqa: F401
+        import playwright.sync_api  # noqa: F401
+    except ImportError as exc:
+        return f"{type(exc).__name__}: {exc}"
+    return None
+
+
 def check_alive(asin: str, log=lambda *_: None) -> bool | None:
     """Render `/dp/<asin>` and classify it.
 
@@ -75,7 +88,10 @@ def check_alive(asin: str, log=lambda *_: None) -> bool | None:
             "() => document.body ? document.body.innerText.slice(0, 2000) : ''"
         )
     except Exception as exc:
-        log(f"browser-check: {asin} failed ({type(exc).__name__}) — inconclusive")
+        log(
+            f"browser-check: {asin} failed "
+            f"({type(exc).__name__}: {exc}) — inconclusive"
+        )
         return None
     finally:
         if ctx is not None:

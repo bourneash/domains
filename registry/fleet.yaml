@@ -74,7 +74,7 @@ sites:
     - analytics
     analytics:
       ga4_property_id: '540969570'
-      ga4_measurement_id: null
+      ga4_measurement_id: G-Q3L0F7B9LD
       gsc_property: sc-domain:3boobs.com
       consent_gated: true
     smoke_string: 3boobs.com
@@ -373,9 +373,9 @@ sites:
     registered_in:
     - domains-index
     - site-tracker
+    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
-    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -424,9 +424,11 @@ sites:
     - cron
     - smoke
     - tasks
+    - social
     registered_in:
     - domains-index
     - site-tracker
+    - social
   greatamericanlakes.com:
     status: live
     repo: bourneash/greatamericanlakes.com
@@ -673,7 +675,7 @@ sites:
     - social
     analytics:
       ga4_property_id: '539712309'
-      ga4_measurement_id: null
+      ga4_measurement_id: G-R2H86NCJ2F
       gsc_property: sc-domain:rc-9.com
       consent_gated: true
     smoke_string: Free Online Artillery Tank Game
