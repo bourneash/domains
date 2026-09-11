@@ -97,6 +97,27 @@ for arg in "$@"; do
   ARGS+=("$arg")
 done
 
+# ---- Oversized-payload guard (2026-09-10) ----
+# Fleet audit found a recurring shape: a role's prompt/context grows past what
+# its turn budget can chew through in one pass (raw feed dumps, huge log/issue
+# dumps, etc.), and the call dies at error_max_turns burning near-full cost for
+# zero usable output — the exact bug already fixed once for 0daynews/news-writer
+# (2026-08-29, trimmed to a pre-filtered top-30 cache). This wrapper is the one
+# choke point every role's `claude -p` call already routes through, so it's the
+# cheapest place to catch the NEXT occurrence of that shape early: log a loud,
+# cheap (no extra Claude cost) warning BEFORE invoking Claude when the prompt
+# itself is unusually large, so it shows up in the role's own log instead of
+# only being discoverable after the fact via a token-usage post-mortem.
+# Threshold is deliberately generous (most legitimate role prompts are a few
+# KB) — this is a smoke detector, not a hard limit; it never blocks the call.
+PAYLOAD_WARN_BYTES="${CLAUDE_PAYLOAD_WARN_BYTES:-60000}"
+if [[ -n "${ARGS[0]:-}" ]]; then
+  PROMPT_BYTES=$(printf '%s' "${ARGS[0]}" | wc -c)
+  if [[ "$PROMPT_BYTES" -gt "$PAYLOAD_WARN_BYTES" ]]; then
+    echo "claude-tracked.sh: WARNING prompt payload is ${PROMPT_BYTES} bytes (> ${PAYLOAD_WARN_BYTES}) for $CRON_SITE/$CRON_ROLE — an oversized prompt is the most common cause of error_max_turns burning full cost for zero output; consider pre-filtering/trimming context before this call." >&2
+  fi
+fi
+
 # Keep the caller's intent alongside Claude's observed modelUsage result.  The
 # CLI may resolve aliases or apply account-level routing, so the two fields are
 # intentionally separate rather than overwriting the observed model below.

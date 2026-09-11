@@ -38,7 +38,14 @@ MAX_ATTEMPTS="${WATCHDOG_MAX_ATTEMPTS:-3}"
 COOLDOWN="${WATCHDOG_COOLDOWN:-1200}"      # 20m
 DEPLOY_STUCK_AGE="${WATCHDOG_DEPLOY_STUCK_AGE:-1200}"  # 20m
 WORK_TIMEOUT="${WATCHDOG_WORK_TIMEOUT:-1800}"          # 30m model budget
-MAX_TURNS="${WATCHDOG_MAX_TURNS:-30}"
+# 2026-09-10 error_max_turns audit: fleet watchdog repair passes were dying
+# at exactly cap+1 turns with zero WATCHDOG_FIXED/SUMMARY/DETAIL output — a
+# full billed session escalating with no diagnostic content, the same shape
+# principal-engineer fixed on 2026-09-07 (see that role's MAX_TURNS comment).
+# Applying the same fix here: a little headroom plus a turn-budget checkpoint
+# in PROMPT below so a run running long reports its best-available finding
+# instead of nothing.
+MAX_TURNS="${WATCHDOG_MAX_TURNS:-34}"
 DRY_RUN="${WATCHDOG_DRY_RUN:-0}"
 
 INC_DIR="$REPO_ROOT/ops/health/incidents"
@@ -357,6 +364,14 @@ RESULT_FILE="$(mktemp)"; trap 'rm -f "$RESULT_FILE"' EXIT
 PROMPT="You are the {{SITE_BRAND}} autonomous Watchdog repair engineer. Today is ${TODAY} (${NOW_ET}).
 Working directory: ${REPO_ROOT}. You were woken by an OPEN production incident and must fix it FAST.
 Your full role contract is in ops/roles/watchdog.md — follow it. You have ${MAX_TURNS} turns.
+
+**Turn-budget checkpoint (2026-09-10 fix -- a truncated run used to escalate
+with zero findings and burn the full session for nothing): keep a rough count
+of your own turns.** If you are past turn $((MAX_TURNS - 8)) and have not yet
+output your final report block, STOP investigating/fixing right now and output
+that block immediately with your best-available findings -- WATCHDOG_FIXED=0
+with a real WATCHDOG_DETAIL from a partial investigation is worth far more
+than a truncated session that reports nothing.
 
 ## The incident
 ${INCIDENT_JSON}
