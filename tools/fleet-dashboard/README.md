@@ -13,6 +13,11 @@ Key views include:
 - **Git** — per-site working-tree status (each site is its own submodule repo):
   branch, uncommitted-file count, ahead/behind. Expand a row to see the exact
   changed files with their porcelain status codes.
+- **Build Usage** — automatically cached Cloudflare Workers Builds history with
+  build minutes, monthly allowance/overage projection, repository rollups,
+  linked commits and messages, failures, and the live production/preview trigger
+  inventory. It also audits every trigger against the fleet path-filter and
+  build-cache policy without exposing build tokens or environment variables.
 - **Tasks** — full CRUD over each site's `ops/tasks/{backlog,in-progress,done,hold}`
   board: create, edit (frontmatter + markdown body), move between columns, and
   delete. Edits write the markdown files directly; the site's
@@ -129,6 +134,7 @@ and presentation.
 | `FD_DOMAINS_ROOT` | repo root | path to the domains monorepo |
 | `FD_DATA_DIR` | `./data` | where the action audit log (`actions.jsonl`) is written |
 | `DATAHUB_API` | `http://host.docker.internal:4760` | first-party GSC/GA4 source used by SEO Intelligence |
+| `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` | root `.env` fallback | read-only source for the Build Usage background cache; credentials are never returned by the API or written to its cache |
 | `FD_QUIET` | _(unset)_ | set `1` to silence the request log |
 
 ## Test

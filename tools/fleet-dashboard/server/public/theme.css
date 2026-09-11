@@ -351,6 +351,16 @@ body[data-view="seointelligence"] main { max-width: none; }
   box-shadow: var(--sh-2);
   backdrop-filter: blur(8px);
 }
+
+.cfb-stat {
+  background: var(--grad-panel), linear-gradient(180deg, rgba(19,24,34,.94), rgba(14,18,26,.94));
+  border-color: rgba(255,255,255,.075);
+  box-shadow: var(--sh-2);
+}
+.cfb-stat::before { box-shadow: 0 0 14px -2px var(--cfb-c, var(--a1)); }
+.cfb-stat strong { color: var(--text-hi); }
+.cfb-bar { background: linear-gradient(180deg, var(--a1), rgba(94,169,255,.55)); box-shadow: 0 0 10px -4px var(--a1); transition: filter .15s var(--ease), opacity .15s var(--ease); }
+.cfb-day:hover .cfb-bar { filter: brightness(1.25); opacity: 1; }
 /* auto, not hidden: a table wider than the card scrolls instead of clipping */
 .card { overflow: auto; transition: box-shadow .25s var(--ease), border-color .25s var(--ease); }
 .card:hover { border-color: rgba(255,255,255,.11); box-shadow: var(--sh-3); }

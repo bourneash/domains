@@ -1497,6 +1497,192 @@ async function renderDeployHealth() {
   stamp();
 }
 
+/* ===================== CLOUDFLARE BUILDS ===================== */
+// Live Workers Builds configuration plus a persisted 180-day build/commit
+// history. The server refreshes Cloudflare every five minutes; this view only
+// reads the sanitized cache, so auto-refresh is cheap.
+const CF_BUILDS = { days: 30 };
+
+function cfbMinutes(value) {
+  const n = Number(value) || 0;
+  return n >= 1000
+    ? `${Math.round(n).toLocaleString()} min`
+    : `${n.toLocaleString(undefined, { maximumFractionDigits: 1 })} min`;
+}
+
+function cfbDuration(seconds) {
+  const s = Number(seconds);
+  if (!Number.isFinite(s)) return '—';
+  return s < 60 ? `${Math.round(s)}s` : `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`;
+}
+
+function cfbUnitPrice(value) {
+  return `$${(Number(value) || 0).toFixed(3)}`;
+}
+
+function cfbRepoLink(account, repo) {
+  const href = safeHref(`https://github.com/${encodeURIComponent(account || 'bourneash')}/${encodeURIComponent(repo)}`);
+  return href
+    ? `<a class="site-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(repo)}<span class="ext">↗</span></a>`
+    : esc(repo || 'unknown');
+}
+
+function cfbCommitLink(build) {
+  if (!build.commitHash) return '<span class="muted">—</span>';
+  const href = safeHref(
+    `https://github.com/${encodeURIComponent(build.providerAccount || 'bourneash')}/${encodeURIComponent(build.repo)}/commit/${encodeURIComponent(build.commitHash)}`
+  );
+  const short = build.commitHash.slice(0, 7);
+  return href
+    ? `<a class="mono cfb-commit" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(short)}</a>`
+    : `<span class="mono">${esc(short)}</span>`;
+}
+
+function cfbBadge(outcome) {
+  if (outcome === 'success') return '<span class="badge b-green">success</span>';
+  if (outcome === 'fail' || outcome === 'terminated')
+    return `<span class="badge b-red">${esc(outcome)}</span>`;
+  return `<span class="badge b-gray">${esc(outcome || 'running')}</span>`;
+}
+
+function cfbChart(rows) {
+  if (!rows.length) return '<div class="cfb-chart-empty">No builds in this period.</div>';
+  const max = Math.max(...rows.map(row => Number(row.minutes) || 0), 1);
+  return `<div class="cfb-chart" role="img" aria-label="Daily Cloudflare build minutes">
+    ${rows
+      .map(row => {
+        const height = Math.max(2, Math.round(((Number(row.minutes) || 0) / max) * 100));
+        const label = new Date(`${row.day}T00:00:00Z`).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC',
+        });
+        return `<div class="cfb-day" title="${esc(`${row.day}: ${row.builds} builds · ${cfbMinutes(row.minutes)} · ${row.failed} failed`)}">
+          <div class="cfb-bar-wrap"><i class="cfb-bar${row.failed ? ' has-fail' : ''}" style="height:${height}%"></i></div>
+          <span>${esc(label)}</span>
+        </div>`;
+      })
+      .join('')}
+  </div>`;
+}
+
+async function renderCloudflareBuilds() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading Cloudflare build telemetry…</div>';
+  let data;
+  try {
+    data = await api('GET', `/api/cloudflare-builds?days=${CF_BUILDS.days}&limit=300`);
+  } catch (e) {
+    app.innerHTML = `<div class="empty">Cloudflare Builds telemetry failed: ${esc(e.message)}</div>`;
+    return;
+  }
+  const summary = data.summary || {};
+  const pricing = data.pricing || {};
+  const repos = data.byRepo || [];
+  const builds = data.builds || [];
+  const triggers = data.triggers || [];
+  const lastSweep = data.lastSweep ? `${fmtAge((Date.now() - data.lastSweep) / 1000)} ago` : 'waiting for first sweep';
+  const policyHealthy = summary.triggers && summary.compliantTriggers === summary.triggers;
+  const projectedOver = Number(summary.projectedOverageUsd) || 0;
+
+  const repoRows = repos
+    .map(row => {
+      const policy = row.policyOk
+        ? '<span class="badge b-green">filtered</span>'
+        : '<span class="badge b-red">review</span>';
+      const cache = row.cacheOk
+        ? '<span class="badge b-green">on</span>'
+        : '<span class="badge b-yellow">partial/off</span>';
+      return `<tr data-fleet-row data-site="${esc(row.repo)}">
+        <td>${cfbRepoLink(row.providerAccount, row.repo)}</td>
+        <td class="mono muted">${esc((row.workers || []).join(', ') || '—')}</td>
+        <td>${row.builds.toLocaleString()}</td>
+        <td class="mono">${cfbMinutes(row.minutes)}</td>
+        <td class="mono">${cfbDuration(row.averageSeconds)}</td>
+        <td>${row.successRate == null ? '—' : `${(row.successRate * 100).toFixed(1)}%`}</td>
+        <td>${policy}</td>
+        <td>${cache}</td>
+        <td class="mono muted">${row.latestOn ? esc(new Date(row.latestOn).toLocaleString()) : '—'}</td>
+      </tr>`;
+    })
+    .join('');
+
+  const buildRows = builds
+    .map(build => {
+      const firstLine = String(build.commitMessage || '(no commit message)').split('\n')[0];
+      return `<tr data-fleet-row data-site="${esc(build.repo)}">
+        <td class="mono muted">${esc(build.createdOn ? new Date(build.createdOn).toLocaleString() : '—')}</td>
+        <td>${cfbRepoLink(build.providerAccount, build.repo)}</td>
+        <td>${cfbCommitLink(build)}</td>
+        <td class="cfb-message" title="${esc(build.commitMessage || '')}">${esc(firstLine)}</td>
+        <td class="mono muted">${esc(build.branch || '—')}</td>
+        <td>${cfbBadge(build.outcome)}</td>
+        <td class="mono">${cfbDuration(build.durationSeconds)}</td>
+        <td class="mono muted">${esc(build.source || '—')}</td>
+      </tr>`;
+    })
+    .join('');
+
+  const triggerRows = triggers
+    .map(trigger => {
+      const ok =
+        trigger.root === 'site' &&
+        JSON.stringify(trigger.pathIncludes) === JSON.stringify(['site/*', '.deploy-probe']) &&
+        !(trigger.pathExcludes || []).length &&
+        trigger.caching;
+      const kind = (trigger.branchIncludes || []).includes('main') ? 'production' : 'preview';
+      return `<tr data-fleet-row data-site="${esc(trigger.repo)}">
+        <td>${cfbRepoLink(trigger.providerAccount, trigger.repo)}</td>
+        <td class="mono">${esc(trigger.worker)}</td>
+        <td><span class="badge ${kind === 'production' ? 'b-blue' : 'b-purple'}">${kind}</span></td>
+        <td class="mono">${esc((trigger.pathIncludes || []).join(', ') || '—')}</td>
+        <td>${trigger.caching ? '<span class="badge b-green">on</span>' : '<span class="badge b-yellow">off</span>'}</td>
+        <td>${ok ? '<span class="badge b-green">compliant</span>' : '<span class="badge b-red">drift</span>'}</td>
+        <td class="mono muted">${trigger.modifiedOn ? esc(new Date(trigger.modifiedOn).toLocaleString()) : '—'}</td>
+      </tr>`;
+    })
+    .join('');
+
+  app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Build Usage</h2><span class="muted">Cloudflare Workers Builds · commits, minutes, cost projection, and live trigger policy</span></div>
+    <div class="cfb-controls" aria-label="Build history range">
+      <div class="seg">
+        ${[7, 30, 90, 180].map(days => `<button class="seg-btn cfb-range ${CF_BUILDS.days === days ? 'active' : ''}" data-days="${days}">${days}d</button>`).join('')}
+      </div>
+      <span class="muted">Cloudflare cache refreshed ${esc(lastSweep)}${data.refreshing ? ' · refreshing now' : ''}</span>
+      <span class="cm-spacer"></span>
+      ${policyHealthy ? '<span class="badge b-green">fleet policy healthy</span>' : `<span class="badge b-red">${summary.triggers - summary.compliantTriggers} trigger(s) drifted</span>`}
+    </div>
+    ${data.error ? `<div class="empty cfb-error">Latest Cloudflare refresh warning: ${esc(data.error)}</div>` : ''}
+    <div class="cfb-stats">
+      <div class="cfb-stat" style="--cfb-c:var(--a1)"><span>Builds · ${CF_BUILDS.days}d</span><strong>${(summary.builds || 0).toLocaleString()}</strong><small>${summary.activeRepos || 0} active repositories</small></div>
+      <div class="cfb-stat" style="--cfb-c:var(--purple)"><span>Minutes · ${CF_BUILDS.days}d</span><strong>${Math.round(summary.minutes || 0).toLocaleString()}</strong><small>${cfbDuration(summary.averageSeconds)} average</small></div>
+      <div class="cfb-stat" style="--cfb-c:var(--green)"><span>Success rate</span><strong>${summary.successRate == null ? '—' : `${(summary.successRate * 100).toFixed(1)}%`}</strong><small>${summary.failed || 0} failed or terminated</small></div>
+      <div class="cfb-stat" style="--cfb-c:var(--yellow)"><span>Month to date</span><strong>${Math.round(summary.monthMinutes || 0).toLocaleString()}</strong><small>of ${(pricing.includedMinutes || 0).toLocaleString()} included minutes</small></div>
+      <div class="cfb-stat" style="--cfb-c:${projectedOver ? 'var(--yellow)' : 'var(--green)'}"><span>Projected month</span><strong>${Math.round(summary.projectedMinutes || 0).toLocaleString()}</strong><small>${fmtUSD(projectedOver)} estimated Builds overage</small></div>
+      <div class="cfb-stat" style="--cfb-c:${policyHealthy ? 'var(--green)' : 'var(--red)'}"><span>Live configuration</span><strong>${summary.compliantTriggers || 0}/${summary.triggers || 0}</strong><small>${summary.productionTriggers || 0} production · ${summary.previewTriggers || 0} preview</small></div>
+    </div>
+    <section class="card cfb-chart-card">
+      <div class="task-toolbar"><strong>Daily build minutes</strong><span class="muted">UTC · red caps indicate at least one failed build</span></div>
+      ${cfbChart(data.byDay || [])}
+    </section>
+    ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="7" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. History is retained locally for 180 days and refreshed every five minutes.</p>`;
+
+  $$('.cfb-range').forEach(button =>
+    button.addEventListener('click', () => {
+      CF_BUILDS.days = Number(button.dataset.days) || 30;
+      renderCloudflareBuilds();
+    })
+  );
+  wireCollapsiblePanels(app);
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
 /* ===================== HEALTH ===================== */
 // Rolled-up view of tools/fleet-gatus (server/gatushealth.js) — the fleet's
 // uptime/content-check monitor. Deliberately terse: only failing checks are
@@ -9537,6 +9723,7 @@ const NAV_GROUPS = {
       ['githygiene', 'Git Hygiene'],
       ['tasks', 'Tasks'],
       ['deploys', 'Deploys'],
+      ['builds', 'Build Usage'],
       ['domains', 'Domains'],
       ['guardrails', 'Guardrails'],
       ['doctor', 'Doctor'],
@@ -9982,6 +10169,7 @@ function render() {
   else if (STATE.view === 'compliance') return renderCompliance();
   else if (STATE.view === 'lint') return renderLint();
   else if (STATE.view === 'deploys') return renderDeployHealth();
+  else if (STATE.view === 'builds') return renderCloudflareBuilds();
   else if (STATE.view === 'health') return renderHealth();
   else if (STATE.view === 'errors') return renderErrors();
   else if (STATE.view === 'activity') return renderActivity();

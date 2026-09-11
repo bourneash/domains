@@ -20,6 +20,7 @@ const aiinventory = require('./aiinventory');
 const aiusage = require('./aiusage');
 const cron = require('./cron');
 const deployhealth = require('./deployhealth');
+const cloudflarebuilds = require('./cloudflarebuilds');
 const gatushealth = require('./gatushealth');
 const datahub = require('./datahub');
 const analytics = require('./analytics');
@@ -526,6 +527,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Background CF deploy-health cache (powers the deployer cell's "is it live?"
   // half). Exposed for inspection/debugging.
   app.get('/api/deploy-health', (_req, res) => res.json(deployhealth.all()));
+  app.get('/api/cloudflare-builds', (req, res) => {
+    try {
+      res.json(
+        cloudflarebuilds.summarize(undefined, {
+          days: req.query.days,
+          limit: req.query.limit,
+        })
+      );
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
   app.get('/api/gatus', (_req, res) => res.json(gatushealth.all()));
 
   // Parked inventory (F51) — registry entries with status: scaffold. Read
@@ -1480,6 +1493,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   const ownsBackgroundJobs = process.env.NODE_ENV !== 'test' && acquireBackgroundJobLock(root);
   if (ownsBackgroundJobs) {
     deployhealth.start(root, () => discoverSites(root));
+    cloudflarebuilds.start(root);
     gatushealth.start();
     fleetdoctor.start(root);
     errorscan.start(root);
@@ -1490,7 +1504,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   } else if (process.env.NODE_ENV !== 'test') {
     console.warn(
       `[fleet-dashboard] pid ${process.pid}: background pollers (errorscan, deploy-health, ` +
-        'gatus, site-facts, compliance) already owned by another live process — serving ' +
+        'cloudflare-builds, gatus, site-facts, compliance) already owned by another live process — serving ' +
         'HTTP only. Remove tools/fleet-dashboard/data/server.lock only if that process is ' +
         'actually gone.'
     );
