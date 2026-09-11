@@ -71,6 +71,13 @@ STATUS=$?
 set -e
 
 if [[ $STATUS -ne 0 ]]; then
+  # claude-tracked.sh uses 78 for a network preflight failure. Nothing was
+  # billed or partially written, so this is transient and the next scheduled
+  # tick will retry; do not turn it into a noisy hard-failure alert.
+  if [[ $STATUS -eq 78 ]]; then
+    echo "[guide-idea-seeder] network preflight failed (exit=78) — transient; next tick will retry"
+    exit 78
+  fi
   [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" ":x: *{{SITE_NAME}}* guide-idea-seeder failed (exit=$STATUS)" "danger" 2>/dev/null || true
   exit $STATUS
 fi
