@@ -1628,7 +1628,7 @@ async function renderCloudflareBuilds() {
       const ok =
         trigger.root === 'site' &&
         JSON.stringify(trigger.pathIncludes) === JSON.stringify(['site/*', '.deploy-probe']) &&
-        !(trigger.pathExcludes || []).length &&
+        JSON.stringify(trigger.pathExcludes) === JSON.stringify(['ops/*']) &&
         trigger.caching;
       const kind = (trigger.branchIncludes || []).includes('main') ? 'production' : 'preview';
       return `<tr data-fleet-row data-site="${esc(trigger.repo)}">
@@ -1636,6 +1636,7 @@ async function renderCloudflareBuilds() {
         <td class="mono">${esc(trigger.worker)}</td>
         <td><span class="badge ${kind === 'production' ? 'b-blue' : 'b-purple'}">${kind}</span></td>
         <td class="mono">${esc((trigger.pathIncludes || []).join(', ') || '—')}</td>
+        <td class="mono">${esc((trigger.pathExcludes || []).join(', ') || '—')}</td>
         <td>${trigger.caching ? '<span class="badge b-green">on</span>' : '<span class="badge b-yellow">off</span>'}</td>
         <td>${ok ? '<span class="badge b-green">compliant</span>' : '<span class="badge b-red">drift</span>'}</td>
         <td class="mono muted">${trigger.modifiedOn ? esc(new Date(trigger.modifiedOn).toLocaleString()) : '—'}</td>
@@ -1668,7 +1669,7 @@ async function renderCloudflareBuilds() {
     </section>
     ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
     ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
-    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="7" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
     <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. History is retained locally for 180 days and refreshed every five minutes.</p>`;
 
   $$('.cfb-range').forEach(button =>

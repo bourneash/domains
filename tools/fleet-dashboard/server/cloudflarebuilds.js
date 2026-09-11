@@ -21,6 +21,7 @@ const CONCURRENCY = 2;
 const INCLUDED_MINUTES = 6000;
 const OVERAGE_PER_MINUTE_USD = 0.005;
 const TARGET_PATHS = ['site/*', '.deploy-probe'];
+const EXCLUDED_PATHS = ['ops/*'];
 const CACHE_VERSION = 1;
 
 let STATE = {
@@ -282,8 +283,7 @@ function triggerCompliant(trigger) {
   return (
     trigger.root === 'site' &&
     sameArray(trigger.pathIncludes, TARGET_PATHS) &&
-    Array.isArray(trigger.pathExcludes) &&
-    trigger.pathExcludes.length === 0 &&
+    sameArray(trigger.pathExcludes, EXCLUDED_PATHS) &&
     trigger.caching === true
   );
 }

@@ -24,7 +24,7 @@ function fixture() {
         branchIncludes: ['main'],
         branchExcludes: [],
         pathIncludes: ['site/*', '.deploy-probe'],
-        pathExcludes: [],
+        pathExcludes: ['ops/*'],
         caching: true,
       },
       {
@@ -36,7 +36,7 @@ function fixture() {
         branchIncludes: ['*'],
         branchExcludes: ['main'],
         pathIncludes: ['site/*', '.deploy-probe'],
-        pathExcludes: [],
+        pathExcludes: ['ops/*'],
         caching: true,
       },
     ],
@@ -87,6 +87,8 @@ test('trigger compliance requires the fleet allowlist and cache', () => {
   const good = fixture().triggers[0];
   assert.equal(builds._triggerCompliant(good), true);
   assert.equal(builds._triggerCompliant({ ...good, pathIncludes: ['*'] }), false);
+  assert.equal(builds._triggerCompliant({ ...good, pathExcludes: [] }), false);
+  assert.equal(builds._triggerCompliant({ ...good, pathExcludes: ['ops/**'] }), false);
   assert.equal(builds._triggerCompliant({ ...good, caching: false }), false);
 });
 
