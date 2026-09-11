@@ -97,7 +97,9 @@ These are CF-dashboard actions (the only manual part). No local wrangler.
 1. Create the Worker + connect **Workers Builds** to the repo: root dir `site`,
    build `npm run build`, deploy `npx wrangler deploy --config dist/server/wrangler.json`, Node 22, production branch `main`.
    Under **Build watch paths**, replace the default include `*` with `site/*` and
-   `.deploy-probe`, leave excludes empty, and enable **Build Cache**. This keeps
+   `.deploy-probe`, set excludes to `ops/*`, and enable **Build Cache**. Cloudflare
+   evaluates excludes before includes; the explicit exclusion protects against
+   regressions and anomalous allowlist matches. This keeps
    `ops/**` queues, boards, logs, and other non-artifact commits from spending
    build minutes while preserving the fleet deployment probe.
 2. Move the custom domain from the Pages project → the Worker.

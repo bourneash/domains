@@ -140,7 +140,7 @@ and run `tools/scripts/install-git-hooks.sh` to wire the shared pre-commit forma
 The CF Workers Builds GitHub integration is a **one-time manual dashboard step** Jesse does — surface
 the exact root-dir/build/deploy settings from `deploy-domain-project` and ask him to wire it. The
 required build-efficiency settings are **Build watch paths** includes `site/*` and `.deploy-probe`,
-no excludes, and **Build Cache enabled**. Never leave Cloudflare's default include `*`: autonomous
+excludes `ops/*`, and **Build Cache enabled**. Never leave Cloudflare's default include `*`: autonomous
 `ops/**` state commits do not affect the deployed artifact and must not trigger a build.
 
 ### Phase 2 — Design + build the site

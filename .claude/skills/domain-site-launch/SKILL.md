@@ -7,7 +7,7 @@ description: Build or take over a portfolio domain in /home/jesse/projects/domai
 
 Choose `news-ad`, `affiliate`, `persona-driven`, or `hybrid`, then record the audience, editorial pillars, voice, revenue plan, sensitive-topic limits, and feature toggles in the domain `CLAUDE.md`. Use a closest fleet sibling for structure, never to copy its niche or claims.
 
-Build Astro collections and durable routes with RSS, sitemap, canonicals/OG metadata, author pages, accessible navigation, policy pages, contact, corrections, standards, and disclosures. Deploy Cloudflare Workers from `dist/client/wrangler.json`. Configure Workers Builds watch paths to include `site/*` and `.deploy-probe` only, with no excludes and Build Cache enabled, so `ops/**` state pushes do not deploy. Give the site a distinctive visual system rather than a generic news layout.
+Build Astro collections and durable routes with RSS, sitemap, canonicals/OG metadata, author pages, accessible navigation, policy pages, contact, corrections, standards, and disclosures. Deploy Cloudflare Workers from `dist/client/wrangler.json`. Configure Workers Builds watch paths to include `site/*` and `.deploy-probe`, explicitly exclude `ops/*`, and enable Build Cache, so `ops/**` state pushes do not deploy. Give the site a distinctive visual system rather than a generic news layout.
 
 For health, disability, finance, or other sensitive topics, preserve dignity, cite sources, label general information, and do not provide individualized advice. Make requested writer personas transparent, specific, and non-stereotyped.
 

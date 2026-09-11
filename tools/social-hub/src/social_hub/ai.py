@@ -96,6 +96,13 @@ def _run_cli(prompt: str, model: str, site: str, timeout: int = 240) -> str:
     # text talks the model into is denied rather than executed. The explicit
     # empty --allowedTools and the --disallowedTools list are belt-and-braces on
     # top of that, and cost nothing: this call only ever writes ad copy.
+    #
+    # --max-turns 2, not 1: a denied tool call still consumes a turn, so a
+    # model that reaches for a tool on turn 1 needs turn 2 to fall back to a
+    # text-only answer. At 1, that case hard-errors (error_max_turns) instead
+    # of producing the draft. The security guarantee above is unaffected by
+    # the turn count — it comes from --allowedTools/--disallowedTools/no
+    # --dangerously-skip-permissions, not from the turn budget.
     proc = subprocess.run(
         [
             str(tracked_wrapper()),
@@ -103,7 +110,7 @@ def _run_cli(prompt: str, model: str, site: str, timeout: int = 240) -> str:
             "--model",
             model,
             "--max-turns",
-            "1",
+            "2",
             "--allowedTools",
             "",
             "--disallowedTools",
