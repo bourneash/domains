@@ -56,17 +56,39 @@ def notify_summary(
     else:
         emoji, color = "⚠️", COLOR_WARN
 
-    header = (
-        f"{emoji} {site_domain} affiliate audit — "
-        f"{counts['healthy']}/{counts['healthy'] + counts['flagged']} healthy, "
-        f"{counts['flagged']} flagged, {counts['resolving']} sent to resolution."
-    )
-    bullets = "\n".join(
-        f"• *{item['verdict']}*: <{item['go_url']}|{item['id']}>"
-        + (f" — filed `{item['task_path']}`" if item.get("task_path") else "")
-        for item in flagged_items
-    )
-    text = header if not bullets else f"{header}\n{bullets}"
+    total = counts["healthy"] + counts["flagged"]
+    header = f"{emoji} *{site_domain} affiliate audit* — {counts['healthy']}/{total} healthy"
+    inconclusive = [item for item in flagged_items if item["verdict"] == "inconclusive"]
+    other = [item for item in flagged_items if item["verdict"] != "inconclusive"]
+
+    sections = [header]
+    if inconclusive:
+        sections.append(
+            f"\n*Action required: manually verify {len(inconclusive)} Amazon link"
+            f"{'s' if len(inconclusive) != 1 else ''}*\n"
+            "Amazon blocked the automated check repeatedly. These links are not confirmed broken. "
+            "Open each link in a normal browser and confirm the expected product is purchasable "
+            "and the final Amazon URL contains `tag=`."
+        )
+        sections.extend(
+            "• <{url}|{name}> — expected ASIN `{asin}`".format(
+                url=item["go_url"], name=item.get("name") or item["id"], asin=item.get("asin") or "unknown"
+            )
+            for item in inconclusive
+        )
+        sections.append(
+            "\n*Then:* If correct, note the verification date and move the task to `done/`. "
+            "If wrong, unavailable, or missing its affiliate tag, leave the task open and add "
+            "the final URL plus the exact problem so the product can be corrected or replaced."
+        )
+    if other:
+        sections.append("\n*Other flagged links*")
+        sections.extend(
+            f"• *{item['verdict']}*: <{item['go_url']}|{item.get('name') or item['id']}>"
+            + (f" — filed `{item['task_path']}`" if item.get("task_path") else "")
+            for item in other
+        )
+    text = "\n".join(sections)
 
     subprocess.run(
         [
@@ -138,7 +160,13 @@ def run_once(site_dir: Path, site_domain: str, cfg: dict, dry_run: bool, today: 
             counts["healthy"] += 1
         else:
             counts["flagged"] += 1
-            item = {"id": product["id"], "verdict": verdict, "go_url": evidence.get("go_url")}
+            item = {
+                "id": product["id"],
+                "name": product.get("name") or product["id"],
+                "asin": product.get("asin"),
+                "verdict": verdict,
+                "go_url": evidence.get("go_url"),
+            }
             flagged_items.append(item)
 
             if actionable:

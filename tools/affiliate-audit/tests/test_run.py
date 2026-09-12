@@ -164,12 +164,18 @@ def test_notify_summary_dead_verdict_uses_critical_emoji_and_bullets():
 
 
 def test_notify_summary_non_dead_flag_uses_warning_emoji():
-    flagged = [{"id": "widget", "verdict": "inconclusive", "go_url": "https://x/go/widget/"}]
+    flagged = [{"id": "widget", "name": "Widget", "asin": "B00WIDGET1",
+                "verdict": "inconclusive", "go_url": "https://x/go/widget/"}]
     with mock.patch("run.subprocess.run") as mock_run:
         run.notify_summary(Path("/tmp/site"), "totaljerks.com", CFG, {"healthy": 4, "flagged": 1, "resolving": 1}, flagged)
     text = mock_run.call_args.args[0][-2]
     color = mock_run.call_args.args[0][-1]
     assert text.startswith("⚠️")
+    assert "Action required: manually verify 1 Amazon link" in text
+    assert "<https://x/go/widget/|Widget>" in text
+    assert "expected ASIN `B00WIDGET1`" in text
+    assert "If correct" in text and "move the task to `done/`" in text
+    assert "If wrong, unavailable, or missing its affiliate tag" in text
     assert color == run.COLOR_WARN
 
 

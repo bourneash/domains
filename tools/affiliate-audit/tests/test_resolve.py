@@ -67,6 +67,20 @@ def test_file_fallback_unresolved_writes_task_when_missing():
     assert "type: content" in text
 
 
+def test_file_persistent_inconclusive_writes_owner_checklist():
+    site_dir = Path(tempfile.mkdtemp())
+    task_path = resolve.file_persistent_inconclusive(
+        PRODUCT, EVIDENCE, {"inconclusive_grace_runs": 3}, site_dir, "2026-09-09"
+    )
+    text = task_path.read_text()
+    assert "assigned_role: human" in text
+    assert "## Action required" in text
+    assert "https://totaljerks.com/go/widget/" in text
+    assert "ASIN `B00WIDGET1`" in text
+    assert "move this" in text and "ops/tasks/done/" in text
+    assert "leave the task open" in text
+
+
 def test_file_fallback_unresolved_is_idempotent():
     """If the killed agent already managed to write its own task file (just
     didn't commit it), the fallback must leave that content alone rather

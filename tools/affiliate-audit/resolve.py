@@ -28,6 +28,7 @@ def file_persistent_inconclusive(
     task_path.write_text(
         f"""---
 type: engineering
+assigned_role: human
 ---
 
 # Persistent inconclusive: {product['id']}
@@ -36,10 +37,25 @@ type: engineering
 {grace} consecutive weekly affiliate-audit runs. This is NOT a confirmed dead
 link or de-listing — the checker cannot get a clean read on the Amazon landing
 page (anti-bot wall or repeated server-side error), so no automatic replacement
-was attempted. A human should check this link manually before assuming it's
-actually broken.
+was attempted.
+
+## Action required
+
+1. Open [{product['name']}]({evidence.get('go_url')}) in a normal browser.
+2. Confirm it lands on the expected Amazon product (ASIN `{product.get('asin')}`),
+   the product can still be purchased, and the final Amazon URL contains an
+   affiliate `tag=` parameter.
+3. If all three checks pass, add a dated "manually verified" note and move this
+   task from `ops/tasks/backlog/` to `ops/tasks/done/`.
+4. If any check fails, leave the task open and record the final URL and the exact
+   issue (wrong product, unavailable product, missing affiliate tag, or another
+   problem). The product can then be corrected or replaced from that evidence.
+
+Do not mark the link dead solely because the automated checker encountered an
+Amazon interstitial.
 
 - id: `{product['id']}`
+- product: `{product['name']}`
 - asin: `{product.get('asin')}`
 - go_url: {evidence.get('go_url')}
 - last evidence body excerpt: {(evidence.get('body') or '')[:300]!r}
