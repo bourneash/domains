@@ -143,7 +143,13 @@ def _run_api(prompt: str, model: str, max_tokens: int) -> str:
 def complete(prompt: str, *, site: str, cfg: SiteConfig | None = None) -> tuple[str, str]:
     """Run *prompt* through the configured backend. Returns (text, model)."""
     backend = resolve_backend(cfg)
-    model = (cfg.get("ai.model") if cfg else None) or "claude-sonnet-4-6"
+    # claude-haiku-4-5 (2026-09-11): every call through this path is
+    # text-only ad copy — no tool use is possible (--allowedTools "", no
+    # --dangerously-skip-permissions, see _run_cli above) — so there is no
+    # judgment/agentic work here for a bigger model to earn its cost on.
+    # A site config can still override with `ai.model` if a draft quality
+    # regression shows up for that site's voice.
+    model = (cfg.get("ai.model") if cfg else None) or "claude-haiku-4-5-20251001"
     max_tokens = int((cfg.get("ai.max_tokens") if cfg else None) or 1200)
     if backend == "fake":
         return "", "fake"

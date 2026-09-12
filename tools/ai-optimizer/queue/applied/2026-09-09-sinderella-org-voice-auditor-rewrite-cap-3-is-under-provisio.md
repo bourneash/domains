@@ -1,8 +1,9 @@
 ---
 ticket_id: 2026-09-09-sinderella-org-voice-auditor-rewrite-cap-3-is-under-provisio
-status: proposed
+status: applied
 title: "sinderella.org voice-auditor: rewrite cap 3 is under-provisioned — pending queue at 148 and growing +3.8/day"
 created: 2026-09-09
+decided: 2026-09-11
 finding_class: rewrite-cap-too-low-backlog-growing
 dedupe_key: cca8495d14352ff6
 scope: site
@@ -16,6 +17,7 @@ risk: medium
 verified_current_code: true
 verified_git_check: "Confirmed cap=3 at ops/roles/voice-auditor.md:74-78. Counted 148 files with 'voice_score: pending' via grep -rl in site/src/content/ (run live). Read voice-auditor-2026-09-08T20-00-01Z.log: '20 scored / 5 passed / 3 rewritten / 2 escalation-skip / 10 deferred' — hitting cap and deferring every run. Read voice-auditor-2026-09-08T14-00-02Z.log: '20 scored / 5 passed / 3 rewritten / 3 escalated-skip / 9 deferred' — same pattern. Cap was cut from 5 on 2026-08-29 per git log ('voice-auditor: drop rewrite cap 5→3, cutting run cost ~40%'). Pending count at cap cut is not independently verifiable from current code but is documented as 106 in the analyzer rule commentary; current count 148 is a ~40% increase in 11 days confirming monotonic growth."
 evidence_files: ["sites/sinderella.org/ops/roles/voice-auditor.md:74", sites/sinderella.org/ops/logs/voice-auditor-2026-09-08T20-00-01Z.log]
+decision_note: "raised cap 3->5 in sites/sinderella.org/ops/roles/voice-auditor.md:75"
 ---
 
 ## Problem
