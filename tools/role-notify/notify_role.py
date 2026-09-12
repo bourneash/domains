@@ -7,7 +7,7 @@ role emoji + a real success/failure glyph + what actually happened (files
 changed, build/smoke status, article headline, live URL) — built from data
 the calling script already computed, not scraped from an LLM's log output.
 
-Two modes:
+Three modes:
   --mode structured   Caller passes explicit fields (preferred — bash-driven
                        roles like deployer/update already know their own
                        status objectively: exit codes, git diff, smoke counts).
@@ -16,6 +16,9 @@ Two modes:
                        (**...**) from --log-file as the headline. Last line
                        wins (not first-to-EOF) so trailing chatter after the
                        real status line doesn't get swept in.
+  --mode failure-log   Turns claude-tracked.sh's machine-readable failure line
+                       into a short, actionable failure card instead of pasting
+                       a raw log tail into Slack.
 
 Usage:
   notify_role.py --mode structured --site americastrikes.com --role deployer \
@@ -73,6 +76,11 @@ STATUS_GLYPH = {"ok": "✅", "fail": "❌", "warn": "⚠️"}
 STATUS_COLOR = {"ok": "#2eb67d", "fail": "#e01e5a", "warn": "#ecb22e"}
 
 BOLD_LINE_RE = re.compile(r"^\*\*(.+)\*\*\s*$", re.MULTILINE)
+TRACKED_FAILURE_RE = re.compile(
+    r"claude-tracked\.sh: FAILURE REASON — (?P<reason>.*?) "
+    r"\(site=(?P<site>\S+) role=(?P<role>\S+) class=(?P<class>\S+) "
+    r"subtype=(?P<subtype>\S+) turns=(?P<turns>\S+) exit=(?P<exit>\d+)\)"
+)
 
 MAX_FILES_SHOWN = 10
 
@@ -100,6 +108,28 @@ def extract_headline_from_log(log_file):
         text = f.read()
     matches = BOLD_LINE_RE.findall(text)
     return matches[-1].strip() if matches else None
+
+
+def extract_failure_from_log(log_file):
+    """Return a Slack headline and useful details from a tracked role log."""
+    if not log_file or not os.path.exists(log_file):
+        return None, []
+    with open(log_file, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    matches = list(TRACKED_FAILURE_RE.finditer(text))
+    if not matches:
+        return None, []
+    failure = matches[-1].groupdict()
+    if failure["subtype"] == "error_max_turns":
+        return (
+            f"Stopped at the turn limit after {failure['turns']} turns; work was interrupted, not crashed",
+            [
+                "Next step: the following scheduled run resumes the in-progress task.",
+                "Action is needed only if the same role hits the limit again: inspect its in-progress task and latest log; do not blindly raise the cap.",
+            ],
+        )
+    reason = failure["reason"].strip()
+    return f"Role failed: {failure['subtype']}", [reason]
 
 
 def build_blocks(site, role, status, headline, details, files, url):
@@ -157,7 +187,7 @@ def post_to_slack(token, channel, blocks, fallback, color):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", choices=["structured", "log"], default="structured")
+    ap.add_argument("--mode", choices=["structured", "log", "failure-log"], default="structured")
     ap.add_argument("--site", required=True)
     ap.add_argument("--role", required=True)
     ap.add_argument("--status", choices=["ok", "fail", "warn"], required=True)
@@ -184,6 +214,11 @@ def main():
     headline = args.headline
     if args.mode == "log" and not headline:
         headline = extract_headline_from_log(args.log_file)
+    if args.mode == "failure-log":
+        parsed_headline, parsed_details = extract_failure_from_log(args.log_file)
+        if not headline:
+            headline = parsed_headline
+        args.detail = parsed_details + args.detail
 
     files = [f for f in args.files if f]
     blocks, fallback = build_blocks(args.site, args.role, args.status, headline, args.detail, files, args.url)

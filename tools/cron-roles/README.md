@@ -7,6 +7,8 @@ pointer that runs `WIRING.md` against a target site, using the archetype's
 - `WIRING.md` — the mechanical install procedure. ONE copy. Skills never inline it.
 - `handoff-protocol.md` — how roles hand work to each other through the task board.
 - `validate-install.sh` — pass/fail gate; run after every install.
+- `validate-deployer.sh` — cron-direct deployer gate; rejects worker entrypoint
+  overrides and verifies the worker has an explicit `deployer` dispatch.
 - `archetypes/<name>/` — `role.md.tmpl` (canonical body), `meta.yml` (knobs), `scripts/`.
 
 Model: **stamp-once**. The installer scaffolds a complete, working role and walks

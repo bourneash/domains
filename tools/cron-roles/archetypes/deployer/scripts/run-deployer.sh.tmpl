@@ -63,7 +63,9 @@ fi
 echo $((attempts + 1)) > .deploy-attempts
 
 set +e
-docker compose run --rm --entrypoint bash worker ops/scripts/deploy.sh
+# The worker entrypoint establishes GIT_DIR/GIT_WORK_TREE for sites checked out
+# as submodules. Never override it here: /work/.git points outside the container.
+docker compose run --rm worker deployer
 deploy_exit=$?
 set -e
 

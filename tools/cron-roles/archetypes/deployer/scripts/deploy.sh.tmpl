@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # deploy.sh — zero-AI bash deployer ({{DOMAIN}}). Replaces `claude -p deployer`.
 # Called by ops/scripts/run-deployer.sh (cron-direct wrapper) via:
-#   docker compose run --rm --entrypoint bash worker ops/scripts/deploy.sh
+#   docker compose run --rm worker deployer
 #
 # Archetype: tools/cron-roles/archetypes/deployer/ — installed via the
 # domains-cron-role-deployer skill. This is a stamped, tuned-per-site copy;
@@ -62,9 +62,9 @@ mkdir -p "$LOG_DIR"
 
 if [ -f .env.shared ]; then set -a; . .env.shared; set +a; fi
 
-# When running inside a worker container (entrypoint overridden), SSH keys may
-# be bind-mounted read-only with host permissions that exceed 600. Copy them
-# to a writable tmpfs with strict 600 perms and point git at the temp config.
+# SSH keys are bind-mounted read-only and may have host permissions that exceed
+# 600. Copy them to a writable tmpfs with strict permissions and point Git at
+# the temporary config.
 SSH_SRC="${HOME}/.ssh"
 if [ -d "$SSH_SRC" ]; then
   mkdir -p /tmp/ssh
