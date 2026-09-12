@@ -178,10 +178,31 @@ fi
 # failed — 120+ wasted calls fleet-wide in a day, zero work done. That case is
 # now guarded per-caller in run-engineer.sh/watchdog.sh too, but any other
 # role hitting the same outage was NOT — fixing it here closes that for good,
-# for every caller, present and future, in one place. A dead network never
-# reaches `claude -p`; it's logged to the ledger as a real (zero-cost) failed
-# attempt and returned fast so the caller's normal retry-next-tick logic runs.
-if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthropic.com/" 2>/dev/null; then
+# for every caller, present and future, in one place. Retry a bounded three
+# times before deferring: one 3-second connect miss proved too sensitive to
+# short DNS/VPN disturbances (RodHat's 2026-09-10/11 false alarms). A dead
+# network still never reaches `claude -p`; after the bounded retry window it
+# is logged to the ledger as a real (zero-cost) failed attempt and returned so
+# the caller's normal retry-next-tick logic runs.
+PREFLIGHT_ATTEMPTS="${CLAUDE_PREFLIGHT_ATTEMPTS:-3}"
+PREFLIGHT_RETRY_DELAY="${CLAUDE_PREFLIGHT_RETRY_DELAY_SECONDS:-2}"
+[[ "$PREFLIGHT_ATTEMPTS" =~ ^[1-9][0-9]*$ ]] || PREFLIGHT_ATTEMPTS=3
+[[ "$PREFLIGHT_RETRY_DELAY" =~ ^[0-9]+$ ]] || PREFLIGHT_RETRY_DELAY=2
+PREFLIGHT_OK=0
+for ((preflight_attempt = 1; preflight_attempt <= PREFLIGHT_ATTEMPTS; preflight_attempt++)); do
+  if curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthropic.com/" 2>/dev/null; then
+    PREFLIGHT_OK=1
+    if (( preflight_attempt > 1 )); then
+      echo "claude-tracked.sh: network preflight recovered on attempt ${preflight_attempt}/${PREFLIGHT_ATTEMPTS} (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    fi
+    break
+  fi
+  if (( preflight_attempt < PREFLIGHT_ATTEMPTS )); then
+    echo "claude-tracked.sh: network preflight attempt ${preflight_attempt}/${PREFLIGHT_ATTEMPTS} failed — retrying in ${PREFLIGHT_RETRY_DELAY}s (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    sleep "$PREFLIGHT_RETRY_DELAY"
+  fi
+done
+if [[ $PREFLIGHT_OK -ne 1 ]]; then
   echo "claude-tracked.sh: network preflight failed — skipping claude -p call (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
   python3 - "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$requested_model" "$requested_max_turns" <<'PYEOF'
 import json, sys, time

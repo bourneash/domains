@@ -61,6 +61,77 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
             record = json.loads(ledger.read_text().splitlines()[-1])
             return result, calls.read_text(), record
 
+    def run_with_preflight(self, curl_script: str):
+        with tempfile.TemporaryDirectory() as td:
+            temp = Path(td)
+            fake_bin = temp / "bin"
+            fake_bin.mkdir()
+            curl_calls = temp / "curl-calls"
+            claude_calls = temp / "claude-calls"
+
+            fake_curl = fake_bin / "curl"
+            fake_curl.write_text("#!/usr/bin/env bash\n" + curl_script)
+            fake_curl.chmod(0o755)
+
+            fake_claude = fake_bin / "claude"
+            fake_claude.write_text(
+                textwrap.dedent(
+                    """\
+                    #!/usr/bin/env bash
+                    printf x >> "$FAKE_CLAUDE_CALLS"
+                    printf '%s\n' '{"type":"result","subtype":"success","is_error":false,"result":"OK","num_turns":1,"duration_ms":1,"session_id":"x","total_cost_usd":0.01,"modelUsage":{}}'
+                    """
+                )
+            )
+            fake_claude.chmod(0o755)
+
+            env = os.environ.copy()
+            env.update(
+                {
+                    "PATH": f"{fake_bin}:{env['PATH']}",
+                    "CRON_SITE": "example.com",
+                    "CRON_ROLE": "writer",
+                    "REPO_ROOT": str(temp),
+                    "FAKE_CURL_CALLS": str(curl_calls),
+                    "FAKE_CLAUDE_CALLS": str(claude_calls),
+                    "CLAUDE_PREFLIGHT_ATTEMPTS": "3",
+                    "CLAUDE_PREFLIGHT_RETRY_DELAY_SECONDS": "0",
+                    "CLAUDE_AUTH_LOCK": "none",
+                }
+            )
+            result = subprocess.run(
+                [str(WRAPPER), "test prompt", "--max-turns", "2", "--model", "claude-sonnet-4-6"],
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            ledger = next((temp / "ops" / "logs").glob("token-usage-*.jsonl"))
+            record = json.loads(ledger.read_text().splitlines()[-1])
+            return result, curl_calls.read_text(), claude_calls.read_text() if claude_calls.exists() else "", record
+
+    def test_network_preflight_recovers_before_third_attempt(self):
+        result, curl_calls, claude_calls, record = self.run_with_preflight(
+            'printf x >> "$FAKE_CURL_CALLS"\n'
+            '[[ "$(wc -c < "$FAKE_CURL_CALLS")" -ge 3 ]]\n'
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(curl_calls, "xxx")
+        self.assertEqual(claude_calls, "x")
+        self.assertIn("network preflight recovered on attempt 3/3", result.stderr)
+        self.assertEqual(record["subtype"], "success")
+
+    def test_network_preflight_persistent_failure_never_calls_claude(self):
+        result, curl_calls, claude_calls, record = self.run_with_preflight(
+            'printf x >> "$FAKE_CURL_CALLS"\nexit 1\n'
+        )
+        self.assertEqual(result.returncode, 78)
+        self.assertEqual(curl_calls, "xxx")
+        self.assertEqual(claude_calls, "")
+        self.assertIn("network preflight failed", result.stderr)
+        self.assertEqual(record["subtype"], "network_preflight_failed")
+        self.assertEqual(record["total_cost_usd"], 0)
+
     def test_usage_exhaustion_is_explained_and_not_retried(self):
         result, calls, record = self.run_wrapper(
             {
