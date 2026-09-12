@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "domains-skills": {
+      "source": {
+        "source": "github",
+        "repo": "bourneash/domains-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "domains-skills@domains-skills": true
+  }
+}
