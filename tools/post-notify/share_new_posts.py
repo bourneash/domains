@@ -135,6 +135,33 @@ def build_card(cfg, slug, fm):
     return blocks, "New post: " + title
 
 
+def log_to_disk(repo_root, channel, severity, text):
+    """Append one line to ops/logs/slack-<UTC-date>.jsonl in the same schema
+    tools/scripts/notify-slack.sh writes, under the CALLING SITE'S own ops/
+    dir. This tool posts to the Slack API directly (not via that shim), so
+    without this its failures were invisible to principal-engineer-scan.py —
+    which reads only that JSONL feed — even though they landed on stdout in
+    ops/logs/slack-share-*.log. Confirmed gap: americastrikes-cron's
+    invalid_blocks errors (2026-09-13) never reached the disk log the
+    watchdog actually reads. Best-effort; must never affect posting behavior.
+    """
+    try:
+        log_dir = os.path.join(repo_root, "ops", "logs")
+        os.makedirs(log_dir, exist_ok=True)
+        log_file = os.path.join(log_dir, "slack-%s.jsonl" % datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d"))
+        rec = {
+            "ts": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "channel": channel,
+            "color": "danger" if severity == "error" else "warning",
+            "severity": severity,
+            "text": text,
+        }
+        with open(log_file, "a") as f:
+            f.write(json.dumps(rec) + "\n")
+    except Exception:
+        pass
+
+
 def post_to_slack(token, channel, blocks, fallback):
     payload = json.dumps({
         "channel": channel,
@@ -251,7 +278,12 @@ def main():
             no_img = [b for b in blocks if b.get("type") != "image"]
             if len(no_img) != len(blocks):
                 print("  ⟳ giving up on the image — retrying Slack card without it (invalid_blocks)")
+                log_to_disk(repo_root, channel, "warning",
+                            "post-notify: dropped cover image for %r after invalid_blocks — image_url likely unreachable to Slack's fetcher (e.g. missing Content-Length on HEAD)" % slug)
                 err = post_to_slack(token, channel, no_img, fallback)
+        if err is not None:
+            log_to_disk(repo_root, channel, "error",
+                        "post-notify: failed to share %r to Slack — %s" % (slug, err))
         if err is None:
             state[slug] = now.isoformat()
             posted += 1
