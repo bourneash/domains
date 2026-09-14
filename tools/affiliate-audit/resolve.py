@@ -86,6 +86,7 @@ def file_fallback_unresolved(
     task_path.write_text(
         f"""---
 type: content
+assigned_role: human
 ---
 
 # Unresolved affiliate flag: {product['id']}
@@ -179,7 +180,9 @@ to resolve" below.
    build/validator failure):
    - Leave `affiliate.ts` untouched (or revert any edit you made).
    - File `ops/tasks/backlog/<yyyy-mm-dd>-affiliate-issue-{product['id']}.md`
-     with `type: content`, the verdict, the evidence, and what you tried.
+     with `type: content`, `assigned_role: human` (no automated role consumes
+     this task type — it needs a human to hand-pick a replacement ASIN), the
+     verdict, the evidence, and what you tried.
    - `git add` only the task file, commit
      (`affiliate: flag unresolved {product['id']} (<verdict>)`), and push —
      filing a task is not a deploy, but it must still land in the repo instead

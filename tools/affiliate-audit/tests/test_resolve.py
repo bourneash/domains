@@ -65,6 +65,7 @@ def test_file_fallback_unresolved_writes_task_when_missing():
     assert "widget" in text
     assert "oos" in text
     assert "type: content" in text
+    assert "assigned_role: human" in text
 
 
 def test_file_persistent_inconclusive_writes_owner_checklist():
