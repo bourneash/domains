@@ -19,7 +19,7 @@ MODEL="{{MODEL}}"
 # bloat or a retry loop (the prompt below is already lean: a fixed-size status
 # summary + up to 3 queued task names). Raised for margin, same lever used for
 # principal-engineer's identical cap+1 pattern on 2026-09-07.
-MAX_TURNS=29
+MAX_TURNS=34
 WORK_TIMEOUT=2400
 
 # --- Concurrency + heartbeat tuning ---
@@ -301,7 +301,10 @@ if [[ "$ESCALATE" != "none" && -n "$ESCALATE" ]]; then
   slack "⚠️ *{{SITE_SHORT}} engineer* — needs owner · ${NOW_ET}\n${ESCALATE}\n(did: ${SUMMARY})" "warning"
   board_block "⚠️ **Escalation** — ${ESCALATE}" "Did: ${SUMMARY} · pushed=${PUSHED} · ${STATUS_LINE}"
 elif [[ "$PUSHED" == "1" ]]; then
-  slack "🔧 *{{SITE_SHORT}} engineer* — ${SUMMARY} · ${NOW_ET}" "good"
+  # This closes the loop on a warning/task the operator may already have seen.
+  # The canonical notifier intentionally suppresses ordinary "good" chatter,
+  # so mark shipped work as resolved to bypass that quiet gate.
+  SLACK_SEVERITY_OVERRIDE=resolved slack "🔧 *{{SITE_SHORT}} engineer* — ${SUMMARY} · ${NOW_ET}" "good"
   board_block "🔧 **Work done (deployed)** — ${SUMMARY}" "${STATUS_LINE}"
 else
   slack "🔧 *{{SITE_SHORT}} engineer* — ${SUMMARY} (no deploy) · ${NOW_ET}" "good"
