@@ -14,7 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       vim nano \
       tmux \
       python3 python3-pip python3-venv pipx \
-      build-essential \
+      build-essential unzip \
+      libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1 libasound2t64 \
+      libxss1 libxdamage1 libxrandr2 libxcomposite1 libxfixes3 \
+      libcups2 libdrm2 fonts-liberation \
       tzdata locales sudo \
       tini \
     && ln -s /usr/bin/fdfind /usr/local/bin/fd \
@@ -26,6 +29,16 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g pnpm
+
+# Chrome for Testing is a real, headless-capable Chromium binary. Ubuntu's
+# chromium package is only a Snap launcher and cannot install inside Docker.
+RUN CHROME_URL="$(curl -fsSL https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
+      | jq -r '.channels.Stable.downloads.chrome[] | select(.platform == "linux64") | .url')" \
+    && test -n "$CHROME_URL" \
+    && curl -fsSL "$CHROME_URL" -o /tmp/chrome.zip \
+    && unzip -q /tmp/chrome.zip -d /opt \
+    && ln -s /opt/chrome-linux64/chrome /usr/local/bin/chromium \
+    && rm /tmp/chrome.zip
 
 # GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
@@ -79,13 +92,14 @@ RUN set -eu; \
     grep -q "dd-redraw" /opt/ttyd/index.html
 
 # Claude Code + Wrangler globally
-RUN npm install -g @anthropic-ai/claude-code wrangler
+RUN npm install -g @anthropic-ai/claude-code wrangler lighthouse
 
 # The global npm prefix (/usr) is root-owned, but containers run as the
 # unprivileged `dev` user — so claude's in-place auto-update can't write there
 # ("no write permission to npm prefix"). The image owns the claude version;
 # bump it by rebuilding with `bin/dd-build`, not by self-update.
 ENV DISABLE_AUTOUPDATER=1
+ENV CHROME_PATH=/usr/local/bin/chromium
 
 # Put the per-user native-install dir on PATH so claude doesn't nag
 # ("Native installation exists but ~/.local/bin is not in your PATH") if a
