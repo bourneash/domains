@@ -14,6 +14,18 @@ Key views include:
   deployment, measurement, and a proven/regressed/inconclusive outcome. Preview,
   validation, branch, deployment, and outcome evidence remain attached to the
   same durable run rather than being split across unrelated views.
+  Each build gets a real `git worktree` and its own `dd-imp-*` developer
+  container; the live site checkout never changes branches. The workbench can
+  run the assigned Claude implementation, show its log and full diff, commit
+  only that worktree, start a browser preview, and enforce diff/test/build plus
+  HTML, metadata, accessibility-structure, image-alt, analytics, and internal-
+  link gates. Review includes side-by-side production/preview frames. A typed
+  approval rebases and fast-forwards the validated commit onto the clean
+  production branch, pushes it, waits for deploy-health confirmation, and only
+  then starts a fresh 28-day measurement window. Rollback creates and pushes a
+  real Git revert. One delivery/measurement run per site prevents overlapping
+  changes from contaminating attribution; stale runs and task-state drift are
+  visible instead of silently repaired.
 - **Data Quality** — explicit source contracts for expected versus observed
   coverage, freshness, upstream errors, and revenue attribution completeness.
 
@@ -74,6 +86,19 @@ recreates the panel — a vault failure aborts with the old token still in effec
 because a panel recreated against a token the vault never accepted would lock you
 out with no way back. Routine rotation is neither required nor recommended;
 rotate after suspected disclosure.
+
+### Commit workflow
+
+This repository uses `tools/git-hooks/pre-commit`. When the live Vaultwarden
+database is mounted, the hook refreshes and stages
+`tools/credential-vault-backup/data/db.sqlite3` plus `last-backup.txt` on every
+commit. That SQLite snapshot contains Bitwarden client-side-encrypted item
+blobs; plaintext admin, automation-login, and master-password files are never
+committed. Expect those two backup files to appear in the commit and leave
+them staged. For a dashboard-only change, stage only `tools/fleet-dashboard/`
+and let the hook add the encrypted snapshot automatically; do not use
+`git add -A` in the monorepo because site submodules and other sessions may
+have unrelated changes.
 
 ## Why it shells out to Python
 
@@ -139,6 +164,13 @@ and presentation.
   completion, edits, and trashing are stored in `data/fleet-events.sqlite` with
   stable entity and correlation IDs. Query with `GET /api/events`; source-owned
   telemetry remains in its original service.
+- **Improvement deployment guardrails:** quality evidence is bound to the exact
+  worktree commit; any later edit invalidates deployment. The canonical checkout
+  must be clean and on `main`/`master`, concurrent active improvements on the
+  same site are rejected, failed rebases are aborted, and deploy/rollback both
+  require typing the exact improvement title. Cancellation will not discard a
+  dirty worktree. Implementation agents time out after 45 minutes and cannot
+  deploy or modify the linked task themselves.
 - Amazon earnings retain report-level tracking IDs and map a tag to a site only
   when the tag is uniquely discoverable in that site's source. Ambiguous and
   missing tags remain visibly unattributed.

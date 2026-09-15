@@ -213,3 +213,29 @@ test('createBranch() creates an isolated branch and refuses a dirty tree', async
     cleanup(root);
   }
 });
+
+test('improvement worktree stays isolated, deploys by fast-forward, and rolls back by revert', async () => {
+  const { root, cwd } = makeRepo();
+  const remote = path.join(root, 'origin.git');
+  try {
+    sh(root, ['init', '--bare', '-q', remote]);
+    sh(cwd, ['remote', 'add', 'origin', remote]);
+    sh(cwd, ['push', '-q', '-u', 'origin', 'HEAD']);
+    const worktree = await git.createWorktree(root, 'example.com', '12345678-abcd-1234-abcd-123456789012');
+    const canonicalBranch = execFileSync('git', ['-C', cwd, 'branch', '--show-current'], { encoding: 'utf8', env: CLEAN_ENV }).trim();
+    assert.notEqual(canonicalBranch, worktree.branch);
+    fs.writeFileSync(path.join(worktree.path, 'improved.txt'), 'better\n');
+    const committed = await git.commitWorktree(worktree.path, 'feat: improve');
+    assert.equal(committed.dirty, 0);
+    const deployed = await git.deployWorktree(root, 'example.com', worktree.path, worktree.branch);
+    assert.equal(deployed.pushed, true);
+    assert.equal(fs.readFileSync(path.join(cwd, 'improved.txt'), 'utf8'), 'better\n');
+    const rolledBack = await git.rollbackCommit(root, 'example.com', deployed.commit);
+    assert.equal(rolledBack.needsPush, false);
+    assert.equal(fs.existsSync(path.join(cwd, 'improved.txt')), false);
+    const removed = await git.removeWorktree(root, 'example.com', '12345678-abcd-1234-abcd-123456789012');
+    assert.equal(removed.removed, true);
+  } finally {
+    cleanup(root);
+  }
+});

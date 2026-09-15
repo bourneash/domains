@@ -9966,11 +9966,23 @@ let IMPROVEMENT_STATE = 'active';
 const IMPROVEMENT_TERMINAL = new Set(['proven', 'inconclusive', 'cancelled', 'rolled-back']);
 
 function improvementActions(run, transitions) {
-  if (run.state === 'measuring') return `<button class="btn sm primary improvement-measure" data-id="${esc(run.run_id)}">Measure outcome</button> <button class="btn sm danger improvement-transition" data-id="${esc(run.run_id)}" data-state="rolled-back">roll back</button>`;
-  const validate = run.state === 'building' ? `<button class="btn sm primary improvement-validate" data-id="${esc(run.run_id)}">Run quality gates</button> ` : '';
-  return validate + (transitions[run.state] || []).map(state =>
+  if (run.state === 'measuring' || run.state === 'deployed') return `${run.state === 'measuring' ? `<button class="btn sm primary improvement-measure" data-id="${esc(run.run_id)}">Measure outcome</button> ` : ''}<button class="btn sm danger improvement-rollback" data-id="${esc(run.run_id)}" data-title="${esc(run.title)}">Execute rollback</button>`;
+  if (run.state === 'review') return `<button class="btn sm primary improvement-deploy" data-id="${esc(run.run_id)}" data-title="${esc(run.title)}">Approve & deploy</button> ` +
+    (transitions[run.state] || []).filter(state => state !== 'deployed').map(state => `<button class="btn sm ${state === 'cancelled' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${esc(state)}</button>`).join(' ');
+  const buildTools = run.state === 'building' ? `<button class="btn sm improvement-agent" data-id="${esc(run.run_id)}">Run agent</button> <button class="btn sm improvement-commit" data-id="${esc(run.run_id)}">Commit changes</button> <button class="btn sm primary improvement-validate" data-id="${esc(run.run_id)}">Run quality gates</button> ` : '';
+  return buildTools + (transitions[run.state] || []).map(state =>
     `<button class="btn sm ${state === 'building' ? 'primary' : state === 'proven' ? 'primary' : state === 'cancelled' || state === 'rolled-back' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${state === 'building' && run.state !== 'review' ? 'Start sandbox build' : esc(state.replace('-', ' '))}</button>`
   ).join(' ');
+}
+
+function improvementChecks(validation) {
+  const checks = { ...(validation?.checks || {}), ...(validation?.preview?.checks || {}),
+    ...(validation?.browser?.lighthouse?.checks || {}), ...(validation?.browser?.screenshots || {}) };
+  return Object.entries(checks).map(([name, value]) => {
+    const item = typeof value === 'string' ? { status: value } : value || {};
+    const cls = item.status === 'pass' ? 'b-green' : item.status === 'warn' ? 'b-yellow' : 'b-red';
+    return `<tr><td>${esc(name.replaceAll('_', ' '))}</td><td><span class="badge ${cls}">${esc(item.status || 'unknown')}</span></td><td class="muted">${esc(item.evidence || item.excerpt || '')}</td></tr>`;
+  }).join('') || '<tr><td colspan="3" class="muted">Quality gates have not run.</td></tr>';
 }
 
 async function renderImprovements() {
@@ -9985,18 +9997,20 @@ async function renderImprovements() {
     const validation = run.validation || {};
     const outcome = run.outcome || {};
     return `<article class="card" data-fleet-row data-site="${esc(run.site)}" style="margin-bottom:12px">
-      <div class="page-head"><div><h3>${esc(run.title)}</h3><div>${siteLink(run.site)} · <span class="badge b-blue">${esc(run.state)}</span> · <span class="mono muted">${esc(run.run_id.slice(0, 8))}</span></div></div><div>${improvementActions(run, data.transitions || {})}</div></div>
+      <div class="page-head"><div><h3>${esc(run.title)}</h3><div>${siteLink(run.site)} · <span class="badge b-blue">${esc(run.state)}</span>${run.stale ? ' · <span class="badge b-yellow">stale</span>' : ''} · owner ${esc(run.agent?.assigned_role || 'unassigned')} · <span class="mono muted">${esc(run.run_id.slice(0, 8))}</span></div></div><div>${improvementActions(run, data.transitions || {})}</div></div>
       <div class="seo-stats">
-        <div class="seo-stat"><div class="seo-stat-label">Task</div><div class="seo-stat-value" style="font-size:14px">${esc(run.task_file || '—')}</div><div class="seo-stat-sub">${esc(run.task_id || '')}</div></div>
-        <div class="seo-stat"><div class="seo-stat-label">Branch</div><div class="seo-stat-value" style="font-size:14px">${esc(run.branch || 'not recorded')}</div><div class="seo-stat-sub">isolated implementation</div></div>
+        <div class="seo-stat"><div class="seo-stat-label">Task ${run.task_drift ? '<span class="badge b-red">drift</span>' : ''}</div><div class="seo-stat-value" style="font-size:14px">${esc(run.task_file || '—')}</div><div class="seo-stat-sub">${esc(run.task_column || 'missing')} · expected ${esc(run.expected_task_column || '—')}</div></div>
+        <div class="seo-stat"><div class="seo-stat-label">Branch</div><div class="seo-stat-value" style="font-size:14px">${esc(run.branch || 'not recorded')}</div><div class="seo-stat-sub">${run.sandbox?.ttydUrl ? `<a href="${esc(run.sandbox.ttydUrl)}" target="_blank" rel="noopener">open isolated shell</a>` : 'isolated implementation'}</div></div>
         <div class="seo-stat"><div class="seo-stat-label">Baseline</div><div class="seo-stat-value" style="font-size:14px">${baseline.has_data === false ? 'unavailable' : 'captured'}</div><div class="seo-stat-sub">${esc(run.baseline?.captured_at || '')}</div></div>
         <div class="seo-stat"><div class="seo-stat-label">Measure</div><div class="seo-stat-value" style="font-size:14px">${esc(run.measurement_due || '—')}</div><div class="seo-stat-sub">28-day outcome window</div></div>
       </div>
-      <details data-rk="improvement:${esc(run.run_id)}"><summary>Evidence and delivery record</summary>
+      <details class="improvement-detail" data-id="${esc(run.run_id)}" data-rk="improvement:${esc(run.run_id)}"><summary>Evidence and delivery record</summary>
         <p><b>Original evidence:</b> ${esc(run.baseline?.evidence || '—')}</p>
         <p><b>Preview:</b> ${run.preview_url ? `<a href="${esc(run.preview_url)}" target="_blank" rel="noopener">${esc(run.preview_url)}</a>` : '—'} · <b>Deployment:</b> ${esc(run.deployment_id || '—')}</p>
-        <p><b>Validation:</b> <span class="mono">${esc(JSON.stringify(validation))}</span></p>
-        <p><b>Outcome:</b> <span class="mono">${esc(JSON.stringify(outcome))}</span></p>
+        <h4>Quality gates</h4><table class="tbl"><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody>${improvementChecks(validation)}</tbody></table>
+        ${validation?.browser?.screenshots?.['production.png']?.status === 'pass' && validation?.browser?.screenshots?.['preview.png']?.status === 'pass' ? `<h4>Captured visual comparison</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><figure><figcaption>Production baseline</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/production.png" alt="Production screenshot" style="width:100%;border:1px solid var(--line)"></figure><figure><figcaption>Improvement preview</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/preview.png" alt="Improvement preview screenshot" style="width:100%;border:1px solid var(--line)"></figure></div>` : run.preview_url && ['review', 'building'].includes(run.state) ? `<h4>Live visual review</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:480px"><div><b>Production</b><iframe title="Production before improvement" src="https://${esc(run.site)}/" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div><div><b>Improvement preview</b><iframe title="Improvement preview" src="${esc(run.preview_url)}" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div></div>` : ''}
+        <p><b>Outcome:</b> ${outcome.classification ? `<span class="badge ${outcome.classification === 'proven' ? 'b-green' : outcome.classification === 'regressed' ? 'b-red' : 'b-yellow'}">${esc(outcome.classification)}</span> · confidence ${esc(outcome.confidence || '—')}` : '<span class="muted">not measured</span>'}</p>
+        <div class="improvement-live muted">Open to load worktree diff, agent log, and event timeline.</div>
       </details>
     </article>`;
   }).join('');
@@ -10035,13 +10049,50 @@ async function renderImprovements() {
   }));
   $$('.improvement-validate').forEach(button => button.addEventListener('click', async () => {
     button.disabled = true; button.textContent = 'Validating…';
-    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/validate`, {}); toast('All quality gates passed'); softRender(); }
+    try { const result = await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/validate`, {}); toast(result.validation.passed ? 'All quality gates passed' : 'Quality gates found issues', result.validation.passed ? '' : 'err'); softRender(); }
     catch (e) { button.disabled = false; button.textContent = 'Run quality gates'; toast(e.message, 'err'); softRender(); }
   }));
   $$('.improvement-measure').forEach(button => button.addEventListener('click', async () => {
     button.disabled = true;
     try { const result = await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/measure`, {}); toast(`Outcome: ${result.outcome.classification}`); softRender(); }
     catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  $$('.improvement-agent').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/agent`, {}); toast('Agent started in isolated worktree'); softRender(); }
+    catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  $$('.improvement-commit').forEach(button => button.addEventListener('click', async () => {
+    const message = prompt('Commit message for the reviewed worktree changes:');
+    if (!message) return;
+    button.disabled = true;
+    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/commit`, { message }); toast('Improvement changes committed'); softRender(); }
+    catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  $$('.improvement-deploy').forEach(button => button.addEventListener('click', async () => {
+    const confirmTitle = prompt(`Type the exact improvement title to approve production deployment:\n\n${button.dataset.title}`);
+    if (confirmTitle !== button.dataset.title) return toast('Deployment confirmation did not match', 'err');
+    button.disabled = true;
+    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/deploy`, { confirm: confirmTitle }); toast('Deployed; outcome measurement scheduled'); softRender(); }
+    catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  $$('.improvement-rollback').forEach(button => button.addEventListener('click', async () => {
+    const confirmTitle = prompt(`This creates and pushes a production revert. Type the exact title to continue:\n\n${button.dataset.title}`);
+    if (confirmTitle !== button.dataset.title) return toast('Rollback confirmation did not match', 'err');
+    button.disabled = true;
+    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/rollback`, { confirm: confirmTitle }); toast('Rollback committed and pushed'); softRender(); }
+    catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  $$('.improvement-detail').forEach(details => details.addEventListener('toggle', async () => {
+    if (!details.open || details.dataset.loaded === '1') return;
+    const box = $('.improvement-live', details); box.textContent = 'Loading delivery evidence…';
+    try {
+      const detail = await api('GET', `/api/improvements/${encodeURIComponent(details.dataset.id)}`);
+      const files = (detail.workspace?.files || []).map(f => `${f.code || ''} ${f.path}`).join('\n') || '(clean worktree)';
+      const timeline = (detail.events || []).map(e => `${fmtDate(e.occurred_at)}  ${e.event_type}`).join('\n');
+      box.innerHTML = `<h4>Worktree</h4><pre class="cn-logs-box">${esc(detail.workspace?.diff_stat || '')}\n${esc(files)}</pre><h4>Code/content diff${detail.diff?.truncated ? ' (truncated)' : ''}</h4><pre class="cn-logs-box">${esc(detail.diff?.text || '(no uncommitted diff; review the recorded commit)')}</pre><h4>Agent · ${esc(detail.agent?.status || 'not started')}</h4><pre class="cn-logs-box">${esc(detail.agent?.log_tail || '(no agent output)')}</pre><h4>Timeline</h4><pre class="cn-logs-box">${esc(timeline)}</pre>`;
+      details.dataset.loaded = '1';
+    } catch (e) { box.textContent = e.message; }
   }));
   applyFleetFilter();
   if (!FRESH) applyUISnap();

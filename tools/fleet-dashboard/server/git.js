@@ -547,6 +547,110 @@ async function createBranch(root, slug, branch) {
   });
 }
 
+function improvementWorktreePath(root, slug, runId) {
+  const id = String(runId || '').toLowerCase();
+  if (!/^[a-f0-9-]{8,36}$/.test(id)) throw httpErr(400, 'invalid improvement run id');
+  return path.join(root, 'tools', 'fleet-dashboard', 'data', 'improvement-worktrees', `${slug}--${id.replace(/-/g, '').slice(0, 12)}`);
+}
+
+async function createWorktree(root, slug, runId) {
+  const cwd = siteDir(root, slug);
+  const target = improvementWorktreePath(root, slug, runId);
+  const branch = `improvement/${String(runId).replace(/-/g, '').slice(0, 12)}`;
+  if (fs.existsSync(path.join(target, '.git'))) return { branch, path: target, created: false };
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  return withRepoLock(slug, async () => {
+    const branchExists = await git(cwd, ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`]);
+    const args = branchExists.ok ? ['worktree', 'add', target, branch] : ['worktree', 'add', '-b', branch, target, 'HEAD'];
+    const result = await git(cwd, args);
+    if (!result.ok) throw httpErr(500, (result.err || result.out).trim() || 'git worktree add failed');
+    return { branch, path: target, created: true };
+  });
+}
+
+async function worktreeSnapshot(workspacePath) {
+  const r = await git(workspacePath, ['status', '--porcelain=v1', '--branch', '-z']);
+  if (!r.ok) throw httpErr(500, r.err.trim() || 'worktree status failed');
+  const parsed = parsePorcelain(r.out);
+  const diff = await git(workspacePath, ['diff', '--stat', 'HEAD']);
+  const sha = await git(workspacePath, ['rev-parse', '--short', 'HEAD']);
+  return { branch: parsed.branch, dirty: parsed.files.length, files: parsed.files,
+    diff_stat: diff.ok ? diff.out.trim() : '', commit: sha.ok ? sha.out.trim() : null };
+}
+
+async function worktreeDiff(workspacePath) {
+  let base = 'main';
+  if (!(await git(workspacePath, ['show-ref', '--verify', '--quiet', 'refs/heads/main'])).ok) base = 'master';
+  const [committed, pending] = await Promise.all([
+    git(workspacePath, ['diff', '--no-ext-diff', '--unified=3', `${base}...HEAD`]),
+    git(workspacePath, ['diff', '--no-ext-diff', '--unified=3', 'HEAD']),
+  ]);
+  if (!committed.ok || !pending.ok) throw httpErr(500, (committed.err || pending.err).trim() || 'worktree diff failed');
+  const text = [committed.out, pending.out].filter(Boolean).join('\n');
+  return { text: text.slice(0, 250000), truncated: text.length > 250000 };
+}
+
+async function commitWorktree(workspacePath, message) {
+  if (!String(message || '').trim()) throw httpErr(400, 'commit message required');
+  const add = await git(workspacePath, ['add', '-A']);
+  if (!add.ok) throw httpErr(500, add.err.trim() || 'git add failed');
+  const commitResult = await git(workspacePath, ['commit', '-m', String(message).trim()]);
+  if (!commitResult.ok) throw httpErr(409, (commitResult.err || commitResult.out).trim() || 'nothing to commit');
+  return worktreeSnapshot(workspacePath);
+}
+
+async function deployWorktree(root, slug, workspacePath, branch) {
+  return withRepoLock(slug, async () => {
+    const canonical = await status(root, slug);
+    if (!canonical.isRepo || canonical.dirty) throw httpErr(409, 'production checkout must be a clean git repository');
+    if (!['main', 'master'].includes(canonical.branch)) throw httpErr(409, 'production checkout must be on its default branch');
+    const work = await worktreeSnapshot(workspacePath);
+    if (work.dirty) throw httpErr(409, 'improvement worktree has uncommitted changes');
+    if (work.branch !== branch) throw httpErr(409, 'improvement worktree is on an unexpected branch');
+    const before = canonical.localSha;
+    const rebase = await git(workspacePath, ['rebase', canonical.branch]);
+    if (!rebase.ok) {
+      await git(workspacePath, ['rebase', '--abort']);
+      throw httpErr(409, (rebase.err || rebase.out).trim() || 'default branch moved; rebase conflicted');
+    }
+    const merge = await git(siteDir(root, slug), ['merge', '--ff-only', branch]);
+    if (!merge.ok) throw httpErr(409, (merge.err || merge.out).trim() || 'default branch moved; rebase required');
+    const pushed = await git(siteDir(root, slug), ['push']);
+    if (!pushed.ok) throw httpErr(502, `merged locally but push failed: ${(pushed.err || pushed.out).trim()}`);
+    const after = await status(root, slug);
+    return { before, commit: after.localSha, branch: canonical.branch, pushed: true };
+  });
+}
+
+async function rollbackCommit(root, slug, commit) {
+  if (!/^[a-f0-9]{7,40}$/i.test(String(commit || ''))) throw httpErr(400, 'invalid deployment commit');
+  return withRepoLock(slug, async () => {
+    const canonical = await status(root, slug);
+    if (!canonical.isRepo || canonical.dirty) throw httpErr(409, 'production checkout must be clean');
+    if (!['main', 'master'].includes(canonical.branch)) throw httpErr(409, 'production checkout must be on its default branch');
+    const result = await git(siteDir(root, slug), ['revert', '--no-edit', String(commit)]);
+    if (!result.ok) {
+      await git(siteDir(root, slug), ['revert', '--abort']);
+      throw httpErr(409, (result.err || result.out).trim() || 'git revert failed');
+    }
+    const pushed = await git(siteDir(root, slug), ['push']);
+    if (!pushed.ok) throw httpErr(502, `rollback committed locally but push failed: ${(pushed.err || pushed.out).trim()}`);
+    return status(root, slug);
+  });
+}
+
+async function removeWorktree(root, slug, runId) {
+  const target = improvementWorktreePath(root, slug, runId);
+  if (!fs.existsSync(target)) return { removed: false };
+  return withRepoLock(slug, async () => {
+    const snapshot = await worktreeSnapshot(target);
+    if (snapshot.dirty) throw httpErr(409, 'worktree has uncommitted changes; commit or discard them before cleanup');
+    const result = await git(siteDir(root, slug), ['worktree', 'remove', target]);
+    if (!result.ok) throw httpErr(500, (result.err || result.out).trim() || 'worktree remove failed');
+    return { removed: true, path: target };
+  });
+}
+
 function stashIndex(i) {
   const n = parseInt(i, 10);
   if (!Number.isInteger(n) || n < 0 || String(n) !== String(i).trim()) return null;
@@ -663,6 +767,14 @@ module.exports = {
   branches,
   deleteBranch,
   createBranch,
+  createWorktree,
+  improvementWorktreePath,
+  worktreeSnapshot,
+  worktreeDiff,
+  commitWorktree,
+  deployWorktree,
+  rollbackCommit,
+  removeWorktree,
   commit,
   ignore,
   push,

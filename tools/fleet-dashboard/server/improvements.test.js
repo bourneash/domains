@@ -59,3 +59,11 @@ test('compares captured and current analytics without inventing missing data', (
   assert.equal(missing.classification, 'inconclusive');
   assert.equal(missing.has_data, false);
 });
+
+test('requires material changes and adequate samples before claiming an outcome', () => {
+  assert.equal(improvements.compareOutcome({ sessions: 20 }, { has_data: true, sessions: 40 }).classification, 'inconclusive');
+  assert.equal(improvements.compareOutcome({ sessions: 1000 }, { has_data: true, sessions: 890 }).classification, 'regressed');
+  assert.equal(improvements.compareOutcome({ sessions: 1000 }, { has_data: true, sessions: 950 }).classification, 'inconclusive');
+  assert.equal(improvements.expectedTaskColumn('building'), 'in-progress');
+  assert.equal(improvements.expectedTaskColumn('proven'), 'done');
+});

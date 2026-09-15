@@ -39,6 +39,7 @@ function start({ store, root, site, action, baseline = {} }) {
   const run = store.createImprovement({ run_id: runId, site, source: 'seo-intelligence',
     source_id: action.key, correlation_id: correlationId, task_id: taskId, task_file: file,
     title: action.title, measurement_due: due,
+    agent: { assigned_role: ['web-vitals', 'broken-links', 'crawlability'].includes(action.type) ? 'engineer' : 'seo-analyst', status: 'not-started' },
     baseline: { captured_at: new Date().toISOString(), analytics: baseline, evidence: action.evidence || '',
       opportunity_score: action.score || 0, value_score: action.valueScore || 0 } });
   store.record({ event_type: 'improvement.started', source: 'improvement-workbench',
@@ -61,7 +62,7 @@ function transition(store, runId, input = {}) {
   if (['proven', 'regressed', 'inconclusive'].includes(state) && (!input.outcome || !input.outcome.measured_at))
     throw httpErr(400, 'a measured outcome is required');
   const patch = { state };
-  for (const key of ['branch', 'preview_url', 'deployment_id', 'measurement_due', 'validation', 'outcome'])
+  for (const key of ['branch', 'preview_url', 'deployment_id', 'measurement_due', 'validation', 'outcome', 'approval', 'production_before'])
     if (Object.prototype.hasOwnProperty.call(input, key)) patch[key] = input[key];
   const run = store.updateImprovement(runId, patch);
   store.record({ event_type: `improvement.${state}`, source: 'improvement-workbench',
@@ -71,9 +72,18 @@ function transition(store, runId, input = {}) {
 }
 
 function summary(runs) {
+  const staleBefore = Date.now() - 24 * 60 * 60 * 1000;
+  runs = runs.map(run => ({ ...run, stale: !['proven', 'inconclusive', 'cancelled', 'rolled-back'].includes(run.state) && Date.parse(run.updated_at) < staleBefore }));
   const totals = { all: runs.length };
   for (const run of runs) totals[run.state] = (totals[run.state] || 0) + 1;
   return { runs, totals, states: Object.keys(TRANSITIONS), transitions: TRANSITIONS };
+}
+
+function expectedTaskColumn(state) {
+  if (state === 'proposed') return 'backlog';
+  if (['building', 'review'].includes(state)) return 'in-progress';
+  if (state === 'cancelled') return 'hold';
+  return 'done';
 }
 
 function compareOutcome(baseline, current, measuredAt = new Date().toISOString()) {
@@ -87,14 +97,20 @@ function compareOutcome(baseline, current, measuredAt = new Date().toISOString()
   }
   const conversion = deltas.conversions;
   const traffic = deltas.sessions || deltas.clicks;
+  const sample = Math.max(Number(baseline?.sessions) || 0, Number(baseline?.impressions) || 0);
+  const enoughTraffic = (deltas.sessions && Number(baseline.sessions) >= 100) ||
+    (deltas.clicks && Number(baseline.impressions) >= 500);
+  const enoughConversions = conversion && Number(baseline.conversions) >= 5;
   let classification = 'inconclusive';
-  if ((conversion && conversion.absolute > 0) || (traffic && traffic.percent != null && traffic.percent >= 5)) classification = 'proven';
-  else if ((conversion && conversion.absolute < 0) || (traffic && traffic.percent != null && traffic.percent <= -5)) classification = 'regressed';
+  if ((enoughConversions && conversion.percent >= 10) || (enoughTraffic && traffic.percent != null && traffic.percent >= 10)) classification = 'proven';
+  else if ((enoughConversions && conversion.percent <= -10) || (enoughTraffic && traffic.percent != null && traffic.percent <= -10)) classification = 'regressed';
   return { measured_at: measuredAt, window_days: current?.window_days || 28,
     has_data: current?.has_data !== false && Object.keys(deltas).length > 0, deltas,
+    confidence: sample >= 1000 ? 'high' : sample >= 100 ? 'medium' : 'low',
+    thresholds: { minimum_sessions: 100, minimum_impressions: 500, material_change_percent: 10 },
     classification: current?.has_data === false || !Object.keys(deltas).length ? 'inconclusive' : classification };
 }
 
 function httpErr(status, message) { const e = new Error(message); e.httpStatus = status; return e; }
 
-module.exports = { start, transition, summary, compareOutcome, measurementDate, TRANSITIONS };
+module.exports = { start, transition, summary, compareOutcome, expectedTaskColumn, measurementDate, TRANSITIONS };

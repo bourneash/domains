@@ -131,21 +131,24 @@ async function inspectStatus(site) {
   return { exists: true, status: r.stdout.trim() };
 }
 
-async function start(root, site) {
-  const hostSiteDir = path.join(root, 'sites', site);
+async function start(root, site, options = {}) {
+  const instance = options.instance || site;
+  if (!/^[a-z0-9][a-z0-9.-]{0,119}$/.test(instance)) throw httpErr(400, 'invalid sandbox instance');
+  const canonicalSiteDir = path.join(root, 'sites', site);
+  const hostSiteDir = options.workspaceDir || canonicalSiteDir;
   if (!fs.existsSync(hostSiteDir)) throw httpErr(404, `site dir not found: ${hostSiteDir}`);
 
-  const cur = await inspectStatus(site);
-  const ports = loadState().ports[site] || allocPorts(site);
+  const cur = await inspectStatus(instance);
+  const ports = loadState().ports[instance] || allocPorts(instance);
   if (cur.status === 'running') return { started: false, ports };
 
   if (cur.exists) {
-    const r = await docker(['start', containerName(site)]);
+    const r = await docker(['start', containerName(instance)]);
     if (r.code !== 0) throw httpErr(500, `docker start failed: ${r.stderr}`);
     return { started: true, ports };
   }
 
-  const { ttyd: ttydPort, dev: devPort } = allocPorts(site);
+  const { ttyd: ttydPort, dev: devPort } = allocPorts(instance);
   const hostHome = process.env.HOME || '/root';
   const hostSharedEnv = path.join(root, '.env');
 
@@ -159,8 +162,8 @@ async function start(root, site) {
   fs.mkdirSync(hostProjectDir, { recursive: true });
 
   const stateRoot = path.join(root, 'tools', 'domain-developer', 'state');
-  const claudeStateDir = path.join(stateRoot, site, 'claude');
-  const persistStateDir = path.join(stateRoot, site, 'persist');
+  const claudeStateDir = path.join(stateRoot, instance, 'claude');
+  const persistStateDir = path.join(stateRoot, instance, 'persist');
   fs.mkdirSync(claudeStateDir, { recursive: true });
   fs.mkdirSync(persistStateDir, { recursive: true });
 
@@ -169,8 +172,8 @@ async function start(root, site) {
 
   const args = [
     'run', '-d',
-    '--name', containerName(site),
-    '--hostname', `dd-${site}`,
+    '--name', containerName(instance),
+    '--hostname', `dd-${instance}`,
     '--restart', 'unless-stopped',
     '--stop-timeout', '30',
     '--memory', MEMORY_LIMIT,
@@ -199,11 +202,27 @@ async function start(root, site) {
     if (fs.existsSync(src)) args.push('-v', `${src}:/host-claude-ro/${name}:ro`);
   }
   if (fs.existsSync(hostSharedEnv)) args.push('-v', `${hostSharedEnv}:${hostSiteDir}/.env.shared:ro`);
+  const canonicalEnv = path.join(canonicalSiteDir, '.env');
+  if (options.workspaceDir && fs.existsSync(canonicalEnv)) args.push('-v', `${canonicalEnv}:${hostSiteDir}/.env:ro`);
   args.push(IMAGE);
 
   const r = await docker(args);
   if (r.code !== 0) throw httpErr(500, `docker run failed: ${r.stderr.trim()}`);
   return { started: true, ports: { ttyd: ttydPort, dev: devPort } };
+}
+
+function improvementInstance(runId) {
+  const id = String(runId || '').toLowerCase();
+  if (!/^[a-f0-9-]{8,36}$/.test(id)) throw httpErr(400, 'invalid improvement run id');
+  return `imp-${id.replace(/-/g, '').slice(0, 12)}`;
+}
+
+async function startImprovement(root, site, runId, workspaceDir) {
+  const instance = improvementInstance(runId);
+  const result = await start(root, site, { instance, workspaceDir });
+  return { ...result, instance, container: containerName(instance),
+    ttydUrl: `http://${PUBLIC_HOST}:${result.ports.ttyd}/`,
+    devUrl: `http://${PUBLIC_HOST}:${result.ports.dev}/` };
 }
 
 async function stop(site) {
@@ -247,8 +266,8 @@ async function devLogs(site, n) { return (await devExec(site, 'logs', String(n |
 async function validate(site) {
   const checks = [
     ['diff', 'git diff --check'],
-    ['tests', 'npm test --if-present'],
-    ['build', 'npm run build'],
+    ['tests', 'if [ -f site/package.json ]; then cd site; fi; npm test --if-present'],
+    ['build', 'if [ -f site/package.json ]; then cd site; fi; npm run build'],
   ];
   const results = {};
   for (const [name, command] of checks) {
@@ -261,6 +280,60 @@ async function validate(site) {
   }
   return { passed: Object.keys(results).length === checks.length && Object.values(results).every(x => x.status === 'pass'),
     recorded_at: new Date().toISOString(), checks: results };
+}
+
+async function preview(instance, pathname = '/') {
+  if (!/^\/[A-Za-z0-9._~!$&'()*+,;=:@%/?-]*$/.test(String(pathname || ''))) throw httpErr(400, 'invalid preview path');
+  const marker = '__FD_HTTP_STATUS__:';
+  const r = await docker(['exec', containerName(instance), 'curl', '-sS', '-L', '--max-time', '15',
+    '-w', `\n${marker}%{http_code}`, `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}${pathname}`], { timeout: 20000 });
+  const at = r.stdout.lastIndexOf(`\n${marker}`);
+  const body = at >= 0 ? r.stdout.slice(0, at) : r.stdout;
+  const status = at >= 0 ? Number(r.stdout.slice(at + marker.length + 1)) : 0;
+  return { ok: r.code === 0 && status >= 200 && status < 400, status, body,
+    error: r.code === 0 ? null : r.stderr.trim() || 'preview request failed' };
+}
+
+async function browserAudit(root, instance, site) {
+  const persistDir = path.join(root, 'tools', 'domain-developer', 'state', instance, 'persist');
+  fs.mkdirSync(persistDir, { recursive: true });
+  const shots = [
+    ['production.png', `https://${site}/`],
+    ['preview.png', `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}/`],
+  ];
+  const screenshotResults = {};
+  for (const [name, url] of shots) {
+    const r = await docker(['exec', containerName(instance), 'chromium', '--headless', '--no-sandbox',
+      '--disable-gpu', '--hide-scrollbars', '--ignore-certificate-errors', '--window-size=1440,1000',
+      `--screenshot=/home/dev/persist/${name}`, url], { timeout: 60000 });
+    screenshotResults[name] = { status: r.code === 0 && fs.existsSync(path.join(persistDir, name)) ? 'pass' : 'fail',
+      evidence: r.code === 0 ? '1440×1000 captured' : r.stderr.trim().slice(-500) };
+  }
+  const lighthouseFile = path.join(persistDir, 'lighthouse.json');
+  const lh = await docker(['exec', containerName(instance), 'lighthouse', `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}/`,
+    '--quiet', '--output=json', '--output-path=/home/dev/persist/lighthouse.json',
+    '--chrome-flags=--headless --no-sandbox --disable-gpu'], { timeout: 3 * 60 * 1000, maxBuffer: 2 * 1024 * 1024 });
+  let scores = {};
+  try {
+    const report = JSON.parse(fs.readFileSync(lighthouseFile, 'utf8'));
+    for (const key of ['performance', 'accessibility', 'best-practices', 'seo'])
+      scores[key] = Math.round(Number(report.categories?.[key]?.score || 0) * 100);
+  } catch { /* reported below */ }
+  const thresholds = { performance: 50, accessibility: 90, 'best-practices': 85, seo: 90 };
+  const lighthouseChecks = Object.fromEntries(Object.entries(thresholds).map(([key, minimum]) => [key, {
+    status: scores[key] >= minimum ? 'pass' : 'fail', evidence: `${scores[key] ?? 0}/100; minimum ${minimum}`,
+  }]));
+  const passed = lh.code === 0 && Object.values(screenshotResults).every(x => x.status === 'pass') &&
+    Object.values(lighthouseChecks).every(x => x.status === 'pass');
+  return { passed, recorded_at: new Date().toISOString(), screenshots: screenshotResults,
+    lighthouse: { status: lh.code === 0 ? 'complete' : 'failed', scores, checks: lighthouseChecks,
+      error: lh.code === 0 ? null : lh.stderr.trim().slice(-1000) } };
+}
+
+function improvementArtifactPath(root, instance, name) {
+  if (!['production.png', 'preview.png', 'lighthouse.json'].includes(name)) throw httpErr(400, 'invalid artifact');
+  if (!/^imp-[a-f0-9]{8,12}$/.test(instance)) throw httpErr(400, 'invalid improvement instance');
+  return path.join(root, 'tools', 'domain-developer', 'state', instance, 'persist', name);
 }
 
 async function stats() {
@@ -285,8 +358,9 @@ async function stats() {
 async function findOrphans(sites) {
   const known = new Set(sites);
   const state = loadState();
-  const stalePorts = Object.keys(state.ports || {}).filter((s) => !known.has(s));
-  const danglingContainers = Object.keys(await listDdContainers()).filter((s) => !known.has(s));
+  // imp-* instances are owned by durable improvement runs, not site discovery.
+  const stalePorts = Object.keys(state.ports || {}).filter((s) => !known.has(s) && !s.startsWith('imp-'));
+  const danglingContainers = Object.keys(await listDdContainers()).filter((s) => !known.has(s) && !s.startsWith('imp-'));
   return { stalePorts, danglingContainers };
 }
 
@@ -337,6 +411,7 @@ async function removeStopped() {
 
 module.exports = {
   list, start, stop, remove,
-  devStatus, devStart, devStop, devLogs, validate,
+  devStatus, devStart, devStop, devLogs, validate, preview, browserAudit, improvementArtifactPath,
+  startImprovement, improvementInstance,
   stats, findOrphans, cleanupOrphans, stopAll, removeStopped,
 };
