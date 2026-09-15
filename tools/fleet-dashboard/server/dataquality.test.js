@@ -1,0 +1,19 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const dataquality = require('./dataquality');
+
+test('distinguishes missing data from zero and reports completeness', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-'));
+  fs.mkdirSync(path.join(root, 'registry'));
+  fs.writeFileSync(path.join(root, 'registry', 'fleet.yaml'), 'sites:\n  a.com:\n    status: live\n    capabilities: [analytics]\n  b.com:\n    status: live\n    capabilities: [analytics]\n');
+  const out = dataquality.assess({ root, discoveredSites: ['a.com', 'b.com'], analyticsHealth: { sites: { 'a.com': { ga4: { last_fetch_at: '2026-09-15T00:00:00Z' } } } }, seo: { upstream: { ok: true }, sources: { analyticsConfigured: 1 } }, revenue: { has_data: false, message: 'not connected' }, aiUsage: { by_site: [{ site: 'a.com' }] } });
+  const analytics = out.contracts.find(r => r.source === 'analytics');
+  assert.equal(analytics.completeness, 0.5);
+  assert.equal(analytics.status, 'yellow');
+  assert.equal(out.contracts.find(r => r.source === 'amazon-revenue').status, 'red');
+});

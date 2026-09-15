@@ -16,7 +16,7 @@ const MODPATH = require.resolve('./auth');
 // and the require cache so other tests see the real module again.
 function withAuth(envPatch, fn) {
   const saved = { ...process.env };
-  for (const k of ['FD_TOKEN', 'FD_AUTH', 'FD_ALLOWED_HOSTS']) delete process.env[k];
+  for (const k of ['FD_TOKEN', 'FD_VIEWER_TOKENS', 'FD_AUTH', 'FD_ALLOWED_HOSTS']) delete process.env[k];
   Object.assign(process.env, envPatch);
   delete require.cache[MODPATH];
   const auth = require('./auth');
@@ -78,6 +78,30 @@ test('authed() accepts a valid x-fd-token header', () => {
     assert.equal(auth.authed(mockReq({ headers: { 'x-fd-token': 'correct-horse' } })), true);
     assert.equal(auth.authed(mockReq({ headers: { 'x-fd-token': 'nope' } })), false);
     assert.equal(auth.authed(mockReq()), false);
+  });
+});
+
+test('viewer credentials can read but cannot mutate', () => {
+  withAuth({ FD_TOKEN: 'operator', FD_VIEWER_TOKENS: 'viewer' }, auth => {
+    const read = { headers: { 'x-fd-token': 'viewer' }, path: '/api/roles', method: 'GET' };
+    let readNext = false;
+    auth.apiGuard(read, fakeRes(), () => { readNext = true; });
+    assert.equal(readNext, true);
+    assert.equal(auth.accessLevel(read), 'viewer');
+
+    const write = { headers: { 'x-fd-token': 'viewer' }, path: '/api/tasks/a/backlog', method: 'POST' };
+    const res = fakeRes();
+    auth.apiGuard(write, res, () => assert.fail('viewer write reached handler'));
+    assert.equal(res.status.mock.calls[0].arguments[0], 403);
+  });
+});
+
+test('viewer credentials can ride in the vault-backed FD_TOKEN list', () => {
+  withAuth({ FD_TOKEN: 'operator,viewer:read-only' }, auth => {
+    const req = { headers: { 'x-fd-token': 'read-only' }, path: '/api/roles', method: 'GET' };
+    assert.equal(auth.authed(req), true);
+    assert.equal(auth.accessLevel(req), 'viewer');
+    assert.equal(auth.tokenValid('read-only'), false);
   });
 });
 
@@ -143,7 +167,7 @@ test('authStatus reports authRequired + whether this caller is authed', () => {
   withAuth({ FD_TOKEN: 'correct-horse' }, auth => {
     const res = fakeRes();
     auth.authStatus(mockReq({ headers: { 'x-fd-token': 'correct-horse' } }), res);
-    assert.deepEqual(res.json.mock.calls[0].arguments[0], { authRequired: true, authed: true });
+    assert.deepEqual(res.json.mock.calls[0].arguments[0], { authRequired: true, authed: true, access: 'operator' });
   });
 });
 
@@ -155,7 +179,7 @@ test('authStatus renews an existing valid browser session', () => {
 
     const res = fakeRes();
     auth.authStatus(mockReq({ cookie }), res);
-    assert.deepEqual(res.json.mock.calls[0].arguments[0], { authRequired: true, authed: true });
+    assert.deepEqual(res.json.mock.calls[0].arguments[0], { authRequired: true, authed: true, access: 'operator' });
     assert.equal(res.setHeader.mock.callCount(), 1);
   });
 });

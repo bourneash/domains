@@ -45,6 +45,9 @@ const retention = require('./retention');
 const social = require('./social');
 const socialhub = require('./socialhub');
 const automation = require('./automation');
+const eventstore = require('./eventstore');
+const priorities = require('./priorities');
+const dataquality = require('./dataquality');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -52,6 +55,7 @@ const HOST = process.env.FD_HOST || '127.0.0.1';
 
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
+  const events = eventstore.open(root);
   app.disable('x-powered-by');
 
   // Host allowlist for EVERY request (defeats DNS-rebinding — B3). Always on.
@@ -228,6 +232,43 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/analytics/wow', async (req, res) => res.json(await analytics.wow(req.query.site)));
   app.get('/api/revenue/amazon', (_req, res) => res.json(revenue.amazonSummary(root)));
 
+  // Portfolio decision surface: joins canonical lifecycle, coverage, work and
+  // growth signals. Dollar estimates stay null until attributable revenue exists.
+  app.get('/api/priorities', async (_req, res) => {
+    try {
+      const [seo, analyticsHealth, usage] = await Promise.all([
+        seoIntelligence.buildSnapshot({ root }), analytics.health(), aiusage.fleet(root),
+      ]);
+      const builds = cloudflarebuilds.summarize(undefined, { days: 30, limit: 250 });
+      const reg = require('./fleetregistry').read(root);
+      const siteByWorker = Object.fromEntries(reg.sites.filter(s => s.worker).map(s => [s.worker, s]));
+      for (const build of builds.builds || []) {
+        const site = siteByWorker[build.worker];
+        if (!site || !build.uuid) continue;
+        const prior = build.commitHash ? events.list({ entity_type: 'commit', entity_id: String(build.commitHash).slice(0, 7), limit: 1 })[0] : null;
+        events.recordOnce({ event_id: `cf-build:${build.uuid}`, event_type: 'deployment.completed', source: 'cloudflare-builds',
+          occurred_at: build.stoppedOn || build.createdOn || new Date().toISOString(), site_id: site.site_id,
+          entity_type: 'deployment', entity_id: build.uuid, correlation_id: prior?.correlation_id || `commit:${build.commitHash || build.uuid}`,
+          causation_id: prior?.event_id || null, payload: { commit: build.commitHash || null, outcome: build.outcome, duration_seconds: build.durationSeconds } });
+      }
+      res.json(priorities.build({
+        root, discoveredSites: discoverSites(root), seo,
+        revenue: revenue.amazonSummary(root), analyticsHealth, aiUsage: usage,
+      }));
+    } catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+  });
+  app.get('/api/data-quality', async (_req, res) => {
+    try {
+      const [seo, analyticsHealth, usage] = await Promise.all([seoIntelligence.buildSnapshot({ root }), analytics.health(), aiusage.fleet(root)]);
+      res.json(dataquality.assess({ root, discoveredSites: discoverSites(root), seo, analyticsHealth,
+        aiUsage: usage, revenue: revenue.amazonSummary(root) }));
+    } catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+  });
+  app.get('/api/events', (req, res) => {
+    try { res.json({ events: events.list(req.query) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+
   // SEO Intelligence joins first-party GSC data with the latest fleet-owned
   // web-vitals and link-rot reports, then emits ranked, evidence-backed work.
   app.get('/api/seo-intelligence', async (req, res) => {
@@ -256,13 +297,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         ? 'engineer'
         : 'seo-analyst';
       const priority = action.priority === 'high' ? 1 : action.priority === 'medium' ? 2 : 3;
+      const correlationId = `seo:${action.key}`;
+      const taskId = crypto.randomUUID();
+      const measurementDue = new Date(Date.now() + 28 * 86400000).toISOString().slice(0, 10);
       const executionPlan = (action.plan || []).map((step, index) => `${index + 1}. ${step}`).join('\n');
       const file = tasks.create(root, site, 'backlog', {
+        task_id: taskId,
         title: action.title,
         priority,
         type: 'seo',
         estimated_turns: action.priority === 'high' ? 3 : 2,
         assigned_role: assignedRole,
+        source: 'seo-intelligence',
+        source_id: action.key,
+        correlation_id: correlationId,
+        measurement_due: measurementDue,
         body:
           `## Evidence\n\n${action.evidence}\n\n` +
           `${action.page ? `Page: https://${site}${action.page}\n\n` : ''}` +
@@ -275,8 +324,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           `## Acceptance criteria\n\nComplete the plan, rerun the relevant fleet measurement, and record the post-change result against this baseline.\n\n` +
           `seo-intelligence-key: ${action.key}\n`,
       });
+      events.record({
+        event_type: 'recommendation.task_filed', source: 'seo-intelligence',
+        site_id: `site:${site}`, entity_type: 'task', entity_id: taskId,
+        correlation_id: correlationId,
+        payload: { action_key: action.key, file, assigned_role: assignedRole, baseline: action.metric || null, measurement_due: measurementDue },
+      });
       seoIntelligence.clearCache();
-      res.status(201).json({ ok: true, file, site, assigned_role: assignedRole });
+      res.status(201).json({ ok: true, file, site, task_id: taskId, correlation_id: correlationId, assigned_role: assignedRole });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
@@ -868,9 +923,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Safe write ops: commit selected paths, ignore (gitignore+commit), push.
   app.post('/api/git/:slug/commit', requireSite, async (req, res) => {
     try {
-      res.json(
-        await git.commit(root, req.params.slug, (req.body || {}).paths, (req.body || {}).message)
-      );
+      const body = req.body || {};
+      const correlations = [];
+      for (const rel of Array.isArray(body.paths) ? body.paths : []) {
+        if (!/^ops\/tasks\/(?:backlog|in-progress|done|hold)\/[A-Za-z0-9._-]+\.md$/.test(rel)) continue;
+        try {
+          const [, , column, file] = rel.split('/');
+          const task = tasks.get(root, req.params.slug, column, file);
+          correlations.push({ task_id: task.meta.task_id || `legacy:${req.params.slug}:${file}`, correlation_id: task.meta.correlation_id || null, file });
+        } catch { /* selected task may be a deletion */ }
+      }
+      const result = await git.commit(root, req.params.slug, body.paths, body.message);
+      const after = await git.status(root, req.params.slug);
+      for (const link of correlations) events.record({ event_type: 'change.committed', source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`, entity_type: 'commit', entity_id: after.localSha,
+        correlation_id: link.correlation_id || `task:${link.task_id}`, payload: { task_id: link.task_id, file: link.file, paths: body.paths, message: body.message } });
+      res.json({ ...result, commit: after.localSha, correlations: correlations.length });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -886,7 +954,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.post('/api/git/:slug/push', requireSite, async (req, res) => {
     try {
-      res.json(await git.push(root, req.params.slug));
+      const before = await git.status(root, req.params.slug);
+      const result = await git.push(root, req.params.slug);
+      events.record({ event_type: 'change.pushed', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
+        entity_type: 'commit', entity_id: before.localSha, payload: { branch: before.branch } });
+      res.json(result);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -969,10 +1041,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.post('/api/tasks/:slug/:column', requireSite, (req, res) => {
     try {
-      res.json({
-        ok: true,
-        file: tasks.create(root, req.params.slug, req.params.column, req.body || {}),
-      });
+      const payload = { ...(req.body || {}) };
+      payload.task_id ||= crypto.randomUUID();
+      payload.source ||= 'fleet-dashboard';
+      payload.correlation_id ||= `task:${payload.task_id}`;
+      const file = tasks.create(root, req.params.slug, req.params.column, payload);
+      events.record({ event_type: 'task.created', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
+        entity_type: 'task', entity_id: payload.task_id, correlation_id: payload.correlation_id,
+        payload: { file, column: req.params.column, title: payload.title || 'Untitled task', assigned_role: payload.assigned_role || null } });
+      res.json({ ok: true, file, task_id: payload.task_id, correlation_id: payload.correlation_id });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -980,16 +1057,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.put('/api/tasks/:slug/:column/:file', requireSite, (req, res) => {
     try {
-      res.json({
-        ok: true,
-        file: tasks.update(
+      const before = tasks.get(root, req.params.slug, req.params.column, req.params.file);
+      const taskId = before.meta.task_id || `legacy:${req.params.slug}:${req.params.file}`;
+      const correlationId = before.meta.correlation_id || `task:${taskId}`;
+      const file = tasks.update(
           root,
           req.params.slug,
           req.params.column,
           req.params.file,
           req.body || {}
-        ),
-      });
+        );
+      events.record({ event_type: 'task.updated', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
+        entity_type: 'task', entity_id: taskId, correlation_id: correlationId,
+        payload: { file: req.params.file, column: req.params.column } });
+      res.json({ ok: true, file });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -997,16 +1078,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.post('/api/tasks/:slug/:column/:file/move', requireSite, (req, res) => {
     try {
-      res.json({
-        ok: true,
-        ...tasks.move(
+      const before = tasks.get(root, req.params.slug, req.params.column, req.params.file);
+      const taskId = before.meta.task_id || `legacy:${req.params.slug}:${req.params.file}`;
+      const correlationId = before.meta.correlation_id || `task:${taskId}`;
+      const moved = tasks.move(
           root,
           req.params.slug,
           req.params.column,
           req.params.file,
           (req.body || {}).to
-        ),
-      });
+        );
+      events.record({ event_type: moved.column === 'done' ? 'task.completed' : 'task.moved', source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`, entity_type: 'task', entity_id: taskId, correlation_id: correlationId,
+        payload: { file: moved.file, from: req.params.column, to: moved.column, measurement_due: before.meta.measurement_due || null } });
+      res.json({ ok: true, ...moved });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -1014,8 +1099,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.delete('/api/tasks/:slug/:column/:file', requireSite, (req, res) => {
     try {
-      tasks.remove(root, req.params.slug, req.params.column, req.params.file);
-      res.json({ ok: true });
+      const before = tasks.get(root, req.params.slug, req.params.column, req.params.file);
+      const taskId = before.meta.task_id || `legacy:${req.params.slug}:${req.params.file}`;
+      const removed = tasks.remove(root, req.params.slug, req.params.column, req.params.file);
+      events.record({ event_type: 'task.trashed', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
+        entity_type: 'task', entity_id: taskId, correlation_id: before.meta.correlation_id || `task:${taskId}`,
+        payload: { file: req.params.file, from: req.params.column, trashed: removed.trashed } });
+      res.json(removed);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -1556,7 +1646,7 @@ function acquireBackgroundJobLock(root) {
 const LOOPBACK = new Set(['127.0.0.1', '::1', 'localhost']);
 
 function assertSafeToBind(host) {
-  if (auth.TOKEN || LOOPBACK.has(host)) return;
+  if (auth.AUTH_REQUIRED || LOOPBACK.has(host)) return;
   // FD_AUTH=0 is a deliberate, documented opt-out — same acknowledgement as
   // FD_ALLOW_INSECURE=1, just the one people actually reach for.
   if (auth.AUTH_DISABLED || process.env.FD_ALLOW_INSECURE === '1') return;

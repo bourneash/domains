@@ -37,13 +37,19 @@ const AUTH_DISABLED = process.env.FD_AUTH === '0';
 // rotating it still invalidates existing browser sessions exactly as before;
 // any later token in the list authenticates the `x-fd-token` header only, no
 // cookie login, since programmatic clients send the header on every request.
-const TOKENS = AUTH_DISABLED
+const RAW_TOKENS = AUTH_DISABLED
   ? []
   : (process.env.FD_TOKEN || '')
       .split(',')
       .map(t => t.trim())
       .filter(Boolean);
+const TOKENS = RAW_TOKENS.filter(t => !t.startsWith('viewer:'));
+const INLINE_VIEWER_TOKENS = RAW_TOKENS.filter(t => t.startsWith('viewer:')).map(t => t.slice(7)).filter(Boolean);
 const TOKEN = TOKENS[0] || null;
+const VIEWER_TOKENS = AUTH_DISABLED
+  ? []
+  : [...INLINE_VIEWER_TOKENS, ...(process.env.FD_VIEWER_TOKENS || '').split(',').map(t => t.trim()).filter(Boolean)];
+const AUTH_REQUIRED = Boolean(TOKEN || VIEWER_TOKENS.length);
 const COOKIE = 'fd_auth';
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 3600;
 // The cookie carries an HMAC of a constant under the primary token, never the
@@ -88,6 +94,11 @@ function tokenValid(t) {
   return TOKENS.some(tok => safeEqual(s, tok));
 }
 
+function viewerTokenValid(t) {
+  const s = String(t || '');
+  return VIEWER_TOKENS.some(tok => safeEqual(s, tok));
+}
+
 function parseCookies(req) {
   const out = {};
   const raw = req.headers.cookie;
@@ -120,9 +131,15 @@ function renewSessionCookie(req, res) {
 }
 
 function authed(req) {
-  if (!TOKEN) return true; // token gate disabled
-  if (tokenValid(req.headers['x-fd-token'])) return true; // header (programmatic clients)
+  if (!AUTH_REQUIRED) return true; // token gate disabled
+  if (tokenValid(req.headers['x-fd-token']) || viewerTokenValid(req.headers['x-fd-token'])) return true;
   return sessionCookieValid(req); // cookie (browser)
+}
+
+function accessLevel(req) {
+  if (!AUTH_REQUIRED || tokenValid(req.headers['x-fd-token']) || sessionCookieValid(req)) return 'operator';
+  if (viewerTokenValid(req.headers['x-fd-token'])) return 'viewer';
+  return null;
 }
 
 // Layer 1: host allowlist for ALL requests.
@@ -135,10 +152,12 @@ function hostGuard(req, res, next) {
 // prefix and break the EXEMPT match). Only /api/* is guarded; everything else
 // (static shell, /healthz) passes so the login UI can load.
 function apiGuard(req, res, next) {
-  if (!TOKEN) return next();
+  if (!AUTH_REQUIRED) return next();
   if (!req.path.startsWith('/api/')) return next();
   if (EXEMPT.has(req.path)) return next();
   if (authed(req)) {
+    if (accessLevel(req) === 'viewer' && !['GET', 'HEAD', 'OPTIONS'].includes(req.method))
+      return res.status(403).json({ error: 'read-only credential' });
     renewSessionCookie(req, res);
     return next();
   }
@@ -147,7 +166,8 @@ function apiGuard(req, res, next) {
 
 // POST /api/login { token } — validates and sets the auth cookie.
 function loginHandler(req, res) {
-  if (!TOKEN) return res.json({ ok: true, authRequired: false });
+  if (!AUTH_REQUIRED) return res.json({ ok: true, authRequired: false });
+  if (!TOKEN) return res.status(403).json({ error: 'browser login is unavailable for viewer-only configuration' });
   if (!tokenValid((req.body || {}).token)) return res.status(401).json({ error: 'invalid token' });
   setSessionCookie(res);
   res.json({ ok: true });
@@ -157,7 +177,7 @@ function loginHandler(req, res) {
 function authStatus(req, res) {
   const isAuthed = authed(req);
   renewSessionCookie(req, res);
-  res.json({ authRequired: !!TOKEN, authed: isAuthed });
+  res.json({ authRequired: AUTH_REQUIRED, authed: isAuthed, access: accessLevel(req) });
 }
 
 module.exports = {
@@ -168,8 +188,11 @@ module.exports = {
   authed,
   hostAllowed,
   tokenValid,
+  viewerTokenValid,
+  accessLevel,
   TOKEN,
   AUTH_DISABLED,
+  AUTH_REQUIRED,
   COOKIE,
   _parseCookies: parseCookies,
 };

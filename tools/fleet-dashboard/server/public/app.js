@@ -9721,7 +9721,7 @@ async function shRenderEvents() {
 // it — declared here as a forward reference via var hoisting is unsafe with
 // const, so TOP_VIEWS is assembled lazily the first time it's read.
 function topViews() {
-  return ['control', ...NAV_GROUP_VIEWS];
+  return ['control', 'priorities', ...NAV_GROUP_VIEWS];
 }
 
 // Grouped nav (F-nav): the flat 20+ tab bar collapsed into topic dropdowns,
@@ -9778,6 +9778,7 @@ const NAV_GROUPS = {
       ['errors', 'Errors'],
       ['activity', 'Activity'],
       ['devsandbox', 'Dev Sandboxes'],
+      ['dataquality', 'Data Quality'],
     ],
   },
 };
@@ -9911,6 +9912,64 @@ function cycleAutomationSite(direction) {
   const current = selectedIndex === -1 ? (direction > 0 ? -1 : 0) : selectedIndex;
   AUTO_SITE = sites[(current + direction + sites.length) % sites.length];
   renderAutomation();
+}
+
+let PRIORITY_STATE = 'all';
+
+async function renderPriorities() {
+  if (FRESH) app.innerHTML = '<div class="loading">Joining portfolio signals…</div>';
+  let data;
+  try { data = await api('GET', '/api/priorities'); }
+  catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; return; }
+  const coverage = data.coverage || {};
+  const all = data.items || [];
+  const rows = all.filter(item => PRIORITY_STATE === 'all' || item.state === PRIORITY_STATE);
+  const tiles = [
+    ['Recommendations', data.totals?.recommendations || 0, 'joined work queue'],
+    ['Ready', data.totals?.ready || 0, 'can be filed now'],
+    ['Blocked', data.totals?.blocked || 0, 'coverage or ownership'],
+    ['Live sites', coverage.live_sites || 0, `${coverage.discovered_sites || 0} operational checkouts`],
+    ['Analytics', coverage.analytics_sites || 0, 'sites reporting'],
+    ['Revenue', coverage.revenue_connected ? 'Connected' : 'Missing', coverage.revenue_attributed ? 'attributed' : 'not attributable'],
+  ].map(([label, value, sub]) => `<div class="seo-stat"><div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div><div class="seo-stat-sub">${esc(sub)}</div></div>`).join('');
+  const body = rows.slice(0, 200).map(item => `<tr data-fleet-row data-site="${esc(item.site)}">
+    <td><b>${esc(item.score)}</b></td><td>${siteLink(item.site)}</td>
+    <td><span class="badge ${item.state === 'blocked' ? 'b-red' : item.state === 'filed' ? 'b-green' : 'b-blue'}">${esc(item.state)}</span></td>
+    <td><span class="badge b-gray">${esc(item.kind)}</span></td>
+    <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div></td>
+    <td>${esc(item.confidence)}</td><td>${item.expected_profit_usd == null ? '<span class="muted">not attributable</span>' : fmtUSD(item.expected_profit_usd)}</td>
+    <td>${item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-file" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">File task</button>` : ''}</td>
+  </tr>`).join('');
+  const scorecards = (data.scorecards || []).map(row => `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td><span class="badge b-gray">${esc(row.allocation)}</span></td><td>${esc(row.opportunity_score)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td><td>${fmtUSD(row.ai_cost_usd)}</td><td>${row.revenue_usd == null ? '—' : fmtUSD(row.revenue_usd)}</td><td>${row.margin_usd == null ? '—' : fmtUSD(row.margin_usd)}</td></tr>`).join('');
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div>
+    <div class="error-box">${esc(data.notice || '')}</div>
+    <section class="seo-stats">${tiles}</section>
+    <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><table class="tbl"><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></details>
+    <div class="task-toolbar"><strong>${rows.length} items</strong><select id="priority-state" class="cm-input"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
+    <section class="card"><table class="tbl"><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></section>`;
+  $('#priority-state').value = PRIORITY_STATE;
+  $('#priority-state').addEventListener('change', e => { PRIORITY_STATE = e.target.value; softRender(); });
+  $$('.priority-file').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      const result = await api('POST', '/api/seo-intelligence/file', { site: button.dataset.site, key: button.dataset.key });
+      toast(result.duplicate ? 'Task was already filed' : `Filed ${result.file}`); softRender();
+    } catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  applyFleetFilter();
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+async function renderDataQuality() {
+  if (FRESH) app.innerHTML = '<div class="loading">Checking data contracts…</div>';
+  let data;
+  try { data = await api('GET', '/api/data-quality'); }
+  catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; return; }
+  const rows = (data.contracts || []).map(row => `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`).join('');
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card"><table class="tbl"><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  if (!FRESH) applyUISnap();
+  stamp();
 }
 
 async function renderAutomation() {
@@ -10165,6 +10224,7 @@ function render() {
   syncAgentsMenuActive();
   syncNavGroupsActive();
   if (STATE.view === 'control') return renderControl();
+  else if (STATE.view === 'priorities') return renderPriorities();
   else if (STATE.view === 'cron') return renderCron();
   else if (STATE.view === 'agent') return renderAgent(STATE.agent);
   else if (STATE.view === 'containers') return renderContainers();
@@ -10189,6 +10249,7 @@ function render() {
   else if (STATE.view === 'errors') return renderErrors();
   else if (STATE.view === 'activity') return renderActivity();
   else if (STATE.view === 'devsandbox') return renderDevSandbox();
+  else if (STATE.view === 'dataquality') return renderDataQuality();
   else if (STATE.view === 'sitefacts') return renderSiteFacts();
   else if (STATE.view === 'guides') return renderGuides();
   else if (STATE.view === 'guardrails') return renderGuardrails();

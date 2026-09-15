@@ -4,6 +4,13 @@ Portfolio control plane for the domain fleet (http://127.0.0.1:4754).
 
 Key views include:
 
+- **Priorities** — a cross-fleet decision queue that joins canonical lifecycle
+  policy, analytics coverage, task ownership, and SEO evidence. Recommendations
+  expose confidence and proxy value while expected profit remains deliberately
+  blank until revenue is attributable by site/content.
+- **Data Quality** — explicit source contracts for expected versus observed
+  coverage, freshness, upstream errors, and revenue attribution completeness.
+
 - **Engineers** — the live engineer audit: tier (aligned/partial/legacy/none),
   feature flags (work-lock / liveness-pulse / daily-summary), cron schedule,
   latest pulse status + age (stale flag at >35m), render pass/fail, Cloudflare
@@ -36,7 +43,9 @@ Key views include:
   Operators can filter by site, priority, or opportunity type and file a
   deduplicated backlog task with an execution plan directly from an action.
 
-Dynamic: any site under `sites/*/ops/` appears automatically. No registry.
+Operational discovery remains dynamic: any site under `sites/*/ops/` appears
+automatically. Lifecycle and capability policy come from the canonical
+`registry/fleet.yaml`; the dashboard does not maintain a second registry.
 
 ## Run
 
@@ -120,6 +129,13 @@ and presentation.
   engineer/committer cron still pushes independently).
 - Task deletes are a **soft delete** into `ops/tasks/.trash/` (recoverable), not
   an unlink.
+- **Causal event graph:** task creation, recommendation filing, lifecycle moves,
+  completion, edits, and trashing are stored in `data/fleet-events.sqlite` with
+  stable entity and correlation IDs. Query with `GET /api/events`; source-owned
+  telemetry remains in its original service.
+- Amazon earnings retain report-level tracking IDs and map a tag to a site only
+  when the tag is uniquely discoverable in that site's source. Ambiguous and
+  missing tags remain visibly unattributed.
 
 ## Environment
 
@@ -128,6 +144,7 @@ and presentation.
 | `FD_PORT` | `4754` | listen port |
 | `FD_HOST` | `127.0.0.1` | bind address |
 | `FD_TOKEN` | _(from the vault, via `rendered/tool-fleet-dashboard.env`)_ | require this token on `/api/*`; **required** on a non-loopback bind unless `FD_AUTH=0`. Rotate with `bin/fleet-dashboard rotate-token` (writes the vault, then re-renders) |
+| `FD_VIEWER_TOKENS` | _(unset)_ | optional comma-separated header-only credentials allowed to read `GET` endpoints but forbidden from every mutation; alternatively append `viewer:<token>` to the vault-backed `FD_TOKEN` list |
 | `FD_AUTH` | `1` | set `0` to disable the token gate while keeping `FD_TOKEN` parked (explicit opt-out) |
 | `FD_ALLOW_INSECURE` | _(unset)_ | set `1` to allow a non-loopback bind with no token (accepts the risk) |
 | `FD_ALLOWED_HOSTS` | loopback + compose names | extra allowed `Host` values (or `*`) |

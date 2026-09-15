@@ -47,7 +47,7 @@ function serializeTask(meta, body) {
   if (!keys.length) return cleanBody.endsWith('\n') ? cleanBody : cleanBody + '\n';
   const ordered = {};
   // Preserve the conventional field order seen across the fleet.
-  for (const k of ['title', 'priority', 'type', 'estimated_turns', 'created', 'assigned_role']) {
+  for (const k of ['task_id', 'title', 'priority', 'type', 'estimated_turns', 'created', 'started_at', 'completed_at', 'assigned_role', 'source', 'source_id', 'correlation_id', 'measurement_due']) {
     if (keys.includes(k)) ordered[k] = meta[k];
   }
   for (const k of keys) if (!(k in ordered)) ordered[k] = meta[k];
@@ -73,6 +73,13 @@ function readTaskCard(dir, col, name, slug) {
     assigned_role: meta.assigned_role || null,
     created: meta.created ? String(meta.created) : null,
     estimated_turns: meta.estimated_turns ?? null,
+    task_id: meta.task_id || null,
+    source: meta.source || null,
+    source_id: meta.source_id || null,
+    correlation_id: meta.correlation_id || null,
+    measurement_due: meta.measurement_due ? String(meta.measurement_due) : null,
+    started_at: meta.started_at ? String(meta.started_at) : null,
+    completed_at: meta.completed_at ? String(meta.completed_at) : null,
     blocked_on: meta.blocked_on ? String(meta.blocked_on) : '',
     excerpt,
     mtime: st.mtimeMs,
@@ -143,12 +150,17 @@ function today() {
 function create(root, slug, column, payload) {
   if (!isValidColumn(column)) throw httpErr(400, 'bad column');
   const meta = {
+    task_id: payload.task_id || undefined,
     title: payload.title || 'Untitled task',
     priority: payload.priority != null && payload.priority !== '' ? Number(payload.priority) : undefined,
     type: payload.type || undefined,
     estimated_turns: payload.estimated_turns != null && payload.estimated_turns !== '' ? Number(payload.estimated_turns) : undefined,
     created: payload.created || today(),
     assigned_role: payload.assigned_role || undefined,
+    source: payload.source || undefined,
+    source_id: payload.source_id || undefined,
+    correlation_id: payload.correlation_id || undefined,
+    measurement_due: payload.measurement_due || undefined,
   };
   const dir = path.join(tasksDir(root, slug), column);
   fs.mkdirSync(dir, { recursive: true });
@@ -179,6 +191,13 @@ function move(root, slug, fromCol, file, toCol) {
   fs.mkdirSync(toDir, { recursive: true });
   let dest = path.join(toDir, file), name = file, n = 2;
   while (fs.existsSync(dest)) { name = file.replace(/\.md$/, `-${n}.md`); dest = path.join(toDir, name); n += 1; }
+  // Preserve explicit lifecycle timestamps even when the move originates from
+  // the dashboard rather than an autonomous role.
+  const parsed = parseTask(fs.readFileSync(from, 'utf8'));
+  if (toCol === 'in-progress' && !parsed.meta.started_at) parsed.meta.started_at = new Date().toISOString();
+  if (toCol === 'done' && !parsed.meta.completed_at) parsed.meta.completed_at = new Date().toISOString();
+  if (toCol !== 'done' && parsed.meta.completed_at) delete parsed.meta.completed_at;
+  fs.writeFileSync(from, serializeTask(parsed.meta, parsed.body));
   fs.renameSync(from, dest);
   return { column: toCol, file: name };
 }
