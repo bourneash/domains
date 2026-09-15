@@ -48,6 +48,7 @@ const automation = require('./automation');
 const eventstore = require('./eventstore');
 const priorities = require('./priorities');
 const dataquality = require('./dataquality');
+const improvements = require('./improvements');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -267,6 +268,77 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/events', (req, res) => {
     try { res.json({ events: events.list(req.query) }); }
     catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+
+  app.get('/api/improvements', (req, res) => {
+    try { res.json(improvements.summary(events.listImprovements(req.query))); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+  app.get('/api/improvements/:id', (req, res) => {
+    const item = events.getImprovement(req.params.id);
+    if (!item) return res.status(404).json({ error: 'improvement run not found' });
+    res.json({ run: item, events: events.list({ correlation_id: item.correlation_id, limit: 200 }) });
+  });
+  app.post('/api/improvements/start', async (req, res) => {
+    try {
+      const site = req.body && req.body.site;
+      const key = req.body && req.body.key;
+      if (!isKnownSite(root, site)) return res.status(404).json({ error: 'unknown site' });
+      if (!/^[a-f0-9]{20}$/.test(String(key || ''))) return res.status(400).json({ error: 'invalid intelligence action key' });
+      const [snapshot, baseline] = await Promise.all([
+        seoIntelligence.buildSnapshot({ root }), analytics.summary(site, 28),
+      ]);
+      const action = snapshot.actions.find(row => row.site === site && row.key === key);
+      if (!action) return res.status(404).json({ error: 'intelligence action no longer exists' });
+      res.status(201).json(improvements.start({ store: events, root, site, action, baseline }));
+    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+  app.post('/api/improvements/:id/transition', (req, res) => {
+    try { res.json({ run: improvements.transition(events, req.params.id, req.body || {}) }); }
+    catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+  app.post('/api/improvements/:id/build', async (req, res) => {
+    try {
+      const item = events.getImprovement(req.params.id);
+      if (!item) return res.status(404).json({ error: 'improvement run not found' });
+      if (item.state !== 'proposed' && item.state !== 'regressed')
+        return res.status(409).json({ error: `cannot start build from ${item.state}` });
+      const branch = `improvement/${item.run_id.slice(0, 8)}`;
+      const branchResult = await git.createBranch(root, item.site, branch);
+      const sandbox = await devsandbox.start(root, item.site);
+      const changed = improvements.transition(events, item.run_id, { state: 'building', branch });
+      events.record({ event_type: 'improvement.sandbox_started', source: 'improvement-workbench',
+        site_id: `site:${item.site}`, entity_type: 'improvement', entity_id: item.run_id,
+        correlation_id: item.correlation_id, payload: { branch, sandbox } });
+      res.json({ run: changed, branch: branchResult, sandbox });
+    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+  app.post('/api/improvements/:id/measure', async (req, res) => {
+    try {
+      const item = events.getImprovement(req.params.id);
+      if (!item) return res.status(404).json({ error: 'improvement run not found' });
+      if (item.state !== 'measuring') return res.status(409).json({ error: `cannot measure from ${item.state}` });
+      const today = new Date().toISOString().slice(0, 10);
+      if (item.measurement_due && item.measurement_due > today && !(req.body && req.body.force))
+        return res.status(409).json({ error: `measurement window closes ${item.measurement_due}` });
+      const current = await analytics.summary(item.site, Number(item.baseline?.analytics?.window_days) || 28);
+      const outcome = improvements.compareOutcome(item.baseline?.analytics || {}, current);
+      const changed = improvements.transition(events, item.run_id, { state: outcome.classification, outcome });
+      res.json({ run: changed, outcome });
+    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+  });
+  app.post('/api/improvements/:id/validate', async (req, res) => {
+    try {
+      const item = events.getImprovement(req.params.id);
+      if (!item) return res.status(404).json({ error: 'improvement run not found' });
+      if (item.state !== 'building') return res.status(409).json({ error: `cannot validate from ${item.state}` });
+      const validation = await devsandbox.validate(item.site);
+      const changed = events.updateImprovement(item.run_id, { validation });
+      events.record({ event_type: 'improvement.validated', source: 'improvement-workbench',
+        site_id: `site:${item.site}`, entity_type: 'improvement', entity_id: item.run_id,
+        correlation_id: item.correlation_id, payload: { passed: validation.passed, checks: validation.checks } });
+      res.status(validation.passed ? 200 : 422).json({ run: changed, validation });
+    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
   });
 
   // SEO Intelligence joins first-party GSC data with the latest fleet-owned

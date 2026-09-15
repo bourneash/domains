@@ -200,3 +200,16 @@ test('commit() rejects a path that tries to smuggle a git option flag', async ()
     cleanup(root);
   }
 });
+
+test('createBranch() creates an isolated branch and refuses a dirty tree', async () => {
+  const { root, cwd } = makeRepo();
+  try {
+    const result = await git.createBranch(root, 'example.com', 'improvement/12345678');
+    assert.equal(result.created, true);
+    assert.equal(execFileSync('git', ['-C', cwd, 'branch', '--show-current'], { encoding: 'utf8', env: CLEAN_ENV }).trim(), 'improvement/12345678');
+    fs.writeFileSync(path.join(cwd, 'unrelated.txt'), 'do not sweep me\n');
+    await assert.rejects(() => git.createBranch(root, 'example.com', 'improvement/other'), e => e.httpStatus === 409);
+  } finally {
+    cleanup(root);
+  }
+});

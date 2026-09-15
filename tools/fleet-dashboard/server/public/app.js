@@ -9721,7 +9721,7 @@ async function shRenderEvents() {
 // it — declared here as a forward reference via var hoisting is unsafe with
 // const, so TOP_VIEWS is assembled lazily the first time it's read.
 function topViews() {
-  return ['control', 'priorities', ...NAV_GROUP_VIEWS];
+  return ['control', 'priorities', 'improvements', ...NAV_GROUP_VIEWS];
 }
 
 // Grouped nav (F-nav): the flat 20+ tab bar collapsed into topic dropdowns,
@@ -9938,7 +9938,7 @@ async function renderPriorities() {
     <td><span class="badge b-gray">${esc(item.kind)}</span></td>
     <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div></td>
     <td>${esc(item.confidence)}</td><td>${item.expected_profit_usd == null ? '<span class="muted">not attributable</span>' : fmtUSD(item.expected_profit_usd)}</td>
-    <td>${item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-file" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">File task</button>` : ''}</td>
+    <td>${item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>` : ''}</td>
   </tr>`).join('');
   const scorecards = (data.scorecards || []).map(row => `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td><span class="badge b-gray">${esc(row.allocation)}</span></td><td>${esc(row.opportunity_score)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td><td>${fmtUSD(row.ai_cost_usd)}</td><td>${row.revenue_usd == null ? '—' : fmtUSD(row.revenue_usd)}</td><td>${row.margin_usd == null ? '—' : fmtUSD(row.margin_usd)}</td></tr>`).join('');
   app.innerHTML = `<div class="page-head"><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div>
@@ -9949,12 +9949,99 @@ async function renderPriorities() {
     <section class="card"><table class="tbl"><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></section>`;
   $('#priority-state').value = PRIORITY_STATE;
   $('#priority-state').addEventListener('change', e => { PRIORITY_STATE = e.target.value; softRender(); });
-  $$('.priority-file').forEach(button => button.addEventListener('click', async () => {
+  $$('.priority-start').forEach(button => button.addEventListener('click', async () => {
     button.disabled = true;
     try {
-      const result = await api('POST', '/api/seo-intelligence/file', { site: button.dataset.site, key: button.dataset.key });
-      toast(result.duplicate ? 'Task was already filed' : `Filed ${result.file}`); softRender();
+      const result = await api('POST', '/api/improvements/start', { site: button.dataset.site, key: button.dataset.key });
+      toast(result.duplicate ? 'Improvement already exists' : 'Improvement started');
+      go('improvements');
     } catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  applyFleetFilter();
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+let IMPROVEMENT_STATE = 'active';
+const IMPROVEMENT_TERMINAL = new Set(['proven', 'inconclusive', 'cancelled', 'rolled-back']);
+
+function improvementActions(run, transitions) {
+  if (run.state === 'measuring') return `<button class="btn sm primary improvement-measure" data-id="${esc(run.run_id)}">Measure outcome</button> <button class="btn sm danger improvement-transition" data-id="${esc(run.run_id)}" data-state="rolled-back">roll back</button>`;
+  const validate = run.state === 'building' ? `<button class="btn sm primary improvement-validate" data-id="${esc(run.run_id)}">Run quality gates</button> ` : '';
+  return validate + (transitions[run.state] || []).map(state =>
+    `<button class="btn sm ${state === 'building' ? 'primary' : state === 'proven' ? 'primary' : state === 'cancelled' || state === 'rolled-back' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${state === 'building' && run.state !== 'review' ? 'Start sandbox build' : esc(state.replace('-', ' '))}</button>`
+  ).join(' ');
+}
+
+async function renderImprovements() {
+  if (FRESH) app.innerHTML = '<div class="loading">Loading improvement runs…</div>';
+  let data;
+  try { data = await api('GET', '/api/improvements'); }
+  catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; return; }
+  const all = data.runs || [];
+  const runs = all.filter(run => IMPROVEMENT_STATE === 'all' || (IMPROVEMENT_STATE === 'active' ? !IMPROVEMENT_TERMINAL.has(run.state) : run.state === IMPROVEMENT_STATE));
+  const cards = runs.map(run => {
+    const baseline = run.baseline?.analytics || {};
+    const validation = run.validation || {};
+    const outcome = run.outcome || {};
+    return `<article class="card" data-fleet-row data-site="${esc(run.site)}" style="margin-bottom:12px">
+      <div class="page-head"><div><h3>${esc(run.title)}</h3><div>${siteLink(run.site)} · <span class="badge b-blue">${esc(run.state)}</span> · <span class="mono muted">${esc(run.run_id.slice(0, 8))}</span></div></div><div>${improvementActions(run, data.transitions || {})}</div></div>
+      <div class="seo-stats">
+        <div class="seo-stat"><div class="seo-stat-label">Task</div><div class="seo-stat-value" style="font-size:14px">${esc(run.task_file || '—')}</div><div class="seo-stat-sub">${esc(run.task_id || '')}</div></div>
+        <div class="seo-stat"><div class="seo-stat-label">Branch</div><div class="seo-stat-value" style="font-size:14px">${esc(run.branch || 'not recorded')}</div><div class="seo-stat-sub">isolated implementation</div></div>
+        <div class="seo-stat"><div class="seo-stat-label">Baseline</div><div class="seo-stat-value" style="font-size:14px">${baseline.has_data === false ? 'unavailable' : 'captured'}</div><div class="seo-stat-sub">${esc(run.baseline?.captured_at || '')}</div></div>
+        <div class="seo-stat"><div class="seo-stat-label">Measure</div><div class="seo-stat-value" style="font-size:14px">${esc(run.measurement_due || '—')}</div><div class="seo-stat-sub">28-day outcome window</div></div>
+      </div>
+      <details data-rk="improvement:${esc(run.run_id)}"><summary>Evidence and delivery record</summary>
+        <p><b>Original evidence:</b> ${esc(run.baseline?.evidence || '—')}</p>
+        <p><b>Preview:</b> ${run.preview_url ? `<a href="${esc(run.preview_url)}" target="_blank" rel="noopener">${esc(run.preview_url)}</a>` : '—'} · <b>Deployment:</b> ${esc(run.deployment_id || '—')}</p>
+        <p><b>Validation:</b> <span class="mono">${esc(JSON.stringify(validation))}</span></p>
+        <p><b>Outcome:</b> <span class="mono">${esc(JSON.stringify(outcome))}</span></p>
+      </details>
+    </article>`;
+  }).join('');
+  const active = all.filter(run => !IMPROVEMENT_TERMINAL.has(run.state)).length;
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Site Improvements</h2><div class="crumbs">Recommendation → task → build → review → deploy → measured outcome</div></div>
+    <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${active}</div><div class="seo-stat-label">Active</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.proven || 0}</div><div class="seo-stat-label">Proven</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.regressed || 0}</div><div class="seo-stat-label">Regressed</div></div><div class="seo-stat"><div class="seo-stat-value">${all.length}</div><div class="seo-stat-label">All runs</div></div></section>
+    <div class="task-toolbar"><select id="improvement-state" class="cm-input"><option value="active">Active</option><option value="all">All runs</option>${(data.states || []).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select><span class="muted">State changes are explicit and recorded in the causal event graph.</span></div>
+    ${cards || '<div class="empty">No improvement runs in this view. Start one from Priorities.</div>'}`;
+  $('#improvement-state').value = IMPROVEMENT_STATE;
+  $('#improvement-state').addEventListener('change', e => { IMPROVEMENT_STATE = e.target.value; softRender(); });
+  $$('.improvement-transition').forEach(button => button.addEventListener('click', async () => {
+    const state = button.dataset.state;
+    if (state === 'building' && button.textContent.includes('sandbox')) {
+      button.disabled = true;
+      try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/build`, {}); toast('Branch and sandbox ready'); softRender(); }
+      catch (e) { button.disabled = false; toast(e.message, 'err'); }
+      return;
+    }
+    const payload = { state };
+    if (state === 'review') {
+      payload.preview_url = prompt('Preview URL (optional):', '') || null;
+    }
+    if (state === 'deployed') {
+      const deployment = prompt('Deployment ID or production commit SHA:');
+      if (!deployment) return;
+      payload.deployment_id = deployment;
+    }
+    if (['proven', 'regressed', 'inconclusive'].includes(state)) {
+      const notes = prompt('Measured outcome and supporting metric change:');
+      if (!notes) return;
+      payload.outcome = { measured_at: new Date().toISOString(), notes };
+    }
+    button.disabled = true;
+    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/transition`, payload); toast(`Moved to ${state}`); softRender(); }
+    catch (e) { button.disabled = false; toast(e.message, 'err'); }
+  }));
+  $$('.improvement-validate').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true; button.textContent = 'Validating…';
+    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/validate`, {}); toast('All quality gates passed'); softRender(); }
+    catch (e) { button.disabled = false; button.textContent = 'Run quality gates'; toast(e.message, 'err'); softRender(); }
+  }));
+  $$('.improvement-measure').forEach(button => button.addEventListener('click', async () => {
+    button.disabled = true;
+    try { const result = await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/measure`, {}); toast(`Outcome: ${result.outcome.classification}`); softRender(); }
+    catch (e) { button.disabled = false; toast(e.message, 'err'); }
   }));
   applyFleetFilter();
   if (!FRESH) applyUISnap();
@@ -10225,6 +10312,7 @@ function render() {
   syncNavGroupsActive();
   if (STATE.view === 'control') return renderControl();
   else if (STATE.view === 'priorities') return renderPriorities();
+  else if (STATE.view === 'improvements') return renderImprovements();
   else if (STATE.view === 'cron') return renderCron();
   else if (STATE.view === 'agent') return renderAgent(STATE.agent);
   else if (STATE.view === 'containers') return renderContainers();

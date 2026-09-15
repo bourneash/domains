@@ -530,6 +530,23 @@ async function deleteBranch(root, slug, branch) {
   });
 }
 
+// Create and switch to a dedicated work branch. Refuse dirty trees so starting
+// an improvement can never sweep an operator's unrelated edits into the run.
+async function createBranch(root, slug, branch) {
+  const rel = safeRel(branch);
+  if (!rel || !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,119}$/.test(rel)) throw httpErr(400, 'invalid branch name');
+  return withRepoLock(slug, async () => {
+    const before = await status(root, slug);
+    if (!before.isRepo) throw httpErr(400, 'site is not a git repository');
+    if (before.dirty) throw httpErr(409, `working tree has ${before.dirty} uncommitted file(s)`);
+    const exists = await git(siteDir(root, slug), ['show-ref', '--verify', '--quiet', `refs/heads/${rel}`]);
+    const args = exists.ok ? ['switch', rel] : ['switch', '-c', rel];
+    const result = await git(siteDir(root, slug), args);
+    if (!result.ok) throw httpErr(500, (result.err || result.out).trim() || 'git switch failed');
+    return { branch: rel, created: !exists.ok };
+  });
+}
+
 function stashIndex(i) {
   const n = parseInt(i, 10);
   if (!Number.isInteger(n) || n < 0 || String(n) !== String(i).trim()) return null;
@@ -645,6 +662,7 @@ module.exports = {
   parseStashList,
   branches,
   deleteBranch,
+  createBranch,
   commit,
   ignore,
   push,

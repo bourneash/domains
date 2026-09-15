@@ -241,6 +241,28 @@ async function devStart(site) {
 async function devStop(site) { return (await devExec(site, 'stop')).kv; }
 async function devLogs(site, n) { return (await devExec(site, 'logs', String(n || 200))).stdout || '(no logs)'; }
 
+// Run deterministic delivery gates inside the per-site sandbox. Commands are
+// fixed here (never supplied by the browser), and docker receives each argument
+// separately; the site's package scripts remain its source of truth.
+async function validate(site) {
+  const checks = [
+    ['diff', 'git diff --check'],
+    ['tests', 'npm test --if-present'],
+    ['build', 'npm run build'],
+  ];
+  const results = {};
+  for (const [name, command] of checks) {
+    const started = Date.now();
+    const r = await docker(['exec', containerName(site), 'sh', '-lc', command],
+      { timeout: 10 * 60 * 1000, maxBuffer: 4 * 1024 * 1024 });
+    results[name] = { status: r.code === 0 ? 'pass' : 'fail', duration_ms: Date.now() - started,
+      excerpt: `${r.stdout}\n${r.stderr}`.trim().slice(-4000) };
+    if (r.code !== 0) break;
+  }
+  return { passed: Object.keys(results).length === checks.length && Object.values(results).every(x => x.status === 'pass'),
+    recorded_at: new Date().toISOString(), checks: results };
+}
+
 async function stats() {
   // `docker stats` has no --filter flag (unlike `docker ps`) — with no
   // positional args it dumps EVERY container on the host. This matters a lot
@@ -315,6 +337,6 @@ async function removeStopped() {
 
 module.exports = {
   list, start, stop, remove,
-  devStatus, devStart, devStop, devLogs,
+  devStatus, devStart, devStop, devLogs, validate,
   stats, findOrphans, cleanupOrphans, stopAll, removeStopped,
 };

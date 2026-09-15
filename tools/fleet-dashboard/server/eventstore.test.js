@@ -25,3 +25,16 @@ test('rejects unbounded event vocabulary', () => {
   assert.throws(() => store.record({ event_type: 'bad type', source: 'test' }), /invalid event_type/);
   store.close();
 });
+
+test('persists and updates improvement runs', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-improvements-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  const created = store.createImprovement({ site: 'example.com', source: 'test-source',
+    source_id: 'signal-1', title: 'Improve landing page', baseline: { sessions: 10 } });
+  assert.equal(created.state, 'proposed');
+  assert.equal(store.listImprovements({ site: 'example.com' })[0].baseline.sessions, 10);
+  const updated = store.updateImprovement(created.run_id, { state: 'building', branch: 'improve/landing' });
+  assert.equal(updated.branch, 'improve/landing');
+  assert.equal(store.getImprovement(created.run_id).state, 'building');
+  store.close();
+});

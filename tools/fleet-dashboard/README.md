@@ -8,6 +8,12 @@ Key views include:
   policy, analytics coverage, task ownership, and SEO evidence. Recommendations
   expose confidence and proxy value while expected profit remains deliberately
   blank until revenue is attributable by site/content.
+- **Improvements** — the closed-loop delivery workbench. Starting a priority
+  creates one correlated improvement run and task, captures the current
+  analytics baseline, and tracks it through proposed, building, review,
+  deployment, measurement, and a proven/regressed/inconclusive outcome. Preview,
+  validation, branch, deployment, and outcome evidence remain attached to the
+  same durable run rather than being split across unrelated views.
 - **Data Quality** — explicit source contracts for expected versus observed
   coverage, freshness, upstream errors, and revenue attribution completeness.
 
