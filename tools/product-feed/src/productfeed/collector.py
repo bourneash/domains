@@ -111,6 +111,36 @@ def _challenge_visible(page) -> bool:
     )
 
 
+def _dismiss_continue_shopping(page) -> bool:
+    """Amazon sometimes serves a one-click 'Continue shopping' interstitial
+    (POST-free bot check, no image captcha) instead of a real challenge. It
+    has none of the ``_challenge_visible`` markers in its visible text, so a
+    naive check treats every subsequent request as a silent verification
+    failure forever. Click through it and report whether it was present.
+    """
+    button = page.locator("form[action='/errors_page/validateCaptcha'] button")
+    try:
+        if button.count() == 0:
+            return False
+        url = page.url
+        button.first.click(timeout=5000)
+        page.wait_for_load_state("domcontentloaded", timeout=15_000)
+        if page.url == url:
+            page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+        time.sleep(1.5)
+        return True
+    except Exception:
+        return False
+
+
+def _ensure_not_blocked(page) -> bool:
+    """Returns True if the page is still blocked after attempting to clear
+    a soft interstitial. Callers should abort the run when this is True."""
+    if _dismiss_continue_shopping(page):
+        return _challenge_visible(page)
+    return _challenge_visible(page)
+
+
 def _deficient_sites(api_url: str, subscriptions: dict) -> dict[str, int]:
     deficits = {}
     for site, subscription in subscriptions.items():
@@ -192,7 +222,7 @@ def collect_once() -> int:
             )
             page.goto(url, wait_until="domcontentloaded", timeout=45_000)
             time.sleep(2)
-            if _challenge_visible(page):
+            if _ensure_not_blocked(page):
                 print("[collector] Amazon challenge detected; stopping without bypass attempt")
                 return 2
 
@@ -222,7 +252,7 @@ def collect_once() -> int:
                     timeout=45_000,
                 )
                 time.sleep(1.5)
-                if _challenge_visible(page):
+                if _ensure_not_blocked(page):
                     print("[collector] Amazon challenge detected during product verification; stopping")
                     return 2
                 verified = page.evaluate(PRODUCT_JS) or {}

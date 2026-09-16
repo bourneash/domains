@@ -36,7 +36,7 @@ Local utilities shared across all domain projects under `/home/jesse/projects/do
 | [`post-notify/`](./post-notify/) | Shared "new post" Slack announcer — one Block Kit card format, config-driven per site. |
 | [`role-notify/`](./role-notify/) | Shared "role completed" Slack notifier — emoji + checkmark + real files/status, replaces flat ad-hoc messages. |
 | [`scripts/`](./scripts/) | Standalone ops scripts: domain bootstrap/bind-worker, submodule bump, index/worker-name drift checks, fleet-cron/secscan/worker-reaper cron jobs. |
-| [`seo-history/`](./seo-history/) | `seo_history.py` — historical SEO metric tracking for the `domains-seo-history` skill. |
+| [`seo-history/`](./seo-history/) | Per-site SEO history plus a fleet-wide GSC query/page opportunity queue. |
 | [`site-tracker/`](./site-tracker/) | Portfolio maintenance dashboard at `localhost:4742` — per-site verification/wiring state in a status matrix (CF, GA4, AdSense, sitemap, TLS, git, GitHub, manual facts). Containerized FastAPI + HTMX + SQLite. Click any cell to edit manual facts; writes back to `sites.yml` and commits. |
 | [`social-lib/`](./social-lib/) | Shared social media automation library — platform clients + posting primitives used by `social-poster` and `social-setup`. |
 | [`social-poster/`](./social-poster/) | Cron role that posts scheduled content to each site's connected social accounts via `social-lib`. |

@@ -316,7 +316,7 @@ sites:
   eastcoastrappers.com:
     status: live
     repo: bourneash/eastcoastrappers.com
-    worker: eastcoastrappers-com
+    worker: eastcoastrappers-com-live
     cf_zone: eastcoastrappers.com
     slack_channel_env: SLACK_CHANNEL_EASTCOASTRAPPERS
     capabilities:

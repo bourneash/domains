@@ -13,7 +13,7 @@ BOOTSTRAP = ROOT / "tools" / "scripts" / "ai-usage-bootstrap.sh"
 
 
 class ClaudeTrackedFailureTests(unittest.TestCase):
-    def run_wrapper(self, payload: dict):
+    def run_wrapper(self, payload: dict, retry_payload: dict | None = None):
         with tempfile.TemporaryDirectory() as td:
             temp = Path(td)
             fake_bin = temp / "bin"
@@ -25,6 +25,14 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                     """\
                     #!/bin/sh
                     printf x >> "$FAKE_CLAUDE_CALLS"
+                    if [ "$(wc -c < "$FAKE_CLAUDE_CALLS")" -gt 1 ] && [ -n "$FAKE_CLAUDE_RETRY_PAYLOAD" ]; then
+                      case " $* " in
+                        *" --resume $FAKE_CLAUDE_SESSION_ID "*) ;;
+                        *) exit 2 ;;
+                      esac
+                      printf '%s\\n' "$FAKE_CLAUDE_RETRY_PAYLOAD"
+                      exit 0
+                    fi
                     printf '%s\\n' "$FAKE_CLAUDE_PAYLOAD"
                     exit 1
                     """
@@ -44,6 +52,8 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                     "REPO_ROOT": str(temp),
                     "FAKE_CLAUDE_CALLS": str(calls),
                     "FAKE_CLAUDE_PAYLOAD": json.dumps(payload),
+                    "FAKE_CLAUDE_RETRY_PAYLOAD": json.dumps(retry_payload) if retry_payload else "",
+                    "FAKE_CLAUDE_SESSION_ID": str(payload.get("session_id") or ""),
                     "CLAUDE_TRACKED_RETRY_DELAY_SECONDS": "0",
                     # These tests exercise result classification only. Never
                     # contend on the developer's real shared auth mutex.
@@ -186,6 +196,61 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
         self.assertEqual(calls, "x")
         self.assertIn("shared Claude credentials are expired", result.stderr)
         self.assertEqual(record["failure_class"], "authentication_failed")
+
+    def test_mid_session_socket_disconnect_resumes_same_session_once(self):
+        session_id = "07d598ba-b6bf-4c25-a4d0-0bbed4a71faa"
+        result, calls, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "success",
+                "is_error": True,
+                "result": "API Error: The socket connection was closed unexpectedly.",
+                "num_turns": 10,
+                "session_id": session_id,
+                "total_cost_usd": 0.26,
+                "usage": {"output_tokens": 1929},
+                "modelUsage": {},
+            },
+            retry_payload={
+                "type": "result",
+                "subtype": "success",
+                "is_error": False,
+                "result": "Recovered and completed",
+                "num_turns": 4,
+                "session_id": session_id,
+                "total_cost_usd": 0.08,
+                "usage": {"output_tokens": 400},
+                "modelUsage": {},
+            },
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(calls, "xx")
+        self.assertEqual(result.stdout, "Recovered and completed")
+        self.assertIn("resuming session once", result.stderr)
+        self.assertEqual(record["failure_class"], None)
+        self.assertEqual(record["session_id"], session_id)
+        self.assertAlmostEqual(record["total_cost_usd"], 0.34)
+        self.assertEqual(record["output_tokens"], 2329)
+        self.assertEqual(record["retry"]["kind"], "same_session_resume")
+        self.assertEqual(record["retry"]["prior_num_turns"], 10)
+
+    def test_socket_disconnect_without_session_id_is_not_replayed(self):
+        result, calls, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "success",
+                "is_error": True,
+                "result": "read ECONNRESET",
+                "num_turns": 3,
+                "total_cost_usd": 0.11,
+                "usage": {},
+                "modelUsage": {},
+            }
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(calls, "x")
+        self.assertIn("refusing a fresh replay", result.stderr)
+        self.assertEqual(record["failure_class"], "socket_disconnected")
 
     def test_bootstrap_recognizes_only_global_outages(self):
         with tempfile.TemporaryDirectory() as td:

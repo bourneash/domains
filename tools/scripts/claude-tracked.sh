@@ -233,7 +233,8 @@ PYEOF
 fi
 
 TMP_JSON="$(mktemp)"
-trap 'rm -f "$TMP_JSON"' EXIT
+PRIOR_ATTEMPT_JSON="$(mktemp)"
+trap 'rm -f "$TMP_JSON" "$PRIOR_ATTEMPT_JSON"' EXIT
 
 # Claude Code 2.1.x reports several account-level failures with the internally
 # contradictory shape `subtype=success, is_error=true, exit=1`.  The useful
@@ -266,6 +267,12 @@ elif (
     or re.search(r"invalid.*api.?key", message, re.I)
 ):
     print("authentication_failed")
+elif re.search(
+    r"socket.*closed|connection.*closed unexpectedly|\bECONN(?:RESET|ABORTED)\b|\bEPIPE\b",
+    message,
+    re.I,
+):
+    print("socket_disconnected")
 elif not (data.get("total_cost_usd") or 0):
     print("zero_cost_failure")
 else:
@@ -309,6 +316,8 @@ CLAUDE_AUTH_LOCK="${CLAUDE_AUTH_LOCK:-$HOME/.claude/.credentials.lock}"
 CLAUDE_AUTH_LOCK_WAIT="${CLAUDE_AUTH_LOCK_WAIT:-600}"    # seconds to queue behind others
 CLAUDE_AUTH_WINDOW="${CLAUDE_AUTH_WINDOW:-12}"           # seconds to hold past process start
 
+CLAUDE_RESUME_SESSION_ID=""
+
 run_claude_locked() {
   local lockfd="" pid rc=0 waited=0
 
@@ -349,7 +358,19 @@ run_claude_locked() {
   # their own `set +e`, and re-enabling errexit in here would leak out and abort
   # the script the moment a failing call returned -- losing the ledger row for
   # exactly the failures the ledger exists to record.
-  claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON" &
+  if [[ -n "$CLAUDE_RESUME_SESSION_ID" ]]; then
+    # ARGS[0] is the original prompt. Resume the persisted conversation rather
+    # than starting that prompt from scratch: a mid-session disconnect may have
+    # already performed writes or external actions, so a fresh replay could
+    # duplicate side effects. The same session retains its transcript and tool
+    # history and can inspect the workspace before continuing.
+    claude -p "${ARGS[@]:1}" \
+      --resume "$CLAUDE_RESUME_SESSION_ID" \
+      "The API connection closed unexpectedly. Continue the assigned task from where the session stopped. Inspect current state before taking further action, do not repeat completed side effects, and finish the original request." \
+      --output-format json > "$TMP_JSON" &
+  else
+    claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON" &
+  fi
   pid=$!
 
   if [[ -n "$lockfd" ]]; then
@@ -376,7 +397,7 @@ set -e
 
 FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
 
-# ---- Single same-run retry on a zero-cost, zero-token failure (2026-08-23) ----
+# ---- Single same-run retry for safe transient failures (2026-08-23) ----
 # Fleet audit found ~2s exit=1 failures scattered across sites (americastrikes,
 # rodhat, sinderella), model=null, is_error=true, total_cost_usd=0 — the `claude`
 # binary itself erroring before any billable work started (network preflight
@@ -399,8 +420,41 @@ FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
 # the host file self-healed within minutes on its own next `claude` call. A
 # same-run retry a few seconds later is free (nothing was billed) and usually
 # lands after the host file has been rewritten cleanly.
+#
+# socket_disconnected resumes the SAME persisted Claude session rather than
+# replaying the original prompt in a fresh session. This matters because a
+# transport drop can happen after tool calls have already written files,
+# committed code, posted externally, or otherwise produced side effects. A
+# resume retains the transcript/tool history and is instructed to inspect the
+# current state before continuing. If Claude did not return a session_id, fail
+# normally instead of risking a duplicate fresh run.
 if [[ "$STATUS" -ne 0 ]]; then
-  if [[ "$FAILURE_CLASS" == "zero_cost_failure" || "$FAILURE_CLASS" == "parse_error" ]]; then
+  if [[ "$FAILURE_CLASS" == "socket_disconnected" ]]; then
+    CLAUDE_RESUME_SESSION_ID="$(python3 - "$TMP_JSON" <<'PYEOF'
+import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        print(json.load(fh).get("session_id") or "")
+except Exception:
+    print("")
+PYEOF
+)"
+    if [[ -n "$CLAUDE_RESUME_SESSION_ID" ]]; then
+      echo "claude-tracked.sh: socket_disconnected (exit=$STATUS) — resuming session once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE session=$CLAUDE_RESUME_SESSION_ID)" >&2
+      # Preserve the billable interrupted attempt before run_claude_locked
+      # overwrites TMP_JSON. The ledger combines its cost/tokens with the
+      # resumed result so transport recovery never makes usage disappear.
+      cp "$TMP_JSON" "$PRIOR_ATTEMPT_JSON"
+      sleep "${CLAUDE_TRACKED_RETRY_DELAY_SECONDS:-3}"
+      set +e
+      run_claude_locked
+      STATUS=$?
+      set -e
+      FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
+    else
+      echo "claude-tracked.sh: socket_disconnected has no session_id — refusing a fresh replay that could duplicate side effects (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    fi
+  elif [[ "$FAILURE_CLASS" == "zero_cost_failure" || "$FAILURE_CLASS" == "parse_error" ]]; then
     echo "claude-tracked.sh: $FAILURE_CLASS (exit=$STATUS) — retrying once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
     sleep "${CLAUDE_TRACKED_RETRY_DELAY_SECONDS:-3}"
     set +e
@@ -413,7 +467,7 @@ fi
 
 # ---- Circuit breaker: update the streak, trip + escalate once if needed ----
 # Runs AFTER the same-run retry above, so a failure that already self-healed
-# in-run (zero_cost_failure/parse_error) never touches the streak at all.
+# in-run (zero_cost_failure/parse_error/socket_disconnected) never touches the streak at all.
 # See the header comment near BREAKER_MARKER for the full design.
 if [[ "$CLAUDE_BREAKER_ENABLED" == "1" ]]; then
   mkdir -p "$(dirname "$BREAKER_STREAK_FILE")" 2>/dev/null || true
@@ -502,14 +556,23 @@ if tripped_now:
 PYEOF
 fi
 
-python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" "$FAILURE_CLASS" <<'PYEOF'
+python3 - "$TMP_JSON" "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$STATUS" "$requested_model" "$requested_max_turns" "$REPO_ROOT" "$FAILURE_CLASS" "$PRIOR_ATTEMPT_JSON" <<'PYEOF'
 import json
+import os
 import subprocess
 import sys
 import time
 
-tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns, repo_root, failure_class = sys.argv[1:10]
+tmp_path, ledger_path, site, role, status, requested_model, requested_max_turns, repo_root, failure_class, prior_path = sys.argv[1:11]
 failure_class = None if failure_class == "none" else failure_class
+
+prior = None
+try:
+    if prior_path and os.path.getsize(prior_path):
+        with open(prior_path, encoding="utf-8") as fh:
+            prior = json.load(fh)
+except (OSError, json.JSONDecodeError):
+    prior = None
 
 # ---- Model-drift alert (2026-08-20) ----
 # The CLI may resolve --model to something other than what was requested
@@ -680,6 +743,34 @@ else:
         "session_id": None,
     }
 
+# A same-session transport resume is one logical wrapper invocation but two
+# billable CLI calls. Preserve the interrupted attempt in structured metadata
+# and add its usage to the top-level totals consumed by the fleet dashboard.
+if prior is not None:
+    prior_usage = prior.get("usage", {}) or {}
+    record["retry"] = {
+        "kind": "same_session_resume",
+        "prior_subtype": prior.get("subtype"),
+        "prior_error_message": " ".join(str(prior.get("result") or "").split())[:500] or None,
+        "prior_num_turns": prior.get("num_turns"),
+        "prior_duration_ms": prior.get("duration_ms"),
+        "prior_total_cost_usd": prior.get("total_cost_usd"),
+        "session_id": prior.get("session_id"),
+    }
+    for field in (
+        "input_tokens",
+        "output_tokens",
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens",
+    ):
+        current = record.get(field) or 0
+        record[field] = current + (prior_usage.get(field) or 0)
+    record["total_cost_usd"] = (
+        (record.get("total_cost_usd") or 0) + (prior.get("total_cost_usd") or 0)
+    )
+    if record.get("duration_ms") is not None or prior.get("duration_ms") is not None:
+        record["duration_ms"] = (record.get("duration_ms") or 0) + (prior.get("duration_ms") or 0)
+
 with open(ledger_path, "a", encoding="utf-8") as fh:
     fh.write(json.dumps(record, sort_keys=True) + "\n")
 
@@ -714,6 +805,10 @@ if record.get("is_error") or int(status or 0) != 0:
             "The fleet auth monitor owns the outage/recovery alert."
         ),
         "zero_cost_failure": "the Claude CLI failed before model execution; no tokens were spent.",
+        "socket_disconnected": (
+            "the API transport disconnected mid-session; an immediate same-session resume "
+            "was unavailable or also failed."
+        ),
         # Deliberately no longer says "the next scheduled run normally finishes
         # the work". On 2026-09-02 girlpain's engineer hit this cap and the next
         # seven runs did NOT finish the work — they re-entered the same repair
