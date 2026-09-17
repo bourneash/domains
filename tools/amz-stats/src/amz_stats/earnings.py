@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import io
 import re
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -114,13 +115,32 @@ def parse_earnings_csv(csv_text: str) -> list[dict]:
     return rows
 
 
+REPORT_GENERATE_TIMEOUT_S = 240  # Amazon: "usually within a few minutes"
+
+
 def _scrape_reports_page(page, days: int, debug_dir: Path) -> list[dict]:
-    """Drive an already-authenticated Associates Central page to the Daily
-    Summary earnings CSV and return parsed rows. Shared by scrape_earnings()
-    (replay of a saved session) and pull_earnings() (fresh interactive login).
+    """Drive an already-authenticated Associates Central page through the
+    "Download Reports" popover and return parsed CSV rows. Shared by
+    scrape_earnings() (replay of a saved session) and pull_earnings() (fresh
+    interactive login).
+
+    This is Amazon's async report-generation flow, not a simple export
+    button: open the popover, pick report type + CSV format, click "Generate
+    Reports", then poll the "Available Reports" table until a row's status
+    reads ready, then download it. Selectors below are exact element IDs
+    read from a live authenticated session's DOM (out/debug/*.html), not
+    guessed text matches.
+
+    The date range defaults to Amazon's own rolling "Last 30 Days" filter,
+    which is what we want for the default days=30. A different `days` isn't
+    wired to the date-range picker yet — flagged, not silently ignored.
     """
-    end_date = datetime.now(timezone.utc).date()
-    start_date = end_date - timedelta(days=days - 1)
+    if days != 30:
+        raise ScrapeStructureError(
+            f"days={days} requested, but only the default 30-day window (Amazon's "
+            "built-in 'Last 30 Days' filter) is wired up — the custom date-range "
+            "popover isn't implemented yet."
+        )
 
     page.goto(REPORTS_URL, wait_until="domcontentloaded", timeout=30_000)
 
@@ -132,56 +152,70 @@ def _scrape_reports_page(page, days: int, debug_dir: Path) -> list[dict]:
 
     _check_blocked(page)
 
-    # Select "Daily Summary" report type
+    # Open the "Download Reports" popover
     try:
-        page.select_option("select[name*='reportType'], select[id*='reportType']",
-                           label="Daily Summary", timeout=10_000)
+        page.click("#ac-report-download-launcher-osp", timeout=10_000)
     except PWTimeout:
-        try:
-            page.click("text=Daily Summary", timeout=5_000)
-        except PWTimeout:
-            _fail_with_debug(page, debug_dir, "report-type-select",
-                              "Could not find or select the 'Daily Summary' report type control.")
+        _fail_with_debug(page, debug_dir, "download-launcher",
+                          "Could not find/click the 'Download Reports' launcher link.")
 
-    # Set date range inputs
-    start_str = start_date.strftime("%m/%d/%Y")
-    end_str = end_date.strftime("%m/%d/%Y")
+    # Pick "Tracking ID" report — per-site (per-affiliate-tag) commission
+    # breakdown, matching how the fleet's ASINs are tagged across sites.
+    try:
+        page.wait_for_selector("#report-download-program-commission-trackingid", timeout=10_000)
+        checkbox = page.locator("#report-download-program-commission-trackingid input[type=checkbox]")
+        if not checkbox.is_checked():
+            page.click("#report-download-program-commission-trackingid label", timeout=10_000)
+    except PWTimeout:
+        _fail_with_debug(page, debug_dir, "report-type-checkbox",
+                          "Could not find/select the 'Tracking ID' report checkbox in the download popover.")
 
-    for sel, val, label in [
-        ("input[name*='startDate'], input[id*='startDate'], input[placeholder*='Start']", start_str, "start-date"),
-        ("input[name*='endDate'], input[id*='endDate'], input[placeholder*='End']", end_str, "end-date"),
-    ]:
-        try:
-            page.fill(sel, val, timeout=5_000)
-        except PWTimeout:
-            _fail_with_debug(page, debug_dir, label,
-                              f"Could not find/fill the {label} input.")
+    # Select CSV export format (defaults to XLSX)
+    try:
+        page.click("#report-download-export-format-csv label", timeout=10_000)
+    except PWTimeout:
+        _fail_with_debug(page, debug_dir, "export-format",
+                          "Could not select the CSV export format radio.")
 
-    # Trigger CSV download
+    # Kick off report generation
+    try:
+        page.click("#ac-reports-download-generate-osp-announce", timeout=10_000)
+    except PWTimeout:
+        _fail_with_debug(page, debug_dir, "generate-reports",
+                          "Could not click 'Generate Reports'.")
+
+    # Poll the "Available Reports" table until a row's status shows ready.
+    # Amazon's own localization key names this state's display text
+    # "Download" (reports-download-status-ready), distinct from "Preparing...".
+    ready_row = None
+    deadline = time.monotonic() + REPORT_GENERATE_TIMEOUT_S
+    while time.monotonic() < deadline:
+        rows = page.locator(".ac-report-download-tbl-content-osp table tbody tr")
+        for i in range(rows.count()):
+            row = rows.nth(i)
+            row_text = row.inner_text()
+            if "Download" in row_text and "Preparing" not in row_text and "Loading" not in row_text:
+                ready_row = row
+                break
+        if ready_row is not None:
+            break
+        page.wait_for_timeout(5_000)
+
+    if ready_row is None:
+        _fail_with_debug(page, debug_dir, "report-not-ready",
+                          f"Report generation didn't finish within {REPORT_GENERATE_TIMEOUT_S}s.")
+
     csv_text: str = ""
     try:
         with page.expect_download(timeout=30_000) as dl_info:
-            page.click(
-                "button:has-text('Export'), "
-                "a:has-text('Export'), "
-                "button:has-text('Download'), "
-                "a:has-text('Download'), "
-                "input[value*='Export'], "
-                "input[value*='Download']",
-                timeout=10_000,
-            )
+            ready_row.get_by_text("Download", exact=True).click()
         download = dl_info.value
         path = download.path()
         if path:
             csv_text = Path(path).read_text(encoding="utf-8-sig")
     except PWTimeout:
-        # Fallback: page may render the report inline instead of downloading.
-        content = page.content()
-        if "Date" in content and "Clicks" in content:
-            csv_text = page.inner_text("pre, .report-data, table") or ""
-        else:
-            _fail_with_debug(page, debug_dir, "csv-download",
-                              "No download fired and no inline report table found.")
+        _fail_with_debug(page, debug_dir, "csv-download",
+                          "Report showed ready but clicking its Download link triggered no file download.")
 
     return parse_earnings_csv(csv_text)
 

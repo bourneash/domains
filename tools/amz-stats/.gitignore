@@ -6,6 +6,7 @@ out/.token_cache.json
 out/asin_state.json
 out/.session.json
 out/cron.log
+out/debug/
 __pycache__/
 *.egg-info/
 .pytest_cache/
