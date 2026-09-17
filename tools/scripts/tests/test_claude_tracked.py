@@ -290,7 +290,7 @@ class AuthRefreshMutexTests(unittest.TestCase):
 
     N = 8
 
-    def _burst(self, temp: Path, lock_setting: str):
+    def _burst(self, temp: Path, lock_setting: str, handshake: str = "1"):
         creds = temp / "credentials.json"
         server = temp / "server"      # the server's view of the live token
         trace = temp / "trace"
@@ -331,7 +331,7 @@ class AuthRefreshMutexTests(unittest.TestCase):
             "CRON_SITE": "rot.test", "CRON_ROLE": "promoter",
             "REPO_ROOT": str(temp),
             "ROT_CREDS": str(creds), "ROT_SERVER": str(server),
-            "ROT_TRACE": str(trace), "ROT_HANDSHAKE": "1",
+            "ROT_TRACE": str(trace), "ROT_HANDSHAKE": handshake,
             "CLAUDE_AUTH_LOCK": lock_setting,
             "CLAUDE_AUTH_WINDOW": "3", "CLAUDE_AUTH_LOCK_WAIT": "120",
             "CLAUDE_TRACKED_RETRY_DELAY_SECONDS": "0",
@@ -353,7 +353,10 @@ class AuthRefreshMutexTests(unittest.TestCase):
     def test_control_without_mutex_still_revokes(self):
         """Guard on the guard: the harness must reproduce the original bug."""
         with tempfile.TemporaryDirectory() as td:
-            ok, revoked = self._burst(Path(td), "none")
+            # Give the intentionally-unlocked control enough overlap to
+            # reproduce the race reliably on a lightly loaded host. The
+            # mutex case below keeps the shorter handshake to remain fast.
+            ok, revoked = self._burst(Path(td), "none", handshake="3")
         self.assertGreater(
             revoked, 0,
             "control failed to reproduce refresh-token reuse -- the mutex test below proves nothing",
