@@ -14,7 +14,14 @@ from dotenv import load_dotenv
 from . import __version__
 from .api import AMZClient
 from .collectors import harvest_asins, collect_catalog, build_summary
-from .earnings import SessionExpiredError, scrape_earnings, save_session
+from .earnings import (
+    BlockedError,
+    ScrapeStructureError,
+    SessionExpiredError,
+    pull_earnings,
+    scrape_earnings,
+    save_session,
+)
 from .store import write_snapshot
 from . import taskfiler
 
@@ -162,34 +169,9 @@ def _row_date(row: dict) -> str:
     return row.get("date") or row.get("report_date") or ""
 
 
-@main.command("scrape-earnings")
-@click.option("--out-dir", "out_dir", type=click.Path(path_type=Path), default=Path("out"),
-              help="Directory to write earnings JSONL + latest.json. Default: ./out")
-@click.option("--session-file", "session_file", type=click.Path(path_type=Path), default=None,
-              help="Path to Playwright session file. Default: <out-dir>/.session.json")
-@click.option("--days", default=30, show_default=True,
-              help="Number of days to fetch (ending today).")
-@click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None,
-              help="Override env file.")
-@click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
-def scrape_earnings_cmd(
-    out_dir: Path,
-    session_file: Path | None,
-    days: int,
-    env_file: Path | None,
-    quiet: bool,
-) -> None:
-    """Download daily earnings from Associates Central and write JSONL + latest.json."""
-    if session_file is None:
-        session_file = out_dir / ".session.json"
-
+def _write_earnings(rows: list[dict], out_dir: Path, days: int, quiet: bool) -> None:
+    """Merge scraped rows into the monthly JSONL store, refresh latest.json, print summary."""
     out_dir.mkdir(parents=True, exist_ok=True)
-
-    try:
-        rows = scrape_earnings(session_file, days)
-    except SessionExpiredError:
-        click.echo("Session missing or expired. Run: amz-stats save-session", err=True)
-        sys.exit(3)
 
     # Group rows by month; merge by date to avoid duplicates on re-runs
     by_month: dict[str, list[dict]] = {}
@@ -236,6 +218,88 @@ def scrape_earnings_cmd(
 
     if not quiet:
         click.echo(line)
+
+
+@main.command("scrape-earnings")
+@click.option("--out-dir", "out_dir", type=click.Path(path_type=Path), default=Path("out"),
+              help="Directory to write earnings JSONL + latest.json. Default: ./out")
+@click.option("--session-file", "session_file", type=click.Path(path_type=Path), default=None,
+              help="Path to Playwright session file. Default: <out-dir>/.session.json")
+@click.option("--days", default=30, show_default=True,
+              help="Number of days to fetch (ending today).")
+@click.option("--env-file", type=click.Path(exists=True, path_type=Path), default=None,
+              help="Override env file.")
+@click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
+def scrape_earnings_cmd(
+    out_dir: Path,
+    session_file: Path | None,
+    days: int,
+    env_file: Path | None,
+    quiet: bool,
+) -> None:
+    """Download daily earnings from Associates Central using a saved session.
+
+    Opportunistic — only succeeds if the saved session is still inside
+    Associates Central's ~1h auth-freshness window. For a reliable pull, use
+    `amz-stats pull-earnings` instead (logs in and scrapes in one go).
+    """
+    if session_file is None:
+        session_file = out_dir / ".session.json"
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        rows = scrape_earnings(session_file, days)
+    except SessionExpiredError:
+        click.echo("Session missing or expired (or outside the ~1h auth-freshness "
+                    "window). Run: amz-stats pull-earnings", err=True)
+        sys.exit(3)
+    except BlockedError as e:
+        click.echo(f"BLOCKED: {e}", err=True)
+        sys.exit(4)
+    except ScrapeStructureError as e:
+        click.echo(f"SCRAPE STRUCTURE ERROR: {e}", err=True)
+        sys.exit(5)
+
+    _write_earnings(rows, out_dir, days, quiet)
+
+
+@main.command("pull-earnings")
+@click.option("--out-dir", "out_dir", type=click.Path(path_type=Path), default=Path("out"),
+              help="Directory to write earnings JSONL + latest.json. Default: ./out")
+@click.option("--session-file", "session_file", type=click.Path(path_type=Path), default=None,
+              help="Path to save the Playwright session file. Default: <out-dir>/.session.json")
+@click.option("--days", default=30, show_default=True,
+              help="Number of days to fetch (ending today).")
+@click.option("--quiet", is_flag=True, help="Suppress summary line on stdout.")
+def pull_earnings_cmd(
+    out_dir: Path,
+    session_file: Path | None,
+    days: int,
+    quiet: bool,
+) -> None:
+    """Interactive login + earnings pull in one command (requires a display).
+
+    This is the reliable path — Associates Central requires a login within
+    roughly the last hour to view Reports, so login and scrape happen
+    back-to-back in the same browser session. Run this yourself whenever you
+    want current numbers; it isn't meant to run unattended in cron. It also
+    saves a session file afterward that `scrape-earnings` can opportunistically
+    reuse for up to about an hour.
+    """
+    if session_file is None:
+        session_file = out_dir / ".session.json"
+
+    try:
+        rows = pull_earnings(session_file, days)
+    except BlockedError as e:
+        click.echo(f"BLOCKED: {e}", err=True)
+        sys.exit(4)
+    except ScrapeStructureError as e:
+        click.echo(f"SCRAPE STRUCTURE ERROR: {e}", err=True)
+        sys.exit(5)
+
+    _write_earnings(rows, out_dir, days, quiet)
 
 
 @main.command("save-session")

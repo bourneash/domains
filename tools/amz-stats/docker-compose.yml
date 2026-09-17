@@ -15,6 +15,8 @@
 # Bring up:    docker compose up -d
 # Watch logs:  docker compose logs -f
 # Force run:   docker compose exec collector amz-stats collect --out-dir /work/out --domains-root ${HOME}/projects/domains
+# Pull earnings (interactive, opens a real browser window on your desktop via
+# the X11 socket mount below): docker compose exec -it collector amz-stats pull-earnings --out-dir /work/out
 # Stop:        docker compose down
 
 name: amz-stats
@@ -32,9 +34,15 @@ services:
       # Must match the HOST's HOME so ~/.ssh and ~/.gitconfig resolve the
       # same way whether a script reads them via `~` or an absolute path.
       HOME: ${HOME:-/home/jesse}
+      # X11 passthrough for `pull-earnings`'s headed Chromium — lets the
+      # login window actually appear on your desktop instead of failing with
+      # "Missing X server". Harmless when unset/no display (collect/scrape
+      # jobs don't need it; scrape-earnings runs under xvfb-run instead).
+      DISPLAY: ${DISPLAY:-}
     volumes:
       - ${HOME:-/home/jesse}/projects/domains/tools/env-broker/rendered/tool-amz-stats.env:/work/.env.shared:ro
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
       - ${HOME:-/home/jesse}/.ssh:${HOME:-/home/jesse}/.ssh:ro
       - ${HOME:-/home/jesse}/.gitconfig:${HOME:-/home/jesse}/.gitconfig:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - ./out:/work/out

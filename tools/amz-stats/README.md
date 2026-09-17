@@ -59,9 +59,41 @@ docker compose exec collector amz-stats collect --out-dir /work/out --domains-ro
 docker compose exec collector amz-stats verify
 ```
 
+## Earnings (real $ — clicks, orders, commission)
+
+`amz-stats collect` (above) only checks whether ASINs are in-stock — it never touches
+revenue. Actual $ comes from Associates Central's Reports page, which has no public API,
+so this is a hardened Playwright scrape of the UI.
+
+**Pull current numbers (run this yourself, whenever you want them):**
+
+```sh
+docker compose exec -it collector amz-stats pull-earnings --out-dir /work/out
+```
+
+A real Chromium window opens on your desktop (via the X11 socket mount in
+`docker-compose.yml`) — log in, press Enter in the terminal, and it scrapes the last 30
+days in the same browser session and writes `out/earnings-<YYYY-MM>.jsonl` +
+`out/earnings-latest.json`.
+
+**Why this isn't on a cron schedule:** Associates Central's Reports page enforces an
+OpenID `pape.max_auth_age` (~3600s) — it demands a login within roughly the last hour,
+independent of whether the session cookie is otherwise valid. A scheduled job replaying
+a saved session from hours or days ago will reliably get redirected back to login. There
+is no way to make this silently unattended without either Amazon changing that policy or
+handing 2FA-capable credentials to a bot — so `pull-earnings` is designed to be run by a
+human on demand, not automated. (`amz-stats scrape-earnings` still exists as an
+opportunistic replay of a saved session, for the rare case a cron tick lands inside that
+~1h window; `pull-earnings` is the reliable path.)
+
+If it fails with `BLOCKED`, Associates Central served a bot-detection page —
+check `out/debug/` for a screenshot + HTML dump of what it saw. If it fails with
+`SCRAPE STRUCTURE ERROR`, the report page's layout changed — same debug dump applies.
+
 ## Schedule
 
-Runs daily at **06:17 UTC** (supercronic, `crontab.docker`).
+Catalog check runs daily at **06:17 UTC** (supercronic, `crontab.docker`). Earnings are
+pulled on demand (see above) — not scheduled.
 
 ## Output format
 

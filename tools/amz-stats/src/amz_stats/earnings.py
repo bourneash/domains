@@ -18,6 +18,30 @@ class SessionExpiredError(Exception):
     """Raised when session file is missing or Associates Central redirects to login."""
 
 
+class BlockedError(Exception):
+    """Raised when Associates Central serves a WAF/bot-detection block page."""
+
+
+class ScrapeStructureError(Exception):
+    """Raised when an expected report-page element isn't found — the page layout
+    changed, or the report genuinely couldn't be produced. Never silently
+    swallowed into an empty result: an empty result must mean 'zero rows',
+    never 'the scraper broke'."""
+
+
+_BLOCK_MARKERS = ("Access Denied", "Request blocked", "automated access")
+
+
+def _check_blocked(page) -> None:
+    body_text = page.inner_text("body")
+    for marker in _BLOCK_MARKERS:
+        if marker in body_text:
+            raise BlockedError(
+                f"Associates Central returned a block page ({marker!r} found at {page.url}) — "
+                "likely bot/automation fingerprinting, not a session or account issue."
+            )
+
+
 def _to_snake(name: str) -> str:
     """Convert a column header string to snake_case."""
     # Replace spaces, slashes, and other separators with underscores
@@ -90,91 +114,171 @@ def parse_earnings_csv(csv_text: str) -> list[dict]:
     return rows
 
 
-def scrape_earnings(session_file: Path, days: int = 30) -> list[dict]:
-    """Download daily earnings CSV from Associates Central.
+def _scrape_reports_page(page, days: int, debug_dir: Path) -> list[dict]:
+    """Drive an already-authenticated Associates Central page to the Daily
+    Summary earnings CSV and return parsed rows. Shared by scrape_earnings()
+    (replay of a saved session) and pull_earnings() (fresh interactive login).
+    """
+    end_date = datetime.now(timezone.utc).date()
+    start_date = end_date - timedelta(days=days - 1)
 
-    Uses a saved Playwright browser storage state (session_file) to authenticate.
+    page.goto(REPORTS_URL, wait_until="domcontentloaded", timeout=30_000)
+
+    current_url = page.url
+    if any(pat in current_url for pat in LOGIN_PATTERNS):
+        raise SessionExpiredError(
+            f"Session expired — redirected to login: {current_url}"
+        )
+
+    _check_blocked(page)
+
+    # Select "Daily Summary" report type
+    try:
+        page.select_option("select[name*='reportType'], select[id*='reportType']",
+                           label="Daily Summary", timeout=10_000)
+    except PWTimeout:
+        try:
+            page.click("text=Daily Summary", timeout=5_000)
+        except PWTimeout:
+            _fail_with_debug(page, debug_dir, "report-type-select",
+                              "Could not find or select the 'Daily Summary' report type control.")
+
+    # Set date range inputs
+    start_str = start_date.strftime("%m/%d/%Y")
+    end_str = end_date.strftime("%m/%d/%Y")
+
+    for sel, val, label in [
+        ("input[name*='startDate'], input[id*='startDate'], input[placeholder*='Start']", start_str, "start-date"),
+        ("input[name*='endDate'], input[id*='endDate'], input[placeholder*='End']", end_str, "end-date"),
+    ]:
+        try:
+            page.fill(sel, val, timeout=5_000)
+        except PWTimeout:
+            _fail_with_debug(page, debug_dir, label,
+                              f"Could not find/fill the {label} input.")
+
+    # Trigger CSV download
+    csv_text: str = ""
+    try:
+        with page.expect_download(timeout=30_000) as dl_info:
+            page.click(
+                "button:has-text('Export'), "
+                "a:has-text('Export'), "
+                "button:has-text('Download'), "
+                "a:has-text('Download'), "
+                "input[value*='Export'], "
+                "input[value*='Download']",
+                timeout=10_000,
+            )
+        download = dl_info.value
+        path = download.path()
+        if path:
+            csv_text = Path(path).read_text(encoding="utf-8-sig")
+    except PWTimeout:
+        # Fallback: page may render the report inline instead of downloading.
+        content = page.content()
+        if "Date" in content and "Clicks" in content:
+            csv_text = page.inner_text("pre, .report-data, table") or ""
+        else:
+            _fail_with_debug(page, debug_dir, "csv-download",
+                              "No download fired and no inline report table found.")
+
+    return parse_earnings_csv(csv_text)
+
+
+def scrape_earnings(session_file: Path, days: int = 30) -> list[dict]:
+    """Download daily earnings CSV from Associates Central using a saved session.
+
+    NOTE: Associates Central's reports page enforces OpenID `pape.max_auth_age`
+    (observed at 3600s) — it demands a login within roughly the last hour,
+    independent of whether the session cookie is otherwise valid. A
+    storage_state saved more than ~1h ago will reliably redirect to signin
+    here even though the cookie itself hasn't "expired" in the usual sense.
+    That makes this function unsuitable as the primary path for a daily/
+    weekly cron — use pull_earnings() (fresh interactive login immediately
+    followed by scrape, same browser session) for reliable unattended-adjacent
+    pulls. This function is kept for the case where a cron tick happens to
+    land inside a still-fresh auth window.
+
     Raises SessionExpiredError if session file missing or page redirects to login.
     Returns list of daily dicts from parse_earnings_csv().
     """
     if not session_file.exists():
         raise SessionExpiredError(f"Session file not found: {session_file}")
 
-    end_date = datetime.now(timezone.utc).date()
-    start_date = end_date - timedelta(days=days - 1)
+    debug_dir = session_file.parent / "debug"
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True)
+        # headless=False, same as save_session(). Associates Central's bot
+        # defense fingerprints headless Chromium distinctly from a headed one
+        # (navigator.webdriver, missing plugins/mimeTypes, CDP artifacts) and
+        # serves an "Access Denied" block page even with valid session cookies
+        # — this bit us in production. Run this job under `xvfb-run` in the
+        # container (see crontab.docker) so headless=False works without a
+        # real display.
+        browser = pw.chromium.launch(headless=False, args=["--disable-blink-features=AutomationControlled"])
         try:
             ctx = browser.new_context(storage_state=str(session_file))
+            ctx.add_init_script(
+                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+            )
             page = ctx.new_page()
-
-            # Navigate to reports page
-            page.goto(REPORTS_URL, wait_until="domcontentloaded", timeout=30_000)
-
-            # Check for login redirect
-            current_url = page.url
-            if any(pat in current_url for pat in LOGIN_PATTERNS):
-                raise SessionExpiredError(
-                    f"Session expired — redirected to login: {current_url}"
-                )
-
-            # Select "Daily Summary" report type
-            try:
-                # Look for a dropdown or select with report type options
-                page.select_option("select[name*='reportType'], select[id*='reportType']",
-                                   label="Daily Summary", timeout=10_000)
-            except PWTimeout:
-                # Try clicking via visible text as fallback
-                try:
-                    page.click("text=Daily Summary", timeout=5_000)
-                except PWTimeout:
-                    pass  # Best effort — page structure may vary
-
-            # Set date range inputs
-            start_str = start_date.strftime("%m/%d/%Y")
-            end_str = end_date.strftime("%m/%d/%Y")
-
-            for sel, val in [
-                ("input[name*='startDate'], input[id*='startDate'], input[placeholder*='Start']", start_str),
-                ("input[name*='endDate'], input[id*='endDate'], input[placeholder*='End']", end_str),
-            ]:
-                try:
-                    page.fill(sel, val, timeout=5_000)
-                except PWTimeout:
-                    pass
-
-            # Trigger CSV download
-            csv_text: str = ""
-            try:
-                with page.expect_download(timeout=30_000) as dl_info:
-                    # Click the export/download button
-                    page.click(
-                        "button:has-text('Export'), "
-                        "a:has-text('Export'), "
-                        "button:has-text('Download'), "
-                        "a:has-text('Download'), "
-                        "input[value*='Export'], "
-                        "input[value*='Download']",
-                        timeout=10_000,
-                    )
-                download = dl_info.value
-                path = download.path()
-                if path:
-                    csv_text = Path(path).read_text(encoding="utf-8-sig")
-            except PWTimeout:
-                # Fallback: try reading page content as CSV if no download triggered
-                content = page.content()
-                if "Date" in content and "Clicks" in content:
-                    # Page may render CSV inline in a <pre> or table — extract text
-                    csv_text = page.inner_text("pre, .report-data, table") or ""
+            rows = _scrape_reports_page(page, days, debug_dir)
         finally:
             browser.close()
 
-    if not csv_text:
-        return []
+    return rows
 
-    return parse_earnings_csv(csv_text)
+
+def pull_earnings(session_file: Path, days: int = 30) -> list[dict]:
+    """Interactive login immediately followed by a same-session scrape.
+
+    This is the reliable path: login and scrape happen in the same browser
+    context back-to-back, so Associates Central's ~1h auth-freshness
+    requirement (see scrape_earnings() docstring) is always satisfied. As a
+    bonus, storage_state is saved afterward so an opportunistic
+    scrape_earnings() cron run within the next hour can reuse it.
+    """
+    session_file.parent.mkdir(parents=True, exist_ok=True)
+    debug_dir = session_file.parent / "debug"
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=False, args=["--disable-blink-features=AutomationControlled"])
+        try:
+            ctx = browser.new_context()
+            ctx.add_init_script(
+                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+            )
+            page = ctx.new_page()
+            page.goto(f"{ASSOC_CENTRAL}/ap/signin", wait_until="domcontentloaded", timeout=30_000)
+
+            print("\nComplete login in the browser window. Press Enter when done...")
+            input()
+
+            rows = _scrape_reports_page(page, days, debug_dir)
+
+            ctx.storage_state(path=str(session_file))
+        finally:
+            browser.close()
+
+    return rows
+
+
+def _fail_with_debug(page, debug_dir: Path, tag: str, message: str) -> None:
+    """Save a screenshot + HTML dump for post-mortem, then raise loudly.
+
+    A silently-empty result here is indistinguishable from 'genuinely zero
+    rows this period' — that ambiguity is exactly what let scrape-earnings
+    fail unnoticed for months. Fail loud instead.
+    """
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    try:
+        page.screenshot(path=str(debug_dir / f"{ts}-{tag}.png"))
+        (debug_dir / f"{ts}-{tag}.html").write_text(page.content(), encoding="utf-8")
+    except Exception:
+        pass  # debug capture is best-effort; the real error below still raises
+    raise ScrapeStructureError(f"{message} Debug artifacts: {debug_dir}/{ts}-{tag}.*")
 
 
 def save_session(session_file: Path) -> None:

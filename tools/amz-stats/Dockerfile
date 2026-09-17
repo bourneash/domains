@@ -16,8 +16,12 @@ FROM python:3.12-slim
 # git + openssh-client — taskfiler commits/pushes dead-ASIN task files
 # directly to each site's repo (see src/amz_stats/taskfiler.py); git identity
 # and SSH keys come from the host via bind mounts, not baked into the image.
+# xvfb — scrape-earnings launches Chromium with headless=False (see
+# earnings.py) because Associates Central's bot defense fingerprints and
+# blocks real headless Chromium even with a valid session; xvfb-run gives it
+# a virtual display so a "headed" browser works with no physical display.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates tzdata git openssh-client \
+    && apt-get install -y --no-install-recommends curl ca-certificates tzdata git openssh-client xvfb xauth \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL -o /usr/local/bin/supercronic \
        https://github.com/aptible/supercronic/releases/download/v0.2.34/supercronic-linux-amd64 \
@@ -25,7 +29,8 @@ RUN apt-get update \
 
 ENV TZ=UTC \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
 
 # Non-root user matching host UID 1000 so bind-mounted out/ is owned by jesse.
 # Home dir is /home/jesse (not the native /home/ops), matching HOME below —
@@ -48,7 +53,8 @@ RUN git config --system --add safe.directory '*'
 WORKDIR /opt/amz-stats
 COPY pyproject.toml ./
 COPY src ./src
-RUN pip install --no-cache-dir . && playwright install chromium --with-deps
+RUN pip install --no-cache-dir . && playwright install chromium --with-deps \
+    && chmod -R a+rX /opt/pw-browsers
 
 # Cron + entrypoint
 COPY crontab.docker /etc/crontab.docker

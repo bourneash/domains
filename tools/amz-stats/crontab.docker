@@ -11,5 +11,14 @@
 # every week for months (session was never created) while supercronic logged
 # "job succeeded" throughout.
 
+# Earnings are NOT on a cron schedule. Associates Central's Reports page
+# enforces an OpenID pape.max_auth_age (~3600s) — it demands a login within
+# roughly the last hour, independent of session-cookie validity — so a
+# scheduled unattended pull would reliably fail every single run (that
+# failure would now be loud, per the fix above, but loud-and-guaranteed is
+# still just noise). Run `amz-stats pull-earnings` yourself (interactive
+# login immediately followed by a same-session scrape — see earnings.py)
+# whenever you want current numbers: `docker compose exec -it collector
+# amz-stats pull-earnings --out-dir /work/out`.
+
 17 6 * * * bash -c 'set -o pipefail; amz-stats collect --out-dir /work/out --domains-root $HOME/projects/domains 2>&1 | tee -a /work/out/cron.log'
-30 7 * * 0 bash -c 'set -o pipefail; amz-stats scrape-earnings --out-dir /work/out 2>&1 | tee -a /work/out/cron.log'
