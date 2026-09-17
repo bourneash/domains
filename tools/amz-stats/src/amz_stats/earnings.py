@@ -5,6 +5,7 @@ import csv
 import io
 import re
 import time
+import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -85,6 +86,24 @@ def _parse_date(raw: str) -> str:
             continue
     # Return as-is if unparseable
     return raw
+
+
+def _extract_csv_text(path: Path) -> str:
+    """Return CSV text from a downloaded report file — Associates Central's
+    CSV export downloads as a .zip containing exactly one .csv member
+    (observed live: `Tracking-Id-<date>-<time>.zip` -> one `*-CSV.csv`
+    inside), not a raw CSV. Reads the raw file directly if it isn't a zip,
+    so this keeps working if Amazon ever serves CSV unwrapped.
+    """
+    if zipfile.is_zipfile(path):
+        with zipfile.ZipFile(path) as zf:
+            names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
+            if not names:
+                raise ScrapeStructureError(
+                    f"Downloaded zip {path} has no .csv member (found: {zf.namelist()})"
+                )
+            return zf.read(names[0]).decode("utf-8-sig")
+    return path.read_text(encoding="utf-8-sig")
 
 
 def parse_earnings_csv(csv_text: str) -> list[dict]:
@@ -205,14 +224,20 @@ def _scrape_reports_page(page, days: int, debug_dir: Path) -> list[dict]:
         _fail_with_debug(page, debug_dir, "report-not-ready",
                           f"Report generation didn't finish within {REPORT_GENERATE_TIMEOUT_S}s.")
 
+    # The Download link opens a target=_blank popup that Chrome immediately
+    # closes once it resolves the file as an attachment (observed live) — the
+    # "download" event fires on that transient popup page, not on `page`, so
+    # page.expect_download() (page-scoped) misses it. Listen at the
+    # browser-context level instead, which catches downloads from any page
+    # opened within it.
     csv_text: str = ""
     try:
-        with page.expect_download(timeout=30_000) as dl_info:
+        with page.context.expect_event("download", timeout=30_000) as dl_info:
             ready_row.get_by_text("Download", exact=True).click()
         download = dl_info.value
         path = download.path()
         if path:
-            csv_text = Path(path).read_text(encoding="utf-8-sig")
+            csv_text = _extract_csv_text(Path(path))
     except PWTimeout:
         _fail_with_debug(page, debug_dir, "csv-download",
                           "Report showed ready but clicking its Download link triggered no file download.")

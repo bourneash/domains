@@ -164,55 +164,53 @@ def verify(out_dir: Path, env_file: Path | None) -> None:
         sys.exit(1)
 
 
-def _row_date(row: dict) -> str:
-    """Return the date string from a row, handling both 'date' and 'report_date' keys."""
-    return row.get("date") or row.get("report_date") or ""
+def _num(value) -> float:
+    """Coerce a report cell to a float. Associates Central prints '-' for
+    zero/no-data cells (see a real export's 'aliencouncil-20' row: clicks=10
+    but items_ordered='-', not 0) — treat that as 0, don't let int()/float()
+    raise on it."""
+    if value in (None, "-", ""):
+        return 0.0
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def _write_earnings(rows: list[dict], out_dir: Path, days: int, quiet: bool) -> None:
-    """Merge scraped rows into the monthly JSONL store, refresh latest.json, print summary."""
+    """Write a timestamped snapshot + refresh latest.json, print summary.
+
+    The "Tracking ID" commission report (see earnings.py) has NO per-day date
+    column — it's one row per site (tracking ID) aggregated over the whole
+    selected window, not a daily series. So this is a dated snapshot store
+    (out/earnings-pull-<UTC timestamp>.jsonl), not a per-date merge — there's
+    no natural key to merge different pulls' rows by other than "which pull".
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Group rows by month; merge by date to avoid duplicates on re-runs
-    by_month: dict[str, list[dict]] = {}
-    for row in rows:
-        date_val = _row_date(row)
-        if len(date_val) >= 7:
-            month_key = date_val[:7]  # YYYY-MM
-        else:
-            month_key = "unknown"
-        by_month.setdefault(month_key, []).append(row)
-
-    for month_key, month_rows in by_month.items():
-        jsonl_path = out_dir / f"earnings-{month_key}.jsonl"
-        # Read existing rows keyed by date, overlay new rows (new data wins), write back
-        existing: dict[str, dict] = {}
-        if jsonl_path.exists():
-            for line in jsonl_path.read_text(encoding="utf-8").splitlines():
-                if line.strip():
-                    row = json.loads(line)
-                    existing[_row_date(row)] = row
-        for row in month_rows:
-            existing[_row_date(row)] = row
-        with jsonl_path.open("w", encoding="utf-8") as fh:
-            for row in sorted(existing.values(), key=_row_date):
-                fh.write(json.dumps(row, separators=(",", ":")) + "\n")
+    ts = _now_iso()
+    snapshot_path = out_dir / f"earnings-pull-{ts.replace(':', '').replace('-', '')}.jsonl"
+    with snapshot_path.open("w", encoding="utf-8") as fh:
+        for row in rows:
+            fh.write(json.dumps(row, separators=(",", ":")) + "\n")
 
     # Overwrite latest.json with full result list
     latest_path = out_dir / "earnings-latest.json"
-    latest_path.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+    latest_path.write_text(json.dumps({"pulled_at": ts, "days": days, "rows": rows}, indent=2),
+                            encoding="utf-8")
 
-    # Compute totals for summary line
-    total_clicks = sum(int(r.get("clicks", 0) or 0) for r in rows)
-    total_orders = sum(int(r.get("ordered_items", 0) or 0) for r in rows)
-    total_earnings = sum(float(r.get("commission_income", 0) or 0) for r in rows)
+    # Compute totals for summary line. Real CSV headers (verified against a
+    # live export): clicks, items_ordered, total_earnings — not the
+    # ordered_items/commission_income names this used to assume.
+    total_clicks = sum(_num(r.get("clicks")) for r in rows)
+    total_orders = sum(_num(r.get("items_ordered")) for r in rows)
+    total_earnings = sum(_num(r.get("total_earnings")) for r in rows)
 
-    ts = _now_iso()
     line = (
         f"[{ts}] amz-earnings"
         f" days={days}"
-        f" clicks={total_clicks}"
-        f" orders={total_orders}"
+        f" clicks={int(total_clicks)}"
+        f" orders={int(total_orders)}"
         f" earnings=${total_earnings:.2f}"
     )
 

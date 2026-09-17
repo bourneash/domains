@@ -5,7 +5,39 @@ from pathlib import Path
 
 import pytest
 
-from amz_stats.earnings import SessionExpiredError, parse_earnings_csv, scrape_earnings
+import zipfile
+
+from amz_stats.earnings import SessionExpiredError, _extract_csv_text, parse_earnings_csv, scrape_earnings
+
+# Real column shape from a live "Tracking ID" commission report export —
+# no date column (one row per tracking ID over the whole selected window),
+# '-' for zero/no-data cells.
+TRACKING_ID_CSV = """\
+Tracking Id,Clicks,Items Ordered,Ordered Revenue,Items Shipped,Items Returned,Items Shipped Revenue,Items Returned Revenue,Total Earnings,Bonus,Items Shipped Earnings,Items Returned Earnings
+aliencouncil-20,10.0,-,-,-,-,-,-,-,0.0,-,-
+Other,629.0,28.0,306.37,6.0,0.0,158.66,0.0,4.92,0.0,4.92,0.0
+"""
+
+
+class TestExtractCsvText:
+    def test_reads_csv_inside_zip(self, tmp_path: Path):
+        # Associates Central's export downloads as a .zip containing one .csv
+        zip_path = tmp_path / "Tracking-Id-17Sep2026.zip"
+        with zipfile.ZipFile(zip_path, "w") as zf:
+            zf.writestr("inner-report-CSV.csv", TRACKING_ID_CSV)
+        assert _extract_csv_text(zip_path) == TRACKING_ID_CSV
+
+    def test_reads_raw_csv_when_not_zipped(self, tmp_path: Path):
+        csv_path = tmp_path / "report.csv"
+        csv_path.write_text(TRACKING_ID_CSV, encoding="utf-8")
+        assert _extract_csv_text(csv_path) == TRACKING_ID_CSV
+
+    def test_tracking_id_report_has_no_date_column(self):
+        rows = parse_earnings_csv(TRACKING_ID_CSV)
+        assert "date" not in rows[0]
+        assert rows[0]["tracking_id"] == "aliencouncil-20"
+        assert rows[0]["items_ordered"] == "-"  # zero/no-data cell, not coerced to 0 here
+        assert rows[1]["total_earnings"] == 4.92
 
 
 # ---------------------------------------------------------------------------
