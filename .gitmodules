@@ -168,3 +168,6 @@
 [submodule "sites/greatamericanlakes.com"]
 	path = sites/greatamericanlakes.com
 	url = git@github-bourneash:bourneash/greatamericanlakes.com.git
+[submodule "sites/saltwaternews.com"]
+	path = sites/saltwaternews.com
+	url = git@github-bourneash:bourneash/saltwaternews.com.git

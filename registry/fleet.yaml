@@ -735,6 +735,16 @@ sites:
     - domains-index
     - site-tracker
     - social
+  saltwaternews.com:
+    status: scaffold
+    repo: bourneash/saltwaternews.com
+    worker: saltwaternews-com
+    cf_zone: saltwaternews.com
+    capabilities:
+    - site
+    registered_in:
+    - domains-index
+    - site-tracker
   saveusfarms.com:
     status: live
     repo: bourneash/saveusfarms.com

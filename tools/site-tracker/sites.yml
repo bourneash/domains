@@ -1074,3 +1074,22 @@ sites:
     - branding
     - manual
     manual: {}
+  saltwaternews.com:
+    active: false
+    cf_zone: saltwaternews.com
+    github: bourneash/saltwaternews.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - ads
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}

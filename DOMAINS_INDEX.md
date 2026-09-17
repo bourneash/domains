@@ -35,6 +35,7 @@
 
 ## Coming Soon (scaffolded, awaiting brief or CF Worker connection)
 | weirdgirlstore.com |   🟢   | `weirdgirlstore-com`| Barbie-goth curio affiliate shop live; brief locked, ops/board scaffolded, auto-deploy verified |
+| saltwaternews.com |   🟢   | `saltwaternews-com` | Brand-neutral coming-soon page live; brief and Workers Builds connection pending |
 
 | Domain 			| In use | Worker name      | Notes                                                              |
 |-------------------|--------|------------------|--------------------------------------------------------------------|
