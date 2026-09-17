@@ -2,6 +2,14 @@
 # Daily at 06:17 — offset from other fleet jobs to keep host load steady.
 # Stdout/stderr stream to docker logs via supercronic -passthrough-logs.
 # The summary line also appends to /work/out/cron.log for tail -f compatibility.
+#
+# Each job runs under `bash -c 'set -o pipefail; ...'` so a real command
+# failure (e.g. scrape-earnings exiting 3 on SessionExpiredError) surfaces as
+# a supercronic "job failed" instead of being masked by tee's own exit code —
+# a plain `cmd | tee` always reports success because the pipeline's exit
+# status is tee's, not cmd's. This is why scrape-earnings silently failed
+# every week for months (session was never created) while supercronic logged
+# "job succeeded" throughout.
 
-17 6 * * * amz-stats collect --out-dir /work/out --domains-root $HOME/projects/domains 2>&1 | tee -a /work/out/cron.log
-30 7 * * 0 amz-stats scrape-earnings --out-dir /work/out 2>&1 | tee -a /work/out/cron.log
+17 6 * * * bash -c 'set -o pipefail; amz-stats collect --out-dir /work/out --domains-root $HOME/projects/domains 2>&1 | tee -a /work/out/cron.log'
+30 7 * * 0 bash -c 'set -o pipefail; amz-stats scrape-earnings --out-dir /work/out 2>&1 | tee -a /work/out/cron.log'
