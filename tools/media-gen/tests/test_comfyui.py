@@ -17,3 +17,22 @@ def test_fast_workflow_keeps_existing_checkpoint_path():
     assert graph["4"]["class_type"] == "CheckpointLoaderSimple"
     assert graph["4"]["inputs"]["ckpt_name"] == config.COMFYUI_CHECKPOINT
     assert graph["3"]["inputs"]["steps"] == 4
+
+
+def test_generate_rejects_when_local_execution_slot_stays_busy(monkeypatch):
+    class BusyLock:
+        def acquire(self, timeout):
+            assert timeout == config.COMFYUI_LOCK_WAIT_S
+            return False
+
+        def locked(self):
+            return True
+
+    monkeypatch.setattr(comfyui, "_GENERATION_LOCK", BusyLock())
+
+    try:
+        comfyui.generate("a workshop")
+    except comfyui.ComfyUIBusyError as error:
+        assert "retry shortly" in str(error)
+    else:
+        raise AssertionError("expected ComfyUIBusyError")

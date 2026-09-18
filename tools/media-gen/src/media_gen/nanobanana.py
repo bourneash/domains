@@ -26,13 +26,20 @@ import re
 import shutil
 import subprocess
 import tempfile
+import threading
+import time
 import uuid
+from datetime import datetime, timezone
 from filelock import FileLock, Timeout
 from pathlib import Path
 
 from . import config
 
 _LOCK = FileLock(str(config.NANOBANANA_LOCK_PATH))
+_STATE_LOCK = threading.Lock()
+_LAST_SUCCESS_AT: str | None = None
+_LAST_ERROR_AT: str | None = None
+_LAST_ERROR: str | None = None
 
 
 class NanoBananaError(RuntimeError):
@@ -50,7 +57,7 @@ def _slugify(text: str) -> str:
     return (s[:60] or "gen").strip("-")
 
 
-def generate(prompt: str, aspect_ratio: str = "3:2", lock_wait_s: float = 5.0) -> tuple[bytes, dict]:
+def _generate_untracked(prompt: str, aspect_ratio: str = "3:2", lock_wait_s: float = 5.0) -> tuple[bytes, dict]:
     """Generate one image via the real Gemini web UI. Returns (bytes, meta).
 
     Raises NanoBananaError on any failure, including "another generation is
@@ -88,9 +95,20 @@ def generate(prompt: str, aspect_ratio: str = "3:2", lock_wait_s: float = 5.0) -
         raw_dir = theme_dir / "nano_banana_out"
         raw_path = raw_dir / f"{slug}.png"
         if proc.returncode != 0 or not raw_path.exists():
+            # The browser driver records the page when tool activation or
+            # result detection fails. Persist those diagnostics outside the
+            # throwaway theme directory before the finally block removes it.
+            saved_failures = []
+            failure_dir = config.DATA_DIR / "failures"
+            for screenshot in raw_dir.glob("FAIL-*.png"):
+                failure_dir.mkdir(parents=True, exist_ok=True)
+                destination = failure_dir / f"{int(time.time())}-{screenshot.name}"
+                shutil.copy2(screenshot, destination)
+                saved_failures.append(str(destination))
+            evidence = f"\nFailure screenshots: {', '.join(saved_failures)}" if saved_failures else ""
             raise NanoBananaError(
                 f"generation failed (exit {proc.returncode}): "
-                f"{proc.stdout[-800:]}\n{proc.stderr[-800:]}"
+                f"{proc.stdout[-800:]}\n{proc.stderr[-800:]}{evidence}"
             )
 
         dewatermark = config.NANOBANANA_SKILL_DIR / "scripts" / "dewatermark.py"
@@ -119,3 +137,35 @@ def generate(prompt: str, aspect_ratio: str = "3:2", lock_wait_s: float = 5.0) -
     finally:
         shutil.rmtree(theme_dir, ignore_errors=True)
         _LOCK.release()
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def status() -> dict:
+    with _STATE_LOCK:
+        return {
+            "available": available(),
+            "busy": _LOCK.is_locked,
+            "last_success_at": _LAST_SUCCESS_AT,
+            "last_error_at": _LAST_ERROR_AT,
+            "last_error": _LAST_ERROR,
+        }
+
+
+def generate(prompt: str, aspect_ratio: str = "3:2", lock_wait_s: float = 5.0) -> tuple[bytes, dict]:
+    """Generate and retain the last real backend outcome for health reporting."""
+    global _LAST_SUCCESS_AT, _LAST_ERROR_AT, _LAST_ERROR
+    try:
+        result = _generate_untracked(prompt, aspect_ratio=aspect_ratio, lock_wait_s=lock_wait_s)
+    except Exception as error:
+        with _STATE_LOCK:
+            _LAST_ERROR_AT = _now()
+            _LAST_ERROR = str(error)
+        raise
+    with _STATE_LOCK:
+        _LAST_SUCCESS_AT = _now()
+        _LAST_ERROR_AT = None
+        _LAST_ERROR = None
+    return result

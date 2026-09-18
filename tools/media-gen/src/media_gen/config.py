@@ -62,10 +62,17 @@ NANOBANANA_PYTHON_CWD = Path(
 )
 NANOBANANA_PYTHON = os.environ.get("MEDIA_GEN_NANOBANANA_PYTHON", "python3")
 
-# Wall-clock budget for a single ComfyUI generation before we give up and
-# return 504. Generous — a cold model load (first request after ComfyUI
-# restarts) can take a while; steady-state is seconds.
-COMFYUI_TIMEOUT_S = float(os.environ.get("MEDIA_GEN_COMFYUI_TIMEOUT_S", "300"))
+# Wall-clock budget for a single ComfyUI generation after it reaches the
+# front of media-gen's own serialization lock. Keep this below the clients'
+# 300-second HTTP timeout so the API can remove an abandoned queued prompt
+# and return a useful error instead of leaving zombie work in ComfyUI.
+COMFYUI_TIMEOUT_S = float(os.environ.get("MEDIA_GEN_COMFYUI_TIMEOUT_S", "270"))
+
+# ComfyUI itself has one FIFO execution queue. Let concurrent fleet callers
+# wait here rather than all submitting work at once and timing out while their
+# now-orphaned prompts continue consuming the GPU. With normal-VRAM mode a
+# fast render is normally seconds, so this is ample for a short fleet burst.
+COMFYUI_LOCK_WAIT_S = float(os.environ.get("MEDIA_GEN_COMFYUI_LOCK_WAIT_S", "240"))
 
 # Nano Banana runs a real visible browser + waits on a Gemini web UI —
 # minutes, not seconds, and occasionally flaky (see the skill's gotchas).

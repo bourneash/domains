@@ -120,9 +120,9 @@ if [[ "$VALID" != "ok" ]]; then
 fi
 
 # --- Deterministic image generation (zero Claude tokens) ---
-echo "[guide-writer] generating theme-locked hero + card images (nanobanana, comfyui fallback)..."
+echo "[guide-writer] generating theme-locked hero + card images (local comfyui, nanobanana fallback)..."
 set +e
-python3 ops/scripts/generate-guide-images.py "$REPO_ROOT" drafted "$DRAFT_FILE" --backend nanobanana --fallback-backend comfyui
+python3 ops/scripts/generate-guide-images.py "$REPO_ROOT" drafted "$DRAFT_FILE" --backend comfyui --fallback-backend nanobanana
 IMG_STATUS=$?
 set -e
 if [[ $IMG_STATUS -ne 0 ]]; then

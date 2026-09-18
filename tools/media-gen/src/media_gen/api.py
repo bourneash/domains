@@ -172,18 +172,23 @@ class GenerateResponse(BaseModel):
 
 @app.get("/health")
 def health():
+    comfy_status = comfyui.status()
+    nano_status = nanobanana.status()
     return {
-        "ok": True,
-        "comfyui": {"reachable": comfyui.ping()},
-        "nanobanana": {"available": nanobanana.available()},
+        "ok": comfy_status["reachable"],
+        "degraded": bool(comfy_status["last_error"] or nano_status["last_error"]),
+        "comfyui": comfy_status,
+        "nanobanana": nano_status,
     }
 
 
 @app.get("/backends")
 def backends():
+    comfy_status = comfyui.status()
+    nano_status = nanobanana.status()
     return {
         "comfyui": {
-            "reachable": comfyui.ping(),
+            **comfy_status,
             "default": True,
             "speed": "seconds to ~1min, synchronous",
             "notes": (
@@ -192,7 +197,7 @@ def backends():
             ),
         },
         "nanobanana": {
-            "available": nanobanana.available(),
+            **nano_status,
             "default": False,
             "speed": "30s-4min, synchronous, opens a REAL VISIBLE BROWSER on the host",
             "notes": (
@@ -212,6 +217,8 @@ def generate(req: GenerateRequest):
                 width=req.width, height=req.height, steps=req.steps, seed=req.seed,
                 profile=req.profile,
             )
+        except comfyui.ComfyUIBusyError as e:
+            raise HTTPException(status_code=429, detail=str(e)) from e
         except comfyui.ComfyUIError as e:
             raise HTTPException(status_code=503, detail=str(e)) from e
         ext = "png"

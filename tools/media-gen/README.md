@@ -151,6 +151,12 @@ doesn't need to remember it after that.
 
 Both mirror `tools/data-hub-images`' client shape on purpose.
 
+ComfyUI requests are serialized inside media-gen before they are submitted
+to ComfyUI's FIFO. A short burst of site jobs therefore waits at one bounded
+gate instead of filling ComfyUI with prompts whose HTTP callers have already
+timed out. If that gate remains occupied for the configured wait budget,
+media-gen returns `429`; timed-out pending prompts are removed from ComfyUI.
+
 ## Endpoints
 
 | Method | Path | |
@@ -158,7 +164,7 @@ Both mirror `tools/data-hub-images`' client shape on purpose.
 | `POST` | `/generate` | `{site, prompt, backend?, profile?, negative_prompt?, width?, height?, slug?}` → `{id, url, backend, width, height, credit}` |
 | `GET` | `/image/{id}` | Raw image bytes. |
 | `GET` | `/image/{id}/meta` | Full stored metadata (prompt, backend, credit, provenance). |
-| `GET` | `/health` | `{ok, comfyui:{reachable}, nanobanana:{available}}` |
+| `GET` | `/health` | Reachability, queue/busy state, and last real success/error for both backends. |
 | `GET` | `/backends` | Capability/speed notes per backend, for a caller deciding which to use. |
 
 For the `comfyui` backend, `profile` defaults to `fast` (FLUX Schnell, four

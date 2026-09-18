@@ -14,8 +14,10 @@ serve inline within one HTTP request rather than needing a job queue.
 """
 from __future__ import annotations
 
+import threading
 import time
 import uuid
+from datetime import datetime, timezone
 
 import httpx
 
@@ -43,6 +45,61 @@ _NEGATIVE_DEFAULT = (
 
 class ComfyUIError(RuntimeError):
     pass
+
+
+class ComfyUIBusyError(ComfyUIError):
+    """media-gen's single ComfyUI execution slot stayed busy too long."""
+
+
+_GENERATION_LOCK = threading.Lock()
+_STATE_LOCK = threading.Lock()
+_LAST_SUCCESS_AT: str | None = None
+_LAST_ERROR_AT: str | None = None
+_LAST_ERROR: str | None = None
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _record_success() -> None:
+    global _LAST_SUCCESS_AT, _LAST_ERROR_AT, _LAST_ERROR
+    with _STATE_LOCK:
+        _LAST_SUCCESS_AT = _now()
+        _LAST_ERROR_AT = None
+        _LAST_ERROR = None
+
+
+def _record_error(error: Exception) -> None:
+    global _LAST_ERROR_AT, _LAST_ERROR
+    with _STATE_LOCK:
+        _LAST_ERROR_AT = _now()
+        _LAST_ERROR = str(error)
+
+
+def status() -> dict:
+    """Operational status, including queue pressure and the last real result."""
+    reachable = ping()
+    running = pending = None
+    if reachable:
+        try:
+            r = httpx.get(f"{config.COMFYUI_URL}/queue", timeout=5)
+            r.raise_for_status()
+            queue = r.json()
+            running = len(queue.get("queue_running") or [])
+            pending = len(queue.get("queue_pending") or [])
+        except (httpx.HTTPError, ValueError):
+            pass
+    with _STATE_LOCK:
+        return {
+            "reachable": reachable,
+            "busy": _GENERATION_LOCK.locked(),
+            "queue_running": running,
+            "queue_pending": pending,
+            "last_success_at": _LAST_SUCCESS_AT,
+            "last_error_at": _LAST_ERROR_AT,
+            "last_error": _LAST_ERROR,
+        }
 
 
 def _fast_workflow(prompt: str, negative: str, width: int, height: int, steps: int, seed: int) -> dict:
@@ -102,7 +159,7 @@ def ping() -> bool:
         return False
 
 
-def generate(
+def _generate_unlocked(
     prompt: str,
     negative: str | None = None,
     width: int = 1216,
@@ -150,6 +207,14 @@ def generate(
             time.sleep(1.5)
 
         if history is None:
+            # A caller-side timeout must not leave work behind. ComfyUI accepts
+            # a queue mutation at POST /queue; deleting a running prompt is a
+            # harmless no-op, while a pending prompt is removed before it can
+            # burn GPU time after the HTTP client has already given up.
+            try:
+                client.post(f"{config.COMFYUI_URL}/queue", json={"delete": [prompt_id]}, timeout=10)
+            except httpx.HTTPError:
+                pass
             raise ComfyUIError(
                 f"timed out after {config.COMFYUI_TIMEOUT_S}s waiting for ComfyUI "
                 f"(prompt_id={prompt_id}) — check the ComfyUI queue isn't backed up"
@@ -185,3 +250,33 @@ def generate(
         },
     }
     return vr.content, meta
+
+
+def generate(
+    prompt: str,
+    negative: str | None = None,
+    width: int = 1216,
+    height: int = 832,
+    steps: int = 4,
+    seed: int | None = None,
+    profile: str = "fast",
+) -> tuple[bytes, dict]:
+    """Serialize fleet work before submitting it to ComfyUI's own FIFO."""
+    if not _GENERATION_LOCK.acquire(timeout=config.COMFYUI_LOCK_WAIT_S):
+        error = ComfyUIBusyError(
+            f"ComfyUI stayed busy for {config.COMFYUI_LOCK_WAIT_S:.0f}s; retry shortly"
+        )
+        _record_error(error)
+        raise error
+    try:
+        result = _generate_unlocked(
+            prompt=prompt, negative=negative, width=width, height=height,
+            steps=steps, seed=seed, profile=profile,
+        )
+        _record_success()
+        return result
+    except Exception as error:
+        _record_error(error)
+        raise
+    finally:
+        _GENERATION_LOCK.release()

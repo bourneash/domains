@@ -11,13 +11,20 @@ client = TestClient(app, client=("127.0.0.1", 12345))
 
 
 def test_health_reports_both_backends(monkeypatch):
-    monkeypatch.setattr(comfyui, "ping", lambda: True)
-    monkeypatch.setattr(nanobanana, "available", lambda: False)
+    monkeypatch.setattr(comfyui, "status", lambda: {
+        "reachable": True, "busy": False, "queue_running": 0, "queue_pending": 0,
+        "last_success_at": None, "last_error_at": None, "last_error": None,
+    })
+    monkeypatch.setattr(nanobanana, "status", lambda: {
+        "available": False, "busy": False, "last_success_at": None,
+        "last_error_at": None, "last_error": None,
+    })
     r = client.get("/health")
     assert r.status_code == 200
     body = r.json()
     assert body["comfyui"]["reachable"] is True
     assert body["nanobanana"]["available"] is False
+    assert body["degraded"] is False
 
 
 def test_generate_comfyui_success(monkeypatch, tmp_path):
@@ -72,6 +79,15 @@ def test_generate_comfyui_error_returns_503(monkeypatch):
 
     r = client.post("/generate", json={"site": "0daynews", "prompt": "a cracked shield"})
     assert r.status_code == 503
+
+
+def test_generate_comfyui_contention_returns_429(monkeypatch):
+    def fake_generate(*a, **kw):
+        raise comfyui.ComfyUIBusyError("ComfyUI stayed busy; retry shortly")
+    monkeypatch.setattr(comfyui, "generate", fake_generate)
+
+    r = client.post("/generate", json={"site": "0daynews", "prompt": "a cracked shield"})
+    assert r.status_code == 429
 
 
 def test_generate_nanobanana_lock_contention_returns_429(monkeypatch):

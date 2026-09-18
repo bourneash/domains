@@ -27,7 +27,7 @@ paths for host vs. container — see run-guide-writer.sh):
 
 Usage:
   generate-guide-images.py <repo_root> <status> <filename> \
-      [--backend nanobanana] [--fallback-backend comfyui]
+      [--backend comfyui] [--fallback-backend nanobanana]
 """
 from __future__ import annotations
 
@@ -140,8 +140,8 @@ def main() -> int:
     ap.add_argument("repo_root")
     ap.add_argument("status")
     ap.add_argument("filename")
-    ap.add_argument("--backend", default="nanobanana")
-    ap.add_argument("--fallback-backend", default="comfyui")
+    ap.add_argument("--backend", default="comfyui")
+    ap.add_argument("--fallback-backend", default="nanobanana")
     args = ap.parse_args()
 
     repo_root = Path(args.repo_root)
