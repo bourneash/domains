@@ -46,6 +46,13 @@ subscriptions:
       window_hours: 48
     datasets: [cisa-kev, nvd-cve]
 
+  saltwaternews.com:
+    items:
+      tags_any: [saltwater-fishing, fishing-news, fishing-reports, regulations, hms, storms, marine-safety, east-coast]
+      limit: 200
+      window_hours: 168
+    datasets: [weather-alerts, marine-alerts, fisheries-rules, tides, buoy-observations]
+
   sinderella.org:
     items:
       tags_any: [space, science, weird, nature]

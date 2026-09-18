@@ -30,12 +30,12 @@
 | girlpain.com |   ✅   | Candid practical editorial for women — periods/hormones, body logistics, sleep & stress, skin/hair/sweat; Amazon Associates picks, links inactive until real tag |
 | howfishthink.com |   🟢   | Fish-behavior simulation tool site — block-based lure/rig design sandbox (Minecraft/Stormworks shape) tested against an honest fish decision model; BOM-affiliate revenue, separate Sonar Trainer track; scaffolded + live, build in progress |
 | greatamericanlakes.com |   🟢   | Great Lakes fishing/boating/shoreline affiliate — "America's Freshwater Coast", WPA-poster + nautical-chart design system; 6 lake hubs, 12 species, lake×species programmatic matrix, filterable 93-product gear catalog, kits, shoreline places; strictly apolitical by editorial rule; live on CF Worker |
+| saltwaternews.com |   🟢   | East Coast saltwater fishing intelligence — attributed charter reports, NOAA/NMFS rules, storms and marine conditions, fishing news, and an inactive-until-confirmed Amazon affiliate layer; full launch build in progress |
 
 
 
 ## Coming Soon (scaffolded, awaiting brief or CF Worker connection)
 | weirdgirlstore.com |   🟢   | `weirdgirlstore-com`| Barbie-goth curio affiliate shop live; brief locked, ops/board scaffolded, auto-deploy verified |
-| saltwaternews.com |   🟢   | `saltwaternews-com` | Brand-neutral coming-soon page live; brief and Workers Builds connection pending |
 
 | Domain 			| In use | Worker name      | Notes                                                              |
 |-------------------|--------|------------------|--------------------------------------------------------------------|

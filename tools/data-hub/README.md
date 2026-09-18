@@ -1,8 +1,8 @@
 # data-hub
 
-Central RSS aggregation service for the fleet. Collects feeds from 71 sources
-across 4 site verticals (news/defense, UAP/disclosure, Broadway theater, US
-agriculture), stores items in SQLite, and serves them via a FastAPI HTTP API.
+Central RSS and structured-data aggregation service for the fleet. It collects
+127 registered sources across the fleet's site verticals, stores items in
+SQLite, and serves them via a FastAPI HTTP API.
 
 All outbound fetch requests are routed through the shared VPN proxy stack
 (`tools/vpn-proxy`). VPN is kill-switched: if a node is unreachable the
@@ -83,6 +83,10 @@ Beyond RSS items, the hub collects typed datasets via `type: dataset` sources:
 | gdp | FRED (needs FRED_API_KEY) | no |
 | diesel | EIA v2 (needs EIA_API_KEY) | no |
 | corn-yield | USDA NASS (needs NASS_API_KEY) | no |
+| marine-alerts | NWS active marine alerts | yes |
+| fisheries-rules | Federal Register NOAA/NMFS Atlantic fisheries documents | yes |
+| tides | NOAA CO-OPS predictions at East Coast fishing hubs | yes |
+| buoy-observations | NDBC regional observations | yes |
 
 Served at `GET /datasets` (index) and `GET /datasets/<key>?limit=&since=`.
 
@@ -105,6 +109,9 @@ Base URL: `http://127.0.0.1:4760`
 | GET | `/sources` | All registered sources with live state + enabled/overridden |
 | GET | `/egress` | **Outbound** audit: hub→source fetches (exit IP, policy, status, count) |
 | GET | `/pulls` | **Inbound** audit: consumer pulls (site, endpoint, item_count, client IP, when) — params `limit`, `site` |
+| GET | `/reports` | Normalized fishing reports; filters `species`, `state`, `port`, `region`, `source`, `since`, `bbox`, `limit` |
+| GET | `/reports/sources` | Fishing-report provenance and source freshness |
+| GET | `/reports/summary` | Report/source counts, freshest date, and species coverage |
 | GET | `/metrics/gsc-query-pages` | Exact daily GSC query→canonical-page metrics for a site; params `since`, `until`, `limit` |
 | POST | `/sources/{id}/enabled` | Runtime enable/disable override (`{"enabled": bool}`) |
 
@@ -181,6 +188,33 @@ tags from americastrikes + aliencouncil). Fields:
 | broadwayshowgirls.com | theater, musicals, awards, industry | 168h | 50 |
 | saveusfarms.com | agriculture, farm-economy, land, food-policy, environment | 72h | 100 |
 | sinderella.org | weird, uap, science, disclosure, space | 168h | 30 |
+| saltwaternews.com | saltwater fishing, rules, storms, marine safety, East Coast | 168h | 200 |
+
+---
+
+## Fishing reports
+
+Fishing reports use normalized `fishing_reports`, `fishing_report_species`, and
+`fishing_report_sources` tables rather than the seven-day generic dataset store.
+They retain at least 365 days of report history (`DATAHUB_REPORT_RETENTION_DAYS`
+may increase, but not reduce, that floor) and carry source provenance,
+freshness, location, methods, conditions, evidence, confidence, and per-species
+facts. This supports location/species filtering without presenting marketing
+copy as unqualified fact.
+
+The initial safe pilot path accepts a human-reviewed local JSON seed file and
+performs no network access:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m datahub ingest-reports reviewed-seed.json
+```
+
+The document must contain one `source` object (including `source_id`, `name`,
+`homepage_url`, and a plain-language `provenance`) plus a non-empty `reports`
+array. Input is strictly validated; unknown fields, invalid coordinates,
+confidence outside 0–1, missing species, and reversed size ranges are rejected.
+Network adapters must be implemented and reviewed explicitly before use. There
+is intentionally no generic charter-site HTML scraper.
 
 ### Enabling / disabling a source
 

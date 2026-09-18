@@ -35,12 +35,30 @@ def _get_json(url: str, *, proxy: str | None = None, params: dict | None = None,
             client.close()
 
 
+def _get_text(url: str, *, proxy: str | None = None, params: dict | None = None,
+              ua: str = DEFAULT_UA, client: httpx.Client | None = None,
+              timeout: float = 20) -> str:
+    owns = client is None
+    client = client or httpx.Client(proxy=proxy, timeout=timeout, follow_redirects=True)
+    try:
+        try:
+            r = client.get(url, params=params, headers={"User-Agent": ua})
+            r.raise_for_status()
+            return r.text
+        except httpx.HTTPError as exc:
+            raise RuntimeError(_redact(str(exc))) from None
+    finally:
+        if owns:
+            client.close()
+
+
 # Built after fetcher modules are imported (bottom of file) to avoid circular imports.
 from . import usgs, noaa_alerts, noaa_swpc, noaa_tides, launchlib  # noqa: E402
 from . import ephemeris  # noqa: E402  (Task 3)
 from . import fred, eia, nass  # noqa: E402  (Task 4)
 from . import cisa_kev  # noqa: E402
 from . import nvd_cve  # noqa: E402
+from . import federal_register, ndbc  # noqa: E402
 
 FETCHERS = {
     "usgs": usgs.fetch,
@@ -54,4 +72,6 @@ FETCHERS = {
     "nass": nass.fetch,
     "cisa-kev": cisa_kev.fetch,
     "nvd-cve": nvd_cve.fetch,
+    "federal-register": federal_register.fetch,
+    "ndbc": ndbc.fetch,
 }

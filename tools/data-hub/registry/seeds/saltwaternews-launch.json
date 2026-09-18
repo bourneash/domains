@@ -1,0 +1,103 @@
+{
+  "source": {
+    "source_id": "saltwaternews-launch-reviewed",
+    "name": "Saltwater News reviewed launch sources",
+    "homepage_url": "https://saltwaternews.com/sources/",
+    "source_type": "reviewed-external",
+    "provenance": "Human-reviewed public operator and regional report pages; each record retains its original canonical URL",
+    "enabled": true
+  },
+  "reports": [
+    {
+      "external_id": "highlands-bluefin-2026-09-18",
+      "url": "https://www.bndcharterfishing.com/fishing-reports",
+      "title": "September 16-17 Highlands bluefin report",
+      "summary": "The operator reported a slower start followed by a strong jig-and-live-bait window, with nine hookups from fourteen opportunities and legal fish retained under the trip limit.",
+      "report_date": "2026-09-18",
+      "port": "Highlands",
+      "state": "NJ",
+      "region": "New Jersey Bight",
+      "report_type": "charter",
+      "methods": ["vertical jigging", "live bait"],
+      "confidence": 0.95,
+      "evidence_excerpt": "Direct operator report reviewed September 18, 2026; catch figures and retention language preserved without inference.",
+      "species": [{"species": "Bluefin tuna", "disposition": "mixed retained and released"}]
+    },
+    {
+      "external_id": "point-pleasant-2026-09-18",
+      "url": "https://www.normakfishing.com/captainsreport",
+      "title": "Point Pleasant fluke, sea bass and bluefish report",
+      "summary": "The boat reported an improved keeper ratio for fluke to the north, sea bass in the mix, and continued limits-plus bluefish action before an approaching windy period.",
+      "report_date": "2026-09-18",
+      "port": "Point Pleasant Beach",
+      "state": "NJ",
+      "region": "Northern New Jersey",
+      "report_type": "headboat",
+      "methods": ["bait", "jigging"],
+      "confidence": 0.95,
+      "evidence_excerpt": "Direct captain report dated September 18, 2026.",
+      "species": [{"species": "Summer flounder"}, {"species": "Black sea bass"}, {"species": "Bluefish"}]
+    },
+    {
+      "external_id": "nj-bight-2026-09-17",
+      "url": "https://tightlineswithalristori.com/",
+      "title": "Northern New Jersey fluke, bluefish and bluefin roundup",
+      "summary": "Reports pointed to wind-sensitive fluke fishing, chummed bluefish limits, and school bluefin activity in northern New Jersey waters.",
+      "report_date": "2026-09-17",
+      "port": "Belmar / Atlantic Highlands",
+      "state": "NJ",
+      "region": "New Jersey Bight",
+      "report_type": "regional",
+      "methods": ["chumming", "bait", "jigging"],
+      "confidence": 0.8,
+      "evidence_excerpt": "Regional fishing reporter roundup dated September 17, 2026.",
+      "species": [{"species": "Summer flounder"}, {"species": "Bluefish"}, {"species": "Bluefin tuna"}]
+    },
+    {
+      "external_id": "southern-nj-2026-09-10",
+      "url": "https://onthewater.com/fishing-reports/2026/09/southern-new-jersey-fishing-report-september-10-2026",
+      "title": "Southern New Jersey regional report",
+      "summary": "The regional roundup described fluke concentrating on ocean reefs and wrecks, pelagics along beaches and inlets, and mahi around offshore structure.",
+      "report_date": "2026-09-10",
+      "port": "Ocean City / Barnegat",
+      "state": "NJ",
+      "region": "Southern New Jersey",
+      "report_type": "regional",
+      "methods": ["bucktails", "epoxy jigs", "trolling"],
+      "confidence": 0.8,
+      "evidence_excerpt": "Named regional roundup published September 10, 2026.",
+      "species": [{"species": "Summer flounder"}, {"species": "Bonito"}, {"species": "False albacore"}, {"species": "Mahi-mahi"}]
+    },
+    {
+      "external_id": "outer-banks-2026-09-01",
+      "url": "https://www.fishermanspost.com/obx-northern-beaches-september-2026/",
+      "title": "Outer Banks September regional report",
+      "summary": "The September regional report described billfish and mahi offshore, Spanish mackerel nearshore, and red drum activity inshore and along the beachfront.",
+      "report_date": "2026-09-01",
+      "port": "Oregon Inlet",
+      "state": "NC",
+      "region": "Outer Banks",
+      "report_type": "regional",
+      "methods": ["trolling", "casting", "bottom fishing"],
+      "confidence": 0.8,
+      "evidence_excerpt": "Regional report with named marina, tackle-shop, and fleet contributors.",
+      "species": [{"species": "Sailfish"}, {"species": "Mahi-mahi"}, {"species": "Wahoo"}, {"species": "Red drum"}]
+    },
+    {
+      "external_id": "st-augustine-2026-09-03",
+      "url": "https://www.dropdownfishingcharters.com/fishing-report/2026/9/3/drop-down-sport-fish-charters-fishing-report-for-st-augustine-florida-932026",
+      "title": "St. Augustine offshore report",
+      "summary": "The operator reported mixed offshore and bottom action in roughly 80 to 120 feet, using ballyhoo and sardines.",
+      "report_date": "2026-09-03",
+      "port": "St. Augustine",
+      "state": "FL",
+      "region": "Northeast Florida",
+      "report_type": "charter",
+      "methods": ["trolling", "live bait", "bottom fishing"],
+      "conditions": {"depth_ft_min": 80, "depth_ft_max": 120},
+      "confidence": 0.95,
+      "evidence_excerpt": "Direct operator report dated September 3, 2026.",
+      "species": [{"species": "Sailfish"}, {"species": "Mahi-mahi"}, {"species": "Wahoo"}, {"species": "Snapper"}]
+    }
+  ]
+}

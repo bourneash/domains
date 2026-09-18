@@ -129,6 +129,64 @@ CREATE TABLE IF NOT EXISTS gsc_query_page_metrics (
 );
 CREATE INDEX IF NOT EXISTS idx_gsc_query_page_site_date ON gsc_query_page_metrics(site, date);
 CREATE INDEX IF NOT EXISTS idx_gsc_query_page_lookup ON gsc_query_page_metrics(site, query, page);
+
+CREATE TABLE IF NOT EXISTS fishing_report_sources (
+  source_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  homepage_url TEXT NOT NULL,
+  source_type TEXT NOT NULL,
+  provenance TEXT NOT NULL,
+  default_port TEXT,
+  default_state TEXT,
+  default_region TEXT,
+  default_lat REAL,
+  default_lon REAL,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  last_ingested_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS fishing_reports (
+  id INTEGER PRIMARY KEY,
+  source_id TEXT NOT NULL REFERENCES fishing_report_sources(source_id),
+  external_id TEXT NOT NULL,
+  url TEXT NOT NULL,
+  title TEXT,
+  summary TEXT,
+  report_date TEXT NOT NULL,
+  published_at TEXT,
+  fetched_at TEXT NOT NULL,
+  port TEXT,
+  state TEXT,
+  region TEXT,
+  lat REAL,
+  lon REAL,
+  area TEXT,
+  report_type TEXT NOT NULL DEFAULT 'charter',
+  methods TEXT NOT NULL DEFAULT '[]',
+  conditions TEXT NOT NULL DEFAULT '{}',
+  confidence REAL NOT NULL DEFAULT 0.5,
+  evidence_excerpt TEXT,
+  raw TEXT NOT NULL DEFAULT '{}',
+  content_hash TEXT,
+  updated_at TEXT NOT NULL,
+  UNIQUE(source_id, external_id)
+);
+CREATE INDEX IF NOT EXISTS idx_fishing_reports_date ON fishing_reports(report_date DESC);
+CREATE INDEX IF NOT EXISTS idx_fishing_reports_location ON fishing_reports(state, region, port);
+CREATE INDEX IF NOT EXISTS idx_fishing_reports_coords ON fishing_reports(lat, lon);
+
+CREATE TABLE IF NOT EXISTS fishing_report_species (
+  report_id INTEGER NOT NULL REFERENCES fishing_reports(id) ON DELETE CASCADE,
+  species_slug TEXT NOT NULL,
+  species_verbatim TEXT,
+  catch_count INTEGER,
+  disposition TEXT,
+  min_size REAL,
+  max_size REAL,
+  size_unit TEXT,
+  PRIMARY KEY(report_id, species_slug, species_verbatim)
+);
+CREATE INDEX IF NOT EXISTS idx_fishing_report_species_slug ON fishing_report_species(species_slug);
 """
 
 
@@ -141,6 +199,7 @@ def connect(db_path: str) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA busy_timeout=5000;")
+    conn.execute("PRAGMA foreign_keys=ON;")
     return conn
 
 
@@ -177,14 +236,24 @@ _PRUNE_COLUMNS = {
 }
 
 
-def prune(conn, retention_days: int = 7) -> dict:
-    """Delete rows older than `retention_days` from every time-series table.
-    Returns {table: rows_deleted}. Idempotent; safe to run every cycle."""
+def prune(conn, retention_days: int = 7, report_retention_days: int = 365) -> dict:
+    """Prune short-lived hub rows and independently retained fishing reports.
+
+    Returns {table: rows_deleted}. Idempotent; safe to run every cycle.
+    """
     cutoff = (datetime.now(timezone.utc) - timedelta(days=retention_days)).isoformat()
     deleted = {}
     for table, col in _PRUNE_COLUMNS.items():
         cur = conn.execute(f"DELETE FROM {table} WHERE {col} IS NOT NULL AND {col} < ?", (cutoff,))
         deleted[table] = cur.rowcount
+    report_cutoff = (datetime.now(timezone.utc) - timedelta(days=report_retention_days)).isoformat()
+    cur = conn.execute(
+        "DELETE FROM fishing_reports WHERE fetched_at IS NOT NULL AND fetched_at < ?",
+        (report_cutoff,),
+    )
+    deleted["fishing_reports"] = cur.rowcount
+    # Existing databases may have been opened before foreign_keys was enabled.
+    conn.execute("DELETE FROM fishing_report_species WHERE report_id NOT IN (SELECT id FROM fishing_reports)")
     conn.commit()
     return deleted
 
@@ -425,6 +494,141 @@ def dataset_keys(conn) -> list[dict]:
         "FROM datasets GROUP BY dataset_key ORDER BY dataset_key"
     ).fetchall()
     return [dict(r) for r in rows]
+
+
+def upsert_fishing_report_source(conn, source: dict) -> None:
+    """Register provenance for a fishing-report source.
+
+    Network collectors and local seed adapters share this source record so every
+    report returned by the API has an attributable owner and homepage.
+    """
+    conn.execute(
+        "INSERT INTO fishing_report_sources "
+        "(source_id,name,homepage_url,source_type,provenance,default_port,default_state,"
+        "default_region,default_lat,default_lon,enabled,last_ingested_at) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?) "
+        "ON CONFLICT(source_id) DO UPDATE SET name=excluded.name, homepage_url=excluded.homepage_url, "
+        "source_type=excluded.source_type, provenance=excluded.provenance, "
+        "default_port=excluded.default_port, default_state=excluded.default_state, "
+        "default_region=excluded.default_region, default_lat=excluded.default_lat, "
+        "default_lon=excluded.default_lon, enabled=excluded.enabled, "
+        "last_ingested_at=excluded.last_ingested_at",
+        (source["source_id"], source["name"], source["homepage_url"], source["source_type"],
+         source["provenance"], source.get("default_port"), source.get("default_state"),
+         source.get("default_region"), source.get("default_lat"), source.get("default_lon"),
+         1 if source.get("enabled", True) else 0, _now()),
+    )
+    conn.commit()
+
+
+def upsert_fishing_reports(conn, reports: list[dict]) -> int:
+    """Insert or update normalized reports and replace their species facts."""
+    changed = 0
+    now = _now()
+    for report in reports:
+        cur = conn.execute(
+            "INSERT INTO fishing_reports "
+            "(source_id,external_id,url,title,summary,report_date,published_at,fetched_at,port,state,"
+            "region,lat,lon,area,report_type,methods,conditions,confidence,evidence_excerpt,raw,"
+            "content_hash,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(source_id,external_id) DO UPDATE SET "
+            "url=excluded.url,title=excluded.title,summary=excluded.summary,report_date=excluded.report_date,"
+            "published_at=excluded.published_at,fetched_at=excluded.fetched_at,port=excluded.port,"
+            "state=excluded.state,region=excluded.region,lat=excluded.lat,lon=excluded.lon,area=excluded.area,"
+            "report_type=excluded.report_type,methods=excluded.methods,conditions=excluded.conditions,"
+            "confidence=excluded.confidence,evidence_excerpt=excluded.evidence_excerpt,raw=excluded.raw,"
+            "content_hash=excluded.content_hash,updated_at=excluded.updated_at "
+            "RETURNING id",
+            (report["source_id"], report["external_id"], report["url"], report.get("title"),
+             report.get("summary"), report["report_date"], report.get("published_at"),
+             report.get("fetched_at") or now, report.get("port"), report.get("state"),
+             report.get("region"), report.get("lat"), report.get("lon"), report.get("area"),
+             report.get("report_type", "charter"), json.dumps(report.get("methods", [])),
+             json.dumps(report.get("conditions", {})), float(report.get("confidence", 0.5)),
+             report.get("evidence_excerpt"), json.dumps(report.get("raw", {})),
+             report.get("content_hash"), now),
+        )
+        report_id = cur.fetchone()["id"]
+        conn.execute("DELETE FROM fishing_report_species WHERE report_id=?", (report_id,))
+        for species in report.get("species", []):
+            conn.execute(
+                "INSERT INTO fishing_report_species "
+                "(report_id,species_slug,species_verbatim,catch_count,disposition,min_size,max_size,size_unit) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (report_id, species["species_slug"], species.get("species_verbatim", ""),
+                 species.get("catch_count"), species.get("disposition"), species.get("min_size"),
+                 species.get("max_size"), species.get("size_unit")),
+            )
+        changed += 1
+    conn.commit()
+    return changed
+
+
+def query_fishing_reports(conn, *, species=None, state=None, port=None, region=None,
+                          source_id=None, since=None, min_lat=None, max_lat=None,
+                          min_lon=None, max_lon=None, limit=100) -> list[dict]:
+    where, params = [], []
+    filters = (("r.state", state), ("r.port", port), ("r.region", region),
+               ("r.source_id", source_id))
+    for col, value in filters:
+        if value:
+            where.append(f"{col} = ? COLLATE NOCASE"); params.append(value)
+    if since:
+        where.append("r.report_date >= ?"); params.append(since)
+    for col, value, op in (("r.lat", min_lat, ">="), ("r.lat", max_lat, "<="),
+                           ("r.lon", min_lon, ">="), ("r.lon", max_lon, "<=")):
+        if value is not None:
+            where.append(f"{col} {op} ?"); params.append(float(value))
+    if species:
+        where.append("EXISTS (SELECT 1 FROM fishing_report_species fs "
+                     "WHERE fs.report_id=r.id AND fs.species_slug = ? COLLATE NOCASE)")
+        params.append(species)
+    sql = ("SELECT r.*,s.name AS source_name,s.homepage_url,s.source_type,s.provenance,"
+           "s.last_ingested_at FROM fishing_reports r JOIN fishing_report_sources s "
+           "ON s.source_id=r.source_id")
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY r.report_date DESC, r.published_at DESC LIMIT ?"
+    params.append(min(int(limit), 500))
+    out = []
+    for row in conn.execute(sql, params).fetchall():
+        item = dict(row)
+        item["methods"] = json.loads(item.pop("methods") or "[]")
+        item["conditions"] = json.loads(item.pop("conditions") or "{}")
+        item["raw"] = json.loads(item.pop("raw") or "{}")
+        item["species"] = [dict(r) for r in conn.execute(
+            "SELECT species_slug,species_verbatim,catch_count,disposition,min_size,max_size,size_unit "
+            "FROM fishing_report_species WHERE report_id=? ORDER BY species_slug", (item["id"],)
+        ).fetchall()]
+        out.append(item)
+    return out
+
+
+def fishing_report_sources(conn) -> list[dict]:
+    rows = conn.execute(
+        "SELECT s.*, COUNT(r.id) AS report_count, MAX(r.report_date) AS latest_report_date "
+        "FROM fishing_report_sources s LEFT JOIN fishing_reports r ON r.source_id=s.source_id "
+        "GROUP BY s.source_id ORDER BY s.name"
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def fishing_report_summary(conn, *, since=None) -> dict:
+    params = []
+    where = ""
+    if since:
+        where = " WHERE report_date >= ?"; params.append(since)
+    row = conn.execute(
+        "SELECT COUNT(*) AS report_count, COUNT(DISTINCT source_id) AS source_count, "
+        "MAX(report_date) AS latest_report_date FROM fishing_reports" + where, params
+    ).fetchone()
+    species = conn.execute(
+        "SELECT fs.species_slug,COUNT(DISTINCT fs.report_id) AS report_count "
+        "FROM fishing_report_species fs JOIN fishing_reports r ON r.id=fs.report_id" +
+        (" WHERE r.report_date >= ?" if since else "") +
+        " GROUP BY fs.species_slug ORDER BY report_count DESC,species_slug LIMIT 25", params
+    ).fetchall()
+    return {**dict(row), "species": [dict(r) for r in species]}
 
 
 def upsert_ga4_metrics(conn, site: str, records: list[dict]) -> int:

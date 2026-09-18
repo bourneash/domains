@@ -155,6 +155,39 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
     def pulls(since: str | None = None, limit: int = 200, site: str | None = None):
         return {"pulls": store.query_pulls(conn, since_iso=since, limit=limit, site=site)}
 
+    @app.get("/reports")
+    def fishing_reports(request: Request, species: str | None = None, state: str | None = None,
+                        port: str | None = None, region: str | None = None,
+                        source: str | None = None, since: str | None = None,
+                        bbox: str | None = None, limit: int = 100):
+        bounds = {}
+        if bbox:
+            try:
+                min_lon, min_lat, max_lon, max_lat = [float(v) for v in bbox.split(",")]
+            except (TypeError, ValueError):
+                raise HTTPException(422, "bbox must be min_lon,min_lat,max_lon,max_lat") from None
+            if min_lon > max_lon or min_lat > max_lat:
+                raise HTTPException(422, "bbox minimums must not exceed maximums")
+            bounds = {"min_lon": min_lon, "min_lat": min_lat,
+                      "max_lon": max_lon, "max_lat": max_lat}
+        rows = store.query_fishing_reports(
+            conn, species=species, state=state, port=port, region=region,
+            source_id=source, since=since, limit=limit, **bounds)
+        store.record_pull(conn, endpoint="reports", item_count=len(rows),
+                          client_ip=_client_ip(request))
+        return {"reports": rows}
+
+    @app.get("/reports/sources")
+    def fishing_report_sources():
+        return {"sources": store.fishing_report_sources(conn)}
+
+    @app.get("/reports/summary")
+    def fishing_report_summary(request: Request, since: str | None = None):
+        result = store.fishing_report_summary(conn, since=since)
+        store.record_pull(conn, endpoint="reports/summary", item_count=result["report_count"],
+                          client_ip=_client_ip(request))
+        return result
+
     @app.get("/sources")
     def sources_list():
         state = {s["source_id"]: s for s in store.get_sources_state(conn)}

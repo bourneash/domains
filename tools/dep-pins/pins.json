@@ -8,7 +8,8 @@
   "exempt": {
     "0xroulette.com": "React/Vite SPA, not Astro \u2014 no adapter, and its wrangler major is pinned to its own stack",
     "rc-9.com": "not an Astro site",
-    "trainingsharks.com": "WASM poker tool, not an Astro site"
+    "trainingsharks.com": "WASM poker tool, not an Astro site",
+    "saltwaternews.com": "Wrangler 4.128.0 pulls a high-severity vulnerable sharp/libheif chain; pinned to audited 4.135.0 pending the next fleet-wide bump"
   },
   "_bumped": "2026-09-01: 7.2.6/14.2.4/4.125.0 -> 7.2.10/14.2.6/4.128.0. These exact versions had already been running in production on four sites (seedstosauce, howfishthink, shoppinkflamingo, marineactivity) that drifted onto them before bootstrap-domain.sh started reading this file, so the fleet is adopting a combination it has already proven rather than an untested one."
 }

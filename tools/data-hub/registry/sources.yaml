@@ -1049,6 +1049,16 @@ sources:
       source_name: "Hacker News"
       full_text: true
 
+  # ── saltwaternews.com — official East Coast marine sources ──────────────
+  - id: nhc-atlantic-outlook
+    type: rss
+    url: "https://www.nhc.noaa.gov/xml/TWOAT.xml"
+    tags: [saltwater-fishing, storms, marine-safety, east-coast]
+    policy: vpn
+    exit: us
+    fetch:
+      source_name: "National Hurricane Center — Atlantic Outlook"
+
   # ── datasets ──────────────────────────────────────────────────────────────
   - id: ephemeris
     type: dataset
@@ -1070,6 +1080,132 @@ sources:
     fetcher: noaa-alerts
     dataset_key: weather-alerts
     tags: [weather, nature, dataset]
+    policy: vpn
+    exit: us
+
+  - id: noaa-marine-alerts
+    type: dataset
+    fetcher: noaa-alerts
+    dataset_key: marine-alerts
+    url: "https://api.weather.gov/alerts/active?region_type=marine"
+    tags: [weather, storms, marine-safety, east-coast, dataset]
+    policy: vpn
+    exit: us
+
+  - id: federal-register-atlantic-fisheries
+    type: dataset
+    fetcher: federal-register
+    dataset_key: fisheries-rules
+    url: "https://www.federalregister.gov/api/v1/documents.json"
+    tags: [regulations, hms, saltwater-fishing, east-coast, dataset]
+    policy: vpn
+    exit: us
+
+  # NOAA CO-OPS tide predictions at representative East Coast fishing hubs.
+  - id: tides-portland-me
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, new-england, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8418150", station_name: "Portland ME", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  - id: tides-boston-ma
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, new-england, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8443970", station_name: "Boston MA", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  - id: tides-montauk-ny
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, mid-atlantic, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8510560", station_name: "Montauk NY", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  - id: tides-atlantic-city-nj
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, mid-atlantic, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8534720", station_name: "Atlantic City NJ", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  - id: tides-chesapeake-va
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, chesapeake, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8638863", station_name: "Chesapeake Bay Bridge Tunnel VA", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  - id: tides-charleston-sc
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, south-atlantic, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8665530", station_name: "Charleston SC", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  - id: tides-mayport-fl
+    type: dataset
+    fetcher: noaa-tides
+    dataset_key: tides
+    url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
+    tags: [tides, conditions, florida-atlantic, east-coast, dataset]
+    policy: vpn
+    exit: us
+    params: { station: "8720218", station_name: "Mayport FL", product: predictions, datum: MLLW, time_zone: gmt, units: english, interval: h, date: today, application: saltwaternews, format: json }
+
+  # NDBC regional observation searches: wind, waves, water temperature and tide.
+  - id: ndbc-new-england
+    type: dataset
+    fetcher: ndbc
+    dataset_key: buoy-observations
+    url: "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=42N&lon=69W&radius=250"
+    tags: [buoys, conditions, new-england, east-coast, dataset]
+    policy: vpn
+    exit: us
+
+  - id: ndbc-mid-atlantic
+    type: dataset
+    fetcher: ndbc
+    dataset_key: buoy-observations
+    url: "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=38N&lon=74W&radius=250"
+    tags: [buoys, conditions, mid-atlantic, east-coast, dataset]
+    policy: vpn
+    exit: us
+
+  - id: ndbc-carolinas
+    type: dataset
+    fetcher: ndbc
+    dataset_key: buoy-observations
+    url: "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=34N&lon=76W&radius=250"
+    tags: [buoys, conditions, south-atlantic, east-coast, dataset]
+    policy: vpn
+    exit: us
+
+  - id: ndbc-florida-atlantic
+    type: dataset
+    fetcher: ndbc
+    dataset_key: buoy-observations
+    url: "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=28N&lon=79W&radius=250"
+    tags: [buoys, conditions, florida-atlantic, east-coast, dataset]
     policy: vpn
     exit: us
 

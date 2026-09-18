@@ -1075,7 +1075,7 @@ sites:
     - manual
     manual: {}
   saltwaternews.com:
-    active: false
+    active: true
     cf_zone: saltwaternews.com
     github: bourneash/saltwaternews.com
     applies_to:

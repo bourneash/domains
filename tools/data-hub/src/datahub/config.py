@@ -58,6 +58,7 @@ class Settings(BaseModel):
     eia_key: str = ""
     gnews_key: str = ""
     retention_days: int = 7   # data lifecycle: rows older than this are pruned each cycle
+    report_retention_days: int = 365
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -78,6 +79,7 @@ class Settings(BaseModel):
             eia_key=os.environ.get("EIA_API_KEY", ""),
             gnews_key=os.environ.get("GNEWS_API_KEY", ""),
             retention_days=int(os.environ.get("DATAHUB_RETENTION_DAYS", "7")),
+            report_retention_days=max(365, int(os.environ.get("DATAHUB_REPORT_RETENTION_DAYS", "365"))),
         )
 
 
