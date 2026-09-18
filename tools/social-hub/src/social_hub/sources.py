@@ -80,7 +80,9 @@ def _from_frontmatter(path: Path, domain: str, url_template: str) -> dict | None
         "url": url_template.format(domain=domain, slug=slug, collection=path.parent.name),
         "summary": str(_first(fm, ["description", "excerpt", "summary"]))[:600],
         "tags": [str(t) for t in (_first(fm, ["keywords", "tags"], []) or [])],
-        "image_url": _first(fm, ["image", "heroImage", "imageCard"], None),
+        "image_url": _first(
+            fm, ["image", "heroImage", "hero_image", "imageCard", "image_card"], None
+        ),
         "published_at": str(_first(fm, ["published", "pubDate", "date", "publishedDate"])),
     }
 
@@ -217,6 +219,16 @@ def _load_collection(root: Path, domain: str, spec: dict) -> list[dict]:
                 or ""
             )
 
+        image_url = (
+            _format(spec["image_template"], context)
+            if spec.get("image_template")
+            else _first(
+                fm,
+                ["image", "heroImage", "hero_image", "hero", "cover", "imageCard", "image_card"],
+                None,
+            )
+        )
+
         items.append(
             {
                 "source_id": _format(spec.get("id_template", "{slug}"), context),
@@ -225,7 +237,7 @@ def _load_collection(root: Path, domain: str, spec: dict) -> list[dict]:
                 "url": _format(spec.get("url_template", "https://{domain}/{slug}/"), context),
                 "summary": summary[:600],
                 "tags": [str(t) for t in (_first(fm, ["keywords", "tags"], []) or [])],
-                "image_url": _first(fm, ["image", "heroImage", "hero", "cover"], None),
+                "image_url": image_url,
                 "published_at": published,
             }
         )
@@ -328,10 +340,16 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
     for item in found:
         source_type = item.get("source_type", "article")
         existing = db.one(
-            "SELECT id FROM sources WHERE site = ? AND source_type = ? AND source_id = ?",
+            "SELECT id, image_url FROM sources "
+            "WHERE site = ? AND source_type = ? AND source_id = ?",
             (domain, source_type, item["source_id"]),
         )
         if existing:
+            # Older sources may predate media support or a site-specific image
+            # mapping. Backfill the attachment without resetting source state
+            # or creating another set of drafts.
+            if not existing["image_url"] and item.get("image_url"):
+                db.update("sources", existing["id"], {"image_url": item["image_url"]})
             continue
         state = "new" if _is_fresh(item.get("published_at", ""), max_age) else "skipped"
         db.insert(

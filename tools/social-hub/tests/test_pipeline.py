@@ -386,6 +386,74 @@ def test_a_json_catalog_collection_is_ingestable(fake_fleet, fake_adapter):
     assert item["image_url"] == "/img/goose.jpg"
 
 
+def test_collection_image_template_maps_source_art_to_public_asset(fake_fleet, fake_adapter):
+    """A site's editorial source path may differ from its deployed image path.
+
+    Config owns that site-specific mapping so the publisher receives a local,
+    public asset it can actually attach.
+    """
+    make_site(
+        fake_fleet,
+        "alpha.com",
+        articles=0,
+        config_yaml=(
+            "platforms: [fake]\n"
+            "sources:\n"
+            "  collections:\n"
+            "    - name: guide\n"
+            '      glob: "ops/guides/*.md"\n'
+            '      url_template: "https://{domain}/guides/{slug}/"\n'
+            '      image_template: "/guides/{slug}.webp"\n'
+        ),
+    )
+    guides = fake_fleet / "sites" / "alpha.com" / "ops" / "guides"
+    guides.mkdir(parents=True)
+    (guides / "cold-water.md").write_text(
+        "---\n"
+        "title: Cold-water jerkbaits\n"
+        "hero_image: ops/drafts/cold-water/hero.webp\n"
+        "---\n\nBody.\n",
+        encoding="utf-8",
+    )
+
+    found = sources.discover("alpha.com", load_site_config("alpha.com"))
+
+    assert found[0]["image_url"] == "/guides/cold-water.webp"
+
+
+def test_reingest_backfills_missing_source_image_without_requeueing(fake_fleet, fake_adapter):
+    make_site(
+        fake_fleet,
+        "alpha.com",
+        articles=0,
+        config_yaml=(
+            "platforms: [fake]\n"
+            "max_source_age_hours: 100000\n"
+            "sources:\n"
+            "  collections:\n"
+            "    - name: guide\n"
+            '      glob: "ops/guides/*.md"\n'
+            '      url_template: "https://{domain}/guides/{slug}/"\n'
+        ),
+    )
+    guides = fake_fleet / "sites" / "alpha.com" / "ops" / "guides"
+    guides.mkdir(parents=True)
+    guide = guides / "cold-water.md"
+    guide.write_text("---\ntitle: Cold water\ndate: '2026-08-25'\n---\n", encoding="utf-8")
+    cfg = load_site_config("alpha.com")
+    assert sources.ingest("alpha.com", cfg)["new"] == 1
+
+    guide.write_text(
+        "---\ntitle: Cold water\ndate: '2026-08-25'\nhero_image: /guides/cold-water.webp\n---\n",
+        encoding="utf-8",
+    )
+    assert sources.ingest("alpha.com", cfg)["new"] == 0
+
+    row = db.one("SELECT state, image_url FROM sources WHERE site = 'alpha.com'")
+    assert row["state"] == "new"
+    assert row["image_url"] == "/guides/cold-water.webp"
+
+
 def test_a_fleet_tick_is_budgeted_and_fair(synced, monkeypatch):
     """At fleet scale a full pass outlasts the gap between cron runs, so a tick
     covers what it can and the next one continues where it stopped."""
