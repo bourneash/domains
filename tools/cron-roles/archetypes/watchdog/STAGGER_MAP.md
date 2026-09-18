@@ -35,6 +35,7 @@ of the widest gap in the table, add the row, and use that value for
 | shoppinkflamingo.com | 204 |
 | amputeenews.com | 222 |
 | broadwayshowgirls.com | 259 |
+| saltwaternews.com | 278 |
 | deeppenetrations.com | 296 |
 | newmomshop.com | 333 |
 | rc-9.com | 370 |
@@ -85,8 +86,8 @@ table above by inspection and verify with:
     for f in sites/*/ops/scripts/run-watchdog.sh; do \
       grep -m1 '^sleep ' "$f" | awk '{print $2}'; done | sort -n | uniq -d
 
-**Next free slot: 278s** — the midpoint of the largest remaining gap after
-assigning MarineActivity 240s (259..296). The old `(last + 37) % 900` rule is retired; it assumed a grid
+**Next free slot: 832s** — the midpoint of the 814..851 gap after assigning
+Saltwater News 278s. The old `(last + 37) % 900` rule is retired; it assumed a grid
 with room left. Pick the widest gap instead:
 
     # occupied offsets, ascending — read the gaps off this list

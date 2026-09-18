@@ -740,9 +740,11 @@ sites:
     repo: bourneash/saltwaternews.com
     worker: saltwaternews-com
     cf_zone: saltwaternews.com
+    slack_channel_env: SLACK_CHANNEL_SALTWATERNEWS
     capabilities:
     - site
     - ops
+    - cron
     - smoke
     - tasks
     - affiliate
