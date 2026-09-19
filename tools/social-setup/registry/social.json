@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-10T13:43:06.105Z",
+  "updatedAt": "2026-09-19T13:46:33.788Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -1703,7 +1703,7 @@
       "personaId": null,
       "status": "active",
       "handle": "stinkyleftfoot.bsky.social",
-      "statusNote": "Live 2026-09-03 — hCaptcha cleared with Jesse's help, profile filled (favicon avatar + bio).",
+      "statusNote": "Live; profile branding refreshed 2026-09-19 with supplied foot-only logo avatar. Display name, bio, and site URL preserved.",
       "profileUrl": "",
       "notes": "",
       "tags": [],
@@ -1711,7 +1711,7 @@
       "followers": null,
       "lastPostedAt": null,
       "createdAt": "2026-08-25T18:49:12.335Z",
-      "updatedAt": "2026-09-03T11:20:05.272Z"
+      "updatedAt": "2026-09-19T13:46:33.787Z"
     },
     {
       "id": "acc_9cff62da21db",
