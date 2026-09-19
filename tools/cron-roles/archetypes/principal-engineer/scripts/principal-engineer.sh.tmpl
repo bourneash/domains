@@ -63,16 +63,68 @@ json.dump(rec, open(p, 'w'), indent=2)
 " "$INCIDENT_FILE" "$1" 2>/dev/null || true
 }
 
+# Deferrals before Claude starts are not repair attempts. Put the incident back
+# in the queue and undo scan.py's dispatch increment so lock contention, dirty
+# trees, or network outages cannot consume the three real investigation tries.
+defer_incident() {  # $1=note
+  python3 -c "
+import json, sys
+p = sys.argv[1]
+try:
+    rec = json.load(open(p))
+except Exception:
+    rec = {}
+rec['status'] = 'open'
+rec['attempts'] = max(0, int(rec.get('attempts', 1)) - 1)
+rec['last_outcome'] = sys.argv[2]
+json.dump(rec, open(p, 'w'), indent=2)
+" "$INCIDENT_FILE" "$1" 2>/dev/null || true
+}
+
+MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
+[[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
+# shellcheck source=/dev/null
+. "$MUTATION_LOCK_HELPER"
+if ! repo_mutation_lock_acquire "$REPO_ROOT" principal-engineer 300; then
+  log "deferring: repository mutation lock stayed busy for 300s"
+  defer_incident "deferred: repository mutation lock busy"
+  exit 0
+fi
+trap repo_mutation_lock_release EXIT
+
+# Start only from the exact pushed main commit. A clean worktree with an
+# unpushed or behind HEAD is still unsafe: a later push could ship another
+# role's commit or fail non-fast-forward after doing paid repair work.
+if ! git fetch --quiet --no-tags origin main 2>>"$LOG"; then
+  log "deferring: cannot refresh origin/main"
+  defer_incident "deferred: git fetch failed"
+  exit 0
+fi
+BRANCH="$(git branch --show-current 2>/dev/null || true)"
+LOCAL_HEAD="$(git rev-parse HEAD 2>/dev/null || true)"
+REMOTE_HEAD="$(git rev-parse origin/main 2>/dev/null || true)"
+if [[ "$BRANCH" != "main" || -z "$LOCAL_HEAD" || "$LOCAL_HEAD" != "$REMOTE_HEAD" ]]; then
+  log "refusing to run: branch/head is not synchronized with origin/main (branch=${BRANCH:-detached})"
+  slack "🔴 *{{SITE_SHORT}} principal engineer* deferred fp=${FP}: checkout is not exactly synced to \`origin/main\` (branch=${BRANCH:-detached}). Nothing was changed or shipped. · ${NOW_ET}" danger
+  defer_incident "deferred: checkout not synchronized with origin/main"
+  exit 0
+fi
+
 # Never let one failed/truncated pass leave edits that a later pass mistakes
 # for its own. The worker must start from a clean shippable scope; otherwise
 # stop and preserve the tree for human inspection.
-PREEXISTING_EDITS="$(git status --porcelain -- site/ ops/ .github/ 2>/dev/null || true)"
+PREEXISTING_EDITS="$(git status --porcelain --untracked-files=all 2>/dev/null || true)"
 if [[ -n "$PREEXISTING_EDITS" ]]; then
-  log "refusing to run: shippable scope already has edits"
-  slack "🔴 *{{SITE_SHORT}} principal engineer* refused to start fp=${FP}: site/ops/.github already has uncommitted edits. Nothing was changed or shipped. · ${NOW_ET}" danger
-  reopen_incident "refused: uncommitted edits in shippable scope"
-  exit 1
+  DIRTY_PATHS="$(printf '%s\n' "$PREEXISTING_EDITS" | head -10)"
+  log "refusing to run: shippable scope already has edits: $(printf '%s' "$DIRTY_PATHS" | tr '\n' ' ')"
+  slack "🔴 *{{SITE_SHORT}} principal engineer* deferred fp=${FP}: checkout already has uncommitted edits. Nothing was changed or shipped. · ${NOW_ET}
+\`\`\`
+${DIRTY_PATHS}
+\`\`\`" danger
+  defer_incident "deferred: uncommitted edits in shippable scope"
+  exit 0
 fi
+BASE_HEAD="$LOCAL_HEAD"
 
 # INC_TEXT is untrusted: it's whatever text some role/script posted to Slack,
 # and any role's failure text can echo external content (scraped news,
@@ -88,12 +140,25 @@ INC_ATTEMPT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).g
 # network would otherwise burn a full timed-out claude call for nothing.
 if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthropic.com/" 2>/dev/null; then
   log "network preflight FAILED — skipping this dispatch (no Claude call made)"
-  reopen_incident "deferred: network preflight failed"
+  defer_incident "deferred: network preflight failed"
   exit 0
 fi
 
 RESULT_FILE="$(mktemp)"
-trap 'rm -f "$RESULT_FILE"' EXIT
+cleanup() { rm -f "$RESULT_FILE" 2>/dev/null || true; repo_mutation_lock_release; }
+trap cleanup EXIT
+
+archive_and_restore() {  # $1=short reason
+  local artifact_base="ops/health/principal-incidents/${FP}-$(date -u +%Y%m%dT%H%M%SZ)"
+  mkdir -p "$(dirname "$artifact_base")"
+  cp "$RESULT_FILE" "${artifact_base}.partial.txt" 2>/dev/null || true
+  git diff --binary HEAD -- . > "${artifact_base}.patch" 2>/dev/null || true
+  git ls-files --others --exclude-standard -z -- . \
+    | tar --null -czf "${artifact_base}.untracked.tgz" -T - 2>/dev/null || rm -f "${artifact_base}.untracked.tgz"
+  git restore --staged --worktree --source="$BASE_HEAD" -- . 2>>"$LOG" || true
+  git clean -fd -- . >>"$LOG" 2>&1 || true
+  log "$1 — partial result/diff archived at ${artifact_base}.* and worktree restored"
+}
 
 PROMPT="You are the {{SITE_BRAND}} Principal Engineer. Today is ${TODAY} (${NOW_ET}).
 Working directory: ${REPO_ROOT}. You were woken because a Slack error/warning
@@ -189,7 +254,7 @@ json.dump(rec, open(p, 'w'), indent=2)
 }
 
 if [[ "$CLAUDE_EXIT" == "124" ]]; then
-  log "pass TIMED OUT after ${WORK_TIMEOUT}s"
+  archive_and_restore "pass TIMED OUT after ${WORK_TIMEOUT}s"
   mark_incident open
   slack "🔴 *{{SITE_SHORT}} principal engineer* timed out investigating fp=${FP} · ${NOW_ET}" danger
   exit 1
@@ -200,9 +265,9 @@ fi
 # metadata (`principal-engineer: none`), then the incident claimed "unknown".
 # Buildability is not a substitute for a completed worker result contract.
 if [[ "$CLAUDE_EXIT" != "0" ]]; then
-  log "pass FAILED (rc=${CLAUDE_EXIT}) before a complete result — partial edits preserved locally, not built or shipped"
+  archive_and_restore "pass FAILED (rc=${CLAUDE_EXIT}) before a complete result"
   mark_incident open
-  slack "🔴 *{{SITE_SHORT}} principal engineer* worker failed before completing fp=${FP} (rc=${CLAUDE_EXIT}). Partial edits were NOT committed or shipped. · ${NOW_ET}" danger
+  slack "🔴 *{{SITE_SHORT}} principal engineer* worker failed before completing fp=${FP} (rc=${CLAUDE_EXIT}). Partial result/diff were archived under \`ops/health/principal-incidents/\`; the checkout was restored and nothing shipped. · ${NOW_ET}" danger
   exit 1
 fi
 if ! grep -Eq '^PE_STATUS=(resolved-real|resolved-noise|escalated)$' "$RESULT_FILE" \
@@ -210,15 +275,15 @@ if ! grep -Eq '^PE_STATUS=(resolved-real|resolved-noise|escalated)$' "$RESULT_FI
   || ! grep -q '^PE_FIX=.' "$RESULT_FILE" \
   || ! grep -q '^PE_HARDENING=.' "$RESULT_FILE" \
   || ! grep -Eq '^PE_ROLLOUT_CANDIDATE=(yes|no)$' "$RESULT_FILE"; then
-  log "pass returned rc=0 without the complete result contract — partial edits preserved locally, not built or shipped"
+  archive_and_restore "pass returned rc=0 without the complete result contract"
   mark_incident open
-  slack "🔴 *{{SITE_SHORT}} principal engineer* returned no complete result for fp=${FP}. Partial edits were NOT committed or shipped. · ${NOW_ET}" danger
+  slack "🔴 *{{SITE_SHORT}} principal engineer* returned no complete result for fp=${FP}. Partial result/diff were archived and the checkout restored; nothing shipped. · ${NOW_ET}" danger
   exit 1
 fi
 
 PUSHED=0
 CHANGED_SOMETHING=0
-if ! git diff --quiet || ! git diff --cached --quiet; then
+if [[ -n "$(git status --porcelain --untracked-files=all 2>/dev/null || true)" ]]; then
   CHANGED_SOMETHING=1
 fi
 
@@ -227,7 +292,12 @@ if [[ "$CHANGED_SOMETHING" == "1" ]]; then
   _BUILD_LOCK="$REPO_ROOT/ops/.locks/deploy-build.lock"
   mkdir -p "$(dirname "$_BUILD_LOCK")" 2>/dev/null || true
   exec 8>"$_BUILD_LOCK"
-  flock -w 900 8 || log "WARNING: build lock not acquired after 900s — proceeding, dist may race a deploy"
+  if ! flock -w 900 8; then
+    archive_and_restore "build lock not acquired after 900s"
+    mark_incident open
+    slack "🔴 *{{SITE_SHORT}} principal engineer* could not acquire the build lock for fp=${FP}; changes archived and restored, nothing shipped. · ${NOW_ET}" danger
+    exit 1
+  fi
   if ( cd site && rm -rf dist && {{BUILD_GATE}} ) >>"$LOG" 2>&1; then
     log "build OK — committing + pushing"
     if [ -d "${HOME:-/root}/.ssh" ]; then
@@ -241,27 +311,35 @@ if [[ "$CHANGED_SOMETHING" == "1" ]]; then
     git config --global user.name  "${GIT_USER_NAME:-{{GIT_USER_NAME}}}"
     git config --global user.email "${GIT_USER_EMAIL:-bot@{{DOMAIN}}}"
     git config --global --add safe.directory "$REPO_ROOT" 2>/dev/null || true
-    git add -A -- site/ ops/ .github/ 2>/dev/null || true
+    if ! git add -A -- . >>"$LOG" 2>&1; then
+      archive_and_restore "git staging failed"
+      mark_incident open
+      slack "🔴 *{{SITE_SHORT}} principal engineer* could not stage its fix for fp=${FP}; changes archived and restored, nothing shipped. · ${NOW_ET}" danger
+      exit 1
+    fi
     if git diff --cached --quiet; then
       log "nothing staged after all — skipping commit"
     else
-      git -c commit.gpgsign=false commit -m "principal-engineer: ${FIX} — ${TODAY} ${NOW_ET}" >>"$LOG" 2>&1 || true
+      if ! git -c commit.gpgsign=false commit -m "principal-engineer: ${FIX} — ${TODAY} ${NOW_ET}" >>"$LOG" 2>&1; then
+        archive_and_restore "git commit failed"
+        mark_incident open
+        slack "🔴 *{{SITE_SHORT}} principal engineer* could not commit its fix for fp=${FP}; changes archived and restored, nothing shipped. · ${NOW_ET}" danger
+        exit 1
+      fi
       if git_push_retry >>"$LOG" 2>&1; then
         touch .deploy-needed
         PUSHED=1
         log "pushed to main — CF Workers Builds will deploy"
       else
         log "FAIL: git push failed"
-        mark_incident open
+        mark_incident escalated
         slack "🔴 *{{SITE_SHORT}} principal engineer* — fix built but git push FAILED (fp=${FP}) · ${NOW_ET}
 ${ROOT_CAUSE}" danger
         exit 1
       fi
     fi
   else
-    log "FAIL: build gate failed — reverting worker edits, not shipping"
-    git checkout -- . 2>>"$LOG" || true
-    git clean -fd site/ 2>>"$LOG" || true
+    archive_and_restore "FAIL: build gate failed"
     mark_incident open
     slack "🔴 *{{SITE_SHORT}} principal engineer* — build gate FAILED on fp=${FP}, reverted, not shipped · ${NOW_ET}
 Root cause found: ${ROOT_CAUSE}" danger

@@ -275,6 +275,27 @@ def main():
             "attempt": inc["attempts"],
             "channel": inc.get("channel") or "",
         }
+    else:
+        # A third real worker attempt that reopens is no longer eligible for
+        # auto-repair. Emit one explicit escalation action instead of silently
+        # leaving an open-but-undispatchable JSON record forever.
+        for fp, inc in incidents.items():
+            if inc.get("status") not in ("open", None):
+                continue
+            if int(inc.get("attempts", 0)) < MAX_ATTEMPTS or inc.get("cap_notified"):
+                continue
+            inc["status"] = "escalated"
+            inc["cap_notified"] = now_s
+            result = {
+                "action": "escalate",
+                "fp": fp,
+                "summary": inc.get("last_text", "")[:200],
+                "text": inc.get("last_text", ""),
+                "occurrence": inc.get("occurrences", 1),
+                "attempt": inc.get("attempts", MAX_ATTEMPTS),
+                "channel": inc.get("channel") or "",
+            }
+            break
 
     for fp, inc in incidents.items():
         save_incident(fp, inc)

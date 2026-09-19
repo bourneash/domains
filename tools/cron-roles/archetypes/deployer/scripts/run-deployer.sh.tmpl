@@ -48,6 +48,16 @@ fi
 
 [ -f .deploy-needed ] || exit 0
 
+MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
+[[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
+# shellcheck source=/dev/null
+. "$MUTATION_LOCK_HELPER"
+# Deployer runs frequently; if another mutator is active, leave the deploy flag
+# in place and let the next tick retry rather than racing its build/commit.
+repo_mutation_lock_acquire "$REPO_ROOT" deployer 0 || exit 0
+trap repo_mutation_lock_release EXIT
+export REPO_MUTATION_LOCK_ALREADY_HELD=1
+
 attempts=$(cat .deploy-attempts 2>/dev/null || echo 0)
 
 if [ "$attempts" -ge 5 ]; then

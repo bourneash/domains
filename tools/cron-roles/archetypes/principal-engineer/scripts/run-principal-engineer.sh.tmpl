@@ -53,6 +53,42 @@ flock -n 9 || { log "prior tick still running — skipping"; exit 0; }
 OUT="$(python3 ops/scripts/principal-engineer-scan.py 2>>"$LOG")" || { log "scan failed — treating as no work"; pulse scan-failed; exit 0; }
 ACTION="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("action","none"))' 2>/dev/null || echo none)"
 
+if [[ "$ACTION" == "escalate" ]]; then
+  FP="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["fp"])')"
+  SUMMARY="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("summary", ""))')"
+  CHANNEL="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("channel") or "")')"
+  [[ -z "$CHANNEL" ]] && CHANNEL="$CHANNEL_DEFAULT"
+  TASK="ops/tasks/backlog/principal-incident-${FP}.md"
+  MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
+  [[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
+  # shellcheck source=/dev/null
+  . "$MUTATION_LOCK_HELPER"
+  TASK_NOTE="Human-triage task could not be written because the repository mutation lock stayed busy."
+  if repo_mutation_lock_acquire "$REPO_ROOT" principal-escalation 60; then
+    if [[ ! -f "$TASK" ]]; then
+      mkdir -p "$(dirname "$TASK")"
+      printf '%s\n' \
+        '---' \
+        "title: \"Principal engineer incident ${FP} exhausted retries\"" \
+        'priority: 1' \
+        'type: ops' \
+        'estimated_turns: 5' \
+        "created: $(date -u +%Y-%m-%d)" \
+        'assigned_role: human-triage' \
+        '---' '' \
+        "The principal engineer exhausted ${MAX_ATTEMPTS:-3} automatic attempts for fingerprint ${FP}." \
+        "Last alert summary: ${SUMMARY}" > "$TASK"
+    fi
+    TASK_NOTE="Human-triage task queued at \`${TASK}\` (fleet-git will commit it)."
+    repo_mutation_lock_release
+  fi
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "🚨 *principal engineer* exhausted 3 repair attempts for fp=${FP}. Auto-repair stopped; human triage is required. ${TASK_NOTE} · ${NOW_ET}
+${SUMMARY}" danger 2>/dev/null || true
+  log "escalated fingerprint=$FP after attempt cap; task=$TASK"
+  pulse escalated
+  exit 0
+fi
+
 if [[ "$ACTION" != "act" ]]; then
   pulse quiet
   exit 0

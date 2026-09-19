@@ -82,6 +82,11 @@ written.
   as an unusable status.
 - **One sweep at a time across every caller** — CLI, cron and the dashboard (a
   different container) share a lock file in the repo, not a per-process flag.
+- **One mutator per site checkout** — before an applying sweep inspects or
+  changes a repo it holds that repo's `ops/.locks/repo-mutation.lock.d`, the
+  same atomic directory used by content-writer, engineer, watchdog,
+  principal-engineer, and deployer. A busy site is held for the next sweep,
+  never inspected clean and then committed after another role starts editing.
 - **The git environment is an allowlist.** The cron sources a `.env` full of live
   tokens; only `PATH`/`HOME`/`GIT_SSH_COMMAND`/identity vars reach a `git` child.
   Repo-location vars (`GIT_DIR`, `GIT_INDEX_FILE`, ...) never do, so `-C <repo>` is

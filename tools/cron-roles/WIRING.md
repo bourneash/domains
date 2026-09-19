@@ -160,6 +160,23 @@ body, with no helper scripts), skip this step — that is normal for some archet
 
 ## Step 6 — Wire `run-role.sh` — ARCHITECTURE-AWARE
 
+Before dispatching any role that can mutate the repository, `run-role.sh` must
+hold the shared `ops/.locks/repo-mutation.lock.d` via
+`tools/cron-roles/repo-mutation-lock.sh` for the full model/build/commit/push
+transaction. Export `REPO_MUTATION_LOCK_ALREADY_HELD=1` for bash-driven child
+runners. This lock is shared with principal-engineer, watchdog, deployer, and
+fleet-git and prevents a clean-tree preflight from racing another mutator.
+
+For `content-writer`, the wrapper also owns the publication transaction. Log
+the `task-budget next-task` path, its original `estimated_turns`, and the
+computed budget before invoking Claude. Require the role's final
+`CONTENT_STATUS`/`CONTENT_SUMMARY` contract; on `completed`, re-run the build,
+move that exact selected task to `ops/tasks/done/`, commit the site plus task
+transition, push, and only then create `.deploy-needed`. On a failed/truncated
+pass, archive the partial diff under ignored `ops/health/`, restore the clean
+baseline, and leave the task where it started. The model must never own git or
+task-board transaction boundaries.
+
 ### Rule 0 (takes precedence) — bash-driven roles ALWAYS get an explicit branch
 
 If the archetype is **bash-driven** — `meta.model == none` AND it ships its own runner

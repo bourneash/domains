@@ -118,6 +118,37 @@ class PrincipalEngineerScanAuthTest(unittest.TestCase):
         )
         self.assertEqual(result, {"action": "none"})
 
+    def test_attempt_cap_emits_one_explicit_escalation(self):
+        now = datetime.now(timezone.utc)
+        cursor = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        incident = {
+            "fingerprint": "capped123",
+            "status": "open",
+            "attempts": 3,
+            "last_text": "writer failed repeatedly",
+            "occurrences": 2,
+            "channel": "domain-example-com",
+        }
+        result = self.run_scan([], incidents={"capped123": incident}, cursor=cursor)
+        self.assertEqual(result["action"], "escalate")
+        self.assertEqual(result["fp"], "capped123")
+
+    def test_attempt_cap_escalation_is_not_repeated(self):
+        now = datetime.now(timezone.utc)
+        cursor = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        incident = {
+            "fingerprint": "capped123",
+            "status": "escalated",
+            "attempts": 3,
+            "cap_notified": cursor,
+            "last_text": "writer failed repeatedly",
+            "occurrences": 2,
+        }
+        self.assertEqual(
+            self.run_scan([], incidents={"capped123": incident}, cursor=cursor),
+            {"action": "none"},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

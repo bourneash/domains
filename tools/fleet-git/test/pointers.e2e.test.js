@@ -19,6 +19,7 @@ process.env.FLEET_GIT_LOCK = path.join(
 
 const { sweep } = require('../lib/sweep');
 const { load: loadPolicy } = require('../lib/policy');
+const repoMutationLock = require('../lib/repomutationlock');
 
 const policy = loadPolicy();
 const CLEAN_ENV = Object.fromEntries(
@@ -119,4 +120,21 @@ test('a pointer is HELD when the submodule branch has no upstream at all', async
   assert.equal(holds.length, 1);
   assert.match(holds[0].detail, /no upstream/);
   assert.equal(pointerSha(parent, 'sites/a.com'), before, 'pointer did NOT move');
+});
+
+test('an applying sweep holds a site whose repository mutation lock is active', async () => {
+  const { parent, sub } = makeFleet();
+  const before = sh(sub, 'rev-parse', 'HEAD').trim();
+  fs.writeFileSync(path.join(sub, 'ops/tasks/locked.md'), 'in flight\n');
+  const lock = repoMutationLock.acquire(sub, 'site-role-test');
+  assert.ok(lock);
+  try {
+    const rep = await sweep(parent, { apply: true, push: true, only: ['a.com'] });
+    const result = rep.results.find(r => r.slug === 'a.com');
+    assert.match(result.plan.skip, /mutation lock/);
+    assert.ok(result.acts.some(a => a.action === 'hold'));
+    assert.equal(sh(sub, 'rev-parse', 'HEAD').trim(), before, 'fleet-git did not commit role work');
+  } finally {
+    repoMutationLock.release(lock);
+  }
 });

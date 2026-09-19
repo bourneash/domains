@@ -179,7 +179,22 @@ fi
 # second engineer on it. The lock auto-reclaims after LOCK_STALE_SECS so a crashed
 # pass can never wedge the site (the failed-pid-cleanup guard).
 RESULT_FILE=""
-trap 'rm -f "${RESULT_FILE:-}" 2>/dev/null; release_work_lock' EXIT
+trap 'rm -f "${RESULT_FILE:-}" 2>/dev/null; release_work_lock; repo_mutation_lock_release 2>/dev/null || true' EXIT
+MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
+[[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
+# shellcheck source=/dev/null
+. "$MUTATION_LOCK_HELPER"
+if [[ "${REPO_MUTATION_LOCK_ALREADY_HELD:-0}" != "1" ]]; then
+  if ! repo_mutation_lock_acquire "$REPO_ROOT" engineer 900; then
+    log "work pass DEFERRED — repository mutation lock stayed busy for 900s"
+    board_block "⏳ **Deferred** — another role held the repository mutation lock. ${STATUS_LINE}"
+    exit 0
+  fi
+fi
+
+# Keep lock acquisition order consistent with run-role.sh: repository lock,
+# then engineer work lock. This prevents a direct invocation and a wrapped
+# invocation from each holding one lock while waiting forever for the other.
 if ! acquire_work_lock; then
   HELD_TS=$(cat "$WORK_LOCK_DIR/ts" 2>/dev/null || date +%s)
   HELD_AGE=$(( $(date +%s) - ${HELD_TS:-0} ))

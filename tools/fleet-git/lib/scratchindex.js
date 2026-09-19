@@ -29,7 +29,13 @@ async function commitViaScratchIndex(
   cwd,
   { add = [], remove = [], gitlinks = [], message, trailer, ident = [] }
 ) {
-  const idxFile = path.join(cwd, '.git', `fleet-git-index-${process.pid}-${Date.now()}`);
+  // In a submodule `.git` is a FILE pointing into the parent's modules dir,
+  // not a directory. Resolve the real git dir before placing the scratch
+  // index; joining cwd/.git/... fails with ENOTDIR on exactly the repos this
+  // tool manages most often.
+  const gd = await git(cwd, ['rev-parse', '--absolute-git-dir']);
+  if (!gd.ok) return { ok: false, err: 'cannot resolve git dir' };
+  const idxFile = path.join(gd.out.trim(), `fleet-git-index-${process.pid}-${Date.now()}`);
   const withIndex = args => git(cwd, args, { indexFile: idxFile });
   try {
     const head = await git(cwd, ['rev-parse', 'HEAD']);

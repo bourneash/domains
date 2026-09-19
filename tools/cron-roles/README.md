@@ -9,6 +9,8 @@ pointer that runs `WIRING.md` against a target site, using the archetype's
 - `validate-install.sh` — pass/fail gate; run after every install.
 - `validate-deployer.sh` — cron-direct deployer gate; rejects worker entrypoint
   overrides and verifies the worker has an explicit `deployer` dispatch.
+- `repo-mutation-lock.sh` — shared host/container lock for any role that can
+  edit, build, commit, push, or deploy a site checkout.
 - `archetypes/<name>/` — `role.md.tmpl` (canonical body), `meta.yml` (knobs), `scripts/`.
 
 Model: **stamp-once**. The installer scaffolds a complete, working role and walks

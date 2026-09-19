@@ -47,11 +47,16 @@ widening it beyond the brief — a smaller finished piece beats a bigger one tha
    task-budget helper so the turn limit is sized for the task you actually pick.
 3. Do the work — write new content or refresh existing content per the
    checklists below.
-4. Run the build gate below.
-5. Move the task to `ops/tasks/done/`, then commit the content and task-board
-   transition together with a clear message. This ordering is atomic: if a run
-   reaches its turn cap after committing, it must not leave the completed task
-   dirty in `in-progress/` for another role to misclassify as unrelated work.
+4. Run the build gate below as a sanity check.
+5. Do **not** move the task, commit, push, or create `.deploy-needed`. The
+   deterministic wrapper re-runs the build, moves the selected task to `done/`,
+   commits the content and task transition atomically, pushes, and signals the
+   deploy. Keeping transaction control outside the model prevents a turn cap
+   between “commit content” and “finish task” from leaving contradictory state.
+
+Your final two lines must be exactly:
+`CONTENT_STATUS=completed` (or `CONTENT_STATUS=noop` when there was no task)
+`CONTENT_SUMMARY=<short commit/Slack summary>`
 
 > Note: you do NOT need to touch `.deploy-needed` yourself. The harness
 > (`run-role.sh`) does this deterministically after your run, at the correct
@@ -100,9 +105,9 @@ catching it before commit saves time and keeps the git log clean.
 
 ## Commit conventions
 
-- New content: `content: <slug> — <one-line description>`
-- Refresh: `refresh: <slug> — <one-line of what changed>`
-- New content + new affiliate registry entry in the same commit is fine and preferred.
+The wrapper creates `content:` or `refresh:` commits from the selected task type
+and your `CONTENT_SUMMARY`. New content plus a new affiliate registry entry is
+committed together.
 
 ## Content types and collections
 

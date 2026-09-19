@@ -359,8 +359,19 @@ ${SUMMARY}" "good"
 fi
 
 # ---- REAL repair: invoke the model (no push capability), then gate+push here ----
+MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
+[[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
+# shellcheck source=/dev/null
+. "$MUTATION_LOCK_HELPER"
+if ! repo_mutation_lock_acquire "$REPO_ROOT" watchdog 300; then
+  set_field attempts "$ATTEMPTS"
+  set_field status open
+  set_field last_outcome "deferred: repository mutation lock busy"
+  log "repair deferred — repository mutation lock stayed busy for 300s"
+  exit 0
+fi
 INCIDENT_JSON="$(cat "$TARGET")"
-RESULT_FILE="$(mktemp)"; trap 'rm -f "$RESULT_FILE"' EXIT
+RESULT_FILE="$(mktemp)"; trap 'rm -f "$RESULT_FILE"; repo_mutation_lock_release' EXIT
 PROMPT="You are the {{SITE_BRAND}} autonomous Watchdog repair engineer. Today is ${TODAY} (${NOW_ET}).
 Working directory: ${REPO_ROOT}. You were woken by an OPEN production incident and must fix it FAST.
 Your full role contract is in ops/roles/watchdog.md — follow it. You have ${MAX_TURNS} turns.

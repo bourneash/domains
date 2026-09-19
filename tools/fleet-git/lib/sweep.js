@@ -9,6 +9,7 @@ const { load: loadPolicy } = require('./policy');
 const { plan, isClean } = require('./classify');
 const gitignore = require('./gitignore');
 const { commitViaScratchIndex } = require('./scratchindex');
+const repoMutationLock = require('./repomutationlock');
 const queue = require('./queue');
 
 const HYGIENE_TRAILER = 'fleet-git: automated hygiene sweep';
@@ -221,35 +222,51 @@ async function runSweep(root, { apply, push, only, policy, now }) {
   const errors = [];
 
   for (const repo of subs) {
-    // `behind` in porcelain output compares against the LOCAL origin/* ref. With
-    // no fetch, a repo someone pushed to from elsewhere reports behind: 0, gets
-    // committed, and the push is rejected non-fast-forward. Refresh the ref
-    // first; a fetch failure is non-fatal (offline is not a reason to stop) but
-    // is surfaced so "behind is enforced" is not a claim made on stale data.
-    if (apply) {
-      const f = await git(repo.dir, ['fetch', '--quiet', '--no-tags'], { timeout: 60000 });
-      if (!f.ok)
-        errors.push(`fetch failed in ${repo.slug} (ref state may be stale): ${f.err.trim()}`);
+    const mutationLock = apply ? repoMutationLock.acquire(repo.dir) : null;
+    if (apply && !mutationLock) {
+      results.push({
+        slug: repo.slug,
+        subPath: repo.subPath,
+        plan: { skip: 'active repository mutation lock', review: [], blocked: [] },
+        acts: [{ action: 'hold', detail: `${repo.slug}: active repository mutation lock` }],
+        errors: [],
+        clean: false,
+      });
+      continue;
     }
-    const st = await status(repo.dir);
-    const p = plan(st, { slug: repo.slug, policy });
-    const { acts, errors: e } = await executeRepo(repo, p, policy, { apply, push });
-    errors.push(...e);
-    reviewsBySlug[repo.slug] = p.review;
-    // A skipped repo produced NO review list (plan() returns early), so marking
-    // it swept would make reconcile() delete all of its open items as "operator
-    // fixed it", then re-add them with a fresh first_seen next time — the >24h
-    // nag could never fire on an intermittently-skipped repo.
-    if (!p.skip) sweptSlugs.add(repo.slug);
-    const post = apply ? await status(repo.dir) : null;
-    results.push({
-      slug: repo.slug,
-      subPath: repo.subPath,
-      plan: p,
-      acts,
-      errors: e,
-      clean: post ? post.files.length === 0 && post.ahead === 0 && !post.detached : isClean(p),
-    });
+    try {
+      // `behind` in porcelain output compares against the LOCAL origin/* ref. With
+      // no fetch, a repo someone pushed to from elsewhere reports behind: 0, gets
+      // committed, and the push is rejected non-fast-forward. Refresh the ref
+      // first; a fetch failure is non-fatal (offline is not a reason to stop) but
+      // is surfaced so "behind is enforced" is not a claim made on stale data.
+      if (apply) {
+        const f = await git(repo.dir, ['fetch', '--quiet', '--no-tags'], { timeout: 60000 });
+        if (!f.ok)
+          errors.push(`fetch failed in ${repo.slug} (ref state may be stale): ${f.err.trim()}`);
+      }
+      const st = await status(repo.dir);
+      const p = plan(st, { slug: repo.slug, policy });
+      const { acts, errors: e } = await executeRepo(repo, p, policy, { apply, push });
+      errors.push(...e);
+      reviewsBySlug[repo.slug] = p.review;
+      // A skipped repo produced NO review list (plan() returns early), so marking
+      // it swept would make reconcile() delete all of its open items as "operator
+      // fixed it", then re-add them with a fresh first_seen next time — the >24h
+      // nag could never fire on an intermittently-skipped repo.
+      if (!p.skip) sweptSlugs.add(repo.slug);
+      const post = apply ? await status(repo.dir) : null;
+      results.push({
+        slug: repo.slug,
+        subPath: repo.subPath,
+        plan: p,
+        acts,
+        errors: e,
+        clean: post ? post.files.length === 0 && post.ahead === 0 && !post.detached : isClean(p),
+      });
+    } finally {
+      if (apply) repoMutationLock.release(mutationLock);
+    }
   }
 
   // --- parent repo: own files, then submodule pointer bumps.

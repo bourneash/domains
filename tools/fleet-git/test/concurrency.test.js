@@ -17,6 +17,7 @@ process.env.FLEET_GIT_LOCK = LOCK;
 
 const { sweep } = require('../lib/sweep');
 const { commitViaScratchIndex } = require('../lib/scratchindex');
+const repoMutationLock = require('../lib/repomutationlock');
 
 const CLEAN_ENV = Object.fromEntries(
   Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_'))
@@ -142,4 +143,18 @@ test("a scratch-index commit leaves another process's staged work untouched", as
     'their staged file did NOT ride along'
   );
   assert.match(sh(d, 'diff', '--cached', '--name-only'), /theirs\.txt/, 'and is still staged');
+});
+
+test('repository mutation lock excludes a second mutator and releases by ownership token', () => {
+  const d = repo();
+  fs.mkdirSync(path.join(d, 'ops/.locks'), { recursive: true });
+  const first = repoMutationLock.acquire(d, 'test-first');
+  assert.ok(first, 'first mutator acquired the lock');
+  assert.equal(repoMutationLock.acquire(d, 'test-second'), null, 'second mutator was excluded');
+  repoMutationLock.release({ ...first, token: 'not-the-owner' });
+  assert.equal(repoMutationLock.acquire(d, 'test-third'), null, 'wrong owner cannot release it');
+  repoMutationLock.release(first);
+  const next = repoMutationLock.acquire(d, 'test-next');
+  assert.ok(next, 'lock is reusable after the owner releases it');
+  repoMutationLock.release(next);
 });
