@@ -34,11 +34,11 @@ import urllib.error
 import urllib.request
 
 # A just-deployed image can still be propagating to Cloudflare's edge when this
-# runs right after deploy — Slack's own fetcher then can't retrieve it and
-# rejects the whole block (invalid_blocks). Retry WITH the image after a short
-# backoff before giving up on it, instead of immediately falling back to a
-# text-only card (see saveusfarms.com 2026-08-24: ~93% of posts were losing
-# their image this way).
+# runs right after deploy. Slack's own fetcher then can't retrieve it and
+# rejects the whole block (invalid_blocks). Preflight the image with HEAD so
+# we can skip the image before posting when the edge is not ready. If the URL
+# is reachable but Slack still rejects it, retain a bounded retry before the
+# text-only fallback.
 IMAGE_RETRY_DELAYS = (10, 30, 60)
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
@@ -162,6 +162,17 @@ def log_to_disk(repo_root, channel, severity, text):
         pass
 
 
+def check_image_url(url, timeout=5):
+    """Return True when an image URL is ready for Slack's HEAD probe."""
+    try:
+        req = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            content_length = response.headers.get("Content-Length")
+            return 200 <= response.status < 400 and content_length is not None
+    except Exception:
+        return False
+
+
 def post_to_slack(token, channel, blocks, fallback):
     payload = json.dumps({
         "channel": channel,
@@ -178,8 +189,15 @@ def post_to_slack(token, channel, blocks, fallback):
         with urllib.request.urlopen(req, timeout=15) as r:
             resp = json.loads(r.read().decode())
             if not resp.get("ok"):
-                print("  ! slack error:", resp.get("error"))
-                return resp.get("error") or "error"
+                err = resp.get("error") or "error"
+                # invalid_blocks is an expected, recoverable response for an
+                # image card. Keep it out of the fleet error-line classifier;
+                # the final fallback is logged as a warning below.
+                if err == "invalid_blocks":
+                    print("  ! slack rejected image blocks:", err)
+                else:
+                    print("  ! slack error:", err)
+                return err
             return None
     except Exception as e:
         print("  ! slack post failed:", e)
@@ -266,14 +284,30 @@ def main():
             continue
 
         blocks, fallback = build_card(cfg, slug, fm)
+        image_url = next(
+            (b.get("image_url") for b in blocks if b.get("type") == "image"),
+            None,
+        )
+        if image_url and not check_image_url(image_url):
+            print("  ! image preflight failed — posting without cover image")
+            blocks = [b for b in blocks if b.get("type") != "image"]
+            log_to_disk(repo_root, channel, "warning",
+                        "post-notify: skipped cover image for %r after HEAD preflight failed" % slug)
         err = post_to_slack(token, channel, blocks, fallback)
         if err == "invalid_blocks":
-            for delay in IMAGE_RETRY_DELAYS:
-                print("  ⟳ invalid_blocks (image likely still propagating) — retrying with image in %ds" % delay)
-                time.sleep(delay)
-                err = post_to_slack(token, channel, blocks, fallback)
-                if err != "invalid_blocks":
-                    break
+            image_url = next(
+                (b.get("image_url") for b in blocks if b.get("type") == "image"),
+                None,
+            )
+            if image_url and check_image_url(image_url):
+                for delay in IMAGE_RETRY_DELAYS:
+                    print("  ⟳ invalid_blocks (Slack fetcher issue) — retrying with image in %ds" % delay)
+                    time.sleep(delay)
+                    err = post_to_slack(token, channel, blocks, fallback)
+                    if err != "invalid_blocks":
+                        break
+            else:
+                print("  ⟳ image no longer passes HEAD preflight — skipping retries")
         if err == "invalid_blocks":
             no_img = [b for b in blocks if b.get("type") != "image"]
             if len(no_img) != len(blocks):
