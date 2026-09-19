@@ -135,6 +135,23 @@ def _save_validated(im: Image.Image, path: Path, image_format: str, *,
         temp_path.unlink(missing_ok=True)
 
 
+def _existing_valid(path: Path, image_format: str, expected_size: tuple[int, int],
+                    min_bytes: int, min_entropy: float = 3.5) -> bool:
+    """Make retries resumable: preserve a previously completed valid asset."""
+    try:
+        if path.stat().st_size < min_bytes:
+            return False
+        with Image.open(path) as image:
+            image.load()
+            return (
+                image.format == image_format
+                and image.size == expected_size
+                and image.convert("RGB").entropy() >= min_entropy
+            )
+    except (FileNotFoundError, OSError):
+        return False
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("repo_root")
@@ -186,13 +203,16 @@ def main() -> int:
         a blank/low-entropy frame; one retry is usually enough, and it's
         cheaper than losing the image entirely and shipping a text-only
         guide (see the 2026-08-23 reviewtattoo incident this fix addresses)."""
+        expected_size = (target_w, target_h)
+        if _existing_valid(out_path, image_format, expected_size, min_bytes):
+            return "existing"
         last_err: RuntimeError | None = None
         for attempt in range(1, max_attempts + 1):
             raw, backend = generate_raw(slug_suffix, 1600, 1000)
             im = _crop_to_aspect(Image.open(io.BytesIO(raw)).convert("RGB"), target_w, target_h)
             try:
                 _save_validated(im, out_path, image_format, quality=88,
-                                expected_size=(target_w, target_h), min_bytes=min_bytes)
+                                expected_size=expected_size, min_bytes=min_bytes)
                 return backend
             except RuntimeError as e:
                 last_err = e

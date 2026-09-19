@@ -22,6 +22,21 @@ test('classify suppresses explicit zero-failure summaries but keeps real failure
   assert.equal(errorscan._classify('FATAL database unavailable'), 'crit');
 });
 
+test('classify treats a structured guide image failure as critical', () => {
+  assert.equal(
+    errorscan._classify(
+      'CRIT GUIDE_IMAGE_FAILURE site=example.com queue_id=guide-1 missing=hero_image'
+    ),
+    'crit'
+  );
+  assert.equal(
+    errorscan._classify(
+      'GUIDE_IMAGE_RECOVERY site=example.com queue_id=guide-1 result=required-art-validated'
+    ),
+    null
+  );
+});
+
 test('classify suppresses scout-event lines even when a product title contains a crit/error keyword', () => {
   const panic =
     '[scout-event] {"event": "queued", "asin": "B098KN5STJ", "title": "Moose Master Penguin Panic", ' +
@@ -38,7 +53,7 @@ test('classify suppresses routine AISStream reconnect warnings but preserves esc
   assert.equal(errorscan._classify(escalated), 'error');
 });
 
-test('classify suppresses AISStream reconnect warnings behind the app\'s own asctime prefix', () => {
+test("classify suppresses AISStream reconnect warnings behind the app's own asctime prefix", () => {
   // The actual line shape docker logs sees: consumer.py logs with
   // `%(asctime)s %(levelname)s %(message)s`, so WARNING is never at
   // position 0 of the parsed line.
@@ -137,6 +152,23 @@ test('an active alert emits one recovery transition and persists across restart'
   assert.equal(errorscan._claimAlert(root, container, [], now + 3).shouldResolve, false);
 });
 
+test('a validated guide image recovery resolves immediately despite old critical lines', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-errorscan-explicit-recovery-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  errorscan._resetForTest();
+
+  const now = Date.now();
+  const container = { name: 'example-cron', scope: 'site', oneoff: false };
+  const failure = [{ tsMs: now, level: 'crit', line: 'CRIT GUIDE_IMAGE_FAILURE site=example.com' }];
+  assert.equal(errorscan._claimAlert(root, container, failure, now).shouldAlert, true);
+
+  const recovery = { tsMs: now + 1, line: 'GUIDE_IMAGE_RECOVERY site=example.com' };
+  const resolved = errorscan._claimAlert(root, container, failure, now + 2, recovery);
+  assert.equal(resolved.shouldAlert, false);
+  assert.equal(resolved.shouldResolve, true);
+  assert.equal(resolved.explicitlyRecovered, true);
+});
+
 test('alert signature strips per-run noise but keeps the failing command distinct', () => {
   const line1 =
     'time="2026-08-30T20:06:01-04:00" level=error msg="error running command: exit status 18" ' +
@@ -148,8 +180,14 @@ test('alert signature strips per-run noise but keeps the failing command distinc
     'time="2026-08-30T21:52:00-04:00" level=error msg="error running command: exit status 18" ' +
     'iteration=195 job.command="bash ops/scripts/run-worker.sh scrape" job.position=13 job.schedule="14,44 * * * *"';
   const decisionFor = line => ({ label: 'repeated ERROR', trigger: { line } });
-  assert.equal(errorscan._alertSignature(decisionFor(line1)), errorscan._alertSignature(decisionFor(line2)));
-  assert.notEqual(errorscan._alertSignature(decisionFor(line1)), errorscan._alertSignature(decisionFor(line3)));
+  assert.equal(
+    errorscan._alertSignature(decisionFor(line1)),
+    errorscan._alertSignature(decisionFor(line2))
+  );
+  assert.notEqual(
+    errorscan._alertSignature(decisionFor(line1)),
+    errorscan._alertSignature(decisionFor(line3))
+  );
 });
 
 test('correlation collapses a fleet-wide signature into one notify and one all-clear', t => {
@@ -189,7 +227,11 @@ test('correlation collapses a fleet-wide signature into one notify and one all-c
   // Correlation state persists across a process restart.
   errorscan._resetForTest();
   const notInIncident = errorscan._resolveCorrelation(root, 'site-a-cron', now + 300_000);
-  assert.equal(notInIncident.inIncident, false, 'incident was already cleared and persisted as such');
+  assert.equal(
+    notInIncident.inIncident,
+    false,
+    'incident was already cleared and persisted as such'
+  );
 });
 
 test('below-threshold correlation resolves quietly with no fleet notify', t => {
@@ -207,7 +249,11 @@ test('below-threshold correlation resolves quietly with no fleet notify', t => {
   assert.equal(only.justNotified, false, 'never crossed CORRELATE_MIN_SITES');
 
   const resolved = errorscan._resolveCorrelation(root, 'site-a-cron', now + 2);
-  assert.equal(resolved.wasNotified, false, 'caller should fall back to a normal per-site recovery post');
+  assert.equal(
+    resolved.wasNotified,
+    false,
+    'caller should fall back to a normal per-site recovery post'
+  );
 });
 
 test('stale correlations are pruned so an incident cannot live forever without an all-clear', t => {
@@ -239,7 +285,13 @@ test('unconfirmed correlation membership expires so unrelated same-signature flu
   // membership must not count toward the threshold.
   errorscan._noteCorrelation(root, sig, decision, 'site-a-cron', now);
   errorscan._noteCorrelation(root, sig, decision, 'site-b-cron', now + 65 * 60 * 1000);
-  const c = errorscan._noteCorrelation(root, sig, decision, 'site-c-cron', now + 65 * 60 * 1000 + 1);
+  const c = errorscan._noteCorrelation(
+    root,
+    sig,
+    decision,
+    'site-c-cron',
+    now + 65 * 60 * 1000 + 1
+  );
 
   assert.equal(c.count, 2, 'site-a should have aged out of the window');
   assert.equal(c.justNotified, false, 'only 2 sites within the window — below CORRELATE_MIN_SITES');
@@ -257,7 +309,13 @@ test('a failed Slack post is recorded instead of vanishing silently', t => {
     textPreview: ':white_check_mark: recovered',
   });
 
-  const file = path.join(root, 'tools', 'fleet-dashboard', 'data', 'error-alert-post-failures.json');
+  const file = path.join(
+    root,
+    'tools',
+    'fleet-dashboard',
+    'data',
+    'error-alert-post-failures.json'
+  );
   const persisted = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.equal(persisted.length, 1);
   assert.equal(persisted[0].error, 'channel_not_found');

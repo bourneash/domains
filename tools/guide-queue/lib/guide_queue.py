@@ -30,6 +30,15 @@ import yaml
 
 STATUSES = ["ideas", "drafted", "ready", "released", "rejected"]
 
+# File-size floors intentionally mirror generate-guide-images.py's validation
+# floors.  The shared queue library cannot inspect pixels (and should not grow
+# a Pillow dependency), but it can prevent an unset path, missing file, empty
+# placeholder, or path escape from reaching a publisher.
+IMAGE_MIN_BYTES = {
+    "hero_image": 8_000,
+    "card_image": 4_000,
+}
+
 # Queue-only frontmatter keys — never copied into the live site content file.
 QUEUE_FIELDS = [
     "queue_id",
@@ -249,6 +258,75 @@ def oldest(site_root: Path, status: str) -> dict | None:
     items = [it for it in list_status(site_root, status) if not it.get("parse_error")]
     items.sort(key=lambda it: (it["meta"].get("created") or "", it["file"]))
     return items[0] if items else None
+
+
+def image_status(
+    site_root: Path,
+    status: str,
+    filename: str,
+    required_fields: list[str],
+) -> dict:
+    """Return the required-art state for one publishable queue item.
+
+    Image paths are queue-owned frontmatter and must resolve inside the site
+    repository.  Treat suspiciously small files as missing so a truncated
+    download cannot pass the publisher preflight merely because it exists.
+    """
+    root = Path(site_root).resolve()
+    item = get_item(root, status, filename)
+    missing: list[dict[str, str]] = []
+    for field in required_fields:
+        if field not in IMAGE_MIN_BYTES:
+            raise GuideQueueError(f"unsupported required image field: {field!r}")
+        value = item["meta"].get(field)
+        if not isinstance(value, str) or not value.strip():
+            missing.append({"field": field, "reason": "unset"})
+            continue
+        candidate = (root / value).resolve()
+        try:
+            candidate.relative_to(root)
+        except ValueError:
+            missing.append({"field": field, "reason": "outside-site-root"})
+            continue
+        if not candidate.is_file():
+            missing.append({"field": field, "reason": "missing-file"})
+            continue
+        if candidate.stat().st_size < IMAGE_MIN_BYTES[field]:
+            missing.append({"field": field, "reason": "too-small"})
+
+    meta = item["meta"]
+    return {
+        "ok": not missing,
+        "file": filename,
+        "status": status,
+        "queue_id": meta.get("queue_id") or slugify(meta.get("title", filename)),
+        "title": meta.get("title", filename),
+        "created": meta.get("created") or "",
+        "required": required_fields,
+        "missing": missing,
+    }
+
+
+def oldest_missing_images(
+    site_root: Path,
+    required_fields: list[str],
+    statuses: tuple[str, ...] = ("ready", "drafted"),
+) -> dict | None:
+    """Return the oldest queue item whose required artwork is incomplete.
+
+    Ready items take priority over drafts, matching the publisher's own queue
+    preference.  Within a column, preserve the normal created-date ordering.
+    Corrupt frontmatter remains visible in the dashboard but is skipped here;
+    image repair cannot safely infer a queue id or path from it.
+    """
+    for status in statuses:
+        items = [it for it in list_status(site_root, status) if not it.get("parse_error")]
+        items.sort(key=lambda it: (it["meta"].get("created") or "", it["file"]))
+        for item in items:
+            result = image_status(site_root, status, item["file"], required_fields)
+            if not result["ok"]:
+                return result
+    return None
 
 
 def strip_queue_fields(meta: dict) -> dict:

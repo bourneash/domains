@@ -24,6 +24,9 @@ cross-link into ones already indexed).
 
 ```
 tools/guide-queue/
+  bin/
+    run-image-repair.sh  # cheap cron gate + durable exponential backoff
+    repair-images.sh     # worker-side generate/validate/commit/push
   lib/
     guide_queue.py   # parse/serialize/list/move/add-idea — the whole model
     cli.py            # thin CLI wrapper, JSON in/out, for the bash role scripts
@@ -39,6 +42,14 @@ Mounted read-only into a site's worker container the same way
 body, same convention as `ops/tasks/`. See `guide_queue.py`'s module
 docstring and `QUEUE_FIELDS` for the exact frontmatter contract (which keys
 are queue-only vs. real content frontmatter that ships as-is to the site).
+
+`manual.guide_required_images` in each site's `ops/tracked.yaml` is the
+publish contract (`[hero_image]` or `[hero_image, card_image]`). Publishers
+call `cli.py check-images` before shipping. `run-image-repair.sh` scans the
+same contract hourly, retries the oldest incomplete ready/drafted item with
+bounded exponential backoff, and emits structured `GUIDE_IMAGE_FAILURE` /
+`GUIDE_IMAGE_RECOVERY` events for the fleet error monitor. It never invokes a
+language model or rewrites prose.
 
 ## Installing on a new site
 

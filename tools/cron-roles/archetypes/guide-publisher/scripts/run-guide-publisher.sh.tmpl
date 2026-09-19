@@ -35,6 +35,18 @@ try:
 except Exception:
     print(5)
 " 2>/dev/null || echo 5)
+mapfile -t REQUIRED_IMAGES < <(python3 - <<'PY'
+import yaml
+try:
+    data = yaml.safe_load(open("ops/tracked.yaml")) or {}
+except Exception:
+    data = {}
+fields = (data.get("manual") or {}).get("guide_required_images")
+if not isinstance(fields, list) or not fields:
+    fields = ["hero_image", "card_image"]
+print("\n".join(str(field) for field in fields))
+PY
+)
 
 LAST_RELEASED_FILE="ops/guide-queue/.last-released"
 NOW=$(date +%s)
@@ -76,6 +88,12 @@ while (( ATTEMPT < 3 )); do
 
   CANDIDATE_FILE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['file'])")
   CANDIDATE_TITLE=$(echo "$CANDIDATE" | python3 -c "import json,sys; print(json.load(sys.stdin)['meta'].get('title',''))")
+  IMAGE_CHECK=$(python3 "$GQ_CLI" check-images "$REPO_ROOT" "$SOURCE_STATUS" "$CANDIDATE_FILE" "${REQUIRED_IMAGES[@]}")
+  if ! python3 -c 'import json,sys; raise SystemExit(0 if json.load(sys.stdin)["ok"] else 1)' <<<"$IMAGE_CHECK"; then
+    MISSING=$(python3 -c 'import json,sys; print(",".join(x["field"] for x in json.load(sys.stdin)["missing"]))' <<<"$IMAGE_CHECK")
+    echo "[guide-publisher] waiting for image repair: $CANDIDATE_FILE missing=$MISSING"
+    exit 0
+  fi
   echo "[guide-publisher] releasing from $SOURCE_STATUS/: $CANDIDATE_FILE — $CANDIDATE_TITLE"
 
   RUN_NAME="{{SITE_NAME_SLUG}}-guide-publish-$$-$ATTEMPT"

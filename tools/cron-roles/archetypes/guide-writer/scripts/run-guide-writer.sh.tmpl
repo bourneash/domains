@@ -16,6 +16,13 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 
+mkdir -p ops/.locks
+exec 8>ops/.locks/guide-images.lock
+if ! flock -n 8; then
+  echo "[guide-writer] guide image pipeline busy — deferring this writer run"
+  exit 0
+fi
+
 GUIDE_QUEUE_LIB_DIR="$REPO_ROOT/.monorepo-tools/guide-queue/lib"
 [[ -d "$GUIDE_QUEUE_LIB_DIR" ]] || GUIDE_QUEUE_LIB_DIR="$REPO_ROOT/../../tools/guide-queue/lib"
 MEDIA_GEN_CLIENT_DIR="$REPO_ROOT/.monorepo-tools/media-gen/client"
@@ -126,7 +133,7 @@ python3 ops/scripts/generate-guide-images.py "$REPO_ROOT" drafted "$DRAFT_FILE" 
 IMG_STATUS=$?
 set -e
 if [[ $IMG_STATUS -ne 0 ]]; then
-  echo "[guide-writer] image generation failed — committing the text draft anyway, images can be regenerated later" >&2
+  echo "CRIT GUIDE_IMAGE_FAILURE site={{SITE_NAME}} queue_id=${DRAFT_FILE%.md} missing=hero_image,card_image source=guide-writer exit=$IMG_STATUS — text draft committed for repair" >&2
 fi
 
 # --- Commit (harness-owned, not Claude's — see role prompt) ---

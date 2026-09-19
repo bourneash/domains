@@ -13,6 +13,8 @@ Usage:
   cli.py write <site_root> <status> <file> <meta_json_path> <body_path>
   cli.py strip-queue-fields <meta_json_path>     -> stripped meta JSON
   cli.py existing-titles <site_root>             -> ["title", ...]
+  cli.py check-images <site_root> <status> <file> <field>...
+  cli.py oldest-missing-images <site_root> <field>...
 """
 from __future__ import annotations
 
@@ -25,7 +27,10 @@ import guide_queue as gq  # noqa: E402
 
 
 def _out(obj) -> None:
-    print(json.dumps(obj, indent=2, ensure_ascii=False))
+    # PyYAML intentionally decodes unquoted ISO dates as date objects. Queue
+    # metadata is JSON-facing through this CLI, so serialize those values in
+    # their stable ISO string form instead of failing the whole command.
+    print(json.dumps(obj, indent=2, ensure_ascii=False, default=str))
 
 
 def main(argv: list[str]) -> int:
@@ -67,6 +72,16 @@ def main(argv: list[str]) -> int:
         elif cmd == "existing-titles":
             (site_root,) = args
             _out(sorted(gq.existing_titles(Path(site_root))))
+        elif cmd == "check-images":
+            site_root, status, file, *fields = args
+            if not fields:
+                raise ValueError("at least one required image field is required")
+            _out(gq.image_status(Path(site_root), status, file, fields))
+        elif cmd == "oldest-missing-images":
+            site_root, *fields = args
+            if not fields:
+                raise ValueError("at least one required image field is required")
+            _out(gq.oldest_missing_images(Path(site_root), fields))
         else:
             print(f"unknown subcommand: {cmd}", file=sys.stderr)
             return 2

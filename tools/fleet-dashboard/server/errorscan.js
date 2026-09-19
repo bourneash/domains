@@ -47,9 +47,10 @@ const CORRELATE_STALE_MS = 24 * 60 * 60 * 1000; // safety net: drop an incident 
 const CHANNEL_ENV_OVERRIDE = { '0daynews.com': 'SLACK_CHANNEL_0DAYNEWS' };
 
 // Order matters: crit beats error beats warn for a given line.
-const CRIT_RE = /\b(panic|fatal|out of memory|oom.?killed|segfault)\b/i;
+const CRIT_RE = /\b(panic|fatal|out of memory|oom.?killed|segfault|GUIDE_IMAGE_FAILURE)\b/i;
 const ERROR_RE = /\b(error|exception|traceback|failed|failure)\b/i;
 const WARN_RE = /\bwarn(?:ing)?\b/i;
+const GUIDE_IMAGE_RECOVERY_RE = /\bGUIDE_IMAGE_RECOVERY\b/;
 
 // Fleet-wide boilerplate that would otherwise drown real signal: supercronic
 // (the cron scheduler every site's cron container runs) logs a "warning" for
@@ -239,7 +240,8 @@ function persistPostFailures(root) {
 function recordPostFailure(root, entry) {
   loadPostFailures(root);
   POST_FAILURES.push({ at: Date.now(), ...entry });
-  if (POST_FAILURES.length > MAX_POST_FAILURES) POST_FAILURES = POST_FAILURES.slice(-MAX_POST_FAILURES);
+  if (POST_FAILURES.length > MAX_POST_FAILURES)
+    POST_FAILURES = POST_FAILURES.slice(-MAX_POST_FAILURES);
   persistPostFailures(root);
 }
 
@@ -322,7 +324,12 @@ async function postFleetSlack(root, text, color = 'danger') {
   } catch (err) {
     // Never throw — see comment above recordPostFailure — but never swallow
     // silently either.
-    recordPostFailure(root, { channel, status: null, error: String(err?.message || err), textPreview: text.slice(0, 200) });
+    recordPostFailure(root, {
+      channel,
+      status: null,
+      error: String(err?.message || err),
+      textPreview: text.slice(0, 200),
+    });
   }
 }
 
@@ -333,7 +340,14 @@ function noteCorrelation(root, sig, decision, siteName, now) {
   loadCorrelatedIncidents(root);
   let rec = CORRELATED_INCIDENTS.get(sig);
   if (!rec) {
-    rec = { sites: {}, notifiedAt: null, firstAt: now, lastAt: now, label: decision.label, sampleLine: (decision.trigger && decision.trigger.line) || '' };
+    rec = {
+      sites: {},
+      notifiedAt: null,
+      firstAt: now,
+      lastAt: now,
+      label: decision.label,
+      sampleLine: (decision.trigger && decision.trigger.line) || '',
+    };
     CORRELATED_INCIDENTS.set(sig, rec);
   }
   // Before a fleet-wide incident is confirmed, membership should only count
@@ -375,7 +389,14 @@ function resolveCorrelation(root, siteName, now) {
       incidentCleared = wasNotified;
     }
     persistCorrelatedIncidents(root);
-    return { inIncident: true, incidentSig: sig, incidentCleared, wasNotified, remaining, record: rec };
+    return {
+      inIncident: true,
+      incidentSig: sig,
+      incidentCleared,
+      wasNotified,
+      remaining,
+      record: rec,
+    };
   }
   return { inIncident: false };
 }
@@ -446,7 +467,12 @@ async function postSlackAlert(root, slug, text, color = 'danger') {
       });
     }
   } catch (err) {
-    recordPostFailure(root, { channel, status: null, error: String(err?.message || err), textPreview: text.slice(0, 200) });
+    recordPostFailure(root, {
+      channel,
+      status: null,
+      error: String(err?.message || err),
+      textPreview: text.slice(0, 200),
+    });
   }
 }
 
@@ -503,14 +529,24 @@ function alertDecision(c, recent1h, prevAlertAt, now) {
 // ledger survives dashboard restarts. This also closes the race where two
 // overlapping slow sweeps both captured the same stale STATE entry before
 // either docker-logs call returned.
-function claimAlert(root, c, recent1h, now) {
+function claimAlert(root, c, recent1h, now, explicitRecovery = null) {
   loadAlertCooldowns(root);
   loadAlertState(root);
   const key = c.name || `${c.slug || 'unknown'}:${c.kind || 'container'}`;
   const prevAlertAt = ALERT_COOLDOWNS.get(key) || null;
   const decision = alertDecision(c, recent1h, prevAlertAt, now);
+  // A successful repair is stronger evidence than waiting for old failure
+  // lines to age out of the rolling hour. It also prevents an alert when a
+  // failure and its later validated recovery arrive in the same sweep.
+  const explicitlyRecovered = Boolean(
+    explicitRecovery && (!decision.trigger || explicitRecovery.tsMs >= decision.trigger.tsMs)
+  );
+  if (explicitlyRecovered) decision.shouldAlert = false;
   const shouldResolve =
-    decision.alertEligible && ACTIVE_ALERTS.has(key) && !decision.hasCrit1h && decision.errorish1h < ALERT_ERROR_1H_THRESHOLD;
+    decision.alertEligible &&
+    ACTIVE_ALERTS.has(key) &&
+    (explicitlyRecovered ||
+      (!decision.hasCrit1h && decision.errorish1h < ALERT_ERROR_1H_THRESHOLD));
   if (decision.shouldAlert) {
     ALERT_COOLDOWNS.set(key, now);
     persistAlertCooldowns(root);
@@ -523,6 +559,7 @@ function claimAlert(root, c, recent1h, now) {
   return {
     ...decision,
     shouldResolve,
+    explicitlyRecovered,
     lastAlertAt: decision.shouldAlert ? now : prevAlertAt,
   };
 }
@@ -539,10 +576,12 @@ async function scanOne(root, c) {
 
   const prevSinceMs = prev ? Date.parse(prev.sinceIso) : null;
   const matches = prev ? prev.matches.slice() : [];
+  let explicitRecovery = null;
   let sinceIso = prev ? prev.sinceIso : null;
   for (const { tsMs, tsIso, text } of parsed) {
     if (!sinceIso || tsMs > Date.parse(sinceIso)) sinceIso = tsIso;
     if (prevSinceMs != null && tsMs <= prevSinceMs) continue; // re-fetched boundary line, already counted
+    if (GUIDE_IMAGE_RECOVERY_RE.test(text)) explicitRecovery = { tsMs, line: text.slice(0, 2000) };
     const level = classify(text);
     if (level) matches.push({ tsMs, level, line: text.slice(0, 2000) });
   }
@@ -560,7 +599,7 @@ async function scanOne(root, c) {
   // escalate(), so a chronic failure alerts once per window, not every sweep.
   const h1 = now - 60 * 60 * 1000;
   const recent1h = trimmed.filter(m => m.tsMs >= h1);
-  const decision = claimAlert(root, c, recent1h, now);
+  const decision = claimAlert(root, c, recent1h, now, explicitRecovery);
 
   STATE.set(c.id, {
     name: c.name,
@@ -591,8 +630,11 @@ async function scanOne(root, c) {
         postFleetSlack(root, text).catch(() => {});
       }
     } else {
+      const alertSummary = decision.hasCrit1h
+        ? `${decision.label}`
+        : `${decision.label} (${decision.errorish1h} error/crit line(s) in the last hour)`;
       const text =
-        `:rotating_light: *${c.name}* — ${decision.label} (${decision.errorish1h} error/crit line(s) in the last hour)\n` +
+        `:rotating_light: *${c.name}* — ${alertSummary}\n` +
         `Trigger: \`${((decision.trigger && decision.trigger.line) || '').slice(0, 300)}\`\n` +
         'Fleet Dashboard → Errors tab for detail.';
       postSlackAlert(root, c.slug, text).catch(() => {});
@@ -602,16 +644,21 @@ async function scanOne(root, c) {
     const corr = resolveCorrelation(root, c.name, now);
     if (corr.inIncident && corr.wasNotified) {
       if (corr.incidentCleared) {
+        const outcome = decision.explicitlyRecovered
+          ? 'repaired; required guide artwork validated'
+          : 'quiet; alert window cleared';
         const text =
-          `:white_check_mark: *Fleet-wide ${corr.record.label}* — recovered; all affected sites clear\n` +
+          `:white_check_mark: *Fleet-wide ${corr.record.label}* — ${outcome}\n` +
           `Recovered: ${Object.keys(corr.record.sites).length ? Object.keys(corr.record.sites).sort().join(', ') : c.name}`;
         postFleetSlack(root, text, 'good').catch(() => {});
       }
       // else: still waiting on other sites in this incident — stay silent for this one
     } else {
-      const text =
-        `:white_check_mark: *${c.name}* — recovered; error condition cleared\n` +
-        'No critical or repeated error lines remain in the last hour.';
+      const text = decision.explicitlyRecovered
+        ? `:white_check_mark: *${c.name}* — repaired; required guide artwork validated\n` +
+          `Recovery: \`${(explicitRecovery?.line || '').slice(0, 300)}\``
+        : `:white_check_mark: *${c.name}* — quiet; alert window cleared\n` +
+          'No critical or repeated error lines remain in the last hour. This is log quiet, not a verified retry.';
       postSlackAlert(root, c.slug, text, 'good').catch(() => {});
     }
   }
