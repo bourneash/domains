@@ -23,6 +23,7 @@ if ! command -v sqlite3 >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "[pre-commit] Refreshing tracked Vaultwarden recovery snapshot (expected on every monorepo commit)."
 if ! VAULTWARDEN_DB="$VAULT_DB" "$BACKUP_SCRIPT" >/dev/null; then
   echo "Vaultwarden backup: snapshot failed; commit blocked." >&2
   exit 1
@@ -36,5 +37,6 @@ if ! git -C "$REPO_ROOT" add \
   echo "Vaultwarden backup: snapshot could not be staged; commit blocked." >&2
   exit 1
 fi
+echo "[pre-commit] Staged credential-vault-backup snapshot files; keep them in this commit."
 
 exit 0

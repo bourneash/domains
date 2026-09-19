@@ -34,6 +34,13 @@ than re-deriving the process from scratch.
 
 - Site repos are git submodules — commit inside the submodule first, then stage the pointer bump
   in this repo. Don't `git add -A` at the top level; other sessions may have unrelated work staged.
+- **Mandatory exception to scoped staging:** every top-level monorepo commit intentionally refreshes
+  and includes the tracked Vaultwarden recovery snapshot. Changes to
+  `tools/credential-vault-backup/data/db.sqlite3`, `docker-compose.yml`, and `last-backup.txt` are
+  expected; do not discard, unstage, or exclude them as unrelated work. The shared pre-commit hook
+  snapshots and stages these files automatically. The database contains client-side-encrypted
+  vault blobs but is still sensitive; keep it in this private repository only. See
+  `tools/credential-vault-backup/README.md`.
 - `.env.shared` is gitignored and chmod 400 — unlock before edits, relock after.
 - Worker containers that mount the repo read-write run as uid 1000 (`ops`), never root.
 - See `domains-skills`' own skills for anything role/audit/launch-shaped before improvising.
