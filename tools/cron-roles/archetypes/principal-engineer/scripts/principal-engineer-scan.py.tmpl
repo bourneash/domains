@@ -238,11 +238,16 @@ def main():
         incidents[fp] = inc
         touched[fp] = inc
 
-    # Decide at most ONE incident to act on this tick: prefer a touched
-    # (freshly-seen) fingerprint that is open, under the attempt cap, and
-    # past cooldown since its last dispatch.
+    # Decide at most ONE incident to act on this tick. Prefer a touched
+    # (freshly-seen) fingerprint, then retry older open incidents after their
+    # cooldown. Early worker exits deliberately reopen incidents (dirty tree,
+    # network outage, push failure); limiting selection to `touched` strands
+    # those records forever once the Slack cursor has advanced.
     action_fp = None
-    for fp, inc in touched.items():
+    candidates = list(touched)
+    candidates.extend(fp for fp in incidents if fp not in touched)
+    for fp in candidates:
+        inc = incidents[fp]
         if inc.get("status") not in ("open", None):
             continue
         if int(inc.get("attempts", 0)) >= MAX_ATTEMPTS:

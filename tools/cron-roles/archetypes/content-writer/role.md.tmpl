@@ -47,8 +47,11 @@ widening it beyond the brief — a smaller finished piece beats a bigger one tha
    task-budget helper so the turn limit is sized for the task you actually pick.
 3. Do the work — write new content or refresh existing content per the
    checklists below.
-4. Commit the change with a clear message.
-5. Move the task to `ops/tasks/done/`.
+4. Run the build gate below.
+5. Move the task to `ops/tasks/done/`, then commit the content and task-board
+   transition together with a clear message. This ordering is atomic: if a run
+   reaches its turn cap after committing, it must not leave the completed task
+   dirty in `in-progress/` for another role to misclassify as unrelated work.
 
 > Note: you do NOT need to touch `.deploy-needed` yourself. The harness
 > (`run-role.sh`) does this deterministically after your run, at the correct
