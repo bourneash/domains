@@ -93,7 +93,10 @@ if card_src and (repo_root / card_src).is_file():
     shutil.copyfile(repo_root / card_src, cards_dir / f"{qid}.webp")
     got_card = True
 
-if got_card:
+# guideIcons.ts is optional: sites whose templates glob cards straight out of
+# public/images/guides/cards/ never adopted it. Skip the map update when the
+# file isn't there instead of dying on it (eastcoastrappers.com, 2026-09-20).
+if got_card and (repo_root / "site" / "src" / "lib" / "guideIcons.ts").is_file():
     icons_ts = repo_root / "site" / "src" / "lib" / "guideIcons.ts"
     text = icons_ts.read_text(encoding="utf-8")
     entry = f"  '{qid}': '{qid}',"
