@@ -115,6 +115,10 @@ def _run_cli(prompt: str, model: str, site: str, timeout: int = 240) -> str:
             "",
             "--disallowedTools",
             "Bash,Edit,Write,NotebookEdit,Read,Glob,Grep,WebFetch,WebSearch,Agent,Task",
+            # No skills, no MCP servers: ~40% cheaper per call (17K -> 9K cache-write
+            # tokens measured 2026-09-20). Pure text drafting needs neither.
+            "--disable-slash-commands",
+            "--strict-mcp-config",
         ],
         capture_output=True,
         text=True,

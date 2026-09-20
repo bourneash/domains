@@ -208,6 +208,25 @@ if [[ -z "$requested_model" ]]; then
   echo "claude-tracked.sh: no --model from caller (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE) — pinning fleet default $FLEET_DEFAULT_MODEL" >&2
 fi
 
+# ---- Lean CLI overhead (2026-09-20) ----
+# Every `claude -p` pays ~17K cache-write tokens for the CLI's own system prompt,
+# skill listing and MCP server tool schemas before the role's prompt even starts.
+# --disable-slash-commands (no skills) + --strict-mcp-config (no MCP servers, we
+# pass none) cut a Haiku no-tool call from $0.035 to $0.020 (-42%, measured on
+# the americastrikes breaking-news judge). Roles that use neither skills nor MCP
+# opt in: CLAUDE_LEAN=1, or by name via CLAUDE_LEAN_ROLES (default: promoter).
+# Explicit caller flags win; CLAUDE_LEAN=0 forces off.
+_lean_roles=" ${CLAUDE_LEAN_ROLES:-promoter} "
+if [[ "${CLAUDE_LEAN:-}" == "1" || ( "${CLAUDE_LEAN:-}" != "0" && "$_lean_roles" == *" $CRON_ROLE "* ) ]]; then
+  _has_slash=0; _has_mcp=0
+  for _a in "${ARGS[@]}"; do
+    [[ "$_a" == "--disable-slash-commands" ]] && _has_slash=1
+    [[ "$_a" == "--strict-mcp-config" ]] && _has_mcp=1
+  done
+  [[ $_has_slash -eq 0 ]] && ARGS+=(--disable-slash-commands)
+  [[ $_has_mcp -eq 0 ]] && ARGS+=(--strict-mcp-config)
+fi
+
 # ---- Network preflight (2026-08-19 DNS-outage hardening) ----
 # Single choke point for every caller fleet-wide (run-role.sh, run-engineer.sh,
 # watchdog.sh, run-news-writer.sh, run-breaking-news.sh, run-product-scout.sh,
