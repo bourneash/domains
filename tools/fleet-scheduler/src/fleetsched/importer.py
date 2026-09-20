@@ -54,10 +54,11 @@ def _base_name(cmd: str) -> str:
 def _classify(cmd: str, name: str) -> tuple[str, int, int]:
     """-> (class, timeout_s, priority). Deployer/watchdog are 'light' so a saturated
     heavy pool of long Claude runs can never starve a deploy or an incident check."""
+    if name.split("-")[0] in ("deployer", "watchdog"):
+        # even when it spawns a worker (long run), it must never queue behind Claude roles
+        return "light", (7500 if HEAVY_RE.search(cmd) else 3600), 10
     if HEAVY_RE.search(cmd):
         return "heavy", 7500, 0
-    if name in ("deployer", "watchdog"):
-        return "light", 3600, 10
     if cmd.lstrip().startswith("find "):
         return "light", 300, -5
     return "light", 900, 0
