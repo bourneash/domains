@@ -836,6 +836,37 @@ if record.get("is_error") or int(status or 0) != 0:
         f"(site={site} role={role} class={failure} subtype={sub} turns={turns} exit={status})",
         file=sys.stderr,
     )
+
+    # ── worktree snapshot at cap time (salvage-triage evidence, 2026-09-19) ──
+    # A truncated run's spend is only recoverable if it left usable work behind.
+    # Record what it left (dirty/untracked paths, unpushed commits) so we can
+    # measure how often a `--resume <session_id> --max-turns N` salvage pass
+    # would have had something to finish, BEFORE building one. Observation only:
+    # never fails the wrapper, never touches the worktree.
+    if sub == "error_max_turns":
+        try:
+            import subprocess
+            def _git(*a):
+                return subprocess.run(["git", "-C", str(repo_root), *a], capture_output=True,
+                                      text=True, timeout=20).stdout
+            porcelain = [l for l in _git("status", "--porcelain").splitlines() if l.strip()]
+            snap = {
+                "recorded_at_unix": int(time.time()),
+                "site": site, "role": role,
+                "session_id": record.get("session_id"),
+                "num_turns": turns, "requested_max_turns": requested_max_turns,
+                "total_cost_usd": record.get("total_cost_usd"),
+                "dirty_count": len(porcelain),
+                "untracked_count": sum(1 for l in porcelain if l.startswith("??")),
+                "dirty_paths": [l[3:] for l in porcelain][:20],
+                "unpushed_commits": len([l for l in _git("log", "--oneline", "@{u}..HEAD").splitlines() if l.strip()]),
+                "diff_stat": _git("diff", "--shortstat", "HEAD").strip(),
+            }
+            snap_path = os.path.join(os.path.dirname(str(ledger_path)), f"max-turns-worktree-{time.strftime('%Y-%m-%d', time.gmtime())}.jsonl")
+            with open(snap_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(snap, sort_keys=True) + "\n")
+        except Exception as exc:  # noqa: BLE001 - observation must never break the wrapper
+            print(f"claude-tracked.sh: worktree snapshot skipped: {exc}", file=sys.stderr)
 PYEOF
 
 exit "$STATUS"
