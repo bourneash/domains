@@ -431,11 +431,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
       const target = req.body?.state;
       if (['deployed', 'rolled-back'].includes(target))
-        return res
-          .status(400)
-          .json({
-            error: `use the guarded ${target === 'deployed' ? 'deploy' : 'rollback'} action`,
-          });
+        return res.status(400).json({
+          error: `use the guarded ${target === 'deployed' ? 'deploy' : 'rollback'} action`,
+        });
       if (target === 'building') await syncImprovementTask(root, item, 'in-progress');
       if (target === 'cancelled') {
         const cleanup = await cleanupImprovementResources(root, item);
@@ -739,16 +737,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         },
       });
       seoIntelligence.clearCache();
-      res
-        .status(201)
-        .json({
-          ok: true,
-          file,
-          site,
-          task_id: taskId,
-          correlation_id: correlationId,
-          assigned_role: assignedRole,
-        });
+      res.status(201).json({
+        ok: true,
+        file,
+        site,
+        task_id: taskId,
+        correlation_id: correlationId,
+        assigned_role: assignedRole,
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
@@ -945,7 +941,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
-  // Seven-day role health: observed logs/pulses, failures, AI cost, and
+  // Seven-day role health: expected-vs-observed runs, failures, AI cost, and
   // prompt/runner drift. The role matrix remains the enrollment source.
   app.get('/api/agents/:role/health', async (req, res) => {
     try {
@@ -2054,6 +2050,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ ok: false, error: e.message });
     }
   });
+
+  // Fleet Scheduler control plane (proxy to tools/fleet-scheduler).
+  require('./scheduler').register(app);
 
   // JSON 404 for unmatched API routes (B5) — anything under /api/* that no route
   // handled returns { error } JSON, not the static middleware's HTML 404.

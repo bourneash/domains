@@ -494,15 +494,15 @@ function engineerHealthPanel(data) {
     .map(
       r => `<tr data-fleet-row data-site="${esc(r.site)}">
     <td>${siteLink(r.site)}</td><td><span class="badge ${r.state === 'fresh' ? 'b-green' : r.state === 'paused' ? 'b-gray' : r.state === 'overdue' ? 'b-red' : 'b-yellow'}">${esc(r.state)}</span></td>
-    <td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td><td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
+    <td class="mono">${r.expected}</td><td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td><td class="mono">${r.missed ? `<span class="flag">${r.missed}</span>` : '0'}</td><td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
     <td class="cn-actions"><button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>${r.worker ? ` <button class="btn sm ag-health-toggle" data-site="${esc(r.site)}" data-role="engineer" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>` : ''}${r.worker && r.enabled ? ` <button class="btn sm ag-health-run" data-site="${esc(r.site)}">▶ Run</button>` : ''}</td>
   </tr>${healthDetailRow(r)}`
     )
     .join('');
-  return `<details class="card ag-health" open><summary><strong>Agent health · last ${data.windowDays} days</strong><span class="muted">${data.summary.observed} observed runs · ${data.summary.failed} failures · ${fmtUSD(data.summary.costUsd)} AI cost</span></summary>
-    <div class="task-toolbar ag-health-toolbar"><span>${data.summary.fresh} fresh · ${data.summary.stale} stale · ${data.summary.overdue} overdue · ${data.summary.paused} paused</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
-    <p class="muted ag-health-note">Run counts are observed log runs, not proof that every scheduled tick fired. AI cost comes from the tracked usage ledger.</p>
-    <table><thead><tr><th>Site</th><th>State</th><th>Runs</th><th>OK</th><th>Failed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="8" class="empty">No enrolled sites.</td></tr>'}</tbody></table></details>`;
+  return `<details class="card ag-health" open><summary><strong>Agent health · last ${data.windowDays} days</strong><span class="muted">${data.summary.expected} expected · ${data.summary.missed} missed · ${data.summary.failed} failures · ${fmtUSD(data.summary.costUsd)} AI cost</span></summary>
+    <div class="task-toolbar ag-health-toolbar"><span>${data.summary.fresh} fresh · ${data.summary.stale} stale · ${data.summary.overdue} overdue · ${data.summary.paused} paused</span><span>${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
+    <p class="muted ag-health-note">Expected slots come from the active cron schedule. A missed slot means no matching run evidence was found; paused roles are excluded. AI cost comes from the tracked usage ledger.</p>
+    <table><thead><tr><th>Site</th><th>State</th><th>Expected</th><th>Observed</th><th>OK</th><th>Failed</th><th>Missed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="10" class="empty">No enrolled sites.</td></tr>'}</tbody></table></details>`;
 }
 
 function healthDetailRow(row) {
@@ -514,7 +514,16 @@ function healthDetailRow(row) {
         )
         .join('')
     : '<li class="muted">No recent failures recorded.</li>';
-  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}"><td colspan="8"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
+  const slots = (row.execution?.slots || []).slice(-12).reverse();
+  const history = slots.length
+    ? slots
+        .map(
+          slot =>
+            `<li><span class="badge ${slot.status === 'ok' ? 'b-green' : slot.status === 'missed' ? 'b-red' : slot.status === 'failed' ? 'b-yellow' : 'b-gray'}">${esc(slot.status)}</span> ${esc(fmtDate(slot.at))}${slot.observedAt ? ` <span class="muted">observed ${esc(fmtDate(slot.observedAt))}</span>` : ''}</li>`
+        )
+        .join('')
+    : '<li class="muted">No expected run slots in this window.</li>';
+  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}"><td colspan="10"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
 }
 
 function toggleHealthDetail(button) {
@@ -3998,7 +4007,7 @@ async function renderGenericAgent(role) {
       r => `<tr data-fleet-row data-site="${esc(r.site)}">
     <td>${siteLink(r.site)}</td>
     <td><span class="badge ${r.state === 'fresh' ? 'b-green' : r.state === 'paused' ? 'b-gray' : r.state === 'overdue' ? 'b-red' : 'b-yellow'}">${esc(r.state)}</span></td>
-    <td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td>
+    <td class="mono">${r.expected}</td><td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td><td class="mono">${r.missed ? `<span class="flag">${r.missed}</span>` : '0'}</td>
     <td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
     <td class="cn-actions"><button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>${r.worker ? ` <button class="btn sm ag-health-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>` : ''}${r.worker && r.enabled ? ` <button class="btn sm ag-health-run" data-site="${esc(r.site)}">▶ Run</button>` : ''}</td>
   </tr>${healthDetailRow(r)}`
@@ -4006,10 +4015,10 @@ async function renderGenericAgent(role) {
     .join('');
   const healthPanel = healthData
     ? `<details class="card ag-health" open>
-    <summary><strong>Agent health · last ${healthData.windowDays} days</strong><span class="muted">${healthData.summary.observed} observed runs · ${healthData.summary.failed} failures · ${fmtUSD(healthData.summary.costUsd)} AI cost</span></summary>
-    <div class="task-toolbar ag-health-toolbar"><span>${healthData.summary.fresh} fresh · ${healthData.summary.stale} stale · ${healthData.summary.overdue} overdue · ${healthData.summary.paused} paused</span><span>${healthData.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
-    <p class="muted ag-health-note">Run counts are observed log runs, not proof that every scheduled tick fired. AI cost comes from the tracked usage ledger.</p>
-    <table><thead><tr><th>Site</th><th>State</th><th>Runs</th><th>OK</th><th>Failed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${healthRows || '<tr><td colspan="8" class="empty">No enrolled sites.</td></tr>'}</tbody></table>
+    <summary><strong>Agent health · last ${healthData.windowDays} days</strong><span class="muted">${healthData.summary.expected} expected · ${healthData.summary.missed} missed · ${healthData.summary.failed} failures · ${fmtUSD(healthData.summary.costUsd)} AI cost</span></summary>
+    <div class="task-toolbar ag-health-toolbar"><span>${healthData.summary.fresh} fresh · ${healthData.summary.stale} stale · ${healthData.summary.overdue} overdue · ${healthData.summary.paused} paused</span><span>${healthData.summary.expected} expected · ${healthData.summary.observed} observed · ${healthData.summary.missed} missed</span><span>${healthData.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
+    <p class="muted ag-health-note">Expected slots come from the active cron schedule. A missed slot means no matching run evidence was found; paused roles are excluded. AI cost comes from the tracked usage ledger.</p>
+    <table><thead><tr><th>Site</th><th>State</th><th>Expected</th><th>Observed</th><th>OK</th><th>Failed</th><th>Missed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${healthRows || '<tr><td colspan="10" class="empty">No enrolled sites.</td></tr>'}</tbody></table>
   </details>`
     : '';
 
@@ -8724,6 +8733,47 @@ function shSyncRoute() {
   history.replaceState(null, '', `#socialhub?${params.toString()}`);
 }
 
+function shSyncTabs() {
+  $$('[data-sh-tab]').forEach(button => {
+    const active = button.dataset.shTab === SH.tab;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', String(active));
+  });
+}
+
+let shRefreshToken = 0;
+function shRefreshStart() {
+  const body = $('#sh-body');
+  if (!body) return null;
+  const token = ++shRefreshToken;
+  document.querySelector('.sh-refresh-cover')?.remove();
+  const rect = body.getBoundingClientRect();
+  const cover = document.createElement('div');
+  cover.className = 'sh-refresh-cover';
+  cover.setAttribute('aria-hidden', 'true');
+  cover.style.top = `${rect.top}px`;
+  cover.style.left = `${rect.left}px`;
+  cover.style.width = `${rect.width}px`;
+  cover.style.height = `${rect.height}px`;
+  cover.innerHTML = body.innerHTML;
+  cover.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+  document.body.appendChild(cover);
+  body.classList.add('is-refreshing');
+  body.setAttribute('aria-busy', 'true');
+  return { body, cover, token, started: performance.now() };
+}
+
+function shRefreshEnd(state) {
+  if (!state || state.token !== shRefreshToken) return;
+  const wait = Math.max(0, 260 - (performance.now() - state.started));
+  setTimeout(() => {
+    if (state.token !== shRefreshToken || !state.body.isConnected) return;
+    state.body.classList.remove('is-refreshing');
+    state.body.removeAttribute('aria-busy');
+    state.cover?.remove();
+  }, wait);
+}
+
 function shBadgeStatus(status) {
   const cls =
     {
@@ -9033,16 +9083,20 @@ async function renderSocialHub() {
   // everything — avoids the flash/flicker and focus loss on every tick.
   const existingBody = $('#sh-body');
   if (!FRESH && existingBody && STATE.view === 'socialhub') {
+    shSyncTabs();
     const countEl = $('.page-head .muted');
     if (countEl)
       countEl.textContent = `${sites.length} managed site${sites.length === 1 ? '' : 's'}`;
-    if (SH.tab === 'overview') shRenderOverview(overview);
-    else if (SH.tab === 'oversight') shRenderOversight(overview.oversight || {});
-    else if (SH.tab === 'queue') shRenderQueue();
-    else if (SH.tab === 'calendar') shRenderCalendar();
-    else if (SH.tab === 'inbox') shRenderInbox();
-    else if (SH.tab === 'channels') shRenderChannels();
-    else if (SH.tab === 'events') shRenderEvents();
+    const refresh = shRefreshStart();
+    let tabRender;
+    if (SH.tab === 'overview') tabRender = shRenderOverview(overview);
+    else if (SH.tab === 'oversight') tabRender = shRenderOversight(overview.oversight || {});
+    else if (SH.tab === 'queue') tabRender = shRenderQueue();
+    else if (SH.tab === 'calendar') tabRender = shRenderCalendar();
+    else if (SH.tab === 'inbox') tabRender = shRenderInbox();
+    else if (SH.tab === 'channels') tabRender = shRenderChannels();
+    else if (SH.tab === 'events') tabRender = shRenderEvents();
+    Promise.resolve(tabRender).finally(() => shRefreshEnd(refresh));
     return;
   }
 
@@ -9059,11 +9113,13 @@ async function renderSocialHub() {
       ${tabs
         .map(
           ([id, label]) =>
-            `<button class="seg-btn ${SH.tab === id ? 'active' : ''}" data-sh-tab="${id}">${label}</button>`
+            `<button class="seg-btn ${SH.tab === id ? 'active' : ''}" data-sh-tab="${id}" role="tab" aria-selected="${SH.tab === id}">${label}</button>`
         )
         .join('')}
     </div>
     <div id="sh-body"><div class="loading">Loading…</div></div>`;
+
+  shSyncTabs();
 
   $('#sh-tick').addEventListener('click', async () => {
     const btn = $('#sh-tick');
@@ -9086,6 +9142,7 @@ async function renderSocialHub() {
   $$('[data-sh-tab]').forEach(b =>
     b.addEventListener('click', () => {
       SH.tab = b.dataset.shTab;
+      shSyncTabs();
       shSyncRoute();
       renderSocialHub();
     })
@@ -10148,6 +10205,7 @@ const NAV_GROUPS = {
     description: 'Run, deploy, and maintain the fleet infrastructure.',
     items: [
       ['cron', 'Cron'],
+      ['scheduler', 'Scheduler'],
       ['containers', 'Containers'],
       ['git', 'Git'],
       ['githygiene', 'Git Hygiene'],
@@ -10984,6 +11042,7 @@ function render() {
   else if (STATE.view === 'agents') return renderCategoryRoot('agents');
   else if (NAV_GROUPS[STATE.view]) return renderCategoryRoot(STATE.view);
   else if (STATE.view === 'cron') return renderCron();
+  else if (STATE.view === 'scheduler') return renderScheduler();
   else if (STATE.view === 'agent') return renderAgent(STATE.agent);
   else if (STATE.view === 'containers') return renderContainers();
   else if (STATE.view === 'git') return renderGit();
@@ -11078,7 +11137,7 @@ function renderCategoryRoot(id) {
         label,
         description,
       ]) => `<button class="nav-root-card" type="button" data-root-target="${esc(key)}">
-      <span class="nav-root-icon" aria-hidden="true">${typeof globalThis.fleetNavIcon === 'function' ? globalThis.fleetNavIcon(isAgents ? 'agent' : key) : ''}</span>
+      <span class="nav-root-icon" aria-hidden="true">${isAgents && typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(key) : typeof globalThis.fleetNavIcon === 'function' ? globalThis.fleetNavIcon(key) : ''}</span>
       <span class="nav-root-card-copy"><strong>${esc(label)}</strong><span>${esc(description)}</span></span>
       <span class="nav-root-arrow" aria-hidden="true">→</span>
     </button>`
@@ -11137,7 +11196,7 @@ function buildAgentsMenu() {
     (STATE.agents || [])
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a.role)}">${esc(agentLabel(a.role))}<span class="dd-count">${a.sites}</span></a>`
+          `<a class="dd-item" data-role="${esc(a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a.role) : ''}<span>${esc(agentLabel(a.role))}</span><span class="dd-count">${a.sites}</span></a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>

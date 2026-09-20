@@ -1,0 +1,3 @@
+data/
+docker-compose.generated.yml
+__pycache__/

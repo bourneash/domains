@@ -47,6 +47,11 @@ services:
       DATAHUB_API: http://datahub-api:4760
       DATAHUB_IMAGES_API: http://datahub-images-api:4770
       PRODUCTFEED_API: http://product-feed-api:4761
+      # Fleet Scheduler control plane (tools/fleet-scheduler). The token is read from the
+      # scheduler's own data dir (already visible via the repo bind mount below) — never
+      # copied into this container's env or sent to the browser.
+      FLEET_SCHEDULER_URL: http://fleet-scheduler:4790
+      FLEET_SCHEDULER_TOKEN_FILE: ${HOME:-/home/jesse}/projects/domains/tools/fleet-scheduler/data/token
       # Social Hub shares vpn_proxy with the dashboard, so use its stable
       # container DNS name. The host publish remains loopback-only for local
       # operators; browsers never receive the hub token.
@@ -72,6 +77,7 @@ services:
       - default
       - vpn_proxy
       - product_feed
+      - fleet_control
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
@@ -96,6 +102,9 @@ services:
 
 networks:
   default:
+  fleet_control:
+    external: true
+    name: fleet-control
   product_feed:
     external: true
     name: product-feed_default

@@ -93,6 +93,9 @@ failures=0
 for dir in "$SITES_DIR"/*/; do
   [[ -d "$dir" ]] || continue
   site="$(basename "$dir")"
+  # Sites adopted by tools/fleet-scheduler have no per-site cron container by design;
+  # resurrecting it would double-fire every job. (Marker is maintained by the scheduler.)
+  [[ -e "$DOMAINS_ROOT/tools/fleet-scheduler/data/adopted/$site" ]] && continue
   compose_file="$dir/docker-compose.yml"
   [[ -f "$compose_file" ]] || continue
 
