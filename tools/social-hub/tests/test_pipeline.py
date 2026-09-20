@@ -492,3 +492,20 @@ def test_valid_yaml_frontmatter_unchanged_apart_from_comment_strip():
 
     fm = sources._parse_frontmatter('---\ntitle: "Quoted: fine"\nurl: https://x.test/\n---\n')
     assert fm == {"title": "Quoted: fine", "url": "https://x.test/"}
+
+
+def test_ingest_keeps_undated_spotlight_items_past_the_limit(monkeypatch):
+    from social_hub import sources
+
+    articles = [
+        {"source_id": f"a{i}", "source_type": "article", "title": f"A{i}", "url": f"https://x/{i}", "published_at": f"2026-09-{i:02d}T00:00:00Z"}
+        for i in range(1, 8)
+    ]
+    spot = [{"source_id": "s1", "source_type": "spotlight", "title": "S", "url": "https://x/", "published_at": ""}]
+    monkeypatch.setattr(sources, "discover", lambda domain, cfg=None: articles + spot)
+    seen = []
+    monkeypatch.setattr(sources.db, "one", lambda *a, **k: None)
+    monkeypatch.setattr(sources.db, "insert", lambda table, row: seen.append(row["source_id"]))
+    monkeypatch.setattr(sources.db, "log_event", lambda *a, **k: None)
+    sources.ingest("x.test", {"max_source_age_hours": 10**6}, limit=3)
+    assert "s1" in seen and len([s for s in seen if s.startswith("a")]) == 3

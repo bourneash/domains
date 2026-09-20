@@ -75,6 +75,46 @@ if [[ "$CLAUDE_BREAKER_ENABLED" == "1" && -f "$BREAKER_MARKER" ]]; then
 fi
 LEDGER="$LOG_DIR/token-usage-$(date -u +%Y-%m-%d).jsonl"
 
+# ---- Promoter backlog gate (2026-09-20) ----
+# promoter writes 2-4 spotlight files per run, but social-hub only posts ~1-2 a
+# day per site, so an unposted backlog builds and every extra file is spend on
+# copy that will not go out for weeks. Backlog = spotlight files whose slug is
+# not yet in ops/social/post-log.jsonl (site-local, so this works inside a site
+# container with no hub DB access). At or above PROMOTER_BACKLOG_MAX (default 8)
+# skip the whole run at zero cost, but never for more than 14 days, so a file
+# the hub will never post cannot wedge the role permanently.
+if [[ "$CRON_ROLE" == "promoter" && "${PROMOTER_BACKLOG_GATE:-1}" == "1" ]]; then
+  PROMOTER_STAMP="$REPO_ROOT/ops/.locks/promoter-last-run"
+  mkdir -p "$REPO_ROOT/ops/.locks" 2>/dev/null || true
+  PROMOTER_BACKLOG=$(python3 - "$REPO_ROOT" "$PROMOTER_STAMP" <<'PYEOF' 2>/dev/null || echo "-1 0"
+import json, os, sys, time
+root, stamp = sys.argv[1], sys.argv[2]
+posted = set()
+try:
+    with open(os.path.join(root, "ops/social/post-log.jsonl"), encoding="utf-8") as fh:
+        for line in fh:
+            try:
+                posted.add(json.loads(line).get("article_slug"))
+            except ValueError:
+                pass
+except OSError:
+    pass
+d = os.path.join(root, "ops/social/spotlight")
+files = [f[:-3] for f in os.listdir(d) if f.endswith(".md")] if os.path.isdir(d) else []
+backlog = sum(1 for f in files if f not in posted)
+age_days = (time.time() - os.path.getmtime(stamp)) / 86400 if os.path.exists(stamp) else 0  # no stamp yet: start the 14-day clock now
+print(backlog, int(age_days))
+PYEOF
+)
+  read -r _backlog _age_days <<<"$PROMOTER_BACKLOG"
+  if [[ "${_backlog:--1}" -ge "${PROMOTER_BACKLOG_MAX:-8}" && "${_age_days:-999}" -lt 14 ]]; then
+    echo "claude-tracked.sh: promoter backlog gate for $CRON_SITE — ${_backlog} spotlight items still unposted (>= ${PROMOTER_BACKLOG_MAX:-8}); skipping run at zero cost (forced run after 14 days idle, last ran ${_age_days}d ago)." >&2
+    [[ -e "$PROMOTER_STAMP" ]] || touch "$PROMOTER_STAMP" 2>/dev/null || true
+    exit 0
+  fi
+  touch "$PROMOTER_STAMP" 2>/dev/null || true
+fi
+
 # Strip any --output-format (and its value) the caller passed — we own that flag.
 ARGS=()
 skip_next=0

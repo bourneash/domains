@@ -373,7 +373,15 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
     of stale headlines, but it should still remember it saw them.
     """
     max_age = int(cfg.get("max_source_age_hours", 72))
-    found = discover(domain, cfg)[:limit]
+    # `limit` bounds the newest primary items only. Spotlight items are undated so
+    # discover() sorts them LAST; truncating the merged list dropped every one of
+    # them on any site with 25+ articles (reviewtattoo, 0daynews, americastrikes,
+    # sinderella, saveusfarms, ... 12+ sites), so the promoter's output was never
+    # ingested at all. They are tiny, idempotent per source_id, and drafting is
+    # already throttled by max_sources_per_run and queue_ceiling.
+    everything = discover(domain, cfg)
+    found = [i for i in everything if i.get("source_type") != "spotlight"][:limit]
+    found += [i for i in everything if i.get("source_type") == "spotlight"]
     new = skipped = 0
     now = db.utcnow()
 
