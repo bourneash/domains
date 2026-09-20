@@ -75,16 +75,18 @@ beyond `summary`:
 
 ```markdown
 ---
-title: <one line, this IS what gets posted verbatim if the model has nothing to add>
-summary: <1-3 sentences, the actual post copy — this is what social-hub drafts from>
-url: {{BASE_URL}}/           <!-- override to a specific page if the spotlight points somewhere deeper -->
+title: "<one line, this IS what gets posted verbatim if the model has nothing to add>"
+summary: "<1-3 sentences, the actual post copy — this is what social-hub drafts from>"
+url: {{BASE_URL}}/
 tags: [spotlight, <category>]
 kind: feature | question | cta | milestone
 ---
 ```
 
 `title` and `summary` are the only fields social-hub's copy-generation reads
-from — get the substance right there, not in prose padding.
+from — get the substance right there, not in prose padding. Always wrap both in
+double quotes (backslash-escape any inner `"`): an unquoted `title: Foo: bar` is
+invalid YAML. social-hub now tolerates it, but the quoted form is the contract.
 
 ## Voice rules (TUNE PER SITE)
 

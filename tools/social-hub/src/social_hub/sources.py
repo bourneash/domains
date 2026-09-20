@@ -54,10 +54,50 @@ def _parse_frontmatter(text: str) -> dict:
     match = FRONTMATTER_RE.match(text)
     if not match:
         return {}
+    block = match.group(1)
     try:
-        return yaml.safe_load(match.group(1)) or {}
+        data = yaml.safe_load(block) or {}
     except yaml.YAMLError:
+        # Model-written frontmatter routinely has an unquoted `title: Foo: bar`
+        # (a second ": " is a YAML mapping error). Before this fallback the whole
+        # block parsed to {}, the item lost its `url` (so social copy leaked a
+        # literal "{url}" link, blocked as template_leak) and its title. 173 of 826
+        # promoter spotlight files were affected fleet-wide (2026-09-20).
+        data = _lenient_frontmatter(block)
+    if not isinstance(data, dict):
         return {}
+    return {k: _strip_html_comment(v) for k, v in data.items()}
+
+
+_HTML_COMMENT_RE = re.compile(r"\s*<!--.*?-->\s*$", re.DOTALL)
+_KEY_LINE_RE = re.compile(r"^([A-Za-z_][\w-]*):[ \t]*(.*)$")
+
+
+def _strip_html_comment(value: Any) -> Any:
+    # The promoter template puts `<!-- override ... -->` after `url:`; YAML keeps
+    # it as part of the plain scalar, which would corrupt the link.
+    return _HTML_COMMENT_RE.sub("", value) if isinstance(value, str) else value
+
+
+def _lenient_frontmatter(block: str) -> dict:
+    """Line-oriented `key: value` fallback for frontmatter YAML rejects."""
+    out: dict = {}
+    for line in block.splitlines():
+        m = _KEY_LINE_RE.match(line)
+        if not m:
+            continue
+        key, raw = m.group(1), _strip_html_comment(m.group(2).strip())
+        if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in "\"'":
+            raw = raw[1:-1]
+        elif raw.startswith("[") and raw.endswith("]"):
+            try:
+                out[key] = yaml.safe_load(raw)
+                continue
+            except yaml.YAMLError:
+                out[key] = [t.strip().strip("\"'") for t in raw[1:-1].split(",") if t.strip()]
+                continue
+        out[key] = raw
+    return out
 
 
 def _first(fm: dict, keys: list[str], default: Any = "") -> Any:

@@ -466,3 +466,29 @@ def test_a_fleet_tick_is_budgeted_and_fair(synced, monkeypatch):
     # The next tick starts with a site the first one did not reach.
     second = worker.tick(publish=False)
     assert set(second["sites"]) != set(first["sites"])
+
+
+def test_frontmatter_with_unquoted_colon_title_still_yields_url():
+    from social_hub import sources
+
+    text = (
+        "---\n"
+        "title: European wheel: 2.7% house edge. American: 5.26%.\n"
+        "summary: One extra pocket: it matters.\n"
+        "url: https://0xroulette.com/   <!-- override -->\n"
+        "tags: [spotlight, cta]\n"
+        "kind: cta\n"
+        "---\n"
+    )
+    fm = sources._parse_frontmatter(text)
+    assert fm["title"] == "European wheel: 2.7% house edge. American: 5.26%."
+    assert fm["url"] == "https://0xroulette.com/"
+    assert fm["tags"] == ["spotlight", "cta"]
+    assert fm["kind"] == "cta"
+
+
+def test_valid_yaml_frontmatter_unchanged_apart_from_comment_strip():
+    from social_hub import sources
+
+    fm = sources._parse_frontmatter('---\ntitle: "Quoted: fine"\nurl: https://x.test/\n---\n')
+    assert fm == {"title": "Quoted: fine", "url": "https://x.test/"}
