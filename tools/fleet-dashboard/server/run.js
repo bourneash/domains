@@ -1,13 +1,17 @@
 'use strict';
 
 const { execFile } = require('node:child_process');
+const scheduler = require('./scheduler');
 const roles = require('./roles');
 const { siteCronContainer } = require('./cron/discovery');
 
 function sh(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
     execFile(cmd, args, { timeout: 15000, ...opts }, (err, stdout, stderr) => {
-      if (err) { err.stderr = stderr; return reject(err); }
+      if (err) {
+        err.stderr = stderr;
+        return reject(err);
+      }
       resolve(stdout);
     });
   });
@@ -27,7 +31,12 @@ function sh(cmd, args, opts = {}) {
 // for (1)/(2) to disambiguate them; the stem fallback cannot.
 async function cronContainer(root, slug) {
   const out = await sh('docker', ['ps', '--format', '{{.Names}}']);
-  const names = new Set(out.split('\n').map((n) => n.trim()).filter(Boolean));
+  const names = new Set(
+    out
+      .split('\n')
+      .map(n => n.trim())
+      .filter(Boolean)
+  );
   const candidates = [
     siteCronContainer(root, slug),
     `${slug.replace(/\./g, '-')}-cron`,
@@ -45,6 +54,7 @@ async function cronContainer(root, slug) {
 // in flight no-ops safely. We don't wait for completion (a real pass can take
 // minutes); the liveness pulse + Slack report the outcome.
 async function runEngineer(root, slug) {
+  if (scheduler.isAdopted(root, slug)) return scheduler.runNow(slug, 'engineer', 'fleet-dashboard');
   const container = await cronContainer(root, slug);
   if (!container) {
     const e = new Error(`no running cron container for ${slug}`);
@@ -61,12 +71,29 @@ async function runEngineer(root, slug) {
 // ad-hoc run while one is in flight no-ops safely).
 async function runRole(root, slug, role) {
   const r = String(role || '').toLowerCase();
-  if (!/^[a-z0-9-]+$/.test(r)) { const e = new Error('invalid role'); e.httpStatus = 400; throw e; }
+  if (!/^[a-z0-9-]+$/.test(r)) {
+    const e = new Error('invalid role');
+    e.httpStatus = 400;
+    throw e;
+  }
   const entry = roles.roleEntry(root, slug, r);
-  if (!entry) { const e = new Error('role is not scheduled on this site'); e.httpStatus = 404; throw e; }
-  if (!entry.worker) { const e = new Error('role is not run-now-capable (not a run-worker.sh role)'); e.httpStatus = 400; throw e; }
+  if (!entry) {
+    const e = new Error('role is not scheduled on this site');
+    e.httpStatus = 404;
+    throw e;
+  }
+  if (!entry.worker) {
+    const e = new Error('role is not run-now-capable (not a run-worker.sh role)');
+    e.httpStatus = 400;
+    throw e;
+  }
+  if (scheduler.isAdopted(root, slug)) return scheduler.runNow(slug, r, 'fleet-dashboard');
   const container = await cronContainer(root, slug);
-  if (!container) { const e = new Error(`no running cron container for ${slug}`); e.httpStatus = 409; throw e; }
+  if (!container) {
+    const e = new Error(`no running cron container for ${slug}`);
+    e.httpStatus = 409;
+    throw e;
+  }
   await sh('docker', ['exec', '-d', container, 'bash', 'ops/scripts/run-worker.sh', r]);
   return container;
 }

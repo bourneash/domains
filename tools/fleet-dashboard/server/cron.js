@@ -18,11 +18,16 @@ const cronstrue = require('cronstrue');
 
 const { discoverSystems } = require('./cron/discovery');
 const {
-  inspectContainer, confirmHealthy, containerLogs, containerCreatedAt,
-  containerCrontab, rebuildCron,
+  inspectContainer,
+  confirmHealthy,
+  containerLogs,
+  containerCreatedAt,
+  containerCrontab,
+  rebuildCron,
 } = require('./cron/docker');
 const { readLastRuns, resolveLogPath, tailFile } = require('./cron/runinfo');
 const parse = require('./cron/parse');
+const scheduler = require('./scheduler');
 
 // Last streamed rebuild output, per slug — so the log viewer can show it on
 // demand instead of force-opening a panel during the rebuild.
@@ -41,35 +46,58 @@ function makeLocker() {
   return function withLock(key, fn) {
     const prev = chains.get(key) ?? Promise.resolve();
     let release;
-    const gate = new Promise((r) => { release = r; });
+    const gate = new Promise(r => {
+      release = r;
+    });
     // Keep the chain moving even if fn rejects; swallow here so the tail never
     // rejects (callers still see fn's own rejection via the returned promise).
-    chains.set(key, prev.then(() => gate).catch(() => {}));
+    chains.set(
+      key,
+      prev.then(() => gate).catch(() => {})
+    );
     return prev.then(() => fn()).finally(release);
   };
 }
-const withCrontabLock = makeLocker();   // key: slug  (crontab edits, rebuild, revert)
-const withJobLock = makeLocker();       // key: slug:role  (manual runs)
+const withCrontabLock = makeLocker(); // key: slug  (crontab edits, rebuild, revert)
+const withJobLock = makeLocker(); // key: slug:role  (manual runs)
 
-function httpErr(message, status) { const e = new Error(message); e.httpStatus = status; return e; }
+function httpErr(message, status) {
+  const e = new Error(message);
+  e.httpStatus = status;
+  return e;
+}
 
 function describeExpr(expr) {
-  try { return cronstrue.toString(expr, { use24HourTimeFormat: false }); }
-  catch { return expr; }
+  try {
+    return cronstrue.toString(expr, { use24HourTimeFormat: false });
+  } catch {
+    return expr;
+  }
 }
 
 // Validate + translate a cron expression for the inline editor's live feedback.
 function validateAndDescribe(expr) {
   const e = String(expr || '').trim();
   if (!parse.isValidCron(e)) {
-    return { valid: false, human: '', error: 'Need 5 fields: minute hour day-of-month month day-of-week' };
+    return {
+      valid: false,
+      human: '',
+      error: 'Need 5 fields: minute hour day-of-month month day-of-week',
+    };
   }
-  try { return { valid: true, human: cronstrue.toString(e, { use24HourTimeFormat: false }), error: null }; }
-  catch (err) { return { valid: false, human: '', error: err.message || 'invalid expression' }; }
+  try {
+    return {
+      valid: true,
+      human: cronstrue.toString(e, { use24HourTimeFormat: false }),
+      error: null,
+    };
+  } catch (err) {
+    return { valid: false, human: '', error: err.message || 'invalid expression' };
+  }
 }
 
 function findSystem(root, slug) {
-  return discoverSystems(root).find((s) => s.slug === slug) || null;
+  return discoverSystems(root).find(s => s.slug === slug) || null;
 }
 function requireSystem(root, slug) {
   const sys = findSystem(root, slug);
@@ -78,7 +106,11 @@ function requireSystem(root, slug) {
 }
 
 function fileMtime(p) {
-  try { return fs.statSync(p).mtime; } catch { return null; }
+  try {
+    return fs.statSync(p).mtime;
+  } catch {
+    return null;
+  }
 }
 
 // List every cron system with honest container health, per-job last-run facts,
@@ -86,11 +118,28 @@ function fileMtime(p) {
 async function systems(root) {
   const out = discoverSystems(root);
   for (const s of out) {
+    if (s.kind === 'site' && scheduler.isAdopted(root, s.slug)) {
+      s.status = 'scheduler';
+      s.statusText = 'managed by fleet-scheduler';
+      s.exitCode = null;
+      s.failed = false;
+      s.needsRebuild = false;
+      s.adopted = true;
+      s.logSources = [];
+      s.entries = s.entries.map(e => ({
+        ...e,
+        human: describeExpr(e.schedule),
+        lastRun: null,
+        lastExit: null,
+        hasLog: false,
+      }));
+      continue;
+    }
     const i = await inspectContainer(s.container);
-    s.status = i.state;           // real docker state, badge driver
-    s.statusText = i.raw;         // "Up 3 hours" / "Exited (127) 2 min ago"
+    s.status = i.state; // real docker state, badge driver
+    s.statusText = i.raw; // "Up 3 hours" / "Exited (127) 2 min ago"
     s.exitCode = i.exitCode;
-    s.failed = i.failed;          // true → red badge, surfaces failed starts
+    s.failed = i.failed; // true → red badge, surfaces failed starts
 
     // Dirty detection: crontab edited after the container was last built/created.
     s.needsRebuild = false;
@@ -103,10 +152,10 @@ async function systems(root) {
     const lr = readLastRuns(s.opsDir);
     const sources = [{ id: 'container', label: 'Container' }];
     if (lastRebuildLog.has(s.slug)) sources.push({ id: 'rebuild', label: 'Last rebuild' });
-    s.entries = s.entries.map((e) => {
+    s.entries = s.entries.map(e => {
       const rec = e.role ? lr[e.role] : null;
       const hasLog = Boolean(rec && resolveLogPath(root, s.slug, rec.log));
-      if (hasLog && !sources.some((x) => x.id === `role:${e.role}`)) {
+      if (hasLog && !sources.some(x => x.id === `role:${e.role}`)) {
         sources.push({ id: `role:${e.role}`, label: e.role });
       }
       return {
@@ -128,7 +177,8 @@ async function logs(root, slug, source, tailN) {
   const tail = Math.max(1, Math.min(parseInt(tailN, 10) || 400, 2000));
   const src = String(source || 'container');
   if (src === 'container') return containerLogs(sys.container, undefined, tail);
-  if (src === 'rebuild') return lastRebuildLog.get(sys.slug) || '(no rebuild has run in this session yet)';
+  if (src === 'rebuild')
+    return lastRebuildLog.get(sys.slug) || '(no rebuild has run in this session yet)';
   if (src.startsWith('role:')) {
     const role = src.slice(5);
     if (!/^[A-Za-z0-9._-]+$/.test(role)) throw httpErr('bad role', 400);
@@ -146,8 +196,9 @@ function jobFlag(root, slug, role, action) {
   if (!/^[A-Za-z0-9._-]+$/.test(role)) throw httpErr('bad role', 400);
   const flag = path.join(sys.opsDir, `.${role}-disabled`);
   if (action === 'disable') fs.writeFileSync(flag, '');
-  else if (action === 'enable') { if (fs.existsSync(flag)) fs.unlinkSync(flag); }
-  else throw httpErr('bad action', 400);
+  else if (action === 'enable') {
+    if (fs.existsSync(flag)) fs.unlinkSync(flag);
+  } else throw httpErr('bad action', 400);
   return { ok: true };
 }
 
@@ -155,6 +206,8 @@ function jobFlag(root, slug, role, action) {
 // output to res; final line is @@RUN_EXIT <code>.
 async function runJob(root, slug, role, res) {
   const sys = requireSystem(root, slug);
+  if (sys.kind === 'site' && scheduler.isAdopted(root, sys.slug))
+    throw httpErr(scheduler.ADOPTED_MSG, 409);
   if (!sys.opsDir) throw httpErr('tool systems do not support manual run', 400);
   if (!/^[A-Za-z0-9._-]+$/.test(role)) throw httpErr('bad role', 400);
   const health = await inspectContainer(sys.container);
@@ -163,17 +216,37 @@ async function runJob(root, slug, role, res) {
   // Serialize per (slug, role) so a second manual run can't interleave with one
   // already in flight (B5). Validation above runs BEFORE the lock so bad
   // requests fail fast instead of queueing behind a long run.
-  await withJobLock(`${sys.slug}:${role}`, () => new Promise((resolve) => {
-    const { spawn } = require('node:child_process');
-    res.setHeader('content-type', 'text/plain; charset=utf-8');
-    // Mirror the crontab invocation: `bash ops/scripts/run-worker.sh <role>` from
-    // /work. Passing args as an array avoids any shell injection.
-    const child = spawn('docker', ['exec', '-w', '/work', sys.container, 'bash', 'ops/scripts/run-worker.sh', role]);
-    child.stdout.on('data', (d) => res.write(d.toString()));
-    child.stderr.on('data', (d) => res.write(d.toString()));
-    child.on('close', (code) => { res.write(`\n@@RUN_EXIT ${code ?? -1}\n`); res.end(); resolve(); });
-    child.on('error', (e) => { res.write(`spawn error: ${e.message}\n@@RUN_EXIT -1\n`); res.end(); resolve(); });
-  }));
+  await withJobLock(
+    `${sys.slug}:${role}`,
+    () =>
+      new Promise(resolve => {
+        const { spawn } = require('node:child_process');
+        res.setHeader('content-type', 'text/plain; charset=utf-8');
+        // Mirror the crontab invocation: `bash ops/scripts/run-worker.sh <role>` from
+        // /work. Passing args as an array avoids any shell injection.
+        const child = spawn('docker', [
+          'exec',
+          '-w',
+          '/work',
+          sys.container,
+          'bash',
+          'ops/scripts/run-worker.sh',
+          role,
+        ]);
+        child.stdout.on('data', d => res.write(d.toString()));
+        child.stderr.on('data', d => res.write(d.toString()));
+        child.on('close', code => {
+          res.write(`\n@@RUN_EXIT ${code ?? -1}\n`);
+          res.end();
+          resolve();
+        });
+        child.on('error', e => {
+          res.write(`spawn error: ${e.message}\n@@RUN_EXIT -1\n`);
+          res.end();
+          resolve();
+        });
+      })
+  );
 }
 
 // File-mutating actions: comment/uncomment/edit/remove. Marks pending rebuild.
@@ -181,18 +254,21 @@ async function runJob(root, slug, role, res) {
 // and silently overwrite each other.
 async function crontabMutate(root, slug, body) {
   const sys = requireSystem(root, slug);
+  if (sys.kind === 'site' && scheduler.isAdopted(root, sys.slug))
+    throw httpErr(scheduler.ADOPTED_MSG, 409);
   const { action, lineIndex, newSchedule, expectedRawLine, command } = body || {};
   await withCrontabLock(sys.slug, async () => {
     const text = fs.readFileSync(sys.crontabPath, 'utf8');
     let out;
     if (action === 'comment') out = parse.commentLine(text, lineIndex, expectedRawLine);
     else if (action === 'uncomment') out = parse.uncommentLine(text, lineIndex, expectedRawLine);
-    else if (action === 'edit') out = parse.editSchedule(text, lineIndex, newSchedule, expectedRawLine);
+    else if (action === 'edit')
+      out = parse.editSchedule(text, lineIndex, newSchedule, expectedRawLine);
     else if (action === 'remove') out = parse.removeLine(text, lineIndex, expectedRawLine);
     else if (action === 'add') out = parse.addLine(text, newSchedule, command);
     else throw httpErr('bad action', 400);
     fs.writeFileSync(sys.crontabPath, out);
-  }).catch((e) => {
+  }).catch(e => {
     if (e.code === 'STALE') throw httpErr(e.message, 409);
     if (!e.httpStatus) e.httpStatus = 400;
     throw e;
@@ -205,8 +281,11 @@ async function crontabMutate(root, slug, body) {
 async function diff(root, slug) {
   const sys = requireSystem(root, slug);
   let disk;
-  try { disk = fs.readFileSync(sys.crontabPath, 'utf8'); }
-  catch (e) { throw httpErr(e.message, 500); }
+  try {
+    disk = fs.readFileSync(sys.crontabPath, 'utf8');
+  } catch (e) {
+    throw httpErr(e.message, 500);
+  }
   const running = await containerCrontab(sys.container);
   return { disk, running };
 }
@@ -216,11 +295,14 @@ async function diff(root, slug) {
 // created so needsRebuild clears immediately on the next poll.
 async function revert(root, slug) {
   const sys = requireSystem(root, slug);
+  if (sys.kind === 'site' && scheduler.isAdopted(root, sys.slug))
+    throw httpErr(scheduler.ADOPTED_MSG, 409);
   const running = await containerCrontab(sys.container);
   // Guard against null (exec failed) AND empty string (exec succeeded but
   // returned no content — both would wipe the disk file).
   if (running === null) throw httpErr('container is not running — cannot read baked crontab', 409);
-  if (!running.trim()) throw httpErr('baked crontab is empty — refusing to overwrite disk file', 409);
+  if (!running.trim())
+    throw httpErr('baked crontab is empty — refusing to overwrite disk file', 409);
   // Serialize against concurrent edits/rebuild on this slug (B5).
   await withCrontabLock(sys.slug, async () => {
     try {
@@ -230,7 +312,9 @@ async function revert(root, slug) {
         const t = (created.getTime() - 1000) / 1000;
         fs.utimesSync(sys.crontabPath, t, t);
       }
-    } catch (e) { throw httpErr(e.message, 500); }
+    } catch (e) {
+      throw httpErr(e.message, 500);
+    }
   });
   return { ok: true };
 }
@@ -239,13 +323,18 @@ async function revert(root, slug) {
 // capture it, and emit a machine-readable final verdict line.
 async function rebuild(root, slug, res) {
   const sys = requireSystem(root, slug);
+  if (sys.kind === 'site' && scheduler.isAdopted(root, sys.slug))
+    throw httpErr(scheduler.ADOPTED_MSG, 409);
   // Serialize rebuild/revert/edit on this slug (B5): no overlapping compose
   // force-recreate of the same cron container.
   await withCrontabLock(sys.slug, async () => {
     const cwd = sys.kind === 'site' ? path.join(sys.opsDir, '..') : path.dirname(sys.crontabPath);
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     let buf = '';
-    const emit = (d) => { buf += d; res.write(d); };
+    const emit = d => {
+      buf += d;
+      res.write(d);
+    };
     const result = await rebuildCron(cwd, emit);
     emit(`\n[exit ${result.code}] compose ${result.ok ? 'OK' : 'FAILED'}\n`);
     emit(`Verifying ${sys.container} actually started…\n`);
@@ -253,8 +342,10 @@ async function rebuild(root, slug, res) {
     if (health.ok) {
       emit(`OK — ${sys.container} is running (${health.raw}).\n`);
     } else {
-      emit(`FAILED — ${sys.container} did NOT come up — state="${health.state}"`
-        + `${health.exitCode != null ? ` exit=${health.exitCode}` : ''} (${health.raw || 'no status'}).\n`);
+      emit(
+        `FAILED — ${sys.container} did NOT come up — state="${health.state}"` +
+          `${health.exitCode != null ? ` exit=${health.exitCode}` : ''} (${health.raw || 'no status'}).\n`
+      );
     }
     emit(`@@VERDICT ${health.ok ? 'ok' : 'fail'} ${sys.container}\n`);
     lastRebuildLog.set(sys.slug, buf);
@@ -263,6 +354,14 @@ async function rebuild(root, slug, res) {
 }
 
 module.exports = {
-  validateAndDescribe, systems, logs, jobFlag, runJob,
-  crontabMutate, diff, revert, rebuild, findSystem,
+  validateAndDescribe,
+  systems,
+  logs,
+  jobFlag,
+  runJob,
+  crontabMutate,
+  diff,
+  revert,
+  rebuild,
+  findSystem,
 };

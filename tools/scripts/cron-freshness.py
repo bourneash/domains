@@ -32,6 +32,7 @@ built to replace.
 from __future__ import annotations
 
 import os
+import time
 import re
 import subprocess
 import sys
@@ -337,6 +338,66 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int, i
     return findings, 1, 0, 0
 
 
+SCHED_DATA = os.path.join(DOMAINS_ROOT, "tools", "fleet-scheduler", "data")
+SCHED_HEARTBEAT_MAX_SEC = int(os.environ.get("CRON_FRESHNESS_SCHED_HEARTBEAT_SEC", "180"))
+
+
+def scheduler_adopted(site: str) -> bool:
+    """Sites adopted by tools/fleet-scheduler have no per-site container to inspect."""
+    return os.path.exists(os.path.join(SCHED_DATA, "adopted", site))
+
+
+def scheduler_heartbeat_finding() -> list[str]:
+    """The scheduler touches <data>/heartbeat every loop (<=15s). Reported ONCE per sweep."""
+    hb = os.path.join(SCHED_DATA, "heartbeat")
+    try:
+        age = time.time() - os.stat(hb).st_mtime
+    except OSError:
+        return ["fleet-scheduler: no heartbeat file — scheduler never started or data dir unreadable"]
+    if age > SCHED_HEARTBEAT_MAX_SEC:
+        return [f"fleet-scheduler: heartbeat is {int(age)}s old — scheduler wedged/down; "
+                f"every adopted site's jobs are unscheduled"]
+    return []
+
+
+def assess_adopted(site: str) -> tuple[list[str], int, int, int]:
+    """Freshness for a site the fleet-scheduler owns: the newest scheduled tick recorded in the
+    scheduler DB must fall inside the same 2x-longest-gap + grace window used for containers.
+    Schedules come from the DB (the source of truth), not crontab.docker."""
+    import sqlite3
+    import tempfile
+    db_path = os.path.join(SCHED_DATA, "fleet-scheduler.db")
+    try:
+        con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
+        jobs = con.execute("SELECT schedule FROM jobs WHERE site=? AND enabled=1", (site,)).fetchall()
+        newest = con.execute("SELECT MAX(queued_at) FROM runs WHERE site=? AND trigger='schedule'",
+                             (site,)).fetchone()[0]
+        adopted_at = con.execute("SELECT adopted_at FROM sites WHERE site=?", (site,)).fetchone()
+        con.close()
+    except sqlite3.Error as exc:
+        return [f"{site}: cannot read scheduler DB ({exc}) — freshness cannot be asserted"], 0, 0, 0
+    if not jobs:
+        return [], 0, 0, 1  # nothing enabled: intentionally quiet
+    with tempfile.NamedTemporaryFile("w", suffix=".crontab", delete=False) as fh:
+        fh.write("".join(f"{r[0]} x\n" for r in jobs))
+        tmp = fh.name
+    try:
+        gap, njobs, _ = max_gap_sec(tmp)
+    finally:
+        os.unlink(tmp)
+    if gap is None:
+        return [f"{site}: none of {njobs} scheduler job(s) fire within {HORIZON_DAYS}d"], 0, 0, 0
+    window = gap * 2 + GRACE_SEC
+    since_adopt = time.time() - (adopted_at[0] if adopted_at and adopted_at[0] else 0)
+    if since_adopt < window:
+        return [], 0, 1, 0
+    if newest is None or time.time() - newest > window:
+        age = "never" if newest is None else f"{int((time.time() - newest) // 60)}m ago"
+        return [f"{site}: fleet-scheduler recorded no scheduled tick in {window // 60}m "
+                f"(longest legitimate gap {gap // 60}m, last tick {age}) — site jobs not firing"], 1, 0, 0
+    return [], 1, 0, 0
+
+
 def main() -> int:
     only_fleet_cron = "--fleet-cron" in sys.argv[1:]
     findings = []
@@ -358,6 +419,7 @@ def main() -> int:
             print(f"FATAL cannot read {SITES_DIR}: {exc}")
             return 2
 
+        sched_checked = False
         for site in sites:
             site_dir = os.path.join(SITES_DIR, site)
             compose = os.path.join(site_dir, "docker-compose.yml")
@@ -371,6 +433,16 @@ def main() -> int:
             if not name:
                 continue
             eligible += 1
+            if scheduler_adopted(site):
+                if not sched_checked:
+                    findings.extend(scheduler_heartbeat_finding())
+                    sched_checked = True
+                f, a, s, d = assess_adopted(site)
+                findings.extend(f)
+                asserted += a
+                skipped_young += s
+                disabled += d
+                continue
             f, a, s, d = assess(site, site_dir, name)
             findings.extend(f)
             asserted += a

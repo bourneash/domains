@@ -8,6 +8,7 @@
 // bearer token never reaches the browser.
 
 const fs = require('node:fs');
+const path = require('node:path');
 
 const ROUTES = [
   ['GET', /^status$/],
@@ -103,4 +104,33 @@ function register(app, opts = {}) {
   });
 }
 
-module.exports = { register, makeClient, ROUTES };
+// A site is "adopted" when the scheduler owns its jobs (marker maintained by the scheduler in its
+// data dir, visible here through the repo bind mount). Adopted sites have NO per-site cron
+// container, so anything that execs into / rebuilds one must go through the scheduler instead.
+function isAdopted(root, site) {
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(String(site || ''))) return false;
+  return fs.existsSync(path.join(root, 'tools', 'fleet-scheduler', 'data', 'adopted', site));
+}
+
+// Run-now for an adopted site: same job the schedule fires, executed by the scheduler.
+async function runNow(site, role, actor, call = makeClient()) {
+  const list = await call('GET', 'jobs', { site }, undefined, actor);
+  const job = Array.isArray(list.data) && list.data.find(j => j.name === role);
+  if (!job) {
+    const e = new Error(`no scheduler job "${role}" for ${site}`);
+    e.httpStatus = 404;
+    throw e;
+  }
+  const r = await call('POST', `jobs/${job.id}/run`, {}, {}, actor);
+  if (r.status !== 200) {
+    const e = new Error((r.data && r.data.error) || `scheduler returned ${r.status}`);
+    e.httpStatus = r.status === 409 ? 409 : 502;
+    throw e;
+  }
+  return `fleet-scheduler (run #${r.data.run_id})`;
+}
+
+const ADOPTED_MSG =
+  'this site is managed by the fleet-scheduler — use Ops ▸ Scheduler (a legacy cron container would double-fire every job)';
+
+module.exports = { register, makeClient, ROUTES, isAdopted, runNow, ADOPTED_MSG };

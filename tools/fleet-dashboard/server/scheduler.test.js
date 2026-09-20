@@ -135,3 +135,42 @@ test('route table covers exactly the scheduler API surface the UI needs', () => 
   assert.ok(ROUTES.length >= 12);
   assert.ok(!ROUTES.some(([, re]) => re.test('reload')));
 });
+
+test('isAdopted reads the scheduler marker and rejects path-shaped input', () => {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { isAdopted } = require('./scheduler');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'adopt-'));
+  fs.mkdirSync(path.join(root, 'tools/fleet-scheduler/data/adopted'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'tools/fleet-scheduler/data/adopted/a.com'), '');
+  assert.equal(isAdopted(root, 'a.com'), true);
+  assert.equal(isAdopted(root, 'b.com'), false);
+  assert.equal(isAdopted(root, '../a.com'), false);
+  assert.equal(isAdopted(root, ''), false);
+});
+
+test('runNow finds the job by role name and triggers it', async () => {
+  const { runNow } = require('./scheduler');
+  const calls = [];
+  const call = async (m, p, q, b) => {
+    calls.push([m, p]);
+    if (m === 'GET')
+      return {
+        status: 200,
+        data: [
+          { id: 7, name: 'engineer' },
+          { id: 8, name: 'watchdog' },
+        ],
+      };
+    return { status: 200, data: { run_id: 99 } };
+  };
+  assert.match(await runNow('a.com', 'engineer', 't', call), /run #99/);
+  assert.deepEqual(calls[1], ['POST', 'jobs/7/run']);
+  await assert.rejects(runNow('a.com', 'nope', 't', call), /no scheduler job/);
+  const busy = async m =>
+    m === 'GET'
+      ? { status: 200, data: [{ id: 1, name: 'x' }] }
+      : { status: 409, data: { error: 'job already queued or running' } };
+  await assert.rejects(runNow('a.com', 'x', 't', busy), e => e.httpStatus === 409);
+});
