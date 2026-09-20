@@ -9,6 +9,7 @@ const esc = s =>
   );
 
 let STATE = { view: 'control', agent: null, sites: [], agents: [], taskSite: null, gitSlug: null };
+let AGENT_HEALTH = null;
 
 function agentLabel(role) {
   return String(role)
@@ -246,11 +247,15 @@ async function renderEngineers() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading fleet audit…</div>';
   let rows,
-    hist = [];
+    hist = [],
+    roleData,
+    healthData;
   try {
-    [rows, hist] = await Promise.all([
+    [rows, hist, roleData, healthData] = await Promise.all([
       api('GET', '/api/fleet'),
       api('GET', '/api/fleet/history?days=3').catch(() => []),
+      api('GET', '/api/roles').catch(() => ({ sites: [] })),
+      api('GET', '/api/agents/engineer/health').catch(() => null),
     ]);
   } catch (e) {
     app.innerHTML = `<div class="empty">Audit failed: ${esc(e.message)}</div>`;
@@ -267,6 +272,12 @@ async function renderEngineers() {
     .map(([k, v]) => `${k}=${v}`)
     .join(' · ');
   const stale = eng.filter(r => r.pulse_age && r.pulse_age > 35 * 60).map(r => r.site);
+  const engineerSites = new Set(eng.map(r => r.site));
+  const notEnrolled = (STATE.sites.length ? STATE.sites : rows.map(r => r.site)).filter(
+    site => !engineerSites.has(site)
+  );
+  const suggestedSchedule = eng.find(r => r.cron)?.cron || '0 */2 * * *';
+  AGENT_HEALTH = healthData;
 
   const body = rows
     .map(r => {
@@ -285,10 +296,20 @@ async function renderEngineers() {
       const flagHtml = flags.length ? `<span class="flag">${esc(flags.join(', '))}</span>` : '';
       const cover = healthCell(h);
       const tasksBtn = `<button class="btn sm tasks-link" data-site="${esc(r.site)}" title="Open ${esc(r.site)}'s task board">📋 Tasks${r.queue ? ` <span class="qn">${r.queue}</span>` : ''}</button>`;
+      const engineerCell = (roleData.sites || []).find(s => s.site === r.site)?.cells?.engineer;
       const runBtn = r.engineer
         ? `<button class="btn sm run-eng" data-site="${esc(r.site)}"${r.cron_up ? '' : ' disabled title="cron container not running"'}>▶ Run</button> `
         : '';
-      const actions = r.engineer ? runBtn + tasksBtn : tasksBtn;
+      const pauseBtn =
+        r.engineer && engineerCell?.worker
+          ? `<button class="btn sm ${engineerCell.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-role="engineer" data-enabled="${engineerCell.enabled ? 1 : 0}">${engineerCell.enabled ? '⏸ Pause' : '▶ Resume'}</button> `
+          : '';
+      const actions = r.engineer
+        ? runBtn +
+          pauseBtn +
+          tasksBtn +
+          ` <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
+        : tasksBtn;
       return `<tr>
       <td class="site">${siteLink(r.site)}</td>
       <td>${tier(r.tier)}</td>
@@ -381,7 +402,17 @@ async function renderEngineers() {
       <strong>${eng.length} engineers</strong>
       <span class="muted">${esc(summary)}</span>
       ${stale.length ? `<span class="flag">⚠ stale pulse: ${esc(stale.join(', '))}</span>` : ''}
+      <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
       <button id="fleet-help-toggle" class="btn sm" style="margin-left:auto" title="Show / hide the column key">? Help</button>
+    </div>
+    ${engineerHealthPanel(healthData)}
+    <div class="card ag-missing-panel hidden" id="ag-missing-panel">
+      <div class="ag-missing-head"><strong>Sites not enrolled in Engineer</strong><span class="muted">${notEnrolled.length} sites</span></div>
+      ${
+        notEnrolled.length
+          ? `<ul class="ag-missing-list">${notEnrolled.map(site => `<li><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="engineer" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul>`
+          : '<p class="muted ag-missing-empty">Every discovered site is enrolled in Engineer.</p>'
+      }
     </div>
     <div id="fleet-help" class="help-panel hidden" data-rk="fleet-help">
       <div class="help-grid">
@@ -407,6 +438,42 @@ async function renderEngineers() {
     helpBox.classList.remove('hidden');
     helpBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
+  const missingToggle = $('.ag-missing-toggle');
+  const missingPanel = $('#ag-missing-panel');
+  if (missingToggle && missingPanel)
+    missingToggle.addEventListener('click', () => {
+      const open = missingPanel.classList.toggle('hidden') === false;
+      missingToggle.setAttribute('aria-expanded', String(open));
+      missingToggle.textContent = open ? 'hide sites' : 'show sites';
+    });
+  $$('.ag-enroll').forEach(button =>
+    button.addEventListener('click', () => {
+      beginRoleEnrollment(button.dataset.site, button.dataset.role, button.dataset.schedule);
+    })
+  );
+  $$('.ag-remove').forEach(button =>
+    button.addEventListener('click', () =>
+      removeRoleEnrollment(button.dataset.site, button.dataset.role, button)
+    )
+  );
+  $$('.ag-toggle').forEach(button =>
+    button.addEventListener('click', () =>
+      toggleRole(button.dataset.site, button.dataset.role, button.dataset.enabled === '1')
+    )
+  );
+  $$('.ag-health-toggle').forEach(b =>
+    b.addEventListener('click', () =>
+      toggleRole(b.dataset.site, 'engineer', b.dataset.enabled === '1')
+    )
+  );
+  $$('.ag-health-run').forEach(b =>
+    b.addEventListener('click', () => runAgent(b.dataset.site, 'engineer', b))
+  );
+  $$('.ag-health-details').forEach(b => b.addEventListener('click', () => toggleHealthDetail(b)));
+  $('.ag-health-pause')?.addEventListener('click', () =>
+    bulkAgentHealthAction('engineer', 'pause')
+  );
+  $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction('engineer', 'run'));
   $$('.run-eng').forEach(b => b.addEventListener('click', () => runEngineerNow(b.dataset.site, b)));
   $$('.tasks-link').forEach(b => b.addEventListener('click', () => openSiteTasks(b.dataset.site)));
   wireCrumbs();
@@ -419,6 +486,120 @@ function openSiteTasks(site) {
   TASK.mode = 'board';
   STATE.taskSite = site;
   go('tasks');
+}
+
+function engineerHealthPanel(data) {
+  if (!data) return '';
+  const rows = (data.rows || [])
+    .map(
+      r => `<tr data-fleet-row data-site="${esc(r.site)}">
+    <td>${siteLink(r.site)}</td><td><span class="badge ${r.state === 'fresh' ? 'b-green' : r.state === 'paused' ? 'b-gray' : r.state === 'overdue' ? 'b-red' : 'b-yellow'}">${esc(r.state)}</span></td>
+    <td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td><td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
+    <td class="cn-actions"><button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>${r.worker ? ` <button class="btn sm ag-health-toggle" data-site="${esc(r.site)}" data-role="engineer" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>` : ''}${r.worker && r.enabled ? ` <button class="btn sm ag-health-run" data-site="${esc(r.site)}">▶ Run</button>` : ''}</td>
+  </tr>${healthDetailRow(r)}`
+    )
+    .join('');
+  return `<details class="card ag-health" open><summary><strong>Agent health · last ${data.windowDays} days</strong><span class="muted">${data.summary.observed} observed runs · ${data.summary.failed} failures · ${fmtUSD(data.summary.costUsd)} AI cost</span></summary>
+    <div class="task-toolbar ag-health-toolbar"><span>${data.summary.fresh} fresh · ${data.summary.stale} stale · ${data.summary.overdue} overdue · ${data.summary.paused} paused</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
+    <p class="muted ag-health-note">Run counts are observed log runs, not proof that every scheduled tick fired. AI cost comes from the tracked usage ledger.</p>
+    <table><thead><tr><th>Site</th><th>State</th><th>Runs</th><th>OK</th><th>Failed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="8" class="empty">No enrolled sites.</td></tr>'}</tbody></table></details>`;
+}
+
+function healthDetailRow(row) {
+  const failures = (row.failures || []).length
+    ? row.failures
+        .map(
+          f =>
+            `<li><span class="mono">${esc(f.file)}</span> — ${esc(f.summary || 'failure recorded')}</li>`
+        )
+        .join('')
+    : '<li class="muted">No recent failures recorded.</li>';
+  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}"><td colspan="8"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
+}
+
+function toggleHealthDetail(button) {
+  const row = $(`tr.ag-health-detail[data-health-detail="${CSS.escape(button.dataset.site)}"]`);
+  if (!row) return;
+  const open = row.classList.toggle('hidden') === false;
+  button.textContent = open ? 'Collapse' : 'Expand';
+  button.setAttribute('aria-expanded', String(open));
+}
+
+function beginRoleEnrollment(site, role, schedule) {
+  AUTO_SITE = site;
+  AUTO_ROLE_DRAFT = { site, role, schedule: schedule || '0 */2 * * *' };
+  go('automation');
+}
+
+async function rebuildCronForSite(site) {
+  const res = await fetch(`/api/cron/systems/${encodeURIComponent(site)}/rebuild`, {
+    method: 'POST',
+    credentials: 'same-origin',
+  });
+  const text = await res.text();
+  if (!res.ok || !text.includes('@@VERDICT ok'))
+    throw new Error(text.slice(-500) || `rebuild failed (${res.status})`);
+}
+
+async function removeRoleEnrollment(site, role, btn) {
+  if (
+    !confirm(
+      `Remove ${role} from ${site}?\n\nThis unschedules the role and clears its pause flag. The role prompt is retained for recovery. The cron container will be rebuilt.`
+    )
+  )
+    return;
+  gdBusy(btn, true);
+  try {
+    await api(
+      'DELETE',
+      `/api/automation/${encodeURIComponent(site)}/roles/${encodeURIComponent(role)}`
+    );
+    toast(`${agentLabel(role)} removed from ${site}; rebuilding cron…`);
+    await rebuildCronForSite(site);
+    toast(`${agentLabel(role)} removed from ${site}`);
+    softRender();
+  } catch (e) {
+    toast(`Remove failed: ${e.message}`, 'err');
+    gdBusy(btn, false);
+  }
+}
+
+async function bulkAgentHealthAction(role, action) {
+  const rows = (AGENT_HEALTH?.rows || []).filter(
+    row =>
+      row.worker &&
+      row.enabled &&
+      (action === 'pause'
+        ? ['stale', 'overdue'].includes(row.state) || row.failed > 0
+        : row.failed > 0)
+  );
+  if (!rows.length)
+    return toast(
+      action === 'pause' ? 'No unhealthy worker sites to pause' : 'No failed worker sites to rerun'
+    );
+  const verb = action === 'pause' ? 'Pause' : 'Rerun';
+  if (
+    !confirm(
+      `${verb} ${role} on ${rows.length} site(s)?\n\n${rows.map(row => row.site).join(', ')}`
+    )
+  )
+    return;
+  const failed = [];
+  for (const row of rows) {
+    try {
+      await api(
+        'POST',
+        `/api/roles/${encodeURIComponent(row.site)}/${encodeURIComponent(role)}/${action}`
+      );
+    } catch (e) {
+      failed.push(`${row.site}: ${e.message}`);
+    }
+  }
+  toast(
+    `${verb}d ${rows.length - failed.length}/${rows.length} ${role}${failed.length ? ` · failed: ${failed.join('; ')}` : ''}`,
+    failed.length ? 'err' : undefined
+  );
+  if (!failed.length) softRender();
 }
 
 async function runEngineerNow(site, btn) {
@@ -949,6 +1130,12 @@ function fmtTokens(n) {
 function fmtUSD(n) {
   return `$${(n || 0).toFixed(2)}`;
 }
+
+function fmtDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
+}
+
 // Hover-help for table headers: title attr, plus a dotted underline (CSS)
 // so it's discoverable without a legend.
 function aiuTh(label, help) {
@@ -1521,7 +1708,9 @@ function cfbUnitPrice(value) {
 }
 
 function cfbRepoLink(account, repo) {
-  const href = safeHref(`https://github.com/${encodeURIComponent(account || 'bourneash')}/${encodeURIComponent(repo)}`);
+  const href = safeHref(
+    `https://github.com/${encodeURIComponent(account || 'bourneash')}/${encodeURIComponent(repo)}`
+  );
   return href
     ? `<a class="site-link" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(repo)}<span class="ext">↗</span></a>`
     : esc(repo || 'unknown');
@@ -1581,7 +1770,9 @@ async function renderCloudflareBuilds() {
   const repos = data.byRepo || [];
   const builds = data.builds || [];
   const triggers = data.triggers || [];
-  const lastSweep = data.lastSweep ? `${fmtAge((Date.now() - data.lastSweep) / 1000)} ago` : 'waiting for first sweep';
+  const lastSweep = data.lastSweep
+    ? `${fmtAge((Date.now() - data.lastSweep) / 1000)} ago`
+    : 'waiting for first sweep';
   const policyHealthy = summary.triggers && summary.compliantTriggers === summary.triggers;
   const projectedOver = Number(summary.projectedOverageUsd) || 0;
 
@@ -3236,7 +3427,14 @@ function controlDraw() {
   else if (CONTROL.filter === 'paused') rows = rows.filter(x => x.r.paused > 0);
   rows =
     CONTROL.sort === 'health'
-      ? rows.slice().sort((a, b) => b.r.severity - a.r.severity || (a.r.pct ?? 101) - (b.r.pct ?? 101) || a.s.site.localeCompare(b.s.site))
+      ? rows
+          .slice()
+          .sort(
+            (a, b) =>
+              b.r.severity - a.r.severity ||
+              (a.r.pct ?? 101) - (b.r.pct ?? 101) ||
+              a.s.site.localeCompare(b.s.site)
+          )
       : rows.slice().sort((a, b) => a.s.site.localeCompare(b.s.site));
 
   const seg = (k, label, n) =>
@@ -3283,7 +3481,9 @@ function controlDraw() {
         // unhealthy row without reading every dot in it
         const rt = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
         cells.forEach(c => rt[c.state]++);
-        const tip = STATE_ORDER.filter(k => rt[k]).map(k => `${rt[k]} ${STATE_LABEL[k] || k}`).join(' · ');
+        const tip = STATE_ORDER.filter(k => rt[k])
+          .map(k => `${rt[k]} ${STATE_LABEL[k] || k}`)
+          .join(' · ');
         return `<th class="rcol"><span class="rcol-t">${label}${bulkBtn}</span>${stateBar(rt, 'rcol-bar')}<span class="rcol-tip">${esc(tip)}</span></th>`;
       })
       .join('') +
@@ -3315,7 +3515,9 @@ function controlDraw() {
           .join('\n');
         otherCell = `<td class="rcell"><span class="rcount r-${worst}" title="${esc(tip)}">${others.length}</span></td>`;
       }
-      const htip = STATE_ORDER.filter(k => roll[k]).map(k => `${roll[k]} ${STATE_LABEL[k] || k}`).join(' · ');
+      const htip = STATE_ORDER.filter(k => roll[k])
+        .map(k => `${roll[k]} ${STATE_LABEL[k] || k}`)
+        .join(' · ');
       const tone = roll.problems === 0 ? 'ok' : roll.overdue ? 'bad' : 'warn';
       const health = `<td class="rhealth" title="${esc(htip)}">
           ${stateBar(roll, 'rh-bar')}
@@ -3383,7 +3585,9 @@ async function renderRetention() {
     return;
   }
 
-  const rows = d.classes.map(c => `
+  const rows = d.classes
+    .map(
+      c => `
     <tr>
       <td><b>${esc(c.label)}</b><div class="muted">${c.paths.map(esc).join('<br>')}</div></td>
       <td>${esc(c.method || '-')}</td>
@@ -3394,7 +3598,9 @@ async function renderRetention() {
       </td>
       <td>${c.delete_after_days == null ? '<span class="muted">never deleted</span>' : `<span class="r-overdue">after ${c.delete_after_days}d</span>`}</td>
       <td class="muted">${esc(c.why || '')}${c.never_touch.length ? `<div>never touches: ${c.never_touch.map(esc).join(', ')}</div>` : ''}</td>
-    </tr>`).join('');
+    </tr>`
+    )
+    .join('');
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Retention</h2><span class="muted">how long the fleet keeps each class of data</span></div>
@@ -3413,7 +3619,8 @@ async function renderRetention() {
   $('#retention-save')?.addEventListener('click', async () => {
     const msg = $('#retention-msg');
     const inputs = $$('[data-retain]');
-    let changed = 0, failed = 0;
+    let changed = 0,
+      failed = 0;
     for (const el of inputs) {
       const klass = el.dataset.retain;
       const want = parseInt(el.value, 10);
@@ -3421,7 +3628,11 @@ async function renderRetention() {
       if (!was || want === was.retain_days) continue;
       try {
         const r = await api('POST', '/api/retention', { class: klass, retain_days: want });
-        if (r.ok) changed++; else { failed++; msg.textContent = r.error || 'rejected'; }
+        if (r.ok) changed++;
+        else {
+          failed++;
+          msg.textContent = r.error || 'rejected';
+        }
       } catch {
         failed++;
       }
@@ -3471,12 +3682,16 @@ async function renderDoctor() {
       ? `<p class="r-overdue"><b>${failing.length} site(s) failing</b></p>`
       : `<p class="r-fresh">All ${t.sites_checked} sites pass all ${t.pass} checks.</p>`;
 
-  const rows = failing.map(s => `<tr>
+  const rows = failing
+    .map(
+      s => `<tr>
        <td>${esc(s.site)}</td>
        <td class="r-overdue">${s.fail}</td>
        <td>${s.pending || 0}</td>
        <td>${s.failures.map(f => `<div>${esc(f)}</div>`).join('')}</td>
-     </tr>`).join('');
+     </tr>`
+    )
+    .join('');
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div>
@@ -3486,9 +3701,13 @@ async function renderDoctor() {
       <button class="btn" id="doctor-run" ${d.running ? 'disabled' : ''}>${d.running ? 'Running\u2026' : 'Re-run'}</button>
     </div>
     ${banner}
-    ${rows ? `<div class="card"><table class="rmatrix">
+    ${
+      rows
+        ? `<div class="card"><table class="rmatrix">
       <thead><tr><th>Site</th><th>Failed</th><th>Pending</th><th>What failed</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>` : ''}
+      <tbody>${rows}</tbody></table></div>`
+        : ''
+    }
     <p class="muted" style="margin-top:12px">Source: <code>tools/fleet-images/bin/fleet-doctor --json</code>, re-swept every 15 minutes in the background. Checks each cron-capable site for the shared image, a bind-mounted (never baked) crontab, a running container on the current image ID, uid 1000, dropped capabilities, and a failable healthcheck.</p>`;
 
   $('#doctor-run')?.addEventListener('click', doctorRun);
@@ -3497,7 +3716,10 @@ async function renderDoctor() {
 
 async function doctorRun() {
   const b = $('#doctor-run');
-  if (b) { b.disabled = true; b.textContent = 'Running\u2026'; }
+  if (b) {
+    b.disabled = true;
+    b.textContent = 'Running\u2026';
+  }
   try {
     await api('POST', '/api/fleet-doctor/run');
   } catch {
@@ -3532,8 +3754,16 @@ async function renderParked() {
     .map(r => {
       // Anything past a year parked has had every chance. Flag it rather than
       // making the reader do date arithmetic across 23 rows.
-      const cls = r.days_parked == null ? '' : r.days_parked >= 365 ? 'r-overdue' : r.days_parked >= 180 ? 'r-stale' : '';
-      const parked = r.days_parked == null ? '<span class="muted">unknown</span>' : `${r.days_parked}d`;
+      const cls =
+        r.days_parked == null
+          ? ''
+          : r.days_parked >= 365
+            ? 'r-overdue'
+            : r.days_parked >= 180
+              ? 'r-stale'
+              : '';
+      const parked =
+        r.days_parked == null ? '<span class="muted">unknown</span>' : `${r.days_parked}d`;
       // auto_renew decides whether a date needs anyone's attention: an expiry
       // 40 days out is routine if it renews itself, and an emergency if not.
       const renew =
@@ -3721,7 +3951,11 @@ async function toggleRole(site, role, currentlyEnabled) {
     toast(`${action === 'pause' ? 'Paused' : 'Resumed'} ${role} on ${site}`);
     FRESH = false;
     UISNAP = captureUI();
-    await (STATE.view === 'agent' ? renderGenericAgent(STATE.agent) : renderControl()); // refresh active view
+    await (STATE.view === 'agent'
+      ? STATE.agent === 'engineer'
+        ? renderEngineers()
+        : renderGenericAgent(STATE.agent)
+      : renderControl()); // refresh active view
     await openRole(site, role); // re-open with fresh state
   } catch (e) {
     toast(`${action} failed: ${e.message}`, 'err');
@@ -3735,27 +3969,49 @@ async function toggleRole(site, role, currentlyEnabled) {
 async function renderGenericAgent(role) {
   const app = $('#app');
   if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(agentLabel(role))} agent…</div>`;
-  let data;
+  let data, healthData;
   try {
-    data = await api('GET', '/api/roles');
+    [data, healthData] = await Promise.all([
+      api('GET', '/api/roles'),
+      api('GET', `/api/agents/${encodeURIComponent(role)}/health`).catch(() => null),
+    ]);
   } catch (e) {
     app.innerHTML = `${breadcrumb(role)}<div class="empty">${esc(e.message)}</div>`;
     wireCrumbs();
     return;
   }
   ROLEMATRIX = data;
+  AGENT_HEALTH = healthData;
   const rows = data.sites.filter(s => s.cells[role]).map(s => ({ site: s.site, ...s.cells[role] }));
-  if (!rows.length) {
-    app.innerHTML = `${breadcrumb(role)}<div class="empty">No sites schedule the <b>${esc(role)}</b> role.</div>`;
-    wireCrumbs();
-    stamp();
-    return;
-  }
+  const enrolled = new Set(rows.map(r => r.site));
+  const notEnrolled = (
+    Array.isArray(data.allSites) ? data.allSites : data.sites.map(s => s.site)
+  ).filter(site => !enrolled.has(site));
   const enabled = rows.filter(r => r.enabled).length;
   const paused = rows.length - enabled;
   const issues = rows.filter(
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
+  const suggestedSchedule = rows[0]?.schedule || '0 */2 * * *';
+  const healthRows = (healthData?.rows || [])
+    .map(
+      r => `<tr data-fleet-row data-site="${esc(r.site)}">
+    <td>${siteLink(r.site)}</td>
+    <td><span class="badge ${r.state === 'fresh' ? 'b-green' : r.state === 'paused' ? 'b-gray' : r.state === 'overdue' ? 'b-red' : 'b-yellow'}">${esc(r.state)}</span></td>
+    <td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td>
+    <td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
+    <td class="cn-actions"><button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>${r.worker ? ` <button class="btn sm ag-health-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>` : ''}${r.worker && r.enabled ? ` <button class="btn sm ag-health-run" data-site="${esc(r.site)}">▶ Run</button>` : ''}</td>
+  </tr>${healthDetailRow(r)}`
+    )
+    .join('');
+  const healthPanel = healthData
+    ? `<details class="card ag-health" open>
+    <summary><strong>Agent health · last ${healthData.windowDays} days</strong><span class="muted">${healthData.summary.observed} observed runs · ${healthData.summary.failed} failures · ${fmtUSD(healthData.summary.costUsd)} AI cost</span></summary>
+    <div class="task-toolbar ag-health-toolbar"><span>${healthData.summary.fresh} fresh · ${healthData.summary.stale} stale · ${healthData.summary.overdue} overdue · ${healthData.summary.paused} paused</span><span>${healthData.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
+    <p class="muted ag-health-note">Run counts are observed log runs, not proof that every scheduled tick fired. AI cost comes from the tracked usage ledger.</p>
+    <table><thead><tr><th>Site</th><th>State</th><th>Runs</th><th>OK</th><th>Failed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${healthRows || '<tr><td colspan="8" class="empty">No enrolled sites.</td></tr>'}</tbody></table>
+  </details>`
+    : '';
 
   const body = rows
     .map(r => {
@@ -3777,7 +4033,7 @@ async function renderGenericAgent(role) {
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted">${esc(r.schedule)}</td>
-      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}">📜 Logs</button> ${ctrl}</td>
+      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}">📜 Logs</button> ${ctrl} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(role)}">Remove</button></td>
     </tr>
     <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="5"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
     })
@@ -3789,22 +4045,59 @@ async function renderGenericAgent(role) {
     <div class="task-toolbar">
       <strong>${rows.length} sites</strong>
       <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}</span>
+      <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
     </div>
+    <div class="card ag-missing-panel hidden" id="ag-missing-panel">
+      <div class="ag-missing-head"><strong>Sites not enrolled in ${esc(agentLabel(role))}</strong><span class="muted">${notEnrolled.length} sites</span></div>
+      ${
+        notEnrolled.length
+          ? `<ul class="ag-missing-list">${notEnrolled.map(site => `<li><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="${esc(role)}" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul>`
+          : '<p class="muted ag-missing-empty">Every discovered site is enrolled in this agent.</p>'
+      }
+    </div>
+    ${healthPanel}
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Schedule</th><th>Actions</th></tr></thead>
-      <tbody>${body}</tbody>
+      <tbody>${body || '<tr><td colspan="5" class="empty">No sites currently run this agent.</td></tr>'}</tbody>
     </table></div>
     <p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site. ← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
 
   wireCrumbs();
   const c2 = $('#crumb-control2');
   if (c2) c2.addEventListener('click', () => go('control'));
+  const missingToggle = $('.ag-missing-toggle');
+  const missingPanel = $('#ag-missing-panel');
+  if (missingToggle && missingPanel)
+    missingToggle.addEventListener('click', () => {
+      const open = missingPanel.classList.toggle('hidden') === false;
+      missingToggle.setAttribute('aria-expanded', String(open));
+      missingToggle.textContent = open ? 'hide sites' : 'show sites';
+    });
+  $$('.ag-enroll').forEach(button =>
+    button.addEventListener('click', () => {
+      beginRoleEnrollment(button.dataset.site, button.dataset.role, button.dataset.schedule);
+    })
+  );
+  $$('.ag-remove').forEach(button =>
+    button.addEventListener('click', () =>
+      removeRoleEnrollment(button.dataset.site, button.dataset.role, button)
+    )
+  );
   $$('.ag-logs').forEach(b =>
     b.addEventListener('click', () => toggleAgentLog(b.dataset.site, role))
   );
   $$('.ag-toggle').forEach(b =>
     b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1'))
   );
+  $$('.ag-health-toggle').forEach(b =>
+    b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1'))
+  );
+  $$('.ag-health-run').forEach(b =>
+    b.addEventListener('click', () => runAgent(b.dataset.site, role, b))
+  );
+  $$('.ag-health-details').forEach(b => b.addEventListener('click', () => toggleHealthDetail(b)));
+  $('.ag-health-pause')?.addEventListener('click', () => bulkAgentHealthAction(role, 'pause'));
+  $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
   $$('.ag-run').forEach(b => b.addEventListener('click', () => runAgent(b.dataset.site, role, b)));
   if (!FRESH) applyUISnap();
   applyFleetFilter();
@@ -6134,10 +6427,11 @@ async function renderSeoIntelligence() {
   const siteNames = (data.sites || []).map(s => s.site).sort();
   const types = Object.entries(data.types || {}).sort((a, b) => b[1] - a[1]);
   const maxType = Math.max(1, ...types.map(([, count]) => count));
-  const filtered = allActions.filter(action =>
-    (SEO_PRIORITY === 'all' || action.priority === SEO_PRIORITY) &&
-    (SEO_TYPE === 'all' || action.type === SEO_TYPE) &&
-    (SEO_SITE === 'all' || action.site === SEO_SITE)
+  const filtered = allActions.filter(
+    action =>
+      (SEO_PRIORITY === 'all' || action.priority === SEO_PRIORITY) &&
+      (SEO_TYPE === 'all' || action.type === SEO_TYPE) &&
+      (SEO_SITE === 'all' || action.site === SEO_SITE)
   );
 
   const source = data.sources || {};
@@ -6150,35 +6444,71 @@ async function renderSeoIntelligence() {
   const statCards = [
     ['Actions', data.totals.actions, `${data.totals.sites} sites`, 'var(--a1)'],
     ['High priority', data.totals.high, 'work first', 'var(--red)'],
-    ['Pages measured', seoNum(data.totals.pagesMeasured), `${seoNum(data.totals.queryPagePairs)} query-page pairs`, 'var(--yellow)'],
-    ['Conversions', seoNum(data.totals.conversions), `${data.windowDays} day value signal`, 'var(--green)'],
-    ['Search impressions', seoNum(data.totals.impressions), `${data.windowDays} day evidence`, 'var(--purple)'],
-    ['Modeled click upside', `+${seoNum(data.totals.modeledClicks)}`, 'conservative query-page gaps', 'var(--green)'],
-  ].map(([label, value, sub, color]) => `
+    [
+      'Pages measured',
+      seoNum(data.totals.pagesMeasured),
+      `${seoNum(data.totals.queryPagePairs)} query-page pairs`,
+      'var(--yellow)',
+    ],
+    [
+      'Conversions',
+      seoNum(data.totals.conversions),
+      `${data.windowDays} day value signal`,
+      'var(--green)',
+    ],
+    [
+      'Search impressions',
+      seoNum(data.totals.impressions),
+      `${data.windowDays} day evidence`,
+      'var(--purple)',
+    ],
+    [
+      'Modeled click upside',
+      `+${seoNum(data.totals.modeledClicks)}`,
+      'conservative query-page gaps',
+      'var(--green)',
+    ],
+  ]
+    .map(
+      ([label, value, sub, color]) => `
     <div class="seo-stat" style="--seo-c:${color}">
       <div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div>
       <div class="seo-stat-sub">${esc(sub)}</div>
-    </div>`).join('');
+    </div>`
+    )
+    .join('');
 
-  const typeBars = types.map(([type, count]) => `
+  const typeBars =
+    types
+      .map(
+        ([type, count]) => `
     <button class="seo-type-row" data-seo-type="${esc(type)}" title="Filter to ${esc(SEO_TYPE_LABELS[type] || type)}">
       <span>${esc(SEO_TYPE_LABELS[type] || type)}</span>
-      <i><b style="width:${Math.max(4, Math.round(count / maxType * 100))}%"></b></i>
+      <i><b style="width:${Math.max(4, Math.round((count / maxType) * 100))}%"></b></i>
       <strong>${count}</strong>
-    </button>`).join('') || '<div class="muted">No detected opportunity types.</div>';
+    </button>`
+      )
+      .join('') || '<div class="muted">No detected opportunity types.</div>';
 
-  const siteRows = (data.sites || []).slice(0, 40).map(row => {
-    const ctr = row.impressions ? `${(row.clicks / row.impressions * 100).toFixed(1)}%` : '—';
-    return `<tr data-fleet-row data-site="${esc(row.site)}">
+  const siteRows = (data.sites || [])
+    .slice(0, 40)
+    .map(row => {
+      const ctr = row.impressions ? `${((row.clicks / row.impressions) * 100).toFixed(1)}%` : '—';
+      return `<tr data-fleet-row data-site="${esc(row.site)}">
       <td>${siteLink(row.site)}</td><td><b>${row.actions}</b></td>
       <td>${row.high ? `<span class="badge b-red">${row.high}</span>` : '—'}</td>
       <td>${seoNum(row.pages)}</td><td>${seoNum(row.queryPagePairs)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td>
       <td>${seoNum(row.impressions)}</td><td>${ctr}</td>
       <td><button class="btn sm seo-focus" data-site="${esc(row.site)}">Focus</button></td>
     </tr>`;
-  }).join('');
+    })
+    .join('');
 
-  const actionRows = filtered.slice(0, 100).map(action => `
+  const actionRows =
+    filtered
+      .slice(0, 100)
+      .map(
+        action => `
     <article class="seo-action priority-${esc(action.priority)}" data-fleet-row data-site="${esc(action.site)}">
       <div class="seo-action-top">${seoBadge(action.priority)}<span class="badge b-gray">${esc(SEO_TYPE_LABELS[action.type] || action.type)}</span><span class="seo-score">rank ${esc(action.rankScore || action.score)} · value ${esc(action.valueScore || 0)}</span></div>
       <h3>${esc(action.title)}</h3>
@@ -6187,7 +6517,9 @@ async function renderSeoIntelligence() {
       <p>${esc(action.recommendation)}</p>
       <ol class="seo-plan">${(action.plan || []).map(step => `<li>${esc(step)}</li>`).join('')}</ol>
       <div class="seo-action-foot"><span><b>${seoNum(action.metric && action.metric.value)}</b> ${esc(action.metric && action.metric.label)}</span><button class="btn sm ${action.filed ? '' : 'primary'} seo-file-task" data-site="${esc(action.site)}" data-key="${esc(action.key)}" ${action.filed ? 'disabled' : ''}>${action.filed ? '✓ Filed' : '＋ File task'}</button></div>
-    </article>`).join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
+    </article>`
+      )
+      .join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div>
@@ -6216,28 +6548,49 @@ async function renderSeoIntelligence() {
   $('#seo-priority').value = SEO_PRIORITY;
   $('#seo-type').value = SEO_TYPE;
   $('#seo-site').value = SEO_SITE;
-  $('#seo-priority').addEventListener('change', e => { SEO_PRIORITY = e.target.value; softRender(); });
-  $('#seo-type').addEventListener('change', e => { SEO_TYPE = e.target.value; softRender(); });
-  $('#seo-site').addEventListener('change', e => { SEO_SITE = e.target.value; softRender(); });
-  $$('.seo-type-row').forEach(button => button.addEventListener('click', () => { SEO_TYPE = button.dataset.seoType; softRender(); }));
-  $$('.seo-focus').forEach(button => button.addEventListener('click', () => { SEO_SITE = button.dataset.site; softRender(); }));
-  $$('.seo-file-task:not([disabled])').forEach(button => button.addEventListener('click', async () => {
-    const original = button.textContent;
-    button.disabled = true;
-    button.textContent = 'Filing…';
-    try {
-      const result = await api('POST', '/api/seo-intelligence/file', {
-        site: button.dataset.site,
-        key: button.dataset.key,
-      });
-      toast(result.duplicate ? 'Task was already filed' : `Filed ${result.file}`);
+  $('#seo-priority').addEventListener('change', e => {
+    SEO_PRIORITY = e.target.value;
+    softRender();
+  });
+  $('#seo-type').addEventListener('change', e => {
+    SEO_TYPE = e.target.value;
+    softRender();
+  });
+  $('#seo-site').addEventListener('change', e => {
+    SEO_SITE = e.target.value;
+    softRender();
+  });
+  $$('.seo-type-row').forEach(button =>
+    button.addEventListener('click', () => {
+      SEO_TYPE = button.dataset.seoType;
       softRender();
-    } catch (error) {
-      button.disabled = false;
-      button.textContent = original;
-      toast(error.message, 'err');
-    }
-  }));
+    })
+  );
+  $$('.seo-focus').forEach(button =>
+    button.addEventListener('click', () => {
+      SEO_SITE = button.dataset.site;
+      softRender();
+    })
+  );
+  $$('.seo-file-task:not([disabled])').forEach(button =>
+    button.addEventListener('click', async () => {
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Filing…';
+      try {
+        const result = await api('POST', '/api/seo-intelligence/file', {
+          site: button.dataset.site,
+          key: button.dataset.key,
+        });
+        toast(result.duplicate ? 'Task was already filed' : `Filed ${result.file}`);
+        softRender();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = original;
+        toast(error.message, 'err');
+      }
+    })
+  );
   applyFleetFilter();
   if (!FRESH) applyUISnap();
 }
@@ -6287,9 +6640,10 @@ async function renderAnalytics() {
       <thead><tr><th>site</th><th>GA4</th><th>Search Console</th></tr></thead>
       <tbody>${healthRows || '<tr><td colspan="3" class="muted">no sites</td></tr>'}</tbody>
     </table>`;
-  const amazonHtml = amazonRevenue && amazonRevenue.has_data
-    ? `<div>Amazon clicks <b>${esc(String(amazonRevenue.clicks))}</b> · ordered <b>${esc(String(amazonRevenue.ordered_items))}</b> · shipped <b>${esc(String(amazonRevenue.shipped_items))}</b> · commission <b>$${esc(Number(amazonRevenue.commission_income).toFixed(2))}</b></div><div class="dh-sub-h">account-wide · ${esc(amazonRevenue.from || '—')} through ${esc(amazonRevenue.through || '—')}</div>`
-    : `<div class="muted">${esc((amazonRevenue && amazonRevenue.message) || 'Amazon earnings data unavailable')}</div>`;
+  const amazonHtml =
+    amazonRevenue && amazonRevenue.has_data
+      ? `<div>Amazon clicks <b>${esc(String(amazonRevenue.clicks))}</b> · ordered <b>${esc(String(amazonRevenue.ordered_items))}</b> · shipped <b>${esc(String(amazonRevenue.shipped_items))}</b> · commission <b>$${esc(Number(amazonRevenue.commission_income).toFixed(2))}</b></div><div class="dh-sub-h">account-wide · ${esc(amazonRevenue.from || '—')} through ${esc(amazonRevenue.through || '—')}</div>`
+      : `<div class="muted">${esc((amazonRevenue && amazonRevenue.message) || 'Amazon earnings data unavailable')}</div>`;
 
   let detailHtml = '<div class="muted">select a site</div>';
   if (ANALYTICS_SITE) {
@@ -6316,7 +6670,7 @@ async function renderAnalytics() {
     } else {
       const ga4Line =
         'sessions' in summary
-          ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · affiliate clicks <b>${esc(String(summary.conversions))}</b> · click/session <b>${summary.sessions ? esc(`${(summary.conversions / summary.sessions * 100).toFixed(2)}%`) : '—'}</b></div>`
+          ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · affiliate clicks <b>${esc(String(summary.conversions))}</b> · click/session <b>${summary.sessions ? esc(`${((summary.conversions / summary.sessions) * 100).toFixed(2)}%`) : '—'}</b></div>`
           : '<div class="muted">no GA4 data</div>';
       const gscLine =
         'clicks' in summary
@@ -7539,7 +7893,8 @@ async function renderSocial() {
         ${s.needsAttention ? socToneBadge('red', `${s.needsAttention} need attention`) : socToneBadge('gray', 'none broken')}`;
     }
     const summaryEl = $('.page-head .muted');
-    if (summaryEl) summaryEl.textContent = `${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites`;
+    if (summaryEl)
+      summaryEl.textContent = `${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites`;
     socRenderBody();
     return;
   }
@@ -8308,7 +8663,16 @@ const SH = {
   eventsSort: 'when',
   eventsDir: 'desc',
 };
-const SH_STATUSES = ['draft', 'needs_rewrite', 'approved', 'scheduled', 'posted', 'failed', 'rejected', 'cancelled'];
+const SH_STATUSES = [
+  'draft',
+  'needs_rewrite',
+  'approved',
+  'scheduled',
+  'posted',
+  'failed',
+  'rejected',
+  'cancelled',
+];
 const SH_PUBLIC_PLATFORMS = '__public__';
 const SH_TABS = ['overview', 'oversight', 'queue', 'calendar', 'inbox', 'channels', 'events'];
 
@@ -8565,7 +8929,11 @@ async function shPostAction(btn) {
         return;
       }
       const reason = prompt(`${act === 'deny' ? 'Deny' : 'Reject'} reason (optional):`) || '';
-      const category = prompt('Feedback category: wrong_voice, weak_hook, unsupported_claim, too_promotional, platform_mismatch, unsafe_or_private, or other', 'other') || 'other';
+      const category =
+        prompt(
+          'Feedback category: wrong_voice, weak_hook, unsupported_claim, too_promotional, platform_mismatch, unsafe_or_private, or other',
+          'other'
+        ) || 'other';
       await api('POST', `/api/socialhub/posts/${id}/reject`, { reason, category });
       toast(`Post ${id} ${act === 'deny' ? 'denied' : 'rejected'}`);
     } else if (act === 'approve') {
@@ -8666,7 +9034,8 @@ async function renderSocialHub() {
   const existingBody = $('#sh-body');
   if (!FRESH && existingBody && STATE.view === 'socialhub') {
     const countEl = $('.page-head .muted');
-    if (countEl) countEl.textContent = `${sites.length} managed site${sites.length === 1 ? '' : 's'}`;
+    if (countEl)
+      countEl.textContent = `${sites.length} managed site${sites.length === 1 ? '' : 's'}`;
     if (SH.tab === 'overview') shRenderOverview(overview);
     else if (SH.tab === 'oversight') shRenderOversight(overview.oversight || {});
     else if (SH.tab === 'queue') shRenderQueue();
@@ -8739,7 +9108,9 @@ function shComposerModal() {
   const selectedSite = SH.site && sites.includes(SH.site) ? SH.site : sites[0] || '';
   const platformOptions = site =>
     (SH.platformsBySite[site] || SH.platforms || [])
-      .map(platform => `<option value="${esc(platform)}">${esc(shPlatformLabel(platform))}</option>`)
+      .map(
+        platform => `<option value="${esc(platform)}">${esc(shPlatformLabel(platform))}</option>`
+      )
       .join('');
   title.textContent = 'New social post';
   body.innerHTML = `
@@ -8851,7 +9222,10 @@ function shRenderOverview(data) {
     .slice()
     .sort(
       (a, b) =>
-        b.failed - a.failed || b.draft - a.draft || b.inbox - a.inbox || a.name.localeCompare(b.name)
+        b.failed - a.failed ||
+        b.draft - a.draft ||
+        b.inbox - a.inbox ||
+        a.name.localeCompare(b.name)
     );
 
   const tile = (k, label, value, tone) =>
@@ -8867,9 +9241,7 @@ function shRenderOverview(data) {
       const tone = r.failed ? 'is-bad' : r.draft ? 'is-warn' : r.idle ? 'is-idle' : 'is-ok';
       const next = r.info.next_send ? shFmtDate(r.info.next_send) : 'nothing scheduled';
       const pill = (label, n, cls) =>
-        n
-          ? `<span class="sh-pill${cls ? ' ' + cls : ''}">${n}<i>${esc(label)}</i></span>`
-          : '';
+        n ? `<span class="sh-pill${cls ? ' ' + cls : ''}">${n}<i>${esc(label)}</i></span>` : '';
       return `
         <div class="card sh-site ${tone}" data-fleet-row data-site="${esc(r.name)}" data-rk="sh-site-${esc(r.name)}">
           <div class="sh-site-head">
@@ -8950,7 +9322,9 @@ function shRenderOverview(data) {
       shRenderOverview(data);
     })
   );
-  $('[data-sh-open-oversight]')?.addEventListener('click', () => $('[data-sh-tab="oversight"]')?.click());
+  $('[data-sh-open-oversight]')?.addEventListener('click', () =>
+    $('[data-sh-tab="oversight"]')?.click()
+  );
   // a summary tile is a question ("what are those 84 drafts?") — send it to the
   // queue already filtered rather than making the operator refilter by hand
   $$('[data-sh-jump]').forEach(b =>
@@ -8969,12 +9343,17 @@ function shRenderOversight(data) {
   const stats = last.stats || {};
   const usage = data.usage_30d || {};
   const categories = Object.entries(data.feedback_categories || {})
-    .map(([name, count]) => `<tr><td>${esc(name)}</td><td class="mono">${count}</td></tr>`).join('');
-  const proposals = (data.learning_proposals || []).map(p => `<tr>
+    .map(([name, count]) => `<tr><td>${esc(name)}</td><td class="mono">${count}</td></tr>`)
+    .join('');
+  const proposals = (data.learning_proposals || [])
+    .map(
+      p => `<tr>
     <td class="mono">#${esc(p.id)}</td><td>${esc(p.site || 'fleet')}</td><td>${esc(p.target_path)}</td>
     <td class="sh-body-cell">${esc(p.instruction)}</td><td>${shBadgeStatus(p.state)}</td>
     <td class="sh-acts-cell">${p.state === 'proposed' ? `<button class="btn sm sh-learn-review" data-id="${esc(p.id)}" data-state="approved">Approve</button><button class="btn sm sh-learn-review" data-id="${esc(p.id)}" data-state="rejected">Reject</button>` : '<span class="muted">—</span>'}</td>
-  </tr>`).join('');
+  </tr>`
+    )
+    .join('');
   const configWarnings = (data.config_health || []).filter(row => !row.ready);
   body.innerHTML = `
     <div class="sh-tiles">
@@ -8989,20 +9368,44 @@ function shRenderOversight(data) {
     </div>
     <div class="sh-oversight-grid">
       <div><h3 class="sh-h">Open feedback</h3>${categories ? `<div class="card sh-table-wrap"><table class="tbl"><thead><tr><th>Category</th><th>Count</th></tr></thead><tbody>${categories}</tbody></table></div>` : '<div class="empty">No open feedback.</div>'}</div>
-      <div><h3 class="sh-h">Configuration readiness</h3><div class="card sh-config-health"><strong>${data.config_ready || 0}/${(data.config_health || []).length} complete</strong>${configWarnings.slice(0, 12).map(row => `<p><span class="badge b-yellow">${esc(row.site)}</span> ${esc(row.warnings.join(' · '))}</p>`).join('') || '<p class="muted">Every managed site has a complete voice card.</p>'}</div></div>
+      <div><h3 class="sh-h">Configuration readiness</h3><div class="card sh-config-health"><strong>${data.config_ready || 0}/${(data.config_health || []).length} complete</strong>${
+        configWarnings
+          .slice(0, 12)
+          .map(
+            row =>
+              `<p><span class="badge b-yellow">${esc(row.site)}</span> ${esc(row.warnings.join(' · '))}</p>`
+          )
+          .join('') || '<p class="muted">Every managed site has a complete voice card.</p>'
+      }</div></div>
     </div>
     <h3 class="sh-h">Writer learning proposals</h3>
     ${proposals ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr><th>ID</th><th>Scope</th><th>Target</th><th>Instruction</th><th>State</th><th>Actions</th></tr></thead><tbody>${proposals}</tbody></table></div>` : '<div class="empty">No evidence-backed changes proposed yet.</div>'}`;
   $('#sh-controller-toggle')?.addEventListener('click', async e => {
     gdBusy(e.currentTarget, true);
-    try { await api('POST', '/api/socialhub/controller', { enabled: !data.enabled }); toast(!data.enabled ? 'Controller enabled' : 'Controller paused'); renderSocialHub(); }
-    catch (err) { toast(err.message, 'err'); gdBusy(e.currentTarget, false); }
+    try {
+      await api('POST', '/api/socialhub/controller', { enabled: !data.enabled });
+      toast(!data.enabled ? 'Controller enabled' : 'Controller paused');
+      renderSocialHub();
+    } catch (err) {
+      toast(err.message, 'err');
+      gdBusy(e.currentTarget, false);
+    }
   });
-  $$('.sh-learn-review').forEach(btn => btn.addEventListener('click', async () => {
-    btn.disabled = true;
-    try { await api('POST', `/api/socialhub/learning/${btn.dataset.id}/review`, { state: btn.dataset.state }); toast(`Proposal ${btn.dataset.state}`); renderSocialHub(); }
-    catch (err) { toast(err.message, 'err'); btn.disabled = false; }
-  }));
+  $$('.sh-learn-review').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        await api('POST', `/api/socialhub/learning/${btn.dataset.id}/review`, {
+          state: btn.dataset.state,
+        });
+        toast(`Proposal ${btn.dataset.state}`);
+        renderSocialHub();
+      } catch (err) {
+        toast(err.message, 'err');
+        btn.disabled = false;
+      }
+    })
+  );
 }
 
 async function shRenderQueue() {
@@ -9169,7 +9572,9 @@ function shCalendarPost(p) {
       failed: 'Failed',
       rejected: 'Rejected',
       cancelled: 'Cancelled',
-    }[p.status] || p.status || 'Unknown';
+    }[p.status] ||
+    p.status ||
+    'Unknown';
   const acts = shActions(p)
     .map(
       ([act, label]) =>
@@ -9510,14 +9915,15 @@ async function shRenderChannels() {
   }
   // Accept both the hub's normal envelope and the direct list shape returned
   // by a few older deployments.
-  const hubChannels = (Array.isArray(data)
-    ? data
-    : Array.isArray(data?.channels)
-      ? data.channels
-      : Array.isArray(data?.data?.channels)
-        ? data.data.channels
-        : [])
-    .slice();
+  const hubChannels = (
+    Array.isArray(data)
+      ? data
+      : Array.isArray(data?.channels)
+        ? data.channels
+        : Array.isArray(data?.data?.channels)
+          ? data.data.channels
+          : []
+  ).slice();
   const registryAccounts = Array.isArray(registryData?.accounts) ? registryData.accounts : [];
   const channelKey = c =>
     [
@@ -9565,22 +9971,22 @@ async function shRenderChannels() {
   $('#sh-channels-count').textContent =
     `${channels.length} channel${channels.length === 1 ? '' : 's'}`;
   const rows = channels
-    .map(
-      c => {
-        const site = shChannelText(c, 'site', 'domain');
-        const platform = shChannelText(c, 'platform', 'platform_name', 'network');
-        const persona = shChannelField(c, 'personaName', 'persona_name', 'persona');
-        const scope = shChannelField(c, 'scope') || (persona ? 'persona' : 'brand');
-        const handle = shChannelText(c, 'handle', 'username', 'account', 'account_handle');
-        const status = shChannelText(c, 'status', 'state');
-        const readiness = shChannelText(c, 'readiness');
-        const enabled = c.enabled === true || c.enabled === 1 || c.enabled === '1';
-        const hasCreds = c.has_creds === true || c.has_creds === 1 || c.has_creds === '1' || c.credsInVault === true;
-        const note = shChannelText(c, 'note', 'statusNote', 'notes');
-        const error = shChannelField(c, 'error', 'last_error');
-        const id = shChannelField(c, 'id', 'channel_id');
-        const canOperate = id !== '';
-        return `<tr data-fleet-row data-site="${esc(site)}" data-id="${esc(id)}">
+    .map(c => {
+      const site = shChannelText(c, 'site', 'domain');
+      const platform = shChannelText(c, 'platform', 'platform_name', 'network');
+      const persona = shChannelField(c, 'personaName', 'persona_name', 'persona');
+      const scope = shChannelField(c, 'scope') || (persona ? 'persona' : 'brand');
+      const handle = shChannelText(c, 'handle', 'username', 'account', 'account_handle');
+      const status = shChannelText(c, 'status', 'state');
+      const readiness = shChannelText(c, 'readiness');
+      const enabled = c.enabled === true || c.enabled === 1 || c.enabled === '1';
+      const hasCreds =
+        c.has_creds === true || c.has_creds === 1 || c.has_creds === '1' || c.credsInVault === true;
+      const note = shChannelText(c, 'note', 'statusNote', 'notes');
+      const error = shChannelField(c, 'error', 'last_error');
+      const id = shChannelField(c, 'id', 'channel_id');
+      const canOperate = id !== '';
+      return `<tr data-fleet-row data-site="${esc(site)}" data-id="${esc(id)}">
           <td><span class="badge b-blue">${esc(site)}</span></td>
           <td>${esc(shPlatformLabel(platform))}</td>
           <td class="muted">${esc(scope)}${persona ? ` <span class="mono">(${esc(persona)})</span>` : ''}</td>
@@ -9595,14 +10001,15 @@ async function shRenderChannels() {
           <td class="sh-body-cell" title="${esc(note)}">${esc(note)}</td>
           <td class="sh-body-cell">${error ? `<span class="sh-err" title="${esc(error)}">⚠ ${esc(String(error).slice(0, 60))}${String(error).length > 60 ? '…' : ''}</span>` : '<span class="muted">—</span>'}</td>
           <td class="sh-acts-cell">
-            ${canOperate
-              ? `<button class="btn sm sh-chan-toggle" data-id="${esc(id)}" data-enabled="${enabled ? 0 : 1}">${enabled ? 'Disable' : 'Enable'}</button>
+            ${
+              canOperate
+                ? `<button class="btn sm sh-chan-toggle" data-id="${esc(id)}" data-enabled="${enabled ? 0 : 1}">${enabled ? 'Disable' : 'Enable'}</button>
                  <button class="btn sm sh-chan-verify" data-id="${esc(id)}">Verify</button>`
-              : '<span class="muted" title="This registry account has not been synced into Social Hub yet">Registry only</span>'}
+                : '<span class="muted" title="This registry account has not been synced into Social Hub yet">Registry only</span>'
+            }
           </td>
         </tr>`;
-      }
-    )
+    })
     .join('');
   $('#sh-channels-list').innerHTML = rows
     ? `<div class="card sh-table-wrap"><table class="tbl sh-table"><thead><tr><th>Site</th><th>Platform</th><th>Scope</th><th>Handle</th>
@@ -9721,7 +10128,14 @@ async function shRenderEvents() {
 // it — declared here as a forward reference via var hoisting is unsafe with
 // const, so TOP_VIEWS is assembled lazily the first time it's read.
 function topViews() {
-  return ['control', 'priorities', 'improvements', ...NAV_GROUP_VIEWS];
+  return [
+    'control',
+    'priorities',
+    'improvements',
+    'agents',
+    ...Object.keys(NAV_GROUPS),
+    ...NAV_GROUP_VIEWS,
+  ];
 }
 
 // Grouped nav (F-nav): the flat 20+ tab bar collapsed into topic dropdowns,
@@ -9731,6 +10145,7 @@ function topViews() {
 const NAV_GROUPS = {
   ops: {
     label: 'Ops',
+    description: 'Run, deploy, and maintain the fleet infrastructure.',
     items: [
       ['cron', 'Cron'],
       ['containers', 'Containers'],
@@ -9747,6 +10162,7 @@ const NAV_GROUPS = {
   },
   content: {
     label: 'Content',
+    description: 'Create, enrich, and manage the fleet publishing pipeline.',
     items: [
       ['guides', 'Guides'],
       ['productfeed', 'Product Feed'],
@@ -9757,6 +10173,7 @@ const NAV_GROUPS = {
   },
   growth: {
     label: 'Growth',
+    description: 'Measure demand, expand reach, and manage acquisition systems.',
     items: [
       ['seointelligence', 'SEO Intelligence'],
       ['analytics', 'Analytics'],
@@ -9771,6 +10188,7 @@ const NAV_GROUPS = {
   },
   quality: {
     label: 'Quality',
+    description: 'Protect reliability, compliance, and data integrity.',
     items: [
       ['compliance', 'Compliance'],
       ['lint', 'Lint'],
@@ -9851,6 +10269,7 @@ function applyUISnap() {
 // One management surface for the controls that are otherwise split across
 // hub.yaml, role markdown, and per-site crontabs.
 let AUTO_SITE = '';
+let AUTO_ROLE_DRAFT = null;
 
 const AUTO_SCHEDULE_PRESETS = [
   ['*/15 * * * *', 'Every 15 minutes'],
@@ -9919,8 +10338,12 @@ let PRIORITY_STATE = 'all';
 async function renderPriorities() {
   if (FRESH) app.innerHTML = '<div class="loading">Joining portfolio signals…</div>';
   let data;
-  try { data = await api('GET', '/api/priorities'); }
-  catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; return; }
+  try {
+    data = await api('GET', '/api/priorities');
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    return;
+  }
   const coverage = data.coverage || {};
   const all = data.items || [];
   const rows = all.filter(item => PRIORITY_STATE === 'all' || item.state === PRIORITY_STATE);
@@ -9928,19 +10351,42 @@ async function renderPriorities() {
     ['Recommendations', data.totals?.recommendations || 0, 'joined work queue'],
     ['Ready', data.totals?.ready || 0, 'can be filed now'],
     ['Blocked', data.totals?.blocked || 0, 'coverage or ownership'],
-    ['Live sites', coverage.live_sites || 0, `${coverage.discovered_sites || 0} operational checkouts`],
+    [
+      'Live sites',
+      coverage.live_sites || 0,
+      `${coverage.discovered_sites || 0} operational checkouts`,
+    ],
     ['Analytics', coverage.analytics_sites || 0, 'sites reporting'],
-    ['Revenue', coverage.revenue_connected ? 'Connected' : 'Missing', coverage.revenue_attributed ? 'attributed' : 'not attributable'],
-  ].map(([label, value, sub]) => `<div class="seo-stat"><div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div><div class="seo-stat-sub">${esc(sub)}</div></div>`).join('');
-  const body = rows.slice(0, 200).map(item => `<tr data-fleet-row data-site="${esc(item.site)}">
+    [
+      'Revenue',
+      coverage.revenue_connected ? 'Connected' : 'Missing',
+      coverage.revenue_attributed ? 'attributed' : 'not attributable',
+    ],
+  ]
+    .map(
+      ([label, value, sub]) =>
+        `<div class="seo-stat"><div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div><div class="seo-stat-sub">${esc(sub)}</div></div>`
+    )
+    .join('');
+  const body = rows
+    .slice(0, 200)
+    .map(
+      item => `<tr data-fleet-row data-site="${esc(item.site)}">
     <td><b>${esc(item.score)}</b></td><td>${siteLink(item.site)}</td>
     <td><span class="badge ${item.state === 'blocked' ? 'b-red' : item.state === 'filed' ? 'b-green' : 'b-blue'}">${esc(item.state)}</span></td>
     <td><span class="badge b-gray">${esc(item.kind)}</span></td>
     <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div></td>
     <td>${esc(item.confidence)}</td><td>${item.expected_profit_usd == null ? '<span class="muted">not attributable</span>' : fmtUSD(item.expected_profit_usd)}</td>
     <td>${item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>` : ''}</td>
-  </tr>`).join('');
-  const scorecards = (data.scorecards || []).map(row => `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td><span class="badge b-gray">${esc(row.allocation)}</span></td><td>${esc(row.opportunity_score)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td><td>${fmtUSD(row.ai_cost_usd)}</td><td>${row.revenue_usd == null ? '—' : fmtUSD(row.revenue_usd)}</td><td>${row.margin_usd == null ? '—' : fmtUSD(row.margin_usd)}</td></tr>`).join('');
+  </tr>`
+    )
+    .join('');
+  const scorecards = (data.scorecards || [])
+    .map(
+      row =>
+        `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td><span class="badge b-gray">${esc(row.allocation)}</span></td><td>${esc(row.opportunity_score)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td><td>${fmtUSD(row.ai_cost_usd)}</td><td>${row.revenue_usd == null ? '—' : fmtUSD(row.revenue_usd)}</td><td>${row.margin_usd == null ? '—' : fmtUSD(row.margin_usd)}</td></tr>`
+    )
+    .join('');
   app.innerHTML = `<div class="page-head"><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div>
     <div class="error-box">${esc(data.notice || '')}</div>
     <section class="seo-stats">${tiles}</section>
@@ -9948,15 +10394,26 @@ async function renderPriorities() {
     <div class="task-toolbar"><strong>${rows.length} items</strong><select id="priority-state" class="cm-input"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
     <section class="card"><table class="tbl"><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></section>`;
   $('#priority-state').value = PRIORITY_STATE;
-  $('#priority-state').addEventListener('change', e => { PRIORITY_STATE = e.target.value; softRender(); });
-  $$('.priority-start').forEach(button => button.addEventListener('click', async () => {
-    button.disabled = true;
-    try {
-      const result = await api('POST', '/api/improvements/start', { site: button.dataset.site, key: button.dataset.key });
-      toast(result.duplicate ? 'Improvement already exists' : 'Improvement started');
-      go('improvements');
-    } catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
+  $('#priority-state').addEventListener('change', e => {
+    PRIORITY_STATE = e.target.value;
+    softRender();
+  });
+  $$('.priority-start').forEach(button =>
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        const result = await api('POST', '/api/improvements/start', {
+          site: button.dataset.site,
+          key: button.dataset.key,
+        });
+        toast(result.duplicate ? 'Improvement already exists' : 'Improvement started');
+        go('improvements');
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
   applyFleetFilter();
   if (!FRESH) applyUISnap();
   stamp();
@@ -9966,37 +10423,76 @@ let IMPROVEMENT_STATE = 'active';
 const IMPROVEMENT_TERMINAL = new Set(['proven', 'inconclusive', 'cancelled', 'rolled-back']);
 
 function improvementActions(run, transitions) {
-  if (run.state === 'measuring' || run.state === 'deployed') return `${run.state === 'measuring' ? `<button class="btn sm primary improvement-measure" data-id="${esc(run.run_id)}">Measure outcome</button> ` : ''}<button class="btn sm danger improvement-rollback" data-id="${esc(run.run_id)}" data-title="${esc(run.title)}">Execute rollback</button>`;
-  if (run.state === 'review') return `<button class="btn sm primary improvement-deploy" data-id="${esc(run.run_id)}" data-title="${esc(run.title)}">Approve & deploy</button> ` +
-    (transitions[run.state] || []).filter(state => state !== 'deployed').map(state => `<button class="btn sm ${state === 'cancelled' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${esc(state)}</button>`).join(' ');
-  const buildTools = run.state === 'building' ? `<button class="btn sm improvement-agent" data-id="${esc(run.run_id)}">Run agent</button> <button class="btn sm improvement-commit" data-id="${esc(run.run_id)}">Commit changes</button> <button class="btn sm primary improvement-validate" data-id="${esc(run.run_id)}">Run quality gates</button> ` : '';
-  return buildTools + (transitions[run.state] || []).map(state =>
-    `<button class="btn sm ${state === 'building' ? 'primary' : state === 'proven' ? 'primary' : state === 'cancelled' || state === 'rolled-back' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${state === 'building' && run.state !== 'review' ? 'Start sandbox build' : esc(state.replace('-', ' '))}</button>`
-  ).join(' ');
+  if (run.state === 'measuring' || run.state === 'deployed')
+    return `${run.state === 'measuring' ? `<button class="btn sm primary improvement-measure" data-id="${esc(run.run_id)}">Measure outcome</button> ` : ''}<button class="btn sm danger improvement-rollback" data-id="${esc(run.run_id)}" data-title="${esc(run.title)}">Execute rollback</button>`;
+  if (run.state === 'review')
+    return (
+      `<button class="btn sm primary improvement-deploy" data-id="${esc(run.run_id)}" data-title="${esc(run.title)}">Approve & deploy</button> ` +
+      (transitions[run.state] || [])
+        .filter(state => state !== 'deployed')
+        .map(
+          state =>
+            `<button class="btn sm ${state === 'cancelled' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${esc(state)}</button>`
+        )
+        .join(' ')
+    );
+  const buildTools =
+    run.state === 'building'
+      ? `<button class="btn sm improvement-agent" data-id="${esc(run.run_id)}">Run agent</button> <button class="btn sm improvement-commit" data-id="${esc(run.run_id)}">Commit changes</button> <button class="btn sm primary improvement-validate" data-id="${esc(run.run_id)}">Run quality gates</button> `
+      : '';
+  return (
+    buildTools +
+    (transitions[run.state] || [])
+      .map(
+        state =>
+          `<button class="btn sm ${state === 'building' ? 'primary' : state === 'proven' ? 'primary' : state === 'cancelled' || state === 'rolled-back' ? 'danger' : ''} improvement-transition" data-id="${esc(run.run_id)}" data-state="${esc(state)}">${state === 'building' && run.state !== 'review' ? 'Start sandbox build' : esc(state.replace('-', ' '))}</button>`
+      )
+      .join(' ')
+  );
 }
 
 function improvementChecks(validation) {
-  const checks = { ...(validation?.checks || {}), ...(validation?.preview?.checks || {}),
-    ...(validation?.browser?.lighthouse?.checks || {}), ...(validation?.browser?.screenshots || {}) };
-  return Object.entries(checks).map(([name, value]) => {
-    const item = typeof value === 'string' ? { status: value } : value || {};
-    const cls = item.status === 'pass' ? 'b-green' : item.status === 'warn' ? 'b-yellow' : 'b-red';
-    return `<tr><td>${esc(name.replaceAll('_', ' '))}</td><td><span class="badge ${cls}">${esc(item.status || 'unknown')}</span></td><td class="muted">${esc(item.evidence || item.excerpt || '')}</td></tr>`;
-  }).join('') || '<tr><td colspan="3" class="muted">Quality gates have not run.</td></tr>';
+  const checks = {
+    ...(validation?.checks || {}),
+    ...(validation?.preview?.checks || {}),
+    ...(validation?.browser?.lighthouse?.checks || {}),
+    ...(validation?.browser?.screenshots || {}),
+  };
+  return (
+    Object.entries(checks)
+      .map(([name, value]) => {
+        const item = typeof value === 'string' ? { status: value } : value || {};
+        const cls =
+          item.status === 'pass' ? 'b-green' : item.status === 'warn' ? 'b-yellow' : 'b-red';
+        return `<tr><td>${esc(name.replaceAll('_', ' '))}</td><td><span class="badge ${cls}">${esc(item.status || 'unknown')}</span></td><td class="muted">${esc(item.evidence || item.excerpt || '')}</td></tr>`;
+      })
+      .join('') || '<tr><td colspan="3" class="muted">Quality gates have not run.</td></tr>'
+  );
 }
 
 async function renderImprovements() {
   if (FRESH) app.innerHTML = '<div class="loading">Loading improvement runs…</div>';
   let data;
-  try { data = await api('GET', '/api/improvements'); }
-  catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; return; }
+  try {
+    data = await api('GET', '/api/improvements');
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    return;
+  }
   const all = data.runs || [];
-  const runs = all.filter(run => IMPROVEMENT_STATE === 'all' || (IMPROVEMENT_STATE === 'active' ? !IMPROVEMENT_TERMINAL.has(run.state) : run.state === IMPROVEMENT_STATE));
-  const cards = runs.map(run => {
-    const baseline = run.baseline?.analytics || {};
-    const validation = run.validation || {};
-    const outcome = run.outcome || {};
-    return `<article class="card" data-fleet-row data-site="${esc(run.site)}" style="margin-bottom:12px">
+  const runs = all.filter(
+    run =>
+      IMPROVEMENT_STATE === 'all' ||
+      (IMPROVEMENT_STATE === 'active'
+        ? !IMPROVEMENT_TERMINAL.has(run.state)
+        : run.state === IMPROVEMENT_STATE)
+  );
+  const cards = runs
+    .map(run => {
+      const baseline = run.baseline?.analytics || {};
+      const validation = run.validation || {};
+      const outcome = run.outcome || {};
+      return `<article class="card" data-fleet-row data-site="${esc(run.site)}" style="margin-bottom:12px">
       <div class="page-head"><div><h3>${esc(run.title)}</h3><div>${siteLink(run.site)} · <span class="badge b-blue">${esc(run.state)}</span>${run.stale ? ' · <span class="badge b-yellow">stale</span>' : ''} · owner ${esc(run.agent?.assigned_role || 'unassigned')} · <span class="mono muted">${esc(run.run_id.slice(0, 8))}</span></div></div><div>${improvementActions(run, data.transitions || {})}</div></div>
       <div class="seo-stats">
         <div class="seo-stat"><div class="seo-stat-label">Task ${run.task_drift ? '<span class="badge b-red">drift</span>' : ''}</div><div class="seo-stat-value" style="font-size:14px">${esc(run.task_file || '—')}</div><div class="seo-stat-sub">${esc(run.task_column || 'missing')} · expected ${esc(run.expected_task_column || '—')}</div></div>
@@ -10013,87 +10509,195 @@ async function renderImprovements() {
         <div class="improvement-live muted">Open to load worktree diff, agent log, and event timeline.</div>
       </details>
     </article>`;
-  }).join('');
+    })
+    .join('');
   const active = all.filter(run => !IMPROVEMENT_TERMINAL.has(run.state)).length;
   app.innerHTML = `<div class="page-head"><h2 class="page-title">Site Improvements</h2><div class="crumbs">Recommendation → task → build → review → deploy → measured outcome</div></div>
     <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${active}</div><div class="seo-stat-label">Active</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.proven || 0}</div><div class="seo-stat-label">Proven</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.regressed || 0}</div><div class="seo-stat-label">Regressed</div></div><div class="seo-stat"><div class="seo-stat-value">${all.length}</div><div class="seo-stat-label">All runs</div></div></section>
     <div class="task-toolbar"><select id="improvement-state" class="cm-input"><option value="active">Active</option><option value="all">All runs</option>${(data.states || []).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select><span class="muted">State changes are explicit and recorded in the causal event graph.</span></div>
     ${cards || '<div class="empty">No improvement runs in this view. Start one from Priorities.</div>'}`;
   $('#improvement-state').value = IMPROVEMENT_STATE;
-  $('#improvement-state').addEventListener('change', e => { IMPROVEMENT_STATE = e.target.value; softRender(); });
-  $$('.improvement-transition').forEach(button => button.addEventListener('click', async () => {
-    const state = button.dataset.state;
-    if (state === 'building' && button.textContent.includes('sandbox')) {
+  $('#improvement-state').addEventListener('change', e => {
+    IMPROVEMENT_STATE = e.target.value;
+    softRender();
+  });
+  $$('.improvement-transition').forEach(button =>
+    button.addEventListener('click', async () => {
+      const state = button.dataset.state;
+      if (state === 'building' && button.textContent.includes('sandbox')) {
+        button.disabled = true;
+        try {
+          await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/build`, {});
+          toast('Branch and sandbox ready');
+          softRender();
+        } catch (e) {
+          button.disabled = false;
+          toast(e.message, 'err');
+        }
+        return;
+      }
+      const payload = { state };
+      if (state === 'review') {
+        payload.preview_url = prompt('Preview URL (optional):', '') || null;
+      }
+      if (state === 'deployed') {
+        const deployment = prompt('Deployment ID or production commit SHA:');
+        if (!deployment) return;
+        payload.deployment_id = deployment;
+      }
+      if (['proven', 'regressed', 'inconclusive'].includes(state)) {
+        const notes = prompt('Measured outcome and supporting metric change:');
+        if (!notes) return;
+        payload.outcome = { measured_at: new Date().toISOString(), notes };
+      }
       button.disabled = true;
-      try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/build`, {}); toast('Branch and sandbox ready'); softRender(); }
-      catch (e) { button.disabled = false; toast(e.message, 'err'); }
-      return;
-    }
-    const payload = { state };
-    if (state === 'review') {
-      payload.preview_url = prompt('Preview URL (optional):', '') || null;
-    }
-    if (state === 'deployed') {
-      const deployment = prompt('Deployment ID or production commit SHA:');
-      if (!deployment) return;
-      payload.deployment_id = deployment;
-    }
-    if (['proven', 'regressed', 'inconclusive'].includes(state)) {
-      const notes = prompt('Measured outcome and supporting metric change:');
-      if (!notes) return;
-      payload.outcome = { measured_at: new Date().toISOString(), notes };
-    }
-    button.disabled = true;
-    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/transition`, payload); toast(`Moved to ${state}`); softRender(); }
-    catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
-  $$('.improvement-validate').forEach(button => button.addEventListener('click', async () => {
-    button.disabled = true; button.textContent = 'Validating…';
-    try { const result = await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/validate`, {}); toast(result.validation.passed ? 'All quality gates passed' : 'Quality gates found issues', result.validation.passed ? '' : 'err'); softRender(); }
-    catch (e) { button.disabled = false; button.textContent = 'Run quality gates'; toast(e.message, 'err'); softRender(); }
-  }));
-  $$('.improvement-measure').forEach(button => button.addEventListener('click', async () => {
-    button.disabled = true;
-    try { const result = await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/measure`, {}); toast(`Outcome: ${result.outcome.classification}`); softRender(); }
-    catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
-  $$('.improvement-agent').forEach(button => button.addEventListener('click', async () => {
-    button.disabled = true;
-    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/agent`, {}); toast('Agent started in isolated worktree'); softRender(); }
-    catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
-  $$('.improvement-commit').forEach(button => button.addEventListener('click', async () => {
-    const message = prompt('Commit message for the reviewed worktree changes:');
-    if (!message) return;
-    button.disabled = true;
-    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/commit`, { message }); toast('Improvement changes committed'); softRender(); }
-    catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
-  $$('.improvement-deploy').forEach(button => button.addEventListener('click', async () => {
-    const confirmTitle = prompt(`Type the exact improvement title to approve production deployment:\n\n${button.dataset.title}`);
-    if (confirmTitle !== button.dataset.title) return toast('Deployment confirmation did not match', 'err');
-    button.disabled = true;
-    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/deploy`, { confirm: confirmTitle }); toast('Deployed; outcome measurement scheduled'); softRender(); }
-    catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
-  $$('.improvement-rollback').forEach(button => button.addEventListener('click', async () => {
-    const confirmTitle = prompt(`This creates and pushes a production revert. Type the exact title to continue:\n\n${button.dataset.title}`);
-    if (confirmTitle !== button.dataset.title) return toast('Rollback confirmation did not match', 'err');
-    button.disabled = true;
-    try { await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/rollback`, { confirm: confirmTitle }); toast('Rollback committed and pushed'); softRender(); }
-    catch (e) { button.disabled = false; toast(e.message, 'err'); }
-  }));
-  $$('.improvement-detail').forEach(details => details.addEventListener('toggle', async () => {
-    if (!details.open || details.dataset.loaded === '1') return;
-    const box = $('.improvement-live', details); box.textContent = 'Loading delivery evidence…';
-    try {
-      const detail = await api('GET', `/api/improvements/${encodeURIComponent(details.dataset.id)}`);
-      const files = (detail.workspace?.files || []).map(f => `${f.code || ''} ${f.path}`).join('\n') || '(clean worktree)';
-      const timeline = (detail.events || []).map(e => `${fmtDate(e.occurred_at)}  ${e.event_type}`).join('\n');
-      box.innerHTML = `<h4>Worktree</h4><pre class="cn-logs-box">${esc(detail.workspace?.diff_stat || '')}\n${esc(files)}</pre><h4>Code/content diff${detail.diff?.truncated ? ' (truncated)' : ''}</h4><pre class="cn-logs-box">${esc(detail.diff?.text || '(no uncommitted diff; review the recorded commit)')}</pre><h4>Agent · ${esc(detail.agent?.status || 'not started')}</h4><pre class="cn-logs-box">${esc(detail.agent?.log_tail || '(no agent output)')}</pre><h4>Timeline</h4><pre class="cn-logs-box">${esc(timeline)}</pre>`;
-      details.dataset.loaded = '1';
-    } catch (e) { box.textContent = e.message; }
-  }));
+      try {
+        await api(
+          'POST',
+          `/api/improvements/${encodeURIComponent(button.dataset.id)}/transition`,
+          payload
+        );
+        toast(`Moved to ${state}`);
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
+  $$('.improvement-validate').forEach(button =>
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Validating…';
+      try {
+        const result = await api(
+          'POST',
+          `/api/improvements/${encodeURIComponent(button.dataset.id)}/validate`,
+          {}
+        );
+        toast(
+          result.validation.passed ? 'All quality gates passed' : 'Quality gates found issues',
+          result.validation.passed ? '' : 'err'
+        );
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        button.textContent = 'Run quality gates';
+        toast(e.message, 'err');
+        softRender();
+      }
+    })
+  );
+  $$('.improvement-measure').forEach(button =>
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        const result = await api(
+          'POST',
+          `/api/improvements/${encodeURIComponent(button.dataset.id)}/measure`,
+          {}
+        );
+        toast(`Outcome: ${result.outcome.classification}`);
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
+  $$('.improvement-agent').forEach(button =>
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/agent`, {});
+        toast('Agent started in isolated worktree');
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
+  $$('.improvement-commit').forEach(button =>
+    button.addEventListener('click', async () => {
+      const message = prompt('Commit message for the reviewed worktree changes:');
+      if (!message) return;
+      button.disabled = true;
+      try {
+        await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/commit`, {
+          message,
+        });
+        toast('Improvement changes committed');
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
+  $$('.improvement-deploy').forEach(button =>
+    button.addEventListener('click', async () => {
+      const confirmTitle = prompt(
+        `Type the exact improvement title to approve production deployment:\n\n${button.dataset.title}`
+      );
+      if (confirmTitle !== button.dataset.title)
+        return toast('Deployment confirmation did not match', 'err');
+      button.disabled = true;
+      try {
+        await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/deploy`, {
+          confirm: confirmTitle,
+        });
+        toast('Deployed; outcome measurement scheduled');
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
+  $$('.improvement-rollback').forEach(button =>
+    button.addEventListener('click', async () => {
+      const confirmTitle = prompt(
+        `This creates and pushes a production revert. Type the exact title to continue:\n\n${button.dataset.title}`
+      );
+      if (confirmTitle !== button.dataset.title)
+        return toast('Rollback confirmation did not match', 'err');
+      button.disabled = true;
+      try {
+        await api('POST', `/api/improvements/${encodeURIComponent(button.dataset.id)}/rollback`, {
+          confirm: confirmTitle,
+        });
+        toast('Rollback committed and pushed');
+        softRender();
+      } catch (e) {
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    })
+  );
+  $$('.improvement-detail').forEach(details =>
+    details.addEventListener('toggle', async () => {
+      if (!details.open || details.dataset.loaded === '1') return;
+      const box = $('.improvement-live', details);
+      box.textContent = 'Loading delivery evidence…';
+      try {
+        const detail = await api(
+          'GET',
+          `/api/improvements/${encodeURIComponent(details.dataset.id)}`
+        );
+        const files =
+          (detail.workspace?.files || []).map(f => `${f.code || ''} ${f.path}`).join('\n') ||
+          '(clean worktree)';
+        const timeline = (detail.events || [])
+          .map(e => `${fmtDate(e.occurred_at)}  ${e.event_type}`)
+          .join('\n');
+        box.innerHTML = `<h4>Worktree</h4><pre class="cn-logs-box">${esc(detail.workspace?.diff_stat || '')}\n${esc(files)}</pre><h4>Code/content diff${detail.diff?.truncated ? ' (truncated)' : ''}</h4><pre class="cn-logs-box">${esc(detail.diff?.text || '(no uncommitted diff; review the recorded commit)')}</pre><h4>Agent · ${esc(detail.agent?.status || 'not started')}</h4><pre class="cn-logs-box">${esc(detail.agent?.log_tail || '(no agent output)')}</pre><h4>Timeline</h4><pre class="cn-logs-box">${esc(timeline)}</pre>`;
+        details.dataset.loaded = '1';
+      } catch (e) {
+        box.textContent = e.message;
+      }
+    })
+  );
   applyFleetFilter();
   if (!FRESH) applyUISnap();
   stamp();
@@ -10102,9 +10706,18 @@ async function renderImprovements() {
 async function renderDataQuality() {
   if (FRESH) app.innerHTML = '<div class="loading">Checking data contracts…</div>';
   let data;
-  try { data = await api('GET', '/api/data-quality'); }
-  catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; return; }
-  const rows = (data.contracts || []).map(row => `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`).join('');
+  try {
+    data = await api('GET', '/api/data-quality');
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    return;
+  }
+  const rows = (data.contracts || [])
+    .map(
+      row =>
+        `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
+    )
+    .join('');
   app.innerHTML = `<div class="page-head"><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card"><table class="tbl"><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows}</tbody></table></section>`;
   if (!FRESH) applyUISnap();
   stamp();
@@ -10144,6 +10757,9 @@ async function renderAutomation() {
   const slots = cadence.slots || ['12:20', '17:40', '21:10'];
   const hashtags = Array.isArray(cfg.hashtags) ? cfg.hashtags.join(', ') : '';
   const roles = data.roles || [];
+  const roleDraft = AUTO_ROLE_DRAFT && AUTO_ROLE_DRAFT.site === AUTO_SITE ? AUTO_ROLE_DRAFT : null;
+  AUTO_ROLE_DRAFT = null;
+  const newRoleSchedule = roleDraft?.schedule || '0 */2 * * *';
   const platformRows = (cfg.platforms || [])
     .map((platform, i) => {
       const override = (cfg.platform_overrides || {})[platform] || {};
@@ -10193,8 +10809,9 @@ async function renderAutomation() {
       </section>
     </div>
     <section class="card"><div class="page-head"><h3>Scheduled roles</h3><span class="muted">Disable, change cadence, or edit the full role prompt. Schedule changes require a cron rebuild.</span></div>
-      <details class="auto-role"><summary><strong>＋ Add worker role</strong><span class="muted">Create a separate writer, promotion, or breaking-news loop.</span></summary>
-        <div class="form-grid"><label>Role name<input id="auto-new-role" class="cm-input" placeholder="news-writer" pattern="[a-z0-9-]+"></label><label>Schedule${automationSchedulePicker('auto-new-schedule', '0 */2 * * *')}</label><label>Start enabled<select id="auto-new-enabled" class="cm-input"><option value="true">On</option><option value="false">Off</option></select></label></div>
+      <details class="auto-role" ${roleDraft ? 'open' : ''}><summary><strong>＋ Add worker role</strong><span class="muted">Create a separate writer, promotion, or breaking-news loop.</span></summary>
+        ${roleDraft ? `<div class="auto-enroll-callout"><strong>Enrolling ${esc(roleDraft.role)} on ${esc(AUTO_SITE)}</strong><span class="muted">Review the schedule and prompt, then add the role. The cron container must be rebuilt before it runs.</span></div>` : ''}
+        <div class="form-grid"><label>Role name<input id="auto-new-role" class="cm-input" placeholder="news-writer" pattern="[a-z0-9-]+" value="${esc(roleDraft?.role || '')}"></label><label>Schedule${automationSchedulePicker('auto-new-schedule', newRoleSchedule)}</label><label>Start enabled<select id="auto-new-enabled" class="cm-input"><option value="true">On</option><option value="false">Off</option></select></label></div>
         <label>Prompt / role instructions<textarea id="auto-new-prompt" class="cm-input" rows="10" placeholder="# News Writer\nDescribe the role's job, guardrails, and output contract." spellcheck="false"></textarea></label>
         <div class="task-actions"><button id="auto-new-save" class="btn primary">Add worker role</button></div>
       </details>
@@ -10226,12 +10843,12 @@ async function renderAutomation() {
       $$('[data-platform-approval]').forEach(select => {
         platformApprovals[select.dataset.platformApproval] = select.value;
       });
-      const slots = $('#auto-slots').value
-        .split(',')
+      const slots = $('#auto-slots')
+        .value.split(',')
         .map(slot => slot.trim())
         .filter(Boolean);
-      const hashtags = $('#auto-hashtags').value
-        .split(',')
+      const hashtags = $('#auto-hashtags')
+        .value.split(',')
         .map(tag => tag.trim())
         .filter(Boolean);
       await api('PATCH', `/api/automation/${encodeURIComponent(AUTO_SITE)}/social`, {
@@ -10364,6 +10981,8 @@ function render() {
   if (STATE.view === 'control') return renderControl();
   else if (STATE.view === 'priorities') return renderPriorities();
   else if (STATE.view === 'improvements') return renderImprovements();
+  else if (STATE.view === 'agents') return renderCategoryRoot('agents');
+  else if (NAV_GROUPS[STATE.view]) return renderCategoryRoot(STATE.view);
   else if (STATE.view === 'cron') return renderCron();
   else if (STATE.view === 'agent') return renderAgent(STATE.agent);
   else if (STATE.view === 'containers') return renderContainers();
@@ -10398,6 +11017,88 @@ function render() {
   else if (STATE.view === 'domains') return renderDomains();
   else if (STATE.view === 'doctor') return renderDoctor();
   else if (STATE.view === 'retention') return renderRetention();
+}
+
+const NAV_ITEM_DESCRIPTIONS = {
+  cron: 'Review schedules and manage fleet cron jobs.',
+  containers: 'Inspect runtime health, resource use, and container state.',
+  git: 'Review repository status and working-tree changes.',
+  githygiene: 'Find stale branches and repository hygiene issues.',
+  tasks: 'Manage the fleet-wide work queue.',
+  deploys: 'Compare live Cloudflare deployments with source.',
+  builds: 'Track build activity, usage, and failures.',
+  domains: 'Onboard, park, and offboard domains.',
+  guardrails: 'Manage identity and content protection rules.',
+  doctor: 'Check container and image invariants.',
+  retention: 'Review data-retention policy across services.',
+  guides: 'Manage guide ideas and editorial production.',
+  productfeed: 'Review verified products and publishing queues.',
+  datahub: 'Explore shared structured content data.',
+  datahubimages: 'Manage generated and sourced image assets.',
+  sitefacts: 'Audit site facts, trust signals, and product health.',
+  seointelligence: 'Turn first-party search evidence into priorities.',
+  analytics: 'Review traffic and performance across the portfolio.',
+  social: 'Manage connected social accounts.',
+  socialhub: 'Plan, approve, and monitor social publishing.',
+  automation: 'Configure approval policy, schedules, and worker roles.',
+  aiusage: 'Track model usage and cost across the fleet.',
+  aioptimizer: 'Find opportunities to improve AI cost and routing.',
+  aiinventory: 'Audit providers and models used by scheduled services.',
+  taskbudget: 'Review task volume and automation budgets.',
+  compliance: 'Check the live technical privacy baseline.',
+  lint: 'Run fleet-wide parse and formatting checks.',
+  health: 'Monitor uptime and service health.',
+  errors: 'Inspect recent warnings and errors from fleet services.',
+  activity: 'Review the durable operator action trail.',
+  devsandbox: 'Open and monitor per-site development sandboxes.',
+  dataquality: 'Check freshness, completeness, and attribution contracts.',
+};
+
+function renderCategoryRoot(id) {
+  const app = $('#app');
+  const isAgents = id === 'agents';
+  const group = isAgents
+    ? { label: 'Agents', description: 'Monitor and operate every automated role across the fleet.' }
+    : NAV_GROUPS[id];
+  const items = isAgents
+    ? (STATE.agents || []).map(a => [
+        a.role,
+        agentLabel(a.role),
+        `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
+      ])
+    : group.items.map(([view, label]) => [
+        view,
+        label,
+        NAV_ITEM_DESCRIPTIONS[view] || `Open ${label}.`,
+      ]);
+  const cards = items
+    .map(
+      ([
+        key,
+        label,
+        description,
+      ]) => `<button class="nav-root-card" type="button" data-root-target="${esc(key)}">
+      <span class="nav-root-icon" aria-hidden="true">${typeof globalThis.fleetNavIcon === 'function' ? globalThis.fleetNavIcon(isAgents ? 'agent' : key) : ''}</span>
+      <span class="nav-root-card-copy"><strong>${esc(label)}</strong><span>${esc(description)}</span></span>
+      <span class="nav-root-arrow" aria-hidden="true">→</span>
+    </button>`
+    )
+    .join('');
+
+  app.innerHTML = `<div class="page-head nav-root-head">
+      <div><h2 class="page-title">${esc(group.label)}</h2><span class="muted">${esc(group.description)}</span></div>
+      <span class="nav-root-count">${items.length} ${isAgents ? 'roles' : 'tools'}</span>
+    </div>
+    <section class="nav-root-grid nav-root-${esc(id)}" aria-label="${esc(group.label)} pages">
+      ${cards || '<div class="empty">No pages are available in this category.</div>'}
+    </section>`;
+  $$('.nav-root-card', app).forEach(card =>
+    card.addEventListener('click', () => {
+      if (isAgents) go('agent', card.dataset.rootTarget);
+      else go(card.dataset.rootTarget);
+    })
+  );
+  stamp();
 }
 
 function renderAgent(role) {
@@ -10448,6 +11149,8 @@ function buildAgentsMenu() {
   syncAgentsMenuActive();
 }
 function syncAgentsMenuActive() {
+  const btn = $('#agents-btn');
+  if (btn) btn.classList.toggle('active', STATE.view === 'agents' || STATE.view === 'agent');
   $$('#agents-menu .dd-item').forEach(it =>
     it.classList.toggle('active', STATE.view === 'agent' && it.dataset.role === STATE.agent)
   );
@@ -10479,7 +11182,7 @@ function buildNavGroupMenus() {
 }
 function syncNavGroupsActive() {
   Object.entries(NAV_GROUPS).forEach(([id, g]) => {
-    const inGroup = g.items.some(([view]) => view === STATE.view);
+    const inGroup = STATE.view === id || g.items.some(([view]) => view === STATE.view);
     const btn = $(`[data-group-btn="${id}"]`);
     if (btn) btn.classList.toggle('active', inGroup);
     $$(`[data-group-menu="${id}"] .dd-item`).forEach(it =>
@@ -10965,7 +11668,9 @@ function aioptStartPoll(job) {
     }
     let running = true;
     try {
-      const data = await (STATE.view === 'aioptimizer' ? renderAIOptimizer() : api('GET', '/api/ai-optimizer'));
+      const data = await (STATE.view === 'aioptimizer'
+        ? renderAIOptimizer()
+        : api('GET', '/api/ai-optimizer'));
       const t = data?.summary?.toggles?.[job] || {};
       if (t.running) delete AIOPT.optimistic[job];
       running = t.running || !!AIOPT.optimistic[job];

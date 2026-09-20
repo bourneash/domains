@@ -1,4 +1,4 @@
-# fleet-dashboard
+# Domain Fleet Manager
 
 Portfolio control plane for the domain fleet (http://127.0.0.1:4754).
 

@@ -1,5 +1,5 @@
 /* ============================================================================
-   Fleet Dashboard — shell.js
+   Domain Fleet Manager — shell.js
    ----------------------------------------------------------------------------
    Progressive-enhancement layer for the redesigned shell. Deliberately knows
    NOTHING about app.js internals: it only observes the DOM app.js already
@@ -19,8 +19,11 @@
      they arrive DECODED. Re-injecting them into innerHTML would undo app.js's
      own escaping — a role name from disk containing markup would round-trip
      into live HTML. Everything interpolated below goes through esc(). */
-  const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const esc = v =>
+    String(v ?? '').replace(
+      /[&<>"']/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+    );
 
   /* ---------------------------------------------------------- 1. VITALS -- */
   const railHTML = `
@@ -42,14 +45,29 @@
   // /api/roles and /api/containers, full stop.
   rail.innerHTML = `<div class="vt-scope">Fleet-wide — every site, every role</div>` + railHTML;
 
-  const cell = (k) => $(`.vt[data-vt="${k}"]`, rail);
+  const cell = k => $(`.vt[data-vt="${k}"]`, rail);
   const setVal = (k, v, sub) => {
-    const c = cell(k); if (!c) return;
+    const c = cell(k);
+    if (!c) return;
     const el = $('.vt-v', c);
-    if (el.innerHTML !== v) { el.innerHTML = v; if (!reduce) { el.animate([{opacity:.35,transform:'translateY(4px)'},{opacity:1,transform:'none'}], {duration:280, easing:'cubic-bezier(.16,1,.3,1)'}); } }
+    if (el.innerHTML !== v) {
+      el.innerHTML = v;
+      if (!reduce) {
+        el.animate(
+          [
+            { opacity: 0.35, transform: 'translateY(4px)' },
+            { opacity: 1, transform: 'none' },
+          ],
+          { duration: 280, easing: 'cubic-bezier(.16,1,.3,1)' }
+        );
+      }
+    }
     if (sub != null) $('.vt-sub', c).textContent = sub;
   };
-  const setMeter = (k, pct) => { const i = $('.vt-meter i', cell(k) || document.createElement('div')); if (i) i.style.width = Math.max(2, Math.min(100, pct)) + '%'; };
+  const setMeter = (k, pct) => {
+    const i = $('.vt-meter i', cell(k) || document.createElement('div'));
+    if (i) i.style.width = Math.max(2, Math.min(100, pct)) + '%';
+  };
 
   let vitalsTimer = null;
   async function loadVitals() {
@@ -58,7 +76,10 @@
         fetch('/api/roles', { credentials: 'same-origin' }),
         fetch('/api/containers', { credentials: 'same-origin' }),
       ]);
-      if (!rRes.ok || !cRes.ok) { rail.classList.add('hidden'); return; }
+      if (!rRes.ok || !cRes.ok) {
+        rail.classList.add('hidden');
+        return;
+      }
       const roles = await rRes.json();
       const allCts = await cRes.json();
       // The containers tile is the one cell that gets scoped to whatever page
@@ -69,12 +90,19 @@
       const socialScoped = document.body.dataset.view === 'socialhub';
       const cts = socialScoped ? allCts.filter(c => /social-hub/i.test(c.name || '')) : allCts;
 
-      let fresh = 0, stale = 0, overdue = 0, paused = 0, total = 0;
-      for (const s of (roles.sites || [])) {
+      let fresh = 0,
+        stale = 0,
+        overdue = 0,
+        paused = 0,
+        total = 0;
+      for (const s of roles.sites || []) {
         for (const c of Object.values(s.cells || {})) {
           if (!c || !c.scheduled) continue;
           total++;
-          if (c.enabled === false) { paused++; continue; }
+          if (c.enabled === false) {
+            paused++;
+            continue;
+          }
           if (c.state === 'fresh') fresh++;
           else if (c.state === 'stale') stale++;
           else if (c.state === 'overdue') overdue++;
@@ -90,7 +118,11 @@
       const unhealthy = cts.filter(c => c.unhealthy).length;
       const healthPct = Math.round((fresh / live) * 100);
 
-      setVal('sites', String((roles.sites || []).length), `${(roles.roles || []).length} distinct roles`);
+      setVal(
+        'sites',
+        String((roles.sites || []).length),
+        `${(roles.roles || []).length} distinct roles`
+      );
       setMeter('sites', 100);
 
       setVal('fresh', `${fresh}<small>/${live}</small>`, 'ran within window');
@@ -98,8 +130,16 @@
 
       const att = stale + overdue;
       const attCell = cell('attention');
-      if (attCell) attCell.style.setProperty('--vt-c', overdue ? 'var(--red)' : att ? 'var(--yellow)' : 'var(--green)');
-      setVal('attention', String(att), overdue ? `${overdue} overdue · ${stale} stale` : `${stale} stale`);
+      if (attCell)
+        attCell.style.setProperty(
+          '--vt-c',
+          overdue ? 'var(--red)' : att ? 'var(--yellow)' : 'var(--green)'
+        );
+      setVal(
+        'attention',
+        String(att),
+        overdue ? `${overdue} overdue · ${stale} stale` : `${stale} stale`
+      );
       setMeter('attention', (att / live) * 100);
 
       setVal('paused', String(paused), 'disabled by flag');
@@ -111,8 +151,14 @@
         'containers',
         `${running}<small>/${cts.length}</small>`,
         socialScoped
-          ? (cts.length ? (unhealthy ? `${unhealthy} unhealthy` : 'all healthy') : 'not running')
-          : (unhealthy ? `${unhealthy} unhealthy` : 'all healthy')
+          ? cts.length
+            ? unhealthy
+              ? `${unhealthy} unhealthy`
+              : 'all healthy'
+            : 'not running'
+          : unhealthy
+            ? `${unhealthy} unhealthy`
+            : 'all healthy'
       );
       const bars = $('.vt-bars', cell('containers'));
       if (bars) {
@@ -121,14 +167,26 @@
         $$('i', bars).forEach((b, i) => {
           const c = slice[i];
           b.style.height = (c.running ? (c.unhealthy ? 45 : 100) : 22) + '%';
-          b.style.background = c.unhealthy ? 'var(--red)' : c.running ? 'var(--a3)' : 'var(--faint)';
+          b.style.background = c.unhealthy
+            ? 'var(--red)'
+            : c.running
+              ? 'var(--a3)'
+              : 'var(--faint)';
           b.title = `${c.name} — ${c.status}`;
         });
       }
 
       const hCell = cell('health');
-      if (hCell) hCell.style.setProperty('--vt-c', healthPct >= 90 ? 'var(--green)' : healthPct >= 70 ? 'var(--yellow)' : 'var(--red)');
-      setVal('health', `${healthPct}<small>%</small>`, unhealthyAll ? 'container degradation' : 'weighted uptime');
+      if (hCell)
+        hCell.style.setProperty(
+          '--vt-c',
+          healthPct >= 90 ? 'var(--green)' : healthPct >= 70 ? 'var(--yellow)' : 'var(--red)'
+        );
+      setVal(
+        'health',
+        `${healthPct}<small>%</small>`,
+        unhealthyAll ? 'container degradation' : 'weighted uptime'
+      );
       setMeter('health', healthPct);
 
       rail.classList.remove('hidden');
@@ -145,7 +203,9 @@
             <span class="rl-pulse-v">${healthPct}%</span>
           </div>`;
       }
-    } catch { rail.classList.add('hidden'); }
+    } catch {
+      rail.classList.add('hidden');
+    }
   }
 
   /* -------------------------------------------------- 2. COMMAND PALETTE -- */
@@ -159,14 +219,18 @@
       <div class="cmdk-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
     </div>`;
 
-  const pInput = $('input', palette), pList = $('.cmdk-list', palette);
-  let items = [], sel = 0;
+  const pInput = $('input', palette),
+    pList = $('.cmdk-list', palette);
+  let items = [],
+    sel = 0;
 
   /* Commands are harvested from the live nav, so the palette never drifts out
      of sync with whatever tabs/agents the server advertises. */
   function harvest() {
     const out = [];
-    $$('.tabs .tab[data-view]').forEach(b => out.push({ label: b.textContent.trim(), group: 'view', ico: '◈', run: () => b.click() }));
+    $$('.tabs .tab[data-view]').forEach(b =>
+      out.push({ label: b.textContent.trim(), group: 'view', ico: '◈', run: () => b.click() })
+    );
     $$('.tabs .dd-menu .dd-item').forEach(d => {
       const grpBtn = d.closest('.tab-dd')?.querySelector('.tab-dd-btn');
       const group = (grpBtn?.textContent || '').replace('▾', '').trim().toLowerCase() || 'go';
@@ -175,13 +239,33 @@
       c.querySelectorAll('.dd-count').forEach(n => n.remove());
       const label = c.textContent.trim();
       out.push({
-        label, group, ico: group === 'agents' ? '◉' : '◇',
-        run: () => { d.click(); $$('.dd-menu').forEach(m => m.classList.add('hidden')); },
+        label,
+        group,
+        ico: group === 'agents' ? '◉' : '◇',
+        run: () => {
+          d.click();
+          $$('.dd-menu').forEach(m => m.classList.add('hidden'));
+        },
       });
     });
-    out.push({ label: 'Refresh now', group: 'action', ico: '↻', run: () => $('#refresh')?.click() });
-    out.push({ label: 'Toggle auto-refresh', group: 'action', ico: '⟳', run: () => $('#auto-on')?.click() });
-    out.push({ label: 'Filter sites…', group: 'action', ico: '⌕', run: () => setTimeout(() => $('#fleet-filter')?.focus(), 60) });
+    out.push({
+      label: 'Refresh now',
+      group: 'action',
+      ico: '↻',
+      run: () => $('#refresh')?.click(),
+    });
+    out.push({
+      label: 'Toggle auto-refresh',
+      group: 'action',
+      ico: '⟳',
+      run: () => $('#auto-on')?.click(),
+    });
+    out.push({
+      label: 'Filter sites…',
+      group: 'action',
+      ico: '⌕',
+      run: () => setTimeout(() => $('#fleet-filter')?.focus(), 60),
+    });
     const seen = new Set();
     return out.filter(i => i.label && !seen.has(i.group + i.label) && seen.add(i.group + i.label));
   }
@@ -191,17 +275,26 @@
     if (!q) return 1;
     if (l.startsWith(q)) return 100;
     if (l.includes(q)) return 60;
-    let i = 0; for (const ch of l) if (ch === q[i]) i++;      // subsequence
+    let i = 0;
+    for (const ch of l) if (ch === q[i]) i++; // subsequence
     return i === q.length ? 20 : 0;
   };
 
   function draw() {
     const q = pInput.value.trim().toLowerCase();
-    items = harvest().map(i => ({ ...i, s: score(i.label, q) })).filter(i => i.s > 0)
-      .sort((a, b) => b.s - a.s).slice(0, 40);
+    items = harvest()
+      .map(i => ({ ...i, s: score(i.label, q) }))
+      .filter(i => i.s > 0)
+      .sort((a, b) => b.s - a.s)
+      .slice(0, 40);
     sel = 0;
     pList.innerHTML = items.length
-      ? items.map((i, n) => `<div class="cmdk-row${n === 0 ? ' sel' : ''}" data-n="${n}"><span class="cmdk-ico">${esc(i.ico)}</span><span></span><span class="cmdk-grp">${esc(i.group)}</span></div>`).join('')
+      ? items
+          .map(
+            (i, n) =>
+              `<div class="cmdk-row${n === 0 ? ' sel' : ''}" data-n="${n}"><span class="cmdk-ico">${esc(i.ico)}</span><span></span><span class="cmdk-grp">${esc(i.group)}</span></div>`
+          )
+          .join('')
       : '<div class="cmdk-empty">Nothing matches that.</div>';
     $$('.cmdk-row', pList).forEach((r, n) => {
       r.children[1].textContent = items[n].label;
@@ -214,17 +307,39 @@
     $$('.cmdk-row', pList).forEach((r, i) => r.classList.toggle('sel', i === sel));
     $$('.cmdk-row', pList)[sel]?.scrollIntoView({ block: 'nearest' });
   }
-  function fire(n) { const it = items[n]; close(); if (it) setTimeout(it.run, 10); }
-  function open() { palette.classList.remove('hidden'); pInput.value = ''; draw(); pInput.focus(); }
-  function close() { palette.classList.add('hidden'); }
+  function fire(n) {
+    const it = items[n];
+    close();
+    if (it) setTimeout(it.run, 10);
+  }
+  function open() {
+    palette.classList.remove('hidden');
+    pInput.value = '';
+    draw();
+    pInput.focus();
+  }
+  function close() {
+    palette.classList.add('hidden');
+  }
 
   pInput.addEventListener('input', draw);
-  palette.addEventListener('mousedown', e => { if (e.target === palette) close(); });
+  palette.addEventListener('mousedown', e => {
+    if (e.target === palette) close();
+  });
   pInput.addEventListener('keydown', e => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); mark(sel + 1); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); mark(sel - 1); }
-    else if (e.key === 'Enter') { e.preventDefault(); fire(sel); }
-    else if (e.key === 'Escape') { e.preventDefault(); close(); }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      mark(sel + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      mark(sel - 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      fire(sel);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    }
   });
   addEventListener('keydown', e => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -237,7 +352,8 @@
   // view entrance: fires only when the route actually changes, so in-place
   // auto-refreshes (app.js softRender) never flash.
   function watchView() {
-    const main = $('#app'); if (!main) return;
+    const main = $('#app');
+    if (!main) return;
     let last = document.body.dataset.view;
     new MutationObserver(() => {
       const v = document.body.dataset.view;
@@ -256,16 +372,22 @@
   }
 
   // ripple on every button, present or future (delegated).
-  addEventListener('pointerdown', e => {
-    if (reduce) return;
-    const b = e.target.closest('.btn'); if (!b || b.disabled) return;
-    const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height);
-    const s = document.createElement('span');
-    s.className = 'ripple';
-    s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
-    b.appendChild(s);
-    setTimeout(() => s.remove(), 520);
-  }, { passive: true });
+  addEventListener(
+    'pointerdown',
+    e => {
+      if (reduce) return;
+      const b = e.target.closest('.btn');
+      if (!b || b.disabled) return;
+      const r = b.getBoundingClientRect(),
+        d = Math.max(r.width, r.height);
+      const s = document.createElement('span');
+      s.className = 'ripple';
+      s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+      b.appendChild(s);
+      setTimeout(() => s.remove(), 520);
+    },
+    { passive: true }
+  );
 
   /* ----------------------------------------------------------- 4. BOOT --- */
   function boot() {
@@ -288,8 +410,12 @@
     watchView();
     loadVitals();
     clearInterval(vitalsTimer);
-    vitalsTimer = setInterval(() => { if (!document.hidden) loadVitals(); }, 30000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) loadVitals(); });
+    vitalsTimer = setInterval(() => {
+      if (!document.hidden) loadVitals();
+    }, 30000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) loadVitals();
+    });
   }
 
   document.readyState === 'loading' ? addEventListener('DOMContentLoaded', boot) : boot();
@@ -312,49 +438,93 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const LS = 'fd.rail';
-  const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const esc = v =>
+    String(v ?? '').replace(
+      /[&<>"']/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+    );
 
   /* 24px stroke icons, keyed by view. Anything unmapped falls back to a dot,
      so a new view never renders broken. */
   const P = {
-    control:      'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
-    cron:         'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3.5 2',
-    containers:   'M12 2.8 20.5 7v10L12 21.2 3.5 17V7zM3.5 7 12 11.4 20.5 7M12 11.4V21',
-    git:          'M6 4v9a3 3 0 0 0 3 3h6M6 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM18 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM18 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM18 8v2a3 3 0 0 1-3 3h-3',
-    githygiene:   'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8.5 12.2l2.4 2.4 4.6-5',
-    tasks:        'M4 6.5 5.6 8 8.5 5M4 12.5 5.6 14l2.9-3M4 18.5 5.6 20l2.9-3M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20',
-    deploys:      'M12 15V3.5M12 3.5 8 7.5M12 3.5l4 4M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15',
-    domains:      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3.2 9h17.6M3.2 15h17.6M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z',
-    guardrails:   'M12 2.8 20 6v6.2c0 4.4-3.2 7.6-8 9-4.8-1.4-8-4.6-8-9V6zM9 12l2.2 2.2L15.5 10',
-    guides:       'M4 4.5h6a2.5 2.5 0 0 1 2 2.5v13a2 2 0 0 0-2-1.6H4zM20 4.5h-6a2.5 2.5 0 0 0-2 2.5v13a2 2 0 0 1 2-1.6h6z',
-    productfeed:  'M11.5 3.2 20 11.7a1.8 1.8 0 0 1 0 2.5l-5.8 5.8a1.8 1.8 0 0 1-2.5 0L3.2 11.5V3.2zM7.6 7.6h.01',
-    datahub:      'M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
-    datahubimages:'M3.5 5.5h17v13h-17zM3.5 15l4.5-4.2 3.4 3.2 3.6-3.9 5.5 5.4M8.4 9.4h.01',
-    sitefacts:    'M13.5 3.2H6.5A1.5 1.5 0 0 0 5 4.7v14.6a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V8.7zM13.5 3.2V8.7H19M8.5 13h7M8.5 16.5h4.5',
-    analytics:    'M4 20V13M9.3 20V7M14.7 20v-8.5M20 20V4',
-    social:       'M17 8.2a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM6.5 15.1a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM17 21.6a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM8.8 11.3l5.9-2.7M8.8 13.9l5.9 2.7',
-    socialhub:    'M4 10.5v3a1.5 1.5 0 0 0 1.5 1.5H8l5.5 4V5L8 9H5.5A1.5 1.5 0 0 0 4 10.5zM17.2 8.6a5 5 0 0 1 0 6.8M19.8 6a8.5 8.5 0 0 1 0 12',
-    automation:   'M13.3 2.5 4 13.8h6.4l-.7 7.7L19 10.2h-6.4z',
-    aiusage:      'M3.5 12a8.5 8.5 0 0 1 17 0M12 12l4-3.4M12 19.5v.01',
-    aioptimizer:  'M5 20v-6M5 10V4M12 20v-9M12 7V4M19 20v-3M19 13V4M2.6 14h4.8M9.6 7h4.8M16.6 17h4.8',
-    aiinventory:  'M12 2.8 21 7.4l-9 4.6-9-4.6zM3 12.2l9 4.6 9-4.6M3 16.8l9 4.6 9-4.6',
-    taskbudget:   'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v10M14.6 9.4a2.6 2.6 0 0 0-2.6-1.4h-.4a2.1 2.1 0 0 0-.4 4.1l2 .4a2.1 2.1 0 0 1-.4 4.1H12a2.6 2.6 0 0 1-2.6-1.4',
-    compliance:   'M12 2.8 20 6v6.2c0 4.4-3.2 7.6-8 9-4.8-1.4-8-4.6-8-9V6zM9.2 11.9l2.1 2.1 3.9-4.2',
-    lint:         'M8.5 6.5a3.5 3.5 0 1 1 7 0M5.5 11.5h13M6.5 9.5v4.5a5.5 5.5 0 0 0 11 0V9.5zM3.5 9l2.5 1M20.5 9 18 10M3.5 17.5 6 16.4M20.5 17.5 18 16.4M12 14.5v6',
-    health:       'M3 12.5h4l2-4.5 3 9 2.5-6 1.6 3h4.9',
-    errors:       'M10.6 4.1 2.9 17.2a1.6 1.6 0 0 0 1.4 2.4h15.4a1.6 1.6 0 0 0 1.4-2.4L13.4 4.1a1.6 1.6 0 0 0-2.8 0zM12 9.5v4M12 17h.01',
-    activity:     'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM7.6 12.4h2.2l1.4-3.4 1.9 6 1.3-2.6h2',
-    devsandbox:   'M3.5 5.5h17v13h-17zM7.2 10l2.4 2.2-2.4 2.2M12.4 15h4.2',
-    agent:        'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 15.6a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2z',
+    control: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+    cron: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3.5 2',
+    containers: 'M12 2.8 20.5 7v10L12 21.2 3.5 17V7zM3.5 7 12 11.4 20.5 7M12 11.4V21',
+    git: 'M6 4v9a3 3 0 0 0 3 3h6M6 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM18 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM18 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM18 8v2a3 3 0 0 1-3 3h-3',
+    githygiene: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8.5 12.2l2.4 2.4 4.6-5',
+    tasks:
+      'M4 6.5 5.6 8 8.5 5M4 12.5 5.6 14l2.9-3M4 18.5 5.6 20l2.9-3M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20',
+    deploys:
+      'M12 15V3.5M12 3.5 8 7.5M12 3.5l4 4M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15',
+    builds:
+      'M4 19.5h16M6.5 16.5l4.2-4.2M9.2 5.2l3.7 3.7M8 4l1.2 1.2-4.7 4.7a2.6 2.6 0 0 0 3.7 3.7l4.7-4.7 1.2 1.2M14.2 14.2l5.3 5.3',
+    domains:
+      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3.2 9h17.6M3.2 15h17.6M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z',
+    guardrails: 'M12 2.8 20 6v6.2c0 4.4-3.2 7.6-8 9-4.8-1.4-8-4.6-8-9V6zM9 12l2.2 2.2L15.5 10',
+    doctor:
+      'M8 3.5v5a4 4 0 0 0 8 0v-5M6 3.5h4M14 3.5h4M12 12.5v2.2a4.3 4.3 0 0 0 8.6 0v-1.2M19 11.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z',
+    retention: 'M4 7.5h16v12H4zM3 4h18v3.5H3zM9 11.5h6M12 15v-3.5',
+    guides:
+      'M4 4.5h6a2.5 2.5 0 0 1 2 2.5v13a2 2 0 0 0-2-1.6H4zM20 4.5h-6a2.5 2.5 0 0 0-2 2.5v13a2 2 0 0 1 2-1.6h6z',
+    productfeed:
+      'M11.5 3.2 20 11.7a1.8 1.8 0 0 1 0 2.5l-5.8 5.8a1.8 1.8 0 0 1-2.5 0L3.2 11.5V3.2zM7.6 7.6h.01',
+    datahub:
+      'M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
+    datahubimages: 'M3.5 5.5h17v13h-17zM3.5 15l4.5-4.2 3.4 3.2 3.6-3.9 5.5 5.4M8.4 9.4h.01',
+    sitefacts:
+      'M13.5 3.2H6.5A1.5 1.5 0 0 0 5 4.7v14.6a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V8.7zM13.5 3.2V8.7H19M8.5 13h7M8.5 16.5h4.5',
+    seointelligence: 'M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21M7.5 12l2.6-2.7 2.1 2.1 3.5-4',
+    analytics: 'M4 20V13M9.3 20V7M14.7 20v-8.5M20 20V4',
+    social:
+      'M17 8.2a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM6.5 15.1a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM17 21.6a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM8.8 11.3l5.9-2.7M8.8 13.9l5.9 2.7',
+    socialhub:
+      'M4 10.5v3a1.5 1.5 0 0 0 1.5 1.5H8l5.5 4V5L8 9H5.5A1.5 1.5 0 0 0 4 10.5zM17.2 8.6a5 5 0 0 1 0 6.8M19.8 6a8.5 8.5 0 0 1 0 12',
+    automation: 'M13.3 2.5 4 13.8h6.4l-.7 7.7L19 10.2h-6.4z',
+    aiusage: 'M3.5 12a8.5 8.5 0 0 1 17 0M12 12l4-3.4M12 19.5v.01',
+    aioptimizer:
+      'M5 20v-6M5 10V4M12 20v-9M12 7V4M19 20v-3M19 13V4M2.6 14h4.8M9.6 7h4.8M16.6 17h4.8',
+    aiinventory: 'M12 2.8 21 7.4l-9 4.6-9-4.6zM3 12.2l9 4.6 9-4.6M3 16.8l9 4.6 9-4.6',
+    taskbudget:
+      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v10M14.6 9.4a2.6 2.6 0 0 0-2.6-1.4h-.4a2.1 2.1 0 0 0-.4 4.1l2 .4a2.1 2.1 0 0 1-.4 4.1H12a2.6 2.6 0 0 1-2.6-1.4',
+    compliance: 'M12 2.8 20 6v6.2c0 4.4-3.2 7.6-8 9-4.8-1.4-8-4.6-8-9V6zM9.2 11.9l2.1 2.1 3.9-4.2',
+    lint: 'M8.5 6.5a3.5 3.5 0 1 1 7 0M5.5 11.5h13M6.5 9.5v4.5a5.5 5.5 0 0 0 11 0V9.5zM3.5 9l2.5 1M20.5 9 18 10M3.5 17.5 6 16.4M20.5 17.5 18 16.4M12 14.5v6',
+    health: 'M3 12.5h4l2-4.5 3 9 2.5-6 1.6 3h4.9',
+    errors:
+      'M10.6 4.1 2.9 17.2a1.6 1.6 0 0 0 1.4 2.4h15.4a1.6 1.6 0 0 0 1.4-2.4L13.4 4.1a1.6 1.6 0 0 0-2.8 0zM12 9.5v4M12 17h.01',
+    activity: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM7.6 12.4h2.2l1.4-3.4 1.9 6 1.3-2.6h2',
+    devsandbox: 'M3.5 5.5h17v13h-17zM7.2 10l2.4 2.2-2.4 2.2M12.4 15h4.2',
+    dataquality:
+      'M4 6c0 1.7 3.6 3 8 3s8-1.3 8-3-3.6-3-8-3-8 1.3-8 3zM4 6v12c0 1.7 3.6 3 8 3 1.1 0 2.2-.1 3.1-.3M4 12c0 1.7 3.6 3 8 3M16 17.5l1.6 1.6 3-3.2',
+    agent: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 15.6a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2z',
   };
-  const GRP = { agents: 'agent', ops: 'cron', content: 'guides', growth: 'analytics', quality: 'compliance' };
-  const icon = (k) => P[k]
-    ? `<svg class="rl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${P[k]}"/></svg>`
-    : `<svg class="rl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3.4"/></svg>`;
+  const GRP = {
+    agents: 'agent',
+    ops: 'cron',
+    content: 'guides',
+    growth: 'analytics',
+    quality: 'compliance',
+  };
+  const icon = k =>
+    P[k]
+      ? `<svg class="rl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${P[k]}"/></svg>`
+      : `<svg class="rl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3.4"/></svg>`;
 
-  const prefs = (() => { try { return JSON.parse(localStorage.getItem(LS)) || {}; } catch { return {}; } })();
-  const save = () => { try { localStorage.setItem(LS, JSON.stringify(prefs)); } catch {} };
+  // Category landing pages use the exact same icon vocabulary as the rail.
+  // Exposing the pure renderer avoids maintaining a second icon map in app.js.
+  globalThis.fleetNavIcon = icon;
+
+  const prefs = (() => {
+    try {
+      return JSON.parse(localStorage.getItem(LS)) || {};
+    } catch {
+      return {};
+    }
+  })();
+  const save = () => {
+    try {
+      localStorage.setItem(LS, JSON.stringify(prefs));
+    } catch {}
+  };
 
   const rail = document.createElement('aside');
   rail.id = 'rail';
@@ -362,7 +532,7 @@
     <div class="rl-top">
       <a class="rl-brand" title="Domain Control">
         <span class="rl-mark"></span>
-        <span class="rl-word">Fleet<b>Deck</b></span>
+        <span class="rl-word">Domain Fleet Manager</span>
       </a>
       <button class="rl-fold" type="button" title="Collapse sidebar" aria-label="Collapse sidebar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 7.5 10 12l4.5 4.5"/></svg>
@@ -376,7 +546,9 @@
   function sections() {
     const out = [];
     const pinned = $$('.tabs > .tab[data-view]').map(el => ({
-      key: el.dataset.view, label: el.textContent.trim(), el,
+      key: el.dataset.view,
+      label: el.textContent.trim(),
+      el,
     }));
     if (pinned.length) out.push({ id: 'pinned', label: '', items: pinned, always: true });
 
@@ -411,79 +583,119 @@
     // scroll position lost, a collapse animation cut off, a just-toggled
     // section snapped back. So rebuild ONLY when the nav's shape actually
     // changed; otherwise just re-read active state.
-    const next = secs.map(x => x.id + ':' + x.items.map(i => i.key + '|' + i.label + '|' + i.count).join(',')).join(';');
+    const next = secs
+      .map(x => x.id + ':' + x.items.map(i => i.key + '|' + i.label + '|' + i.count).join(','))
+      .join(';');
     if (next === sig) return sync();
     sig = next;
     const scroll = nav.scrollTop;
 
-    nav.innerHTML = secs.map(s => {
-      // Agents is 30+ entries — collapsed by default so the rail stays scannable;
-      // sync() re-opens whichever section holds the active view.
-      const dflt = s.id !== 'agents';
-      const open = s.always || (prefs['s:' + s.id] ?? dflt);
-      const head = s.always ? '' : `
-        <button class="rl-h" type="button" data-sec="${s.id}" aria-expanded="${open}">
-          ${icon(GRP[s.id] || s.id)}
-          <span class="rl-h-t">${esc(s.label)}</span>
-          <span class="rl-h-n">${s.items.length}</span>
-          <svg class="rl-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 10.5 12 14l3.5-3.5"/></svg>
-        </button>`;
-      const items = s.items.map((it, n) => `
+    nav.innerHTML = secs
+      .map(s => {
+        // Agents is 30+ entries — collapsed by default so the rail stays scannable.
+        // User disclosure preferences remain authoritative, even for the active section.
+        const dflt = s.id !== 'agents';
+        const open = s.always || (prefs['s:' + s.id] ?? dflt);
+        const head = s.always
+          ? ''
+          : `
+        <div class="rl-h" data-sec="${s.id}">
+          <button class="rl-h-main" type="button" data-root="${s.id}" title="Open ${esc(s.label)} overview">
+            ${icon(GRP[s.id] || s.id)}
+            <span class="rl-h-t">${esc(s.label)}</span>
+            <span class="rl-h-n">${s.items.length}</span>
+          </button>
+          <button class="rl-toggle" type="button" aria-expanded="${open}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(s.label)} navigation" title="${open ? 'Collapse' : 'Expand'} ${esc(s.label)} navigation">
+            <svg class="rl-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 10.5 12 14l3.5-3.5"/></svg>
+          </button>
+        </div>`;
+        const items = s.items
+          .map(
+            (it, n) => `
         <button class="rl-it" type="button" data-sec="${esc(s.id)}" data-n="${n}" title="${esc(it.label)}">
           ${icon(s.id === 'agents' ? 'agent' : it.key)}
           <span class="rl-t">${esc(it.label)}</span>
           ${it.count ? `<span class="rl-n">${esc(it.count)}</span>` : ''}
-        </button>`).join('');
-      // items live in a SINGLE inner wrapper: the 0fr/1fr collapse only sizes
-      // the grid's first row, so multiple direct children never collapse.
-      return `<div class="rl-sec${open ? ' open' : ''}" data-sec="${esc(s.id)}">${head}<div class="rl-items"><div class="rl-items-in">${items}</div></div></div>`;
-    }).join('');
+        </button>`
+          )
+          .join('');
+        // items live in a SINGLE inner wrapper: the 0fr/1fr collapse only sizes
+        // the grid's first row, so multiple direct children never collapse.
+        return `<div class="rl-sec${open ? ' open' : ''}" data-sec="${esc(s.id)}">${head}<div class="rl-items"><div class="rl-items-in">${items}</div></div></div>`;
+      })
+      .join('');
 
     bound = new WeakMap();
     $$('.rl-sec', nav).forEach(secEl => {
       const s = secs.find(x => x.id === secEl.dataset.sec);
       $$('.rl-it', secEl).forEach(b => bound.set(b, s.items[+b.dataset.n].el));
     });
-    $$('.rl-it', nav).forEach(b => b.addEventListener('click', () => {
-      const src = bound.get(b);
-      if (!src) return;
-      src.click();
-      $$('.dd-menu').forEach(m => m.classList.add('hidden'));
-    }));
-    $$('.rl-h', nav).forEach(h => h.addEventListener('click', () => {
-      const sec = h.closest('.rl-sec');
+    $$('.rl-it', nav).forEach(b =>
+      b.addEventListener('click', () => {
+        const src = bound.get(b);
+        if (!src) return;
+        src.click();
+        $$('.dd-menu').forEach(m => m.classList.add('hidden'));
+      })
+    );
+    function toggleSection(sec) {
+      const h = $('.rl-toggle', sec);
       const open = sec.classList.toggle('open');
       h.setAttribute('aria-expanded', String(open));
+      h.setAttribute(
+        'aria-label',
+        `${open ? 'Collapse' : 'Expand'} ${$('.rl-h-t', sec).textContent} navigation`
+      );
+      h.title = h.getAttribute('aria-label');
       prefs['s:' + sec.dataset.sec] = open;
       save();
-    }));
+    }
+    $$('.rl-h-main', nav).forEach(h =>
+      h.addEventListener('click', () => {
+        location.hash = h.dataset.root;
+        toggleSection(h.closest('.rl-sec'));
+      })
+    );
+    $$('.rl-toggle', nav).forEach(h =>
+      h.addEventListener('click', () => {
+        toggleSection(h.closest('.rl-sec'));
+      })
+    );
     nav.scrollTop = scroll;
     sync();
   }
 
   /* -------------------------------------------------------------- sync --- */
   function sync() {
-    let activeSec = null, activeLabel = '';
+    let activeSec = null,
+      activeLabel = '';
     $$('.rl-it', rail).forEach(b => {
       const src = bound.get(b);
       const on = !!src && src.classList.contains('active');
       b.classList.toggle('on', on);
-      if (on) { activeSec = b.dataset.sec; activeLabel = $('.rl-t', b).textContent; }
-    });
-    // an active item inside a collapsed section: open it so you can see where you are
-    if (activeSec) {
-      const sec = $(`.rl-sec[data-sec="${activeSec}"]`, rail);
-      if (sec && !sec.classList.contains('open')) {
-        sec.classList.add('open');
-        $('.rl-h', sec)?.setAttribute('aria-expanded', 'true');
+      if (on) {
+        activeSec = b.dataset.sec;
+        activeLabel = $('.rl-t', b).textContent;
       }
-      $$('.rl-sec', rail).forEach(s => s.classList.toggle('has-on', s.dataset.sec === activeSec));
-    }
+    });
+    const rootView = document.body.dataset.view || '';
+    $$('.rl-sec', rail).forEach(s => {
+      const rootOn = s.dataset.sec === rootView;
+      $('.rl-h-main', s)?.classList.toggle('on', rootOn);
+      s.classList.toggle('has-on', rootOn || s.dataset.sec === activeSec);
+      if (rootOn) {
+        activeSec = s.dataset.sec;
+        activeLabel = $('.rl-h-t', s)?.textContent || '';
+      }
+    });
     // topbar context line — main is owned by app.js, so the title lives here
     const ctx = $('#ctx');
     if (ctx) {
-      const grp = activeSec && activeSec !== 'pinned'
-        ? ($(`.rl-sec[data-sec="${activeSec}"] .rl-h-t`, rail)?.textContent || '') : '';
+      const isRoot = activeSec && rootView === activeSec;
+      const grp =
+        activeSec && activeSec !== 'pinned' && !isRoot
+          ? $(`.rl-sec[data-sec="${activeSec}"] .rl-h-t`, rail)?.textContent || ''
+          : '';
       ctx.innerHTML = grp
         ? `<span class="ctx-g">${esc(grp)}</span><span class="ctx-s">/</span><span class="ctx-v">${esc(activeLabel)}</span>`
         : `<span class="ctx-v">${esc(activeLabel || 'Fleet')}</span>`;
@@ -497,7 +709,7 @@
      missing, using the label the rail already resolved. */
   function ensureTitle() {
     const app = $('#app');
-    if (!app || !app.firstElementChild) return;                       // loading placeholder
+    if (!app || !app.firstElementChild) return; // loading placeholder
     if (app.querySelector(':scope > .page-head, :scope > .crumbs')) return;
     const label = $('#ctx .ctx-v')?.textContent?.trim();
     if (!label || label === 'Fleet') return;
@@ -509,19 +721,25 @@
 
   function fold(on) {
     document.body.classList.toggle('rail-folded', on);
-    prefs.folded = on; save();
+    prefs.folded = on;
+    save();
     $('.rl-fold', rail).title = on ? 'Expand sidebar' : 'Collapse sidebar';
   }
 
   /* -------------------------------------------------------------- boot --- */
   function boot() {
-    const bar = $('.topbar'); if (!bar || $('#rail')) return;
+    const bar = $('.topbar');
+    if (!bar || $('#rail')) return;
     document.body.appendChild(rail);
     document.body.classList.add('has-rail');
     if (prefs.folded) fold(true);
 
-    $('.rl-brand', rail).addEventListener('click', () => $('.tabs .tab[data-view="control"]')?.click());
-    $('.rl-fold', rail).addEventListener('click', () => fold(!document.body.classList.contains('rail-folded')));
+    $('.rl-brand', rail).addEventListener('click', () =>
+      $('.tabs .tab[data-view="control"]')?.click()
+    );
+    $('.rl-fold', rail).addEventListener('click', () =>
+      fold(!document.body.classList.contains('rail-folded'))
+    );
 
     if (!$('#ctx')) {
       const ctx = document.createElement('div');
@@ -533,10 +751,12 @@
     // app.js fills the agents/group menus asynchronously and re-toggles .active
     // on every render — rebuild when the menus change, re-sync on every route.
     new MutationObserver(() => build()).observe($('.tabs'), { childList: true, subtree: true });
-    new MutationObserver(() => { sync(); ensureTitle(); })
-      .observe(document.body, { attributes: true, attributeFilter: ['data-view'] });
+    new MutationObserver(() => {
+      sync();
+      ensureTitle();
+    }).observe(document.body, { attributes: true, attributeFilter: ['data-view'] });
     new MutationObserver(ensureTitle).observe($('#app'), { childList: true });
-    setInterval(sync, 1500);   // catches same-view active swaps (agent → agent)
+    setInterval(sync, 1500); // catches same-view active swaps (agent → agent)
 
     addEventListener('keydown', e => {
       if (e.key === '[' && (e.metaKey || e.ctrlKey)) {

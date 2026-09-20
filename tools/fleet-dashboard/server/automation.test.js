@@ -95,3 +95,25 @@ test('automation can add a new worker role with its own prompt and switch', () =
   assert.equal(row.prompt, '# Breaking News\nWrite only qualifying alerts.\n');
   assert.ok(fs.existsSync(path.join(root, 'sites/alpha.example/ops/.breaking-news-disabled')));
 });
+
+test('automation removes a role schedule, clears its pause flag, and retains the prompt', () => {
+  const { root } = fixture();
+  fs.writeFileSync(path.join(root, 'sites/alpha.example/ops/.news-writer-disabled'), '');
+  const out = automation.removeRole(root, 'alpha.example', 'news-writer');
+  assert.deepEqual(out, {
+    ok: true,
+    site: 'alpha.example',
+    role: 'news-writer',
+    removedEntries: 1,
+    promptRetained: true,
+  });
+  assert.equal(automation.get(root, 'alpha.example').roles.length, 0);
+  assert.equal(
+    fs.existsSync(path.join(root, 'sites/alpha.example/ops/.news-writer-disabled')),
+    false
+  );
+  assert.equal(
+    fs.readFileSync(path.join(root, 'sites/alpha.example/ops/roles/news-writer.md'), 'utf8'),
+    '# Writer\nold prompt\n'
+  );
+});

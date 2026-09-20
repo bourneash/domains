@@ -2,10 +2,11 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { siteDir } = require('./sites');
 const gitMod = require('./git');
 const deployhealth = require('./deployhealth');
-const { roleFromCommand } = require('./cron/parse');
+const { parseCrontab, uncommentLine } = require('./cron/parse');
 const { tailFile } = require('./cron/runinfo');
 
 function httpErr(status, msg) {
@@ -42,23 +43,41 @@ function readFirst(cwd, rels) {
   return '';
 }
 
+function readFirstFile(cwd, rels) {
+  for (const r of rels) {
+    try {
+      const file = path.join(cwd, r);
+      return { path: file, text: fs.readFileSync(file, 'utf8') };
+    } catch {
+      /* try the next format */
+    }
+  }
+  return { path: path.join(cwd, rels[0]), text: '' };
+}
+
+function atomicWrite(file, text) {
+  const tmp = `${file}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, text, 'utf8');
+  fs.renameSync(tmp, file);
+}
+
 // Pull {role, schedule, worker} from each active (non-comment) role cron line.
 // Role recognition is delegated to the shared parser in cron/parse.js so the
 // roles matrix and the cron page can never disagree about what a line is.
 // worker = invoked via run-worker.sh, which honours ops/.<role>-disabled, so
 // it's safe to pause/resume by toggling that flag.
-function parseRoles(crontab) {
-  const out = [];
-  for (const raw of crontab.split('\n')) {
-    const line = raw.trim();
-    if (!line || line.startsWith('#')) continue;
-    const m = line.match(/^((?:\S+\s+){5})(.*)$/);
-    if (!m) continue;
-    const schedule = m[1].trim();
-    const { role, worker } = roleFromCommand(m[2]);
-    if (role) out.push({ role, schedule, worker });
-  }
-  return out;
+function parseRoles(crontab, { includeCommented = false } = {}) {
+  return parseCrontab(crontab)
+    .entries.filter(entry => includeCommented || !entry.commented)
+    .map(entry => ({
+      role: entry.role,
+      schedule: entry.schedule,
+      worker: entry.worker,
+      commented: entry.commented,
+      lineIndex: entry.lineIndex,
+      rawLine: entry.rawLine,
+    }))
+    .filter(entry => entry.role);
 }
 
 // Coarse cadence from the cron schedule: sub-daily / daily / weekly.
@@ -135,13 +154,15 @@ async function matrix(root, slugs) {
   const sites = slugs
     .map(slug => {
       const cwd = siteDir(root, slug);
-      const parsed = parseRoles(readFirst(cwd, CRONTABS));
+      const parsed = parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true });
       const cells = {};
-      for (const { role, schedule, worker } of parsed) {
+      for (const { role, schedule, worker, commented } of parsed) {
         if (cells[role]) continue; // first schedule wins on dupes
-        const enabled = !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
-        const last = lastRun(cwd, role);
-        let { state, age } = cellState(enabled, last, schedule, now);
+        const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
+        const last = enabled ? lastRun(cwd, role) : null;
+        let { state, age } = commented
+          ? { state: 'paused', age: null }
+          : cellState(enabled, last, schedule, now);
         let deploy = null;
         // The deployer cell tracks DEPLOY HEALTH, not cron recency. Every site
         // ships via push-to-deploy (commit → `git push origin main` → CF rebuild),
@@ -192,6 +213,7 @@ async function matrix(root, slugs) {
           age: age ?? null,
           state,
           worker,
+          commented,
           deploy,
         };
         freq[role] = (freq[role] || 0) + 1;
@@ -200,7 +222,10 @@ async function matrix(root, slugs) {
     })
     .filter(s => Object.keys(s.cells).length);
   const roles = Object.keys(freq).sort((a, b) => freq[b] - freq[a] || a.localeCompare(b));
-  return { roles, sites };
+  // Keep the canonical discovery set alongside the sparse matrix. The matrix
+  // intentionally omits sites with no scheduled roles, but agent pages need
+  // the full set to distinguish "not enrolled" from "not discovered".
+  return { roles, sites, allSites: [...slugs] };
 }
 
 // Tail of a role's newest log (for the cell drill-down).
@@ -228,6 +253,124 @@ function roleLog(root, slug, role, tail) {
   return { file: best, mtime: bestMt, log: tailFile(path.join(dir, best), n) };
 }
 
+function promptHash(cwd, role) {
+  try {
+    return crypto
+      .createHash('sha256')
+      .update(fs.readFileSync(path.join(cwd, 'ops', 'roles', `${role}.md`)))
+      .digest('hex')
+      .slice(0, 12);
+  } catch {
+    return null;
+  }
+}
+
+function recentRunStats(cwd, role, since) {
+  const dir = path.join(cwd, 'ops', 'logs');
+  const re = logRe(role);
+  const out = { observed: 0, succeeded: 0, failed: 0, unknown: 0, failures: [] };
+  let files = [];
+  try {
+    files = fs.readdirSync(dir);
+  } catch {
+    return out;
+  }
+  for (const file of files) {
+    if (!re.test(file)) continue;
+    const full = path.join(dir, file);
+    let stat;
+    try {
+      stat = fs.statSync(full);
+    } catch {
+      continue;
+    }
+    if (stat.mtimeMs < since) continue;
+    out.observed++;
+    let text = '';
+    try {
+      text = fs.readFileSync(full, 'utf8');
+    } catch {
+      out.unknown++;
+      continue;
+    }
+    const exit = text.match(/exit=(\d+)/g)?.at(-1);
+    if (exit && exit !== 'exit=0') {
+      out.failed++;
+      out.failures.push({
+        file,
+        mtime: stat.mtimeMs,
+        summary: text.trim().split('\n').slice(-3).join(' ').slice(0, 300),
+      });
+    } else if (exit === 'exit=0' || /finished successfully|run complete|complete\./i.test(text))
+      out.succeeded++;
+    else if (/\b(?:FAIL|FAILED|ERROR|timed out)\b/i.test(text)) {
+      out.failed++;
+      out.failures.push({
+        file,
+        mtime: stat.mtimeMs,
+        summary: text.trim().split('\n').slice(-3).join(' ').slice(0, 300),
+      });
+    } else out.unknown++;
+  }
+  out.failures.sort((a, b) => b.mtime - a.mtime);
+  return out;
+}
+
+async function health(root, role, slugs, usage = {}) {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(String(role || ''))) throw httpErr(400, 'invalid role');
+  const data = await matrix(root, slugs);
+  const cutoff = Date.now() - 7 * 86400 * 1000;
+  const spend = new Map(
+    (usage.by_site_role || []).filter(row => row.role === role).map(row => [row.site, row])
+  );
+  const rows = [];
+  const promptCounts = {};
+  for (const site of data.sites) {
+    const cell = site.cells[role];
+    if (!cell) continue;
+    const stats = recentRunStats(siteDir(root, site.site), role, cutoff);
+    const prompt = promptHash(siteDir(root, site.site), role);
+    const runner = cell.worker ? 'run-worker.sh' : 'dedicated-script';
+    const key = `${runner}:${prompt || 'missing'}`;
+    promptCounts[key] = (promptCounts[key] || 0) + 1;
+    rows.push({
+      site: site.site,
+      state: cell.state,
+      enabled: cell.enabled,
+      worker: cell.worker,
+      schedule: cell.schedule,
+      last: cell.last,
+      observed: stats.observed,
+      succeeded: stats.succeeded,
+      failed: stats.failed,
+      unknown: stats.unknown,
+      failures: stats.failures.slice(0, 3),
+      costUsd: spend.get(site.site)?.total_cost_usd || 0,
+      calls: spend.get(site.site)?.calls || 0,
+      promptHash: prompt,
+      runner,
+      driftKey: key,
+    });
+  }
+  const baseline = Object.entries(promptCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  rows.forEach(row => {
+    row.drift = baseline !== null && row.driftKey !== baseline;
+  });
+  const summary = {
+    enrolled: rows.length,
+    paused: rows.filter(row => !row.enabled).length,
+    fresh: rows.filter(row => row.state === 'fresh').length,
+    stale: rows.filter(row => row.state === 'stale').length,
+    overdue: rows.filter(row => row.state === 'overdue').length,
+    observed: rows.reduce((n, row) => n + row.observed, 0),
+    succeeded: rows.reduce((n, row) => n + row.succeeded, 0),
+    failed: rows.reduce((n, row) => n + row.failed, 0),
+    costUsd: rows.reduce((n, row) => n + row.costUsd, 0),
+    drifted: rows.filter(row => row.drift).length,
+  };
+  return { role, windowDays: 7, summary, rows };
+}
+
 // The parsed crontab entry for a role on a site (or null), for validation.
 function roleEntry(root, slug, role) {
   const r = String(role || '').toLowerCase();
@@ -241,12 +384,15 @@ function setEnabled(root, slug, role, enabled) {
   const r = String(role || '').toLowerCase();
   if (!/^[a-z0-9-]+$/.test(r)) throw httpErr(400, 'invalid role');
   const cwd = siteDir(root, slug);
-  const entry = parseRoles(readFirst(cwd, CRONTABS)).find(p => p.role === r);
+  const crontab = readFirstFile(cwd, CRONTABS);
+  const entry = parseRoles(crontab.text, { includeCommented: true }).find(p => p.role === r);
   if (!entry) throw httpErr(404, 'role is not scheduled on this site');
   if (!entry.worker)
     throw httpErr(400, 'role is not pause/resume-controllable (not a run-worker.sh role)');
   const flag = path.join(cwd, 'ops', `.${r}-disabled`);
   if (enabled) {
+    if (entry.commented)
+      atomicWrite(crontab.path, uncommentLine(crontab.text, entry.lineIndex, entry.rawLine));
     try {
       fs.unlinkSync(flag);
     } catch (e) {
@@ -267,7 +413,9 @@ function agents(root, slugs) {
   const freq = {};
   for (const slug of slugs) {
     const seen = new Set();
-    for (const { role } of parseRoles(readFirst(siteDir(root, slug), CRONTABS))) {
+    for (const { role } of parseRoles(readFirst(siteDir(root, slug), CRONTABS), {
+      includeCommented: true,
+    })) {
       if (!seen.has(role)) {
         seen.add(role);
         freq[role] = (freq[role] || 0) + 1;
@@ -285,4 +433,13 @@ function agents(root, slugs) {
     .map(r => ({ role: r, sites: freq[r] }));
 }
 
-module.exports = { matrix, roleLog, setEnabled, agents, roleEntry, parseRoles, cadenceClass };
+module.exports = {
+  matrix,
+  health,
+  roleLog,
+  setEnabled,
+  agents,
+  roleEntry,
+  parseRoles,
+  cadenceClass,
+};

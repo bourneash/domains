@@ -625,7 +625,7 @@ async function scanOne(root, c) {
           `Sites: ${Object.keys(record.sites).sort().join(', ')}\n` +
           `Trigger: \`${(record.sampleLine || '').slice(0, 300)}\`\n` +
           'Likely shared infra (worker image, broker, network) — check one site, fix once. ' +
-          'Fleet Dashboard → Errors tab for detail. Further sites hitting this signature will be folded in silently; ' +
+          'Domain Fleet Manager → Errors tab for detail. Further sites hitting this signature will be folded in silently; ' +
           'one all-clear posts here once every affected site recovers.';
         postFleetSlack(root, text).catch(() => {});
       }
@@ -636,7 +636,7 @@ async function scanOne(root, c) {
       const text =
         `:rotating_light: *${c.name}* — ${alertSummary}\n` +
         `Trigger: \`${((decision.trigger && decision.trigger.line) || '').slice(0, 300)}\`\n` +
-        'Fleet Dashboard → Errors tab for detail.';
+        'Domain Fleet Manager → Errors tab for detail.';
       postSlackAlert(root, c.slug, text).catch(() => {});
     }
   }

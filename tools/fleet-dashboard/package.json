@@ -2,7 +2,7 @@
   "name": "fleet-dashboard",
   "version": "1.0.0",
   "private": true,
-  "description": "Portfolio fleet dashboard — engineer liveness, git status, and task-board CRUD across the domains repo",
+  "description": "Domain Fleet Manager — engineer liveness, git status, and task-board CRUD across the domains repo",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",

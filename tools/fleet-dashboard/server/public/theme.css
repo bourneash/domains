@@ -1,5 +1,5 @@
 /* ============================================================================
-   Fleet Dashboard — "Command Deck" theme layer
+   Domain Fleet Manager — "Command Deck" theme layer
    ----------------------------------------------------------------------------
    Loaded AFTER style.css. style.css remains the component/geometry layer; this
    file owns the design system: tokens, surfaces, typography, motion.
@@ -745,18 +745,30 @@ body.has-rail .tabs { display: none; }
 .rl-sec[data-sec="pinned"] { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
 
 .rl-h {
-  display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: 7px 10px; border: 0; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; width: 100%;
+  padding: 0; border: 0; border-radius: 8px;
   background: transparent; color: var(--faint);
   font: 600 10.5px/1 inherit; letter-spacing: .1em; text-transform: uppercase;
   transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 .rl-h:hover { color: var(--muted); background: rgba(255,255,255,.04); }
+.rl-h-main {
+  min-width: 0; flex: 1; display: flex; align-items: center; gap: 10px;
+  padding: 7px 4px 7px 10px; border: 0; color: inherit; background: transparent;
+  font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer;
+}
+.rl-h-main.on { color: var(--text-hi); }
+.rl-toggle {
+  flex: none; display: grid; place-items: center; width: 30px; height: 30px;
+  padding: 0; border: 0; border-radius: 7px; color: inherit; background: transparent; cursor: pointer;
+}
+.rl-toggle:hover { color: var(--text); background: rgba(255,255,255,.06); }
 .rl-h-t { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; }
 .rl-h-n { font-size: 10px; letter-spacing: 0; color: var(--faint); opacity: .8; font-variant-numeric: tabular-nums; }
 .rl-caret { width: 14px; height: 14px; flex: none; transition: transform .22s var(--ease-out); opacity: .7; }
 .rl-sec.open > .rl-h .rl-caret { transform: rotate(180deg); }
 .rl-sec.has-on > .rl-h { color: var(--muted); }
+.rl-sec > .rl-h:has(.rl-h-main.on) { background: rgba(94,169,255,.1); color: var(--a1); }
 
 /* 0fr -> 1fr sizes only the grid's FIRST row, so the buttons must sit in one
    inner wrapper or the section never actually collapses. */
@@ -803,7 +815,9 @@ body.has-rail .tabs { display: none; }
 
 /* ----------------------------------------------------------- folded rail -- */
 .rail-folded .rl-nav { padding-left: 12px; padding-right: 12px; }
-.rail-folded .rl-h { justify-content: center; padding: 8px 0; }
+.rail-folded .rl-h { justify-content: center; padding: 0; }
+.rail-folded .rl-h-main { justify-content: center; padding: 8px 0; }
+.rail-folded .rl-toggle { display: none; }
 .rail-folded .rl-h-t, .rail-folded .rl-h-n, .rail-folded .rl-caret,
 .rail-folded .rl-t, .rail-folded .rl-n { display: none; }
 .rail-folded .rl-h .rl-i { width: 16px; height: 16px; display: block; }
@@ -837,8 +851,61 @@ body.has-rail .actions { margin-left: 0; }
   .rl-word, .rl-h-t, .rl-h-n, .rl-caret, .rl-t, .rl-n { display: none; }
   .rl-it { justify-content: center; padding: 9px 0 !important; }
   .rl-fold { display: none; }
+  .rl-h-main { justify-content: center; padding: 8px 0; }
+  .rl-toggle { display: none; }
   .rl-top { padding: 0 0 0 19px; }
 }
+
+/* ------------------------------------------------ category landing pages -- */
+.nav-root-head { align-items: flex-start; }
+.nav-root-head > div { min-width: 0; }
+.nav-root-count {
+  flex: none; padding: 5px 9px; border: 1px solid var(--border); border-radius: 999px;
+  color: var(--muted); background: var(--panel); font-size: 11px; font-weight: 650;
+}
+.nav-root-grid {
+  --nav-card-rgb: 94,169,255;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+}
+.nav-root-agents { --nav-card-rgb: 169,134,255; }
+.nav-root-content { --nav-card-rgb: 72,199,142; }
+.nav-root-growth { --nav-card-rgb: 245,174,66; }
+.nav-root-quality { --nav-card-rgb: 226,112,137; }
+.nav-root-card {
+  position: relative; overflow: hidden;
+  min-height: 112px; display: flex; align-items: center; gap: 16px; width: 100%;
+  padding: 18px; border: 1px solid rgba(255,255,255,.09); border-radius: 14px;
+  color: var(--text); background:
+    radial-gradient(circle at 0 0, rgba(var(--nav-card-rgb),.11), transparent 46%),
+    linear-gradient(145deg, rgba(19,25,38,.96), rgba(12,16,25,.96));
+  box-shadow: 0 8px 24px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.025);
+  text-align: left; cursor: pointer;
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.nav-root-card::before {
+  content: ''; position: absolute; inset: 0 0 auto; height: 2px;
+  background: linear-gradient(90deg, rgba(var(--nav-card-rgb),.9), rgba(var(--nav-card-rgb),0));
+  opacity: .58;
+}
+.nav-root-card:hover {
+  border-color: rgba(var(--nav-card-rgb),.5); transform: translateY(-2px);
+  box-shadow: 0 13px 30px rgba(0,0,0,.2), 0 0 0 1px rgba(var(--nav-card-rgb),.08);
+}
+.nav-root-card:focus-visible { outline: 2px solid rgb(var(--nav-card-rgb)); outline-offset: 3px; }
+.nav-root-icon {
+  flex: none; width: 46px; height: 46px; display: grid; place-items: center;
+  border: 1px solid rgba(var(--nav-card-rgb),.24); border-radius: 13px;
+  color: rgb(var(--nav-card-rgb)); background: rgba(var(--nav-card-rgb),.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 7px 18px rgba(0,0,0,.13);
+}
+.nav-root-icon .rl-i { width: 23px; height: 23px; opacity: 1; }
+.nav-root-card-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.nav-root-card-copy strong { color: var(--text-hi); font-size: 14.5px; font-weight: 700; letter-spacing: -.015em; }
+.nav-root-card-copy span { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.nav-root-arrow { flex: none; color: var(--faint); font-size: 18px; transition: color var(--dur), transform var(--dur); }
+.nav-root-card:hover .nav-root-arrow { color: rgb(var(--nav-card-rgb)); transform: translateX(3px); }
+@media (max-width: 1100px) { .nav-root-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .nav-root-grid { grid-template-columns: 1fr; } }
 
 /* folded rail: keep the active section findable and the groups legible */
 .rail-folded .rl-sec + .rl-sec { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.05); }

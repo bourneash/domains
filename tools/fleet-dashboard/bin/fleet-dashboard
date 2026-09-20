@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Operator entry point for the Fleet Dashboard.
+# Operator entry point for Domain Fleet Manager.
 #
 # FD_TOKEN no longer lives in the shared fleet .env (B2). Vaultwarden is its
 # home and tools/env-broker renders it into a 0400 file holding three keys, which
@@ -89,7 +89,7 @@ wait_until_ready() {
 
   for ((i = 1; i <= attempts; i++)); do
     if curl -fsS --max-time 2 "${URL}/healthz" >/dev/null 2>&1; then
-      printf '✓ Fleet Dashboard ready: %s/\n' "${URL}"
+      printf '✓ Domain Fleet Manager ready: %s/\n' "${URL}"
       return 0
     fi
     sleep "${delay}"
@@ -169,7 +169,7 @@ case "${command}" in
       print_token_hint >&2
       exit 1
     fi
-    printf 'Fleet Dashboard is running with the new token.\n'
+    printf 'Domain Fleet Manager is running with the new token.\n'
     print_token_hint
     ;;
 

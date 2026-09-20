@@ -2,7 +2,7 @@
 
 // Crontab line parsing + safe line mutations. Ported verbatim from
 // tools/cron-manager (server/crontab.js) when the cron control plane was
-// folded into the fleet dashboard.
+// folded into Domain Fleet Manager.
 
 // Matches an optional leading comment marker, then 5 whitespace-separated
 // schedule fields, then the command (rest of line).
@@ -14,7 +14,7 @@ const FIELD_RE = /^[\d*,/-]+$/;
 function isValidCron(expr) {
   const fields = String(expr).trim().split(/\s+/);
   if (fields.length !== 5) return false;
-  return fields.every((f) => FIELD_RE.test(f));
+  return fields.every(f => FIELD_RE.test(f));
 }
 
 // Single source of truth for turning a crontab command into a role. Two shapes:
@@ -29,7 +29,10 @@ function roleFromCommand(command) {
   if ((m = cmd.match(/run-worker\.sh\s+([A-Za-z0-9._-]+)/i))) {
     return { role: m[1].toLowerCase(), worker: true };
   }
-  if ((m = cmd.match(/run-([A-Za-z0-9-]+)\.sh/i)) && !['worker', 'role'].includes(m[1].toLowerCase())) {
+  if (
+    (m = cmd.match(/run-([A-Za-z0-9-]+)\.sh/i)) &&
+    !['worker', 'role'].includes(m[1].toLowerCase())
+  ) {
     return { role: m[1].toLowerCase(), worker: false };
   }
   return { role: null, worker: false };
@@ -47,7 +50,7 @@ function parseCrontab(text) {
     const m = line.match(CRON_RE);
     if (!m) return;
     const schedule = m[2].trim();
-    if (!isValidCron(schedule)) return;          // rejects prose comments
+    if (!isValidCron(schedule)) return; // rejects prose comments
     const command = m[3].trim();
     const { role, worker } = roleFromCommand(command);
     entries.push({
@@ -125,5 +128,15 @@ function addLine(text, schedule, command) {
   return lines.join('\n');
 }
 
-module.exports = { parseCrontab, isValidCron, extractRole, roleFromCommand, CRON_RE,
-  commentLine, uncommentLine, editSchedule, removeLine, addLine };
+module.exports = {
+  parseCrontab,
+  isValidCron,
+  extractRole,
+  roleFromCommand,
+  CRON_RE,
+  commentLine,
+  uncommentLine,
+  editSchedule,
+  removeLine,
+  addLine,
+};

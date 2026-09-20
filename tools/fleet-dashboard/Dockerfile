@@ -36,7 +36,7 @@ RUN git config --system --add safe.directory '*'
 
 # Commit identity for dashboard-initiated commits (ignore/commit actions).
 # Matches every site repo's own convention of a bot identity per automated actor.
-RUN git config --system user.name "Fleet Dashboard" \
+RUN git config --system user.name "Domain Fleet Manager" \
  && git config --system user.email "fleet-dashboard@domains.local"
 
 WORKDIR /app

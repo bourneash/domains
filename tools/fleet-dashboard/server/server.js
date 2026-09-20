@@ -95,6 +95,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // login shell always loads.
   app.use(auth.apiGuard);
 
+  // Prevent browsers from retaining an older SPA after a restart. Without this,
+  // new controls can be present on disk but invisible in an already-open tab.
+  app.use((req, res, next) => {
+    if (['/index.html', '/app.js', '/shell.js', '/style.css', '/theme.css'].includes(req.path)) {
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
+    }
+    next();
+  });
+
   app.use(express.static(path.join(__dirname, 'public')));
 
   // Auth surface (always available, even when the token gate is on).
@@ -239,36 +248,83 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/priorities', async (_req, res) => {
     try {
       const [seo, analyticsHealth, usage] = await Promise.all([
-        seoIntelligence.buildSnapshot({ root }), analytics.health(), aiusage.fleet(root),
+        seoIntelligence.buildSnapshot({ root }),
+        analytics.health(),
+        aiusage.fleet(root),
       ]);
       const builds = cloudflarebuilds.summarize(undefined, { days: 30, limit: 250 });
       const reg = require('./fleetregistry').read(root);
-      const siteByWorker = Object.fromEntries(reg.sites.filter(s => s.worker).map(s => [s.worker, s]));
+      const siteByWorker = Object.fromEntries(
+        reg.sites.filter(s => s.worker).map(s => [s.worker, s])
+      );
       for (const build of builds.builds || []) {
         const site = siteByWorker[build.worker];
         if (!site || !build.uuid) continue;
-        const prior = build.commitHash ? events.list({ entity_type: 'commit', entity_id: String(build.commitHash).slice(0, 7), limit: 1 })[0] : null;
-        events.recordOnce({ event_id: `cf-build:${build.uuid}`, event_type: 'deployment.completed', source: 'cloudflare-builds',
-          occurred_at: build.stoppedOn || build.createdOn || new Date().toISOString(), site_id: site.site_id,
-          entity_type: 'deployment', entity_id: build.uuid, correlation_id: prior?.correlation_id || `commit:${build.commitHash || build.uuid}`,
-          causation_id: prior?.event_id || null, payload: { commit: build.commitHash || null, outcome: build.outcome, duration_seconds: build.durationSeconds } });
+        const prior = build.commitHash
+          ? events.list({
+              entity_type: 'commit',
+              entity_id: String(build.commitHash).slice(0, 7),
+              limit: 1,
+            })[0]
+          : null;
+        events.recordOnce({
+          event_id: `cf-build:${build.uuid}`,
+          event_type: 'deployment.completed',
+          source: 'cloudflare-builds',
+          occurred_at: build.stoppedOn || build.createdOn || new Date().toISOString(),
+          site_id: site.site_id,
+          entity_type: 'deployment',
+          entity_id: build.uuid,
+          correlation_id: prior?.correlation_id || `commit:${build.commitHash || build.uuid}`,
+          causation_id: prior?.event_id || null,
+          payload: {
+            commit: build.commitHash || null,
+            outcome: build.outcome,
+            duration_seconds: build.durationSeconds,
+          },
+        });
       }
-      res.json(priorities.build({
-        root, discoveredSites: discoverSites(root), seo,
-        revenue: revenue.amazonSummary(root), analyticsHealth, aiUsage: usage,
-      }));
-    } catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+      res.json(
+        priorities.build({
+          root,
+          discoveredSites: discoverSites(root),
+          seo,
+          revenue: revenue.amazonSummary(root),
+          analyticsHealth,
+          aiUsage: usage,
+        })
+      );
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
   });
   app.get('/api/data-quality', async (_req, res) => {
     try {
-      const [seo, analyticsHealth, usage] = await Promise.all([seoIntelligence.buildSnapshot({ root }), analytics.health(), aiusage.fleet(root)]);
-      res.json(dataquality.assess({ root, discoveredSites: discoverSites(root), seo, analyticsHealth,
-        aiUsage: usage, revenue: revenue.amazonSummary(root) }));
-    } catch (e) { res.status(500).json({ error: String(e.message || e) }); }
+      const [seo, analyticsHealth, usage] = await Promise.all([
+        seoIntelligence.buildSnapshot({ root }),
+        analytics.health(),
+        aiusage.fleet(root),
+      ]);
+      res.json(
+        dataquality.assess({
+          root,
+          discoveredSites: discoverSites(root),
+          seo,
+          analyticsHealth,
+          aiUsage: usage,
+          revenue: revenue.amazonSummary(root),
+        })
+      );
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
   });
   app.get('/api/events', (req, res) => {
-    try { res.json({ events: events.list(req.query) }); }
-    catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    try {
+      res.json({ events: events.list(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
 
   app.get('/api/improvements', (req, res) => {
@@ -277,46 +333,76 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       for (const item of rows.filter(row => row.state === 'deployed')) {
         const live = deployhealth.get(item.site);
         if (live?.live !== true) continue;
-        improvements.transition(events, item.run_id, { state: 'measuring', measurement_due: improvements.measurementDate(28),
-          outcome: { deployment_verified_at: new Date().toISOString(), worker_version: live.version || null } });
+        improvements.transition(events, item.run_id, {
+          state: 'measuring',
+          measurement_due: improvements.measurementDate(28),
+          outcome: {
+            deployment_verified_at: new Date().toISOString(),
+            worker_version: live.version || null,
+          },
+        });
       }
       rows = events.listImprovements(req.query).map(item => {
         const task = findImprovementTask(root, item);
         const expected = improvements.expectedTaskColumn(item.state);
-        return { ...item, task_column: task?.column || null, task_drift: !task || task.column !== expected,
-          expected_task_column: expected };
+        return {
+          ...item,
+          task_column: task?.column || null,
+          task_drift: !task || task.column !== expected,
+          expected_task_column: expected,
+        };
       });
       res.json(improvements.summary(rows));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
-    catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
   });
   app.get('/api/improvements/:id', (req, res) => {
     const item = events.getImprovement(req.params.id);
     if (!item) return res.status(404).json({ error: 'improvement run not found' });
-    Promise.all(item.workspace_path ? [git.worktreeSnapshot(item.workspace_path).catch(e => ({ error: e.message })), git.worktreeDiff(item.workspace_path).catch(e => ({ error: e.message }))] : [null, null])
-      .then(([workspace, diff]) => res.json({ run: item, workspace, diff, agent: improvementAgent.status(root, item),
-        events: events.list({ correlation_id: item.correlation_id, limit: 200 }) }));
+    Promise.all(
+      item.workspace_path
+        ? [
+            git.worktreeSnapshot(item.workspace_path).catch(e => ({ error: e.message })),
+            git.worktreeDiff(item.workspace_path).catch(e => ({ error: e.message })),
+          ]
+        : [null, null]
+    ).then(([workspace, diff]) =>
+      res.json({
+        run: item,
+        workspace,
+        diff,
+        agent: improvementAgent.status(root, item),
+        events: events.list({ correlation_id: item.correlation_id, limit: 200 }),
+      })
+    );
   });
   app.get('/api/improvements/:id/artifacts/:name', (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
-      if (!item.sandbox?.instance) return res.status(404).json({ error: 'improvement sandbox not found' });
+      if (!item.sandbox?.instance)
+        return res.status(404).json({ error: 'improvement sandbox not found' });
       const file = devsandbox.improvementArtifactPath(root, item.sandbox.instance, req.params.name);
       if (!fs.existsSync(file)) return res.status(404).json({ error: 'artifact not found' });
       res.set('X-Content-Type-Options', 'nosniff');
-      if (req.params.name.endsWith('.png')) res.type('image/png'); else res.type('application/json');
+      if (req.params.name.endsWith('.png')) res.type('image/png');
+      else res.type('application/json');
       res.sendFile(file);
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
   app.post('/api/improvements/start', async (req, res) => {
     try {
       const site = req.body && req.body.site;
       const key = req.body && req.body.key;
       if (!isKnownSite(root, site)) return res.status(404).json({ error: 'unknown site' });
-      if (!/^[a-f0-9]{20}$/.test(String(key || ''))) return res.status(400).json({ error: 'invalid intelligence action key' });
+      if (!/^[a-f0-9]{20}$/.test(String(key || '')))
+        return res.status(400).json({ error: 'invalid intelligence action key' });
       const [snapshot, baseline] = await Promise.all([
-        seoIntelligence.buildSnapshot({ root }), analytics.summary(site, 28),
+        seoIntelligence.buildSnapshot({ root }),
+        analytics.summary(site, 28),
       ]);
       const action = snapshot.actions.find(row => row.site === site && row.key === key);
       if (!action) return res.status(404).json({ error: 'intelligence action no longer exists' });
@@ -324,19 +410,32 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (!result.duplicate) {
         const rel = `ops/tasks/backlog/${result.run.task_file}`;
         await git.commit(root, site, [rel], `chore: queue ${result.run.title}`);
-        events.record({ event_type: 'improvement.task_committed', source: 'improvement-workbench',
-          site_id: `site:${site}`, entity_type: 'task', entity_id: result.run.task_id,
-          correlation_id: result.run.correlation_id, payload: { path: rel } });
+        events.record({
+          event_type: 'improvement.task_committed',
+          source: 'improvement-workbench',
+          site_id: `site:${site}`,
+          entity_type: 'task',
+          entity_id: result.run.task_id,
+          correlation_id: result.run.correlation_id,
+          payload: { path: rel },
+        });
       }
       res.status(result.duplicate ? 200 : 201).json(result);
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
   app.post('/api/improvements/:id/transition', async (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
       const target = req.body?.state;
-      if (['deployed', 'rolled-back'].includes(target)) return res.status(400).json({ error: `use the guarded ${target === 'deployed' ? 'deploy' : 'rollback'} action` });
+      if (['deployed', 'rolled-back'].includes(target))
+        return res
+          .status(400)
+          .json({
+            error: `use the guarded ${target === 'deployed' ? 'deploy' : 'rollback'} action`,
+          });
       if (target === 'building') await syncImprovementTask(root, item, 'in-progress');
       if (target === 'cancelled') {
         const cleanup = await cleanupImprovementResources(root, item);
@@ -344,8 +443,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         await syncImprovementTask(root, item, 'hold');
       }
       res.json({ run: improvements.transition(events, req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
-    catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
   });
   app.post('/api/improvements/:id/build', async (req, res) => {
     try {
@@ -353,59 +453,114 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
       if (item.state !== 'proposed' && item.state !== 'regressed')
         return res.status(409).json({ error: `cannot start build from ${item.state}` });
-      const collision = events.listImprovements({ site: item.site, limit: 100 })
-        .find(row => row.run_id !== item.run_id && ['building', 'review', 'deployed', 'measuring'].includes(row.state));
-      if (collision) return res.status(409).json({ error: `another improvement is active for this site: ${collision.title}` });
+      const collision = events
+        .listImprovements({ site: item.site, limit: 100 })
+        .find(
+          row =>
+            row.run_id !== item.run_id &&
+            ['building', 'review', 'deployed', 'measuring'].includes(row.state)
+        );
+      if (collision)
+        return res
+          .status(409)
+          .json({ error: `another improvement is active for this site: ${collision.title}` });
       await syncImprovementTask(root, item, 'in-progress');
       const worktree = await git.createWorktree(root, item.site, item.run_id);
-      const sandbox = await devsandbox.startImprovement(root, item.site, item.run_id, worktree.path);
-      const changed = improvements.transition(events, item.run_id, { state: 'building', branch: worktree.branch });
-      const enriched = events.updateImprovement(item.run_id, { workspace_path: worktree.path,
-        sandbox: { ...sandbox, workspace_path: worktree.path } });
-      events.record({ event_type: 'improvement.sandbox_started', source: 'improvement-workbench',
-        site_id: `site:${item.site}`, entity_type: 'improvement', entity_id: item.run_id,
-        correlation_id: item.correlation_id, payload: { branch: worktree.branch, workspace_path: worktree.path, sandbox } });
+      const sandbox = await devsandbox.startImprovement(
+        root,
+        item.site,
+        item.run_id,
+        worktree.path
+      );
+      const changed = improvements.transition(events, item.run_id, {
+        state: 'building',
+        branch: worktree.branch,
+      });
+      const enriched = events.updateImprovement(item.run_id, {
+        workspace_path: worktree.path,
+        sandbox: { ...sandbox, workspace_path: worktree.path },
+      });
+      events.record({
+        event_type: 'improvement.sandbox_started',
+        source: 'improvement-workbench',
+        site_id: `site:${item.site}`,
+        entity_type: 'improvement',
+        entity_id: item.run_id,
+        correlation_id: item.correlation_id,
+        payload: { branch: worktree.branch, workspace_path: worktree.path, sandbox },
+      });
       res.json({ run: enriched, worktree, sandbox });
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
   app.post('/api/improvements/:id/measure', async (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
-      if (item.state !== 'measuring') return res.status(409).json({ error: `cannot measure from ${item.state}` });
+      if (item.state !== 'measuring')
+        return res.status(409).json({ error: `cannot measure from ${item.state}` });
       const today = new Date().toISOString().slice(0, 10);
       if (item.measurement_due && item.measurement_due > today && !(req.body && req.body.force))
         return res.status(409).json({ error: `measurement window closes ${item.measurement_due}` });
-      const current = await analytics.summary(item.site, Number(item.baseline?.analytics?.window_days) || 28);
+      const current = await analytics.summary(
+        item.site,
+        Number(item.baseline?.analytics?.window_days) || 28
+      );
       const outcome = improvements.compareOutcome(item.baseline?.analytics || {}, current);
-      const changed = improvements.transition(events, item.run_id, { state: outcome.classification, outcome });
-      if (['proven', 'inconclusive'].includes(outcome.classification)) await cleanupImprovementResources(root, item);
+      const changed = improvements.transition(events, item.run_id, {
+        state: outcome.classification,
+        outcome,
+      });
+      if (['proven', 'inconclusive'].includes(outcome.classification))
+        await cleanupImprovementResources(root, item);
       res.json({ run: changed, outcome });
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
   app.post('/api/improvements/:id/validate', async (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
-      if (item.state !== 'building') return res.status(409).json({ error: `cannot validate from ${item.state}` });
-      if (!item.sandbox?.instance) return res.status(409).json({ error: 'isolated sandbox is not running' });
+      if (item.state !== 'building')
+        return res.status(409).json({ error: `cannot validate from ${item.state}` });
+      if (!item.sandbox?.instance)
+        return res.status(409).json({ error: 'isolated sandbox is not running' });
       const workspace = await git.worktreeSnapshot(item.workspace_path);
-      if (workspace.dirty) return res.status(409).json({ error: 'commit the worktree changes before validation' });
-      if (improvementAgent.status(root, item).running) return res.status(409).json({ error: 'wait for the implementation agent to finish' });
+      if (workspace.dirty)
+        return res.status(409).json({ error: 'commit the worktree changes before validation' });
+      if (improvementAgent.status(root, item).running)
+        return res.status(409).json({ error: 'wait for the implementation agent to finish' });
       let preview = {};
-      try { preview = await devsandbox.devStart(item.sandbox.instance); } catch (e) { preview = { status: 'error', error: e.message }; }
+      try {
+        preview = await devsandbox.devStart(item.sandbox.instance);
+      } catch (e) {
+        preview = { status: 'error', error: e.message };
+      }
       const validation = await devsandbox.validate(item.sandbox.instance);
       validation.commit = workspace.commit;
       validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
       validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
-      validation.passed = validation.passed && validation.preview.passed && validation.browser.passed;
-      const changed = events.updateImprovement(item.run_id, { validation,
-        preview_url: validation.preview.url || item.sandbox.devUrl });
-      events.record({ event_type: 'improvement.validated', source: 'improvement-workbench',
-        site_id: `site:${item.site}`, entity_type: 'improvement', entity_id: item.run_id,
-        correlation_id: item.correlation_id, payload: { passed: validation.passed, checks: validation.checks } });
+      validation.passed =
+        validation.passed && validation.preview.passed && validation.browser.passed;
+      const changed = events.updateImprovement(item.run_id, {
+        validation,
+        preview_url: validation.preview.url || item.sandbox.devUrl,
+      });
+      events.record({
+        event_type: 'improvement.validated',
+        source: 'improvement-workbench',
+        site_id: `site:${item.site}`,
+        entity_type: 'improvement',
+        entity_id: item.run_id,
+        correlation_id: item.correlation_id,
+        payload: { passed: validation.passed, checks: validation.checks },
+      });
       res.json({ run: changed, validation });
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
 
   app.post('/api/improvements/:id/agent', (req, res) => {
@@ -413,54 +568,102 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
       const task = findImprovementTask(root, item);
-      res.status(202).json(improvementAgent.start({ root, store: events, run: item, taskBody: task?.body }));
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+      res
+        .status(202)
+        .json(improvementAgent.start({ root, store: events, run: item, taskBody: task?.body }));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
 
   app.post('/api/improvements/:id/commit', async (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
-      if (item.state !== 'building' || !item.workspace_path) return res.status(409).json({ error: 'run is not build-ready' });
-      if (improvementAgent.status(root, item).running) return res.status(409).json({ error: 'wait for the implementation agent to finish' });
-      const snapshot = await git.commitWorktree(item.workspace_path, req.body?.message || `feat: ${item.title}`);
-      events.record({ event_type: 'improvement.change_committed', source: 'improvement-workbench', site_id: `site:${item.site}`,
-        entity_type: 'commit', entity_id: snapshot.commit, correlation_id: item.correlation_id, payload: snapshot });
+      if (item.state !== 'building' || !item.workspace_path)
+        return res.status(409).json({ error: 'run is not build-ready' });
+      if (improvementAgent.status(root, item).running)
+        return res.status(409).json({ error: 'wait for the implementation agent to finish' });
+      const snapshot = await git.commitWorktree(
+        item.workspace_path,
+        req.body?.message || `feat: ${item.title}`
+      );
+      events.record({
+        event_type: 'improvement.change_committed',
+        source: 'improvement-workbench',
+        site_id: `site:${item.site}`,
+        entity_type: 'commit',
+        entity_id: snapshot.commit,
+        correlation_id: item.correlation_id,
+        payload: snapshot,
+      });
       res.json({ workspace: snapshot });
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
 
   app.post('/api/improvements/:id/deploy', async (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
-      if (item.state !== 'review' || item.validation?.passed !== true) return res.status(409).json({ error: 'approved, passing review required' });
-      if (req.body?.confirm !== item.title) return res.status(400).json({ error: 'type the improvement title to approve deployment' });
+      if (item.state !== 'review' || item.validation?.passed !== true)
+        return res.status(409).json({ error: 'approved, passing review required' });
+      if (req.body?.confirm !== item.title)
+        return res.status(400).json({ error: 'type the improvement title to approve deployment' });
       const workspace = await git.worktreeSnapshot(item.workspace_path);
       if (workspace.dirty || workspace.commit !== item.validation.commit)
-        return res.status(409).json({ error: 'worktree changed after validation; commit and rerun quality gates' });
+        return res
+          .status(409)
+          .json({ error: 'worktree changed after validation; commit and rerun quality gates' });
       await syncImprovementTask(root, item, 'done');
       const deployed = await git.deployWorktree(root, item.site, item.workspace_path, item.branch);
-      const changed = improvements.transition(events, item.run_id, { state: 'deployed', deployment_id: deployed.commit,
-        measurement_due: null, approval: { approved_at: new Date().toISOString(), access: auth.accessLevel(req), confirmation: 'title' },
-        production_before: deployed.before });
-      if (item.sandbox?.instance) { try { await devsandbox.stop(item.sandbox.instance); } catch { /* already stopped */ } }
+      const changed = improvements.transition(events, item.run_id, {
+        state: 'deployed',
+        deployment_id: deployed.commit,
+        measurement_due: null,
+        approval: {
+          approved_at: new Date().toISOString(),
+          access: auth.accessLevel(req),
+          confirmation: 'title',
+        },
+        production_before: deployed.before,
+      });
+      if (item.sandbox?.instance) {
+        try {
+          await devsandbox.stop(item.sandbox.instance);
+        } catch {
+          /* already stopped */
+        }
+      }
       res.json({ run: changed, deployment: deployed });
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
 
   app.post('/api/improvements/:id/rollback', async (req, res) => {
     try {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
-      if (!['deployed', 'measuring', 'regressed'].includes(item.state)) return res.status(409).json({ error: `cannot roll back from ${item.state}` });
-      if (req.body?.confirm !== item.title) return res.status(400).json({ error: 'type the improvement title to confirm rollback' });
+      if (!['deployed', 'measuring', 'regressed'].includes(item.state))
+        return res.status(409).json({ error: `cannot roll back from ${item.state}` });
+      if (req.body?.confirm !== item.title)
+        return res.status(400).json({ error: 'type the improvement title to confirm rollback' });
       const result = await git.rollbackCommit(root, item.site, item.deployment_id);
-      const run = improvements.transition(events, item.run_id, { state: 'rolled-back',
-        outcome: { ...(item.outcome || {}), rolled_back_at: new Date().toISOString(), rollback_commit: result.localSha } });
+      const run = improvements.transition(events, item.run_id, {
+        state: 'rolled-back',
+        outcome: {
+          ...(item.outcome || {}),
+          rolled_back_at: new Date().toISOString(),
+          rollback_commit: result.localSha,
+        },
+      });
       await cleanupImprovementResources(root, item);
       res.json({ run, git: result });
-    } catch (e) { res.status(e.httpStatus || 500).json({ error: String(e.message || e) }); }
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
   });
 
   // SEO Intelligence joins first-party GSC data with the latest fleet-owned
@@ -494,7 +697,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const correlationId = `seo:${action.key}`;
       const taskId = crypto.randomUUID();
       const measurementDue = new Date(Date.now() + 28 * 86400000).toISOString().slice(0, 10);
-      const executionPlan = (action.plan || []).map((step, index) => `${index + 1}. ${step}`).join('\n');
+      const executionPlan = (action.plan || [])
+        .map((step, index) => `${index + 1}. ${step}`)
+        .join('\n');
       const file = tasks.create(root, site, 'backlog', {
         task_id: taskId,
         title: action.title,
@@ -519,13 +724,31 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           `seo-intelligence-key: ${action.key}\n`,
       });
       events.record({
-        event_type: 'recommendation.task_filed', source: 'seo-intelligence',
-        site_id: `site:${site}`, entity_type: 'task', entity_id: taskId,
+        event_type: 'recommendation.task_filed',
+        source: 'seo-intelligence',
+        site_id: `site:${site}`,
+        entity_type: 'task',
+        entity_id: taskId,
         correlation_id: correlationId,
-        payload: { action_key: action.key, file, assigned_role: assignedRole, baseline: action.metric || null, measurement_due: measurementDue },
+        payload: {
+          action_key: action.key,
+          file,
+          assigned_role: assignedRole,
+          baseline: action.metric || null,
+          measurement_due: measurementDue,
+        },
       });
       seoIntelligence.clearCache();
-      res.status(201).json({ ok: true, file, site, task_id: taskId, correlation_id: correlationId, assigned_role: assignedRole });
+      res
+        .status(201)
+        .json({
+          ok: true,
+          file,
+          site,
+          task_id: taskId,
+          correlation_id: correlationId,
+          assigned_role: assignedRole,
+        });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
@@ -722,6 +945,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  // Seven-day role health: observed logs/pulses, failures, AI cost, and
+  // prompt/runner drift. The role matrix remains the enrollment source.
+  app.get('/api/agents/:role/health', async (req, res) => {
+    try {
+      const now = new Date();
+      const day = d => d.toISOString().slice(0, 10);
+      const from = new Date(now.getTime() - 7 * 86400 * 1000);
+      const usage = await aiusage.fleet(root, { from: day(from), to: day(now) });
+      res.json(await roles.health(root, req.params.role, discoverSites(root), usage));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
   // Writer-role turn-budget audit (delegates to tools/task-budget/turn_budget.py
   // audit --json): static vs. computed --max-turns per site/role, plus
   // dead-role backlog task drift.
@@ -796,13 +1033,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // straight from registry/fleet.yaml, not from site discovery: a scaffold
   // runs nothing, so it is invisible to every other roster in this panel.
   app.get('/api/scaffolds', (req, res) =>
-    res.json(scaffolds.all(root, { fresh: req.query.fresh === '1' })));
+    res.json(scaffolds.all(root, { fresh: req.query.fresh === '1' }))
+  );
 
   // Domain renewals (F51) — served from tools/registrar's cache, never a live
   // Cloudflare call. auto_renew matters more than the date: an expiry 40 days
   // out is routine if it renews itself and an emergency if it does not.
   app.get('/api/registrar', (req, res) =>
-    res.json(registrar.all(root, { fresh: req.query.fresh === '1' })));
+    res.json(registrar.all(root, { fresh: req.query.fresh === '1' }))
+  );
 
   // fleet-doctor (F33) — container/image invariants across every cron site.
   // Served from a background sweep; POST re-runs it on demand.
@@ -862,6 +1101,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/automation/:slug/roles', requireSite, (req, res) => {
     try {
       res.json(automation.createRole(root, req.params.slug, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.delete('/api/automation/:slug/roles/:role', requireSite, (req, res) => {
+    try {
+      res.json(automation.removeRole(root, req.params.slug, req.params.role));
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -1120,18 +1366,37 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const body = req.body || {};
       const correlations = [];
       for (const rel of Array.isArray(body.paths) ? body.paths : []) {
-        if (!/^ops\/tasks\/(?:backlog|in-progress|done|hold)\/[A-Za-z0-9._-]+\.md$/.test(rel)) continue;
+        if (!/^ops\/tasks\/(?:backlog|in-progress|done|hold)\/[A-Za-z0-9._-]+\.md$/.test(rel))
+          continue;
         try {
           const [, , column, file] = rel.split('/');
           const task = tasks.get(root, req.params.slug, column, file);
-          correlations.push({ task_id: task.meta.task_id || `legacy:${req.params.slug}:${file}`, correlation_id: task.meta.correlation_id || null, file });
-        } catch { /* selected task may be a deletion */ }
+          correlations.push({
+            task_id: task.meta.task_id || `legacy:${req.params.slug}:${file}`,
+            correlation_id: task.meta.correlation_id || null,
+            file,
+          });
+        } catch {
+          /* selected task may be a deletion */
+        }
       }
       const result = await git.commit(root, req.params.slug, body.paths, body.message);
       const after = await git.status(root, req.params.slug);
-      for (const link of correlations) events.record({ event_type: 'change.committed', source: 'fleet-dashboard',
-        site_id: `site:${req.params.slug}`, entity_type: 'commit', entity_id: after.localSha,
-        correlation_id: link.correlation_id || `task:${link.task_id}`, payload: { task_id: link.task_id, file: link.file, paths: body.paths, message: body.message } });
+      for (const link of correlations)
+        events.record({
+          event_type: 'change.committed',
+          source: 'fleet-dashboard',
+          site_id: `site:${req.params.slug}`,
+          entity_type: 'commit',
+          entity_id: after.localSha,
+          correlation_id: link.correlation_id || `task:${link.task_id}`,
+          payload: {
+            task_id: link.task_id,
+            file: link.file,
+            paths: body.paths,
+            message: body.message,
+          },
+        });
       res.json({ ...result, commit: after.localSha, correlations: correlations.length });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -1150,8 +1415,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const before = await git.status(root, req.params.slug);
       const result = await git.push(root, req.params.slug);
-      events.record({ event_type: 'change.pushed', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
-        entity_type: 'commit', entity_id: before.localSha, payload: { branch: before.branch } });
+      events.record({
+        event_type: 'change.pushed',
+        source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`,
+        entity_type: 'commit',
+        entity_id: before.localSha,
+        payload: { branch: before.branch },
+      });
       res.json(result);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -1240,10 +1511,26 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       payload.source ||= 'fleet-dashboard';
       payload.correlation_id ||= `task:${payload.task_id}`;
       const file = tasks.create(root, req.params.slug, req.params.column, payload);
-      events.record({ event_type: 'task.created', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
-        entity_type: 'task', entity_id: payload.task_id, correlation_id: payload.correlation_id,
-        payload: { file, column: req.params.column, title: payload.title || 'Untitled task', assigned_role: payload.assigned_role || null } });
-      res.json({ ok: true, file, task_id: payload.task_id, correlation_id: payload.correlation_id });
+      events.record({
+        event_type: 'task.created',
+        source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`,
+        entity_type: 'task',
+        entity_id: payload.task_id,
+        correlation_id: payload.correlation_id,
+        payload: {
+          file,
+          column: req.params.column,
+          title: payload.title || 'Untitled task',
+          assigned_role: payload.assigned_role || null,
+        },
+      });
+      res.json({
+        ok: true,
+        file,
+        task_id: payload.task_id,
+        correlation_id: payload.correlation_id,
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -1255,15 +1542,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const taskId = before.meta.task_id || `legacy:${req.params.slug}:${req.params.file}`;
       const correlationId = before.meta.correlation_id || `task:${taskId}`;
       const file = tasks.update(
-          root,
-          req.params.slug,
-          req.params.column,
-          req.params.file,
-          req.body || {}
-        );
-      events.record({ event_type: 'task.updated', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
-        entity_type: 'task', entity_id: taskId, correlation_id: correlationId,
-        payload: { file: req.params.file, column: req.params.column } });
+        root,
+        req.params.slug,
+        req.params.column,
+        req.params.file,
+        req.body || {}
+      );
+      events.record({
+        event_type: 'task.updated',
+        source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`,
+        entity_type: 'task',
+        entity_id: taskId,
+        correlation_id: correlationId,
+        payload: { file: req.params.file, column: req.params.column },
+      });
       res.json({ ok: true, file });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -1276,15 +1569,26 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const taskId = before.meta.task_id || `legacy:${req.params.slug}:${req.params.file}`;
       const correlationId = before.meta.correlation_id || `task:${taskId}`;
       const moved = tasks.move(
-          root,
-          req.params.slug,
-          req.params.column,
-          req.params.file,
-          (req.body || {}).to
-        );
-      events.record({ event_type: moved.column === 'done' ? 'task.completed' : 'task.moved', source: 'fleet-dashboard',
-        site_id: `site:${req.params.slug}`, entity_type: 'task', entity_id: taskId, correlation_id: correlationId,
-        payload: { file: moved.file, from: req.params.column, to: moved.column, measurement_due: before.meta.measurement_due || null } });
+        root,
+        req.params.slug,
+        req.params.column,
+        req.params.file,
+        (req.body || {}).to
+      );
+      events.record({
+        event_type: moved.column === 'done' ? 'task.completed' : 'task.moved',
+        source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`,
+        entity_type: 'task',
+        entity_id: taskId,
+        correlation_id: correlationId,
+        payload: {
+          file: moved.file,
+          from: req.params.column,
+          to: moved.column,
+          measurement_due: before.meta.measurement_due || null,
+        },
+      });
       res.json({ ok: true, ...moved });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -1296,9 +1600,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const before = tasks.get(root, req.params.slug, req.params.column, req.params.file);
       const taskId = before.meta.task_id || `legacy:${req.params.slug}:${req.params.file}`;
       const removed = tasks.remove(root, req.params.slug, req.params.column, req.params.file);
-      events.record({ event_type: 'task.trashed', source: 'fleet-dashboard', site_id: `site:${req.params.slug}`,
-        entity_type: 'task', entity_id: taskId, correlation_id: before.meta.correlation_id || `task:${taskId}`,
-        payload: { file: req.params.file, from: req.params.column, trashed: removed.trashed } });
+      events.record({
+        event_type: 'task.trashed',
+        source: 'fleet-dashboard',
+        site_id: `site:${req.params.slug}`,
+        entity_type: 'task',
+        entity_id: taskId,
+        correlation_id: before.meta.correlation_id || `task:${taskId}`,
+        payload: { file: req.params.file, from: req.params.column, trashed: removed.trashed },
+      });
       res.json(removed);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -1801,33 +2111,45 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
 function findImprovementTask(root, run) {
   for (const column of tasks.COLUMNS) {
-    try { return { ...tasks.get(root, run.site, column, run.task_file), column }; }
-    catch { /* try next column */ }
+    try {
+      return { ...tasks.get(root, run.site, column, run.task_file), column };
+    } catch {
+      /* try next column */
+    }
   }
   return null;
 }
 
 async function syncImprovementTask(root, run, target) {
   const current = findImprovementTask(root, run);
-  if (!current) throw Object.assign(new Error('linked improvement task is missing'), { httpStatus: 409 });
+  if (!current)
+    throw Object.assign(new Error('linked improvement task is missing'), { httpStatus: 409 });
   if (current.column === target) return current;
   const moved = tasks.move(root, run.site, current.column, run.task_file, target);
-  const paths = [`ops/tasks/${current.column}/${run.task_file}`, `ops/tasks/${target}/${moved.file}`];
+  const paths = [
+    `ops/tasks/${current.column}/${run.task_file}`,
+    `ops/tasks/${target}/${moved.file}`,
+  ];
   await git.commit(root, run.site, paths, `chore: mark improvement ${target}`);
   return { ...moved, previous: current.column };
 }
 
 async function cleanupImprovementResources(root, run) {
   if (run.workspace_path) {
-    try { await git.removeWorktree(root, run.site, run.run_id); }
-    catch (error) {
+    try {
+      await git.removeWorktree(root, run.site, run.run_id);
+    } catch (error) {
       if (error.httpStatus !== 409) throw error;
       // Preserve a dirty worktree for recovery rather than deleting evidence.
       return { cleaned: false, error: error.message };
     }
   }
   if (run.sandbox?.instance) {
-    try { await devsandbox.remove(run.sandbox.instance); } catch { /* already absent */ }
+    try {
+      await devsandbox.remove(run.sandbox.instance);
+    } catch {
+      /* already absent */
+    }
   }
   return { cleaned: true };
 }
@@ -1835,37 +2157,74 @@ async function cleanupImprovementResources(root, run) {
 async function validatePreview(instance, url) {
   const out = { url: url || null, passed: false, checks: {} };
   if (!/^http:\/\/127\.0\.0\.1:\d+\/$/.test(String(url || ''))) {
-    out.error = 'sandbox preview URL is unavailable'; return out;
-  }
-  for (let attempt = 1; attempt <= 5; attempt += 1) try {
-    const response = await devsandbox.preview(instance, '/');
-    if (!response.ok && response.error) throw new Error(response.error);
-    const html = response.body;
-    const images = [...html.matchAll(/<img\b[^>]*>/gi)].map(m => m[0]);
-    out.checks = {
-      http: { status: response.ok ? 'pass' : 'fail', evidence: `HTTP ${response.status}` },
-      title: { status: /<title>[^<]+<\/title>/i.test(html) ? 'pass' : 'fail' },
-      description: { status: /<meta\s+[^>]*name=["']description["'][^>]*content=["'][^"']+/i.test(html) || /<meta\s+[^>]*content=["'][^"']+[^>]*name=["']description["']/i.test(html) ? 'pass' : 'fail' },
-      viewport: { status: /<meta\s+[^>]*name=["']viewport["']/i.test(html) ? 'pass' : 'fail' },
-      image_alt: { status: images.every(tag => /\balt=["'][^"']*["']/i.test(tag)) ? 'pass' : 'fail', evidence: `${images.length} image(s)` },
-      analytics: { status: /G-[A-Z0-9]+|googletagmanager|dataLayer/i.test(html) ? 'pass' : 'warn' },
-      accessibility_structure: { status: /<main\b/i.test(html) && /<h1\b/i.test(html) && /\blang=["'][^"']+/i.test(html) ? 'pass' : 'fail' },
-      structured_data: { status: /application\/ld\+json/i.test(html) ? 'pass' : 'warn' },
-    };
-    const hrefs = [...html.matchAll(/<a\b[^>]*href=["']([^"'#]+)["']/gi)].map(m => m[1])
-      .filter(href => href.startsWith('/')).slice(0, 20);
-    const broken = [];
-    for (const href of [...new Set(hrefs)]) {
-      try { const link = await devsandbox.preview(instance, href); if (!link.ok) broken.push(`${href} (${link.status || 'error'})`); }
-      catch { broken.push(`${href} (unreachable)`); }
-    }
-    out.checks.internal_links = { status: broken.length ? 'fail' : 'pass', evidence: broken.length ? broken.join(', ') : `${hrefs.length} checked` };
-    out.passed = response.ok && ['http', 'title', 'description', 'viewport', 'image_alt', 'accessibility_structure', 'internal_links'].every(k => out.checks[k].status === 'pass');
+    out.error = 'sandbox preview URL is unavailable';
     return out;
-  } catch (error) {
-    out.error = error.name === 'TimeoutError' ? 'preview timeout' : error.message;
-    if (attempt < 5) await new Promise(resolve => setTimeout(resolve, 1000));
   }
+  for (let attempt = 1; attempt <= 5; attempt += 1)
+    try {
+      const response = await devsandbox.preview(instance, '/');
+      if (!response.ok && response.error) throw new Error(response.error);
+      const html = response.body;
+      const images = [...html.matchAll(/<img\b[^>]*>/gi)].map(m => m[0]);
+      out.checks = {
+        http: { status: response.ok ? 'pass' : 'fail', evidence: `HTTP ${response.status}` },
+        title: { status: /<title>[^<]+<\/title>/i.test(html) ? 'pass' : 'fail' },
+        description: {
+          status:
+            /<meta\s+[^>]*name=["']description["'][^>]*content=["'][^"']+/i.test(html) ||
+            /<meta\s+[^>]*content=["'][^"']+[^>]*name=["']description["']/i.test(html)
+              ? 'pass'
+              : 'fail',
+        },
+        viewport: { status: /<meta\s+[^>]*name=["']viewport["']/i.test(html) ? 'pass' : 'fail' },
+        image_alt: {
+          status: images.every(tag => /\balt=["'][^"']*["']/i.test(tag)) ? 'pass' : 'fail',
+          evidence: `${images.length} image(s)`,
+        },
+        analytics: {
+          status: /G-[A-Z0-9]+|googletagmanager|dataLayer/i.test(html) ? 'pass' : 'warn',
+        },
+        accessibility_structure: {
+          status:
+            /<main\b/i.test(html) && /<h1\b/i.test(html) && /\blang=["'][^"']+/i.test(html)
+              ? 'pass'
+              : 'fail',
+        },
+        structured_data: { status: /application\/ld\+json/i.test(html) ? 'pass' : 'warn' },
+      };
+      const hrefs = [...html.matchAll(/<a\b[^>]*href=["']([^"'#]+)["']/gi)]
+        .map(m => m[1])
+        .filter(href => href.startsWith('/'))
+        .slice(0, 20);
+      const broken = [];
+      for (const href of [...new Set(hrefs)]) {
+        try {
+          const link = await devsandbox.preview(instance, href);
+          if (!link.ok) broken.push(`${href} (${link.status || 'error'})`);
+        } catch {
+          broken.push(`${href} (unreachable)`);
+        }
+      }
+      out.checks.internal_links = {
+        status: broken.length ? 'fail' : 'pass',
+        evidence: broken.length ? broken.join(', ') : `${hrefs.length} checked`,
+      };
+      out.passed =
+        response.ok &&
+        [
+          'http',
+          'title',
+          'description',
+          'viewport',
+          'image_alt',
+          'accessibility_structure',
+          'internal_links',
+        ].every(k => out.checks[k].status === 'pass');
+      return out;
+    } catch (error) {
+      out.error = error.name === 'TimeoutError' ? 'preview timeout' : error.message;
+      if (attempt < 5) await new Promise(resolve => setTimeout(resolve, 1000));
+    }
   return out;
 }
 

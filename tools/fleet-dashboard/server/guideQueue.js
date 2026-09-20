@@ -2,7 +2,7 @@
 
 // Guide Queue — same file-kanban model as tasks.js (mirrored on purpose),
 // for the guide-writing pipeline: ops/guide-queue/{ideas,drafted,ready,
-// released,rejected}/*.md. Backs the Fleet Dashboard's Guides tab.
+// released,rejected}/*.md. Backs Domain Fleet Manager's Guides tab.
 //
 // See tools/guide-queue/lib/guide_queue.py — the Python side the cron roles
 // use. This is the same frontmatter contract read/written from Node instead.
@@ -15,30 +15,61 @@ const { siteDir } = require('./sites');
 const STATUSES = ['ideas', 'drafted', 'ready', 'released', 'rejected'];
 
 const QUEUE_FIELDS = [
-  'queue_id', 'queue_status', 'source', 'created', 'brief', 'notes',
-  'hero_image', 'card_image',
+  'queue_id',
+  'queue_status',
+  'source',
+  'created',
+  'brief',
+  'notes',
+  'hero_image',
+  'card_image',
 ];
 
-const FIELD_ORDER = [...QUEUE_FIELDS, 'title', 'description', 'category',
-  'updated', 'published', 'author', 'featuredProducts', 'faq', 'schemaType', 'steps'];
+const FIELD_ORDER = [
+  ...QUEUE_FIELDS,
+  'title',
+  'description',
+  'category',
+  'updated',
+  'published',
+  'author',
+  'featuredProducts',
+  'faq',
+  'schemaType',
+  'steps',
+];
 
 const SCHEMA = yaml.CORE_SCHEMA; // same rationale as tasks.js: keep `created: 2026-08-10` a string
 
-function isValidStatus(s) { return STATUSES.includes(s); }
+function isValidStatus(s) {
+  return STATUSES.includes(s);
+}
 
 // Same filename-safety rule as tasks.js.
 function isValidFilename(name) {
-  return typeof name === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]*\.md$/.test(name) && !name.includes('..');
+  return (
+    typeof name === 'string' &&
+    /^[A-Za-z0-9][A-Za-z0-9._-]*\.md$/.test(name) &&
+    !name.includes('..')
+  );
 }
 
-function queueDir(root, slug) { return path.join(siteDir(root, slug), 'ops', 'guide-queue'); }
-function statusDir(root, slug, status) { return path.join(queueDir(root, slug), status); }
+function queueDir(root, slug) {
+  return path.join(siteDir(root, slug), 'ops', 'guide-queue');
+}
+function statusDir(root, slug, status) {
+  return path.join(queueDir(root, slug), status);
+}
 
 function parseItem(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!m) return { meta: {}, body: text };
   let meta = {};
-  try { meta = yaml.load(m[1], { schema: SCHEMA }) || {}; } catch { meta = {}; }
+  try {
+    meta = yaml.load(m[1], { schema: SCHEMA }) || {};
+  } catch {
+    meta = {};
+  }
   if (typeof meta !== 'object' || Array.isArray(meta)) meta = {};
   return { meta, body: m[2] };
 }
@@ -52,23 +83,37 @@ function serializeItem(meta, body) {
     clean[k] = v;
   }
   const ordered = {};
-  for (const k of FIELD_ORDER) if (k in clean) { ordered[k] = clean[k]; delete clean[k]; }
+  for (const k of FIELD_ORDER)
+    if (k in clean) {
+      ordered[k] = clean[k];
+      delete clean[k];
+    }
   for (const k of Object.keys(clean)) ordered[k] = clean[k];
   const cleanBody = (body || '').replace(/^\n+/, '').replace(/\n+$/, '');
-  const fm = yaml.dump(ordered, { schema: SCHEMA, lineWidth: 100, quotingType: '"', forceQuotes: false }).trimEnd();
+  const fm = yaml
+    .dump(ordered, { schema: SCHEMA, lineWidth: 100, quotingType: '"', forceQuotes: false })
+    .trimEnd();
   return `---\n${fm}\n---\n\n${cleanBody}\n`;
 }
 
 function readItemCard(dir, status, name, slug) {
   if (!name.endsWith('.md')) return null;
   const fp = path.join(dir, name);
-  let st; try { st = fs.statSync(fp); } catch { return null; }
+  let st;
+  try {
+    st = fs.statSync(fp);
+  } catch {
+    return null;
+  }
   if (!st.isFile()) return null;
   const { meta, body } = parseItem(fs.readFileSync(fp, 'utf8'));
   const excerpt = body.replace(/^#.*$/gm, '').replace(/\s+/g, ' ').trim().slice(0, 200);
   return {
-    site: slug, file: name, status,
-    title: meta.title || meta.brief && String(meta.brief).slice(0, 60) || name.replace(/\.md$/, ''),
+    site: slug,
+    file: name,
+    status,
+    title:
+      meta.title || (meta.brief && String(meta.brief).slice(0, 60)) || name.replace(/\.md$/, ''),
     category: meta.category || null,
     source: meta.source || null,
     created: meta.created ? String(meta.created) : null,
@@ -86,7 +131,11 @@ function list(root, slug) {
     out[status] = [];
     const dir = path.join(base, status);
     let names = [];
-    try { names = fs.readdirSync(dir); } catch { names = []; }
+    try {
+      names = fs.readdirSync(dir);
+    } catch {
+      names = [];
+    }
     for (const name of names.sort()) {
       const card = readItemCard(dir, status, name, slug);
       if (card) out[status].push(card);
@@ -104,7 +153,11 @@ function listAll(root, slugs) {
     for (const status of STATUSES) {
       const dir = path.join(base, status);
       let names = [];
-      try { names = fs.readdirSync(dir); } catch { continue; }
+      try {
+        names = fs.readdirSync(dir);
+      } catch {
+        continue;
+      }
       for (const name of names.sort()) {
         const card = readItemCard(dir, status, name, slug);
         if (card) all.push(card);
@@ -116,13 +169,17 @@ function listAll(root, slugs) {
 
 // Full item content incl. body + resolvable image paths, for the preview modal.
 function get(root, slug, status, file) {
-  if (!isValidStatus(status) || !isValidFilename(file)) throw httpErr(400, 'bad status or filename');
+  if (!isValidStatus(status) || !isValidFilename(file))
+    throw httpErr(400, 'bad status or filename');
   const fp = path.join(statusDir(root, slug, status), file);
   if (!fs.existsSync(fp)) throw httpErr(404, 'item not found');
   const raw = fs.readFileSync(fp, 'utf8');
   const { meta, body } = parseItem(raw);
   const images = {};
-  for (const [key, field] of [['hero', 'hero_image'], ['card', 'card_image']]) {
+  for (const [key, field] of [
+    ['hero', 'hero_image'],
+    ['card', 'card_image'],
+  ]) {
     if (meta[field]) {
       const abs = path.join(siteDir(root, slug), meta[field]);
       images[key] = fs.existsSync(abs)
@@ -144,7 +201,7 @@ function imagePath(root, slug, relPath) {
     path.resolve(base, 'ops', 'guide-queue', 'drafted-assets'),
     path.resolve(base, 'site', 'public', 'images'),
   ];
-  if (!allowedRoots.some((r) => abs === r || abs.startsWith(r + path.sep))) {
+  if (!allowedRoots.some(r => abs === r || abs.startsWith(r + path.sep))) {
     throw httpErr(400, 'path outside allowed image roots');
   }
   if (!fs.existsSync(abs)) throw httpErr(404, 'image not found');
@@ -152,12 +209,18 @@ function imagePath(root, slug, relPath) {
 }
 
 function slugify(s) {
-  return String(s || 'guide').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'guide';
+  return (
+    String(s || 'guide')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'guide'
+  );
 }
 
 function today() {
   const d = new Date();
-  const p = (n) => String(n).padStart(2, '0');
+  const p = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
@@ -177,8 +240,12 @@ function addIdea(root, slug, payload) {
   };
   const dir = statusDir(root, slug, 'ideas');
   fs.mkdirSync(dir, { recursive: true });
-  let name = `${qid}.md`, n = 2;
-  while (fs.existsSync(path.join(dir, name))) { name = `${qid}-${n}.md`; n += 1; }
+  let name = `${qid}.md`,
+    n = 2;
+  while (fs.existsSync(path.join(dir, name))) {
+    name = `${qid}-${n}.md`;
+    n += 1;
+  }
   fs.writeFileSync(path.join(dir, name), serializeItem(meta, ''));
   return name;
 }
@@ -194,12 +261,25 @@ function move(root, slug, fromStatus, file, toStatus) {
   if (!fs.existsSync(from)) throw httpErr(404, 'item not found');
   const toDir = statusDir(root, slug, toStatus);
   fs.mkdirSync(toDir, { recursive: true });
-  let dest = path.join(toDir, file), name = file, n = 2;
-  while (fs.existsSync(dest)) { name = file.replace(/\.md$/, `-${n}.md`); dest = path.join(toDir, name); n += 1; }
+  let dest = path.join(toDir, file),
+    name = file,
+    n = 2;
+  while (fs.existsSync(dest)) {
+    name = file.replace(/\.md$/, `-${n}.md`);
+    dest = path.join(toDir, name);
+    n += 1;
+  }
   // Keep queue_status in sync with its new directory.
   const raw = fs.readFileSync(from, 'utf8');
   const { meta, body } = parseItem(raw);
-  meta.queue_status = { ideas: 'idea', drafted: 'drafted', ready: 'ready', released: 'released', rejected: 'rejected' }[toStatus] || toStatus;
+  meta.queue_status =
+    {
+      ideas: 'idea',
+      drafted: 'drafted',
+      ready: 'ready',
+      released: 'released',
+      rejected: 'rejected',
+    }[toStatus] || toStatus;
   fs.writeFileSync(from, serializeItem(meta, body));
   fs.renameSync(from, dest);
   return { status: toStatus, file: name };
@@ -209,7 +289,8 @@ function move(root, slug, fromStatus, file, toStatus) {
 // only — the actual guide body is the writer role's job, not a dashboard
 // text field).
 function update(root, slug, status, file, payload) {
-  if (!isValidStatus(status) || !isValidFilename(file)) throw httpErr(400, 'bad status or filename');
+  if (!isValidStatus(status) || !isValidFilename(file))
+    throw httpErr(400, 'bad status or filename');
   const fp = path.join(statusDir(root, slug, status), file);
   if (!fs.existsSync(fp)) throw httpErr(404, 'item not found');
   const { meta, body } = parseItem(fs.readFileSync(fp, 'utf8'));
@@ -227,12 +308,18 @@ function update(root, slug, status, file, payload) {
 // yaml.dump round-trip would strip them — this file is meant to stay
 // human-readable, same reasoning as tasks.js's comment about CORE_SCHEMA).
 
-function trackedYamlPath(root, slug) { return path.join(siteDir(root, slug), 'ops', 'tracked.yaml'); }
+function trackedYamlPath(root, slug) {
+  return path.join(siteDir(root, slug), 'ops', 'tracked.yaml');
+}
 
 function getConfig(root, slug) {
   const fp = trackedYamlPath(root, slug);
   let data = {};
-  try { data = yaml.load(fs.readFileSync(fp, 'utf8'), { schema: SCHEMA }) || {}; } catch { data = {}; }
+  try {
+    data = yaml.load(fs.readFileSync(fp, 'utf8'), { schema: SCHEMA }) || {};
+  } catch {
+    data = {};
+  }
   const manual = (data && data.manual) || {};
   return {
     guide_cadence_days: manual.guide_cadence_days != null ? Number(manual.guide_cadence_days) : 5,
@@ -241,7 +328,8 @@ function getConfig(root, slug) {
 }
 
 function setConfigField(root, slug, field, value) {
-  if (!['guide_cadence_days', 'guide_ideas_min'].includes(field)) throw httpErr(400, 'unknown config field');
+  if (!['guide_cadence_days', 'guide_ideas_min'].includes(field))
+    throw httpErr(400, 'unknown config field');
   const n = Number(value);
   if (!Number.isFinite(n) || n < 1) throw httpErr(400, 'value must be a positive number');
   const fp = trackedYamlPath(root, slug);
@@ -262,10 +350,23 @@ function setConfigField(root, slug, field, value) {
   return getConfig(root, slug);
 }
 
-function httpErr(status, msg) { const e = new Error(msg); e.httpStatus = status; return e; }
+function httpErr(status, msg) {
+  const e = new Error(msg);
+  e.httpStatus = status;
+  return e;
+}
 
 module.exports = {
-  STATUSES, list, listAll, get, imagePath, addIdea, move, update,
-  getConfig, setConfigField,
-  parseItem, serializeItem,
+  STATUSES,
+  list,
+  listAll,
+  get,
+  imagePath,
+  addIdea,
+  move,
+  update,
+  getConfig,
+  setConfigField,
+  parseItem,
+  serializeItem,
 };

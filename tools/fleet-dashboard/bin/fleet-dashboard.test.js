@@ -110,7 +110,7 @@ test('up always supplies the shared env file and waits for health', t => {
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.calls, new RegExp(`^compose --env-file ${f.envFile} up -d panel$`, 'm'));
   assert.match(result.gids, /^1234$/m);
-  assert.match(result.stdout, /Fleet Dashboard ready/);
+  assert.match(result.stdout, /Domain Fleet Manager ready/);
 });
 
 test('socket numeric GID overrides a mismatched named docker group', t => {

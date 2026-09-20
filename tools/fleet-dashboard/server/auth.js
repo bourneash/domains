@@ -1,6 +1,6 @@
 'use strict';
 
-// Access control for the fleet dashboard (F1 / addresses B2, B3).
+// Access control for Domain Fleet Manager (F1 / addresses B2, B3).
 //
 // Two independent layers, both installed as Express middleware:
 //
@@ -44,11 +44,19 @@ const RAW_TOKENS = AUTH_DISABLED
       .map(t => t.trim())
       .filter(Boolean);
 const TOKENS = RAW_TOKENS.filter(t => !t.startsWith('viewer:'));
-const INLINE_VIEWER_TOKENS = RAW_TOKENS.filter(t => t.startsWith('viewer:')).map(t => t.slice(7)).filter(Boolean);
+const INLINE_VIEWER_TOKENS = RAW_TOKENS.filter(t => t.startsWith('viewer:'))
+  .map(t => t.slice(7))
+  .filter(Boolean);
 const TOKEN = TOKENS[0] || null;
 const VIEWER_TOKENS = AUTH_DISABLED
   ? []
-  : [...INLINE_VIEWER_TOKENS, ...(process.env.FD_VIEWER_TOKENS || '').split(',').map(t => t.trim()).filter(Boolean)];
+  : [
+      ...INLINE_VIEWER_TOKENS,
+      ...(process.env.FD_VIEWER_TOKENS || '')
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean),
+    ];
 const AUTH_REQUIRED = Boolean(TOKEN || VIEWER_TOKENS.length);
 const COOKIE = 'fd_auth';
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 3600;
@@ -132,12 +140,14 @@ function renewSessionCookie(req, res) {
 
 function authed(req) {
   if (!AUTH_REQUIRED) return true; // token gate disabled
-  if (tokenValid(req.headers['x-fd-token']) || viewerTokenValid(req.headers['x-fd-token'])) return true;
+  if (tokenValid(req.headers['x-fd-token']) || viewerTokenValid(req.headers['x-fd-token']))
+    return true;
   return sessionCookieValid(req); // cookie (browser)
 }
 
 function accessLevel(req) {
-  if (!AUTH_REQUIRED || tokenValid(req.headers['x-fd-token']) || sessionCookieValid(req)) return 'operator';
+  if (!AUTH_REQUIRED || tokenValid(req.headers['x-fd-token']) || sessionCookieValid(req))
+    return 'operator';
   if (viewerTokenValid(req.headers['x-fd-token'])) return 'viewer';
   return null;
 }
@@ -167,7 +177,10 @@ function apiGuard(req, res, next) {
 // POST /api/login { token } — validates and sets the auth cookie.
 function loginHandler(req, res) {
   if (!AUTH_REQUIRED) return res.json({ ok: true, authRequired: false });
-  if (!TOKEN) return res.status(403).json({ error: 'browser login is unavailable for viewer-only configuration' });
+  if (!TOKEN)
+    return res
+      .status(403)
+      .json({ error: 'browser login is unavailable for viewer-only configuration' });
   if (!tokenValid((req.body || {}).token)) return res.status(401).json({ error: 'invalid token' });
   setSessionCookie(res);
   res.json({ ok: true });

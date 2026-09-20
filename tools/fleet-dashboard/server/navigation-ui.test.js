@@ -1,0 +1,63 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const test = require('node:test');
+const vm = require('node:vm');
+
+const publicDir = path.join(__dirname, 'public');
+
+function routeFor(hash) {
+  const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = source.indexOf('function topViews()');
+  const end = source.indexOf('// FRESH = true', start);
+  assert.ok(start >= 0 && end > start);
+  const context = { location: { hash }, URLSearchParams };
+  vm.runInNewContext(`${source.slice(start, end)}\nglobalThis.result = parseHash();`, context);
+  return context.result;
+}
+
+test('navigation category roots are first-class routes', () => {
+  for (const view of ['agents', 'ops', 'content', 'growth', 'quality']) {
+    assert.equal(routeFor(`#${view}`).view, view);
+  }
+});
+
+test('sidebar category navigation and disclosure use separate controls', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /class="rl-h-main"/);
+  assert.match(shell, /class="rl-toggle"/);
+  assert.match(
+    shell,
+    /location\.hash = h\.dataset\.root;\s+toggleSection\(h\.closest\('\.rl-sec'\)\)/
+  );
+  assert.doesNotMatch(shell, /an active item inside a collapsed section/);
+});
+
+test('category cards share the sidebar icon system', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /globalThis\.fleetNavIcon = icon/);
+  assert.match(app, /class="nav-root-icon"[^>]*>\$\{typeof globalThis\.fleetNavIcon/);
+});
+
+test('agent pages expose enrollment actions that open the automation editor', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="btn sm ag-enroll"/);
+  assert.match(app, /AUTO_ROLE_DRAFT = \{/);
+  assert.match(app, /go\('automation'\)/);
+  assert.match(app, /Enrolling \$\{esc\(roleDraft\.role\)\}/);
+  assert.match(app, /Sites not enrolled in Engineer/);
+  assert.match(app, /Every discovered site is enrolled in Engineer/);
+  assert.match(app, /removeRoleEnrollment\(button\.dataset\.site, button\.dataset\.role, button\)/);
+  assert.match(app, /Remove \$\{role\} from \$\{site\}/);
+  assert.match(app, /rebuilding cron/);
+  assert.match(app, /Agent health · last/);
+  assert.match(app, /class="btn sm ag-health-details"[^>]*>Expand<\/button>/);
+  assert.match(app, /function toggleHealthDetail\(button\)/);
+  assert.match(app, /ag-health-detail-grid/);
+  assert.match(app, /function fmtDate\(value\)/);
+  assert.match(app, /Pause unhealthy/);
+  assert.match(app, /Rerun failed/);
+});
