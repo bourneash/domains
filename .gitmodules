@@ -171,3 +171,9 @@
 [submodule "sites/saltwaternews.com"]
 	path = sites/saltwaternews.com
 	url = git@github-bourneash:bourneash/saltwaternews.com.git
+[submodule "sites/searchwoot.com"]
+	path = sites/searchwoot.com
+	url = git@github-bourneash:bourneash/searchwoot.com.git
+[submodule "sites/blackmarketapparel.com"]
+	path = sites/blackmarketapparel.com
+	url = git@github-bourneash:bourneash/blackmarketapparel.com.git

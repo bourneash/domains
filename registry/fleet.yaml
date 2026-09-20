@@ -780,6 +780,23 @@ sites:
     - domains-index
     - site-tracker
     - social
+  searchwoot.com:
+    status: live
+    repo: bourneash/searchwoot.com
+    worker: searchwoot-com
+    cf_zone: searchwoot.com
+    slack_channel_env: SLACK_CHANNEL_SEARCHWOOT
+    capabilities:
+    - site
+    - ops
+    - cron
+    - social
+    - smoke
+    - tasks
+    registered_in:
+    - domains-index
+    - site-tracker
+    - social
   seedstosauce.com:
     status: live
     repo: bourneash/seedstosauce.com
@@ -915,6 +932,7 @@ sites:
     cf_zone: therareunicorn.com
     capabilities:
     - site
+    - ops
     registered_in:
     - domains-index
     - site-tracker
@@ -1113,6 +1131,35 @@ sites:
     - analytics
     - domains-index
     - product-feed
+    - site-tracker
+    - social
+  blackmarketapparel.com:
+    status: live
+    repo: bourneash/blackmarketapparel.com
+    worker: blackmarketapparel-com
+    workers_dev_url: https://blackmarketapparel-com.jessetamburino.workers.dev
+    cf_zone: blackmarketapparel.com
+    slack_channel_env: SLACK_CHANNEL_BLACKMARKETAPPAREL
+    capabilities:
+    - site
+    - ops
+    - cron
+    - smoke
+    - tasks
+    - affiliate
+    - analytics
+    - social
+    analytics:
+      ga4_property_id: '555123204'
+      ga4_measurement_id: G-4KX5THXX74
+      gsc_property: sc-domain:blackmarketapparel.com
+      consent_gated: true
+    affiliate:
+      amazon_tag: blackmarketapparel-20
+    smoke_string: Dress outside the feed.
+    registered_in:
+    - analytics
+    - domains-index
     - site-tracker
     - social
   wetpages.com:

@@ -6673,13 +6673,19 @@ async function renderBacklinks() {
   const detailHtml = detail
     ? `<section class="dh-panel dh-wide"><div class="page-head"><h3>${siteLink(detail.site)} detail</h3><div><button class="btn sm backlink-accent backlink-file" data-site="${esc(detail.site)}">＋ File task</button> <button class="btn sm backlink-back">Show fleet</button></div></div><p>${esc(detail.recommendation)}</p><p class="muted">Latest report: ${esc(detail.latestDate || 'none')} · ${esc(detail.latestAgeDays == null ? '—' : `${detail.latestAgeDays} days old`)} · sources: ${esc(detail.sources?.join(', ') || 'none')}</p>${(detail.reports || []).map(report => `<article class="seo-action"><div class="seo-action-top">${backlinkBadge(report.measured ? 'measured' : 'baseline')}<span class="muted">${esc(report.date)}</span></div><p>${esc(report.excerpt || 'No summary excerpt')}</p><div class="muted mono">${esc(report.file)}</div></article>`).join('')}</section>`
     : '';
+  const alerts = (data.alerts || []).filter(
+    alert => BACKLINK_SITE === 'all' || alert.site === BACKLINK_SITE
+  );
+  const alertHtml = alerts.length
+    ? `<section class="dh-panel dh-wide"><h3>Material changes</h3><p class="muted">Changes of at least 25% between measured captures.</p>${alerts.map(alert => `<div class="seo-action"><strong>${siteLink(alert.site)}</strong> — ${esc(alert.metric)} ${esc(alert.type)}: ${esc(alert.before)} → ${esc(alert.after)} <span class="muted">(${esc(alert.latestDate)} vs ${esc(alert.previousDate)})</span></div>`).join('')}</section>`
+    : '';
   const table = rows
     .map(
       row =>
         `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td>${backlinkBadge(row.status)}</td><td>${esc(row.latestDate || '—')}</td><td>${esc(row.latestAgeDays == null ? '—' : `${row.latestAgeDays}d`)}</td><td>${esc(row.sources?.join(', ') || '—')}</td><td><button class="btn sm backlink-focus" data-site="${esc(row.site)}">Details</button> <button class="btn sm backlink-accent backlink-file" data-site="${esc(row.site)}">＋ Task</button></td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div><div><button id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section><section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><table class="dh-sources"><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></section>`;
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div><div><button id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section>${alertHtml}<section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><table class="dh-sources"><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></section>`;
   $('#backlink-site').value = BACKLINK_SITE;
   $('#backlink-site').addEventListener('change', event => {
     BACKLINK_SITE = event.target.value;
@@ -10341,6 +10347,7 @@ function topViews() {
     'control',
     'priorities',
     'improvements',
+    'executive',
     'agents',
     ...Object.keys(NAV_GROUPS),
     ...NAV_GROUP_VIEWS,
@@ -10361,6 +10368,7 @@ const NAV_GROUPS = {
       ['containers', 'Containers'],
       ['git', 'Git'],
       ['tasks', 'Tasks'],
+      ['change-queue', 'Change Queue'],
       ['deploys', 'Deploys'],
       ['builds', 'Build Usage'],
       ['domains', 'Domains'],
@@ -10917,6 +10925,364 @@ async function renderImprovements() {
   stamp();
 }
 
+let CHANGE_QUEUE_RECORDER = null;
+let CHANGE_QUEUE_CHUNKS = [];
+let CHANGE_QUEUE_FILTER = { q: '', status: 'all', site: 'all', priority: 'all', provider: 'all' };
+let CHANGE_QUEUE_DETAIL = null;
+
+async function renderChangeQueue() {
+  if (FRESH) app.innerHTML = '<div class="loading">Loading change queue…</div>';
+  let data;
+  try {
+    data = await api('GET', '/api/change-requests');
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    return;
+  }
+  const siteOptions = (STATE.sites || [])
+    .map(
+      s =>
+        `<option value="${esc(typeof s === 'string' ? s : s.slug)}">${esc(typeof s === 'string' ? s : s.slug)}</option>`
+    )
+    .join('');
+  const sites = [...new Set((data.requests || []).map(r => r.site))].sort();
+  const matches = r =>
+    (!CHANGE_QUEUE_FILTER.q ||
+      `${r.title} ${r.body} ${r.site} ${r.assigned_role || ''}`
+        .toLowerCase()
+        .includes(CHANGE_QUEUE_FILTER.q.toLowerCase())) &&
+    (CHANGE_QUEUE_FILTER.status === 'all' || r.status === CHANGE_QUEUE_FILTER.status) &&
+    (CHANGE_QUEUE_FILTER.site === 'all' || r.site === CHANGE_QUEUE_FILTER.site) &&
+    (CHANGE_QUEUE_FILTER.priority === 'all' || r.priority === CHANGE_QUEUE_FILTER.priority) &&
+    (CHANGE_QUEUE_FILTER.provider === 'all' || r.provider === CHANGE_QUEUE_FILTER.provider);
+  const filteredRequests = (data.requests || []).filter(matches);
+  const rows = filteredRequests
+    .map(
+      r => `<tr data-fleet-row data-site="${esc(r.site)}">
+    <td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority)}</span></td>
+    <td><b>${esc(r.title)}</b><div class="muted">${esc(r.site)} · ${esc(r.category)} · ${esc(r.assigned_role || 'engineer')}</div></td>
+    <td>${esc(r.provider)}${r.model ? ` · ${esc(r.model)}` : ''}<div class="muted">${esc(r.max_turns)} turns</div></td>
+    <td><span class="badge b-blue">${esc(r.status)}</span>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td>
+    <td><button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button> ${r.status === 'queued' ? `<button class="btn sm primary cq-pick" data-id="${esc(r.request_id)}">Pick up</button>` : ''}${r.status === 'review' ? `<button class="btn sm primary cq-auto-review" data-id="${esc(r.request_id)}">Auto-review & deliver</button>` : ''}${r.status === 'failed' ? `<button class="btn sm primary cq-retry" data-id="${esc(r.request_id)}">Retry</button>` : ''}${['queued', 'claimed', 'running', 'reviewing', 'review'].includes(r.status) ? ` <button class="btn sm danger cq-cancel" data-id="${esc(r.request_id)}">Cancel</button>` : ''}</td>
+  </tr>`
+    )
+    .join('');
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Change Queue</h2><div class="crumbs">Human request → scheduled pickup → isolated agent → diff, visual review, quality gates, deploy</div></div><button class="btn primary" id="cq-new">New change request</button></div>
+    <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${(data.requests || []).filter(r => r.status === 'queued').length}</div><div class="seo-stat-label">Queued</div></div><div class="seo-stat"><div class="seo-stat-value">${(data.requests || []).filter(r => ['claimed', 'running'].includes(r.status)).length}</div><div class="seo-stat-label">Running</div></div><div class="seo-stat"><div class="seo-stat-value">${esc(data.settings.interval_minutes)}m</div><div class="seo-stat-label">Pickup cadence</div></div><div class="seo-stat"><div class="seo-stat-value">${data.settings.enabled ? 'On' : 'Off'}</div><div class="seo-stat-label">Automatic pickup</div></div></section>
+    <section class="card" style="margin-bottom:12px"><div class="task-toolbar"><b>Queue controls</b><label class="muted">Auto pickup <input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}></label><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}" style="width:55px"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}" style="width:45px"></label><button class="btn sm" id="cq-save-settings">Save</button><button class="btn sm" id="cq-pickup-all">Pick up due work</button></div><div class="task-toolbar"><input id="cq-search" class="cm-input" placeholder="Search requests, sites, roles…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input"><option value="all">All statuses</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input"><option value="all">All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>${x}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><span class="muted">${filteredRequests.length} of ${(data.requests || []).length} requests</span></div></section>
+    <section class="card"><div class="table-wrap"><table class="tbl"><thead><tr><th>Priority</th><th>Request</th><th>Agent</th><th>Status</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div></section><div id="cq-detail-panel"></div>`;
+  const cqAutoReviewLabel = document.createElement('label');
+  cqAutoReviewLabel.className = 'muted';
+  cqAutoReviewLabel.innerHTML = `Automatic reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}>`;
+  $('#cq-enabled').parentElement.after(cqAutoReviewLabel);
+  const cqLeaseLabel = document.createElement('label');
+  cqLeaseLabel.className = 'muted';
+  cqLeaseLabel.innerHTML = `Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}" style="width:55px"> min`;
+  cqAutoReviewLabel.after(cqLeaseLabel);
+  $('#cq-new').onclick = () => showChangeRequestForm(siteOptions, data);
+  $('#cq-save-settings').onclick = async () => {
+    try {
+      await api('PATCH', '/api/change-requests/queue-settings', {
+        enabled: $('#cq-enabled').checked,
+        auto_review_enabled: $('#cq-auto-review-enabled').checked,
+        interval_minutes: Number($('#cq-interval').value),
+        max_concurrent: Number($('#cq-concurrency').value),
+        lease_minutes: Number($('#cq-lease-minutes').value),
+      });
+      toast('Queue settings saved');
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  $('#cq-pickup-all').onclick = async () => {
+    try {
+      const r = await api('POST', '/api/change-requests/pickup', {});
+      toast(`Picked up ${r.picked} request${r.picked === 1 ? '' : 's'}`);
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  const updateFilter = () => {
+    CHANGE_QUEUE_FILTER = {
+      q: $('#cq-search').value,
+      status: $('#cq-status').value,
+      site: $('#cq-site-filter').value,
+      priority: $('#cq-priority-filter').value,
+      provider: $('#cq-provider-filter').value,
+    };
+    renderChangeQueue();
+  };
+  $('#cq-search').oninput = e => {
+    CHANGE_QUEUE_FILTER.q = e.target.value;
+    renderChangeQueue();
+  };
+  $('#cq-status').onchange = updateFilter;
+  $('#cq-site-filter').onchange = updateFilter;
+  $('#cq-priority-filter').onchange = updateFilter;
+  $('#cq-provider-filter').onchange = updateFilter;
+  $$('.cq-pick').forEach(
+    b =>
+      (b.onclick = async () => {
+        b.disabled = true;
+        try {
+          await api('POST', `/api/change-requests/${encodeURIComponent(b.dataset.id)}/pickup`, {});
+          toast('Request pickup started');
+          softRender();
+        } catch (e) {
+          b.disabled = false;
+          toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.cq-auto-review').forEach(
+    b =>
+      (b.onclick = async () => {
+        b.disabled = true;
+        try {
+          await api(
+            'POST',
+            `/api/change-requests/${encodeURIComponent(b.dataset.id)}/auto-review`,
+            {}
+          );
+          toast('Automatic review started');
+          softRender();
+        } catch (e) {
+          b.disabled = false;
+          toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.cq-retry').forEach(
+    b =>
+      (b.onclick = async () => {
+        b.disabled = true;
+        try {
+          await api('POST', `/api/change-requests/${encodeURIComponent(b.dataset.id)}/retry`, {});
+          toast('Request returned to queue');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.cq-cancel').forEach(
+    b =>
+      (b.onclick = async () => {
+        try {
+          await api('POST', `/api/change-requests/${encodeURIComponent(b.dataset.id)}/cancel`, {});
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.cq-detail').forEach(b => (b.onclick = () => renderChangeQueueDetail(b.dataset.id)));
+  if (CHANGE_QUEUE_DETAIL) renderChangeQueueDetail(CHANGE_QUEUE_DETAIL);
+  applyFleetFilter();
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
+async function renderChangeQueueDetail(id) {
+  CHANGE_QUEUE_DETAIL = id;
+  const panel = $('#cq-detail-panel');
+  if (!panel) return;
+  panel.innerHTML =
+    '<section class="card"><div class="loading">Loading request details…</div></section>';
+  try {
+    const data = await api('GET', `/api/change-requests/${encodeURIComponent(id)}`);
+    const r = data.request;
+    let improvement = null;
+    if (data.run) {
+      try {
+        improvement = await api('GET', `/api/improvements/${encodeURIComponent(data.run.run_id)}`);
+      } catch {
+        /* run may be cleaned up */
+      }
+    }
+    const run = data.run;
+    const eventRows = (data.events || [])
+      .map(
+        e =>
+          `<tr><td class="muted">${esc(fmtDate(e.occurred_at))}</td><td>${esc(e.event_type)}</td><td class="muted">${esc(e.payload?.error || '')}</td></tr>`
+      )
+      .join('');
+    const actions =
+      r.status === 'queued'
+        ? `<button class="btn sm primary cq-detail-pick">Pick up now</button><button class="btn sm danger cq-detail-cancel">Cancel</button>`
+        : r.status === 'failed'
+          ? `<button class="btn sm primary cq-detail-retry">Retry</button>`
+          : r.status === 'review'
+            ? `<button class="btn sm primary cq-detail-auto-review">Auto-review & deliver</button><button class="btn sm danger cq-detail-cancel">Cancel</button>`
+            : ['claimed', 'running', 'reviewing'].includes(r.status)
+              ? `<button class="btn sm danger cq-detail-cancel">Cancel</button>`
+              : '';
+    panel.innerHTML = `<section class="card cq-detail-card"><div class="page-head"><div><h3>${esc(r.title)}</h3><div class="muted">${esc(r.site)} · ${esc(r.category)} · request ${esc(r.request_id.slice(0, 8))}</div></div><div><button class="btn sm cq-detail-edit">Edit request</button> ${actions}<button class="btn sm" id="cq-detail-close">Close</button></div></div><div class="seo-stats"><div class="seo-stat"><div class="seo-stat-label">Status</div><div class="seo-stat-value" style="font-size:16px">${esc(r.status)}</div><div class="seo-stat-sub">${esc(r.attempts)} attempt(s)</div></div><div class="seo-stat"><div class="seo-stat-label">Agent</div><div class="seo-stat-value" style="font-size:16px">${esc(r.provider)}</div><div class="seo-stat-sub">${esc(r.model || 'provider default')} · ${esc(r.max_turns)} turns</div></div><div class="seo-stat"><div class="seo-stat-label">Role</div><div class="seo-stat-value" style="font-size:16px">${esc(r.assigned_role || 'engineer')}</div><div class="seo-stat-sub">priority ${esc(r.priority)}</div></div><div class="seo-stat"><div class="seo-stat-label">Linked run</div><div class="seo-stat-value" style="font-size:16px">${run ? esc(run.state) : 'not started'}</div><div class="seo-stat-sub">${run ? esc(run.run_id.slice(0, 8)) : 'waiting for pickup'}</div></div></div><h4>Request</h4><pre class="cn-logs-box cq-request-body">${esc(r.body || '(no additional details)')}</pre>${r.error ? `<div class="error-box">${esc(r.error)}</div>` : ''}${run && improvement ? `<h4>Delivery evidence</h4><pre class="cn-logs-box">${esc(improvement.workspace?.diff_stat || '')}\n${esc(improvement.diff?.text || '(no uncommitted diff)')}\n\nAgent status: ${esc(improvement.agent?.status || 'not started')}\n\n${esc(improvement.agent?.log_tail || '(no agent output yet)')}</pre><p><a class="btn sm" href="#improvements">Open full improvement review</a></p>` : ''}<h4>Timeline</h4><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${eventRows || '<tr><td colspan="3" class="muted">No events yet.</td></tr>'}</tbody></table></section>`;
+    $('#cq-detail-close').onclick = () => {
+      CHANGE_QUEUE_DETAIL = null;
+      panel.innerHTML = '';
+    };
+    $('.cq-detail-edit', panel).onclick = () => showChangeRequestEditForm(r, data);
+    $('.cq-detail-pick', panel)?.addEventListener('click', async () => {
+      try {
+        await api('POST', `/api/change-requests/${encodeURIComponent(r.request_id)}/pickup`, {});
+        toast('Request pickup started');
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    });
+    $('.cq-detail-auto-review', panel)?.addEventListener('click', async () => {
+      try {
+        await api(
+          'POST',
+          `/api/change-requests/${encodeURIComponent(r.request_id)}/auto-review`,
+          {}
+        );
+        toast('Automatic review started');
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    });
+    $('.cq-detail-retry', panel)?.addEventListener('click', async () => {
+      try {
+        await api('POST', `/api/change-requests/${encodeURIComponent(r.request_id)}/retry`, {});
+        toast('Request returned to queue');
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    });
+    $('.cq-detail-cancel', panel)?.addEventListener('click', async () => {
+      try {
+        await api('POST', `/api/change-requests/${encodeURIComponent(r.request_id)}/cancel`, {});
+        toast('Request cancelled');
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    });
+  } catch (e) {
+    panel.innerHTML = `<section class="card error-box">${esc(e.message)}</section>`;
+  }
+}
+
+function showChangeRequestEditForm(request, data) {
+  const modal = $('#modal');
+  $('#modal-title').textContent = 'Edit change request';
+  $('#modal-body').innerHTML =
+    `<div class="field"><label>Title</label><input id="cq-edit-title" value="${esc(request.title)}"></div><div class="field"><label>Details / acceptance criteria</label><textarea id="cq-edit-body" rows="8">${esc(request.body || '')}</textarea></div><div class="field-row"><div class="field"><label>Category</label><select id="cq-edit-category">${data.categories.map(x => `<option value="${x}" ${x === request.category ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div><div class="field"><label>Priority</label><select id="cq-edit-priority">${['high', 'medium', 'low'].map(x => `<option ${x === request.priority ? 'selected' : ''}>${x}</option>`).join('')}</select></div><div class="field"><label>Role</label><input id="cq-edit-role" value="${esc(request.assigned_role || 'engineer')}"></div></div><div class="field-row"><div class="field"><label>Provider</label><select id="cq-edit-provider">${data.providers.map(x => `<option value="${x}" ${x === request.provider ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div><div class="field"><label>Model</label><input id="cq-edit-model" value="${esc(request.model || '')}"></div><div class="field"><label>Max turns</label><input id="cq-edit-turns" type="number" min="1" max="200" value="${esc(request.max_turns)}"></div></div><div class="modal-actions"><button class="btn" id="cq-edit-close">Cancel</button><button class="btn primary" id="cq-edit-save">Save changes</button></div>`;
+  modal.classList.remove('hidden');
+  $('#cq-edit-close').onclick = closeModal;
+  const editAutoReview = document.createElement('div');
+  editAutoReview.className = 'field';
+  editAutoReview.innerHTML = `<label><input type="checkbox" id="cq-edit-auto-review" ${request.auto_review !== false && request.auto_review !== 0 ? 'checked' : ''}> Automatically review, validate, commit, and push</label>`;
+  $('#cq-edit-turns').closest('.field-row').after(editAutoReview);
+  $('#cq-edit-save').onclick = async () => {
+    const b = $('#cq-edit-save');
+    b.disabled = true;
+    try {
+      await api('PATCH', `/api/change-requests/${encodeURIComponent(request.request_id)}`, {
+        title: $('#cq-edit-title').value,
+        body: $('#cq-edit-body').value,
+        category: $('#cq-edit-category').value,
+        priority: $('#cq-edit-priority').value,
+        assigned_role: $('#cq-edit-role').value,
+        provider: $('#cq-edit-provider').value,
+        model: $('#cq-edit-model').value || null,
+        max_turns: Number($('#cq-edit-turns').value),
+        auto_review: $('#cq-edit-auto-review').checked,
+      });
+      closeModal();
+      toast('Request updated');
+      softRender();
+    } catch (e) {
+      b.disabled = false;
+      toast(e.message, 'err');
+    }
+  };
+}
+
+function showChangeRequestForm(siteOptions, data) {
+  const modal = $('#modal');
+  const title = $('#modal-title');
+  const bodyEl = $('#modal-body');
+  title.textContent = 'New change request';
+  const body = `<div class="field"><label>Site</label><select id="cq-site">${siteOptions}</select></div><div class="field"><label>What should change?</label><input id="cq-title" placeholder="Fix Slack error, improve homepage, add a guide…"></div><div class="field"><label>Details / acceptance criteria</label><textarea id="cq-body" rows="7" placeholder="Paste the error, describe the desired result, link a page, or give a topic…"></textarea></div><div class="field-row"><div class="field"><label>Category</label><select id="cq-category">${data.categories.map(x => `<option>${esc(x)}</option>`).join('')}</select></div><div class="field"><label>Priority</label><select id="cq-priority"><option>high</option><option selected>medium</option><option>low</option></select></div><div class="field"><label>Role</label><input id="cq-role" value="engineer" placeholder="engineer"></div></div><div class="field-row"><div class="field"><label>Provider</label><select id="cq-provider"><option value="claude">Claude</option><option value="chatgpt">ChatGPT / Codex</option><option value="local">Local model</option></select></div><div class="field"><label>Model (optional)</label><input id="cq-model" placeholder="sonnet, gpt-5, llama3.2…"></div><div class="field"><label>Max turns</label><input id="cq-turns" type="number" min="1" max="200" value="20"></div></div><div class="field"><label>Voice input (optional, local STT)</label><button class="btn sm" id="cq-record">Record voice</button> <span id="cq-record-status" class="muted">No recording</span><input type="hidden" id="cq-transcript"></div><div class="modal-actions"><button class="btn" id="cq-close">Cancel</button><button class="btn primary" id="cq-submit">Queue request</button></div>`;
+  bodyEl.innerHTML = body;
+  const autoReviewField = document.createElement('div');
+  autoReviewField.className = 'field';
+  autoReviewField.innerHTML = `<label><input type="checkbox" id="cq-auto-review" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}> Automatically review, validate, commit, and push after the agent finishes</label>`;
+  $('#cq-turns').closest('.field-row').after(autoReviewField);
+  modal.classList.remove('hidden');
+  $('#cq-close').onclick = closeModal;
+  $('#cq-submit').onclick = async () => {
+    const b = $('#cq-submit');
+    b.disabled = true;
+    try {
+      await api('POST', '/api/change-requests', {
+        site: $('#cq-site').value,
+        title: $('#cq-title').value,
+        body: $('#cq-body').value,
+        category: $('#cq-category').value,
+        priority: $('#cq-priority').value,
+        assigned_role: $('#cq-role').value,
+        provider: $('#cq-provider').value,
+        model: $('#cq-model').value || null,
+        max_turns: Number($('#cq-turns').value),
+        auto_review: $('#cq-auto-review').checked,
+        voice_transcript: $('#cq-transcript').value || null,
+      });
+      closeModal();
+      toast('Change request queued');
+      softRender();
+    } catch (e) {
+      b.disabled = false;
+      toast(e.message, 'err');
+    }
+  };
+  $('#cq-record').onclick = async () => {
+    const status = $('#cq-record-status');
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder)
+      return toast('This browser does not support local voice recording', 'err');
+    if (CHANGE_QUEUE_RECORDER) {
+      CHANGE_QUEUE_RECORDER.stop();
+      return;
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    CHANGE_QUEUE_CHUNKS = [];
+    CHANGE_QUEUE_RECORDER = new MediaRecorder(stream);
+    CHANGE_QUEUE_RECORDER.ondataavailable = e => CHANGE_QUEUE_CHUNKS.push(e.data);
+    CHANGE_QUEUE_RECORDER.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      status.textContent = 'Transcribing locally…';
+      const blob = new Blob(CHANGE_QUEUE_CHUNKS, { type: 'audio/webm' });
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      let binary = '';
+      bytes.forEach(x => (binary += String.fromCharCode(x)));
+      try {
+        const out = await api('POST', '/api/change-requests/transcribe', {
+          audioBase64: btoa(binary),
+          mimeType: 'audio/webm',
+        });
+        $('#cq-transcript').value = out.transcript;
+        $('#cq-body').value =
+          ($('#cq-body').value ? $('#cq-body').value + '\n\n' : '') + out.transcript;
+        status.textContent = 'Transcript added';
+      } catch (e) {
+        status.textContent = 'STT unavailable';
+        toast(e.message, 'err');
+      }
+      CHANGE_QUEUE_RECORDER = null;
+    };
+    CHANGE_QUEUE_RECORDER.start();
+    status.textContent = 'Recording… click to stop';
+  };
+}
+
 async function renderDataQuality() {
   if (FRESH) app.innerHTML = '<div class="loading">Checking data contracts…</div>';
   let data;
@@ -11185,6 +11551,108 @@ async function renderAutomation() {
   if (!FRESH) applyUISnap();
 }
 
+async function renderExecutive() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
+  let messages, proposals, actions, settings, brief;
+  try {
+    [messages, proposals, actions, settings, brief] = await Promise.all([
+      api('GET', '/api/executive/messages?limit=100'),
+      api('GET', '/api/executive/proposals?limit=100'),
+      api('GET', '/api/executive/actions?limit=200'),
+      api('GET', '/api/executive/settings'),
+      api('GET', '/api/executive/brief'),
+    ]);
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
+    return;
+  }
+  const messageRows = (messages.messages || [])
+    .slice()
+    .reverse()
+    .map(
+      m =>
+        `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(m.actor)}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
+    )
+    .join('');
+  const proposalRows = (proposals.proposals || [])
+    .map(
+      p =>
+        `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(p.created_by)}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${p.status === 'approved' ? 'b-green' : p.status === 'declined' ? 'b-red' : p.status === 'feedback' ? 'b-yellow' : 'b-blue'}">${esc(p.status)}</span></td><td>${['proposed', 'feedback'].includes(p.status) ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>` : esc(p.decision_note || '')}</td></tr>`
+    )
+    .join('');
+  const actionRows = (actions.actions || [])
+    .map(
+      a =>
+        `<tr><td class="muted">${esc(fmtDate(a.started_at))}</td><td><b>${esc(a.actor)}</b><div class="muted">${esc(a.action_type)}</div></td><td>${esc(a.summary)}</td><td><span class="badge ${a.status === 'completed' ? 'b-green' : a.status === 'failed' ? 'b-red' : 'b-blue'}">${esc(a.status)}</span>${a.error ? `<div class="error-text">${esc(a.error)}</div>` : ''}</td></tr>`
+    )
+    .join('');
+  const s = settings.settings || {};
+  const intel = brief.brief?.intelligence || {};
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Executive</h2><div class="muted">CEO/CTO communication, decision proposals, and action audit log</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
+    <section class="card" style="margin-bottom:12px"><h3>Message the executive team</h3><textarea id="ex-message" class="cm-input" rows="3" placeholder="Direction, feedback, questions, or priorities…"></textarea><div class="task-toolbar"><span class="muted">Messages are recorded as owner instructions.</span><button class="btn primary" id="ex-send">Send to CEO/CTO</button></div></section>
+    <section class="card" style="margin-bottom:12px"><h3>Owner strategy contract</h3><div class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</div><div class="form-grid" style="margin-top:10px"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="e.g. 500"></label><label>Risk tolerance<input id="ex-risk" class="cm-input" value="${esc(s.risk_tolerance || '')}" placeholder="low, medium, high"></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label>Operating notes<textarea id="ex-notes" class="cm-input" rows="3" placeholder="What the executive should optimize for…">${esc(s.operating_notes || '')}</textarea></label><label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks (queue execution remains disabled)</label><div class="task-toolbar"><span class="muted">No spend or deployment authority is granted by these settings.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></section>
+    <section class="card" style="margin-bottom:12px"><h3>Executive intelligence</h3><div class="muted">Generated ${esc(fmtDate(brief.brief?.generated_at))}. These are inputs to the next autonomous tick, not claims of revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(intel.analytics?.configured_sites ?? '—')}</b><span>analytics-configured sites</span></div><div><b>${esc(intel.revenue?.commission_income ?? '—')}</b><span>commission income in export</span></div><div><b>${esc(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—')}</b><span>AI usage tokens</span></div><div><b>${esc(intel.seo?.ok ? 'available' : 'unavailable')}</b><span>SEO intelligence</span></div></div></section>
+    <section class="card" style="margin-bottom:12px"><h3>Conversation</h3>${messageRows || '<div class="empty">No executive messages yet.</div>'}</section>
+    <section class="card" style="margin-bottom:12px"><h3>Decision proposals</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals yet.</td></tr>'}</tbody></table></div></section>
+    <section class="card"><h3>Action audit log</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></section>`;
+  $('#ex-refresh').onclick = () => softRender();
+  $('#ex-send').onclick = async () => {
+    const body = $('#ex-message').value.trim();
+    if (!body) return toast('Write a message first', 'err');
+    try {
+      await api('POST', '/api/executive/messages', { actor: 'owner', body });
+      toast('Message sent');
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  $('#ex-save-settings').onclick = async () => {
+    const btn = $('#ex-save-settings');
+    btn.disabled = true;
+    try {
+      await api('PATCH', '/api/executive/settings', {
+        revenue_target_monthly: $('#ex-revenue-target').value.trim(),
+        monthly_spend_limit: $('#ex-spend-limit').value.trim(),
+        risk_tolerance: $('#ex-risk').value.trim(),
+        checkin_hours: Number($('#ex-checkin').value || 24),
+        operating_notes: $('#ex-notes').value.trim(),
+        tick_enabled: $('#ex-tick-enabled').checked,
+      });
+      toast('Strategy saved');
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  const decide = async (button, status) => {
+    const note =
+      status === 'feedback'
+        ? window.prompt('Feedback for the executive team:')
+        : window.prompt(`${status === 'approved' ? 'Approval' : 'Decline'} note (optional):`, '');
+    if (note === null) return;
+    button.disabled = true;
+    try {
+      await api(
+        'POST',
+        `/api/executive/proposals/${encodeURIComponent(button.dataset.id)}/decision`,
+        { status, decision_note: note, decided_by: 'owner' }
+      );
+      toast(`Proposal ${status}`);
+      softRender();
+    } catch (e) {
+      button.disabled = false;
+      toast(e.message, 'err');
+    }
+  };
+  $$('.ex-approve').forEach(b => (b.onclick = () => decide(b, 'approved')));
+  $$('.ex-feedback').forEach(b => (b.onclick = () => decide(b, 'feedback')));
+  $$('.ex-decline').forEach(b => (b.onclick = () => decide(b, 'declined')));
+  stamp();
+}
+
 function render() {
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -11195,6 +11663,7 @@ function render() {
   if (STATE.view === 'control') return renderControl();
   else if (STATE.view === 'priorities') return renderPriorities();
   else if (STATE.view === 'improvements') return renderImprovements();
+  else if (STATE.view === 'executive') return renderExecutive();
   else if (STATE.view === 'agents') return renderCategoryRoot('agents');
   else if (NAV_GROUPS[STATE.view]) return renderCategoryRoot(STATE.view);
   else if (STATE.view === 'cron') return renderCron();
@@ -11205,6 +11674,7 @@ function render() {
     return STATE.gitTab === 'hygiene' ? renderGitHygiene() : renderGit();
   else if (STATE.view === 'gitstashes') return renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') return renderTasks();
+  else if (STATE.view === 'change-queue') return renderChangeQueue();
   else if (STATE.view === 'taskbudget') return renderTaskBudget();
   else if (STATE.view === 'aiinventory') return renderAIInventory();
   else if (STATE.view === 'aiusage') return renderAIUsage();
@@ -11261,6 +11731,8 @@ const NAV_ITEM_DESCRIPTIONS = {
   aioptimizer: 'Find opportunities to improve AI cost and routing.',
   aiinventory: 'Audit providers and models used by scheduled services.',
   taskbudget: 'Review task volume and automation budgets.',
+  'change-queue':
+    'Queue human site changes with explicit AI, budget, priority, and review controls.',
   compliance: 'Check the live technical privacy baseline.',
   lint: 'Run fleet-wide parse and formatting checks.',
   health: 'Monitor uptime and service health.',

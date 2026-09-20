@@ -37,6 +37,11 @@ sites:
     ga4_measurement_id: G-B7QK9WYK2C
     gsc_property: sc-domain:amputeenews.com
     consent_gated: true
+  blackmarketapparel.com:
+    ga4_property_id: '555123204'
+    ga4_measurement_id: G-4KX5THXX74
+    gsc_property: sc-domain:blackmarketapparel.com
+    consent_gated: true
   broadwayshowgirls.com:
     ga4_property_id: '542413111'
     ga4_measurement_id: G-SKQPE8V8JB

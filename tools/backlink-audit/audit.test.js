@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { buildSnapshot, reportEvidence } = require('./audit');
+const { buildSnapshot, changeAlerts, reportEvidence, reportMetrics } = require('./audit');
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'backlink-audit-'));
@@ -45,4 +45,37 @@ test('snapshot exposes fleet coverage and per-site detail', () => {
   assert.equal(snapshot.totals.current, 1);
   assert.equal(snapshot.coverage, 67);
   assert.equal(snapshot.sites.find(row => row.site === 'missing.com').priority, 'high');
+});
+
+test('metric changes produce material gain/loss alerts', () => {
+  const older = {
+    date: '2026-09-01',
+    measured: true,
+    metrics: reportMetrics('- backlinks: 100\n- referring domains: 20'),
+  };
+  const newer = {
+    date: '2026-09-20',
+    measured: true,
+    metrics: reportMetrics('- backlinks: 60\n- referring domains: 15'),
+  };
+  assert.deepEqual(changeAlerts([newer, older]), [
+    {
+      type: 'loss',
+      metric: 'backlinks',
+      before: 100,
+      after: 60,
+      delta: -40,
+      latestDate: '2026-09-20',
+      previousDate: '2026-09-01',
+    },
+    {
+      type: 'loss',
+      metric: 'referring domains',
+      before: 20,
+      after: 15,
+      delta: -5,
+      latestDate: '2026-09-20',
+      previousDate: '2026-09-01',
+    },
+  ]);
 });

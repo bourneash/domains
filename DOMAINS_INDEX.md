@@ -31,6 +31,8 @@
 | howfishthink.com |   🟢   | Fish-behavior simulation tool site — block-based lure/rig design sandbox (Minecraft/Stormworks shape) tested against an honest fish decision model; BOM-affiliate revenue, separate Sonar Trainer track; scaffolded + live, build in progress |
 | greatamericanlakes.com |   🟢   | Great Lakes fishing/boating/shoreline affiliate — "America's Freshwater Coast", WPA-poster + nautical-chart design system; 6 lake hubs, 12 species, lake×species programmatic matrix, filterable 93-product gear catalog, kits, shoreline places; strictly apolitical by editorial rule; live on CF Worker |
 | saltwaternews.com |   🟢   | East Coast saltwater fishing intelligence — attributed charter reports, NOAA/NMFS rules, storms and marine conditions, fishing news, live fleet automation, and an inactive-until-confirmed Amazon affiliate layer |
+| searchwoot.com |   🟡   | Private-preview Woot deal search terminal — imported FastAPI/SQLite app, 15-minute data fetcher, compound alerts, and shared Slack notifications |
+| blackmarketapparel.com |   ✅   | Live Cloudflare Worker `blackmarketapparel-com` with apex + www bound; luxury fashion editorial affiliate edit — Cormorant/Manrope typography, campaign imagery, wardrobe/accessories/object departments, journal, Amazon Associates `blackmarketapparel-20`; GA4 + GSC active, Slack/Bluesky social wiring in progress |
 
 
 

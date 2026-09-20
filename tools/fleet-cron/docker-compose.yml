@@ -67,6 +67,10 @@ services:
       # every site's own cron container (see ops/docker/docker-compose.yml
       # under sites/americastrikes.com for the canonical comment).
       - ${DOMAINS_ROOT:-/home/jesse/projects/domains}:${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      # Env-broker's fleet-cron-only Bing credential render. Keep this bind
+      # explicit even though the repo mount above is required by other jobs:
+      # the policy scanner uses it to enforce this tool boundary.
+      - ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/env-broker/rendered/tool-fleet-cron.env:${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/env-broker/rendered/tool-fleet-cron.env:ro
       # Docker config dir — job 1 (ensure-fleet-cron.sh) and job 6
       # (domain-job-runner.sh -> full-bootstrap.sh) can trigger `docker
       # compose build` from inside this container; without this mounted,

@@ -162,6 +162,9 @@ tools:
     # flag, not a secret, but it is interpolated by the same compose file so it
     # rides along rather than keeping a second env source alive.
     keys: [FD_TOKEN, FD_AUTH, SOCIAL_HUB_TOKEN]
+  fleet-cron:
+    # Read-only backlink capture is the only fleet-cron consumer of this key.
+    keys: [BING_WEBMASTER_API_KEY]
   social-hub:
     keys: [SOCIAL_HUB_TOKEN]
   gh-stats:

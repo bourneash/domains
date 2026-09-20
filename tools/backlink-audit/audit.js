@@ -48,6 +48,18 @@ function excerpt(text) {
   return lines.join(' ').replace(/[*`]/g, '').slice(0, MAX_EXCERPT);
 }
 
+function reportMetrics(text) {
+  const body = String(text || '');
+  const number = pattern => {
+    const match = body.match(pattern);
+    return match ? Number(match[1]) : null;
+  };
+  return {
+    backlinks: number(/^\s*-?\s*backlinks\s*:\s*(\d+)/im),
+    referringDomains: number(/^\s*-?\s*referring domains\s*:\s*(\d+)/im),
+  };
+}
+
 function readReports(siteDir) {
   const dir = path.join(siteDir, 'ops', 'seo');
   let names;
@@ -73,11 +85,47 @@ function readReports(siteDir) {
         file: path.relative(path.dirname(siteDir), file).replaceAll(path.sep, '/'),
         bytes: Buffer.byteLength(text),
         excerpt: excerpt(text),
+        metrics: reportMetrics(text),
         ...evidence,
       };
     })
     .filter(Boolean)
     .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function changeAlerts(reports) {
+  const measured = reports.filter(
+    report =>
+      report.measured &&
+      report.metrics &&
+      report.metrics.backlinks != null &&
+      report.metrics.referringDomains != null
+  );
+  if (measured.length < 2) return [];
+  const latest = measured[0];
+  const previous = measured[1];
+  const alerts = [];
+  for (const [key, label] of [
+    ['backlinks', 'backlinks'],
+    ['referringDomains', 'referring domains'],
+  ]) {
+    const before = previous.metrics[key];
+    const after = latest.metrics[key];
+    const delta = after - before;
+    const changedFromZero = before === 0 && after !== 0;
+    const material = changedFromZero || (before !== 0 && Math.abs(delta / before) >= 0.25);
+    if (material)
+      alerts.push({
+        type: delta < 0 ? 'loss' : 'gain',
+        metric: label,
+        before,
+        after,
+        delta,
+        latestDate: latest.date,
+        previousDate: previous.date,
+      });
+  }
+  return alerts;
 }
 
 function siteNames(root) {
@@ -127,6 +175,7 @@ function buildSnapshot(root, now = new Date()) {
     const reports = readReports(path.join(root, 'sites', site));
     const classification = classify(reports, now);
     const latest = reports[0] || null;
+    const alerts = changeAlerts(reports);
     return {
       site,
       ...classification,
@@ -136,6 +185,7 @@ function buildSnapshot(root, now = new Date()) {
       measured: Boolean(latest?.measured),
       sources: latest?.sources || [],
       latestReport: latest,
+      alerts,
       reports,
     };
   });
@@ -157,6 +207,7 @@ function buildSnapshot(root, now = new Date()) {
       ? Math.round((rows.filter(row => row.status !== 'missing').length / rows.length) * 100)
       : 0,
     sources: [...new Set(rows.flatMap(row => row.sources))].sort(),
+    alerts: rows.flatMap(row => row.alerts.map(alert => ({ site: row.site, ...alert }))),
     sites: rows,
   };
 }
@@ -192,6 +243,8 @@ module.exports = {
   daysSince,
   readReports,
   reportEvidence,
+  reportMetrics,
+  changeAlerts,
   siteNames,
   writeSnapshot,
 };

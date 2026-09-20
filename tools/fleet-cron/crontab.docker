@@ -44,6 +44,12 @@
 # acquisition-domain captures and to queue follow-up work.
 40 6 * * * bash /home/jesse/projects/domains/tools/backlink-audit/run-backlink-audit.sh
 
+# --- Job 7c: Bing Webmaster backlink capture ---
+# Uses the fleet-cron-only Vaultwarden render and writes dated, provider-backed
+# reports for the initial acquired-domain set. The coverage inventory above
+# sees these reports on the next run.
+45 6 * * * bash /home/jesse/projects/domains/tools/backlink-audit/run-bing-backlink-capture.sh
+
 # --- Job 8: domain-developer worker Claude-auth guard ---
 # 2026-08-16 incident: idle dd-* workers drifted past the host's OAuth
 # rotation and went to "Not logged in". 2026-08-23 incident: worse than
