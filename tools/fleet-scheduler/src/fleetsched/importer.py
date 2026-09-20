@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -128,6 +129,27 @@ def parse_crontab(text: str, fleet: bool = False) -> ParseResult:
     return res
 
 
+STD_COMPOSE_ENV = {"SITE_NAME", "FLEET_WORKER_IMAGE", "TZ", "COMPOSE_PROJECT_NAME", "HOME"}
+
+
+def compose_cron_env(site_dir: Path) -> dict:
+    """Env the site's legacy cron container got from its compose file (DATAHUB_API, BSG_LLM_*, ...),
+    minus what the scheduler already sets. ${VAR:-default} is expanded from the environment/default."""
+    try:
+        import yaml
+        doc = yaml.safe_load((site_dir / "docker-compose.yml").read_text()) or {}
+    except Exception:  # noqa: BLE001 - missing yaml/compose just means no extras
+        return {}
+    env = ((doc.get("services") or {}).get("cron") or {}).get("environment") or {}
+    if isinstance(env, list):
+        env = dict(x.split("=", 1) for x in env if "=" in x)
+
+    def expand(v: str) -> str:
+        return re.sub(r"\$\{(\w+)(?::-([^}]*))?\}",
+                      lambda m: os.environ.get(m.group(1)) or (m.group(2) or ""), str(v))
+    return {k: expand(v) for k, v in env.items() if k not in STD_COMPOSE_ENV}
+
+
 def _queue_timeout(schedule: str, tz: str) -> int:
     import datetime as dt
     e = cronexpr.parse(schedule)
@@ -137,7 +159,8 @@ def _queue_timeout(schedule: str, tz: str) -> int:
     return max(300, min(3600, int((b - a).total_seconds())))
 
 
-def import_site(db: DB, site: str, crontab_text: str, *, update: bool = False, fleet: bool = False) -> dict:
+def import_site(db: DB, site: str, crontab_text: str, *, update: bool = False, fleet: bool = False,
+                compose_env: dict | None = None) -> dict:
     """Idempotent. Existing jobs keep API edits unless update=True."""
     res = parse_crontab(crontab_text, fleet=fleet)
     added, updated, unchanged = [], [], []
@@ -146,7 +169,9 @@ def import_site(db: DB, site: str, crontab_text: str, *, update: bool = False, f
         for j in res.jobs:
             row = db.conn.execute("SELECT * FROM jobs WHERE site=? AND name=?", (site, j.name)).fetchone()
             fields = dict(schedule=j.schedule, command=j.command, **{"class": j.cls}, timeout_s=j.timeout_s,
-                          priority=j.priority, env_json=json.dumps(j.env, sort_keys=True), tz=DEFAULT_TZ,
+                          priority=j.priority, tz=DEFAULT_TZ,
+                          env_json=json.dumps({**(compose_env or {}), **j.env}, sort_keys=True),
+                          ok_codes="0,1" if j.command.lstrip().startswith("find ") else "0",
                           queue_timeout_s=_queue_timeout(j.schedule, DEFAULT_TZ))
             if row is None:
                 db.insert_job(site=site, name=j.name, source="crontab", **fields)
@@ -155,6 +180,9 @@ def import_site(db: DB, site: str, crontab_text: str, *, update: bool = False, f
                 db.update_job(row["id"], **fields, last_fire_ts=None)
                 updated.append(j.name)
             else:
+                # env is derived purely from files (never API-editable): keep it current.
+                if row["env_json"] != fields["env_json"]:
+                    db.update_job(row["id"], env_json=fields["env_json"])
                 unchanged.append(j.name)
         db.audit("importer", "import", None, {"site": site, "added": added, "updated": updated,
                                               "errors": res.errors})

@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from fleetsched.api import Service, make_server  # noqa: E402
 from fleetsched.db import DB  # noqa: E402
 from fleetsched.engine import Config, Engine  # noqa: E402
-from fleetsched.importer import export_crontab, import_site, parse_crontab  # noqa: E402
+from fleetsched.importer import compose_cron_env, export_crontab, import_site, parse_crontab  # noqa: E402
 
 TOKEN = "t" * 32
 
@@ -64,6 +64,31 @@ class ImporterTests(unittest.TestCase):
         import_site(db, "a.com", CRONTAB)
         again = parse_crontab(export_crontab(db, "a.com"))
         self.assertEqual(sorted(j.name for j in again.jobs), sorted(j.name for j in parse_crontab(CRONTAB).jobs))
+
+
+class ComposeEnvTests(unittest.TestCase):
+    def test_compose_env_merged_and_find_gets_ok_codes(self):
+        d = Path(tempfile.mkdtemp())
+        (d / "docker-compose.yml").write_text(
+            "services:\n  cron:\n    environment:\n      SITE_NAME: a\n      TZ: x\n"
+            "      DATAHUB_API: http://datahub-api:4760\n"
+            "      DATAHUB_IMAGES_API: ${NOPE_UNSET_VAR:-http://images:4770}\n")
+        env = compose_cron_env(d)
+        self.assertEqual(env, {"DATAHUB_API": "http://datahub-api:4760", "DATAHUB_IMAGES_API": "http://images:4770"})
+        db = DB(":memory:")
+        import_site(db, "a.com", CRONTAB, compose_env=env)
+        rows = {r["name"]: r for r in db.jobs("a.com")}
+        e = json.loads(rows["deployer"]["env_json"])
+        self.assertEqual(e["DATAHUB_API"], "http://datahub-api:4760")
+        self.assertEqual(e["COMPOSE_PROJECT_NAME"], "a-ops")  # crontab env still present
+        self.assertEqual(rows["prune-logs"]["ok_codes"], "0,1")
+        self.assertEqual(rows["deployer"]["ok_codes"], "0")
+        # re-import with changed compose env refreshes env but never clobbers edited schedules
+        db.update_job(rows["deployer"]["id"], schedule="1 * * * *")
+        import_site(db, "a.com", CRONTAB, compose_env={"DATAHUB_API": "http://new:1"})
+        r2 = db.job(rows["deployer"]["id"])
+        self.assertEqual(json.loads(r2["env_json"])["DATAHUB_API"], "http://new:1")
+        self.assertEqual(r2["schedule"], "1 * * * *")
 
 
 class FleetImportTests(unittest.TestCase):

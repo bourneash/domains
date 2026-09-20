@@ -210,9 +210,9 @@ class Service:
     def set_settings(self, body: dict, actor: str):
         applied = {}
         for k, v in body.items():
-            if k == "paused":
+            if k in ("paused", "drain_heavy"):
                 if not isinstance(v, bool):
-                    raise SchedError("paused must be boolean")
+                    raise SchedError(f"{k} must be boolean")
                 applied[k] = "1" if v else "0"
             elif k in SETTING_INTS:
                 lo, hi = SETTING_INTS[k]

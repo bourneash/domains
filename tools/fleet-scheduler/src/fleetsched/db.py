@@ -71,10 +71,17 @@ MIGRATIONS = [
         detail TEXT
     );
     """,
+    # v2: exit codes counted as success. `find ... -delete` exits 1 when two prune jobs race on the
+    # same directory (ENOENT for a file the sibling already removed) — not a failure.
+    """
+    ALTER TABLE jobs ADD COLUMN ok_codes TEXT NOT NULL DEFAULT '0';
+    UPDATE jobs SET ok_codes='0,1' WHERE command LIKE 'find %';
+    """,
 ]
 
 DEFAULT_SETTINGS = {
     "paused": "0",
+    "drain_heavy": "0",
     "light_cap": "96",
     "heavy_cap": "12",
     "site_heavy_cap": "2",

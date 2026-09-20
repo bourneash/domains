@@ -16,7 +16,56 @@ ROOT = Path(os.environ.get("FS_ROOT", HERE.parent.parent))
 HOME = os.environ.get("HOME", "/home/jesse")
 sites = sorted(p.parent.parent.parent.name for p in (ROOT / "sites").glob("*/ops/docker/crontab.docker"))
 
+import re
+import yaml
+
+
+def expand(s: str, site_dir: Path) -> str:
+    def rep(m):
+        name, default = m.group(1), m.group(2)
+        val = {"HOME": HOME, "PWD": str(site_dir)}.get(name) or os.environ.get(name)
+        return val if val else (default if default is not None else "")
+    return re.sub(r"\$\{(\w+)(?::-([^}]*))?\}", rep, s)
+
+
+# Per-site extras the legacy cron services carried beyond the standard set (git-store mounts,
+# shared deploy lock, rendered secrets, extra networks, extra_hosts). Derived, never hand-listed.
+extra_vols: dict[str, tuple[str, str]] = {}   # target -> (source, mode)
+extra_nets: dict[str, str] = {}               # compose key -> external network name
+extra_hosts: set[str] = set()
+conflicts = []
+for s in sites:
+    sd = ROOT / "sites" / s
+    try:
+        doc = yaml.safe_load((sd / "docker-compose.yml").read_text()) or {}
+    except Exception as e:  # noqa: BLE001
+        conflicts.append(f"{s}: compose unreadable ({e})")
+        continue
+    cron = (doc.get("services") or {}).get("cron") or {}
+    std_targets = {"/etc/crontab.docker", "/var/run/docker.sock", str(sd), f"{HOME}/.docker",
+                   f"{sd}/.env.shared", f"{sd}/.monorepo-tools"}
+    for v in cron.get("volumes") or []:
+        if not isinstance(v, str):
+            continue
+        parts = expand(v, sd).split(":")  # expand first: ${HOME:-/x} contains a colon
+        if len(parts) < 2 or parts[1] in std_targets:
+            continue
+        src = parts[0] if parts[0].startswith("/") else str((sd / parts[0]).resolve())
+        mode = parts[2] if len(parts) > 2 else "rw"
+        if parts[1] in extra_vols and extra_vols[parts[1]][0] != src:
+            conflicts.append(f"{s}: mount target {parts[1]} conflicts with another site's source")
+            continue
+        extra_vols[parts[1]] = (src, mode)
+    for n in cron.get("networks") or []:
+        if n in ("ops", "default"):
+            continue
+        nd = (doc.get("networks") or {}).get(n) or {}
+        extra_nets[n] = nd.get("name") or n
+    extra_hosts.update(cron.get("extra_hosts") or [])
+
 vols, skipped = [], []
+for tgt, (src, mode) in sorted(extra_vols.items()):
+    vols.append(f"      - {src}:{tgt}" + (":ro" if mode == "ro" else ""))
 for s in sites:
     env = ROOT / "tools/env-broker/rendered" / f"{s}.env"
     sd = ROOT / "sites" / s
@@ -59,7 +108,8 @@ services:
     logging:
       driver: json-file
       options: {{max-size: "20m", max-file: "5"}}
-    networks: [control]
+    networks: [{", ".join(["control", *sorted(extra_nets)])}]
+{"    extra_hosts:" + chr(10) + chr(10).join(f"      - {h}" for h in sorted(extra_hosts)) if extra_hosts else ""}
     volumes:
       - {HERE}/data:/data
       - {HERE}/data/token:/run/secrets/scheduler-token:ro
@@ -73,8 +123,12 @@ networks:
   control:
     external: true
     name: fleet-control
+{chr(10).join(f"  {k}:{chr(10)}    external: true{chr(10)}    name: {v}" for k, v in sorted(extra_nets.items()))}
 """
 (HERE / "docker-compose.generated.yml").write_text(out)
 print(f"rendered {len(sites) - len(skipped)} sites", file=sys.stderr)
+print(f"extras: {len(extra_vols)} mounts, networks={sorted(extra_nets.values())}, extra_hosts={sorted(extra_hosts)}", file=sys.stderr)
+for c in conflicts:
+    print(f"WARNING {c}", file=sys.stderr)
 for s, why in skipped:
     print(f"SKIPPED {s}: {why}", file=sys.stderr)

@@ -120,6 +120,7 @@ class Pending:
     timeout_s: int
     tz: str
     env: dict
+    ok_codes: tuple = (0,)
     seq: int = 0
 
 
@@ -248,6 +249,9 @@ class Engine:
             self._count("skipped_paused")
             return None
         r = job.row
+        if trigger == "schedule" and r["class"] == "heavy" and self.settings.get("drain_heavy") == "1":
+            self._count("skipped_draining")  # deploy in progress: no NEW heavy work; light probes keep running
+            return None
         if self._active(job.id):
             self._record_terminal(job, scheduled_ts, "skipped_overlap", "previous run still queued/running")
             return None
@@ -262,7 +266,7 @@ class Engine:
             scheduled_for=scheduled_ts, queued_at=now, not_before=now + jitter,
             deadline=None if trigger == "manual" else now + r["queue_timeout_s"] + jitter,
             trigger=trigger, command=r["command"], timeout_s=r["timeout_s"], tz=r["tz"],
-            env=self._job_env(r), seq=next(self._seq)))
+            env=self._job_env(r), ok_codes=self._ok_codes(r), seq=next(self._seq)))
         self._poke()
         return run_id
 
@@ -290,6 +294,14 @@ class Engine:
                            **{"class": job.row["class"]}, trigger="schedule", status=status,
                            scheduled_for=int(scheduled_ts), queued_at=now, finished_at=now, note=note)
         self._count(status)
+
+    @staticmethod
+    def _ok_codes(row: dict) -> tuple:
+        try:
+            codes = tuple(int(x) for x in str(row.get("ok_codes") or "0").split(",") if x.strip() != "")
+        except ValueError:
+            codes = (0,)
+        return codes or (0,)
 
     @staticmethod
     def _job_env(row: dict) -> dict:
@@ -331,6 +343,8 @@ class Engine:
         started: list[Pending] = []
         for p in sorted(self.pending, key=lambda x: (-x.priority, x.scheduled_for, x.seq)):
             if p.not_before > now:
+                continue
+            if p.cls == "heavy" and self.settings.get("drain_heavy") == "1":
                 continue
             cap = light_cap if p.cls == "light" else heavy_cap
             if n_class[p.cls] >= cap:
@@ -417,8 +431,10 @@ class Engine:
         note = None
         if timed_out:
             status, note = "timeout", f"exceeded {p.timeout_s}s; process group terminated"
-        elif rc == 0:
+        elif rc in p.ok_codes:
             status = "ok"
+            if rc != 0:
+                note = f"exit {rc} counted as ok (job ok_codes)"
         else:
             status = "killed" if ctx.cancel_reason else "failed"
         return status, rc, bytes(buf), note

@@ -15,7 +15,7 @@ from pathlib import Path
 from .api import Service, make_server
 from .db import DB
 from .engine import Config, Engine, make_wrapper
-from .importer import crontab_path, export_crontab, import_site
+from .importer import compose_cron_env, crontab_path, export_crontab, import_site
 
 
 def _token() -> str:
@@ -126,7 +126,8 @@ def main(argv=None) -> int:
             print(f"{site}: no crontab.docker", file=sys.stderr)
             rc = 1
             continue
-        r = import_site(db, site, f.read_text(), update=args.update)
+        r = import_site(db, site, f.read_text(), update=args.update,
+                        compose_env=compose_cron_env(cfg.sites_dir / site))
         print(json.dumps({k: (len(v) if isinstance(v, list) and k != "errors" else v) for k, v in r.items()}))
         rc = rc or (1 if r["errors"] else 0)
     db.close()

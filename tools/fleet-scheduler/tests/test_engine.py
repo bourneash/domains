@@ -173,6 +173,16 @@ class FireTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(SchedError):
             e.trigger_manual(jid, "t")
 
+    async def test_drain_heavy_blocks_new_heavy_but_not_light(self):
+        c = Clock(); g = Gate(); db, e = mk(c, g)
+        add(db, name="w", cls="heavy", schedule="0 * * * *")
+        add(db, name="probe", cls="light", schedule="0 * * * *")
+        db.set_adopted("a.com", True); db.set_setting("drain_heavy", "1"); e.start()
+        c.t += 3600; e.tick(); e.dispatch(); await settle()
+        self.assertEqual(g.started, [("a.com", "probe")])
+        self.assertEqual(e.counters.get("skipped_draining"), 1)
+        g.release_all(); await settle()
+
     async def test_manual_bypasses_adoption_and_overlap_guard(self):
         c = Clock(); g = Gate(); db, e = mk(c, g)
         jid = add(db); e.start()  # not adopted
@@ -342,6 +352,26 @@ class SubprocessTests(unittest.IsolatedAsyncioTestCase):
         for bad in ("../x", "a b", "$(id)", "a;b", ""):
             with self.assertRaises(ValueError):
                 make_wrapper(bad)
+
+    async def test_ok_codes_tolerate_find_race_exit(self):
+        db, e = self.engine()
+        jid = db.insert_job(site="a.com", name="t", schedule="0 0 1 1 *", command="exit 1", timeout_s=10,
+                            ok_codes="0,1", source="test", last_fire_ts=int(time.time()))
+        e.start(); rid = e.trigger_manual(jid, "t"); e.dispatch()
+        for _ in range(100):
+            await asyncio.sleep(0.05)
+            if db.run(rid)["status"] not in ("queued", "running"):
+                break
+        r = db.run(rid)
+        self.assertEqual((r["status"], r["exit_code"]), ("ok", 1))
+        self.assertIn("counted as ok", r["note"])
+        db.update_job(jid, ok_codes="0")
+        e.reload_job(jid); rid2 = e.trigger_manual(jid, "t"); e.dispatch()
+        for _ in range(100):
+            await asyncio.sleep(0.05)
+            if db.run(rid2)["status"] not in ("queued", "running"):
+                break
+        self.assertEqual(db.run(rid2)["status"], "failed")
 
     async def test_missing_site_dir(self):
         shutil.rmtree(self.site)
