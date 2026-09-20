@@ -99,8 +99,14 @@ needs a restart, not an image rebuild. Rollback to supercronic: remove the `entr
 recreates, then resumes. `FS_NO_DRAIN=1` forces. Ticks/dispatch batch their DB writes into one transaction
 (a 40-job burst was ~120 fsyncs and stalled fires by up to 3 s).
 
-## Not covered yet
-* `amputeenews.com` runs its legacy cron as root and calls `claude` directly; migrate its root-ownership
-  first. Sites whose `.env.shared`/`.monorepo-tools` mountpoints don't exist are skipped by `render-compose`.
-* Site `docker-compose.yml` files still define the `cron` service (kept as the rollback path); remove after
-  a site has run clean for a while.
+## Status / not covered
+
+* All 37 sites that have scheduled jobs are adopted (325 jobs), plus the 28 fleet-tool jobs on the
+  fleet instance. `3boobs.com` has no active jobs (its crontab is fully commented), so there is nothing to
+  adopt; its idle legacy container is left alone.
+* Site `docker-compose.yml` files still define the `cron` service **on purpose**: it is the rollback path
+  (`release <site>` re-creates it). Remove it, and the container checks in `fleet-doctor`, only after the
+  scheduler has soaked for a while (weekly jobs run, a DST edge, a host reboot).
+* Schedules edited in the scheduler live in its DB; `ops/docker/crontab.docker` is NOT rewritten, so the
+  dashboard's role/roles-matrix "expected runs" (which parse crontab files) go stale for edited jobs.
+  `cron-freshness.py` already reads the DB. A crontab write-through is the open follow-up.

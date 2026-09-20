@@ -106,6 +106,7 @@ async function renderScheduler() {
     </div>
 
     <h3 style="margin:14px 0 6px">Sites</h3>
+    <div style="max-height:260px;overflow:auto">
     <table class="tbl"><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th></th></tr></thead><tbody>
       ${sites
         .map(
@@ -123,6 +124,7 @@ async function renderScheduler() {
         )
         .join('')}
     </tbody></table>
+    </div>
 
     <h3 style="margin:18px 0 6px">Jobs ${SCH.site ? `— ${esc(SCH.site)} <a href="#" id="sch-clear">(all sites)</a>` : ''}
       <input id="sch-text" placeholder="filter…" value="${esc(SCH.text)}" style="margin-left:12px;width:180px"></h3>
