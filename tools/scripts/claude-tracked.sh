@@ -214,12 +214,13 @@ fi
 # --disable-slash-commands (no skills) + --strict-mcp-config (no MCP servers, we
 # pass none) cut a Haiku no-tool call from $0.035 to $0.020 (-42%, measured on
 # the americastrikes breaking-news judge). Roles that use neither skills nor MCP
-# opt in: CLAUDE_LEAN=1, or by name via CLAUDE_LEAN_ROLES (default: promoter).
+# opt in: CLAUDE_LEAN=1, or by name via CLAUDE_LEAN_ROLES (default list below; audited
+# 2026-09-20: no skill/MCP use in these roles' prompts or scripts, no .mcp.json fleet-wide).
 # Explicit caller flags win; CLAUDE_LEAN=0 forces off.
 # Sites that ship project skills (.claude/skills/: sinderella, ultrarough,
 # vibratorporn voice skills) are excluded: their roles invoke those skills by
 # name and --disable-slash-commands would silently drop the voice rules.
-_lean_roles=" ${CLAUDE_LEAN_ROLES:-promoter} "
+_lean_roles=" ${CLAUDE_LEAN_ROLES:-promoter content-writer news-writer guide-writer guide-idea-seeder update breaking-news voice-auditor} "
 _has_project_skills=0
 [[ -n "$(ls -A "$REPO_ROOT/.claude/skills" 2>/dev/null)" ]] && _has_project_skills=1
 if [[ "${CLAUDE_LEAN:-}" == "1" || ( "${CLAUDE_LEAN:-}" != "0" && "$_lean_roles" == *" $CRON_ROLE "* ) ]] && [[ $_has_project_skills -eq 0 ]]; then
