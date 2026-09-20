@@ -16,14 +16,14 @@ the fleet registry drift check. Migrated 2026-08-15; see `HANDOFF.md` for the
 brief the first six were built from (job 7 followed the same day — see
 "registry-drift-cron.sh" below).
 
-Same supercronic pattern every site's `ops/docker/Dockerfile.cron` already
-uses, based on `node:22-alpine` instead of bare `alpine` because job 6
-(`domain-job-runner.sh`) needs node ≥ 22 + npm + `gh` to drive
-`domain-manager-cli.sh`. This makes the image heavier than a per-site cron
-image. If that bloat becomes a real problem, split into two services in this
-same compose file — `cron` for jobs 1–5, `domain-jobs` for job 6 alone on a
-lighter base — not two directories. Not done here; one container was simpler
-and the extra ~150MB hasn't cost anything yet.
+The image uses `node:22-alpine` because job 6 (`domain-job-runner.sh`) invokes
+Astro/npm plus the Docker CLI, Compose, and `gh` needed by
+`domain-manager-cli.sh`. New bootstrap scaffolds use Node prerendering, so the
+build does not need to launch Wrangler's glibc-only `workerd` binary inside
+Alpine. This makes the image heavier than a per-site cron image. If that bloat
+becomes a real problem, split into two services in this same compose file —
+`cron` for jobs 1–5, `domain-jobs` for job 6 alone on a lighter base — not two
+directories.
 
 ## What runs here
 
@@ -36,6 +36,7 @@ and the extra ~150MB hasn't cost anything yet.
 | 5 | `20 6 * * *` | `tools/scripts/lint-sweep-cron.sh` | Fleet prettier parse/format sweep |
 | 6 | `* * * * *` | `tools/scripts/domain-job-runner.sh` | Drain the Fleet Dashboard Domains-tab onboard/offboard spool |
 | 7 | `35 6 * * *` | `tools/scripts/registry-drift-cron.sh` | Fleet registry (`registry/fleet.yaml`) drift check against per-site config |
+| 7b | `40 6 * * *` | `tools/backlink-audit/audit.js` | Deterministic backlink-report coverage/provenance inventory for every site |
 | 18 | `0,15,30,45 * * * *` | `tools/social-hub/run-tick.sh` | Run the Social Hub pipeline inside its supervised API container |
 | 19 | `8,23,38,53 * * * *` | `tools/social-controller/run.sh` | Review public Social Hub drafts; zero AI invocation when the queue is empty |
 | 20 | `13,28,43,58 * * * *` | `tools/social-controller/monitor.py` | Alert only on stale/failed runs, old backlogs, rewrite pileups, or pipeline stage errors |

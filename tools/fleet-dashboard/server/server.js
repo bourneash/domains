@@ -26,6 +26,7 @@ const datahub = require('./datahub');
 const analytics = require('./analytics');
 const revenue = require('./revenue');
 const seoIntelligence = require('./seointelligence');
+const backlinks = require('./backlinks');
 const datahubImages = require('./datahub-images');
 const productFeed = require('./product-feed');
 const auth = require('./auth');
@@ -747,6 +748,86 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
+  });
+
+  // Backlink coverage/provenance is a separate fleet dataset from SEO
+  // Intelligence. The read path is deterministic and falls back to a live
+  // repo scan when the scheduled artifact is absent.
+  app.get('/api/backlinks', (_req, res) => {
+    try {
+      res.json(backlinks.readSnapshot(root));
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
+  app.get('/api/backlinks/:slug', requireSite, (req, res) => {
+    try {
+      const result = backlinks.detail(root, req.params.slug);
+      if (!result) return res.status(404).json({ error: 'backlink record not found' });
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
+  app.post('/api/backlinks/:slug/file', requireSite, (req, res) => {
+    try {
+      const site = req.params.slug;
+      const record = backlinks.detail(root, site);
+      if (!record) return res.status(404).json({ error: 'backlink record not found' });
+      const existing = tasks
+        .list(root, site)
+        .backlog.concat(
+          tasks.list(root, site)['in-progress'] || [],
+          tasks.list(root, site).hold || []
+        )
+        .find(task => task.source === 'backlink-audit' && task.source_id === site);
+      if (existing) return res.json({ ok: true, duplicate: true, file: existing.file });
+      const taskId = crypto.randomUUID();
+      const priority = record.priority === 'high' ? 1 : record.priority === 'medium' ? 2 : 3;
+      const file = tasks.create(root, site, 'backlog', {
+        task_id: taskId,
+        title: `Capture and review backlinks for ${site}`,
+        priority,
+        type: 'seo',
+        estimated_turns: 2,
+        assigned_role: 'seo-analyst',
+        source: 'backlink-audit',
+        source_id: site,
+        correlation_id: `backlink:${site}`,
+        body:
+          `## Current status\n\n${record.label}: ${record.recommendation}\n\n` +
+          `Latest report: ${record.latestDate || 'none'}\n\n` +
+          `## Acceptance criteria\n\nRun the strongest available backlink source, preserve the raw provenance in \`ops/seo/backlinks-YYYY-MM-DD.md\`, and record whether any legacy URLs or referring domains should be reclaimed.\n`,
+      });
+      res.status(201).json({ ok: true, file, task_id: taskId, assigned_role: 'seo-analyst' });
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
+  app.post('/api/backlinks/baseline-tasks', (_req, res) => {
+    try {
+      res.status(201).json(backlinks.createBaselineTasks(root));
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
+  app.post('/api/backlinks/run', (_req, res) => {
+    try {
+      const script = path.join(root, 'tools', 'backlink-audit', 'audit.js');
+      const child = require('node:child_process').spawn(
+        process.execPath,
+        [script, '--root', root],
+        {
+          cwd: root,
+          detached: true,
+          stdio: 'ignore',
+        }
+      );
+      child.unref();
+      res.status(202).json({ ok: true, message: 'backlink audit queued' });
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
     }
   });
 

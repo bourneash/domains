@@ -38,6 +38,12 @@
 # --- Job 7: fleet registry drift check (zero-AI, filesystem + YAML only) ---
 35 6 * * * /home/jesse/projects/domains/tools/scripts/registry-drift-cron.sh
 
+# --- Job 7b: fleet backlink-capture coverage inventory ---
+# Deterministic, read-only scan of every site's backlink reports. It does not
+# invent counts; the Fleet Manager uses the result to expose missing/stale
+# acquisition-domain captures and to queue follow-up work.
+40 6 * * * bash /home/jesse/projects/domains/tools/backlink-audit/run-backlink-audit.sh
+
 # --- Job 8: domain-developer worker Claude-auth guard ---
 # 2026-08-16 incident: idle dd-* workers drifted past the host's OAuth
 # rotation and went to "Not logged in". 2026-08-23 incident: worse than

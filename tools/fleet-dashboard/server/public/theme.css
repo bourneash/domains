@@ -262,6 +262,18 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
   box-shadow: 0 6px 20px -8px rgba(94,169,255,.85), inset 0 1px 0 rgba(255,255,255,.4);
 }
 .btn.primary:hover { filter: brightness(1.08) saturate(1.1); color: #051222; }
+.btn.backlink-accent {
+  background: linear-gradient(135deg, #ffb454 0%, #ff7a59 100%);
+  border-color: transparent;
+  color: #241306;
+  box-shadow: 0 6px 20px -8px rgba(255,140,75,.85), inset 0 1px 0 rgba(255,255,255,.42);
+}
+.btn.backlink-accent:hover {
+  filter: brightness(1.08) saturate(1.08);
+  border-color: transparent;
+  color: #241306;
+  box-shadow: 0 8px 24px -8px rgba(255,140,75,.95), inset 0 1px 0 rgba(255,255,255,.48);
+}
 .btn.danger { color: var(--red); border-color: rgba(255,107,107,.28); }
 .btn.danger:hover { border-color: var(--red); background: rgba(255,107,107,.12); box-shadow: 0 0 18px -8px var(--red); }
 .btn.sm { padding: 4px 10px; font-size: 11.5px; border-radius: 7px; }

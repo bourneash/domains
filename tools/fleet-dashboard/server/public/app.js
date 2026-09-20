@@ -6416,6 +6416,7 @@ let ANALYTICS_SCROLL_TO_DETAIL = false;
 let SEO_PRIORITY = 'all';
 let SEO_TYPE = 'all';
 let SEO_SITE = 'all';
+let BACKLINK_SITE = 'all';
 
 const SEO_TYPE_LABELS = {
   'striking-distance': 'Striking distance',
@@ -6619,6 +6620,124 @@ async function renderSeoIntelligence() {
   );
   applyFleetFilter();
   if (!FRESH) applyUISnap();
+}
+
+function backlinkBadge(status) {
+  const cls =
+    status === 'missing'
+      ? 'b-red'
+      : status === 'stale'
+        ? 'b-yellow'
+        : status === 'current'
+          ? 'b-green'
+          : 'b-blue';
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+
+async function renderBacklinks() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="muted">loading backlink coverage…</div>';
+  let data;
+  try {
+    data = await api('GET', '/api/backlinks');
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    return;
+  }
+  if (!data || data.error) {
+    app.innerHTML = `<div class="error-box">${esc(data?.error || 'backlink audit unavailable')}</div>`;
+    return;
+  }
+  const rows = (data.sites || []).filter(
+    row => BACKLINK_SITE === 'all' || row.site === BACKLINK_SITE
+  );
+  const counts = data.totals || {};
+  const cards = [
+    ['Coverage', `${data.coverage || 0}%`, `${counts.sites || 0} sites tracked`, 'var(--a1)'],
+    ['Missing', counts.missing || 0, 'no backlink report', 'var(--red)'],
+    [
+      'Needs refresh',
+      (counts.stale || 0) + (counts.baseline || 0),
+      'stale or unquantified',
+      'var(--yellow)',
+    ],
+    ['Measured', counts.current || 0, 'quantified/current reports', 'var(--green)'],
+  ]
+    .map(
+      ([label, value, sub, color]) =>
+        `<div class="seo-stat" style="--seo-c:${color}"><div class="seo-stat-label">${esc(label)}</div><div class="seo-stat-value">${esc(value)}</div><div class="seo-stat-sub">${esc(sub)}</div></div>`
+    )
+    .join('');
+  const detail =
+    BACKLINK_SITE !== 'all' ? (data.sites || []).find(row => row.site === BACKLINK_SITE) : null;
+  const detailHtml = detail
+    ? `<section class="dh-panel dh-wide"><div class="page-head"><h3>${siteLink(detail.site)} detail</h3><div><button class="btn sm backlink-accent backlink-file" data-site="${esc(detail.site)}">＋ File task</button> <button class="btn sm backlink-back">Show fleet</button></div></div><p>${esc(detail.recommendation)}</p><p class="muted">Latest report: ${esc(detail.latestDate || 'none')} · ${esc(detail.latestAgeDays == null ? '—' : `${detail.latestAgeDays} days old`)} · sources: ${esc(detail.sources?.join(', ') || 'none')}</p>${(detail.reports || []).map(report => `<article class="seo-action"><div class="seo-action-top">${backlinkBadge(report.measured ? 'measured' : 'baseline')}<span class="muted">${esc(report.date)}</span></div><p>${esc(report.excerpt || 'No summary excerpt')}</p><div class="muted mono">${esc(report.file)}</div></article>`).join('')}</section>`
+    : '';
+  const table = rows
+    .map(
+      row =>
+        `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td>${backlinkBadge(row.status)}</td><td>${esc(row.latestDate || '—')}</td><td>${esc(row.latestAgeDays == null ? '—' : `${row.latestAgeDays}d`)}</td><td>${esc(row.sources?.join(', ') || '—')}</td><td><button class="btn sm backlink-focus" data-site="${esc(row.site)}">Details</button> <button class="btn sm backlink-accent backlink-file" data-site="${esc(row.site)}">＋ Task</button></td></tr>`
+    )
+    .join('');
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div><div><button id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section><section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><table class="dh-sources"><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></section>`;
+  $('#backlink-site').value = BACKLINK_SITE;
+  $('#backlink-site').addEventListener('change', event => {
+    BACKLINK_SITE = event.target.value;
+    softRender();
+  });
+  $('#backlinks-baseline').addEventListener('click', async event => {
+    event.currentTarget.disabled = true;
+    event.currentTarget.textContent = 'Queuing…';
+    try {
+      const result = await api('POST', '/api/backlinks/baseline-tasks', {});
+      toast(`${result.createdCount} baseline task${result.createdCount === 1 ? '' : 's'} queued`);
+      setTimeout(() => softRender(), 500);
+    } catch (e) {
+      toast(e.message, 'err');
+      event.currentTarget.disabled = false;
+      event.currentTarget.textContent = '＋ Queue all baselines';
+    }
+  });
+  $('#backlinks-run').addEventListener('click', async event => {
+    event.currentTarget.disabled = true;
+    event.currentTarget.textContent = 'Queued…';
+    try {
+      await api('POST', '/api/backlinks/run', {});
+      toast('Backlink audit queued');
+      setTimeout(() => softRender(), 1200);
+    } catch (e) {
+      toast(e.message, 'err');
+      event.currentTarget.disabled = false;
+      event.currentTarget.textContent = '↻ Run audit now';
+    }
+  });
+  $$('.backlink-focus').forEach(button =>
+    button.addEventListener('click', () => {
+      BACKLINK_SITE = button.dataset.site;
+      softRender();
+    })
+  );
+  $$('.backlink-file').forEach(button =>
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        const result = await api(
+          'POST',
+          `/api/backlinks/${encodeURIComponent(button.dataset.site)}/file`,
+          {}
+        );
+        toast(result.duplicate ? 'Backlink task already exists' : 'Backlink task filed');
+      } catch (e) {
+        toast(e.message, 'err');
+        button.disabled = false;
+      }
+    })
+  );
+  $('.backlink-back')?.addEventListener('click', () => {
+    BACKLINK_SITE = 'all';
+    softRender();
+  });
+  applyFleetFilter();
 }
 
 function anDelta(cur, prev) {
@@ -10266,6 +10385,7 @@ const NAV_GROUPS = {
     description: 'Measure demand, expand reach, and manage acquisition systems.',
     items: [
       ['seointelligence', 'SEO Intelligence'],
+      ['backlinks', 'Backlink Capture'],
       ['analytics', 'Analytics'],
       ['social', 'Social Accounts'],
       ['socialhub', 'Social Hub'],
@@ -11093,6 +11213,7 @@ function render() {
   else if (STATE.view === 'datahubimages') return renderDataHubImages();
   else if (STATE.view === 'productfeed') return renderProductFeed();
   else if (STATE.view === 'seointelligence') return renderSeoIntelligence();
+  else if (STATE.view === 'backlinks') return renderBacklinks();
   else if (STATE.view === 'analytics') return renderAnalytics();
   else if (STATE.view === 'compliance') return renderCompliance();
   else if (STATE.view === 'lint') return renderLint();
@@ -11131,6 +11252,7 @@ const NAV_ITEM_DESCRIPTIONS = {
   datahubimages: 'Manage generated and sourced image assets.',
   sitefacts: 'Audit site facts, trust signals, and product health.',
   seointelligence: 'Turn first-party search evidence into priorities.',
+  backlinks: 'Track backlink captures, provenance, and acquisition-domain follow-up.',
   analytics: 'Review traffic and performance across the portfolio.',
   social: 'Manage connected social accounts.',
   socialhub: 'Plan, approve, and monitor social publishing.',
