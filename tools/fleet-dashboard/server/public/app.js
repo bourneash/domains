@@ -8,7 +8,15 @@ const esc = s =>
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
   );
 
-let STATE = { view: 'control', agent: null, sites: [], agents: [], taskSite: null, gitSlug: null };
+let STATE = {
+  view: 'control',
+  agent: null,
+  sites: [],
+  agents: [],
+  taskSite: null,
+  gitSlug: null,
+  gitTab: 'operations',
+};
 let AGENT_HEALTH = null;
 
 function agentLabel(role) {
@@ -657,6 +665,7 @@ async function renderGitHygiene() {
 
   const when = last ? `${esc(last.at)}` : 'never';
   const head = `
+    ${gitPageTabs('hygiene')}
     <div class="task-toolbar">
       <strong>Git Hygiene</strong>
       <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${notClean.length} not clean · ${b.queue.length} to review` : ''}</span>
@@ -868,6 +877,7 @@ async function renderGit() {
     .join('');
 
   app.innerHTML = `
+    ${gitPageTabs('operations')}
     <div class="task-toolbar">
       <strong>${rows.length} repos</strong>
       <span class="muted">${dirtyCount} dirty · ${pushCount} need push · ${pullCount} need pull</span>
@@ -898,6 +908,13 @@ async function renderGit() {
   });
   applyFleetFilter();
   stamp();
+}
+
+function gitPageTabs(active) {
+  return `<div class="git-page-tabs" role="tablist" aria-label="Git">
+    <a class="git-page-tab${active === 'operations' ? ' active' : ''}" role="tab" aria-selected="${active === 'operations'}" href="#git">Repository Operations</a>
+    <a class="git-page-tab${active === 'hygiene' ? ' active' : ''}" role="tab" aria-selected="${active === 'hygiene'}" href="#git/hygiene">Fleet Hygiene</a>
+  </div>`;
 }
 
 /* ===================== TASK BUDGET ===================== */
@@ -9600,20 +9617,33 @@ function shCalendarDayKey(ts) {
 
 function shCalendarDayLabel(date) {
   const d = new Date(date);
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const key = shCalendarDayKey(d);
-  const relative =
-    key === shCalendarDayKey(today)
-      ? 'Today'
-      : key === shCalendarDayKey(tomorrow)
-        ? 'Tomorrow'
-        : '';
   return {
-    weekday: relative || d.toLocaleDateString([], { weekday: 'long' }),
+    weekday: d.toLocaleDateString([], { weekday: 'long' }),
     date: d.toLocaleDateString([], { month: 'short', day: 'numeric' }),
   };
+}
+
+function shSiteMark(site) {
+  const favicon = safeHref(`https://${site}/favicon.svg`);
+  const initial =
+    String(site || '?')
+      .replace(/^www\./i, '')
+      .charAt(0)
+      .toUpperCase() || '?';
+  return `<span class="sh-site-mark" title="${esc(site)}"><span class="sh-site-initial" aria-hidden="true">${esc(initial)}</span><img src="${favicon}" alt="" loading="lazy" data-sh-site-icon data-site="${esc(site)}"></span>`;
+}
+
+function shWireSiteIcons(root) {
+  $$('[data-sh-site-icon]', root).forEach(img =>
+    img.addEventListener('error', () => {
+      if (img.dataset.fallback === '1') {
+        img.hidden = true;
+        return;
+      }
+      img.dataset.fallback = '1';
+      img.src = safeHref(`https://${img.dataset.site}/favicon.ico`);
+    })
+  );
 }
 
 function shCalendarPost(p) {
@@ -9645,7 +9675,7 @@ function shCalendarPost(p) {
         <span class="badge ${p.status === 'draft' ? 'b-yellow' : p.status === 'posted' ? 'b-green' : p.status === 'failed' || p.status === 'rejected' ? 'b-red' : p.status === 'cancelled' ? 'b-gray' : 'b-blue'}" title="Current approval/publishing state">${esc(statusLabel)}</span>
       </div>
       <div class="sh-cal-meta">
-        <span class="badge b-blue">${esc(p.site)}</span>
+        <span class="sh-site-label">${shSiteMark(p.site)}<span class="badge b-blue">${esc(p.site)}</span></span>
         <span class="badge">${esc(p.platform)}</span>
         ${p.kind === 'reply' ? '<span class="badge b-yellow">reply</span>' : ''}
       </div>
@@ -9736,6 +9766,8 @@ async function shRenderCalendar() {
     const list = $('#sh-calendar-list');
     const start = new Date();
     start.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const nowPct = ((now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60) / 1440) * 100;
     const days = Array.from({ length: SH.calendarDays }, (_, index) => {
       const date = new Date(start);
       date.setDate(start.getDate() + index);
@@ -9769,14 +9801,15 @@ async function shRenderCalendar() {
               const today = shCalendarDayKey(day.date) === shCalendarDayKey(new Date());
               const weekend = [0, 6].includes(day.date.getDay());
               return `<section class="sh-cal-day${today ? ' is-today' : ''}${weekend ? ' is-weekend' : ''}">
-                <header><div><strong>${esc(label.weekday)}</strong><span>${esc(label.date)}</span></div><span class="badge ${day.posts.length ? 'b-blue' : 'b-gray'}">${day.posts.length}</span></header>
-                <div class="sh-cal-day-posts">${day.posts.length ? day.posts.map(shCalendarPost).join('') : '<div class="sh-cal-empty"><span>—</span><small>No posts</small></div>'}</div>
+                <header><div><strong>${esc(label.weekday)}</strong><span>${esc(label.date)}</span></div><div class="sh-cal-day-head-meta">${today ? '<span class="sh-cal-today-mark">Today</span>' : ''}<span class="badge ${day.posts.length ? 'b-blue' : 'b-gray'}">${day.posts.length}</span></div></header>
+                <div class="sh-cal-day-posts">${today ? `<div class="sh-cal-now-line" style="--sh-now-pct:${nowPct.toFixed(3)}%"><span>Now ${esc(now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</span></div>` : ''}${day.posts.length ? day.posts.map(shCalendarPost).join('') : '<div class="sh-cal-empty"><span>—</span><small>No posts</small></div>'}</div>
               </section>`;
             })
             .join('')}
         </div>
       </div>`;
     $$('.sh-act', list).forEach(btn => btn.addEventListener('click', () => shPostAction(btn)));
+    shWireSiteIcons(list);
     applyFleetFilter();
   }
 
@@ -10208,7 +10241,6 @@ const NAV_GROUPS = {
       ['scheduler', 'Scheduler'],
       ['containers', 'Containers'],
       ['git', 'Git'],
-      ['githygiene', 'Git Hygiene'],
       ['tasks', 'Tasks'],
       ['deploys', 'Deploys'],
       ['builds', 'Build Usage'],
@@ -10261,7 +10293,7 @@ const NAV_GROUPS = {
 // Flattened for the router — every view any group knows about.
 const NAV_GROUP_VIEWS = Object.values(NAV_GROUPS).flatMap(g => g.items.map(([v]) => v));
 
-// Hash router. Routes: #control, #cron, #containers, #git, #tasks, #agents/<role>.
+// Hash router. Routes: #control, #cron, #containers, #git[/hygiene], #tasks, #agents/<role>.
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
 function parseHash() {
   const raw = (location.hash || '').replace(/^#/, '');
@@ -10274,12 +10306,16 @@ function parseHash() {
   if (a === 'agents' && b) return { view: 'agent', agent: decodeURIComponent(b) };
   if (a === 'fleet') return { view: 'agent', agent: 'engineer' };
   if (a === 'roles') return { view: 'control', agent: null };
+  // Legacy bookmark for the former standalone Git Hygiene view.
+  if (a === 'githygiene') return { view: 'git', agent: null, gitTab: 'hygiene' };
+  if (a === 'git' && b === 'hygiene') return { view: 'git', agent: null, gitTab: 'hygiene' };
   if (a === 'git' && b && c === 'stashes')
     return { view: 'gitstashes', agent: null, gitSlug: decodeURIComponent(b) };
   if (topViews().includes(a))
     return {
       view: a,
       agent: null,
+      gitTab: a === 'git' ? 'operations' : null,
       socialHub: a === 'socialhub' && query ? Object.fromEntries(new URLSearchParams(query)) : null,
     };
   return { view: 'control', agent: null };
@@ -11045,8 +11081,8 @@ function render() {
   else if (STATE.view === 'scheduler') return renderScheduler();
   else if (STATE.view === 'agent') return renderAgent(STATE.agent);
   else if (STATE.view === 'containers') return renderContainers();
-  else if (STATE.view === 'git') return renderGit();
-  else if (STATE.view === 'githygiene') return renderGitHygiene();
+  else if (STATE.view === 'git')
+    return STATE.gitTab === 'hygiene' ? renderGitHygiene() : renderGit();
   else if (STATE.view === 'gitstashes') return renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') return renderTasks();
   else if (STATE.view === 'taskbudget') return renderTaskBudget();
@@ -11081,8 +11117,7 @@ function render() {
 const NAV_ITEM_DESCRIPTIONS = {
   cron: 'Review schedules and manage fleet cron jobs.',
   containers: 'Inspect runtime health, resource use, and container state.',
-  git: 'Review repository status and working-tree changes.',
-  githygiene: 'Find stale branches and repository hygiene issues.',
+  git: 'Review repository status, working-tree changes, and fleet hygiene.',
   tasks: 'Manage the fleet-wide work queue.',
   deploys: 'Compare live Cloudflare deployments with source.',
   builds: 'Track build activity, usage, and failures.',
@@ -11182,6 +11217,7 @@ function softRender() {
 function go(view, agent) {
   STATE.view = view;
   STATE.agent = agent || null;
+  if (view === 'git') STATE.gitTab = 'operations';
   const hash = hashFor(view, agent);
   if (location.hash !== `#${hash}`) location.hash = hash; // shareable + back-button
   FRESH = true;
@@ -11436,6 +11472,7 @@ async function boot() {
   STATE.view = r.view;
   STATE.agent = r.agent;
   STATE.gitSlug = r.gitSlug || null;
+  STATE.gitTab = r.gitTab || 'operations';
   if (r.view === 'socialhub') shApplyRoute(r.socialHub);
   buildAgentsMenu();
   buildNavGroupMenus();
@@ -11505,11 +11542,13 @@ async function boot() {
       n.view !== STATE.view ||
       n.agent !== STATE.agent ||
       (n.gitSlug || null) !== STATE.gitSlug ||
+      (n.gitTab || 'operations') !== STATE.gitTab ||
       socialHubChanged
     ) {
       STATE.view = n.view;
       STATE.agent = n.agent;
       STATE.gitSlug = n.gitSlug || null;
+      STATE.gitTab = n.gitTab || 'operations';
       FRESH = true;
       render();
     }

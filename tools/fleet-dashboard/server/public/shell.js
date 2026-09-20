@@ -509,9 +509,43 @@
       ? `<svg class="rl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${P[k]}"/></svg>`
       : `<svg class="rl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3.4"/></svg>`;
 
+  // Agents are discovered from the fleet, so keep the visual vocabulary here
+  // and provide keyword fallbacks for new/custom roles.
+  const ROLE_EMOJI = {
+    engineer: '🛠️',
+    'principal-engineer': '🧭',
+    'content-writer': '✍️',
+    'news-writer': '📰',
+    'guide-writer': '📚',
+    'guide-idea-seeder': '💡',
+    'guide-publisher': '📖',
+    'seo-analyst': '🔎',
+    'affiliate-editor': '🛍️',
+    deployer: '🚀',
+    watchdog: '🐕',
+    maintainer: '🔧',
+    planner: '🗺️',
+    'social-poster': '📣',
+    promoter: '📢',
+  };
+  const roleEmoji = role => {
+    const key = String(role || '').toLowerCase();
+    if (ROLE_EMOJI[key]) return ROLE_EMOJI[key];
+    if (key.includes('write')) return '✍️';
+    if (key.includes('seo') || key.includes('search')) return '🔎';
+    if (key.includes('social') || key.includes('promo')) return '📣';
+    if (key.includes('deploy') || key.includes('release')) return '🚀';
+    if (key.includes('engineer') || key.includes('code')) return '🛠️';
+    if (key.includes('audit') || key.includes('quality')) return '✅';
+    return '🤖';
+  };
+  const agentIcon = role =>
+    `<span class="rl-emoji" role="img" aria-label="${esc(String(role || 'agent'))}">${roleEmoji(role)}</span>`;
+
   // Category landing pages use the exact same icon vocabulary as the rail.
   // Exposing the pure renderer avoids maintaining a second icon map in app.js.
   globalThis.fleetNavIcon = icon;
+  globalThis.fleetAgentIcon = agentIcon;
 
   const prefs = (() => {
     try {
@@ -558,9 +592,10 @@
       if (!btn || !id) return;
       const items = $$('.dd-menu .dd-item', dd).map(el => {
         const c = el.cloneNode(true);
-        c.querySelectorAll('.dd-count').forEach(n => n.remove());
+        c.querySelectorAll('.dd-count, .rl-emoji').forEach(n => n.remove());
         return {
           key: el.dataset.view || 'agent',
+          role: el.dataset.role || '',
           label: c.textContent.trim(),
           count: $('.dd-count', el)?.textContent.trim() || '',
           el,
@@ -613,7 +648,7 @@
           .map(
             (it, n) => `
         <button class="rl-it" type="button" data-sec="${esc(s.id)}" data-n="${n}" title="${esc(it.label)}">
-          ${icon(s.id === 'agents' ? 'agent' : it.key)}
+          ${s.id === 'agents' ? agentIcon(it.role || it.label) : icon(it.key)}
           <span class="rl-t">${esc(it.label)}</span>
           ${it.count ? `<span class="rl-n">${esc(it.count)}</span>` : ''}
         </button>`

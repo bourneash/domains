@@ -24,6 +24,15 @@ test('navigation category roots are first-class routes', () => {
   }
 });
 
+test('Git operations and Git Hygiene share one page with distinct tabs', () => {
+  assert.equal(routeFor('#git').view, 'git');
+  assert.equal(routeFor('#git').gitTab, 'operations');
+  assert.equal(routeFor('#git/hygiene').view, 'git');
+  assert.equal(routeFor('#git/hygiene').gitTab, 'hygiene');
+  assert.equal(routeFor('#githygiene').view, 'git');
+  assert.equal(routeFor('#githygiene').gitTab, 'hygiene');
+});
+
 test('sidebar category navigation and disclosure use separate controls', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /class="rl-h-main"/);
@@ -39,7 +48,10 @@ test('category cards share the sidebar icon system', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /globalThis\.fleetNavIcon = icon/);
-  assert.match(app, /class="nav-root-icon"[^>]*>\$\{typeof globalThis\.fleetNavIcon/);
+  assert.match(app, /class="nav-root-icon"[^>]*>\$\{.*globalThis\.fleetNavIcon/);
+  assert.match(shell, /globalThis\.fleetAgentIcon = agentIcon/);
+  assert.match(app, /globalThis\.fleetAgentIcon\(key\)/);
+  assert.match(shell, /engineer: '🛠️'/);
 });
 
 test('agent pages expose enrollment actions that open the automation editor', () => {
@@ -54,6 +66,9 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Remove \$\{role\} from \$\{site\}/);
   assert.match(app, /rebuilding cron/);
   assert.match(app, /Agent health · last/);
+  assert.match(app, /Expected/);
+  assert.match(app, /missed/);
+  assert.match(app, /Execution history/);
   assert.match(app, /class="btn sm ag-health-details"[^>]*>Expand<\/button>/);
   assert.match(app, /function toggleHealthDetail\(button\)/);
   assert.match(app, /ag-health-detail-grid/);

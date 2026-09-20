@@ -8,6 +8,7 @@ const gitMod = require('./git');
 const deployhealth = require('./deployhealth');
 const { parseCrontab, uncommentLine } = require('./cron/parse');
 const { tailFile } = require('./cron/runinfo');
+const execution = require('./execution');
 
 function httpErr(status, msg) {
   const e = new Error(msg);
@@ -329,6 +330,10 @@ async function health(root, role, slugs, usage = {}) {
     const cell = site.cells[role];
     if (!cell) continue;
     const stats = recentRunStats(siteDir(root, site.site), role, cutoff);
+    const history = execution.executionHistory(root, site.site, role, cell.schedule, {
+      from: new Date(cutoff),
+      enabled: cell.enabled,
+    });
     const prompt = promptHash(siteDir(root, site.site), role);
     const runner = cell.worker ? 'run-worker.sh' : 'dedicated-script';
     const key = `${runner}:${prompt || 'missing'}`;
@@ -350,6 +355,10 @@ async function health(root, role, slugs, usage = {}) {
       promptHash: prompt,
       runner,
       driftKey: key,
+      expected: history.expected,
+      missed: history.missed,
+      unknown: history.unknown,
+      execution: history,
     });
   }
   const baseline = Object.entries(promptCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
@@ -358,6 +367,7 @@ async function health(root, role, slugs, usage = {}) {
   });
   const summary = {
     enrolled: rows.length,
+    expected: rows.reduce((n, row) => n + row.expected, 0),
     paused: rows.filter(row => !row.enabled).length,
     fresh: rows.filter(row => row.state === 'fresh').length,
     stale: rows.filter(row => row.state === 'stale').length,
@@ -365,6 +375,7 @@ async function health(root, role, slugs, usage = {}) {
     observed: rows.reduce((n, row) => n + row.observed, 0),
     succeeded: rows.reduce((n, row) => n + row.succeeded, 0),
     failed: rows.reduce((n, row) => n + row.failed, 0),
+    missed: rows.reduce((n, row) => n + row.missed, 0),
     costUsd: rows.reduce((n, row) => n + row.costUsd, 0),
     drifted: rows.filter(row => row.drift).length,
   };

@@ -208,6 +208,10 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .hkey.h-miss { background: #3a4150; }
 
 /* ---- git ---- */
+.git-page-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.git-page-tab { color: var(--muted); text-decoration: none; padding: 8px 12px; border-bottom: 2px solid transparent; font-size: 13px; }
+.git-page-tab:hover { color: var(--text); }
+.git-page-tab.active { color: var(--text); border-bottom-color: var(--accent); }
 .filerow { display: flex; gap: 8px; padding: 3px 0; font-family: var(--mono); font-size: 12.5px; }
 .filerow .code { width: 28px; color: var(--muted); }
 .git-detail { padding: 8px 16px 14px; background: var(--panel-2); }
@@ -953,13 +957,18 @@ body[data-view="social"] main { max-width: none; }
 .sh-calendar-grid { display: grid; grid-template-columns: repeat(var(--sh-calendar-days), minmax(0, 1fr)); gap: 8px; align-items: stretch; width: 100%; }
 .sh-cal-day { min-height: 260px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); overflow: hidden; box-shadow: 0 5px 16px rgba(0,0,0,.12); }
 .sh-cal-day.is-weekend { background: color-mix(in srgb, var(--panel) 92%, var(--purple)); }
-.sh-cal-day.is-today { border-color: color-mix(in srgb, var(--accent) 70%, var(--border)); box-shadow: 0 0 0 1px rgba(77,163,255,.18), 0 7px 18px rgba(0,0,0,.16); }
+.sh-cal-day.is-today { border-color: color-mix(in srgb, var(--green) 78%, var(--border)); box-shadow: 0 0 0 1px rgba(61,220,151,.2), 0 7px 18px rgba(0,0,0,.16); }
 .sh-cal-day > header { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 11px; border-bottom: 1px solid var(--border); background: var(--panel-2); }
-.sh-cal-day.is-today > header { background: linear-gradient(90deg, rgba(77,163,255,.16), var(--panel-2)); }
+.sh-cal-day.is-today > header { background: linear-gradient(90deg, rgba(61,220,151,.16), var(--panel-2)); }
 .sh-cal-day > header div { display: grid; gap: 1px; }
 .sh-cal-day > header strong { font-size: 13px; }
 .sh-cal-day > header span:not(.badge) { color: var(--muted); font-size: 11px; }
-.sh-cal-day-posts { display: grid; align-content: start; gap: 7px; padding: 8px; max-height: 68vh; min-height: 208px; overflow-y: auto; min-width: 0; }
+.sh-cal-day-head-meta { display: flex !important; align-items: center; gap: 6px; }
+.sh-cal-today-mark { position: relative; color: var(--green) !important; font-size: 10px !important; font-weight: 700; letter-spacing: .45px; text-transform: uppercase; }
+.sh-cal-today-mark::before { content: '›'; display: inline-block; margin-right: 2px; font-size: 15px; line-height: 0; vertical-align: -1px; }
+.sh-cal-day-posts { position: relative; display: grid; align-content: start; gap: 7px; padding: 8px; max-height: 68vh; min-height: 208px; overflow-y: auto; min-width: 0; }
+.sh-cal-now-line { position: absolute; z-index: 2; left: 0; right: 0; top: var(--sh-now-pct); height: 2px; background: var(--green); box-shadow: 0 0 8px rgba(61,220,151,.65); pointer-events: none; }
+.sh-cal-now-line span { position: absolute; right: 5px; top: -9px; padding: 1px 4px; border-radius: 4px; background: var(--green); color: #062017; font-size: 9px; font-weight: 700; line-height: 1.35; }
 .sh-cal-empty { display: grid; place-items: center; align-content: center; gap: 5px; min-height: 175px; color: var(--border); }
 .sh-cal-empty span { font-size: 24px; line-height: 1; }
 .sh-cal-empty small { color: var(--muted); font-size: 11px; }
@@ -968,6 +977,10 @@ body[data-view="social"] main { max-width: none; }
 .sh-cal-post-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .sh-cal-post-head time { color: var(--text); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .sh-cal-meta { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; overflow: hidden; }
+.sh-site-label { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.sh-site-mark { position: relative; display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; overflow: hidden; border: 1px solid var(--border); border-radius: 5px; background: var(--panel-2); color: var(--muted); font-size: 10px; font-weight: 700; }
+.sh-site-mark img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--panel-2); }
+.sh-site-initial { line-height: 1; }
 .sh-cal-body { min-height: 32px; font-size: 12px; line-height: 1.35; }
 .sh-cal-overdue { color: var(--red, #f85149); font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
 .sh-cal-review-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 2px; border-top: 1px solid var(--border); }
