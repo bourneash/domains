@@ -1711,10 +1711,10 @@ async function renderDeployHealth() {
 }
 
 /* ===================== CLOUDFLARE BUILDS ===================== */
-// Live Workers Builds configuration plus a persisted 180-day build/commit
-// history. The server refreshes Cloudflare every five minutes; this view only
+// Live Workers Builds configuration plus a persisted seven-day build/commit
+// history. The server refreshes Cloudflare hourly; this view only
 // reads the sanitized cache, so auto-refresh is cheap.
-const CF_BUILDS = { days: 30 };
+const CF_BUILDS = { days: 7 };
 
 function cfbMinutes(value) {
   const n = Number(value) || 0;
@@ -1865,7 +1865,7 @@ async function renderCloudflareBuilds() {
     <div class="page-head"><h2 class="page-title">Build Usage</h2><span class="muted">Cloudflare Workers Builds · commits, minutes, cost projection, and live trigger policy</span></div>
     <div class="cfb-controls" aria-label="Build history range">
       <div class="seg">
-        ${[7, 30, 90, 180].map(days => `<button class="seg-btn cfb-range ${CF_BUILDS.days === days ? 'active' : ''}" data-days="${days}">${days}d</button>`).join('')}
+        ${[7].map(days => `<button class="seg-btn cfb-range ${CF_BUILDS.days === days ? 'active' : ''}" data-days="${days}">${days}d</button>`).join('')}
       </div>
       <span class="muted">Cloudflare cache refreshed ${esc(lastSweep)}${data.refreshing ? ' · refreshing now' : ''}</span>
       <span class="cm-spacer"></span>
@@ -1887,7 +1887,7 @@ async function renderCloudflareBuilds() {
     ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
     ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
     ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
-    <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. History is retained locally for 180 days and refreshed every five minutes.</p>`;
+    <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. Build history is retained locally for 7 days and refreshed hourly; live trigger policy remains current.</p>`;
 
   $$('.cfb-range').forEach(button =>
     button.addEventListener('click', () => {

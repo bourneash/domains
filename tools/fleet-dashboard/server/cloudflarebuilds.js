@@ -9,9 +9,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const POLL_MS = 5 * 60 * 1000;
+const POLL_MS = 60 * 60 * 1000;
 const TRIGGER_POLL_MS = 60 * 60 * 1000;
-const RETAIN_DAYS = 180;
+const RETAIN_DAYS = 7;
 const PER_PAGE = 200;
 const MAX_PAGES = 50;
 // Cloudflare's Builds edge intermittently resets bursts of parallel requests.
@@ -74,9 +74,7 @@ function load(root) {
         // partial trigger sweep. Keep its useful build history, but force one
         // complete trigger inventory before trusting the cadence marker.
         lastTriggerSweep:
-          Number(parsed.cacheVersion) === CACHE_VERSION
-            ? Number(parsed.lastTriggerSweep) || 0
-            : 0,
+          Number(parsed.cacheVersion) === CACHE_VERSION ? Number(parsed.lastTriggerSweep) || 0 : 0,
         refreshing: false,
         error: parsed.error || null,
         errors: Array.isArray(parsed.errors) ? parsed.errors : [],
@@ -127,7 +125,9 @@ async function cf(creds, apiPath) {
     await new Promise(resolve => setTimeout(resolve, 300 * 2 ** attempt));
   }
   const cause = lastError && lastError.cause && lastError.cause.code;
-  throw new Error(`${lastError && lastError.message ? lastError.message : 'Cloudflare request failed'}${cause ? ` (${cause})` : ''}`);
+  throw new Error(
+    `${lastError && lastError.message ? lastError.message : 'Cloudflare request failed'}${cause ? ` (${cause})` : ''}`
+  );
 }
 
 async function mapLimit(items, limit, fn) {
@@ -155,7 +155,8 @@ function sanitizeTrigger(trigger, workerName) {
     externalScriptId: trigger.external_script_id,
     name: trigger.trigger_name || '',
     repo: (trigger.repo_connection && trigger.repo_connection.repo_name) || '',
-    providerAccount: (trigger.repo_connection && trigger.repo_connection.provider_account_name) || '',
+    providerAccount:
+      (trigger.repo_connection && trigger.repo_connection.provider_account_name) || '',
     provider: (trigger.repo_connection && trigger.repo_connection.provider_type) || '',
     root: trigger.root_directory || '',
     branchIncludes: trigger.branch_includes || [],
@@ -195,7 +196,10 @@ async function fetchWorker(creds, accountId, script, knownIds, refreshTriggers) 
   const triggerData = refreshTriggers ? await cf(creds, `${base}/triggers`) : null;
   const firstPage = await cf(creds, `${base}/builds?per_page=${PER_PAGE}&page=1`);
   const rawBuilds = [...(firstPage.result || [])];
-  const totalPages = Math.min(Number(firstPage.result_info && firstPage.result_info.total_pages) || 1, MAX_PAGES);
+  const totalPages = Math.min(
+    Number(firstPage.result_info && firstPage.result_info.total_pages) || 1,
+    MAX_PAGES
+  );
   let metKnown = rawBuilds.some(build => knownIds.has(build.build_uuid));
   for (let page = 2; page <= totalPages && !metKnown; page += 1) {
     const pageData = await cf(creds, `${base}/builds?per_page=${PER_PAGE}&page=${page}`);
@@ -223,7 +227,10 @@ async function refresh(root = activeRoot) {
   STATE.refreshing = true;
   const errors = [];
   try {
-    const scriptsData = await cf(creds, `/accounts/${creds.accountId}/workers/scripts?per_page=100`);
+    const scriptsData = await cf(
+      creds,
+      `/accounts/${creds.accountId}/workers/scripts?per_page=100`
+    );
     const scripts = (scriptsData.result || []).filter(row => row.tag && row.id);
     const refreshTriggers =
       !STATE.lastTriggerSweep ||
@@ -258,14 +265,22 @@ async function refresh(root = activeRoot) {
     STATE.builds = [...buildMap.values()]
       .filter(build => Date.parse(build.createdOn || '') >= cutoff)
       .sort((a, b) => String(b.createdOn).localeCompare(String(a.createdOn)));
-    STATE.triggers = [
-      ...STATE.triggers.filter(trigger => !successfulTriggerWorkers.has(trigger.worker)),
-      ...successful.flatMap(row => row.triggers || []),
-    ].sort((a, b) => a.repo.localeCompare(b.repo) || a.name.localeCompare(b.name));
+    // A complete trigger sweep is authoritative: replace the inventory so
+    // Workers deleted from Cloudflare do not remain in the dashboard forever.
+    // Keep previous entries only when the sweep was partial or skipped.
+    STATE.triggers = (
+      refreshTriggers && errors.length === 0
+        ? successful.flatMap(row => row.triggers || [])
+        : [
+            ...STATE.triggers.filter(trigger => !successfulTriggerWorkers.has(trigger.worker)),
+            ...successful.flatMap(row => row.triggers || []),
+          ]
+    ).sort((a, b) => a.repo.localeCompare(b.repo) || a.name.localeCompare(b.name));
     STATE.lastSweep = Date.now();
     if (refreshTriggers && errors.length === 0) STATE.lastTriggerSweep = STATE.lastSweep;
     STATE.errors = errors.slice(0, 20);
-    STATE.error = errors.length === scripts.length ? 'Every Cloudflare worker refresh failed' : null;
+    STATE.error =
+      errors.length === scripts.length ? 'Every Cloudflare worker refresh failed' : null;
     save(root);
   } catch (error) {
     STATE.error = String(error.message || error);
@@ -401,8 +416,10 @@ function summarize(state = STATE, { days = 30, limit = 300, now = Date.now() } =
       connectedRepos: new Set(state.triggers.map(trigger => trigger.repo).filter(Boolean)).size,
       activeRepos: new Set(builds.map(build => build.repo).filter(Boolean)).size,
       triggers: triggerCount,
-      productionTriggers: state.triggers.filter(trigger => trigger.branchIncludes.includes('main')).length,
-      previewTriggers: state.triggers.filter(trigger => !trigger.branchIncludes.includes('main')).length,
+      productionTriggers: state.triggers.filter(trigger => trigger.branchIncludes.includes('main'))
+        .length,
+      previewTriggers: state.triggers.filter(trigger => !trigger.branchIncludes.includes('main'))
+        .length,
       compliantTriggers,
       cachingTriggers: state.triggers.filter(trigger => trigger.caching).length,
       monthBuilds: monthBuilds.length,
