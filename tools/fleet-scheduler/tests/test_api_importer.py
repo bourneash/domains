@@ -92,7 +92,8 @@ class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.root = Path(tempfile.mkdtemp())
-        (cls.root / "sites" / "a.com").mkdir(parents=True)
+        (cls.root / "sites" / "a.com" / "ops" / "docker").mkdir(parents=True)
+        (cls.root / "sites" / "a.com" / "ops" / "docker" / "crontab.docker").write_text(CRONTAB)
         cls.db_dir = tempfile.mkdtemp()
         started = threading.Event()
 
@@ -169,6 +170,20 @@ class ApiTests(unittest.TestCase):
         code, _ = self.req("PATCH", f"/api/jobs/{jid}", {"schedule": "5 5 * * *", "enabled": False})
         self.assertEqual(code, 200)
         self.assertEqual(self.req("PATCH", "/api/jobs/99999", {"enabled": True})[0], 404)
+
+    def test_schedule_edit_is_mirrored_into_crontab_docker(self):
+        jobs = self.req("GET", "/api/jobs?site=a.com")[1]
+        wd = next(j for j in jobs if j["name"] == "watchdog")
+        code, out = self.req("PATCH", f"/api/jobs/{wd['id']}", {"schedule": "1,16,31,46 * * * *"})
+        self.assertEqual(code, 200); self.assertNotIn("warnings", out)
+        text = (self.root / "sites" / "a.com" / "ops" / "docker" / "crontab.docker").read_text()
+        self.assertIn("1,16,31,46 * * * *  bash ops/scripts/run-watchdog.sh", text)
+        self.assertIn("# comment", text)                       # untouched
+        self.assertNotIn("2,17,32,47 * * * *", text)
+        self.req("PATCH", f"/api/jobs/{wd['id']}", {"schedule": "2,17,32,47 * * * *", "enabled": False})
+        text = (self.root / "sites" / "a.com" / "ops" / "docker" / "crontab.docker").read_text()
+        self.assertIn("# 2,17,32,47 * * * *  bash ops/scripts/run-watchdog.sh", text)
+        self.req("PATCH", f"/api/jobs/{wd['id']}", {"enabled": True})
 
     def test_create_and_delete_job(self):
         ok = {"site": "a.com", "name": "extra", "schedule": "*/10 * * * *",

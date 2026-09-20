@@ -83,6 +83,13 @@ class Config:
     def sites_dir(self) -> Path:
         return self.root / "sites"
 
+    def crontab_for(self, site: str) -> Path | None:
+        """The legacy crontab.docker this group mirrors to (None = don't mirror)."""
+        if self.cwd:  # single-group instance (fleet tools)
+            p = self.root / "tools" / "fleet-cron" / "crontab.docker"
+            return p if site == self.group else None
+        return self.sites_dir / site / "ops" / "docker" / "crontab.docker"
+
 
 @dataclass
 class Job:

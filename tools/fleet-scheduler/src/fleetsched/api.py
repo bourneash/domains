@@ -27,7 +27,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from . import cronexpr
+from . import cronexpr, mirror
 from .engine import NAME_RE, SITE_RE, Engine, SchedError
 
 log = logging.getLogger("fleetsched.api")
@@ -177,7 +177,8 @@ class Service:
         jid = self.e.db.insert_job(site=site, name=name, source="api", **f)
         self.e.db.audit(actor, "create", jid, {"site": site, "name": name, **f})
         self.e.reload_job(jid)
-        return {"id": jid}
+        warn = mirror.sync(self.e.cfg.crontab_for(site), None, dict(self.e.db.job(jid)))
+        return {"id": jid, **({"warnings": [warn]} if warn else {})}
 
     def patch_job(self, jid: int, body: dict, actor: str):
         if not self.e.db.job(jid):
@@ -185,12 +186,16 @@ class Service:
         f = _validate_job_patch(body, create=False)
         if not f:
             raise SchedError("nothing to update")
+        before = dict(self.e.db.job(jid))
         if "schedule" in f or "tz" in f:
             f["last_fire_ts"] = int(time.time())  # never "catch up" across an edit
         self.e.db.update_job(jid, **f)
         self.e.db.audit(actor, "update", jid, f)
         self.e.reload_job(jid)
-        return {"ok": True}
+        warn = None
+        if {"schedule", "enabled", "command"} & set(f):
+            warn = mirror.sync(self.e.cfg.crontab_for(before["site"]), before, dict(self.e.db.job(jid)))
+        return {"ok": True, **({"warnings": [warn]} if warn else {})}
 
     def delete_job(self, jid: int, actor: str):
         row = self.e.db.job(jid)
@@ -199,7 +204,8 @@ class Service:
         self.e.db.delete_job(jid)
         self.e.db.audit(actor, "delete", jid, {"site": row["site"], "name": row["name"]})
         self.e.reload_job(jid)
-        return {"ok": True}
+        warn = mirror.sync(self.e.cfg.crontab_for(row["site"]), dict(row), None)
+        return {"ok": True, **({"warnings": [warn]} if warn else {})}
 
     def set_settings(self, body: dict, actor: str):
         applied = {}
