@@ -26,15 +26,23 @@ api() { # method path [json]
 # Safe-deploy drain: pause (nothing new starts), wait for in-flight jobs to finish so a restart
 # never kills a running Claude role. Leaves the scheduler paused; caller resumes.
 drain() {
-  api PATCH /api/settings '{"paused":true}' >/dev/null
+  # Preferred: stop only NEW heavy (Claude/worker) work; watchdogs/deployers keep running. Falls back to
+  # a full pause against an older scheduler that doesn't know drain_heavy yet.
+  DRAIN_MODE=drain_heavy
+  api PATCH /api/settings '{"drain_heavy":true}' >/dev/null 2>&1 || { DRAIN_MODE=paused; api PATCH /api/settings '{"paused":true}' >/dev/null; }
   local deadline=$(( $(date +%s) + ${FS_DRAIN_TIMEOUT:-1800} )) n
   while :; do
-    n="$(api GET /api/status | python3 -c 'import sys,json;print(json.load(sys.stdin)["running"])')"
+    if [ "$DRAIN_MODE" = drain_heavy ]; then
+      n="$(api GET '/api/runs?status=running&limit=200' | python3 -c 'import sys,json;print(sum(1 for r in json.load(sys.stdin) if r["class"]=="heavy"))')"
+    else
+      n="$(api GET /api/status | python3 -c 'import sys,json;print(json.load(sys.stdin)["running"])')"
+    fi
     [ "$n" = 0 ] && return 0
     [ "$(date +%s)" -ge "$deadline" ] && { echo "drain timeout: $n still running" >&2; return 1; }
-    echo "draining: $n job(s) still running…" >&2; sleep 15
+    echo "draining ($DRAIN_MODE): $n job(s) still running…" >&2; sleep 15
   done
 }
+undrain() { api PATCH /api/settings '{"drain_heavy":false,"paused":false}' >/dev/null 2>&1 || api PATCH /api/settings '{"paused":false}' >/dev/null; }
 site_id() { api GET "/api/jobs?site=$1" | python3 -c "import sys,json;j={x['name']:x['id'] for x in json.load(sys.stdin)};print(j['$2'])"; }
 
 cmd="${1:-}"; shift || true
@@ -52,14 +60,14 @@ case "$cmd" in
     was_running=0
     if [ -z "${FS_NO_DRAIN:-}" ] && api GET /api/status >/dev/null 2>&1; then
       was_running=1
-      drain || { api PATCH /api/settings '{"paused":false}' >/dev/null; echo "aborted: not restarting while jobs run (FS_NO_DRAIN=1 to force)" >&2; exit 1; }
+      drain || { undrain; echo "aborted: not restarting while jobs run (FS_NO_DRAIN=1 to force)" >&2; exit 1; }
     fi
     "${COMPOSE[@]}" up -d --remove-orphans
     if [ "$was_running" = 1 ]; then
       for _ in $(seq 1 30); do api GET /api/status >/dev/null 2>&1 && break; sleep 2; done
-      api PATCH /api/settings '{"paused":false}' >/dev/null && echo "resumed after restart"
+      undrain && echo "resumed after restart"
     fi ;;
-  drain)  drain && echo "drained (still PAUSED — run: fleet-scheduler resume)" ;;
+  drain)  drain && echo "drained (new heavy work blocked — run: fleet-scheduler resume)" ;;
   down)   "${COMPOSE[@]}" down ;;
   logs)   "${COMPOSE[@]}" logs -f --tail=100 scheduler ;;
   status) api GET /api/status | python3 -m json.tool ;;
@@ -81,7 +89,7 @@ for r in json.load(sys.stdin):
   release) api POST "/api/sites/${1:?site}/release" | python3 -m json.tool ;;
   run)    id="$(site_id "$1" "$2")"; api POST "/api/jobs/$id/run" ;;
   pause)  api PATCH /api/settings '{"paused":true}' >/dev/null && echo paused ;;
-  resume) api PATCH /api/settings '{"paused":false}' >/dev/null && echo resumed ;;
+  resume) undrain && echo resumed ;;
   api)    api "$@" ;;
   *) sed -n '2,13p' "${BASH_SOURCE[0]}"; exit 2 ;;
 esac
