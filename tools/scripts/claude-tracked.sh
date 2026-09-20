@@ -216,8 +216,13 @@ fi
 # the americastrikes breaking-news judge). Roles that use neither skills nor MCP
 # opt in: CLAUDE_LEAN=1, or by name via CLAUDE_LEAN_ROLES (default: promoter).
 # Explicit caller flags win; CLAUDE_LEAN=0 forces off.
+# Sites that ship project skills (.claude/skills/: sinderella, ultrarough,
+# vibratorporn voice skills) are excluded: their roles invoke those skills by
+# name and --disable-slash-commands would silently drop the voice rules.
 _lean_roles=" ${CLAUDE_LEAN_ROLES:-promoter} "
-if [[ "${CLAUDE_LEAN:-}" == "1" || ( "${CLAUDE_LEAN:-}" != "0" && "$_lean_roles" == *" $CRON_ROLE "* ) ]]; then
+_has_project_skills=0
+[[ -n "$(ls -A "$REPO_ROOT/.claude/skills" 2>/dev/null)" ]] && _has_project_skills=1
+if [[ "${CLAUDE_LEAN:-}" == "1" || ( "${CLAUDE_LEAN:-}" != "0" && "$_lean_roles" == *" $CRON_ROLE "* ) ]] && [[ $_has_project_skills -eq 0 ]]; then
   _has_slash=0; _has_mcp=0
   for _a in "${ARGS[@]}"; do
     [[ "$_a" == "--disable-slash-commands" ]] && _has_slash=1
