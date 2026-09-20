@@ -7,6 +7,8 @@
 #   fleet-scheduler release <site>     ROLLBACK: stop firing from DB, restart the legacy cron container
 #   fleet-scheduler run <site> <job>   run a job now (manual trigger)
 #   fleet-scheduler pause|resume       global kill switch (running jobs finish)
+#   fleet-scheduler drain              pause + wait for running jobs to finish (used by `up` for safe deploys)
+#   FS_API=http://127.0.0.1:4791 FS_TOKEN_FILE=tools/fleet-cron/data/token  -> same CLI against the fleet-tools instance
 #   fleet-scheduler api <METHOD> <path> [json]
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -15,11 +17,23 @@ export FS_ROOT="$ROOT"
 COMPOSE=(docker compose -f "$HERE/docker-compose.generated.yml")
 API="${FS_API:-http://127.0.0.1:4790}"
 
-token() { cat "$HERE/data/token"; }
+token() { cat "${FS_TOKEN_FILE:-$HERE/data/token}"; }
 api() { # method path [json]
   local m="$1" p="$2" body="${3:-}"
   curl -fsS -X "$m" -H "Authorization: Bearer $(token)" -H "X-Actor: ${USER:-operator}" \
        -H 'Content-Type: application/json' ${body:+-d "$body"} "$API$p"
+}
+# Safe-deploy drain: pause (nothing new starts), wait for in-flight jobs to finish so a restart
+# never kills a running Claude role. Leaves the scheduler paused; caller resumes.
+drain() {
+  api PATCH /api/settings '{"paused":true}' >/dev/null
+  local deadline=$(( $(date +%s) + ${FS_DRAIN_TIMEOUT:-1800} )) n
+  while :; do
+    n="$(api GET /api/status | python3 -c 'import sys,json;print(json.load(sys.stdin)["running"])')"
+    [ "$n" = 0 ] && return 0
+    [ "$(date +%s)" -ge "$deadline" ] && { echo "drain timeout: $n still running" >&2; return 1; }
+    echo "draining: $n job(s) still running…" >&2; sleep 15
+  done
 }
 site_id() { api GET "/api/jobs?site=$1" | python3 -c "import sys,json;j={x['name']:x['id'] for x in json.load(sys.stdin)};print(j['$2'])"; }
 
@@ -35,7 +49,17 @@ case "$cmd" in
     export DOCKER_GID="$(stat -c %g /var/run/docker.sock)"
     "$HERE/bin/render-compose"
     "${COMPOSE[@]}" build
-    "${COMPOSE[@]}" up -d --remove-orphans ;;
+    was_running=0
+    if [ -z "${FS_NO_DRAIN:-}" ] && api GET /api/status >/dev/null 2>&1; then
+      was_running=1
+      drain || { api PATCH /api/settings '{"paused":false}' >/dev/null; echo "aborted: not restarting while jobs run (FS_NO_DRAIN=1 to force)" >&2; exit 1; }
+    fi
+    "${COMPOSE[@]}" up -d --remove-orphans
+    if [ "$was_running" = 1 ]; then
+      for _ in $(seq 1 30); do api GET /api/status >/dev/null 2>&1 && break; sleep 2; done
+      api PATCH /api/settings '{"paused":false}' >/dev/null && echo "resumed after restart"
+    fi ;;
+  drain)  drain && echo "drained (still PAUSED — run: fleet-scheduler resume)" ;;
   down)   "${COMPOSE[@]}" down ;;
   logs)   "${COMPOSE[@]}" logs -f --tail=100 scheduler ;;
   status) api GET /api/status | python3 -m json.tool ;;

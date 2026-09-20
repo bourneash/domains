@@ -40,9 +40,18 @@ NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$")
 TERMINAL = {"ok", "failed", "timeout", "killed", "missed", "lost",
             "skipped_overlap", "skipped_queue"}
 
-# Sourced exactly like tools/fleet-images/cron/entrypoint.sh did for the legacy
-# per-site container, then handed to /bin/sh like supercronic does.
-WRAPPER = 'if [ -f .env.shared ]; then set -a; . ./.env.shared; set +a; fi; exec /bin/sh -c "$1"'
+ENVFILE_RE = re.compile(r"^[A-Za-z0-9._-]+$")
+
+
+def make_wrapper(env_file: str = ".env.shared") -> str:
+    """Sourced exactly like the legacy cron entrypoint did, then handed to /bin/sh like
+    supercronic does. env_file is a bare filename (validated) relative to the job's cwd."""
+    if not ENVFILE_RE.match(env_file):
+        raise ValueError(f"bad env file name {env_file!r}")
+    return f'if [ -f ./{env_file} ]; then set -a; . ./{env_file}; set +a; fi; exec /bin/sh -c "$1"'
+
+
+WRAPPER = make_wrapper()
 ENV_PASSTHROUGH = ("PATH", "HOME", "LANG", "DOCKER_HOST", "DOCKER_CONFIG",
                    "FLEET_WORKER_IMAGE", "FLEET_WORKER_VERSION")
 MANUAL_PRIORITY = 1000
@@ -62,6 +71,10 @@ class Config:
     kill_grace_s: float = 30.0
     tick_max_s: float = 15.0
     wrapper: str = WRAPPER
+    # Single-group mode (the fleet-tools instance): every job runs in `cwd`, not sites/<site>.
+    cwd: Path | None = None
+    group: str | None = None
+    env_extra: tuple = ()
     housekeeping_every_s: float = 6 * 3600
     backup_dir: Path | None = None
     backups_keep: int = 7
@@ -202,6 +215,10 @@ class Engine:
     # ---------------------------------------------------------- firing
     def tick(self) -> None:
         """Process every due timer. Safe to call at any time."""
+        with self.db.txn():
+            self._tick_locked()
+
+    def _tick_locked(self) -> None:
         now = self.now()
         while self.heap and self.heap[0][0] <= now:
             ts, _, job_id, gen = heapq.heappop(self.heap)
@@ -321,10 +338,12 @@ class Engine:
             return
         ids = {p.run_id for p in started}
         self.pending = [p for p in self.pending if p.run_id not in ids]
+        with self.db.txn():
+            for p in started:
+                self.db.update_run(p.run_id, status="running", started_at=int(now))
         for p in started:
             ctx = Running(p=p)
             self.running[p.run_id] = ctx
-            self.db.update_run(p.run_id, status="running", started_at=int(now))
             ctx.task = asyncio.get_running_loop().create_task(self._run(ctx), name=f"run-{p.run_id}")
 
     async def _run(self, ctx: Running) -> None:
@@ -349,10 +368,10 @@ class Engine:
 
     async def _exec_subprocess(self, ctx: Running):
         p, cfg = ctx.p, self.cfg
-        cwd = cfg.sites_dir / p.site
+        cwd = cfg.cwd or (cfg.sites_dir / p.site)
         if not cwd.is_dir():
-            return "failed", 127, b"", f"site directory missing: {cwd}"
-        env = {k: os.environ[k] for k in ENV_PASSTHROUGH if k in os.environ}
+            return "failed", 127, b"", f"working directory missing: {cwd}"
+        env = {k: os.environ[k] for k in (*ENV_PASSTHROUGH, *cfg.env_extra) if k in os.environ}
         env.update({"TZ": p.tz, "SITE_NAME": p.site})
         env.update(p.env)
         try:

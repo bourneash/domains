@@ -160,7 +160,10 @@ class Service:
     # --- writes
     def create_job(self, body: dict, actor: str):
         site, name = body.get("site"), body.get("name")
-        if not (isinstance(site, str) and SITE_RE.match(site) and (self.sites_dir / site).is_dir()):
+        cfg = self.e.cfg
+        ok_site = (site == cfg.group) if cfg.cwd else (
+            isinstance(site, str) and SITE_RE.match(site) and (self.sites_dir / site).is_dir())
+        if not (isinstance(site, str) and ok_site):
             raise SchedError("unknown site")
         if not (isinstance(name, str) and NAME_RE.match(name)):
             raise SchedError("invalid name")
@@ -245,6 +248,8 @@ class Service:
     def _check_adoptable(self, site: str) -> None:
         if not SITE_RE.match(site) or not self.e.db.jobs(site):
             raise SchedError("unknown site (no imported jobs)", 404)
+        if self.e.cfg.cwd:  # single-group instance: no per-site overlays to verify
+            return
         sd = self.sites_dir / site
         try:
             env_ok = (sd / ".env.shared").is_file() and os.access(sd / ".env.shared", os.R_OK) \
@@ -261,6 +266,9 @@ class Service:
         Order matters: a skipped tick is cheap, a doubled tick is not."""
         self.call(self._check_adoptable, site)
         warnings: list[str] = []
+        if self.e.cfg.cwd:  # fleet-tools instance: no legacy per-site container to swap
+            self.call(self._adopt_db, site, adopted, actor)
+            return {"site": site, "adopted": adopted, "warnings": warnings}
         if adopted:
             ids = self._legacy_ids(site)
             if ids:

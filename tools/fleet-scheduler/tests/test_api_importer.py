@@ -66,6 +66,28 @@ class ImporterTests(unittest.TestCase):
         self.assertEqual(sorted(j.name for j in again.jobs), sorted(j.name for j in parse_crontab(CRONTAB).jobs))
 
 
+class FleetImportTests(unittest.TestCase):
+    def test_fleet_crontab_names_and_classes(self):
+        text = """
+*/10 * * * * /r/tools/scripts/ensure-fleet-cron.sh
+45 6 * * *    /r/tools/scripts/ai-optimizer-cron.sh
+0,15,30,45 * * * * /r/tools/social-hub/run-tick.sh
+8,23 * * * * /r/tools/social-controller/run.sh
+13,28 * * * * /r/tools/social-controller/monitor.py
+12 4 * * * docker exec social-hub-api python3 -m social_hub.cli maintain
+40 3 * * * /r/tools/scripts/gc-docker.sh
+10 3 * * 0 /r/tools/scripts/gc-docker.sh --cache-all
+"""
+        r = parse_crontab(text, fleet=True)
+        self.assertEqual(r.errors, [])
+        by = {j.name: j.cls for j in r.jobs}
+        self.assertEqual(by, {
+            "ensure-fleet-cron": "light", "ai-optimizer-cron": "heavy", "social-hub-run-tick": "light",
+            "social-controller-run": "heavy", "social-controller-monitor": "light",
+            "exec-social-hub-api-maintain": "light", "gc-docker": "light", "gc-docker-cache-all": "light"})
+        self.assertTrue(all(j.timeout_s >= 3600 for j in r.jobs))
+
+
 class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

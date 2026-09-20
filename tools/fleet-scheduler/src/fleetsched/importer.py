@@ -36,7 +36,23 @@ class ParseResult:
     errors: list[str] = field(default_factory=list)
 
 
+GENERIC_BASES = {"run", "monitor", "tick", "run-tick"}
+
+
 def _base_name(cmd: str) -> str:
+    dx = re.match(r"^\s*docker exec (?:-\S+ )*([A-Za-z0-9_.-]+) (.*)$", cmd)
+    if dx:
+        tail = re.sub(r"[^A-Za-z0-9]+", "-", dx.group(2).split()[-1]).strip("-").lower()[:30]
+        return f"exec-{dx.group(1)}-{tail}"
+    if cmd.lstrip().startswith("/"):  # absolute-path tool script: disambiguate generic basenames
+        path = cmd.split()[0]
+        stem = re.sub(r"\.(sh|py)$", "", path.rsplit("/", 1)[-1])
+        if stem in GENERIC_BASES:
+            return f"{path.rsplit('/', 2)[-2]}-{stem}"
+        args = cmd.split()[1:]
+        if args and re.match(r"^--?[A-Za-z]", args[0]):
+            return f"{stem}-{args[0].lstrip('-')}"
+        return stem
     m = RUN_SCRIPT_RE.search(cmd)
     if m:
         if m.group(1) in ("worker", "role") and m.group(2):
@@ -49,6 +65,17 @@ def _base_name(cmd: str) -> str:
         return "prune"
     m = SCRIPT_RE.search(cmd)
     return m.group(1) if m else "job"
+
+
+FLEET_HEAVY_RE = re.compile(r"ai-optimizer|social-controller/run\.sh")
+
+
+def _classify_fleet(cmd: str) -> tuple[str, int, int]:
+    """Fleet-tool jobs: all get a generous timeout (they include docker gc / lint sweeps);
+    the Claude-invoking ones are heavy so they queue behind the heavy cap."""
+    if FLEET_HEAVY_RE.search(cmd):
+        return "heavy", 7500, 0
+    return "light", 3600, 0
 
 
 def _classify(cmd: str, name: str) -> tuple[str, int, int]:
@@ -64,7 +91,7 @@ def _classify(cmd: str, name: str) -> tuple[str, int, int]:
     return "light", 900, 0
 
 
-def parse_crontab(text: str) -> ParseResult:
+def parse_crontab(text: str, fleet: bool = False) -> ParseResult:
     res = ParseResult()
     seen: dict[str, int] = {}
     for lineno, raw in enumerate(text.splitlines(), 1):
@@ -96,7 +123,7 @@ def parse_crontab(text: str) -> ParseResult:
         if not NAME_RE.match(name):
             res.errors.append(f"line {lineno}: derived job name {name!r} is invalid")
             continue
-        cls, timeout, prio = _classify(cmd, base)
+        cls, timeout, prio = _classify_fleet(cmd) if fleet else _classify(cmd, base)
         res.jobs.append(Imported(name, sched, cmd, cls, timeout, prio, dict(res.env)))
     return res
 
@@ -110,9 +137,9 @@ def _queue_timeout(schedule: str, tz: str) -> int:
     return max(300, min(3600, int((b - a).total_seconds())))
 
 
-def import_site(db: DB, site: str, crontab_text: str, *, update: bool = False) -> dict:
+def import_site(db: DB, site: str, crontab_text: str, *, update: bool = False, fleet: bool = False) -> dict:
     """Idempotent. Existing jobs keep API edits unless update=True."""
-    res = parse_crontab(crontab_text)
+    res = parse_crontab(crontab_text, fleet=fleet)
     added, updated, unchanged = [], [], []
     db.conn.execute("BEGIN IMMEDIATE")
     try:

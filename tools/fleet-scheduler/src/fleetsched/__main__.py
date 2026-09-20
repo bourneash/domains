@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .api import Service, make_server
 from .db import DB
-from .engine import Config, Engine
+from .engine import Config, Engine, make_wrapper
 from .importer import crontab_path, export_crontab, import_site
 
 
@@ -27,8 +27,14 @@ def _token() -> str:
 
 def _cfg() -> Config:
     data = Path(os.environ.get("FS_DATA", "/data"))
+    cwd = os.environ.get("FS_CWD")
+    kw = {}
+    if cwd:  # single-group instance (fleet tools): all jobs run in one directory
+        kw = dict(cwd=Path(cwd), group=os.environ.get("FS_GROUP", "fleet"),
+                  wrapper=make_wrapper(os.environ.get("FS_ENV_FILE", ".env")),
+                  env_extra=tuple(x for x in os.environ.get("FS_ENV_PASSTHROUGH", "").split(",") if x))
     return Config(root=Path(os.environ.get("FS_ROOT", "/home/jesse/projects/domains")),
-                  backup_dir=data / "backup")
+                  backup_dir=data / "backup", **kw)
 
 
 def _db() -> DB:
@@ -42,6 +48,8 @@ async def _serve(args) -> int:
         print("FS_TOKEN / FS_TOKEN_FILE missing or shorter than 24 chars — refusing to start", file=sys.stderr)
         return 2
     db = _db()
+    if cfg.group and db.jobs(cfg.group):
+        db.set_adopted(cfg.group, True)  # single-group instance: its one group is always live
     engine = Engine(db, cfg)
     engine.start()
     loop = asyncio.get_running_loop()
@@ -81,6 +89,8 @@ def main(argv=None) -> int:
     i = sub.add_parser("import", help="import legacy ops/docker/crontab.docker files (idempotent)")
     i.add_argument("sites", nargs="*", help="site dirs; default = every site with a crontab")
     i.add_argument("--update", action="store_true", help="overwrite schedule/command of existing jobs")
+    i.add_argument("--crontab", help="import this crontab file as the single --group (fleet-tools instance)")
+    i.add_argument("--group", default="fleet")
     e = sub.add_parser("export", help="print a site's jobs as crontab syntax (rollback aid)")
     e.add_argument("site")
     h = sub.add_parser("healthcheck")
@@ -102,6 +112,11 @@ def main(argv=None) -> int:
     if args.cmd == "export":
         sys.stdout.write(export_crontab(db, args.site))
         return 0
+    if args.crontab:
+        r = import_site(db, args.group, Path(args.crontab).read_text(), update=args.update, fleet=True)
+        print(json.dumps({k: (len(v) if isinstance(v, list) and k != "errors" else v) for k, v in r.items()}))
+        db.close()
+        return 1 if r["errors"] else 0
     sites = args.sites or sorted(p.parent.parent.parent.name
                                  for p in cfg.sites_dir.glob("*/ops/docker/crontab.docker"))
     rc = 0

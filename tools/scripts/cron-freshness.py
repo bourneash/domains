@@ -347,26 +347,26 @@ def scheduler_adopted(site: str) -> bool:
     return os.path.exists(os.path.join(SCHED_DATA, "adopted", site))
 
 
-def scheduler_heartbeat_finding() -> list[str]:
+def scheduler_heartbeat_finding(data_dir: str | None = None, label: str = "fleet-scheduler") -> list[str]:
     """The scheduler touches <data>/heartbeat every loop (<=15s). Reported ONCE per sweep."""
-    hb = os.path.join(SCHED_DATA, "heartbeat")
+    hb = os.path.join(data_dir or SCHED_DATA, "heartbeat")
     try:
         age = time.time() - os.stat(hb).st_mtime
     except OSError:
-        return ["fleet-scheduler: no heartbeat file — scheduler never started or data dir unreadable"]
+        return [f"{label}: no heartbeat file — scheduler never started or data dir unreadable"]
     if age > SCHED_HEARTBEAT_MAX_SEC:
-        return [f"fleet-scheduler: heartbeat is {int(age)}s old — scheduler wedged/down; "
-                f"every adopted site's jobs are unscheduled"]
+        return [f"{label}: heartbeat is {int(age)}s old — scheduler wedged/down; "
+                f"its jobs are unscheduled"]
     return []
 
 
-def assess_adopted(site: str) -> tuple[list[str], int, int, int]:
+def assess_adopted(site: str, data_dir: str | None = None) -> tuple[list[str], int, int, int]:
     """Freshness for a site the fleet-scheduler owns: the newest scheduled tick recorded in the
     scheduler DB must fall inside the same 2x-longest-gap + grace window used for containers.
     Schedules come from the DB (the source of truth), not crontab.docker."""
     import sqlite3
     import tempfile
-    db_path = os.path.join(SCHED_DATA, "fleet-scheduler.db")
+    db_path = os.path.join(data_dir or SCHED_DATA, "fleet-scheduler.db")
     try:
         con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
         jobs = con.execute("SELECT schedule FROM jobs WHERE site=? AND enabled=1", (site,)).fetchall()
@@ -409,9 +409,21 @@ def main() -> int:
         # the thing that would fail to run the sweep that would report it, so
         # self-checking here would be circular by construction.
         eligible = 1
-        findings, asserted, skipped_young, disabled = assess(
-            "fleet-cron", os.path.join(DOMAINS_ROOT, "tools", "fleet-cron"), "fleet-cron"
-        )
+        fc_data = os.path.join(DOMAINS_ROOT, "tools", "fleet-cron", "data")
+        if os.path.exists(os.path.join(fc_data, "fleet-scheduler.db")):
+            # fleet-cron runs the fleet-scheduler engine now (supercronic is gone, so the
+            # `msg=starting` log probe below can never pass): assert heartbeat + newest tick.
+            state = docker("inspect", "-f", "{{.State.Status}}", "fleet-cron")
+            if state != "running":
+                findings = [f"fleet-cron: container is {state or 'absent'}, not running"]
+            else:
+                findings = scheduler_heartbeat_finding(fc_data, "fleet-cron")
+                f2, asserted, skipped_young, disabled = assess_adopted("fleet", fc_data)
+                findings += [x.replace("fleet:", "fleet-cron:", 1) for x in f2]
+        else:
+            findings, asserted, skipped_young, disabled = assess(
+                "fleet-cron", os.path.join(DOMAINS_ROOT, "tools", "fleet-cron"), "fleet-cron"
+            )
     else:
         try:
             sites = sorted(os.listdir(SITES_DIR))

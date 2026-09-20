@@ -28,4 +28,10 @@ for i in $(seq 1 30); do
   sleep 2
 done
 
+mkdir -p data
+docker network inspect fleet-control >/dev/null 2>&1 || docker network create fleet-control >/dev/null
+if [ ! -s data/token ]; then
+  (umask 077; python3 -c 'import secrets;print(secrets.token_urlsafe(32))' > data/token)
+  chmod 0400 data/token
+fi
 exec docker compose --env-file "$DOMAINS_ROOT/.env" up -d

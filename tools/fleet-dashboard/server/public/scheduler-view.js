@@ -3,7 +3,8 @@
 /* Scheduler view — Ops ▸ Scheduler. Talks to /api/scheduler/* (proxy to tools/fleet-scheduler).
    Loaded BEFORE app.js; only references app.js globals (api, $, $$, esc, toast, stamp, FRESH) at call time. */
 
-const SCH = { site: '', text: '', openRun: null };
+const SCH = { site: '', text: '', openRun: null, inst: 'scheduler' };
+const schBase = () => `/api/${SCH.inst}`;
 
 function schFmtTime(ts) {
   if (!ts) return '—';
@@ -53,11 +54,11 @@ async function renderScheduler() {
   let st, jobs, runs;
   try {
     [st, jobs, runs] = await Promise.all([
-      api('GET', '/api/scheduler/status'),
-      api('GET', '/api/scheduler/jobs' + (SCH.site ? `?site=${encodeURIComponent(SCH.site)}` : '')),
+      api('GET', `${schBase()}/status`),
+      api('GET', schBase() + '/jobs' + (SCH.site ? `?site=${encodeURIComponent(SCH.site)}` : '')),
       api(
         'GET',
-        '/api/scheduler/runs?limit=60' + (SCH.site ? `&site=${encodeURIComponent(SCH.site)}` : '')
+        schBase() + '/runs?limit=60' + (SCH.site ? `&site=${encodeURIComponent(SCH.site)}` : '')
       ),
     ]);
   } catch (e) {
@@ -78,7 +79,9 @@ async function renderScheduler() {
   app.innerHTML = `
     <div id="sch-root">
     <div class="page-head"><h2 class="page-title">Scheduler</h2>
-      <span class="muted">one DB-backed scheduler for ${sites.length} sites · ${adoptedN} adopted · replaces per-site cron containers</span></div>
+      <button class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" data-inst="scheduler">Sites</button>
+      <button class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" data-inst="scheduler-fleet">Fleet tools</button>
+      <span class="muted">${SCH.inst === 'scheduler' ? `one DB-backed scheduler for ${sites.length} sites · ${adoptedN} adopted · replaces per-site cron containers` : 'fleet-level jobs (tools/fleet-cron): reapers, auth watchdog, social hub tick, AI optimizer…'}</span></div>
     <div class="task-toolbar">
       <span class="badge ${st.paused ? 'b-red' : 'b-green'}">${st.paused ? 'PAUSED' : 'active'}</span>
       <strong>${st.running} running · ${st.queued} queued</strong>
@@ -111,9 +114,11 @@ async function renderScheduler() {
         <td>${s.enabled}/${s.jobs}</td>
         <td>${s.adopted ? '<span class="badge b-green">scheduler</span>' : '<span class="badge b-gray">legacy cron container</span>'}</td>
         <td style="text-align:right">${
-          s.adopted
-            ? `<button class="btn sm" data-act="release" data-site="${esc(s.site)}">Release → legacy</button>`
-            : `<button class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}">Adopt</button>`
+          SCH.inst === 'scheduler-fleet'
+            ? ''
+            : s.adopted
+              ? `<button class="btn sm" data-act="release" data-site="${esc(s.site)}">Release → legacy</button>`
+              : `<button class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}">Adopt</button>`
         }</td></tr>`
         )
         .join('')}
@@ -161,7 +166,7 @@ async function loadSchRun(id) {
   const row = $(`tr.sch-out[data-for="${id}"]`);
   if (!row) return;
   try {
-    const r = await api('GET', `/api/scheduler/runs/${id}`);
+    const r = await api('GET', `${schBase()}/runs/${id}`);
     row.querySelector('pre').textContent = r.output_tail || '(no output)';
   } catch (e) {
     row.querySelector('pre').textContent = 'failed to load: ' + e.message;
@@ -184,14 +189,14 @@ function wireScheduler() {
   $('#sch-pause').addEventListener('click', () => {
     const paused = $('#sch-pause').textContent.startsWith('Resume');
     schAct(
-      () => api('PATCH', '/api/scheduler/settings', { paused: !paused }),
+      () => api('PATCH', schBase() + '/settings', { paused: !paused }),
       paused ? 'resumed' : 'paused'
     );
   });
   $('#sch-caps-save').addEventListener('click', () => {
     const body = {};
     $$('.sch-cap', root).forEach(i => (body[i.dataset.k] = parseInt(i.value, 10)));
-    schAct(() => api('PATCH', '/api/scheduler/settings', body), 'caps saved');
+    schAct(() => api('PATCH', schBase() + '/settings', body), 'caps saved');
   });
   const txt = $('#sch-text');
   txt.addEventListener('input', () => {
@@ -207,6 +212,14 @@ function wireScheduler() {
       renderScheduler();
     });
   root.addEventListener('click', e => {
+    const ib = e.target.closest('button[data-inst]');
+    if (ib) {
+      SCH.inst = ib.dataset.inst;
+      SCH.site = '';
+      SCH.openRun = null;
+      renderScheduler();
+      return;
+    }
     const siteLink = e.target.closest('.sch-site');
     if (siteLink) {
       e.preventDefault();
@@ -228,17 +241,17 @@ function wireScheduler() {
     const b = e.target.closest('button[data-act]');
     if (!b) return;
     const { act, id, site } = b.dataset;
-    if (act === 'run') schAct(() => api('POST', `/api/scheduler/jobs/${id}/run`), 'queued');
+    if (act === 'run') schAct(() => api('POST', `${schBase()}/jobs/${id}/run`), 'queued');
     else if (act === 'toggle')
       schAct(
-        () => api('PATCH', `/api/scheduler/jobs/${id}`, { enabled: b.dataset.en !== '1' }),
+        () => api('PATCH', `${schBase()}/jobs/${id}`, { enabled: b.dataset.en !== '1' }),
         b.dataset.en === '1' ? 'disabled' : 'enabled'
       );
     else if (act === 'sched') {
       const v = prompt('New cron schedule (5 fields, America/New_York):', b.dataset.cur);
       if (v && v.trim() !== b.dataset.cur)
         schAct(
-          () => api('PATCH', `/api/scheduler/jobs/${id}`, { schedule: v.trim() }),
+          () => api('PATCH', `${schBase()}/jobs/${id}`, { schedule: v.trim() }),
           'schedule updated'
         );
     } else if (act === 'adopt') {

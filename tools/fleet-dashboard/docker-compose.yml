@@ -52,6 +52,8 @@ services:
       # copied into this container's env or sent to the browser.
       FLEET_SCHEDULER_URL: http://fleet-scheduler:4790
       FLEET_SCHEDULER_TOKEN_FILE: ${HOME:-/home/jesse}/projects/domains/tools/fleet-scheduler/data/token
+      FLEET_CRON_SCHEDULER_URL: http://fleet-cron:4791
+      FLEET_CRON_SCHEDULER_TOKEN_FILE: ${HOME:-/home/jesse}/projects/domains/tools/fleet-cron/data/token
       # Social Hub shares vpn_proxy with the dashboard, so use its stable
       # container DNS name. The host publish remains loopback-only for local
       # operators; browsers never receive the hub token.

@@ -17,6 +17,10 @@ services:
     cap_drop:
       - ALL
     restart: unless-stopped
+    init: true                 # reaps grandchildren that jobs orphan (supercronic used to be PID 1)
+    # Engine: tools/fleet-scheduler (`fleetsched`), not supercronic. To roll back, delete the
+    # `entrypoint:` line + the FS_*/PYTHONPATH env + port/network below and `docker compose up -d`.
+    entrypoint: ["/bin/bash", "${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/fleet-cron/entrypoint-scheduler.sh"]
     # Same tier-1 liveness every site cron container carries: supercronic is
     # PID 1 (entrypoint.sh exec's it), so reading /proc/1/comm is exact, spawns
     # no process, and cannot match the probe itself the way `pgrep -f` did.
@@ -28,7 +32,9 @@ services:
     # would have reported it. Tier 1 + autoheal covers the DEAD case unattended;
     # the wedged case still needs an out-of-band checker and does not have one.
     healthcheck:
-      test: ["CMD", "grep", "-qx", "supercronic", "/proc/1/comm"]
+      # Engine is tools/fleet-scheduler now (supercronic is no longer PID 1); the API healthz
+      # fails if the scheduler loop stalls.
+      test: ["CMD", "python3", "-m", "fleetsched", "healthcheck", "--port", "4791"]
       interval: 120s
       timeout: 5s
       retries: 3
@@ -136,11 +142,28 @@ services:
       # The vault mount above is read-only; redirect the session-cache write
       # into the writable fleet_cron_home volume instead.
       VAULT_SESSION_CACHE_FILE: "${HOME:-/home/jesse}/.fleet-cron-vault-session-cache"
-    networks: [default, vpn_proxy]
+      PYTHONPATH: ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/fleet-scheduler/src
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      FS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      FS_CWD: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      FS_GROUP: fleet
+      FS_ENV_FILE: .env
+      FS_ENV_PASSTHROUGH: VAULT_SERVER,VAULT_SESSION_CACHE_FILE,FLEET_DOMAINS_ROOT
+      FS_DATA: ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/fleet-cron/data
+      FS_TOKEN_FILE: ${DOMAINS_ROOT:-/home/jesse/projects/domains}/tools/fleet-cron/data/token
+      FS_HOST: 0.0.0.0
+      FS_PORT: "4791"
+    ports:
+      - "127.0.0.1:4791:4791"
+    networks: [default, vpn_proxy, fleet_control]
     depends_on: []
 
 networks:
   default:
+  fleet_control:
+    external: true
+    name: fleet-control
   vpn_proxy:
     external: true
     name: vpn-proxy_default

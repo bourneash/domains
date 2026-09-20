@@ -5,6 +5,7 @@ transaction, version tracked in PRAGMA user_version).
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sqlite3
@@ -88,6 +89,7 @@ JOB_COLS = ("id", "site", "name", "schedule", "tz", "command", "class", "timeout
 class DB:
     def __init__(self, path: str | os.PathLike):
         self.path = str(path)
+        self._depth = 0
         if self.path != ":memory:":
             Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(self.path, isolation_level=None)  # explicit txns
@@ -112,6 +114,29 @@ class DB:
             except Exception:
                 self.conn.execute("ROLLBACK")
                 raise
+
+    @contextlib.contextmanager
+    def txn(self):
+        """One transaction (one fsync) around a batch of writes. Re-entrant: only the
+        outermost call begins/commits. Without this every fire cost ~3 fsyncs and a
+        top-of-hour burst of 40 jobs stalled the loop for seconds."""
+        if self._depth:
+            self._depth += 1
+            try:
+                yield
+            finally:
+                self._depth -= 1
+            return
+        self.conn.execute("BEGIN IMMEDIATE")
+        self._depth = 1
+        try:
+            yield
+            self.conn.execute("COMMIT")
+        except BaseException:
+            self.conn.execute("ROLLBACK")
+            raise
+        finally:
+            self._depth = 0
 
     def integrity_ok(self) -> bool:
         return self.conn.execute("PRAGMA quick_check").fetchone()[0] == "ok"

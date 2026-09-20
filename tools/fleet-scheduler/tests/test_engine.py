@@ -226,6 +226,35 @@ class FireTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(e.healthy())
 
 
+class TxnTests(unittest.IsolatedAsyncioTestCase):
+    async def test_burst_of_fires_is_one_commit(self):
+        c = Clock(); g = Gate(); db, e = mk(c, g)
+        for i in range(40):
+            add(db, site=f"s{i}.com", name="w", schedule="0 * * * *")
+            db.set_adopted(f"s{i}.com", True)
+        e.start()
+        commits = []
+        db.conn.set_trace_callback(lambda q: commits.append(q) if q.strip().upper().startswith("COMMIT") else None)
+        c.t += 3600; e.tick(); e.dispatch(); await settle()
+        self.assertEqual(len(g.started), 40)
+        self.assertLessEqual(len(commits), 2)  # one for tick, one for dispatch (not ~120)
+        g.release_all(); await settle()
+
+    def test_txn_rolls_back_on_error_and_is_reentrant(self):
+        db = DB(":memory:")
+        with self.assertRaises(RuntimeError):
+            with db.txn():
+                db.set_setting("x", "1")
+                with db.txn():
+                    db.set_setting("y", "2")
+                raise RuntimeError("boom")
+        self.assertNotIn("x", db.settings()); self.assertNotIn("y", db.settings())
+        with db.txn():
+            with db.txn():
+                db.set_setting("z", "3")
+        self.assertEqual(db.settings()["z"], "3")
+
+
 class SubprocessTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.root = Path(tempfile.mkdtemp())
@@ -285,6 +314,34 @@ class SubprocessTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(marker.exists())
         out = os.popen(f"pgrep -f '[s]leep {uniq}'").read().split()
         self.assertEqual(out, [], "grandchild survived the timeout")
+
+    async def test_single_group_mode_uses_cwd_envfile_and_extra_env(self):
+        from fleetsched.engine import make_wrapper
+        (self.root / "tools").mkdir()
+        (self.root / "tools" / ".env").write_text("SHARED=from-dotenv\n")
+        os.environ["VAULT_SERVER"] = "https://vault"
+        try:
+            db = DB(":memory:")
+            e = Engine(db, Config(root=self.root, cwd=self.root / "tools", group="fleet",
+                                  wrapper=make_wrapper(".env"), env_extra=("VAULT_SERVER",), kill_grace_s=1))
+            jid = db.insert_job(site="fleet", name="t", schedule="0 0 1 1 *", source="test", timeout_s=10,
+                                command='pwd; echo "$SHARED|$VAULT_SERVER"', last_fire_ts=int(time.time()))
+            e.start(); rid = e.trigger_manual(jid, "t"); e.dispatch()
+            for _ in range(100):
+                await asyncio.sleep(0.05)
+                if db.run(rid)["status"] not in ("queued", "running"):
+                    break
+        finally:
+            del os.environ["VAULT_SERVER"]
+        out = db.run(rid)["output_tail"]
+        self.assertIn(str(self.root / "tools"), out)
+        self.assertIn("from-dotenv|https://vault", out)
+
+    def test_wrapper_rejects_path_like_env_file(self):
+        from fleetsched.engine import make_wrapper
+        for bad in ("../x", "a b", "$(id)", "a;b", ""):
+            with self.assertRaises(ValueError):
+                make_wrapper(bad)
 
     async def test_missing_site_dir(self):
         shutil.rmtree(self.site)

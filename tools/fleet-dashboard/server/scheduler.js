@@ -27,12 +27,29 @@ const ROUTES = [
 ];
 const TIMEOUT_MS = 12000;
 
-function makeClient(env = process.env, fetchImpl = globalThis.fetch) {
-  const base = (env.FLEET_SCHEDULER_URL || 'http://fleet-scheduler:4790').replace(/\/+$/, '');
-  const tokenFile = env.FLEET_SCHEDULER_TOKEN_FILE || '';
+// One client per scheduler instance. Defaults describe the sites scheduler; the fleet-tools
+// instance (tools/fleet-cron, port 4791) passes its own env keys.
+const INSTANCES = {
+  scheduler: {
+    urlKey: 'FLEET_SCHEDULER_URL',
+    tokenKey: 'FLEET_SCHEDULER_TOKEN',
+    tokenFileKey: 'FLEET_SCHEDULER_TOKEN_FILE',
+    defaultUrl: 'http://fleet-scheduler:4790',
+  },
+  'scheduler-fleet': {
+    urlKey: 'FLEET_CRON_SCHEDULER_URL',
+    tokenKey: 'FLEET_CRON_SCHEDULER_TOKEN',
+    tokenFileKey: 'FLEET_CRON_SCHEDULER_TOKEN_FILE',
+    defaultUrl: 'http://fleet-cron:4791',
+  },
+};
+
+function makeClient(env = process.env, fetchImpl = globalThis.fetch, inst = INSTANCES.scheduler) {
+  const base = (env[inst.urlKey] || inst.defaultUrl).replace(/\/+$/, '');
+  const tokenFile = env[inst.tokenFileKey] || '';
   let cached = { mtime: 0, value: '' };
   function token() {
-    if (env.FLEET_SCHEDULER_TOKEN) return env.FLEET_SCHEDULER_TOKEN;
+    if (env[inst.tokenKey]) return env[inst.tokenKey];
     if (!tokenFile) return '';
     try {
       const st = fs.statSync(tokenFile);
@@ -46,7 +63,7 @@ function makeClient(env = process.env, fetchImpl = globalThis.fetch) {
   return async function call(method, path, query, body, actor) {
     const tok = token();
     if (!tok) {
-      const e = new Error('scheduler token not configured (FLEET_SCHEDULER_TOKEN_FILE)');
+      const e = new Error(`scheduler token not configured (${inst.tokenFileKey})`);
       e.status = 503;
       throw e;
     }
@@ -89,14 +106,30 @@ function makeClient(env = process.env, fetchImpl = globalThis.fetch) {
 }
 
 function register(app, opts = {}) {
-  const call = opts.call || makeClient();
-  app.all(/^\/api\/scheduler\/(.+)$/, async (req, res) => {
-    const path = req.params[0].replace(/\/+$/, '');
-    const allowed = ROUTES.some(([m, re]) => m === req.method && re.test(path));
+  const calls = {
+    scheduler: opts.call || makeClient(process.env, globalThis.fetch, INSTANCES.scheduler),
+    'scheduler-fleet':
+      opts.callFleet ||
+      opts.call ||
+      makeClient(process.env, globalThis.fetch, INSTANCES['scheduler-fleet']),
+  };
+  app.all(/^\/api\/(scheduler|scheduler-fleet)\/(.+)$/, async (req, res) => {
+    const which = req.params[0];
+    const path = req.params[1].replace(/\/+$/, '');
+    let allowed = ROUTES.some(([m, re]) => m === req.method && re.test(path));
+    // The fleet-tools instance has one implicit always-live group; adopt/release is meaningless
+    // there and "release" would silence every fleet job — not exposed.
+    if (which === 'scheduler-fleet' && path.startsWith('sites/')) allowed = false;
     if (!allowed) return res.status(404).json({ error: 'not found' });
     const actor = (req.user && (req.user.name || req.user.role)) || 'fleet-dashboard';
     try {
-      const { status, data } = await call(req.method, path, req.query, req.body, String(actor));
+      const { status, data } = await calls[which](
+        req.method,
+        path,
+        req.query,
+        req.body,
+        String(actor)
+      );
       res.status(status).json(data);
     } catch (e) {
       res.status(e.status || 502).json({ error: e.message });
@@ -133,4 +166,4 @@ async function runNow(site, role, actor, call = makeClient()) {
 const ADOPTED_MSG =
   'this site is managed by the fleet-scheduler — use Ops ▸ Scheduler (a legacy cron container would double-fire every job)';
 
-module.exports = { register, makeClient, ROUTES, isAdopted, runNow, ADOPTED_MSG };
+module.exports = { register, makeClient, ROUTES, INSTANCES, isAdopted, runNow, ADOPTED_MSG };

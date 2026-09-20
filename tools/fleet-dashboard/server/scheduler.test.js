@@ -174,3 +174,43 @@ test('runNow finds the job by role name and triggers it', async () => {
       : { status: 409, data: { error: 'job already queued or running' } };
   await assert.rejects(runNow('a.com', 'x', 't', busy), e => e.httpStatus === 409);
 });
+
+test('fleet-tools instance routes to its own upstream and never exposes adopt/release', async () => {
+  const site = await fakeUpstream(ok);
+  const fleet = await fakeUpstream(ok);
+  const app = express();
+  app.use(express.json());
+  register(app, {
+    call: makeClient({
+      FLEET_SCHEDULER_URL: `http://127.0.0.1:${site.port}`,
+      FLEET_SCHEDULER_TOKEN: 's'.repeat(30),
+    }),
+    callFleet: makeClient(
+      {
+        FLEET_CRON_SCHEDULER_URL: `http://127.0.0.1:${fleet.port}`,
+        FLEET_CRON_SCHEDULER_TOKEN: 'f'.repeat(30),
+      },
+      globalThis.fetch,
+      require('./scheduler').INSTANCES['scheduler-fleet']
+    ),
+  });
+  const srv = await new Promise(r => {
+    const s = app.listen(0, '127.0.0.1', () => r(s));
+  });
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  try {
+    await fetch(`${base}/api/scheduler-fleet/status`);
+    await fetch(`${base}/api/scheduler/status`);
+    assert.equal(fleet.seen.length, 1);
+    assert.equal(fleet.seen[0].headers.authorization, 'Bearer ' + 'f'.repeat(30));
+    assert.equal(site.seen.length, 1);
+    assert.equal(site.seen[0].headers.authorization, 'Bearer ' + 's'.repeat(30));
+    const r = await fetch(`${base}/api/scheduler-fleet/sites/fleet/release`, { method: 'POST' });
+    assert.equal(r.status, 404);
+    assert.equal(fleet.seen.length, 1);
+  } finally {
+    srv.close();
+    site.srv.close();
+    fleet.srv.close();
+  }
+});

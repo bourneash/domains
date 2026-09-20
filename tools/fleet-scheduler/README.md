@@ -78,10 +78,28 @@ After adding a site or changing its overlays: `up` again (re-renders `docker-com
 Tests: `cd tools/fleet-scheduler && python3 -m unittest discover -s tests` (57) and
 `cd tools/fleet-dashboard && node --test server/scheduler.test.js`.
 
-## Not covered yet
+## Two instances, one codebase
 
-* `tools/fleet-cron` (fleet-level jobs: purge, reaper, auth check, social-hub tick, …) still runs on
-  supercronic; it's the natural next tenant. `ensure-fleet-cron.sh` there only heals *non-adopted* sites.
+| Instance | Container | API | Jobs | cwd / env |
+|---|---|---|---|---|
+| sites | `fleet-scheduler` (this dir) | :4790 | 325 site jobs, one group per site | `sites/<site>`, `.env.shared` overlay |
+| fleet tools | `fleet-cron` (`tools/fleet-cron`, engine swapped from supercronic 2026-09-20) | :4791 | 28 fleet jobs, group `fleet` | repo root, `.env` |
+
+The fleet instance stays in its own container because that container already holds the fleet-wide
+privileges (repo rw, ssh, Claude creds, vault mount, `.env`); folding those into the sites scheduler would
+widen its blast radius. It runs this package straight from the repo (`PYTHONPATH`), so a code change
+needs a restart, not an image rebuild. Rollback to supercronic: remove the `entrypoint:`/`FS_*` block in
+`tools/fleet-cron/docker-compose.yml` (`crontab.docker` is untouched). Dashboard: Ops ▸ Scheduler ▸ *Fleet tools*.
+
+`FS_API=http://127.0.0.1:4791 FS_TOKEN_FILE=tools/fleet-cron/data/token bin/fleet-scheduler jobs` drives it from the CLI.
+
+## Safe deploys
+
+`bin/fleet-scheduler up` pauses, **drains** in-flight jobs (so a restart never kills a running Claude role),
+recreates, then resumes. `FS_NO_DRAIN=1` forces. Ticks/dispatch batch their DB writes into one transaction
+(a 40-job burst was ~120 fsyncs and stalled fires by up to 3 s).
+
+## Not covered yet
 * `amputeenews.com` runs its legacy cron as root and calls `claude` directly; migrate its root-ownership
   first. Sites whose `.env.shared`/`.monorepo-tools` mountpoints don't exist are skipped by `render-compose`.
 * Site `docker-compose.yml` files still define the `cron` service (kept as the rollback path); remove after
