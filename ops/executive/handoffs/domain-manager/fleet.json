@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:28:29.085Z",
+  "generated_at": "2026-09-21T19:31:33.726Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Fishhook Labs measurement and activation readiness review",
-        "summary": "Perform a report-only review of audience positioning, content readiness, analytics coverage, affiliate monetization readiness, operational health, and prioritized backlog before further growth work.",
-        "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics configuration, schedules, spending, DNS, domains, or production systems.",
+        "title": "How Fish Think measurement and activation readiness review",
+        "summary": "Perform a report-only review of audience positioning, content readiness, analytics coverage, monetization readiness, operational health, and prioritized backlog before further growth work.",
+        "requested_action": "Approve a report-only readiness assessment and prioritized backlog covering audience/use-case clarity, simulator and Sonar Trainer content readiness, measurement requirements, monetization fit, operational risks, and validation tests. Do not change content, credentials, analytics configuration, schedules, spending, DNS, or production systems.",
         "proposal_id": null
       }
     ]
