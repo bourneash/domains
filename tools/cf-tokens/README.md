@@ -4,6 +4,7 @@ Per-site Cloudflare API tokens, one zone each.
 
     mint.py --audit                 # who is scoped, who is still on the fleet token
     mint.py --site xxxtea.com       # mint (or rotate) one site
+    mint.py --site xxxtea.com --read-only  # engineer verification token only
     mint.py --all                   # every site the policy grants a CF token
     mint.py --revoke xxxtea.com     # delete the token and the vault field
     mint.py --all --dry-run
@@ -48,6 +49,10 @@ held nowhere else — never in the shared `.env`, never on disk outside the rend
 `write_site_value` reads it back and aborts the run if it does not match, because
 a token that exists at Cloudflare but was not stored is unrecoverable: that
 site's deploys simply stop.
+
+Engineer verification can use a separate `CLOUDFLARE_API_READ_TOKEN`, minted
+with `--read-only`; it carries only `Workers Scripts Read` and does not replace
+the deploy token.
 
 `tools/env-broker` picks these up automatically — `per_site_vault` in
 `policy.yaml` declares `CLOUDFLARE_API_TOKEN` as per-site, and a site's own value

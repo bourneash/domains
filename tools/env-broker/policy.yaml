@@ -59,6 +59,7 @@ defaults:
 # reduction in blast radius, not a fix for it. Mint with tools/cf-tokens.
 per_site_vault:
   - CLOUDFLARE_API_TOKEN
+  - CLOUDFLARE_API_READ_TOKEN
   # Authenticates a container to tools/cf-broker, which performs the Cloudflare
   # READS deploy.sh needs and holds the Cloudflare credential itself. The broker
   # derives the site from this token, so it is also the container's identity —

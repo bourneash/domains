@@ -3,6 +3,7 @@
 
     mint.py --audit                 # who holds a scoped token, who is on the fleet one
     mint.py --site xxxtea.com       # mint (or rotate) one site
+    mint.py --site xxxtea.com --read-only  # mint only Workers Scripts Read
     mint.py --all                   # every site the policy grants a CF token
     mint.py --revoke xxxtea.com     # delete the CF token and the vault field
 
@@ -25,6 +26,8 @@ is to stop containers holding a Cloudflare credential at all — a host-side
 deploy broker, the same shape as tools/env-broker. Do not write this up as
 closing B1.
 
+The read-only verification token is deliberately separate from the deploy token:
+it grants only `Workers Scripts Read` and cannot deploy or mutate resources.
 The minted token's value is returned by Cloudflare exactly once, at creation, so
 it goes straight into that site's vault item and is never held anywhere else.
 """
