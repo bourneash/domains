@@ -102,6 +102,7 @@ services:
     environment:
       FS_ROOT: {ROOT}
       FS_TOKEN_FILE: /run/secrets/scheduler-token
+      FLEET_SCHEDULER: "1"
       HOME: {HOME}
       TZ: America/New_York
       FLEET_WORKER_IMAGE: fleet-site-worker:latest

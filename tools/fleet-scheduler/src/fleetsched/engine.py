@@ -53,7 +53,7 @@ def make_wrapper(env_file: str = ".env.shared") -> str:
 
 WRAPPER = make_wrapper()
 ENV_PASSTHROUGH = ("PATH", "HOME", "LANG", "DOCKER_HOST", "DOCKER_CONFIG",
-                   "FLEET_WORKER_IMAGE", "FLEET_WORKER_VERSION")
+                   "FLEET_WORKER_IMAGE", "FLEET_WORKER_VERSION", "FLEET_SCHEDULER")
 MANUAL_PRIORITY = 1000
 
 
