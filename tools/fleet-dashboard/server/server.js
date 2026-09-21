@@ -534,13 +534,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
+    const message = String(error.message || error);
     try {
       changequeue.update(
         events,
         id,
         {
           status: 'review',
-          error: String(error.message || error),
+          error: message,
           lease_owner: null,
           lease_expires_at: null,
           heartbeat_at: null,
@@ -548,7 +549,36 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         site => isKnownSite(root, site)
       );
     } catch {
-      /* best effort */
+      // A dashboard restart can race the callback's final state update. Keep
+      // the failure visible even if the guarded transition was already lost;
+      // the recovery sweep below will clear any remaining reviewer lease.
+      try {
+        events.record({
+          event_type: 'change-request.review_failure',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: id,
+          correlation_id: `change-request:${id}`,
+          payload: { error: message },
+        });
+      } catch {
+        /* best effort */
+      }
+    }
+  }
+
+  function recoverAutomaticReviewHandoffs() {
+    for (const request of events.listChangeRequests({ limit: 1000 })) {
+      if (request.status !== 'reviewing' || activeAutomaticReviews.has(request.request_id))
+        continue;
+      const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      if (!run || run.agent?.phase !== 'reviewer' || run.agent?.status !== 'completed') continue;
+      const reason =
+        run.validation?.passed === false
+          ? run.validation.checks?.build?.excerpt || 'quality gates did not pass'
+          : 'automatic reviewer handoff was interrupted; retry required';
+      recordAutoReviewFailure(request.request_id, new Error(reason));
     }
   }
 
@@ -906,6 +936,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   let lastQueuePickup = 0;
   const queuePulse = setInterval(() => {
     renewQueueLeases();
+    recoverAutomaticReviewHandoffs();
     recoverExpiredQueueWork().catch(() => {});
     const settings = events.getChangeQueueSettings();
     if (!settings.enabled) return;
