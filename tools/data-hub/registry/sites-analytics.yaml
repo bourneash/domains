@@ -112,6 +112,11 @@ sites:
     ga4_measurement_id: G-GDYX2GPMMJ
     gsc_property: sc-domain:saveusfarms.com
     consent_gated: true
+  searchwoot.com:
+    ga4_property_id: '555207946'
+    ga4_measurement_id: G-EK0N4FKJ6N
+    gsc_property: sc-domain:searchwoot.com
+    consent_gated: true
   seedstosauce.com:
     ga4_property_id: '552472503'
     ga4_measurement_id: G-WXXZM2REG4
