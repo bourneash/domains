@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:16:48.462Z",
+  "generated_at": "2026-09-21T20:17:26.748Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess review positioning and launch readiness",
-        "summary": "Review the adult-toy review authority positioning, audience fit, editorial scope, monetization readiness, and minimum viable launch path before further investment. The site is scaffolded and parked for 119 days with only site and operations capabilities. No site-specific Amazon attribution row, analytics configuration, or SEO traffic measurements are available in the supplied snapshot.",
-        "requested_action": "Approve a report-only assessment covering audience hypotheses, positioning and content options, affiliate-readiness gaps, validation criteria, reversible design recommendations, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
-        "proposal_id": null
+        "title": "Assess weapon-builder launch and monetization readiness",
+        "summary": "Evaluate the browser weapon-builder and ballistics-range audience, user flow, affiliate placement, safety boundaries, content scope, and minimum viable growth path before further investment.",
+        "requested_action": "Approve a report-only assessment covering audience hypotheses, tool and content scope, affiliate conversion paths, safety and quality controls, LCP remediation notes, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
+        "proposal_id": "fadb8cec-45ca-4e98-af99-c40d963b1279"
       }
     ]
   }
