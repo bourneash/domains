@@ -95,7 +95,7 @@ fi
 rlog "git: clean=$GIT_CLEAN dirty_src=$GIT_DIRTY_SRC ahead=$GIT_AHEAD behind=$GIT_BEHIND"
 
 # ---- 3. Cloudflare deploy check ----
-CF_OK=0; CF_MODE=edge
+CF_OK=0; CF_MODE=edge; CF_API_STATUS=missing
 # Retry up to 3x for connection blips (code 000). Real HTTP errors (4xx/5xx)
 # fail on the first try. No || echo 000 fallback — curl always writes
 # %{http_code} ("000" on no-response) even when it exits non-zero, so the
@@ -113,11 +113,26 @@ if [[ "$HTTP_CODE" != "200" ]]; then
   CF_OK=0; issue "[block]" "apex returned HTTP $HTTP_CODE (not 200, 2 consecutive checks) — site may be down"
 fi
 if [[ -n "${CLOUDFLARE_API_TOKEN:-}" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
-  API=$(curl -sS --max-time 10 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  API_RAW=$(curl -sS --max-time 10 -w $'\n%{http_code}' \
+    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
     "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" 2>>"$LOG" || true)
-  echo "$API" | grep -q '"success":true' && CF_MODE=api || rlog "CF API non-success (token scope?) — staying on edge check"
+  API_HTTP_CODE="${API_RAW##*$'\n'}"
+  API="${API_RAW%$'\n'*}"
+  if echo "$API" | grep -q '"success":true'; then
+    CF_MODE=api; CF_API_STATUS=api
+  else
+    case "$API_HTTP_CODE" in
+      401|403) CF_API_STATUS=forbidden ;;
+      429)     CF_API_STATUS=rate_limited ;;
+      000)     CF_API_STATUS=error ;;
+      *)       CF_API_STATUS=api_error ;;
+    esac
+    _cf_code=$(echo "$API" | grep -oE '"code":[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
+    _cf_msg=$(echo "$API" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p' | head -1 || true)
+    rlog "CF API non-success (http=${API_HTTP_CODE:-?} code=${_cf_code:-?} msg=${_cf_msg:-?} status=$CF_API_STATUS) — staying on edge check"
+  fi
 fi
-rlog "cloudflare: ok=$CF_OK mode=$CF_MODE http=$HTTP_CODE"
+rlog "cloudflare: ok=$CF_OK mode=$CF_MODE api_status=$CF_API_STATUS http=$HTTP_CODE"
 
 # ---- 4. System / deploy flags ----
 DEPLOY_PENDING=0; DEPLOY_STALE=0
@@ -192,6 +207,7 @@ GIT_AHEAD=$GIT_AHEAD
 GIT_BEHIND=$GIT_BEHIND
 CF_OK=$CF_OK
 CF_MODE=$CF_MODE
+CF_API_STATUS=$CF_API_STATUS
 DEPLOY_PENDING=$DEPLOY_PENDING
 DEPLOY_STALE=$DEPLOY_STALE
 QUEUE_COUNT=$QUEUE_COUNT

@@ -128,7 +128,7 @@ log "running check sweep against $BASE_URL ..."
 # Safe ingest: NO eval (QUEUE_TASKS holds filenames — eval would be injectable).
 RENDER_PASS=0; RENDER_FAIL=0; GIT_CLEAN=1; GIT_DIRTY_SRC=0; GIT_AHEAD=0; GIT_BEHIND=0; CF_OK=0
 DEPLOY_PENDING=0; DEPLOY_STALE=0; QUEUE_COUNT=0; ISSUES_COUNT=0; ENGINEER_PAUSED=0
-RENDER_MODE=error; CF_MODE=edge; ENGINEER_STATUS=green; QUEUE_TASKS=""; ISSUES_FILE=""
+RENDER_MODE=error; CF_MODE=edge; CF_API_STATUS=missing; ENGINEER_STATUS=green; QUEUE_TASKS=""; ISSUES_FILE=""
 CHECK_OUT="$(bash "$REPO_ROOT/ops/scripts/engineer-check.sh" "$LOG" "$BASE_URL")"
 while IFS='=' read -r _k _v; do
   [[ -z "$_k" ]] && continue
@@ -136,8 +136,8 @@ while IFS='=' read -r _k _v; do
   case "$_k" in
     RENDER_PASS|RENDER_FAIL|GIT_CLEAN|GIT_DIRTY_SRC|GIT_AHEAD|GIT_BEHIND|CF_OK|DEPLOY_PENDING|DEPLOY_STALE|QUEUE_COUNT|ISSUES_COUNT|ENGINEER_PAUSED)
       [[ "$_v" =~ ^[0-9]+$ ]] && printf -v "$_k" '%s' "$_v" ;;
-    RENDER_MODE|CF_MODE|ENGINEER_STATUS)
-      [[ "$_v" =~ ^[A-Za-z]+$ ]] && printf -v "$_k" '%s' "$_v" ;;
+    RENDER_MODE|CF_MODE|CF_API_STATUS|ENGINEER_STATUS)
+      [[ "$_v" =~ ^[A-Za-z_]+$ ]] && printf -v "$_k" '%s' "$_v" ;;
     QUEUE_TASKS)
       [[ "$_v" =~ ^[A-Za-z0-9,._-]*$ ]] && printf -v "$_k" '%s' "$_v" ;;
     ISSUES_FILE)
@@ -158,6 +158,7 @@ SYNC_TAG="main synced"
 [[ "$GIT_AHEAD"  -gt 0 ]] && SYNC_TAG="main +${GIT_AHEAD} unpushed"
 [[ "$GIT_BEHIND" -gt 0 ]] && SYNC_TAG="main -${GIT_BEHIND} behind"
 CF_TAG="CF live"; [[ "$CF_OK" == "0" ]] && CF_TAG="CF DOWN"
+[[ "$CF_API_STATUS" == "forbidden" ]] && CF_TAG="CF live (API scope pending)"
 QUEUE_TAG="${QUEUE_COUNT} task(s)"; [[ "${ENGINEER_PAUSED:-0}" == "1" ]] && QUEUE_TAG="${QUEUE_COUNT} task(s, paused)"
 STATUS_LINE="render ${RENDER_TAG} · ${TREE_TAG} · ${SYNC_TAG} · ${CF_TAG} · ${QUEUE_TAG} · ${NOW_ET}"
 log "status=$ENGINEER_STATUS — $STATUS_LINE"
@@ -222,6 +223,15 @@ ISSUES_TEXT="(none)"; [[ -s "${ISSUES_FILE:-/dev/null}" ]] && ISSUES_TEXT="$(cat
 QUEUE_LIST="${QUEUE_TASKS:-}"
 RESULT_FILE="$(mktemp)"
 
+# A documented credential blocker is still visible in CREDENTIALS_NEEDED.md,
+# but it is not a new engineer incident. Keep this decision in the wrapper,
+# rather than relying on the model to obey the prompt every run.
+CF_CREDENTIAL_PENDING=0
+if [[ "$CF_API_STATUS" == "forbidden" ]] \
+  && grep -qi 'Workers Scripts:Read' "$REPO_ROOT/ops/board/CREDENTIALS_NEEDED.md" 2>/dev/null; then
+  CF_CREDENTIAL_PENDING=1
+fi
+
 PROMPT="You are the {{DOMAIN}} autonomous Engineer. Today is ${TODAY} (${NOW_ET}).
 Working directory: ${REPO_ROOT}. You run on a 30-min cron and were woken because the
 programmatic check sweep found work. Your full role contract is in ops/roles/engineer.md
@@ -231,6 +241,7 @@ programmatic check sweep found work. Your full role contract is in ops/roles/eng
 Render:   ${RENDER_PASS} ok / ${RENDER_FAIL} fail (mode=${RENDER_MODE})
 Git:      clean=${GIT_CLEAN} ahead=${GIT_AHEAD} behind=${GIT_BEHIND}
 CF deploy: ok=${CF_OK} mode=${CF_MODE}
+CF API status: ${CF_API_STATUS}$( [[ "$CF_CREDENTIAL_PENDING" == "1" ]] && echo " (known credential blocker)" )
 Deploy flag: pending=${DEPLOY_PENDING} stale=${DEPLOY_STALE}
 Issues (severity-tagged — [warn]=you fix it, [block]=needs the owner):
 ${ISSUES_TEXT}
@@ -266,6 +277,13 @@ tee -a "$LOG" < "$RESULT_FILE" > /dev/null
 CHANGED=$(grep '^ENGINEER_CHANGED=' "$RESULT_FILE" | tail -1 | cut -d= -f2 | tr -d ' \r\n'); CHANGED="${CHANGED:-0}"
 SUMMARY=$(grep '^ENGINEER_SUMMARY=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); SUMMARY="${SUMMARY:-engineer run complete}"
 ESCALATE=$(grep '^ENGINEER_ESCALATE=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); ESCALATE="${ESCALATE:-none}"
+
+if [[ "$CF_CREDENTIAL_PENDING" == "1" ]] && [[ "$ESCALATE" != "none" ]] \
+  && echo "$ESCALATE" | grep -qi 'Workers Scripts:Read' \
+  && echo "$ESCALATE" | grep -qiE 'CF API token|Cloudflare API token|Cloudflare'; then
+  log "suppressing repeat CF credential escalation — already documented in CREDENTIALS_NEEDED.md"
+  ESCALATE="none"
+fi
 
 if [[ "$CLAUDE_EXIT" == "124" ]]; then
   log "engineer pass TIMED OUT after ${WORK_TIMEOUT}s"
