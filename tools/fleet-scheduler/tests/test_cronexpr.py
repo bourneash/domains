@@ -120,7 +120,8 @@ class RealCrontabs(unittest.TestCase):
             self.skipTest("no crontabs present")
         n = 0
         for f in files:
-            r = parse_crontab(open(f).read())
+            with open(f) as fh:
+                r = parse_crontab(fh.read())
             self.assertEqual(r.errors, [], f)
             for j in r.jobs:
                 t = U(2026, 9, 19)

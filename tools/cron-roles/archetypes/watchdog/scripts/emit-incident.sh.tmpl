@@ -54,6 +54,27 @@ if [[ -n "$LOGFILE" && -f "$LOGFILE" ]]; then
   EXCERPT="$(tail -n 40 "$LOGFILE" 2>/dev/null)"
 fi
 
+redact_guardrail_terms() {  # $1=untrusted text; fail closed on config errors
+  python3 - "$1" <<'PY' 2>/dev/null || printf '%s' '[redaction unavailable]'
+import json, re, sys
+text = sys.argv[1]
+for cfg_path in ("/work/.monorepo-tools/content-guardrails/config.json",
+                 "../../tools/content-guardrails/config.json"):
+    try:
+        cfg = json.load(open(cfg_path, encoding="utf-8"))
+        for term in (cfg.get("global") or {}).get("blocked", []):
+            text = re.sub(r"\b" + re.escape(str(term).strip()) + r"\b", "[redacted]", text, flags=re.I)
+        break
+    except Exception:
+        continue
+else:
+    raise SystemExit(1)
+print(text, end="")
+PY
+}
+SUMMARY="$(redact_guardrail_terms "$SUMMARY")"
+EXCERPT="$(redact_guardrail_terms "$EXCERPT")"
+
 # Python does the JSON read-modify-write so we never fight shell escaping and the
 # update (first_seen preserved, count++, last_seen/summary refreshed) is atomic
 # enough for a single-host cron. Defaults for attempts/status are seeded here and

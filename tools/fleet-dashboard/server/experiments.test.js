@@ -29,6 +29,10 @@ test('creates, runs, records, and analyzes an experiment', () => {
     known
   );
   experiments.transition(s, experiment.experiment_id, 'running');
+  assert.equal(
+    experiments.assign({ ...experiment, state: 'running' }, 'anonymous-1'),
+    experiments.assign({ ...experiment, state: 'running' }, 'anonymous-1')
+  );
   experiments.recordEvent(
     s,
     {

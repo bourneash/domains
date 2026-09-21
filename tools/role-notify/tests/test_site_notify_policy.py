@@ -1,4 +1,4 @@
-"""Fleet contract checks for the copied per-site Slack wrappers."""
+"""Fleet contract checks for the per-site Slack delegators and canonical sender."""
 
 from pathlib import Path
 
@@ -10,22 +10,30 @@ def notify_scripts():
     return sorted(ROOT.glob("sites/*/ops/scripts/notify-slack.sh"))
 
 
+def canonical_script():
+    return (ROOT / "tools" / "scripts" / "notify-slack.sh").read_text(encoding="utf-8")
+
+
 def test_every_site_wrapper_has_the_quiet_success_gate():
     scripts = notify_scripts()
     assert scripts, "expected per-site Slack wrappers"
+    canonical = canonical_script()
+    assert '${SLACK_VERBOSE:-}' in canonical
+    assert '[[ "$SEVERITY" == "info" ]] && exit 0' in canonical
     for script in scripts:
         text = script.read_text(encoding="utf-8")
-        assert '${SLACK_VERBOSE:-}' in text, script
-        assert '[[ "$SEVERITY" == "info" ]] && exit 0' in text, script
+        assert 'exec "$CANONICAL" "$@"' in text, script
 
 
 def test_quiet_gate_precedes_disk_log_and_slack_post():
+    canonical = canonical_script()
     for script in notify_scripts():
         text = script.read_text(encoding="utf-8")
-        gate = text.index('[[ "$SEVERITY" == "info" ]] && exit 0')
+        gate = canonical.index('[[ "$SEVERITY" == "info" ]] && exit 0')
         first_side_effect = min(
-            index for index in (text.find("log_to_disk"), text.find("log_file="))
+            index for index in (canonical.find("log_to_disk", gate), canonical.find("log_file=", gate))
             if index >= 0
         )
-        assert gate < first_side_effect, script
-        assert gate < text.index("SLACK_BOT_TOKEN", gate), script
+        assert gate < first_side_effect
+        assert gate < canonical.index("SLACK_BOT_TOKEN", gate)
+        assert 'exec "$CANONICAL" "$@"' in text, script

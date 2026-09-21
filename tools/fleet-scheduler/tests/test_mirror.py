@@ -63,6 +63,14 @@ class Mirror(unittest.TestCase):
         mirror.sync(self.p, old, {**old, "schedule": "*/20 * * * *"})
         self.assertEqual(sorted(x.name for x in Path(self.d).iterdir()), ["crontab.docker"])
 
+    def test_check_detects_missing_and_wrong_enabled_state(self):
+        missing = job("1 1 * * *", "bash ops/scripts/missing.sh")
+        self.assertIn("missing", mirror.check(self.p, [missing])[0])
+        disabled = job("*/15 * * * *", "bash ops/scripts/run-deployer.sh", 0)
+        self.assertIn("active", mirror.check(self.p, [disabled])[0])
+        enabled = job("0 7 * * 6", "bash ops/scripts/run-worker.sh content-writer", 1)
+        self.assertEqual(mirror.check(self.p, [enabled]), [])
+
 
 if __name__ == "__main__":
     unittest.main()

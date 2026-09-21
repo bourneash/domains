@@ -40,6 +40,7 @@ if [ -f .deploy-needed.failed ]; then
   if [ "$age" -gt 1800 ]; then
     echo "[$(date -Iseconds)] auto-recovering .deploy-needed.failed after ${age}s cooldown" >> "$LOG"
     mv .deploy-needed.failed .deploy-needed
+    touch .deploy-needed
     echo 0 > .deploy-attempts
   else
     exit 0
@@ -62,6 +63,7 @@ attempts=$(cat .deploy-attempts 2>/dev/null || echo 0)
 
 if [ "$attempts" -ge 5 ]; then
   mv .deploy-needed .deploy-needed.failed
+  touch .deploy-needed.failed
   echo 0 > .deploy-attempts
   echo "[$(date -Iseconds)] halted after 5 consecutive failures — renamed to .deploy-needed.failed (auto-recovers in 30 min)" >> "$LOG"
   [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" \

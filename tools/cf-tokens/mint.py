@@ -41,12 +41,18 @@ import env_broker as eb  # noqa: E402
 
 API = "https://api.cloudflare.com/client/v4"
 TOKEN_NAME = "site-{domain}"
+READ_TOKEN_NAME = "site-{domain}-read"
 KEY = "CLOUDFLARE_API_TOKEN"
+READ_KEY = "CLOUDFLARE_API_READ_TOKEN"
 
 # Zone-scoped: the half Cloudflare lets us actually confine.
 ZONE_PERMS = ["Zone Read", "DNS Write", "Workers Routes Write"]
 # Account-scoped because Cloudflare offers nothing narrower. See the docstring.
-ACCOUNT_PERMS = ["Workers Scripts Write", "Workers CI Read"]
+# The engineer health check reads the account's Worker list. Keep the explicit
+# read permission here even though Write/CI permissions may look sufficient;
+# Cloudflare evaluates this endpoint against Workers Scripts:Read separately.
+ACCOUNT_PERMS = ["Workers Scripts Read", "Workers Scripts Write", "Workers CI Read"]
+READ_ACCOUNT_PERMS = ["Workers Scripts Read"]
 
 
 def die(msg: str) -> None:
@@ -141,6 +147,20 @@ def write_site_value(domain: str, value: str) -> None:
             f"be lost (Cloudflare returns its value only once)")
 
 
+def write_site_read_value(domain: str, value: str) -> None:
+    item = f"{eb.SITE_ITEM_PREFIX}{domain}"
+    fields = {}
+    try:
+        fields = eb._vault_read(item)
+    except Exception:
+        pass
+    fields[READ_KEY] = value
+    eb._vault_write(item, fields)
+    if eb._vault_read(item).get(READ_KEY) != value:
+        die(f"{domain}: vault read-token write did not read back — the minted token would "
+            f"be lost (Cloudflare returns its value only once)")
+
+
 def mint(domain: str, prov: str, acc: str, pgs: dict, reg: dict,
          existing: dict[str, str], dry_run: bool) -> bool:
     name = TOKEN_NAME.format(domain=domain)
@@ -172,6 +192,33 @@ def mint(domain: str, prov: str, acc: str, pgs: dict, reg: dict,
               f"{domain}: creating {name}")
     write_site_value(domain, resp["result"]["value"])
     print(f"{domain:26s} minted + stored (zone {zid[:8]}…)")
+    return True
+
+
+def mint_read_only(domain: str, prov: str, acc: str, pgs: dict,
+                   existing: dict[str, str], dry_run: bool) -> bool:
+    """Mint only the account-wide read token used by engineer verification."""
+    name = READ_TOKEN_NAME.format(domain=domain)
+    if dry_run:
+        print(f"{domain:26s} would mint {name} (Workers Scripts Read only)")
+        return True
+
+    if name in existing:
+        ok(api(f"/user/tokens/{existing[name]}", prov, method="DELETE"),
+           f"{domain}: deleting the previous {name}")
+
+    body = {
+        "name": name,
+        "policies": [{
+            "effect": "allow",
+            "permission_groups": [pgs[p] for p in READ_ACCOUNT_PERMS],
+            "resources": {f"com.cloudflare.api.account.{acc}": "*"},
+        }],
+    }
+    resp = ok(api("/user/tokens", prov, method="POST", body=body),
+              f"{domain}: creating {name}")
+    write_site_read_value(domain, resp["result"]["value"])
+    print(f"{domain:26s} read-only token minted + stored")
     return True
 
 
@@ -219,6 +266,8 @@ def main() -> int:
     ap.add_argument("--audit", action="store_true")
     ap.add_argument("--revoke")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--read-only", action="store_true",
+                    help="mint only Workers Scripts Read for engineer verification")
     args = ap.parse_args()
 
     prov, reg = provision_token(), registry()
@@ -227,6 +276,8 @@ def main() -> int:
         return cmd_audit(prov, reg)
     if args.revoke:
         return cmd_revoke(args.revoke, prov)
+    if args.read_only and (not args.site or args.all):
+        ap.error("--read-only requires exactly one --site")
     if not (args.site or args.all):
         ap.error("need --site, --all, --audit or --revoke")
 
@@ -243,6 +294,13 @@ def main() -> int:
         targets = sites_needing_a_token()
 
     acc, pgs = account_id(), permission_groups(prov)
+    if args.read_only:
+        missing_perms = [p for p in READ_ACCOUNT_PERMS if p not in pgs]
+        if missing_perms:
+            die(f"Cloudflare no longer offers: {', '.join(missing_perms)}")
+        existing = existing_tokens(prov)
+        mint_read_only(args.site, prov, acc, pgs, existing, args.dry_run)
+        return 0
     missing_perms = [p for p in ZONE_PERMS + ACCOUNT_PERMS if p not in pgs]
     if missing_perms:
         die(f"Cloudflare no longer offers: {', '.join(missing_perms)}")

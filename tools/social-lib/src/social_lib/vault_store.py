@@ -45,6 +45,7 @@ COLLECTION_ID = "cacd4253-453d-4d5b-a039-2e6cd18118aa"    # "Social Media"
 SESSION_CACHE_FILE = os.environ.get(
     "VAULT_SESSION_CACHE_FILE", "/mnt/encrypted/projects/credential-vault/.session_cache"
 )
+BW_TIMEOUT_SECONDS = int(os.environ.get("BW_TIMEOUT_SECONDS", "30"))
 
 _session_key: str | None = None
 
@@ -66,7 +67,8 @@ def _bw(args: list[str], input_text: str | None = None) -> str:
     if _session_key:
         env["BW_SESSION"] = _session_key
     proc = subprocess.run(
-        ["bw"] + args, capture_output=True, text=True, env=env, input=input_text
+        ["bw"] + args, capture_output=True, text=True, env=env, input=input_text,
+        timeout=BW_TIMEOUT_SECONDS,
     )
     if proc.returncode != 0:
         raise RuntimeError(f"bw {' '.join(args)} failed: {proc.stderr.strip()}")
@@ -85,7 +87,8 @@ def _ensure_unlocked() -> None:
 
     env = os.environ.copy()
     env["NODE_EXTRA_CA_CERTS"] = VAULT_CA_CERT
-    subprocess.run(["bw", "config", "server", VAULT_SERVER], capture_output=True, env=env)
+    subprocess.run(["bw", "config", "server", VAULT_SERVER], capture_output=True,
+                   env=env, timeout=BW_TIMEOUT_SECONDS)
 
     # Try the cached session first — cheap, and covers the common case of
     # many processes running within the same unlocked window.
@@ -96,7 +99,8 @@ def _ensure_unlocked() -> None:
         check_env = dict(env)
         check_env["BW_SESSION"] = cached
         status = json.loads(subprocess.run(
-            ["bw", "status"], capture_output=True, text=True, env=check_env
+            ["bw", "status"], capture_output=True, text=True, env=check_env,
+            timeout=BW_TIMEOUT_SECONDS
         ).stdout or "{}")
         if status.get("status") == "unlocked":
             _session_key = cached
@@ -108,18 +112,19 @@ def _ensure_unlocked() -> None:
     env["BW_PASSWORD"] = creds["AUTOMATION_PASSWORD"]
 
     status = json.loads(subprocess.run(
-        ["bw", "status"], capture_output=True, text=True, env=env
+        ["bw", "status"], capture_output=True, text=True, env=env,
+        timeout=BW_TIMEOUT_SECONDS
     ).stdout or "{}")
 
     if status.get("status") == "unauthenticated":
         subprocess.run(
             ["bw", "login", creds["AUTOMATION_EMAIL"], "--passwordenv", "BW_PASSWORD", "--raw"],
-            capture_output=True, text=True, env=env,
+            capture_output=True, text=True, env=env, timeout=BW_TIMEOUT_SECONDS,
         )
 
     unlock = subprocess.run(
         ["bw", "unlock", "--passwordenv", "BW_PASSWORD", "--raw"],
-        capture_output=True, text=True, env=env,
+        capture_output=True, text=True, env=env, timeout=BW_TIMEOUT_SECONDS,
     )
     if unlock.returncode != 0 or not unlock.stdout.strip():
         raise RuntimeError(f"vault unlock failed: {unlock.stderr.strip()}")

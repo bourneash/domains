@@ -72,3 +72,31 @@ def sync(path: Path | None, old: dict | None, new: dict | None) -> str | None:
     except OSError as e:
         return f"crontab mirror failed: {e}"
     return None
+
+
+def check(path: Path | None, jobs) -> list[str]:
+    """Return drift findings for DB jobs whose legacy crontab is expected to mirror them.
+
+    The database remains authoritative.  This deliberately checks only exact job lines and
+    does not flag extra lines: imported legacy entries and fleet-specific comments are valid
+    and should not be removed by an audit.
+    """
+    if path is None:
+        return []
+    try:
+        lines = path.read_text().splitlines()
+    except OSError as exc:
+        return [f"cannot read {path}: {exc}"]
+    parsed = [_split(line) for line in lines]
+    findings = []
+    for job in jobs:
+        matches = [sp for sp in parsed if sp and sp[1] == job["schedule"] and sp[3] == job["command"]]
+        if not matches:
+            findings.append(f"job {job.get('site', '?')}/{job.get('name', '?')} is missing from {path.name}")
+            continue
+        enabled = bool(job["enabled"])
+        if enabled and not any(not sp[0] for sp in matches):
+            findings.append(f"job {job.get('site', '?')}/{job.get('name', '?')} is commented in {path.name}")
+        elif not enabled and not any(sp[0] for sp in matches):
+            findings.append(f"disabled job {job.get('site', '?')}/{job.get('name', '?')} is active in {path.name}")
+    return findings

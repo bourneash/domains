@@ -46,6 +46,23 @@ FLEET_WIDE = [
 ]
 
 
+def social_intentionally_pending(domain: str) -> bool:
+    """Return true when social setup is explicitly pending or excluded.
+
+    The social registry also tracks sites that are live but intentionally have
+    no account yet. Those sites should not produce a false drift alert until
+    social provisioning is actually expected.
+    """
+    path = Path(__file__).resolve().parents[1] / "social-setup" / "registry" / "social.json"
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8")).get("siteMeta", {})
+    except (OSError, json.JSONDecodeError):
+        return False
+    return (meta.get(domain) or {}).get("category") in {
+        "positioning_tbd", "adult_excluded", "retired"
+    }
+
+
 AUTO_FIXABLE = ("stale in registry", "worker name stale", "has NO registry entry")
 
 
@@ -97,6 +114,8 @@ def _check_once() -> tuple[list[str], list[str]]:
     for label, key in FLEET_WIDE:
         missing = sorted(set(live) - set(src[key]))
         for domain in missing:
+            if key == "social" and social_intentionally_pending(domain):
+                continue
             # A site whose analytics live in someone else's Google account is
             # never going to appear in our registry, and re-reporting it every
             # run is how a warning list becomes background noise.

@@ -107,6 +107,7 @@ recreates, then resumes. `FS_NO_DRAIN=1` forces. Ticks/dispatch batch their DB w
 * Site `docker-compose.yml` files still define the `cron` service **on purpose**: it is the rollback path
   (`release <site>` re-creates it). Remove it, and the container checks in `fleet-doctor`, only after the
   scheduler has soaked for a while (weekly jobs run, a DST edge, a host reboot).
-* Schedules edited in the scheduler live in its DB; `ops/docker/crontab.docker` is NOT rewritten, so the
-  dashboard's role/roles-matrix "expected runs" (which parse crontab files) go stale for edited jobs.
-  `cron-freshness.py` already reads the DB. A crontab write-through is the open follow-up.
+* Scheduler API edits write through to `ops/docker/crontab.docker` using an atomic mirror update. The
+  DB remains the live execution source; the crontab is kept synchronized for rollback, dashboard
+  role/expected-run views, and legacy release. Mirror failures are returned as warnings and should be
+  investigated before releasing a site.

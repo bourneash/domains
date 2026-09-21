@@ -134,6 +134,10 @@
 # gate, run by hand after an image roll, not a background job.
 50 */6 * * * /home/jesse/projects/domains/tools/scripts/fleet-images-drift-cron.sh
 
+# Nightly shared-worker dispatch probe. Starts each worker with no role, so the
+# shared image, bind mounts, and site entrypoint are exercised without Claude.
+20 4 * * * /home/jesse/projects/domains/tools/scripts/fleet-worker-probe-cron.sh
+
 # --- Job 12: shared-image base-digest drift check ---
 # The two shared images pin their bases by DIGEST, which buys reproducibility
 # and costs free security updates on rebuild. That trade is only honest if

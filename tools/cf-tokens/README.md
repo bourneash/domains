@@ -24,7 +24,7 @@ scoped token minted, tested and deleted:
 | | scope | result |
 |---|---|---|
 | `Zone Read`, `DNS Write`, `Workers Routes Write` | `…api.account.zone` | zone-scopeable — another site's DNS returns **403** ✅ |
-| `Workers Scripts Write`, `Workers CI Read` | `…api.account` **only** | no per-script resource exists — a site token still lists all 57 Workers and can deploy any of them ❌ |
+| `Workers Scripts Read`, `Workers Scripts Write`, `Workers CI Read` | `…api.account` **only** | no per-script resource exists — a site token still lists all 57 Workers and can deploy any of them ❌ |
 
 So a compromised container can no longer hijack another site's **domain**, but
 can still deploy code to another site's **Worker**.

@@ -93,9 +93,24 @@ failures=0
 for dir in "$SITES_DIR"/*/; do
   [[ -d "$dir" ]] || continue
   site="$(basename "$dir")"
-  # Sites adopted by tools/fleet-scheduler have no per-site cron container by design;
-  # resurrecting it would double-fire every job. (Marker is maintained by the scheduler.)
-  [[ -e "$DOMAINS_ROOT/tools/fleet-scheduler/data/adopted/$site" ]] && continue
+  # Sites adopted by tools/fleet-scheduler have no per-site cron container by design.
+  # Do not resurrect it — and actively stop one if it reappeared during a
+  # scheduler restart or Docker restart-policy race. A passive `continue`
+  # leaves the duplicate running indefinitely.
+  if [[ -e "$DOMAINS_ROOT/tools/fleet-scheduler/data/adopted/$site" ]]; then
+    compose_file="$dir/docker-compose.yml"
+    [[ -f "$compose_file" ]] || continue
+    cron_name="$(awk '/^  cron:$/{f=1} f && /container_name:/{print; exit}' "$compose_file" | sed -E 's/.*container_name:[[:space:]]*//')"
+    [[ -n "$cron_name" ]] || continue
+    if [[ "$(container_status "$cron_name")" == "running" ]]; then
+      log "[$site] adopted site has legacy cron '$cron_name' running — stopping duplicate"
+      if ! timeout "$UP_TIMEOUT" docker stop -t 30 "$cron_name" >> "$LOG" 2>&1; then
+        log "[$site] ERROR: could not stop duplicate legacy cron '$cron_name'"
+        failures=$((failures + 1))
+      fi
+    fi
+    continue
+  fi
   compose_file="$dir/docker-compose.yml"
   [[ -f "$compose_file" ]] || continue
 

@@ -317,6 +317,12 @@ except Exception: print("(could not fetch build log)")' 2>/dev/null)"
     fi
   fi
 
+  if [ "$BUILD_CONFIRMED" != "1" ] && [ "${DEPLOY_ALLOW_UNCONFIRMED_BUILD:-0}" != "1" ]; then
+    log "FAIL: could not confirm a successful Cloudflare build for ${PUSHED_SHA:0:8} — refusing to smoke-test an unknown deployment"
+    notify_role --status fail --headline "Deploy verification unavailable — matching Cloudflare build not confirmed" --files "${FILES[@]}"
+    emit_incident --class cf-build-unconfirmed --summary "no successful Cloudflare build confirmed for ${PUSHED_SHA:0:8}"
+    exit 1
+  fi
   if [ "$BUILD_CONFIRMED" = "0" ]; then
     log "sleeping 60s for CF Workers propagation (no build-status confirmation available)..."
     sleep 60

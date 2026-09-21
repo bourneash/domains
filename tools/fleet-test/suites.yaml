@@ -61,6 +61,8 @@ suites:
   seo-history:       { runner: pytest }
   fleet-dashboard:   { runner: node-test, timeout: 600 }
   fleet-git:         { runner: node-test }
+  backlink-audit:    { runner: node-test }
+  executive:         { runner: node-test }
 
   # Standalone node test file, no package.json of its own — the client shim
   # that ships alongside the python service.

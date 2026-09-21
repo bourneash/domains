@@ -37,6 +37,23 @@ PGS = {name: {"id": f"id-{name}", "name": name}
        for name in mint.ZONE_PERMS + mint.ACCOUNT_PERMS}
 
 
+def test_worker_read_permission_is_minted_for_deploy_verification():
+    assert "Workers Scripts Read" in mint.ACCOUNT_PERMS
+
+
+def test_read_only_token_has_no_write_permissions(monkeypatch):
+    api = FakeAPI([
+        ("/user/tokens", {"success": True, "result": {"value": "v", "id": "T1"}}),
+    ])
+    monkeypatch.setattr(mint, "api", api)
+    monkeypatch.setattr(mint, "write_site_read_value", lambda d, v: None)
+
+    mint.mint_read_only("a.com", "prov", "ACC", PGS, {}, dry_run=False)
+    body = next(b for m, p, b in api.calls if m == "POST")
+    names = {g["name"] for g in body["policies"][0]["permission_groups"]}
+    assert names == {"Workers Scripts Read"}
+
+
 def test_zone_permissions_are_scoped_to_that_zone_only(monkeypatch):
     api = FakeAPI([
         ("/zones?name=", {"success": True, "result": [{"id": "ZONE1"}]}),

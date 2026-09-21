@@ -7,9 +7,12 @@ trap 'rm -rf "$TMP"' EXIT
 
 FAKE_BIN="$TMP/bin"
 SITES="$TMP/sites"
-mkdir -p "$FAKE_BIN" "$SITES/healthy.test" "$SITES/recover.test"
+mkdir -p "$FAKE_BIN" "$SITES/healthy.test" "$SITES/recover.test" "$SITES/adopted.test"
 printf 'services:\n  cron:\n    container_name: healthy-cron\n' > "$SITES/healthy.test/docker-compose.yml"
 printf 'services:\n  cron:\n    container_name: recover-cron\n' > "$SITES/recover.test/docker-compose.yml"
+printf 'services:\n  cron:\n    container_name: adopted-cron\n' > "$SITES/adopted.test/docker-compose.yml"
+mkdir -p "$TMP/tools/fleet-scheduler/data/adopted"
+: > "$TMP/tools/fleet-scheduler/data/adopted/adopted.test"
 
 cat > "$FAKE_BIN/docker" <<'SH'
 #!/usr/bin/env bash
@@ -21,11 +24,18 @@ case "${1:-}" in
     name="${*: -1}"
     if [[ "$name" == "healthy-cron" ]]; then
       printf 'running\n'
+    elif [[ "$name" == "adopted-cron" && -f "$FAKE_ADOPTED_STOPPED" ]]; then
+      printf 'exited\n'
+    elif [[ "$name" == "adopted-cron" ]]; then
+      printf 'running\n'
     elif [[ -f "$FAKE_RECOVERED" && "${FAKE_STAY_DOWN:-0}" != "1" ]]; then
       printf 'running\n'
     else
       printf 'exited\n'
     fi
+    ;;
+  stop)
+    : > "$FAKE_ADOPTED_STOPPED"
     ;;
   compose)
     [[ "$*" == "compose up -d --no-deps cron" ]]
@@ -40,6 +50,8 @@ run_script() {
   PATH="$FAKE_BIN:$PATH" \
   FAKE_DOCKER_CALLS="$TMP/docker.calls" \
   FAKE_RECOVERED="$TMP/recovered" \
+  FAKE_ADOPTED_STOPPED="$TMP/adopted-stopped" \
+  FLEET_DOMAINS_ROOT="$TMP" \
   FLEET_SITES_DIR="$SITES" \
   FLEET_CRON_LOG="$TMP/ensure.log" \
   FLEET_CRON_LOCK="$TMP/ensure.lock" \
@@ -52,6 +64,8 @@ run_script() {
 run_script
 grep -q '^compose up -d --no-deps cron$' "$TMP/docker.calls"
 grep -q "recovered 'recover-cron' successfully" "$TMP/ensure.log"
+grep -q "adopted site has legacy cron 'adopted-cron' running" "$TMP/ensure.log"
+grep -q '^stop -t 30 adopted-cron$' "$TMP/docker.calls"
 if grep -q 'healthy.test.*bringing up' "$TMP/ensure.log"; then
   echo "healthy scheduler was needlessly restarted" >&2
   exit 1

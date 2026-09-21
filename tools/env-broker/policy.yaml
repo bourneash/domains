@@ -54,7 +54,7 @@ defaults:
 # (`fleet — site-<domain>`), falling back to the fleet-wide value when the site
 # has none. Cloudflare's model is why: a token can be scoped to one zone, so a
 # compromised container can no longer touch another site's DNS. It canNOT be
-# scoped to one Worker (`Workers Scripts Write` exists only at account scope —
+# scoped to one Worker (`Workers Scripts Read/Write` exists only at account scope —
 # verified against all 395 permission groups on 2026-09-01), so this is a real
 # reduction in blast radius, not a fix for it. Mint with tools/cf-tokens.
 per_site_vault:
@@ -143,10 +143,19 @@ sites:
     # this bearer token. The R2/AIS credentials belong only to the separately
     # composed ops/aisstream collector and are intentionally not granted here.
     extra_keys: [MARINEACTIVITY_INGEST_TOKEN]
+  saltwaternews.com:
+    # Read-only account token used solely by engineer-check.sh to verify the
+    # Worker list. It cannot deploy or mutate any Cloudflare resource.
+    extra_keys: [CLOUDFLARE_API_READ_TOKEN]
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
   searchwoot.com:
     extra_keys: [WOOT_API_KEY, SITE_SHARED_PASSWORD]
+  3boobs.com:
+    # The smoke test authenticates only when this optional preview gate is
+    # configured; an absent value deliberately falls back to an unauthenticated
+    # public probe rather than breaking the role.
+    optional_keys: [SITE_SHARED_PASSWORD]
   # No deny_keys: 2026-08-26 ops standup gave this site real scripts
   # (deploy.sh polls the CF Workers Builds API; every role notifies via
   # notify-slack.sh) that need the defaults. The original deny_keys here (from

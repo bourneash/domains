@@ -1,0 +1,26 @@
+name: Fleet ops hardening
+
+on:
+  push:
+    paths:
+      - "tools/cron-roles/**"
+      - "tools/content-guardrails/**"
+      - "sites/*/ops/scripts/**"
+  pull_request:
+    paths:
+      - "tools/cron-roles/**"
+      - "tools/content-guardrails/**"
+      - "sites/*/ops/scripts/**"
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Run fleet ops contracts
+        run: bash tools/cron-roles/tests/test_ops_hardening.test.sh

@@ -112,9 +112,10 @@ if echo "$HDRS" | grep -qiE '^(cf-ray|server:\s*cloudflare)'; then CF_OK=1; fi
 if [[ "$HTTP_CODE" != "200" ]]; then
   CF_OK=0; issue "[block]" "apex returned HTTP $HTTP_CODE (not 200, 2 consecutive checks) — site may be down"
 fi
-if [[ -n "${CLOUDFLARE_API_TOKEN:-}" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+CF_API_READ_TOKEN="${CLOUDFLARE_API_READ_TOKEN:-${CLOUDFLARE_API_TOKEN:-}}"
+if [[ -n "$CF_API_READ_TOKEN" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
   API_RAW=$(curl -sS --max-time 10 -w $'\n%{http_code}' \
-    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+    -H "Authorization: Bearer $CF_API_READ_TOKEN" \
     "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" 2>>"$LOG" || true)
   API_HTTP_CODE="${API_RAW##*$'\n'}"
   API="${API_RAW%$'\n'*}"

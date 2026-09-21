@@ -107,6 +107,26 @@ class Service:
         except OSError:
             log.exception("could not sync adoption markers")
 
+    def _set_adoption_marker(self, site: str, adopted: bool) -> None:
+        """Publish one cutover marker before touching the legacy container.
+
+        The marker is consumed by the host self-healer.  Publishing it only
+        after ``docker stop`` leaves a restart race during adoption: the
+        self-healer can observe the stopped legacy container and bring it back
+        before the scheduler has recorded adoption.
+        """
+        if not self.marker_dir:
+            return
+        try:
+            self.marker_dir.mkdir(parents=True, exist_ok=True)
+            marker = self.marker_dir / site
+            if adopted:
+                marker.touch()
+            else:
+                marker.unlink(missing_ok=True)
+        except OSError as exc:
+            raise SchedError(f"could not update adoption marker for {site}: {exc}", 503)
+
     def call(self, fn, *a, timeout: float = 15.0):
         fut: concurrent.futures.Future = concurrent.futures.Future()
 
@@ -151,7 +171,18 @@ class Service:
         for x in s["sites"]:
             x["adopted"] = x["site"] in adopted
         s["settings"] = self.e.settings
+        s["mirror"] = self.mirror_check()
         return s
+
+    def mirror_check(self):
+        findings = []
+        rows = self.e.db.jobs()
+        by_site = {}
+        for row in rows:
+            by_site.setdefault(row["site"], []).append(dict(row))
+        for site, jobs in by_site.items():
+            findings.extend(mirror.check(self.e.cfg.crontab_for(site), jobs))
+        return {"ok": not findings, "findings": findings}
 
     def audit(self, limit=100):
         return [dict(r) for r in self.e.db.conn.execute(
@@ -242,6 +273,14 @@ class Service:
             raise SchedError(f"docker ps failed: {r.stderr.strip()[:200]}", 502)
         return r.stdout.split()
 
+    def _legacy_running_ids(self, site: str) -> list[str]:
+        r = self.docker(["ps", "-q",
+                         "--filter", f"label=com.docker.compose.project.working_dir={self.sites_dir / site}",
+                         "--filter", "label=com.docker.compose.service=cron"], timeout=20)
+        if r.returncode != 0:
+            raise SchedError(f"docker ps failed: {r.stderr.strip()[:200]}", 502)
+        return r.stdout.split()
+
     def _adopt_db(self, site: str, adopted: bool, actor: str):
         now = int(time.time())
         for r in self.e.db.jobs(site):  # never fire schedule ticks from before the handover
@@ -277,11 +316,23 @@ class Service:
             return {"site": site, "adopted": adopted, "warnings": warnings}
         if adopted:
             ids = self._legacy_ids(site)
+            # Block the legacy self-healer before stopping anything. If the
+            # stop fails, remove the marker and leave the scheduler unadopted.
+            self._set_adoption_marker(site, True)
             if ids:
                 r = self.docker(["stop", "-t", "30", *ids], timeout=90)
                 if r.returncode != 0:
+                    self._set_adoption_marker(site, False)
                     raise SchedError(f"could not stop legacy cron container; NOT adopting: {r.stderr.strip()[:200]}", 502)
-            self.call(self._adopt_db, site, True, actor)
+                running = self._legacy_running_ids(site)
+                if running:
+                    self._set_adoption_marker(site, False)
+                    raise SchedError("legacy cron container is still running after stop; NOT adopting", 502)
+            try:
+                self.call(self._adopt_db, site, True, actor)
+            except Exception:
+                self._set_adoption_marker(site, False)
+                raise
             if ids:
                 r = self.docker(["rm", *ids], timeout=30)
                 if r.returncode != 0:
@@ -412,6 +463,10 @@ def _int(q, key, default=None):
 
 @handler("GET", "/api/status")
 def h_status(svc, m, q, b, actor): return svc.call(svc.status)
+
+
+@handler("GET", "/api/mirror-check")
+def h_mirror_check(svc, m, q, b, actor): return svc.call(svc.mirror_check)
 
 
 @handler("GET", "/api/jobs")

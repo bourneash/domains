@@ -134,7 +134,7 @@ class ApiTests(unittest.TestCase):
             def fake_docker(args, cwd=None, timeout=60):
                 cls.docker_calls.append(args)
                 import subprocess
-                out = "abc123\n" if args[0] == "ps" else ""
+                out = "abc123\n" if args[0] == "ps" and "-a" in args else ""
                 return subprocess.CompletedProcess(args, 0, out, "")
             cls.svc = Service(cls.engine, cls.loop, cls.root / "sites", cls.root / "adopted", docker=fake_docker)
             cls.srv = make_server(cls.svc, TOKEN, "127.0.0.1", 0)
@@ -151,7 +151,15 @@ class ApiTests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.srv.shutdown()
+        cls.srv.server_close()
+        # Let the engine finish its async shutdown before stopping the loop.  Stopping the
+        # loop immediately leaves run_forever(), subprocess waiters and the event loop open.
+        fut = asyncio.run_coroutine_threadsafe(cls.engine.shutdown(grace_s=1), cls.loop)
+        fut.result(timeout=5)
         cls.loop.call_soon_threadsafe(cls.loop.stop)
+        cls.t.join(timeout=5)
+        if not cls.t.is_alive():
+            cls.loop.close()
         shutil.rmtree(cls.root, ignore_errors=True)
         shutil.rmtree(cls.db_dir, ignore_errors=True)
 
@@ -258,7 +266,7 @@ class ApiTests(unittest.TestCase):
         self.docker_calls.clear()
         r = self.req("POST", "/api/sites/a.com/adopt")
         self.assertEqual(r[1]["adopted"], True)
-        self.assertEqual([c[0] for c in self.docker_calls], ["ps", "stop", "rm"])  # stop BEFORE take-over
+        self.assertEqual([c[0] for c in self.docker_calls], ["ps", "stop", "ps", "rm"])
         st = self.req("GET", "/api/status")[1]
         self.assertIn("a.com", st["adopted_sites"]); self.assertGreater(st["scheduled"], 0)
         self.assertTrue((self.root / "adopted" / "a.com").exists())

@@ -264,8 +264,8 @@ if is_deploy_pipeline_class "$CLASS" && [[ -f "$BLOCKED_FILE" ]]; then
   clear_blocked_cache
 fi
 
-redact_guardrail_terms() {  # $1=untrusted text; emits text safe for runtime metadata
-  python3 - "$1" <<'PY' 2>/dev/null || printf '%s' "$1"
+redact_guardrail_terms() {  # $1=untrusted text; fail closed on config errors
+  python3 - "$1" <<'PY' 2>/dev/null || printf '%s' '[redaction unavailable]'
 import json, re, sys
 text = sys.argv[1]
 for cfg_path in ("/work/.monorepo-tools/content-guardrails/config.json", "../../tools/content-guardrails/config.json"):
@@ -277,6 +277,8 @@ for cfg_path in ("/work/.monorepo-tools/content-guardrails/config.json", "../../
         break
     except Exception:
         continue
+else:
+    raise SystemExit(1)
 print(text, end="")
 PY
 }

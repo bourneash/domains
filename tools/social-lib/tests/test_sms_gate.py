@@ -40,6 +40,6 @@ def test_manual_gate_cleans_up(tmp_path, monkeypatch):
     assert not (tmp_path / "cleanup-gate.continue").exists()
 
 
-def test_smspool_gate_raises_not_implemented():
-    with pytest.raises(NotImplementedError):
+def test_smspool_gate_requires_api_key_before_spending():
+    with pytest.raises(RuntimeError, match="SMSPOOL_API_KEY not set"):
         smspool_gate("instagram", "some-gate")
