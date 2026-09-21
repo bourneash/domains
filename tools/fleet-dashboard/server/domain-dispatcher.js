@@ -13,7 +13,7 @@ const executive = require('./executive');
 
 const MAX_ATTEMPTS = 3;
 const DEFAULT_MAX_CONCURRENT = 2;
-const DEFAULT_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+const DEFAULT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
 function statePath(root) {

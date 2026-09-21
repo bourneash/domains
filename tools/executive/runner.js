@@ -59,6 +59,35 @@ function buildSiteContext(root = ROOT) {
   });
 }
 
+function buildPortfolioInventory(root = ROOT) {
+  // Host-only imports: the isolated model image receives the generated brief
+  // and must not need registry parsers or their host dependency tree.
+  const fleetregistry = require('../fleet-dashboard/server/fleetregistry');
+  const scaffolds = require('../fleet-dashboard/server/scaffolds');
+  const registry = fleetregistry.read(root);
+  const parked = scaffolds.all(root).rows || [];
+  const parkedByDomain = new Map(parked.map(row => [row.domain, row]));
+  return registry.sites
+    .filter(row => !EXECUTIVE_EXCLUDED_SITES.has(row.domain))
+    .map(row => {
+      const parkedRow = parkedByDomain.get(row.domain);
+      return {
+        domain: row.domain,
+        lifecycle: row.lifecycle,
+        repo: row.repo,
+        worker: row.worker,
+        capabilities: row.capabilities,
+        registered_in: row.registered_in,
+        parked: row.lifecycle === 'scaffold',
+        parked_days: parkedRow?.days_parked ?? null,
+        registrar_expires: parkedRow?.registrar_expires ?? null,
+        days_to_renewal: parkedRow?.days_to_renewal ?? null,
+        auto_renew: parkedRow?.auto_renew ?? null,
+        notes: parkedRow?.notes ?? null,
+      };
+    });
+}
+
 function buildDomainManagerContext(root = ROOT) {
   const focus = String(process.env.EXECUTIVE_DOMAIN || '')
     .trim()
@@ -122,6 +151,7 @@ async function buildBrief(store, root = ROOT) {
     generated_at: new Date().toISOString(),
     sites,
     site_context: buildSiteContext(root),
+    portfolio_inventory: buildPortfolioInventory(root),
     portfolio_policy: {
       managed_sites: 'all discovered fleet sites except 3boobs.com',
       excluded_sites: ['3boobs.com'],
@@ -132,6 +162,7 @@ async function buildBrief(store, root = ROOT) {
       available: [
         'read_only_executive_intelligence_snapshot',
         'read_only_fleet_registry',
+        'read_only_full_portfolio_and_parked_domain_inventory',
         'read_only_analytics_health_and_traffic',
         'read_only_seo_web_vitals_and_link_health',
         'read_only_revenue_and_affiliate_attribution',
@@ -153,7 +184,7 @@ async function buildBrief(store, root = ROOT) {
       execution:
         'Messages and proposals may be applied automatically; queued work requires explicit queue enablement or owner approval. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
       delegation:
-        'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers are invoked on demand for one managed site and report back to fleet leadership. Later passes may reduce or reject the earlier plan.',
+        'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers review every managed site on a staggered queue and report back to fleet leadership. Later passes may reduce or reject the earlier plan.',
     },
     owner_strategy: store.getExecutiveSettings(),
     intelligence: intel,
@@ -207,11 +238,12 @@ Rules:
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
+- Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
-- Treat domain managers as on-demand site specialists. They may surface site-specific opportunities, but the CEO owns portfolio prioritization and must prevent one site from consuming disproportionate attention without evidence.
+- Treat domain managers as recurring site specialists. Every managed site receives a lightweight review on the staggered queue; deeper work and implementation still require evidence, proposals, and the normal approval gates. The CEO owns portfolio prioritization and prevents one site from consuming disproportionate attention without evidence.
 - Use the experiment system for competing variants: state a hypothesis, primary metric, guardrails, sample threshold, and stop/ship decision. Do not recommend a winner before the sample threshold is met.
 - You may recommend ethical technical/editorial SEO, experimentation, partnerships, outreach with consent, product work, and redesigns.
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.

@@ -96,11 +96,11 @@ daily run.
 
 ## Domain-manager reporting
 
-`run-domain-reports.sh` publishes deterministic, exception-first reports from
-the shared intelligence contract without starting a model for every site:
+`run-domain-reports.sh` publishes deterministic, whole-fleet reports from the
+shared intelligence contract before the staggered domain-manager queue starts:
 
-- `six_hour` — source errors, measured changes, configured thresholds, and the
-  owner-priority site; other domains appear only when evidence warrants it;
+- `six_hour` — source errors, measured changes, configured thresholds, and a
+  lightweight review candidate for every managed site;
 - `daily` — compact status for every managed site;
 - `weekly` — before/after evidence, attribution confidence, margin context, and
   investment gates;
@@ -108,6 +108,7 @@ the shared intelligence contract without starting a model for every site:
 
 Reports are stored under `tools/executive/data/reports/`, recorded in the event
 store, and exposed through Fleet Manager's Executive Leadership page and
-`/api/executive/reports`. A domain manager remains an on-demand model pass;
-missing data does not trigger a deep dive and is reported as unavailable rather
-than zero.
+`/api/executive/reports`. Domain managers run from a persisted, rate-limited
+queue (two active workers, one new job every ten minutes). Missing data is
+reported as unavailable rather than zero, and does not prevent a routine site
+review from being delivered.

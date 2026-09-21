@@ -1,8 +1,8 @@
 'use strict';
 
 // Cheap, deterministic domain-manager reporting. This is deliberately separate
-// from the model runner: regular reports reuse validated telemetry and invoke a
-// model only when the report produces a deep-dive candidate.
+// from the model runner: scripts inspect the whole fleet, then the staggered
+// queue gives every managed site a lightweight model review.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -94,12 +94,7 @@ function siteReport(site, intelligence, cadence) {
 function selectSites({ cadence, sites, reports, focusSite }) {
   if (focusSite) return sites.filter(site => site === focusSite);
   if (cadence === 'six_hour') {
-    return [
-      ...new Set([
-        ...reports.filter(row => row.exceptions.length).map(row => row.site),
-        ...(sites.includes('greatamericanlakes.com') ? ['greatamericanlakes.com'] : []),
-      ]),
-    ];
+    return sites;
   }
   return sites;
 }
@@ -112,14 +107,14 @@ async function generate({ root, cadence = 'six_hour', focusSite = null, now = ne
   const initial = sites.map(site => siteReport(site, intelligence, cadence));
   const selected = selectSites({ cadence, sites, reports: initial, focusSite });
   const reports = initial.filter(row => selected.includes(row.site));
-  const deepDiveCandidates = reports
-    .filter(row => row.exceptions.length || row.site === 'greatamericanlakes.com')
-    .map(row => ({
-      site: row.site,
-      reasons: row.exceptions.length ? row.exceptions : ['owner_priority_site'],
-      recommended_role: 'domain-manager',
-      reason: 'invoke on demand only after reviewing evidence and source freshness',
-    }));
+  const deepDiveCandidates = reports.map(row => ({
+    site: row.site,
+    reasons: row.exceptions.length ? row.exceptions : ['routine_fleet_review'],
+    recommended_role: 'domain-manager',
+    reason: row.exceptions.length
+      ? 'review the measured exception and source freshness'
+      : 'perform the recurring lightweight site review and surface growth opportunities',
+  }));
   const globalExceptions = Object.values(intelligence.sources || {})
     .filter(source => source && source.ok === false)
     .map(source => `${source.source}_source_error`);
