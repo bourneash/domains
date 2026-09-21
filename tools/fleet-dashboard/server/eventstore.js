@@ -74,6 +74,7 @@ function open(root, { file } = {}) {
       provider TEXT NOT NULL,
       model TEXT,
       delivery_mode TEXT NOT NULL DEFAULT 'direct',
+      action_key TEXT,
       max_turns INTEGER NOT NULL,
       auto_review INTEGER NOT NULL DEFAULT 1,
       voice_transcript TEXT,
@@ -162,6 +163,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'improvement_runs', 'preflight_json', "TEXT NOT NULL DEFAULT '{}'");
   ensureColumn(db, 'change_requests', 'auto_review', 'INTEGER NOT NULL DEFAULT 1');
   ensureColumn(db, 'change_requests', 'delivery_mode', "TEXT NOT NULL DEFAULT 'direct'");
+  ensureColumn(db, 'change_requests', 'action_key', 'TEXT');
   ensureColumn(db, 'change_requests', 'requested_by', 'TEXT');
   ensureColumn(db, 'change_requests', 'source_proposal_id', 'TEXT');
   ensureColumn(db, 'change_requests', 'lease_owner', 'TEXT');
@@ -402,6 +404,7 @@ function open(root, { file } = {}) {
       provider: String(input.provider || 'claude'),
       model: input.model || null,
       delivery_mode: String(input.delivery_mode || 'direct'),
+      action_key: input.action_key || null,
       max_turns: Number(input.max_turns || 20),
       auto_review: input.auto_review === false || input.auto_review === 0 ? 0 : 1,
       voice_transcript: input.voice_transcript || null,
@@ -422,8 +425,8 @@ function open(root, { file } = {}) {
     if (!row.site || !row.title) throw httpErr(400, 'site and title are required');
     db.prepare(
       `INSERT INTO change_requests
-      (request_id,site,title,body,category,priority,assigned_role,provider,model,delivery_mode,max_turns,auto_review,voice_transcript,requested_by,source_proposal_id,status,created_at,updated_at,next_attempt_at,claimed_at,lease_owner,lease_expires_at,heartbeat_at,run_id,attempts,error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (request_id,site,title,body,category,priority,assigned_role,provider,model,delivery_mode,action_key,max_turns,auto_review,voice_transcript,requested_by,source_proposal_id,status,created_at,updated_at,next_attempt_at,claimed_at,lease_owner,lease_expires_at,heartbeat_at,run_id,attempts,error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.request_id,
       row.site,
@@ -435,6 +438,7 @@ function open(root, { file } = {}) {
       row.provider,
       row.model,
       row.delivery_mode,
+      row.action_key,
       row.max_turns,
       row.auto_review,
       row.voice_transcript,
@@ -547,6 +551,7 @@ function open(root, { file } = {}) {
       'assigned_role',
       'provider',
       'delivery_mode',
+      'action_key',
       'model',
       'max_turns',
       'auto_review',
@@ -570,7 +575,7 @@ function open(root, { file } = {}) {
     };
     next.updated_at = new Date().toISOString();
     db.prepare(
-      `UPDATE change_requests SET site=?,title=?,body=?,category=?,priority=?,assigned_role=?,provider=?,model=?,delivery_mode=?,max_turns=?,auto_review=?,voice_transcript=?,requested_by=?,source_proposal_id=?,status=?,updated_at=?,next_attempt_at=?,claimed_at=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,run_id=?,attempts=?,error=? WHERE request_id=?`
+      `UPDATE change_requests SET site=?,title=?,body=?,category=?,priority=?,assigned_role=?,provider=?,model=?,delivery_mode=?,action_key=?,max_turns=?,auto_review=?,voice_transcript=?,requested_by=?,source_proposal_id=?,status=?,updated_at=?,next_attempt_at=?,claimed_at=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,run_id=?,attempts=?,error=? WHERE request_id=?`
     ).run(
       next.site,
       next.title,
@@ -581,6 +586,7 @@ function open(root, { file } = {}) {
       next.provider,
       next.model,
       next.delivery_mode,
+      next.action_key,
       next.max_turns,
       next.auto_review ? 1 : 0,
       next.voice_transcript,

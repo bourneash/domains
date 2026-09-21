@@ -136,3 +136,38 @@ test('owner approval turns a bounded implementation into a linked change request
   assert.equal(db.list({ event_type: 'executive.proposal.task-routed' }).length, 1);
   db.close();
 });
+
+test('owner approval can route the allowlisted fleet operation', () => {
+  const db = store();
+  const proposal = executive.proposal(db, {
+    title: 'Publish the fleet operating baseline',
+    proposal_type: 'report-only',
+    summary: 'Create a factual baseline for portfolio prioritization.',
+    requested_action: 'Run the allowlisted fleet baseline operation.',
+    implementation: {
+      site: 'fleet',
+      action_key: 'publish-fleet-operating-baseline',
+      delivery_mode: 'fleet_report',
+      title: 'Publish fleet operating baseline',
+      body: 'Write the current factual fleet operating baseline.',
+      category: 'engineering',
+      priority: 'low',
+      assigned_role: 'engineer',
+      provider: 'local',
+      auto_review: true,
+    },
+  });
+  const approved = executive.decision(
+    db,
+    proposal.proposal_id,
+    { status: 'approved' },
+    { knownSite: target => target === 'fleet' || target === 'example.com' }
+  );
+  assert.ok(approved.linked_request_id);
+  assert.equal(db.getChangeRequest(approved.linked_request_id).site, 'fleet');
+  assert.equal(
+    db.getChangeRequest(approved.linked_request_id).action_key,
+    'publish-fleet-operating-baseline'
+  );
+  db.close();
+});

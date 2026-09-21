@@ -65,12 +65,17 @@ const experiments = require('./experiments');
 const campaigns = require('./campaigns');
 const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
+const fleetTask = require('./fleet-task');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
 const HOST = process.env.FD_HOST || '127.0.0.1';
 const QUALITY_GATES = ['diff', 'tests', 'build', 'preview', 'browser'];
 const MAX_AUTOMATIC_QUEUE_ATTEMPTS = 3;
+
+function isKnownTarget(root, target) {
+  return target === 'fleet' || isKnownSite(root, target);
+}
 
 function reportArtifactPath(root, requestId) {
   return path.join(
@@ -239,6 +244,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       correlation_id: `change-request:${claimed.request_id}`,
       payload: { owner: queueWorkerId, attempts: claimed.attempts },
     });
+    if (claimed.site === 'fleet') return dispatchFleetRequest(claimed);
     const lease = settings.lease_minutes;
     let createdRun = null;
     let agentStarted = false;
@@ -402,6 +408,69 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
+  async function dispatchFleetRequest(claimed) {
+    const settings = events.getChangeQueueSettings();
+    const finish = patch =>
+      changequeue.update(events, claimed.request_id, patch, target => isKnownTarget(root, target));
+    try {
+      finish({
+        status: 'running',
+        lease_owner: queueWorkerId,
+        lease_expires_at: new Date(
+          Date.now() + Number(settings.lease_minutes) * 60000
+        ).toISOString(),
+        heartbeat_at: new Date().toISOString(),
+      });
+      events.record({
+        event_type: 'fleet-request.started',
+        source: 'fleet-dashboard',
+        site_id: 'fleet',
+        entity_type: 'change-request',
+        entity_id: claimed.request_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: { action_key: claimed.action_key },
+      });
+      const result = fleetTask.execute({ root, store: events, request: claimed });
+      finish({ status: 'reviewing' });
+      finish({ status: 'review' });
+      const verified = finish({
+        status: 'verified',
+        lease_owner: null,
+        lease_expires_at: null,
+        heartbeat_at: null,
+        error: null,
+      });
+      events.record({
+        event_type: 'fleet-request.verified',
+        source: 'fleet-dashboard',
+        site_id: 'fleet',
+        entity_type: 'change-request',
+        entity_id: claimed.request_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: result,
+      });
+      executiveFollowup.notify(events, {
+        event: 'verified',
+        request: verified,
+        details: result.artifact?.url || 'fleet operation completed',
+      });
+      return { request: verified, fleet: result };
+    } catch (error) {
+      try {
+        finish({
+          status: 'failed',
+          error: String(error.message || error),
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        });
+      } catch {
+        /* preserve the original operation error */
+      }
+      throw error;
+    }
+  }
+
   async function resetChangeRequestRun(request) {
     if (!request.run_id) return;
     const run = events.getImprovement(request.run_id);
@@ -491,7 +560,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               lease_expires_at: null,
               heartbeat_at: null,
             },
-            site => isKnownSite(root, site)
+            site => isKnownTarget(root, site)
           );
           if (recoverable)
             changequeue.update(
@@ -503,7 +572,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
                 next_attempt_at: new Date().toISOString(),
                 attempts: 0,
               },
-              site => isKnownSite(root, site)
+              site => isKnownTarget(root, site)
             );
           events.record({
             event_type: recoverable ? 'change-request.recovered' : 'change-request.recovery_failed',
@@ -574,7 +643,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           events,
           request.request_id,
           { status: 'verified', error: null },
-          site => isKnownSite(root, site)
+          site => isKnownTarget(root, site)
         );
       } catch {
         return request;
@@ -710,7 +779,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           lease_expires_at: null,
           heartbeat_at: null,
         },
-        site => isKnownSite(root, site)
+        site => isKnownTarget(root, site)
       );
       const publishedRun = events.updateImprovement(reviewRun.run_id, {
         approval: { delivery_mode: 'pull_request', pull_request: published },
@@ -789,7 +858,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           lease_expires_at: null,
           heartbeat_at: null,
         },
-        site => isKnownSite(root, site)
+        site => isKnownTarget(root, site)
       );
       emitChangeNotification('review blocked', events.getChangeRequest(id), null, message);
     } catch {
@@ -858,7 +927,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           lease_expires_at: leaseExpiry(events.getChangeQueueSettings().lease_minutes),
           heartbeat_at: new Date().toISOString(),
         },
-        site => isKnownSite(root, site)
+        site => isKnownTarget(root, site)
       );
     activeAutomaticReviews.add(id);
     const task = findImprovementTask(root, run);
@@ -927,7 +996,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/change-requests', (req, res) => {
     try {
       res.status(201).json({
-        request: changequeue.create(events, req.body || {}, site => isKnownSite(root, site)),
+        request: changequeue.create(events, req.body || {}, site => isKnownTarget(root, site)),
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -1263,7 +1332,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       res.json({
         proposal: executive.decision(events, req.params.id, req.body || {}, {
-          knownSite: site => isKnownSite(root, site),
+          knownSite: site => isKnownTarget(root, site),
         }),
       });
     } catch (e) {
@@ -1384,7 +1453,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           events,
           request.request_id,
           { status: 'queued', next_attempt_at: new Date().toISOString(), error: null, attempts: 0 },
-          site => isKnownSite(root, site)
+          site => isKnownTarget(root, site)
         );
       }
       if (request.status !== 'queued')
@@ -1443,7 +1512,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           events,
           req.params.id,
           { status: 'queued', next_attempt_at: new Date().toISOString(), error: null, attempts: 0 },
-          site => isKnownSite(root, site)
+          site => isKnownTarget(root, site)
         ),
       });
     } catch (e) {

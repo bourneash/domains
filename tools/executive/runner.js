@@ -29,6 +29,7 @@ function discoverSites(root = ROOT) {
 }
 
 const EXECUTIVE_EXCLUDED_SITES = new Set(['3boobs.com']);
+const FLEET_ACTION_KEY = 'publish-fleet-operating-baseline';
 const PROPOSAL_TYPES = new Set(executive.PROPOSAL_TYPES);
 const PROPOSAL_TYPE_ALIASES = new Map([
   ['analysis', 'report-only'],
@@ -48,6 +49,10 @@ const PROPOSAL_TYPE_ALIASES = new Map([
 
 function executiveSites(root = ROOT) {
   return discoverSites(root).filter(site => !EXECUTIVE_EXCLUDED_SITES.has(site));
+}
+
+function executiveTarget(root, site) {
+  return site === 'fleet' || executiveSites(root).includes(site);
 }
 
 function readSiteDescriptions(root = ROOT) {
@@ -204,6 +209,7 @@ async function buildBrief(store, root = ROOT) {
         'read_only_datahub_source_and_dataset_health',
         'read_only_operations_deploy_uptime_errors_and_fleet_doctor',
         'bounded_public_research',
+        'allowlisted_fleet_operating_baseline_publish',
       ],
       research_limits: {
         max_requests_per_tick: 10,
@@ -212,7 +218,7 @@ async function buildBrief(store, root = ROOT) {
         redirects: false,
       },
       execution:
-        'Messages and proposals may be applied automatically; queued work requires explicit queue enablement or owner approval. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
+        'Messages and proposals may be applied automatically; queued site work requires explicit queue enablement or owner approval. The only autonomous fleet write is the allowlisted operating-baseline report, which writes a factual audit artifact and never edits site code. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
       delegation:
         'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers review every managed site on a staggered queue and report back to fleet leadership. Approved implementation work enters the site task/change queue. Use engineer for normal work and principal-engineer for urgent senior technical work. Later passes may reduce or reject the earlier plan.',
       telemetry_policy:
@@ -301,15 +307,15 @@ Rules:
 - Use the experiment system for competing variants: state a hypothesis, primary metric, guardrails, sample threshold, and stop/ship decision. Do not recommend a winner before the sample threshold is met.
 - You may recommend ethical technical/editorial SEO, experimentation, partnerships, outreach with consent, product work, and redesigns.
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
-- Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes.
+- Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes. The one fleet write available to you is an allowlisted factual operating-baseline report; it never edits site code.
 
 Return ONLY valid JSON with this shape:
 {
   "messages": [{"actor":"ceo|cto|cfo|domain-manager","body":"concise owner update"}],
   "data_requests": [{"requested_by":"ceo|cto|cfo|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
-  "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}]
+  "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
+  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}]
 }
 
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
@@ -457,6 +463,13 @@ function validatePlan(plan) {
       throw new Error('executive provider cannot queue high-priority work');
     if (EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))
       throw new Error('executive plan targets an excluded site');
+    if (String(item.site) === 'fleet') {
+      if (
+        String(item.delivery_mode || '') !== 'fleet_report' ||
+        String(item.action_key || '') !== FLEET_ACTION_KEY
+      )
+        throw new Error('executive fleet work must use the allowlisted fleet report operation');
+    }
   }
   return plan;
 }
@@ -678,7 +691,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       });
       try {
         const request = changequeue.create(store, { ...item, source: 'executive-ceo' }, site =>
-          executiveSites(root).includes(site)
+          executiveTarget(root, site)
         );
         created.change_requests.push(request);
         executive.finishAction(store, audit.action_id, {
@@ -819,6 +832,7 @@ if (require.main === module)
 module.exports = {
   discoverSites,
   executiveSites,
+  executiveTarget,
   buildSiteContext,
   buildDomainManagerContext,
   buildBrief,

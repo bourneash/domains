@@ -22,7 +22,9 @@ const PROVIDERS = ['claude', 'chatgpt', 'local'];
 // report_only produces a durable report artifact and can never deploy or push
 // site code. Keep it explicit instead of relying on task prose such as
 // "please do not deploy".
-const DELIVERY_MODES = ['direct', 'pull_request', 'report_only'];
+// fleet_report is a separate, allowlisted control-plane operation. It is only
+// valid for site=fleet and never mounts or edits a site checkout.
+const DELIVERY_MODES = ['direct', 'pull_request', 'report_only', 'fleet_report'];
 const STATUSES = [
   'queued',
   'claimed',
@@ -49,7 +51,15 @@ const TRANSITIONS = {
 };
 
 function validate(input, knownSite) {
-  if (!knownSite(input.site)) throw httpErr(404, 'unknown site');
+  const fleetOperation =
+    String(input.site || '') === 'fleet' &&
+    String(input.delivery_mode || 'direct') === 'fleet_report' &&
+    String(input.action_key || '') === 'publish-fleet-operating-baseline';
+  if (!fleetOperation && !knownSite(input.site)) throw httpErr(404, 'unknown site');
+  if (String(input.site || '') === 'fleet' && !fleetOperation)
+    throw httpErr(400, 'fleet requests require the allowlisted fleet_report operation');
+  if (fleetOperation && input.auto_review === false)
+    throw httpErr(400, 'fleet reports require automatic review');
   if (!String(input.title || '').trim()) throw httpErr(400, 'title is required');
   if (!CATEGORIES.includes(String(input.category || 'other')))
     throw httpErr(400, 'invalid category');
@@ -64,6 +74,8 @@ function validate(input, knownSite) {
     (input.auto_review === false || input.auto_review === 0)
   )
     throw httpErr(400, 'report-only requests require automatic review');
+  if (String(input.delivery_mode || 'direct') === 'fleet_report' && input.auto_review === false)
+    throw httpErr(400, 'fleet reports require automatic review');
   if (input.status && !STATUSES.includes(String(input.status)))
     throw httpErr(400, 'invalid status');
   const turns = Number(input.max_turns || 20);
@@ -108,6 +120,7 @@ function update(store, id, patch, knownSite) {
     'assigned_role',
     'provider',
     'delivery_mode',
+    'action_key',
     'model',
     'max_turns',
     'auto_review',
@@ -132,6 +145,7 @@ function update(store, id, patch, knownSite) {
     patch.priority ||
     patch.provider ||
     patch.delivery_mode ||
+    patch.action_key ||
     patch.max_turns
   )
     validate({ ...current, ...patch }, knownSite);
