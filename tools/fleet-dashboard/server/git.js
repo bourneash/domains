@@ -13,6 +13,14 @@ const { siteDir } = require('./sites');
 const CLEAN_GIT_ENV = Object.fromEntries(
   Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_'))
 );
+// Preserve the dashboard's explicitly-scoped SSH transport while excluding
+// every environment variable that can redirect git's repository or config.
+// In particular, GIT_SSH_COMMAND carries the dedicated deploy key mounted by
+// docker-compose; dropping it makes remotes such as github-bourneash resolve
+// as literal DNS names and prevents otherwise-valid deployments from pushing.
+for (const key of ['GIT_SSH_COMMAND', 'GIT_SSH_VARIANT', 'GIT_TERMINAL_PROMPT']) {
+  if (process.env[key] !== undefined) CLEAN_GIT_ENV[key] = process.env[key];
+}
 
 function git(cwd, args) {
   return new Promise(resolve => {

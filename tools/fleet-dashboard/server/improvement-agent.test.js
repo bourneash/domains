@@ -35,6 +35,10 @@ test('review result requires an explicit PASS marker', () => {
     marker: 'FAIL',
   });
   assert.deepEqual(agent.reviewResult('looks good, no marker'), { approved: false, marker: null });
+  assert.deepEqual(
+    agent.reviewResult('prior run\nFD_REVIEW_RESULT: PASS\ncurrent run\nFD_REVIEW_RESULT: FAIL'),
+    { approved: false, marker: 'FAIL' }
+  );
 });
 
 test('agent log writes ignore chunks after the stream has ended', () => {

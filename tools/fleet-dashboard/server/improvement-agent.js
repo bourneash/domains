@@ -54,7 +54,8 @@ function preflight({ run, provider = 'claude', model = null }) {
 }
 
 function reviewResult(text) {
-  const match = String(text || '').match(/FD_REVIEW_RESULT\s*:\s*(PASS|FAIL)/i);
+  const matches = [...String(text || '').matchAll(/FD_REVIEW_RESULT\s*:\s*(PASS|FAIL)/gi)];
+  const match = matches.at(-1);
   return {
     approved: Boolean(match && match[1].toUpperCase() === 'PASS'),
     marker: match ? match[1].toUpperCase() : null,
