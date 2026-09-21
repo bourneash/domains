@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:11:44.528Z",
+  "generated_at": "2026-09-21T20:12:27.646Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess guide, affiliate, and publishing readiness",
-        "summary": "Review the Rocket League guide and gaming-gear affiliate positioning, content coverage, conversion paths, and AI-assisted publishing controls before further investment.",
-        "requested_action": "Approve a report-only assessment of audience segments, guide and gear content gaps, affiliate placement, publishing quality controls, and a prioritized validation backlog. Do not deploy, modify production configuration, change schedules, provision credentials, or spend money.",
-        "proposal_id": "da70aa41-4b38-444c-899d-86eb4810773b"
+        "title": "Assess positioning and launch readiness",
+        "summary": "Review the parked scaffold’s audience, positioning options, content scope, and minimum viable launch path before investment. The site is scaffolded, parked for 44 days, has only site and operations capabilities, and its brief is still unspecified.",
+        "requested_action": "Approve a report-only positioning and launch-readiness assessment with audience hypotheses, scope options, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
+        "proposal_id": "1d17e492-c415-4d12-8d62-740cbf3c3749"
       }
     ]
   }
