@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:18:41.581Z",
+  "generated_at": "2026-09-21T22:19:35.062Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
         "title": "Assess affiliate conversion and editorial readiness",
-        "summary": "Review Ultrarough’s abrasives audience positioning, review coverage, affiliate-link presentation, and measurement readiness before further content investment.",
+        "summary": "Review xxxtea.com’s fragrance-adjacent tea and tea-ware audience positioning, editorial coverage, affiliate-link presentation, and readiness for measured growth.",
         "requested_action": "Approve a report-only assessment covering audience and content gaps, affiliate conversion-path review, editorial quality controls, attribution requirements, and a prioritized backlog. Do not publish, deploy, modify affiliate configuration, change credentials, alter schedules, spend money, or change production systems.",
         "proposal_id": null
       }
