@@ -6,6 +6,7 @@ const { spawn } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const executive = require('../fleet-dashboard/server/executive');
 const changequeue = require('../fleet-dashboard/server/changequeue');
+const handoff = require('./handoff');
 const research = require('./research');
 const croResearch = require('./cro');
 const crypto = require('node:crypto');
@@ -225,6 +226,7 @@ async function buildBrief(store, root = ROOT) {
       .slice()
       .reverse()
       .map(({ actor, body, created_at }) => ({ actor, body, created_at })),
+    handoffs: handoff.recent(root, 30),
   };
 }
 
@@ -490,6 +492,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       throw error;
     }
   }
+  handoff.writePlan(root, plan, created);
   if (allowQueue) {
     for (const item of plan.change_requests) {
       if (!item.site || !item.title || !item.body)

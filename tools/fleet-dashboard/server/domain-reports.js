@@ -11,6 +11,7 @@ const executiveIntel = require('./executive-intel');
 const executiveRunner = require('../../executive/runner');
 const executive = require('./executive');
 const eventstore = require('./eventstore');
+const handoff = require('../../executive/handoff');
 
 const CADENCES = new Set(['six_hour', 'daily', 'weekly', 'deep_dive']);
 const EXCLUDED_SITES = new Set(['3boobs.com']);
@@ -161,6 +162,13 @@ async function generate({ root, cadence = 'six_hour', focusSite = null, now = ne
     payload: { cadence, file, summary: report.summary },
   });
   store.close();
+  handoff.write(root, {
+    role: 'domain-manager',
+    site: focusSite || 'fleet',
+    summary: `${cadence} domain-manager report for ${report.summary.sites_reported} managed sites`,
+    payload: { report_id: report.report_id, cadence, summary: report.summary },
+    generated_at: report.generated_at,
+  });
   return { ...report, file };
 }
 
