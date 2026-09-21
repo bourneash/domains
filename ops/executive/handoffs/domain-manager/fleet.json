@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:26:38.794Z",
+  "generated_at": "2026-09-21T20:28:24.590Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
         "title": "Diagnose mobile performance and LCP remediation priorities",
-        "summary": "Produce a report-only diagnosis of the affected templates, likely causes, reversible fixes, implementation effort, and validation criteria before additional growth work.",
-        "requested_action": "Approve report-only analysis. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
+        "summary": "Produce a report-only diagnosis of mobile performance issues before additional growth work.",
+        "requested_action": "Approve report-only analysis of affected templates, likely causes, reversible fixes, implementation effort, and validation criteria. Do not deploy or modify production configuration.",
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Assess article depth and internal-linking growth backlog",
-        "summary": "Review topic-page architecture, article depth, internal-link opportunities, and editorial priorities for the autonomous geopolitics and defense-news positioning.",
+        "summary": "Review topic-page architecture, article depth, internal-link opportunities, and editorial priorities for the geopolitics and defense-news positioning.",
         "requested_action": "Approve a report-only content and SEO assessment with proposed page briefs, linking recommendations, quality controls, and measurement criteria. Do not publish or modify production content.",
         "proposal_id": null
       },
