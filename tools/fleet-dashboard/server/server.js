@@ -55,6 +55,7 @@ const changequeue = require('./changequeue');
 const changequeueNotify = require('./changequeue-notify');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
+const executiveIntel = require('./executive-intel');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -831,6 +832,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({ brief: await executiveRunner.buildBrief(events, root) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  // Shared read-only intelligence contract for CEO/CTO/CRO and UI diagnostics.
+  app.get('/api/executive/intelligence', async (_req, res) => {
+    try {
+      res.json(await executiveIntel.collect({ root, sites: executiveRunner.executiveSites(root) }));
+    } catch (e) {
+      res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
     }
   });
   app.patch('/api/executive/settings', (req, res) => {

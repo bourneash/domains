@@ -26,6 +26,13 @@ function agentLabel(role) {
     .join(' ');
 }
 
+function executiveActorLabel(actor) {
+  if (String(actor) === 'researcher') return 'CRO';
+  return String(actor || '').toUpperCase() === 'CEO' || String(actor || '').toUpperCase() === 'CTO'
+    ? String(actor).toUpperCase()
+    : agentLabel(actor);
+}
+
 // The site dir name is the live domain — link straight to it (new tab).
 function siteLink(site) {
   return `<a class="site-link" href="https://${esc(site)}" target="_blank" rel="noopener noreferrer" title="Open https://${esc(site)}">${esc(site)}<span class="ext">↗</span></a>`;
@@ -11586,13 +11593,13 @@ async function renderExecutive() {
     .reverse()
     .map(
       m =>
-        `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(m.actor)}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
+        `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
     )
     .join('');
   const proposalRows = (proposals.proposals || [])
     .map(
       p =>
-        `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(p.created_by)}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${p.status === 'approved' ? 'b-green' : p.status === 'declined' ? 'b-red' : p.status === 'feedback' ? 'b-yellow' : 'b-blue'}">${esc(p.status)}</span></td><td>${['proposed', 'feedback'].includes(p.status) ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>` : esc(p.decision_note || '')}</td></tr>`
+        `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${p.status === 'approved' ? 'b-green' : p.status === 'declined' ? 'b-red' : p.status === 'feedback' ? 'b-yellow' : 'b-blue'}">${esc(p.status)}</span></td><td>${['proposed', 'feedback'].includes(p.status) ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>` : esc(p.decision_note || '')}</td></tr>`
     )
     .join('');
   const pendingApprovalRows = (proposals.proposals || [])
@@ -11610,7 +11617,7 @@ async function renderExecutive() {
   const actionRows = (actions.actions || [])
     .map(
       a =>
-        `<tr><td class="muted">${esc(fmtDate(a.started_at))}</td><td><b>${esc(a.actor)}</b><div class="muted">${esc(a.action_type)}</div></td><td>${esc(a.summary)}</td><td><span class="badge ${a.status === 'completed' ? 'b-green' : a.status === 'failed' ? 'b-red' : 'b-blue'}">${esc(a.status)}</span>${a.error ? `<div class="error-text">${esc(a.error)}</div>` : ''}</td></tr>`
+        `<tr><td class="muted">${esc(fmtDate(a.started_at))}</td><td><b>${esc(executiveActorLabel(a.actor))}</b><div class="muted">${esc(a.action_type)}</div></td><td>${esc(a.summary)}</td><td><span class="badge ${a.status === 'completed' ? 'b-green' : a.status === 'failed' ? 'b-red' : 'b-blue'}">${esc(a.status)}</span>${a.error ? `<div class="error-text">${esc(a.error)}</div>` : ''}</td></tr>`
     )
     .join('');
   const s = settings.settings || {};

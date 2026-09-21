@@ -36,10 +36,10 @@ roles:
       - destructive_operation
 communication:
   owner_response_sla_hours: 24
-  autonomous_checkin_hours: 24
+  autonomous_checkin_hours: 6
 schedule:
   enabled: true
-  default_interval_hours: 24
+  default_interval_hours: 6
   queue_execution_enabled: false
 provider:
   name: chatgpt

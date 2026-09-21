@@ -7,6 +7,7 @@ const eventstore = require('../fleet-dashboard/server/eventstore');
 const executive = require('../fleet-dashboard/server/executive');
 const changequeue = require('../fleet-dashboard/server/changequeue');
 const research = require('./research');
+const croResearch = require('./cro');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -59,24 +60,15 @@ function buildSiteContext(root = ROOT) {
 }
 
 async function collectIntel(root, sites) {
-  // Host-only imports: the isolated model image loads runner.js for prompt and
-  // pass validation, but it must not need the dashboard telemetry modules.
-  const analytics = require('../fleet-dashboard/server/analytics');
-  const revenue = require('../fleet-dashboard/server/revenue');
-  const aiusage = require('../fleet-dashboard/server/aiusage');
-  const seoIntelligence = require('../fleet-dashboard/server/seointelligence');
-  const results = await Promise.allSettled([
-    analytics.health(),
-    seoIntelligence.buildSnapshot({ root }),
-    aiusage.fleet(root),
-  ]);
-  const value = i =>
-    results[i].status === 'fulfilled'
-      ? results[i].value
-      : { ok: false, error: results[i].reason?.message || String(results[i].reason) };
-  const health = value(0);
-  const seo = value(1);
-  const usage = value(2);
+  // Host-only import: the isolated model image loads runner.js for prompt and
+  // plan validation, but it must not need dashboard telemetry modules.
+  const executiveIntel = require('../fleet-dashboard/server/executive-intel');
+  const intelligence = await executiveIntel.collect({ root, sites });
+  const support = intelligence.decision_support || {};
+  const health = support.analytics || {};
+  const seo = support.seo || {};
+  const usage = support.ai_usage || {};
+  const revenue = support.revenue || {};
   const healthSites = health.sites || {};
   return {
     generated_at: new Date().toISOString(),
@@ -87,7 +79,7 @@ async function collectIntel(root, sites) {
         sites.map(site => [site, healthSites[site] || { configured: false }])
       ),
     },
-    revenue: revenue.amazonSummary(root),
+    revenue,
     seo: {
       ok: seo.ok !== false,
       summary: seo.summary || seo.totals || null,
@@ -100,15 +92,17 @@ async function collectIntel(root, sites) {
       error: usage.error || null,
     },
     research: research.recent(root),
+    intelligence,
   };
 }
 
 async function buildBrief(store, root = ROOT) {
   const queued = store.listChangeRequests({ limit: 50 });
   const improvements = store.listImprovements({ limit: 50 });
-  const proposals = store.listExecutiveProposals({ limit: 25 });
-  const messages = store.listExecutiveMessages({ limit: 25 });
+  const proposals = store.listExecutiveProposals({ limit: 10 });
+  const messages = store.listExecutiveMessages({ limit: 10 });
   const sites = executiveSites(root);
+  const intel = await collectIntel(root, sites);
   return {
     generated_at: new Date().toISOString(),
     sites,
@@ -121,10 +115,15 @@ async function buildBrief(store, root = ROOT) {
     },
     tool_contract: {
       available: [
-        'read_only_analytics_health',
-        'read_only_seo_snapshot',
-        'read_only_revenue_attribution',
-        'read_only_ai_usage',
+        'read_only_executive_intelligence_snapshot',
+        'read_only_fleet_registry',
+        'read_only_analytics_health_and_traffic',
+        'read_only_seo_web_vitals_and_link_health',
+        'read_only_revenue_and_affiliate_attribution',
+        'read_only_ai_usage_and_costs',
+        'read_only_social_account_coverage',
+        'read_only_datahub_source_and_dataset_health',
+        'read_only_operations_deploy_uptime_errors_and_fleet_doctor',
         'bounded_public_research',
       ],
       research_limits: {
@@ -139,7 +138,12 @@ async function buildBrief(store, root = ROOT) {
         'CEO, CTO, and independent reviewer passes run sequentially; later passes may reduce or reject the earlier plan.',
     },
     owner_strategy: store.getExecutiveSettings(),
-    intelligence: await collectIntel(root, sites),
+    intelligence: intel,
+    specialist_inputs: {
+      cro_github_trends: croResearch.recent(root),
+      cro_contract:
+        'CRO trend signals are discovery leads, not proof of quality, license fit, security, revenue, or conversion impact. CEO/CTO must validate before implementation.',
+    },
     queue: queued.map(({ request_id, site, title, category, priority, status, assigned_role }) => ({
       request_id,
       site,
@@ -181,7 +185,8 @@ Rules:
 - Use only evidence present in the brief; label uncertainty and propose research when evidence is missing.
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim.
-- Use intelligence health and data-quality gaps to create research proposals before making strong portfolio claims.
+- Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
+- Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
@@ -200,7 +205,7 @@ Return ONLY valid JSON with this shape:
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
 
 FLEET BRIEF:
-${JSON.stringify(brief, null, 2)}`;
+${JSON.stringify(brief)}`;
 }
 
 function buildPassPrompt(brief, role, candidate = null) {
@@ -209,7 +214,7 @@ function buildPassPrompt(brief, role, candidate = null) {
     role === 'cto'
       ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
       : 'You are the independent executive reviewer. Reject unsupported revenue claims, missing evidence, scope violations, unsafe tactics, high-priority queue work, and proposals that lack a measurable outcome. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(brief, null, 2)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(candidate || {}, null, 2)}`;
+  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(brief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(candidate || {})}`;
 }
 
 function parseOutput(text) {
@@ -307,6 +312,7 @@ function runProvider(
   } = {}
 ) {
   const executable = command || (provider === 'chatgpt' ? 'codex' : 'claude');
+  const promptOnStdin = provider === 'chatgpt';
   const args =
     provider === 'chatgpt'
       ? [
@@ -317,7 +323,7 @@ function runProvider(
           '--sandbox',
           'read-only',
           ...(model ? ['--model', model] : []),
-          prompt,
+          '-',
         ]
       : [
           '--print',
@@ -335,8 +341,9 @@ function runProvider(
     const child = spawn(executable, args, {
       cwd: ROOT,
       env: process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: [promptOnStdin ? 'pipe' : 'ignore', 'pipe', 'pipe'],
     });
+    if (promptOnStdin) child.stdin.end(prompt);
     let stdout = '',
       stderr = '';
     child.stdout.on('data', chunk => {

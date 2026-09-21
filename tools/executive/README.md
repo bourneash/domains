@@ -14,16 +14,28 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   including status, target, linked proposal/request, result, and error.
 
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
-queries public GitHub repository momentum across daily, weekly, and monthly
-windows, stores a dated snapshot, and submits one evidence-backed digest to
-the same executive proposal queue for CEO/CTO review. It never clones,
-installs, executes, or deploys third-party code.
+searches public GitHub repositories against purpose-scoped fleet needs
+(conversion, SEO/content, Astro/Cloudflare UX, and measurement), derives daily,
+weekly, and monthly momentum locally, stores a dated snapshot, and submits up
+to three separate candidate proposals to the same executive queue. Each
+proposal must state the intended fleet use, fit evidence, license signal, and
+bounded follow-up request. It never clones, installs, executes, or deploys
+third-party code.
 
 Run the autonomous tick only through `run-sandbox.sh`; it launches the model in
 a constrained container with only a generated brief and an output plan mounted.
 The model never receives the project checkout. The wrapper does not mount the
 Docker socket, SSH keys, the host home directory, or sibling projects. It defaults to applying only messages and proposals; set
 `EXECUTIVE_ALLOW_QUEUE=1` only after the queue policy has been reviewed.
+
+The brief includes the shared read-only executive intelligence contract. It
+normalizes the Fleet Manager registry, GA4/GSC analytics, SEO intelligence,
+revenue attribution, AI usage/costs, social coverage, Data Hub health and
+datasets, ranked priorities, deployment/uptime/error signals, and source
+freshness/errors. The same snapshot is available at
+`GET /api/executive/intelligence`. A failed adapter is reported as a failed
+source; it is never converted into a zero metric. The contract excludes
+`3boobs.com` before source data reaches the roles.
 
 The executive agent is expected to be proactive: inspect fleet telemetry,
 identify revenue opportunities, run research, recruit specialist agents, and

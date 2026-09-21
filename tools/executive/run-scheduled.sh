@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# One-shot scheduler entrypoint. Install this from the fleet scheduler/cron;
+# One-shot scheduler entrypoint. The fleet scheduler runs this every six hours;
 # the sandbox wrapper supplies the single-flight lock and bounded container.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT/tools/executive/logs"

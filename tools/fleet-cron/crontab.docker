@@ -113,6 +113,11 @@
 40 3 * * * /home/jesse/projects/domains/tools/scripts/gc-docker.sh
 10 3 * * 0 /home/jesse/projects/domains/tools/scripts/gc-docker.sh --cache-all
 
+# --- Job 10b: autonomous executive leadership tick ---
+# Six-hourly, single-flight, bounded by run-sandbox.sh. Queue execution is
+# separately gated by the dashboard's reviewed change-queue settings.
+0 */6 * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
+
 # --- Job 11: fleet shared-image drift watchdog ---
 # Asserts the fleet-images invariants continuously: every site on the current
 # fleet-site-cron image, crontab bind-mounted with a source file that actually

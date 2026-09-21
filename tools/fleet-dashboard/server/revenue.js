@@ -6,7 +6,10 @@ const TAG_CACHE_MS = 5 * 60 * 1000;
 const tagCache = new Map();
 
 function trackingId(row) {
-  return String(row.tracking_id || row.tracking_id_1 || row.store_id || row.associate_id || '').trim() || null;
+  return (
+    String(row.tracking_id || row.tracking_id_1 || row.store_id || row.associate_id || '').trim() ||
+    null
+  );
 }
 
 function discoverTrackingTags(root) {
@@ -15,15 +18,31 @@ function discoverTrackingTags(root) {
   const sitesDir = path.join(root, 'sites');
   const out = {};
   let sites = [];
-  try { sites = fs.readdirSync(sitesDir); } catch { return out; }
+  try {
+    sites = fs.readdirSync(sitesDir);
+  } catch {
+    return out;
+  }
   for (const site of sites) {
     const roots = [path.join(sitesDir, site, 'site', 'src'), path.join(sitesDir, site, 'ops')];
     const tags = new Set();
-    for (const dir of roots) scan(dir, file => {
-      if (!/(?:affiliate|amazon|associate|disclosure|config|tracked|hub).*\.(?:js|ts|astro|json|ya?ml|md)$/i.test(path.basename(file))) return;
-      let text = ''; try { text = fs.readFileSync(file, 'utf8'); } catch { return; }
-      for (const match of text.matchAll(/\b([a-z0-9][a-z0-9-]{2,}-20)\b/gi)) tags.add(match[1].toLowerCase());
-    });
+    for (const dir of roots)
+      scan(dir, file => {
+        if (
+          !/(?:affiliate|amazon|associate|disclosure|config|tracked|hub).*\.(?:js|ts|astro|json|ya?ml|md)$/i.test(
+            path.basename(file)
+          )
+        )
+          return;
+        let text = '';
+        try {
+          text = fs.readFileSync(file, 'utf8');
+        } catch {
+          return;
+        }
+        for (const match of text.matchAll(/\b([a-z0-9][a-z0-9-]{2,}-20)\b/gi))
+          tags.add(match[1].toLowerCase());
+      });
     for (const tag of tags) {
       if (!out[tag]) out[tag] = [];
       out[tag].push(site);
@@ -34,11 +53,18 @@ function discoverTrackingTags(root) {
 }
 
 function scan(dir, visit) {
-  let entries = []; try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  let entries = [];
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
   for (const entry of entries) {
-    if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === 'dist') continue;
+    if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === 'dist')
+      continue;
     const file = path.join(dir, entry.name);
-    if (entry.isDirectory()) scan(file, visit); else if (entry.isFile()) visit(file);
+    if (entry.isDirectory()) scan(file, visit);
+    else if (entry.isFile()) visit(file);
   }
 }
 
@@ -50,6 +76,8 @@ function amazonSummary(root) {
     source: 'amazon-associates',
     connected: fs.existsSync(sessionFile),
     has_data: false,
+    owner_action_required:
+      'Run `docker compose exec -it collector amz-stats pull-earnings --out-dir /work/out` and complete the Amazon Associates login/2FA once to refresh attributable earnings.',
     message: fs.existsSync(sessionFile)
       ? 'No earnings export has completed yet.'
       : 'Associates earnings session is not connected. Run amz-stats save-session once.',
@@ -60,7 +88,10 @@ function amazonSummary(root) {
     const rows = JSON.parse(fs.readFileSync(earningsFile, 'utf8'));
     if (!Array.isArray(rows) || !rows.length) return base;
     const number = (row, key) => Number(row[key] || 0);
-    const dates = rows.map(row => row.date || row.report_date).filter(Boolean).sort();
+    const dates = rows
+      .map(row => row.date || row.report_date)
+      .filter(Boolean)
+      .sort();
     const tagMap = discoverTrackingTags(root);
     const attributed = {};
     for (const row of rows) {
@@ -68,8 +99,18 @@ function amazonSummary(root) {
       const sites = tag ? tagMap[tag] || [] : [];
       const site = sites.length === 1 ? sites[0] : null;
       const key = site || (tag ? `unmapped:${tag}` : 'unattributed');
-      const cur = attributed[key] || { site, tracking_id: tag, rows: 0, clicks: 0, ordered_items: 0, commission_income: 0 };
-      cur.rows += 1; cur.clicks += number(row, 'clicks'); cur.ordered_items += number(row, 'ordered_items'); cur.commission_income += number(row, 'commission_income');
+      const cur = attributed[key] || {
+        site,
+        tracking_id: tag,
+        rows: 0,
+        clicks: 0,
+        ordered_items: 0,
+        commission_income: 0,
+      };
+      cur.rows += 1;
+      cur.clicks += number(row, 'clicks');
+      cur.ordered_items += number(row, 'ordered_items');
+      cur.commission_income += number(row, 'commission_income');
       attributed[key] = cur;
     }
     return {
@@ -83,12 +124,18 @@ function amazonSummary(root) {
       shipped_items: rows.reduce((sum, row) => sum + number(row, 'shipped_items'), 0),
       commission_income: rows.reduce((sum, row) => sum + number(row, 'commission_income'), 0),
       attribution: Object.values(attributed),
-      attributed_income: Object.values(attributed).filter(r => r.site).reduce((n, r) => n + r.commission_income, 0),
+      attributed_income: Object.values(attributed)
+        .filter(r => r.site)
+        .reduce((n, r) => n + r.commission_income, 0),
       attribution_complete: Object.values(attributed).every(r => Boolean(r.site)),
       fetched_at: fs.statSync(earningsFile).mtime.toISOString(),
     };
   } catch (error) {
-    return { ...base, error: String(error.message || error), message: 'The latest earnings export is unreadable.' };
+    return {
+      ...base,
+      error: String(error.message || error),
+      message: 'The latest earnings export is unreadable.',
+    };
   }
 }
 

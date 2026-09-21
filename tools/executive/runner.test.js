@@ -27,6 +27,8 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   assert.deepEqual(brief.portfolio_policy.excluded_sites, ['3boobs.com']);
   assert.equal(brief.site_context[0].portfolio_class, 'satire_or_meme');
   assert.equal(brief.site_context[0].description, 'Meme property');
+  assert.deepEqual(brief.specialist_inputs.cro_github_trends, []);
+  assert.match(brief.specialist_inputs.cro_contract, /license fit, security/);
   store.close();
 });
 

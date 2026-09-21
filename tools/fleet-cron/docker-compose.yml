@@ -76,6 +76,10 @@ services:
       # compose build` from inside this container; without this mounted,
       # that fails with "mkdir ~/.docker: permission denied".
       - ${HOME:-/home/jesse}/.docker:${HOME:-/home/jesse}/.docker
+      # Executive runner authentication only. The runner receives a generated
+      # brief and output directory; it never receives the repository or host
+      # credentials beyond this single read-only Codex Pro auth file.
+      - ${HOME:-/home/jesse}/.codex/auth.json:${HOME:-/home/jesse}/.codex/auth.json:ro
       # SSH identity for job 6's `git submodule add` / push (github-bourneash
       # alias) — mounted at the same absolute path as HOME below, not at
       # /home/ops, so it resolves whether a script reads it via `~` (which

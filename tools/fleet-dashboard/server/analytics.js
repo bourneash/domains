@@ -1,6 +1,10 @@
 'use strict';
 
-const API = process.env.DATAHUB_API || 'http://host.docker.internal:4760';
+const API =
+  process.env.DATAHUB_API ||
+  (require('node:fs').existsSync('/.dockerenv')
+    ? 'http://host.docker.internal:4760'
+    : 'http://127.0.0.1:4760');
 
 async function _get(pathname, timeoutMs = 3000) {
   const ctrl = new AbortController();
@@ -22,7 +26,9 @@ async function health() {
 }
 
 async function summary(site, window = 28) {
-  const r = await _get(`/metrics/summary?site=${encodeURIComponent(site)}&window=${encodeURIComponent(window)}`);
+  const r = await _get(
+    `/metrics/summary?site=${encodeURIComponent(site)}&window=${encodeURIComponent(window)}`
+  );
   return r.ok === false ? { ...r, has_data: false } : r;
 }
 
@@ -40,11 +46,17 @@ async function topGsc(site, metric, window = 28, limit = 10) {
 
 async function _series(site, kind, days) {
   const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
-  const r = await _get(`/metrics/${kind}?site=${encodeURIComponent(site)}&grain=site&since=${since}&limit=${days + 2}`);
+  const r = await _get(
+    `/metrics/${kind}?site=${encodeURIComponent(site)}&grain=site&since=${since}&limit=${days + 2}`
+  );
   return r.ok === false ? { ...r, records: [] } : r;
 }
-async function ga4Series(site, days = 14) { return _series(site, 'ga4', days); }
-async function gscSeries(site, days = 14) { return _series(site, 'gsc', days); }
+async function ga4Series(site, days = 14) {
+  return _series(site, 'ga4', days);
+}
+async function gscSeries(site, days = 14) {
+  return _series(site, 'gsc', days);
+}
 
 // Split the trailing rows (assumed to already be a ~14-day window) into the
 // most-recent 7-row bucket ("cur") and the 7 before it ("prev"), sorted
@@ -88,6 +100,14 @@ async function wow(site) {
 }
 
 module.exports = {
-  health, summary, topGa4, topGsc, ga4Series, gscSeries, wow,
-  _splitWeeks, _sum, API,
+  health,
+  summary,
+  topGa4,
+  topGsc,
+  ga4Series,
+  gscSeries,
+  wow,
+  _splitWeeks,
+  _sum,
+  API,
 };
