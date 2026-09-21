@@ -146,6 +146,13 @@ async function buildBrief(store, root = ROOT) {
   const improvements = store.listImprovements({ limit: 50 });
   const proposals = store.listExecutiveProposals({ limit: 10 });
   const messages = store.listExecutiveMessages({ limit: 10 });
+  const task_queue = {
+    engineer: store.listChangeRequests({ assigned_role: 'engineer', limit: 50 }),
+    principal_engineer: store.listChangeRequests({
+      assigned_role: 'principal-engineer',
+      limit: 50,
+    }),
+  };
   const sites = executiveSites(root);
   const intel = await collectIntel(root, sites);
   return {
@@ -185,7 +192,7 @@ async function buildBrief(store, root = ROOT) {
       execution:
         'Messages and proposals may be applied automatically; queued work requires explicit queue enablement or owner approval. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
       delegation:
-        'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers review every managed site on a staggered queue and report back to fleet leadership. Later passes may reduce or reject the earlier plan.',
+        'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers review every managed site on a staggered queue and report back to fleet leadership. Approved implementation work enters the site task/change queue. Use engineer for normal work and principal-engineer for urgent senior technical work. Later passes may reduce or reject the earlier plan.',
     },
     owner_strategy: store.getExecutiveSettings(),
     intelligence: intel,
@@ -222,6 +229,7 @@ async function buildBrief(store, root = ROOT) {
         requested_action,
       })
     ),
+    task_queue,
     conversation: messages
       .slice()
       .reverse()
@@ -246,6 +254,8 @@ Rules:
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
 - Treat domain managers as recurring site specialists. Every managed site receives a lightweight review on the staggered queue; deeper work and implementation still require evidence, proposals, and the normal approval gates. The CEO owns portfolio prioritization and prevents one site from consuming disproportionate attention without evidence.
+- Treat the Principal Engineer as the CTO's senior right hand. Route urgent technical investigations, incidents, architecture fixes, and emergency site work to assigned_role: principal-engineer; route ordinary bounded implementation to assigned_role: engineer. Include acceptance criteria, risk, tests, and rollback notes in every task.
+- Use task_queue to avoid duplicating work. Review queued, active, review, and failed requests before creating another task. Domain managers should report task progress and surface blocked work back to fleet leadership.
 - Use the experiment system for competing variants: state a hypothesis, primary metric, guardrails, sample threshold, and stop/ship decision. Do not recommend a winner before the sample threshold is met.
 - You may recommend ethical technical/editorial SEO, experimentation, partnerships, outreach with consent, product work, and redesigns.
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
@@ -255,7 +265,7 @@ Return ONLY valid JSON with this shape:
 {
   "messages": [{"actor":"ceo|cto|cfo|domain-manager","body":"concise owner update"}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
-  "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain","title":"optional low-risk task","body":"optional implementation body","category":"engineering|content|marketing|sales|seo|design|other","priority":"medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
+  "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}]
 }
 
@@ -272,9 +282,11 @@ function buildPassPrompt(brief, role, candidate = null) {
       ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
       : role === 'cfo'
         ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
-        : role === 'domain-manager'
-          ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager.'
-          : 'You are the independent executive reviewer. Reject unsupported revenue claims, missing evidence, scope violations, unsafe tactics, high-priority queue work, and proposals that lack a measurable outcome. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+        : role === 'principal-engineer'
+          ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
+          : role === 'domain-manager'
+            ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager.'
+            : 'You are the independent executive reviewer. Reject unsupported revenue claims, missing evidence, scope violations, unsafe tactics, high-priority queue work, and proposals that lack a measurable outcome. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(brief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(candidate || {})}`;
 }
 
@@ -344,6 +356,9 @@ function validatePlan(plan) {
       throw new Error('invalid executive proposal in provider plan');
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
       throw new Error('executive plan references an excluded site');
+    const assignedRole = item.implementation?.assigned_role;
+    if (assignedRole && !['engineer', 'principal-engineer'].includes(String(assignedRole)))
+      throw new Error('executive implementation must route to engineer or principal-engineer');
   }
   for (const item of plan.change_requests) {
     if (

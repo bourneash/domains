@@ -875,6 +875,30 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
     }
   });
+  app.get('/api/executive/task-queue', (req, res) => {
+    try {
+      const role = String(req.query.role || '').trim();
+      const requests = events.listChangeRequests({
+        assigned_role: role || undefined,
+        status: req.query.status || undefined,
+        site: req.query.site || undefined,
+        limit: req.query.limit || 250,
+      });
+      res.json({
+        role: role || 'all',
+        requests,
+        summary: {
+          queued: requests.filter(row => row.status === 'queued').length,
+          active: requests.filter(row => ['claimed', 'running', 'reviewing'].includes(row.status))
+            .length,
+          review: requests.filter(row => row.status === 'review').length,
+          failed: requests.filter(row => row.status === 'failed').length,
+        },
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.get('/api/executive/reports', (req, res) => {
     try {
       res.json({ reports: domainReports.recent(root, req.query.limit) });

@@ -29,6 +29,7 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   assert.equal(brief.site_context[0].description, 'Meme property');
   assert.deepEqual(brief.specialist_inputs.cro_github_trends, []);
   assert.match(brief.specialist_inputs.cro_contract, /license fit, security/);
+  assert.deepEqual(brief.task_queue, { engineer: [], principal_engineer: [] });
   store.close();
 });
 
@@ -135,6 +136,30 @@ test('rejects plans that mention or target the excluded site', () => {
         })
       ),
     /excluded site/
+  );
+});
+
+test('only routes executive implementation proposals to engineer roles', () => {
+  const base = {
+    messages: [],
+    proposals: [
+      {
+        created_by: 'cto',
+        title: 'Unsafe route',
+        proposal_type: 'engineering',
+        summary: 'A bounded implementation.',
+        requested_action: 'Approve it.',
+        implementation: { site: 'example.com', assigned_role: 'domain-manager' },
+      },
+    ],
+    change_requests: [],
+    research_requests: [],
+  };
+  assert.throws(() => runner.parseOutput(JSON.stringify(base)), /engineer or principal-engineer/);
+  base.proposals[0].implementation.assigned_role = 'principal-engineer';
+  assert.equal(
+    runner.parseOutput(JSON.stringify(base)).proposals[0].implementation.assigned_role,
+    'principal-engineer'
   );
 });
 

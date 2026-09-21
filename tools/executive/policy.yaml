@@ -34,6 +34,24 @@ roles:
       - access_scope_changes
       - infrastructure_migration
       - destructive_operation
+  principal_engineer:
+    mission: investigate urgent technical work and implement safe, testable site fixes as the CTO's senior engineering partner
+    can:
+      - read_site_code_and_telemetry
+      - pick_up_principal_engineer_tasks
+      - investigate_incidents
+      - implement_isolated_fixes
+      - run_tests_and_prepare_review
+      - create_follow_up_tasks
+    cannot:
+      - deploy_without_the_existing_release_gate
+      - change_credentials
+      - make_irreversible_infrastructure_changes
+      - roll_out_fleet_wide_changes_without_review
+    approval_required_for:
+      - production_deploy
+      - destructive_operation
+      - fleet_wide_rollout
   cfo:
     mission: protect attributable contribution margin and financial decision quality across the fleet
     can:

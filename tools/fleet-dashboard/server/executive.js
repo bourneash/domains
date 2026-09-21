@@ -83,6 +83,21 @@ function decision(store, id, input = {}, { knownSite } = {}) {
     ...input,
     linked_request_id: linkedRequestId,
   });
+  if (linkedRequestId) {
+    store.record({
+      event_type: 'executive.proposal.task-routed',
+      source: 'executive-control-plane',
+      site_id: `site:${current.implementation.site}`,
+      entity_type: 'executive-proposal',
+      entity_id: current.proposal_id,
+      correlation_id: `change-request:${linkedRequestId}`,
+      payload: {
+        request_id: linkedRequestId,
+        assigned_role: current.implementation.assigned_role || 'engineer',
+        priority: current.implementation.priority || 'medium',
+      },
+    });
+  }
   const actionType =
     input.status === 'approved' ? 'approve' : input.status === 'declined' ? 'decline' : 'feedback';
   const audit = action(store, {

@@ -447,7 +447,16 @@ function open(root, { file } = {}) {
     return row;
   }
 
-  function listChangeRequests({ status, site, category, priority, provider, q, limit = 250 } = {}) {
+  function listChangeRequests({
+    status,
+    site,
+    category,
+    priority,
+    provider,
+    assigned_role,
+    q,
+    limit = 250,
+  } = {}) {
     const clauses = [],
       args = [];
     if (status) {
@@ -469,6 +478,10 @@ function open(root, { file } = {}) {
     if (provider) {
       clauses.push('provider = ?');
       args.push(String(provider));
+    }
+    if (assigned_role) {
+      clauses.push('assigned_role = ?');
+      args.push(String(assigned_role));
     }
     if (q) {
       clauses.push('(title LIKE ? OR body LIKE ? OR site LIKE ? OR assigned_role LIKE ?)');

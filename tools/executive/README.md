@@ -56,6 +56,25 @@ enter the proposal flow. An approval should then create a normal change request
 and use the existing isolated worktree → review → validation → deploy → measure
 pipeline.
 
+## Executive-to-engineering task routing
+
+The CEO and CTO do not edit sites directly. They create a proposal or bounded
+change request with acceptance criteria, risks, tests, and rollback notes. The
+owner approval flow converts an approved implementation proposal into a durable
+change request and records an auditable `executive.proposal.task-routed` event.
+
+- `engineer` handles ordinary, bounded implementation work.
+- `principal-engineer` is the CTO's senior right hand for urgent technical
+  investigations, incidents, architecture fixes, and emergency pickup.
+- Both workers use the isolated improvement pipeline: worktree, review,
+  validation, and deployment gates. Neither role receives host access or may
+  bypass release controls.
+
+Fleet Manager exposes the filtered queue at
+`/api/executive/task-queue?role=principal-engineer` and shows it on Executive
+Leadership. This gives the owner visibility without requiring the owner to
+manually dispatch every task; high-impact changes still require approval.
+
 The agent must never:
 
 - use black-hat SEO, cloaking, spam, fake engagement, impersonation, or other
