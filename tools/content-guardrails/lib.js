@@ -63,6 +63,18 @@ function findMatches(text, terms) {
   return hits;
 }
 
+// Guardrail diagnostics may be copied into Slack messages or incident
+// metadata. Keep the protected identity out of those secondary channels too;
+// the check can still report the configured term locally to the operator.
+function redactBlockedTerms(text, terms = loadConfig().global.blocked) {
+  let result = String(text ?? '');
+  for (const term of terms || []) {
+    const escaped = escapeRe(String(term).trim());
+    if (escaped) result = result.replace(new RegExp(`\\b${escaped}\\b`, 'gi'), '[redacted]');
+  }
+  return result;
+}
+
 // Only the ADDED lines of a staged diff are content that could newly
 // introduce a leak — scanning the whole file would flag pre-existing,
 // already-committed text on every future commit to that file.
@@ -190,6 +202,7 @@ async function postSlackAlert(repoRoot, text) {
   const token = m && m[1];
   if (!token) return;
   try {
+    text = redactBlockedTerms(text);
     await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -208,6 +221,7 @@ module.exports = {
   saveConfig,
   effectiveLists,
   findMatches,
+  redactBlockedTerms,
   addedLinesFromDiff,
   classifyWarnHit,
   appendLog,
