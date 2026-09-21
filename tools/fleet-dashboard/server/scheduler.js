@@ -105,6 +105,10 @@ function makeClient(env = process.env, fetchImpl = globalThis.fetch, inst = INST
   };
 }
 
+function makeFleetClient(env = process.env, fetchImpl = globalThis.fetch) {
+  return makeClient(env, fetchImpl, INSTANCES['scheduler-fleet']);
+}
+
 function register(app, opts = {}) {
   const calls = {
     scheduler: opts.call || makeClient(process.env, globalThis.fetch, INSTANCES.scheduler),
@@ -166,4 +170,13 @@ async function runNow(site, role, actor, call = makeClient()) {
 const ADOPTED_MSG =
   'this site is managed by the fleet-scheduler — use Ops ▸ Scheduler (a legacy cron container would double-fire every job)';
 
-module.exports = { register, makeClient, ROUTES, INSTANCES, isAdopted, runNow, ADOPTED_MSG };
+module.exports = {
+  register,
+  makeClient,
+  makeFleetClient,
+  ROUTES,
+  INSTANCES,
+  isAdopted,
+  runNow,
+  ADOPTED_MSG,
+};

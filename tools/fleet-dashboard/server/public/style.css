@@ -674,8 +674,16 @@ body[data-view="builds"] main { max-width: none; }
 .seo-action-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: auto; padding-top: 13px; font-size: 11px; }
 .seo-action-foot b { font-size: 15px; }
 .seo-empty { grid-column: 1 / -1; }
+.seo-vitals-cards { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.seo-vitals-card { display: grid; gap: 7px; padding: 13px 15px; border: 1px solid var(--border,#2a2f3a); border-left: 3px solid var(--green,#4ade80); border-radius: 9px; background: rgba(255,255,255,.025); }
+.seo-vitals-card.attention { border-left-color: var(--red,#f87171); }
+.seo-vitals-card.missing { border-left-color: var(--muted,#8a93a6); }
+.seo-vitals-card-top { display: flex; justify-content: space-between; align-items: center; text-transform: capitalize; }
+.seo-vitals-card strong { font-size: 14px; }
+.seo-vitals-card .btn { justify-self: start; }
+.web-vitals-bad { color: #f87171; font-weight: 700; }
 @media (max-width: 1100px) { .seo-stats { grid-template-columns: repeat(3, 1fr); } .seo-actions { grid-template-columns: repeat(2, minmax(260px, 1fr)); } }
-@media (max-width: 720px) { .seo-stats, .seo-overview-grid, .seo-actions { grid-template-columns: 1fr; } .seo-work-head { align-items: stretch; flex-direction: column; } .seo-coverage { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px) { .seo-stats, .seo-overview-grid, .seo-actions, .seo-vitals-cards { grid-template-columns: 1fr; } .seo-work-head { align-items: stretch; flex-direction: column; } .seo-coverage { grid-template-columns: repeat(2, 1fr); } }
 .dh-srccount { color: var(--muted,#8a93a6); font-size: 11px; margin-bottom: 6px; }
 .dh-srcctl { text-align: right; white-space: nowrap; }
 .dh-row-off td:not(.dh-srcctl) { opacity: .5; }

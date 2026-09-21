@@ -26,6 +26,7 @@ RUN apk add --no-cache \
     util-linux \
     tzdata \
     ca-certificates \
+    chromium \
     docker-cli \
     docker-cli-compose \
     github-cli
@@ -52,6 +53,11 @@ RUN npm install -g @anthropic-ai/claude-code@2.1.140
 # images are bumped together, not independently by hand.
 ARG BITWARDEN_CLI_VERSION=2026.6.0
 RUN npm install -g @bitwarden/cli@${BITWARDEN_CLI_VERSION}
+
+# The fleet scheduler owns the recurring Lighthouse sweep. Keep the browser
+# and runner in this image so the schedule is reproducible and does not depend
+# on the host's desktop packages or nvm layout.
+RUN npm install -g lighthouse@12.8.2
 
 ENV TZ=America/New_York
 

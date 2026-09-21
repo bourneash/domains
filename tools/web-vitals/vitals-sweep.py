@@ -42,7 +42,9 @@ Usage
     python3 tools/web-vitals/vitals-sweep.py --fail-on-regression
     python3 tools/web-vitals/vitals-sweep.py --budget-fail   # exit 1 on any budget breach
 
-Every run writes reports/latest.json and appends reports/history.jsonl.
+Every run writes a factor-specific report (latest-mobile.json or
+latest-desktop.json) and appends reports/history.jsonl. latest.json remains a
+backward-compatible alias for the mobile report.
 """
 from __future__ import annotations
 
@@ -133,7 +135,9 @@ def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "lh.json"
         cmd = [
-            "npx", "lighthouse", url,
+            os.environ.get("FLEET_LIGHTHOUSE_CMD", "npx"),
+            *( [] if os.environ.get("FLEET_LIGHTHOUSE_CMD") else ["lighthouse"] ),
+            url,
             "--only-categories=performance,accessibility",
             "--output=json", f"--output-path={out}",
             # --no-sandbox: this runs unprivileged on a shared host box, not
@@ -219,6 +223,10 @@ def regressions(now: dict, was: dict | None) -> list[str]:
     return out
 
 
+def report_path(form_factor: str) -> Path:
+    return REPORTS / f"latest-{form_factor}.json"
+
+
 def load_previous(form_factor: str) -> dict:
     """Previous metrics, but ONLY from a run of the same form factor.
 
@@ -229,7 +237,12 @@ def load_previous(form_factor: str) -> dict:
     --desktop once. A comparison between two different measurements is not a
     trend, so decline to make one.
     """
-    p = REPORTS / "latest.json"
+    # Keep mobile and desktop baselines independent.  A weekly desktop run
+    # must never become the comparison point for the daily mobile run.
+    p = report_path(form_factor)
+    if not p.exists():
+        # Backward compatibility with the original single-baseline report.
+        p = REPORTS / "latest.json"
     if not p.exists():
         return {}
     try:
@@ -253,8 +266,11 @@ def write_reports(payload: dict, *, partial: bool) -> None:
     """
     REPORTS.mkdir(parents=True, exist_ok=True)
     out = payload
+    factor_path = report_path(payload["form_factor"])
     if partial:
-        old_path = REPORTS / "latest.json"
+        old_path = factor_path
+        if not old_path.exists():
+            old_path = REPORTS / "latest.json"
         if old_path.exists():
             try:
                 old = json.loads(old_path.read_text(encoding="utf-8"))
@@ -271,9 +287,16 @@ def write_reports(payload: dict, *, partial: bool) -> None:
                 out["partial_run_sites"] = sorted(s["site"] for s in payload["sites"])
             except Exception:  # noqa: BLE001 — a corrupt baseline must not lose this run
                 out = payload
-    tmp = REPORTS / "latest.json.tmp"
+    tmp = factor_path.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(out, indent=2), encoding="utf-8")
-    tmp.replace(REPORTS / "latest.json")  # atomic: never a half-written report
+    tmp.replace(factor_path)  # atomic: never a half-written report
+    # latest.json remains the compatibility/default view and intentionally
+    # follows mobile, the primary ranking form factor. Desktop runs get their
+    # own file without displacing the mobile baseline consumed by the UI.
+    if payload["form_factor"] == "mobile" or not (REPORTS / "latest.json").exists():
+        latest_tmp = REPORTS / "latest.json.tmp"
+        latest_tmp.write_text(json.dumps(out, indent=2), encoding="utf-8")
+        latest_tmp.replace(REPORTS / "latest.json")
     # history records what THIS run measured — never the merged view, or a
     # partial run would append stale rows for sites it never touched.
     with (REPORTS / "history.jsonl").open("a", encoding="utf-8") as fh:

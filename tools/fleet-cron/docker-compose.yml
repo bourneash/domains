@@ -127,6 +127,8 @@ services:
       # every site's cron container already applies.
       HOME: ${HOME:-/home/jesse}
       FLEET_DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
+      CHROME_PATH: /usr/bin/chromium-browser
+      FLEET_LIGHTHOUSE_CMD: /usr/local/bin/lighthouse
       # Reach Vaultwarden by container name over the shared vpn-proxy network
       # (see `networks:` below) — "localhost" inside this container is the
       # container itself, not the host's published 127.0.0.1:9280 (that port

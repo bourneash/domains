@@ -20,6 +20,21 @@ for script in "${principals[@]}"; do
   grep -q 'safe_outcome' "$script" || fail "mark_incident does not sanitize: $script"
 done
 
+principal_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/principal-engineer.sh.tmpl"
+bash -n <(sed 's/{{[^}]*}}/placeholder/g' "$principal_template") \
+  || fail "principal-engineer template syntax error"
+grep -q 'SYNC_ALERT_AFTER' "$principal_template" \
+  || fail "principal-engineer template lacks sync defer threshold"
+bma_principal="$ROOT/sites/blackmarketapparel.com/ops/scripts/principal-engineer.sh"
+grep -q 'SYNC_ALERT_AFTER' "$bma_principal" \
+  || fail "BMA sync defer threshold missing"
+grep -q 'record_sync_defer' "$bma_principal" \
+  || fail "BMA sync defer state tracking missing"
+grep -q 'clear_sync_defer' "$bma_principal" \
+  || fail "BMA sync defer state reset missing"
+grep -q 'behind=.*ahead=' "$bma_principal" \
+  || fail "BMA sync defer diagnostics missing"
+
 for script in "${deployers[@]}"; do
   bash -n "$script" || fail "syntax error: $script"
   grep -q 'mv .deploy-needed.failed .deploy-needed' "$script" || continue
@@ -35,6 +50,62 @@ for script in "${watchdogs[@]}" "${emitters[@]}"; do
   grep -q 'redact_guardrail_terms' "$script" || fail "metadata writer missing redactor: $script"
   grep -q "\[redaction unavailable\]" "$script" || fail "metadata redactor is not fail-closed: $script"
 done
+
+allthings_engineer="$ROOT/sites/allthingsmasonic.com/ops/scripts/run-engineer.sh"
+bash -n "$allthings_engineer" || fail "allthingsmasonic engineer syntax error"
+grep -q 'ENGINEER_UNPUSHED_COMMIT_GRACE_SECS' "$allthings_engineer" \
+  || fail "allthingsmasonic engineer grace period is not configurable"
+grep -q 'UNPUSHED_COMMIT_GRACE_SECS=1200' "$allthings_engineer" \
+  || fail "allthingsmasonic engineer grace period lacks safe default"
+grep -q 'could not determine commit age' "$allthings_engineer" \
+  || fail "allthingsmasonic engineer git timestamp failure is not fail-closed"
+grep -q 'head_commit_age.*-gt.*UNPUSHED_COMMIT_GRACE_SECS' "$allthings_engineer" \
+  || fail "allthingsmasonic engineer grace boundary missing"
+
+# Exercise the real grace-window function at both sides of the boundary and
+# verify that a missing git timestamp fails closed.
+git_fixture="$(mktemp -d)"
+trap 'rm -rf "$tmp" "$fixture" "$git_fixture"' EXIT
+git -C "$git_fixture" init -q
+git -C "$git_fixture" config user.name test
+git -C "$git_fixture" config user.email test@example.invalid
+old_commit_date="$(date -u -d '30 minutes ago' '+%Y-%m-%dT%H:%M:%SZ')"
+GIT_AUTHOR_DATE="$old_commit_date" GIT_COMMITTER_DATE="$old_commit_date" \
+  git -C "$git_fixture" commit --allow-empty -qm stale
+(
+  cd "$git_fixture"
+  ISSUES=()
+  note_issue() { ISSUES+=("$1"); }
+  UNPUSHED_COMMIT_GRACE_SECS=1200
+  eval "$(sed -n '/^report_unpushed_commits()/,/^}/p' "$allthings_engineer")"
+  report_unpushed_commits 1
+  [ "${#ISSUES[@]}" -eq 1 ] || exit 1
+) || fail "stale unpushed commit was not reported"
+
+fresh_commit_date="$(date -u -d '5 minutes ago' '+%Y-%m-%dT%H:%M:%SZ')"
+GIT_AUTHOR_DATE="$fresh_commit_date" GIT_COMMITTER_DATE="$fresh_commit_date" \
+  git -C "$git_fixture" commit --allow-empty -qm fresh
+(
+  cd "$git_fixture"
+  ISSUES=()
+  note_issue() { ISSUES+=("$1"); }
+  UNPUSHED_COMMIT_GRACE_SECS=1200
+  eval "$(sed -n '/^report_unpushed_commits()/,/^}/p' "$allthings_engineer")"
+  report_unpushed_commits 1 >/dev/null
+  [ "${#ISSUES[@]}" -eq 0 ] || exit 1
+) || fail "fresh unpushed commit did not receive grace"
+
+(
+  cd "$git_fixture"
+  git checkout -q --orphan empty
+  git rm -rfq . 2>/dev/null || true
+  ISSUES=()
+  note_issue() { ISSUES+=("$1"); }
+  UNPUSHED_COMMIT_GRACE_SECS=1200
+  eval "$(sed -n '/^report_unpushed_commits()/,/^}/p' "$allthings_engineer")"
+  report_unpushed_commits 1 >/dev/null
+  [ "${#ISSUES[@]}" -eq 1 ] || exit 1
+) || fail "missing git timestamp did not fail closed"
 
 for script in "$ROOT"/sites/*/ops/scripts/deploy.sh; do
   bash -n "$script" || fail "syntax error: $script"

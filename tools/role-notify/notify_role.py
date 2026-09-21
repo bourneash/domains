@@ -64,6 +64,7 @@ ROLE_EMOJI = {
     "social-poster": "📣",
     "social-ops": "📣",
     "watchdog": "🩺",
+    "web-vitals": "📈",
     "newsletter-editor": "📧",
     "page-designer": "🎨",
     "brief-writer": "🗞️",

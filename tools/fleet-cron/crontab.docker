@@ -38,6 +38,17 @@
 # --- Job 7: fleet registry drift check (zero-AI, filesystem + YAML only) ---
 35 6 * * * /home/jesse/projects/domains/tools/scripts/registry-drift-cron.sh
 
+# --- Job 7d: scheduled mobile web-vitals sweep ---
+# The fleet-cron image carries pinned Lighthouse + Chromium. The wrapper owns
+# the lock, transition alerts, and factor-specific baseline.
+20 4 * * * /home/jesse/projects/domains/tools/scripts/vitals-sweep-cron.sh mobile
+
+# --- Job 7e: weekly desktop web-vitals comparison ---
+40 4 * * 0 /home/jesse/projects/domains/tools/scripts/vitals-sweep-cron.sh desktop
+
+# --- Job 7f: web-vitals freshness watchdog ---
+0 */6 * * * /home/jesse/projects/domains/tools/scripts/vitals-sweep-freshness.sh
+
 # --- Job 7b: fleet backlink-capture coverage inventory ---
 # Deterministic, read-only scan of every site's backlink reports. It does not
 # invent counts; the Fleet Manager uses the result to expose missing/stale
