@@ -153,6 +153,31 @@ test('defaults an omitted model proposal type to the safe business category', ()
   assert.equal(plan.proposals[0].proposal_type, 'business');
 });
 
+test('identifies read-only telemetry requests without suppressing implementation work', () => {
+  assert.equal(
+    runner.isTelemetryRequestProposal({
+      title: 'Review measurement coverage',
+      summary: 'Document analytics and attribution gaps.',
+    }),
+    true
+  );
+  assert.equal(
+    runner.isTelemetryRequestProposal({
+      title: 'Fix analytics instrumentation',
+      summary: 'Ship a bounded implementation.',
+      implementation: { site: 'example.com', title: 'Fix analytics', body: 'Add event.' },
+    }),
+    false
+  );
+  assert.equal(
+    runner.isTelemetryRequestProposal({
+      title: 'Improve content depth',
+      summary: 'Review internal linking opportunities.',
+    }),
+    false
+  );
+});
+
 test('rejects unsafe plans and fingerprints identical plans deterministically', () => {
   assert.throws(
     () => runner.parseOutput(JSON.stringify({ messages: [{ actor: 'owner', body: 'spoof' }] })),

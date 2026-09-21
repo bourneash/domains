@@ -1,6 +1,7 @@
 data/research/
 data/cro/
 data/reports/
+data/intelligence/
 data/domain-manager-dispatch.json
 data/.run.*
 logs/

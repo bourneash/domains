@@ -57,6 +57,7 @@ const changequeueNotify = require('./changequeue-notify');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
 const executiveIntel = require('./executive-intel');
+const executiveSnapshot = require('./executive-snapshot');
 const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
@@ -871,6 +872,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/intelligence', async (_req, res) => {
     try {
       res.json(await executiveIntel.collect({ root, sites: executiveRunner.executiveSites(root) }));
+    } catch (e) {
+      res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
+    }
+  });
+  app.get('/api/executive/intelligence-snapshot', (_req, res) => {
+    try {
+      const snapshot = executiveSnapshot.readLatest(root, {
+        sites: executiveRunner.executiveSites(root),
+      });
+      if (!snapshot) return res.status(404).json({ error: 'no fresh executive snapshot' });
+      res.json({ snapshot });
     } catch (e) {
       res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
     }
@@ -2269,7 +2281,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // same-origin JS bundles, not COOKIE_COMPLIANCE.md.
   app.get('/api/compliance', (_req, res) => {
     try {
-      res.json(compliance.matrix(discoverSites(root)));
+      const sites = discoverSites(root);
+      compliance.scanMissing(sites).catch(() => {});
+      res.json(compliance.matrix(sites));
     } catch (e) {
       res.status(500).json({ error: e.message });
     }

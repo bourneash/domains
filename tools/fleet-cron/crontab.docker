@@ -49,6 +49,11 @@
 # --- Job 7f: web-vitals freshness watchdog ---
 0 */6 * * * /home/jesse/projects/domains/tools/scripts/vitals-sweep-freshness.sh
 
+# --- Executive read-only telemetry snapshot ---
+# Refresh before the six-hour CEO/CTO tick so data requests are answered by
+# the shared evidence bundle rather than becoming approval-gated proposals.
+50 */6 * * * /home/jesse/projects/domains/tools/executive/run-intelligence-snapshot.sh
+
 # --- Job 7b: fleet backlink-capture coverage inventory ---
 # Deterministic, read-only scan of every site's backlink reports. It does not
 # invent counts; the Fleet Manager uses the result to expose missing/stale

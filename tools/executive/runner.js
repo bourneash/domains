@@ -9,6 +9,7 @@ const changequeue = require('../fleet-dashboard/server/changequeue');
 const handoff = require('./handoff');
 const research = require('./research');
 const croResearch = require('./cro');
+const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -124,7 +125,8 @@ async function collectIntel(root, sites) {
   // Host-only import: the isolated model image loads runner.js for prompt and
   // plan validation, but it must not need dashboard telemetry modules.
   const executiveIntel = require('../fleet-dashboard/server/executive-intel');
-  const intelligence = await executiveIntel.collect({ root, sites });
+  const cached = executiveSnapshot.readLatest(root, { sites });
+  const intelligence = cached ? cached.intelligence : await executiveIntel.collect({ root, sites });
   const support = intelligence.decision_support || {};
   const health = support.analytics || {};
   const seo = support.seo || {};
@@ -154,6 +156,9 @@ async function collectIntel(root, sites) {
     },
     research: research.recent(root),
     intelligence,
+    intelligence_snapshot: cached
+      ? { generated_at: cached.generated_at, source: 'scheduled-cache' }
+      : { generated_at: intelligence.generated_at || null, source: 'live-collection' },
   };
 }
 
@@ -209,6 +214,8 @@ async function buildBrief(store, root = ROOT) {
         'Messages and proposals may be applied automatically; queued work requires explicit queue enablement or owner approval. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
       delegation:
         'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers review every managed site on a staggered queue and report back to fleet leadership. Approved implementation work enters the site task/change queue. Use engineer for normal work and principal-engineer for urgent senior technical work. Later passes may reduce or reject the earlier plan.',
+      telemetry_policy:
+        'Read-only telemetry is collected automatically and is available in intelligence and the scheduled intelligence snapshot. Do not create a proposal merely to request data already present there. Create a proposal only when a missing source requires an explicit implementation, credential, budget, or owner decision.',
     },
     owner_strategy: store.getExecutiveSettings(),
     intelligence: intel,
@@ -262,6 +269,7 @@ Rules:
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
+- Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
 - Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.
@@ -420,6 +428,14 @@ function planFingerprint(plan) {
   return crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex');
 }
 
+function isTelemetryRequestProposal(item = {}) {
+  if (item.implementation && Object.keys(item.implementation).length) return false;
+  const text = `${item.title || ''} ${item.summary || ''} ${item.requested_action || ''}`;
+  return /measurement|attribution|analytics|mobile performance|performance (?:bottleneck|diagnosis)|data[- ]feed|operational (?:health|diagnosis)|ai[- ]cost|ai usage|cancellation[- ]control|evidence (?:reporting|matrix)|reporting contract|read-only (?:fleet )?evidence/i.test(
+    text
+  );
+}
+
 function runProvider(
   prompt,
   {
@@ -485,7 +501,13 @@ function runProvider(
 
 async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) {
   validatePlan(plan);
-  const created = { messages: [], proposals: [], change_requests: [], research: [] };
+  const created = {
+    messages: [],
+    proposals: [],
+    change_requests: [],
+    research: [],
+    telemetry_satisfied: [],
+  };
   if (plan.research_requests.length) {
     const audit = executive.action(store, {
       actor: 'ceo',
@@ -524,6 +546,31 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     }
   }
   for (const item of plan.proposals) {
+    if (isTelemetryRequestProposal(item)) {
+      const audit = executive.action(store, {
+        actor: item.created_by || 'ceo',
+        action_type: 'observe',
+        summary: `Telemetry request satisfied from executive intelligence: ${item.title}`,
+        target_type: 'executive-proposal',
+      });
+      created.telemetry_satisfied.push({
+        title: item.title,
+        reason: 'scheduled_read_only_telemetry',
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        result: {
+          title: item.title,
+          reason: 'scheduled_read_only_telemetry',
+          sources: [
+            'executive-intelligence-snapshot',
+            'domain-manager-reports',
+            'fleet-manager-control-plane',
+          ],
+        },
+      });
+      continue;
+    }
     const audit = executive.action(store, {
       actor: item.created_by || 'ceo',
       action_type: 'propose',
@@ -714,6 +761,7 @@ module.exports = {
   buildPrompt,
   buildPassPrompt,
   parseOutput,
+  isTelemetryRequestProposal,
   normalizeProviderProposalTypes,
   validatePlan,
   planFingerprint,
