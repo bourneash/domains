@@ -19,6 +19,7 @@ const CATEGORIES = [
 ];
 const PRIORITIES = ['high', 'medium', 'low'];
 const PROVIDERS = ['claude', 'chatgpt', 'local'];
+const DELIVERY_MODES = ['direct', 'pull_request'];
 const STATUSES = [
   'queued',
   'claimed',
@@ -53,6 +54,8 @@ function validate(input, knownSite) {
     throw httpErr(400, 'invalid priority');
   if (!PROVIDERS.includes(String(input.provider || 'claude')))
     throw httpErr(400, 'invalid provider');
+  if (!DELIVERY_MODES.includes(String(input.delivery_mode || 'direct')))
+    throw httpErr(400, 'invalid delivery mode');
   if (input.status && !STATUSES.includes(String(input.status)))
     throw httpErr(400, 'invalid status');
   const turns = Number(input.max_turns || 20);
@@ -96,6 +99,7 @@ function update(store, id, patch, knownSite) {
     'priority',
     'assigned_role',
     'provider',
+    'delivery_mode',
     'model',
     'max_turns',
     'auto_review',
@@ -119,6 +123,7 @@ function update(store, id, patch, knownSite) {
     patch.category ||
     patch.priority ||
     patch.provider ||
+    patch.delivery_mode ||
     patch.max_turns
   )
     validate({ ...current, ...patch }, knownSite);
@@ -183,6 +188,7 @@ module.exports = {
   CATEGORIES,
   PRIORITIES,
   PROVIDERS,
+  DELIVERY_MODES,
   STATUSES,
   TRANSITIONS,
   create,

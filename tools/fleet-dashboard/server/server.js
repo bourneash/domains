@@ -52,6 +52,7 @@ const dataquality = require('./dataquality');
 const improvements = require('./improvements');
 const improvementAgent = require('./improvement-agent');
 const changequeue = require('./changequeue');
+const changequeueNotify = require('./changequeue-notify');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
 
@@ -100,6 +101,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   const events = eventstore.open(root);
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
+
+  function emitChangeNotification(event, request, run, details = '') {
+    changequeueNotify
+      .notify({ event, request, run, details })
+      .then(result => {
+        events.record({
+          event_type: 'change-request.notification',
+          source: 'fleet-dashboard',
+          site_id: request?.site ? `site:${request.site}` : null,
+          entity_type: 'change-request',
+          entity_id: request?.request_id || null,
+          correlation_id: request?.request_id ? `change-request:${request.request_id}` : null,
+          payload: { event, ...result },
+        });
+      })
+      .catch(() => {});
+  }
 
   // Host allowlist for EVERY request (defeats DNS-rebinding — B3). Always on.
   app.use(auth.hostGuard);
@@ -279,6 +297,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           max_turns: claimed.max_turns,
         },
       });
+      emitChangeNotification('started', events.getChangeRequest(claimed.request_id), runnable);
       return { request: events.getChangeRequest(claimed.request_id), run: building, agent: result };
     } catch (e) {
       if (createdRun && !agentStarted) {
@@ -527,7 +546,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     } catch {
       /* validation below records the failure */
     }
-    const validation = await devsandbox.validate(item.sandbox.instance);
+    let validation = await devsandbox.validate(item.sandbox.instance);
     validation.commit = workspace.commit;
     validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
     validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
@@ -557,6 +576,46 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       validation: validated.validation,
     });
     await syncImprovementTask(root, reviewRun, 'done');
+    const request = events.getChangeRequest(reviewRun.source_id);
+    if (request?.delivery_mode === 'pull_request') {
+      const published = await git.publishWorktree(
+        root,
+        reviewRun.site,
+        reviewRun.workspace_path,
+        reviewRun.branch
+      );
+      const committed = changequeue.update(
+        events,
+        request.request_id,
+        {
+          status: 'committed',
+          error: null,
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        },
+        site => isKnownSite(root, site)
+      );
+      const publishedRun = events.updateImprovement(reviewRun.run_id, {
+        approval: { delivery_mode: 'pull_request', pull_request: published },
+      });
+      events.record({
+        event_type: 'improvement.pull_request_published',
+        source: 'improvement-workbench',
+        site_id: `site:${reviewRun.site}`,
+        entity_type: 'improvement',
+        entity_id: reviewRun.run_id,
+        correlation_id: reviewRun.correlation_id,
+        payload: published,
+      });
+      emitChangeNotification(
+        'pull request ready',
+        committed,
+        publishedRun,
+        published.compare_url || published.branch
+      );
+      return { run: publishedRun, pull_request: published };
+    }
     const deployed = await git.deployWorktree(
       root,
       reviewRun.site,
@@ -575,6 +634,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       production_before: deployed.before,
     });
     syncChangeRequestFromRun(changed, 'deployed');
+    emitChangeNotification(
+      'deployed',
+      events.getChangeRequest(changed.source_id),
+      changed,
+      deployed.commit
+    );
     events.updateChangeRequest(changed.source_id, {
       lease_owner: null,
       lease_expires_at: null,
@@ -607,6 +672,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         },
         site => isKnownSite(root, site)
       );
+      emitChangeNotification('review blocked', events.getChangeRequest(id), null, message);
     } catch {
       // A dashboard restart can race the callback's final state update. Keep
       // the failure visible even if the guarded transition was already lost;
@@ -730,6 +796,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         settings: events.getChangeQueueSettings(),
         categories: changequeue.CATEGORIES,
         providers: changequeue.PROVIDERS,
+        delivery_modes: changequeue.DELIVERY_MODES,
         statuses: changequeue.STATUSES,
       });
     } catch (e) {

@@ -534,12 +534,18 @@ async function deleteBranch(root, slug, branch) {
 // an improvement can never sweep an operator's unrelated edits into the run.
 async function createBranch(root, slug, branch) {
   const rel = safeRel(branch);
-  if (!rel || !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,119}$/.test(rel)) throw httpErr(400, 'invalid branch name');
+  if (!rel || !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,119}$/.test(rel))
+    throw httpErr(400, 'invalid branch name');
   return withRepoLock(slug, async () => {
     const before = await status(root, slug);
     if (!before.isRepo) throw httpErr(400, 'site is not a git repository');
     if (before.dirty) throw httpErr(409, `working tree has ${before.dirty} uncommitted file(s)`);
-    const exists = await git(siteDir(root, slug), ['show-ref', '--verify', '--quiet', `refs/heads/${rel}`]);
+    const exists = await git(siteDir(root, slug), [
+      'show-ref',
+      '--verify',
+      '--quiet',
+      `refs/heads/${rel}`,
+    ]);
     const args = exists.ok ? ['switch', rel] : ['switch', '-c', rel];
     const result = await git(siteDir(root, slug), args);
     if (!result.ok) throw httpErr(500, (result.err || result.out).trim() || 'git switch failed');
@@ -550,7 +556,14 @@ async function createBranch(root, slug, branch) {
 function improvementWorktreePath(root, slug, runId) {
   const id = String(runId || '').toLowerCase();
   if (!/^[a-f0-9-]{8,36}$/.test(id)) throw httpErr(400, 'invalid improvement run id');
-  return path.join(root, 'tools', 'fleet-dashboard', 'data', 'improvement-worktrees', `${slug}--${id.replace(/-/g, '').slice(0, 12)}`);
+  return path.join(
+    root,
+    'tools',
+    'fleet-dashboard',
+    'data',
+    'improvement-worktrees',
+    `${slug}--${id.replace(/-/g, '').slice(0, 12)}`
+  );
 }
 
 async function createWorktree(root, slug, runId) {
@@ -560,10 +573,18 @@ async function createWorktree(root, slug, runId) {
   if (fs.existsSync(path.join(target, '.git'))) return { branch, path: target, created: false };
   fs.mkdirSync(path.dirname(target), { recursive: true });
   return withRepoLock(slug, async () => {
-    const branchExists = await git(cwd, ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`]);
-    const args = branchExists.ok ? ['worktree', 'add', target, branch] : ['worktree', 'add', '-b', branch, target, 'HEAD'];
+    const branchExists = await git(cwd, [
+      'show-ref',
+      '--verify',
+      '--quiet',
+      `refs/heads/${branch}`,
+    ]);
+    const args = branchExists.ok
+      ? ['worktree', 'add', target, branch]
+      : ['worktree', 'add', '-b', branch, target, 'HEAD'];
     const result = await git(cwd, args);
-    if (!result.ok) throw httpErr(500, (result.err || result.out).trim() || 'git worktree add failed');
+    if (!result.ok)
+      throw httpErr(500, (result.err || result.out).trim() || 'git worktree add failed');
     return { branch, path: target, created: true };
   });
 }
@@ -574,18 +595,25 @@ async function worktreeSnapshot(workspacePath) {
   const parsed = parsePorcelain(r.out);
   const diff = await git(workspacePath, ['diff', '--stat', 'HEAD']);
   const sha = await git(workspacePath, ['rev-parse', '--short', 'HEAD']);
-  return { branch: parsed.branch, dirty: parsed.files.length, files: parsed.files,
-    diff_stat: diff.ok ? diff.out.trim() : '', commit: sha.ok ? sha.out.trim() : null };
+  return {
+    branch: parsed.branch,
+    dirty: parsed.files.length,
+    files: parsed.files,
+    diff_stat: diff.ok ? diff.out.trim() : '',
+    commit: sha.ok ? sha.out.trim() : null,
+  };
 }
 
 async function worktreeDiff(workspacePath) {
   let base = 'main';
-  if (!(await git(workspacePath, ['show-ref', '--verify', '--quiet', 'refs/heads/main'])).ok) base = 'master';
+  if (!(await git(workspacePath, ['show-ref', '--verify', '--quiet', 'refs/heads/main'])).ok)
+    base = 'master';
   const [committed, pending] = await Promise.all([
     git(workspacePath, ['diff', '--no-ext-diff', '--unified=3', `${base}...HEAD`]),
     git(workspacePath, ['diff', '--no-ext-diff', '--unified=3', 'HEAD']),
   ]);
-  if (!committed.ok || !pending.ok) throw httpErr(500, (committed.err || pending.err).trim() || 'worktree diff failed');
+  if (!committed.ok || !pending.ok)
+    throw httpErr(500, (committed.err || pending.err).trim() || 'worktree diff failed');
   const text = [committed.out, pending.out].filter(Boolean).join('\n');
   return { text: text.slice(0, 250000), truncated: text.length > 250000 };
 }
@@ -595,46 +623,81 @@ async function commitWorktree(workspacePath, message) {
   const add = await git(workspacePath, ['add', '-A']);
   if (!add.ok) throw httpErr(500, add.err.trim() || 'git add failed');
   const commitResult = await git(workspacePath, ['commit', '-m', String(message).trim()]);
-  if (!commitResult.ok) throw httpErr(409, (commitResult.err || commitResult.out).trim() || 'nothing to commit');
+  if (!commitResult.ok)
+    throw httpErr(409, (commitResult.err || commitResult.out).trim() || 'nothing to commit');
   return worktreeSnapshot(workspacePath);
 }
 
 async function deployWorktree(root, slug, workspacePath, branch) {
   return withRepoLock(slug, async () => {
     const canonical = await status(root, slug);
-    if (!canonical.isRepo || canonical.dirty) throw httpErr(409, 'production checkout must be a clean git repository');
-    if (!['main', 'master'].includes(canonical.branch)) throw httpErr(409, 'production checkout must be on its default branch');
+    if (!canonical.isRepo || canonical.dirty)
+      throw httpErr(409, 'production checkout must be a clean git repository');
+    if (!['main', 'master'].includes(canonical.branch))
+      throw httpErr(409, 'production checkout must be on its default branch');
     const work = await worktreeSnapshot(workspacePath);
     if (work.dirty) throw httpErr(409, 'improvement worktree has uncommitted changes');
-    if (work.branch !== branch) throw httpErr(409, 'improvement worktree is on an unexpected branch');
+    if (work.branch !== branch)
+      throw httpErr(409, 'improvement worktree is on an unexpected branch');
     const before = canonical.localSha;
     const rebase = await git(workspacePath, ['rebase', canonical.branch]);
     if (!rebase.ok) {
       await git(workspacePath, ['rebase', '--abort']);
-      throw httpErr(409, (rebase.err || rebase.out).trim() || 'default branch moved; rebase conflicted');
+      throw httpErr(
+        409,
+        (rebase.err || rebase.out).trim() || 'default branch moved; rebase conflicted'
+      );
     }
     const merge = await git(siteDir(root, slug), ['merge', '--ff-only', branch]);
-    if (!merge.ok) throw httpErr(409, (merge.err || merge.out).trim() || 'default branch moved; rebase required');
+    if (!merge.ok)
+      throw httpErr(
+        409,
+        (merge.err || merge.out).trim() || 'default branch moved; rebase required'
+      );
     const pushed = await git(siteDir(root, slug), ['push']);
-    if (!pushed.ok) throw httpErr(502, `merged locally but push failed: ${(pushed.err || pushed.out).trim()}`);
+    if (!pushed.ok)
+      throw httpErr(502, `merged locally but push failed: ${(pushed.err || pushed.out).trim()}`);
     const after = await status(root, slug);
     return { before, commit: after.localSha, branch: canonical.branch, pushed: true };
   });
 }
 
+// Publish an isolated improvement branch without merging it. This is the
+// delivery primitive for pull-request mode; callers may use GitHub CLI when
+// available, while the compare URL remains useful in locked-down workers.
+async function publishWorktree(root, slug, workspacePath, branch) {
+  const work = await worktreeSnapshot(workspacePath);
+  if (work.dirty) throw httpErr(409, 'improvement worktree has uncommitted changes');
+  if (work.branch !== branch) throw httpErr(409, 'improvement worktree is on an unexpected branch');
+  const pushed = await git(workspacePath, ['push', '-u', 'origin', branch]);
+  if (!pushed.ok) throw httpErr(502, `branch push failed: ${(pushed.err || pushed.out).trim()}`);
+  const web = remoteToWebUrl(
+    (await git(workspacePath, ['remote', 'get-url', 'origin'])).out.trim()
+  );
+  const compareUrl = web ? `${web}/compare/${encodeURIComponent(branch)}?expand=1` : null;
+  return { branch, commit: work.commit, pushed: true, compare_url: compareUrl };
+}
+
 async function rollbackCommit(root, slug, commit) {
-  if (!/^[a-f0-9]{7,40}$/i.test(String(commit || ''))) throw httpErr(400, 'invalid deployment commit');
+  if (!/^[a-f0-9]{7,40}$/i.test(String(commit || '')))
+    throw httpErr(400, 'invalid deployment commit');
   return withRepoLock(slug, async () => {
     const canonical = await status(root, slug);
-    if (!canonical.isRepo || canonical.dirty) throw httpErr(409, 'production checkout must be clean');
-    if (!['main', 'master'].includes(canonical.branch)) throw httpErr(409, 'production checkout must be on its default branch');
+    if (!canonical.isRepo || canonical.dirty)
+      throw httpErr(409, 'production checkout must be clean');
+    if (!['main', 'master'].includes(canonical.branch))
+      throw httpErr(409, 'production checkout must be on its default branch');
     const result = await git(siteDir(root, slug), ['revert', '--no-edit', String(commit)]);
     if (!result.ok) {
       await git(siteDir(root, slug), ['revert', '--abort']);
       throw httpErr(409, (result.err || result.out).trim() || 'git revert failed');
     }
     const pushed = await git(siteDir(root, slug), ['push']);
-    if (!pushed.ok) throw httpErr(502, `rollback committed locally but push failed: ${(pushed.err || pushed.out).trim()}`);
+    if (!pushed.ok)
+      throw httpErr(
+        502,
+        `rollback committed locally but push failed: ${(pushed.err || pushed.out).trim()}`
+      );
     return status(root, slug);
   });
 }
@@ -644,9 +707,11 @@ async function removeWorktree(root, slug, runId) {
   if (!fs.existsSync(target)) return { removed: false };
   return withRepoLock(slug, async () => {
     const snapshot = await worktreeSnapshot(target);
-    if (snapshot.dirty) throw httpErr(409, 'worktree has uncommitted changes; commit or discard them before cleanup');
+    if (snapshot.dirty)
+      throw httpErr(409, 'worktree has uncommitted changes; commit or discard them before cleanup');
     const result = await git(siteDir(root, slug), ['worktree', 'remove', target]);
-    if (!result.ok) throw httpErr(500, (result.err || result.out).trim() || 'worktree remove failed');
+    if (!result.ok)
+      throw httpErr(500, (result.err || result.out).trim() || 'worktree remove failed');
     return { removed: true, path: target };
   });
 }
@@ -773,6 +838,7 @@ module.exports = {
   worktreeDiff,
   commitWorktree,
   deployWorktree,
+  publishWorktree,
   rollbackCommit,
   removeWorktree,
   commit,
