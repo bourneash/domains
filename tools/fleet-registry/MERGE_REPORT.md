@@ -11,7 +11,7 @@ provenance only; absence there is a choice, not drift.
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
 | `site-tracker/sites.yml` | fleet-wide | 59/60 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 36/60 | arttogogh.com, girlpain.com, saltwaternews.com, searchwoot.com |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 39/60 | saltwaternews.com |
 | `DOMAINS_INDEX.md` | fleet-wide | 60/60 | — |
 | `social registry` | fleet-wide | 35/60 | 3boobs.com, blackmarketapparel.com, deeppenetrations.com, marineactivity.com, saltwaternews.com |
 | `data-hub/subscriptions.yaml` | opt-in | 8/60 | n/a |

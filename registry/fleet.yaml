@@ -203,8 +203,15 @@ sites:
     - cron
     - smoke
     - tasks
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '555279880'
+      ga4_measurement_id: G-7HD2ZQGSS0
+      gsc_property: sc-domain:arttogogh.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -396,9 +403,9 @@ sites:
     registered_in:
     - domains-index
     - site-tracker
+    analytics_external: true
     notes: GA4 lives in a different Google account, not Domain Portfolio (396394354). Managed separately
       and largely observational — do not provision, grant, or expect it in tools/data-hub/registry/sites-analytics.yaml.
-    analytics_external: true
   fishhooklabs.com:
     status: live
     repo: bourneash/fishhooklabs.com
@@ -447,8 +454,15 @@ sites:
     - cron
     - smoke
     - tasks
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '555258833'
+      ga4_measurement_id: G-4FXGY9FXHL
+      gsc_property: sc-domain:girlpain.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -815,8 +829,15 @@ sites:
     - cron
     - smoke
     - tasks
+    - analytics
     - social
+    analytics:
+      ga4_property_id: '555207946'
+      ga4_measurement_id: G-EK0N4FKJ6N
+      gsc_property: sc-domain:searchwoot.com
+      consent_gated: true
     registered_in:
+    - analytics
     - domains-index
     - site-tracker
     - social
@@ -887,7 +908,7 @@ sites:
     - social
     analytics:
       ga4_property_id: '539755746'
-      ga4_measurement_id: G-SZFER7KX15
+      ga4_measurement_id: G-SYYBCL917W
       gsc_property: sc-domain:shoptopless.com
       consent_gated: true
     registered_in:
