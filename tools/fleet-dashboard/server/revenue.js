@@ -85,9 +85,22 @@ function amazonSummary(root) {
   if (!fs.existsSync(earningsFile)) return base;
 
   try {
-    const rows = JSON.parse(fs.readFileSync(earningsFile, 'utf8'));
-    if (!Array.isArray(rows) || !rows.length) return base;
-    const number = (row, key) => Number(row[key] || 0);
+    const payload = JSON.parse(fs.readFileSync(earningsFile, 'utf8'));
+    // Interactive Associates exports are wrapped as { pulled_at, rows };
+    // retain support for the older bare-array format.
+    const rows = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.rows)
+        ? payload.rows
+        : [];
+    if (!rows.length) return base;
+    const number = (row, ...keys) => {
+      for (const key of keys) {
+        const value = Number(row[key]);
+        if (Number.isFinite(value)) return value;
+      }
+      return 0;
+    };
     const dates = rows
       .map(row => row.date || row.report_date)
       .filter(Boolean)
@@ -109,20 +122,36 @@ function amazonSummary(root) {
       };
       cur.rows += 1;
       cur.clicks += number(row, 'clicks');
-      cur.ordered_items += number(row, 'ordered_items');
-      cur.commission_income += number(row, 'commission_income');
+      cur.ordered_items += number(row, 'ordered_items', 'items_ordered');
+      cur.commission_income += number(
+        row,
+        'commission_income',
+        'total_earnings',
+        'items_shipped_earnings'
+      );
       attributed[key] = cur;
     }
     return {
       ...base,
       has_data: true,
+      owner_action_required: null,
       message: null,
-      from: dates[0] || null,
-      through: dates.at(-1) || null,
+      from: dates[0] || payload?.pulled_at?.slice?.(0, 10) || null,
+      through: dates.at(-1) || payload?.pulled_at?.slice?.(0, 10) || null,
       clicks: rows.reduce((sum, row) => sum + number(row, 'clicks'), 0),
-      ordered_items: rows.reduce((sum, row) => sum + number(row, 'ordered_items'), 0),
-      shipped_items: rows.reduce((sum, row) => sum + number(row, 'shipped_items'), 0),
-      commission_income: rows.reduce((sum, row) => sum + number(row, 'commission_income'), 0),
+      ordered_items: rows.reduce(
+        (sum, row) => sum + number(row, 'ordered_items', 'items_ordered'),
+        0
+      ),
+      shipped_items: rows.reduce(
+        (sum, row) => sum + number(row, 'shipped_items', 'items_shipped'),
+        0
+      ),
+      commission_income: rows.reduce(
+        (sum, row) =>
+          sum + number(row, 'commission_income', 'total_earnings', 'items_shipped_earnings'),
+        0
+      ),
       attribution: Object.values(attributed),
       attributed_income: Object.values(attributed)
         .filter(r => r.site)

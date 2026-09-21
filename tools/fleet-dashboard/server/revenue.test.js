@@ -24,10 +24,19 @@ test('amazonSummary totals a completed earnings export', () => {
   const dir = root();
   const out = path.join(dir, 'tools', 'amz-stats', 'out');
   fs.writeFileSync(path.join(out, '.session.json'), '{}');
-  fs.writeFileSync(path.join(out, 'earnings-latest.json'), JSON.stringify([
-    { date: '2026-09-01', clicks: 4, ordered_items: 1, shipped_items: 1, commission_income: 1.25 },
-    { date: '2026-09-02', clicks: 6, ordered_items: 2, shipped_items: 1, commission_income: 2.5 },
-  ]));
+  fs.writeFileSync(
+    path.join(out, 'earnings-latest.json'),
+    JSON.stringify([
+      {
+        date: '2026-09-01',
+        clicks: 4,
+        ordered_items: 1,
+        shipped_items: 1,
+        commission_income: 1.25,
+      },
+      { date: '2026-09-02', clicks: 6, ordered_items: 2, shipped_items: 1, commission_income: 2.5 },
+    ])
+  );
   const result = revenue.amazonSummary(dir);
   assert.equal(result.connected, true);
   assert.equal(result.has_data, true);
@@ -37,6 +46,41 @@ test('amazonSummary totals a completed earnings export', () => {
   assert.equal(result.commission_income, 3.75);
 });
 
+test('amazonSummary reads the wrapped interactive Associates export', () => {
+  const dir = root();
+  const out = path.join(dir, 'tools', 'amz-stats', 'out');
+  fs.writeFileSync(path.join(out, '.session.json'), '{}');
+  fs.writeFileSync(
+    path.join(out, 'earnings-latest.json'),
+    JSON.stringify({
+      pulled_at: '2026-09-21T11:33:33Z',
+      rows: [
+        {
+          tracking_id: 'exampletag-20',
+          clicks: 10,
+          items_ordered: 2,
+          items_shipped: 1,
+          total_earnings: 4.92,
+        },
+        {
+          tracking_id: 'Other',
+          clicks: 6,
+          items_ordered: '-',
+          items_shipped: '-',
+          total_earnings: '-',
+        },
+      ],
+    })
+  );
+  const result = revenue.amazonSummary(dir);
+  assert.equal(result.has_data, true);
+  assert.equal(result.clicks, 16);
+  assert.equal(result.ordered_items, 2);
+  assert.equal(result.shipped_items, 1);
+  assert.equal(result.commission_income, 4.92);
+  assert.equal(result.owner_action_required, null);
+});
+
 test('amazonSummary attributes a unique tracking ID to its site', () => {
   const dir = root();
   const out = path.join(dir, 'tools', 'amz-stats', 'out');
@@ -44,9 +88,18 @@ test('amazonSummary attributes a unique tracking ID to its site', () => {
   fs.mkdirSync(src, { recursive: true });
   fs.writeFileSync(path.join(src, 'affiliate.ts'), `export const tag = 'exampletag-20';`);
   fs.writeFileSync(path.join(out, '.session.json'), '{}');
-  fs.writeFileSync(path.join(out, 'earnings-latest.json'), JSON.stringify([
-    { date: '2026-09-01', tracking_id: 'exampletag-20', clicks: 4, ordered_items: 1, commission_income: 2.5 },
-  ]));
+  fs.writeFileSync(
+    path.join(out, 'earnings-latest.json'),
+    JSON.stringify([
+      {
+        date: '2026-09-01',
+        tracking_id: 'exampletag-20',
+        clicks: 4,
+        ordered_items: 1,
+        commission_income: 2.5,
+      },
+    ])
+  );
   const result = revenue.amazonSummary(dir);
   assert.equal(result.attribution_complete, true);
   assert.equal(result.attribution[0].site, 'example.com');

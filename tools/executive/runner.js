@@ -184,7 +184,7 @@ function buildPrompt(brief) {
 Rules:
 - Use only evidence present in the brief; label uncertainty and propose research when evidence is missing.
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
-- Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim.
+- Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
