@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from media_gen import comfyui, nanobanana
+from media_gen import codex, comfyui, nanobanana
 from media_gen.api import app
 
 # TestClient's default fake client host ("testclient") isn't a real IP, so
@@ -10,7 +10,7 @@ from media_gen.api import app
 client = TestClient(app, client=("127.0.0.1", 12345))
 
 
-def test_health_reports_both_backends(monkeypatch):
+def test_health_reports_all_backends(monkeypatch):
     monkeypatch.setattr(comfyui, "status", lambda: {
         "reachable": True, "busy": False, "queue_running": 0, "queue_pending": 0,
         "last_success_at": None, "last_error_at": None, "last_error": None,
@@ -19,11 +19,16 @@ def test_health_reports_both_backends(monkeypatch):
         "available": False, "busy": False, "last_success_at": None,
         "last_error_at": None, "last_error": None,
     })
+    monkeypatch.setattr(codex, "status", lambda: {
+        "available": True, "busy": False, "last_success_at": None,
+        "last_error_at": None, "last_error": None,
+    })
     r = client.get("/health")
     assert r.status_code == 200
     body = r.json()
     assert body["comfyui"]["reachable"] is True
     assert body["nanobanana"]["available"] is False
+    assert body["codex"]["available"] is True
     assert body["degraded"] is False
 
 
@@ -96,6 +101,44 @@ def test_generate_nanobanana_lock_contention_returns_429(monkeypatch):
     monkeypatch.setattr(nanobanana, "generate", fake_generate)
 
     r = client.post("/generate", json={"site": "0daynews", "prompt": "a cracked shield", "backend": "nanobanana"})
+    assert r.status_code == 429
+
+
+def test_generate_codex_success(monkeypatch, tmp_path):
+    requested = {}
+
+    def fake_generate(prompt, **kwargs):
+        requested.update({"prompt": prompt, **kwargs})
+        return b"fake-codex-png", {
+            "backend": "codex", "width": 1536, "height": 1024,
+            "credit": {"source": "Media Gen (Codex ImageGen)",
+                       "photographer": "AI-generated", "license": "Generated", "url": ""},
+        }
+
+    monkeypatch.setattr(codex, "generate", fake_generate)
+    from media_gen import store
+    monkeypatch.setattr(store.config, "DATA_DIR", tmp_path)
+
+    r = client.post("/generate", json={
+        "site": "americastrikes", "prompt": "a brass compass on a map",
+        "backend": "codex", "width": 1200, "height": 675, "aspect_ratio": "16:9",
+    })
+    assert r.status_code == 200
+    assert r.json()["backend"] == "codex"
+    assert requested == {
+        "prompt": "a brass compass on a map", "aspect_ratio": "16:9",
+        "width": 1200, "height": 675,
+    }
+
+
+def test_generate_codex_contention_returns_429(monkeypatch):
+    def fake_generate(*args, **kwargs):
+        raise codex.CodexBusyError("another Codex ImageGen request is already running")
+
+    monkeypatch.setattr(codex, "generate", fake_generate)
+    r = client.post("/generate", json={
+        "site": "americastrikes", "prompt": "a brass compass", "backend": "codex",
+    })
     assert r.status_code == 429
 
 

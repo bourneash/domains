@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import io
+import sys
+import types
 
 import pytest
 
@@ -53,6 +55,52 @@ def test_publish_attaches_the_cover_to_a_post(synced):
     _, outgoing = synced.sent[0]
     assert outgoing.images and outgoing.images[0].data
     assert outgoing.images[0].alt, "cover images must ship alt text"
+
+
+def test_publish_generates_a_cover_when_enabled(synced, monkeypatch):
+    from social_hub.platforms.base import Image
+
+    cfg = load_site_config("alpha.com")
+    cfg.data["media"] = {"generate_missing": True, "site": "alpha"}
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+    post_id = queue.list_posts(site="alpha.com", status="draft")[0]["id"]
+    queue.approve(post_id, cfg=cfg)
+    db.update("posts", post_id, {"scheduled_at": db.utcnow()})
+
+    monkeypatch.setattr(
+        publisher, "_generate_missing_image",
+        lambda post, source, config: Image(data=b"generated", alt="generated cover"),
+    )
+    publisher.publish_post(post_id, cfg=cfg)
+
+    _, outgoing = synced.sent[0]
+    assert outgoing.images[0].data == b"generated"
+    assert outgoing.images[0].alt == "generated cover"
+
+
+def test_missing_image_uses_media_gen_client(monkeypatch):
+    calls = {}
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            calls["client"] = kwargs
+
+        def generate(self, **kwargs):
+            calls["generate"] = kwargs
+            kwargs["dest_path"].write_bytes(b"jpeg-bytes")
+            return {"saved": str(kwargs["dest_path"])}
+
+    monkeypatch.setitem(sys.modules, "media_gen_client", types.SimpleNamespace(MediaGenClient=FakeClient))
+    result = publisher._generate_missing_image(
+        {"id": 7, "site": "reviewtattoo.com", "source_id": "healing-guide"},
+        {"title": "Tattoo healing", "summary": "What to expect."},
+        type("Cfg", (), {"get": lambda self, key: {"generate_missing": True, "site": "reviewtattoo"} if key == "media" else None})(),
+    )
+
+    assert result and result.data == b"jpeg-bytes"
+    assert calls["generate"]["site"] == "reviewtattoo"
+    assert "Tattoo healing" in calls["generate"]["prompt"]
 
 
 def test_replies_never_carry_the_article_cover(synced, monkeypatch):

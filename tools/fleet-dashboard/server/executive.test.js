@@ -1,0 +1,103 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const eventstore = require('./eventstore');
+const executive = require('./executive');
+
+function store() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-'));
+  fs.mkdirSync(path.join(root, 'sites', 'example.com'), { recursive: true });
+  const db = eventstore.open(root);
+  db.root = root;
+  return db;
+}
+
+test('persists owner/CEO conversation messages', () => {
+  const db = store();
+  executive.message(db, {
+    actor: 'ceo',
+    body: 'Organic revenue is down on two sites.',
+    metadata: { signal: 'analytics' },
+  });
+  executive.message(db, { actor: 'owner', body: 'Investigate and bring me a proposal.' });
+  const messages = db.listExecutiveMessages();
+  assert.equal(messages.length, 2);
+  assert.equal(messages[1].metadata.signal, 'analytics');
+  db.close();
+});
+
+test('requires owner decision and preserves feedback loop', () => {
+  const db = store();
+  const proposal = executive.proposal(db, {
+    title: 'Refresh declining landing pages',
+    proposal_type: 'growth',
+    summary: 'Refresh five pages with measurable conversion targets.',
+    requested_action: 'Approve research and implementation proposal.',
+  });
+  assert.throws(
+    () => executive.decision(db, proposal.proposal_id, { status: 'approved', decided_by: 'cto' }),
+    /only the owner/
+  );
+  const feedback = executive.decision(db, proposal.proposal_id, {
+    status: 'feedback',
+    decision_note: 'Bring a lower-cost test first.',
+  });
+  assert.equal(feedback.status, 'feedback');
+  const approved = executive.decision(db, proposal.proposal_id, {
+    status: 'approved',
+    decision_note: 'Proceed with the test.',
+  });
+  assert.equal(approved.status, 'approved');
+  db.close();
+});
+
+test('records and completes an auditable executive action', () => {
+  const db = store();
+  const action = executive.action(db, {
+    actor: 'cto',
+    action_type: 'research',
+    summary: 'Inspect build failures',
+  });
+  assert.equal(db.listExecutiveActions({ actor: 'cto' })[0].status, 'started');
+  const done = executive.finishAction(db, action.action_id, {
+    status: 'completed',
+    result: { findings: 3 },
+  });
+  assert.equal(done.status, 'completed');
+  assert.equal(done.result.findings, 3);
+  db.close();
+});
+
+test('owner approval turns a bounded implementation into a linked change request', () => {
+  const db = store();
+  const proposal = executive.proposal(db, {
+    title: 'Fix title metadata',
+    proposal_type: 'growth',
+    summary: 'Improve a reversible metadata issue.',
+    requested_action: 'Approve the bounded task.',
+    implementation: {
+      site: 'example.com',
+      title: 'Fix title metadata',
+      body: 'Update the title tag only.',
+      category: 'seo',
+      priority: 'low',
+      provider: 'claude',
+      max_turns: 4,
+      auto_review: true,
+    },
+  });
+  const approved = executive.decision(
+    db,
+    proposal.proposal_id,
+    { status: 'approved' },
+    { knownSite: site => site === 'example.com' }
+  );
+  assert.equal(approved.status, 'approved');
+  assert.ok(approved.linked_request_id);
+  assert.equal(db.getChangeRequest(approved.linked_request_id).site, 'example.com');
+  db.close();
+});

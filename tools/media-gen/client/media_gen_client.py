@@ -34,7 +34,7 @@ class MediaGenBusyError(MediaGenError):
 
 
 class MediaGenClient:
-    def __init__(self, base_url: str | None = None, timeout: float = 300.0):
+    def __init__(self, base_url: str | None = None, timeout: float = 720.0):
         # Workers reach the host through host.docker.internal, while direct
         # host runs use loopback. An explicit constructor/env URL is
         # authoritative and therefore never falls through to another service.
@@ -117,6 +117,7 @@ class MediaGenClient:
         negative_prompt: str | None = None,
         width: int = 1216,
         height: int = 832,
+        aspect_ratio: str = "3:2",
         dest_path: str | Path | None = None,
     ) -> dict[str, Any]:
         """Generate one image. If dest_path is given, also downloads the
@@ -124,6 +125,7 @@ class MediaGenClient:
         body = {
             "site": site, "prompt": prompt, "backend": backend,
             "profile": profile, "width": width, "height": height,
+            "aspect_ratio": aspect_ratio,
         }
         if slug:
             body["slug"] = slug

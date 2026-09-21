@@ -48,7 +48,9 @@ RUN python -m playwright install --with-deps chromium && \
 # session, and XAUTHORITY (bind-mounted at runtime) is mode 0700 owned by
 # that uid — root inside the container could not read the auth cookie.
 RUN useradd -u 1000 -m -s /bin/bash jesse && \
-    mkdir -p /app/data && chown -R jesse:jesse /app
+    mkdir -p /app/data /home/jesse/.media-gen-codex/generated_images \
+             /home/jesse/.media-gen-codex/skills/.system/imagegen && \
+    chown -R jesse:jesse /app /home/jesse/.media-gen-codex
 USER jesse
 
 EXPOSE 4780

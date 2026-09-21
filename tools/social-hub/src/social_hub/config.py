@@ -91,6 +91,11 @@ BUILTIN_DEFAULTS: dict[str, Any] = {
     "controller": {
         "required_for_public": True,
     },
+    # Sites opt into missing-image generation explicitly in hub.yaml. Existing
+    # source covers are always preferred, and generation is best-effort.
+    "media": {
+        "generate_missing": False,
+    },
     "attribution": {
         "enabled": True,
         "medium": "organic_social",

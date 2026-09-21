@@ -30,6 +30,11 @@ services:
       DISPLAY: ":1"
       XAUTHORITY: "/run/user/1000/gdm/Xauthority"
       HOME: "/home/jesse"
+      PATH: "/home/jesse/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
+      # A minimal Codex home: auth is bind-mounted below, generated images
+      # stay in this container-local directory until codex.py ingests them.
+      # Normal Codex config/history is intentionally not exposed.
+      MEDIA_GEN_CODEX_HOME: "/home/jesse/.media-gen-codex"
       # Package (media_gen.__file__) lives under image-baked /app; redirect
       # generated-image storage back to the familiar host path so existing
       # images and any script that reads tools/media-gen/data/ directly
@@ -38,6 +43,10 @@ services:
     volumes:
       - /home/jesse/projects/domains:/home/jesse/projects/domains
       - /home/jesse/.claude/skills/domains-media-generator-nanobanana:/home/jesse/.claude/skills/domains-media-generator-nanobanana:ro
+      - /home/jesse/.local/bin:/home/jesse/.local/bin:ro
+      - /home/jesse/.codex/packages:/home/jesse/.codex/packages:ro
+      - /home/jesse/.codex/auth.json:/home/jesse/.media-gen-codex/auth.json
+      - /home/jesse/.codex/skills/.system/imagegen:/home/jesse/.media-gen-codex/skills/.system/imagegen:ro
       - /tmp:/tmp
       - /run/user/1000/gdm:/run/user/1000/gdm:ro
     restart: unless-stopped

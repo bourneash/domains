@@ -24,6 +24,15 @@ test('navigation category roots are first-class routes', () => {
   }
 });
 
+test('executive leadership is a first-class Agents page', () => {
+  assert.equal(routeFor('#agents/executive').view, 'agent');
+  assert.equal(routeFor('#agents/executive').agent, 'executive');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /Executive Leadership/);
+  assert.match(app, /CEO \/ CTO Executive Office/);
+  assert.match(app, /fleet AI spend telemetry/);
+});
+
 test('Git operations and Git Hygiene share one page with distinct tabs', () => {
   assert.equal(routeFor('#git').view, 'git');
   assert.equal(routeFor('#git').gitTab, 'operations');

@@ -12,7 +12,7 @@
 export class MediaGenError extends Error {}
 
 export class MediaGenClient {
-  constructor({ baseUrl, timeoutMs = 300_000 } = {}) {
+  constructor({ baseUrl, timeoutMs = 720_000 } = {}) {
     // Workers reach the host through host.docker.internal, while direct host
     // runs use loopback. Linux does not define host.docker.internal on the
     // host itself, so try both defaults and remember whichever one succeeds.
@@ -72,8 +72,8 @@ export class MediaGenClient {
   }
 
   /** @returns {Promise<{id:string,url:string,backend:string,width?:number,height?:number,credit:object}>} */
-  async generate({ site, prompt, backend = 'comfyui', profile = 'fast', slug, negativePrompt, width = 1216, height = 832 }) {
-    const body = { site, prompt, backend, profile, width, height };
+  async generate({ site, prompt, backend = 'comfyui', profile = 'fast', slug, negativePrompt, width = 1216, height = 832, aspectRatio = '3:2' }) {
+    const body = { site, prompt, backend, profile, width, height, aspect_ratio: aspectRatio };
     if (slug) body.slug = slug;
     if (negativePrompt) body.negative_prompt = negativePrompt;
     return this._post('/generate', body);

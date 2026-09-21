@@ -512,6 +512,7 @@
   // Agents are discovered from the fleet, so keep the visual vocabulary here
   // and provide keyword fallbacks for new/custom roles.
   const ROLE_EMOJI = {
+    executive: '🧠',
     engineer: '🛠️',
     'principal-engineer': '🧭',
     'content-writer': '✍️',

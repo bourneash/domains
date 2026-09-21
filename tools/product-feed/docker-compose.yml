@@ -51,6 +51,12 @@ services:
         max-file: "3"
 
   collector:
+    # STOPPED (2026-09-17): `docker stop product-feed-collector` — every ASIN
+    # /dp/ verification was failing and it was spawning a fresh CloakBrowser
+    # chromium per ASIN without cleanup, leaking 150-250+ orphaned chrome
+    # processes and pegging host CPU/load. restart: unless-stopped means it
+    # will NOT come back on its own. Do not `docker start`/`compose up` this
+    # service until the verification-failure + chrome-cleanup bug is fixed.
     build:
       context: .
       dockerfile: Dockerfile.collector

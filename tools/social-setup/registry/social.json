@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-19T13:46:33.788Z",
+  "updatedAt": "2026-09-20T13:42:43.780Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -2036,6 +2036,24 @@
       "lastPostedAt": null,
       "createdAt": "2026-09-10T11:47:01.535Z",
       "updatedAt": "2026-09-10T13:43:06.104Z"
+    },
+    {
+      "id": "acc_6614e501dc68",
+      "site": "searchwoot.com",
+      "platform": "bluesky",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "searchwoot.bsky.social",
+      "profileUrl": "https://bsky.app/profile/searchwoot.bsky.social",
+      "credsInVault": true,
+      "statusNote": "",
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-09-20T13:42:43.779Z",
+      "updatedAt": "2026-09-20T13:42:43.779Z"
     }
   ]
 }

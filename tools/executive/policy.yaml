@@ -1,0 +1,51 @@
+version: 1
+principal: owner
+scope:
+  excluded_sites: [3boobs.com]
+  managed_site_classification: satire_or_meme
+  classification_rule: never_infer_adult_or_nsfw_from_domain_name
+roles:
+  ceo:
+    mission: grow attributable revenue and enterprise value of the domain fleet
+    can:
+      - read_fleet_telemetry
+      - research_markets_and_competitors
+      - delegate_bounded_research
+      - create_messages
+      - create_proposals
+      - create_low_risk_change_requests
+    approval_required_for:
+      - production_redesign
+      - new_domain_or_business
+      - paid_spend
+      - credential_or_account_changes
+      - legal_or_policy_sensitive_action
+      - irreversible_data_or_infrastructure_change
+  cto:
+    mission: improve the technical system that compounds fleet revenue
+    can:
+      - inspect_code_and_telemetry
+      - propose_architecture_and_reliability_work
+      - create_isolated_implementation_runs
+      - create_messages
+      - create_proposals
+    approval_required_for:
+      - production_deploy
+      - access_scope_changes
+      - infrastructure_migration
+      - destructive_operation
+communication:
+  owner_response_sla_hours: 24
+  autonomous_checkin_hours: 24
+schedule:
+  enabled: true
+  default_interval_hours: 24
+  queue_execution_enabled: false
+provider:
+  name: chatgpt
+  model: gpt-5.6-luna
+  passes: adaptive
+  reasoning_effort: medium
+growth:
+  allowed: [technical_seo, editorial_seo, outreach_with_consent, analytics, experimentation, partnerships]
+  prohibited: [cloaking, link_spam, fake_reviews, impersonation, credential_abuse, platform_evasion]

@@ -11,6 +11,9 @@ state but never publication history.
 from __future__ import annotations
 
 import json
+import os
+import sys
+import tempfile
 from pathlib import Path
 
 from social_hub import accounts, attribution, db, media, notify, queue
@@ -60,6 +63,63 @@ def _source_for(post: dict) -> dict | None:
     )
 
 
+def _generate_missing_image(post: dict, source: dict, cfg: SiteConfig) -> Image | None:
+    """Generate a cover when the source has no usable image, if opted in."""
+    settings = cfg.get("media") or {}
+    if not settings.get("generate_missing"):
+        return None
+
+    client_dir = Path(os.environ.get(
+        "MEDIA_GEN_CLIENT_DIR",
+        Path(__file__).resolve().parents[3] / "media-gen" / "client",
+    ))
+    if str(client_dir) not in sys.path:
+        sys.path.insert(0, str(client_dir))
+
+    try:
+        from media_gen_client import MediaGenClient
+
+        title = str(source.get("title") or "tattoo guidance")
+        summary = str(source.get("summary") or "")
+        prompt = str(settings.get("prompt") or (
+            "Editorial social image for a tattoo review and discovery desk. "
+            "Topic: {title}. Context: {summary}. "
+            "Warm documentary tattoo-studio photography, tactile ink and paper, "
+            "natural light, tasteful composition, no words, no logos, no watermark."
+        )).format(title=title, summary=summary)
+        site_slug = str(settings.get("site") or post["site"].split(".", 1)[0])
+        with tempfile.TemporaryDirectory(prefix="social-hub-media-") as tmp:
+            dest = Path(tmp) / f"{post.get('source_id') or 'post'}.jpg"
+            MediaGenClient(
+                base_url=settings.get("api") or None,
+                timeout=float(settings.get("timeout", 720)),
+            ).generate(
+                site=site_slug,
+                prompt=prompt,
+                backend=str(settings.get("backend") or "comfyui"),
+                profile=str(settings.get("profile") or "fast"),
+                slug=str(post.get("source_id") or "social-post"),
+                width=int(settings.get("width", 1216)),
+                height=int(settings.get("height", 832)),
+                aspect_ratio=str(settings.get("aspect_ratio") or "3:2"),
+                dest_path=dest,
+            )
+            data = dest.read_bytes()
+        if not data:
+            return None
+        return Image(
+            data=data,
+            alt=title[:290],
+            url=f"generated://media-gen/{post.get('source_id') or 'social-post'}",
+        )
+    except Exception as exc:
+        db.log_event(
+            "media.generate_failed", site=post["site"], ref_type="post",
+            ref_id=post.get("id"), message=str(exc),
+        )
+        return None
+
+
 def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
     platform_cfg = cfg.for_platform(post["platform"])
     source = _source_for(post)
@@ -95,6 +155,15 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
                 images.append(
                     Image(data=data, alt=media.alt_text((source or {}).get("title", "")), url=ref)
                 )
+
+    if (
+        not images and source and post["kind"] != "reply"
+        and not options.get("content_label")
+        and capabilities(post["platform"]).media
+    ):
+        generated = _generate_missing_image(post, source, cfg)
+        if generated:
+            images.append(generated)
 
     return Outgoing(
         body=post["body"],

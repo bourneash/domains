@@ -11581,6 +11581,18 @@ async function renderExecutive() {
         `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(p.created_by)}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${p.status === 'approved' ? 'b-green' : p.status === 'declined' ? 'b-red' : p.status === 'feedback' ? 'b-yellow' : 'b-blue'}">${esc(p.status)}</span></td><td>${['proposed', 'feedback'].includes(p.status) ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>` : esc(p.decision_note || '')}</td></tr>`
     )
     .join('');
+  const pendingApprovalRows = (proposals.proposals || [])
+    .filter(p => ['proposed', 'feedback'].includes(p.status))
+    .map(p => {
+      const impl = p.implementation || {};
+      const route = [
+        impl.assigned_role || 'engineer',
+        impl.provider || 'chatgpt',
+        impl.model || 'provider default',
+      ].join(' · ');
+      return `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · proposed by ${esc(p.created_by)} · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-yellow">${esc(p.status === 'feedback' ? 'needs revision' : 'awaiting approval')}</span></div><p>${esc(p.summary)}</p><div class="muted"><b>Implementation route:</b> ${esc(route)}${impl.site ? ` · ${esc(impl.site)}` : ''}</div><div class="task-toolbar"><button class="btn primary ex-approve" data-id="${esc(p.proposal_id)}">Approve request</button><button class="btn ex-feedback" data-id="${esc(p.proposal_id)}">Request feedback</button><button class="btn danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button></div></article>`;
+    })
+    .join('');
   const actionRows = (actions.actions || [])
     .map(
       a =>
@@ -11589,11 +11601,19 @@ async function renderExecutive() {
     .join('');
   const s = settings.settings || {};
   const intel = brief.brief?.intelligence || {};
-  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Executive</h2><div class="muted">CEO/CTO communication, decision proposals, and action audit log</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
+  const executiveBreadcrumb = STATE.view === 'agent' ? breadcrumb('executive') : '';
+  const pendingCount = (proposals.proposals || []).filter(p =>
+    ['proposed', 'feedback'].includes(p.status)
+  ).length;
+  const fleetCost = intel.ai_usage?.summary?.total_cost_usd;
+  const fleetCalls = intel.ai_usage?.summary?.calls;
+  app.innerHTML = `${executiveBreadcrumb}<div class="page-head"><div><h2 class="page-title">CEO / CTO Executive Office</h2><div class="muted">Autonomous business leadership, owner approvals, operating context, and audit history</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
+    <section class="stat-grid" style="margin-bottom:12px"><div><b>${pendingCount}</b><span>pending approvals</span></div><div><b>${esc(actions.actions?.length ?? '—')}</b><span>recent audited actions</span></div><div><b>${fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`}</b><span>fleet AI spend telemetry</span></div><div><b>${fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString()}</b><span>fleet AI calls</span></div></section>
     <section class="card" style="margin-bottom:12px"><h3>Message the executive team</h3><textarea id="ex-message" class="cm-input" rows="3" placeholder="Direction, feedback, questions, or priorities…"></textarea><div class="task-toolbar"><span class="muted">Messages are recorded as owner instructions.</span><button class="btn primary" id="ex-send">Send to CEO/CTO</button></div></section>
     <section class="card" style="margin-bottom:12px"><h3>Owner strategy contract</h3><div class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</div><div class="form-grid" style="margin-top:10px"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="e.g. 500"></label><label>Risk tolerance<input id="ex-risk" class="cm-input" value="${esc(s.risk_tolerance || '')}" placeholder="low, medium, high"></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label>Operating notes<textarea id="ex-notes" class="cm-input" rows="3" placeholder="What the executive should optimize for…">${esc(s.operating_notes || '')}</textarea></label><label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks (queue execution remains disabled)</label><div class="task-toolbar"><span class="muted">No spend or deployment authority is granted by these settings.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></section>
-    <section class="card" style="margin-bottom:12px"><h3>Executive intelligence</h3><div class="muted">Generated ${esc(fmtDate(brief.brief?.generated_at))}. These are inputs to the next autonomous tick, not claims of revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(intel.analytics?.configured_sites ?? '—')}</b><span>analytics-configured sites</span></div><div><b>${esc(intel.revenue?.commission_income ?? '—')}</b><span>commission income in export</span></div><div><b>${esc(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—')}</b><span>AI usage tokens</span></div><div><b>${esc(intel.seo?.ok ? 'available' : 'unavailable')}</b><span>SEO intelligence</span></div></div></section>
+    <section class="card" style="margin-bottom:12px"><h3>Operating intelligence</h3><div class="muted">Generated ${esc(fmtDate(brief.brief?.generated_at))}. These are inputs to the next autonomous tick, not claims of revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(intel.analytics?.configured_sites ?? '—')}</b><span>analytics-configured sites</span></div><div><b>${esc(intel.revenue?.commission_income ?? '—')}</b><span>commission income in export</span></div><div><b>${esc(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—')}</b><span>AI usage tokens</span></div><div><b>${esc(intel.seo?.ok ? 'available' : 'unavailable')}</b><span>SEO intelligence</span></div></div><p class="muted" style="margin-bottom:0">Spend telemetry is fleet-wide. Codex Pro is subscription-billed, so this page does not invent a per-run executive dollar cost.</p></section>
     <section class="card" style="margin-bottom:12px"><h3>Conversation</h3>${messageRows || '<div class="empty">No executive messages yet.</div>'}</section>
+    <section style="margin-bottom:12px"><div class="page-head"><div><h3>Owner approval queue</h3><div class="muted">Approve only work you want converted into a bounded change request.</div></div><span class="badge ${pendingCount ? 'b-yellow' : 'b-green'}">${pendingCount} awaiting decision</span></div>${pendingApprovalRows || '<div class="card empty">No executive requests need approval.</div>'}</section>
     <section class="card" style="margin-bottom:12px"><h3>Decision proposals</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals yet.</td></tr>'}</tbody></table></div></section>
     <section class="card"><h3>Action audit log</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></section>`;
   $('#ex-refresh').onclick = () => softRender();
@@ -11749,11 +11769,18 @@ function renderCategoryRoot(id) {
     ? { label: 'Agents', description: 'Monitor and operate every automated role across the fleet.' }
     : NAV_GROUPS[id];
   const items = isAgents
-    ? (STATE.agents || []).map(a => [
-        a.role,
-        agentLabel(a.role),
-        `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
-      ])
+    ? [
+        [
+          'executive',
+          'Executive Leadership',
+          'CEO/CTO proposals, approvals, costs, communication, and audit history',
+        ],
+        ...(STATE.agents || []).map(a => [
+          a.role,
+          agentLabel(a.role),
+          `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
+        ]),
+      ]
     : group.items.map(([view, label]) => [
         view,
         label,
@@ -11790,6 +11817,7 @@ function renderCategoryRoot(id) {
 }
 
 function renderAgent(role) {
+  if (role === 'executive') return renderExecutive();
   if (role === 'engineer') return renderEngineers();
   return renderGenericAgent(role);
 }
@@ -11823,10 +11851,10 @@ function buildAgentsMenu() {
   const menu = $('#agents-menu');
   if (!menu) return;
   menu.innerHTML =
-    (STATE.agents || [])
+    [['executive', 'Executive Leadership', ''], ...(STATE.agents || [])]
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a.role) : ''}<span>${esc(agentLabel(a.role))}</span><span class="dd-count">${a.sites}</span></a>`
+          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Leadership' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO</span>' : `<span class="dd-count">${a[2] ?? a.sites}</span>`}</a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>

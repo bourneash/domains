@@ -1093,3 +1093,43 @@ sites:
     - branding
     - manual
     manual: {}
+  searchwoot.com:
+    active: true
+    cf_zone: searchwoot.com
+    github: bourneash/searchwoot.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual: {}
+  blackmarketapparel.com:
+    active: true
+    cf_zone: blackmarketapparel.com
+    github: bourneash/blackmarketapparel.com
+    applies_to:
+    - cf
+    - http
+    - seo
+    - sitemap
+    - tls
+    - git
+    - ops
+    - github
+    - contact
+    - legal
+    - branding
+    - manual
+    manual:
+      ga4: verified
+      gsc: verified
+      bluesky: pending-owner-handle
+      slack: pending-channel-and-token

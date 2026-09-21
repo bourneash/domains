@@ -5,8 +5,8 @@ Mirrors tools/data-hub-images' shape on purpose (POST an ask, get back
 talk to the stock-photo broker can add this as a second call with almost no
 new mental model. The difference: data-hub-images *fetches* real photos from
 external providers behind a VPN; this *generates* original images locally
-(ComfyUI, default/fast) or via a real browser session (Nano Banana, opt-in/
-slow) — it never touches the public internet on its own.
+(ComfyUI, default/fast), via a real browser session (Nano Banana, opt-in/
+slow), or through authenticated Codex ImageGen (opt-in/subscription-backed).
 
 Run:
     uvicorn media_gen.api:app --host 0.0.0.0 --port 4780
@@ -30,7 +30,7 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from . import comfyui, nanobanana, store
+from . import codex, comfyui, nanobanana, store
 
 app = FastAPI(title="media-gen", version="0.1.0")
 
@@ -151,13 +151,13 @@ class GenerateRequest(BaseModel):
     site: str = Field(..., description="Consuming site key, e.g. '0daynews'. Stored for provenance only.")
     prompt: str = Field(..., min_length=3)
     negative_prompt: str | None = None
-    backend: Literal["comfyui", "nanobanana"] = "comfyui"
+    backend: Literal["comfyui", "nanobanana", "codex"] = "comfyui"
     width: int = 1216
     height: int = 832
     steps: int = 4
     seed: int | None = None
     profile: Literal["fast", "quality"] = "fast"
-    aspect_ratio: str = "3:2"  # nanobanana only — ComfyUI uses width/height directly
+    aspect_ratio: str = "3:2"  # Nano Banana/Codex; ComfyUI uses width/height directly
     slug: str | None = Field(None, description="Article/page slug, stored for provenance only.")
 
 
@@ -174,11 +174,15 @@ class GenerateResponse(BaseModel):
 def health():
     comfy_status = comfyui.status()
     nano_status = nanobanana.status()
+    codex_status = codex.status()
     return {
         "ok": comfy_status["reachable"],
-        "degraded": bool(comfy_status["last_error"] or nano_status["last_error"]),
+        "degraded": bool(
+            comfy_status["last_error"] or nano_status["last_error"] or codex_status["last_error"]
+        ),
         "comfyui": comfy_status,
         "nanobanana": nano_status,
+        "codex": codex_status,
     }
 
 
@@ -186,6 +190,7 @@ def health():
 def backends():
     comfy_status = comfyui.status()
     nano_status = nanobanana.status()
+    codex_status = codex.status()
     return {
         "comfyui": {
             **comfy_status,
@@ -205,6 +210,15 @@ def backends():
                 "shared profile lock) — expect 429s under contention, retry."
             ),
         },
+        "codex": {
+            **codex_status,
+            "default": False,
+            "speed": "typically 1-5min, synchronous, subscription-backed",
+            "notes": (
+                "Codex CLI + built-in $imagegen (GPT Image). Uses the signed-in Codex plan's "
+                "included usage, not OPENAI_API_KEY/API billing. Serialized one at a time."
+            ),
+        },
     }
 
 
@@ -222,12 +236,25 @@ def generate(req: GenerateRequest):
         except comfyui.ComfyUIError as e:
             raise HTTPException(status_code=503, detail=str(e)) from e
         ext = "png"
-    else:
+    elif req.backend == "nanobanana":
         try:
             image_bytes, meta = nanobanana.generate(req.prompt, aspect_ratio=req.aspect_ratio)
         except nanobanana.NanoBananaError as e:
             status = 429 if "already running" in str(e) else 503
             raise HTTPException(status_code=status, detail=str(e)) from e
+        ext = "png"
+    else:
+        try:
+            image_bytes, meta = codex.generate(
+                req.prompt,
+                aspect_ratio=req.aspect_ratio,
+                width=req.width,
+                height=req.height,
+            )
+        except codex.CodexBusyError as e:
+            raise HTTPException(status_code=429, detail=str(e)) from e
+        except codex.CodexError as e:
+            raise HTTPException(status_code=503, detail=str(e)) from e
         ext = "png"
 
     meta["site"] = req.site

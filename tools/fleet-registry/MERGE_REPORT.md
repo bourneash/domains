@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **58** (live 37, scaffold 20, parked 0, redirect 1)
+`sites/` directories merged: **59** (live 39, scaffold 19, parked 0, redirect 1)
 
 ## Coverage per roster
 
@@ -10,12 +10,12 @@ provenance only; absence there is a choice, not drift.
 
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
-| `site-tracker/sites.yml` | fleet-wide | 57/58 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 35/58 | arttogogh.com, girlpain.com |
-| `DOMAINS_INDEX.md` | fleet-wide | 58/58 | — |
-| `social registry` | fleet-wide | 34/58 | 3boobs.com, deeppenetrations.com, marineactivity.com |
-| `data-hub/subscriptions.yaml` | opt-in | 7/58 | n/a |
-| `product-feed/subscriptions.yaml` | opt-in | 2/58 | n/a |
+| `site-tracker/sites.yml` | fleet-wide | 58/59 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 35/59 | arttogogh.com, girlpain.com, saltwaternews.com, searchwoot.com |
+| `DOMAINS_INDEX.md` | fleet-wide | 59/59 | — |
+| `social registry` | fleet-wide | 34/59 | 3boobs.com, deeppenetrations.com, marineactivity.com, saltwaternews.com, searchwoot.com |
+| `data-hub/subscriptions.yaml` | opt-in | 8/59 | n/a |
+| `product-feed/subscriptions.yaml` | opt-in | 2/59 | n/a |
 
 ## Gaps on live sites
 

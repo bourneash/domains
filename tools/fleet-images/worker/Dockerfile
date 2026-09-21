@@ -113,11 +113,13 @@ RUN npm install -g \
 ENV FLEET_VENV=/opt/fleet-venv
 RUN pip3 install --break-system-packages --no-cache-dir \
       pyyaml Pillow httpx openai feedparser requests ephem \
+      click rich "atproto>=0.0.50" "praw>=7.7" "tweepy>=4.14" \
       pytest pytest-mock "idna>=3.10" cloakbrowser \
     && python3 -m venv "$FLEET_VENV" \
     && "$FLEET_VENV/bin/pip" install --no-cache-dir --upgrade pip \
     && "$FLEET_VENV/bin/pip" install --no-cache-dir \
       pyyaml Pillow httpx openai feedparser requests ephem \
+      click rich "atproto>=0.0.50" "praw>=7.7" "tweepy>=4.14" \
       pytest pytest-mock "idna>=3.10" cloakbrowser
 
 # ── Playwright browsers: cached PER SITE, not baked ─────────────────────────

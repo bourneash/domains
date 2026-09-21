@@ -61,6 +61,20 @@ SKIP_PARTS = ("/logs/", "/node_modules/", "/.venv/", "/board/", "/__pycache__/",
 # own ops/ scripts used the key.
 SKIP_PREFIXES = (".venv",)
 
+# Site ops code delegates a few credential-using operations to canonical fleet
+# implementations under tools/.  A lexical scan of ops/ alone therefore sees
+# the call but not the environment variable read in the callee.  Keep this
+# small and explicit: these are runtime entrypoints mounted into site
+# containers, not arbitrary files whose mere existence should widen a site's
+# credential set.
+SHARED_RUNTIME_DEPENDENCIES = (
+    ("notify-slack.sh", ("scripts", "notify-slack.sh"), ("SLACK_BOT_TOKEN",)),
+    ("role-notify/notify_role.py", ("role-notify", "notify_role.py"),
+     ("SLACK_BOT_TOKEN",)),
+    ("post-notify/share_new_posts.py", ("post-notify", "share_new_posts.py"),
+     ("SLACK_BOT_TOKEN",)),
+)
+
 
 def load_env_file(path: Path | None = None) -> dict[str, str]:
     # Resolved at call time, not bound as a default: a default argument is
@@ -180,6 +194,18 @@ def granted_keys(domain: str, policy: dict, slack: dict[str, str]) -> list[str]:
     return sorted(keys)
 
 
+def optional_keys(domain: str, policy: dict) -> set[str]:
+    """Keys a site's code probes safely but does not require or receive.
+
+    This is deliberately separate from deny_keys: deny_keys controls the
+    rendered capability, while optional_keys controls usage-drift semantics.
+    An optional key remains absent. never_grant references remain FORBIDDEN
+    regardless of this list.
+    """
+    site = (policy.get("sites") or {}).get(domain) or {}
+    return set(site.get("optional_keys") or [])
+
+
 def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
     """Which fleet keys this site's ops/ actually mentions.
 
@@ -202,8 +228,21 @@ def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
         r"(?!=(?=\s|$))"
     )
     found: set[str] = set()
-    for f in (ROOT / "sites" / domain / "ops").rglob("*"):
+    sources: list[str] = []
+    ops_root = ROOT / "sites" / domain / "ops"
+    # A compose nested under ops/ is a separate credential boundary, not code
+    # run by the site's worker/cron containers. marineactivity's AIS collector,
+    # for example, has its own five-key environment; counting it here made the
+    # site render appear to need three never_grant R2 credentials.
+    nested_compose_roots = {
+        compose.parent for compose in ops_root.glob("**/docker-compose.yml")
+        if compose.parent != ops_root
+    }
+    for f in ops_root.rglob("*"):
         if not f.is_file() or any(p in str(f) for p in SKIP_PARTS):
+            continue
+        if any(root == f.parent or root in f.parents
+               for root in nested_compose_roots):
             continue
         if any(part.startswith(SKIP_PREFIXES) for part in f.parts):
             continue
@@ -212,8 +251,41 @@ def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
         try:
             if f.stat().st_size > 2_000_000:
                 continue
-            found |= set(pat.findall(f.read_text(errors="ignore")))
+            text = f.read_text(errors="ignore")
+            # The standard shim itself names notify-slack.sh by definition;
+            # its mere presence is not proof that any role calls it. Keep
+            # scanning the shim for direct keys (legacy non-delegating copies)
+            # but require another ops source to trigger the shared dependency.
+            if f.relative_to(ops_root).as_posix() != "scripts/notify-slack.sh":
+                sources.append(text)
+            found |= set(pat.findall(text))
         except OSError:
+            continue
+
+    # Follow known shared runtime entrypoints one level.  This became
+    # necessary when notify-slack.sh was centralized on 2026-09-13: every site
+    # retained a thin shim and real call sites, but SLACK_BOT_TOKEN moved to
+    # tools/scripts/notify-slack.sh.  The old ops-only scan consequently
+    # declared the token unused across the fleet even though alerts still
+    # consumed it at runtime.
+    source = "\n".join(sources)
+    for marker, relative, dependency_keys in SHARED_RUNTIME_DEPENDENCIES:
+        if marker not in source:
+            continue
+        dependency = TOOLS_ROOT.joinpath(*relative)
+        try:
+            if dependency.stat().st_size <= 2_000_000:
+                dependency_text = dependency.read_text(errors="ignore")
+                # This is a credential contract, deliberately not another
+                # broad lexical scan. Shared tools contain docs/examples for
+                # other sites (notify_role.py names two SLACK_CHANNEL_* vars
+                # in its usage examples); treating those as runtime reads
+                # would grant one site's channel credential to another.
+                found |= {key for key in dependency_keys
+                          if key in all_keys and key in dependency_text}
+        except OSError:
+            # A missing mounted tool is a separate runtime/install failure. Do
+            # not invent a credential dependency from the marker alone.
             continue
     return found
 
@@ -647,14 +719,27 @@ def cmd_check(args, policy, slack) -> int:
     values = load_env_vault(policy) if args.source == "vault" else load_env_file()
     values = merge_vault_only(values, policy)
     per_site = site_values(policy)
-    all_keys = sorted(set(load_env_file()) | set(values))
     never = set(policy.get("never_grant") or [])
+    site_domains = consumers()
+    # Discovery must include policy-known and per-site-only keys, not just keys
+    # present in the shared source file. CF_BROKER_TOKEN intentionally has no
+    # fleet-wide value; omitting it here made the scanner blind to a site's
+    # direct references and then mislabeled the grant EXTRA.
+    all_keys = sorted(
+        set(load_env_file()) | set(values) | never | set(per_site_keys(policy)) |
+        {key for domain in site_domains
+         for key in granted_keys(domain, policy, slack)} |
+        {key for domain in site_domains
+         for key in optional_keys(domain, policy)}
+    )
     drift = False
 
-    for domain in consumers():
+    for domain in site_domains:
         keys = set(granted_keys(domain, policy, slack))
         used = referenced_keys(domain, all_keys)
-        needed_not_granted = sorted(used - keys - never)
+        needed_not_granted = sorted(
+            used - keys - never - optional_keys(domain, policy)
+        )
         granted_unused = sorted(keys - used)
         used_but_forbidden = sorted(used & never)
 
@@ -702,16 +787,19 @@ def cmd_check(args, policy, slack) -> int:
             print(f"STALE     tools/{name}: rendered file {stale} — re-render, "
                   f"then RESTART the container")
 
-    missing_values = sorted(k for d in consumers()
-                            for k in granted_keys(d, policy, slack) if k not in values)
+    missing_values = sorted(
+        k for domain in site_domains
+        for k in granted_keys(domain, policy, slack)
+        if k not in values and k not in per_site.get(domain, {})
+    )
     if missing_values:
         drift = True
         print(f"NOVALUE   source '{args.source}' has no value for: "
               f"{', '.join(sorted(set(missing_values)))}")
 
     if not drift:
-        n = len(consumers())
-        total = sum(len(granted_keys(d, policy, slack)) for d in consumers())
+        n = len(site_domains)
+        total = sum(len(granted_keys(d, policy, slack)) for d in site_domains)
         tn = len(tool_consumers())
         ttotal = sum(len(tool_keys(t, policy)) for t in tool_consumers())
         print(f"policy ok — {n} sites, {total / n:.1f} keys each on average; "

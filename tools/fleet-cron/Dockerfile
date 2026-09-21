@@ -2,12 +2,9 @@
 # jesse's host crontab (see README.md and HANDOFF.md). Same supercronic
 # pattern every site's ops/docker/Dockerfile.cron already uses, based on
 # node:22-alpine instead of bare alpine because job 6 (domain-job-runner.sh)
-# needs node >= 22 + npm + gh to drive domain-manager-cli.sh. Alpine's own
-# `nodejs` package (3.20 base) is too old and doesn't carry `github-cli` in
-# its stable repo at a usable version — node:22-alpine (Alpine 3.24 under the
-# hood) has both at the pinned Node version for free. This makes the image
-# heavier than a per-site cron image; see README.md for the two-service split
-# alternative if that bloat becomes a problem.
+# needs node >= 22 + npm + gh to drive domain-manager-cli.sh. This makes the
+# image heavier than a per-site cron image; see README.md for the two-service
+# split alternative if that bloat becomes a problem.
 
 FROM node:22-alpine
 

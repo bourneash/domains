@@ -47,7 +47,6 @@ sites:
     - tasks
     - affiliate
     - analytics
-    - social
     analytics:
       ga4_property_id: '542247993'
       ga4_measurement_id: G-KQH7L26D95
@@ -58,7 +57,6 @@ sites:
     - analytics
     - domains-index
     - site-tracker
-    - social
   3boobs.com:
     status: live
     repo: bourneash/3boobs.com
@@ -1137,7 +1135,6 @@ sites:
     status: live
     repo: bourneash/blackmarketapparel.com
     worker: blackmarketapparel-com
-    workers_dev_url: https://blackmarketapparel-com.jessetamburino.workers.dev
     cf_zone: blackmarketapparel.com
     slack_channel_env: SLACK_CHANNEL_BLACKMARKETAPPAREL
     capabilities:
@@ -1148,7 +1145,6 @@ sites:
     - tasks
     - affiliate
     - analytics
-    - social
     analytics:
       ga4_property_id: '555123204'
       ga4_measurement_id: G-4KX5THXX74
@@ -1161,7 +1157,6 @@ sites:
     - analytics
     - domains-index
     - site-tracker
-    - social
   wetpages.com:
     status: live
     repo: bourneash/wetpages.com

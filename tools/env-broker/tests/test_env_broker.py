@@ -27,6 +27,10 @@ POLICY = {
     "sites": {
         "extra.com": {"extra_keys": ["PEXELS_API_KEY"]},
         "denied.com": {"deny_keys": ["CLOUDFLARE_API_TOKEN"]},
+        "optional.com": {
+            "deny_keys": ["CLOUDFLARE_API_TOKEN"],
+            "optional_keys": ["CLOUDFLARE_API_TOKEN"],
+        },
         "sneaky.com": {"extra_keys": ["GITHUB_TOKEN", "PEXELS_API_KEY"]},
     },
     "vault": {"groups": {"cloudflare": ["CLOUDFLARE_"], "slack": ["SLACK_"]}},
@@ -61,9 +65,131 @@ def test_never_grant_beats_extra_keys():
     assert "PEXELS_API_KEY" in granted, "the rest of extra_keys still applies"
 
 
+def test_optional_keys_describe_usage_but_do_not_grant_capability():
+    assert eb.optional_keys("optional.com", POLICY) == {"CLOUDFLARE_API_TOKEN"}
+    assert "CLOUDFLARE_API_TOKEN" not in eb.granted_keys(
+        "optional.com", POLICY, SLACK
+    )
+
+
 def test_unknown_site_gets_only_defaults():
     assert eb.granted_keys("never-heard-of-it.com", POLICY, SLACK) == [
         "CLOUDFLARE_API_TOKEN", "SLACK_BOT_TOKEN"]
+
+
+# --- usage discovery --------------------------------------------------------
+
+def test_referenced_keys_follows_shared_runtime_dependency(tmp_path, monkeypatch):
+    """Centralizing a notifier must not make its token look unused.
+
+    Since 2026-09-13 site ops scripts call a thin notify-slack.sh shim while
+    the actual token read lives in tools/scripts/notify-slack.sh.  The daily
+    policy check used to scan ops/ only and falsely reported SLACK_BOT_TOKEN as
+    needless exposure for every migrated site.
+    """
+    monkeypatch.setattr(eb, "ROOT", tmp_path)
+    monkeypatch.setattr(eb, "TOOLS_ROOT", tmp_path / "tools")
+    ops = tmp_path / "sites" / "plain.com" / "ops" / "scripts"
+    ops.mkdir(parents=True)
+    (ops / "run-role.sh").write_text(
+        'NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"\n'
+        '"$NOTIFY" "$CHANNEL" "failed" danger\n'
+    )
+    shared = tmp_path / "tools" / "scripts"
+    shared.mkdir(parents=True)
+    (shared / "notify-slack.sh").write_text(
+        '# Example for another site: SLACK_CHANNEL_EXTRA\n'
+        'curl -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" example.invalid\n'
+    )
+
+    assert eb.referenced_keys(
+        "plain.com", ["SLACK_BOT_TOKEN", "SLACK_CHANNEL_EXTRA"]
+    ) == {
+        "SLACK_BOT_TOKEN"
+    }
+
+
+def test_referenced_keys_does_not_invent_dependency_when_shared_tool_is_missing(
+        tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "ROOT", tmp_path)
+    monkeypatch.setattr(eb, "TOOLS_ROOT", tmp_path / "tools")
+    ops = tmp_path / "sites" / "plain.com" / "ops" / "scripts"
+    ops.mkdir(parents=True)
+    (ops / "run-role.sh").write_text("notify-slack.sh channel message\n")
+
+    assert eb.referenced_keys("plain.com", ["SLACK_BOT_TOKEN"]) == set()
+
+
+def test_unused_notify_shim_does_not_count_as_a_runtime_dependency(
+        tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "ROOT", tmp_path)
+    monkeypatch.setattr(eb, "TOOLS_ROOT", tmp_path / "tools")
+    ops = tmp_path / "sites" / "plain.com" / "ops" / "scripts"
+    ops.mkdir(parents=True)
+    (ops / "notify-slack.sh").write_text(
+        'exec "$REPO_ROOT/.monorepo-tools/scripts/notify-slack.sh" "$@"\n'
+    )
+    shared = tmp_path / "tools" / "scripts"
+    shared.mkdir(parents=True)
+    (shared / "notify-slack.sh").write_text('echo "$SLACK_BOT_TOKEN"\n')
+
+    assert eb.referenced_keys("plain.com", ["SLACK_BOT_TOKEN"]) == set()
+
+
+def test_referenced_keys_excludes_separately_composed_ops_service(
+        tmp_path, monkeypatch):
+    monkeypatch.setattr(eb, "ROOT", tmp_path)
+    monkeypatch.setattr(eb, "TOOLS_ROOT", tmp_path / "tools")
+    ops = tmp_path / "sites" / "plain.com" / "ops"
+    (ops / "scripts").mkdir(parents=True)
+    (ops / "scripts" / "run-role.sh").write_text("SITE_KEY=$SITE_KEY\n")
+    isolated = ops / "collector"
+    isolated.mkdir()
+    (isolated / "docker-compose.yml").write_text("services: {}\n")
+    (isolated / "consumer.py").write_text(
+        'token = os.environ["COLLECTOR_KEY"]\n'
+    )
+
+    assert eb.referenced_keys("plain.com", ["SITE_KEY", "COLLECTOR_KEY"]) == {
+        "SITE_KEY"
+    }
+
+
+def test_check_discovers_and_values_per_site_only_key(tmp_path, monkeypatch, capsys):
+    """A scoped key absent from the fleet env is still known and satisfied."""
+    monkeypatch.setattr(eb, "ROOT", tmp_path)
+    monkeypatch.setattr(eb, "TOOLS_ROOT", tmp_path / "tools")
+    ops = tmp_path / "sites" / "plain.com" / "ops" / "scripts"
+    ops.mkdir(parents=True)
+    (ops / "deploy.sh").write_text(
+        'echo "${CF_BROKER_TOKEN}"\n'
+        '[[ -n "${OPTIONAL_FLEET_TOKEN:-}" ]] && echo optional\n'
+    )
+    policy = {
+        "defaults": {"keys": []},
+        "never_grant": [],
+        "per_site_vault": ["CF_BROKER_TOKEN"],
+        "vault_only": [],
+        "sites": {"plain.com": {
+            "extra_keys": ["CF_BROKER_TOKEN"],
+            "deny_keys": ["OPTIONAL_FLEET_TOKEN"],
+            "optional_keys": ["OPTIONAL_FLEET_TOKEN"],
+        }},
+        "tools": {},
+        "vault": {"groups": {}},
+    }
+    monkeypatch.setattr(eb, "load_env_file", lambda path=None: {})
+    monkeypatch.setattr(eb, "merge_vault_only", lambda values, policy: values)
+    monkeypatch.setattr(
+        eb, "site_values", lambda policy: {"plain.com": {"CF_BROKER_TOKEN": "scoped"}}
+    )
+    monkeypatch.setattr(eb, "consumers", lambda: ["plain.com"])
+    monkeypatch.setattr(eb, "tool_consumers", lambda: [])
+    monkeypatch.setattr(eb, "rendered_drift", lambda *args, **kwargs: None)
+    args = type("A", (), {"source": "file"})()
+
+    assert eb.cmd_check(args, policy, {}) == 0
+    assert "policy ok" in capsys.readouterr().out
 
 
 # --- rendering ---------------------------------------------------------------

@@ -5,9 +5,10 @@ On-demand AI image generation for the whole domains fleet, over HTTP.
 `tools/data-hub-images` is the fleet's shared broker for **real** stock/
 archival photography — ask it for keywords, it fetches from Unsplash/Pexels/
 Wikimedia/etc. behind a VPN. This tool is its sibling for **generated**
-images: ask it for a prompt, it renders one, either locally (ComfyUI, fast,
-default) or through a real Google account session (Nano Banana / Gemini,
-slow, opt-in). Both are meant to sit *alongside* the stock-photo broker as
+images: ask it for a prompt, it renders one locally (ComfyUI, fast/default),
+through a real Google account session (Nano Banana / Gemini, slow/opt-in),
+or through the signed-in Codex plan (Codex ImageGen, slow/opt-in). These are
+meant to sit *alongside* the stock-photo broker as
 an additional resource, not replace it — a site's image pipeline should
 still try real photography first where that's genuinely the better fit
 (e.g. `wikimedia` for actual vendor hardware), and reach for generation
@@ -52,6 +53,7 @@ curl -o cover.png http://127.0.0.1:4780/image/<id>
 |---|---|---|---|
 | `comfyui` | seconds–~1min, synchronous | Local ComfyUI at `:8188` (already running on this host, dual-A4000, no docker) | **yes** |
 | `nanobanana` | 30s–4min, synchronous | CloakBrowser + a live Google session — **opens a real, visible browser window on the host** | no, opt-in per request (`"backend": "nanobanana"`) |
+| `codex` | typically 1–5min, synchronous | Signed-in Codex CLI with built-in `$imagegen`; consumes included Codex plan usage | no, opt-in per request (`"backend": "codex"`) |
 
 ### `comfyui`
 
@@ -91,6 +93,25 @@ imported as a clean function, and the working, tested thing already exists.
    lock and returns `429` (not a long hang) if another one is already
    running — but that lock only protects requests that come through *this*
    service. Don't also run the skill by hand while this is live.
+
+### `codex`
+
+Launches an ephemeral, non-interactive Codex CLI session in a throwaway
+workspace and explicitly invokes the built-in `$imagegen` skill. This is the
+subscription-backed Codex feature (GPT Image), **not** an OpenAI Images API
+request: it does not use `OPENAI_API_KEY` and consumes the signed-in account's
+included Codex usage. Calls are serialized one at a time to avoid concurrent
+jobs unexpectedly consuming that allowance.
+
+The container sees a deliberately minimal `CODEX_HOME`: the host auth file,
+the standalone Codex package, and the imagegen skill. Normal Codex config and
+session history are not mounted. The child agent is also rooted in a temporary
+workspace with a workspace-write sandbox, and the user-supplied image prompt
+is explicitly delimited as untrusted visual description text.
+
+Use the Images API instead for large automated batches; that requires an API
+key and is billed separately. This backend is intended for selective high-value
+art, comparisons, and operator-triggered generation.
 
 ## Why this runs in Docker (and why `network_mode: host`)
 
@@ -161,7 +182,7 @@ media-gen returns `429`; timed-out pending prompts are removed from ComfyUI.
 
 | Method | Path | |
 |---|---|---|
-| `POST` | `/generate` | `{site, prompt, backend?, profile?, negative_prompt?, width?, height?, slug?}` → `{id, url, backend, width, height, credit}` |
+| `POST` | `/generate` | `{site, prompt, backend?, profile?, negative_prompt?, width?, height?, aspect_ratio?, slug?}` → `{id, url, backend, width, height, credit}` |
 | `GET` | `/image/{id}` | Raw image bytes. |
 | `GET` | `/image/{id}/meta` | Full stored metadata (prompt, backend, credit, provenance). |
 | `GET` | `/health` | Reachability, queue/busy state, and last real success/error for both backends. |

@@ -25,6 +25,11 @@
 #   3. `sites.<domain>.extra_keys`
 #   4. minus `sites.<domain>.deny_keys`
 #
+# `sites.<domain>.optional_keys` records keys that code only probes behind an
+# absence-safe guard. They are NOT granted; the field only prevents --check
+# from falsely claiming the role will break without them. A never_grant key is
+# still FORBIDDEN even if it is accidentally listed as optional.
+#
 # `env_broker.py --check` re-derives what each site's ops/ actually references
 # and fails on drift in either direction: a key a site needs but is not
 # granted (would break a role), or a key granted but unreferenced (needless
@@ -109,11 +114,12 @@ sites:
   saveusfarms.com:
     extra_keys: [PEXELS_API_KEY, UNSPLASH_ACCESS_KEY]
   amputeenews.com:
-    # Public RUM beacon token — shipped to browsers, not a secret.
     # NOTE: deny_keys [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID] removed
     # 2026-08-27 — ops/scripts/deploy.sh now calls `wrangler deploy` and needs
     # both (see defaults.keys). The deny predated that script.
-    extra_keys: [PUBLIC_CF_BEACON_TOKEN]
+    # PUBLIC_CF_BEACON_TOKEN removed 2026-09-19: no beacon exists in the site
+    # source and ops never reads it. Public or not, an unused value does not
+    # belong in this container's environment.
   allthingsmasonic.com:
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
   newmomshop.com:
@@ -128,8 +134,19 @@ sites:
     # deploy any of the 57 workers. Roll the rest of the fleet behind this one.
     extra_keys: [CF_BROKER_TOKEN]
     deny_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+    # engineer-check.sh can use the direct API when credentials are present,
+    # but explicitly falls back to edge checks when they are absent. Keep the
+    # fleet credentials denied; these are probes, not runtime requirements.
+    optional_keys: [CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID]
+  marineactivity.com:
+    # The primary cron container's run-ingest.sh calls the ingest Worker with
+    # this bearer token. The R2/AIS credentials belong only to the separately
+    # composed ops/aisstream collector and are intentionally not granted here.
+    extra_keys: [MARINEACTIVITY_INGEST_TOKEN]
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
+  searchwoot.com:
+    extra_keys: [WOOT_API_KEY, SITE_SHARED_PASSWORD]
   # No deny_keys: 2026-08-26 ops standup gave this site real scripts
   # (deploy.sh polls the CF Workers Builds API; every role notifies via
   # notify-slack.sh) that need the defaults. The original deny_keys here (from

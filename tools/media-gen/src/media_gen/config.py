@@ -77,3 +77,10 @@ COMFYUI_LOCK_WAIT_S = float(os.environ.get("MEDIA_GEN_COMFYUI_LOCK_WAIT_S", "240
 # Nano Banana runs a real visible browser + waits on a Gemini web UI —
 # minutes, not seconds, and occasionally flaky (see the skill's gotchas).
 NANOBANANA_TIMEOUT_S = float(os.environ.get("MEDIA_GEN_NANOBANANA_TIMEOUT_S", "240"))
+
+# Subscription-backed Codex ImageGen. The Docker service uses a deliberately
+# minimal CODEX_HOME containing auth + the imagegen skill, not the operator's
+# normal config/history. A generation can take several minutes.
+CODEX_BINARY = os.environ.get("MEDIA_GEN_CODEX_BINARY", "codex")
+CODEX_HOME = Path(os.environ.get("MEDIA_GEN_CODEX_HOME", str(Path.home() / ".media-gen-codex")))
+CODEX_TIMEOUT_S = float(os.environ.get("MEDIA_GEN_CODEX_TIMEOUT_S", "600"))

@@ -33,6 +33,7 @@ suites:
   data-hub:          { runner: pytest, timeout: 600 }
   data-hub-images:   { runner: pytest, timeout: 600 }
   env-broker:        { runner: pytest }
+  fleet-images:      { runner: pytest }
   fleet-backup:      { runner: pytest }
   affiliate-sentinel: { runner: pytest }
   container-watch:   { runner: pytest }
@@ -40,6 +41,7 @@ suites:
   social-controller: { runner: pytest }
   social-hub:        { runner: pytest, timeout: 600 }
   fleet-registry:    { runner: pytest }
+  fleet-scheduler:   { runner: pytest }
   ga4-provision:     { runner: pytest }
   gh-stats:          { runner: pytest }
   google-auth:       { runner: pytest }
@@ -47,13 +49,16 @@ suites:
   guide-queue:       { runner: pytest }
   media-gen:         { runner: pytest }
   personas:          { runner: pytest }
+  post-notify:       { runner: pytest }
   product-feed:      { runner: pytest }
+  role-notify:        { runner: pytest }
   scripts:           { runner: pytest }
   site-tracker:      { runner: pytest, timeout: 600 }
   social-lib:        { runner: pytest }
   social-poster:     { runner: pytest }
   social-setup:      { runner: pytest }
   task-budget:       { runner: pytest }
+  seo-history:       { runner: pytest }
   fleet-dashboard:   { runner: node-test, timeout: 600 }
   fleet-git:         { runner: node-test }
 

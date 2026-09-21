@@ -154,7 +154,9 @@ export default defineConfig({
   // click with no human intent (hit the whole fleet 2026-06). Opt in per
   // link with data-astro-prefetch instead of flipping this to true.
   prefetch: { prefetchAll: false, defaultStrategy: 'viewport' },
-  adapter: cloudflare({ imageService: 'passthrough' })
+  // Static builds run in Node. The workerd prerender IPC path is not reliable
+  // inside the fleet-cron container; production still deploys to Cloudflare.
+  adapter: cloudflare({ imageService: 'passthrough', prerenderEnvironment: 'node' })
 });
 ASTREOF
 
