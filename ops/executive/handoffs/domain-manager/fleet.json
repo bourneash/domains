@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:19:32.285Z",
-  "summary": "domain-manager checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-21T19:21:28.900Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Broadway Showgirls measurement coverage review",
-        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, social, and operational telemetry before making content or monetization decisions.",
-        "requested_action": "Approve report-only documentation and a recurring baseline checklist. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "11732409-8d46-4731-961a-b67d8495be09"
-      },
-      {
-        "kind": "proposal",
-        "title": "Broadway Showgirls mobile performance diagnosis",
-        "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck and reversible optimization designs.",
-        "requested_action": "Approve diagnosis covering asset loading, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
-        "proposal_id": "cfa215d5-c248-45f6-97f8-c5e201d2eadf"
-      },
-      {
-        "kind": "proposal",
-        "title": "Broadway Showgirls affiliate attribution reconciliation",
-        "summary": "Review whether affiliate-link tagging and reporting can reconcile outbound clicks with orders and commissions by page or content type.",
-        "requested_action": "Approve a report-only review of link tagging, page/content mapping, and Amazon reporting reconciliation. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "95ef2ffb-5cdc-4e0a-9c00-b87a08a03d41"
+        "title": "Deadly Maracas activation and measurement readiness review",
+        "summary": "Perform a report-only review of the parked scaffold’s positioning, audience opportunity, content readiness, analytics coverage, monetization options, and operational prerequisites before activation decisions.",
+        "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "proposal_id": "a4166504-dc3f-4e96-ac14-5a7df5efe69b"
       }
     ]
   }
