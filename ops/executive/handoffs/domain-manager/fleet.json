@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:28:24.590Z",
+  "generated_at": "2026-09-21T20:31:28.056Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
         "title": "Diagnose mobile performance and LCP remediation priorities",
-        "summary": "Produce a report-only diagnosis of mobile performance issues before additional growth work.",
+        "summary": "Mobile lab reports performance 68, LCP 5385ms, and TBT 429ms. Produce a report-only diagnosis before additional growth work.",
         "requested_action": "Approve report-only analysis of affected templates, likely causes, reversible fixes, implementation effort, and validation criteria. Do not deploy or modify production configuration.",
         "proposal_id": null
       },
