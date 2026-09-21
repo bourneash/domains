@@ -55,6 +55,8 @@ cmd_start() {
     local cmd
     if [[ -d node_modules ]]; then
         cmd='npm run dev'
+    elif [[ -f package-lock.json ]]; then
+        cmd='echo "[dd-dev] installing dependencies with npm ci (one-time)..."; npm ci --no-audit --no-fund && echo "[dd-dev] starting dev server..." && npm run dev'
     else
         cmd='echo "[dd-dev] installing dependencies (one-time)..."; npm install --no-audit --no-fund && echo "[dd-dev] starting dev server..." && npm run dev'
     fi

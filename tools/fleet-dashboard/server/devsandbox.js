@@ -343,6 +343,26 @@ async function devStatus(site) {
   const r = await devExec(site, 'status');
   return r.kv;
 }
+
+// Worktrees intentionally do not carry ignored node_modules across runs. Make
+// dependency setup an explicit, deterministic phase so a validation/build gate
+// cannot race the background dev-server bootstrap and report misleading
+// errors such as "astro: not found".
+async function prepareDependencies(site) {
+  const command =
+    'if [ -f site/package.json ]; then cd site; fi; ' +
+    'if [ ! -d node_modules ]; then ' +
+    'if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; ' +
+    'else npm install --no-audit --no-fund; fi; fi';
+  const r = await docker(['exec', containerName(site), 'sh', '-lc', command], {
+    timeout: 10 * 60 * 1000,
+    maxBuffer: 4 * 1024 * 1024,
+  });
+  if (r.code !== 0)
+    throw httpErr(400, `${r.stdout}\n${r.stderr}`.trim() || 'dependency setup failed');
+  return { prepared: true };
+}
+
 async function devStart(site) {
   const r = await devExec(site, 'start');
   if (r.code !== 0) throw httpErr(400, r.stdout || r.stderr || 'dev start failed');
@@ -604,6 +624,7 @@ module.exports = {
   stop,
   remove,
   devStatus,
+  prepareDependencies,
   devStart,
   devStop,
   devLogs,

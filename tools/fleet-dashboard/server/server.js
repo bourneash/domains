@@ -462,6 +462,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       throw Object.assign(new Error('wait for the implementation agent to finish'), {
         httpStatus: 409,
       });
+    await devsandbox.prepareDependencies(item.sandbox.instance);
     try {
       await devsandbox.devStart(item.sandbox.instance);
     } catch {
@@ -648,11 +649,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/change-requests', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          request: changequeue.create(events, req.body || {}, site => isKnownSite(root, site)),
-        });
+      res.status(201).json({
+        request: changequeue.create(events, req.body || {}, site => isKnownSite(root, site)),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -892,11 +891,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         !run.deployment_id ||
         !['deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state)
       )
-        return res
-          .status(409)
-          .json({
-            error: 'request cannot be completed until a validated commit has been deployed',
-          });
+        return res.status(409).json({
+          error: 'request cannot be completed until a validated commit has been deployed',
+        });
       const updated = syncChangeRequestFromRun(
         run,
         ['proven', 'inconclusive'].includes(run.state) ? 'verified' : 'deployed'
@@ -1381,20 +1378,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const item = events.getImprovement(req.params.id);
       if (!item) return res.status(404).json({ error: 'improvement run not found' });
       const task = findImprovementTask(root, item);
-      res
-        .status(202)
-        .json(
-          improvementAgent.start({
-            root,
-            store: events,
-            run: item,
-            taskBody: task?.body,
-            provider: req.body?.provider || item.agent?.provider || 'claude',
-            model: req.body?.model || item.agent?.model || null,
-            maxTurns: req.body?.max_turns || item.agent?.max_turns || 20,
-            role: req.body?.assigned_role || item.agent?.assigned_role || null,
-          })
-        );
+      res.status(202).json(
+        improvementAgent.start({
+          root,
+          store: events,
+          run: item,
+          taskBody: task?.body,
+          provider: req.body?.provider || item.agent?.provider || 'claude',
+          model: req.body?.model || item.agent?.model || null,
+          maxTurns: req.body?.max_turns || item.agent?.max_turns || 20,
+          role: req.body?.assigned_role || item.agent?.assigned_role || null,
+        })
+      );
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
