@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:13:25.759Z",
+  "generated_at": "2026-09-21T20:14:14.853Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess trainer UX, performance, and monetization readiness",
-        "summary": "Review the browser poker trainer’s drills, bot-opponent and leak-report flows, training-affiliate placements, accessibility, and mobile performance before further investment. SEO intelligence reports performance 89, LCP 2776ms, and an accessibility issue; site analytics, search traffic, experiments, and attributed revenue are unavailable in the supplied snapshot. AI usage shows 26 calls costing $2.15 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend.",
-        "requested_action": "Approve a report-only assessment with factual UX and performance findings, monetization-path review, content and product gaps, reversible hypotheses, validation criteria, and a prioritized backlog. Do not deploy, modify production configuration, change schedules, provision credentials, or spend money.",
+        "title": "Assess review authority, conversion readiness, and performance",
+        "summary": "Review ultrarough.com’s sandpaper and abrasives audience, review-content coverage, affiliate conversion paths, accessibility, and mobile performance before further investment. The site is live with affiliate, analytics, and social capabilities; Amazon attribution records 667 clicks for ultrarough-20 but no ordered items or commission income; SEO reports LCP 3441ms; site analytics and search traffic telemetry are unavailable; AI usage records 61 calls costing $10.96 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend.",
+        "requested_action": "Approve a report-only assessment with factual UX and performance findings, content and monetization gaps, reversible hypotheses, validation criteria, and a prioritized backlog. Do not deploy, modify production configuration, change schedules, provision credentials, or spend money.",
         "proposal_id": null
       }
     ]
