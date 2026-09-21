@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:02:25.236Z",
+  "generated_at": "2026-09-21T19:03:35.684Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Arttogogh measurement coverage review",
-        "summary": "Document analytics, SEO, affiliate, revenue, and conversion-measurement gaps and define a weekly reconciliation checklist.",
+        "title": "America Strikes measurement coverage review",
+        "summary": "Document analytics, SEO, conversion, affiliate-attribution, and operational measurement gaps, then define a weekly reconciliation checklist.",
         "requested_action": "Approve report-only documentation. Do not change credentials, analytics, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "0b1c4038-191a-44f7-a37b-bd6e9fa144c3"
+        "proposal_id": "960b832c-a3e6-46c8-89d0-4341b1088abc"
       },
       {
         "kind": "proposal",
-        "title": "Arttogogh mobile performance bottleneck diagnosis",
-        "summary": "Produce a report-only diagnosis of publicly observable performance risks, reversible optimization designs, validation tests, and effort notes.",
-        "requested_action": "Approve diagnosis only; do not implement or deploy changes.",
-        "proposal_id": "7cb1b54a-16ef-44c1-ab4f-ec472ac6f240"
+        "title": "America Strikes mobile performance diagnosis",
+        "summary": "Diagnose measured mobile performance bottlenecks and produce reversible, unshipped optimization designs.",
+        "requested_action": "Approve report-only diagnosis covering assets, rendering, layout stability, JavaScript, validation tests, and effort notes. Do not implement or deploy changes.",
+        "proposal_id": "5f8b57bb-6dee-498a-836f-d7e1eb70142c"
       },
       {
         "kind": "proposal",
-        "title": "Arttogogh orchestration failure diagnosis",
-        "summary": "Review repeated cancelled runs, six attempts on the committed design task, and one run still marked building to identify reporting, retry, lease, or terminal-state gaps.",
-        "requested_action": "Approve report-only diagnosis and control recommendations. Do not mutate queue state, schedules, credentials, spending, or production configuration.",
-        "proposal_id": "5fee28cf-ea12-4140-a47b-69a54cb63a4c"
+        "title": "America Strikes content depth and internal-linking review",
+        "summary": "Review existing geopolitics and defense-news articles for thin content, topic-page discoverability, and contextual internal-link opportunities.",
+        "requested_action": "Approve report-only review with article-depth criteria, internal-link recommendations, and validation checks. Do not create content, modify links or metadata, or deploy changes.",
+        "proposal_id": "4eb251e0-857c-4f86-83be-59e03f983c49"
       }
     ]
   }
