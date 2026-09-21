@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:10:27.861Z",
+  "generated_at": "2026-09-21T19:12:24.480Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Save Us Farms measurement coverage review",
-        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry, with a report-only reconciliation checklist.",
+        "title": "Seed to Sauce measurement coverage review",
+        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry, then define a weekly reconciliation checklist.",
         "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "d0b86c68-1705-4741-9c64-092fe11ac41c"
+        "proposal_id": "33aa11cd-387d-4673-a0a1-390395d16779"
       },
       {
         "kind": "proposal",
-        "title": "Save Us Farms mobile performance diagnosis",
-        "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck and reversible optimization designs.",
-        "requested_action": "Approve diagnosis covering assets, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
-        "proposal_id": "b86bfb1e-3939-49f1-b02b-918e66c215f3"
+        "title": "Seed to Sauce mobile performance diagnosis",
+        "summary": "Produce a report-only diagnosis of the measured mobile loading and layout-stability bottlenecks, with reversible optimization designs and validation tests.",
+        "requested_action": "Approve report-only diagnosis covering assets, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
+        "proposal_id": "bd27a844-7a2f-4675-a8f9-b9553647bd69"
       },
       {
         "kind": "proposal",
-        "title": "Save Us Farms affiliate attribution reconciliation",
-        "summary": "Review affiliate-link tagging and reporting paths to determine whether outbound activity can be reconciled to orders and commissions by page or content type.",
+        "title": "Seed to Sauce affiliate attribution reconciliation",
+        "summary": "Review affiliate-link tagging and reporting paths to determine whether the Plan Builder, sauce guides, grow-files, and product catalog can be reconciled to outbound clicks, orders, and commissions.",
         "requested_action": "Approve a report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "40618066-9e3b-4fc9-a80e-9464dcebcc64"
+        "proposal_id": "50d54277-2efc-438e-9e01-57b64c3bcf07"
       }
     ]
   }
