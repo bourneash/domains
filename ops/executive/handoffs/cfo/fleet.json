@@ -1,0 +1,25 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "cfo",
+  "site": "fleet",
+  "generated_at": "2026-09-21T20:45:39.178Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only one report-only assessment for greatamericanlakes.com. The snapshot supports $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but site attribution and analytics are unavailable. Do not claim revenue, margin, CAC, payback, forecasts, or experiment results. No queue, deployment, spending, credential, schedule, DNS, or production changes are approved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Great American Lakes conversion and attribution assessment",
+        "summary": "Document observable conversion paths, attribution limitations, performance clues, measurement requirements, AI-cost context, and one reversible experiment design without implementation or financial forecasting.",
+        "requested_action": "Approve a report-only assessment. Do not deploy, publish, change credentials, modify affiliate configuration, spend money, alter schedules or DNS, or change production systems.",
+        "proposal_id": "0cbe63a3-6e05-4aba-9d35-36f66492bc6c"
+      }
+    ]
+  }
+}
