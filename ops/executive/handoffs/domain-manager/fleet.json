@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:21:28.900Z",
+  "generated_at": "2026-09-21T19:23:20.113Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Deadly Maracas activation and measurement readiness review",
-        "summary": "Perform a report-only review of the parked scaffold’s positioning, audience opportunity, content readiness, analytics coverage, monetization options, and operational prerequisites before activation decisions.",
+        "title": "DriveGM activation and measurement readiness review",
+        "summary": "Perform a report-only review of positioning, audience opportunity, content readiness, analytics coverage, monetization options, and operational prerequisites before activation decisions.",
         "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
-        "proposal_id": "a4166504-dc3f-4e96-ac14-5a7df5efe69b"
+        "proposal_id": "e53aba28-a22f-4cb6-bed1-e1bd88f90333"
       }
     ]
   }
