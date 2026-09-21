@@ -1,0 +1,4906 @@
+{
+  "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+  "cadence": "six_hour",
+  "generated_at": "2026-09-21T15:44:48.855Z",
+  "scope": {
+    "managed_sites": [
+      "0daynews.com",
+      "0xroulette.com",
+      "aliencouncil.com",
+      "allthingsmasonic.com",
+      "americastrikes.com",
+      "amputeenews.com",
+      "arttogogh.com",
+      "blackmarketapparel.com",
+      "broadwayshowgirls.com",
+      "complicated.work",
+      "deadlymaracas.com",
+      "deeppenetrations.com",
+      "driveford.net",
+      "drivegm.net",
+      "dumbsluts.com",
+      "eastcoastrappers.com",
+      "elevatorfriends.com",
+      "failbunny.com",
+      "findyourlostpets.com",
+      "fishhooklabs.com",
+      "gate03.com",
+      "girlpain.com",
+      "greatamericanlakes.com",
+      "howfishthink.com",
+      "infrainnovator.com",
+      "marineactivity.com",
+      "mynewgm.com",
+      "mynewgm.info",
+      "newmomshop.com",
+      "noveltyguns.com",
+      "nsfwpixels.com",
+      "nsfwpixles.com",
+      "offshorehookup.com",
+      "oventoheaven.com",
+      "pervypotion.com",
+      "pokererotic.com",
+      "rc-9.com",
+      "reviewtattoo.com",
+      "rodhat.com",
+      "saltwaternews.com",
+      "saveusfarms.com",
+      "searchwoot.com",
+      "seedstosauce.com",
+      "shoppinkflamingo.com",
+      "shoptopless.com",
+      "sinderella.org",
+      "stinkyleftfoot.com",
+      "therareunicorn.com",
+      "totaljerks.com",
+      "trainingsharks.com",
+      "ultrarough.com",
+      "unsupervisedmedia.com",
+      "vibratorporn.com",
+      "weapontester.com",
+      "weirdassstuff.com",
+      "weirdgirlstore.com",
+      "wetpages.com",
+      "wetslit.com",
+      "xxxtea.com"
+    ],
+    "excluded_sites": [
+      "3boobs.com"
+    ]
+  },
+  "summary": {
+    "sites_considered": 59,
+    "sites_reported": 59,
+    "exceptions": 24,
+    "deep_dive_candidates": 59,
+    "global_exceptions": []
+  },
+  "reports": [
+    {
+      "site": "0daynews.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:02.968992+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:04.051340+00:00"
+          }
+        },
+        "seo": {
+          "site": "0daynews.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 38,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 6
+        },
+        "ai_usage": {
+          "site": "0daynews.com",
+          "total_cost_usd": 96.15664554999991,
+          "calls": 349
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "0xroulette.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:06.276013+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:08.202081+00:00"
+          }
+        },
+        "seo": {
+          "site": "0xroulette.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 77,
+          "clicks": 0,
+          "sessions": 59,
+          "conversions": 0,
+          "pages": 13
+        },
+        "ai_usage": {
+          "site": "0xroulette.com",
+          "total_cost_usd": 3.4012238999999997,
+          "calls": 30
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "aliencouncil.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:12.944723+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:13.807418+00:00"
+          }
+        },
+        "seo": {
+          "site": "aliencouncil.com",
+          "actions": 3,
+          "high": 2,
+          "medium": 1,
+          "impressions": 43,
+          "clicks": 0,
+          "sessions": 25,
+          "conversions": 0,
+          "pages": 152
+        },
+        "ai_usage": {
+          "site": "aliencouncil.com",
+          "total_cost_usd": 12.796192549999999,
+          "calls": 25
+        },
+        "priority": {
+          "site": "aliencouncil.com",
+          "lifecycle": "live",
+          "allocation": "review",
+          "opportunity_score": 52,
+          "sessions": 25,
+          "conversions": 0,
+          "ai_cost_usd": 12.796192549999999,
+          "revenue_usd": 0,
+          "margin_usd": -12.796192549999999
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "allthingsmasonic.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "no_change_supported",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:15.656011+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:16.293144+00:00"
+          }
+        },
+        "seo": {
+          "site": "allthingsmasonic.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 397,
+          "clicks": 0,
+          "sessions": 41,
+          "conversions": 3,
+          "pages": 36
+        },
+        "ai_usage": {
+          "site": "allthingsmasonic.com",
+          "total_cost_usd": 6.111977150000001,
+          "calls": 57
+        },
+        "priority": {
+          "site": "allthingsmasonic.com",
+          "lifecycle": "live",
+          "allocation": "review",
+          "opportunity_score": 10,
+          "sessions": 41,
+          "conversions": 3,
+          "ai_cost_usd": 6.111977150000001,
+          "revenue_usd": 0,
+          "margin_usd": -6.111977150000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "americastrikes.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:18.426752+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:19.028964+00:00"
+          }
+        },
+        "seo": {
+          "site": "americastrikes.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 18,
+          "clicks": 0,
+          "sessions": 106,
+          "conversions": 0,
+          "pages": 65
+        },
+        "ai_usage": {
+          "site": "americastrikes.com",
+          "total_cost_usd": 116.11514134999989,
+          "calls": 1042
+        },
+        "priority": {
+          "site": "americastrikes.com",
+          "lifecycle": "live",
+          "allocation": "review",
+          "opportunity_score": 24,
+          "sessions": 106,
+          "conversions": 0,
+          "ai_cost_usd": 116.11514134999989,
+          "revenue_usd": 0,
+          "margin_usd": -116.11514134999989
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "amputeenews.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:21.010822+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:21.841061+00:00"
+          }
+        },
+        "seo": {
+          "site": "amputeenews.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 27,
+          "clicks": 0,
+          "sessions": 39,
+          "conversions": 0,
+          "pages": 19
+        },
+        "ai_usage": {
+          "site": "amputeenews.com",
+          "total_cost_usd": 36.93970629999998,
+          "calls": 94
+        },
+        "priority": {
+          "site": "amputeenews.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 39,
+          "conversions": 0,
+          "ai_cost_usd": 36.93970629999998
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "arttogogh.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "arttogogh.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "arttogogh.com",
+          "total_cost_usd": 5.0143647499999995,
+          "calls": 29
+        },
+        "priority": {
+          "site": "arttogogh.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 5.0143647499999995
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "blackmarketapparel.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "blackmarketapparel.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "blackmarketapparel.com",
+          "total_cost_usd": 59.27083120000002,
+          "calls": 60
+        },
+        "priority": {
+          "site": "blackmarketapparel.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 59.27083120000002
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:23.556709+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:24.246466+00:00"
+          }
+        },
+        "seo": {
+          "site": "broadwayshowgirls.com",
+          "actions": 6,
+          "high": 3,
+          "medium": 3,
+          "impressions": 506,
+          "clicks": 0,
+          "sessions": 44,
+          "conversions": 0,
+          "pages": 49
+        },
+        "ai_usage": {
+          "site": "broadwayshowgirls.com",
+          "total_cost_usd": 9.565640400000003,
+          "calls": 121
+        },
+        "priority": {
+          "site": "broadwayshowgirls.com",
+          "lifecycle": "live",
+          "allocation": "repair-monetization",
+          "opportunity_score": 84,
+          "sessions": 44,
+          "conversions": 0,
+          "ai_cost_usd": 9.565640400000003,
+          "revenue_usd": 0,
+          "margin_usd": -9.565640400000003
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "complicated.work",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.864Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "deadlymaracas.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "deeppenetrations.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:26.023194+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:26.657015+00:00"
+          }
+        },
+        "seo": {
+          "site": "deeppenetrations.com",
+          "actions": 9,
+          "high": 6,
+          "medium": 3,
+          "impressions": 1505,
+          "clicks": 2,
+          "sessions": 7,
+          "conversions": 0,
+          "pages": 28
+        },
+        "ai_usage": {
+          "site": "deeppenetrations.com",
+          "total_cost_usd": 0.5420227999999999,
+          "calls": 1
+        },
+        "priority": {
+          "site": "deeppenetrations.com",
+          "lifecycle": "live",
+          "allocation": "repair-monetization",
+          "opportunity_score": 100,
+          "sessions": 7,
+          "conversions": 0,
+          "ai_cost_usd": 0.5420227999999999,
+          "revenue_usd": 0,
+          "margin_usd": -0.5420227999999999
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "driveford.net",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "drivegm.net",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "dumbsluts.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "eastcoastrappers.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:28.132983+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:28.817006+00:00"
+          }
+        },
+        "seo": {
+          "site": "eastcoastrappers.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 20,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 11
+        },
+        "ai_usage": {
+          "site": "eastcoastrappers.com",
+          "total_cost_usd": 36.73579095000001,
+          "calls": 114
+        },
+        "priority": {
+          "site": "eastcoastrappers.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 36.73579095000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "elevatorfriends.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "failbunny.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "findyourlostpets.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "fishhooklabs.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:30.369375+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:30.858105+00:00"
+          }
+        },
+        "seo": {
+          "site": "fishhooklabs.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 107,
+          "clicks": 0,
+          "sessions": 21,
+          "conversions": 0,
+          "pages": 53
+        },
+        "ai_usage": {
+          "site": "fishhooklabs.com",
+          "total_cost_usd": 2.5414625,
+          "calls": 20
+        },
+        "priority": {
+          "site": "fishhooklabs.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 21,
+          "conversions": 0,
+          "ai_cost_usd": 2.5414625
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "gate03.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "girlpain.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "site": "girlpain.com",
+          "total_cost_usd": 21.68629739999999,
+          "calls": 67
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "greatamericanlakes.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:32.743281+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:33.264484+00:00"
+          }
+        },
+        "seo": {
+          "site": "greatamericanlakes.com",
+          "actions": 10,
+          "high": 4,
+          "medium": 6,
+          "impressions": 906,
+          "clicks": 3,
+          "sessions": 49,
+          "conversions": 2,
+          "pages": 115
+        },
+        "ai_usage": {
+          "site": "greatamericanlakes.com",
+          "total_cost_usd": 1.6232815,
+          "calls": 7
+        },
+        "priority": {
+          "site": "greatamericanlakes.com",
+          "lifecycle": "live",
+          "allocation": "invest-test",
+          "opportunity_score": 100,
+          "sessions": 49,
+          "conversions": 2,
+          "ai_cost_usd": 1.6232815
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "howfishthink.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:34.895426+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:35.383475+00:00"
+          }
+        },
+        "seo": {
+          "site": "howfishthink.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 2,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 7
+        },
+        "ai_usage": {
+          "site": "howfishthink.com",
+          "total_cost_usd": 0.13180624999999996,
+          "calls": 3
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "infrainnovator.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "marineactivity.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:36.987415+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:37.514023+00:00"
+          }
+        },
+        "seo": {
+          "site": "marineactivity.com",
+          "actions": 6,
+          "high": 4,
+          "medium": 2,
+          "impressions": 520,
+          "clicks": 0,
+          "sessions": 2,
+          "conversions": 0,
+          "pages": 185
+        },
+        "ai_usage": {
+          "site": "marineactivity.com",
+          "total_cost_usd": 14.23338545,
+          "calls": 41
+        },
+        "priority": {
+          "site": "marineactivity.com",
+          "lifecycle": "live",
+          "allocation": "invest-test",
+          "opportunity_score": 100,
+          "sessions": 2,
+          "conversions": 0,
+          "ai_cost_usd": 14.23338545
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "mynewgm.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "mynewgm.info",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "newmomshop.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:38.922455+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:39.466596+00:00"
+          }
+        },
+        "seo": {
+          "site": "newmomshop.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 85,
+          "clicks": 0,
+          "sessions": 16,
+          "conversions": 0,
+          "pages": 7
+        },
+        "ai_usage": {
+          "site": "newmomshop.com",
+          "total_cost_usd": 24.127536000000003,
+          "calls": 174
+        },
+        "priority": {
+          "site": "newmomshop.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 16,
+          "conversions": 0,
+          "ai_cost_usd": 24.127536000000003
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "noveltyguns.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "nsfwpixels.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "nsfwpixles.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "offshorehookup.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:41.015542+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:41.693173+00:00"
+          }
+        },
+        "seo": {
+          "site": "offshorehookup.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 3,
+          "clicks": 0,
+          "sessions": 11,
+          "conversions": 0,
+          "pages": 9
+        },
+        "ai_usage": {
+          "site": "offshorehookup.com",
+          "total_cost_usd": 2.6801401,
+          "calls": 19
+        },
+        "priority": {
+          "site": "offshorehookup.com",
+          "lifecycle": "live",
+          "allocation": "review",
+          "opportunity_score": 24,
+          "sessions": 11,
+          "conversions": 0,
+          "ai_cost_usd": 2.6801401,
+          "revenue_usd": 0,
+          "margin_usd": -2.6801401
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "oventoheaven.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:43.139400+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:43.644704+00:00"
+          }
+        },
+        "seo": {
+          "site": "oventoheaven.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 9,
+          "clicks": 0,
+          "sessions": 7,
+          "conversions": 0,
+          "pages": 8
+        },
+        "ai_usage": {
+          "site": "oventoheaven.com",
+          "total_cost_usd": 3.650379150000001,
+          "calls": 31
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "pervypotion.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "pokererotic.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "rc-9.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:46.071125+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:46.605427+00:00"
+          }
+        },
+        "seo": {
+          "site": "rc-9.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 3,
+          "clicks": 0,
+          "sessions": 30,
+          "conversions": 0,
+          "pages": 3
+        },
+        "ai_usage": {
+          "site": "rc-9.com",
+          "total_cost_usd": 2.2282734,
+          "calls": 28
+        },
+        "priority": {
+          "site": "rc-9.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 30,
+          "conversions": 0,
+          "ai_cost_usd": 2.2282734
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "reviewtattoo.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:48.342471+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:48.774009+00:00"
+          }
+        },
+        "seo": {
+          "site": "reviewtattoo.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 393,
+          "clicks": 0,
+          "sessions": 71,
+          "conversions": 0,
+          "pages": 31
+        },
+        "ai_usage": {
+          "site": "reviewtattoo.com",
+          "total_cost_usd": 14.840605499999999,
+          "calls": 77
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "rodhat.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:50.634375+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:52.826956+00:00"
+          }
+        },
+        "seo": {
+          "site": "rodhat.com",
+          "actions": 5,
+          "high": 4,
+          "medium": 1,
+          "impressions": 262,
+          "clicks": 4,
+          "sessions": 20,
+          "conversions": 0,
+          "pages": 106
+        },
+        "ai_usage": {
+          "site": "rodhat.com",
+          "total_cost_usd": 36.62922975000001,
+          "calls": 115
+        },
+        "priority": {
+          "site": "rodhat.com",
+          "lifecycle": "live",
+          "allocation": "invest-test",
+          "opportunity_score": 100,
+          "sessions": 20,
+          "conversions": 0,
+          "ai_cost_usd": 36.62922975000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "saltwaternews.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "saltwaternews.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "saltwaternews.com",
+          "total_cost_usd": 2.60618945,
+          "calls": 8
+        },
+        "priority": {
+          "site": "saltwaternews.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 2.60618945
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "saveusfarms.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:54.503121+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:55.152023+00:00"
+          }
+        },
+        "seo": {
+          "site": "saveusfarms.com",
+          "actions": 4,
+          "high": 3,
+          "medium": 1,
+          "impressions": 2054,
+          "clicks": 1,
+          "sessions": 46,
+          "conversions": 0,
+          "pages": 114
+        },
+        "ai_usage": {
+          "site": "saveusfarms.com",
+          "total_cost_usd": 21.56473535000001,
+          "calls": 159
+        },
+        "priority": {
+          "site": "saveusfarms.com",
+          "lifecycle": "live",
+          "allocation": "repair-monetization",
+          "opportunity_score": 76,
+          "sessions": 46,
+          "conversions": 0,
+          "ai_cost_usd": 21.56473535000001,
+          "revenue_usd": 0,
+          "margin_usd": -21.56473535000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "searchwoot.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "searchwoot.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "searchwoot.com",
+          "total_cost_usd": 0.29253599999999996,
+          "calls": 1
+        },
+        "priority": {
+          "site": "searchwoot.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 0.29253599999999996
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "seedstosauce.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:56.694977+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:57.297967+00:00"
+          }
+        },
+        "seo": {
+          "site": "seedstosauce.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 4,
+          "clicks": 1,
+          "sessions": 2,
+          "conversions": 0,
+          "pages": 17
+        },
+        "ai_usage": {
+          "site": "seedstosauce.com",
+          "total_cost_usd": 1.8065255500000001,
+          "calls": 10
+        },
+        "priority": {
+          "site": "seedstosauce.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 2,
+          "conversions": 0,
+          "ai_cost_usd": 1.8065255500000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "shoppinkflamingo.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [
+        "observed_search_or_conversion_signal"
+      ],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:58.990982+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:17:59.554593+00:00"
+          }
+        },
+        "seo": {
+          "site": "shoppinkflamingo.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 4,
+          "clicks": 0,
+          "sessions": 22,
+          "conversions": 3,
+          "pages": 5
+        },
+        "ai_usage": {
+          "site": "shoppinkflamingo.com",
+          "total_cost_usd": 5.475921950000001,
+          "calls": 36
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "shoptopless.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:01.503967+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:02.058327+00:00"
+          }
+        },
+        "seo": {
+          "site": "shoptopless.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 217,
+          "clicks": 0,
+          "sessions": 81,
+          "conversions": 0,
+          "pages": 34
+        },
+        "ai_usage": {
+          "site": "shoptopless.com",
+          "total_cost_usd": 16.174434400000003,
+          "calls": 66
+        },
+        "priority": {
+          "site": "shoptopless.com",
+          "lifecycle": "live",
+          "allocation": "review",
+          "opportunity_score": 24,
+          "sessions": 81,
+          "conversions": 0,
+          "ai_cost_usd": 16.174434400000003,
+          "revenue_usd": 0,
+          "margin_usd": -16.174434400000003
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "sinderella.org",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:05.256233+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:06.209572+00:00"
+          }
+        },
+        "seo": {
+          "site": "sinderella.org",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 4,
+          "clicks": 0,
+          "sessions": 32,
+          "conversions": 0,
+          "pages": 23
+        },
+        "ai_usage": {
+          "site": "sinderella.org",
+          "total_cost_usd": 67.54791625000004,
+          "calls": 657
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "stinkyleftfoot.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:07.988138+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:09.181529+00:00"
+          }
+        },
+        "seo": {
+          "site": "stinkyleftfoot.com",
+          "actions": 6,
+          "high": 4,
+          "medium": 2,
+          "impressions": 229,
+          "clicks": 0,
+          "sessions": 18,
+          "conversions": 0,
+          "pages": 37
+        },
+        "ai_usage": {
+          "site": "stinkyleftfoot.com",
+          "total_cost_usd": 5.069759899999999,
+          "calls": 31
+        },
+        "priority": {
+          "site": "stinkyleftfoot.com",
+          "lifecycle": "live",
+          "allocation": "repair-monetization",
+          "opportunity_score": 100,
+          "sessions": 18,
+          "conversions": 0,
+          "ai_cost_usd": 5.069759899999999,
+          "revenue_usd": 0,
+          "margin_usd": -5.069759899999999
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "therareunicorn.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "totaljerks.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:11.229891+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:11.779773+00:00"
+          }
+        },
+        "seo": {
+          "site": "totaljerks.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 11,
+          "clicks": 0,
+          "sessions": 53,
+          "conversions": 1,
+          "pages": 13
+        },
+        "ai_usage": {
+          "site": "totaljerks.com",
+          "total_cost_usd": 25.461247149999995,
+          "calls": 89
+        },
+        "priority": {
+          "site": "totaljerks.com",
+          "lifecycle": "live",
+          "allocation": "review",
+          "opportunity_score": 26,
+          "sessions": 53,
+          "conversions": 1,
+          "ai_cost_usd": 25.461247149999995,
+          "revenue_usd": 0,
+          "margin_usd": -25.461247149999995
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "trainingsharks.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:13.471142+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:14.441130+00:00"
+          }
+        },
+        "seo": {
+          "site": "trainingsharks.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 1
+        },
+        "ai_usage": {
+          "site": "trainingsharks.com",
+          "total_cost_usd": 2.1499967,
+          "calls": 26
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "ultrarough.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:16.749616+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:18.130166+00:00"
+          }
+        },
+        "seo": {
+          "site": "ultrarough.com",
+          "actions": 12,
+          "high": 4,
+          "medium": 8,
+          "impressions": 2015,
+          "clicks": 1,
+          "sessions": 31,
+          "conversions": 1,
+          "pages": 82
+        },
+        "ai_usage": {
+          "site": "ultrarough.com",
+          "total_cost_usd": 10.96143415,
+          "calls": 61
+        },
+        "priority": {
+          "site": "ultrarough.com",
+          "lifecycle": "live",
+          "allocation": "repair-monetization",
+          "opportunity_score": 100,
+          "sessions": 31,
+          "conversions": 1,
+          "ai_cost_usd": 10.96143415,
+          "revenue_usd": 0,
+          "margin_usd": -10.96143415
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "unsupervisedmedia.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:20.402364+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:21.017778+00:00"
+          }
+        },
+        "seo": {
+          "site": "unsupervisedmedia.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 2,
+          "clicks": 0,
+          "sessions": 32,
+          "conversions": 0,
+          "pages": 4
+        },
+        "ai_usage": {
+          "site": "unsupervisedmedia.com",
+          "total_cost_usd": 2.1434109999999995,
+          "calls": 27
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "vibratorporn.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "weapontester.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:22.617614+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:23.166184+00:00"
+          }
+        },
+        "seo": {
+          "site": "weapontester.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 35,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 1
+        },
+        "ai_usage": {
+          "site": "weapontester.com",
+          "total_cost_usd": 1.06788555,
+          "calls": 2
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "weirdassstuff.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:25.183364+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:25.945953+00:00"
+          }
+        },
+        "seo": {
+          "site": "weirdassstuff.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 1,
+          "clicks": 0,
+          "sessions": 27,
+          "conversions": 0,
+          "pages": 4
+        },
+        "ai_usage": {
+          "site": "weirdassstuff.com",
+          "total_cost_usd": 10.197798950000001,
+          "calls": 243
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:27.560120+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:29.554108+00:00"
+          }
+        },
+        "seo": {
+          "site": "weirdgirlstore.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 18,
+          "clicks": 0,
+          "sessions": 5,
+          "conversions": 0,
+          "pages": 9
+        },
+        "ai_usage": {
+          "site": "weirdgirlstore.com",
+          "total_cost_usd": 9.432296600000003,
+          "calls": 207
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "wetpages.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:31.022529+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:31.491925+00:00"
+          }
+        },
+        "seo": {
+          "site": "wetpages.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 163,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 10
+        },
+        "ai_usage": {
+          "site": "wetpages.com",
+          "total_cost_usd": 0.3944825,
+          "calls": 2
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "wetslit.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "no_change_supported",
+      "evidence": [],
+      "exceptions": [],
+      "missing_evidence": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "No supported exception found in the available window. Absence of evidence is not zero performance.",
+      "next_action": "Retain the compact report and avoid spending model/tooling budget on a deep dive without a new signal."
+    },
+    {
+      "site": "xxxtea.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:44:52.865Z",
+      "classification": "exception",
+      "evidence": [
+        "observed_search_or_conversion_signal",
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "high_priority_seo_actions"
+      ],
+      "missing_evidence": [],
+      "metrics": {
+        "analytics": {
+          "configured": true,
+          "ga4": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:33.232086+00:00"
+          },
+          "gsc": {
+            "status": "ok",
+            "last_fetch_at": "2026-09-21T06:18:33.987795+00:00"
+          }
+        },
+        "seo": {
+          "site": "xxxtea.com",
+          "actions": 14,
+          "high": 12,
+          "medium": 2,
+          "impressions": 3320,
+          "clicks": 113,
+          "sessions": 21,
+          "conversions": 0,
+          "pages": 106
+        },
+        "ai_usage": {
+          "site": "xxxtea.com",
+          "total_cost_usd": 9.377363449999997,
+          "calls": 44
+        },
+        "priority": {
+          "site": "xxxtea.com",
+          "lifecycle": "live",
+          "allocation": "repair-monetization",
+          "opportunity_score": 100,
+          "sessions": 21,
+          "conversions": 0,
+          "ai_cost_usd": 9.377363449999997,
+          "revenue_usd": 0,
+          "margin_usd": -9.377363449999997
+        }
+      },
+      "source_health": [
+        {
+          "state": "available",
+          "source": "analytics",
+          "observed_at": "2026-09-21T15:44:48.922977+00:00",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:44:48.937Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:44:51.663Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    }
+  ],
+  "deep_dive_candidates": [
+    {
+      "site": "0daynews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "0xroulette.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "aliencouncil.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "allthingsmasonic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "americastrikes.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "amputeenews.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "arttogogh.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "blackmarketapparel.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "complicated.work",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "deadlymaracas.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "deeppenetrations.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "driveford.net",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "drivegm.net",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "dumbsluts.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "eastcoastrappers.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "elevatorfriends.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "failbunny.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "findyourlostpets.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "fishhooklabs.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "gate03.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "girlpain.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "greatamericanlakes.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "howfishthink.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "infrainnovator.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "marineactivity.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "mynewgm.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "mynewgm.info",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "newmomshop.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "noveltyguns.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "nsfwpixels.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "nsfwpixles.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "offshorehookup.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "oventoheaven.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "pervypotion.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "pokererotic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "rc-9.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "reviewtattoo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "rodhat.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "saltwaternews.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "saveusfarms.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "searchwoot.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "seedstosauce.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "shoppinkflamingo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "shoptopless.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "sinderella.org",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "stinkyleftfoot.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "therareunicorn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "totaljerks.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "trainingsharks.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "ultrarough.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    },
+    {
+      "site": "unsupervisedmedia.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "vibratorporn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "weapontester.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "weirdassstuff.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "wetpages.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "wetslit.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "perform the recurring lightweight site review and surface growth opportunities"
+    },
+    {
+      "site": "xxxtea.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "review the measured exception and source freshness"
+    }
+  ],
+  "global_exceptions": [],
+  "source_contract": "Every field is sourced from the executive intelligence snapshot. Unavailable or stale data is labeled; no missing metric is treated as zero and no revenue forecast is inferred."
+}
