@@ -61,6 +61,7 @@ const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
 const domainReports = require('./domain-reports');
+const domainDispatcher = require('./domain-dispatcher');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -886,6 +887,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const report = domainReports.get(root, req.params.id);
       if (!report) return res.status(404).json({ error: 'domain report not found' });
       res.json({ report });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/domain-manager-queue', (_req, res) => {
+    try {
+      res.json({
+        queue: domainDispatcher.summary(root),
+        jobs: domainDispatcher.readState(root).jobs.slice(-100).reverse(),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

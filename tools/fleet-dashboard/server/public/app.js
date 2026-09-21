@@ -11629,20 +11629,40 @@ async function renderAutomation() {
 async function renderExecutive() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
-  let messages, proposals, actions, settings, brief, revops, experiments, campaigns, reports;
+  let messages,
+    proposals,
+    actions,
+    settings,
+    brief,
+    revops,
+    experiments,
+    campaigns,
+    reports,
+    managerQueue;
   try {
-    [messages, proposals, actions, settings, brief, revops, experiments, campaigns, reports] =
-      await Promise.all([
-        api('GET', '/api/executive/messages?limit=100'),
-        api('GET', '/api/executive/proposals?limit=100'),
-        api('GET', '/api/executive/actions?limit=200'),
-        api('GET', '/api/executive/settings'),
-        api('GET', '/api/executive/brief'),
-        api('GET', '/api/revops/summary'),
-        api('GET', '/api/experiments'),
-        api('GET', '/api/campaigns/summary'),
-        api('GET', '/api/executive/reports?limit=20'),
-      ]);
+    [
+      messages,
+      proposals,
+      actions,
+      settings,
+      brief,
+      revops,
+      experiments,
+      campaigns,
+      reports,
+      managerQueue,
+    ] = await Promise.all([
+      api('GET', '/api/executive/messages?limit=100'),
+      api('GET', '/api/executive/proposals?limit=100'),
+      api('GET', '/api/executive/actions?limit=200'),
+      api('GET', '/api/executive/settings'),
+      api('GET', '/api/executive/brief'),
+      api('GET', '/api/revops/summary'),
+      api('GET', '/api/experiments'),
+      api('GET', '/api/campaigns/summary'),
+      api('GET', '/api/executive/reports?limit=20'),
+      api('GET', '/api/executive/domain-manager-queue'),
+    ]);
   } catch (e) {
     app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
     return;
@@ -11692,6 +11712,7 @@ async function renderExecutive() {
   const campaignSummary = campaigns.summary || {};
   const reportRows = reports.reports || [];
   const latestReport = reportRows[0];
+  const managerQueueSummary = managerQueue.queue || {};
   app.innerHTML = `${executiveBreadcrumb}<div class="page-head"><div><h2 class="page-title">Fleet Executive Office</h2><div class="muted">CEO, CTO, CRO, CFO, domain-manager dispatch, owner oversight, and audit history</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
     <section class="stat-grid" style="margin-bottom:12px"><div><b>${pendingCount}</b><span>pending approvals</span></div><div><b>${esc(actions.actions?.length ?? '—')}</b><span>recent audited actions</span></div><div><b>${fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`}</b><span>fleet AI spend telemetry</span></div><div><b>${fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString()}</b><span>fleet AI calls</span></div></section>
     <section class="card" style="margin-bottom:12px"><h3>Message the executive team</h3><textarea id="ex-message" class="cm-input" rows="3" placeholder="Direction, feedback, questions, or priorities…"></textarea><div class="task-toolbar"><span class="muted">Messages are recorded as owner instructions.</span><button class="btn primary" id="ex-send">Send to CEO/CTO</button></div></section>
@@ -11699,6 +11720,7 @@ async function renderExecutive() {
     <section class="card" style="margin-bottom:12px"><h3>Operating intelligence</h3><div class="muted">Generated ${esc(fmtDate(brief.brief?.generated_at))}. These are inputs to the next autonomous tick, not claims of revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(intel.analytics?.configured_sites ?? '—')}</b><span>analytics-configured sites</span></div><div><b>${esc(intel.revenue?.commission_income ?? '—')}</b><span>commission income in export</span></div><div><b>${esc(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—')}</b><span>AI usage tokens</span></div><div><b>${esc(intel.seo?.ok ? 'available' : 'unavailable')}</b><span>SEO intelligence</span></div></div><p class="muted" style="margin-bottom:0">Spend telemetry is fleet-wide. Codex Pro is subscription-billed, so this page does not invent a per-run executive dollar cost.</p></section>
     <section class="card" style="margin-bottom:12px"><h3>Revenue operating system</h3><div class="muted">The CEO can now track the funnel, plan consent-aware campaigns, and run measured experiments instead of treating traffic as revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(revopsSummary.total_leads ?? 0)}</b><span>tracked leads</span></div><div><b>${esc(revopsSummary.mqls ?? 0)}</b><span>MQLs</span></div><div><b>${esc(revopsSummary.opportunities ?? 0)}</b><span>opportunities</span></div><div><b>${esc(experimentRows.filter(row => row.state === 'running').length)}</b><span>running experiments</span></div><div><b>${esc(campaignSummary.active ?? 0)}</b><span>active campaigns</span></div></div><p class="muted" style="margin-bottom:0">Campaigns are planning and attribution records today. Email is not sent until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></section>
     <section class="card" style="margin-bottom:12px"><h3>Domain-manager reports</h3><div class="muted">Exception-first reporting keeps the fleet visible without running a costly deep dive for every domain.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(reportRows.length)}</b><span>recent reports</span></div><div><b>${esc(latestReport?.summary?.sites_considered ?? 0)}</b><span>sites considered</span></div><div><b>${esc(latestReport?.summary?.exceptions ?? 0)}</b><span>latest exceptions</span></div><div><b>${esc(latestReport?.summary?.deep_dive_candidates ?? 0)}</b><span>deep-dive candidates</span></div></div><p class="muted" style="margin-bottom:0">Cadence: every 6 hours for exceptions, daily summaries, weekly evidence reviews, and on-demand site deep dives. ${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></section>
+    <section class="card" style="margin-bottom:12px"><h3>Domain-manager dispatch queue</h3><div class="muted">Candidates are deduplicated, priority-ranked, leased, and run one at a time. Great American Lakes is the owner-priority site.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(managerQueueSummary.queued ?? 0)}</b><span>queued</span></div><div><b>${esc(managerQueueSummary.running ?? 0)}</b><span>running</span></div><div><b>${esc(managerQueueSummary.completed ?? 0)}</b><span>completed</span></div><div><b>${esc(managerQueueSummary.failed ?? 0)}</b><span>failed</span></div></div><p class="muted" style="margin-bottom:0">Automatic dispatch runs at most one site manager per cycle and retries failed work with bounded attempts.</p></section>
     <section class="card" style="margin-bottom:12px"><h3>Conversation</h3>${messageRows || '<div class="empty">No executive messages yet.</div>'}</section>
     <section style="margin-bottom:12px"><div class="page-head"><div><h3>Owner approval queue</h3><div class="muted">Approve only work you want converted into a bounded change request.</div></div><span class="badge ${pendingCount ? 'b-yellow' : 'b-green'}">${pendingCount} awaiting decision</span></div>${pendingApprovalRows || '<div class="card empty">No executive requests need approval.</div>'}</section>
     <section class="card" style="margin-bottom:12px"><h3>Decision proposals</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals yet.</td></tr>'}</tbody></table></div></section>
