@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 from social_hub import db, notify, publisher, queue
 
 
@@ -21,6 +23,33 @@ def test_failure_notification_is_not_gated_by_quiet_mode(monkeypatch):
 
     assert len(calls) == 1
     assert "failed" in calls[0]["text"]
+
+
+def test_slack_notifications_disable_link_and_media_unfurls(monkeypatch):
+    calls: list[dict] = []
+
+    class Response:
+        def json(self):
+            return {"ok": True}
+
+    class FakeHttpx:
+        @staticmethod
+        def post(url, **kwargs):
+            calls.append({"url": url, **kwargs})
+            return Response()
+
+    monkeypatch.setitem(sys.modules, "httpx", FakeHttpx)
+    monkeypatch.setenv("SLACK_BOT_TOKEN", "token")
+    monkeypatch.setenv("SLACK_CHANNEL_ALPHA", "domain-alpha-com")
+    monkeypatch.delenv("SOCIAL_HUB_NO_SLACK", raising=False)
+    notify._env_loaded = False
+    notify._fleet_env = {}
+
+    assert notify.post_message("alpha.com", "hello", [{"type": "section"}]) is True
+
+    payload = calls[0]["json"]
+    assert payload["unfurl_links"] is False
+    assert payload["unfurl_media"] is False
 
 
 def test_successful_publish_links_platform_source_and_dashboard(synced, monkeypatch):

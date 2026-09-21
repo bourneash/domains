@@ -86,7 +86,16 @@ def post_message(site: str, text: str, blocks: list | None = None) -> bool:
         resp = httpx.post(
             "https://slack.com/api/chat.postMessage",
             headers={"Authorization": f"Bearer {token}"},
-            json={"channel": channel, "text": text, **({"blocks": blocks} if blocks else {})},
+            json={
+                "channel": channel,
+                "text": text,
+                # Keep publish alerts readable when they contain several
+                # Slack links. The links remain clickable, but Slack does
+                # not add a preview card for each destination.
+                "unfurl_links": False,
+                "unfurl_media": False,
+                **({"blocks": blocks} if blocks else {}),
+            },
             timeout=15,
         )
         return bool(resp.json().get("ok"))
