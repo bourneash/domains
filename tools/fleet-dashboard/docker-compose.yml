@@ -63,19 +63,13 @@ services:
       SOCIALHUB_API: ${SOCIALHUB_API:-http://social-hub-api:4772}
       SOCIALHUB_PUBLIC_URL: ${SOCIALHUB_PUBLIC_URL:-http://127.0.0.1:4772}
       # SOCIAL_HUB_TOKEN also arrives via env_file: above — see the note there.
-      # Every site repo in the fleet pushes over the same github-bourneash SSH
-      # identity (confirmed across sites — one shared account). -F /dev/null
-      # skips ~/.ssh/config entirely: root's default config-file lookup is
-      # /root/.ssh/config, and OpenSSH's strict ownership check on that file
-      # rejected it back when this ran as root. It now runs as uid 1000, which
-      # matches the mounted files' owner, but the explicit form is kept because
-      # -F /dev/null also discards the host's ~/.ssh/config. Every remote URL
-      # uses the literal host "github-bourneash" (the host's ~/.ssh/config
-      # alias for github.com) — since -F /dev/null also throws away that
-      # alias's HostName mapping, -o HostName=github.com restores it directly.
-      # Matches the same explicit-identity pattern every site's own cron
-      # containers already use.
+      # Git operations use one explicit deploy key and known_hosts file. Do
+      # not mount the host SSH directory or SSH config into the dashboard.
       GIT_SSH_COMMAND: "ssh -F /dev/null -i /home/node/.ssh/github-bourneash -o UserKnownHostsFile=/home/node/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
+      # Project-scoped workers receive only this Codex auth file; unrelated
+      # sessions, MCP config, and trust databases remain outside the panel.
+      FD_CODEX_AUTH_FILE: /run/secrets/codex-auth
+      FD_CODEX_AUTH_FILE_HOST: ${HOME:-/home/jesse}/.codex/auth.json
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -86,26 +80,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME:-/home/jesse}/projects/domains:${HOME:-/home/jesse}/projects/domains
-      # Git push/pull over SSH remotes (git@github-bourneash:...) needs the
-      # host's keys/config/known_hosts — read-only, same pattern every
-      # site's own cron containers already use for git push. The container
-      # runs as root (see Dockerfile), and OpenSSH resolves ~/.ssh via the
-      # passwd-database home dir (/root), NOT the $HOME env override used
-      # elsewhere in this compose file for path-matching — so this must be
-      # mounted at /root/.ssh specifically, not at $HOME/.ssh.
-      - ${HOME:-/home/jesse}/.ssh:/home/node/.ssh:ro
-      # Dev Sandboxes tab (folded in from the standalone domain-developer
-      # tool): spawned per-site worker containers get their Claude project
-      # dir bind-mounted RW here so per-site memory/transcripts land on the
-      # host, and share plugins/commands/hooks/skills/settings from the
-      # operator's own ~/.claude RO. This panel's OWN process only needs
-      # existsSync on these before deciding what to pass through to workers
-      # — same posture domain-developer's panel had, just relocated.
-      - ${HOME:-/home/jesse}/.claude/projects:${HOME:-/home/jesse}/.claude/projects
-      - ${HOME:-/home/jesse}/.claude:${HOME:-/home/jesse}/.claude:ro
-      # Codex CLI provider state is read by the panel only to seed isolated
-      # worker containers; workers receive a per-worker writable copy.
-      - ${HOME:-/home/jesse}/.codex:${HOME:-/home/jesse}/.codex:ro
+      # Git push/pull gets only the dedicated key and known_hosts.
+      - ${HOME:-/home/jesse}/.ssh/github-bourneash:/home/node/.ssh/github-bourneash:ro
+      - ${HOME:-/home/jesse}/.ssh/known_hosts:/home/node/.ssh/known_hosts:ro
+      # Only the single Codex auth file is mounted into the panel.
+      - ${HOME:-/home/jesse}/.codex/auth.json:/run/secrets/codex-auth:ro
     working_dir: ${HOME:-/home/jesse}/projects/domains/tools/fleet-dashboard
 
 networks:

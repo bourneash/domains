@@ -219,6 +219,13 @@ and presentation.
   require typing the exact improvement title. Cancellation will not discard a
   dirty worktree. Implementation agents time out after 45 minutes and cannot
   deploy or modify the linked task themselves.
+- **Worker boundary:** queue and developer workers run with a read-only root
+  filesystem, no Linux capabilities, no privilege escalation, resource limits,
+  and a dedicated per-worker bridge network. They receive only the requested
+  site/worktree, worker state, and (when configured) one Codex auth file; host
+  SSH directories, Claude directories, fleet `.env` files, and unrelated Codex
+  state are not mounted. The Fleet Manager itself remains a trusted control
+  plane because its authenticated API drives the Docker socket and repository.
 - Amazon earnings retain report-level tracking IDs and map a tag to a site only
   when the tag is uniquely discoverable in that site's source. Ambiguous and
   missing tags remain visibly unattributed.

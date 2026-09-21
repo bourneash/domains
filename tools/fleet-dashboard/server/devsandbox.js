@@ -14,6 +14,7 @@
 // separate no-auth threat model to reason about here.
 
 const { execFile } = require('node:child_process');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -62,6 +63,53 @@ function docker(args, opts) {
 }
 
 const containerName = site => `dd-${site}`;
+
+function sandboxNetworkName(instance) {
+  return `dd-net-${crypto.createHash('sha256').update(String(instance)).digest('hex').slice(0, 16)}`;
+}
+
+function sandboxSecurityArgs() {
+  return [
+    '--read-only',
+    '--cap-drop=ALL',
+    '--security-opt=no-new-privileges:true',
+    '--tmpfs',
+    '/tmp:rw,noexec,nosuid,size=1g',
+    '--tmpfs',
+    '/run:rw,noexec,nosuid,size=16m',
+    '--tmpfs',
+    '/home/dev/.cache:rw,noexec,nosuid,size=256m',
+    '--tmpfs',
+    '/home/dev/.local:rw,noexec,nosuid,size=64m',
+    '--tmpfs',
+    '/home/dev/.npm:rw,noexec,nosuid,size=512m',
+  ];
+}
+
+async function ensureSandboxNetwork(instance) {
+  const name = sandboxNetworkName(instance);
+  const existing = await docker(['network', 'inspect', name]);
+  if (existing.code === 0) return name;
+  const created = await docker([
+    'network',
+    'create',
+    '--driver',
+    'bridge',
+    '--label',
+    'dd.role=sandbox-network',
+    '--label',
+    `dd.instance=${instance}`,
+    name,
+  ]);
+  if (created.code !== 0)
+    throw httpErr(500, `docker network create failed: ${created.stderr.trim()}`);
+  return name;
+}
+
+async function removeSandboxNetwork(instance) {
+  const r = await docker(['network', 'rm', sandboxNetworkName(instance)]);
+  return r.code === 0 || /No such network|not found/i.test(r.stderr || '');
+}
 
 // listDdContainers() matches on `dd-*`, which also catches this panel's own
 // container if it were ever named that way — future-proofing the same
@@ -189,34 +237,34 @@ async function start(root, site, options = {}) {
   if (cur.status === 'running') return { started: false, ports };
 
   if (cur.exists) {
-    const r = await docker(['start', containerName(instance)]);
-    if (r.code !== 0) throw httpErr(500, `docker start failed: ${r.stderr}`);
-    return { started: true, ports };
+    // Workers are cattle: a stopped container may pin an old image and may
+    // still carry legacy mounts. Durable state is on host binds, so destroy
+    // it and create a fresh worker from the current definition.
+    const r = await docker(['rm', '-f', containerName(instance)]);
+    if (r.code !== 0) throw httpErr(500, `docker rm failed: ${r.stderr}`);
+    await removeSandboxNetwork(instance);
   }
 
   const { ttyd: ttydPort, dev: devPort } = allocPorts(instance);
   const hostHome = process.env.HOME || '/root';
-  const hostSharedEnv = path.join(root, '.env');
+  const network = await ensureSandboxNetwork(instance);
 
-  // Per-site claude project dir (same scheme the standalone tool used): the
-  // site is bind-mounted at the SAME host path inside the worker so cwd
-  // matches host → claude encodes the project ID identically, and that
-  // encoded dir is bind-mounted RW from the host's ~/.claude/projects/ so
-  // per-site memory + transcripts traverse up to the host.
+  // Keep project session state under the project-owned worker state tree. The
+  // worker never receives the operator's ~/.claude/projects directory.
   const projectId = hostSiteDir.replace(/\//g, '-');
-  const hostProjectDir = path.join(hostHome, '.claude', 'projects', projectId);
-  fs.mkdirSync(hostProjectDir, { recursive: true });
 
   const stateRoot = path.join(root, 'tools', 'domain-developer', 'state');
   const claudeStateDir = path.join(stateRoot, instance, 'claude');
   const codexStateDir = path.join(stateRoot, instance, 'codex');
+  const projectStateDir = path.join(stateRoot, instance, 'projects', projectId);
   const persistStateDir = path.join(stateRoot, instance, 'persist');
   fs.mkdirSync(claudeStateDir, { recursive: true });
   fs.mkdirSync(codexStateDir, { recursive: true });
+  fs.mkdirSync(projectStateDir, { recursive: true });
   fs.mkdirSync(persistStateDir, { recursive: true });
-
-  const claudeRoShares = ['plugins', 'commands', 'hooks', 'skills'];
-  const claudeCopyIn = ['settings.json', '.credentials.json'];
+  const codexAuthVisible =
+    process.env.FD_CODEX_AUTH_FILE || path.join(hostHome, '.codex', 'auth.json');
+  const codexAuthHost = process.env.FD_CODEX_AUTH_FILE_HOST || codexAuthVisible;
 
   const args = [
     'run',
@@ -225,8 +273,15 @@ async function start(root, site, options = {}) {
     containerName(instance),
     '--hostname',
     `dd-${instance}`,
+    ...sandboxSecurityArgs(),
+    '--network',
+    network,
+    '--label',
+    'dd.role=worker',
+    '--label',
+    `dd.site=${site}`,
     '--restart',
-    'unless-stopped',
+    'no',
     '--stop-timeout',
     '30',
     '--memory',
@@ -255,11 +310,7 @@ async function start(root, site, options = {}) {
     '-v',
     `${codexStateDir}:/home/dev/.codex`,
     '-v',
-    `${hostHome}/.claude.json:/host-claude-json-ro:ro`,
-    '-v',
-    `${hostProjectDir}:/home/dev/.claude/projects/${projectId}`,
-    '-v',
-    `${hostHome}/.ssh:/home/dev/.ssh:ro`,
+    `${projectStateDir}:/home/dev/.claude/projects/${projectId}`,
     '-v',
     `${persistStateDir}:/home/dev/persist`,
     '-e',
@@ -267,32 +318,25 @@ async function start(root, site, options = {}) {
     '-e',
     `SITE_DIR=${hostSiteDir}`,
     '-e',
-    `HOST_HOME=${hostHome}`,
-    '-e',
     'TTYD_PORT=7681',
   ];
-  for (const name of claudeRoShares) {
-    const src = path.join(hostHome, '.claude', name);
-    if (fs.existsSync(src)) args.push('-v', `${src}:/home/dev/.claude/${name}:ro`);
+  // The worker receives only the requested site/worktree and one provider auth
+  // file. Hide site/fleet env files even when they live inside that bind mount.
+  for (const name of ['.env', '.env.shared']) {
+    const target = path.join(hostSiteDir, name);
+    if (fs.existsSync(target))
+      args.push('--mount', `type=bind,src=/dev/null,dst=${target},readonly`);
   }
-  for (const name of claudeCopyIn) {
-    const src = path.join(hostHome, '.claude', name);
-    if (fs.existsSync(src)) args.push('-v', `${src}:/host-claude-ro/${name}:ro`);
-  }
-  for (const name of ['auth.json', 'config.toml']) {
-    const src = path.join(hostHome, '.codex', name);
-    if (fs.existsSync(src)) args.push('-v', `${src}:/host-codex-ro/${name}:ro`);
-  }
-  if (fs.existsSync(hostSharedEnv))
-    args.push('-v', `${hostSharedEnv}:${hostSiteDir}/.env.shared:ro`);
-  const canonicalEnv = path.join(canonicalSiteDir, '.env');
-  if (options.workspaceDir && fs.existsSync(canonicalEnv))
-    args.push('-v', `${canonicalEnv}:${hostSiteDir}/.env:ro`);
+  if (fs.existsSync(codexAuthVisible))
+    args.push('--mount', `type=bind,src=${codexAuthHost},dst=/host-codex-ro/auth.json,readonly`);
   args.push(IMAGE);
 
   const r = await docker(args);
-  if (r.code !== 0) throw httpErr(500, `docker run failed: ${r.stderr.trim()}`);
-  return { started: true, ports: { ttyd: ttydPort, dev: devPort } };
+  if (r.code !== 0) {
+    await removeSandboxNetwork(instance);
+    throw httpErr(500, `docker run failed: ${r.stderr.trim()}`);
+  }
+  return { started: true, ports: { ttyd: ttydPort, dev: devPort }, network };
 }
 
 function improvementInstance(runId) {
@@ -308,6 +352,7 @@ async function startImprovement(root, site, runId, workspaceDir) {
     ...result,
     instance,
     container: containerName(instance),
+    network: result.network || sandboxNetworkName(instance),
     ttydUrl: `http://${PUBLIC_HOST}:${result.ports.ttyd}/`,
     devUrl: `http://${PUBLIC_HOST}:${result.ports.dev}/`,
   };
@@ -323,6 +368,7 @@ async function remove(site) {
   await docker(['stop', containerName(site)]);
   const r = await docker(['rm', containerName(site)]);
   if (r.code !== 0) throw httpErr(500, r.stderr.trim());
+  await removeSandboxNetwork(site);
   return { ok: true };
 }
 
@@ -600,8 +646,10 @@ async function cleanupOrphans(sites) {
   const errors = [];
   for (const site of danglingContainers) {
     const r = await docker(['rm', '-f', containerName(site)]);
-    if (r.code === 0) removed.push(site);
-    else errors.push({ site, error: r.stderr.trim() });
+    if (r.code === 0) {
+      await removeSandboxNetwork(site);
+      removed.push(site);
+    } else errors.push({ site, error: r.stderr.trim() });
   }
   pruneStalePorts(stalePorts);
   return { ok: errors.length === 0, removedContainers: removed, prunedPorts: stalePorts, errors };
@@ -630,8 +678,10 @@ async function removeStopped() {
   for (const site of notRunning) {
     await docker(['stop', containerName(site)]);
     const r = await docker(['rm', containerName(site)]);
-    if (r.code === 0) removed.push(site);
-    else errors.push({ site, error: r.stderr.trim() });
+    if (r.code === 0) {
+      await removeSandboxNetwork(site);
+      removed.push(site);
+    } else errors.push({ site, error: r.stderr.trim() });
   }
   return { ok: errors.length === 0, removed, errors };
 }
@@ -653,6 +703,8 @@ module.exports = {
   improvementArtifactPath,
   startImprovement,
   improvementInstance,
+  sandboxNetworkName,
+  sandboxSecurityArgs,
   stats,
   findOrphans,
   cleanupOrphans,

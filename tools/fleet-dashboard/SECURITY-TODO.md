@@ -25,10 +25,9 @@ couplings had to move with it:
 
 1. `chown -R node:node /app` in the Dockerfile (`COPY` + `npm install` ran as
    root and left it root-owned).
-2. **SSH.** OpenSSH resolves `~/.ssh` from the **passwd** home dir, not `$HOME`
-   — `/home/node` for this user. The key mount moved `/root/.ssh` →
-   `/home/node/.ssh` and `GIT_SSH_COMMAND` was repointed to match. Missing this
-   is the failure mode that would have broken every push silently.
+2. **SSH.** OpenSSH uses `/home/node/.ssh` for this user. The dashboard now
+   mounts only the dedicated deploy key and `known_hosts` file there; the host
+   SSH directory and config are not exposed.
 3. **Docker socket.** The socket is `root:docker`; uid 1000 reaches it through
    `group_add: ["${DOCKER_GID}"]`, not through capabilities — which is why
    `cap_drop: ALL` is safe here.
@@ -96,3 +95,18 @@ Still runs as root, and is staying that way for now.
 
 Revisit if it ever gains a repo mount. Until then the containment is the
 loopback-only port and the isolated data dir.
+
+## RESOLVED 2026-09-21: project-scoped developer workers
+
+Fleet Manager queue/developer workers now run with a read-only root filesystem,
+all Linux capabilities dropped, `no-new-privileges`, bounded resources, and a
+dedicated per-worker bridge network. A worker receives only its requested
+site/worktree, its own state directories, and the single Codex auth file needed
+for its provider. It no longer receives host `.ssh`, `.claude`, `.codex`, fleet
+`.env`, or shared project-session mounts. Site `.env` files are masked inside
+the worker mount. Worker networks are removed with the worker container.
+
+The Fleet Manager remains a trusted control plane: it intentionally retains the
+authenticated Docker socket and the project repository mount to inspect the
+fleet and launch bounded workers. That authority is not passed through to the
+worker containers.

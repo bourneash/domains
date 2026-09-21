@@ -96,7 +96,16 @@ if [[ -n "${SITE_DIR:-}" && -f "${SITE_DIR}/.env" ]]; then
     set +a
 fi
 
-cat > /home/dev/.banner <<EOF
+# The hardened Fleet Manager worker has a read-only image root. Keep these
+# generated convenience files in /tmp when /home/dev itself is immutable;
+# DD_BANNER_PATH is consumed by the image bashrc.
+BANNER_PATH=/home/dev/.banner
+if ! (umask 077; : > "${BANNER_PATH}") 2>/dev/null; then
+    BANNER_PATH=/tmp/dd-banner
+fi
+export DD_BANNER_PATH="${BANNER_PATH}"
+
+cat > "${BANNER_PATH}" <<EOF
 
 ╔════════════════════════════════════════════════════════════════╗
 ║  domain-developer — sandboxed dev shell                        ║
@@ -124,7 +133,12 @@ PORT="${TTYD_PORT:-7681}"
 # browser closes — close the tab or restart ttyd and you reattach exactly where
 # you were. (A full container restart ends the tmux server, but all state is on
 # host binds and the transcript is on disk, so `claude --resume` continues it.)
-cat > /home/dev/.tmux.conf <<'TMUXCONF'
+TMUX_CONF_PATH=/home/dev/.tmux.conf
+if ! (umask 077; : > "${TMUX_CONF_PATH}") 2>/dev/null; then
+    TMUX_CONF_PATH=/tmp/dd-tmux.conf
+fi
+
+cat > "${TMUX_CONF_PATH}" <<'TMUXCONF'
 set -g default-command "bash -l"
 set -g history-limit 100000
 set -g mouse on
@@ -151,4 +165,4 @@ exec ttyd \
     -t fontSize=14 \
     -t rendererType=canvas \
     -t 'theme={"background":"#0a0a0a","foreground":"#e6e6e6","cursor":"#ffaa00"}' \
-    tmux new-session -A -s dd
+    tmux -f "${TMUX_CONF_PATH}" new-session -A -s dd

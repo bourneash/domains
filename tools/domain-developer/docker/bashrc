@@ -38,4 +38,4 @@ cd "${SITE_DIR:-/work}" 2>/dev/null || true
 
 # Show the welcome banner (written by the entrypoint each boot). With tmux this
 # prints once per shell/pane instead of once per ttyd session.
-[[ $- == *i* && -r ~/.banner ]] && cat ~/.banner
+[[ $- == *i* && -r "${DD_BANNER_PATH:-$HOME/.banner}" ]] && cat "${DD_BANNER_PATH:-$HOME/.banner}"
