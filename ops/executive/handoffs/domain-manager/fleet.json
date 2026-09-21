@@ -2,23 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:15:39.430Z",
+  "generated_at": "2026-09-21T19:16:23.556Z",
   "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "0daynews measurement coverage review",
-        "summary": "Document the site’s unavailable analytics, SEO, conversion, revenue-attribution, and operational telemetry, then define a report-only baseline checklist before content or monetization decisions are made.",
+        "title": "0xroulette measurement coverage review",
+        "summary": "Document unavailable analytics, SEO, conversion, revenue-attribution, and operational telemetry, then define a report-only baseline checklist before content or monetization decisions are made.",
         "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "cb93458a-24f4-46c3-8480-186b5ee7137c"
+        "proposal_id": "f956b791-f686-4bfe-b497-abf3b7dba579"
       },
       {
         "kind": "proposal",
-        "title": "0daynews AI usage and cancellation-control diagnosis",
-        "summary": "Conduct a report-only review of AI workload volume, error handling, cancellation behavior, and bounded-run controls for 0daynews.com; separate observed cost from unproven avoidable spend.",
+        "title": "0xroulette AI usage and cancellation-control diagnosis",
+        "summary": "Review the site's AI workload volume and bounded-run controls, separating observed usage cost from unproven avoidable spend or return.",
         "requested_action": "Approve factual findings, control-gap analysis, reversible designs, validation tests, and effort notes. Do not alter schedules, models, credentials, spending, queues, or production configuration.",
-        "proposal_id": "8084f4ec-e110-411b-b249-69e7f4d4d264"
+        "proposal_id": "e1bf897b-3c8d-4dbe-8c6d-20385c1adf6a"
       }
     ]
   }
