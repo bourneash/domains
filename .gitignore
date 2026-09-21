@@ -49,6 +49,7 @@ tools/scripts/.ensure-fleet-cron-alerts/
 tools/scripts/.check-claude-auth-state
 tools/scripts/.check-claude-auth-alerted
 tools/scripts/.dd-auth-state/
+tools/scripts/.dd-auth-alerts/
 # Scheduler-freshness watchdogs: alert cooldown stamps and the rolling
 # restart-tracking state. Runtime state, not source.
 tools/scripts/.cron-freshness.last-alert
