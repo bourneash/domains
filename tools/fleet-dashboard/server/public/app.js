@@ -28,7 +28,7 @@ function agentLabel(role) {
 
 function executiveActorLabel(actor) {
   if (String(actor) === 'researcher') return 'CRO';
-  return String(actor || '').toUpperCase() === 'CEO' || String(actor || '').toUpperCase() === 'CTO'
+  return ['CEO', 'CTO', 'CFO'].includes(String(actor || '').toUpperCase())
     ? String(actor).toUpperCase()
     : agentLabel(actor);
 }
@@ -11689,7 +11689,7 @@ async function renderExecutive() {
   const revopsSummary = revops.summary || {};
   const experimentRows = experiments.experiments || [];
   const campaignSummary = campaigns.summary || {};
-  app.innerHTML = `${executiveBreadcrumb}<div class="page-head"><div><h2 class="page-title">CEO / CTO Executive Office</h2><div class="muted">Autonomous business leadership, owner approvals, operating context, and audit history</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
+  app.innerHTML = `${executiveBreadcrumb}<div class="page-head"><div><h2 class="page-title">Fleet Executive Office</h2><div class="muted">CEO, CTO, CRO, CFO, domain-manager dispatch, owner oversight, and audit history</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
     <section class="stat-grid" style="margin-bottom:12px"><div><b>${pendingCount}</b><span>pending approvals</span></div><div><b>${esc(actions.actions?.length ?? '—')}</b><span>recent audited actions</span></div><div><b>${fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`}</b><span>fleet AI spend telemetry</span></div><div><b>${fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString()}</b><span>fleet AI calls</span></div></section>
     <section class="card" style="margin-bottom:12px"><h3>Message the executive team</h3><textarea id="ex-message" class="cm-input" rows="3" placeholder="Direction, feedback, questions, or priorities…"></textarea><div class="task-toolbar"><span class="muted">Messages are recorded as owner instructions.</span><button class="btn primary" id="ex-send">Send to CEO/CTO</button></div></section>
     <section class="card" style="margin-bottom:12px"><h3>Owner strategy contract</h3><div class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</div><div class="form-grid" style="margin-top:10px"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Fixed monthly costs<input id="ex-fixed-costs" class="cm-input" value="${esc(s.fixed_costs_monthly || '')}" placeholder="optional"></label><label>Marketing budget<input id="ex-marketing-budget" class="cm-input" value="${esc(s.marketing_budget_monthly || '')}" placeholder="optional"></label><label>Revenue floor<input id="ex-revenue-floor" class="cm-input" value="${esc(s.revenue_floor_monthly || '')}" placeholder="optional"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="subscription / cap"></label><label>Attribution materiality threshold<input id="ex-attribution-threshold" class="cm-input" value="${esc(s.attribution_materiality_threshold || '')}" placeholder="e.g. 100"></label><label>Risk tolerance<input id="ex-risk" class="cm-input" value="${esc(s.risk_tolerance || '')}" placeholder="low, medium, high"></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label>Operating notes<textarea id="ex-notes" class="cm-input" rows="3" placeholder="What the executive should optimize for…">${esc(s.operating_notes || '')}</textarea></label><label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks (reviewed queue execution is enabled)</label><div class="task-toolbar"><span class="muted">No spend or deployment authority is granted by these settings.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></section>
@@ -11941,7 +11941,7 @@ function buildAgentsMenu() {
     [['executive', 'Executive Leadership', ''], ...(STATE.agents || [])]
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Leadership' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO</span>' : `<span class="dd-count">${a[2] ?? a.sites}</span>`}</a>`
+          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Leadership' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a[2] ?? a.sites}</span>`}</a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>

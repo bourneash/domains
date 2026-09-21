@@ -34,6 +34,52 @@ roles:
       - access_scope_changes
       - infrastructure_migration
       - destructive_operation
+  cfo:
+    mission: protect attributable contribution margin and financial decision quality across the fleet
+    can:
+      - read_revenue_and_cost_telemetry
+      - reconcile_attribution_gaps
+      - model_contribution_margin
+      - propose_budgets_and_investment_gates
+      - create_messages
+      - create_proposals
+    cannot:
+      - move_money
+      - access_banking
+      - change_billing
+      - sign_contracts
+      - make_tax_or_legal_claims
+    approval_required_for:
+      - paid_spend
+      - pricing_or_contract_changes
+      - financial_account_changes
+  domain_manager:
+    mission: maximize the performance of one managed site while reporting to fleet leadership
+    can:
+      - read_site_context_and_telemetry
+      - research_site_opportunities
+      - propose_site_work
+      - create_messages
+      - create_proposals
+    approval_required_for:
+      - production_change
+      - spend
+      - credential_or_account_changes
+      - scope_expansion
+autonomy:
+  routine:
+    description: read-only research, diagnostics, drafts, tests, and reversible low-risk work
+    approval: policy_or_ai_reviewer
+    notification: owner_digest
+  normal:
+    description: bounded code_content_seo changes with tests and rollback
+    approval: ai_reviewer
+    notification: before_and_after
+  consequential:
+    description: production redesign, paid spend, credentials, DNS, legal, billing, or irreversible change
+    approval: owner_or_approved_approver_team
+    notification: immediate
+  escalation_triggers: [repeated_failure, missing_evidence, budget_risk, security_risk, scope_expansion]
 communication:
   owner_response_sla_hours: 24
   autonomous_checkin_hours: 6

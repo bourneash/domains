@@ -5,7 +5,17 @@
 // deployment, credential, or arbitrary host access; approved work enters the
 // existing change queue and improvement workbench.
 
-const ACTORS = new Set(['owner', 'ceo', 'cto', 'researcher', 'reviewer', 'system']);
+const ACTORS = new Set([
+  'owner',
+  'ceo',
+  'cto',
+  'cro',
+  'cfo',
+  'domain-manager',
+  'researcher',
+  'reviewer',
+  'system',
+]);
 const PROPOSAL_TYPES = new Set([
   'business',
   'growth',
@@ -39,8 +49,12 @@ function message(store, input = {}) {
 function proposal(store, input = {}) {
   if (!PROPOSAL_TYPES.has(String(input.proposal_type || 'business')))
     throw httpErr(400, 'invalid proposal_type');
-  if (!['ceo', 'cto', 'researcher'].includes(String(input.created_by || 'ceo')))
-    throw httpErr(400, 'proposals must be created by ceo, cto, or researcher');
+  if (
+    !['ceo', 'cto', 'cro', 'cfo', 'domain-manager', 'researcher'].includes(
+      String(input.created_by || 'ceo')
+    )
+  )
+    throw httpErr(400, 'proposals must be created by an executive role or researcher');
   return store.createExecutiveProposal({ ...input, created_by: String(input.created_by || 'ceo') });
 }
 

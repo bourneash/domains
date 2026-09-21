@@ -59,6 +59,21 @@ function buildSiteContext(root = ROOT) {
   });
 }
 
+function buildDomainManagerContext(root = ROOT) {
+  const focus = String(process.env.EXECUTIVE_DOMAIN || '')
+    .trim()
+    .toLowerCase();
+  if (!focus) return null;
+  if (!executiveSites(root).includes(focus))
+    throw new Error('EXECUTIVE_DOMAIN is not a managed site');
+  return {
+    site: focus,
+    role: 'domain-manager',
+    instruction:
+      'Focus deeply on this managed site while preserving fleet-wide policy. Return site-specific observations and proposals to fleet leadership; do not act outside this site.',
+  };
+}
+
 async function collectIntel(root, sites) {
   // Host-only import: the isolated model image loads runner.js for prompt and
   // plan validation, but it must not need dashboard telemetry modules.
@@ -138,7 +153,7 @@ async function buildBrief(store, root = ROOT) {
       execution:
         'Messages and proposals may be applied automatically; queued work requires explicit queue enablement or owner approval. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
       delegation:
-        'CEO, CTO, and independent reviewer passes run sequentially; later passes may reduce or reject the earlier plan.',
+        'CEO, CFO, CTO, and independent reviewer passes run sequentially; domain managers are invoked on demand for one managed site and report back to fleet leadership. Later passes may reduce or reject the earlier plan.',
     },
     owner_strategy: store.getExecutiveSettings(),
     intelligence: intel,
@@ -147,6 +162,7 @@ async function buildBrief(store, root = ROOT) {
       cro_contract:
         'CRO trend signals are discovery leads, not proof of quality, license fit, security, revenue, or conversion impact. CEO/CTO must validate before implementation.',
     },
+    domain_manager: buildDomainManagerContext(root),
     queue: queued.map(({ request_id, site, title, category, priority, status, assigned_role }) => ({
       request_id,
       site,
@@ -182,7 +198,7 @@ async function buildBrief(store, root = ROOT) {
 }
 
 function buildPrompt(brief) {
-  return `You are the autonomous CEO and CTO of a domain portfolio. Your mission is attributable revenue growth and durable enterprise value. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
+  return `You are the autonomous CEO of a domain portfolio working with a CTO, CRO, CFO, and on-demand domain managers. Your mission is attributable revenue growth and durable enterprise value across the fleet. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
 
 Rules:
 - Use only evidence present in the brief; label uncertainty and propose research when evidence is missing.
@@ -194,6 +210,8 @@ Rules:
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
+- Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
+- Treat domain managers as on-demand site specialists. They may surface site-specific opportunities, but the CEO owns portfolio prioritization and must prevent one site from consuming disproportionate attention without evidence.
 - Use the experiment system for competing variants: state a hypothesis, primary metric, guardrails, sample threshold, and stop/ship decision. Do not recommend a winner before the sample threshold is met.
 - You may recommend ethical technical/editorial SEO, experimentation, partnerships, outreach with consent, product work, and redesigns.
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
@@ -201,9 +219,9 @@ Rules:
 
 Return ONLY valid JSON with this shape:
 {
-  "messages": [{"actor":"ceo|cto","body":"concise owner update"}],
+  "messages": [{"actor":"ceo|cto|cfo|domain-manager","body":"concise owner update"}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
-  "proposals": [{"created_by":"ceo|cto","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain","title":"optional low-risk task","body":"optional implementation body","category":"engineering|content|marketing|sales|seo|design|other","priority":"medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
+  "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain","title":"optional low-risk task","body":"optional implementation body","category":"engineering|content|marketing|sales|seo|design|other","priority":"medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}]
 }
 
@@ -218,7 +236,11 @@ function buildPassPrompt(brief, role, candidate = null) {
   const base =
     role === 'cto'
       ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
-      : 'You are the independent executive reviewer. Reject unsupported revenue claims, missing evidence, scope violations, unsafe tactics, high-priority queue work, and proposals that lack a measurable outcome. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+      : role === 'cfo'
+        ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims.'
+        : role === 'domain-manager'
+          ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy.'
+          : 'You are the independent executive reviewer. Reject unsupported revenue claims, missing evidence, scope violations, unsafe tactics, high-priority queue work, and proposals that lack a measurable outcome. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(brief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(candidate || {})}`;
 }
 
@@ -269,7 +291,7 @@ function validatePlan(plan) {
   }
   for (const item of plan.messages) {
     if (
-      !['ceo', 'cto'].includes(String(item.actor)) ||
+      !['ceo', 'cto', 'cfo', 'domain-manager'].includes(String(item.actor)) ||
       !String(item.body || '').trim() ||
       String(item.body).length > 10000
     )
@@ -279,7 +301,7 @@ function validatePlan(plan) {
   }
   for (const item of plan.proposals) {
     if (
-      !['ceo', 'cto'].includes(String(item.created_by || 'ceo')) ||
+      !['ceo', 'cto', 'cro', 'cfo', 'domain-manager'].includes(String(item.created_by || 'ceo')) ||
       !String(item.title || '').trim() ||
       String(item.title).length > 300 ||
       !String(item.summary || '').trim() ||
@@ -434,7 +456,14 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       if (!item.site || !item.title || !item.body)
         throw new Error('change request requires site, title and body');
       const audit = executive.action(store, {
-        actor: item.assigned_role === 'cto' ? 'cto' : 'ceo',
+        actor:
+          item.assigned_role === 'cto'
+            ? 'cto'
+            : item.assigned_role === 'cfo'
+              ? 'cfo'
+              : item.assigned_role === 'domain-manager'
+                ? 'domain-manager'
+                : 'ceo',
         action_type: 'queue-work',
         summary: item.title,
       });
@@ -582,6 +611,7 @@ module.exports = {
   discoverSites,
   executiveSites,
   buildSiteContext,
+  buildDomainManagerContext,
   buildBrief,
   buildPrompt,
   buildPassPrompt,

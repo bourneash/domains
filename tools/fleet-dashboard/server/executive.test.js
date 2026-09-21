@@ -85,6 +85,25 @@ test('allows the research officer to submit an executive proposal', () => {
   db.close();
 });
 
+test('allows CFO and domain-manager messages and proposals', () => {
+  const db = store();
+  executive.message(db, { actor: 'cfo', body: 'Margin confidence is low.' });
+  executive.message(db, {
+    actor: 'domain-manager',
+    body: 'The site needs a measured content test.',
+  });
+  const proposal = executive.proposal(db, {
+    title: 'Site economics report',
+    proposal_type: 'business',
+    created_by: 'cfo',
+    summary: 'Reconcile site revenue and costs.',
+    requested_action: 'Approve a report-only review.',
+  });
+  assert.equal(proposal.created_by, 'cfo');
+  assert.equal(db.listExecutiveMessages().length, 2);
+  db.close();
+});
+
 test('owner approval turns a bounded implementation into a linked change request', () => {
   const db = store();
   const proposal = executive.proposal(db, {

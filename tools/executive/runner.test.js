@@ -32,6 +32,33 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   store.close();
 });
 
+test('supports CFO review and on-demand managed-site context without widening scope', async () => {
+  const { root, store } = db();
+  process.env.EXECUTIVE_DOMAIN = 'example.com';
+  const brief = await runner.buildBrief(store, root);
+  assert.equal(brief.domain_manager.site, 'example.com');
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ actor: 'cfo', body: 'Attribution is incomplete; do not forecast revenue yet.' }],
+      proposals: [
+        {
+          created_by: 'cfo',
+          title: 'Reconcile pilot economics',
+          proposal_type: 'business',
+          summary: 'Document revenue and cost gaps.',
+          requested_action: 'Approve a report-only reconciliation.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  assert.equal(plan.messages[0].actor, 'cfo');
+  assert.equal(plan.proposals[0].created_by, 'cfo');
+  delete process.env.EXECUTIVE_DOMAIN;
+  store.close();
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'

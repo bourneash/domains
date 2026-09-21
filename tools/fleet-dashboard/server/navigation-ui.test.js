@@ -29,7 +29,8 @@ test('executive leadership is a first-class Agents page', () => {
   assert.equal(routeFor('#agents/executive').agent, 'executive');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /Executive Leadership/);
-  assert.match(app, /CEO \/ CTO Executive Office/);
+  assert.match(app, /Fleet Executive Office/);
+  assert.match(app, /CEO, CTO, CRO, CFO/);
   assert.match(app, /fleet AI spend telemetry/);
 });
 
