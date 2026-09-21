@@ -38,11 +38,15 @@ test('analyze fails GA4 that loads without consent evidence', () => {
 
 test('scriptUrls keeps only unique same-origin bundles', () => {
   const html = `<script src="/assets/app.js"></script><script src="/assets/app.js"></script><script src="https://evil.test/x.js"></script>`;
-  assert.deepEqual(compliance.scriptUrls(html, 'https://example.com/'), ['https://example.com/assets/app.js']);
+  assert.deepEqual(compliance.scriptUrls(html, 'https://example.com/'), [
+    'https://example.com/assets/app.js',
+  ]);
 });
 
 test('measurement ID detection ignores lookalike UI tokens', () => {
-  const row = compliance.analyze('G-GRADIENT G-RELAXED G-ABC1234567', { url: 'https://example.com/' });
+  const row = compliance.analyze('G-GRADIENT G-RELAXED G-ABC1234567', {
+    url: 'https://example.com/',
+  });
   assert.deepEqual(row.measurementIds, ['G-ABC1234567']);
 });
 
@@ -57,7 +61,9 @@ test('compiled React router paths count only with matching legal-page content', 
   assert.equal(row.evidence.privacyUrl, 'https://0xroulette.com/privacy');
   assert.equal(row.evidence.termsUrl, 'https://0xroulette.com/terms');
 
-  const mentionOnly = compliance.analyze('See /privacy and /terms sometime', { url: 'https://example.com/' });
+  const mentionOnly = compliance.analyze('See /privacy and /terms sometime', {
+    url: 'https://example.com/',
+  });
   assert.equal(mentionOnly.checks.privacy, false);
   assert.equal(mentionOnly.checks.terms, false);
 });
@@ -69,12 +75,17 @@ test('bundle evidence extracts human labels and ignores minified code identifier
   const row = compliance.analyze(source, { url: 'https://example.com/' });
   assert.equal(row.evidence.acceptLabel, 'Accept');
   assert.equal(row.evidence.rejectLabel, 'Decline');
-  assert.equal(row.evidence.bannerWording, 'We use a privacy-respecting analytics cookie. No ad tracking.');
+  assert.equal(
+    row.evidence.bannerWording,
+    'We use a privacy-respecting analytics cookie. No ad tracking.'
+  );
 });
 
-test('scanSite classifies HTTP and unsupported-content unknowns', async (t) => {
+test('scanSite classifies HTTP and unsupported-content unknowns', async t => {
   const originalFetch = global.fetch;
-  t.after(() => { global.fetch = originalFetch; });
+  t.after(() => {
+    global.fetch = originalFetch;
+  });
 
   global.fetch = async () => ({
     ok: false,
@@ -97,18 +108,23 @@ test('scanSite classifies HTTP and unsupported-content unknowns', async (t) => {
   assert.equal(contentRow.errorType, 'unsupported-content');
 });
 
-test('fleet scans expose progress and retain per-site history', async (t) => {
+test('fleet scans expose progress and retain per-site history', async t => {
   const originalFetch = global.fetch;
-  t.after(() => { global.fetch = originalFetch; });
+  t.after(() => {
+    global.fetch = originalFetch;
+  });
   let release;
-  const gate = new Promise((resolve) => { release = resolve; });
+  const gate = new Promise(resolve => {
+    release = resolve;
+  });
   global.fetch = async () => {
     await gate;
     return {
       ok: true,
       status: 200,
       headers: { get: () => 'text/html' },
-      text: async () => '<div class="cookie-banner"><button>Accept</button><button>Reject</button>Cookie consent</div><a href="/privacy">Privacy</a><a href="/terms">Terms</a>',
+      text: async () =>
+        '<div class="cookie-banner"><button>Accept</button><button>Reject</button>Cookie consent</div><a href="/privacy">Privacy</a><a href="/terms">Terms</a>',
     };
   };
 
@@ -124,4 +140,25 @@ test('fleet scans expose progress and retain per-site history', async (t) => {
   assert.equal(row.history.length, 1);
   assert.equal(row.history[0].change, 'new');
   assert.equal(compliance.fleetHistory(['progress.test']).at(-1).passRate, 100);
+});
+
+test('missing sites can be discovered and scanned without refreshing the fleet', async t => {
+  const originalFetch = global.fetch;
+  t.after(() => {
+    global.fetch = originalFetch;
+  });
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: () => 'text/html' },
+    text: async () =>
+      '<div class="cookie-banner"><button>Accept</button><button>Reject</button>Cookie consent</div><a href="/privacy">Privacy</a><a href="/terms">Terms</a>',
+  });
+
+  const pending = compliance.scanMissing(['new-site.test']);
+  assert.equal(compliance.matrix(['new-site.test'])[0].errorType, 'not-scanned');
+  await pending;
+  const row = compliance.matrix(['new-site.test'])[0];
+  assert.equal(row.status, 'pass');
+  assert.equal(row.errorType, undefined);
 });
