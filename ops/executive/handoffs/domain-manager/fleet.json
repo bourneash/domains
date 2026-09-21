@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:09:21.620Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-21T20:11:44.528Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Restore sitemap crawl path",
-        "summary": "The SEO snapshot reports a high-priority crawlability issue: no sitemap, or a sitemap returning no page URLs. Diagnose the sitemap and indexing path before further growth work.",
-        "requested_action": "Approve a report-only diagnosis with reversible implementation notes. Do not deploy or modify production configuration.",
-        "proposal_id": "880a5f03-0243-4740-8b13-8515225f3812"
-      },
-      {
-        "kind": "proposal",
-        "title": "Assess private-preview search and alert readiness",
-        "summary": "Review the private-preview Woot deal search terminal’s audience fit, imported FastAPI/SQLite architecture, 15-minute fetcher, compound alerts, and shared Slack notifications; identify the smallest measurable path to validate usefulness and retention.",
-        "requested_action": "Approve a report-only audience, product-readiness, and validation assessment. Do not provision credentials, change integrations, spend money, or alter production systems.",
-        "proposal_id": "9d9fdd98-2174-4444-a6a1-0dd5b5aa05f9"
+        "title": "Assess guide, affiliate, and publishing readiness",
+        "summary": "Review the Rocket League guide and gaming-gear affiliate positioning, content coverage, conversion paths, and AI-assisted publishing controls before further investment.",
+        "requested_action": "Approve a report-only assessment of audience segments, guide and gear content gaps, affiliate placement, publishing quality controls, and a prioritized validation backlog. Do not deploy, modify production configuration, change schedules, provision credentials, or spend money.",
+        "proposal_id": "da70aa41-4b38-444c-899d-86eb4810773b"
       }
     ]
   }
