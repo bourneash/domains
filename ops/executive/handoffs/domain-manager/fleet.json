@@ -2,23 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:16:23.556Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-21T19:17:57.206Z",
+  "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "0xroulette measurement coverage review",
-        "summary": "Document unavailable analytics, SEO, conversion, revenue-attribution, and operational telemetry, then define a report-only baseline checklist before content or monetization decisions are made.",
-        "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "f956b791-f686-4bfe-b497-abf3b7dba579"
+        "title": "Alien Council measurement coverage review",
+        "summary": "Document unavailable analytics, SEO, conversion, member, advertising, affiliate-attribution, and operational telemetry before making content or monetization decisions.",
+        "requested_action": "Approve a report-only coverage matrix and weekly baseline checklist. Do not change credentials, analytics configuration, schedules, spending, or production systems.",
+        "proposal_id": "2a4015fa-021b-4380-af66-2bab0a64e928"
       },
       {
         "kind": "proposal",
-        "title": "0xroulette AI usage and cancellation-control diagnosis",
-        "summary": "Review the site's AI workload volume and bounded-run controls, separating observed usage cost from unproven avoidable spend or return.",
+        "title": "Alien Council affiliate attribution reconciliation",
+        "summary": "Review whether the site's affiliate links and tracking ID can reconcile outbound clicks with orders and commissions.",
+        "requested_action": "Approve a report-only review of link tagging, page/content mapping, and Amazon reporting reconciliation. Do not alter affiliate links, credentials, settings, or production configuration.",
+        "proposal_id": "389cdc00-0dd4-4c18-a561-0451a8b46ac5"
+      },
+      {
+        "kind": "proposal",
+        "title": "Alien Council AI usage and cancellation-control diagnosis",
+        "summary": "Review observed AI workload volume and bounded-run controls while separating measured cost from unproven avoidable spend or return.",
         "requested_action": "Approve factual findings, control-gap analysis, reversible designs, validation tests, and effort notes. Do not alter schedules, models, credentials, spending, queues, or production configuration.",
-        "proposal_id": "e1bf897b-3c8d-4dbe-8c6d-20385c1adf6a"
+        "proposal_id": "1576cf01-1ba0-4307-900e-2aa36c72b8bb"
       }
     ]
   }
