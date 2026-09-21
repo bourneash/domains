@@ -9,7 +9,6 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const executive = require('./executive');
-const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
 
 const ACTORS = new Set(['owner', 'ceo', 'cto', 'cfo', 'cro', 'domain-manager', 'researcher']);
@@ -92,7 +91,10 @@ async function fulfill({ store, root, request, managedSites = [] } = {}) {
     const cached = executiveSnapshot.readLatest(root, { sites: normalized.sites });
     const bundle = cached
       ? cached
-      : { ...(await executiveIntel.collect({ root, sites: normalized.sites })), schema: 'live' };
+      : {
+          ...(await require('./executive-intel').collect({ root, sites: normalized.sites })),
+          schema: 'live',
+        };
     const result = selectBundle(bundle, normalized);
     const outputDir = dir(root);
     fs.mkdirSync(outputDir, { recursive: true, mode: 0o700 });

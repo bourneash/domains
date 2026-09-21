@@ -1,4 +1,4 @@
-# The executive image only copies tools/executive and three control-plane
+# The executive image only copies tools/executive and the allowlisted control-plane
 # modules. Start from an allowlist: transient scanners, runtime caches,
 # credentials, site checkouts, and repository metadata cannot enter the build
 # context or race the build while being cleaned up.
@@ -17,3 +17,4 @@ tools/fleet-dashboard/server/*
 !tools/fleet-dashboard/server/executive.js
 !tools/fleet-dashboard/server/changequeue.js
 !tools/fleet-dashboard/server/executive-snapshot.js
+!tools/fleet-dashboard/server/executive-data.js
