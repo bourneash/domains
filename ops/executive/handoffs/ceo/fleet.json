@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:26:22.607Z",
+  "generated_at": "2026-09-21T19:27:21.313Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Fail Bunny activation and readiness assessment",
-        "summary": "Conduct a report-only assessment of positioning, audience fit, content readiness, analytics coverage, monetization options, and operational prerequisites before deciding whether to activate the parked scaffold.",
-        "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
-        "proposal_id": "d5aa5ff3-1d0a-422b-b10c-b77eb5b5f2cf"
+        "title": "Find Your Lost Pets activation and readiness assessment",
+        "summary": "Conduct a report-only assessment of positioning, audience fit, content readiness, monetization options, operational prerequisites, and measurement boundaries before activation decisions. Evidence: the site is a parked scaffold with 112 parked days, no supplied description, and only site/ops capabilities. GA4 exists in a separate Google account and is observational; it should not be provisioned or assumed available in fleet analytics, data-hub, registry, or site-analytics tools.",
+        "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics configuration, schedules, spending, DNS, domains, or production systems.",
+        "proposal_id": null
       }
     ]
   }
