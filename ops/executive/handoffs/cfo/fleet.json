@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:41:55.897Z",
+  "generated_at": "2026-09-21T22:52:04.841Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Analytics and Data Hub sources failed in the 2026-09-21 snapshot, so traffic and operating metrics are unavailable—not zero. Continue via the recurring snapshot/report path. AI observability recorded $715.33 across 4,223 calls from 2026-09-01 through 2026-09-21; this is not evidence of avoidable spend or return.",
+        "summary": "Analytics and Data Hub failed in the 2026-09-21 snapshot, so traffic and operating metrics are unavailable—not zero. Latest AI observability records $717.08 across 4,238 calls from 2026-09-01 through 2026-09-21; this does not establish avoidable spend or return. Continue through recurring snapshots and approved reports.",
         "requested_action": null,
         "proposal_id": null
       }
