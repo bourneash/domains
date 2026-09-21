@@ -363,6 +363,24 @@ async function prepareDependencies(site) {
   return { prepared: true };
 }
 
+async function preflight(site) {
+  const checks = {};
+  const status = await inspectStatus(site);
+  checks.container = {
+    status: status.status === 'running' ? 'pass' : 'fail',
+    evidence: status.status,
+  };
+  const statsRow = (await stats()).find(row => row.site === site);
+  const pids = Number(String(statsRow?.pids || '0').replace(/[^0-9].*$/, ''));
+  const maxPids = Number(process.env.FD_DEVSANDBOX_PREFLIGHT_MAX_PIDS || 450);
+  checks.resources = {
+    status: pids > 0 && pids <= maxPids ? 'pass' : pids === 0 ? 'warn' : 'fail',
+    evidence: `pids=${pids}; limit=${maxPids}`,
+  };
+  const passed = checks.container.status === 'pass' && checks.resources.status !== 'fail';
+  return { passed, recorded_at: new Date().toISOString(), checks };
+}
+
 async function devStart(site) {
   const r = await devExec(site, 'start');
   if (r.code !== 0) throw httpErr(400, r.stdout || r.stderr || 'dev start failed');
@@ -625,6 +643,7 @@ module.exports = {
   remove,
   devStatus,
   prepareDependencies,
+  preflight,
   devStart,
   devStop,
   devLogs,

@@ -161,6 +161,29 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // Link the request before the provider check so an unavailable CLI can
       // still be cleaned up and retried from the dashboard.
       changequeue.update(events, claimed.request_id, { run_id: created.run.run_id });
+      const environmentCheck = await devsandbox.preflight(sandbox.instance);
+      events.updateImprovement(created.run.run_id, { preflight: environmentCheck });
+      events.record({
+        event_type: 'improvement.preflight',
+        source: 'improvement-workbench',
+        site_id: `site:${claimed.site}`,
+        entity_type: 'improvement',
+        entity_id: created.run.run_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: environmentCheck,
+      });
+      if (!environmentCheck.passed) {
+        const failed = Object.entries(environmentCheck.checks)
+          .filter(([, check]) => check.status === 'fail')
+          .map(([name, check]) => `${name}: ${check.evidence}`)
+          .join('; ');
+        throw Object.assign(
+          new Error(`environment preflight failed${failed ? `: ${failed}` : ''}`),
+          {
+            httpStatus: 503,
+          }
+        );
+      }
       const providerCheck = await improvementAgent.preflight({
         run: runWithSandbox,
         provider: claimed.provider,
@@ -842,6 +865,39 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.post('/api/change-requests/:id/preflight', async (req, res) => {
+    try {
+      const request = events.getChangeRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: 'change request not found' });
+      const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      if (!run?.sandbox?.instance)
+        return res.status(409).json({ error: 'isolated sandbox is not running' });
+      const environment = await devsandbox.preflight(run.sandbox.instance);
+      const provider = await improvementAgent.preflight({
+        run,
+        provider: request.provider,
+        model: request.model,
+      });
+      const preflight = { environment, provider, passed: environment.passed && provider.ok };
+      events.updateImprovement(run.run_id, { preflight });
+      events.record({
+        event_type: 'improvement.preflight',
+        source: 'improvement-workbench',
+        site_id: `site:${request.site}`,
+        entity_type: 'improvement',
+        entity_id: run.run_id,
+        correlation_id: `change-request:${request.request_id}`,
+        payload: preflight,
+      });
+      res.json({
+        request: events.getChangeRequest(request.request_id),
+        run: events.getImprovement(run.run_id),
+        preflight,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
+    }
+  });
   app.post('/api/change-requests/:id/pickup', async (req, res) => {
     try {
       let request = events.getChangeRequest(req.params.id);
@@ -1373,6 +1429,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         return res.status(409).json({ error: 'commit the worktree changes before validation' });
       if (improvementAgent.status(root, item).running)
         return res.status(409).json({ error: 'wait for the implementation agent to finish' });
+      await devsandbox.prepareDependencies(item.sandbox.instance);
       let preview = {};
       try {
         preview = await devsandbox.devStart(item.sandbox.instance);
