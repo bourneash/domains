@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:46:29.789Z",
+  "generated_at": "2026-09-21T20:04:25.577Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run a report-only positioning and readiness assessment",
-        "summary": "Assess Sinderella.org’s audience fit, horoscope/tarot content direction, monetization paths, measurement coverage, social distribution, and operational readiness before further investment.",
-        "requested_action": "Approve a report-only assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "title": "Assess positioning and content readiness",
+        "summary": "Review the offshore/inshore fishing audience, guide and rig content structure, editorial differentiation, and readiness for measured growth.",
+        "requested_action": "Approve a report-only assessment with audience hypotheses, content gaps, validation tests, and a prioritized backlog. Do not change production systems.",
+        "proposal_id": "e34f55ad-7552-419e-aa49-3f93a81dc2b8"
+      },
+      {
+        "kind": "proposal",
+        "title": "Diagnose affiliate conversion-path readiness",
+        "summary": "Review affiliate-link presentation, tracking coverage, disclosure readiness, and conversion-path test design.",
+        "requested_action": "Approve a report-only diagnosis and validation plan. Do not provision credentials, alter affiliate links, or deploy measurement changes.",
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Review affiliate attribution and conversion-path readiness",
-        "summary": "Diagnose affiliate-link presentation, tracking-ID coverage, disclosure readiness, and validation requirements using the available site-level record.",
-        "requested_action": "Approve report-only diagnosis and test design; do not provision credentials, alter affiliate links, or deploy measurement changes.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Review AI-assisted content cost and workflow readiness",
-        "summary": "Produce a report-only review of Sinderella.org’s AI-assisted publishing workload, observable failure signals, content-quality controls, and human review requirements.",
-        "requested_action": "Approve a report-only workflow and cost-observability assessment with validation criteria; do not change schedules, models, credentials, or production systems.",
-        "proposal_id": "5c4ef342-f772-4b3a-97d6-33b58c06faf5"
+        "title": "Review AI-assisted publishing cost and workflow controls",
+        "summary": "Assess whether the site's AI-assisted content workload has adequate quality controls and human review requirements before additional publishing investment.",
+        "requested_action": "Approve a report-only workflow and cost-observability review. Do not change models, schedules, credentials, or production configuration.",
+        "proposal_id": "a6cd3cc7-e69c-487e-b4a6-c75d60be3cc7"
       }
     ]
   }
