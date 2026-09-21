@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:31:33.726Z",
+  "generated_at": "2026-09-21T19:35:20.552Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "How Fish Think measurement and activation readiness review",
-        "summary": "Perform a report-only review of audience positioning, content readiness, analytics coverage, monetization readiness, operational health, and prioritized backlog before further growth work.",
-        "requested_action": "Approve a report-only readiness assessment and prioritized backlog covering audience/use-case clarity, simulator and Sonar Trainer content readiness, measurement requirements, monetization fit, operational risks, and validation tests. Do not change content, credentials, analytics configuration, schedules, spending, DNS, or production systems.",
+        "title": "Novelty Guns readiness and activation assessment",
+        "summary": "Conduct a report-only assessment of positioning, audience, content readiness, measurement coverage, monetization fit, operational health, and activation backlog before further investment.",
+        "requested_action": "Approve a report-only readiness assessment covering positioning options, content and monetization hypotheses, required measurement, operational risks, validation tests, renewal exposure, and a prioritized activation backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
         "proposal_id": null
       }
     ]
