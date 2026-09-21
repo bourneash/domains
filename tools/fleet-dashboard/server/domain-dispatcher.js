@@ -1,7 +1,7 @@
 'use strict';
 
-// Persisted, single-flight dispatcher for on-demand domain managers. Reports
-// identify candidates; this module decides when one specialist may run.
+// Persisted, rate-limited dispatcher for on-demand domain managers. Reports
+// identify candidates; this module decides when specialists may run.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -12,6 +12,7 @@ const eventstore = require('./eventstore');
 const executive = require('./executive');
 
 const MAX_ATTEMPTS = 3;
+const DEFAULT_MAX_CONCURRENT = 2;
 const DEFAULT_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
@@ -96,7 +97,10 @@ function priority(job) {
   return job.site === 'greatamericanlakes.com' ? 0 : 1;
 }
 
-function claimNext(root, { now = new Date(), leaseMs = 30 * 60 * 1000 } = {}) {
+function claimNext(
+  root,
+  { now = new Date(), leaseMs = 30 * 60 * 1000, maxConcurrent = DEFAULT_MAX_CONCURRENT } = {}
+) {
   const state = readState(root);
   const expired = state.jobs.filter(
     job =>
@@ -108,7 +112,7 @@ function claimNext(root, { now = new Date(), leaseMs = 30 * 60 * 1000 } = {}) {
     job.lease_until = null;
     job.last_error = 'dispatcher lease expired';
   }
-  if (state.jobs.some(job => job.status === 'running')) {
+  if (state.jobs.filter(job => job.status === 'running').length >= maxConcurrent) {
     writeState(root, state);
     return null;
   }
@@ -171,9 +175,13 @@ function summary(root) {
 
 async function runOne(
   root,
-  { now = new Date(), command = path.join(root, 'tools/executive/run-domain-manager.sh') } = {}
+  {
+    now = new Date(),
+    command = path.join(root, 'tools/executive/run-domain-manager.sh'),
+    maxConcurrent = DEFAULT_MAX_CONCURRENT,
+  } = {}
 ) {
-  const job = claimNext(root, { now });
+  const job = claimNext(root, { now, maxConcurrent });
   if (!job) return { job: null, summary: summary(root) };
   const store = eventstore.open(root);
   const audit = executive.action(store, {
@@ -216,6 +224,7 @@ async function runOne(
 
 module.exports = {
   MAX_ATTEMPTS,
+  DEFAULT_MAX_CONCURRENT,
   statePath,
   readState,
   writeState,

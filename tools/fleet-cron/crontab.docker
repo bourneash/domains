@@ -130,7 +130,9 @@
 0 */6 * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
 # Domain managers publish cheap exception-first reports separately from model ticks.
 10 */6 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence six_hour
-20 */6 * * * /home/jesse/projects/domains/tools/executive/run-domain-manager-dispatch.sh
+# One new manager every ten minutes, with a two-manager concurrency cap.
+# This keeps the queue moving without creating an AI request burst.
+*/10 * * * * /home/jesse/projects/domains/tools/executive/run-domain-manager-dispatch.sh
 5 7 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence daily
 20 7 * * 1 /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence weekly
 

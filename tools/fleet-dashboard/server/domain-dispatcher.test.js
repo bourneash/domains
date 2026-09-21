@@ -15,7 +15,7 @@ function root() {
   return value;
 }
 
-test('enqueues candidates once, prioritizes Great American Lakes, and runs one lease at a time', () => {
+test('enqueues candidates once, prioritizes Great American Lakes, and caps concurrent leases', () => {
   const value = root();
   const report = {
     report_id: 'report-1',
@@ -36,7 +36,15 @@ test('enqueues candidates once, prioritizes Great American Lakes, and runs one l
   assert.equal(dispatcher.enqueueLatest(value).added.length, 0);
   const claimed = dispatcher.claimNext(value, { now: new Date('2026-09-21T15:02:00.000Z') });
   assert.equal(claimed.site, 'greatamericanlakes.com');
-  assert.equal(dispatcher.claimNext(value, { now: new Date('2026-09-21T15:03:00.000Z') }), null);
+  const second = dispatcher.claimNext(value, { now: new Date('2026-09-21T15:03:00.000Z') });
+  assert.equal(second.site, 'other.example');
+  assert.equal(
+    dispatcher.claimNext(value, {
+      now: new Date('2026-09-21T15:03:00.000Z'),
+      maxConcurrent: 2,
+    }),
+    null
+  );
   dispatcher.finish(value, claimed.job_id, { ok: true, now: new Date('2026-09-21T15:04:00.000Z') });
   assert.equal(dispatcher.summary(value).completed, 1);
 });
