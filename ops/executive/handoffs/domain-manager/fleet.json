@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:12:19.075Z",
+  "generated_at": "2026-09-21T22:14:29.385Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess editorial positioning and monetization readiness",
-        "summary": "Review the UAP/disclosure editorial audience, source-backed content structure, affiliate placement, and membership/advertising readiness before further investment.",
-        "requested_action": "Approve a report-only assessment covering audience hypotheses, source and editorial quality controls, content gaps, affiliate and membership conversion paths, measurement requirements, and a prioritized backlog. Do not publish, deploy, change credentials, alter schedules, modify affiliate configuration, spend money, or change production systems.",
+        "title": "Assess affiliate conversion and editorial readiness",
+        "summary": "Review fishhooklabs.com’s undefined audience positioning, content and affiliate structure, conversion paths, and readiness for measured growth. The site is live with affiliate, analytics, and social capabilities, but supplied analytics telemetry is unavailable, SEO traffic metrics are unavailable, and Amazon attribution has no fishhooklabs.com row. AI usage observability records 20 calls costing $2.54 from 2026-09-01 through 2026-09-21; this does not establish return or avoidable spend.",
+        "requested_action": "Approve a report-only assessment covering audience hypotheses, positioning and content gaps, affiliate conversion-path review, editorial quality controls, measurement requirements, and a prioritized backlog. Do not publish, deploy, change credentials, alter schedules, modify affiliate configuration, spend money, or change production systems.",
         "proposal_id": null
       }
     ]
