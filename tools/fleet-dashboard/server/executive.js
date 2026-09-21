@@ -24,6 +24,7 @@ const PROPOSAL_TYPES = new Set([
   'site-redesign',
   'hiring',
   'spend',
+  'report-only',
 ]);
 const ACTION_TYPES = new Set([
   'observe',

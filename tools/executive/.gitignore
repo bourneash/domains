@@ -2,5 +2,6 @@ data/research/
 data/cro/
 data/reports/
 data/domain-manager-dispatch.json
+data/.run.*
 logs/
 .cro-disabled

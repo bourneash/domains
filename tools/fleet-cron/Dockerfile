@@ -23,6 +23,7 @@ RUN apk add --no-cache \
     py3-yaml \
     git \
     openssh-client \
+    sqlite \
     util-linux \
     tzdata \
     ca-certificates \

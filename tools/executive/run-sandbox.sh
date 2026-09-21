@@ -19,7 +19,12 @@ docker image inspect "$IMAGE" >/dev/null 2>&1 || {
   docker build -f "$ROOT/tools/executive/Dockerfile" -t "$IMAGE" "$ROOT"
 }
 
-RUN_DIR="$(mktemp -d /tmp/executive-run.XXXXXX)"
+# fleet-cron launches this through the Docker socket. A /tmp path inside the
+# fleet-cron container is not visible to the nested model container, so keep
+# this private transient exchange on the project bind mount instead. Only the
+# generated brief and model output are mounted into the model; the checkout is
+# still not mounted.
+RUN_DIR="$(mktemp -d "$ROOT/tools/executive/data/.run.XXXXXX")"
 mkdir -m 700 "$RUN_DIR/input" "$RUN_DIR/output"
 trap 'rm -rf "$RUN_DIR"' EXIT
 
@@ -61,7 +66,10 @@ if [[ -f "$CODEX_AUTH_FILE" ]]; then
 fi
 
 args+=( "$IMAGE" node /app/tools/executive/model-runner.js )
-timeout --signal=TERM --kill-after=30s "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker "${args[@]}"
+# Use the BusyBox-compatible timeout flags available in fleet-cron as well as
+# GNU coreutils. The long GNU spellings make the dispatcher fail before the
+# isolated model container starts on the production scheduler image.
+timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker "${args[@]}"
 
 [[ -s "$RUN_DIR/output/plan.json" ]] || { echo "executive model produced no plan" >&2; exit 1; }
 node "$ROOT/tools/executive/runner.js" --apply-plan-file "$RUN_DIR/output/plan.json" $MODE
