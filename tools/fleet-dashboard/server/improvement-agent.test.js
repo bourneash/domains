@@ -1,0 +1,38 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const agent = require('./improvement-agent');
+
+test('provider executable defaults match the configured queue providers', () => {
+  assert.equal(agent.providerExecutable('claude'), 'claude');
+  assert.equal(agent.providerExecutable('chatgpt'), 'codex');
+  assert.equal(agent.providerExecutable('local'), 'ollama');
+});
+
+test('provider preflight rejects missing sandbox and unsafe command values', async () => {
+  assert.throws(() => agent.preflight({ run: {}, provider: 'chatgpt' }), /sandbox is required/);
+  const previous = process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND;
+  process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND = 'codex;rm';
+  try {
+    await assert.rejects(
+      agent.preflight({ run: { sandbox: { container: 'dd-test' } }, provider: 'chatgpt' }),
+      error => error.httpStatus === 400 && /single executable/.test(error.message)
+    );
+  } finally {
+    if (previous === undefined) delete process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND;
+    else process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND = previous;
+  }
+});
+
+test('review result requires an explicit PASS marker', () => {
+  assert.deepEqual(agent.reviewResult('looks good\nFD_REVIEW_RESULT: PASS'), {
+    approved: true,
+    marker: 'PASS',
+  });
+  assert.deepEqual(agent.reviewResult('FD_REVIEW_RESULT: FAIL'), {
+    approved: false,
+    marker: 'FAIL',
+  });
+  assert.deepEqual(agent.reviewResult('looks good, no marker'), { approved: false, marker: null });
+});

@@ -100,6 +100,9 @@ services:
       # — same posture domain-developer's panel had, just relocated.
       - ${HOME:-/home/jesse}/.claude/projects:${HOME:-/home/jesse}/.claude/projects
       - ${HOME:-/home/jesse}/.claude:${HOME:-/home/jesse}/.claude:ro
+      # Codex CLI provider state is read by the panel only to seed isolated
+      # worker containers; workers receive a per-worker writable copy.
+      - ${HOME:-/home/jesse}/.codex:${HOME:-/home/jesse}/.codex:ro
     working_dir: ${HOME:-/home/jesse}/projects/domains/tools/fleet-dashboard
 
 networks:

@@ -2,6 +2,39 @@
 
 Portfolio control plane for the domain fleet (http://127.0.0.1:4754).
 
+## Change Queue
+
+The **Change Queue** view is the operator entry point for site work that would otherwise be
+started manually from a CLI session. Requests are stored durably in the dashboard event database
+and can be categorized as errors, design, navigation, content, marketing, sales, SEO, engineering,
+or other work. Each request records priority, role, provider (`claude`, `chatgpt`/Codex, or `local`),
+model, and a bounded max-turn budget.
+
+Automatic pickup is off by default. When enabled, the queue honors its configured cadence and
+concurrency, creates an isolated improvement worktree/sandbox, and can automatically hand a
+completed implementation to a separate reviewer. Automatic review is enabled by default, but can
+be disabled globally in Queue controls or per request. The reviewer must explicitly return a PASS
+marker; only then does the dashboard run the quality gates, commit the worktree, and push/deploy it.
+Requests that are already in `review` have an **Auto-review & deliver** action in both the queue
+row and the request detail panel. A reviewer rejection or failed gate leaves the request in review
+with the error and preserves the worktree for human inspection.
+
+Queue execution uses persistent leases with heartbeats. The lease duration is configurable in Queue
+controls (5 minutes to 24 hours). After a dashboard restart, expired clean work is safely reset and
+requeued; expired worktrees containing changes are marked failed and preserved for manual recovery,
+so the system never silently duplicates or overwrites unfinished work.
+
+Provider command defaults can be overridden for the dashboard container with
+`FD_CHANGE_QUEUE_CHATGPT_COMMAND` and `FD_CHANGE_QUEUE_LOCAL_COMMAND`. Local voice transcription
+is optional and uses `FD_LOCAL_STT_COMMAND` (default: `whisper-cli`), which must accept an audio
+file path and print a transcript to stdout. No cloud STT call is made by the dashboard.
+
+Before a queued request starts, the dashboard checks that the selected provider executable is
+installed in the isolated developer container. A missing CLI fails early with an actionable error,
+cleans up the sandbox/worktree, and leaves the request retryable instead of producing a dangling
+building run. Retrying an older failed request also cleans up any clean leftover run resources first;
+dirty worktrees are preserved and require operator recovery.
+
 Key views include:
 
 - **Priorities** — a cross-fleet decision queue that joins canonical lifecycle

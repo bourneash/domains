@@ -76,8 +76,11 @@ start_or_attach() {
         # state is visible/backup-able/prune-proof. Worker entrypoint chowns.
         local state_root="${DD_STATE_DIR:-${HERE}/../state}"
         local claude_state_dir persist_state_dir
+        local codex_state_dir
         mkdir -p "${state_root}/${site}/claude" "${state_root}/${site}/persist"
+        mkdir -p "${state_root}/${site}/codex"
         claude_state_dir="$(cd "${state_root}/${site}/claude" && pwd)"
+        codex_state_dir="$(cd "${state_root}/${site}/codex" && pwd)"
         persist_state_dir="$(cd "${state_root}/${site}/persist" && pwd)"
 
         local extra=()
@@ -108,6 +111,9 @@ start_or_attach() {
         for share in settings.json .credentials.json; do
             [[ -e "${HOME}/.claude/${share}" ]] && extra+=(-v "${HOME}/.claude/${share}:/host-claude-ro/${share}:ro")
         done
+        mkdir -p "${state_root}/${site}/codex"
+        [[ -e "${HOME}/.codex/auth.json" ]] && extra+=(-v "${HOME}/.codex/auth.json:/host-codex-ro/auth.json:ro")
+        [[ -e "${HOME}/.codex/config.toml" ]] && extra+=(-v "${HOME}/.codex/config.toml:/host-codex-ro/config.toml:ro")
 
         # No port mappings on CLI-spawned containers — CLI uses `docker exec`,
         # not a web terminal. If you want browser-side ttyd + dev preview,
@@ -122,6 +128,7 @@ start_or_attach() {
             --workdir "${dir}" \
             -v "${dir}:${dir}" \
             -v "${claude_state_dir}:/home/dev/.claude" \
+            -v "${codex_state_dir}:/home/dev/.codex" \
             -v "${HOME}/.claude.json:/host-claude-json-ro:ro" \
             -v "${host_project_dir}:/home/dev/.claude/projects/${project_id}" \
             -v "${HOME}/.ssh:/home/dev/.ssh:ro" \

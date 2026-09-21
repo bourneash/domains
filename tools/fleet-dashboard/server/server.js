@@ -51,6 +51,9 @@ const priorities = require('./priorities');
 const dataquality = require('./dataquality');
 const improvements = require('./improvements');
 const improvementAgent = require('./improvement-agent');
+const changequeue = require('./changequeue');
+const executive = require('./executive');
+const executiveRunner = require('../../executive/runner');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -59,6 +62,7 @@ const HOST = process.env.FD_HOST || '127.0.0.1';
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
   const events = eventstore.open(root);
+  const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
 
   // Host allowlist for EVERY request (defeats DNS-rebinding — B3). Always on.
@@ -106,6 +110,813 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
 
   app.use(express.static(path.join(__dirname, 'public')));
+
+  async function dispatchChangeRequest(request) {
+    const claimedAt = new Date();
+    const settings = events.getChangeQueueSettings();
+    const claimed = events.claimQueuedChangeRequest(request.request_id, {
+      owner: queueWorkerId,
+      claimedAt: claimedAt.toISOString(),
+      leaseExpiresAt: new Date(
+        claimedAt.getTime() + Number(settings.lease_minutes) * 60000
+      ).toISOString(),
+    });
+    if (!claimed)
+      throw Object.assign(new Error('request was already claimed or is no longer due'), {
+        httpStatus: 409,
+      });
+    events.record({
+      event_type: 'change-request.claimed',
+      source: 'fleet-dashboard',
+      site_id: `site:${claimed.site}`,
+      entity_type: 'change-request',
+      entity_id: claimed.request_id,
+      correlation_id: `change-request:${claimed.request_id}`,
+      payload: { owner: queueWorkerId, attempts: claimed.attempts },
+    });
+    const lease = settings.lease_minutes;
+    let createdRun = null;
+    let agentStarted = false;
+    try {
+      const created = improvements.startManual({ store: events, root, request: claimed });
+      createdRun = created.run;
+      await git.commit(
+        root,
+        claimed.site,
+        [`ops/tasks/backlog/${created.task_file}`],
+        `chore: queue ${claimed.title}`
+      );
+      const worktree = await git.createWorktree(root, claimed.site, created.run.run_id);
+      const sandbox = await devsandbox.startImprovement(
+        root,
+        claimed.site,
+        created.run.run_id,
+        worktree.path
+      );
+      const runWithSandbox = events.updateImprovement(created.run.run_id, {
+        workspace_path: worktree.path,
+        sandbox: { ...sandbox, workspace_path: worktree.path },
+      });
+      createdRun = runWithSandbox;
+      // Link the request before the provider check so an unavailable CLI can
+      // still be cleaned up and retried from the dashboard.
+      changequeue.update(events, claimed.request_id, { run_id: created.run.run_id });
+      const providerCheck = await improvementAgent.preflight({
+        run: runWithSandbox,
+        provider: claimed.provider,
+        model: claimed.model,
+      });
+      if (!providerCheck.ok) {
+        const error = new Error(providerCheck.error);
+        error.httpStatus = 503;
+        throw error;
+      }
+      const building = improvements.transition(events, created.run.run_id, {
+        state: 'building',
+        branch: worktree.branch,
+      });
+      const runnable = events.getImprovement(created.run.run_id);
+      const result = improvementAgent.start({
+        root,
+        store: events,
+        run: runnable,
+        taskBody: claimed.body,
+        provider: claimed.provider,
+        model: claimed.model,
+        maxTurns: claimed.max_turns,
+        role: claimed.assigned_role,
+        onFinished: result => {
+          if (
+            result.code === 0 &&
+            claimed.auto_review &&
+            events.getChangeQueueSettings().auto_review_enabled
+          ) {
+            autoReviewRequest(claimed.request_id).catch(error =>
+              recordAutoReviewFailure(claimed.request_id, error)
+            );
+          }
+        },
+      });
+      agentStarted = true;
+      changequeue.update(events, claimed.request_id, {
+        status: 'running',
+        run_id: created.run.run_id,
+        error: null,
+        lease_owner: queueWorkerId,
+        lease_expires_at: new Date(Date.now() + Number(lease) * 60000).toISOString(),
+        heartbeat_at: new Date().toISOString(),
+      });
+      events.record({
+        event_type: 'change-request.started',
+        source: 'fleet-dashboard',
+        site_id: `site:${claimed.site}`,
+        entity_type: 'change-request',
+        entity_id: claimed.request_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: {
+          run_id: created.run.run_id,
+          provider: claimed.provider,
+          model: claimed.model,
+          max_turns: claimed.max_turns,
+        },
+      });
+      return { request: events.getChangeRequest(claimed.request_id), run: building, agent: result };
+    } catch (e) {
+      if (createdRun && !agentStarted) {
+        try {
+          const cleanup = await cleanupImprovementResources(root, createdRun);
+          if (cleanup.cleaned) {
+            const current = events.getImprovement(createdRun.run_id);
+            if (current && ['proposed', 'building'].includes(current.state)) {
+              await syncImprovementTask(root, current, 'hold');
+              improvements.transition(events, current.run_id, { state: 'cancelled' });
+            }
+          }
+        } catch (cleanupError) {
+          events.record({
+            event_type: 'change-request.cleanup_failed',
+            source: 'fleet-dashboard',
+            site_id: `site:${claimed.site}`,
+            entity_type: 'change-request',
+            entity_id: claimed.request_id,
+            correlation_id: `change-request:${claimed.request_id}`,
+            payload: { error: cleanupError.message },
+          });
+        }
+      }
+      changequeue.update(events, claimed.request_id, {
+        status: 'failed',
+        error: String(e.message || e),
+        next_attempt_at: new Date(Date.now() + 15 * 60000).toISOString(),
+        lease_owner: null,
+        lease_expires_at: null,
+        heartbeat_at: null,
+      });
+      throw e;
+    }
+  }
+
+  async function resetChangeRequestRun(request) {
+    if (!request.run_id) return;
+    const run = events.getImprovement(request.run_id);
+    if (!run || !['proposed', 'building'].includes(run.state)) return;
+    const cleanup = await cleanupImprovementResources(root, run);
+    if (!cleanup.cleaned) throw Object.assign(new Error(cleanup.error), { httpStatus: 409 });
+    const current = events.getImprovement(run.run_id);
+    if (current && ['proposed', 'building'].includes(current.state)) {
+      await syncImprovementTask(root, current, 'hold');
+      improvements.transition(events, current.run_id, { state: 'cancelled' });
+    }
+  }
+
+  function leaseExpiry(minutes) {
+    return new Date(Date.now() + Math.max(5, Number(minutes) || 30) * 60000).toISOString();
+  }
+
+  function renewQueueLeases() {
+    const settings = events.getChangeQueueSettings();
+    const now = new Date().toISOString();
+    for (const request of events.listChangeRequests({ limit: 1000 })) {
+      if (
+        !['claimed', 'running', 'reviewing'].includes(request.status) ||
+        request.lease_owner !== queueWorkerId
+      )
+        continue;
+      events.updateChangeRequest(request.request_id, {
+        lease_expires_at: leaseExpiry(settings.lease_minutes),
+        heartbeat_at: now,
+      });
+    }
+  }
+
+  let recoveryRunning = false;
+  async function recoverExpiredQueueWork() {
+    if (recoveryRunning) return 0;
+    recoveryRunning = true;
+    try {
+      const settings = events.getChangeQueueSettings();
+      const now = Date.now();
+      const stale = events.listChangeRequests({ limit: 1000 }).filter(request => {
+        if (!['claimed', 'running', 'reviewing'].includes(request.status)) return false;
+        const expiry = request.lease_expires_at
+          ? Date.parse(request.lease_expires_at)
+          : Date.parse(request.updated_at) + Number(settings.lease_minutes) * 60000;
+        return Number.isFinite(expiry) && expiry <= now;
+      });
+      for (const candidate of stale) {
+        const request = events.claimExpiredChangeRequest(candidate.request_id, {
+          owner: queueWorkerId,
+          now: new Date(now).toISOString(),
+          leaseExpiresAt: leaseExpiry(settings.lease_minutes),
+          fallbackCutoff: new Date(now - Number(settings.lease_minutes) * 60000).toISOString(),
+        });
+        if (!request) continue;
+        const run = request.run_id ? events.getImprovement(request.run_id) : null;
+        let recoverable = true;
+        let reason = `worker lease expired while ${request.status}; requeued after dashboard recovery`;
+        try {
+          if (run?.workspace_path) {
+            const snapshot = await git.worktreeSnapshot(run.workspace_path);
+            if (snapshot.dirty) {
+              recoverable = false;
+              reason =
+                'worker lease expired with a dirty worktree; manual inspection is required before retry';
+            }
+          }
+          if (recoverable) await resetChangeRequestRun(request);
+        } catch (error) {
+          recoverable = false;
+          reason = `worker lease expired but recovery could not cleanly reset the run: ${error.message}`;
+        }
+        try {
+          changequeue.update(
+            events,
+            request.request_id,
+            {
+              status: 'failed',
+              error: reason,
+              next_attempt_at: recoverable ? new Date().toISOString() : null,
+              lease_owner: null,
+              lease_expires_at: null,
+              heartbeat_at: null,
+            },
+            site => isKnownSite(root, site)
+          );
+          if (recoverable)
+            changequeue.update(
+              events,
+              request.request_id,
+              { status: 'queued', error: null, next_attempt_at: new Date().toISOString() },
+              site => isKnownSite(root, site)
+            );
+          events.record({
+            event_type: recoverable ? 'change-request.recovered' : 'change-request.recovery_failed',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: request.request_id,
+            correlation_id: `change-request:${request.request_id}`,
+            payload: { reason, previous_status: request.status, run_id: request.run_id },
+          });
+        } catch {
+          /* another worker may have claimed it during recovery */
+        }
+      }
+      return stale.length;
+    } finally {
+      recoveryRunning = false;
+    }
+  }
+
+  async function pickupChangeRequests(max) {
+    const settings = events.getChangeQueueSettings();
+    const running = events
+      .listChangeRequests({ limit: 1000 })
+      .filter(r => ['claimed', 'running', 'reviewing'].includes(r.status)).length;
+    const slots = Math.max(0, Number(max ?? settings.max_concurrent) - running);
+    const busySites = new Set(
+      events
+        .listImprovements({ limit: 1000 })
+        .filter(r => ['building', 'review', 'deployed', 'measuring'].includes(r.state))
+        .map(r => r.site)
+    );
+    const picked = changequeue.pick(events, { max: slots }).filter(request => {
+      if (busySites.has(request.site)) return false;
+      busySites.add(request.site);
+      return true;
+    });
+    const results = [];
+    for (const request of picked) {
+      try {
+        results.push(await dispatchChangeRequest(request));
+      } catch (error) {
+        results.push({ request_id: request.request_id, error: error.message });
+      }
+    }
+    return { picked: picked.length, results, settings };
+  }
+
+  // Keep the operator-facing queue honest when work is advanced from the
+  // Improvement workbench. The queue is not allowed to claim delivery based
+  // on agent output alone; committed/deployed/verified are derived from the
+  // linked improvement record.
+  function syncChangeRequestFromRun(run, preferredStatus) {
+    if (!run || run.source !== 'fleet-dashboard' || !run.source_id) return null;
+    const request = events.getChangeRequest(run.source_id);
+    if (!request || request.status === 'cancelled') return request;
+    let target = preferredStatus;
+    if (!target) {
+      if (['proven', 'inconclusive'].includes(run.state)) target = 'verified';
+      else if (['deployed', 'measuring'].includes(run.state)) target = 'deployed';
+      else if (run.state === 'review') target = 'review';
+    }
+    if (!target || target === request.status) return request;
+    if (target === 'failed') {
+      try {
+        return changequeue.update(events, request.request_id, { status: 'failed' }, site =>
+          isKnownSite(root, site)
+        );
+      } catch {
+        return request;
+      }
+    }
+    const order = [
+      'queued',
+      'claimed',
+      'running',
+      'reviewing',
+      'review',
+      'committed',
+      'deployed',
+      'verified',
+    ];
+    const currentIndex = order.indexOf(request.status);
+    const targetIndex = order.indexOf(target);
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex < currentIndex) return request;
+    let current = request;
+    for (const next of order.slice(currentIndex + 1, targetIndex + 1)) {
+      try {
+        current = changequeue.update(events, current.request_id, { status: next }, site =>
+          isKnownSite(root, site)
+        );
+      } catch {
+        break;
+      }
+    }
+    return current;
+  }
+
+  const activeAutomaticReviews = new Set();
+
+  async function validateImprovementForDelivery(item) {
+    if (item.state !== 'building')
+      throw Object.assign(new Error(`cannot validate from ${item.state}`), { httpStatus: 409 });
+    if (!item.sandbox?.instance)
+      throw Object.assign(new Error('isolated sandbox is not running'), { httpStatus: 409 });
+    const workspace = await git.worktreeSnapshot(item.workspace_path);
+    if (workspace.dirty)
+      throw Object.assign(new Error('commit the worktree changes before validation'), {
+        httpStatus: 409,
+      });
+    if (improvementAgent.status(root, item).running)
+      throw Object.assign(new Error('wait for the implementation agent to finish'), {
+        httpStatus: 409,
+      });
+    try {
+      await devsandbox.devStart(item.sandbox.instance);
+    } catch {
+      /* validation below records the failure */
+    }
+    const validation = await devsandbox.validate(item.sandbox.instance);
+    validation.commit = workspace.commit;
+    validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
+    validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
+    validation.passed = validation.passed && validation.preview.passed && validation.browser.passed;
+    const changed = events.updateImprovement(item.run_id, {
+      validation,
+      preview_url: validation.preview.url || item.sandbox.devUrl,
+    });
+    events.record({
+      event_type: 'improvement.validated',
+      source: 'improvement-workbench',
+      site_id: `site:${item.site}`,
+      entity_type: 'improvement',
+      entity_id: item.run_id,
+      correlation_id: item.correlation_id,
+      payload: { passed: validation.passed, checks: validation.checks, automated: true },
+    });
+    return { run: changed, validation };
+  }
+
+  async function deliverAutomatically(item) {
+    const validated = await validateImprovementForDelivery(item);
+    if (validated.validation.passed !== true)
+      throw Object.assign(new Error('quality gates did not pass'), { httpStatus: 409 });
+    const reviewRun = improvements.transition(events, item.run_id, {
+      state: 'review',
+      validation: validated.validation,
+    });
+    await syncImprovementTask(root, reviewRun, 'done');
+    const deployed = await git.deployWorktree(
+      root,
+      reviewRun.site,
+      reviewRun.workspace_path,
+      reviewRun.branch
+    );
+    const changed = improvements.transition(events, reviewRun.run_id, {
+      state: 'deployed',
+      deployment_id: deployed.commit,
+      measurement_due: null,
+      approval: {
+        approved_at: new Date().toISOString(),
+        access: 'automatic-reviewer',
+        confirmation: 'automatic-reviewer',
+      },
+      production_before: deployed.before,
+    });
+    syncChangeRequestFromRun(changed, 'deployed');
+    events.updateChangeRequest(changed.source_id, {
+      lease_owner: null,
+      lease_expires_at: null,
+      heartbeat_at: null,
+    });
+    if (reviewRun.sandbox?.instance) {
+      try {
+        await devsandbox.stop(reviewRun.sandbox.instance);
+      } catch {
+        /* already stopped */
+      }
+    }
+    return { run: changed, deployment: deployed };
+  }
+
+  function recordAutoReviewFailure(id, error) {
+    const request = events.getChangeRequest(id);
+    if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
+    try {
+      changequeue.update(
+        events,
+        id,
+        {
+          status: 'review',
+          error: String(error.message || error),
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        },
+        site => isKnownSite(root, site)
+      );
+    } catch {
+      /* best effort */
+    }
+  }
+
+  async function autoReviewRequest(id) {
+    if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
+    const request = events.getChangeRequest(id);
+    if (!request) throw Object.assign(new Error('change request not found'), { httpStatus: 404 });
+    if (!['review', 'reviewing'].includes(request.status))
+      throw Object.assign(new Error(`request is ${request.status}, not awaiting review`), {
+        httpStatus: 409,
+      });
+    let run = request.run_id ? events.getImprovement(request.run_id) : null;
+    if (!run) throw Object.assign(new Error('request has no improvement run'), { httpStatus: 409 });
+    if (run.state === 'review') {
+      await syncImprovementTask(root, run, 'in-progress');
+      run = improvements.transition(events, run.run_id, { state: 'building' });
+    }
+    if (run.state !== 'building')
+      throw Object.assign(new Error(`improvement run is ${run.state}, not reviewable`), {
+        httpStatus: 409,
+      });
+    if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
+    if (request.status !== 'reviewing')
+      changequeue.update(
+        events,
+        id,
+        {
+          status: 'reviewing',
+          error: null,
+          lease_owner: queueWorkerId,
+          lease_expires_at: leaseExpiry(events.getChangeQueueSettings().lease_minutes),
+          heartbeat_at: new Date().toISOString(),
+        },
+        site => isKnownSite(root, site)
+      );
+    activeAutomaticReviews.add(id);
+    const task = findImprovementTask(root, run);
+    try {
+      return improvementAgent.startReview({
+        root,
+        store: events,
+        run,
+        taskBody: task?.body || request.body,
+        provider: request.provider,
+        model: request.model,
+        maxTurns: request.max_turns,
+        role: 'reviewer',
+        onFinished: result => {
+          (async () => {
+            try {
+              const latest = events.getImprovement(run.run_id);
+              if (!result.result?.approved || result.code !== 0) {
+                recordAutoReviewFailure(
+                  id,
+                  new Error(
+                    result.result?.marker
+                      ? 'automatic reviewer rejected the change'
+                      : 'automatic reviewer did not return PASS'
+                  )
+                );
+                return;
+              }
+              let snapshot = await git.worktreeSnapshot(latest.workspace_path);
+              if (snapshot.dirty)
+                snapshot = await git.commitWorktree(latest.workspace_path, `feat: ${latest.title}`);
+              const fresh = events.getImprovement(run.run_id);
+              await deliverAutomatically(fresh);
+            } catch (error) {
+              recordAutoReviewFailure(id, error);
+            } finally {
+              activeAutomaticReviews.delete(id);
+            }
+          })();
+        },
+      });
+    } catch (error) {
+      activeAutomaticReviews.delete(id);
+      recordAutoReviewFailure(id, error);
+      throw error;
+    }
+  }
+
+  app.get('/api/change-requests', (req, res) => {
+    try {
+      for (const request of events.listChangeRequests({ limit: 1000 })) {
+        if (request.run_id) syncChangeRequestFromRun(events.getImprovement(request.run_id));
+      }
+      res.json({
+        requests: events.listChangeRequests(req.query),
+        settings: events.getChangeQueueSettings(),
+        categories: changequeue.CATEGORIES,
+        providers: changequeue.PROVIDERS,
+        statuses: changequeue.STATUSES,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          request: changequeue.create(events, req.body || {}, site => isKnownSite(root, site)),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/messages', (req, res) => {
+    try {
+      res.json({ messages: events.listExecutiveMessages(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/settings', (_req, res) => {
+    try {
+      res.json({ settings: events.getExecutiveSettings() });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/brief', async (_req, res) => {
+    try {
+      res.json({ brief: await executiveRunner.buildBrief(events, root) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/settings', (req, res) => {
+    try {
+      const body = req.body || {};
+      const allowed = [
+        'revenue_target_monthly',
+        'monthly_spend_limit',
+        'risk_tolerance',
+        'priority_sites',
+        'ignored_sites',
+        'approval_thresholds',
+        'brand_constraints',
+        'operating_notes',
+        'checkin_hours',
+        'tick_enabled',
+      ];
+      const patch = Object.fromEntries(
+        allowed.filter(k => Object.prototype.hasOwnProperty.call(body, k)).map(k => [k, body[k]])
+      );
+      const settings = events.updateExecutiveSettings(patch);
+      events.record({
+        event_type: 'executive.settings.updated',
+        source: 'fleet-dashboard',
+        entity_type: 'executive',
+        entity_id: 'fleet',
+        payload: { keys: Object.keys(patch) },
+      });
+      res.json({ settings });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/messages', (req, res) => {
+    try {
+      if (String(req.body?.actor || '') !== 'owner')
+        throw Object.assign(
+          new Error('only owner messages may be submitted through the dashboard'),
+          { httpStatus: 403 }
+        );
+      res.status(201).json({ message: executive.message(events, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/proposals', (req, res) => {
+    try {
+      res.json({
+        proposals: events.listExecutiveProposals(req.query),
+        proposal_types: executive.PROPOSAL_TYPES,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/proposals/:id/decision', (req, res) => {
+    try {
+      res.json({
+        proposal: executive.decision(events, req.params.id, req.body || {}, {
+          knownSite: site => isKnownSite(root, site),
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/actions', (req, res) => {
+    try {
+      res.json({
+        actions: events.listExecutiveActions(req.query),
+        action_types: executive.ACTION_TYPES,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/transcribe', async (req, res) => {
+    try {
+      res.json(await changequeue.transcribe(req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/change-requests/queue-settings', (req, res) => {
+    try {
+      const body = req.body || {};
+      if (
+        body.interval_minutes !== undefined &&
+        (!Number.isInteger(Number(body.interval_minutes)) ||
+          Number(body.interval_minutes) < 1 ||
+          Number(body.interval_minutes) > 1440)
+      )
+        throw Object.assign(new Error('interval_minutes must be 1-1440'), { httpStatus: 400 });
+      if (
+        body.max_concurrent !== undefined &&
+        (!Number.isInteger(Number(body.max_concurrent)) ||
+          Number(body.max_concurrent) < 1 ||
+          Number(body.max_concurrent) > 10)
+      )
+        throw Object.assign(new Error('max_concurrent must be 1-10'), { httpStatus: 400 });
+      if (
+        body.lease_minutes !== undefined &&
+        (!Number.isInteger(Number(body.lease_minutes)) ||
+          Number(body.lease_minutes) < 5 ||
+          Number(body.lease_minutes) > 1440)
+      )
+        throw Object.assign(new Error('lease_minutes must be 5-1440'), { httpStatus: 400 });
+      if (body.enabled !== undefined && typeof body.enabled !== 'boolean')
+        throw Object.assign(new Error('enabled must be boolean'), { httpStatus: 400 });
+      if (body.auto_review_enabled !== undefined && typeof body.auto_review_enabled !== 'boolean')
+        throw Object.assign(new Error('auto_review_enabled must be boolean'), { httpStatus: 400 });
+      res.json({ settings: events.updateChangeQueueSettings(body) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/pickup', async (req, res) => {
+    try {
+      res.json(await pickupChangeRequests(req.body?.max));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/change-requests/:id', (req, res) => {
+    try {
+      const request = events.getChangeRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: 'change request not found' });
+      const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      res.json({
+        request,
+        run,
+        events: events.list({ correlation_id: `change-request:${request.request_id}`, limit: 100 }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/pickup', async (req, res) => {
+    try {
+      let request = events.getChangeRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: 'change request not found' });
+      if (request.status === 'failed') {
+        await resetChangeRequestRun(request);
+        request = changequeue.update(
+          events,
+          request.request_id,
+          { status: 'queued', next_attempt_at: new Date().toISOString(), error: null },
+          site => isKnownSite(root, site)
+        );
+      }
+      if (request.status !== 'queued')
+        return res.status(409).json({ error: `request is ${request.status}, not queued` });
+      res.status(202).json(await dispatchChangeRequest(request));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/auto-review', async (req, res) => {
+    try {
+      const result = await autoReviewRequest(req.params.id);
+      res
+        .status(result?.status === 'already-running' ? 200 : 202)
+        .json({ result, request: events.getChangeRequest(req.params.id) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/change-requests/:id', (req, res) => {
+    try {
+      res.json({
+        request: changequeue.update(events, req.params.id, req.body || {}, site =>
+          isKnownSite(root, site)
+        ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/cancel', (req, res) => {
+    try {
+      res.json({
+        request: changequeue.update(events, req.params.id, { status: 'cancelled' }, site =>
+          isKnownSite(root, site)
+        ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/retry', async (req, res) => {
+    try {
+      const existing = events.getChangeRequest(req.params.id);
+      if (!existing) return res.status(404).json({ error: 'change request not found' });
+      await resetChangeRequestRun(existing);
+      res.json({
+        request: changequeue.update(
+          events,
+          req.params.id,
+          { status: 'queued', next_attempt_at: new Date().toISOString(), error: null },
+          site => isKnownSite(root, site)
+        ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/complete', (req, res) => {
+    try {
+      const request = events.getChangeRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: 'change request not found' });
+      const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      if (
+        !run ||
+        !run.deployment_id ||
+        !['deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state)
+      )
+        return res
+          .status(409)
+          .json({
+            error: 'request cannot be completed until a validated commit has been deployed',
+          });
+      const updated = syncChangeRequestFromRun(
+        run,
+        ['proven', 'inconclusive'].includes(run.state) ? 'verified' : 'deployed'
+      );
+      res.json({ request: updated, run });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  let lastQueuePickup = 0;
+  const queuePulse = setInterval(() => {
+    renewQueueLeases();
+    recoverExpiredQueueWork().catch(() => {});
+    const settings = events.getChangeQueueSettings();
+    if (!settings.enabled) return;
+    if (Date.now() - lastQueuePickup < Number(settings.interval_minutes) * 60000) return;
+    lastQueuePickup = Date.now();
+    pickupChangeRequests().catch(() => {});
+  }, 15000);
+  if (queuePulse.unref) queuePulse.unref();
 
   // Auth surface (always available, even when the token gate is on).
   app.get('/api/auth', auth.authStatus);
@@ -441,7 +1252,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         if (!cleanup.cleaned) return res.status(409).json({ error: cleanup.error });
         await syncImprovementTask(root, item, 'hold');
       }
-      res.json({ run: improvements.transition(events, req.params.id, req.body || {}) });
+      const changed = improvements.transition(events, req.params.id, req.body || {});
+      syncChangeRequestFromRun(changed);
+      res.json({ run: changed });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
@@ -513,6 +1326,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       });
       if (['proven', 'inconclusive'].includes(outcome.classification))
         await cleanupImprovementResources(root, item);
+      syncChangeRequestFromRun(changed);
       res.json({ run: changed, outcome });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
@@ -569,7 +1383,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const task = findImprovementTask(root, item);
       res
         .status(202)
-        .json(improvementAgent.start({ root, store: events, run: item, taskBody: task?.body }));
+        .json(
+          improvementAgent.start({
+            root,
+            store: events,
+            run: item,
+            taskBody: task?.body,
+            provider: req.body?.provider || item.agent?.provider || 'claude',
+            model: req.body?.model || item.agent?.model || null,
+            maxTurns: req.body?.max_turns || item.agent?.max_turns || 20,
+            role: req.body?.assigned_role || item.agent?.assigned_role || null,
+          })
+        );
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }
@@ -596,6 +1421,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         correlation_id: item.correlation_id,
         payload: snapshot,
       });
+      syncChangeRequestFromRun(item, 'committed');
       res.json({ workspace: snapshot });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
@@ -628,6 +1454,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         },
         production_before: deployed.before,
       });
+      syncChangeRequestFromRun(changed, 'deployed');
       if (item.sandbox?.instance) {
         try {
           await devsandbox.stop(item.sandbox.instance);
@@ -658,6 +1485,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           rollback_commit: result.localSha,
         },
       });
+      syncChangeRequestFromRun(run, 'failed');
       await cleanupImprovementResources(root, item);
       res.json({ run, git: result });
     } catch (e) {

@@ -53,6 +53,21 @@ if [[ -r "${RO_STAGE}/.credentials.json" ]]; then
     cp "${RO_STAGE}/.credentials.json" "${CLAUDE_DIR}/.credentials.json"
     chmod 600 "${CLAUDE_DIR}/.credentials.json"
 fi
+
+# Codex uses its own per-worker state directory. Seed only the operator's
+# auth/config files from read-only staging; sessions, caches, and logs remain
+# isolated inside the worker's writable host-backed state directory.
+CODEX_DIR=/home/dev/.codex
+CODEX_RO_STAGE=/host-codex-ro
+mkdir -p "${CODEX_DIR}"
+if [[ -r "${CODEX_RO_STAGE}/auth.json" ]]; then
+    cp "${CODEX_RO_STAGE}/auth.json" "${CODEX_DIR}/auth.json"
+    chmod 600 "${CODEX_DIR}/auth.json"
+fi
+if [[ -r "${CODEX_RO_STAGE}/config.toml" ]]; then
+    cp "${CODEX_RO_STAGE}/config.toml" "${CODEX_DIR}/config.toml"
+    chmod 600 "${CODEX_DIR}/config.toml"
+fi
 if [[ -r "${RO_STAGE}/settings.json" ]]; then
     cp "${RO_STAGE}/settings.json" "${CLAUDE_DIR}/settings.json"
     chmod 644 "${CLAUDE_DIR}/settings.json"

@@ -7,7 +7,7 @@ Sandboxed per-site dev containers for the domains portfolio. Each site gets its 
 Two layers, both containerized:
 
 - **Management plane** — `dd-panel` runs inside its own Docker container, listening on `127.0.0.1:7777`. It talks to the host Docker daemon via the mounted socket and spawns **sibling** worker containers. Not a host process; lifecycle is fully managed by `bin/dd-up` / `bin/dd-down`.
-- **Workers** — one `dd-<site>` container per site, spun up on demand by the panel (or by the CLI). Each runs ttyd → bash + claude with only that site's directory mounted at `/work`. Workers are **cattle, not pets** — see below.
+- **Workers** — one `dd-<site>` container per site, spun up on demand by the panel (or by the CLI). Each runs ttyd → bash with Claude Code and Codex CLI, with only that site's directory mounted at `/work`. Workers are **cattle, not pets** — see below.
 
 ## Quickstart
 
@@ -39,10 +39,12 @@ npm run build         # site tooling works normally
 | Host path | Container path | Mode | Purpose |
 |---|---|---|---|
 | `sites/<name>/` | **same host path** | rw | site code; same-path so claude's project-ID encoding matches host |
-| `dd-claude-<name>` (volume) | `/home/dev/.claude` | rw | per-site claude state; entrypoint seeds it from `.claude.json` on first boot |
+| `tools/domain-developer/state/<name>/claude` | `/home/dev/.claude` | rw | per-site Claude state |
+| `tools/domain-developer/state/<name>/codex` | `/home/dev/.codex` | rw | per-site Codex sessions, cache, and auth copy |
 | `~/.claude.json` | `/host-claude-json-ro` | **ro** | source for one-time copy at startup; never read after that |
 | `~/.claude/plugins/`, `commands/`, `hooks/` | `/home/dev/.claude/{plugins,commands,hooks}` | **ro** | shared skills/commands/hooks — use, can't edit |
-| `~/.claude/.credentials.json` | `/home/dev/.claude/.credentials.json` | **ro** | OAuth auth shared with host |
+| `~/.claude/.credentials.json` | staged into `/home/dev/.claude/.credentials.json` | **ro source** | Claude OAuth auth shared with host |
+| `~/.codex/auth.json` + `config.toml` | staged into `/home/dev/.codex/` | **ro source** | Codex auth/config shared with host |
 | `~/.claude/projects/-home-jesse-projects-domains-sites-<name>/` | same host path | **rw** | per-site memory + transcripts; traverse up to host |
 | `~/.ssh/` | `/home/dev/.ssh` | **ro** | git push via existing keys |
 | `domains/.env` | `<site-dir>/.env.shared` | **ro** | shared CF + affiliate creds (only if file exists) |

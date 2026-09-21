@@ -91,8 +91,9 @@ RUN set -eu; \
     grep -q "NEWLINE_FRAME" /opt/ttyd/index.html; \
     grep -q "dd-redraw" /opt/ttyd/index.html
 
-# Claude Code + Wrangler globally
-RUN npm install -g @anthropic-ai/claude-code wrangler lighthouse
+# Claude Code, Codex CLI, Wrangler, and Lighthouse globally. The dashboard's
+# Change Queue launches these tools inside the same isolated worker image.
+RUN npm install -g @anthropic-ai/claude-code @openai/codex@0.155.1 wrangler lighthouse
 
 # The global npm prefix (/usr) is root-owned, but containers run as the
 # unprivileged `dev` user — so claude's in-place auto-update can't write there
