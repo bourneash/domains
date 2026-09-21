@@ -27,6 +27,22 @@ function discoverSites(root = ROOT) {
 }
 
 const EXECUTIVE_EXCLUDED_SITES = new Set(['3boobs.com']);
+const PROPOSAL_TYPES = new Set(executive.PROPOSAL_TYPES);
+const PROPOSAL_TYPE_ALIASES = new Map([
+  ['analysis', 'report-only'],
+  ['analytics', 'report-only'],
+  ['audit', 'report-only'],
+  ['content', 'growth'],
+  ['conversion', 'growth'],
+  ['marketing', 'growth'],
+  ['monetization', 'growth'],
+  ['revenue', 'growth'],
+  ['seo', 'growth'],
+  ['technical', 'engineering'],
+  ['tech', 'engineering'],
+  ['research', 'report-only'],
+  ['strategy', 'business'],
+]);
 
 function executiveSites(root = ROOT) {
   return discoverSites(root).filter(site => !EXECUTIVE_EXCLUDED_SITES.has(site));
@@ -314,7 +330,32 @@ function parseOutput(text) {
     change_requests: result.change_requests || [],
     research_requests: result.research_requests || [],
   };
+  normalizeProviderProposalTypes(plan);
   validatePlan(plan);
+  return plan;
+}
+
+function normalizeProviderProposalTypes(plan) {
+  for (const item of plan.proposals) {
+    const raw = String(item?.proposal_type || '')
+      .trim()
+      .toLowerCase();
+    if (!raw || PROPOSAL_TYPES.has(raw)) {
+      if (!raw) item.proposal_type = 'business';
+      continue;
+    }
+
+    const alias = PROPOSAL_TYPE_ALIASES.get(raw);
+    if (alias) {
+      item.proposal_type = alias;
+      continue;
+    }
+
+    // Proposal type is presentation metadata, not authorization. Preserve the
+    // evidence and route genuinely unknown model labels to the safest valid
+    // bucket instead of retrying the entire manager run.
+    item.proposal_type = 'report-only';
+  }
   return plan;
 }
 
@@ -673,6 +714,7 @@ module.exports = {
   buildPrompt,
   buildPassPrompt,
   parseOutput,
+  normalizeProviderProposalTypes,
   validatePlan,
   planFingerprint,
   applyPlan,

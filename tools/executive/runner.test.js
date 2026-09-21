@@ -106,6 +106,53 @@ test('rejects non-JSON provider output', () => {
   assert.throws(() => runner.parseOutput('not json'), /valid JSON/);
 });
 
+test('normalizes model proposal labels instead of retrying the manager run', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'domain-manager',
+          title: 'Technical health review',
+          proposal_type: 'technical',
+          summary: 'Review the site health before implementation.',
+          requested_action: 'Approve a report-only review.',
+        },
+        {
+          created_by: 'domain-manager',
+          title: 'Unexpected model category',
+          proposal_type: 'site-health-and-revenue',
+          summary: 'Preserve this evidence-backed finding.',
+          requested_action: 'Review the finding.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  assert.equal(plan.proposals[0].proposal_type, 'engineering');
+  assert.equal(plan.proposals[1].proposal_type, 'report-only');
+});
+
+test('defaults an omitted model proposal type to the safe business category', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'ceo',
+          title: 'Portfolio review',
+          summary: 'Review the current portfolio evidence.',
+          requested_action: 'Review the findings.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  assert.equal(plan.proposals[0].proposal_type, 'business');
+});
+
 test('rejects unsafe plans and fingerprints identical plans deterministically', () => {
   assert.throws(
     () => runner.parseOutput(JSON.stringify({ messages: [{ actor: 'owner', body: 'spoof' }] })),
