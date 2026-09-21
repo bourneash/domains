@@ -27,3 +27,4 @@ exec >>"$LOG" 2>&1
 echo "[$(date -Is)] starting CRO GitHub research"
 timeout --signal=TERM --kill-after=10s "${TIMEOUT}s" \
   node "$STATE/cro.js"
+"$STATE/checkin.sh"

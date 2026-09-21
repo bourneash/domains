@@ -8,6 +8,7 @@ if [[ "$CADENCE" != "--cadence" ]]; then
   echo "usage: $0 --cadence six_hour|daily|weekly|deep_dive [site]" >&2
   exit 2
 fi
+"$ROOT/tools/executive/checkin.sh"
 FOCUS="${3:-}"
 if [[ -n "$FOCUS" ]]; then
   EXECUTIVE_FOCUS_SITE="$FOCUS" node - "$ROOT" "$VALUE" <<'NODE'

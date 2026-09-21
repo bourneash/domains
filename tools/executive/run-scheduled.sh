@@ -16,4 +16,5 @@ if [[ "${EXECUTIVE_FORCE:-0}" != "1" ]]; then
 fi
 echo "[$(date -Is)] executive scheduled tick start"
 "$ROOT/tools/executive/run-sandbox.sh"
+"$ROOT/tools/executive/checkin.sh"
 echo "[$(date -Is)] executive scheduled tick complete"
