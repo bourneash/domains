@@ -55,6 +55,8 @@ test('supports CFO review and on-demand managed-site context without widening sc
   );
   assert.equal(plan.messages[0].actor, 'cfo');
   assert.equal(plan.proposals[0].created_by, 'cfo');
+  assert.match(runner.buildPassPrompt(brief, 'cfo'), /created_by to cfo/);
+  assert.match(runner.buildPassPrompt(brief, 'domain-manager'), /created_by to domain-manager/);
   delete process.env.EXECUTIVE_DOMAIN;
   store.close();
 });
