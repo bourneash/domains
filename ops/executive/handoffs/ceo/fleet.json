@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:27:21.320Z",
+  "generated_at": "2026-09-21T20:29:19.554Z",
   "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
         "title": "Diagnose mobile performance and LCP remediation priorities",
-        "summary": "Produce a report-only diagnosis of affected templates, likely causes, reversible fixes, implementation effort, and validation criteria before additional growth work.",
-        "requested_action": "Approve report-only analysis. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
+        "summary": "Mobile lab reports performance 68, LCP 5385ms, and TBT 429ms for americastrikes.com. Produce a report-only diagnosis before additional growth work.",
+        "requested_action": "Approve report-only analysis of affected templates, likely causes, reversible fixes, implementation effort, and validation criteria. Do not deploy or modify production configuration.",
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Assess article depth and internal-linking growth backlog",
-        "summary": "Review topic-page architecture, article depth, internal-link opportunities, and editorial priorities for the autonomous geopolitics and defense-news positioning.",
-        "requested_action": "Approve a report-only content and SEO assessment with proposed page briefs, linking recommendations, quality controls, and measurement criteria. Do not publish or modify production content.",
+        "summary": "The SEO backlog identifies adding body-text links to topic pages and refreshing three thin articles under 150 words. Both tasks are currently blocked because human-triage is unavailable for this site. Review the content architecture and prioritize evidence-backed improvements.",
+        "requested_action": "Approve a report-only content and SEO assessment with proposed page briefs, internal-linking recommendations, quality controls, and measurement criteria. Do not publish or modify production content.",
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Review affiliate attribution and AI-assisted publishing controls",
-        "summary": "Assess affiliate-link presentation, attribution boundaries, editorial review gates, and AI workload controls before further content or monetization investment.",
+        "summary": "Amazon reporting records 129 clicks for americastrikes-20 with no ordered items or commission income; site-level analytics are unavailable, and attribution is incomplete. AI usage records 1,058 calls costing $117.26 from 2026-09-01 through 2026-09-21. Review link presentation, attribution boundaries, editorial gates, and workload controls without inferring return or avoidable spend.",
         "requested_action": "Approve a report-only workflow and monetization assessment. Do not change models, schedules, credentials, affiliate configuration, or production systems.",
         "proposal_id": null
       }
