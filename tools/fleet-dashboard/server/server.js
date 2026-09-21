@@ -58,6 +58,7 @@ const executiveRunner = require('../../executive/runner');
 const executiveIntel = require('./executive-intel');
 const revops = require('./revops');
 const experiments = require('./experiments');
+const campaigns = require('./campaigns');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -907,11 +908,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/revops/activities', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          activity: revops.recordActivity(events, req.body || {}, site => isKnownSite(root, site)),
-        });
+      res.status(201).json({
+        activity: revops.recordActivity(events, req.body || {}, site => isKnownSite(root, site)),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -925,11 +924,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/experiments', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          experiment: experiments.create(events, req.body || {}, site => isKnownSite(root, site)),
-        });
+      res.status(201).json({
+        experiment: experiments.create(events, req.body || {}, site => isKnownSite(root, site)),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -943,11 +940,24 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/experiments/events', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          event: experiments.recordEvent(events, req.body || {}, site => isKnownSite(root, site)),
-        });
+      res.status(201).json({
+        event: experiments.recordEvent(events, req.body || {}, site => isKnownSite(root, site)),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/experiments/:id/assignment', (req, res) => {
+    try {
+      const experiment = experiments
+        .list(events, { limit: 1000 })
+        .find(row => row.experiment_id === req.params.id);
+      if (!experiment) return res.status(404).json({ error: 'experiment not found' });
+      if (!req.query.subject_ref) return res.status(400).json({ error: 'subject_ref is required' });
+      res.json({
+        experiment_id: experiment.experiment_id,
+        variant: experiments.assign(experiment, req.query.subject_ref),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -955,6 +965,52 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/experiments/:id/analysis', (req, res) => {
     try {
       res.json(experiments.analyze(events, req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/campaigns', (req, res) => {
+    try {
+      res.json({ campaigns: campaigns.list(events, req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/campaigns/summary', (_req, res) => {
+    try {
+      res.json({ summary: campaigns.summary(events) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/campaigns', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          campaign: campaigns.create(
+            events,
+            req.body || {},
+            site => isKnownSite(root, site),
+            revops.buildUtmUrl
+          ),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/campaigns/:id/transition', (req, res) => {
+    try {
+      res.json({ campaign: campaigns.transition(events, req.params.id, req.body?.status) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/campaigns/touches', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ touch: campaigns.touch(events, req.body || {}, site => isKnownSite(root, site)) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

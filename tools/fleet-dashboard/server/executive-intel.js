@@ -19,6 +19,7 @@ const social = require('./social');
 const eventstore = require('./eventstore');
 const revops = require('./revops');
 const experiments = require('./experiments');
+const campaigns = require('./campaigns');
 
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
@@ -34,6 +35,10 @@ const TOOL_CATALOG = [
   {
     key: 'experiments',
     purpose: 'hypotheses, variants, exposures, conversions, and measured winners',
+  },
+  {
+    key: 'campaigns',
+    purpose: 'consent-aware campaign planning, UTM normalization, and touch measurement',
   },
   { key: 'ai_usage', purpose: 'AI spend, usage, and cost by site or role' },
   {
@@ -310,6 +315,7 @@ async function collect({ root, sites = [] } = {}) {
   const store = eventstore.open(root);
   const revopsData = revops.summary(store);
   const experimentsData = experiments.summary(store);
+  const campaignsData = campaigns.summary(store);
   store.close();
 
   const analyticsData = analyticsResult.data || {};
@@ -356,6 +362,7 @@ async function collect({ root, sites = [] } = {}) {
       }),
       revops: diagnostics({ source: 'revops', ok: true, data: revopsData }),
       experiments: diagnostics({ source: 'experiments', ok: true, data: experimentsData }),
+      campaigns: diagnostics({ source: 'campaigns', ok: true, data: campaignsData }),
     },
     // These are the compact, decision-useful views. Raw source payloads remain
     // available under sources for audit/debugging without making the prompt huge.
@@ -388,6 +395,7 @@ async function collect({ root, sites = [] } = {}) {
       ),
       revops: revopsData,
       experiments: experimentsData,
+      campaigns: campaignsData,
     },
   };
 }

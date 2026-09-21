@@ -137,6 +137,25 @@ function analyze(store, id) {
   };
 }
 
+function assign(experiment, subjectRef) {
+  if (!experiment || experiment.state !== 'running') throw error(409, 'experiment is not running');
+  const variants = experiment.variants || [];
+  const total =
+    variants.reduce((n, row) => n + Math.max(0, Number(row.allocation) || 0), 0) || variants.length;
+  const hash =
+    crypto
+      .createHash('sha256')
+      .update(`${experiment.experiment_id}:${String(subjectRef)}`)
+      .digest()
+      .readUInt32BE(0) % total;
+  let cursor = 0;
+  for (const variant of variants) {
+    cursor += Math.max(0, Number(variant.allocation) || 0) || 1;
+    if (hash < cursor) return variant.key;
+  }
+  return variants[variants.length - 1]?.key || null;
+}
+
 function list(store, { site, state, limit = 100 } = {}) {
   const seen = new Map();
   for (const event of store.list({ entity_type: 'experiment', limit: 2000 }))
@@ -159,4 +178,4 @@ function summary(store) {
   };
 }
 
-module.exports = { STATES, create, transition, recordEvent, analyze, list, summary };
+module.exports = { STATES, create, transition, recordEvent, analyze, assign, list, summary };
