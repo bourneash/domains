@@ -113,6 +113,48 @@ test('reviewing is a valid handoff state before pending review', () => {
   store.close();
 });
 
+test('report-only requests finish as verified without a deployment state', () => {
+  const { store } = fixture();
+  const request = queue.create(
+    store,
+    {
+      site: 'example.com',
+      title: 'Prepare finance report',
+      delivery_mode: 'report_only',
+      requested_by: 'cfo',
+      source_proposal_id: 'proposal-12345678901234567890',
+    },
+    () => true
+  );
+  for (const status of ['claimed', 'running', 'review', 'verified'])
+    queue.update(store, request.request_id, { status }, () => true);
+  const saved = store.getChangeRequest(request.request_id);
+  assert.equal(saved.status, 'verified');
+  assert.equal(saved.delivery_mode, 'report_only');
+  assert.equal(saved.requested_by, 'cfo');
+  assert.equal(saved.source_proposal_id, 'proposal-12345678901234567890');
+  store.close();
+});
+
+test('report-only requests cannot disable automatic review', () => {
+  const { store } = fixture();
+  assert.throws(
+    () =>
+      queue.create(
+        store,
+        {
+          site: 'example.com',
+          title: 'Unsafe report',
+          delivery_mode: 'report_only',
+          auto_review: false,
+        },
+        () => true
+      ),
+    /automatic review/
+  );
+  store.close();
+});
+
 test('leases persist across store reads and queue settings expose recovery timing', () => {
   const { store } = fixture();
   const request = queue.create(store, { site: 'example.com', title: 'Leased' }, () => true);

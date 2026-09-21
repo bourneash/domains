@@ -75,7 +75,12 @@ function decision(store, id, input = {}, { knownSite } = {}) {
     if (typeof knownSite !== 'function') throw httpErr(500, 'approval executor is not configured');
     const request = changequeue.create(
       store,
-      { ...current.implementation, source: 'executive-approval' },
+      {
+        ...current.implementation,
+        source: 'executive-approval',
+        requested_by: current.created_by,
+        source_proposal_id: current.proposal_id,
+      },
       knownSite
     );
     linkedRequestId = request.request_id;

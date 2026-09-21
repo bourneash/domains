@@ -19,7 +19,10 @@ const CATEGORIES = [
 ];
 const PRIORITIES = ['high', 'medium', 'low'];
 const PROVIDERS = ['claude', 'chatgpt', 'local'];
-const DELIVERY_MODES = ['direct', 'pull_request'];
+// report_only produces a durable report artifact and can never deploy or push
+// site code. Keep it explicit instead of relying on task prose such as
+// "please do not deploy".
+const DELIVERY_MODES = ['direct', 'pull_request', 'report_only'];
 const STATUSES = [
   'queued',
   'claimed',
@@ -37,7 +40,7 @@ const TRANSITIONS = {
   claimed: ['running', 'failed', 'cancelled'],
   running: ['reviewing', 'review', 'failed', 'cancelled'],
   reviewing: ['review', 'failed', 'cancelled'],
-  review: ['reviewing', 'committed', 'failed', 'cancelled'],
+  review: ['reviewing', 'committed', 'verified', 'failed', 'cancelled'],
   committed: ['deployed', 'failed', 'cancelled'],
   deployed: ['verified', 'failed'],
   verified: [],
@@ -56,6 +59,11 @@ function validate(input, knownSite) {
     throw httpErr(400, 'invalid provider');
   if (!DELIVERY_MODES.includes(String(input.delivery_mode || 'direct')))
     throw httpErr(400, 'invalid delivery mode');
+  if (
+    String(input.delivery_mode || 'direct') === 'report_only' &&
+    (input.auto_review === false || input.auto_review === 0)
+  )
+    throw httpErr(400, 'report-only requests require automatic review');
   if (input.status && !STATUSES.includes(String(input.status)))
     throw httpErr(400, 'invalid status');
   const turns = Number(input.max_turns || 20);

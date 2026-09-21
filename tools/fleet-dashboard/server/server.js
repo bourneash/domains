@@ -54,6 +54,8 @@ const improvements = require('./improvements');
 const improvementAgent = require('./improvement-agent');
 const changequeue = require('./changequeue');
 const changequeueNotify = require('./changequeue-notify');
+const executiveFollowup = require('./executive-followup');
+const executiveData = require('./executive-data');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
 const executiveIntel = require('./executive-intel');
@@ -69,6 +71,41 @@ const PORT = parseInt(process.env.FD_PORT || '4754', 10);
 const HOST = process.env.FD_HOST || '127.0.0.1';
 const QUALITY_GATES = ['diff', 'tests', 'build', 'preview', 'browser'];
 const MAX_AUTOMATIC_QUEUE_ATTEMPTS = 3;
+
+function reportArtifactPath(root, requestId) {
+  return path.join(
+    root,
+    'tools',
+    'fleet-dashboard',
+    'data',
+    'executive-reports',
+    `${requestId}.json`
+  );
+}
+
+function writeReportArtifact(root, request, run, diff, logTail) {
+  const file = reportArtifactPath(root, request.request_id);
+  fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+  const text = String(diff || '');
+  const artifact = {
+    schema: 'executive-report/v1',
+    request_id: request.request_id,
+    source_proposal_id: request.source_proposal_id || null,
+    requested_by: request.requested_by || null,
+    site: request.site,
+    title: request.title,
+    generated_at: new Date().toISOString(),
+    run_id: run.run_id,
+    commit: run.commit || run.branch || null,
+    diff: text.slice(0, 250000),
+    diff_truncated: text.length > 250000,
+    agent_log_tail: String(logTail || '').slice(-12000),
+  };
+  const temp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(temp, JSON.stringify(artifact, null, 2) + '\n', { mode: 0o600 });
+  fs.renameSync(temp, file);
+  return { file, url: `/api/change-requests/${request.request_id}/report` };
+}
 
 function applyQualityPolicy(root, site, validation) {
   const defaultRequired = [...QUALITY_GATES];
@@ -112,6 +149,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.disable('x-powered-by');
 
   function emitChangeNotification(event, request, run, details = '') {
+    try {
+      executiveFollowup.notify(events, { event, request, run, details });
+    } catch {
+      // Role follow-up must never make a queue transition fail.
+    }
     changequeueNotify
       .notify({ event, request, run, details })
       .then(result => {
@@ -332,7 +374,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         }
       }
       const terminal = claimed.attempts >= MAX_AUTOMATIC_QUEUE_ATTEMPTS;
-      changequeue.update(events, claimed.request_id, {
+      const failedRequest = changequeue.update(events, claimed.request_id, {
         status: 'failed',
         error: String(e.message || e),
         next_attempt_at: terminal ? null : new Date(Date.now() + 15 * 60000).toISOString(),
@@ -340,6 +382,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         lease_expires_at: null,
         heartbeat_at: null,
       });
+      emitChangeNotification('failed', failedRequest, createdRun, String(e.message || e));
       if (terminal) {
         events.record({
           event_type: 'change-request.manual_intervention_required',
@@ -522,8 +565,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (['proven', 'inconclusive'].includes(run.state)) target = 'verified';
       else if (['deployed', 'measuring'].includes(run.state)) target = 'deployed';
       else if (run.state === 'review') target = 'review';
+      else if (run.state === 'reported') target = 'verified';
     }
     if (!target || target === request.status) return request;
+    if (target === 'verified' && run.state === 'reported') {
+      try {
+        return changequeue.update(
+          events,
+          request.request_id,
+          { status: 'verified', error: null },
+          site => isKnownSite(root, site)
+        );
+      } catch {
+        return request;
+      }
+    }
     if (target === 'failed') {
       try {
         return changequeue.update(events, request.request_id, { status: 'failed' }, site =>
@@ -603,6 +659,31 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   async function deliverAutomatically(item) {
+    const request = events.getChangeRequest(item.source_id);
+    if (request?.delivery_mode === 'report_only') {
+      let workspace = await git.worktreeSnapshot(item.workspace_path);
+      if (workspace.dirty) {
+        workspace = await git.commitWorktree(item.workspace_path, `report: ${item.title}`);
+      }
+      const diff = await git.worktreeDiff(item.workspace_path);
+      const agentStatus = improvementAgent.status(root, item);
+      const artifact = writeReportArtifact(root, request, item, diff.text, agentStatus.log_tail);
+      const reported = improvements.transition(events, item.run_id, {
+        state: 'reported',
+        outcome: {
+          measured_at: new Date().toISOString(),
+          kind: 'report-only',
+          artifact: artifact.url,
+          commit: workspace.commit,
+        },
+      });
+      await syncImprovementTask(root, reported, 'done');
+      const cleaned = await cleanupImprovementResources(root, reported);
+      if (!cleaned.cleaned) throw new Error(cleaned.error);
+      const verified = syncChangeRequestFromRun(reported);
+      emitChangeNotification('report ready', verified, reported, artifact.url);
+      return { run: reported, report: artifact };
+    }
     const validated = await validateImprovementForDelivery(item);
     if (validated.validation.passed !== true)
       throw Object.assign(new Error('quality gates did not pass'), { httpStatus: 409 });
@@ -611,8 +692,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       validation: validated.validation,
     });
     await syncImprovementTask(root, reviewRun, 'done');
-    const request = events.getChangeRequest(reviewRun.source_id);
-    if (request?.delivery_mode === 'pull_request') {
+    const reviewRequest = events.getChangeRequest(reviewRun.source_id);
+    if (reviewRequest?.delivery_mode === 'pull_request') {
       const published = await git.publishWorktree(
         root,
         reviewRun.site,
@@ -621,7 +702,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       );
       const committed = changequeue.update(
         events,
-        request.request_id,
+        reviewRequest.request_id,
         {
           status: 'committed',
           error: null,
@@ -693,6 +774,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
+    const run = request.run_id ? events.getImprovement(request.run_id) : null;
+    if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
+      return;
     const message = String(error.message || error);
     try {
       changequeue.update(
@@ -734,6 +818,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         continue;
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
       if (!run || run.agent?.phase !== 'reviewer' || run.agent?.status !== 'completed') continue;
+      if (['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
+        continue;
       const reason =
         run.validation?.passed === false
           ? run.validation.checks?.build?.excerpt || 'quality gates did not pass'
@@ -885,6 +971,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({ snapshot });
     } catch (e) {
       res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
+    }
+  });
+  app.post('/api/executive/data-requests', async (req, res) => {
+    try {
+      const result = await executiveData.fulfill({
+        store: events,
+        root,
+        request: req.body || {},
+        managedSites: executiveRunner.executiveSites(root),
+      });
+      res.status(result.status === 'fulfilled' ? 201 : 503).json({ result });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message || String(e) });
+    }
+  });
+  app.get('/api/executive/data-requests/:id', (req, res) => {
+    const result = executiveData.read(root, req.params.id);
+    if (!result) return res.status(404).json({ error: 'data request not found' });
+    res.json({ result });
+  });
+  app.get('/api/change-requests/:id/report', (req, res) => {
+    const request = events.getChangeRequest(req.params.id);
+    if (!request) return res.status(404).json({ error: 'change request not found' });
+    const file = reportArtifactPath(root, request.request_id);
+    try {
+      res.json({ report: JSON.parse(fs.readFileSync(file, 'utf8')) });
+    } catch {
+      res.status(404).json({ error: 'report not found' });
     }
   });
   app.get('/api/executive/task-queue', (req, res) => {
@@ -1292,22 +1406,29 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.patch('/api/change-requests/:id', (req, res) => {
     try {
-      res.json({
-        request: changequeue.update(events, req.params.id, req.body || {}, site =>
-          isKnownSite(root, site)
-        ),
-      });
+      const before = events.getChangeRequest(req.params.id);
+      const request = changequeue.update(events, req.params.id, req.body || {}, site =>
+        isKnownSite(root, site)
+      );
+      if (before?.status !== request.status)
+        executiveFollowup.notify(events, {
+          event: request.status,
+          request,
+          run: request.run_id ? events.getImprovement(request.run_id) : null,
+          details: request.error || '',
+        });
+      res.json({ request });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
   app.post('/api/change-requests/:id/cancel', (req, res) => {
     try {
-      res.json({
-        request: changequeue.update(events, req.params.id, { status: 'cancelled' }, site =>
-          isKnownSite(root, site)
-        ),
-      });
+      const request = changequeue.update(events, req.params.id, { status: 'cancelled' }, site =>
+        isKnownSite(root, site)
+      );
+      executiveFollowup.notify(events, { event: 'cancelled', request });
+      res.json({ request });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

@@ -5,7 +5,7 @@ const tasks = require('./tasks');
 
 const TRANSITIONS = {
   proposed: ['building', 'cancelled'],
-  building: ['review', 'cancelled'],
+  building: ['review', 'reported', 'cancelled'],
   review: ['building', 'deployed', 'cancelled'],
   deployed: ['measuring', 'rolled-back'],
   measuring: ['proven', 'regressed', 'inconclusive', 'rolled-back'],
@@ -14,6 +14,7 @@ const TRANSITIONS = {
   inconclusive: [],
   cancelled: [],
   'rolled-back': [],
+  reported: [],
 };
 
 function measurementDate(days = 28, now = Date.now()) {

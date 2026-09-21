@@ -10,6 +10,7 @@ const handoff = require('./handoff');
 const research = require('./research');
 const croResearch = require('./cro');
 const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot');
+const executiveData = require('../fleet-dashboard/server/executive-data');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -225,15 +226,31 @@ async function buildBrief(store, root = ROOT) {
         'CRO trend signals are discovery leads, not proof of quality, license fit, security, revenue, or conversion impact. CEO/CTO must validate before implementation.',
     },
     domain_manager: buildDomainManagerContext(root),
-    queue: queued.map(({ request_id, site, title, category, priority, status, assigned_role }) => ({
-      request_id,
-      site,
-      title,
-      category,
-      priority,
-      status,
-      assigned_role,
-    })),
+    queue: queued.map(
+      ({
+        request_id,
+        site,
+        title,
+        category,
+        priority,
+        status,
+        assigned_role,
+        requested_by,
+        source_proposal_id,
+        delivery_mode,
+      }) => ({
+        request_id,
+        site,
+        title,
+        category,
+        priority,
+        status,
+        assigned_role,
+        requested_by,
+        source_proposal_id,
+        delivery_mode,
+      })
+    ),
     improvements: improvements.map(({ run_id, site, title, state, measurement_due, outcome }) => ({
       run_id,
       site,
@@ -258,6 +275,7 @@ async function buildBrief(store, root = ROOT) {
       .reverse()
       .map(({ actor, body, created_at }) => ({ actor, body, created_at })),
     handoffs: handoff.recent(root, 30),
+    data_requests: executiveData.recent(store),
   };
 }
 
@@ -288,6 +306,7 @@ Rules:
 Return ONLY valid JSON with this shape:
 {
   "messages": [{"actor":"ceo|cto|cfo|domain-manager","body":"concise owner update"}],
+  "data_requests": [{"requested_by":"ceo|cto|cfo|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}]
@@ -329,11 +348,18 @@ function parseOutput(text) {
   }
   if (!result || typeof result !== 'object' || Array.isArray(result))
     throw new Error('provider output must be a JSON object');
-  for (const key of ['messages', 'proposals', 'change_requests', 'research_requests'])
+  for (const key of [
+    'messages',
+    'data_requests',
+    'proposals',
+    'change_requests',
+    'research_requests',
+  ])
     if (result[key] !== undefined && !Array.isArray(result[key]))
       throw new Error(`${key} must be an array`);
   const plan = {
     messages: result.messages || [],
+    data_requests: result.data_requests || [],
     proposals: result.proposals || [],
     change_requests: result.change_requests || [],
     research_requests: result.research_requests || [],
@@ -370,11 +396,22 @@ function normalizeProviderProposalTypes(plan) {
 function validatePlan(plan) {
   if (
     plan.messages.length > 20 ||
+    plan.data_requests.length > 10 ||
     plan.proposals.length > 20 ||
     plan.change_requests.length > 20 ||
     plan.research_requests.length > 10
   )
     throw new Error('provider plan exceeds per-tick item limit');
+  for (const item of plan.data_requests) {
+    if (!String(item.question || '').trim() || String(item.question).length > 500)
+      throw new Error('invalid data request in provider plan');
+    if (
+      !['ceo', 'cto', 'cfo', 'cro', 'domain-manager', 'researcher'].includes(
+        String(item.requested_by || '')
+      )
+    )
+      throw new Error('invalid data request actor');
+  }
   for (const item of plan.research_requests) {
     if (
       !String(item.url || '').trim() ||
@@ -503,11 +540,38 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   validatePlan(plan);
   const created = {
     messages: [],
+    data_requests: [],
     proposals: [],
     change_requests: [],
     research: [],
     telemetry_satisfied: [],
   };
+  if (plan.data_requests.length) {
+    const audit = executive.action(store, {
+      actor: 'system',
+      action_type: 'research',
+      summary: `Fulfill ${plan.data_requests.length} read-only telemetry requests`,
+    });
+    try {
+      created.data_requests = [];
+      for (const request of plan.data_requests)
+        created.data_requests.push(
+          await executiveData.fulfill({
+            store,
+            root,
+            request,
+            managedSites: executiveSites(root),
+          })
+        );
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        result: { requests: created.data_requests },
+      });
+    } catch (error) {
+      executive.finishAction(store, audit.action_id, { status: 'failed', error: error.message });
+      throw error;
+    }
+  }
   if (plan.research_requests.length) {
     const audit = executive.action(store, {
       actor: 'ceo',

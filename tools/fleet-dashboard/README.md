@@ -20,6 +20,19 @@ Requests that are already in `review` have an **Auto-review & deliver** action i
 row and the request detail panel. A reviewer rejection or failed gate leaves the request in review
 with the error and preserves the worktree for human inspection.
 
+Executive report work uses `delivery_mode=report_only`. It runs in the same isolated worktree and
+automatic-review path, but writes a durable report artifact and ends as `verified`; it never
+deploys, pushes, or creates a deployment record. The request keeps `requested_by` and
+`source_proposal_id` for auditability, and the artifact is available at
+`GET /api/change-requests/:id/report`. CEO/CTO/CFO/CRO requestors receive a durable executive
+follow-up message when their request starts, blocks, fails, or completes.
+
+Read-only executive telemetry is available without queue approval. Scheduled intelligence snapshots
+are the first source; `POST /api/executive/data-requests` falls back to the existing first-party
+adapters when a fresh snapshot is unavailable, stores a permissioned artifact, and records the
+request/fulfillment events. These requests never grant implementation, deployment, credential, or
+spending authority.
+
 Queue execution uses persistent leases with heartbeats. The lease duration is configurable in Queue
 controls (5 minutes to 24 hours). After a dashboard restart, expired clean work is safely reset and
 requeued; expired worktrees containing changes are marked failed and preserved for manual recovery,
