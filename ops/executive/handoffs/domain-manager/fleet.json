@@ -2,22 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:40:36.048Z",
+  "generated_at": "2026-09-21T19:42:58.865Z",
   "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Run a report-only positioning and readiness assessment",
-        "summary": "Evaluate viable audience and positioning options, content formats, monetization fit, measurement requirements, operational risks, validation tests, and a staged activation backlog before investment.",
-        "requested_action": "Approve a report-only assessment. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "kind": "message",
+        "title": null,
+        "summary": "reviewtattoo.com is live with affiliate, analytics, and social capabilities. Amazon attribution records 875 clicks for reviewtattoo-20 but no ordered items or commission income; site analytics and SEO traffic telemetry are unavailable in the supplied snapshot. The queued canary documentation change remains in review after a quality-gate failure during external data fetch. Recommend a report-only diagnosis before retrying delivery.",
+        "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain parked status pending owner direction",
-        "summary": "Keep the site in discovery/scaffold status until positioning, audience, and activation intent are selected.",
-        "requested_action": "Require an owner decision on positioning and activation scope before content production, monetization setup, analytics configuration, social setup, or scheduled automation.",
+        "title": "Diagnose reviewtattoo.com canary quality-gate failure",
+        "summary": "Produce a report-only diagnosis of the queued reviewtattoo.com canary change failure, separating the observed external-data-fetch error from unverified causes and documenting the smallest reversible recovery, focused checks, and rollback behavior. Amazon clicks are observed, but orders and commission income are not observed for this site; analytics and SEO traffic telemetry are unavailable.",
+        "requested_action": "Approve a report-only diagnosis and recovery design. Do not deploy, mutate the queue, change credentials, DNS, schedules, spending, or production configuration.",
         "proposal_id": null
       }
     ]
