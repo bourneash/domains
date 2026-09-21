@@ -440,7 +440,14 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       summary: item.title,
     });
     try {
-      const proposal = executive.proposal(store, item);
+      // Provider-supplied IDs are not trusted: a model may reuse a slug across
+      // recurring runs. The control plane owns durable identifiers so retries
+      // cannot collide with an earlier proposal.
+      const proposal = executive.proposal(store, {
+        ...item,
+        proposal_id: undefined,
+        created_at: undefined,
+      });
       created.proposals.push(proposal);
       executive.finishAction(store, audit.action_id, {
         status: 'completed',

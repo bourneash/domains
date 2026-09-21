@@ -75,6 +75,32 @@ test('parses structured provider output and applies only explicitly enabled queu
   store.close();
 });
 
+test('does not trust provider proposal IDs across recurring runs', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          proposal_id: 'provider-reused-slug',
+          created_by: 'cfo',
+          title: 'Finance review',
+          proposal_type: 'business',
+          summary: 'Reconcile costs.',
+          requested_action: 'Approve a report-only review.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  const first = await runner.applyPlan(store, plan, { root });
+  const second = await runner.applyPlan(store, plan, { root });
+  assert.notEqual(first.proposals[0].proposal_id, 'provider-reused-slug');
+  assert.notEqual(first.proposals[0].proposal_id, second.proposals[0].proposal_id);
+  store.close();
+});
+
 test('rejects non-JSON provider output', () => {
   assert.throws(() => runner.parseOutput('not json'), /valid JSON/);
 });
