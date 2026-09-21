@@ -82,6 +82,8 @@ function sandboxSecurityArgs() {
     '--tmpfs',
     '/home/dev/.local:rw,noexec,nosuid,size=64m',
     '--tmpfs',
+    '/home/dev/.config:rw,noexec,nosuid,size=64m',
+    '--tmpfs',
     '/home/dev/.npm:rw,noexec,nosuid,size=512m',
   ];
 }
@@ -319,6 +321,8 @@ async function start(root, site, options = {}) {
     `SITE_DIR=${hostSiteDir}`,
     '-e',
     'TTYD_PORT=7681',
+    '-e',
+    'ASTRO_TELEMETRY_DISABLED=1',
   ];
   // The worker receives only the requested site/worktree and one provider auth
   // file. Hide site/fleet env files even when they live inside that bind mount.
