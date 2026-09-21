@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:00:24.809Z",
+  "generated_at": "2026-09-21T19:01:25.670Z",
   "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "MarineActivity measurement coverage review",
-        "summary": "Document analytics, Search Console, vessel-page engagement, affiliate-click, and revenue-measurement gaps, then define a weekly reconciliation checklist.",
-        "requested_action": "Approve report-only measurement-gap documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "830153a7-cbec-4083-90e9-2bf7d31f254b"
+        "title": "America Strikes measurement coverage review",
+        "summary": "Document analytics, SEO, conversion, affiliate-attribution, and operational measurement gaps, then define a reconciliation checklist.",
+        "requested_action": "Approve report-only measurement-gap documentation and a weekly reconciliation checklist. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "8136ae6b-2c5d-42ad-bf2a-b8622149994f"
       },
       {
         "kind": "proposal",
-        "title": "MarineActivity AIS feed and freshness diagnosis",
-        "summary": "Perform a report-only review of the AIS ingest path, vessel-page freshness, source availability, and failure-handling design for the advertised 20-minute ingest workflow.",
-        "requested_action": "Approve a report-only diagnosis with measured-versus-unavailable findings, validation checks, and reversible unshipped reliability designs. Do not deploy, mutate schedules, alter credentials, or change production configuration.",
-        "proposal_id": "0455ac0c-1d98-4bb7-bacd-2c31edd57551"
+        "title": "America Strikes mobile performance diagnosis",
+        "summary": "Diagnose the measured mobile performance bottleneck and produce reversible, unshipped optimization designs.",
+        "requested_action": "Approve report-only diagnosis covering assets, rendering, layout stability, JavaScript, validation tests, and effort notes. Do not implement or deploy changes.",
+        "proposal_id": "b1e5d517-2e97-47c8-8846-a98b1d1d6fd5"
       },
       {
         "kind": "proposal",
-        "title": "MarineActivity affiliate attribution reconciliation",
-        "summary": "Review affiliate-link tagging and site-level revenue reconciliation for marine-electronics recommendations, including a checklist for distinguishing clicks from ordered and shipped items.",
-        "requested_action": "Approve report-only attribution review and validation checklist. Do not alter affiliate settings, credentials, links, or production configuration.",
-        "proposal_id": "aca14720-3d1a-4af3-8fb9-529fd072b9a6"
+        "title": "America Strikes content depth and internal-linking review",
+        "summary": "Review existing geopolitics and defense-news articles for thin content, topic-page discoverability, and contextual internal-link opportunities.",
+        "requested_action": "Approve report-only review with article-depth criteria, internal-link recommendations, and validation checks. Do not create content, modify links or metadata, or deploy changes.",
+        "proposal_id": "8064d090-4151-423c-acc4-1211a9387dc6"
       }
     ]
   }
