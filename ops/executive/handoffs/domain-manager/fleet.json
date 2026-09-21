@@ -2,23 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:07:26.184Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-21T19:09:45.110Z",
+  "summary": "domain-manager checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "New Mom Shop mobile performance diagnosis",
-        "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck, focusing on LCP, asset loading, rendering, and layout stability.",
-        "requested_action": "Approve report-only diagnosis with validation tests, effort notes, and reversible unshipped optimization designs. Do not implement or deploy changes.",
-        "proposal_id": "04f1295f-4792-4d3d-841c-2b2bbab7e3a9"
+        "title": "Saltwater News measurement coverage review",
+        "summary": "Document analytics, SEO, conversion, affiliate-attribution, data-feed, and operational measurement gaps, with a weekly reconciliation checklist.",
+        "requested_action": "Approve report-only documentation. Treat unavailable telemetry as unavailable; do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "5d1212b3-cd9c-4c9f-a464-a053e181a702"
       },
       {
         "kind": "proposal",
-        "title": "New Mom Shop measurement coverage review",
-        "summary": "Document analytics, SEO, conversion, affiliate-attribution, and operational measurement gaps, then define a weekly reconciliation checklist.",
-        "requested_action": "Approve report-only documentation. Treat unavailable telemetry as unavailable; do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "73333c40-91e9-4b58-bab2-3bff1076f83d"
+        "title": "Saltwater News mobile performance diagnosis",
+        "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck and reversible optimization designs.",
+        "requested_action": "Approve diagnosis covering assets, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
+        "proposal_id": "f61c52b5-5e4b-44c6-a3db-a7f528ed3de2"
+      },
+      {
+        "kind": "proposal",
+        "title": "Saltwater News data-feed and operational health diagnosis",
+        "summary": "Review the reportable health of attributed charter reports, NOAA/NMFS references, storms, marine conditions, scheduled jobs, freshness indicators, and stale-data behavior.",
+        "requested_action": "Approve report-only diagnosis with validation checks and reversible unshipped designs. Do not deploy, mutate schedules, change credentials, or alter production configuration.",
+        "proposal_id": "a8967bc7-f538-44fa-a820-3621ddc6d95d"
+      },
+      {
+        "kind": "proposal",
+        "title": "Saltwater News affiliate attribution reconciliation",
+        "summary": "Review affiliate-link tagging and reporting paths to determine whether clicks, orders, and commissions can be reconciled to Saltwater News pages and content types.",
+        "requested_action": "Approve a report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
+        "proposal_id": "20797b7c-d921-4982-a89d-03b79c08836e"
       }
     ]
   }
