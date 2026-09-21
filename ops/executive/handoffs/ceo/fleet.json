@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:18:36.895Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-21T19:22:17.961Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "All Things Masonic measurement coverage review",
-        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry before making content or monetization decisions.",
-        "requested_action": "Approve report-only documentation and a weekly baseline checklist. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "95ec880e-97a4-482e-902c-03d629eb1d73"
-      },
-      {
-        "kind": "proposal",
-        "title": "All Things Masonic mobile performance diagnosis",
-        "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck and reversible optimization designs.",
-        "requested_action": "Approve diagnosis covering asset loading, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
-        "proposal_id": "c70a440f-93c4-446a-ad9b-67666e626f0a"
-      },
-      {
-        "kind": "proposal",
-        "title": "All Things Masonic affiliate attribution reconciliation",
-        "summary": "Review affiliate-link tagging and reporting paths to determine whether outbound clicks, orders, and commissions can be reconciled to site pages and content types.",
-        "requested_action": "Approve a report-only review of link tagging, page/content mapping, and Amazon reporting reconciliation. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "83785e0a-689d-49a5-b1c9-af1719b5a70e"
+        "title": "Driveford activation and measurement readiness review",
+        "summary": "Perform a report-only review of positioning, audience opportunity, content readiness, analytics coverage, monetization options, and operational prerequisites before activation decisions.",
+        "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "proposal_id": "c9e8f9f2-23cf-40ff-b6e6-e3201919f74f"
       }
     ]
   }
