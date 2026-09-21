@@ -6,18 +6,36 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 IMAGE="${EXECUTIVE_IMAGE:-domains-executive-runner:latest}"
 MODE="${EXECUTIVE_MODE:---apply}"
+IMAGE_SOURCE_LABEL="com.bourneash.executive.source-sha"
+LOCK_FILE="${EXECUTIVE_LOCK_FILE:-/tmp/domains-executive.lock}"
+CONTAINER_NAME="${EXECUTIVE_CONTAINER_NAME:-executive-ceo-cto}"
 export EXECUTIVE_PROVIDER="${EXECUTIVE_PROVIDER:-chatgpt}"
 export EXECUTIVE_MODEL="${EXECUTIVE_MODEL:-gpt-5.6-luna}"
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-adaptive}"
 [[ "${EXECUTIVE_ALLOW_QUEUE:-0}" == "1" ]] && MODE="$MODE --allow-queue"
 
-exec 9>"/tmp/domains-executive.lock"
+exec 9>"$LOCK_FILE"
 flock -n 9 || { echo "executive tick already running" >&2; exit 75; }
 
-docker image inspect "$IMAGE" >/dev/null 2>&1 || {
-  echo "building $IMAGE from the current project" >&2
-  docker build -f "$ROOT/tools/executive/Dockerfile" -t "$IMAGE" "$ROOT"
-}
+# The model image is intentionally isolated from the checkout, so it must be
+# rebuilt when its copied source changes. A plain "image exists" check leaves
+# the production model running stale validation and policy code indefinitely.
+SOURCE_DIGEST="$({
+  find "$ROOT/tools/executive" -type f ! -path '*/data/*' ! -path '*/logs/*' -print | sort | while IFS= read -r file; do sha256sum "$file"; done
+  for file in \
+    "$ROOT/tools/fleet-dashboard/server/eventstore.js" \
+    "$ROOT/tools/fleet-dashboard/server/executive.js" \
+    "$ROOT/tools/fleet-dashboard/server/changequeue.js" \
+    "$ROOT/tools/fleet-dashboard/server/executive-snapshot.js"; do
+    sha256sum "$file"
+  done
+} | sha256sum | awk '{print $1}')"
+CURRENT_DIGEST="$(docker image inspect --format "{{index .Config.Labels \"$IMAGE_SOURCE_LABEL\"}}" "$IMAGE" 2>/dev/null || true)"
+if [[ "$CURRENT_DIGEST" != "$SOURCE_DIGEST" ]]; then
+  echo "building $IMAGE from current executive source ($SOURCE_DIGEST)" >&2
+  docker build --label "$IMAGE_SOURCE_LABEL=$SOURCE_DIGEST" \
+    -f "$ROOT/tools/executive/Dockerfile" -t "$IMAGE" "$ROOT"
+fi
 
 # fleet-cron launches this through the Docker socket. A /tmp path inside the
 # fleet-cron container is not visible to the nested model container, so keep
@@ -31,7 +49,7 @@ trap 'rm -rf "$RUN_DIR"' EXIT
 # Brief generation and plan application happen in the trusted control plane.
 node "$ROOT/tools/executive/runner.js" --brief-only > "$RUN_DIR/input/brief.json"
 
-args=(run --rm --name executive-ceo-cto --entrypoint /usr/bin/env \
+args=(run --rm --name "$CONTAINER_NAME" --entrypoint /usr/bin/env \
   --read-only --cap-drop=ALL --security-opt=no-new-privileges \
   --pids-limit=256 --memory=2g --cpus=2 \
   --tmpfs /tmp:rw,noexec,nosuid,size=256m \

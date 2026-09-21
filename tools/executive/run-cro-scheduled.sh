@@ -25,6 +25,9 @@ if ! [[ "$TIMEOUT" =~ ^[1-9][0-9]*$ ]]; then
 fi
 exec >>"$LOG" 2>&1
 echo "[$(date -Is)] starting CRO GitHub research"
-timeout --signal=TERM --kill-after=10s "${TIMEOUT}s" \
+# BusyBox timeout is used by fleet-cron; keep this portable across host and
+# container execution. GNU's long --signal/--kill-after spellings fail closed
+# before CRO research starts on the production scheduler image.
+timeout -s TERM -k 10 "${TIMEOUT}s" \
   node "$STATE/cro.js"
 "$STATE/checkin.sh"

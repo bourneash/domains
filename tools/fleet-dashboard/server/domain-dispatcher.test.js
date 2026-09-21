@@ -65,3 +65,28 @@ test('never claims an excluded site', () => {
   dispatcher.writeState(value, state);
   assert.equal(dispatcher.claimNext(value), null);
 });
+
+test('treats a global executive lock collision as busy instead of a failed attempt', async () => {
+  const value = root();
+  const script = path.join(value, 'busy.sh');
+  fs.writeFileSync(script, '#!/bin/sh\necho "executive tick already running" >&2\nexit 75\n', {
+    mode: 0o700,
+  });
+  dispatcher.writeState(value, {
+    jobs: [
+      {
+        job_id: 'busy-job',
+        site: 'greatamericanlakes.com',
+        status: 'queued',
+        attempts: 0,
+        requested_at: new Date().toISOString(),
+        next_attempt_at: new Date().toISOString(),
+      },
+    ],
+  });
+  const result = await dispatcher.runOne(value, { command: script });
+  assert.equal(result.job.status, 'queued');
+  assert.equal(result.job.attempts, 0);
+  assert.equal(result.job.last_error, 'executive tick already running\n');
+  assert.ok(Date.parse(result.job.next_attempt_at) > Date.now());
+});

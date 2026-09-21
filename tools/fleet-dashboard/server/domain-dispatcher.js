@@ -14,6 +14,7 @@ const executive = require('./executive');
 const MAX_ATTEMPTS = 3;
 const DEFAULT_MAX_CONCURRENT = 2;
 const DEFAULT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+const BUSY_RETRY_MS = 60 * 1000;
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
 function statePath(root) {
@@ -139,13 +140,21 @@ function claimNext(
   return job;
 }
 
-function finish(root, jobId, { ok, error = null, now = new Date() } = {}) {
+function finish(root, jobId, { ok, busy = false, error = null, now = new Date() } = {}) {
   const state = readState(root);
   const job = state.jobs.find(row => row.job_id === jobId);
   if (!job) throw new Error('domain-manager job not found');
   job.lease_until = null;
   job.last_error = error;
-  if (ok) {
+  if (busy) {
+    // A global executive run (for example the scheduled CEO tick) may still
+    // occupy the provider. This is not a failed manager attempt and must not
+    // consume an attempt or defer a site for six hours.
+    job.status = 'queued';
+    job.attempts = Math.max(0, job.attempts - 1);
+    job.next_attempt_at = new Date(now.getTime() + BUSY_RETRY_MS).toISOString();
+    job.last_error = error || 'executive runner busy; retry scheduled';
+  } else if (ok) {
     job.status = 'completed';
     job.completed_at = now.toISOString();
   } else if (job.attempts >= MAX_ATTEMPTS) {
@@ -209,14 +218,25 @@ async function runOne(
   });
   const completed = finish(root, job.job_id, {
     ok: result.code === 0,
+    busy: result.code === 75 && /executive tick already running/i.test(result.stderr),
     error: result.code === 0 ? null : result.stderr,
     now: new Date(),
   });
   const finalStore = eventstore.open(root);
   executive.finishAction(finalStore, audit.action_id, {
-    status: result.code === 0 ? 'completed' : 'failed',
+    status:
+      result.code === 0
+        ? 'completed'
+        : completed.status === 'queued' && completed.attempts < job.attempts
+          ? 'skipped'
+          : 'failed',
     error: result.code === 0 ? null : result.stderr,
-    result: { job_id: job.job_id, site: job.site, attempts: completed.attempts },
+    result: {
+      job_id: job.job_id,
+      site: job.site,
+      attempts: completed.attempts,
+      busy: completed.status === 'queued' && completed.attempts < job.attempts,
+    },
   });
   finalStore.close();
   return { job: completed, result, summary: summary(root) };
@@ -225,6 +245,7 @@ async function runOne(
 module.exports = {
   MAX_ATTEMPTS,
   DEFAULT_MAX_CONCURRENT,
+  BUSY_RETRY_MS,
   statePath,
   readState,
   writeState,
