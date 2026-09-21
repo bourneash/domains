@@ -1,0 +1,25 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "cto",
+  "site": "fleet",
+  "generated_at": "2026-09-21T22:12:12.956Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only the report-only measurement-integrity assessment. Revenue, margin, CAC, payback, forecasts, traffic, and operating costs remain unsupported because analytics and attribution are incomplete. Reject parked-inventory triage: it has no defensible quantified outcome without renewal, cost, traffic, or revenue inputs. No queue, credential, configuration, affiliate, deployment, DNS, schedule, billing, registrar, or production changes are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Fleet measurement-integrity and attribution remediation assessment",
+        "summary": "Produce a prioritized, read-only assessment of analytics coverage failure, affiliate tracking-ID attribution gaps, and the inputs required for site-level contribution-margin and cost-to-learn measurement.",
+        "requested_action": "Approve only a report-only assessment. Document source freshness, failure boundaries, attribution reconciliation requirements, required contribution-margin and cost-to-learn inputs, ownership, implementation effort, acceptance criteria, and rollback notes. Do not restore telemetry, change credentials, billing, DNS, schedules, affiliate configuration, or production systems.",
+        "proposal_id": "b49f7e7b-42c7-45b4-996e-b84546a694ad"
+      }
+    ]
+  }
+}
