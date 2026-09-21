@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:04:22.718Z",
+  "generated_at": "2026-09-21T19:14:26.275Z",
   "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Black Market Apparel mobile performance diagnosis",
-        "summary": "Produce a report-only diagnosis of the measured mobile performance bottleneck, focusing on LCP, asset loading, rendering, and layout stability.",
-        "requested_action": "Approve report-only diagnosis with reversible optimization designs, validation tests, and effort notes. Do not implement or deploy changes.",
-        "proposal_id": "221f3517-5299-46f5-bfda-7cead32309a3"
+        "title": "Total Jerks mobile performance diagnosis",
+        "summary": "Conduct a report-only diagnosis of the measured mobile performance bottleneck, focusing on LCP, asset loading, rendering, and layout stability.",
+        "requested_action": "Approve report-only findings, reversible optimization designs, validation tests, and effort notes. Do not implement or deploy changes.",
+        "proposal_id": "6ec22fac-1ebe-4126-b912-1b69e399a59b"
       },
       {
         "kind": "proposal",
-        "title": "Black Market Apparel measurement coverage review",
-        "summary": "Document analytics, SEO, conversion, affiliate-attribution, and operational measurement gaps and define a weekly reconciliation checklist.",
-        "requested_action": "Approve report-only measurement-gap documentation and reconciliation checklist. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "865afb6c-4c20-444c-8ec2-c3391145e800"
+        "title": "Total Jerks measurement coverage review",
+        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry, then define a weekly reconciliation checklist.",
+        "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "b1c4bda1-dc7e-475e-9a6b-b19160ae0719"
       },
       {
         "kind": "proposal",
-        "title": "Black Market Apparel affiliate attribution reconciliation",
-        "summary": "Review the site’s affiliate-link tagging and reporting path to determine whether outbound activity can be reconciled to site-level orders and commissions.",
-        "requested_action": "Approve report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "e8b0cd93-42bd-4378-99e1-81c1cf95b00c"
+        "title": "Total Jerks affiliate attribution reconciliation",
+        "summary": "Review affiliate-link tagging and reporting paths to determine whether outbound activity can be reconciled to Total Jerks pages, orders, and commissions.",
+        "requested_action": "Approve a report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
+        "proposal_id": "b0740297-7733-4162-ae31-1f553cf724e5"
       }
     ]
   }
