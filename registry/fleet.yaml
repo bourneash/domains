@@ -785,8 +785,15 @@ sites:
     - smoke
     - tasks
     - affiliate
+    - analytics
     - data-hub
+    analytics:
+      ga4_property_id: '555316667'
+      ga4_measurement_id: G-DDZ7GK31HD
+      gsc_property: sc-domain:saltwaternews.com
+      consent_gated: true
     registered_in:
+    - analytics
     - data-hub
     - domains-index
     - site-tracker

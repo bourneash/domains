@@ -117,6 +117,11 @@ sites:
     ga4_measurement_id: G-GXHMCZ25QC
     gsc_property: sc-domain:rodhat.com
     consent_gated: true
+  saltwaternews.com:
+    ga4_property_id: '555316667'
+    ga4_measurement_id: G-DDZ7GK31HD
+    gsc_property: sc-domain:saltwaternews.com
+    consent_gated: true
   saveusfarms.com:
     ga4_property_id: '542493246'
     ga4_measurement_id: G-GDYX2GPMMJ
