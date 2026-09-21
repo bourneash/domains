@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:14:26.275Z",
+  "generated_at": "2026-09-21T19:18:36.895Z",
   "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Total Jerks mobile performance diagnosis",
-        "summary": "Conduct a report-only diagnosis of the measured mobile performance bottleneck, focusing on LCP, asset loading, rendering, and layout stability.",
-        "requested_action": "Approve report-only findings, reversible optimization designs, validation tests, and effort notes. Do not implement or deploy changes.",
-        "proposal_id": "6ec22fac-1ebe-4126-b912-1b69e399a59b"
+        "title": "All Things Masonic measurement coverage review",
+        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry before making content or monetization decisions.",
+        "requested_action": "Approve report-only documentation and a weekly baseline checklist. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "95ec880e-97a4-482e-902c-03d629eb1d73"
       },
       {
         "kind": "proposal",
-        "title": "Total Jerks measurement coverage review",
-        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry, then define a weekly reconciliation checklist.",
-        "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "b1c4bda1-dc7e-475e-9a6b-b19160ae0719"
+        "title": "All Things Masonic mobile performance diagnosis",
+        "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck and reversible optimization designs.",
+        "requested_action": "Approve diagnosis covering asset loading, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
+        "proposal_id": "c70a440f-93c4-446a-ad9b-67666e626f0a"
       },
       {
         "kind": "proposal",
-        "title": "Total Jerks affiliate attribution reconciliation",
-        "summary": "Review affiliate-link tagging and reporting paths to determine whether outbound activity can be reconciled to Total Jerks pages, orders, and commissions.",
-        "requested_action": "Approve a report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "b0740297-7733-4162-ae31-1f553cf724e5"
+        "title": "All Things Masonic affiliate attribution reconciliation",
+        "summary": "Review affiliate-link tagging and reporting paths to determine whether outbound clicks, orders, and commissions can be reconciled to site pages and content types.",
+        "requested_action": "Approve a report-only review of link tagging, page/content mapping, and Amazon reporting reconciliation. Do not alter affiliate links, credentials, settings, or production configuration.",
+        "proposal_id": "83785e0a-689d-49a5-b1c9-af1719b5a70e"
       }
     ]
   }
