@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:21:14.164Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-21T20:27:21.320Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess positioning and launch readiness",
-        "summary": "Review wetslit.com’s unspecified audience, positioning, content scope, and minimum viable launch path before further investment. The site is scaffolded, parked for 119 days, has only site and operations capabilities, and auto-renew is disabled.",
-        "requested_action": "Approve a report-only assessment covering audience hypotheses, positioning options, content and monetization scope, launch risks, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or modify domain settings.",
-        "proposal_id": "942a4fa2-e1d9-44b0-bd7c-ec33c68ccffa"
+        "title": "Diagnose mobile performance and LCP remediation priorities",
+        "summary": "Produce a report-only diagnosis of affected templates, likely causes, reversible fixes, implementation effort, and validation criteria before additional growth work.",
+        "requested_action": "Approve report-only analysis. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Assess article depth and internal-linking growth backlog",
+        "summary": "Review topic-page architecture, article depth, internal-link opportunities, and editorial priorities for the autonomous geopolitics and defense-news positioning.",
+        "requested_action": "Approve a report-only content and SEO assessment with proposed page briefs, linking recommendations, quality controls, and measurement criteria. Do not publish or modify production content.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Review affiliate attribution and AI-assisted publishing controls",
+        "summary": "Assess affiliate-link presentation, attribution boundaries, editorial review gates, and AI workload controls before further content or monetization investment.",
+        "requested_action": "Approve a report-only workflow and monetization assessment. Do not change models, schedules, credentials, affiliate configuration, or production systems.",
+        "proposal_id": null
       }
     ]
   }
