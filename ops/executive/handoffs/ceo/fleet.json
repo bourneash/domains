@@ -1,0 +1,32 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "ceo",
+  "site": "fleet",
+  "generated_at": "2026-09-21T19:00:24.809Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "MarineActivity measurement coverage review",
+        "summary": "Document analytics, Search Console, vessel-page engagement, affiliate-click, and revenue-measurement gaps, then define a weekly reconciliation checklist.",
+        "requested_action": "Approve report-only measurement-gap documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "830153a7-cbec-4083-90e9-2bf7d31f254b"
+      },
+      {
+        "kind": "proposal",
+        "title": "MarineActivity AIS feed and freshness diagnosis",
+        "summary": "Perform a report-only review of the AIS ingest path, vessel-page freshness, source availability, and failure-handling design for the advertised 20-minute ingest workflow.",
+        "requested_action": "Approve a report-only diagnosis with measured-versus-unavailable findings, validation checks, and reversible unshipped reliability designs. Do not deploy, mutate schedules, alter credentials, or change production configuration.",
+        "proposal_id": "0455ac0c-1d98-4bb7-bacd-2c31edd57551"
+      },
+      {
+        "kind": "proposal",
+        "title": "MarineActivity affiliate attribution reconciliation",
+        "summary": "Review affiliate-link tagging and site-level revenue reconciliation for marine-electronics recommendations, including a checklist for distinguishing clicks from ordered and shipped items.",
+        "requested_action": "Approve report-only attribution review and validation checklist. Do not alter affiliate settings, credentials, links, or production configuration.",
+        "proposal_id": "aca14720-3d1a-4af3-8fb9-529fd072b9a6"
+      }
+    ]
+  }
+}

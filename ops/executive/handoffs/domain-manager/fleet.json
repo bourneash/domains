@@ -2,23 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T16:43:49.755Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-21T18:58:27.854Z",
+  "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Deep Penetrations organic conversion and monetization review",
-        "summary": "Review and recommend improvements for /reviews/super-lube-synthetic, /reviews/wd40-silicone, and /reviews/liquid-wrench. Supplied SEO data shows 446 impressions and 1 click for Super Lube Synthetic, 96 impressions and 0 clicks for WD-40 Silicone, and 69 impressions at position 2.8 with 0 clicks for Liquid Wrench. The site recorded 1,505 impressions, 2 clicks, 7 sessions, 0 conversions, and 28 measured pages. Amazon attribution reports 392 clicks for deeppenetrations-20 with 0 ordered items and $0 commission for the supplied 2026-09-21 window; portfolio attribution is incomplete.",
-        "requested_action": "Approve a report-only review of search intent, page titles and snippets, internal linking, affiliate-link presentation, and conversion measurement gaps. Do not create content, modify links, change credentials, or deploy production changes.",
-        "proposal_id": "83773ff5-fe3f-4c32-8d71-f4e4dd639c97"
+        "title": "Arttogogh measurement coverage review",
+        "summary": "Document analytics, SEO, affiliate, revenue, and conversion-measurement gaps, then define a weekly reconciliation checklist. Evidence: analytics is unavailable fleet-wide with zero configured sites; SEO reports no measured impressions, clicks, sessions, conversions, or pages; inventory lists no analytics or affiliate capability for arttogogh.com; Amazon attribution has no arttogogh.com row.",
+        "requested_action": "Approve report-only measurement-gap documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "22e21974-37fa-4ff0-beed-57f69b024dbc"
       },
       {
         "kind": "proposal",
-        "title": "Deep Penetrations mobile performance diagnosis",
-        "summary": "Diagnose the measured mobile performance issue for deeppenetrations.com. The supplied lab data reports performance 79 and LCP 4266ms. Identify observable asset, rendering, layout, and interaction hypotheses, while separating measured facts from unavailable telemetry.",
-        "requested_action": "Approve report-only diagnosis with validation tests, effort notes, and reversible unshipped optimization designs. Do not implement or deploy changes.",
-        "proposal_id": "d559ee01-aa3f-4b10-bced-86431fd6263a"
+        "title": "Arttogogh mobile performance bottleneck diagnosis",
+        "summary": "Perform a report-only diagnosis of publicly observable and available performance risks, producing reversible unshipped optimization designs and validation tests. No site-specific web-vitals measurements are supplied for arttogogh.com, so bottlenecks must remain hypotheses until measured.",
+        "requested_action": "Approve diagnosis only; do not implement or deploy changes.",
+        "proposal_id": "a73f9ab1-0243-496b-8376-cec9ce2a5fd5"
+      },
+      {
+        "kind": "proposal",
+        "title": "Arttogogh orchestration failure diagnosis",
+        "summary": "Review the repeated cancelled runs, six attempts on the committed design task, and one run still marked building to identify reporting, retry, lease, or terminal-state gaps. Available telemetry does not establish root cause.",
+        "requested_action": "Approve report-only diagnosis and control recommendations. Do not mutate queue state, schedules, credentials, spending, or production configuration.",
+        "proposal_id": "cff16f28-2f7c-4ef7-a9fa-24fc3ada3645"
       }
     ]
   }
