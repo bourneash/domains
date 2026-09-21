@@ -1,0 +1,897 @@
+{
+  "updated_at": "2026-09-21T16:20:02.057Z",
+  "jobs": [
+    {
+      "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
+      "fingerprint": "de48ea5ba79197a085c6cf05bf74efcb8f1bc052e4a084cb2a81b81fd2969f07",
+      "site": "americastrikes.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T21:44:57.907Z",
+      "lease_until": null,
+      "last_error": "(node:1222976) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1222976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\nnode:internal/modules/cjs/loader:1433\n  throw err;\n  ^\n\nError: Cannot find module '../fleet-dashboard/server/fleetregistry'\nRequire stack:\n- /app/tools/executive/runner.js\n- /app/tools/executive/model-runner.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1430:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)\n    at Function._load (node:internal/modules/cjs/loader:1216:25)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)\n    at Module.require (node:internal/modules/cjs/loader:1527:12)\n    at require (node:internal/modules/helpers:147:16)\n    at Object.<anonymous> (/app/tools/executive/runner.js:11:23)\n    at Module._compile (node:internal/modules/cjs/loader:1781:14)\n    at Object..js (node:internal/modules/cjs/loader:1913:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    '/app/tools/executive/runner.js',\n    '/app/tools/executive/model-runner.js'\n  ]\n}\n\nNode.js v22.23.2\n",
+      "claimed_at": "2026-09-21T15:44:53.015Z"
+    },
+    {
+      "job_id": "9d247fad-9669-4255-bbd1-2430eb9d75a3",
+      "fingerprint": "4bfddab21085bec553d5a3935cede0087cc1f21292d8ff77e18388e4422fe1c6",
+      "site": "amputeenews.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-21T15:57:50.239Z",
+      "completed_at": "2026-09-21T15:58:15.613Z"
+    },
+    {
+      "job_id": "a111246d-b4fe-4f21-ae07-1a2fc6133645",
+      "fingerprint": "21e1ebb56cdec1ef31858e93968c0404a6b604a8c341c2a177e7b55b8c1b1ff3",
+      "site": "arttogogh.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T21:58:59.366Z",
+      "lease_until": null,
+      "last_error": "(node:1460594) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1460594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1470401) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1470401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\ninvalid proposal_type\n",
+      "claimed_at": "2026-09-21T15:58:23.694Z"
+    },
+    {
+      "job_id": "aada1df9-5dc2-41e6-84ff-2ff34b9cb259",
+      "fingerprint": "ece3d1dd6870cc29525dec6114a16a012b7c8527778fe9663cf52b94ce9e2c2f",
+      "site": "blackmarketapparel.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T22:20:02.056Z",
+      "lease_until": null,
+      "last_error": "(node:16889) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ntimeout: unrecognized option: signal=TERM\nBusyBox v1.37.0 (2026-01-10 15:38:28 UTC) multi-call binary.\n\nUsage: timeout [-s SIG] [-k KILL_SECS] SECS PROG ARGS\n\nRun PROG. Send SIG to it if it is not gone in SECS seconds.\nDefault SIG: TERM.If it still exists in KILL_SECS seconds, send KILL.\n\n",
+      "claimed_at": "2026-09-21T16:20:00.156Z"
+    },
+    {
+      "job_id": "b2188a94-5ec7-4903-ac6d-c1bb76426b39",
+      "fingerprint": "c1cc053926fe42aa8c0d4ce2604b2cc3c97e5f08abe76aec3ed84b5362ef75c9",
+      "site": "deeppenetrations.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "025fe901-4702-48ab-8b76-79473a5f2c32",
+      "fingerprint": "9857033e683af37d670bff6cc75c0afcb0f0b0c79270faeef49da02a59e086f0",
+      "site": "eastcoastrappers.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "9b311136-cdfd-40ab-a959-c126caa3b867",
+      "fingerprint": "89001909d2a87921787d7a4090af4526f181c73cf68aeba3170f2f8f41b7c8f5",
+      "site": "greatamericanlakes.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-21T15:23:42.446Z",
+      "completed_at": "2026-09-21T15:24:27.007Z"
+    },
+    {
+      "job_id": "cd06d4d9-3211-46ee-8e96-c4c3fdf24c77",
+      "fingerprint": "fc14ca6822ac9bb25f77fde08d53fe0508d7f0bb8252a8fe483f8b9e80c9277d",
+      "site": "marineactivity.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "7fe4a105-cdca-424b-acb2-c4a5cae91ca7",
+      "fingerprint": "d02e0db87d2082e3717d7c2152141fda2687c1f6c4d6a4bbf304176988548c11",
+      "site": "newmomshop.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "984e19ab-526d-446e-9864-deb341f3157d",
+      "fingerprint": "a630a01760deca162016ba6b80af72e3ec03a6c3cf68c26da3af4c256d66a228",
+      "site": "offshorehookup.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "8426d77b-e4d9-484e-9335-afc95ef81adc",
+      "fingerprint": "1aa836e960670c652a175640afef5b76af7189e7f6c56f62547d21e311d86cc8",
+      "site": "saltwaternews.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "08f7afba-95fe-4572-8ba1-eba706652366",
+      "fingerprint": "df8e357e4382fd0aede3b650a30c9eb9d89e7edf342a5de3897729dc6ba28d85",
+      "site": "saveusfarms.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "12e512f3-371b-4959-8cfb-180c7250a4b3",
+      "fingerprint": "15f9bd694c8a3e11120df823836de859784aba3f6f2470773ee5462f5c9a40d4",
+      "site": "searchwoot.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "c87cbb37-5901-4eeb-8ee5-d5c5e49fa437",
+      "fingerprint": "d5f8ad84a7261c2b249e029553b4d667c6ac8145283481e698b5d9b47a5d2cbd",
+      "site": "seedstosauce.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "203b1c21-9b02-4c69-95c7-a7a8c57757e2",
+      "fingerprint": "248467bb7909a1a7736b49a62e1777c76f69e737f7485d027dca0b287ef8ac78",
+      "site": "shoptopless.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "76434418-8a73-4f1a-8c8e-fb00e9e278ef",
+      "fingerprint": "18b68cb3ab30c837f9141d3c8f3b4d1c28bef7588b1b57ef397a449ccb62933e",
+      "site": "totaljerks.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "2735f64d-96e5-439e-8c27-435f16d9a1bd",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:23:42.429Z",
+      "next_attempt_at": "2026-09-21T15:23:42.429Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "c6136b6e-0ba5-4d82-9c10-c0917c6bbfab",
+      "fingerprint": "b43a9e85857bb0d97c01cf2523411eda8e18e244885f2b1e8166befb78bf1a99",
+      "site": "0daynews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "8db6a5b8-0182-432d-b90d-6e80243550f3",
+      "fingerprint": "9cd0ef377977877f51b86d2978acef671fdc1161596c85dd6eee5ab03431bbc1",
+      "site": "0xroulette.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "09d4afca-705c-408b-94d4-92833792b4ce",
+      "fingerprint": "7d16267e94f122824a62a655a6b9c515b062cbd2f055dc09416ac8988f4d6815",
+      "site": "aliencouncil.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "77573678-d82b-49ba-bb32-219bc10aae8e",
+      "fingerprint": "0f779a82f9f37130dda95d170ca93a057665356c015ce9f8c0b477807e4559c8",
+      "site": "allthingsmasonic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "e9db3a27-f77c-4ca2-95db-bd939f040c32",
+      "fingerprint": "6c94d57c26d5296046a62afca34f33fa648f56d977a29c38bdf48ad7e5cfa689",
+      "site": "broadwayshowgirls.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "90221d3c-8459-48cf-9a60-2da40361dfe1",
+      "fingerprint": "64df044c705b74f134adb14c3f0f3e2383c6f15f745eb6af6f22da456b57328c",
+      "site": "complicated.work",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "29a96e64-8f0b-49a6-ba83-1e6284192e6a",
+      "fingerprint": "cc35647a88907b86211d5e2af9b57d06c84a51a6e4abcd288790df98b281dc4a",
+      "site": "deadlymaracas.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "64dccab6-3213-4a4b-8762-1c3555397acc",
+      "fingerprint": "699c2fcec5d54c89f9dd73726a462090a8e2e89ef6bcd7101db572ed8785c8ca",
+      "site": "driveford.net",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "65a2c5da-80a4-4661-99a4-5cf839d1b6a0",
+      "fingerprint": "a383f7fdf6960b9a849d9cd8b6a12db8c2df9734fdd09b8a9ae4971e4a697c2c",
+      "site": "drivegm.net",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "64cc51ad-ec9b-497e-86e4-5506a13eba28",
+      "fingerprint": "cba868b803f4e49f96a86072aa63d1b26460d77916da45f5a7947ff6545eb6df",
+      "site": "dumbsluts.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "01062d22-6729-4660-a901-a514dcd59c06",
+      "fingerprint": "affa58fb5ae0b3f467532f0b772a25980832a0758336ff77f3254da2682ade09",
+      "site": "elevatorfriends.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "3169a72c-b6b3-477d-b89d-5426f63ea865",
+      "fingerprint": "2434c61d96a13d21c03374aeb3711b2f679739db865f7d49c5ed3d35a2b9abf1",
+      "site": "failbunny.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "c3c72943-72de-41cb-b71d-352bbc3fbb42",
+      "fingerprint": "a5fc991ef0bac624682308771cff8a8452e9fb78ea1b1a5d96ffc7cc5b482996",
+      "site": "findyourlostpets.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "0cbd323f-aa28-4b01-921a-7a4f94da883d",
+      "fingerprint": "6f01250421a4394381009325bb3acc7a901dcc6f7ae75eab5b1656c3c851e765",
+      "site": "fishhooklabs.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "18a47174-516b-4308-abf0-5a018d38ee5b",
+      "fingerprint": "8fe13815a028e72d560995c50859147c397937389dd41bba99b88bccd98359b7",
+      "site": "gate03.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "ae8df83a-6fe2-4283-bbcb-5dc7b24f4972",
+      "fingerprint": "46168121affb94762ed1d0583656d37a6e5d69e2d349d708ad8e562e7f9296a0",
+      "site": "girlpain.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "94587a2f-4cf0-4af9-b033-d4034d5191b6",
+      "fingerprint": "a9a9b03d6d4a25243dd6dfaec8e344fb5141cbbc555d9eb4cf862afe732d72d0",
+      "site": "howfishthink.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "2f6738a5-9625-4904-876f-7c82cf51348b",
+      "fingerprint": "e92fd85245f2b250e60524c511f59fbdea0294ba0dcc4d4ce4437f3c252344df",
+      "site": "infrainnovator.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "96ef9e8b-2ceb-4cbd-b188-e45b6661ca44",
+      "fingerprint": "f1e8f302b224aba9e4ed86e3df3124f52586b095574be5be0582928db7265c10",
+      "site": "mynewgm.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "2ef2c7e4-183e-492f-b837-a167f69a2a4c",
+      "fingerprint": "a77618d66abee0cd31ee185bb2e402ca3278d4686f23e4195ccea59b67e6093c",
+      "site": "mynewgm.info",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "f43e3f74-8cb3-4274-83ed-c7477d05171a",
+      "fingerprint": "16faa5d227f8c17a29a482724a47f284aacd94e0dfa60d35270a48e88c5648a5",
+      "site": "noveltyguns.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "d24fe5b2-49de-4dc5-94de-4b77734520c4",
+      "fingerprint": "18eb75c8831d820c9a3b0873fd62c02e7bdb543c22d4d41ab062fc0a0617a3b9",
+      "site": "nsfwpixels.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "5b915fed-fe68-486e-b48b-47717fc43772",
+      "fingerprint": "681a1e860c63aa72dbc11a7aadbcd707ef4a32d3dc4aed965ab53d82deed9218",
+      "site": "nsfwpixles.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "09b38f57-f7fc-4df9-9dca-548fa214fef9",
+      "fingerprint": "5283d655ac751f616580a3bd57561fd70fbeaf8528e6964a08cfc374efe4ea5a",
+      "site": "oventoheaven.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "c229cb13-7c18-4d42-a687-41a2738e897d",
+      "fingerprint": "74bb86cba8a1e9e902165f8d89bcaced1d43dd2d181c5e6ef63b45fdedb3086d",
+      "site": "pervypotion.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "c1adaef1-3bf9-4149-8f84-aa986c119077",
+      "fingerprint": "1cf814944294bcdf9b7a982f06d34515513b8b75f0e2b2d5a50c550a56df0157",
+      "site": "pokererotic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "44bc18fd-93b6-4427-9515-809dd53f8852",
+      "fingerprint": "5f183d7391dbf4ce41a6318a7ba85a67cac9ff8fb86f6c534b5ac7adaab0bb80",
+      "site": "rc-9.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "2fef6385-df7d-413c-ac9c-ecdc45ef9267",
+      "fingerprint": "3b05a49f04859dfc5f6691bf1808f513ecbef74b48a80cbe19093d2a9e11de4e",
+      "site": "reviewtattoo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "64e92c05-813d-4ad2-abfc-3d9524b9ff3d",
+      "fingerprint": "5c036a5e91df2056d4eb48b990f56921320db8de8e23f7275720736128306fa6",
+      "site": "rodhat.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "6bd5a6fd-cd6a-463f-aab1-d32ae7c0665a",
+      "fingerprint": "545086b84b5a6fa1a8b66445b1a6ffcfb5d06245b3d105fd079cc05b52966400",
+      "site": "shoppinkflamingo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "cc8999df-2f5a-4dd7-95e9-b9d5e14d8ba2",
+      "fingerprint": "3aa6b30a396b448608b3384e06796c07ce0af31e3e032a7b1c5538e762556c19",
+      "site": "sinderella.org",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "e2ba3732-be18-4af9-b68f-cc3038f09915",
+      "fingerprint": "6f0b03613330b7bcc6a0320ba0788c5dfae3ea4649c599146d33b57a2c74bd56",
+      "site": "stinkyleftfoot.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "799a8e77-332c-42fe-a460-4d98e0dba190",
+      "fingerprint": "b9a706ff6dcfb05813998e7b56b46230f7cd67da817321acc1a501ba4cabc34c",
+      "site": "therareunicorn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "3d2e4e21-181a-44ed-882a-7db5a3af7dcb",
+      "fingerprint": "5950c12052a32533c61b3577e6b0e2c0874fd3e3f03614380740dd548fce5935",
+      "site": "trainingsharks.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "9d4e4bca-a77b-449c-93d3-801cbfe0d59c",
+      "fingerprint": "6b1cabe03b265673468361e74491dfad06a8339a46faeb6cd61e11c4aceecba9",
+      "site": "ultrarough.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "e6a0a491-306d-4a60-b87c-41aed9faa500",
+      "fingerprint": "dde7aed3a611957d20baf78e8730b708d153f82c55f9da6c46b8c251656eaad3",
+      "site": "unsupervisedmedia.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "9c90f7de-2d7e-4313-b355-6dff1372c54b",
+      "fingerprint": "8c79772b6439901fa5ccdc798b023d14af396c4a261b1954f57b3e9c476a0e5e",
+      "site": "vibratorporn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "8921bc2e-0628-4de3-8f40-426e32ad53ef",
+      "fingerprint": "61e09bd8c269e51ba4c3dc603bb198de9dddea0e7f9548de4d5f7b5706aeeda6",
+      "site": "weapontester.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "de295445-7a1e-4e53-8852-4eaa2dd95676",
+      "fingerprint": "c59a162cf48f32fb37041e3b1540a95abd80dbf19e14cc9dea99676cf03569e0",
+      "site": "weirdassstuff.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "a39114b9-7785-4f9b-a8d7-a0a41c4b72d7",
+      "fingerprint": "1189e9f106a6ccd150ea4b65cd700d01270d4782bab892efd6cd1ad34942dcf6",
+      "site": "weirdgirlstore.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "79c402be-10a1-499c-925f-3cbce96d9a12",
+      "fingerprint": "f4b2567e5e20ac81c33636cad842f2ed90f479ed94cc6b282de2f1b6741f4f2e",
+      "site": "wetpages.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "08fd04ae-4257-4f52-b353-a3ba1ecbbee4",
+      "fingerprint": "19a6e0bcb1b8fc44660b7bd005cfb17aa4c96a36124c13a08af78b9f03d2b00c",
+      "site": "wetslit.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    },
+    {
+      "job_id": "922adc52-82b8-4d7a-befd-b6b302735d9d",
+      "fingerprint": "b95dfc7d08703b4846bdb25442a0b62d801c9755c74749d9917c27b61c56daf1",
+      "site": "xxxtea.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "5a0049f4-f321-436d-8fda-756bc7fc966d",
+      "status": "queued",
+      "attempts": 0,
+      "requested_at": "2026-09-21T15:44:52.997Z",
+      "next_attempt_at": "2026-09-21T15:44:52.997Z",
+      "lease_until": null,
+      "last_error": null
+    }
+  ]
+}
