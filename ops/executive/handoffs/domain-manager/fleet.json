@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:05:24.039Z",
+  "generated_at": "2026-09-21T19:06:31.722Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "East Coast Rappers measurement coverage review",
-        "summary": "Document analytics, SEO, conversion, affiliate-attribution, and operational measurement gaps, then define a weekly reconciliation checklist.",
+        "title": "Marine Activity measurement coverage review",
+        "summary": "Document analytics, SEO, conversion, affiliate-attribution, data-feed, and operational measurement gaps, with a weekly reconciliation checklist.",
         "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, schedules, spending, or production systems.",
-        "proposal_id": "03fdf76d-a60c-4a96-aed9-8d3581cf9b14"
+        "proposal_id": "21776532-d1b3-42e9-98c9-30c08f23af3c"
       },
       {
         "kind": "proposal",
-        "title": "East Coast Rappers mobile performance diagnosis",
-        "summary": "Produce a report-only diagnosis of the measured mobile performance bottleneck and reversible optimization designs.",
-        "requested_action": "Approve diagnosis covering assets, rendering, layout stability, validation tests, and effort notes. Do not implement or deploy changes.",
-        "proposal_id": "10fb1b26-c061-4907-bfde-dd24e37e154a"
+        "title": "Marine Activity data-feed and operational health diagnosis",
+        "summary": "Produce a report-only diagnosis of AIS ingestion, D1-backed data freshness, scheduled jobs, error handling, and user-visible stale-data behavior.",
+        "requested_action": "Approve report-only diagnosis with validation checks and reversible unshipped designs. Do not deploy, mutate schedules, change credentials, or alter production configuration.",
+        "proposal_id": "62ef79e2-b30c-43b8-a9ee-6ef034e5fe9e"
       },
       {
         "kind": "proposal",
-        "title": "East Coast Rappers affiliate attribution reconciliation",
-        "summary": "Review the site’s affiliate-link tagging and reporting path to determine whether outbound activity can be reconciled to orders and commissions.",
-        "requested_action": "Approve report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "9137ef39-c4fd-48e9-b7dc-76b68eaf19fa"
+        "title": "Marine Activity mobile performance diagnosis",
+        "summary": "Produce a report-only diagnosis of mobile loading, rendering, layout stability, and map or data-client bottlenecks, followed by reversible optimization designs.",
+        "requested_action": "Approve report-only diagnosis covering assets, rendering, client-side data work, validation tests, and effort notes. Do not implement or deploy changes.",
+        "proposal_id": "a3d54b13-e381-4bad-904e-a5f11e455e3c"
       }
     ]
   }
