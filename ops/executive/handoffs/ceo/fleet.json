@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:07:37.167Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-21T20:10:18.126Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess content positioning and readiness",
-        "summary": "Review the practical women’s editorial positioning, topic coverage, content quality, and staging readiness before measured growth investment.",
-        "requested_action": "Approve a report-only assessment with audience hypotheses, content gaps, validation tests, and a prioritized backlog. Do not change production systems.",
-        "proposal_id": "4c09a7e9-f1ca-4521-8155-a3ad975ddb03"
-      },
-      {
-        "kind": "proposal",
-        "title": "Diagnose affiliate conversion-path readiness",
-        "summary": "Review affiliate-link presentation, disclosure readiness, tracking prerequisites, and conversion-path test design for the site’s planned Amazon picks.",
-        "requested_action": "Approve a report-only diagnosis and validation plan. Do not provision credentials, alter affiliate links, or deploy measurement changes.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Review AI-assisted publishing workflow controls",
-        "summary": "Assess whether the site’s AI-assisted publishing workload has adequate quality controls and human review requirements before further content investment.",
-        "requested_action": "Approve a report-only workflow and cost-observability assessment. Do not change models, schedules, credentials, or production configuration.",
-        "proposal_id": "5d96051a-e24e-4fbd-a120-675df1efd1c9"
+        "title": "Assess positioning and launch readiness",
+        "summary": "Review the parked scaffold’s audience, positioning options, content scope, and minimum viable launch path before investment.",
+        "requested_action": "Approve a report-only positioning and launch-readiness assessment with audience hypotheses, scope options, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
+        "proposal_id": "345ca2c6-faca-45db-9049-54df13844e2d"
       }
     ]
   }
