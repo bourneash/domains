@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:24:25.538Z",
+  "generated_at": "2026-09-21T20:25:25.463Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Diagnose mobile performance and affiliate conversion readiness",
-        "summary": "Review the live luxury-fashion editorial affiliate site’s mobile performance, product and wardrobe content paths, affiliate presentation, and measurement readiness before further growth investment. SEO intelligence reports performance 85 and LCP 3261ms from a mobile lab run; site analytics and search traffic telemetry are unavailable in the supplied snapshot. Amazon attribution contains no blackmarketapparel.com row, so site-level revenue and profitability are unavailable. AI observability records 60 calls costing $59.27 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend.",
-        "requested_action": "Approve a report-only diagnosis covering affected templates, likely LCP causes, audience and content gaps, affiliate conversion paths, attribution limitations, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
+        "title": "Assess audience, content, and affiliate conversion readiness",
+        "summary": "Review East Coast rap gear, guides, scenes, and shows positioning, content coverage, affiliate paths, social readiness, and mobile performance before further growth investment. The site is live with affiliate, analytics, and social capabilities; SEO intelligence reports performance 81 and LCP 3637ms from a mobile lab run. Amazon attribution records 453 clicks for eastcoastrappers-20 with no ordered items or commission income. Site analytics and search traffic telemetry are unavailable in the supplied snapshot.",
+        "requested_action": "Approve a report-only assessment covering audience segments, content gaps, affiliate presentation, attribution limitations, mobile-performance causes, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
         "proposal_id": null
       }
     ]
