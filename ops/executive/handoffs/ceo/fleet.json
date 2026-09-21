@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:33:25.210Z",
+  "generated_at": "2026-09-21T19:34:19.083Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "mynewgm.com readiness and activation assessment",
+        "title": "mynewgm.info readiness and activation assessment",
         "summary": "Perform a report-only assessment of positioning, audience, content readiness, measurement coverage, monetization fit, operational health, and activation backlog before further investment.",
-        "requested_action": "Approve a report-only readiness assessment with explicit positioning options, content and monetization hypotheses, measurement requirements, operational risks, validation tests, and a prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "requested_action": "Approve a report-only readiness assessment with positioning options, content and monetization hypotheses, measurement requirements, operational risks, validation tests, and a prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
         "proposal_id": null
       }
     ]
