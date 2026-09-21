@@ -2,30 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:08:20.653Z",
-  "summary": "domain-manager checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-21T20:09:21.620Z",
+  "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Diagnose mobile performance bottlenecks",
-        "summary": "Assess the browser artillery game's mobile performance and identify reversible fixes for the reported lab issues.",
-        "requested_action": "Approve a report-only performance diagnosis with prioritized implementation notes. Do not deploy or modify production configuration.",
-        "proposal_id": null
+        "title": "Restore sitemap crawl path",
+        "summary": "The SEO snapshot reports a high-priority crawlability issue: no sitemap, or a sitemap returning no page URLs. Diagnose the sitemap and indexing path before further growth work.",
+        "requested_action": "Approve a report-only diagnosis with reversible implementation notes. Do not deploy or modify production configuration.",
+        "proposal_id": "880a5f03-0243-4740-8b13-8515225f3812"
       },
       {
         "kind": "proposal",
-        "title": "Assess game monetization readiness",
-        "summary": "Review HTML5 portal, rewarded-ad, and AI battle-stream conversion paths and define measurable validation tests.",
-        "requested_action": "Approve a report-only monetization and measurement-readiness assessment. Do not provision credentials, spend money, or change production systems.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Review AI-assisted workflow controls",
-        "summary": "Assess whether the site's AI-assisted workload has adequate quality controls before additional content or game-stream investment.",
-        "requested_action": "Approve a report-only workflow and cost-observability review. Do not change models, schedules, credentials, or production configuration.",
-        "proposal_id": "828a449f-f448-40e0-8f37-7248b8662ed2"
+        "title": "Assess private-preview search and alert readiness",
+        "summary": "Review the private-preview Woot deal search terminal’s audience fit, imported FastAPI/SQLite architecture, 15-minute fetcher, compound alerts, and shared Slack notifications; identify the smallest measurable path to validate usefulness and retention.",
+        "requested_action": "Approve a report-only audience, product-readiness, and validation assessment. Do not provision credentials, change integrations, spend money, or alter production systems.",
+        "proposal_id": "9d9fdd98-2174-4444-a6a1-0dd5b5aa05f9"
       }
     ]
   }
