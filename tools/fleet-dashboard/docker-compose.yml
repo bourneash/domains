@@ -19,9 +19,9 @@ services:
     # socket access comes from group membership, not capabilities.
     cap_drop:
       - ALL
-    # Loopback-only publish — same posture as cron-manager / domain-developer.
+    # LAN publish. FD_TOKEN remains mandatory for this non-loopback exposure.
     ports:
-      - "127.0.0.1:4754:4754"
+      - "0.0.0.0:4754:4754"
     # FD_TOKEN + SOCIAL_HUB_TOKEN come from the env-broker's scoped render, not
     # the shared fleet .env (B2): the token that gates this panel — which holds
     # the Docker socket and can push to all 48 repos — has no business sitting
@@ -36,6 +36,9 @@ services:
       # git/task file paths line up with the host.
       FD_DOMAINS_ROOT: ${HOME:-/home/jesse}/projects/domains
       FD_HOST: 0.0.0.0
+      # Permit the host's LAN name/IP in the request Host header while keeping
+      # the token gate enabled for every API request.
+      FD_ALLOWED_HOSTS: ${FD_ALLOWED_HOSTS:-desktop,desktop.local,192.168.4.12,10.0.7.10}
       # FD_TOKEN and FD_AUTH are NOT set here on purpose: an `environment:` entry
       # overrides `env_file:`, so listing them would shadow the scoped render
       # above with a shell/.env value. This panel mounts the docker socket AND

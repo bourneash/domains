@@ -1,6 +1,7 @@
 # Domain Fleet Manager
 
-Portfolio control plane for the domain fleet (http://127.0.0.1:4754).
+Portfolio control plane for the domain fleet (http://127.0.0.1:4754 locally;
+LAN access uses the host's LAN name or IP on port 4754).
 
 ## Change Queue
 
@@ -147,7 +148,8 @@ and presentation.
 
 ## Safety
 
-- Loopback-only publish (`127.0.0.1:4754`).
+- LAN-wide publish (`0.0.0.0:4754`). Keep the host firewall restricted to the
+  trusted LAN and keep `FD_TOKEN` enabled.
 - **Host allowlist (always on):** every request's `Host` must resolve to an
   allowed name (defaults: `127.0.0.1`, `localhost`, `fleet-dashboard`, `panel`).
   This defeats DNS-rebinding. Extend with `FD_ALLOWED_HOSTS=a,b,c`, or set it to
@@ -218,7 +220,7 @@ and presentation.
 | `FD_VIEWER_TOKENS` | _(unset)_ | optional comma-separated header-only credentials allowed to read `GET` endpoints but forbidden from every mutation; alternatively append `viewer:<token>` to the vault-backed `FD_TOKEN` list |
 | `FD_AUTH` | `1` | set `0` to disable the token gate while keeping `FD_TOKEN` parked (explicit opt-out) |
 | `FD_ALLOW_INSECURE` | _(unset)_ | set `1` to allow a non-loopback bind with no token (accepts the risk) |
-| `FD_ALLOWED_HOSTS` | loopback + compose names | extra allowed `Host` values (or `*`) |
+| `FD_ALLOWED_HOSTS` | loopback + compose names + configured LAN host | extra allowed `Host` values (or `*`) |
 | `FD_DOMAINS_ROOT` | repo root | path to the domains monorepo |
 | `FD_DATA_DIR` | `./data` | where the action audit log (`actions.jsonl`) is written |
 | `DATAHUB_API` | `http://host.docker.internal:4760` | first-party GSC/GA4 source used by SEO Intelligence |
