@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T18:58:27.854Z",
+  "generated_at": "2026-09-21T19:02:25.236Z",
   "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
         "title": "Arttogogh measurement coverage review",
-        "summary": "Document analytics, SEO, affiliate, revenue, and conversion-measurement gaps, then define a weekly reconciliation checklist. Evidence: analytics is unavailable fleet-wide with zero configured sites; SEO reports no measured impressions, clicks, sessions, conversions, or pages; inventory lists no analytics or affiliate capability for arttogogh.com; Amazon attribution has no arttogogh.com row.",
-        "requested_action": "Approve report-only measurement-gap documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "22e21974-37fa-4ff0-beed-57f69b024dbc"
+        "summary": "Document analytics, SEO, affiliate, revenue, and conversion-measurement gaps and define a weekly reconciliation checklist.",
+        "requested_action": "Approve report-only documentation. Do not change credentials, analytics, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "0b1c4038-191a-44f7-a37b-bd6e9fa144c3"
       },
       {
         "kind": "proposal",
         "title": "Arttogogh mobile performance bottleneck diagnosis",
-        "summary": "Perform a report-only diagnosis of publicly observable and available performance risks, producing reversible unshipped optimization designs and validation tests. No site-specific web-vitals measurements are supplied for arttogogh.com, so bottlenecks must remain hypotheses until measured.",
+        "summary": "Produce a report-only diagnosis of publicly observable performance risks, reversible optimization designs, validation tests, and effort notes.",
         "requested_action": "Approve diagnosis only; do not implement or deploy changes.",
-        "proposal_id": "a73f9ab1-0243-496b-8376-cec9ce2a5fd5"
+        "proposal_id": "7cb1b54a-16ef-44c1-ab4f-ec472ac6f240"
       },
       {
         "kind": "proposal",
         "title": "Arttogogh orchestration failure diagnosis",
-        "summary": "Review the repeated cancelled runs, six attempts on the committed design task, and one run still marked building to identify reporting, retry, lease, or terminal-state gaps. Available telemetry does not establish root cause.",
+        "summary": "Review repeated cancelled runs, six attempts on the committed design task, and one run still marked building to identify reporting, retry, lease, or terminal-state gaps.",
         "requested_action": "Approve report-only diagnosis and control recommendations. Do not mutate queue state, schedules, credentials, spending, or production configuration.",
-        "proposal_id": "cff16f28-2f7c-4ef7-a9fa-24fc3ada3645"
+        "proposal_id": "5fee28cf-ea12-4140-a47b-69a54cb63a4c"
       }
     ]
   }
