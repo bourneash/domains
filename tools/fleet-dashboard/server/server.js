@@ -58,6 +58,42 @@ const executiveRunner = require('../../executive/runner');
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
 const HOST = process.env.FD_HOST || '127.0.0.1';
+const QUALITY_GATES = ['diff', 'tests', 'build', 'preview', 'browser'];
+
+function applyQualityPolicy(root, site, validation) {
+  const defaultRequired = [...QUALITY_GATES];
+  const policyPath = path.join(root, 'sites', site, 'ops', 'change-queue-quality.json');
+  let required = defaultRequired;
+  let source = 'fleet-default';
+  let policyError = null;
+  try {
+    if (fs.existsSync(policyPath)) {
+      const parsed = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
+      if (!Array.isArray(parsed.required) || parsed.required.length === 0)
+        throw new Error('required must be a non-empty array');
+      required = [...new Set(parsed.required.map(String))];
+      if (required.some(gate => !QUALITY_GATES.includes(gate)))
+        throw new Error(`required gates must be one of ${QUALITY_GATES.join(', ')}`);
+      source = policyPath;
+    }
+  } catch (error) {
+    policyError = error.message;
+    required = defaultRequired;
+  }
+  const status = {
+    diff: validation.checks?.diff?.status,
+    tests: validation.checks?.tests?.status,
+    build: validation.checks?.build?.status,
+    preview: validation.preview?.passed === true ? 'pass' : 'fail',
+    browser: validation.browser?.passed === true ? 'pass' : 'fail',
+  };
+  const passed = required.every(gate => status[gate] === 'pass');
+  return {
+    ...validation,
+    passed,
+    policy: { required, source, error: policyError, status },
+  };
+}
 
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
@@ -495,7 +531,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     validation.commit = workspace.commit;
     validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
     validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
-    validation.passed = validation.passed && validation.preview.passed && validation.browser.passed;
+    validation = applyQualityPolicy(root, item.site, validation);
     const changed = events.updateImprovement(item.run_id, {
       validation,
       preview_url: validation.preview.url || item.sandbox.devUrl,
@@ -990,10 +1026,46 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
   let lastQueuePickup = 0;
+  let lastImprovementCleanup = 0;
+  async function cleanupExpiredImprovementSandboxes() {
+    const ttlHours = Math.max(1, Number(process.env.FD_IMPROVEMENT_SANDBOX_TTL_HOURS || 24));
+    const cutoff = Date.now() - ttlHours * 3600000;
+    for (const run of events.listImprovements({ limit: 1000 })) {
+      if (!['cancelled', 'proven', 'inconclusive', 'rolled-back'].includes(run.state)) continue;
+      if (Date.parse(run.updated_at || run.created_at) > cutoff) continue;
+      try {
+        const result = await cleanupImprovementResources(root, run);
+        if (result.cleaned)
+          events.record({
+            event_type: 'improvement.resources_expired',
+            source: 'improvement-workbench',
+            site_id: `site:${run.site}`,
+            entity_type: 'improvement',
+            entity_id: run.run_id,
+            correlation_id: run.correlation_id,
+            payload: { ttl_hours: ttlHours },
+          });
+      } catch (error) {
+        events.record({
+          event_type: 'improvement.cleanup_failed',
+          source: 'improvement-workbench',
+          site_id: `site:${run.site}`,
+          entity_type: 'improvement',
+          entity_id: run.run_id,
+          correlation_id: run.correlation_id,
+          payload: { error: error.message },
+        });
+      }
+    }
+  }
   const queuePulse = setInterval(() => {
     renewQueueLeases();
     recoverAutomaticReviewHandoffs();
     recoverExpiredQueueWork().catch(() => {});
+    if (Date.now() - lastImprovementCleanup >= 3600000) {
+      lastImprovementCleanup = Date.now();
+      cleanupExpiredImprovementSandboxes().catch(() => {});
+    }
     const settings = events.getChangeQueueSettings();
     if (!settings.enabled) return;
     if (Date.now() - lastQueuePickup < Number(settings.interval_minutes) * 60000) return;
@@ -1440,11 +1512,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       validation.commit = workspace.commit;
       validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
       validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
-      validation.passed =
-        validation.passed && validation.preview.passed && validation.browser.passed;
+      const finalValidation = applyQualityPolicy(root, item.site, validation);
       const changed = events.updateImprovement(item.run_id, {
-        validation,
-        preview_url: validation.preview.url || item.sandbox.devUrl,
+        validation: finalValidation,
+        preview_url: finalValidation.preview.url || item.sandbox.devUrl,
       });
       events.record({
         event_type: 'improvement.validated',
@@ -1453,9 +1524,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         entity_type: 'improvement',
         entity_id: item.run_id,
         correlation_id: item.correlation_id,
-        payload: { passed: validation.passed, checks: validation.checks },
+        payload: {
+          passed: finalValidation.passed,
+          checks: finalValidation.checks,
+          policy: finalValidation.policy,
+        },
       });
-      res.json({ run: changed, validation });
+      res.json({ run: changed, validation: finalValidation });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }

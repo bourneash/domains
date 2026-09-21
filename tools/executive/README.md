@@ -13,6 +13,12 @@ The first slice lives in the Fleet Dashboard event store and exposes:
 - `GET /api/executive/actions` — durable CEO/CTO/system/owner action log,
   including status, target, linked proposal/request, result, and error.
 
+The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
+queries public GitHub repository momentum across daily, weekly, and monthly
+windows, stores a dated snapshot, and submits one evidence-backed digest to
+the same executive proposal queue for CEO/CTO review. It never clones,
+installs, executes, or deploys third-party code.
+
 Run the autonomous tick only through `run-sandbox.sh`; it launches the model in
 a constrained container with only a generated brief and an output plan mounted.
 The model never receives the project checkout. The wrapper does not mount the
@@ -73,3 +79,7 @@ single-flight lock, container timeout, fail-closed validation, and audit path.
 For a supervised long-running process, use `run-loop.sh` with
 `EXECUTIVE_INTERVAL_SECONDS`; it handles cadence and termination while the
 one-shot wrapper remains the only execution path.
+
+The CRO entrypoint is `run-cro-scheduled.sh`. Disable it with
+`touch tools/executive/.cro-disabled`; remove that file to resume the next
+daily run.

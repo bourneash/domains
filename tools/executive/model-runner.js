@@ -22,10 +22,23 @@ async function main() {
   let plan = null;
   const audit = [];
   for (const role of passes) {
-    const output = await runner.runProvider(runner.buildPassPrompt(brief, role, plan));
-    plan = runner.parseOutput(output);
+    const prompt = runner.buildPassPrompt(brief, role, plan);
+    let output = await runner.runProvider(prompt);
+    let repaired = false;
+    try {
+      plan = runner.parseOutput(output);
+    } catch (error) {
+      // Formatting failures never reach the trusted host application path.
+      // Allow one bounded correction attempt, then fail closed.
+      repaired = true;
+      output = await runner.runProvider(
+        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Every message actor must be exactly ceo or cto; do not include owner, reviewer, system, markdown, or commentary.`
+      );
+      plan = runner.parseOutput(output);
+    }
     audit.push({
       role,
+      repaired,
       counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
     });
     if (requestedPasses[0] === 'adaptive' && role === 'ceo') {

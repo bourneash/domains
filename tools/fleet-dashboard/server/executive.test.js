@@ -72,6 +72,19 @@ test('records and completes an auditable executive action', () => {
   db.close();
 });
 
+test('allows the research officer to submit an executive proposal', () => {
+  const db = store();
+  const proposal = executive.proposal(db, {
+    title: 'CRO GitHub trend digest',
+    proposal_type: 'product',
+    created_by: 'researcher',
+    summary: 'Evidence-backed repository candidates.',
+    requested_action: 'CEO and CTO review the candidates.',
+  });
+  assert.equal(proposal.created_by, 'researcher');
+  db.close();
+});
+
 test('owner approval turns a bounded implementation into a linked change request', () => {
   const db = store();
   const proposal = executive.proposal(db, {

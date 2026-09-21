@@ -107,6 +107,9 @@ Findings-*.md
 ops/logs/*
 !ops/logs/.gitkeep
 
+# Test/downloaded Python wheels are local artifacts, never repository source.
+/*.whl
+
 # Design-review screenshots that land at the repo root during a site build.
 # `/*.png` below already keeps them out of git; this is the parking spot for
 # ones nothing has touched in a week, so the root stays legible while an

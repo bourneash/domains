@@ -57,7 +57,8 @@ function open(root, { file } = {}) {
       outcome_json TEXT NOT NULL DEFAULT '{}',
       sandbox_json TEXT NOT NULL DEFAULT '{}',
       agent_json TEXT NOT NULL DEFAULT '{}',
-      approval_json TEXT NOT NULL DEFAULT '{}'
+      approval_json TEXT NOT NULL DEFAULT '{}',
+      preflight_json TEXT NOT NULL DEFAULT '{}'
     );
     CREATE INDEX IF NOT EXISTS improvement_runs_site ON improvement_runs(site, updated_at DESC);
     CREATE INDEX IF NOT EXISTS improvement_runs_source ON improvement_runs(source, source_id);
@@ -155,6 +156,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'improvement_runs', 'sandbox_json', "TEXT NOT NULL DEFAULT '{}'");
   ensureColumn(db, 'improvement_runs', 'agent_json', "TEXT NOT NULL DEFAULT '{}'");
   ensureColumn(db, 'improvement_runs', 'approval_json', "TEXT NOT NULL DEFAULT '{}'");
+  ensureColumn(db, 'improvement_runs', 'preflight_json', "TEXT NOT NULL DEFAULT '{}'");
   ensureColumn(db, 'change_requests', 'auto_review', 'INTEGER NOT NULL DEFAULT 1');
   ensureColumn(db, 'change_requests', 'lease_owner', 'TEXT');
   ensureColumn(db, 'change_requests', 'lease_expires_at', 'TEXT');
@@ -271,13 +273,14 @@ function open(root, { file } = {}) {
       sandbox: input.sandbox || {},
       agent: input.agent || {},
       approval: input.approval || {},
+      preflight: input.preflight || {},
     };
     if (!row.site || !row.source || !row.title)
       throw httpErr(400, 'site, source and title are required');
     db.prepare(
       `INSERT INTO improvement_runs
-      (run_id,site,source,source_id,correlation_id,task_id,task_file,title,state,created_at,updated_at,measurement_due,branch,preview_url,deployment_id,workspace_path,production_before,baseline_json,validation_json,outcome_json,sandbox_json,agent_json,approval_json)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (run_id,site,source,source_id,correlation_id,task_id,task_file,title,state,created_at,updated_at,measurement_due,branch,preview_url,deployment_id,workspace_path,production_before,baseline_json,validation_json,outcome_json,sandbox_json,agent_json,approval_json,preflight_json)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.run_id,
       row.site,
@@ -301,7 +304,8 @@ function open(root, { file } = {}) {
       JSON.stringify(row.outcome),
       JSON.stringify(row.sandbox),
       JSON.stringify(row.agent),
-      JSON.stringify(row.approval)
+      JSON.stringify(row.approval),
+      JSON.stringify(row.preflight)
     );
     return row;
   }
@@ -343,13 +347,21 @@ function open(root, { file } = {}) {
     const next = { ...current };
     for (const key of allowed)
       if (Object.prototype.hasOwnProperty.call(patch, key)) next[key] = patch[key] || null;
-    for (const key of ['baseline', 'validation', 'outcome', 'sandbox', 'agent', 'approval']) {
+    for (const key of [
+      'baseline',
+      'validation',
+      'outcome',
+      'sandbox',
+      'agent',
+      'approval',
+      'preflight',
+    ]) {
       if (patch[key] && typeof patch[key] === 'object')
         next[key] = { ...current[key], ...patch[key] };
     }
     next.updated_at = new Date().toISOString();
     db.prepare(
-      `UPDATE improvement_runs SET state=?,updated_at=?,measurement_due=?,branch=?,preview_url=?,deployment_id=?,workspace_path=?,production_before=?,baseline_json=?,validation_json=?,outcome_json=?,sandbox_json=?,agent_json=?,approval_json=? WHERE run_id=?`
+      `UPDATE improvement_runs SET state=?,updated_at=?,measurement_due=?,branch=?,preview_url=?,deployment_id=?,workspace_path=?,production_before=?,baseline_json=?,validation_json=?,outcome_json=?,sandbox_json=?,agent_json=?,approval_json=?,preflight_json=? WHERE run_id=?`
     ).run(
       next.state,
       next.updated_at,
@@ -365,6 +377,7 @@ function open(root, { file } = {}) {
       JSON.stringify(next.sandbox),
       JSON.stringify(next.agent),
       JSON.stringify(next.approval),
+      JSON.stringify(next.preflight),
       String(runId)
     );
     return getImprovement(runId);
@@ -872,12 +885,14 @@ function decodeImprovement(row) {
     sandbox: safeJson(row.sandbox_json),
     agent: safeJson(row.agent_json),
     approval: safeJson(row.approval_json),
+    preflight: safeJson(row.preflight_json),
     baseline_json: undefined,
     validation_json: undefined,
     outcome_json: undefined,
     sandbox_json: undefined,
     agent_json: undefined,
     approval_json: undefined,
+    preflight_json: undefined,
   };
 }
 function decodeExecutiveProposal(row) {

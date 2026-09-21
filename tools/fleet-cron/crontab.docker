@@ -372,3 +372,10 @@
 #
 # 05:40: clear of the 03:20 backup, 03:40 docker GC and 04:45 retention sweep.
 40 5 * * * /home/jesse/projects/domains/tools/scripts/registrar-cron.sh
+
+# --- Job 21: daily CRO GitHub trend research ---
+# Read-only public GitHub research. The CRO stores a dated snapshot and files
+# one evidence-backed digest proposal in the executive approval queue for CEO
+# and CTO review. It never clones, installs, edits, or deploys a repository.
+# Kill switch: touch tools/executive/.cro-disabled
+15 7 * * * /home/jesse/projects/domains/tools/executive/run-cro-scheduled.sh
