@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:10:00.119Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-21T22:12:19.075Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "aaa80472-2e3c-4120-96c3-7bf9d84f3d95",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 11,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Assess editorial positioning and monetization readiness",
+        "summary": "Review the UAP/disclosure editorial audience, source-backed content structure, affiliate placement, and membership/advertising readiness before further investment.",
+        "requested_action": "Approve a report-only assessment covering audience hypotheses, source and editorial quality controls, content gaps, affiliate and membership conversion paths, measurement requirements, and a prioritized backlog. Do not publish, deploy, change credentials, alter schedules, modify affiliate configuration, spend money, or change production systems.",
+        "proposal_id": null
+      }
+    ]
   }
 }
