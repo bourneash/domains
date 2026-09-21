@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:35:20.552Z",
+  "generated_at": "2026-09-21T19:36:30.104Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Novelty Guns readiness and activation assessment",
-        "summary": "Conduct a report-only assessment of positioning, audience, content readiness, measurement coverage, monetization fit, operational health, and activation backlog before further investment.",
-        "requested_action": "Approve a report-only readiness assessment covering positioning options, content and monetization hypotheses, required measurement, operational risks, validation tests, renewal exposure, and a prioritized activation backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "title": "Readiness and activation assessment",
+        "summary": "Conduct a report-only assessment of positioning, audience, content readiness, measurement coverage, monetization fit, operational health, renewal exposure, and activation backlog before further investment.",
+        "requested_action": "Approve a report-only readiness assessment with positioning options, content and monetization hypotheses, measurement requirements, operational risks, validation tests, and a prioritized activation backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
         "proposal_id": null
       }
     ]
