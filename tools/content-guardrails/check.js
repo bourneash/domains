@@ -23,7 +23,21 @@ async function gitTop(cwd) {
 // The guardrail tool's own config/docs necessarily NAME the protected terms
 // to define them — that's not a leak, it's the tool documenting itself.
 // Exclude its own directory from the scan (git pathspec magic exclude).
-const EXEMPT_PATHSPECS = [':(exclude,glob)tools/content-guardrails/**'];
+const EXEMPT_PATHSPECS = [
+  ':(exclude,glob)tools/content-guardrails/**',
+  // Runtime state is explicitly ignored by fleet-git policy. It can contain
+  // external/logged text, so scanning it creates false positives and lets
+  // cron bookkeeping block unrelated commits.
+  ':(exclude,glob)ops/logs/**',
+  ':(exclude,glob)ops/health/**',
+  ':(exclude,glob)ops/.locks/**',
+  ':(exclude,glob)ops/board/last-run.json',
+  ':(exclude,glob)ops/facts.yaml',
+  ':(exclude,glob).deploy-needed',
+  ':(exclude,glob).deploy-needed.failed',
+  ':(exclude,glob).deploy-attempts',
+  ':(exclude,glob).monorepo-tools/**',
+];
 
 async function stagedDiff(cwd) {
   const r = await lib.sh(

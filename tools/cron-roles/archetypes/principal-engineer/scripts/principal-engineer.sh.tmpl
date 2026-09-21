@@ -111,9 +111,21 @@ if [[ "$BRANCH" != "main" || -z "$LOCAL_HEAD" || "$LOCAL_HEAD" != "$REMOTE_HEAD"
 fi
 
 # Never let one failed/truncated pass leave edits that a later pass mistakes
-# for its own. The worker must start from a clean shippable scope; otherwise
-# stop and preserve the tree for human inspection.
-PREEXISTING_EDITS="$(git status --porcelain --untracked-files=all 2>/dev/null || true)"
+# for its own. Runtime state is intentionally excluded: cron updates these
+# paths on every tick and fleet-git policy ignores them. Only shippable edits
+# must block a worker; otherwise the role deadlocks on its own bookkeeping.
+RUNTIME_PATHSPECS=(
+  ':(exclude,glob)ops/logs/**'
+  ':(exclude,glob)ops/health/**'
+  ':(exclude,glob)ops/.locks/**'
+  ':(exclude,glob)ops/board/last-run.json'
+  ':(exclude,glob)ops/facts.yaml'
+  ':(exclude,glob).deploy-needed'
+  ':(exclude,glob).deploy-needed.failed'
+  ':(exclude,glob).deploy-attempts'
+  ':(exclude,glob).monorepo-tools/**'
+)
+PREEXISTING_EDITS="$(git status --porcelain --untracked-files=all -- . "${RUNTIME_PATHSPECS[@]}" 2>/dev/null || true)"
 if [[ -n "$PREEXISTING_EDITS" ]]; then
   DIRTY_PATHS="$(printf '%s\n' "$PREEXISTING_EDITS" | head -10)"
   log "refusing to run: shippable scope already has edits: $(printf '%s' "$DIRTY_PATHS" | tr '\n' ' ')"
@@ -283,7 +295,7 @@ fi
 
 PUSHED=0
 CHANGED_SOMETHING=0
-if [[ -n "$(git status --porcelain --untracked-files=all 2>/dev/null || true)" ]]; then
+if [[ -n "$(git status --porcelain --untracked-files=all -- . "${RUNTIME_PATHSPECS[@]}" 2>/dev/null || true)" ]]; then
   CHANGED_SOMETHING=1
 fi
 
@@ -311,7 +323,7 @@ if [[ "$CHANGED_SOMETHING" == "1" ]]; then
     git config --global user.name  "${GIT_USER_NAME:-{{GIT_USER_NAME}}}"
     git config --global user.email "${GIT_USER_EMAIL:-bot@{{DOMAIN}}}"
     git config --global --add safe.directory "$REPO_ROOT" 2>/dev/null || true
-    if ! git add -A -- . >>"$LOG" 2>&1; then
+    if ! git add -A -- . "${RUNTIME_PATHSPECS[@]}" >>"$LOG" 2>&1; then
       archive_and_restore "git staging failed"
       mark_incident open
       slack "🔴 *{{SITE_SHORT}} principal engineer* could not stage its fix for fp=${FP}; changes archived and restored, nothing shipped. · ${NOW_ET}" danger
