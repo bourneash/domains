@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:20:18.088Z",
+  "generated_at": "2026-09-21T20:22:18.514Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess Wetpages positioning and monetization readiness",
-        "summary": "Review wetpages.com’s unspecified audience and content positioning, affiliate conversion path, and launch health before further investment. The site is live with affiliate, analytics, and social capabilities; Amazon attribution records 20 clicks for wetpages-20 with no ordered items or commission income. Site analytics and SEO traffic telemetry are unavailable in the supplied snapshot.",
-        "requested_action": "Approve a report-only assessment covering audience hypotheses, content gaps, affiliate-link presentation, attribution readiness, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
+        "title": "Assess positioning and monetization readiness",
+        "summary": "Review xxxtea.com’s fragrance-adjacent tea and tea-ware positioning, content scope, affiliate conversion paths, and launch health before further investment. The site is live with affiliate, analytics, and social capabilities; Amazon attribution records 270 clicks for xxxtea-20 with no ordered items or commission income. Site analytics and SEO traffic telemetry are unavailable in the supplied snapshot. AI usage observability records 44 calls costing $9.38 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend.",
+        "requested_action": "Approve a report-only assessment covering audience hypotheses, content and product gaps, affiliate-link presentation, attribution readiness, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
         "proposal_id": null
       }
     ]
