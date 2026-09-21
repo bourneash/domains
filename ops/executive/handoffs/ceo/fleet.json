@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:22:17.961Z",
+  "generated_at": "2026-09-21T19:26:22.607Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Driveford activation and measurement readiness review",
-        "summary": "Perform a report-only review of positioning, audience opportunity, content readiness, analytics coverage, monetization options, and operational prerequisites before activation decisions.",
+        "title": "Fail Bunny activation and readiness assessment",
+        "summary": "Conduct a report-only assessment of positioning, audience fit, content readiness, analytics coverage, monetization options, and operational prerequisites before deciding whether to activate the parked scaffold.",
         "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
-        "proposal_id": "c9e8f9f2-23cf-40ff-b6e6-e3201919f74f"
+        "proposal_id": "d5aa5ff3-1d0a-422b-b10c-b77eb5b5f2cf"
       }
     ]
   }
