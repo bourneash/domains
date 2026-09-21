@@ -61,6 +61,12 @@ function reviewResult(text) {
   };
 }
 
+function appendOutput(output, chunk) {
+  if (!output || output.destroyed || output.writableEnded) return false;
+  output.write(chunk);
+  return true;
+}
+
 function launch({
   root,
   store,
@@ -80,6 +86,10 @@ function launch({
   const file = logPath(root, run.run_id);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const output = fs.createWriteStream(file, { flags: 'a', mode: 0o600 });
+  // Providers can emit buffered output while the child is closing. Guard and
+  // detach log listeners so shutdown/restart cannot crash the dashboard with
+  // ERR_STREAM_WRITE_AFTER_END.
+  output.on('error', () => {});
   const turns = Math.max(1, Math.min(Number(maxTurns) || 20, 200));
   const selectedRole = role || run.agent?.assigned_role || 'engineer';
   const prompt =
@@ -129,8 +139,10 @@ function launch({
     env: process.env,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  child.stdout.pipe(output);
-  child.stderr.pipe(output);
+  const writeStdout = chunk => appendOutput(output, chunk);
+  const writeStderr = chunk => appendOutput(output, chunk);
+  child.stdout.on('data', writeStdout);
+  child.stderr.on('data', writeStderr);
   const startedAt = new Date().toISOString();
   let timedOut = false;
   const timeout = setTimeout(
@@ -166,6 +178,8 @@ function launch({
   child.on('close', code => {
     clearTimeout(timeout);
     ACTIVE.delete(run.run_id);
+    child.stdout.removeListener('data', writeStdout);
+    child.stderr.removeListener('data', writeStderr);
     output.end();
     const finishedAt = new Date().toISOString();
     try {
@@ -224,7 +238,7 @@ function launch({
       /* server shutdown or store unavailable */
     }
   });
-  child.on('error', error => output.write(`\n${error.message}\n`));
+  child.on('error', error => appendOutput(output, `\n${error.message}\n`));
   return { status: 'running', started_at: startedAt };
 }
 
@@ -268,4 +282,5 @@ module.exports = {
   preflight,
   providerExecutable,
   reviewResult,
+  appendOutput,
 };

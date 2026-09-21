@@ -36,3 +36,17 @@ test('review result requires an explicit PASS marker', () => {
   });
   assert.deepEqual(agent.reviewResult('looks good, no marker'), { approved: false, marker: null });
 });
+
+test('agent log writes ignore chunks after the stream has ended', () => {
+  let writes = 0;
+  const output = {
+    writableEnded: true,
+    destroyed: false,
+    write: () => {
+      writes += 1;
+      throw new Error('should not write');
+    },
+  };
+  assert.equal(agent.appendOutput(output, 'late provider output'), false);
+  assert.equal(writes, 0);
+});
