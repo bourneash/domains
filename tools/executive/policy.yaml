@@ -40,7 +40,7 @@ communication:
 schedule:
   enabled: true
   default_interval_hours: 6
-  queue_execution_enabled: false
+  queue_execution_enabled: true
 provider:
   name: chatgpt
   model: gpt-5.6-luna

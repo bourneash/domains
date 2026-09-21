@@ -79,14 +79,12 @@ The eventual CEO runner should execute a recurring loop:
 5. Publish a concise owner update and create proposals for material decisions.
 6. Measure results and update the strategy from outcomes, not activity.
 
-Recurring scheduling remains deliberately disabled until the owner approves the
-proposal deduplication and telemetry coverage policy. A production tick must be
+Recurring scheduling is enabled under the owner-approved six-hour cadence. A production tick must be
 single-flight, bounded by timeout and cost, idempotent by plan fingerprint, and
 must leave a completed or failed audit record.
 
-The one-shot scheduler entrypoint is `run-scheduled.sh`. It is intentionally
-not installed automatically. When enabled by the owner, invoke it from the
-fleet scheduler at the desired interval; `run-sandbox.sh` retains the
+The one-shot scheduler entrypoint is `run-scheduled.sh`. It is installed in the
+fleet scheduler at six-hour intervals; `run-sandbox.sh` retains the
 single-flight lock, container timeout, fail-closed validation, and audit path.
 For a supervised long-running process, use `run-loop.sh` with
 `EXECUTIVE_INTERVAL_SECONDS`; it handles cadence and termination while the

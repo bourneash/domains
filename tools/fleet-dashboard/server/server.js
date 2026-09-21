@@ -56,11 +56,14 @@ const changequeueNotify = require('./changequeue-notify');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
 const executiveIntel = require('./executive-intel');
+const revops = require('./revops');
+const experiments = require('./experiments');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
 const HOST = process.env.FD_HOST || '127.0.0.1';
 const QUALITY_GATES = ['diff', 'tests', 'build', 'preview', 'browser'];
+const MAX_AUTOMATIC_QUEUE_ATTEMPTS = 3;
 
 function applyQualityPolicy(root, site, validation) {
   const defaultRequired = [...QUALITY_GATES];
@@ -323,14 +326,30 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           });
         }
       }
+      const terminal = claimed.attempts >= MAX_AUTOMATIC_QUEUE_ATTEMPTS;
       changequeue.update(events, claimed.request_id, {
         status: 'failed',
         error: String(e.message || e),
-        next_attempt_at: new Date(Date.now() + 15 * 60000).toISOString(),
+        next_attempt_at: terminal ? null : new Date(Date.now() + 15 * 60000).toISOString(),
         lease_owner: null,
         lease_expires_at: null,
         heartbeat_at: null,
       });
+      if (terminal) {
+        events.record({
+          event_type: 'change-request.manual_intervention_required',
+          source: 'fleet-dashboard',
+          site_id: `site:${claimed.site}`,
+          entity_type: 'change-request',
+          entity_id: claimed.request_id,
+          correlation_id: `change-request:${claimed.request_id}`,
+          payload: {
+            attempts: claimed.attempts,
+            max_automatic_attempts: MAX_AUTOMATIC_QUEUE_ATTEMPTS,
+            error: String(e.message || e),
+          },
+        });
+      }
       throw e;
     }
   }
@@ -402,7 +421,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
                 'worker lease expired with a dirty worktree; manual inspection is required before retry';
             }
           }
-          if (recoverable) await resetChangeRequestRun(request);
+          if (recoverable && request.attempts < MAX_AUTOMATIC_QUEUE_ATTEMPTS)
+            await resetChangeRequestRun(request);
+          else if (recoverable) {
+            recoverable = false;
+            reason = `worker lease expired after ${request.attempts} attempts; manual retry required`;
+          }
         } catch (error) {
           recoverable = false;
           reason = `worker lease expired but recovery could not cleanly reset the run: ${error.message}`;
@@ -425,7 +449,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             changequeue.update(
               events,
               request.request_id,
-              { status: 'queued', error: null, next_attempt_at: new Date().toISOString() },
+              {
+                status: 'queued',
+                error: null,
+                next_attempt_at: new Date().toISOString(),
+                attempts: 0,
+              },
               site => isKnownSite(root, site)
             );
           events.record({
@@ -842,11 +871,103 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
     }
   });
+  app.get('/api/revops/summary', (req, res) => {
+    try {
+      res.json({ summary: revops.summary(events, { site: req.query.site }) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/revops/leads', (req, res) => {
+    try {
+      res.json({ leads: revops.leads(events, req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/revops/leads', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ lead: revops.createLead(events, req.body || {}, site => isKnownSite(root, site)) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/revops/leads/:id', (req, res) => {
+    try {
+      res.json({
+        lead: revops.updateLead(events, req.params.id, req.body || {}, site =>
+          isKnownSite(root, site)
+        ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/revops/activities', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          activity: revops.recordActivity(events, req.body || {}, site => isKnownSite(root, site)),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/experiments', (req, res) => {
+    try {
+      res.json({ experiments: experiments.list(events, req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/experiments', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          experiment: experiments.create(events, req.body || {}, site => isKnownSite(root, site)),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/experiments/:id/transition', (req, res) => {
+    try {
+      res.json({ experiment: experiments.transition(events, req.params.id, req.body?.state) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/experiments/events', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          event: experiments.recordEvent(events, req.body || {}, site => isKnownSite(root, site)),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/experiments/:id/analysis', (req, res) => {
+    try {
+      res.json(experiments.analyze(events, req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.patch('/api/executive/settings', (req, res) => {
     try {
       const body = req.body || {};
       const allowed = [
         'revenue_target_monthly',
+        'fixed_costs_monthly',
+        'marketing_budget_monthly',
+        'revenue_floor_monthly',
+        'attribution_materiality_threshold',
         'monthly_spend_limit',
         'risk_tolerance',
         'priority_sites',
@@ -1019,7 +1140,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         request = changequeue.update(
           events,
           request.request_id,
-          { status: 'queued', next_attempt_at: new Date().toISOString(), error: null },
+          { status: 'queued', next_attempt_at: new Date().toISOString(), error: null, attempts: 0 },
           site => isKnownSite(root, site)
         );
       }
@@ -1071,7 +1192,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         request: changequeue.update(
           events,
           req.params.id,
-          { status: 'queued', next_attempt_at: new Date().toISOString(), error: null },
+          { status: 'queued', next_attempt_at: new Date().toISOString(), error: null, attempts: 0 },
           site => isKnownSite(root, site)
         ),
       });

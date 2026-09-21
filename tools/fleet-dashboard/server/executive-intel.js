@@ -16,6 +16,9 @@ const priorities = require('./priorities');
 const revenue = require('./revenue');
 const seoIntelligence = require('./seointelligence');
 const social = require('./social');
+const eventstore = require('./eventstore');
+const revops = require('./revops');
+const experiments = require('./experiments');
 
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
@@ -27,6 +30,11 @@ const TOOL_CATALOG = [
     purpose: 'evidence-backed SEO, crawlability, web-vitals, and link opportunities',
   },
   { key: 'revenue', purpose: 'Amazon earnings and site-level attribution where available' },
+  { key: 'revops', purpose: 'lead lifecycle, scoring, routing, SLA, and pipeline health' },
+  {
+    key: 'experiments',
+    purpose: 'hypotheses, variants, exposures, conversions, and measured winners',
+  },
   { key: 'ai_usage', purpose: 'AI spend, usage, and cost by site or role' },
   {
     key: 'social',
@@ -299,6 +307,10 @@ async function collect({ root, sites = [] } = {}) {
     settle('datahub_sources', () => datahub.sources()),
     settle('datahub_datasets', () => datahub.datasets()),
   ]);
+  const store = eventstore.open(root);
+  const revopsData = revops.summary(store);
+  const experimentsData = experiments.summary(store);
+  store.close();
 
   const analyticsData = analyticsResult.data || {};
   const seoData = seoResult.data || {};
@@ -342,6 +354,8 @@ async function collect({ root, sites = [] } = {}) {
       datahub_datasets: diagnostics(dataHubResults[2], {
         dataset_count: (dataHubResults[2].data?.datasets || []).length,
       }),
+      revops: diagnostics({ source: 'revops', ok: true, data: revopsData }),
+      experiments: diagnostics({ source: 'experiments', ok: true, data: experimentsData }),
     },
     // These are the compact, decision-useful views. Raw source payloads remain
     // available under sources for audit/debugging without making the prompt huge.
@@ -372,6 +386,8 @@ async function collect({ root, sites = [] } = {}) {
           errors: errorscan.rollup(),
         })
       ),
+      revops: revopsData,
+      experiments: experimentsData,
     },
   };
 }

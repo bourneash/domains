@@ -120,6 +120,9 @@ async function buildBrief(store, root = ROOT) {
         'read_only_analytics_health_and_traffic',
         'read_only_seo_web_vitals_and_link_health',
         'read_only_revenue_and_affiliate_attribution',
+        'revops_lead_lifecycle_scoring_and_pipeline_summary',
+        'revops_utm_campaign_and_affiliate_attribution',
+        'experiment_hypotheses_variants_exposures_and_outcomes',
         'read_only_ai_usage_and_costs',
         'read_only_social_account_coverage',
         'read_only_datahub_source_and_dataset_health',
@@ -190,6 +193,8 @@ Rules:
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
+- Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
+- Use the experiment system for competing variants: state a hypothesis, primary metric, guardrails, sample threshold, and stop/ship decision. Do not recommend a winner before the sample threshold is met.
 - You may recommend ethical technical/editorial SEO, experimentation, partnerships, outreach with consent, product work, and redesigns.
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
 - Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes.
