@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:24:21.675Z",
+  "generated_at": "2026-09-21T19:25:25.643Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Dumbsluts activation and measurement readiness review",
+        "title": "Elevator Friends activation and measurement readiness review",
         "summary": "Perform a report-only review of positioning, audience opportunity, content readiness, analytics coverage, monetization options, and operational prerequisites before activation decisions.",
         "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
-        "proposal_id": "172cca4b-35a2-458e-830f-db9d5316251d"
+        "proposal_id": "89ede98f-d259-4c2b-9dcf-7d9fe764fa18"
       }
     ]
   }
