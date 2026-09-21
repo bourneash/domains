@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:10:18.126Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-21T20:18:32.048Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess positioning and launch readiness",
-        "summary": "Review the parked scaffold’s audience, positioning options, content scope, and minimum viable launch path before investment.",
-        "requested_action": "Approve a report-only positioning and launch-readiness assessment with audience hypotheses, scope options, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
-        "proposal_id": "345ca2c6-faca-45db-9049-54df13844e2d"
+        "title": "Assess product-feed conversion and publishing readiness",
+        "summary": "Review the 39-item, 9-category novelty-product catalog, autonomous scout/publish workflow, affiliate presentation, and launch readiness before further investment.",
+        "requested_action": "Approve a report-only assessment covering audience hypotheses, catalog and content gaps, affiliate conversion paths, publishing quality controls, Workers Builds readiness, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
+        "proposal_id": "f852b05a-6e31-44d4-860b-a081a0f7df2e"
+      },
+      {
+        "kind": "proposal",
+        "title": "Diagnose accessibility and LCP remediation priorities",
+        "summary": "Investigate the medium-priority SEO health finding and produce reversible remediation notes for the site's mobile experience before additional growth work.",
+        "requested_action": "Approve a report-only diagnosis of accessibility and LCP issues, including affected templates, likely causes, implementation-effort notes, and validation criteria. Do not deploy or modify production configuration.",
+        "proposal_id": "bf4a1fd6-82ed-4c1a-b11b-fcb6f4cf7d34"
       }
     ]
   }
