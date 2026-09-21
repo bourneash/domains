@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:23:21.114Z",
+  "generated_at": "2026-09-21T20:24:25.538Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess art discovery launch and monetization readiness",
-        "summary": "Review arttogogh.com’s late-night art-discovery positioning, content scope, product and affiliate conversion paths, and launch health before further investment. The site is live with site, operations, cron, smoke, tasks, and social capabilities, but the supplied inventory does not show analytics or affiliate capabilities. No site-specific analytics, SEO traffic, revenue, or operations telemetry is available. Amazon attribution contains no arttogogh.com row. AI observability records 29 calls costing $5.01 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend. A committed design task to remove lines across product photos and buttons has undergone six attempts, while related improvement runs were cancelled.",
-        "requested_action": "Approve a report-only assessment covering audience hypotheses, positioning, content and product gaps, affiliate-link and conversion presentation, measurement and attribution readiness, the repeated design-task delivery issue, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
+        "title": "Diagnose mobile performance and affiliate conversion readiness",
+        "summary": "Review the live luxury-fashion editorial affiliate site’s mobile performance, product and wardrobe content paths, affiliate presentation, and measurement readiness before further growth investment. SEO intelligence reports performance 85 and LCP 3261ms from a mobile lab run; site analytics and search traffic telemetry are unavailable in the supplied snapshot. Amazon attribution contains no blackmarketapparel.com row, so site-level revenue and profitability are unavailable. AI observability records 60 calls costing $59.27 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend.",
+        "requested_action": "Approve a report-only diagnosis covering affected templates, likely LCP causes, audience and content gaps, affiliate conversion paths, attribution limitations, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, spend money, or mutate the queue.",
         "proposal_id": null
       }
     ]
