@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:44:55.370Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-21T19:45:28.968Z",
+  "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "rodhat.com is live with site, operations, cron, smoke, tasks, analytics, and social capabilities. Its stated positioning is a FreeBSD/Linux sysadmin editorial brand with news, advanced Unix tips, essays, developer-tool/book affiliate revenue, and ads. Site analytics, SEO traffic, operations, and revenue telemetry are unavailable in the supplied snapshot. Amazon attribution has no rodhat.com row, so revenue and profitability are unavailable. AI usage observability records 118 calls costing $37.35 from 2026-09-01 through 2026-09-21; this does not establish return or avoidable spend. Recommend a report-only positioning and readiness assessment before further investment.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Run a report-only shoppinkflamingo.com readiness assessment",
+        "summary": "Assess audience fit, content backlog, affiliate conversion paths, social distribution, measurement coverage, and operational readiness using only observed evidence.",
+        "requested_action": "Approve a report-only assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Run a report-only rodhat.com positioning and readiness assessment",
-        "summary": "Evaluate rodhat.com audience definition, editorial positioning, content backlog, affiliate and advertising fit, measurement requirements, operational readiness, and validation tests using only observed evidence. Treat analytics, SEO traffic, revenue, attribution, and profitability as unavailable where not supplied.",
-        "requested_action": "Approve a report-only assessment and prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
+        "title": "Review affiliate attribution and conversion-path readiness",
+        "summary": "Produce a report-only review of the site’s affiliate-link presentation, tracking-ID coverage, disclosure readiness, and validation requirements; treat orders, commission, revenue, and profitability as unavailable beyond the supplied click record.",
+        "requested_action": "Approve report-only diagnosis and test design; do not provision credentials, alter affiliate links, or deploy measurement changes.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Review the reported mobile performance opportunity",
+        "summary": "Diagnose the observable LCP result and identify reversible optimization candidates for the live site without implementing changes.",
+        "requested_action": "Approve a report-only performance diagnosis with validation tests and rollback notes; do not modify production systems.",
         "proposal_id": null
       }
     ]
