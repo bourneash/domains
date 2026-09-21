@@ -17,18 +17,30 @@ PANEL_URL="${DD_PANEL_URL:-http://127.0.0.1:7777}"
 
 site="${1:-}"
 [[ -n "${site}" ]] || { echo "usage: dd-recreate <site>" >&2; exit 1; }
+[[ "${site}" =~ ^[A-Za-z0-9._-]+$ && "${site}" != .* && "${site}" != *..* ]] || { echo "invalid site name: ${site}" >&2; exit 1; }
 cname="dd-${site}"
+
+LIFECYCLE_LOCK="${DD_LIFECYCLE_LOCK:-${HERE}/../state/.lifecycle.lock}"
+mkdir -p "$(dirname "${LIFECYCLE_LOCK}")"
+exec 8>"${LIFECYCLE_LOCK}"
+flock -w "${DD_LIFECYCLE_LOCK_WAIT:-30}" -x 8 || { echo "could not acquire worker lifecycle lock" >&2; exit 75; }
 
 echo "[dd-recreate] stopping + removing ${cname} (host-bind state is preserved)..."
 docker stop "${cname}" >/dev/null 2>&1 || true
-docker rm   "${cname}" >/dev/null 2>&1 || true
+if docker inspect "${cname}" >/dev/null 2>&1 && ! docker rm "${cname}" >/dev/null 2>&1; then
+    echo "[dd-recreate] could not remove ${cname}; refusing to start a replacement" >&2
+    exit 1
+fi
+flock -u 8 2>/dev/null || true
+exec 8>&-
 
-if curl -fsS "${PANEL_URL}/api/health" >/dev/null 2>&1; then
+if curl -fsS --max-time 10 "${PANEL_URL}/api/health" >/dev/null 2>&1; then
     echo "[dd-recreate] panel up — starting via panel (preserves port assignments)..."
-    curl -fsS -X POST "${PANEL_URL}/api/sites/${site}/start" && echo
+    curl -fsS --max-time 30 -X POST "${PANEL_URL}/api/sites/${site}/start" && echo
 else
     echo "[dd-recreate] panel down — starting via CLI (no published ports)..."
     "${HERE}/domain-developer" "${site}" true
 fi
 
 echo "[dd-recreate] done. Verify with: ${HERE}/dd-doctor ${site}"
+echo "[dd-recreate] if Claude reports not logged in, open the worker and run: claude /login"

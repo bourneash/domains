@@ -13,6 +13,7 @@ ROOT_REPO="$(cd "${TOOL_DIR}/../.." && pwd)"          # /home/jesse/projects/dom
 # docker creates a directory at that path and Node can't write to it.
 STATE_FILE="${TOOL_DIR}/state.json"
 [[ -f "${STATE_FILE}" ]] || echo '{"ports":{}}' > "${STATE_FILE}"
+touch "${TOOL_DIR}/state/.lifecycle.lock"
 
 # Build the dev base image if missing (workers depend on it).
 if ! docker image inspect domain-developer:latest >/dev/null 2>&1; then

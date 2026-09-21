@@ -6,9 +6,8 @@
 # rollout gate: run it after recreating a site to confirm the fixes took.
 #
 # Checks per container:
-#   1. .credentials.json is NOT bound read-only at its destination
-#      (it must be a writable copy so OAuth refresh can persist)        [RC1]
-#   2. credentials file is actually writable inside the container        [RC1]
+#   1. host .credentials.json is not mounted into the worker              [AUTH]
+#   2. credentials file is actually writable inside the container        [AUTH]
 #   3. /home/dev/.claude is a HOST BIND (not a named volume)             [RC2]
 #   4. /home/dev/persist is a HOST BIND (not a named volume)             [RC2]
 #   5. tmux is installed in the image (session survives a bounce)        [RC2]
@@ -54,11 +53,24 @@ check_one() {
     fi
     local running; running="$(docker inspect -f '{{.State.Running}}' "$c" 2>/dev/null)"
 
-    # 1. credentials must NOT be a RO bind at the destination path
+    # 1. The host OAuth credential must not be mounted anywhere in a worker.
+    # A legacy host mount can revive the rotating-token-family race even if
+    # the destination itself looks writable.
+    local host_cred="${DD_AUTH_HOST_CRED:-${HOME}/.claude/.credentials.json}"
+    local host_mounts
+    host_mounts="$(docker inspect -f '{{range .Mounts}}{{.Source}} {{end}}' "$c" 2>/dev/null)"
+    if grep -Fqw -- "${host_cred}" <<<"${host_mounts}"; then
+        bad "host OAuth credential is mounted into the worker"
+        note "recreate it: ${HERE}/dd-recreate ${c#dd-}"
+    else
+        ok "host OAuth credential is not mounted"
+    fi
+
+    # 2. credentials must NOT be a RO bind at the destination path
     local cred_rw
     cred_rw="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/home/dev/.claude/.credentials.json"}}{{.RW}}{{end}}{{end}}' "$c" 2>/dev/null)"
     if [[ -z "${cred_rw}" ]]; then
-        ok "credentials.json not bind-mounted at destination (copied-in copy)"
+        ok "credentials.json not bind-mounted at destination (private worker state)"
     elif [[ "${cred_rw}" == "false" ]]; then
         bad "credentials.json is RO bind-mounted at destination → OAuth refresh will fail"
         note "recreate this container after dd-build to pick up the writable-creds fix"

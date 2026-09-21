@@ -62,20 +62,11 @@
 45 6 * * * bash /home/jesse/projects/domains/tools/backlink-audit/run-bing-backlink-capture.sh
 
 # --- Job 8: domain-developer worker Claude-auth guard ---
-# 2026-08-16 incident: idle dd-* workers drifted past the host's OAuth
-# rotation and went to "Not logged in". 2026-08-23 incident: worse than
-# that — a stale worker credential got REDEEMED (not just expired), and
-# refresh-token reuse-detection revoked the whole shared family, logging out
-# the real host session too. Fixed by pushing a fresh copy of the host
-# credential into every worker EVERY TICK (cheap file copy, no API call —
-# see sync_credentials() in the script) instead of only at container start/
-# restart. Cadence tightened 30min -> 10min on 2026-08-23 so that sync window
-# — the actual defense now — stays tight. Later the same day the workers
-# became cattle (job 9), which BOUNDS a worker's unattended lifetime instead
-# of merely patching it every tick, so the script's proactive-restart loop
-# was deleted rather than retuned and self-heal now destroys instead of
-# restarting. See script header for the full incident writeup — companion to
-# job 4, which only checks the host session.
+# Workers use independent Claude OAuth sessions. The host credential is never
+# mounted into them, because copying one rotating refresh-token family into
+# multiple writable workers can revoke the entire family. This job verifies
+# that invariant without making a billable Claude probe; job 4 owns host auth,
+# while a worker operator runs `claude /login` inside a fresh worker.
 */10 * * * * /home/jesse/projects/domains/tools/scripts/check-dd-containers-auth.sh
 
 # --- Job 9: idle dd-* worker reaper (cattle, not pets) ---

@@ -52,18 +52,11 @@
 # avoid, hence the wide default and the fact that the cost of being wrong is a
 # few seconds of rebuild, not lost work.
 #
-# The exclusion is LOAD-BEARING, not hygiene. check-dd-containers-auth.sh
-# (crontab.docker job 8) pushes the host credential into every worker every
-# 10 minutes, and those writes land inside this same state dir. Until that was
-# accounted for, every worker read as "active 9 minutes ago" permanently and
-# this reaper could never fire once — the cattle model was inert. That job also
-# used to run a full `claude -p` probe inside each worker, which wrote a fresh
-# transcript, security log and config backup into the state dir every tick;
-# no name-based exclusion can distinguish those from human work, so the probe
-# was removed rather than filtered (see that script's creds_match_host()
-# header). If you add ANY new automation that writes under state/<site>/,
-# either exclude it here or make it write somewhere else — otherwise you will
-# silently switch this reaper off again.
+# This used to exclude credential/settings files because job 8 rewrote them
+# every ten minutes. Workers now own their auth and job 8 never writes into
+# state/<site>/, so those files remain valid activity signals (a login or
+# refresh is part of an active worker session). If new fleet automation writes
+# under state/<site>/, move it elsewhere or add a narrowly justified exclusion.
 #
 # PORTABILITY (load-bearing, not style): this script runs from the fleet-cron
 # container, which is ALPINE — `find`, `date` and `stat` there are BusyBox
@@ -99,19 +92,20 @@ DRIFT_IDLE_GRACE_SEC="${DD_DRIFT_IDLE_GRACE_SEC:-900}"      # 15min
 # How long a dead container object is kept for `docker logs` postmortem.
 CORPSE_GRACE_SEC="${DD_CORPSE_GRACE_SEC:-3600}"             # 1h
 CHANNEL="${DD_IDLE_CHANNEL:-domain-ops}"
-# Filenames written by fleet automation rather than by a human using the
-# worker. Excluded from the idle signal — see the header; getting this wrong
-# disables the reaper silently.
-#   .credentials.json / settings.json — pushed in every 10min by
-#   check-dd-containers-auth.sh's sync_credentials().
-EXCLUDE_NAMES=(.credentials.json settings.json .credentials.json.tmp settings.json.tmp)
+# No recurring fleet automation writes under worker state. Keep the list
+# empty so Claude auth refreshes and settings changes count as activity.
+EXCLUDE_NAMES=()
 IMAGE="${DD_IMAGE:-domain-developer:latest}"
 DRY_RUN="${DD_IDLE_DRY_RUN:-0}"
+LIFECYCLE_LOCK="${DD_LIFECYCLE_LOCK:-$DD_ROOT/state/.lifecycle.lock}"
 
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=1
 
 exec 9>"$LOCK"
 flock -n 9 || exit 0
+mkdir -p "$(dirname "$LIFECYCLE_LOCK")"
+exec 8>"$LIFECYCLE_LOCK"
+flock -w "${DD_LIFECYCLE_LOCK_WAIT:-30}" -x 8 || exit 0
 
 if [[ -f "$LOG" ]]; then
   log_size="$(stat -c %s "$LOG" 2>/dev/null || echo 0)"
@@ -133,8 +127,11 @@ NOTIFY() {
 import json, sys
 print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3], 'text': sys.argv[2], 'mrkdwn_in': ['text']}]}))
 " "$CHANNEL" "$text" "$color" 2>/dev/null) || return 0
-  curl -s -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" -H "Content-Type: application/json" \
-    -d "$payload" https://slack.com/api/chat.postMessage >/dev/null 2>&1 || true
+  local response
+  response="$(curl -sS --max-time 15 -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" -H "Content-Type: application/json" \
+    -d "$payload" https://slack.com/api/chat.postMessage 2>/dev/null)" || { log "warning: Slack notification request failed"; return 0; }
+  python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("ok") else 1)' <<<"$response" \
+    || log "warning: Slack notification rejected"
 }
 
 # stop then remove. Split so a stop that times out still gets the container

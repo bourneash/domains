@@ -18,6 +18,21 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_REPO="$(cd "${HERE}/../../.." && pwd)"          # /home/jesse/projects/domains
 SITES_DIR="${ROOT_REPO}/sites"
 IMAGE="domain-developer:latest"
+LIFECYCLE_LOCK="${DD_LIFECYCLE_LOCK:-${HERE}/../state/.lifecycle.lock}"
+
+acquire_lifecycle_lock() {
+    mkdir -p "$(dirname "${LIFECYCLE_LOCK}")"
+    exec 8>"${LIFECYCLE_LOCK}"
+    flock -w "${DD_LIFECYCLE_LOCK_WAIT:-30}" -x 8 || {
+        echo "could not acquire worker lifecycle lock: ${LIFECYCLE_LOCK}" >&2
+        exit 75
+    }
+}
+
+release_lifecycle_lock() {
+    flock -u 8 2>/dev/null || true
+    exec 8>&-
+}
 
 usage() {
     sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
@@ -29,6 +44,7 @@ list_sites() {
 }
 
 container_for() { echo "dd-$1"; }
+valid_site() { [[ "${1:-}" =~ ^[A-Za-z0-9._-]+$ && "${1:-}" != .* && "${1:-}" != *..* ]]; }
 
 ensure_image() {
     if ! docker image inspect "${IMAGE}" >/dev/null 2>&1; then
@@ -39,10 +55,12 @@ ensure_image() {
 
 start_or_attach() {
     local site="$1"; shift || true
+    valid_site "${site}" || { echo "invalid site name: ${site}" >&2; exit 1; }
     local dir="${SITES_DIR}/${site}"
     [[ -d "${dir}" ]] || { echo "site dir not found: ${dir}" >&2; exit 1; }
 
     ensure_image
+    acquire_lifecycle_lock
 
     local cname; cname="$(container_for "${site}")"
     local state="absent"
@@ -99,18 +117,16 @@ start_or_attach() {
         #   plugins/commands/hooks  — shared skills/commands/hooks (usable, not editable)
         #   skills                  — personal skills (~/.claude/skills)
         #   settings.json           — enabledPlugins (so plugin skills like marketing-skills load) + perms
-        #   .credentials.json       — shared OAuth
+        #   .credentials.json       — deliberately NOT mounted; workers use
+        #                              independent Claude auth sessions
         # Dirs Claude only reads → bind RO straight at destination.
         local share
         for share in plugins commands hooks skills; do
             [[ -e "${HOME}/.claude/${share}" ]] && extra+=(-v "${HOME}/.claude/${share}:/home/dev/.claude/${share}:ro")
         done
-        # Files Claude REWRITES (settings.json, .credentials.json on OAuth
-        # refresh) → stage RO; entrypoint copies them in writable. Binding them
-        # RO at the destination broke those writes → periodic auth failure.
-        for share in settings.json .credentials.json; do
-            [[ -e "${HOME}/.claude/${share}" ]] && extra+=(-v "${HOME}/.claude/${share}:/host-claude-ro/${share}:ro")
-        done
+        # Settings is copied in because it is configuration. Never mount the
+        # host OAuth credential: workers must not share a rotating token family.
+        [[ -e "${HOME}/.claude/settings.json" ]] && extra+=(-v "${HOME}/.claude/settings.json:/host-claude-ro/settings.json:ro")
         mkdir -p "${state_root}/${site}/codex"
         [[ -e "${HOME}/.codex/auth.json" ]] && extra+=(-v "${HOME}/.codex/auth.json:/host-codex-ro/auth.json:ro")
         [[ -e "${HOME}/.codex/config.toml" ]] && extra+=(-v "${HOME}/.codex/config.toml:/host-codex-ro/config.toml:ro")
@@ -153,6 +169,8 @@ start_or_attach() {
         echo "[warn] Recreate when convenient: ${HERE}/dd-recreate ${site}" >&2
     fi
 
+    release_lifecycle_lock
+
     local tty_flags=("-i")
     [[ -t 0 && -t 1 ]] && tty_flags+=("-t")
 
@@ -168,10 +186,11 @@ case "${1:-}" in
     --list)       list_sites ;;
     # A stopped-but-present worker is exactly the pet we refuse to keep, so
     # --stop destroys it too. Nothing durable is in the container.
-    --stop)       shift; [[ $# -ge 1 ]] || usage 1
+    --stop)       shift; [[ $# -ge 1 ]] || usage 1; valid_site "$1" || { echo "invalid site name: $1" >&2; exit 1; }
+                  acquire_lifecycle_lock
                   docker stop "$(container_for "$1")" >/dev/null 2>&1 || true
-                  docker rm   "$(container_for "$1")" ;;
-    --rm)         shift; [[ $# -ge 1 ]] || usage 1; docker stop "$(container_for "$1")" 2>/dev/null || true; docker rm "$(container_for "$1")" ;;
+                  docker rm   "$(container_for "$1")"; release_lifecycle_lock ;;
+    --rm)         shift; [[ $# -ge 1 ]] || usage 1; valid_site "$1" || { echo "invalid site name: $1" >&2; exit 1; }; acquire_lifecycle_lock; docker stop "$(container_for "$1")" 2>/dev/null || true; docker rm "$(container_for "$1")"; release_lifecycle_lock ;;
     --*)          echo "unknown flag: $1" >&2; usage 1 ;;
     *)            site="$1"; shift; start_or_attach "${site}" "$@" ;;
 esac

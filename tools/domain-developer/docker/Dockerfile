@@ -95,6 +95,16 @@ RUN set -eu; \
 # Change Queue launches these tools inside the same isolated worker image.
 RUN npm install -g @anthropic-ai/claude-code @openai/codex@0.155.1 wrangler lighthouse
 
+# All worker Claude launches must serialize the short OAuth startup/refresh
+# window with the host and fleet cron callers. The real npm launcher remains
+# separate so the wrapper cannot recurse.
+# Resolve the npm symlink before replacing it; moving the symlink itself would
+# change its relative target from /usr/bin and break the global installation.
+RUN CLAUDE_PATH="$(readlink -f "$(command -v claude)")" \
+    && printf '%s\n' "${CLAUDE_PATH}" > /etc/claude-real-path \
+    && rm "$(command -v claude)"
+COPY --chmod=0755 claude-locked.sh /usr/local/bin/claude
+
 # The global npm prefix (/usr) is root-owned, but containers run as the
 # unprivileged `dev` user — so claude's in-place auto-update can't write there
 # ("no write permission to npm prefix"). The image owns the claude version;

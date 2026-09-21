@@ -37,21 +37,18 @@ if [[ ! -f /home/dev/.claude.json && -r "${HOST_CLAUDE_JSON_RO}" ]]; then
     chmod 600 /home/dev/.claude.json
 fi
 
-# ── Writable per-site copies of files Claude REWRITES at runtime ────────────
-# .credentials.json is rewritten on every OAuth token refresh; settings.json
-# can be written too. The old design bound both RO at their destination, so
-# those writes failed → auth broke on a timer ("periodic permission issues").
-# Instead the entry points now RO-bind the host copies at a staging dir and we
-# copy them in WRITABLE here.
-#   - .credentials.json: refreshed from host every boot so a container restart
-#     always picks up the host's current OAuth token (stale container-local
-#     tokens were the main cause of "please log in" after token expiry).
-#   - settings.json: refreshed from host every boot (host is config source of
-#     truth; Claude's own writes go to settings.local.json / .claude.json).
+# ── Per-worker Claude auth and settings ─────────────────────────────────────
+# The worker receives settings from the host, but never the host OAuth
+# credential. Its .credentials.json is private state under the worker's host
+# bind and is created by `claude /login` inside this worker.
 RO_STAGE=/host-claude-ro
-if [[ -r "${RO_STAGE}/.credentials.json" ]]; then
-    cp "${RO_STAGE}/.credentials.json" "${CLAUDE_DIR}/.credentials.json"
-    chmod 600 "${CLAUDE_DIR}/.credentials.json"
+# The old design copied the host's rotating OAuth credential into every
+# worker. Invalidate that legacy copy once so this worker can establish its
+# own independent session with `claude /login`.
+AUTH_MIGRATION_MARKER=/home/dev/.claude/.independent-auth-v1
+if [[ ! -e "${AUTH_MIGRATION_MARKER}" ]]; then
+    rm -f /home/dev/.claude/.credentials.json
+    (umask 077 && : > "${AUTH_MIGRATION_MARKER}")
 fi
 
 # Codex uses its own per-worker state directory. Seed only the operator's
@@ -106,6 +103,7 @@ cat > /home/dev/.banner <<EOF
 ║  site:     ${SITE_NAME:-unknown}
 ║  workdir:  ${SITE_DIR:-/work}
 ║  claude:   per-site state (host ~/.claude is RO)               ║
+║             independent auth; run claude /login if needed     ║
 ║                                                                ║
 ║  Dangerous mode:                                               ║
 ║    claude --dangerously-skip-permissions                       ║

@@ -75,8 +75,22 @@ within another 0.5s), all four reap paths (idle, image-drift, corpse-grace,
 corpse-sweep) exercised for real inside the Alpine fleet-cron container, and
 `dd-doctor` is 16/16 with the two live workers converted.
 
+## FOLLOW-ON 2026-09-21 — independent worker auth
+
+The host OAuth credential is no longer mounted or copied into workers. Each
+worker keeps its own credential under its host-backed state directory and must
+run `claude /login` once. On first boot after this change,
+`entrypoint.sh` removes the legacy copied credential and writes
+`.independent-auth-v1`; this is a deliberate one-time auth reset, not data
+loss. `check-dd-containers-auth.sh` now verifies the isolation invariant and
+never compares or rewrites credential bytes.
+
+Worker lifecycle operations share `state/.lifecycle.lock`, and the panel,
+reaper, CLI, and recreate path fail closed if they cannot acquire it. This
+prevents a reaper from removing a worker while another path is recreating it.
+
 ## Progress
-- [x] **1. Writable creds + settings** — entrypoint copies `.credentials.json` (first-boot) + `settings.json` (every boot) in writable from `/host-claude-ro/`; both entry points stage them RO instead of binding RO at destination.
+- [x] **1. Independent credentials + settings** — settings is copied from `/host-claude-ro/`; worker OAuth credentials are private per-site state and are never copied from the host.
 - [x] **2. State on host binds** — `STATE_ROOT=tools/domain-developer/state/<site>/{claude,persist}` replaces the `dd-claude-*`/`dd-home-*` named volumes in both entry points; compose mounts the state dir RW into the panel; entrypoint `sudo chown`s the mountpoints; `state/.gitignore` keeps creds/transcripts out of git.
 - [x] **3. tmux sessions** — `tmux` added to image; entrypoint writes `~/.tmux.conf` and runs `ttyd … tmux new-session -A -s dd`; banner moved to bashrc. Survives ttyd reconnects/browser close/ttyd restart. (A full *container* restart still ends the tmux server — but state is on host binds and the transcript is on disk, so `claude --resume` continues it.)
 - [x] **4. Graceful shutdown** — `--stop-timeout 30` on both entry points.

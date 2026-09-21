@@ -34,6 +34,7 @@ const IMAGE = 'domain-developer:latest';
 // container recreation. Layout: <STATE_ROOT>/<site>/{claude,persist}.
 const STATE_ROOT =
   process.env.DD_STATE_DIR || path.join(HOST_DOMAINS_ROOT, 'tools', 'domain-developer', 'state');
+const LIFECYCLE_LOCK = process.env.DD_LIFECYCLE_LOCK || path.join(STATE_ROOT, '.lifecycle.lock');
 const PANEL_PORT = parseInt(process.env.DD_PANEL_PORT || '7777', 10);
 const TTYD_PORT_BASE = parseInt(process.env.DD_PORT_BASE || '7800', 10);
 const DEV_PORT_BASE = parseInt(process.env.DD_DEV_PORT_BASE || '7900', 10);
@@ -135,7 +136,18 @@ function allocPorts(site) {
 }
 
 function docker(args, opts = {}) {
-  const r = spawnSync('docker', args, { encoding: 'utf8', ...opts });
+  const command =
+    LIFECYCLE_LOCK === 'none'
+      ? ['docker', ...args]
+      : [
+          'flock',
+          '-w',
+          String(process.env.DD_LIFECYCLE_LOCK_WAIT || 30),
+          LIFECYCLE_LOCK,
+          'docker',
+          ...args,
+        ];
+  const r = spawnSync(command[0], command.slice(1), { encoding: 'utf8', ...opts });
   return { code: r.status ?? -1, stdout: r.stdout || '', stderr: r.stderr || '' };
 }
 
@@ -269,8 +281,8 @@ function startContainer(site) {
   // from, so a dd-build that landed while this worker sat stopped would
   // silently never reach it — the exact drift cattle is meant to prevent.
   // Recreating costs a couple of seconds and loses nothing: all durable
-  // state is on host binds (REDESIGN.md) and the entrypoint re-copies the
-  // host's current OAuth credential on every boot.
+  // state is on host binds (REDESIGN.md), and the worker's independent auth
+  // state remains there for the next login/session.
   if (cur.exists) {
     docker(['rm', '-f', containerName(site)]);
   }
@@ -315,12 +327,11 @@ function startContainer(site) {
   // WRITES the file at runtime:
   //   - claudeRoShares: dirs Claude only reads → bind RO straight at dest.
   //     plugins/commands/hooks (shared, usable not editable) + skills (personal).
-  //   - claudeCopyIn: files Claude REWRITES (settings.json on config changes,
-  //     .credentials.json on every OAuth refresh). Binding these RO broke the
-  //     writes → periodic auth failure. Stage them RO under /host-claude-ro/
-  //     and let the entrypoint copy them in writable.
+  //   - settings.json is copied in as configuration.
+  //   - workers never receive the host .credentials.json. Each worker has an
+  //     independent auth session, eliminating rotating-token-family reuse.
   const claudeRoShares = ['plugins', 'commands', 'hooks', 'skills'];
-  const claudeCopyIn = ['settings.json', '.credentials.json'];
+  const claudeCopyIn = ['settings.json'];
 
   const args = [
     'run',

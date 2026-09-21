@@ -79,8 +79,11 @@ NOTIFY() {
 import json, sys
 print(json.dumps({'channel': sys.argv[1], 'attachments': [{'color': sys.argv[3], 'text': sys.argv[2], 'mrkdwn_in': ['text']}]}))
 " "$CHANNEL" "$text" "$color" 2>/dev/null) || return 0
-  curl -s -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" -H "Content-Type: application/json" \
-    -d "$payload" https://slack.com/api/chat.postMessage >/dev/null 2>&1 || true
+  local response
+  response="$(curl -sS --max-time 15 -X POST -H "Authorization: Bearer $SLACK_BOT_TOKEN" -H "Content-Type: application/json" \
+    -d "$payload" https://slack.com/api/chat.postMessage 2>/dev/null)" || { log "warning: Slack notification request failed"; return 0; }
+  python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if d.get("ok") else 1)' <<<"$response" \
+    || log "warning: Slack notification rejected"
 }
 
 # Known account-unavailable signatures — auth errors plus usage exhaustion.

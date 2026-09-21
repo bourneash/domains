@@ -2,7 +2,7 @@ FROM node:22-alpine
 
 # docker CLI is required so server.js can shell out to manage sibling containers.
 # bash for the entrypoint convenience; tini for proper signal handling.
-RUN apk add --no-cache docker-cli bash tini
+RUN apk add --no-cache docker-cli bash tini util-linux
 
 WORKDIR /app
 

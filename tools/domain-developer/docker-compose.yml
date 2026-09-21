@@ -56,8 +56,8 @@ services:
       # on host so docker -v specs the panel emits resolve consistently.
       - ${HOST_HOME:-/home/jesse}/.claude/projects:${HOST_HOME:-/home/jesse}/.claude/projects
       # Host ~/.claude RO — panel only needs existsSync on plugins/commands/
-      # hooks/.credentials.json before deciding whether to pass them through.
-      # Worker containers get these as separate RO binds from the same source.
+      # and hooks before deciding which read-only shared tooling to pass
+      # through. The host OAuth credential is never passed to workers.
       - ${HOST_HOME:-/home/jesse}/.claude:${HOST_HOME:-/home/jesse}/.claude:ro
     environment:
       # Listen on all interfaces INSIDE the container; the port mapping

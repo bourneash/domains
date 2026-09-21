@@ -16,6 +16,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOL_DIR="$(cd "${HERE}/.." && pwd)"
+LIFECYCLE_LOCK="${DD_LIFECYCLE_LOCK:-${TOOL_DIR}/state/.lifecycle.lock}"
 
 mode="panel-only"
 case "${1:-}" in
@@ -30,6 +31,9 @@ case "${1:-}" in
 esac
 
 cd "${TOOL_DIR}"
+mkdir -p "$(dirname "${LIFECYCLE_LOCK}")"
+exec 8>"${LIFECYCLE_LOCK}"
+flock -w "${DD_LIFECYCLE_LOCK_WAIT:-30}" -x 8 || { echo "[dd-down] could not acquire worker lifecycle lock" >&2; exit 75; }
 echo "[dd-down] stopping dd-panel..."
 docker compose down --remove-orphans
 
