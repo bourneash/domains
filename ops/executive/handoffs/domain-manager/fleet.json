@@ -2,17 +2,24 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T16:43:11.026Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-21T16:43:49.755Z",
+  "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
-    "report_id": "d15dcaad-d967-4bc1-a496-eb85029d5333",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 20,
-      "deep_dive_candidates": 59,
-      "global_exceptions": []
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Deep Penetrations organic conversion and monetization review",
+        "summary": "Review and recommend improvements for /reviews/super-lube-synthetic, /reviews/wd40-silicone, and /reviews/liquid-wrench. Supplied SEO data shows 446 impressions and 1 click for Super Lube Synthetic, 96 impressions and 0 clicks for WD-40 Silicone, and 69 impressions at position 2.8 with 0 clicks for Liquid Wrench. The site recorded 1,505 impressions, 2 clicks, 7 sessions, 0 conversions, and 28 measured pages. Amazon attribution reports 392 clicks for deeppenetrations-20 with 0 ordered items and $0 commission for the supplied 2026-09-21 window; portfolio attribution is incomplete.",
+        "requested_action": "Approve a report-only review of search intent, page titles and snippets, internal linking, affiliate-link presentation, and conversion measurement gaps. Do not create content, modify links, change credentials, or deploy production changes.",
+        "proposal_id": "83773ff5-fe3f-4c32-8d71-f4e4dd639c97"
+      },
+      {
+        "kind": "proposal",
+        "title": "Deep Penetrations mobile performance diagnosis",
+        "summary": "Diagnose the measured mobile performance issue for deeppenetrations.com. The supplied lab data reports performance 79 and LCP 4266ms. Identify observable asset, rendering, layout, and interaction hypotheses, while separating measured facts from unavailable telemetry.",
+        "requested_action": "Approve report-only diagnosis with validation tests, effort notes, and reversible unshipped optimization designs. Do not implement or deploy changes.",
+        "proposal_id": "d559ee01-aa3f-4b10-bced-86431fd6263a"
+      }
+    ]
   }
 }
