@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:29:17.122Z",
+  "generated_at": "2026-09-21T19:32:22.832Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Gate03 readiness and activation assessment",
-        "summary": "Conduct a report-only review of audience positioning, content readiness, measurement gaps, monetization fit, operational health, and prioritized backlog before activation decisions.",
-        "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics configuration, schedules, spending, DNS, domains, or production systems.",
+        "title": "Infrainnovator readiness and activation assessment",
+        "summary": "Assess positioning, audience, content readiness, measurement coverage, monetization fit, operational health, and activation backlog before further investment.",
+        "requested_action": "Approve a report-only readiness assessment with explicit audience and positioning options, content and monetization hypotheses, measurement requirements, operational risks, validation tests, and a prioritized backlog. Do not change content, credentials, analytics, schedules, spending, DNS, domains, or production systems.",
         "proposal_id": null
       }
     ]
