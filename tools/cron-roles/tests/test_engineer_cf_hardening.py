@@ -28,6 +28,7 @@ class EngineerCloudflareHardeningTest(unittest.TestCase):
                     f"{path} must classify {status}",
                 )
             self.assertIn("CF_API_STATUS=$CF_API_STATUS", source)
+            self.assertIn('"success"[[:space:]]*:[[:space:]]*true', source)
 
     def test_wrapper_only_suppresses_documented_cloudflare_scope_ask(self):
         for path in (RUN_TEMPLATE, SALTWATER_RUN):

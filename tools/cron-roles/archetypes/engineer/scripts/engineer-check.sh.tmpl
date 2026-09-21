@@ -119,7 +119,7 @@ if [[ -n "$CF_API_READ_TOKEN" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
     "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" 2>>"$LOG" || true)
   API_HTTP_CODE="${API_RAW##*$'\n'}"
   API="${API_RAW%$'\n'*}"
-  if echo "$API" | grep -q '"success":true'; then
+  if echo "$API" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
     CF_MODE=api; CF_API_STATUS=api
   else
     case "$API_HTTP_CODE" in
