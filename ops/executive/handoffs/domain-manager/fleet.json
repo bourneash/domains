@@ -2,37 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:09:45.110Z",
-  "summary": "domain-manager checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-21T19:10:27.861Z",
+  "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Saltwater News measurement coverage review",
-        "summary": "Document analytics, SEO, conversion, affiliate-attribution, data-feed, and operational measurement gaps, with a weekly reconciliation checklist.",
-        "requested_action": "Approve report-only documentation. Treat unavailable telemetry as unavailable; do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
-        "proposal_id": "5d1212b3-cd9c-4c9f-a464-a053e181a702"
+        "title": "Save Us Farms measurement coverage review",
+        "summary": "Document unavailable analytics, SEO, conversion, affiliate-attribution, and operational telemetry, with a report-only reconciliation checklist.",
+        "requested_action": "Approve report-only documentation. Do not change credentials, analytics configuration, affiliate settings, schedules, spending, or production systems.",
+        "proposal_id": "d0b86c68-1705-4741-9c64-092fe11ac41c"
       },
       {
         "kind": "proposal",
-        "title": "Saltwater News mobile performance diagnosis",
+        "title": "Save Us Farms mobile performance diagnosis",
         "summary": "Produce a report-only diagnosis of the measured mobile loading bottleneck and reversible optimization designs.",
         "requested_action": "Approve diagnosis covering assets, rendering, layout stability, validation tests, effort notes, and unshipped optimization designs. Do not implement or deploy changes.",
-        "proposal_id": "f61c52b5-5e4b-44c6-a3db-a7f528ed3de2"
+        "proposal_id": "b86bfb1e-3939-49f1-b02b-918e66c215f3"
       },
       {
         "kind": "proposal",
-        "title": "Saltwater News data-feed and operational health diagnosis",
-        "summary": "Review the reportable health of attributed charter reports, NOAA/NMFS references, storms, marine conditions, scheduled jobs, freshness indicators, and stale-data behavior.",
-        "requested_action": "Approve report-only diagnosis with validation checks and reversible unshipped designs. Do not deploy, mutate schedules, change credentials, or alter production configuration.",
-        "proposal_id": "a8967bc7-f538-44fa-a820-3621ddc6d95d"
-      },
-      {
-        "kind": "proposal",
-        "title": "Saltwater News affiliate attribution reconciliation",
-        "summary": "Review affiliate-link tagging and reporting paths to determine whether clicks, orders, and commissions can be reconciled to Saltwater News pages and content types.",
+        "title": "Save Us Farms affiliate attribution reconciliation",
+        "summary": "Review affiliate-link tagging and reporting paths to determine whether outbound activity can be reconciled to orders and commissions by page or content type.",
         "requested_action": "Approve a report-only attribution review and validation checklist. Do not alter affiliate links, credentials, settings, or production configuration.",
-        "proposal_id": "20797b7c-d921-4982-a89d-03b79c08836e"
+        "proposal_id": "40618066-9e3b-4fc9-a80e-9464dcebcc64"
       }
     ]
   }
