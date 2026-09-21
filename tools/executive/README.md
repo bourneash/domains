@@ -109,6 +109,6 @@ shared intelligence contract before the staggered domain-manager queue starts:
 Reports are stored under `tools/executive/data/reports/`, recorded in the event
 store, and exposed through Fleet Manager's Executive Leadership page and
 `/api/executive/reports`. Domain managers run from a persisted, rate-limited
-queue (two active workers, one new job every ten minutes). Missing data is
+queue (two active workers, one new job every minute). Missing data is
 reported as unavailable rather than zero, and does not prevent a routine site
 review from being delivered.
