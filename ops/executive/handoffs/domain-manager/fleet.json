@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T20:12:27.646Z",
+  "generated_at": "2026-09-21T20:13:25.759Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess positioning and launch readiness",
-        "summary": "Review the parked scaffold’s audience, positioning options, content scope, and minimum viable launch path before investment. The site is scaffolded, parked for 44 days, has only site and operations capabilities, and its brief is still unspecified.",
-        "requested_action": "Approve a report-only positioning and launch-readiness assessment with audience hypotheses, scope options, validation criteria, and a prioritized backlog. Do not deploy, alter production configuration, change schedules, provision credentials, or spend money.",
-        "proposal_id": "1d17e492-c415-4d12-8d62-740cbf3c3749"
+        "title": "Assess trainer UX, performance, and monetization readiness",
+        "summary": "Review the browser poker trainer’s drills, bot-opponent and leak-report flows, training-affiliate placements, accessibility, and mobile performance before further investment. SEO intelligence reports performance 89, LCP 2776ms, and an accessibility issue; site analytics, search traffic, experiments, and attributed revenue are unavailable in the supplied snapshot. AI usage shows 26 calls costing $2.15 from 2026-09-01 through 2026-09-21, which does not establish return or avoidable spend.",
+        "requested_action": "Approve a report-only assessment with factual UX and performance findings, monetization-path review, content and product gaps, reversible hypotheses, validation criteria, and a prioritized backlog. Do not deploy, modify production configuration, change schedules, provision credentials, or spend money.",
+        "proposal_id": null
       }
     ]
   }
