@@ -428,6 +428,18 @@ class Engine:
             await asyncio.wait_for(pump_task, timeout=5)
         except asyncio.TimeoutError:
             pump_task.cancel()  # a backgrounded grandchild is holding the pipe open
+            try:
+                await pump_task
+            except asyncio.CancelledError:
+                pass
+        except asyncio.CancelledError:
+            # Always consume the reader task; otherwise asyncio reports a pending task
+            # during shutdown when a job is cancelled while its pipe is still open.
+            pump_task.cancel()
+            try:
+                await pump_task
+            except asyncio.CancelledError:
+                pass
         note = None
         if timed_out:
             status, note = "timeout", f"exceeded {p.timeout_s}s; process group terminated"

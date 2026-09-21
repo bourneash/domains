@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -322,7 +323,8 @@ class SubprocessTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(r["status"], "timeout")
         await asyncio.sleep(0.3)
         self.assertFalse(marker.exists())
-        out = os.popen(f"pgrep -f '[s]leep {uniq}'").read().split()
+        out = subprocess.run(["pgrep", "-f", f"[s]leep {uniq}"], capture_output=True,
+                             text=True, check=False).stdout.split()
         self.assertEqual(out, [], "grandchild survived the timeout")
 
     async def test_single_group_mode_uses_cwd_envfile_and_extra_env(self):

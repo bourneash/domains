@@ -139,7 +139,7 @@ class ApiTests(unittest.TestCase):
             cls.svc = Service(cls.engine, cls.loop, cls.root / "sites", cls.root / "adopted", docker=fake_docker)
             cls.srv = make_server(cls.svc, TOKEN, "127.0.0.1", 0)
             threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
-            cls.loop.create_task(cls.engine.run_forever())
+            cls.runner = cls.loop.create_task(cls.engine.run_forever())
             started.set()
             cls.loop.run_forever()
 
@@ -156,7 +156,12 @@ class ApiTests(unittest.TestCase):
         # loop immediately leaves run_forever(), subprocess waiters and the event loop open.
         fut = asyncio.run_coroutine_threadsafe(cls.engine.shutdown(grace_s=1), cls.loop)
         fut.result(timeout=5)
-        cls.loop.call_soon_threadsafe(cls.loop.stop)
+        def stop_after_runner():
+            async def wait_for_runner():
+                await cls.runner
+                cls.loop.stop()
+            cls.loop.create_task(wait_for_runner())
+        cls.loop.call_soon_threadsafe(stop_after_runner)
         cls.t.join(timeout=5)
         if not cls.t.is_alive():
             cls.loop.close()

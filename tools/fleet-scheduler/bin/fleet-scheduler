@@ -9,6 +9,7 @@
 #   fleet-scheduler pause|resume       global kill switch (running jobs finish)
 #   fleet-scheduler drain              pause + wait for running jobs to finish (used by `up` for safe deploys)
 #   FS_API=http://127.0.0.1:4791 FS_TOKEN_FILE=tools/fleet-cron/data/token  -> same CLI against the fleet-tools instance
+#   fleet-scheduler mirror-check   verify DB jobs are still represented in legacy crontabs
 #   fleet-scheduler api <METHOD> <path> [json]
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -71,6 +72,10 @@ case "$cmd" in
   down)   "${COMPOSE[@]}" down ;;
   logs)   "${COMPOSE[@]}" logs -f --tail=100 scheduler ;;
   status) api GET /api/status | python3 -m json.tool ;;
+  mirror-check)
+    result="$(api GET /api/mirror-check)"
+    printf '%s\n' "$result" | python3 -m json.tool
+    printf '%s\n' "$result" | python3 -c 'import json,sys; raise SystemExit(0 if json.load(sys.stdin)["ok"] else 1)' ;;
   jobs)   api GET "/api/jobs${1:+?site=$1}" | python3 -c "
 import sys,json,datetime
 for j in json.load(sys.stdin):
