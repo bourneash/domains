@@ -2,15 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:16:27.361Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-21T22:17:19.401Z",
+  "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
+        "title": "Fix Stinky Left Foot mobile performance budgets",
+        "summary": "Address the measured mobile performance issues affecting the Rocket League guides and gaming-gear affiliate hub.",
+        "requested_action": "Approve a scoped engineering assessment and remediation plan for LCP and related performance budgets. Do not deploy without separate approval.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
         "title": "Assess affiliate conversion and editorial readiness",
-        "summary": "Review RodHat’s FreeBSD/Linux sysadmin audience, news and advanced Unix content structure, developer-tool and book affiliate paths, ad readiness, editorial quality controls, and measurement requirements before further investment.",
-        "requested_action": "Approve a report-only assessment covering audience and content gaps, affiliate conversion paths, editorial quality controls, measurement requirements, and a prioritized backlog. Do not publish, deploy, change credentials, alter schedules, modify affiliate configuration, spend money, or change production systems.",
+        "summary": "Review the Rocket League audience, guide coverage, gaming-gear affiliate paths, editorial quality controls, and measurement requirements before further content investment.",
+        "requested_action": "Approve a report-only assessment with audience and content gaps, affiliate conversion-path review, measurement requirements, and a prioritized backlog. Do not publish, deploy, modify affiliate configuration, change credentials, or alter production systems.",
         "proposal_id": null
       }
     ]
