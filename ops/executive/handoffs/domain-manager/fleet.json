@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:14:29.385Z",
+  "generated_at": "2026-09-21T22:15:18.345Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess affiliate conversion and editorial readiness",
-        "summary": "Review fishhooklabs.com’s undefined audience positioning, content and affiliate structure, conversion paths, and readiness for measured growth. The site is live with affiliate, analytics, and social capabilities, but supplied analytics telemetry is unavailable, SEO traffic metrics are unavailable, and Amazon attribution has no fishhooklabs.com row. AI usage observability records 20 calls costing $2.54 from 2026-09-01 through 2026-09-21; this does not establish return or avoidable spend.",
-        "requested_action": "Approve a report-only assessment covering audience hypotheses, positioning and content gaps, affiliate conversion-path review, editorial quality controls, measurement requirements, and a prioritized backlog. Do not publish, deploy, change credentials, alter schedules, modify affiliate configuration, spend money, or change production systems.",
+        "title": "Assess AIS audience, content, and affiliate readiness",
+        "summary": "Review MarineActivity’s vessel-tracking audience, AIS data reliability and reference content, vessel and ship-type page structure, marine-electronics affiliate paths, and readiness for measured growth. The site is live with scheduled ingest, D1 storage, analytics, and affiliate capabilities, but supplied traffic telemetry is unavailable and Amazon attribution has no marineactivity.com row. AI usage records 41 calls costing $14.23 from 2026-09-01 through 2026-09-21; this does not establish return or avoidable spend.",
+        "requested_action": "Approve a report-only assessment covering audience hypotheses, content and UX gaps, data-feed health dependencies, affiliate conversion paths, measurement requirements, editorial quality controls, and a prioritized backlog. Do not publish, deploy, change credentials, alter schedules, modify affiliate configuration, spend money, or change production systems.",
         "proposal_id": null
       }
     ]
