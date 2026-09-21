@@ -1,0 +1,4614 @@
+{
+  "report_id": "ebb184c9-953c-406c-8bb9-9646acd3cb2e",
+  "cadence": "six_hour",
+  "generated_at": "2026-09-21T15:15:45.750Z",
+  "scope": {
+    "managed_sites": [
+      "0daynews.com",
+      "0xroulette.com",
+      "aliencouncil.com",
+      "allthingsmasonic.com",
+      "americastrikes.com",
+      "amputeenews.com",
+      "arttogogh.com",
+      "blackmarketapparel.com",
+      "broadwayshowgirls.com",
+      "complicated.work",
+      "deadlymaracas.com",
+      "deeppenetrations.com",
+      "driveford.net",
+      "drivegm.net",
+      "dumbsluts.com",
+      "eastcoastrappers.com",
+      "elevatorfriends.com",
+      "failbunny.com",
+      "findyourlostpets.com",
+      "fishhooklabs.com",
+      "gate03.com",
+      "girlpain.com",
+      "greatamericanlakes.com",
+      "howfishthink.com",
+      "infrainnovator.com",
+      "marineactivity.com",
+      "mynewgm.com",
+      "mynewgm.info",
+      "newmomshop.com",
+      "noveltyguns.com",
+      "nsfwpixels.com",
+      "nsfwpixles.com",
+      "offshorehookup.com",
+      "oventoheaven.com",
+      "pervypotion.com",
+      "pokererotic.com",
+      "rc-9.com",
+      "reviewtattoo.com",
+      "rodhat.com",
+      "saltwaternews.com",
+      "saveusfarms.com",
+      "searchwoot.com",
+      "seedstosauce.com",
+      "shoppinkflamingo.com",
+      "shoptopless.com",
+      "sinderella.org",
+      "stinkyleftfoot.com",
+      "therareunicorn.com",
+      "totaljerks.com",
+      "trainingsharks.com",
+      "ultrarough.com",
+      "unsupervisedmedia.com",
+      "vibratorporn.com",
+      "weapontester.com",
+      "weirdassstuff.com",
+      "weirdgirlstore.com",
+      "wetpages.com",
+      "wetslit.com",
+      "xxxtea.com"
+    ],
+    "excluded_sites": [
+      "3boobs.com"
+    ]
+  },
+  "summary": {
+    "sites_considered": 59,
+    "sites_reported": 59,
+    "exceptions": 59,
+    "deep_dive_candidates": 59
+  },
+  "reports": [
+    {
+      "site": "0daynews.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "0daynews.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "0daynews.com",
+          "total_cost_usd": 96.15664554999991,
+          "calls": 349
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "0xroulette.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "0xroulette.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "0xroulette.com",
+          "total_cost_usd": 3.4012238999999997,
+          "calls": 30
+        },
+        "priority": {
+          "site": "0xroulette.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 3.4012238999999997
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "aliencouncil.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "aliencouncil.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "aliencouncil.com",
+          "total_cost_usd": 12.796192549999999,
+          "calls": 25
+        },
+        "priority": {
+          "site": "aliencouncil.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 12.796192549999999,
+          "revenue_usd": 0,
+          "margin_usd": -12.796192549999999
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "allthingsmasonic.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "allthingsmasonic.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "allthingsmasonic.com",
+          "total_cost_usd": 6.111977150000001,
+          "calls": 57
+        },
+        "priority": {
+          "site": "allthingsmasonic.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 6.111977150000001,
+          "revenue_usd": 0,
+          "margin_usd": -6.111977150000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "americastrikes.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "americastrikes.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "americastrikes.com",
+          "total_cost_usd": 116.11514134999989,
+          "calls": 1042
+        },
+        "priority": {
+          "site": "americastrikes.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 116.11514134999989,
+          "revenue_usd": 0,
+          "margin_usd": -116.11514134999989
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "amputeenews.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "amputeenews.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "amputeenews.com",
+          "total_cost_usd": 36.93970629999998,
+          "calls": 94
+        },
+        "priority": {
+          "site": "amputeenews.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 36.93970629999998
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "arttogogh.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "arttogogh.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "arttogogh.com",
+          "total_cost_usd": 5.0143647499999995,
+          "calls": 29
+        },
+        "priority": {
+          "site": "arttogogh.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 5.0143647499999995
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "blackmarketapparel.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "blackmarketapparel.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "blackmarketapparel.com",
+          "total_cost_usd": 59.27083120000002,
+          "calls": 60
+        },
+        "priority": {
+          "site": "blackmarketapparel.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 59.27083120000002
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "broadwayshowgirls.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "broadwayshowgirls.com",
+          "total_cost_usd": 9.565640400000003,
+          "calls": 121
+        },
+        "priority": {
+          "site": "broadwayshowgirls.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 9.565640400000003,
+          "revenue_usd": 0,
+          "margin_usd": -9.565640400000003
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "complicated.work",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "deadlymaracas.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "deeppenetrations.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "deeppenetrations.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "deeppenetrations.com",
+          "total_cost_usd": 0.5420227999999999,
+          "calls": 1
+        },
+        "priority": {
+          "site": "deeppenetrations.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 0.5420227999999999,
+          "revenue_usd": 0,
+          "margin_usd": -0.5420227999999999
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "driveford.net",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "drivegm.net",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "dumbsluts.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "eastcoastrappers.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "eastcoastrappers.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "eastcoastrappers.com",
+          "total_cost_usd": 36.73579095000001,
+          "calls": 114
+        },
+        "priority": {
+          "site": "eastcoastrappers.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 36.73579095000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "elevatorfriends.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "failbunny.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "findyourlostpets.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "fishhooklabs.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "fishhooklabs.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "fishhooklabs.com",
+          "total_cost_usd": 2.5414625,
+          "calls": 20
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "gate03.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "girlpain.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "site": "girlpain.com",
+          "total_cost_usd": 21.68629739999999,
+          "calls": 67
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "greatamericanlakes.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "greatamericanlakes.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "greatamericanlakes.com",
+          "total_cost_usd": 1.6232815,
+          "calls": 7
+        },
+        "priority": {
+          "site": "greatamericanlakes.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 1.6232815
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "howfishthink.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "howfishthink.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "howfishthink.com",
+          "total_cost_usd": 0.13180624999999996,
+          "calls": 3
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "infrainnovator.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "marineactivity.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "marineactivity.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "marineactivity.com",
+          "total_cost_usd": 14.23338545,
+          "calls": 41
+        },
+        "priority": {
+          "site": "marineactivity.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 14.23338545
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "mynewgm.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "mynewgm.info",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "newmomshop.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "newmomshop.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "newmomshop.com",
+          "total_cost_usd": 24.127536000000003,
+          "calls": 174
+        },
+        "priority": {
+          "site": "newmomshop.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 24.127536000000003
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "noveltyguns.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "nsfwpixels.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "nsfwpixles.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "offshorehookup.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "offshorehookup.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "offshorehookup.com",
+          "total_cost_usd": 2.6801401,
+          "calls": 19
+        },
+        "priority": {
+          "site": "offshorehookup.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 2.6801401,
+          "revenue_usd": 0,
+          "margin_usd": -2.6801401
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "oventoheaven.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "oventoheaven.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "oventoheaven.com",
+          "total_cost_usd": 3.650379150000001,
+          "calls": 31
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "pervypotion.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "pokererotic.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "rc-9.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "rc-9.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "rc-9.com",
+          "total_cost_usd": 2.2282734,
+          "calls": 28
+        },
+        "priority": {
+          "site": "rc-9.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 2.2282734
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "reviewtattoo.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "reviewtattoo.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "reviewtattoo.com",
+          "total_cost_usd": 14.840605499999999,
+          "calls": 77
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "rodhat.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.990Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "rodhat.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "rodhat.com",
+          "total_cost_usd": 36.62922975000001,
+          "calls": 115
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "saltwaternews.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "saltwaternews.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "saltwaternews.com",
+          "total_cost_usd": 2.60618945,
+          "calls": 8
+        },
+        "priority": {
+          "site": "saltwaternews.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 2.60618945
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "saveusfarms.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "saveusfarms.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "saveusfarms.com",
+          "total_cost_usd": 21.56473535000001,
+          "calls": 159
+        },
+        "priority": {
+          "site": "saveusfarms.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 21.56473535000001,
+          "revenue_usd": 0,
+          "margin_usd": -21.56473535000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "searchwoot.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "searchwoot.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "searchwoot.com",
+          "total_cost_usd": 0.29253599999999996,
+          "calls": 1
+        },
+        "priority": {
+          "site": "searchwoot.com",
+          "lifecycle": "live",
+          "allocation": "maintain",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 0.29253599999999996
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "seedstosauce.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "seedstosauce.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "seedstosauce.com",
+          "total_cost_usd": 1.8065255500000001,
+          "calls": 10
+        },
+        "priority": {
+          "site": "seedstosauce.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 1.8065255500000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "shoppinkflamingo.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "shoppinkflamingo.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "shoppinkflamingo.com",
+          "total_cost_usd": 5.475921950000001,
+          "calls": 36
+        },
+        "priority": {
+          "site": "shoppinkflamingo.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 5.475921950000001,
+          "revenue_usd": 0,
+          "margin_usd": -5.475921950000001
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "shoptopless.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "shoptopless.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "shoptopless.com",
+          "total_cost_usd": 16.174434400000003,
+          "calls": 66
+        },
+        "priority": {
+          "site": "shoptopless.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 16.174434400000003,
+          "revenue_usd": 0,
+          "margin_usd": -16.174434400000003
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "sinderella.org",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "sinderella.org",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "sinderella.org",
+          "total_cost_usd": 67.54791625000004,
+          "calls": 657
+        },
+        "priority": {
+          "site": "sinderella.org",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 67.54791625000004,
+          "revenue_usd": 0,
+          "margin_usd": -67.54791625000004
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "stinkyleftfoot.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "stinkyleftfoot.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "stinkyleftfoot.com",
+          "total_cost_usd": 5.069759899999999,
+          "calls": 31
+        },
+        "priority": {
+          "site": "stinkyleftfoot.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 5.069759899999999,
+          "revenue_usd": 0,
+          "margin_usd": -5.069759899999999
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "therareunicorn.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "totaljerks.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "totaljerks.com",
+          "actions": 1,
+          "high": 1,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "totaljerks.com",
+          "total_cost_usd": 25.461247149999995,
+          "calls": 89
+        },
+        "priority": {
+          "site": "totaljerks.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 24,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 25.461247149999995,
+          "revenue_usd": 0,
+          "margin_usd": -25.461247149999995
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "trainingsharks.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [
+        "priority_score_available"
+      ],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "trainingsharks.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "trainingsharks.com",
+          "total_cost_usd": 2.1499967,
+          "calls": 26
+        },
+        "priority": {
+          "site": "trainingsharks.com",
+          "lifecycle": "live",
+          "allocation": "repair",
+          "opportunity_score": 4,
+          "sessions": 0,
+          "conversions": 0,
+          "ai_cost_usd": 2.1499967
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "ultrarough.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "ultrarough.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "ultrarough.com",
+          "total_cost_usd": 10.96143415,
+          "calls": 61
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "unsupervisedmedia.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "unsupervisedmedia.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "unsupervisedmedia.com",
+          "total_cost_usd": 2.1434109999999995,
+          "calls": 27
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "vibratorporn.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "weapontester.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "weapontester.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "weapontester.com",
+          "total_cost_usd": 1.06788555,
+          "calls": 2
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "weirdassstuff.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "weirdassstuff.com",
+          "actions": 1,
+          "high": 0,
+          "medium": 1,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "weirdassstuff.com",
+          "total_cost_usd": 10.197798950000001,
+          "calls": 243
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "weirdgirlstore.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "weirdgirlstore.com",
+          "total_cost_usd": 9.432296600000003,
+          "calls": 207
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "wetpages.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "wetpages.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "wetpages.com",
+          "total_cost_usd": 0.3944825,
+          "calls": 2
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "wetslit.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "unavailable": true
+        },
+        "ai_usage": {
+          "unavailable": true
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    },
+    {
+      "site": "xxxtea.com",
+      "cadence": "six_hour",
+      "observed_at": "2026-09-21T15:15:46.991Z",
+      "classification": "exception",
+      "evidence": [],
+      "exceptions": [
+        "analytics_unavailable"
+      ],
+      "metrics": {
+        "analytics": {
+          "unavailable": true
+        },
+        "seo": {
+          "site": "xxxtea.com",
+          "actions": 0,
+          "high": 0,
+          "medium": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "sessions": 0,
+          "conversions": 0,
+          "pages": 0
+        },
+        "ai_usage": {
+          "site": "xxxtea.com",
+          "total_cost_usd": 9.377363449999997,
+          "calls": 44
+        },
+        "priority": {
+          "unavailable": true
+        }
+      },
+      "source_health": [
+        {
+          "state": "error",
+          "source": "analytics",
+          "observed_at": null,
+          "error": "fetch failed"
+        },
+        {
+          "state": "available",
+          "source": "seo_intelligence",
+          "observed_at": "2026-09-21T15:15:45.785Z",
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "revenue",
+          "observed_at": null,
+          "error": null
+        },
+        {
+          "state": "available",
+          "source": "ai_usage",
+          "observed_at": "2026-09-21T15:15:46.831Z",
+          "error": null
+        },
+        {
+          "state": "unavailable",
+          "source": "operations",
+          "observed_at": null,
+          "error": "not reported"
+        }
+      ],
+      "interpretation": "Measured exception or signal found; domain-manager deep dive may be warranted.",
+      "next_action": "Review evidence, freshness, attribution limits, and decide whether to invoke a domain-manager deep dive."
+    }
+  ],
+  "deep_dive_candidates": [
+    {
+      "site": "0daynews.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "0xroulette.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "aliencouncil.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "allthingsmasonic.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "americastrikes.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "amputeenews.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "arttogogh.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "blackmarketapparel.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "complicated.work",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "deadlymaracas.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "deeppenetrations.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "driveford.net",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "drivegm.net",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "dumbsluts.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "eastcoastrappers.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "elevatorfriends.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "failbunny.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "findyourlostpets.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "fishhooklabs.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "gate03.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "girlpain.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "greatamericanlakes.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "howfishthink.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "infrainnovator.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "marineactivity.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "mynewgm.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "mynewgm.info",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "newmomshop.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "noveltyguns.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "nsfwpixels.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "nsfwpixles.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "offshorehookup.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "oventoheaven.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "pervypotion.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "pokererotic.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "rc-9.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "reviewtattoo.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "rodhat.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "saltwaternews.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "saveusfarms.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "searchwoot.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "seedstosauce.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "shoppinkflamingo.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "shoptopless.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "sinderella.org",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "stinkyleftfoot.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "therareunicorn.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "totaljerks.com",
+      "reasons": [
+        "analytics_unavailable",
+        "high_priority_seo_actions"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "trainingsharks.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "ultrarough.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "unsupervisedmedia.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "vibratorporn.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "weapontester.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "weirdassstuff.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "wetpages.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "wetslit.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    },
+    {
+      "site": "xxxtea.com",
+      "reasons": [
+        "analytics_unavailable"
+      ],
+      "recommended_role": "domain-manager",
+      "reason": "invoke on demand only after reviewing evidence and source freshness"
+    }
+  ],
+  "source_contract": "Every field is sourced from the executive intelligence snapshot. Unavailable or stale data is labeled; no missing metric is treated as zero and no revenue forecast is inferred."
+}
