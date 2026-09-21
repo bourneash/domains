@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T19:27:21.313Z",
+  "generated_at": "2026-09-21T19:29:17.122Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Find Your Lost Pets activation and readiness assessment",
-        "summary": "Conduct a report-only assessment of positioning, audience fit, content readiness, monetization options, operational prerequisites, and measurement boundaries before activation decisions. Evidence: the site is a parked scaffold with 112 parked days, no supplied description, and only site/ops capabilities. GA4 exists in a separate Google account and is observational; it should not be provisioned or assumed available in fleet analytics, data-hub, registry, or site-analytics tools.",
+        "title": "Gate03 readiness and activation assessment",
+        "summary": "Conduct a report-only review of audience positioning, content readiness, measurement gaps, monetization fit, operational health, and prioritized backlog before activation decisions.",
         "requested_action": "Approve a report-only readiness assessment and prioritized backlog. Do not change content, credentials, analytics configuration, schedules, spending, DNS, domains, or production systems.",
         "proposal_id": null
       }
