@@ -16,6 +16,13 @@ if [[ -z "$SITE_DIR" || ! -f "$SITE_DIR/docker-compose.yml" ]]; then
 fi
 
 SITE_DIR="$(cd "$SITE_DIR" && pwd -P)"
+REPO_ROOT="$(cd "$SITE_DIR/../.." && pwd -P)"
+SITE="$(basename "$SITE_DIR")"
+if [[ -e "$REPO_ROOT/tools/fleet-scheduler/data/adopted/$SITE" ]]; then
+  echo "Refusing to recreate $SITE cron: site is adopted by fleet-scheduler." >&2
+  echo "Use fleet-scheduler release $SITE only for an explicit rollback." >&2
+  exit 78
+fi
 
 mapfile -t ACTIVE_WORKERS < <(
   docker ps \

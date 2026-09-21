@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# bounce-crons.sh — rebuild and restart cron containers across all sites
+# bounce-crons.sh — rebuild and restart legacy cron containers
 #
-# Discovers every sites/*/ with a docker-compose.yml that has a `cron` service,
-# then runs: docker compose build cron && recreate-cron-safely.sh <site>.
+# Discovers sites with a legacy `cron` service. Adopted sites are skipped because
+# their schedules run in tools/fleet-scheduler; only released sites are bounced.
 # The guard refuses a recreate while an active one-shot worker belongs to the
 # site, rather than silently aborting that work.
 #
@@ -50,6 +50,11 @@ discover_sites() {
 bounce_site() {
   local site="$1"
   local site_dir="$SITES_DIR/$site"
+
+  if [ -e "$REPO_ROOT/tools/fleet-scheduler/data/adopted/$site" ]; then
+    warn "$site — centrally scheduled by fleet-scheduler; skipping legacy cron bounce"
+    return 0
+  fi
 
   if [ ! -f "$site_dir/docker-compose.yml" ]; then
     fail "$site — no docker-compose.yml found"

@@ -4260,7 +4260,7 @@ async function renderContainers() {
     <div class="task-toolbar">
       <strong>${rows.length} containers</strong>
       <span class="muted">${dotLegend('fresh', tally.healthy + ' healthy')} · ${dotLegend('overdue', tally.unhealthy + ' unhealthy')} · ${dotLegend('paused', tally.stopped + ' stopped')} · ${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight</span>
-      <button class="btn sm" id="restart-crons" style="margin-left:auto" title="Site cron containers only — fleet-cron itself is excluded, bounce it from its own row">↻ Restart all site crons</button>
+      <button class="btn sm" id="restart-crons" style="margin-left:auto" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
     </div>
     <div class="card"><table>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
@@ -4278,17 +4278,17 @@ async function renderContainers() {
 async function restartAllCrons() {
   if (
     !confirm(
-      'Restart all SITE cron containers across the fleet?\n\nQuick bounce — re-runs each site cron container (picks up crontab / role-flag changes). fleet-cron itself is excluded; bounce it from its own row. Takes ~15s.'
+      'Restart all RELEASED-site legacy schedulers?\n\nQuick bounce — re-runs legacy site cron containers and picks up crontab / role-flag changes. Adopted sites are managed in Ops → Scheduler; fleet-cron itself is excluded. Takes ~15s.'
     )
   )
     return;
   const btn = $('#restart-crons');
   gdBusy(btn, true);
-  toast('Restarting all cron containers…');
+  toast('Restarting legacy schedulers…');
   try {
     const r = await api('POST', '/api/containers/restart-crons');
     toast(
-      `Restarted ${r.restarted}/${r.total} cron containers`,
+      `Restarted ${r.restarted}/${r.total} legacy schedulers`,
       r.restarted === r.total ? 'ok' : 'err'
     );
     await reloadContainers();
@@ -6451,7 +6451,10 @@ function seoBadge(priority) {
 async function renderSeoIntelligence() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="muted">building SEO intelligence…</div>';
-  const data = await api('GET', '/api/seo-intelligence?days=90');
+  const [data, vitals] = await Promise.all([
+    api('GET', '/api/seo-intelligence?days=90'),
+    api('GET', '/api/web-vitals').catch(() => null),
+  ]);
   if (!data || data.error) {
     app.innerHTML = `<div class="error-box">${esc((data && data.error) || 'SEO intelligence unavailable')}</div>`;
     return;
@@ -6470,6 +6473,41 @@ async function renderSeoIntelligence() {
 
   const source = data.sources || {};
   const upstream = data.upstream || {};
+  const vitalFactors = vitals?.factors || {};
+  const vitalSites = vitals?.sites || [];
+  const vitalAge = factor =>
+    vitalFactors[factor]?.age_seconds == null
+      ? 'no run'
+      : `${Math.round(vitalFactors[factor].age_seconds / 3600)}h ago`;
+  const vitalStatus = factor => {
+    const totals = vitalFactors[factor]?.totals || {};
+    if (!vitalFactors[factor]) return 'missing';
+    if ((totals.errors || 0) > 0 || (totals.regressed || 0) > 0 || (totals.over_budget || 0) > 0)
+      return 'attention';
+    return 'healthy';
+  };
+  const vitalCards = ['mobile', 'desktop']
+    .map(factor => {
+      const meta = vitalFactors[factor];
+      const totals = meta?.totals || {};
+      const status = vitalStatus(factor);
+      return `<article class="seo-vitals-card ${status}"><div class="seo-vitals-card-top"><b>${esc(factor)}</b><span class="badge ${status === 'healthy' ? 'b-green' : status === 'missing' ? 'b-gray' : 'b-red'}">${esc(status)}</span></div><strong>${meta ? `${totals.regressed || 0} regressed · ${totals.over_budget || 0} over budget` : 'No report'}</strong><span class="muted">${esc(vitalAge(factor))} · ${totals.sites || 0} sites</span><button class="btn sm web-vitals-run" data-factor="${factor}">↻ Run now</button></article>`;
+    })
+    .join('');
+  const vitalRows = vitalSites
+    .slice(0, 60)
+    .map(row => {
+      const cell = factor => {
+        const item = row[factor];
+        if (!item) return '<td class="muted">—</td>';
+        const m = item.metrics || {};
+        const bad =
+          (item.budget_breaches || []).length || (item.regressions || []).length || item.error;
+        return `<td class="${bad ? 'web-vitals-bad' : ''}">${item.error ? esc(item.error) : `${seoNum(m.performance)} · ${m.lcp_ms == null ? '—' : Math.round(m.lcp_ms) + 'ms'}`}</td>`;
+      };
+      return `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td>${cell('mobile')}${cell('desktop')}</tr>`;
+    })
+    .join('');
   const sourceNote = upstream.ok
     ? `${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`
     : upstream.partial
@@ -6557,6 +6595,7 @@ async function renderSeoIntelligence() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div>
+    <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${esc(vitals?.generated_at || 'unavailable')}</span></div><div class="seo-vitals-cards">${vitalCards}</div><table class="dh-sources"><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></section>
     <section class="seo-stats">${statCards}</section>
     <div class="seo-overview-grid">
       <section class="dh-panel"><h3>Opportunity mix</h3><div class="seo-type-bars">${typeBars}</div></section>
@@ -6622,6 +6661,21 @@ async function renderSeoIntelligence() {
         button.disabled = false;
         button.textContent = original;
         toast(error.message, 'err');
+      }
+    })
+  );
+  $$('.web-vitals-run').forEach(button =>
+    button.addEventListener('click', async () => {
+      const factor = button.dataset.factor;
+      button.disabled = true;
+      button.textContent = 'Queued…';
+      try {
+        await api('POST', '/api/web-vitals/run', { form_factor: factor });
+        toast(`${factor} web-vitals sweep queued`);
+      } catch (error) {
+        toast(error.message, 'err');
+        button.disabled = false;
+        button.textContent = '↻ Run now';
       }
     })
   );

@@ -1,13 +1,15 @@
 # tools/fleet-images — the fleet's two shared site images
 
-Every site in the fleet runs the same two containers:
+Every legacy/rollback site stack uses the same two images:
 
 | Image | Role | Lifetime |
 |---|---|---|
-| `fleet-site-cron:latest` | supercronic scheduler, one long-lived container per site | long-lived, recreated on roll |
+| `fleet-site-cron:latest` | legacy supercronic scheduler, used only by sites released from fleet-scheduler | rollback-only |
 | `fleet-site-worker:latest` | one-shot role runner, `docker compose run --rm worker <role>` | seconds; already cattle |
 
-These replace **53 hand-maintained per-site Dockerfiles**.
+The worker image remains the common worker runtime. The centralized
+`tools/fleet-scheduler` is the live scheduler for adopted sites and replaces
+the per-site cron containers; the cron image remains for explicit rollback.
 
 ## Why this exists
 
@@ -59,12 +61,13 @@ tools/fleet-images/
 # Change something in a shared image, then roll the fleet onto it:
 vim tools/fleet-images/worker/Dockerfile
 tools/fleet-images/bin/fleet-image-build worker --version 1.1.0
-tools/fleet-images/bin/fleet-image-build cron --roll        # recreate cron containers
+tools/fleet-images/bin/fleet-image-build cron --roll        # roll released-site legacy cron containers
 tools/fleet-images/bin/fleet-doctor                          # must be 0 failed
 
-# Reschedule a site — NO rebuild, that's the point:
-vim sites/<site>/ops/docker/crontab.docker
-(cd sites/<site> && docker compose restart cron)
+# Reschedule an adopted site through the centralized scheduler:
+tools/fleet-scheduler/bin/fleet-scheduler jobs
+# Edit via Fleet Dashboard → Ops → Scheduler, or the scheduler API/CLI.
+# The site's ops/docker/crontab.docker is the versioned import/rollback mirror.
 
 # Migrate a site that isn't on the shared images yet:
 tools/fleet-images/bin/fleet-site-migrate <site> --both --dry-run   # review

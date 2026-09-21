@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Tier-2 scheduler-freshness detector for the fleet's site cron containers.
+"""Tier-2 scheduler-freshness detector for the fleet's site schedulers.
 
-Tier 1 is the per-container Docker healthcheck (`grep -qx supercronic
+For released sites, Tier 1 is the per-container Docker healthcheck (`grep -qx supercronic
 /proc/1/comm`, see any site's docker-compose.yml). It answers exactly one
 question — is supercronic still PID 1 — and it answers it for ~8ms of CPU every
 120s. What it structurally CANNOT see is a supercronic that is alive but no
@@ -9,8 +9,9 @@ longer firing anything: a wedged scheduler, a job holding a lock forever, a
 crontab that parsed to zero jobs. That is the 2026-05-17 failure mode (site
 schedulers silently dead for 9 days), and it is the expensive one.
 
-Detecting it means reasoning about each site's schedule and reading its logs.
-Doing that per-container would mean 26 heavyweight probes; doing it here means
+Detecting it means reasoning about each site's schedule and reading its logs (or
+the scheduler DB for adopted sites). Doing that per-container would mean 26
+heavyweight probes; doing it here means
 ONE host-side process for the whole fleet, on a 30-minute cron. That split —
 cheap liveness in the container, expensive freshness on the host — is the
 budget rule this file exists to honour. See tools/fleet-images/README.md.
@@ -275,9 +276,9 @@ def assess(label: str, base_dir: str, name: str) -> tuple[list[str], int, int, i
 
     state = docker("inspect", "-f", "{{.State.Status}}", name)
     if not state:
-        return [f"{label}: cron container `{name}` does not exist"], 0, 0, 0
+        return [f"{label}: legacy cron container `{name}` does not exist"], 0, 0, 0
     if state != "running":
-        return [f"{label}: cron container `{name}` is {state}, not running"], 0, 0, 0
+        return [f"{label}: legacy cron container `{name}` is {state}, not running"], 0, 0, 0
 
     crontab = crontab_path(base_dir, name)
     if crontab is None:

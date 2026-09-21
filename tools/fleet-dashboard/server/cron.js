@@ -5,10 +5,11 @@
 //
 // Where Domain Control / the agent pages operate at the ROLE level (pause /
 // resume / run a worker role), this module operates at the CRONTAB-LINE level:
-// list every cron entry of every site + tool, edit a line's schedule,
+// list every rollback crontab entry of every site + tool, edit a line's schedule,
 // comment / uncomment / remove a line, diff the on-disk crontab against the
 // version baked into the running container, revert to it, and rebuild +
-// restart the cron container with post-start verification.
+// restart the legacy cron container with post-start verification. Adopted sites
+// are rejected and must be changed through fleet-scheduler.
 //
 // The routes in server.js are thin wrappers over the functions here.
 

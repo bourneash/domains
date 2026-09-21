@@ -56,7 +56,7 @@ If you find evidence of a technical failure while reviewing the board, write a t
 `ops/tasks/backlog/` with `type: engineering`:
 
 **Escalate as engineering when:**
-- A role hasn't run in 24+ hours (Docker cron container may be down)
+- A role hasn't run in 24+ hours (check the centralized Fleet Scheduler job/run history)
 - `.deploy-needed` is present but the deployer hasn't cleared it in 2+ hours
 - A build failure was reported in a previous log or status report
 - A broken redirect or 404 is blocking content or affiliate links

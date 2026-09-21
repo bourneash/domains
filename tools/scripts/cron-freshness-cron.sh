@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Tier-2 scheduler-freshness watchdog for every site cron container.
+# Tier-2 scheduler-freshness watchdog for every site scheduler.
 #
 # Healthy = SILENT on Slack, same convention as the engineer pulse and the
 # image-drift watchdog — a watchdog that posts when it is happy gets muted.
 #
 # WHY THIS EXISTS SEPARATELY FROM THE CONTAINER HEALTHCHECK
-# Each site's cron container now carries a Docker healthcheck
+# Legacy site cron containers carry a Docker healthcheck
 # (`grep -qx supercronic /proc/1/comm`, 120s) plus `labels: autoheal=true`, so
 # a DEAD scheduler is detected and restarted by vpn-autoheal without anyone
 # looking. That probe is deliberately trivial: ~8ms of CPU, no shell, no
@@ -17,7 +17,8 @@
 # Doing THAT per container would be 26 heavyweight probes on a loop, which is
 # how the fleet burned itself on checks before (autoheal's baked-in 5s
 # HEALTHCHECK firing a runc exec every 5s — see tools/vpn-proxy/docker-compose.yml).
-# So the expensive half runs here: one host-side process, every 30 minutes,
+# Adopted sites are checked through the centralized scheduler heartbeat; released
+# sites use the legacy container path. The expensive half runs here: one host-side process, every 30 minutes,
 # ~2.6s wall for the whole fleet. Cheap liveness in the container, expensive
 # freshness on the host. That split is the budget rule — see
 # tools/fleet-images/README.md.
@@ -113,6 +114,6 @@ NOTIFY ":alarm_clock: *Cron freshness* — ${count} site scheduler finding(s):
 \`\`\`
 ${out:0:2500}
 \`\`\`
-For \`fired NOTHING\`, check \`docker logs <container>\` for a job that never returned, then restart that site's cron service. For \`schedules zero jobs\`, repair the crontab or add \`# fleet-cron: disabled <reason>\` when the pause is intentional. Missing/stopped containers need their reported lifecycle issue repaired." "danger"
+For \`fired NOTHING\`, inspect Fleet Dashboard → Ops → Scheduler (or the scheduler run history) for adopted sites; for released sites, check \`docker logs <container>\` and restart the legacy cron service. For \`schedules zero jobs\`, repair the crontab or add \`# fleet-cron: disabled <reason>\` when the pause is intentional. Missing/stopped legacy containers need their reported lifecycle issue repaired." "danger"
 
 exit 0

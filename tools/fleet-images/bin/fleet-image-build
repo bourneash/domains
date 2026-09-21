@@ -4,7 +4,7 @@
 # Build, tag and (optionally) roll the fleet's SHARED site images.
 #
 # There are exactly two of them:
-#   fleet-site-cron:latest    the supercronic scheduler, one per site container
+#   fleet-site-cron:latest    the legacy/rollback supercronic scheduler
 #   fleet-site-worker:latest  the one-shot role runner, `run --rm` per invocation
 #
 # They replace 53 per-site Dockerfiles. The whole point is that a change lands
@@ -23,8 +23,9 @@
 # That gives one-place rolls with drift detection, which is the cattle property
 # we actually want — not the illusion of pinning.
 #
-# A running container does NOT pick up a new image. That is not a bug: a
-# scheduler mid-job should not vanish under it. `--roll` recreates them.
+# A running legacy container does NOT pick up a new image. That is not a bug:
+# a scheduler mid-job should not vanish under it. `--roll` recreates released
+# sites; adopted sites are owned by fleet-scheduler and are skipped.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -133,6 +134,10 @@ migrated_sites() {
   done
 }
 
+is_adopted() {
+  [[ -e "${DOMAINS_ROOT}/tools/fleet-scheduler/data/adopted/$1" ]]
+}
+
 roll_sites() {
   local rolled=0 failed=0
   local want_cron
@@ -140,6 +145,10 @@ roll_sites() {
 
   while read -r site; do
     [[ -n "$site" ]] || continue
+    if is_adopted "$site"; then
+      say "  ${site}: adopted by fleet-scheduler — skipping legacy cron roll"
+      continue
+    fi
     local dir="${DOMAINS_ROOT}/sites/${site}"
     local cname="${site%%.*}-cron"
     local have
@@ -170,7 +179,7 @@ roll_sites() {
 [[ "$TARGET" == "worker" || "$TARGET" == "all" ]] && build_one worker
 
 if (( ROLL )); then
-  say "rolling site cron containers onto the current image..."
+  say "rolling released-site legacy cron containers onto the current image..."
   n="$(migrated_sites | wc -l)"
   if [[ "$n" -eq 0 ]]; then
     warn "no sites reference the shared images yet — nothing to roll"

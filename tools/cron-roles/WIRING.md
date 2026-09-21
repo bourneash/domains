@@ -8,7 +8,7 @@
 > retained for historical context only — see `tools/fleet-images/README.md`.
 
 
-This is the **one** mechanical procedure for installing ANY cron-role archetype
+This is the **one** mechanical procedure for installing ANY scheduler-role archetype
 (`engineer`, `affiliate-editor`, `content-writer`, `planner`, `seo-analyst`, …) into a
 portfolio site under `sites/<domain>/`. The per-archetype `domains-cron-role-<name>`
 skill is a thin pointer — it tells you which archetype to install, then defers to this
@@ -17,7 +17,9 @@ deps, gitignore globs) is READ from the archetype's `meta.yml` at install time. 
 hardcode one archetype's assumptions here.** Where a value below is shown for the
 engineer, it is an EXAMPLE of how a field could be filled — not a default.
 
-Companion files (all under `tools/cron-roles/`):
+Installed schedules are imported into `tools/fleet-scheduler` for adopted sites;
+the site's `ops/docker/crontab.docker` remains the versioned schedule and rollback
+mirror. Companion files (all under `tools/cron-roles/`):
 - `README.md` — the **stamp-once** model: this installer scaffolds a complete, working
   role and walks away. Installed role bodies are tuned per site and are NEVER re-synced.
 - `validate-install.sh <site-dir> <role>` — the pass/fail gate. Step 11 MUST call it; a

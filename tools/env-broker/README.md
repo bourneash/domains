@@ -149,7 +149,10 @@ rotated without touching the rest.
 
 ## Who consumes the rendered files
 
-- **Site cron + worker containers** — `sites/*/docker-compose.yml` (all 27).
+- **Centralized fleet-scheduler site jobs** — `tools/fleet-scheduler` runs the
+  adopted sites with each site's rendered `.env.shared` overlay. The site
+  compose `cron` service is retained only as an explicit rollback path.
+- **Site worker containers** — `sites/*/docker-compose.yml` (one-shot role runs).
 - **domain-developer dev containers** — `tools/domain-developer` (`bin/domain-developer`
   and `server/server.js`). These run Claude with `--dangerously-skip-permissions`,
   so they were the same exposure through a second door. Both spawn paths now

@@ -26,6 +26,7 @@ const datahub = require('./datahub');
 const analytics = require('./analytics');
 const revenue = require('./revenue');
 const seoIntelligence = require('./seointelligence');
+const webvitals = require('./webvitals');
 const backlinks = require('./backlinks');
 const datahubImages = require('./datahub-images');
 const productFeed = require('./product-feed');
@@ -985,16 +986,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/campaigns', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          campaign: campaigns.create(
-            events,
-            req.body || {},
-            site => isKnownSite(root, site),
-            revops.buildUtmUrl
-          ),
-        });
+      res.status(201).json({
+        campaign: campaigns.create(
+          events,
+          req.body || {},
+          site => isKnownSite(root, site),
+          revops.buildUtmUrl
+        ),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -1990,6 +1989,25 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  // Deterministic Lighthouse evidence. The dashboard reads factor-specific
+  // reports and queues a detached sweep; it never runs Chrome in the request
+  // process or treats a manually queued run as completed until the report
+  // lands on disk.
+  app.get('/api/web-vitals', (_req, res) => {
+    try {
+      res.json(webvitals.snapshot(root));
+    } catch (e) {
+      res.status(500).json({ error: String(e.message || e) });
+    }
+  });
+  app.post('/api/web-vitals/run', async (req, res) => {
+    try {
+      res.status(202).json(await webvitals.run(root, req.body?.form_factor || 'mobile'));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: String(e.message || e) });
+    }
+  });
+
   // Backlink coverage/provenance is a separate fleet dataset from SEO
   // Intelligence. The read path is deterministic and falls back to a live
   // repo scan when the scheduled artifact is absent.
@@ -2473,7 +2491,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
-  // Fleet-wide bounce: restart every cron container. Defined before :id/:action.
+  // Fleet-wide bounce: restart every released site's legacy cron container.
+  // Adopted sites are controlled by fleet-scheduler. Defined before :id/:action.
   app.post('/api/containers/restart-crons', async (_req, res) => {
     try {
       res.json(await containers.restartCrons(root));

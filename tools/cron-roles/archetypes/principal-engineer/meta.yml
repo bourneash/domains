@@ -16,7 +16,7 @@ model: "{{MODEL}}"     # invoked only on a real dispatch, inside the worker cont
 owns_task_types: []
 produces_task_types: ["human-triage"]   # fleet-wide rollout candidates are FLAGGED, never auto-rolled-out (see feedback_no_auto_rollout_tool)
 worker_deps: []                          # reuses the existing worker image (claude+node+npm+git)
-needs_rebuild_verify: false              # crontab.docker is bind-mounted live on this site's compose setup — `docker restart <site>-cron` is enough. If the target site's cron container instead COPYs crontab.docker into its image, this flips to true (docker compose build cron && up -d).
+needs_rebuild_verify: false              # released sites bind-mount crontab.docker; use the Fleet Scheduler control plane for adopted sites. Only an explicit scheduler release uses `docker compose build cron && up -d`.
 self_notifies: true                      # posts its own ack + resolution/escalation to Slack
 deploy: true                             # build-gated commit+push, same envelope as engineer/watchdog
 
