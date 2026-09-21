@@ -83,6 +83,10 @@ tools/link-rot/reports/
 tools/web-vitals/*.log
 tools/web-vitals/*.log.1
 tools/web-vitals/.vitals-sweep.lock
+tools/web-vitals/.vitals-sweep-*.lock
+tools/web-vitals/.vitals-sweep-*.state.json
+tools/web-vitals/.vitals-freshness.lock
+tools/web-vitals/.freshness.state
 tools/web-vitals/.baseline.json
 tools/web-vitals/.last-run.json
 tools/web-vitals/reports/
