@@ -128,6 +128,10 @@
 # Six-hourly, single-flight, bounded by run-sandbox.sh. Queue execution is
 # separately gated by the dashboard's reviewed change-queue settings.
 0 */6 * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
+# Domain managers publish cheap exception-first reports separately from model ticks.
+10 */6 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence six_hour
+5 7 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence daily
+20 7 * * 1 /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence weekly
 
 # --- Job 11: fleet shared-image drift watchdog ---
 # Asserts the fleet-images invariants continuously: every site on the current

@@ -93,3 +93,21 @@ one-shot wrapper remains the only execution path.
 The CRO entrypoint is `run-cro-scheduled.sh`. Disable it with
 `touch tools/executive/.cro-disabled`; remove that file to resume the next
 daily run.
+
+## Domain-manager reporting
+
+`run-domain-reports.sh` publishes deterministic, exception-first reports from
+the shared intelligence contract without starting a model for every site:
+
+- `six_hour` — source errors, measured changes, configured thresholds, and the
+  owner-priority site; other domains appear only when evidence warrants it;
+- `daily` — compact status for every managed site;
+- `weekly` — before/after evidence, attribution confidence, margin context, and
+  investment gates;
+- `deep_dive` — one explicitly selected managed site.
+
+Reports are stored under `tools/executive/data/reports/`, recorded in the event
+store, and exposed through Fleet Manager's Executive Leadership page and
+`/api/executive/reports`. A domain manager remains an on-demand model pass;
+missing data does not trigger a deep dive and is reported as unavailable rather
+than zero.

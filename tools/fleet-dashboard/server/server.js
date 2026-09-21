@@ -60,6 +60,7 @@ const executiveIntel = require('./executive-intel');
 const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
+const domainReports = require('./domain-reports');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -871,6 +872,32 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json(await executiveIntel.collect({ root, sites: executiveRunner.executiveSites(root) }));
     } catch (e) {
       res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
+    }
+  });
+  app.get('/api/executive/reports', (req, res) => {
+    try {
+      res.json({ reports: domainReports.recent(root, req.query.limit) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/reports/:id', (req, res) => {
+    try {
+      const report = domainReports.get(root, req.params.id);
+      if (!report) return res.status(404).json({ error: 'domain report not found' });
+      res.json({ report });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/reports/run', async (req, res) => {
+    try {
+      const cadence = String(req.body?.cadence || 'six_hour');
+      const focusSite = req.body?.site ? String(req.body.site) : null;
+      const report = await domainReports.generate({ root, cadence, focusSite });
+      res.status(201).json({ report });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
   app.get('/api/revops/summary', (req, res) => {
