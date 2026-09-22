@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T14:51:41.749Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:01:30.252Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner decision required: should searchwoot.com remain private, enter a bounded public beta, or proceed toward full launch? Evidence: public inspection on 2026-09-22 confirmed password-gated private preview with noindex/nofollow; current SEO snapshot reports 0 impressions, clicks, sessions, and conversions. Launch requires Legal/Compliance and Security review, data-rights and accuracy controls, privacy/consent treatment, affiliate disclosure, attribution, margin inputs, and rollback criteria. The only current revenue evidence is $4.92 commission from 6,219 clicks on 2026-09-21, with site attribution incomplete. No sitemap change is queued; existing deployed work remains in measurement.",
+        "summary": "Recommendation: keep searchwoot.com private pending an owner decision and launch-readiness evidence. Public inspection confirms a password-gated private preview with noindex/nofollow; SEO reports 0 impressions, clicks, sessions, and conversions. Do not queue sitemap work while gated. Any beta or launch requires Legal/Compliance and Security review, data-rights and accuracy controls, privacy/consent and affiliate disclosures, attribution and margin inputs, and rollback criteria.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep searchwoot.com private pending an owner decision and launch-readiness evidence. Reject sitemap work while the site remains password-gated with noindex/nofollow. No public launch, monetization expansion, spend, production, configuration, credential, schedule, or telemetry changes are authorized. Existing deployed improvements should continue scheduled measurement without duplicate work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep searchwoot.com private and reject sitemap or other production work while the site is password-gated with noindex/nofollow and has no measurable traffic outcome. Existing deployed improvements should continue scheduled measurement without duplicate work. Will the owner confirm the keep-private disposition for this cycle?",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-22T14:51:41.750Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:01:30.251Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain a report-only launch-readiness review for searchwoot.com. Evidence supports only a password-gated private preview with noindex/nofollow; public monetization is not approved. Owner must choose keep-private, bounded public beta, or full launch after confirming data-source rights and provenance, deal accuracy, privacy and consent treatment, terms, cookie/analytics disclosure, affiliate disclosure, platform policy, age or regulated-content implications if applicable, attribution, and rollback criteria. Human counsel should review privacy, consumer-disclosure, data-rights, and platform-policy questions before any public launch.",
+        "summary": "Recommendation: retain the existing report-only SearchWoot launch proposal and escalate it to the owner. Before public exposure, review data provenance and rights, deal accuracy, privacy and consent, terms, affiliate and analytics disclosures, platform policy, and rollback conditions; consult counsel for material uncertainty.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Risk disposition: blocked for public beta or full launch; keep searchwoot.com private. Evidence confirms a password-gated private preview with noindex/nofollow, zero reported SEO activity, incomplete affiliate attribution, unavailable analytics and Data Hub sources, and no evidence of privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, deal-accuracy controls, platform-policy compliance, or age/regulated-content review. Do not expose a sitemap or enable public monetization. Before any public launch, the owner must select keep-private, bounded beta, or full launch and complete a checklist covering source rights and licenses, freshness and accuracy controls, privacy notice and consent treatment, terms, cookie/analytics disclosure, affiliate disclosure, platform policies, content/age screening, attribution, rollback, security, and incident contact. Human counsel is required for material privacy, consumer-disclosure, data-rights, copyright/trademark, or platform-policy uncertainty. This is risk triage, not legal advice or certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the existing launch-readiness proposal escalated to the owner. Public exposure remains blocked pending review of data provenance and rights, accuracy, privacy and consent, terms, analytics and affiliate disclosures, platform policy, applicable content screening, rollback conditions, and human counsel for material uncertainty.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep public exposure blocked pending owner direction and documented review of data rights, accuracy, privacy, consent, terms, disclosures, platform policy, rollback conditions, and counsel input for material uncertainty.",
         "requested_action": null,
         "proposal_id": null
       }

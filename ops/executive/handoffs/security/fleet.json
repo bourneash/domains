@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-22T14:51:41.750Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:01:30.251Z",
+  "summary": "security checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security review: needs owner decision before any public beta or full launch. Evidence confirms a password-gated private preview, but the supplied telemetry does not establish authentication strength, authorization boundaries, secret handling, container isolation, deployment controls, TLS posture, dependency risk, incident monitoring, or disclosure readiness. No credentials, secrets, production access, or exploit testing were used. Keep the current private posture and require an owner-approved pre-launch checklist covering access control, secret exposure review, release protection, TLS, dependency and supply-chain controls, data minimization, logging and incident response, and security.txt or equivalent disclosure contact before public exposure.",
+        "summary": "Recommendation: keep SearchWoot private until an owner-approved pre-launch checklist covers authentication and authorization boundaries, secret handling, isolation, TLS, release controls, dependencies, data minimization, monitoring, incident response, and a disclosure contact. Current evidence does not support security go-live approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "SearchWoot launch-readiness and monetization decision",
-        "summary": "Decide whether searchwoot.com should remain private preview or proceed toward a bounded public beta or full launch. No production change is requested.",
-        "requested_action": "Owner: name the decision owner and choose keep-private, bounded public beta, or full launch. Before go-live, complete the legal, compliance, security, technical, data-rights, accuracy, privacy, consent, disclosure, attribution, contribution-margin, and rollback checklists. Security requires evidence for authentication and authorization boundaries, secret handling, container or runtime isolation, release and deploy controls, TLS, dependency and supply-chain controls, data minimization, incident monitoring, and a security.txt or equivalent disclosure contact. Consult human counsel on privacy, consumer-disclosure, data-rights, and platform-policy issues.",
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep SearchWoot private until an owner-approved pre-launch checklist covers authentication and authorization boundaries, secret handling, container or runtime isolation, TLS, release and deploy controls, dependency and supply-chain risk, data minimization, monitoring, incident response, and a security.txt or equivalent disclosure contact. Current evidence does not support security go-live approval.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the property private. No security go-live approval is supported because authentication, authorization boundaries, secret handling, isolation, TLS, release controls, dependencies, data minimization, monitoring, incident response, and disclosure readiness are not evidenced. Require an owner-approved pre-launch checklist before any public exposure.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the property private. Security go-live approval is unsupported because authentication, authorization, secret handling, isolation, TLS, release controls, dependencies, monitoring, incident response, and disclosure readiness are not evidenced.",
+        "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
-        "summary": "Needs owner decision before public exposure. The password gate and noindex/nofollow state are publicly evidenced, but authentication, access boundaries, secrets, isolation, release controls, TLS, dependencies, data exposure, incident signals, and disclosure readiness are not evidenced by the supplied snapshot. No security go-live approval is supported.",
+        "summary": "Block public beta or full launch pending owner direction and evidence for access control, secrets, isolation, release controls, TLS, dependencies, monitoring, incident response, and disclosure contact.",
         "requested_action": "escalate_owner",
         "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
       }
