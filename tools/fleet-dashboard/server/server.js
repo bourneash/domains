@@ -58,6 +58,8 @@ const executiveFollowup = require('./executive-followup');
 const executiveData = require('./executive-data');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
+const executiveCro = require('../../executive/cro');
+const executiveCroLab = require('../../executive/cro-lab');
 const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
 const revops = require('./revops');
@@ -66,6 +68,7 @@ const campaigns = require('./campaigns');
 const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
+const { assignedRoleForType } = require('./task-routing');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -235,6 +238,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       throw Object.assign(new Error('request was already claimed or is no longer due'), {
         httpStatus: 409,
       });
+    // Last-mile defense for requests queued before role routing was enforced.
+    // Normalize before creating the improvement run or launching the agent;
+    // otherwise the task file could be corrected while the agent still runs
+    // under the stale engineer role from SQLite.
+    claimed.assigned_role = assignedRoleForType(claimed.category, claimed.assigned_role);
     events.record({
       event_type: 'change-request.claimed',
       source: 'fleet-dashboard',
@@ -1133,6 +1141,36 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const report = domainReports.get(root, req.params.id);
       if (!report) return res.status(404).json({ error: 'domain report not found' });
       res.json({ report });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  // CRO repo-lab evidence is read-only to the fleet. The lab stores only a
+  // bounded report; its temporary checkout is deleted before this responds.
+  app.get('/api/executive/cro-lab/runs', (req, res) => {
+    try {
+      res.json({ runs: executiveCroLab.recent(root, req.query.limit) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/cro-lab/runs/:id', (req, res) => {
+    const report = executiveCroLab.read(root, req.params.id);
+    if (!report) return res.status(404).json({ error: 'CRO repo-lab run not found' });
+    res.json({ report });
+  });
+  app.post('/api/executive/cro-lab/run', async (req, res) => {
+    try {
+      // The CRO runner is date-idempotent; an on-demand click never creates
+      // duplicate proposals for the same daily snapshot.
+      const result = await executiveCro.run({ root });
+      res.status(201).json({
+        result: {
+          duplicate: result.duplicate === true,
+          proposal_ids: (result.proposals || []).map(item => item.proposal_id),
+          lab_run_ids: result.message?.metadata?.lab_run_ids || [],
+        },
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -3139,6 +3177,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       payload.task_id ||= crypto.randomUUID();
       payload.source ||= 'fleet-dashboard';
       payload.correlation_id ||= `task:${payload.task_id}`;
+      payload.assigned_role = assignedRoleForType(payload.type, payload.assigned_role);
       const file = tasks.create(root, req.params.slug, req.params.column, payload);
       events.record({
         event_type: 'task.created',

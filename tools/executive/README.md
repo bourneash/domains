@@ -16,11 +16,20 @@ The first slice lives in the Fleet Dashboard event store and exposes:
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
 searches public GitHub repositories against purpose-scoped fleet needs
 (conversion, SEO/content, Astro/Cloudflare UX, and measurement), derives daily,
-weekly, and monthly momentum locally, stores a dated snapshot, and submits up
-to three separate candidate proposals to the same executive queue. Each
-proposal must state the intended fleet use, fit evidence, license signal, and
-bounded follow-up request. It never clones, installs, executes, or deploys
-third-party code.
+weekly, and monthly momentum locally, and submits up to three separate
+candidate proposals to the same executive queue. Before proposing a candidate,
+the CRO repo lab downloads a public archive into a disposable temporary
+workspace and records a bounded evidence pass: repository files and docs,
+license signal, purpose-specific fit, and safe syntax checks. It evaluates at
+most three candidates sequentially per run.
+
+The repo lab does not install dependencies or lifecycle scripts, mount the
+project, expose secrets or the Docker socket, access production, or retain the
+checkout after the report is written. Checks run in a read-only container with
+no network, dropped capabilities, resource limits, and only the temporary
+candidate workspace mounted. A lab result is evidence for CEO/CTO review, not
+an adoption recommendation; any prototype, integration, spend, or deployment
+still needs the normal security, measurement, and owner approval gates.
 
 Run the autonomous tick only through `run-sandbox.sh`; it launches the model in
 a constrained container with only a generated brief and an output plan mounted.

@@ -9,6 +9,7 @@ const changequeue = require('../fleet-dashboard/server/changequeue');
 const handoff = require('./handoff');
 const research = require('./research');
 const croResearch = require('./cro');
+const croLab = require('./cro-lab');
 const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot');
 const executiveData = require('../fleet-dashboard/server/executive-data');
 const crypto = require('node:crypto');
@@ -234,6 +235,7 @@ async function buildBrief(store, root = ROOT) {
         'read_only_datahub_source_and_dataset_health',
         'read_only_operations_deploy_uptime_errors_and_fleet_doctor',
         'bounded_public_research',
+        'cro_disposable_repo_lab',
         'allowlisted_fleet_operating_baseline_publish',
       ],
       research_limits: {
@@ -241,6 +243,16 @@ async function buildBrief(store, root = ROOT) {
         max_response_bytes: 262144,
         timeout_ms: 8000,
         redirects: false,
+      },
+      cro_repo_lab: {
+        purpose: 'Clone public GitHub archives into a disposable evidence workspace and run bounded read-only checks.',
+        max_candidates_per_run: 3,
+        dependency_install: false,
+        network_during_checks: 'none',
+        project_mounts: [],
+        secrets: false,
+        docker_socket: false,
+        adoption_gate: 'A lab result is not an adoption approval. Prototype, security review, measurement plan, and owner-approved implementation remain required.',
       },
       execution:
         'Messages and proposals may be applied automatically; queued site work requires explicit queue enablement or owner approval. The only autonomous fleet write is the allowlisted operating-baseline report, which writes a factual audit artifact and never edits site code. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
@@ -260,8 +272,9 @@ async function buildBrief(store, root = ROOT) {
     intelligence: intel,
     specialist_inputs: {
       cro_github_trends: croResearch.recent(root),
+      cro_repo_lab_runs: croLab.recent(root, 12),
       cro_contract:
-        'CRO trend signals are discovery leads, not proof of quality, license fit, security, revenue, or conversion impact. CEO/CTO must validate before implementation.',
+        'CRO trend signals and repo-lab results are discovery evidence, not proof of quality, license fit, security, revenue, or conversion impact. CEO/CTO must validate before implementation.',
     },
     domain_manager: buildDomainManagerContext(root),
     queue: queued.map(
@@ -352,7 +365,7 @@ Rules:
 - Follow action_mandate every six-hour cycle: when candidates are present, select at least one highest-confidence, low-risk, reversible improvement for the engineer queue or explain in a message why every candidate was rejected. Select no more than three queue actions and never duplicate a site that already has active work.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
-- Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
+- Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
 - Treat cro_proposals as CRO handoffs for CEO/CTO review, not owner approval requests. For each useful lead, either create a bounded public research request, create a separate owner-facing proposal with measurable acceptance criteria, or explain why no action is justified. Do not leave the lead waiting on the owner merely because it came from the CRO.
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
 - Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.

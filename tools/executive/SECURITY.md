@@ -25,3 +25,17 @@ The runner can write only project data such as the event database and approved
 queue records. It cannot call Docker, deploy Workers, push Git, read SSH keys,
 or access another project. Production deployment remains behind the existing
 change-queue/review/approval pipeline.
+
+## CRO repo lab
+
+The CRO repo lab is a separate evidence path from the executive model runner.
+It may download a public GitHub archive into the ignored
+`tools/executive/data/.cro-lab-workspaces/` directory so a scheduler container
+and the host Docker daemon resolve the same temporary path. The lab container
+receives only that candidate checkout, mounted read-only, and runs with no
+network, no capabilities, no Docker socket, no project checkout, no secrets,
+and bounded CPU, memory, process count, and time. The archive is deleted after
+the report is persisted. Dependency installation and package lifecycle scripts
+are prohibited; only bounded native syntax checks are eligible. The durable
+report contains evidence and a recommendation, never executable repository
+code or an adoption authorization.

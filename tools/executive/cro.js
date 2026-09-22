@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const executive = require('../fleet-dashboard/server/executive');
+const croLab = require('./cro-lab');
 
 const GITHUB_API = 'https://api.github.com';
 const WINDOWS = { daily: 1, weekly: 7, monthly: 30 };
@@ -146,27 +147,36 @@ function formatCandidate(repo) {
   return `- ${repo.full_name} (${purposeLabel(repo.purpose)}; ${repo.period}; ${repo.stargazers_count} stars; ${repo.language || 'mixed'}): ${repo.description || 'no description'} — ${repo.html_url}${topics}\n  Intended fleet use: ${strategy(repo)}\n  License: ${repo.license_spdx_id || 'not reported'}; fit score: ${repo.fit_score}`;
 }
 
-function buildCandidateProposal(repo, snapshot) {
+function buildCandidateProposal(repo, snapshot, lab = null) {
   const date = snapshot.generated_at.slice(0, 10);
+  const labSummary = lab
+    ? ` CRO repo-lab result (${lab.status}): ${lab.recommendation?.decision || 'unresolved'} — ${lab.recommendation?.reason || lab.error || 'no conclusion'}. The disposable lab inspected ${lab.repository?.file_count || 0} files, performed ${lab.checks?.length || 0} bounded syntax check(s), and did not install dependencies or access the fleet.`
+    : ' CRO repo-lab was not available for this run; treat this as an unvalidated discovery lead.';
   return {
     title: `CRO purpose opportunity ${date}: ${repo.full_name} for ${purposeLabel(repo.purpose)}`,
     proposal_type: 'product',
     created_by: 'researcher',
     summary: `Evaluate ${repo.full_name} specifically for ${purposeLabel(repo.purpose)} across the managed fleet. This is a research lead, not an adoption recommendation.`,
-    rationale: `${formatCandidate(repo)}\n\nThe CRO found this candidate through purpose-scoped GitHub searches. No repository was cloned or executed.`,
+    rationale: `${formatCandidate(repo)}\n\nThe CRO found this candidate through purpose-scoped GitHub searches.${labSummary}`,
     expected_upside: {
       metric: `validated ${purposeLabel(repo.purpose)} opportunity`,
       estimate:
         'Determine whether an isolated prototype could improve a measurable fleet outcome; no revenue is assumed.',
-      source: 'GitHub public repository search API and purpose-scoped fit signals',
+      source: lab
+        ? 'GitHub public repository search API plus disposable CRO repo-lab evidence'
+        : 'GitHub public repository search API and purpose-scoped fit signals',
       measurement_window: `${date} snapshot; ${repo.period} activity window`,
+      lab_run_id: lab?.run_id || null,
+      evidence_report: lab?.run_id ? `/api/executive/cro-lab/runs/${lab.run_id}` : null,
     },
     risks: [
-      'Purpose fit is inferred from public metadata and requires CTO validation against the actual fleet stack.',
+      lab
+        ? 'The repo lab is a bounded evidence pass, not proof of production suitability; CTO must validate a fleet-specific prototype and security posture.'
+        : 'Purpose fit is inferred from public metadata and requires CTO validation against the actual fleet stack.',
       `License is ${repo.license_spdx_id || 'not reported'} and must be verified before any use.`,
       'Third-party code must not be installed or deployed without CTO security, maintenance, and measurement review plus an owner-approved implementation proposal.',
     ],
-    requested_action: `CEO and CTO: decide whether to commission bounded follow-up research for this ${purposeLabel(repo.purpose)} candidate. Do not install, clone, or deploy it.`,
+    requested_action: `CEO and CTO: review the CRO repo-lab evidence and decide whether to commission a fleet-specific prototype for this ${purposeLabel(repo.purpose)} candidate. The lab may clone a public archive into a disposable workspace, but must not install dependencies, modify the fleet, or deploy it.`,
   };
 }
 
@@ -189,14 +199,20 @@ function buildProposal(snapshot) {
   );
 }
 
-async function run({ root, now = new Date(), fetchImpl = globalThis.fetch } = {}) {
+async function run({
+  root,
+  now = new Date(),
+  fetchImpl = globalThis.fetch,
+  labRunner = candidate => croLab.runCandidate({ candidate, fetchImpl, root, now }),
+  force = false,
+} = {}) {
   const date = isoDate(now);
   const store = eventstore.open(root);
   const titlePrefix = `CRO purpose opportunity ${date}:`;
   const existing = store
     .listExecutiveProposals({ limit: 500 })
     .filter(item => item.title.startsWith(titlePrefix));
-  if (existing.length) {
+  if (existing.length && !force) {
     store.close();
     return { proposals: existing, proposal: existing[0], duplicate: true };
   }
@@ -220,16 +236,33 @@ async function run({ root, now = new Date(), fetchImpl = globalThis.fetch } = {}
   });
   try {
     const selected = candidates(snapshot).slice(0, 3);
+    // Evaluate sequentially so a CRO run has a small, predictable footprint.
+    // A failed lab remains useful evidence and must not erase the discovery lead.
+    const labResults = [];
+    for (const repo of selected) {
+      try {
+        labResults.push(await labRunner(repo));
+      } catch (error) {
+        labResults.push({
+          status: 'failed',
+          candidate: { full_name: repo.full_name, purpose: repo.purpose },
+          error: error.message,
+          recommendation: { decision: 'blocked', reason: error.message },
+        });
+      }
+    }
+    const labsByRepo = new Map(labResults.map(result => [result.candidate?.full_name, result]));
     const proposals = selected.map(repo =>
-      executive.proposal(store, buildCandidateProposal(repo, snapshot))
+      executive.proposal(store, buildCandidateProposal(repo, snapshot, labsByRepo.get(repo.full_name)))
     );
     const message = executive.message(store, {
       actor: 'researcher',
-      body: `Daily CRO purpose-scoped GitHub research is ready for CEO/CTO review: ${proposals.length} candidate proposals were created. Each proposal has a specific fleet use, fit evidence, and safety gates.`,
+      body: `Daily CRO purpose-scoped GitHub research and disposable repo-lab validation is ready for CEO/CTO review: ${proposals.length} candidate proposals were created. Each proposal has a specific fleet use, hands-on evidence, and safety gates.`,
       metadata: {
         proposal_ids: proposals.map(proposal => proposal.proposal_id),
         source: 'github-public-api',
         generated_at: snapshot.generated_at,
+        lab_run_ids: labResults.map(result => result.run_id).filter(Boolean),
       },
     });
     executive.finishAction(store, audit.action_id, {
@@ -237,6 +270,7 @@ async function run({ root, now = new Date(), fetchImpl = globalThis.fetch } = {}
       result: {
         proposal_ids: proposals.map(proposal => proposal.proposal_id),
         candidates: selected.map(repo => repo.full_name),
+        lab_run_ids: labResults.map(result => result.run_id).filter(Boolean),
         periods: Object.fromEntries(
           Object.entries(snapshot.periods).map(([key, value]) => [key, value.length])
         ),

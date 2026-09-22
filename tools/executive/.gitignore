@@ -1,5 +1,7 @@
 data/research/
 data/cro/
+data/cro-lab/
+data/.cro-lab-workspaces/
 data/reports/
 data/intelligence/
 data/domain-manager-dispatch.json

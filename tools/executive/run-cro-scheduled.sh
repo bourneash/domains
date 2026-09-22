@@ -24,7 +24,7 @@ if ! [[ "$TIMEOUT" =~ ^[1-9][0-9]*$ ]]; then
   exit 2
 fi
 exec >>"$LOG" 2>&1
-echo "[$(date -Is)] starting CRO GitHub research"
+echo "[$(date -Is)] starting CRO GitHub research and disposable repo-lab validation"
 # BusyBox timeout is used by fleet-cron; keep this portable across host and
 # container execution. GNU's long --signal/--kill-after spellings fail closed
 # before CRO research starts on the production scheduler image.

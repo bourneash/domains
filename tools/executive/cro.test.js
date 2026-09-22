@@ -40,9 +40,17 @@ test('deduplicates candidates and creates purpose-scoped proposals', async () =>
     calls += 1;
     return response([repo('acme/tool', 100), repo('other/tool', 50)]);
   };
+  const labRunner = async candidate => ({
+    run_id: `lab-${candidate.full_name.replace('/', '-')}`,
+    status: 'completed',
+    candidate: { full_name: candidate.full_name, purpose: candidate.purpose },
+    repository: { file_count: 12 },
+    checks: [{ status: 'passed' }],
+    recommendation: { decision: 'research', reason: 'bounded checks passed' },
+  });
   const now = new Date('2026-09-20T12:00:00Z');
-  const first = await cro.run({ root, now, fetchImpl });
-  const second = await cro.run({ root, now, fetchImpl });
+  const first = await cro.run({ root, now, fetchImpl, labRunner });
+  const second = await cro.run({ root, now, fetchImpl, labRunner });
   assert.equal(calls, 4);
   assert.equal(first.duplicate, false);
   assert.equal(second.duplicate, true);
@@ -50,7 +58,8 @@ test('deduplicates candidates and creates purpose-scoped proposals', async () =>
   assert.match(first.proposal.rationale, /acme\/tool/);
   assert.equal(first.proposals.length, 2);
   assert.match(first.proposals[0].title, /CRO purpose opportunity/);
-  assert.match(first.proposals[0].requested_action, /bounded follow-up research/);
+  assert.match(first.proposals[0].requested_action, /repo-lab evidence/);
+  assert.match(first.proposals[0].rationale, /CRO repo-lab result/);
   assert.ok(fs.existsSync(path.join(root, 'tools', 'executive', 'data', 'cro', '2026-09-20.json')));
   const { open } = require('../fleet-dashboard/server/eventstore');
   const store = open(root);
