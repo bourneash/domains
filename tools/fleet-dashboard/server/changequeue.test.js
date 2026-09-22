@@ -90,6 +90,14 @@ test('edits queued requests and prevents edits after pickup', () => {
   assert.equal(edited.title, 'Updated');
   assert.equal(edited.body, 'Acceptance criteria');
   queue.update(store, request.request_id, { status: 'claimed' }, known);
+  const rebound = queue.update(
+    store,
+    request.request_id,
+    { provider: 'chatgpt', model: 'gpt-5.6-luna' },
+    known
+  );
+  assert.equal(rebound.provider, 'chatgpt');
+  assert.equal(rebound.model, 'gpt-5.6-luna');
   assert.throws(
     () => queue.update(store, request.request_id, { title: 'Too late' }, known),
     /cannot be edited/

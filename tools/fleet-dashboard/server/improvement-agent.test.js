@@ -10,6 +10,37 @@ test('provider executable defaults match the configured queue providers', () => 
   assert.equal(agent.providerExecutable('local'), 'ollama');
 });
 
+test('queue workers default to the project Codex model and rebind unauthenticated Claude work', () => {
+  const provider = process.env.FD_CHANGE_QUEUE_PROVIDER;
+  const model = process.env.FD_CHANGE_QUEUE_MODEL;
+  const allowClaude = process.env.FD_CHANGE_QUEUE_ALLOW_CLAUDE;
+  delete process.env.FD_CHANGE_QUEUE_PROVIDER;
+  delete process.env.FD_CHANGE_QUEUE_MODEL;
+  delete process.env.FD_CHANGE_QUEUE_ALLOW_CLAUDE;
+  try {
+    assert.equal(agent.defaultProvider(), 'chatgpt');
+    assert.equal(agent.defaultModel(), 'gpt-5.6-luna');
+    assert.deepEqual(agent.resolveWorkerProvider({ provider: 'claude', model: 'claude-sonnet' }), {
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      fallback: true,
+      reason: 'claude worker auth is disabled in the fleet dashboard',
+    });
+    assert.deepEqual(agent.resolveWorkerProvider({ provider: 'chatgpt' }), {
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      fallback: false,
+    });
+  } finally {
+    if (provider === undefined) delete process.env.FD_CHANGE_QUEUE_PROVIDER;
+    else process.env.FD_CHANGE_QUEUE_PROVIDER = provider;
+    if (model === undefined) delete process.env.FD_CHANGE_QUEUE_MODEL;
+    else process.env.FD_CHANGE_QUEUE_MODEL = model;
+    if (allowClaude === undefined) delete process.env.FD_CHANGE_QUEUE_ALLOW_CLAUDE;
+    else process.env.FD_CHANGE_QUEUE_ALLOW_CLAUDE = allowClaude;
+  }
+});
+
 test('provider preflight rejects missing sandbox and unsafe command values', async () => {
   assert.throws(() => agent.preflight({ run: {}, provider: 'chatgpt' }), /sandbox is required/);
   const previous = process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND;

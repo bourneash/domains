@@ -459,8 +459,12 @@ function open(root, { file } = {}) {
       category: String(input.category || 'other'),
       priority: String(input.priority || 'medium'),
       assigned_role: input.assigned_role || null,
-      provider: String(input.provider || 'claude'),
-      model: input.model || null,
+      provider: String(input.provider || process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt'),
+      model:
+        input.model ||
+        (String(input.provider || process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt') === 'chatgpt'
+          ? process.env.FD_CHANGE_QUEUE_MODEL || 'gpt-5.6-luna'
+          : null),
       delivery_mode: String(input.delivery_mode || 'direct'),
       action_key: input.action_key || null,
       max_turns: Number(input.max_turns || 20),

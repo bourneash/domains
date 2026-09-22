@@ -70,6 +70,10 @@ services:
       # sessions, MCP config, and trust databases remain outside the panel.
       FD_CODEX_AUTH_FILE: /run/secrets/codex-auth
       FD_CODEX_AUTH_FILE_HOST: ${HOME:-/home/jesse}/.codex/auth.json
+      # Queue workers use the project-scoped Codex credential by default. Claude
+      # is opt-in because this container intentionally has no Claude OAuth mount.
+      FD_CHANGE_QUEUE_PROVIDER: ${FD_CHANGE_QUEUE_PROVIDER:-chatgpt}
+      FD_CHANGE_QUEUE_MODEL: ${FD_CHANGE_QUEUE_MODEL:-gpt-5.6-luna}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

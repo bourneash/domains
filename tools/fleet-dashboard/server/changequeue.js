@@ -90,8 +90,18 @@ function validate(input, knownSite) {
 
 function create(store, input, knownSite) {
   validate(input, knownSite);
+  const provider = input.provider || process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt';
+  const model =
+    input.model ||
+    (provider === 'chatgpt'
+      ? process.env.FD_CHANGE_QUEUE_MODEL || 'gpt-5.6-luna'
+      : provider === 'local'
+        ? process.env.FD_CHANGE_QUEUE_LOCAL_MODEL || 'llama3.2'
+        : null);
   const request = store.createChangeRequest({
     ...input,
+    provider,
+    model,
     max_turns: Number(input.max_turns || 20),
     assigned_role: assignedRoleForType(input.category, input.assigned_role),
   });
@@ -131,9 +141,15 @@ function update(store, id, patch, knownSite) {
     'auto_review',
     'voice_transcript',
   ];
+  const claimedProviderEdit = ['provider', 'model'].some(key =>
+    Object.prototype.hasOwnProperty.call(patch, key)
+  );
+  const otherEdit = editKeys.some(
+    key => key !== 'provider' && key !== 'model' && Object.prototype.hasOwnProperty.call(patch, key)
+  );
   if (
-    editKeys.some(key => Object.prototype.hasOwnProperty.call(patch, key)) &&
-    !['queued', 'failed'].includes(current.status)
+    (otherEdit && !['queued', 'failed'].includes(current.status)) ||
+    (claimedProviderEdit && !['queued', 'failed', 'claimed'].includes(current.status))
   )
     throw httpErr(409, `request fields cannot be edited while ${current.status}`);
   if (patch.status && !STATUSES.includes(patch.status)) throw httpErr(400, 'invalid status');

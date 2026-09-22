@@ -38,7 +38,11 @@ controls (5 minutes to 24 hours). After a dashboard restart, expired clean work 
 requeued; expired worktrees containing changes are marked failed and preserved for manual recovery,
 so the system never silently duplicates or overwrites unfinished work.
 
-Provider command defaults can be overridden for the dashboard container with
+Queue workers default to the project-scoped Codex provider (`chatgpt`, model `gpt-5.6-luna`).
+Override that policy with `FD_CHANGE_QUEUE_PROVIDER` and `FD_CHANGE_QUEUE_MODEL`. Claude is
+deliberately opt-in (`FD_CHANGE_QUEUE_ALLOW_CLAUDE=1`) because the dashboard does not mount a
+shared Claude OAuth session; a request that asks for Claude is durably rebound to the configured
+worker provider and the audit trail records the reason. Provider command defaults can be overridden with
 `FD_CHANGE_QUEUE_CHATGPT_COMMAND` and `FD_CHANGE_QUEUE_LOCAL_COMMAND`. Local voice transcription
 is optional and uses `FD_LOCAL_STT_COMMAND` (default: `whisper-cli`), which must accept an audio
 file path and print a transcript to stdout. No cloud STT call is made by the dashboard.

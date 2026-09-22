@@ -246,6 +246,37 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // otherwise the task file could be corrected while the agent still runs
     // under the stale engineer role from SQLite.
     claimed.assigned_role = assignedRoleForType(claimed.category, claimed.assigned_role);
+    const workerProvider = improvementAgent.resolveWorkerProvider(claimed);
+    if (
+      workerProvider.fallback ||
+      workerProvider.provider !== claimed.provider ||
+      workerProvider.model !== claimed.model
+    ) {
+      const previousProvider = claimed.provider;
+      const previousModel = claimed.model;
+      const rebound = changequeue.update(
+        events,
+        claimed.request_id,
+        { provider: workerProvider.provider, model: workerProvider.model },
+        site => isKnownTarget(root, site)
+      );
+      Object.assign(claimed, rebound);
+      events.record({
+        event_type: 'change-request.provider_rebound',
+        source: 'fleet-dashboard',
+        site_id: `site:${claimed.site}`,
+        entity_type: 'change-request',
+        entity_id: claimed.request_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: {
+          previous_provider: previousProvider,
+          previous_model: previousModel,
+          provider: claimed.provider,
+          model: claimed.model,
+          reason: workerProvider.reason || 'fleet worker policy',
+        },
+      });
+    }
     events.record({
       event_type: 'change-request.claimed',
       source: 'fleet-dashboard',
@@ -1808,7 +1839,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!settings.enabled) return;
     if (Date.now() - lastQueuePickup < Number(settings.interval_minutes) * 60000) return;
     lastQueuePickup = Date.now();
-    pickupChangeRequests().catch(() => {});
+    pickupChangeRequests().catch(error => {
+      events.record({
+        event_type: 'change-queue.pickup_failed',
+        source: 'fleet-dashboard',
+        entity_type: 'change-queue',
+        entity_id: queueWorkerId,
+        correlation_id: `change-queue:${queueWorkerId}`,
+        payload: { error: String(error.message || error).slice(0, 1000) },
+      });
+      console.error(`[fleet-dashboard] change queue pickup failed: ${error.message || error}`);
+    });
   }, 15000);
   if (queuePulse.unref) queuePulse.unref();
 
@@ -2294,8 +2335,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           store: events,
           run: item,
           taskBody: task?.body,
-          provider: req.body?.provider || item.agent?.provider || 'claude',
-          model: req.body?.model || item.agent?.model || null,
+          provider:
+            req.body?.provider || item.agent?.provider || improvementAgent.defaultProvider(),
+          model: req.body?.model || item.agent?.model || improvementAgent.defaultModel(),
           maxTurns: req.body?.max_turns || item.agent?.max_turns || 20,
           role: req.body?.assigned_role || item.agent?.assigned_role || null,
         })

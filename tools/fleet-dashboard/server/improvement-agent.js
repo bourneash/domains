@@ -6,6 +6,47 @@ const { spawn, execFile } = require('node:child_process');
 
 const ACTIVE = new Map();
 
+// The fleet worker image has a project-scoped Codex credential, while Claude
+// intentionally has no shared OAuth credential in the dashboard container.
+// Keep the worker default explicit and auditable; Claude can still be selected
+// deliberately when a separately authenticated worker is configured.
+const SUPPORTED_PROVIDERS = new Set(['claude', 'chatgpt', 'local']);
+
+function defaultProvider() {
+  const requested = String(process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt').trim();
+  return SUPPORTED_PROVIDERS.has(requested) ? requested : 'chatgpt';
+}
+
+function defaultModel(provider = defaultProvider()) {
+  if (provider === 'chatgpt')
+    return String(process.env.FD_CHANGE_QUEUE_MODEL || 'gpt-5.6-luna').trim() || null;
+  if (provider === 'local')
+    return String(process.env.FD_CHANGE_QUEUE_LOCAL_MODEL || 'llama3.2').trim() || null;
+  return null;
+}
+
+function resolveWorkerProvider({ provider, model } = {}) {
+  const requested = String(provider || defaultProvider()).trim();
+  if (!SUPPORTED_PROVIDERS.has(requested))
+    return {
+      provider: defaultProvider(),
+      model: model || defaultModel(defaultProvider()),
+      fallback: true,
+    };
+  // Do not send work to a Claude CLI which is present but cannot authenticate.
+  // The dashboard deliberately does not mount the host Claude OAuth session.
+  if (requested === 'claude' && process.env.FD_CHANGE_QUEUE_ALLOW_CLAUDE !== '1') {
+    const fallbackProvider = defaultProvider() === 'claude' ? 'chatgpt' : defaultProvider();
+    return {
+      provider: fallbackProvider,
+      model: defaultModel(fallbackProvider),
+      fallback: true,
+      reason: 'claude worker auth is disabled in the fleet dashboard',
+    };
+  }
+  return { provider: requested, model: model || defaultModel(requested), fallback: false };
+}
+
 function logPath(root, runId) {
   return path.join(root, 'tools', 'fleet-dashboard', 'data', 'improvement-agents', `${runId}.log`);
 }
@@ -285,4 +326,7 @@ module.exports = {
   providerExecutable,
   reviewResult,
   appendOutput,
+  defaultProvider,
+  defaultModel,
+  resolveWorkerProvider,
 };
