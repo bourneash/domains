@@ -152,7 +152,7 @@ test('owner approval turns a bounded implementation into a linked change request
   assert.equal(approved.status, 'approved');
   assert.ok(approved.linked_request_id);
   assert.equal(db.getChangeRequest(approved.linked_request_id).site, 'example.com');
-  assert.equal(db.getChangeRequest(approved.linked_request_id).assigned_role, 'principal-engineer');
+  assert.equal(db.getChangeRequest(approved.linked_request_id).assigned_role, 'seo-analyst');
   assert.equal(db.list({ event_type: 'executive.proposal.task-routed' }).length, 1);
   db.close();
 });

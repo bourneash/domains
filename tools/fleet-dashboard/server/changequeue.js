@@ -5,6 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFile } = require('node:child_process');
 const crypto = require('node:crypto');
+const { assignedRoleForType } = require('./task-routing');
 
 const CATEGORIES = [
   'error',
@@ -89,7 +90,11 @@ function validate(input, knownSite) {
 
 function create(store, input, knownSite) {
   validate(input, knownSite);
-  const request = store.createChangeRequest({ ...input, max_turns: Number(input.max_turns || 20) });
+  const request = store.createChangeRequest({
+    ...input,
+    max_turns: Number(input.max_turns || 20),
+    assigned_role: assignedRoleForType(input.category, input.assigned_role),
+  });
   store.record({
     event_type: 'change-request.queued',
     source: 'fleet-dashboard',
@@ -149,7 +154,15 @@ function update(store, id, patch, knownSite) {
     patch.max_turns
   )
     validate({ ...current, ...patch }, knownSite);
-  const next = store.updateChangeRequest(id, patch);
+  const merged = { ...current, ...patch };
+  const next = store.updateChangeRequest(id, {
+    ...patch,
+    // Repair queued requests created before the routing invariant existed and
+    // prevent an edit from putting an SEO request back on the engineer queue.
+    ...(String(merged.category || '').toLowerCase() === 'seo'
+      ? { assigned_role: assignedRoleForType(merged.category, merged.assigned_role) }
+      : {}),
+  });
   store.record({
     event_type: `change-request.${next.status}`,
     source: 'fleet-dashboard',

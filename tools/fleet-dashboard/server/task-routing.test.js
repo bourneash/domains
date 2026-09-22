@@ -1,0 +1,18 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { assignedRoleForType, ownershipMismatch } = require('./task-routing');
+
+test('SEO tasks always start with the SEO analyst', () => {
+  assert.equal(assignedRoleForType('seo', 'engineer'), 'seo-analyst');
+  assert.equal(assignedRoleForType('SEO', 'principal-engineer'), 'seo-analyst');
+  assert.equal(assignedRoleForType('engineering', 'engineer'), 'engineer');
+  assert.equal(assignedRoleForType('content', 'engineer'), 'content-writer');
+  assert.equal(assignedRoleForType('marketing', undefined), 'social-media');
+  assert.deepEqual(ownershipMismatch('seo', 'engineer'), {
+    expected_role: 'seo-analyst',
+    allowed_roles: ['seo-analyst'],
+  });
+  assert.equal(ownershipMismatch('engineering', 'engineer'), null);
+});

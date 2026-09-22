@@ -40,6 +40,26 @@ test('creates a validated, durable request and picks high priority first', () =>
   store.close();
 });
 
+test('routes SEO requests to the SEO analyst even when engineer is requested', () => {
+  const { store } = fixture();
+  const known = () => true;
+  const request = queue.create(
+    store,
+    {
+      site: 'example.com',
+      title: 'Resolve competing pages',
+      category: 'seo',
+      assigned_role: 'engineer',
+    },
+    known
+  );
+  assert.equal(request.assigned_role, 'seo-analyst');
+
+  const repaired = queue.update(store, request.request_id, { assigned_role: 'engineer' }, known);
+  assert.equal(repaired.assigned_role, 'seo-analyst');
+  store.close();
+});
+
 test('rejects unsafe provider, turn budget, and unknown site values', () => {
   const { store } = fixture();
   assert.throws(
