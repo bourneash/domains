@@ -350,10 +350,45 @@ json.dump(rec, open(p, 'w'), indent=2)
 " "$INCIDENT_FILE" "$1" "$safe_outcome" 2>/dev/null || true
 }
 
+retry_or_escalate() {  # $1=reason; cap/timeout failures get one delayed retry
+  local reason="$1" outcome
+  outcome="$(python3 - "$INCIDENT_FILE" "$reason" <<'PY'
+import json, sys
+from datetime import datetime, timedelta, timezone
+
+p, reason = sys.argv[1:]
+try:
+    rec = json.load(open(p, encoding="utf-8"))
+except Exception:
+    rec = {}
+attempts = int(rec.get("attempts", 0))
+if attempts >= 2:
+    # Leave the record open at the scanner's attempt ceiling so its normal
+    # escalation path creates the human-triage task and sends one alert.
+    rec["status"] = "open"
+    rec["attempts"] = 3
+    rec["cap_reason"] = reason
+    result = "exhausted"
+else:
+    rec["status"] = "open"
+    rec["retry_after"] = (datetime.now(timezone.utc) + timedelta(seconds=40 * 60)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    result = "retry"
+rec["last_outcome"] = reason
+json.dump(rec, open(p, "w", encoding="utf-8"), indent=2)
+print(result)
+PY
+  )"
+  if [[ "$outcome" == "exhausted" ]]; then
+    slack "🚨 *{{SITE_SHORT}} principal engineer* exhausted the capped-run retry for fp=${FP}; the scanner will create the human-triage task · ${NOW_ET}" danger
+  else
+    slack "⚠️ *{{SITE_SHORT}} principal engineer* ${reason}; one retry scheduled after 40 minutes for fp=${FP} · ${NOW_ET}" warning
+  fi
+}
+
 if [[ "$CLAUDE_EXIT" == "124" ]]; then
-  archive_and_restore "pass TIMED OUT after ${WORK_TIMEOUT}s"
-  mark_incident open
-  slack "🔴 *{{SITE_SHORT}} principal engineer* timed out investigating fp=${FP} · ${NOW_ET}" danger
+  REASON="pass TIMED OUT after ${WORK_TIMEOUT}s"
+  archive_and_restore "$REASON"
+  retry_or_escalate "$REASON"
   exit 1
 fi
 
@@ -362,9 +397,9 @@ fi
 # metadata (`principal-engineer: none`), then the incident claimed "unknown".
 # Buildability is not a substitute for a completed worker result contract.
 if [[ "$CLAUDE_EXIT" != "0" ]]; then
-  archive_and_restore "pass FAILED (rc=${CLAUDE_EXIT}) before a complete result"
-  mark_incident open
-  slack "🔴 *{{SITE_SHORT}} principal engineer* worker failed before completing fp=${FP} (rc=${CLAUDE_EXIT}). Partial result/diff were archived under \`ops/health/principal-incidents/\`; the checkout was restored and nothing shipped. · ${NOW_ET}" danger
+  REASON="pass FAILED (rc=${CLAUDE_EXIT}) before a complete result"
+  archive_and_restore "$REASON"
+  retry_or_escalate "$REASON"
   exit 1
 fi
 if ! grep -Eq '^PE_STATUS=(resolved-real|resolved-noise|escalated)$' "$RESULT_FILE" \
@@ -373,7 +408,8 @@ if ! grep -Eq '^PE_STATUS=(resolved-real|resolved-noise|escalated)$' "$RESULT_FI
   || ! grep -q '^PE_HARDENING=.' "$RESULT_FILE" \
   || ! grep -Eq '^PE_ROLLOUT_CANDIDATE=(yes|no)$' "$RESULT_FILE"; then
   archive_and_restore "pass returned rc=0 without the complete result contract"
-  mark_incident open
+  REASON="pass returned rc=0 without the complete result contract"
+  retry_or_escalate "$REASON"
   slack "🔴 *{{SITE_SHORT}} principal engineer* returned no complete result for fp=${FP}. Partial result/diff were archived and the checkout restored; nothing shipped. · ${NOW_ET}" danger
   exit 1
 fi

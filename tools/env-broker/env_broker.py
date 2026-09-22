@@ -34,6 +34,7 @@ EXIT CODES
 from __future__ import annotations
 
 import argparse
+from functools import lru_cache
 import json
 import os
 import re
@@ -189,6 +190,7 @@ def granted_keys(domain: str, policy: dict, slack: dict[str, str]) -> list[str]:
     if domain in slack:
         keys.add(slack[domain])
     keys |= set(site.get("extra_keys") or [])
+    keys |= set(site.get("runtime_keys") or [])
     keys -= set(site.get("deny_keys") or [])
     keys -= set(policy.get("never_grant") or [])
     return sorted(keys)
@@ -204,6 +206,37 @@ def optional_keys(domain: str, policy: dict) -> set[str]:
     """
     site = (policy.get("sites") or {}).get(domain) or {}
     return set(site.get("optional_keys") or [])
+
+
+def runtime_keys(domain: str, policy: dict) -> set[str]:
+    """Keys consumed by separately composed site runtime services.
+
+    Most credentials are discovered from ops/. A few products mount the
+    rendered file into an application service whose code is intentionally
+    outside ops/. Keep those grants explicit without scanning arbitrary app
+    content for credential-shaped strings.
+    """
+    site = (policy.get("sites") or {}).get(domain) or {}
+    return set(site.get("runtime_keys") or [])
+
+
+@lru_cache(maxsize=4)
+def _compiled_key_pattern(key_tuple: tuple[str, ...]) -> re.Pattern[str]:
+    return re.compile(
+        r"\b(" + "|".join(sorted(key_tuple, key=len, reverse=True)) + r")\b"
+        r"(?!=(?=\s|$))"
+    )
+
+
+@lru_cache(maxsize=16)
+def _shared_dependency_text(path: str) -> str:
+    try:
+        dependency = Path(path)
+        if dependency.stat().st_size > 2_000_000:
+            return ""
+        return dependency.read_text(errors="ignore")
+    except OSError:
+        return ""
 
 
 def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
@@ -223,10 +256,7 @@ def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
     """
     if not all_keys:
         return set()
-    pat = re.compile(
-        r"\b(" + "|".join(sorted(all_keys, key=len, reverse=True)) + r")\b"
-        r"(?!=(?=\s|$))"
-    )
+    pat = _compiled_key_pattern(tuple(all_keys))
     found: set[str] = set()
     sources: list[str] = []
     ops_root = ROOT / "sites" / domain / "ops"
@@ -273,20 +303,14 @@ def referenced_keys(domain: str, all_keys: list[str]) -> set[str]:
         if marker not in source:
             continue
         dependency = TOOLS_ROOT.joinpath(*relative)
-        try:
-            if dependency.stat().st_size <= 2_000_000:
-                dependency_text = dependency.read_text(errors="ignore")
-                # This is a credential contract, deliberately not another
-                # broad lexical scan. Shared tools contain docs/examples for
-                # other sites (notify_role.py names two SLACK_CHANNEL_* vars
-                # in its usage examples); treating those as runtime reads
-                # would grant one site's channel credential to another.
-                found |= {key for key in dependency_keys
-                          if key in all_keys and key in dependency_text}
-        except OSError:
-            # A missing mounted tool is a separate runtime/install failure. Do
-            # not invent a credential dependency from the marker alone.
-            continue
+        dependency_text = _shared_dependency_text(str(dependency))
+        # This is a credential contract, deliberately not another broad
+        # lexical scan. Shared tools contain docs/examples for other sites
+        # (notify_role.py names two SLACK_CHANNEL_* vars in its usage examples);
+        # treating those as runtime reads would grant one site's channel
+        # credential to another.
+        found |= {key for key in dependency_keys
+                  if key in all_keys and key in dependency_text}
     return found
 
 
@@ -558,7 +582,6 @@ def cmd_render(args, policy, slack) -> int:
                   f"{len(file_values)} — filling the gap from .env", file=sys.stderr)
             values = {**file_values, **values}
     values = merge_vault_only(values, policy)
-    vault_only = set(vault_only_keys(policy))
     per_site = site_values(policy)
 
     targets = [args.site] if args.site else consumers()
@@ -579,11 +602,12 @@ def cmd_render(args, policy, slack) -> int:
         if missing:
             print(f"{domain}: no value for {', '.join(missing)}", file=sys.stderr)
             rc = 1
-        blocked = sorted(set(missing) & vault_only)
-        if blocked:
-            # Writing a body without these would replace a working credential
-            # with nothing — the panel would come back up unauthenticated on
-            # the next restart. Leave the last good render in place instead.
+        blocked = sorted(set(missing))
+        if blocked and not args.stdout:
+            # Any missing granted key would replace a working credential file
+            # with a partial one. This used to be special-cased only for
+            # vault_only keys, so a stale/misconfigured bootstrap .env could
+            # silently remove ordinary site credentials on the next restart.
             print(f"{domain}: SKIPPED — {', '.join(blocked)} unavailable; "
                   f"the existing rendered file is left untouched",
                   file=sys.stderr)
@@ -737,6 +761,7 @@ def cmd_check(args, policy, slack) -> int:
     for domain in site_domains:
         keys = set(granted_keys(domain, policy, slack))
         used = referenced_keys(domain, all_keys)
+        used |= runtime_keys(domain, policy)
         needed_not_granted = sorted(
             used - keys - never - optional_keys(domain, policy)
         )

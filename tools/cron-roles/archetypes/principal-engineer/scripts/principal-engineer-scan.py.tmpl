@@ -32,6 +32,7 @@ CURSOR_FILE = os.path.join(REPO_ROOT, "ops", ".locks", "principal-engineer-curso
 DEFAULT_LOOKBACK_SECS = 3600  # first-ever run: don't replay ancient history
 COOLDOWN_SECS = 20 * 60       # never re-dispatch the same open fingerprint inside this window
 MAX_ATTEMPTS = 3              # after this many dispatches, stop auto-acting (human-triage territory)
+RETRY_BACKOFF_SECS = 40 * 60  # failed worker gets one delayed retry, not a hot loop
 
 # This role's OWN Slack posts must never become its own next incident — the
 # ack/resolution/escalation messages it posts are matched and skipped here.
@@ -251,6 +252,9 @@ def main():
         if inc.get("status") not in ("open", None):
             continue
         if int(inc.get("attempts", 0)) >= MAX_ATTEMPTS:
+            continue
+        retry_after = parse_ts(inc.get("retry_after", ""))
+        if retry_after and now < retry_after:
             continue
         last_dispatched = inc.get("last_dispatched")
         if last_dispatched:

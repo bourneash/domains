@@ -118,6 +118,29 @@ class PrincipalEngineerScanAuthTest(unittest.TestCase):
         )
         self.assertEqual(result, {"action": "none"})
 
+    def test_open_incident_waits_for_worker_failure_backoff(self):
+        now = datetime.now(timezone.utc)
+        retry_after = (now + timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        cursor = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        result = self.run_scan(
+            [],
+            incidents={
+                "backoff123": {
+                    "fingerprint": "backoff123",
+                    "status": "open",
+                    "attempts": 1,
+                    "last_dispatched": (now - timedelta(hours=2)).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
+                    "retry_after": retry_after,
+                    "last_text": "worker hit its turn cap",
+                    "occurrences": 1,
+                }
+            },
+            cursor=cursor,
+        )
+        self.assertEqual(result, {"action": "none"})
+
     def test_attempt_cap_emits_one_explicit_escalation(self):
         now = datetime.now(timezone.utc)
         cursor = now.strftime("%Y-%m-%dT%H:%M:%SZ")

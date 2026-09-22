@@ -37,8 +37,13 @@ if [[ -f "$LOG" ]]; then
 fi
 log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
 
+CHECK_STARTED="$(date +%s)"
 REPORT="$(cd "$DOMAINS_ROOT" && timeout 300 python3 "$TOOL_DIR/env_broker.py" --check 2>&1)"
 rc=$?
+CHECK_ELAPSED=$(( $(date +%s) - CHECK_STARTED ))
+if (( rc == 124 )) && [[ -z "$REPORT" ]]; then
+  REPORT="env-broker policy check timed out after ${CHECK_ELAPSED}s"
+fi
 
 # Rendered-file health. A container is a recipient if its compose mounts one --
 # via a volume (sites, most tools) or env_file (fleet-dashboard). Tool composes
@@ -69,12 +74,12 @@ while IFS= read -r compose; do
 done < <(find "$DOMAINS_ROOT/tools" -maxdepth 2 -name docker-compose.yml 2>/dev/null)
 
 if (( rc == 0 )) && [[ -z "$FILE_PROBLEMS" ]]; then
-  log "ok — $(printf '%s' "$REPORT" | tail -1)"
+  log "ok (${CHECK_ELAPSED}s) — $(printf '%s' "$REPORT" | tail -1)"
   rm -f "$STAMP"
   exit 0
 fi
 
-log "DRIFT (exit $rc) — $(printf '%s' "$REPORT" | head -3 | tr '\n' ' ')"
+log "DRIFT (exit $rc, ${CHECK_ELAPSED}s) — $(printf '%s' "$REPORT" | head -3 | tr '\n' ' ')"
 
 if [[ -f "$STAMP" ]] && (( $(date +%s) - $(stat -c %Y "$STAMP") < COOLDOWN_SEC )); then
   exit 0

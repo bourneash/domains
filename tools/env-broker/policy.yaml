@@ -151,7 +151,8 @@ sites:
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
   searchwoot.com:
-    extra_keys: [WOOT_API_KEY, SITE_SHARED_PASSWORD]
+    # Consumed by the separately composed webapp/fetcher runtime, not ops/.
+    runtime_keys: [WOOT_API_KEY, SITE_SHARED_PASSWORD]
   3boobs.com:
     # The smoke test authenticates only when this optional preview gate is
     # configured; an absent value deliberately falls back to an unauthenticated

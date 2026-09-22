@@ -72,6 +72,11 @@ def test_optional_keys_describe_usage_but_do_not_grant_capability():
     )
 
 
+def test_runtime_keys_are_explicitly_counted_as_used():
+    policy = {"sites": {"app.com": {"runtime_keys": ["APP_SECRET"]}}}
+    assert eb.runtime_keys("app.com", policy) == {"APP_SECRET"}
+
+
 def test_unknown_site_gets_only_defaults():
     assert eb.granted_keys("never-heard-of-it.com", POLICY, SLACK) == [
         "CLOUDFLARE_API_TOKEN", "SLACK_BOT_TOKEN"]
@@ -236,6 +241,25 @@ def test_render_leaves_no_temp_file_behind(tmp_path, monkeypatch):
     args = type("A", (), {"source": "file", "site": None, "stdout": False})()
     eb.cmd_render(args, POLICY, SLACK)
     assert list(eb.RENDER_DIR.glob("*.tmp")) == []
+
+
+def test_render_preserves_last_good_file_when_any_required_value_is_missing(
+        tmp_path, monkeypatch, capsys):
+    """A partial bootstrap source must not erase a live credential file."""
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path / "rendered")
+    monkeypatch.setattr(eb, "ENV_FILE", tmp_path / "fleet.env")
+    eb.ENV_FILE.write_text("CLOUDFLARE_API_TOKEN=new-token\n")
+    monkeypatch.setattr(eb, "consumers", lambda: ["plain.com"])
+    eb.RENDER_DIR.mkdir()
+    out = eb.RENDER_DIR / "plain.com.env"
+    old = "# existing\nCLOUDFLARE_API_TOKEN=old-token\nSLACK_BOT_TOKEN=old-slack\n"
+    out.write_text(old)
+    args = type("A", (), {"source": "file", "site": None,
+                           "stdout": False})()
+
+    assert eb.cmd_render(args, POLICY, SLACK) == 1
+    assert out.read_text() == old
+    assert "SKIPPED" in capsys.readouterr().err
 
 
 # --- recipients --------------------------------------------------------------
