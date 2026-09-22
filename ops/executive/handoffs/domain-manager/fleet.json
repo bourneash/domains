@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:19:35.062Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-22T04:10:00.133Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Assess affiliate conversion and editorial readiness",
-        "summary": "Review xxxtea.com’s fragrance-adjacent tea and tea-ware audience positioning, editorial coverage, affiliate-link presentation, and readiness for measured growth.",
-        "requested_action": "Approve a report-only assessment covering audience and content gaps, affiliate conversion-path review, editorial quality controls, attribution requirements, and a prioritized backlog. Do not publish, deploy, modify affiliate configuration, change credentials, alter schedules, spend money, or change production systems.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "b03d54d9-3872-4360-b39c-83b1310d33fd",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 11,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
