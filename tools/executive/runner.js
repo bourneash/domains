@@ -13,6 +13,7 @@ const croLab = require('./cro-lab');
 const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot');
 const executiveData = require('../fleet-dashboard/server/executive-data');
 const executiveScorecard = require('../fleet-dashboard/server/executive-scorecard');
+const launchReadiness = require('./launch-readiness');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -239,6 +240,7 @@ async function buildBrief(store, root = ROOT) {
         'read_only_compliance_baseline_and_scan_history',
         'read_only_data_quality_and_attribution_boundaries',
         'read_only_security_baseline_and_fleet_doctor',
+        'read_only_launch_readiness_and_data_use_checklists',
         'bounded_public_research',
         'cro_disposable_repo_lab',
         'allowlisted_fleet_operating_baseline_publish',
@@ -278,6 +280,7 @@ async function buildBrief(store, root = ROOT) {
       candidates: actionCandidates(intel.intelligence, sites),
     },
     intelligence: intel,
+    launch_readiness: launchReadiness.read(root),
     specialist_inputs: {
       cro_github_trends: croResearch.recent(root),
       cro_repo_lab_runs: croLab.recent(root, 12),
@@ -421,7 +424,7 @@ function buildPassPrompt(brief, role, candidate = null) {
         : role === 'principal-engineer'
           ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
           : role === 'legal'
-            ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, and launch evidence. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
+            ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
             : role === 'security'
               ? 'You are the Security review pass for the autonomous domain-fleet executive. Inspect intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
               : role === 'domain-manager'

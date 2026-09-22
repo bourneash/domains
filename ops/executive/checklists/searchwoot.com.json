@@ -1,0 +1,94 @@
+{
+  "schema": "executive-launch-readiness/v1",
+  "site": "searchwoot.com",
+  "generated_at": "2026-09-22",
+  "current_disposition": "keep_private",
+  "target_disposition": "bounded_public_beta",
+  "owner_decision_required": "Do not change the private-preview gate until the checklist is complete and the owner chooses keep-private or bounded beta.",
+  "legal_scope": {
+    "role": "legal",
+    "purpose": "Review whether each data source and processing purpose is allowed for the proposed beta, what disclosures or consent are required, and where human counsel must decide.",
+    "limitation": "Risk triage only; this does not provide legal advice, certification, or acceptance of risk for the owner.",
+    "required_disposition_values": ["clear", "conditional", "blocked", "counsel_required", "evidence_needed"]
+  },
+  "data_use_review": [
+    {
+      "source": "Woot API deal and price-history data",
+      "purpose": "Index, search, compare, and display live deal information and historical price context.",
+      "processing": "Fetch, store, refresh, transform, display, and include in alerts.",
+      "monetization_or_sharing": "Potential public display and possible future affiliate or advertising use; none is approved by this checklist.",
+      "questions_for_legal": [
+        "Do the source terms and API agreement permit storage, historical derivatives, public display, caching, and alerts?",
+        "Are trademarks, product images, prices, availability, and savings claims used within permitted limits?",
+        "What attribution, disclaimer, freshness, correction, takedown, or rate-limit requirements apply?",
+        "Would affiliate links or advertising change the rights, disclosure, or platform-policy analysis?"
+      ],
+      "evidence_needed": ["current API terms or written permission", "field-level provenance", "refresh and stale-data behavior", "accuracy and correction process"],
+      "status": "evidence_needed",
+      "reviewer": "legal"
+    },
+    {
+      "source": "User alert rules and sync results",
+      "purpose": "Save a user's watch criteria and deliver matching deal alerts.",
+      "processing": "Store, evaluate, and transmit alert criteria and matching results.",
+      "monetization_or_sharing": "No sale or retargeting is approved; optional Slack delivery is configured by the operator.",
+      "questions_for_legal": [
+        "What personal-data and processor obligations apply to alert rules, access identifiers, and delivery metadata?",
+        "Are retention, deletion, access, correction, and user-request workflows sufficient for the proposed audience and jurisdictions?",
+        "Do Slack delivery and any future email delivery require additional consent, terms, or processor disclosures?"
+      ],
+      "evidence_needed": ["data inventory and retention periods", "deletion/correction workflow", "processor terms", "notification consent and unsubscribe behavior"],
+      "status": "evidence_needed",
+      "reviewer": "legal"
+    },
+    {
+      "source": "GA4 analytics",
+      "purpose": "Measure aggregate traffic and product usage after an explicit analytics choice.",
+      "processing": "Load GA4 only after consent; use IP anonymization and avoid intentionally sending search terms, deal titles, or user IDs.",
+      "monetization_or_sharing": "Measurement only; no retargeting or sale of personal information is approved.",
+      "questions_for_legal": [
+        "Is the consent experience, withdrawal path, cookie description, and regional treatment sufficient for the intended beta audience?",
+        "Are the GA4 configuration, data-sharing settings, retention, vendor terms, and privacy disclosures accurately documented?",
+        "Does any future advertising, remarketing, or customer matching require a separate review?"
+      ],
+      "evidence_needed": ["deployed consent behavior", "GA4 property and data-sharing settings", "retention settings", "jurisdictional privacy review"],
+      "status": "evidence_needed",
+      "reviewer": "legal"
+    },
+    {
+      "source": "Operational logs and Cloudflare hosting data",
+      "purpose": "Operate, secure, debug, and monitor the service.",
+      "processing": "Collect and retain runtime, security, access, and error information through the hosting and operations stack.",
+      "monetization_or_sharing": "Operational use only; no public disclosure or secondary monetization is approved.",
+      "questions_for_legal": [
+        "What personal or device data can appear in logs, and what retention, access, deletion, and incident obligations apply?",
+        "Are Cloudflare and any other vendors correctly disclosed and covered by current terms or agreements?",
+        "What breach, subpoena, abuse, or data-subject request process is required?"
+      ],
+      "evidence_needed": ["log-field inventory", "retention and access controls", "vendor terms/DPA review", "incident and request procedures"],
+      "status": "evidence_needed",
+      "reviewer": "legal"
+    }
+  ],
+  "non_legal_gates": [
+    {
+      "gate": "accuracy_and_freshness",
+      "owner": "cto",
+      "acceptance": "Document source refresh, stale-data labels, correction handling, and rollback behavior before public exposure.",
+      "status": "blocked"
+    },
+    {
+      "gate": "measurement_and_attribution",
+      "owner": "cfo",
+      "acceptance": "Reconcile traffic, affiliate clicks, orders, commission, and direct costs to site/content identifiers before claiming ROI.",
+      "status": "blocked"
+    },
+    {
+      "gate": "security_and_release",
+      "owner": "security",
+      "acceptance": "Complete the access, secret, isolation, TLS, dependency, monitoring, incident, and disclosure checklist.",
+      "status": "blocked"
+    }
+  ],
+  "decision_rule": "Keep private until every applicable legal data-use item has a Legal disposition, material uncertainty is escalated to human counsel, and the technical, security, accuracy, and measurement gates are complete."
+}
