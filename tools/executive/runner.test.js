@@ -305,6 +305,15 @@ test('rejects unsafe plans and fingerprints identical plans deterministically', 
   );
 });
 
+test('allows the independent reviewer to publish an owner update', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ actor: 'reviewer', body: 'The proposed work is bounded and measurable.' }],
+    })
+  );
+  assert.equal(plan.messages[0].actor, 'reviewer');
+});
+
 test('rejects plans that mention or target the excluded site', () => {
   assert.throws(
     () =>

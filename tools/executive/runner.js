@@ -389,7 +389,7 @@ Rules:
 
 Return ONLY valid JSON with this shape:
 {
-  "messages": [{"actor":"ceo|cto|cfo|domain-manager","body":"concise owner update"}],
+  "messages": [{"actor":"ceo|cto|cfo|domain-manager|reviewer","body":"concise owner update"}],
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cfo|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
@@ -524,7 +524,7 @@ function validatePlan(plan) {
   }
   for (const item of plan.messages) {
     if (
-      !['ceo', 'cto', 'cfo', 'domain-manager'].includes(String(item.actor)) ||
+      !['ceo', 'cto', 'cfo', 'domain-manager', 'reviewer'].includes(String(item.actor)) ||
       !String(item.body || '').trim() ||
       String(item.body).length > 10000
     )
