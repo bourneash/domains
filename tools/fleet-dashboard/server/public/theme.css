@@ -1247,4 +1247,6 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .wb-message > div { margin-top: 4px; white-space: pre-wrap; }
 .wb-reply { display: flex; gap: 8px; align-items: end; margin-top: 10px; }
 .wb-reply-body { flex: 1; }
+.ex-operating-modes { display: block !important; }
+.ex-operating-modes textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
 @media (max-width: 700px) { .kn-shell { padding: 14px; } .kn-kpis { grid-template-columns: repeat(2, 1fr); } .kn-list { grid-template-columns: 1fr; } }
