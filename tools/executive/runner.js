@@ -260,7 +260,39 @@ async function buildBrief(store, root = ROOT) {
     .slice(0, 10);
   const messages = store.listExecutiveMessages({ limit: 10 });
   const work_items = store.listExecutiveWorkItems({ limit: 100 });
-  const knowledge = store.listExecutiveKnowledge({ limit: 100 });
+  const knowledgeCatalog = store.listExecutiveKnowledge({ limit: 1000 });
+  const knowledge = knowledgeCatalog
+    .filter(item => ['queued', 'in_progress'].includes(item.status))
+    .slice(0, 40)
+    .map(
+      ({
+        knowledge_id,
+        title,
+        resource_type,
+        audience,
+        status,
+        url,
+        publisher,
+        jurisdiction,
+        license,
+        summary,
+        tags,
+        source_work_id,
+      }) => ({
+        knowledge_id,
+        title,
+        resource_type,
+        audience,
+        status,
+        url,
+        publisher,
+        jurisdiction,
+        license,
+        summary,
+        tags,
+        source_work_id,
+      })
+    );
   const task_queue = {
     engineer: store.listChangeRequests({ assigned_role: 'engineer', limit: 50 }),
     principal_engineer: store.listChangeRequests({
@@ -421,6 +453,12 @@ async function buildBrief(store, root = ROOT) {
     task_queue,
     work_items,
     knowledge,
+    knowledge_summary: {
+      total: knowledgeCatalog.length,
+      active: knowledgeCatalog.filter(item => ['queued', 'in_progress'].includes(item.status))
+        .length,
+      completed: knowledgeCatalog.filter(item => item.status === 'complete').length,
+    },
     conversation: messages
       .slice()
       .reverse()

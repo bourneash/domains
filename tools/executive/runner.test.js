@@ -32,6 +32,7 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   assert.deepEqual(brief.task_queue, { engineer: [], principal_engineer: [] });
   assert.deepEqual(brief.work_items, []);
   assert.deepEqual(brief.knowledge, []);
+  assert.deepEqual(brief.knowledge_summary, { total: 0, active: 0, completed: 0 });
   store.close();
 });
 
