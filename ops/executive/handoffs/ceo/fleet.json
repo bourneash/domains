@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T01:18:51.901Z",
+  "generated_at": "2026-09-22T04:01:18.782Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved for bounded implementation by engineer. The change is isolated, reversible, and supported by current SEO evidence. Preserve factual content, indexability, navigation, and attribution boundaries. Do not infer revenue or profitability. Require focused tests, build success, exact changed-field documentation, and measurement after 14 days or 100 new impressions using available clicks, impressions, indexed status, and sessions.",
+        "summary": "Reject the proposed searchwoot.com production change. The snapshot supports only an SEO observation; analytics is unconfigured and no measurable production outcome is established. Site-level revenue, margin, CAC, payback, cost-to-learn, and forecasts remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }

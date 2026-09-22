@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T01:14:26.914Z",
+  "generated_at": "2026-09-22T04:01:18.783Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Site-level revenue, contribution margin, CAC, payback, cost-to-learn, and forecasts remain unsupported because attribution is incomplete. AI usage cost is $718.38 for 2026-09-01 through 2026-09-22; infrastructure and other operating costs are unavailable. No spending or billing action recommended.",
+        "summary": "No financial claim is supported. Amazon attribution is incomplete and searchwoot.com has no configured analytics, so indexed URLs, impressions, clicks, and any financial impact must remain unclaimed until measured.",
         "requested_action": null,
         "proposal_id": null
       }
