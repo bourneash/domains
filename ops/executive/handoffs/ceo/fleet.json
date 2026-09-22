@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T01:14:26.913Z",
+  "generated_at": "2026-09-22T01:18:51.901Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain read-only posture. Current evidence supports no attributable revenue forecast or production recommendation: Amazon reports $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but site attribution is incomplete. Existing queue and approved records cover current work; no duplicate tasks or new research are justified.",
+        "summary": "Approved for bounded implementation by engineer. The change is isolated, reversible, and supported by current SEO evidence. Preserve factual content, indexability, navigation, and attribution boundaries. Do not infer revenue or profitability. Require focused tests, build success, exact changed-field documentation, and measurement after 14 days or 100 new impressions using available clicks, impressions, indexed status, and sessions.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -599,10 +599,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       .listChangeRequests({ limit: 1000 })
       .filter(r => ['claimed', 'running', 'reviewing'].includes(r.status)).length;
     const slots = Math.max(0, Number(max ?? settings.max_concurrent) - running);
+    // A deployed run is complete work, not an active checkout. Keeping it in
+    // this set permanently strands every later request for that site because
+    // automatic deployment clears measurement_due and the run never leaves
+    // `deployed`. Only states with a live worktree or an open measurement
+    // window should block a concurrent pickup.
     const busySites = new Set(
       events
         .listImprovements({ limit: 1000 })
-        .filter(r => ['building', 'review', 'deployed', 'measuring'].includes(r.state))
+        .filter(r => ['building', 'review', 'measuring'].includes(r.state))
         .map(r => r.site)
     );
     const picked = changequeue.pick(events, { max: slots }).filter(request => {
@@ -636,7 +641,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       else if (run.state === 'review') target = 'review';
       else if (run.state === 'reported') target = 'verified';
     }
-    if (!target || target === request.status) return request;
+    if (!target) return request;
+    if (target === request.status) {
+      if (!request.error) return request;
+      try {
+        return changequeue.update(events, request.request_id, { error: null }, site =>
+          isKnownSite(root, site)
+        );
+      } catch {
+        return request;
+      }
+    }
     if (target === 'verified' && run.state === 'reported') {
       try {
         return changequeue.update(
@@ -674,8 +689,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     let current = request;
     for (const next of order.slice(currentIndex + 1, targetIndex + 1)) {
       try {
-        current = changequeue.update(events, current.request_id, { status: next }, site =>
-          isKnownSite(root, site)
+        current = changequeue.update(
+          events,
+          current.request_id,
+          { status: next, error: null },
+          site => isKnownSite(root, site)
         );
       } catch {
         break;

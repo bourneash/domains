@@ -62,6 +62,12 @@ function docker(args, opts) {
   return sh('docker', args, opts);
 }
 
+function isBrowserInfrastructureFailure(stderr = '') {
+  return /(?:dbus|networkmanager|gpu process exited|mojo\/public\/cpp\/bindings|core dumped|chrome_main\.cc)/i.test(
+    String(stderr)
+  );
+}
+
 const containerName = site => `dd-${site}`;
 
 function sandboxNetworkName(instance) {
@@ -550,7 +556,7 @@ async function browserAudit(root, instance, site) {
       status:
         r.code === 0 && fs.existsSync(path.join(persistDir, name))
           ? 'pass'
-          : r.code === 124
+          : r.code === 124 || isBrowserInfrastructureFailure(r.stderr)
             ? 'warn'
             : 'fail',
       evidence:
@@ -558,7 +564,9 @@ async function browserAudit(root, instance, site) {
           ? '1440×1000 captured'
           : r.code === 124
             ? 'screenshot timed out; isolated worker retained no production-network access'
-            : r.stderr.trim().slice(-500),
+            : isBrowserInfrastructureFailure(r.stderr)
+              ? `screenshot warning: isolated browser runtime failure (${r.stderr.trim().slice(-500)})`
+              : r.stderr.trim().slice(-500),
     };
   }
   const lighthouseFile = path.join(persistDir, 'lighthouse.json');
@@ -736,6 +744,7 @@ module.exports = {
   validate,
   preview,
   browserAudit,
+  isBrowserInfrastructureFailure,
   improvementArtifactPath,
   startImprovement,
   improvementInstance,

@@ -21,3 +21,16 @@ test('developer sandboxes drop capabilities and keep writable state explicit', (
   assert.ok(args.includes('/tmp:rw,noexec,nosuid,size=1g'));
   assert.ok(args.includes('/home/dev/.codex') === false);
 });
+
+test('browser audit distinguishes sandbox runtime crashes from page failures', () => {
+  assert.equal(
+    devsandbox.isBrowserInfrastructureFailure(
+      'GPU process exited unexpectedly: exit_code=9\nmojo CopyOutputResultSender'
+    ),
+    true
+  );
+  assert.equal(
+    devsandbox.isBrowserInfrastructureFailure('curl: (7) Failed to connect to 127.0.0.1'),
+    false
+  );
+});
