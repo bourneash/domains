@@ -11736,6 +11736,7 @@ async function renderExecutive() {
       reports,
       managerQueue,
       principalQueue,
+      croLabRuns,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
       api('GET', '/api/executive/proposals?limit=100'),
@@ -11825,7 +11826,7 @@ async function renderExecutive() {
   const latestReport = reportRows[0];
   const managerQueueSummary = managerQueue.queue || {};
   const principalQueueSummary = principalQueue.summary || {};
-  const croRuns = croLabRuns.runs || [];
+  const croRuns = croLabRuns?.runs || [];
   const croLabRows = croRuns
     .slice(0, 6)
     .map(run => {
