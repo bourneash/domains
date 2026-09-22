@@ -5,6 +5,21 @@
   "current_disposition": "keep_private",
   "target_disposition": "bounded_public_beta",
   "owner_decision_required": "Do not change the private-preview gate until the checklist is complete and the owner chooses keep-private or bounded beta.",
+  "authoritative_evidence": {
+    "source_url": "https://developer.woot.com/",
+    "checked_at": "2026-09-22",
+    "confirmed": [
+      "Woot publishes official API documentation",
+      "API-key authentication and feed/offer endpoints are documented",
+      "The portal documents a 1 request/second rate, burst 10, and daily quota 1000"
+    ],
+    "not_confirmed": [
+      "Permission for SearchWoot to store, derive, publicly display, cache, or alert on the returned data",
+      "Field-level attribution, freshness, correction, takedown, and affiliate-use terms"
+    ],
+    "disposition": "evidence_needed",
+    "note": "Documentation of an API is not permission to use the data for this product. Keep the launch gate blocked pending current agreement, written permission, or human counsel disposition."
+  },
   "tracking": {
     "status": "active",
     "cadence": "every executive six-hour cycle",
