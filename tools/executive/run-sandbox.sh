@@ -26,6 +26,7 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/eventstore.js" \
     "$ROOT/tools/fleet-dashboard/server/executive.js" \
     "$ROOT/tools/fleet-dashboard/server/changequeue.js" \
+    "$ROOT/tools/fleet-dashboard/server/task-routing.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-snapshot.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-data.js"; do
     sha256sum "$file"
