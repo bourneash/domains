@@ -11982,7 +11982,7 @@ async function renderWorkbench() {
     <div class="wb-item-head"><div><div class="wb-item-title">${esc(item.title)}</div><div class="muted">${esc(item.site || 'fleet')} · ${esc(item.owner)}${item.source_type ? ` · ${esc(item.source_type)}` : ''}</div></div><div class="wb-badges">${workItemBadge(item.priority, 'priority')}${workItemBadge(item.status)}</div></div>
     <p class="wb-summary">${esc(item.summary || 'No context recorded.')}</p>
     <div class="wb-next"><span class="wb-label">NEXT</span>${esc(item.next_action || 'No next action recorded.')}</div>
-    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div>
+    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><button class="btn sm wb-thread-toggle" data-id="${esc(item.work_id)}">Thread</button><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div><div class="wb-thread hidden" data-thread="${esc(item.work_id)}"></div>
   </article>`
     )
     .join('');
@@ -12055,6 +12055,46 @@ async function renderWorkbench() {
           softRender();
         } catch (e) {
           toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.wb-thread-toggle').forEach(
+    button =>
+      (button.onclick = async () => {
+        const thread = $(`[data-thread="${CSS.escape(button.dataset.id)}"]`);
+        if (!thread) return;
+        if (!thread.classList.contains('hidden')) {
+          thread.classList.add('hidden');
+          return;
+        }
+        thread.classList.remove('hidden');
+        thread.innerHTML = '<div class="muted">Loading thread…</div>';
+        try {
+          const data = await api(
+            'GET',
+            `/api/executive/messages?work_id=${encodeURIComponent(button.dataset.id)}&limit=30`
+          );
+          const messages = (data.messages || []).slice().reverse();
+          thread.innerHTML = `${messages.map(message => `<div class="wb-message"><b>${esc(executiveActorLabel(message.actor))}</b><span class="muted"> · ${esc(message.message_type || 'update')} · ${esc(fmtDate(message.created_at))}</span><div>${esc(message.body)}</div></div>`).join('') || '<div class="muted">No handoffs yet.</div>'}<div class="wb-reply"><textarea class="cm-input wb-reply-body" rows="2" placeholder="Add owner direction to this case…"></textarea><button class="btn sm primary wb-reply-send">Send</button></div>`;
+          $('.wb-reply-send', thread).onclick = async () => {
+            const body = $('.wb-reply-body', thread).value.trim();
+            if (!body) return toast('Write a reply first', 'err');
+            try {
+              await api('POST', '/api/executive/messages', {
+                actor: 'owner',
+                body,
+                work_id: button.dataset.id,
+                message_type: 'update',
+              });
+              toast('Thread updated');
+              button.click();
+              button.click();
+            } catch (e) {
+              toast(e.message, 'err');
+            }
+          };
+        } catch (e) {
+          thread.innerHTML = `<div class="error-text">${esc(e.message)}</div>`;
         }
       })
   );

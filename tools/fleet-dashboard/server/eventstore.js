@@ -214,6 +214,12 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'change_queue_settings', 'auto_review_enabled', 'INTEGER NOT NULL DEFAULT 1');
   ensureColumn(db, 'change_queue_settings', 'lease_minutes', 'INTEGER NOT NULL DEFAULT 30');
   ensureColumn(db, 'executive_proposals', 'implementation_json', "TEXT NOT NULL DEFAULT '{}'");
+  ensureColumn(db, 'executive_messages', 'work_id', 'TEXT');
+  ensureColumn(db, 'executive_messages', 'reply_to', 'TEXT');
+  ensureColumn(db, 'executive_messages', 'message_type', "TEXT NOT NULL DEFAULT 'update'");
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS executive_messages_work ON executive_messages(work_id, created_at)'
+  );
 
   function record(input) {
     if (!input || !TYPES.test(String(input.event_type || '')))
@@ -697,32 +703,40 @@ function open(root, { file } = {}) {
       conversation_id: String(input.conversation_id || 'executive'),
       actor: String(input.actor || '').trim(),
       body: String(input.body || '').trim(),
+      work_id: input.work_id ? String(input.work_id).trim() : null,
+      reply_to: input.reply_to ? String(input.reply_to).trim() : null,
+      message_type: String(input.message_type || 'update').trim(),
       created_at: input.created_at || new Date().toISOString(),
       metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
     };
     if (!row.actor || !row.body) throw httpErr(400, 'actor and body are required');
     db.prepare(
       `INSERT INTO executive_messages
-      (message_id,conversation_id,actor,body,created_at,metadata_json) VALUES (?,?,?,?,?,?)`
+      (message_id,conversation_id,actor,body,work_id,reply_to,message_type,created_at,metadata_json) VALUES (?,?,?,?,?,?,?,?,?)`
     ).run(
       row.message_id,
       row.conversation_id,
       row.actor,
       row.body,
+      row.work_id,
+      row.reply_to,
+      row.message_type,
       row.created_at,
       JSON.stringify(row.metadata)
     );
     return row;
   }
 
-  function listExecutiveMessages({ conversation_id = 'executive', limit = 200 } = {}) {
+  function listExecutiveMessages({ conversation_id = 'executive', work_id, limit = 200 } = {}) {
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     return db
       .prepare(
-        `SELECT * FROM executive_messages WHERE conversation_id = ?
+        `SELECT * FROM executive_messages WHERE conversation_id = ?${work_id ? ' AND work_id = ?' : ''}
       ORDER BY created_at DESC LIMIT ?`
       )
-      .all(String(conversation_id), n)
+      .all(
+        ...(work_id ? [String(conversation_id), String(work_id), n] : [String(conversation_id), n])
+      )
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined }));
   }
 

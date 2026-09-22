@@ -99,6 +99,40 @@ test('roles can curate a source and move it through the learning queue', async (
   store.close();
 });
 
+test('leadership role handoffs survive one autonomous end-to-end plan', async () => {
+  const { root, store } = db();
+  const item = store.createExecutiveWorkItem({
+    title: 'Validate launch evidence',
+    kind: 'evidence',
+    owner: 'ceo',
+  });
+  const roles = ['ceo', 'cto', 'cfo', 'legal', 'security'];
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: roles.map(actor => ({
+        actor,
+        body: `${actor} reviewed the case and recorded the next bounded handoff.`,
+        work_id: item.work_id,
+        message_type: 'handoff',
+        metadata: { to: 'owner' },
+      })),
+      work_items: [
+        {
+          work_id: item.work_id,
+          status: 'in_progress',
+          owner: 'cto',
+          next_action: 'Collect the remaining evidence.',
+        },
+      ],
+    })
+  );
+  const result = await runner.applyPlan(store, plan, { root });
+  assert.equal(result.messages.length, roles.length);
+  assert.equal(store.listExecutiveMessages({ work_id: item.work_id }).length, roles.length);
+  assert.equal(store.getExecutiveWorkItem(item.work_id).owner, 'cto');
+  store.close();
+});
+
 test('supports CFO review and on-demand managed-site context without widening scope', async () => {
   const { root, store } = db();
   process.env.EXECUTIVE_DOMAIN = 'example.com';

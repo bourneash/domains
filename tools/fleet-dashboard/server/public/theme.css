@@ -1238,4 +1238,9 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .kn-meta { display: flex; gap: 12px; margin: 10px 0; }
 .kn-foot { align-items: center; border-top: 1px solid var(--line, #273244); padding-top: 10px; }
 .kn-status { width: auto; max-width: 150px; }
+.wb-thread { margin-top: 12px; border-top: 1px solid var(--line, #273244); padding-top: 12px; }
+.wb-message { padding: 8px 0; border-bottom: 1px solid var(--line, #273244); line-height: 1.4; }
+.wb-message > div { margin-top: 4px; white-space: pre-wrap; }
+.wb-reply { display: flex; gap: 8px; align-items: end; margin-top: 10px; }
+.wb-reply-body { flex: 1; }
 @media (max-width: 700px) { .kn-shell { padding: 14px; } .kn-kpis { grid-template-columns: repeat(2, 1fr); } .kn-list { grid-template-columns: 1fr; } }

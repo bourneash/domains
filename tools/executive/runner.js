@@ -463,11 +463,12 @@ Rules:
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
 - Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes. The one fleet write available to you is an allowlisted factual operating-baseline report; it never edits site code.
 - Use the workbench for durable follow-through. Create or update a work_item when an evidence gap, legal/security review, decision, incident, or education need has a concrete next action. Do not create duplicate work when an existing item covers the same issue; update it with the latest status, owner, evidence, and next action.
+- Use threaded messages for bounded handoffs: put the work_id on a message, name the receiving role in metadata, and make the message an update, question, decision_request, or handoff. Keep the durable case as the source of truth; messages should point to the next action rather than repeat the whole brief.
 - Use knowledge as a bounded learning queue, not a link dump. Prefer primary, official, open-licensed, or clearly attributed sources; record publisher, jurisdiction, date, license, and why the source is relevant. Create an education work_item when a role needs to apply the material, and never treat a book or course as legal advice or a substitute for counsel.
 
 Return ONLY valid JSON with this shape:
 {
-  "messages": [{"actor":"ceo|cto|cfo|legal|security|domain-manager|reviewer","body":"concise owner update"}],
+  "messages": [{"actor":"ceo|cto|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
@@ -676,7 +677,13 @@ function validatePlan(plan) {
         String(item.actor)
       ) ||
       !String(item.body || '').trim() ||
-      String(item.body).length > 10000
+      String(item.body).length > 10000 ||
+      (item.message_type &&
+        !['update', 'question', 'decision_request', 'handoff'].includes(
+          String(item.message_type)
+        )) ||
+      (item.metadata !== undefined &&
+        (typeof item.metadata !== 'object' || Array.isArray(item.metadata)))
     )
       throw new Error('invalid executive message in provider plan');
     if (/3boobs(?:\.com)?/i.test(String(item.body)))

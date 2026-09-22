@@ -28,6 +28,8 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   Shelf and role learning queue. Sources retain publisher, jurisdiction, date,
   license, relevance, and lifecycle status; they are educational inputs, not
   legal advice or a replacement for counsel.
+- Executive messages may carry `work_id`, `reply_to`, `message_type`, and
+  recipient metadata so role handoffs stay attached to the case they advance.
 
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
 searches public GitHub repositories against purpose-scoped fleet needs

@@ -39,6 +39,7 @@ test('executive workbench is a first-class operator route', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /Executive Workbench/);
   assert.match(app, /api\/executive\/work-items/);
+  assert.match(app, /wb-thread-toggle/);
 });
 
 test('knowledge shelf is a first-class operator route', () => {

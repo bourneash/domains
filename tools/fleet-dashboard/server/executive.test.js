@@ -125,6 +125,27 @@ test('curates knowledge with provenance and a role learning queue', () => {
   db.close();
 });
 
+test('threads role handoffs to a durable workbench case', () => {
+  const db = store();
+  const item = db.createExecutiveWorkItem({
+    title: 'Review security baseline',
+    kind: 'security',
+    owner: 'security',
+  });
+  const message = db.createExecutiveMessage({
+    actor: 'security',
+    body: 'Baseline reviewed; one evidence gap remains.',
+    work_id: item.work_id,
+    message_type: 'handoff',
+    metadata: { to: 'cto' },
+  });
+  const thread = db.listExecutiveMessages({ work_id: item.work_id });
+  assert.equal(thread[0].message_id, message.message_id);
+  assert.equal(thread[0].message_type, 'handoff');
+  assert.equal(thread[0].metadata.to, 'cto');
+  db.close();
+});
+
 test('allows the research officer to submit an executive proposal', () => {
   const db = store();
   const proposal = executive.proposal(db, {

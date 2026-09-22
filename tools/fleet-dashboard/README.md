@@ -57,6 +57,7 @@ Key views include:
   owner interaction is reserved for decisions and approvals.
 
 - **Knowledge Shelf** — curated, attributable sources with role-specific learning queues.
+- Workbench cases also expose compact threaded handoffs, keeping role communication attached to the next action instead of flooding the executive page.
 
 - **Priorities** — a cross-fleet decision queue that joins canonical lifecycle
   policy, analytics coverage, task ownership, and SEO evidence. Recommendations
