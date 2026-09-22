@@ -98,9 +98,18 @@ The eventual CEO runner should execute a recurring loop:
 5. Publish a concise owner update and create proposals for material decisions.
 6. Measure results and update the strategy from outcomes, not activity.
 
-Recurring scheduling is enabled under the owner-approved six-hour cadence. A production tick must be
-single-flight, bounded by timeout and cost, idempotent by plan fingerprint, and
-must leave a completed or failed audit record.
+Recurring scheduling is enabled under the owner-approved six-hour cadence. The
+scheduled entrypoint reads the persisted tick and queue settings, runs the
+CEO/CFO/CTO/reviewer sequence, and enables bounded queue execution when the
+change queue is enabled. A production tick must be single-flight, bounded by
+timeout and cost, idempotent by plan fingerprint, and must leave a completed
+or failed audit record.
+
+Every six-hour cycle carries an action mandate: when the telemetry bundle has
+an evidence-backed, low-risk candidate, the executive pass must either route
+at least one bounded action to the engineer queue or explain why all candidates
+were rejected. The trusted control plane caps a cycle at three queued actions
+and one queued/active implementation per site.
 
 The one-shot scheduler entrypoint is `run-scheduled.sh`. It is installed in the
 fleet scheduler at six-hour intervals; `run-sandbox.sh` retains the
@@ -112,6 +121,12 @@ one-shot wrapper remains the only execution path.
 The CRO entrypoint is `run-cro-scheduled.sh`. Disable it with
 `touch tools/executive/.cro-disabled`; remove that file to resume the next
 daily run.
+
+`run-measurements.sh` is deterministic and runs every six hours before the
+next executive tick. It moves deployed improvements into measurement and
+closes them after 14 days or 100 new search impressions, whichever comes first.
+Missing telemetry produces an inconclusive result and never counts as zero or
+as proof of revenue.
 
 ## Domain-manager reporting
 

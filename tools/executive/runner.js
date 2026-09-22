@@ -55,6 +55,26 @@ function executiveTarget(root, site) {
   return site === 'fleet' || executiveSites(root).includes(site);
 }
 
+function actionCandidates(intelligence, sites) {
+  const allowed = new Set(sites);
+  const actions = intelligence?.decision_support?.seo?.actions;
+  if (!Array.isArray(actions)) return [];
+  return actions
+    .filter(action => allowed.has(action.site) && action.filed !== true)
+    .sort((a, b) => Number(b.rankScore || b.score || 0) - Number(a.rankScore || a.score || 0))
+    .slice(0, 12)
+    .map(action => ({
+      site: action.site,
+      key: action.key || null,
+      title: action.title || 'Evidence-backed SEO opportunity',
+      type: action.type || 'seo',
+      evidence: action.evidence || null,
+      score: action.rankScore || action.score || null,
+      recommendation: action.recommendation || null,
+      metric: action.metric || null,
+    }));
+}
+
 function readSiteDescriptions(root = ROOT) {
   const descriptions = {};
   const file = path.join(root, 'DOMAINS_INDEX.md');
@@ -230,6 +250,13 @@ async function buildBrief(store, root = ROOT) {
         'Read-only telemetry is collected automatically and is available in intelligence and the scheduled intelligence snapshot. Do not create a proposal merely to request data already present there. Create a proposal only when a missing source requires an explicit implementation, credential, budget, or owner decision.',
     },
     owner_strategy: store.getExecutiveSettings(),
+    action_mandate: {
+      cadence: 'six_hour',
+      minimum_evidence_backed_action: 1,
+      maximum_queued_actions: 3,
+      rule: 'When an evidence-backed, low-risk and reversible candidate exists, the CEO/CTO pass must either queue it for the engineer or explain why it was rejected. Do not let low-volume affiliate attribution create a no-op.',
+      candidates: actionCandidates(intel.intelligence, sites),
+    },
     intelligence: intel,
     specialist_inputs: {
       cro_github_trends: croResearch.recent(root),
@@ -322,6 +349,7 @@ Rules:
 - Use only evidence present in the brief; label uncertainty and propose research when evidence is missing.
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
+- Follow action_mandate every six-hour cycle: when candidates are present, select at least one highest-confidence, low-risk, reversible improvement for the engineer queue or explain in a message why every candidate was rejected. Select no more than three queue actions and never duplicate a site that already has active work.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
@@ -343,6 +371,7 @@ Rules:
 Return ONLY valid JSON with this shape:
 {
   "messages": [{"actor":"ceo|cto|cfo|domain-manager","body":"concise owner update"}],
+  "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cfo|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
@@ -387,6 +416,7 @@ function parseOutput(text) {
     throw new Error('provider output must be a JSON object');
   for (const key of [
     'messages',
+    'proposal_reviews',
     'data_requests',
     'proposals',
     'change_requests',
@@ -396,6 +426,7 @@ function parseOutput(text) {
       throw new Error(`${key} must be an array`);
   const plan = {
     messages: result.messages || [],
+    proposal_reviews: result.proposal_reviews || [],
     data_requests: result.data_requests || [],
     proposals: result.proposals || [],
     change_requests: result.change_requests || [],
@@ -433,6 +464,7 @@ function normalizeProviderProposalTypes(plan) {
 function validatePlan(plan) {
   if (
     plan.messages.length > 20 ||
+    plan.proposal_reviews.length > 20 ||
     plan.data_requests.length > 10 ||
     plan.proposals.length > 20 ||
     plan.change_requests.length > 20 ||
@@ -457,6 +489,19 @@ function validatePlan(plan) {
     )
       throw new Error('invalid research request in provider plan');
     research.validateUrl(item.url);
+  }
+  for (const item of plan.proposal_reviews) {
+    if (
+      !String(item.proposal_id || '').trim() ||
+      !['ceo', 'cto', 'cfo', 'domain-manager', 'reviewer'].includes(
+        String(item.reviewed_by || '')
+      ) ||
+      !['accepted_research', 'escalate_owner', 'declined'].includes(String(item.status || '')) ||
+      String(item.decision_note || '').length > 2000
+    )
+      throw new Error('invalid proposal review in provider plan');
+    if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
+      throw new Error('executive plan references an excluded site');
   }
   for (const item of plan.messages) {
     if (
@@ -507,6 +552,23 @@ function validatePlan(plan) {
 
 function planFingerprint(plan) {
   return crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex');
+}
+
+function actionMandateSatisfied(plan = {}, brief = {}) {
+  if (!(brief.action_mandate?.candidates || []).length) return true;
+  const hasBoundedWork =
+    (plan.change_requests || []).length > 0 ||
+    (plan.proposals || []).some(
+      item => item.implementation && Object.keys(item.implementation).length
+    );
+  if (hasBoundedWork) return true;
+  return (
+    (plan.messages || []).some(message =>
+      /reject(?:ed|ing)?|no safe action|not justified|not warranted|blocked|insufficient evidence/i.test(
+        String(message.body || '')
+      )
+    ) && (brief.action_mandate?.candidates || []).length > 0
+  );
 }
 
 function isTelemetryRequestProposal(item = {}) {
@@ -584,9 +646,11 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   validatePlan(plan);
   const created = {
     messages: [],
+    proposal_reviews: [],
     data_requests: [],
     proposals: [],
     change_requests: [],
+    skipped_change_requests: [],
     research: [],
     telemetry_satisfied: [],
   };
@@ -653,6 +717,26 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       throw error;
     }
   }
+  for (const item of plan.proposal_reviews) {
+    const current = store.getExecutiveProposal(item.proposal_id);
+    // A stale CRO handoff can remain in a generated plan after another
+    // process reviewed it. Treat that as an idempotent no-op rather than
+    // failing the whole executive tick.
+    if (!current || !['researcher', 'cro'].includes(current.created_by)) continue;
+    if (!['proposed', 'feedback'].includes(current.status)) continue;
+    const mappedStatus =
+      item.status === 'declined'
+        ? 'declined'
+        : item.status === 'escalate_owner'
+          ? 'feedback'
+          : 'reviewed';
+    const reviewed = executive.review(store, item.proposal_id, {
+      status: mappedStatus,
+      decision_note: item.decision_note,
+      reviewed_by: item.reviewed_by,
+    });
+    created.proposal_reviews.push(reviewed);
+  }
   for (const item of plan.proposals) {
     if (isTelemetryRequestProposal(item)) {
       const audit = executive.action(store, {
@@ -705,9 +789,46 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   }
   handoff.writePlan(root, plan, created);
   if (allowQueue) {
+    const activeSites = new Set(
+      store
+        .listChangeRequests({ limit: 1000 })
+        .filter(row =>
+          ['queued', 'claimed', 'running', 'reviewing', 'review', 'committed'].includes(row.status)
+        )
+        .map(row => row.site)
+    );
+    for (const row of store.listImprovements({ limit: 1000 })) {
+      if (['proposed', 'building', 'review'].includes(row.state)) activeSites.add(row.site);
+    }
+    const queueLimit = Math.max(
+      1,
+      Math.min(3, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 3))
+    );
+    let queuedCount = 0;
     for (const item of plan.change_requests) {
       if (!item.site || !item.title || !item.body)
         throw new Error('change request requires site, title and body');
+      if (queuedCount >= queueLimit || activeSites.has(item.site)) {
+        created.skipped_change_requests.push({
+          site: item.site,
+          title: item.title,
+          reason:
+            queuedCount >= queueLimit
+              ? `per-tick queue limit reached (${queueLimit})`
+              : 'site already has queued or active implementation work',
+        });
+        const skipped = executive.action(store, {
+          actor: 'system',
+          action_type: 'observe',
+          summary: `Skipped duplicate or excess executive work: ${item.title}`,
+          target_type: 'change-request',
+        });
+        executive.finishAction(store, skipped.action_id, {
+          status: 'skipped',
+          result: created.skipped_change_requests.at(-1),
+        });
+        continue;
+      }
       const audit = executive.action(store, {
         actor:
           item.assigned_role === 'cto'
@@ -725,6 +846,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           executiveTarget(root, site)
         );
         created.change_requests.push(request);
+        queuedCount += 1;
+        activeSites.add(item.site);
         executive.finishAction(store, audit.action_id, {
           status: 'completed',
           request_id: request.request_id,
@@ -874,6 +997,7 @@ module.exports = {
   normalizeProviderProposalTypes,
   validatePlan,
   planFingerprint,
+  actionMandateSatisfied,
   applyPlan,
   runProvider,
   tick,

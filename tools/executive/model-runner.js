@@ -15,7 +15,9 @@ async function main() {
       x => !['adaptive', 'ceo', 'cto', 'cfo', 'domain-manager', 'reviewer'].includes(x)
     )
   )
-    throw new Error('EXECUTIVE_PASSES must contain adaptive or ceo, cto, reviewer');
+    throw new Error(
+      'EXECUTIVE_PASSES must contain adaptive or ceo, cto, cfo, domain-manager, reviewer'
+    );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);
   if (!Number.isInteger(passTimeout) || passTimeout < 10_000 || passTimeout > 15 * 60 * 1000)
@@ -23,6 +25,7 @@ async function main() {
   process.env.EXECUTIVE_TIMEOUT_MS = String(passTimeout);
   let plan = null;
   const audit = [];
+  const proposalReviews = new Map();
   for (const role of passes) {
     const prompt = runner.buildPassPrompt(brief, role, plan);
     let output = await runner.runProvider(prompt);
@@ -43,6 +46,8 @@ async function main() {
       repaired,
       counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
     });
+    for (const review of plan.proposal_reviews || [])
+      proposalReviews.set(review.proposal_id, review);
     if (requestedPasses[0] === 'adaptive' && role === 'ceo') {
       const hasWork = ['proposals', 'change_requests', 'research_requests'].some(
         key => plan[key]?.length
@@ -50,6 +55,27 @@ async function main() {
       if (hasWork) passes.push('cfo', 'cto', 'reviewer');
     }
   }
+  // Do not silently turn a telemetry-rich cycle into an observation-only
+  // no-op. Give the reviewer one bounded repair pass; if it still cannot
+  // select or explicitly reject a candidate, fail closed before the trusted
+  // host can apply the plan.
+  if (!runner.actionMandateSatisfied(plan, brief)) {
+    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe action mandate was not satisfied. Return the complete plan again and either (a) route one highest-confidence, low-risk, reversible candidate to engineer with acceptance and rollback criteria, or (b) include a concise owner message explicitly rejecting every listed candidate with an evidence-based reason. Do not return an observation-only plan.`;
+    const repairedOutput = await runner.runProvider(repairPrompt);
+    plan = runner.parseOutput(repairedOutput);
+    for (const review of plan.proposal_reviews || [])
+      proposalReviews.set(review.proposal_id, review);
+    audit.push({
+      role: 'action-mandate-repair',
+      repaired: true,
+      counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
+    });
+    if (!runner.actionMandateSatisfied(plan, brief))
+      throw new Error('executive action mandate was not satisfied');
+  }
+  // Later review passes are allowed to revise an earlier conclusion, but a
+  // pass that simply omits a CRO handoff must not reopen it for the owner.
+  plan.proposal_reviews = [...proposalReviews.values()];
   fs.writeFileSync('/output/plan.json', JSON.stringify(plan, null, 2), { mode: 0o600 });
   fs.writeFileSync('/output/passes.json', JSON.stringify(audit, null, 2), { mode: 0o600 });
   process.stdout.write(JSON.stringify({ passes: audit }) + '\n');

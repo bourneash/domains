@@ -105,6 +105,16 @@ schedule:
   enabled: true
   default_interval_hours: 6
   queue_execution_enabled: true
+  max_queued_actions_per_tick: 3
+  max_active_implementations_per_site: 1
+  measurement_window_days: 14
+  measurement_impression_threshold: 100
+action_mandate:
+  enabled: true
+  cadence: six_hour
+  minimum_evidence_backed_action_when_candidate_exists: 1
+  fallback: explain_rejection_with_evidence
+  routing: engineer_for_normal_work_principal_engineer_for_urgent_technical_work
 provider:
   name: chatgpt
   model: gpt-5.6-luna

@@ -123,6 +123,26 @@ function decision(store, id, input = {}, { knownSite } = {}) {
   return proposal;
 }
 
+function review(store, id, input = {}) {
+  const proposal = store.reviewExecutiveProposal(id, {
+    status: input.status || 'reviewed',
+    decision_note: input.decision_note || '',
+    reviewed_by: input.reviewed_by || 'ceo',
+  });
+  const actionType = proposal.status === 'declined' ? 'decline' : 'feedback';
+  const audit = action(store, {
+    actor: input.reviewed_by || 'ceo',
+    action_type: actionType,
+    summary: `${actionType} CRO handoff: ${proposal.title}`,
+    proposal_id: proposal.proposal_id,
+  });
+  finishAction(store, audit.action_id, {
+    status: 'completed',
+    result: { proposal_id: proposal.proposal_id, review: proposal.status },
+  });
+  return proposal;
+}
+
 function action(store, input = {}) {
   if (!ACTORS.has(String(input.actor)))
     throw httpErr(400, `unknown executive actor: ${input.actor}`);
@@ -152,6 +172,7 @@ module.exports = {
   message,
   proposal,
   decision,
+  review,
   action,
   finishAction,
 };

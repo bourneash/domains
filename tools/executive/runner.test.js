@@ -76,6 +76,95 @@ test('parses structured provider output and applies only explicitly enabled queu
   store.close();
 });
 
+test('caps queue work and prevents two active implementations on one site', async () => {
+  const { root, store } = db();
+  for (const site of ['other.example', 'third.example', 'fourth.example'])
+    fs.mkdirSync(path.join(root, 'sites', site), { recursive: true });
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [],
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'First bounded change',
+          body: 'Do first',
+          category: 'seo',
+          priority: 'low',
+        },
+        {
+          site: 'example.com',
+          title: 'Duplicate bounded change',
+          body: 'Do second',
+          category: 'seo',
+          priority: 'low',
+        },
+        {
+          site: 'other.example',
+          title: 'Second site change',
+          body: 'Do third',
+          category: 'seo',
+          priority: 'low',
+        },
+        {
+          site: 'third.example',
+          title: 'Third site change',
+          body: 'Do fourth',
+          category: 'seo',
+          priority: 'low',
+        },
+        {
+          site: 'fourth.example',
+          title: 'Fourth site change',
+          body: 'Do fifth',
+          category: 'seo',
+          priority: 'low',
+        },
+      ],
+      research_requests: [],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
+  assert.equal(created.change_requests.length, 3);
+  assert.equal(created.skipped_change_requests.length, 2);
+  assert.equal(
+    created.skipped_change_requests[0].reason,
+    'site already has queued or active implementation work'
+  );
+  store.close();
+});
+
+test('reviews CRO handoffs without putting them in owner approval', async () => {
+  const { root, store } = db();
+  const cro = store.createExecutiveProposal({
+    title: 'CRO candidate',
+    proposal_type: 'product',
+    created_by: 'researcher',
+    summary: 'A purpose-fit repository lead.',
+    requested_action: 'CEO and CTO validate it.',
+  });
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposal_reviews: [
+        {
+          proposal_id: cro.proposal_id,
+          reviewed_by: 'ceo',
+          status: 'accepted_research',
+          decision_note: 'Commission bounded validation.',
+        },
+      ],
+      proposals: [],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.proposal_reviews[0].status, 'reviewed');
+  assert.equal(store.getExecutiveProposal(cro.proposal_id).status, 'reviewed');
+  store.close();
+});
+
 test('does not trust provider proposal IDs across recurring runs', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(
@@ -174,6 +263,32 @@ test('identifies read-only telemetry requests without suppressing implementation
       title: 'Improve content depth',
       summary: 'Review internal linking opportunities.',
     }),
+    false
+  );
+});
+
+test('enforces a bounded action or an explicit evidence-based rejection', () => {
+  const brief = { action_mandate: { candidates: [{ site: 'example.com' }] } };
+  assert.equal(
+    runner.actionMandateSatisfied(
+      { change_requests: [{ site: 'example.com' }], proposals: [], messages: [] },
+      brief
+    ),
+    true
+  );
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        change_requests: [],
+        proposals: [],
+        messages: [{ body: 'No safe action is justified by the evidence.' }],
+      },
+      brief
+    ),
+    true
+  );
+  assert.equal(
+    runner.actionMandateSatisfied({ messages: [], proposals: [], change_requests: [] }, brief),
     false
   );
 });

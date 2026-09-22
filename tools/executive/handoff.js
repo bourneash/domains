@@ -72,6 +72,17 @@ function writePlan(root, plan, created) {
       proposal_id: created.proposals.find(row => row.title === item.title)?.proposal_id || null,
     });
   }
+  for (const item of plan.proposal_reviews || []) {
+    const role = item.reviewed_by || 'ceo';
+    if (!grouped.has(role)) grouped.set(role, []);
+    grouped.get(role).push({
+      kind: 'proposal-review',
+      title: item.proposal_id,
+      summary: item.decision_note || null,
+      requested_action: item.status,
+      proposal_id: item.proposal_id,
+    });
+  }
   for (const [role, items] of grouped) {
     write(root, {
       role,

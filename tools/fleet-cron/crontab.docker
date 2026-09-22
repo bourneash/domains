@@ -124,6 +124,10 @@
 # Six-hourly, single-flight, bounded by run-sandbox.sh. Queue execution is
 # separately gated by the dashboard's reviewed change-queue settings.
 0 */6 * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
+# Measure deployed executive/site improvements before the next CEO tick. This
+# is deterministic telemetry work, not an AI invocation: 14 days or 100 new
+# impressions closes the result window.
+20 */6 * * * /home/jesse/projects/domains/tools/executive/run-measurements.sh
 # Domain managers publish cheap exception-first reports separately from model ticks.
 10 */6 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence six_hour
 # One new manager every minute, with a two-manager concurrency cap.

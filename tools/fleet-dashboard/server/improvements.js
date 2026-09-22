@@ -84,7 +84,7 @@ function start({ store, root, site, action, baseline = {} }) {
   return { run, duplicate: false };
 }
 
-function startManual({ store, root, request }) {
+function startManual({ store, root, request, baseline = {} }) {
   const runId = crypto.randomUUID();
   const taskId = crypto.randomUUID();
   const correlationId = `change-request:${request.request_id}`;
@@ -120,6 +120,7 @@ function startManual({ store, root, request }) {
       captured_at: new Date().toISOString(),
       evidence: request.body,
       request_category: request.category,
+      analytics: baseline && typeof baseline === 'object' ? baseline : {},
     },
   });
   store.record({

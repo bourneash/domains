@@ -104,6 +104,26 @@ test('allows CFO and domain-manager messages and proposals', () => {
   db.close();
 });
 
+test('CEO can close a CRO handoff without granting owner approval', () => {
+  const db = store();
+  const proposal = executive.proposal(db, {
+    title: 'CRO repository lead',
+    proposal_type: 'product',
+    created_by: 'researcher',
+    summary: 'A candidate worth bounded validation.',
+    requested_action: 'Validate fit and license.',
+  });
+  const reviewed = executive.review(db, proposal.proposal_id, {
+    status: 'reviewed',
+    reviewed_by: 'ceo',
+    decision_note: 'Accepted for bounded research only.',
+  });
+  assert.equal(reviewed.status, 'reviewed');
+  assert.equal(db.listExecutiveProposals({ status: 'proposed' }).length, 0);
+  assert.equal(db.listExecutiveActions({ actor: 'ceo' })[0].action_type, 'feedback');
+  db.close();
+});
+
 test('owner approval turns a bounded implementation into a linked change request', () => {
   const db = store();
   const proposal = executive.proposal(db, {

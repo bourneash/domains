@@ -249,7 +249,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     let createdRun = null;
     let agentStarted = false;
     try {
-      const created = improvements.startManual({ store: events, root, request: claimed });
+      let baseline = {};
+      try {
+        // Capture the pre-change window while the request is being claimed.
+        // A missing data hub must not strand safe implementation work; it is
+        // recorded as unavailable and the later measurement remains honest.
+        baseline = await analytics.summary(claimed.site, 14);
+      } catch {
+        baseline = { has_data: false, error: 'baseline collection failed' };
+      }
+      const created = improvements.startManual({ store: events, root, request: claimed, baseline });
       createdRun = created.run;
       await git.commit(
         root,
@@ -828,7 +837,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const changed = improvements.transition(events, reviewRun.run_id, {
       state: 'deployed',
       deployment_id: deployed.commit,
-      measurement_due: null,
+      measurement_due: improvements.measurementDate(14),
       approval: {
         approved_at: new Date().toISOString(),
         access: 'automatic-reviewer',
@@ -1837,7 +1846,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         if (live?.live !== true) continue;
         improvements.transition(events, item.run_id, {
           state: 'measuring',
-          measurement_due: improvements.measurementDate(28),
+          measurement_due:
+            item.measurement_due || improvements.measurementDate(14, Date.parse(item.updated_at)),
           outcome: {
             deployment_verified_at: new Date().toISOString(),
             worker_version: live.version || null,
@@ -2138,7 +2148,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const changed = improvements.transition(events, item.run_id, {
         state: 'deployed',
         deployment_id: deployed.commit,
-        measurement_due: null,
+        measurement_due: improvements.measurementDate(14),
         approval: {
           approved_at: new Date().toISOString(),
           access: auth.accessLevel(req),

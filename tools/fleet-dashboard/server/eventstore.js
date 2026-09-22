@@ -783,6 +783,31 @@ function open(root, { file } = {}) {
     return getExecutiveProposal(id);
   }
 
+  // Executive passes may review CRO/research handoffs without granting owner
+  // approval. A reviewed handoff is intentionally not eligible for the owner
+  // approval queue; a separate owner-facing proposal can still be created when
+  // the executive team finds a material implementation worth pursuing.
+  function reviewExecutiveProposal(
+    id,
+    { status = 'reviewed', decision_note = '', reviewed_by = 'ceo' } = {}
+  ) {
+    if (!['reviewed', 'declined', 'feedback'].includes(String(status)))
+      throw httpErr(400, 'status must be reviewed, declined or feedback');
+    if (!['ceo', 'cto', 'cfo', 'domain-manager', 'reviewer'].includes(String(reviewed_by)))
+      throw httpErr(403, 'invalid executive reviewer');
+    const current = getExecutiveProposal(id);
+    if (!current) throw httpErr(404, 'executive proposal not found');
+    if (!['researcher', 'cro'].includes(current.created_by))
+      throw httpErr(403, 'only CRO/research handoffs may receive executive review');
+    if (!['proposed', 'feedback'].includes(current.status))
+      throw httpErr(409, `proposal is already ${current.status}`);
+    const now = new Date().toISOString();
+    db.prepare(
+      `UPDATE executive_proposals SET status=?,updated_at=?,decision_note=?,decided_by=?,decided_at=? WHERE proposal_id=?`
+    ).run(String(status), now, String(decision_note || ''), String(reviewed_by), now, String(id));
+    return getExecutiveProposal(id);
+  }
+
   function createExecutiveAction(input) {
     const row = {
       action_id: input.action_id || crypto.randomUUID(),
@@ -897,6 +922,7 @@ function open(root, { file } = {}) {
     listExecutiveProposals,
     getExecutiveProposal,
     decideExecutiveProposal,
+    reviewExecutiveProposal,
     createExecutiveAction,
     listExecutiveActions,
     getExecutiveAction,
