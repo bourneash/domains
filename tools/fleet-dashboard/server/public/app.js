@@ -12121,9 +12121,9 @@ function renderKnowledge() {
         .map(
           item => `<article class="kn-card">
       <div class="kn-card-head"><div><h3>${item.url ? `<a href="${safeHref(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)} ↗</a>` : esc(item.title)}</h3><div class="muted">${esc(item.publisher || 'Publisher not recorded')}${item.jurisdiction ? ` · ${esc(item.jurisdiction)}` : ''}</div></div><div>${workItemBadge(item.status)} ${workItemBadge(item.resource_type)}</div></div>
-      <p>${esc(item.summary || 'No relevance note recorded.')}</p>
+      <p>${esc(item.summary || 'No relevance note recorded.')}</p>${item.takeaway || item.applied_to ? `<div class="kn-learning"><b>Applied learning</b><div>${esc(item.takeaway || 'No takeaway recorded.')}</div>${item.applied_to ? `<small>Used in: ${esc(item.applied_to)}</small>` : ''}</div>` : ''}
       <div class="kn-meta"><span>${esc(item.audience)}${item.license ? ` · ${esc(item.license)}` : ''}</span>${item.published_at ? `<span>published ${esc(item.published_at)}</span>` : ''}</div>
-      <div class="kn-foot"><span class="muted">${(item.tags || []).map(esc).join(' · ') || 'No tags'}</span><select class="cm-input kn-status" data-id="${esc(item.knowledge_id)}" aria-label="Status for ${esc(item.title)}">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], item.status, 'Change status')}</select></div>
+      <div class="kn-foot"><span class="muted">${(item.tags || []).map(esc).join(' · ') || 'No tags'}</span><div class="kn-actions"><button class="btn sm kn-learning-toggle" data-id="${esc(item.knowledge_id)}">Learning note</button><select class="cm-input kn-status" data-id="${esc(item.knowledge_id)}" aria-label="Status for ${esc(item.title)}">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], item.status, 'Change status')}</select></div></div><div class="kn-learning-edit hidden" data-learning="${esc(item.knowledge_id)}"><textarea class="cm-input kn-takeaway" rows="2" placeholder="What did the role learn?">${esc(item.takeaway || '')}</textarea><input class="cm-input kn-applied" placeholder="Where was it applied?" value="${esc(item.applied_to || '')}"><button class="btn sm primary kn-learning-save" data-id="${esc(item.knowledge_id)}">Save learning</button></div>
     </article>`
         )
         .join('');
@@ -13169,6 +13169,33 @@ async function renderAIOptimizer() {
             note: to === 'rejected' ? note : undefined,
             commit: to === 'applied' ? note : undefined,
           }
+        );
+        $$('.kn-learning-toggle').forEach(
+          button =>
+            (button.onclick = () => {
+              $(`[data-learning="${CSS.escape(button.dataset.id)}"]`)?.classList.toggle('hidden');
+            })
+        );
+        $$('.kn-learning-save').forEach(
+          button =>
+            (button.onclick = async () => {
+              const edit = $(`[data-learning="${CSS.escape(button.dataset.id)}"]`);
+              try {
+                await api(
+                  'PATCH',
+                  `/api/executive/knowledge/${encodeURIComponent(button.dataset.id)}`,
+                  {
+                    takeaway: $('.kn-takeaway', edit).value.trim(),
+                    applied_to: $('.kn-applied', edit).value.trim(),
+                    reviewed_by: 'owner',
+                  }
+                );
+                toast('Learning recorded');
+                softRender();
+              } catch (e) {
+                toast(e.message, 'err');
+              }
+            })
         );
         await renderAIOptimizer();
       } catch (e) {

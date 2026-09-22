@@ -177,7 +177,11 @@ function open(root, { file } = {}) {
       created_by TEXT NOT NULL DEFAULT 'system',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
-      completed_at TEXT
+      completed_at TEXT,
+      takeaway TEXT NOT NULL DEFAULT '',
+      applied_to TEXT NOT NULL DEFAULT '',
+      reviewed_by TEXT,
+      reviewed_at TEXT
     );
     CREATE INDEX IF NOT EXISTS executive_knowledge_queue ON executive_knowledge_items(status, audience, updated_at DESC);
     CREATE TABLE IF NOT EXISTS change_queue_settings (
@@ -217,6 +221,10 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_messages', 'work_id', 'TEXT');
   ensureColumn(db, 'executive_messages', 'reply_to', 'TEXT');
   ensureColumn(db, 'executive_messages', 'message_type', "TEXT NOT NULL DEFAULT 'update'");
+  ensureColumn(db, 'executive_knowledge_items', 'takeaway', "TEXT NOT NULL DEFAULT ''");
+  ensureColumn(db, 'executive_knowledge_items', 'applied_to', "TEXT NOT NULL DEFAULT ''");
+  ensureColumn(db, 'executive_knowledge_items', 'reviewed_by', 'TEXT');
+  ensureColumn(db, 'executive_knowledge_items', 'reviewed_at', 'TEXT');
   db.exec(
     'CREATE INDEX IF NOT EXISTS executive_messages_work ON executive_messages(work_id, created_at)'
   );
@@ -1190,12 +1198,16 @@ function open(root, { file } = {}) {
       created_at: now,
       updated_at: now,
       completed_at: null,
+      takeaway: String(input.takeaway || '').trim(),
+      applied_to: String(input.applied_to || '').trim(),
+      reviewed_by: input.reviewed_by ? String(input.reviewed_by).trim() : null,
+      reviewed_at: input.reviewed_at ? String(input.reviewed_at).trim() : null,
     };
     validateKnowledge(row);
     db.prepare(
       `INSERT INTO executive_knowledge_items
-      (knowledge_id,title,resource_type,audience,status,url,publisher,jurisdiction,license,published_at,summary,tags_json,source_work_id,created_by,created_at,updated_at,completed_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (knowledge_id,title,resource_type,audience,status,url,publisher,jurisdiction,license,published_at,summary,tags_json,source_work_id,created_by,created_at,updated_at,completed_at,takeaway,applied_to,reviewed_by,reviewed_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.knowledge_id,
       row.title,
@@ -1213,7 +1225,11 @@ function open(root, { file } = {}) {
       row.created_by,
       row.created_at,
       row.updated_at,
-      row.completed_at
+      row.completed_at,
+      row.takeaway,
+      row.applied_to,
+      row.reviewed_by,
+      row.reviewed_at
     );
     return row;
   }
@@ -1254,8 +1270,10 @@ function open(root, { file } = {}) {
     validateKnowledge(next);
     const now = new Date().toISOString();
     const completed = next.status === 'complete' ? next.completed_at || now : null;
+    const reviewed =
+      next.takeaway || next.applied_to ? next.reviewed_at || now : next.reviewed_at || null;
     db.prepare(
-      `UPDATE executive_knowledge_items SET title=?,resource_type=?,audience=?,status=?,url=?,publisher=?,jurisdiction=?,license=?,published_at=?,summary=?,tags_json=?,source_work_id=?,updated_at=?,completed_at=? WHERE knowledge_id=?`
+      `UPDATE executive_knowledge_items SET title=?,resource_type=?,audience=?,status=?,url=?,publisher=?,jurisdiction=?,license=?,published_at=?,summary=?,tags_json=?,source_work_id=?,updated_at=?,completed_at=?,takeaway=?,applied_to=?,reviewed_by=?,reviewed_at=? WHERE knowledge_id=?`
     ).run(
       next.title,
       next.resource_type,
@@ -1271,6 +1289,10 @@ function open(root, { file } = {}) {
       next.source_work_id || null,
       now,
       completed,
+      String(next.takeaway || ''),
+      String(next.applied_to || ''),
+      next.reviewed_by || null,
+      reviewed,
       String(id)
     );
     return decodeKnowledge(

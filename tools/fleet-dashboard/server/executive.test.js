@@ -116,8 +116,15 @@ test('curates knowledge with provenance and a role learning queue', () => {
     db.listExecutiveKnowledge({ audience: 'legal' })[0].knowledge_id,
     source.knowledge_id
   );
-  const complete = db.updateExecutiveKnowledge(source.knowledge_id, { status: 'complete' });
+  const complete = db.updateExecutiveKnowledge(source.knowledge_id, {
+    status: 'complete',
+    takeaway: 'Disclosures must be clear and conspicuous.',
+    applied_to: 'Affiliate launch checklist',
+    reviewed_by: 'legal',
+  });
   assert.equal(complete.status, 'complete');
+  assert.equal(complete.takeaway, 'Disclosures must be clear and conspicuous.');
+  assert.equal(complete.applied_to, 'Affiliate launch checklist');
   assert.throws(
     () => db.createExecutiveKnowledge({ title: 'Unsafe', url: 'javascript:alert(1)' }),
     /http/

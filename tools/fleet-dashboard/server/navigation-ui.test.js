@@ -47,6 +47,7 @@ test('knowledge shelf is a first-class operator route', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /Knowledge shelf/);
   assert.match(app, /api\/executive\/knowledge/);
+  assert.match(app, /kn-learning-save/);
 });
 
 test('Git operations and Git Hygiene share one page with distinct tabs', () => {

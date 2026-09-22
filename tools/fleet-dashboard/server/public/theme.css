@@ -1238,6 +1238,10 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .kn-meta { display: flex; gap: 12px; margin: 10px 0; }
 .kn-foot { align-items: center; border-top: 1px solid var(--line, #273244); padding-top: 10px; }
 .kn-status { width: auto; max-width: 150px; }
+.kn-actions { display: flex; gap: 6px; align-items: center; }
+.kn-learning { border-left: 3px solid var(--accent, #60a5fa); padding: 7px 10px; margin: 10px 0; font-size: .86rem; line-height: 1.4; }
+.kn-learning small { color: var(--muted, #94a3b8); display: block; margin-top: 3px; }
+.kn-learning-edit { display: grid; gap: 7px; margin-top: 10px; }
 .wb-thread { margin-top: 12px; border-top: 1px solid var(--line, #273244); padding-top: 12px; }
 .wb-message { padding: 8px 0; border-bottom: 1px solid var(--line, #273244); line-height: 1.4; }
 .wb-message > div { margin-top: 4px; white-space: pre-wrap; }
