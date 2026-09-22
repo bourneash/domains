@@ -192,7 +192,7 @@ function sandboxBase(workspace, image, name) {
     '--pids-limit=128', '--memory=768m', '--cpus=1',
     '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m', '--network=none',
     '--workdir', '/workspace/repo', '-v', `${workspace}:/workspace/repo:ro`,
-    image,
+    '--entrypoint', '/bin/sh', image,
   ];
 }
 
@@ -201,7 +201,7 @@ function dockerSandbox({ workspace, commands, image = DEFAULT_IMAGE, name = `cro
   for (const [index, command] of commands.entries()) {
     const started = Date.now();
     try {
-      const stdout = execFileSync('docker', [...sandboxBase(workspace, image, `${name}-${index}`), 'sh', '-lc', command], {
+      const stdout = execFileSync('docker', [...sandboxBase(workspace, image, `${name}-${index}`), '-lc', command], {
         timeout: CHECK_TIMEOUT_MS,
         maxBuffer: 64 * 1024,
         encoding: 'utf8',
@@ -225,7 +225,11 @@ function checkCommands(manifest) {
   const commands = [];
   for (const file of manifest.source_files || []) {
     if (/\.(?:js|jsx|mjs|cjs)$/.test(file)) commands.push(`node --check ${shellQuote(`/workspace/repo/${file}`)}`);
-    else if (/\.py$/.test(file)) commands.push(`python3 -m py_compile ${shellQuote(`/workspace/repo/${file}`)}`);
+    else if (/\.py$/.test(file)) {
+      const sourcePath = `/workspace/repo/${file}`;
+      const parser = `import ast,pathlib; ast.parse(pathlib.Path(${JSON.stringify(sourcePath)}).read_text())`;
+      commands.push(`python3 -c ${shellQuote(parser)}`);
+    }
     if (commands.length >= MAX_CHECK_FILES) break;
   }
   // Deliberately do not install or execute package-manager dependencies. If a
