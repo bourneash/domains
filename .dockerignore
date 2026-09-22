@@ -17,5 +17,6 @@ tools/fleet-dashboard/server/*
 !tools/fleet-dashboard/server/executive.js
 !tools/fleet-dashboard/server/changequeue.js
 !tools/fleet-dashboard/server/task-routing.js
+!tools/fleet-dashboard/server/executive-scorecard.js
 !tools/fleet-dashboard/server/executive-snapshot.js
 !tools/fleet-dashboard/server/executive-data.js
