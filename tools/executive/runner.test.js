@@ -210,14 +210,21 @@ test('caps queue work and prevents two active implementations on one site', asyn
       research_requests: [],
     })
   );
-  const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
-  assert.equal(created.change_requests.length, 3);
-  assert.equal(created.skipped_change_requests.length, 2);
-  assert.equal(
-    created.skipped_change_requests[0].reason,
-    'site already has queued or active implementation work'
-  );
-  store.close();
+  const previousLimit = process.env.EXECUTIVE_MAX_QUEUED_ACTIONS;
+  process.env.EXECUTIVE_MAX_QUEUED_ACTIONS = '3';
+  try {
+    const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
+    assert.equal(created.change_requests.length, 3);
+    assert.equal(created.skipped_change_requests.length, 2);
+    assert.equal(
+      created.skipped_change_requests[0].reason,
+      'site already has queued or active implementation work'
+    );
+  } finally {
+    if (previousLimit === undefined) delete process.env.EXECUTIVE_MAX_QUEUED_ACTIONS;
+    else process.env.EXECUTIVE_MAX_QUEUED_ACTIONS = previousLimit;
+    store.close();
+  }
 });
 
 test('reviews CRO handoffs without putting them in owner approval', async () => {
@@ -392,6 +399,37 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
     runner.actionMandateSatisfied({ messages: [], proposals: [], change_requests: [] }, brief),
     false
   );
+});
+
+test('surfaces a rotating multi-site portfolio batch from priorities and scorecards', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-09-22T16:50:02.576Z',
+      decision_support: {
+        seo: { actions: [{ site: 'searchwoot.com', title: 'Sitemap', rankScore: 86 }] },
+        priorities: {
+          items: [
+            { site: '0daynews.com', title: 'Fix routing', score: 96, state: 'blocked' },
+            { site: 'americastrikes.com', title: 'Replace OOS item', score: 96, state: 'blocked' },
+          ],
+          scorecards: [
+            { site: 'eastcoastrappers.com', lifecycle: 'live', opportunity_score: 0 },
+            { site: 'saveusfarms.com', lifecycle: 'live', opportunity_score: 0 },
+          ],
+        },
+      },
+    },
+    [
+      'searchwoot.com',
+      '0daynews.com',
+      'americastrikes.com',
+      'eastcoastrappers.com',
+      'saveusfarms.com',
+    ]
+  );
+  assert.equal(new Set(candidates.map(item => item.site)).size, candidates.length);
+  assert.ok(candidates.length >= 4);
+  assert.ok(candidates.some(item => item.site === 'eastcoastrappers.com'));
 });
 
 test('rejects unsafe plans and fingerprints identical plans deterministically', () => {

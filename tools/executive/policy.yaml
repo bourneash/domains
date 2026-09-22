@@ -148,7 +148,7 @@ schedule:
   default_interval_hours: 6
   heartbeat_interval_hours: 1
   queue_execution_enabled: true
-  max_queued_actions_per_tick: 3
+  max_queued_actions_per_tick: 6
   max_active_implementations_per_site: 1
   measurement_window_days: 14
   measurement_impression_threshold: 100

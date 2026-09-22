@@ -151,10 +151,12 @@ timeout and cost, idempotent by plan fingerprint, and must leave a completed
 or failed audit record.
 
 Every six-hour cycle carries an action mandate: when the telemetry bundle has
-an evidence-backed, low-risk candidate, the executive pass must either route
-at least one bounded action to the engineer queue or explain why all candidates
-were rejected. The trusted control plane caps a cycle at three queued actions
-and one queued/active implementation per site.
+evidence-backed, low-risk candidates, the executive pass should route a small
+portfolio batch across distinct sites or explain why all candidates were
+rejected. The trusted control plane caps a cycle at six queued actions and one
+queued/active implementation per site. Sparse source-specific findings are
+supplemented by a rotating cohort of bounded site-baseline checks; missing
+telemetry is reported as unavailable, never treated as zero.
 
 The one-shot scheduler entrypoint is `run-scheduled.sh`. It is installed in the
 fleet scheduler at six-hour intervals; `run-sandbox.sh` retains the

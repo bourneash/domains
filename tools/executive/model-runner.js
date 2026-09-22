@@ -86,7 +86,7 @@ async function main() {
   // select or explicitly reject a candidate, fail closed before the trusted
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
-    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe action mandate was not satisfied. Return the complete plan again and either (a) route one highest-confidence, low-risk, reversible candidate to engineer with acceptance and rollback criteria, or (b) include one owner-facing message beginning with Recommendation: that gives a clear evidence-backed disposition and asks at most one concrete decision question. Do not return an observation-only plan or a question without a recommendation.`;
+    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and either (a) route a small batch of up to six highest-confidence, low-risk, reversible candidates to engineer across distinct sites, covering at least three sites when three or more candidates are available, with acceptance and rollback criteria, or (b) include one owner-facing message beginning with Recommendation: that gives a clear evidence-backed disposition and asks at most one concrete decision question when the brief has fewer than three actionable sites. Do not return an observation-only plan or a question without a recommendation.`;
     const repairedOutput = await runner.runProvider(repairPrompt);
     plan = mergePassPlans(plan, runner.parseOutput(repairedOutput));
     for (const review of plan.proposal_reviews || [])
@@ -97,7 +97,7 @@ async function main() {
       counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
     });
     if (!runner.actionMandateSatisfied(plan, brief)) {
-      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL DECISION-MEMO REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve the useful existing work, and include exactly one concise CEO message whose body starts with Recommendation: and then gives: (1) the action you recommend now, (2) at least one known number/date or an explicit statement that the number is not calculable and why, (3) the main unknown, (4) the smallest next step, and (5) at most one direct owner question with concrete options. Do not return a maintenance-only update or a question without a recommendation.`;
+      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL PORTFOLIO DECISION-MEMO REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve the useful existing work, and include a concise CEO message whose body starts with Recommendation: and gives: (1) the action you recommend now, (2) at least one known number/date or an explicit statement that the number is not calculable and why, (3) the main unknown, (4) the smallest next step, and (5) at most one direct owner question with concrete options. When the brief has three or more actionable sites, also include bounded, reversible implementation or evidence work covering at least three distinct sites. Do not return a maintenance-only update or a question without a recommendation.`;
       const finalRepairOutput = await runner.runProvider(finalRepairPrompt);
       plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput));
       audit.push({

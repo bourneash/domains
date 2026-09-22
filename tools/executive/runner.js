@@ -60,22 +60,80 @@ function executiveTarget(root, site) {
 
 function actionCandidates(intelligence, sites) {
   const allowed = new Set(sites);
-  const actions = intelligence?.decision_support?.seo?.actions;
-  if (!Array.isArray(actions)) return [];
-  return actions
-    .filter(action => allowed.has(action.site) && action.filed !== true)
-    .sort((a, b) => Number(b.rankScore || b.score || 0) - Number(a.rankScore || a.score || 0))
-    .slice(0, 12)
-    .map(action => ({
-      site: action.site,
-      key: action.key || null,
-      title: action.title || 'Evidence-backed SEO opportunity',
-      type: action.type || 'seo',
-      evidence: action.evidence || null,
-      score: action.rankScore || action.score || null,
-      recommendation: action.recommendation || null,
-      metric: action.metric || null,
-    }));
+  const seoActions = Array.isArray(intelligence?.decision_support?.seo?.actions)
+    ? intelligence.decision_support.seo.actions
+        .filter(action => allowed.has(action.site) && action.filed !== true)
+        .map(action => ({
+          site: action.site,
+          key: action.key || null,
+          title: action.title || 'Evidence-backed SEO opportunity',
+          type: action.type || 'seo',
+          evidence: action.evidence || null,
+          score: action.rankScore || action.score || 0,
+          recommendation: action.recommendation || null,
+          metric: action.metric || null,
+        }))
+    : [];
+  const priorityItems = Array.isArray(intelligence?.decision_support?.priorities?.items)
+    ? intelligence.decision_support.priorities.items
+        .filter(item => allowed.has(item.site) && item.state !== 'resolved')
+        .map(item => ({
+          site: item.site,
+          key: item.id || null,
+          title: item.title || 'Evidence-backed portfolio action',
+          type: item.kind || 'portfolio',
+          evidence: item.evidence || null,
+          score: item.score || 0,
+          recommendation: item.recommendation || item.title || null,
+          metric: item.metric || null,
+        }))
+    : [];
+
+  // Keep the portfolio spread visible. The old planner sliced SEO findings
+  // before considering the priorities feed, so one site could consume the
+  // entire executive cycle while fleet-wide blockers remained hidden.
+  const bySite = new Map();
+  for (const candidate of [...seoActions, ...priorityItems]) {
+    const current = bySite.get(candidate.site);
+    if (!current || Number(candidate.score || 0) > Number(current.score || 0))
+      bySite.set(candidate.site, candidate);
+  }
+
+  // When source-specific recommendations are sparse, rotate a small cohort of
+  // live sites into the brief for a bounded baseline/revenue-readiness check.
+  // This is evidence collection, not a claim that missing telemetry is zero.
+  const scorecards = intelligence?.decision_support?.priorities?.scorecards || [];
+  const rotation = Math.floor(Date.parse(intelligence?.generated_at || '') / (6 * 3600 * 1000));
+  const ordered = scorecards
+    .filter(row => allowed.has(row.site) && row.lifecycle === 'live')
+    .sort((a, b) => String(a.site).localeCompare(String(b.site)));
+  for (let offset = 0; offset < ordered.length && bySite.size < 12; offset++) {
+    const row = ordered[(rotation + offset) % ordered.length];
+    if (!row || bySite.has(row.site)) continue;
+    bySite.set(row.site, {
+      site: row.site,
+      key: `site-baseline:${row.site}`,
+      title: `Run bounded revenue-readiness baseline for ${row.site}`,
+      type: 'portfolio-baseline',
+      evidence: {
+        lifecycle: row.lifecycle || null,
+        opportunity_score: row.opportunity_score || 0,
+        sessions: row.sessions ?? null,
+        conversions: row.conversions ?? null,
+        ai_cost_usd: row.ai_cost_usd ?? null,
+      },
+      score: row.opportunity_score || 0,
+      recommendation:
+        'Inspect the existing site report and route one reversible, measurable improvement or document the evidence-backed blocker.',
+      metric: 'site-specific attributable outcome',
+    });
+  }
+  return [...bySite.values()]
+    .sort(
+      (a, b) =>
+        Number(b.score || 0) - Number(a.score || 0) || String(a.site).localeCompare(String(b.site))
+    )
+    .slice(0, 12);
 }
 
 function readSiteDescriptions(root = ROOT) {
@@ -376,7 +434,7 @@ Rules:
 - Every cycle with an unblocked candidate, parked/scaffold opportunity, CRO lead, launch blocker, or material revenue question must contain either (a) one direct owner-facing question with concrete answer options and the evidence behind it, or (b) one measurable growth action/proposal with an owner, metric, baseline, time-to-learn, and rollback. A maintenance summary alone is not an acceptable CEO result.
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
-- Follow action_mandate every six-hour cycle: when candidates are present, select at least one highest-confidence, low-risk, reversible improvement for the engineer queue or explain in a message why every candidate was rejected. Select no more than three queue actions and never duplicate a site that already has active work.
+- Follow action_mandate every six-hour cycle: when candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements for distinct sites, or explain in a message why every candidate was rejected. When three or more distinct candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
@@ -658,6 +716,20 @@ function planFingerprint(plan) {
 
 function actionMandateSatisfied(plan = {}, brief = {}) {
   if (!(brief.action_mandate?.candidates || []).length) return true;
+  const candidateSites = new Set(
+    brief.action_mandate.candidates.map(item => item.site).filter(site => site && site !== 'fleet')
+  );
+  const requiredSites = Math.min(3, candidateSites.size);
+  const boundedSites = new Set([
+    ...(plan.change_requests || []).map(item => item.site),
+    ...(plan.proposals || []).map(item => item.implementation?.site),
+  ]);
+  const coveredSites = [...candidateSites].filter(site => boundedSites.has(site)).length;
+  // A single material owner decision (for example a gated launch) may remain
+  // a question after a recommendation. Once the brief contains a portfolio
+  // of three or more site candidates, however, a question alone is not enough
+  // and the plan must cover at least three sites.
+  const portfolioSpread = candidateSites.size < 3 || coveredSites >= requiredSites;
   const hasBoundedWork =
     (plan.change_requests || []).length > 0 ||
     (plan.proposals || []).some(
@@ -666,7 +738,7 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   const hasRecommendation = (plan.messages || []).some(message =>
     /recommend(?:ation)?\s*:/i.test(String(message.body || ''))
   );
-  if (hasBoundedWork && hasRecommendation) return true;
+  if (hasBoundedWork && hasRecommendation && portfolioSpread) return true;
   return (
     (plan.messages || []).some(
       message =>
@@ -675,7 +747,9 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
           String(message.body || '')
         ) &&
         /recommend(?:ation)?\s*:/i.test(String(message.body || ''))
-    ) && (brief.action_mandate?.candidates || []).length > 0
+    ) &&
+    (brief.action_mandate?.candidates || []).length > 0 &&
+    portfolioSpread
   );
 }
 
@@ -910,7 +984,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     }
     const queueLimit = Math.max(
       1,
-      Math.min(3, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 3))
+      Math.min(6, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 6))
     );
     let queuedCount = 0;
     for (const item of plan.change_requests) {
@@ -1101,6 +1175,7 @@ module.exports = {
   executiveTarget,
   buildSiteContext,
   buildDomainManagerContext,
+  actionCandidates,
   buildBrief,
   buildPrompt,
   buildPassPrompt,
