@@ -2,44 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:01:30.251Z",
-  "summary": "security checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:26:37.867Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private until an owner-approved pre-launch checklist covers authentication and authorization boundaries, secret handling, isolation, TLS, release controls, dependencies, data minimization, monitoring, incident response, and a disclosure contact. Current evidence does not support security go-live approval.",
+        "summary": "Security disposition: blocked for bounded public beta or full launch; conditional only for continued private preview. Concrete evidence is a password-gated private preview with noindex/nofollow, zero reported SEO activity, unavailable operations and security telemetry, and no evidenced authentication and authorization boundaries, secret handling, container or runtime isolation, TLS posture, release and deploy controls, dependency or supply-chain review, data minimization, monitoring, incident response, or security.txt/disclosure contact. Severity is high for public exposure because the required controls are unverified and the site handles alert rules, sync results, operational logs, and hosting data. Recommend retaining the private gate and escalating the owner-facing launch-readiness proposal. Before public exposure, require an owner-approved checklist with evidence for access control, secrets, isolation, TLS, release controls, dependency provenance and vulnerability handling, data exposure limits, monitoring and incident response, and a security.txt or equivalent disclosure contact. No sitemap, monetization expansion, production change, credential change, schedule change, or go-live approval is recommended.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private until an owner-approved pre-launch checklist covers authentication and authorization boundaries, secret handling, container or runtime isolation, TLS, release and deploy controls, dependency and supply-chain risk, data minimization, monitoring, incident response, and a security.txt or equivalent disclosure contact. Current evidence does not support security go-live approval.",
+        "summary": "Public exposure is blocked. Current evidence does not establish authentication boundaries, secret handling, isolation, TLS, release controls, dependency review, data minimization, monitoring, incident response, or disclosure readiness. Keep the private gate until an owner-approved security checklist is complete.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the property private. No security go-live approval is supported because authentication, authorization boundaries, secret handling, isolation, TLS, release controls, dependencies, data minimization, monitoring, incident response, and disclosure readiness are not evidenced. Require an owner-approved pre-launch checklist before any public exposure.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the property private. Security go-live approval is unsupported because authentication, authorization, secret handling, isolation, TLS, release controls, dependencies, monitoring, incident response, and disclosure readiness are not evidenced.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
-        "summary": "Block public beta or full launch pending owner direction and evidence for access control, secrets, isolation, release controls, TLS, dependencies, monitoring, incident response, and disclosure contact.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
       }
     ]
   }

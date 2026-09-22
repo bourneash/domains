@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:01:30.251Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:26:37.867Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the searchwoot.com sitemap candidate for now. The private-preview gate and noindex/nofollow state make crawl exposure premature and non-measurable. No repository, configuration, credential, infrastructure, schedule, telemetry, or production change should occur before owner approval and launch-readiness review.",
+        "summary": "Recommendation: keep searchwoot.com private and reject sitemap or other production work this cycle. The password gate and noindex/nofollow posture make crawl exposure premature and non-measurable. No repository, configuration, credential, infrastructure, schedule, telemetry, or deployment change is authorized. Retain the owner-facing launch-readiness decision; public exposure requires owner disposition plus completed legal, data-rights, accuracy, privacy, security, isolation, attribution, margin, and rollback gates. Existing deployed improvements should continue scheduled measurement without duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep searchwoot.com private and reject the sitemap candidate for now. The observed password gate and noindex/nofollow state are technically consistent with private preview; changing crawl exposure would conflict with release controls and lacks a measurable objective. No repository, configuration, credential, infrastructure, schedule, telemetry, or production change is authorized. Proceed only after owner choice and separate legal/compliance, security, data-rights, accuracy, privacy/consent, attribution, contribution-margin, and rollback review. Existing deployed improvements should remain isolated and continue their scheduled measurement gates without duplicate work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the sitemap candidate and all production work lacking a measurable outcome. The private-preview state makes crawl exposure premature. Keep the current posture until the owner selects keep-private, bounded beta, or full launch and Legal/Compliance, Security, data-rights, accuracy, privacy, disclosure, attribution, margin, and rollback gates are satisfied.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the sitemap candidate and production work lacking a measurable outcome. No configuration, credential, infrastructure, schedule, telemetry, or production change is authorized while the private-preview posture remains.",
+        "summary": "Reject sitemap and other production work this cycle. The password gate and noindex/nofollow posture make crawl exposure premature and non-measurable. No configuration, credential, infrastructure, schedule, telemetry, or deployment change is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

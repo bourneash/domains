@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:01:30.251Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:26:37.867Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the existing report-only SearchWoot launch proposal and escalate it to the owner. Before public exposure, review data provenance and rights, deal accuracy, privacy and consent, terms, affiliate and analytics disclosures, platform policy, and rollback conditions; consult counsel for material uncertainty.",
+        "summary": "Risk disposition: blocked for bounded public beta or full launch; conditional only for continued private preview. Evidence supports the private gate: password protection, noindex/nofollow, zero reported SEO activity, unavailable analytics and Data Hub sources, incomplete affiliate attribution, and no completed evidence for source rights, accuracy, privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, platform policy, content or age screening, security, incident handling, or rollback. Require the owner to choose keep-private, bounded beta, or full launch; retain keep-private unless the applicable checklist is complete. Data-use decisions: Woot API deal and price-history data—evidence_needed; obtain current API terms or written permission, field-level provenance, freshness behavior, and correction/takedown controls; smallest action is an owner-approved rights-and-data inventory. User alert rules and sync results—evidence_needed; document fields, retention/deletion, access controls, Slack or email processor terms, consent, and unsubscribe behavior; smallest action is a data-flow and retention table. GA4—evidence_needed; verify deployed consent and withdrawal behavior, GA4 settings, retention, vendor disclosure, and jurisdiction treatment; smallest action is a read-only consent/configuration evidence capture. Operational logs and Cloudflare hosting data—evidence_needed; inventory log fields, retention/access controls, vendor terms or DPA coverage, and incident/request procedures; smallest action is an operator-produced log and vendor inventory. Human counsel is required for unresolved source-license or API-rights questions, privacy or consent scope, consumer and affiliate disclosures, copyright/trademark use, platform-policy restrictions, or regulated or age-sensitive content. Do not treat incomplete telemetry as a reason to block ordinary growth generally, but it is not sufficient evidence for this gated public launch. No sitemap, monetization expansion, production change, or go-live approval is recommended.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta or full launch; keep searchwoot.com private. Evidence confirms a password-gated private preview with noindex/nofollow, zero reported SEO activity, incomplete affiliate attribution, unavailable analytics and Data Hub sources, and no evidence of privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, deal-accuracy controls, platform-policy compliance, or age/regulated-content review. Do not expose a sitemap or enable public monetization. Before any public launch, the owner must select keep-private, bounded beta, or full launch and complete a checklist covering source rights and licenses, freshness and accuracy controls, privacy notice and consent treatment, terms, cookie/analytics disclosure, affiliate disclosure, platform policies, content/age screening, attribution, rollback, security, and incident contact. Human counsel is required for material privacy, consumer-disclosure, data-rights, copyright/trademark, or platform-policy uncertainty. This is risk triage, not legal advice or certification.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the existing launch-readiness proposal escalated to the owner. Public exposure remains blocked pending review of data provenance and rights, accuracy, privacy and consent, terms, analytics and affiliate disclosures, platform policy, applicable content screening, rollback conditions, and human counsel for material uncertainty.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep public exposure blocked pending owner direction and documented review of data rights, accuracy, privacy, consent, terms, disclosures, platform policy, rollback conditions, and counsel input for material uncertainty.",
+        "summary": "Public beta or full launch is blocked; continued private preview is conditional. Retain the owner-facing launch decision pending evidence for source rights, provenance, accuracy, privacy, consent, terms, disclosures, platform policy, content screening, security, attribution, margin, rollback, and counsel review of material uncertainty.",
         "requested_action": null,
         "proposal_id": null
       }

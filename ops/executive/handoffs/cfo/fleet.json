@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:01:30.250Z",
-  "summary": "cfo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-22T16:26:37.866Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no additional spend or monetization expansion this cycle. Amazon reports $4.92 commission, 28 ordered items, and 6 shipped items on 6,219 clicks for 2026-09-21, but attribution is incomplete. AI usage is $733.04 across 4,340 calls from 2026-09-01 through 2026-09-22; this is observability, not proven return. Contribution margin, CAC, payback, and total operating spend remain unsupported.",
+        "summary": "Recommendation: authorize no additional spend, monetization expansion, or public launch this cycle; keep searchwoot.com private pending owner disposition and finance-grade gates. Supported revenue is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21. Attribution is incomplete: 629 clicks and all 28 ordered items are under tracking_id \"other\", while named site IDs show zero orders and commission. Analytics is unavailable for all 60 registry sites. AI usage cost is $733.04 across 4,340 calls from 2026-09-01 through 2026-09-22, including 136 errors; it is observability, not proven return. Contribution margin, cost-to-learn, CAC, payback, infrastructure spend, total operating spend, ROI, and forecasts are not calculable because site-level revenue attribution, traffic/exposure denominators, direct infrastructure/domain costs, and experiment outcome records are missing. Minimum measurement is reconciliation of affiliate events to site/content IDs, site traffic and conversion telemetry, direct cost allocation by site, and experiment exposure/incremental-outcome records. Treat clicks, ordered items, SEO activity, social coverage, and AI call volume as non-financial activity metrics; continue only already-approved measurement gates without duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no additional spend, monetization expansion, or public launch this cycle; keep the private-preview property private pending owner decision and finance-grade measurement. Supported revenue is only $4.92 Amazon commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21. Aggregate commission per click is approximately $0.00079, but site attribution is incomplete: 629 clicks and all 28 ordered items are under tracking_id “other,” while named site IDs show zero orders and zero commission. Revenue claims are therefore not site-supported. Analytics is unavailable for all 60 registry sites, with 0 configured sites and no traffic, conversion, CAC, or payback data. AI usage cost is $733.04 across 4,340 calls from 2026-09-01 through 2026-09-22, including 136 errors; it is an observed cost, not evidence of return, and cannot be compared to one day of revenue for ROI. Contribution margin, cost-to-learn, total operating spend, infrastructure spend, CAC, payback, and forecasts are not calculable because site-level revenue attribution, traffic/exposure denominators, direct infrastructure and domain costs, and experiment cost/outcome records are missing. Minimum measurement: reconcile every affiliate click/order/shipment/commission to a site and content identifier, restore site traffic and conversion telemetry, capture infrastructure/domain and other direct operating costs by site, and record experiment exposure, incremental outcome, and AI cost by run. Until then, treat clicks, ordered items, social coverage, SEO scores, and AI call volume as non-financial vanity or activity metrics; continue only already-approved measurement gates and make no duplicate queue or spend action.",
+        "summary": "Authorize no additional spend, monetization expansion, or public launch. Supported evidence is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; attribution is incomplete. Revenue, margin, CAC, payback, ROI, forecasts, and total operating spend remain unsupported. Continue only existing measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no additional spend or monetization expansion this cycle. Supported revenue is $4.92 commission on 6,219 clicks, with 28 ordered items and 6 shipped items for 2026-09-21; attribution is incomplete. Contribution margin, CAC, payback, and total operating spend remain unsupported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject unsupported financial claims and additional spend. Supported evidence is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; site attribution is incomplete. Site revenue, margin, CAC, payback, total operating spend, forecasts, and ROI remain unsupported. AI usage cost is observability only, not proof of return.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject unsupported financial claims and additional spend. Supported evidence is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; site attribution is incomplete. Site revenue, margin, CAC, payback, total operating spend, forecasts, and ROI remain unsupported. AI usage cost is observability only.",
+        "summary": "Authorize no additional spend or monetization expansion. Supported evidence is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; attribution is incomplete. Revenue, margin, CAC, payback, ROI, forecasts, and total operating spend remain unsupported. Continue only existing measurement gates.",
         "requested_action": null,
         "proposal_id": null
       }

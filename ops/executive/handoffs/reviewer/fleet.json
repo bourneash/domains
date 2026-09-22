@@ -1,0 +1,25 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "reviewer",
+  "site": "fleet",
+  "generated_at": "2026-09-22T16:26:37.868Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep searchwoot.com private and reject sitemap, monetization, public-launch, and production work this cycle. Evidence shows a password gate, noindex/nofollow, zero reported SEO activity, unavailable analytics and Data Hub sources, incomplete attribution, and unverified legal, accuracy, privacy, and security controls. Owner decision: choose keep-private, bounded beta, or full launch.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
+        "summary": "Retain and escalate the launch-readiness proposal. Keep the site private; do not authorize sitemap work, public exposure, monetization expansion, or production changes until the owner selects a disposition and the applicable legal, security, accuracy, attribution, margin, and rollback gates are evidenced.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
+      }
+    ]
+  }
+}
