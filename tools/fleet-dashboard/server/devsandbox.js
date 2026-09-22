@@ -25,6 +25,10 @@ const DEV_PORT_IN_CONTAINER = parseInt(
   process.env.FD_DEVSANDBOX_DEV_PORT_IN_CONTAINER || '4321',
   10
 );
+const PREVIEW_READY_TIMEOUT_MS = parseInt(
+  process.env.FD_DEVSANDBOX_PREVIEW_READY_TIMEOUT_MS || '30000',
+  10
+);
 const PUBLIC_HOST = process.env.FD_DEVSANDBOX_PUBLIC_HOST || '127.0.0.1';
 // Per-container resource caps — one runaway dev-server/build in a sandbox
 // shouldn't be able to starve the host or every other running container.
@@ -198,6 +202,64 @@ function allocPorts(site) {
   return existing;
 }
 
+// Site directories are submodules in the fleet checkout. Their `.git` file is
+// only a pointer into the parent repository's project-owned Git metadata, so
+// mounting that pointer file alone does not make Git usable inside an isolated
+// improvement worker. Resolve the pointer and mount only this site's Git admin
+// directory; never mount the parent checkout or its top-level `.git` directory.
+function gitWorkspaceMount(root, site, canonicalSiteDir, hostSiteDir) {
+  const marker = path.join(canonicalSiteDir, '.git');
+  if (!fs.existsSync(marker)) return null;
+
+  let canonicalGitDir;
+  try {
+    const stat = fs.statSync(marker);
+    if (stat.isDirectory()) canonicalGitDir = marker;
+    else {
+      const raw = fs.readFileSync(marker, 'utf8').trim();
+      const match = raw.match(/^gitdir:\s*(.+)$/i);
+      if (!match) return null;
+      canonicalGitDir = path.resolve(canonicalSiteDir, match[1]);
+    }
+  } catch {
+    return null;
+  }
+
+  canonicalGitDir = path.resolve(canonicalGitDir);
+  const projectGitModules = path.resolve(root, '.git', 'modules');
+  const canonicalRepoGit = path.resolve(canonicalSiteDir, '.git');
+  const inProjectModules =
+    canonicalGitDir === projectGitModules ||
+    canonicalGitDir.startsWith(`${projectGitModules}${path.sep}`);
+  const inCanonicalRepo =
+    canonicalGitDir === canonicalRepoGit ||
+    canonicalGitDir.startsWith(`${canonicalRepoGit}${path.sep}`);
+  if (!inProjectModules && !inCanonicalRepo)
+    throw httpErr(500, `refusing Git metadata outside the project: ${canonicalGitDir}`);
+  if (!fs.existsSync(canonicalGitDir) || !fs.statSync(canonicalGitDir).isDirectory())
+    throw httpErr(500, `site Git metadata is unavailable: ${canonicalGitDir}`);
+
+  const containerGitRoot = `/git-store/${site}`;
+  if (hostSiteDir === canonicalSiteDir)
+    return {
+      hostPath: canonicalGitDir,
+      containerPath: containerGitRoot,
+      gitDir: containerGitRoot,
+      workTree: hostSiteDir,
+    };
+
+  const adminName = path.basename(hostSiteDir);
+  const worktreeAdmin = path.join(canonicalGitDir, 'worktrees', adminName);
+  if (!fs.existsSync(worktreeAdmin))
+    throw httpErr(500, `improvement Git worktree metadata is unavailable: ${worktreeAdmin}`);
+  return {
+    hostPath: canonicalGitDir,
+    containerPath: containerGitRoot,
+    gitDir: `${containerGitRoot}/worktrees/${adminName}`,
+    workTree: hostSiteDir,
+  };
+}
+
 async function siteRow(root, name, containerMap, statePorts) {
   const dir = path.join(root, 'sites', name);
   const hasEnv = fs.existsSync(path.join(dir, '.env'));
@@ -306,13 +368,6 @@ async function start(root, site, options = {}) {
     `127.0.0.1:${devPort}:${DEV_PORT_IN_CONTAINER}`,
     '-v',
     `${hostSiteDir}:${hostSiteDir}`,
-    // A git worktree's .git file points at the canonical site's admin
-    // directory. Mount that directory too, otherwise commands inside an
-    // improvement worker fail with "not a git repository" even though the
-    // worktree itself is mounted.
-    ...(hostSiteDir !== canonicalSiteDir && fs.existsSync(path.join(canonicalSiteDir, '.git'))
-      ? ['-v', `${path.join(canonicalSiteDir, '.git')}:${path.join(canonicalSiteDir, '.git')}`]
-      : []),
     '-v',
     `${claudeStateDir}:/home/dev/.claude`,
     '-v',
@@ -330,6 +385,22 @@ async function start(root, site, options = {}) {
     '-e',
     'ASTRO_TELEMETRY_DISABLED=1',
   ];
+  const gitMount = gitWorkspaceMount(root, site, canonicalSiteDir, hostSiteDir);
+  if (gitMount) {
+    // The mount is limited to one site's Git admin directory. Explicit Git
+    // env vars bypass the host-path pointer in a submodule `.git` file while
+    // preserving the isolated worktree's branch/index.
+    args.push(
+      '-v',
+      `${gitMount.hostPath}:${gitMount.containerPath}`,
+      '-e',
+      `GIT_DIR=${gitMount.gitDir}`,
+      '-e',
+      `GIT_WORK_TREE=${gitMount.workTree}`,
+      '-e',
+      'GIT_OPTIONAL_LOCKS=0'
+    );
+  }
   // The worker receives only the requested site/worktree and one provider auth
   // file. Hide site/fleet env files even when they live inside that bind mount.
   for (const name of ['.env', '.env.shared']) {
@@ -419,6 +490,39 @@ async function prepareDependencies(site) {
   return { prepared: true };
 }
 
+// `dd-dev start` deliberately backgrounds the site's server. Wait for the
+// published endpoint before running validation so a normal startup race is
+// not recorded as a failed quality gate. The container-local probe keeps the
+// check inside the site sandbox and avoids relying on host networking.
+async function waitForPreview(site, timeoutMs = PREVIEW_READY_TIMEOUT_MS) {
+  const deadline = Date.now() + Math.max(1000, timeoutMs);
+  let lastError = 'preview server did not become ready';
+  while (Date.now() < deadline) {
+    const r = await docker(
+      [
+        'exec',
+        containerName(site),
+        'curl',
+        '-sS',
+        '-L',
+        '--max-time',
+        '2',
+        '-o',
+        '/dev/null',
+        '-w',
+        '%{http_code}',
+        `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}/`,
+      ],
+      { timeout: 5000 }
+    );
+    const status = Number(String(r.stdout).trim());
+    if (r.code === 0 && status >= 200 && status < 500) return { ready: true, status };
+    lastError = r.stderr.trim() || `HTTP ${status || 'no response'}`;
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  return { ready: false, error: lastError };
+}
+
 async function preflight(site) {
   const checks = {};
   const status = await inspectStatus(site);
@@ -440,7 +544,9 @@ async function preflight(site) {
 async function devStart(site) {
   const r = await devExec(site, 'start');
   if (r.code !== 0) throw httpErr(400, r.stdout || r.stderr || 'dev start failed');
-  return r.kv;
+  const ready = await waitForPreview(site);
+  if (!ready.ready) throw httpErr(400, ready.error);
+  return { ...r.kv, preview: ready };
 }
 async function devStop(site) {
   return (await devExec(site, 'stop')).kv;
@@ -739,6 +845,7 @@ module.exports = {
   prepareDependencies,
   preflight,
   devStart,
+  waitForPreview,
   devStop,
   devLogs,
   validate,
@@ -748,6 +855,7 @@ module.exports = {
   improvementArtifactPath,
   startImprovement,
   improvementInstance,
+  gitWorkspaceMount,
   sandboxNetworkName,
   sandboxSecurityArgs,
   stats,

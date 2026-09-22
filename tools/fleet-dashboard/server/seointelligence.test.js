@@ -31,23 +31,44 @@ test('queryActions produces an evidence-backed striking-distance action', () => 
 });
 
 test('queryActions does not invent an opportunity from tiny samples', () => {
-  assert.deepEqual(seo.queryActions('example.com', [
-    { dim_key: 'rare term', clicks: 0, impressions: 4, position: 8 },
-  ]), []);
+  assert.deepEqual(
+    seo.queryActions('example.com', [
+      { dim_key: 'rare term', clicks: 0, impressions: 4, position: 8 },
+    ]),
+    []
+  );
 });
 
 test('normalizePage joins canonical GSC URLs to GA4 paths', () => {
-  assert.equal(seo.normalizePage('example.com', 'https://example.com/guides/widget/?utm_source=x'), '/guides/widget');
+  assert.equal(
+    seo.normalizePage('example.com', 'https://example.com/guides/widget/?utm_source=x'),
+    '/guides/widget'
+  );
   assert.equal(seo.normalizePage('example.com', '/guides/widget/'), '/guides/widget');
   assert.equal(seo.normalizePage('example.com', '(not set)'), null);
 });
 
 test('pageActions combines search demand with conversion value', () => {
-  const actions = seo.pageActions('example.com', [{
-    dim_key: 'https://example.com/guides/widget/', clicks: 5, impressions: 500, position: 8,
-  }], [{
-    dim_key: '/guides/widget', sessions: 120, views: 160, engaged_sessions: 70, conversions: 2,
-  }]);
+  const actions = seo.pageActions(
+    'example.com',
+    [
+      {
+        dim_key: 'https://example.com/guides/widget/',
+        clicks: 5,
+        impressions: 500,
+        position: 8,
+      },
+    ],
+    [
+      {
+        dim_key: '/guides/widget',
+        sessions: 120,
+        views: 160,
+        engaged_sessions: 70,
+        conversions: 2,
+      },
+    ]
+  );
   assert.equal(actions.length, 1);
   assert.equal(actions[0].type, 'page-opportunity');
   assert.equal(actions[0].page, '/guides/widget');
@@ -56,9 +77,19 @@ test('pageActions combines search demand with conversion value', () => {
 });
 
 test('pageActions flags high-traffic zero-conversion engagement risk', () => {
-  const actions = seo.pageActions('example.com', [], [{
-    dim_key: '/confusing', sessions: 100, views: 120, engaged_sessions: 20, conversions: 0,
-  }]);
+  const actions = seo.pageActions(
+    'example.com',
+    [],
+    [
+      {
+        dim_key: '/confusing',
+        sessions: 100,
+        views: 120,
+        engaged_sessions: 20,
+        conversions: 0,
+      },
+    ]
+  );
   assert.equal(actions.length, 1);
   assert.equal(actions[0].type, 'engagement-risk');
   assert.match(actions[0].evidence, /20% engaged/);
@@ -66,8 +97,20 @@ test('pageActions flags high-traffic zero-conversion engagement risk', () => {
 
 test('aggregateQueryPages preserves exact query-page pairs', () => {
   const rows = seo.aggregateQueryPages('example.com', [
-    { query: 'widget guide', page: 'https://example.com/guide/', clicks: 1, impressions: 40, position: 8 },
-    { query: 'widget guide', page: 'https://example.com/guide', clicks: 2, impressions: 60, position: 10 },
+    {
+      query: 'widget guide',
+      page: 'https://example.com/guide/',
+      clicks: 1,
+      impressions: 40,
+      position: 8,
+    },
+    {
+      query: 'widget guide',
+      page: 'https://example.com/guide',
+      clicks: 2,
+      impressions: 60,
+      position: 10,
+    },
   ]);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].query, 'widget guide');
@@ -77,10 +120,19 @@ test('aggregateQueryPages preserves exact query-page pairs', () => {
 });
 
 test('queryPageActions estimates conservative click upside for an exact URL', () => {
-  const actions = seo.queryPageActions('example.com', [{
-    query: 'widget guide', page: 'https://example.com/guide', clicks: 0,
-    impressions: 200, position: 7,
-  }], [{ dim_key: '/guide', sessions: 50, conversions: 1 }]);
+  const actions = seo.queryPageActions(
+    'example.com',
+    [
+      {
+        query: 'widget guide',
+        page: 'https://example.com/guide',
+        clicks: 0,
+        impressions: 200,
+        position: 7,
+      },
+    ],
+    [{ dim_key: '/guide', sessions: 50, conversions: 1 }]
+  );
   const uplift = actions.find(action => action.type === 'click-uplift');
   assert.ok(uplift);
   assert.equal(uplift.page, '/guide');
@@ -89,14 +141,32 @@ test('queryPageActions estimates conservative click upside for an exact URL', ()
 });
 
 test('queryPageActions detects material multi-page query competition', () => {
-  const actions = seo.queryPageActions('example.com', [
-    { query: 'widget guide', page: 'https://example.com/guide-a', clicks: 2, impressions: 40, position: 8 },
-    { query: 'widget guide', page: 'https://example.com/guide-b', clicks: 0, impressions: 20, position: 11 },
-  ], []);
+  const actions = seo.queryPageActions(
+    'example.com',
+    [
+      {
+        query: 'widget guide',
+        page: 'https://example.com/guide-a',
+        clicks: 2,
+        impressions: 40,
+        position: 8,
+      },
+      {
+        query: 'widget guide',
+        page: 'https://example.com/guide-b',
+        clicks: 0,
+        impressions: 20,
+        position: 11,
+      },
+    ],
+    []
+  );
   const conflict = actions.find(action => action.type === 'cannibalization');
   assert.ok(conflict);
   assert.equal(conflict.metric.value, 2);
   assert.match(conflict.evidence, /2 pages share 60 impressions/);
+  assert.match(conflict.evidence, /guide-a/);
+  assert.match(conflict.evidence, /guide-b/);
 });
 
 test('pageDecayActions compares non-overlapping 28-day periods', () => {
@@ -105,7 +175,12 @@ test('pageDecayActions compares non-overlapping 28-day periods', () => {
     rows.push({ date: `2026-07-${day}`, dim_key: '/declining', sessions: 5, conversions: 1 });
   }
   for (let day = 5; day <= 18; day++) {
-    rows.push({ date: `2026-08-${String(day).padStart(2, '0')}`, dim_key: '/declining', sessions: 2, conversions: 0 });
+    rows.push({
+      date: `2026-08-${String(day).padStart(2, '0')}`,
+      dim_key: '/declining',
+      sessions: 2,
+      conversions: 0,
+    });
   }
   const actions = seo.pageDecayActions('example.com', rows, new Date('2026-09-01T12:00:00Z'));
   assert.equal(actions.length, 1);
@@ -123,30 +198,71 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-snapshot-'));
   const fetchImpl = async url => {
     let payload;
-    if (url.includes('/metrics/health')) payload = { sites: {
-      'example.com': { gsc: { status: 'ok' }, ga4: { status: 'ok' } },
-    } };
-    else if (url.includes('/metrics/gsc-query-pages')) payload = { records: [{
-      date: '2026-08-31', query: 'widget guide', page: 'https://example.com/guide/',
-      clicks: 0, impressions: 200, position: 7,
-    }] };
-    else if (url.includes('grain=query')) payload = { records: [{
-      date: '2026-08-31', dim_key: 'widget guide', clicks: 0, impressions: 200, position: 7,
-    }] };
+    if (url.includes('/metrics/health'))
+      payload = {
+        sites: {
+          'example.com': { gsc: { status: 'ok' }, ga4: { status: 'ok' } },
+        },
+      };
+    else if (url.includes('/metrics/gsc-query-pages'))
+      payload = {
+        records: [
+          {
+            date: '2026-08-31',
+            query: 'widget guide',
+            page: 'https://example.com/guide/',
+            clicks: 0,
+            impressions: 200,
+            position: 7,
+          },
+        ],
+      };
+    else if (url.includes('grain=query'))
+      payload = {
+        records: [
+          {
+            date: '2026-08-31',
+            dim_key: 'widget guide',
+            clicks: 0,
+            impressions: 200,
+            position: 7,
+          },
+        ],
+      };
     else if (url.includes('grain=site')) payload = { records: [] };
-    else if (url.includes('/metrics/gsc') && url.includes('grain=page')) payload = { records: [{
-      date: '2026-08-31', dim_key: 'https://example.com/guide/', clicks: 4,
-      impressions: 200, position: 7,
-    }] };
-    else if (url.includes('/metrics/ga4') && url.includes('grain=page')) payload = { records: [{
-      date: '2026-08-31', dim_key: '/guide', sessions: 80, views: 100,
-      engaged_sessions: 50, conversions: 2,
-    }] };
+    else if (url.includes('/metrics/gsc') && url.includes('grain=page'))
+      payload = {
+        records: [
+          {
+            date: '2026-08-31',
+            dim_key: 'https://example.com/guide/',
+            clicks: 4,
+            impressions: 200,
+            position: 7,
+          },
+        ],
+      };
+    else if (url.includes('/metrics/ga4') && url.includes('grain=page'))
+      payload = {
+        records: [
+          {
+            date: '2026-08-31',
+            dim_key: '/guide',
+            sessions: 80,
+            views: 100,
+            engaged_sessions: 50,
+            conversions: 2,
+          },
+        ],
+      };
     else throw new Error(`unexpected URL ${url}`);
     return { ok: true, status: 200, json: async () => payload };
   };
   const snapshot = await seo.buildSnapshot({
-    root, fetchImpl, force: true, now: new Date('2026-09-01T12:00:00Z'),
+    root,
+    fetchImpl,
+    force: true,
+    now: new Date('2026-09-01T12:00:00Z'),
   });
   assert.equal(snapshot.totals.pagesMeasured, 1);
   assert.equal(snapshot.totals.conversions, 2);
@@ -173,17 +289,26 @@ test('trendActions requires complete weeks and flags a material click decline', 
 });
 
 test('webVitalsActions consolidates multiple breaches into one site action', () => {
-  const actions = seo.webVitalsActions({ form_factor: 'mobile', sites: [{
-    site: 'example.com', error: null, metrics: { performance: 0.7, lcp_ms: 4200, cls: 0, tbt_ms: 50 },
-    budget_breaches: ['performance', 'lcp_ms'],
-  }] });
+  const actions = seo.webVitalsActions({
+    form_factor: 'mobile',
+    sites: [
+      {
+        site: 'example.com',
+        error: null,
+        metrics: { performance: 0.7, lcp_ms: 4200, cls: 0, tbt_ms: 50 },
+        budget_breaches: ['performance', 'lcp_ms'],
+      },
+    ],
+  });
   assert.equal(actions.length, 1);
   assert.equal(actions[0].priority, 'high');
   assert.match(actions[0].evidence, /LCP 4200ms/);
 });
 
 test('linkActions turns a missing sitemap into a crawlability action', () => {
-  const actions = seo.linkActions({ sites: [{ site: 'example.com', error: 'no sitemap', findings: [] }] });
+  const actions = seo.linkActions({
+    sites: [{ site: 'example.com', error: 'no sitemap', findings: [] }],
+  });
   assert.equal(actions.length, 1);
   assert.equal(actions[0].type, 'crawlability');
   assert.equal(actions[0].priority, 'high');

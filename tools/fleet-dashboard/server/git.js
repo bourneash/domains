@@ -593,6 +593,11 @@ async function createWorktree(root, slug, runId) {
     const result = await git(cwd, args);
     if (!result.ok)
       throw httpErr(500, (result.err || result.out).trim() || 'git worktree add failed');
+    // A submodule worktree must carry its own .git file. Without this marker,
+    // later `git -C <workspace>` calls can silently walk up into the fleet
+    // checkout and mutate the wrong repository. Fail closed at creation time.
+    if (!fs.existsSync(path.join(target, '.git')))
+      throw httpErr(500, 'git worktree was created without isolated metadata');
     return { branch, path: target, created: true };
   });
 }

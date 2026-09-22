@@ -2,6 +2,9 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const devsandbox = require('./devsandbox');
 
 test('developer sandboxes use a deterministic private network name', () => {
@@ -33,4 +36,25 @@ test('browser audit distinguishes sandbox runtime crashes from page failures', (
     devsandbox.isBrowserInfrastructureFailure('curl: (7) Failed to connect to 127.0.0.1'),
     false
   );
+});
+
+test('improvement sandboxes mount only the site Git admin directory', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-devsandbox-'));
+  const canonical = path.join(root, 'sites', 'example.com');
+  const worktree = path.join(
+    root,
+    'tools/fleet-dashboard/data/improvement-worktrees/example.com--123456789abc'
+  );
+  const gitAdmin = path.join(root, '.git/modules/sites/example.com');
+  fs.mkdirSync(canonical, { recursive: true });
+  fs.mkdirSync(path.join(gitAdmin, 'worktrees', path.basename(worktree)), {
+    recursive: true,
+  });
+  fs.writeFileSync(path.join(canonical, '.git'), 'gitdir: ../../.git/modules/sites/example.com\n');
+
+  const mount = devsandbox.gitWorkspaceMount(root, 'example.com', canonical, worktree);
+  assert.equal(mount.hostPath, gitAdmin);
+  assert.equal(mount.containerPath, '/git-store/example.com');
+  assert.equal(mount.gitDir, '/git-store/example.com/worktrees/example.com--123456789abc');
+  assert.equal(mount.workTree, worktree);
 });

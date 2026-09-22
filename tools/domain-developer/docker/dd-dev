@@ -49,16 +49,32 @@ cmd_start() {
     cd "${dev_dir}"
     : > "${LOG_FILE}"
 
-    # If node_modules is missing, chain `npm install` before `npm run dev`.
-    # We wrap in `bash -c` so a single PG covers both phases — killing the
-    # group later cleanly takes out install or dev, whichever is active.
+    # If node_modules is missing, chain `npm install` before the site's dev
+    # command. Read the command from package.json so the sandbox can normalize
+    # a host address without editing the site's checkout. Several fleet sites
+    # intentionally use the host LAN address for local development; that
+    # address does not exist inside an isolated worker container.
+    local dev_script
+    if ! dev_script="$(node -e 'const p=require("./package.json"); process.stdout.write(String(p.scripts?.dev || ""))')" || [[ -z "${dev_script}" ]]; then
+        echo "status=error"
+        echo "error=package-json-has-no-dev-script"
+        exit 1
+    fi
+    dev_script="${dev_script//--host 192.168.4.12/--host 0.0.0.0}"
+    dev_script="${dev_script//--host 127.0.0.1/--host 0.0.0.0}"
+    if [[ "${dev_script}" != *"--host "* ]]; then
+        dev_script="${dev_script} --host 0.0.0.0"
+    fi
+
+    # Wrap in `bash -c` so a single PG covers install + dev — killing the
+    # group later cleanly takes out npm children and the site server.
     local cmd
     if [[ -d node_modules ]]; then
-        cmd='npm run dev'
+        cmd="export PATH=\"./node_modules/.bin:\$PATH\"; ${dev_script}"
     elif [[ -f package-lock.json ]]; then
-        cmd='echo "[dd-dev] installing dependencies with npm ci (one-time)..."; npm ci --no-audit --no-fund && echo "[dd-dev] starting dev server..." && npm run dev'
+        cmd="echo \"[dd-dev] installing dependencies with npm ci (one-time)...\"; npm ci --no-audit --no-fund && echo \"[dd-dev] starting dev server...\" && export PATH=\"./node_modules/.bin:\$PATH\" && ${dev_script}"
     else
-        cmd='echo "[dd-dev] installing dependencies (one-time)..."; npm install --no-audit --no-fund && echo "[dd-dev] starting dev server..." && npm run dev'
+        cmd="echo \"[dd-dev] installing dependencies (one-time)...\"; npm install --no-audit --no-fund && echo \"[dd-dev] starting dev server...\" && export PATH=\"./node_modules/.bin:\$PATH\" && ${dev_script}"
     fi
 
     # setsid → new session, so kill -- -PGID later takes out npm + astro + esbuild.

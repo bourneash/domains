@@ -366,8 +366,14 @@ function queryPageActions(site, records, ga4Records) {
       100,
       Math.round(58 + Math.log10(totalImpressions + 1) * 9 + (viable.length - 1) * 5)
     );
+    // Preserve the complete evidence set used to identify the competing
+    // pages. Truncating this to three rows made the executive task say
+    // "N pages" while the engineer could verify only a subset. Keep the
+    // packet bounded, but include enough rows to cover ordinary query
+    // cannibalization clusters and let the worker reject anything still
+    // missing from the supplied evidence.
     const pageEvidence = viable
-      .slice(0, 3)
+      .slice(0, 8)
       .map(
         row =>
           `${row.page} (${row.impressions.toLocaleString()} imp, pos ${Math.round(row.position * 10) / 10})`
