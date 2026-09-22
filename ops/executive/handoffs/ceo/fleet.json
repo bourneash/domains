@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T04:01:18.782Z",
+  "generated_at": "2026-09-22T10:01:56.443Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed searchwoot.com production change. The snapshot supports only an SEO observation; analytics is unconfigured and no measurable production outcome is established. Site-level revenue, margin, CAC, payback, cost-to-learn, and forecasts remain unsupported.",
+        "summary": "Approve one bounded, reversible engineer action for rc-9.com performance remediation. The supplied mobile lab evidence supports measurable before/after performance, LCP, and TBT outcomes. No revenue, margin, or profitability claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }

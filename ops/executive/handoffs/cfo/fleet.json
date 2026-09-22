@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T04:01:18.783Z",
+  "generated_at": "2026-09-22T10:01:56.445Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No financial claim is supported. Amazon attribution is incomplete and searchwoot.com has no configured analytics, so indexed URLs, impressions, clicks, and any financial impact must remain unclaimed until measured.",
+        "summary": "Approve without financial attribution. Aggregate commission is $4.92 for 2026-09-21, while site-level revenue, margin, cost-to-learn, payback, and forecasts remain unsupported. No spending or billing action.",
         "requested_action": null,
         "proposal_id": null
       }

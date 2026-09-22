@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T04:01:18.783Z",
+  "generated_at": "2026-09-22T10:01:56.446Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue engineer work while telemetry is unavailable. Preserve a bounded, read-only public check of the current robots.txt and sitemap endpoints to resolve the crawl-path evidence gap; no repository, configuration, credentials, analytics, spending, or production changes.",
+        "summary": "Approve one isolated low-priority engineer task. Limit changes to existing above-the-fold assets and blocking JavaScript. Require focused tests, build success, route checks, changed-file documentation, and comparable mobile lab measurements. Do not change content, monetization, navigation, credentials, infrastructure, schedules, dependencies, or analytics. Roll back if functionality, performance, LCP, or TBT worsens.",
         "requested_action": null,
         "proposal_id": null
       }
