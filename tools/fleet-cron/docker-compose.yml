@@ -129,6 +129,11 @@ services:
       FLEET_DOMAINS_ROOT: ${DOMAINS_ROOT:-/home/jesse/projects/domains}
       CHROME_PATH: /usr/bin/chromium-browser
       FLEET_LIGHTHOUSE_CMD: /usr/local/bin/lighthouse
+      # Executive briefs and six-hour intelligence snapshots run in this
+      # container.  Reach the authoritative metrics hub over its shared
+      # service network instead of the host loopback bridge, which can make a
+      # healthy data-hub look unavailable to the executive team.
+      DATAHUB_API: http://datahub-api:4760
       # Reach Vaultwarden by container name over the shared vpn-proxy network
       # (see `networks:` below) — "localhost" inside this container is the
       # container itself, not the host's published 127.0.0.1:9280 (that port
