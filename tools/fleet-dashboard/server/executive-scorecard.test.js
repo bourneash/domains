@@ -1,0 +1,63 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const test = require('node:test');
+const scorecard = require('./executive-scorecard');
+
+function fakeStore() {
+  return {
+    listExecutiveActions: () => [
+      {
+        action_type: 'tick',
+        started_at: '2026-09-22T00:00:00.000Z',
+        result: { counts: { change_requests: 1 } },
+      },
+      { action_type: 'queue-work', started_at: '2026-09-22T00:02:00.000Z', result: {} },
+      { action_type: 'propose', started_at: '2026-09-22T00:03:00.000Z', result: {} },
+    ],
+    listExecutiveProposals: () => [
+      { status: 'approved', proposal_type: 'growth', created_at: '2026-09-21T00:00:00.000Z' },
+      { status: 'proposed', proposal_type: 'engineering', created_at: '2026-09-22T00:00:00.000Z' },
+    ],
+    listChangeRequests: () => [
+      { status: 'verified', created_at: '2026-09-22T00:01:00.000Z' },
+      { status: 'queued', created_at: '2026-09-22T00:04:00.000Z' },
+    ],
+    listImprovements: () => [
+      {
+        state: 'proven',
+        created_at: '2026-09-20T00:00:00.000Z',
+        outcome: { deltas: { conversions: { absolute: 4 } } },
+      },
+    ],
+    list: () => [],
+  };
+}
+
+test('scorecard reports delivery and measurable outcomes instead of activity alone', () => {
+  const result = scorecard.buildScorecard(fakeStore(), {
+    now: new Date('2026-09-22T01:00:00.000Z'),
+  });
+  assert.equal(result.status, 'results-measured');
+  assert.equal(result.outcomes.proven, 1);
+  assert.equal(result.outcomes.metric_deltas.conversions, 4);
+  assert.equal(result.execution.delivered_requests, 1);
+  assert.equal(result.decisions.pending_owner_approval, 1);
+  assert.equal(result.cadence.ticks, 1);
+  assert.equal(result.cadence.actionability_rate_percent, 100);
+});
+
+test('scorecard makes an unproductive executive cycle visible', () => {
+  const empty = {
+    listExecutiveActions: () => [],
+    listExecutiveProposals: () => [],
+    listChangeRequests: () => [],
+    listImprovements: () => [],
+    list: () => [{ occurred_at: '2026-09-22T00:00:00.000Z' }],
+  };
+  const result = scorecard.buildScorecard(empty, {
+    now: new Date('2026-09-22T01:00:00.000Z'),
+  });
+  assert.equal(result.status, 'no-delivery');
+  assert.match(result.next_step, /bounded, measurable action/);
+});

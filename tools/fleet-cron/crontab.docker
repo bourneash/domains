@@ -124,6 +124,9 @@
 # Six-hourly, single-flight, bounded by run-sandbox.sh. Queue execution is
 # separately gated by the dashboard's reviewed change-queue settings.
 0 */6 * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
+# Cheap hourly progress heartbeat. It does not invoke a model; it records the
+# delivery state and measured outcomes so activity cannot masquerade as impact.
+0 * * * * /home/jesse/projects/domains/tools/executive/run-heartbeat.sh
 # Measure deployed executive/site improvements before the next CEO tick. This
 # is deterministic telemetry work, not an AI invocation: 14 days or 100 new
 # impressions closes the result window.

@@ -62,6 +62,7 @@ const executiveCro = require('../../executive/cro');
 const executiveCroLab = require('../../executive/cro-lab');
 const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
+const executiveScorecard = require('./executive-scorecard');
 const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
@@ -1075,6 +1076,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({ snapshot });
     } catch (e) {
       res.status(e.httpStatus || 503).json({ error: e.message || String(e) });
+    }
+  });
+  app.get('/api/executive/scorecard', (req, res) => {
+    try {
+      res.json({
+        scorecard: executiveScorecard.buildScorecard(events, {
+          windowDays: req.query.window_days,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message || String(e) });
     }
   });
   app.post('/api/executive/data-requests', async (req, res) => {

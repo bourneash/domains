@@ -12,6 +12,7 @@ const croResearch = require('./cro');
 const croLab = require('./cro-lab');
 const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot');
 const executiveData = require('../fleet-dashboard/server/executive-data');
+const executiveScorecard = require('../fleet-dashboard/server/executive-scorecard');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -208,6 +209,7 @@ async function buildBrief(store, root = ROOT) {
   };
   const sites = executiveSites(root);
   const intel = await collectIntel(root, sites);
+  const actionability = executiveScorecard.buildScorecard(store);
   return {
     generated_at: new Date().toISOString(),
     sites,
@@ -245,14 +247,16 @@ async function buildBrief(store, root = ROOT) {
         redirects: false,
       },
       cro_repo_lab: {
-        purpose: 'Clone public GitHub archives into a disposable evidence workspace and run bounded read-only checks.',
+        purpose:
+          'Clone public GitHub archives into a disposable evidence workspace and run bounded read-only checks.',
         max_candidates_per_run: 3,
         dependency_install: false,
         network_during_checks: 'none',
         project_mounts: [],
         secrets: false,
         docker_socket: false,
-        adoption_gate: 'A lab result is not an adoption approval. Prototype, security review, measurement plan, and owner-approved implementation remain required.',
+        adoption_gate:
+          'A lab result is not an adoption approval. Prototype, security review, measurement plan, and owner-approved implementation remain required.',
       },
       execution:
         'Messages and proposals may be applied automatically; queued site work requires explicit queue enablement or owner approval. The only autonomous fleet write is the allowlisted operating-baseline report, which writes a factual audit artifact and never edits site code. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
@@ -262,6 +266,7 @@ async function buildBrief(store, root = ROOT) {
         'Read-only telemetry is collected automatically and is available in intelligence and the scheduled intelligence snapshot. Do not create a proposal merely to request data already present there. Create a proposal only when a missing source requires an explicit implementation, credential, budget, or owner decision.',
     },
     owner_strategy: store.getExecutiveSettings(),
+    actionability,
     action_mandate: {
       cadence: 'six_hour',
       minimum_evidence_backed_action: 1,
@@ -371,6 +376,7 @@ Rules:
 - Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
+- Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
 - Treat domain managers as recurring site specialists. Every managed site receives a lightweight review on the staggered queue; deeper work and implementation still require evidence, proposals, and the normal approval gates. The CEO owns portfolio prioritization and prevents one site from consuming disproportionate attention without evidence.

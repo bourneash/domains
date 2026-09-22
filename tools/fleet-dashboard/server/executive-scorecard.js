@@ -1,0 +1,156 @@
+'use strict';
+
+// A small, deterministic outcome layer for the executive control plane. This
+// deliberately reads the durable event store and improvement workbench rather
+// than asking a model whether a run was useful.
+
+const TERMINAL_REQUESTS = new Set(['verified', 'failed', 'cancelled']);
+const DELIVERED_REQUESTS = new Set(['committed', 'deployed', 'verified']);
+const MEASURED_IMPROVEMENTS = new Set(['proven', 'regressed', 'inconclusive']);
+
+function countBy(rows, key) {
+  return rows.reduce((counts, row) => {
+    const value = String(row[key] || 'unknown');
+    counts[value] = (counts[value] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function inWindow(value, cutoff) {
+  const timestamp = Date.parse(value || '');
+  return Number.isFinite(timestamp) && timestamp >= cutoff;
+}
+
+function finiteNumber(value) {
+  return Number.isFinite(Number(value)) ? Number(value) : null;
+}
+
+function metricDeltas(improvements) {
+  const totals = {};
+  for (const improvement of improvements) {
+    for (const [metric, delta] of Object.entries(improvement.outcome?.deltas || {})) {
+      const absolute = finiteNumber(delta?.absolute);
+      if (absolute === null) continue;
+      totals[metric] = (totals[metric] || 0) + absolute;
+    }
+  }
+  return totals;
+}
+
+function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
+  if (!store) throw new Error('executive scorecard requires an event store');
+  const days = Math.max(1, Math.min(365, Number(windowDays) || 30));
+  const cutoff = now.getTime() - days * 86400000;
+  const actions = store
+    .listExecutiveActions({ limit: 1000 })
+    .filter(row => inWindow(row.started_at, cutoff));
+  const proposals = store
+    .listExecutiveProposals({ limit: 1000 })
+    .filter(row => inWindow(row.created_at, cutoff));
+  const requests = store
+    .listChangeRequests({ limit: 1000 })
+    .filter(row => inWindow(row.created_at, cutoff));
+  const improvements = store
+    .listImprovements({ limit: 1000 })
+    .filter(row => inWindow(row.created_at, cutoff) || row.state === 'measuring');
+  // Tick actions are the durable source of truth. Older installations did not
+  // emit an executive.tick event consistently, so do not undercount cadence by
+  // depending on that secondary event stream.
+  const ticks = actions.filter(row => row.action_type === 'tick');
+
+  const queueActions = actions.filter(row => row.action_type === 'queue-work');
+  const deliveredRequests = requests.filter(row => DELIVERED_REQUESTS.has(row.status));
+  const measured = improvements.filter(row => MEASURED_IMPROVEMENTS.has(row.state));
+  const proven = improvements.filter(row => row.state === 'proven');
+  const active = improvements.filter(row =>
+    ['proposed', 'building', 'review', 'deployed', 'measuring'].includes(row.state)
+  );
+  const pendingMeasurement = improvements.filter(row =>
+    ['deployed', 'measuring'].includes(row.state)
+  );
+  const pendingApprovals = proposals.filter(row => ['proposed', 'feedback'].includes(row.status));
+  const failedRequests = requests.filter(row => row.status === 'failed');
+  const ticksWithQueueWork = ticks.filter(
+    row => Number(row.result?.counts?.change_requests || 0) > 0
+  );
+  const ticksWithProposals = ticks.filter(row => Number(row.result?.counts?.proposals || 0) > 0);
+  const actionabilityRate = ticks.length
+    ? Math.round((ticksWithQueueWork.length / ticks.length) * 100)
+    : null;
+
+  let status = 'no-delivery';
+  let nextStep =
+    'The next full executive run must select one bounded, measurable action or explain why every candidate was rejected.';
+  if (proven.length) {
+    status = 'results-measured';
+    nextStep =
+      'Keep the proven change, compare its metric delta to the expected upside, and select the next highest-value opportunity.';
+  } else if (measured.length) {
+    status = 'results-measured-inconclusive';
+    nextStep =
+      'Review the measured outcomes and either roll back, iterate, or select the next evidence-backed improvement.';
+  } else if (pendingMeasurement.length) {
+    status = 'results-pending';
+    nextStep =
+      'Wait for or run the measurement gate; do not call the work successful until the outcome is recorded.';
+  } else if (active.length || deliveredRequests.length) {
+    status = 'work-in-flight';
+    nextStep =
+      'Finish the active implementation, then deploy and measure it through the improvement pipeline.';
+  }
+
+  return {
+    schema: 'executive-scorecard/v1',
+    generated_at: now.toISOString(),
+    window_days: days,
+    status,
+    next_step: nextStep,
+    cadence: {
+      ticks: ticks.length,
+      ticks_with_queue_action: ticksWithQueueWork.length,
+      ticks_with_proposals: ticksWithProposals.length,
+      actionability_rate_percent: actionabilityRate,
+    },
+    decisions: {
+      proposals: proposals.length,
+      pending_owner_approval: pendingApprovals.length,
+      approved: proposals.filter(row => row.status === 'approved').length,
+      declined: proposals.filter(row => row.status === 'declined').length,
+      by_type: countBy(proposals, 'proposal_type'),
+    },
+    execution: {
+      audited_actions: actions.length,
+      queue_actions: queueActions.length,
+      by_action: countBy(actions, 'action_type'),
+      requests_created: requests.length,
+      requests_by_status: countBy(requests, 'status'),
+      delivered_requests: deliveredRequests.length,
+      failed_requests: failedRequests.length,
+    },
+    outcomes: {
+      improvements_started: improvements.length,
+      active: active.length,
+      pending_measurement: pendingMeasurement.length,
+      measured: measured.length,
+      proven: proven.length,
+      regressed: improvements.filter(row => row.state === 'regressed').length,
+      inconclusive: improvements.filter(row => row.state === 'inconclusive').length,
+      metric_deltas: metricDeltas(measured),
+    },
+    attention: [
+      ...(pendingApprovals.length ? [`${pendingApprovals.length} owner approval(s) waiting`] : []),
+      ...(pendingMeasurement.length
+        ? [`${pendingMeasurement.length} deployed improvement(s) awaiting measurement`]
+        : []),
+      ...(failedRequests.length
+        ? [`${failedRequests.length} implementation request(s) failed`]
+        : []),
+    ],
+  };
+}
+
+module.exports = {
+  DELIVERED_REQUESTS: [...DELIVERED_REQUESTS],
+  MEASURED_IMPROVEMENTS: [...MEASURED_IMPROVEMENTS],
+  buildScorecard,
+};

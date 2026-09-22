@@ -12,6 +12,10 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   feedback, with an audit trail.
 - `GET /api/executive/actions` — durable CEO/CTO/system/owner action log,
   including status, target, linked proposal/request, result, and error.
+- `GET /api/executive/scorecard` — deterministic outcome scorecard for executive
+  ticks, queue delivery, active improvements, measurement state, and recorded
+  metric deltas. Proposals and messages are intentionally not counted as
+  business results.
 
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
 searches public GitHub repositories against purpose-scoped fleet needs
@@ -107,7 +111,10 @@ The eventual CEO runner should execute a recurring loop:
 5. Publish a concise owner update and create proposals for material decisions.
 6. Measure results and update the strategy from outcomes, not activity.
 
-Recurring scheduling is enabled under the owner-approved six-hour cadence. The
+Recurring scheduling is enabled under the owner-approved six-hour cadence. A
+cheap hourly heartbeat records actionability and outcome state without invoking
+an AI model; it only posts an inbox update when the delivery state changes or a
+new attention item appears. The
 scheduled entrypoint reads the persisted tick and queue settings, runs the
 CEO/CFO/CTO/reviewer sequence, and enables bounded queue execution when the
 change queue is enabled. A production tick must be single-flight, bounded by
