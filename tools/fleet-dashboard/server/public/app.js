@@ -1389,6 +1389,8 @@ async function renderAIUsage() {
   const modelDriftRows = (data.by_site_role_model_drift || [])
     .slice()
     .sort((a, b) => b.total_cost_usd - a.total_cost_usd);
+  const mixedCompactionCalls = rawSummary.mixed_compaction_calls || 0;
+  const mixedCompactionCostUsd = rawSummary.mixed_compaction_cost_usd || 0;
   const wiredAwaiting = rawSummary.sites_wired_awaiting_first_run || [];
   const notWired = rawSummary.sites_not_wired || [];
   const noAiRole = rawSummary.sites_no_ai_role || [];
@@ -1530,7 +1532,12 @@ async function renderAIUsage() {
     </div>
     ${
       modelDriftCalls
-        ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
+        ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
+        : ''
+    }
+    ${
+      mixedCompactionCalls
+        ? `<div class="empty" style="margin-bottom:14px">ℹ <strong>${mixedCompactionCalls} call${mixedCompactionCalls === 1 ? '' : 's'}</strong> included multiple model families (${fmtUSD(mixedCompactionCostUsd)}). These are tracked as mixed compaction usage, not model drift, when the requested family is present.</div>`
         : ''
     }
     <div class="card aiu-chart-card">
@@ -10517,7 +10524,9 @@ function hashFor(view, agent) {
 // FRESH = false → an in-place soft refresh: no loading flash, and each view
 // restores scroll + expanded rows from UISNAP after it repaints.
 let FRESH = true;
-let UISNAP = { open: {}, html: {}, scroll: 0 };
+let UISNAP = { open: {}, html: {}, details: [], scroll: 0, focus: null };
+let SOFT_RENDER_BUSY = false;
+let SOFT_RENDER_QUEUED = false;
 
 // Snapshot the bits of UI state a full re-render would otherwise discard:
 // every [data-rk] element's open/visible state, the inner HTML of lazily
@@ -10531,7 +10540,20 @@ function captureUI() {
   $$('[data-rkh]').forEach(el => {
     html[el.dataset.rkh] = el.innerHTML;
   });
-  return { open, html, scroll: window.scrollY };
+  const active = document.activeElement;
+  const focus =
+    active && active !== document.body
+      ? { id: active.id || '', name: active.getAttribute('name') || '', tag: active.tagName }
+      : null;
+  return {
+    open,
+    html,
+    // A number of views use native details without a data-rk key. Their
+    // position in the rendered view is stable, so preserve those too.
+    details: $$('details').map(el => el.open),
+    scroll: window.scrollY,
+    focus,
+  };
 }
 function applyUISnap() {
   const s = UISNAP;
@@ -10545,7 +10567,20 @@ function applyUISnap() {
     if (el.tagName === 'DETAILS') el.open = s.open[el.dataset.rk];
     else el.classList.toggle('hidden', !s.open[el.dataset.rk]);
   });
-  if (typeof s.scroll === 'number') window.scrollTo(0, s.scroll);
+  if (Array.isArray(s.details)) {
+    $$('details').forEach((el, i) => {
+      if (i < s.details.length) el.open = s.details[i];
+    });
+  }
+  if (typeof s.scroll === 'number') window.scrollTo({ top: s.scroll, left: 0, behavior: 'auto' });
+  if (s.focus) {
+    const target = s.focus.id
+      ? document.getElementById(s.focus.id)
+      : s.focus.name
+        ? $(`${s.focus.tag.toLowerCase()}[name="${CSS.escape(s.focus.name)}"]`)
+        : null;
+    if (target && document.activeElement !== target) target.focus({ preventScroll: true });
+  }
 }
 
 // ---------------------------------------------------------------- Automation
@@ -11643,7 +11678,8 @@ async function renderExecutive() {
     campaigns,
     reports,
     managerQueue,
-    principalQueue;
+    principalQueue,
+    croLabRuns;
   try {
     [
       messages,
@@ -11669,6 +11705,7 @@ async function renderExecutive() {
       api('GET', '/api/executive/reports?limit=20'),
       api('GET', '/api/executive/domain-manager-queue'),
       api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+      api('GET', '/api/executive/cro-lab/runs?limit=12'),
     ]);
   } catch (e) {
     app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
@@ -11745,21 +11782,57 @@ async function renderExecutive() {
   const latestReport = reportRows[0];
   const managerQueueSummary = managerQueue.queue || {};
   const principalQueueSummary = principalQueue.summary || {};
-  app.innerHTML = `${executiveBreadcrumb}<div class="page-head"><div><h2 class="page-title">Fleet Executive Office</h2><div class="muted">CEO, CTO, CRO, CFO, domain-manager dispatch, owner oversight, and audit history</div></div><button class="btn" id="ex-refresh">↻ Refresh</button></div>
-    <section class="stat-grid" style="margin-bottom:12px"><div><b>${pendingCount}</b><span>pending approvals</span></div><div><b>${esc(actions.actions?.length ?? '—')}</b><span>recent audited actions</span></div><div><b>${fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`}</b><span>fleet AI spend telemetry</span></div><div><b>${fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString()}</b><span>fleet AI calls</span></div></section>
-    <section class="card" style="margin-bottom:12px"><h3>Message the executive team</h3><textarea id="ex-message" class="cm-input" rows="3" placeholder="Direction, feedback, questions, or priorities…"></textarea><div class="task-toolbar"><span class="muted">Messages are recorded as owner instructions.</span><button class="btn primary" id="ex-send">Send to CEO/CTO</button></div></section>
-    <section class="card" style="margin-bottom:12px"><h3>Owner strategy contract</h3><div class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</div><div class="form-grid" style="margin-top:10px"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Fixed monthly costs<input id="ex-fixed-costs" class="cm-input" value="${esc(s.fixed_costs_monthly || '')}" placeholder="optional"></label><label>Marketing budget<input id="ex-marketing-budget" class="cm-input" value="${esc(s.marketing_budget_monthly || '')}" placeholder="optional"></label><label>Revenue floor<input id="ex-revenue-floor" class="cm-input" value="${esc(s.revenue_floor_monthly || '')}" placeholder="optional"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="subscription / cap"></label><label>Attribution materiality threshold<input id="ex-attribution-threshold" class="cm-input" value="${esc(s.attribution_materiality_threshold || '')}" placeholder="e.g. 100"></label><label>Risk tolerance<input id="ex-risk" class="cm-input" value="${esc(s.risk_tolerance || '')}" placeholder="low, medium, high"></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label>Operating notes<textarea id="ex-notes" class="cm-input" rows="3" placeholder="What the executive should optimize for…">${esc(s.operating_notes || '')}</textarea></label><label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks (reviewed queue execution is enabled)</label><div class="task-toolbar"><span class="muted">No spend or deployment authority is granted by these settings.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></section>
-    <section class="card" style="margin-bottom:12px"><h3>Operating intelligence</h3><div class="muted">Generated ${esc(fmtDate(brief.brief?.generated_at))}. These are inputs to the next autonomous tick, not claims of revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(intel.analytics?.configured_sites ?? '—')}</b><span>analytics-configured sites</span></div><div><b>${esc(intel.revenue?.commission_income ?? '—')}</b><span>commission income in export</span></div><div><b>${esc(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—')}</b><span>AI usage tokens</span></div><div><b>${esc(intel.seo?.ok ? 'available' : 'unavailable')}</b><span>SEO intelligence</span></div></div><p class="muted" style="margin-bottom:0">Spend telemetry is fleet-wide. Codex Pro is subscription-billed, so this page does not invent a per-run executive dollar cost.</p></section>
-    <section class="card" style="margin-bottom:12px"><h3>Revenue operating system</h3><div class="muted">The CEO can now track the funnel, plan consent-aware campaigns, and run measured experiments instead of treating traffic as revenue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(revopsSummary.total_leads ?? 0)}</b><span>tracked leads</span></div><div><b>${esc(revopsSummary.mqls ?? 0)}</b><span>MQLs</span></div><div><b>${esc(revopsSummary.opportunities ?? 0)}</b><span>opportunities</span></div><div><b>${esc(experimentRows.filter(row => row.state === 'running').length)}</b><span>running experiments</span></div><div><b>${esc(campaignSummary.active ?? 0)}</b><span>active campaigns</span></div></div><p class="muted" style="margin-bottom:0">Campaigns are planning and attribution records today. Email is not sent until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></section>
-    <section class="card" style="margin-bottom:12px"><h3>Domain-manager reports</h3><div class="muted">Every managed site receives a lightweight check; deeper AI work is queued only when the evidence warrants it.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(reportRows.length)}</b><span>recent reports</span></div><div><b>${esc(latestReport?.summary?.sites_considered ?? 0)}</b><span>sites considered</span></div><div><b>${esc(latestReport?.summary?.exceptions ?? 0)}</b><span>latest exceptions</span></div><div><b>${esc(latestReport?.summary?.deep_dive_candidates ?? 0)}</b><span>deep-dive candidates</span></div></div><p class="muted" style="margin-bottom:0">Cadence: every 6 hours, plus daily and weekly rollups, with on-demand site deep dives. ${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></section>
-    <section class="card" style="margin-bottom:12px"><h3>Domain-manager dispatch queue</h3><div class="muted">Candidates are deduplicated, priority-ranked, leased, and processed with two active workers and one new site every minute. Great American Lakes is the owner-priority site.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(managerQueueSummary.queued ?? 0)}</b><span>queued</span></div><div><b>${esc(managerQueueSummary.running ?? 0)}</b><span>running</span></div><div><b>${esc(managerQueueSummary.completed ?? 0)}</b><span>completed</span></div><div><b>${esc(managerQueueSummary.failed ?? 0)}</b><span>failed</span></div></div><p class="muted" style="margin-bottom:0">The queue is staggered to avoid load spikes and retries failed work with bounded attempts.</p></section>
-    <section class="card" style="margin-bottom:12px"><h3>Principal Engineer task queue</h3><div class="muted">The Principal Engineer is the CTO's senior right hand for urgent technical work, incidents, architecture fixes, and emergency pickup. Approved executive work is routed here instead of waiting in the normal engineer queue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(principalQueueSummary.queued ?? 0)}</b><span>queued</span></div><div><b>${esc(principalQueueSummary.active ?? 0)}</b><span>active</span></div><div><b>${esc(principalQueueSummary.review ?? 0)}</b><span>in review</span></div><div><b>${esc(principalQueueSummary.failed ?? 0)}</b><span>failed</span></div></div><p class="muted" style="margin-bottom:0">Normal bounded implementation goes to engineer; high-impact or urgent technical work goes to principal-engineer. <a href="#change-queue">Open Change Queue</a></p></section>
-    <section class="card" style="margin-bottom:12px"><h3>Conversation</h3>${messageRows || '<div class="empty">No executive messages yet.</div>'}</section>
-    <section style="margin-bottom:12px"><div class="page-head"><div><h3>CRO → CEO/CTO review</h3><div class="muted">CRO research leads go to executive review first; they do not wait in the owner approval queue.</div></div><span class="badge ${croReviewRows ? 'b-blue' : 'b-green'}">${croReviewRows ? 'review needed' : 'clear'}</span></div>${croReviewRows || '<div class="card empty">No CRO handoffs awaiting executive review.</div>'}</section>
-    <section style="margin-bottom:12px"><div class="page-head"><div><h3>Owner approval queue</h3><div class="muted">Approve only work you want converted into a bounded change request.</div></div><span class="badge ${pendingCount ? 'b-yellow' : 'b-green'}">${pendingCount} awaiting decision</span></div>${pendingApprovalRows || '<div class="card empty">No executive requests need approval.</div>'}</section>
-    <section class="card" style="margin-bottom:12px"><h3>Decision proposals</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals yet.</td></tr>'}</tbody></table></div></section>
-    <section class="card"><h3>Action audit log</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></section>`;
+  const croRuns = croLabRuns.runs || [];
+  const croLabRows = croRuns
+    .slice(0, 6)
+    .map(run => {
+      const candidate = run.candidate?.full_name || 'unknown repository';
+      const decision = run.recommendation?.decision || run.status || 'unresolved';
+      const checks = (run.checks || []).filter(check => check.status === 'passed').length;
+      return `<tr><td><b>${esc(candidate)}</b><div class="muted">${esc(run.candidate?.purpose || 'fleet capability')}</div></td><td><span class="badge ${decision === 'research' ? 'b-green' : decision === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(decision)}</span></td><td>${esc(checks)} passed<div class="muted">${esc(run.repository?.file_count || 0)} files inspected</div></td><td><a href="/api/executive/cro-lab/runs/${encodeURIComponent(run.run_id)}" target="_blank" rel="noreferrer">evidence ↗</a><div class="muted">${esc(fmtDate(run.generated_at))}</div></td></tr>`;
+    })
+    .join('');
+  const reviewCount = (proposals.proposals || []).filter(
+    p => ['proposed', 'feedback'].includes(p.status) && isCROHandoff(p)
+  ).length;
+  const latestMessage = (messages.messages || []).slice().reverse()[0];
+  const queueTotal =
+    Number(managerQueueSummary.queued || 0) + Number(principalQueueSummary.queued || 0);
+  const stat = (value, label, tone = '') =>
+    `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
+  app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
+    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><button class="btn" id="ex-refresh">↻ Refresh</button></header>
+    <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
+    <section class="ex-layout">
+      <div class="ex-primary">
+        <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
+        <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">CEO / CTO inbox</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Saved to the executive record.</span><button class="btn primary" id="ex-send">Send message</button></div></section>
+        <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
+      </div>
+      <aside class="ex-secondary">
+        <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">FLEET SIGNALS</div><h3>At a glance</h3></div><span class="muted">${esc(fmtDate(brief.brief?.generated_at))}</span></div><div class="ex-mini-grid">${stat(intel.analytics?.configured_sites ?? '—', 'analytics sites')}${stat(intel.revenue?.commission_income ?? '—', 'commission income')}${stat(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—', 'AI tokens')}${stat(fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`, 'telemetry cost')}</div><p class="muted ex-footnote">Telemetry only; no per-run executive cost is inferred.</p></section>
+        <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">OPERATIONS</div><h3>Queues</h3></div><a href="#change-queue" class="muted">open queue →</a></div><div class="ex-queue-row"><span>Domain manager</span><b>${esc(managerQueueSummary.queued ?? 0)} queued</b><span class="muted">${esc(managerQueueSummary.running ?? 0)} running</span></div><div class="ex-queue-row"><span>Principal engineer</span><b>${esc(principalQueueSummary.queued ?? 0)} queued</b><span class="muted">${esc(principalQueueSummary.review ?? 0)} review</span></div></section>
+      </aside>
+    </section>
+    <div class="ex-details-label">DETAILS &amp; CONFIGURATION</div>
+    <details class="ex-disclosure"><summary><span><b>Strategy contract</b><small>Targets, limits, risk tolerance, and recurring ticks</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><p class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</p><div class="form-grid"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Fixed monthly costs<input id="ex-fixed-costs" class="cm-input" value="${esc(s.fixed_costs_monthly || '')}" placeholder="optional"></label><label>Marketing budget<input id="ex-marketing-budget" class="cm-input" value="${esc(s.marketing_budget_monthly || '')}" placeholder="optional"></label><label>Revenue floor<input id="ex-revenue-floor" class="cm-input" value="${esc(s.revenue_floor_monthly || '')}" placeholder="optional"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="optional"></label><label>Attribution threshold<input id="ex-attribution-threshold" class="cm-input" value="${esc(s.attribution_materiality_threshold || '')}" placeholder="e.g. 100"></label><label>Risk tolerance<input id="ex-risk" class="cm-input" value="${esc(s.risk_tolerance || '')}" placeholder="low, medium, high"></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label>Operating notes<textarea id="ex-notes" class="cm-input" rows="3" placeholder="What should the executive optimize for?">${esc(s.operating_notes || '')}</textarea></label><label class="ex-check"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks</label><div class="ex-disclosure-actions"><span class="muted">No spend or deployment authority is granted here.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></div></details>
+    <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are now tested in disposable workspaces before CEO/CTO review. No dependencies are installed and no project files are mounted.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
+    <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
+  </div>`;
   $('#ex-refresh').onclick = () => softRender();
+  $('#ex-run-cro-lab').onclick = async () => {
+    const button = $('#ex-run-cro-lab');
+    button.disabled = true;
+    try {
+      await api('POST', '/api/executive/cro-lab/run', {});
+      toast('CRO repo lab completed');
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      button.disabled = false;
+    }
+  };
   $('#ex-send').onclick = async () => {
     const body = $('#ex-message').value.trim();
     if (!body) return toast('Write a message first', 'err');
@@ -11970,17 +12043,43 @@ function renderAgent(role) {
 }
 
 // In-place refresh of the current view: capture UI state, repaint without the
-// loading flash, then the view restores state from UISNAP as it finishes.
+// loading flash, then restore the viewport after the view finishes. Live ticks
+// can arrive faster than slow API responses, so only one redraw is allowed at
+// a time; a second tick is coalesced into one follow-up refresh.
 function softRender() {
+  if (SOFT_RENDER_BUSY) {
+    SOFT_RENDER_QUEUED = true;
+    return;
+  }
+  SOFT_RENDER_BUSY = true;
+  document.documentElement.classList.add('fd-soft-refresh');
   UISNAP = captureUI();
   FRESH = false;
   const pending = render();
-  Promise.resolve(pending).then(() => {
-    if (FRESH) return;
-    requestAnimationFrame(() => {
-      if (!FRESH) applyUISnap();
+  Promise.resolve(pending)
+    .catch(() => {})
+    .then(() => {
+      if (!FRESH) {
+        // Two frames cover both async view rendering and browser scroll
+        // anchoring after a large table changes height.
+        requestAnimationFrame(() => {
+          if (!FRESH) applyUISnap();
+          requestAnimationFrame(() => {
+            if (!FRESH) applyUISnap();
+            document.documentElement.classList.remove('fd-soft-refresh');
+            SOFT_RENDER_BUSY = false;
+            if (SOFT_RENDER_QUEUED) {
+              SOFT_RENDER_QUEUED = false;
+              setTimeout(softRender, 0);
+            }
+          });
+        });
+      } else {
+        document.documentElement.classList.remove('fd-soft-refresh');
+        SOFT_RENDER_BUSY = false;
+        SOFT_RENDER_QUEUED = false;
+      }
     });
-  });
 }
 
 function go(view, agent) {

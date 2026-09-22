@@ -15,13 +15,32 @@ if grep -q '{{' "$ROLE_FILE"; then
   fail "unresolved {{placeholder}} in $ROLE_FILE"
 fi
 
-# 2. run-role.sh has a dispatch branch for this role.
-grep -qE "(\"$ROLE\"|$ROLE[|)])" "$SITE/ops/scripts/run-role.sh" \
-  || fail "no dispatch branch for '$ROLE' in run-role.sh"
+# 2. run-role.sh either has an explicit dispatch branch or uses the generic
+# role-file dispatcher. Both are supported wiring styles.
+if ! grep -qE "(\"$ROLE\"|$ROLE[|)])" "$SITE/ops/scripts/run-role.sh"; then
+  grep -q 'ops/roles/\$ROLE\.md' "$SITE/ops/scripts/run-role.sh" \
+    || fail "no dispatch branch or generic role-file dispatcher for '$ROLE' in run-role.sh"
+fi
 
-# 3. crontab.docker has a schedule line invoking this role.
-grep -qE "run-worker\.sh +$ROLE( |\$)" "$SITE/ops/docker/crontab.docker" \
-  || fail "no crontab line for '$ROLE' in crontab.docker"
+# 3. crontab.docker has a schedule line invoking this role, either through
+# the generic worker dispatcher or a role-specific runner.
+if ! grep -qE "run-worker\.sh +$ROLE( |\$)" "$SITE/ops/docker/crontab.docker"; then
+  grep -qE "run-$ROLE\.sh( |\$)" "$SITE/ops/docker/crontab.docker" \
+    || fail "no crontab line for '$ROLE' in crontab.docker"
+fi
+
+# Principal-engineer must only block on shippable edits. Runtime files are
+# written every tick; the old broad check deadlocked the role on its own logs,
+# health records, and task-board bookkeeping.
+if [ "$ROLE" = "principal-engineer" ]; then
+  PRINCIPAL_SCRIPT="$SITE/ops/scripts/principal-engineer.sh"
+  grep -q 'RUNTIME_PATHSPECS' "$PRINCIPAL_SCRIPT" \
+    || fail "principal-engineer uses stale dirty-tree preflight: $PRINCIPAL_SCRIPT"
+  grep -q -- '--untracked-files=all' "$PRINCIPAL_SCRIPT" \
+    || fail "principal-engineer preflight does not inspect untracked shippable edits: $PRINCIPAL_SCRIPT"
+  ! grep -q 'git status --porcelain -- site/ ops/ \.github/' "$PRINCIPAL_SCRIPT" \
+    || fail "principal-engineer still uses broad runtime-inclusive dirty check: $PRINCIPAL_SCRIPT"
+fi
 
 # 4. The running cron container actually has the line (the sinderella guard).
 #    Skipped with a loud warning if docker or the container is unavailable.

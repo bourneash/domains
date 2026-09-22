@@ -731,13 +731,40 @@ if data is not None:
                        "cacheCreationInputTokens", "cacheReadInputTokens")
         )
     model = None
+    requested_family = _model_family(requested_model)
     if model_usage:
-        model = max(
-            model_usage,
-            key=lambda m: (_model_output_tokens(model_usage[m]), _model_tokens(model_usage[m])),
-        )
+        # Claude Code includes its internal compaction model in modelUsage.
+        # Prefer the explicitly requested model whenever it has usage; a
+        # compaction response can be longer than a short real work pass and
+        # otherwise creates a false model-drift alert.
+        requested_entry = model_usage.get(requested_model)
+        if isinstance(requested_entry, dict) and _model_tokens(requested_entry) > 0:
+            model = requested_model
+        else:
+            # The caller may use an alias (for example, "sonnet") while the
+            # CLI reports the concrete version in modelUsage. Prefer that
+            # family before considering a compaction model from another one.
+            same_family = [
+                name for name in model_usage
+                if requested_family and _model_family(name) == requested_family
+            ]
+            candidates = same_family or list(model_usage)
+            model = max(
+                candidates,
+                key=lambda m: (_model_output_tokens(model_usage[m]), _model_tokens(model_usage[m])),
+            )
     model = model or data.get("model")
     model_drift = _check_model_drift(requested_model, model, site, role, repo_root)
+    usage_families = sorted({
+        family for family in (_model_family(name) for name in model_usage)
+        if family
+    })
+    if model_drift:
+        model_drift_kind = "family_drift"
+    elif len(usage_families) > 1:
+        model_drift_kind = "mixed_compaction"
+    else:
+        model_drift_kind = "none"
     # ---- num_turns vs requested_max_turns: NOT a bug (investigated 2026-09-06) ----
     # A successful run's num_turns can legitimately read 1-3 turns ABOVE
     # requested_max_turns (observed: aliencouncil.com content-writer 25/24,
@@ -766,7 +793,9 @@ if data is not None:
         "role": role,
         "model": model,
         "model_usage": model_usage or None,
+        "model_usage_families": usage_families,
         "model_drift": model_drift,
+        "model_drift_kind": model_drift_kind,
         "requested_model": requested_model or None,
         "requested_max_turns": int(requested_max_turns) if requested_max_turns.isdigit() else None,
         "subtype": data.get("subtype"),

@@ -177,6 +177,7 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     by_model: dict[tuple[str, str], dict] = {}
     by_requested_model: dict[str, dict] = {}
     by_site_role_drift: dict[tuple[str, str], dict] = {}
+    by_site_role_mixed_compaction: dict[tuple[str, str], dict] = {}
     alerts: list[dict] = []
     instrumented_sites: set[str] = set()
     all_sites: list[str] = []
@@ -235,6 +236,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 is_model_drift = bool(record.get("model_drift"))
                 if is_model_drift:
                     _add(by_site_role_drift.setdefault((site, role), _empty_totals()), record)
+                if record.get("model_drift_kind") == "mixed_compaction":
+                    _add(by_site_role_mixed_compaction.setdefault((site, role), _empty_totals()), record)
                 if is_error or hit_max_turns or is_model_drift:
                     alerts.append({
                         "day": day, "site": site, "role": role, "provider": provider,
@@ -243,6 +246,9 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                         "is_error": is_error,
                         "hit_max_turns": hit_max_turns,
                         "model_drift": is_model_drift,
+                        "model_drift_kind": record.get("model_drift_kind") or (
+                            "family_drift" if is_model_drift else None
+                        ),
                         "subtype": record.get("subtype"),
                         "total_cost_usd": record.get("total_cost_usd") or 0.0,
                     })
@@ -294,6 +300,12 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         model_drift_rows.append({"site": site, "role": role, **totals})
     model_drift_calls = sum(row["calls"] for row in model_drift_rows)
     model_drift_cost_usd = sum(row["total_cost_usd"] for row in model_drift_rows)
+    mixed_compaction_rows = [
+        {"site": site, "role": role, **totals}
+        for (site, role), totals in sorted(by_site_role_mixed_compaction.items())
+    ]
+    mixed_compaction_calls = sum(row["calls"] for row in mixed_compaction_rows)
+    mixed_compaction_cost_usd = sum(row["total_cost_usd"] for row in mixed_compaction_rows)
 
     fleet_totals = _empty_totals()
     for totals in by_site.values():
@@ -330,6 +342,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
             "coverage_complete": not not_wired,
             "model_drift_calls": model_drift_calls,
             "model_drift_cost_usd": model_drift_cost_usd,
+            "mixed_compaction_calls": mixed_compaction_calls,
+            "mixed_compaction_cost_usd": mixed_compaction_cost_usd,
         },
         "by_site": site_rows,
         "by_site_role": role_rows,
@@ -340,6 +354,7 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         "by_model": model_rows,
         "by_requested_model": requested_model_rows,
         "by_site_role_model_drift": model_drift_rows,
+        "by_site_role_mixed_compaction": mixed_compaction_rows,
         # Hard failures rank above cost. Ranking purely by spend buried the
         # 2026-09-01 outage: 24 roles across 10 sites died on "401 OAuth access
         # token has been revoked", and because a call that never authenticates

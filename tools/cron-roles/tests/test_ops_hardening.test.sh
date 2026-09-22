@@ -18,6 +18,10 @@ for script in "${principals[@]}"; do
   grep -q "\[redaction unavailable\]" "$script" || fail "redactor is not fail-closed: $script"
   grep -q 'safe_note' "$script" || fail "reopen_incident does not sanitize: $script"
   grep -q 'safe_outcome' "$script" || fail "mark_incident does not sanitize: $script"
+  grep -q 'RUNTIME_PATHSPECS' "$script" || fail "stale principal dirty-tree preflight: $script"
+  grep -q -- '--untracked-files=all' "$script" || fail "principal preflight misses untracked edits: $script"
+  ! grep -q 'git status --porcelain -- site/ ops/ \.github/' "$script" \
+    || fail "principal preflight includes runtime bookkeeping: $script"
 done
 
 principal_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/principal-engineer.sh.tmpl"

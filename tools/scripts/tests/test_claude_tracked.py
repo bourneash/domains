@@ -13,7 +13,12 @@ BOOTSTRAP = ROOT / "tools" / "scripts" / "ai-usage-bootstrap.sh"
 
 
 class ClaudeTrackedFailureTests(unittest.TestCase):
-    def run_wrapper(self, payload: dict, retry_payload: dict | None = None):
+    def run_wrapper(
+        self,
+        payload: dict,
+        retry_payload: dict | None = None,
+        requested_model: str = "claude-sonnet-4-6",
+    ):
         with tempfile.TemporaryDirectory() as td:
             temp = Path(td)
             fake_bin = temp / "bin"
@@ -61,7 +66,7 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                 }
             )
             result = subprocess.run(
-                [str(WRAPPER), "test prompt", "--max-turns", "2", "--model", "claude-sonnet-4-6"],
+                [str(WRAPPER), "test prompt", "--max-turns", "2", "--model", requested_model],
                 text=True,
                 capture_output=True,
                 env=env,
@@ -251,6 +256,53 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
         self.assertEqual(calls, "x")
         self.assertIn("refusing a fresh replay", result.stderr)
         self.assertEqual(record["failure_class"], "socket_disconnected")
+
+    def test_requested_model_wins_over_compaction_model(self):
+        result, calls, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "success",
+                "is_error": False,
+                "result": "completed",
+                "num_turns": 9,
+                "total_cost_usd": 0.44,
+                "usage": {},
+                "modelUsage": {
+                    "claude-haiku-4-5-20251001": {
+                        "cacheReadInputTokens": 578026,
+                        "outputTokens": 7147,
+                        "costUSD": 0.147,
+                    },
+                    "claude-sonnet-4-6": {
+                        "cacheReadInputTokens": 229248,
+                        "outputTokens": 5514,
+                        "costUSD": 0.295,
+                    },
+                },
+            }
+        )
+        self.assertEqual(record["model"], "claude-sonnet-4-6")
+        self.assertFalse(record["model_drift"])
+
+    def test_requested_model_alias_prefers_matching_family(self):
+        result, calls, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "success",
+                "is_error": False,
+                "result": "completed",
+                "num_turns": 2,
+                "total_cost_usd": 0.04,
+                "usage": {},
+                "modelUsage": {
+                    "claude-haiku-4-5-20251001": {"outputTokens": 9000},
+                    "claude-sonnet-4-6": {"outputTokens": 1},
+                },
+            },
+            requested_model="sonnet",
+        )
+        self.assertEqual(record["model"], "claude-sonnet-4-6")
+        self.assertFalse(record["model_drift"])
 
     def test_bootstrap_recognizes_only_global_outages(self):
         with tempfile.TemporaryDirectory() as td:

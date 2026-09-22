@@ -234,6 +234,19 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(drift_alerts[0]["model"], "claude-opus-4-7[1m]")
         self.assertEqual(drift_alerts[0]["requested_model"], "claude-sonnet-4-6")
 
+    def test_mixed_compaction_is_reported_without_false_drift_alert(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [record(
+            model="claude-sonnet-4-6", requested_model="claude-sonnet-4-6",
+            model_drift=False, model_drift_kind="mixed_compaction",
+            model_usage_families=["haiku", "sonnet"], total_cost_usd=0.44,
+        )])
+        report = aggregate.collect(root)
+        self.assertEqual(report["summary"]["model_drift_calls"], 0)
+        self.assertEqual(report["summary"]["mixed_compaction_calls"], 1)
+        self.assertEqual(report["by_site_role_mixed_compaction"][0]["site"], "example.com")
+        self.assertFalse(any(alert.get("model_drift") for alert in report["alerts"]))
+
 
 if __name__ == "__main__":
     unittest.main()
