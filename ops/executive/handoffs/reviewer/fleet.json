@@ -2,35 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-22T23:29:38.229Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-22T23:39:58.569Z",
+  "summary": "reviewer checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. Retain SearchWoot as private. Reject new production, spending, telemetry, credential, schedule, deployment, external-channel, and queue work this cycle; failed routing corrections require diagnosis before any retry. Continue only existing Great American Lakes measurement without duplication or declaring success before its recorded thresholds. Available evidence supports portfolio-level $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21 only; attribution remains incomplete and analytics is unavailable.",
+        "summary": "Retain the private-preview gate and reject public launch, monetization expansion, unsupported site-level financial claims, and new production or queue work. Continue only the existing Great American Lakes measurement at its recorded 14-day or 100-impression thresholds; do not declare success early. Existing telemetry shows only portfolio-level Amazon activity for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Attribution remains incomplete, so site revenue, margin, ROI, CAC, payback, forecasts, and experiment impact are unsupported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Smallest defensible plan: preserve existing approved measurement and blocked launch-readiness work; create no new proposals, change requests, data requests, or research requests. Existing public research and scheduled telemetry already cover the current evidence gaps; additional research would duplicate them.",
+        "summary": "Material concerns: source rights, privacy, consent, security, accuracy, attribution, correction, takedown, and rollback evidence remain unresolved for the private-preview product. Keep it private pending all applicable gates and owner disposition. Do not create duplicate telemetry, data requests, research requests, proposals, change requests, spending, credentials, schedules, deployments, or external publishing.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain SearchWoot as private, reject unsupported site-level financial and launch claims, continue the existing Great American Lakes measurement window, and route only three reversible queue-metadata corrections to engineer: correct task ownership for 0daynews.com, allthingsmasonic.com, and americastrikes.com. Do not modify code, content, links, telemetry, credentials, schedules, deployment, spending, or external publishing. Owner decision: keep SearchWoot private until all legal, security, accuracy, and attribution gates are evidenced?",
+        "summary": "Do not retry failed routing or other queue work this cycle. The failure cause is not evidenced, and the proposed metadata corrections are not retained for execution. Preserve existing task content, scope, schedules, credentials, deployment, telemetry, and spending.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing Great American Lakes measurement window and record outcomes only at the existing 14-day or 100-impression thresholds. Do not declare success before measured outcomes are available.",
+        "summary": "At measurement close, report only available clicks, impressions, sessions, conversions, and attributable commission. Label unavailable attribution and direct-cost fields explicitly; do not compare the one-day commission figure with the multi-week AI-usage total or infer contribution margin.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: retain the private-preview gate, reject unsupported site-level financial and launch claims, and authorize three low-risk, reversible SEO changes for measurement only on saveusfarms.com, marineactivity.com, and fishhooklabs.com. Will the owner approve these bounded changes while preserving all existing gates and telemetry?",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Available evidence supports only portfolio-level Amazon activity for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Attribution is incomplete, so site revenue, margin, ROI, CAC, payback, forecasts, and experiment impact remain unsupported. Do not compare the one-day commission figure with multi-week AI usage or invent direct costs.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain searchwoot.com as private. Source rights, privacy, consent, security, accuracy, attribution, correction, takedown, and rollback evidence remain unresolved. No public beta, monetization expansion, credential, configuration, spending, schedule, deployment, or external-publishing change is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the two existing Great American Lakes measurements without duplication. Record outcomes only at the existing 14-day or 100-impression thresholds and do not declare success early.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not retry the failed routing corrections until their failure cause is diagnosed. Preserve task content, scope, schedules, credentials, deployment, telemetry, and spending.",
         "requested_action": null,
         "proposal_id": null
       }

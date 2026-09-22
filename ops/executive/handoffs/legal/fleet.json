@@ -2,56 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-22T23:29:38.228Z",
-  "summary": "legal checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-22T23:39:58.568Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for bounded public beta or full launch; conditional for continued private preview. Exact decision: retain searchwoot.com as keep_private and authorize no public beta, go-live, monetization expansion, advertising, or production launch change this cycle. Evidence: current launch-readiness records keep the site password-gated and noindex/nofollow; Woot documentation confirms API access and rate limits but not permission to store, derive, cache, publicly display, alert on, or monetize the data. Accuracy/freshness, security/release, measurement/attribution, privacy, consent, vendor, retention, correction, takedown, and rollback evidence remain incomplete. Fleet compliance is technical triage only: 35 pass, 18 fail, and 6 unknown of 59 scanned sites; failures include missing cookie banner/accept/reject controls on 16 sites and missing privacy/terms evidence on 4 sites. Human counsel is required for unresolved source rights, privacy and consent scope, consumer and affiliate disclosures, copyright/trademark use, platform policy, and any regulated or age-sensitive determination. Incomplete telemetry does not by itself block ordinary growth, but it prevents launch or financial claims for this gated product.",
+        "summary": "Risk disposition: blocked for bounded public beta or full launch; conditional for continued private preview. Retain searchwoot.com as private. Woot documentation confirms API access and rate limits but not rights to store, derive, cache, display, alert on, or monetize data. Privacy, consent, security, accuracy, attribution, correction, takedown, and rollback evidence remain unresolved. Human counsel is required for source rights, privacy scope, disclosures, copyright/trademark, platform policy, and any regulated or age-sensitive use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: 0 of 4 legal tasks are evidenced closed; all four remain open. Non-legal gates remain blocked for accuracy/freshness, measurement/attribution, and security/release. Close no task without evidence. Next evidence action: attach the current authoritative Woot API agreement or written permission, field-level provenance, permitted storage/caching/display/alert and monetization uses, attribution requirements, freshness limits, and correction/takedown process to searchwoot-legal-source-rights.",
+        "summary": "Launch-readiness tracking remains active. Progress: 0 of 4 legal tasks evidenced closed; all remain open. Non-legal accuracy/freshness, measurement/attribution, and security/release gates remain blocked. Next evidence action: attach the current authoritative Woot agreement or written permission, field-level provenance, permitted storage/display/alert and monetization uses, attribution requirements, freshness limits, and correction/takedown process to searchwoot-legal-source-rights.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review dispositions: Woot API deal and price-history data = evidence_needed; missing rights for storage, historical derivatives, public display, images, trademarks, prices, savings claims, alerts, affiliate links, and advertising, plus provenance and freshness/correction controls. Smallest next action: produce a rights-and-data inventory from authoritative terms or written permission. User alert rules and sync results = evidence_needed; missing field inventory, retention, deletion, access/correction, Slack/email processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only data-flow and retention table from the repository and deployed configuration. GA4 analytics = evidence_needed; missing deployed consent/withdrawal evidence, property and data-sharing settings, retention, vendor disclosure, and jurisdiction treatment. Smallest next action: capture consent and configuration evidence without enabling new tracking. Operational logs and Cloudflare hosting data = evidence_needed; missing log-field inventory, retention/access controls, vendor terms/DPA review, and incident/data-subject-request procedures. Smallest next action: produce the operator/vendor inventory and flag counsel-required gaps. No item is clear or approved for public beta.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue and data-quality disposition: do not make site-level revenue, margin, ROI, CAC, payback, forecast, or experiment-impact claims. Available evidence supports portfolio activity of 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21 only; 629 clicks and all 28 ordered items are under tracking_id \"other\", so attribution is incomplete. Analytics is unavailable for all 60 registry sites. Continue ordinary low-risk work that is separately authorized and continue the existing Great American Lakes measurement window without duplicating work or declaring success before its recorded thresholds.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Private or gated-site checklist: searchwoot.com must remain password-gated and noindex/nofollow until the owner records keep-private or a later disposition after all applicable gates pass. The existing public inspection confirms a private-preview page; it does not evidence access-control robustness, alert-data protection, log handling, or incident readiness. Do not treat the draft site terms, privacy page, or cookie page as evidence of upstream data permission or counsel approval.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No go-live proposal is retained. Accordingly, no implementation.launch_gate or implementation.legal_review approval is issued. Any future go-live proposal must include implementation.launch_gate=\"go_live\", implementation.legal_review.status=\"approved\" or \"needs_owner\", reviewed_by=\"legal\", and a concise evidence-supported decision_note; legal approval is not supportable on the current record.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SearchWoot as private. Source rights, accuracy, privacy, security, attribution, and rollback gates remain unresolved; no public beta, monetization expansion, advertising, or production launch change is authorized.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data = evidence_needed; missing rights, provenance, freshness, correction, takedown, image, trademark, pricing, savings-claim, alert, affiliate, and advertising evidence. User alert rules and sync results = evidence_needed; missing data-flow, retention, deletion, access/correction, processor, consent, and unsubscribe evidence. GA4 analytics = evidence_needed; missing deployed consent/withdrawal, property settings, retention, vendor disclosure, and jurisdiction evidence. Operational logs and Cloudflare hosting data = evidence_needed; missing log fields, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest next actions are respectively a rights inventory, read-only data-flow table, consent/configuration capture, and operator/vendor inventory.",
         "requested_action": null,
         "proposal_id": null
       }

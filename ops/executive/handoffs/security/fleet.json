@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-22T23:29:38.229Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-22T23:39:58.569Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: blocked for bounded public beta or full launch; conditional for continued private preview; evidence_needed for the underlying control set. Exact decision: retain searchwoot.com as private and reject public launch, monetization expansion, credential, telemetry, infrastructure, schedule, and deployment changes this cycle. Evidence: the read-only security baseline reports no completed deployment, uptime, error, authentication, authorization, secret-handling, runtime-isolation, release-control, dependency, monitoring, incident-response, or disclosure-readiness evidence. The site is password-gated and noindex/nofollow, while compliance indicates HTTPS only; complete TLS configuration is not evidenced. Access-boundary protection, alert-rule and sync-result handling, operational-log exposure, hosting-data controls, and security.txt/disclosure readiness remain unverified. Risk severity is high for public exposure and evidence_needed for control assurance. Missing telemetry is not evidence of compromise or a clean bill of health. Continue only existing approved measurement and separately authorized low-risk reversible work; optional hardening alone does not block ordinary growth.",
+        "summary": "Security disposition: blocked for bounded public beta or full launch; conditional for continued private preview; evidence_needed for the underlying control set. Exact decision: retain searchwoot.com as private and authorize no public exposure, monetization expansion, credential, access-control, telemetry, infrastructure, schedule, deployment, or data-handling changes this cycle. Concrete evidence: the read-only security baseline has no completed fleet-doctor run, operations deployment/uptime/error sweeps are unavailable, legal-family security status is unknown for all 59 sites, and only HTTPS—not complete TLS configuration—is evidenced. Public inspection shows a password-gated, noindex/nofollow private preview, but does not establish authentication strength, authorization boundaries, secret storage or rotation, runtime isolation, release approvals, dependency controls, monitoring, incident response, data minimization/retention, or security.txt/disclosure readiness. Risk severity is high for public exposure and evidence_needed for control assurance. Missing telemetry is not evidence of compromise or a clean bill of health. Existing approved Great American Lakes measurement and separately authorized low-risk reversible work may continue; optional hardening alone does not block ordinary growth.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Required security evidence before reconsidering go-live: document authentication and authorization boundaries for the private preview, secrets storage and rotation, container/runtime isolation, release and deploy approvals with rollback, complete TLS configuration, dependency and supply-chain controls, data minimization and retention, monitoring and incident signals, incident-response ownership, and disclosure/security.txt readiness. Evidence must be owner-approved and read-only where possible; do not create credentials, alter access controls, deploy, or expose new data as part of this review.",
+        "summary": "Required evidence before reconsidering go-live: owner-approved documentation of authentication and authorization boundaries; secrets storage, access, and rotation; container/runtime isolation; release and deploy approvals with rollback; complete TLS configuration; dependency and supply-chain controls; data flows, minimization, and retention; monitoring and incident signals; incident-response ownership; and security.txt or equivalent disclosure readiness. Evidence collection must remain read-only where possible and must not create credentials, alter access controls, deploy, or expose new data.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No security-sensitive implementation proposal is retained this cycle. Existing Great American Lakes measurement may continue without duplication or security-related production changes. Do not declare SearchWoot launch readiness from absent evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No public exposure, credential, access-control, telemetry, infrastructure, schedule, deployment, or data-handling changes are authorized. Existing approved measurement and narrowly scoped reversible queue metadata work may continue.",
+        "summary": "No security-sensitive implementation proposal is retained this cycle. No implementation.security_review approval is issued because no go-live or security-sensitive proposal is retained. Continue only existing approved measurement and narrowly scoped reversible queue metadata work; do not declare launch readiness from absent evidence.",
         "requested_action": null,
         "proposal_id": null
       }

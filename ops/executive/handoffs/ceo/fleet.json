@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T22:05:15.892Z",
+  "generated_at": "2026-09-22T23:39:58.569Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep searchwoot.com private and advance two reversible actions: add internal links on eastcoastrappers.com and prepare two consent-aware Reddit drafts for saveusfarms.com. Evidence: 30-day actionability is 6%; 2 deployed improvements await measurement and 0 are measured. Amazon reported $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but attribution and analytics are incomplete, so site revenue, margin, and ROI are unknown. The third eligible candidate is deferred because other candidates already have active work. Smallest next step: complete these actions and record outcomes. Owner decision: keep SearchWoot private, authorize bounded beta after gates, or defer a decision?",
+        "summary": "Continue the two deployed Great American Lakes measurements without duplication. Record outcomes only at the existing 14-day or 100-impression thresholds and do not declare success early. Retain searchwoot.com as private pending all applicable legal, security, accuracy, attribution, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       }
