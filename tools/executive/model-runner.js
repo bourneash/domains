@@ -96,8 +96,18 @@ async function main() {
       repaired: true,
       counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
     });
-    if (!runner.actionMandateSatisfied(plan, brief))
-      throw new Error('executive action mandate was not satisfied');
+    if (!runner.actionMandateSatisfied(plan, brief)) {
+      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL DECISION-MEMO REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve the useful existing work, and include exactly one concise CEO message whose body starts with Recommendation: and then gives: (1) the action you recommend now, (2) at least one known number/date or an explicit statement that the number is not calculable and why, (3) the main unknown, (4) the smallest next step, and (5) at most one direct owner question with concrete options. Do not return a maintenance-only update or a question without a recommendation.`;
+      const finalRepairOutput = await runner.runProvider(finalRepairPrompt);
+      plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput));
+      audit.push({
+        role: 'decision-memo-repair',
+        repaired: true,
+        counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
+      });
+      if (!runner.actionMandateSatisfied(plan, brief))
+        throw new Error('executive action mandate was not satisfied');
+    }
   }
   // Later review passes are allowed to revise an earlier conclusion, but a
   // pass that simply omits a CRO handoff must not reopen it for the owner.
