@@ -12178,6 +12178,33 @@ function renderKnowledge() {
             }
           })
       );
+      $$('.kn-learning-toggle').forEach(
+        button =>
+          (button.onclick = () => {
+            $(`[data-learning="${CSS.escape(button.dataset.id)}"]`)?.classList.toggle('hidden');
+          })
+      );
+      $$('.kn-learning-save').forEach(
+        button =>
+          (button.onclick = async () => {
+            const edit = $(`[data-learning="${CSS.escape(button.dataset.id)}"]`);
+            try {
+              await api(
+                'PATCH',
+                `/api/executive/knowledge/${encodeURIComponent(button.dataset.id)}`,
+                {
+                  takeaway: $('.kn-takeaway', edit).value.trim(),
+                  applied_to: $('.kn-applied', edit).value.trim(),
+                  reviewed_by: 'owner',
+                }
+              );
+              toast('Learning recorded');
+              softRender();
+            } catch (e) {
+              toast(e.message, 'err');
+            }
+          })
+      );
       if (!FRESH) applyUISnap();
       stamp();
     })
@@ -13169,33 +13196,6 @@ async function renderAIOptimizer() {
             note: to === 'rejected' ? note : undefined,
             commit: to === 'applied' ? note : undefined,
           }
-        );
-        $$('.kn-learning-toggle').forEach(
-          button =>
-            (button.onclick = () => {
-              $(`[data-learning="${CSS.escape(button.dataset.id)}"]`)?.classList.toggle('hidden');
-            })
-        );
-        $$('.kn-learning-save').forEach(
-          button =>
-            (button.onclick = async () => {
-              const edit = $(`[data-learning="${CSS.escape(button.dataset.id)}"]`);
-              try {
-                await api(
-                  'PATCH',
-                  `/api/executive/knowledge/${encodeURIComponent(button.dataset.id)}`,
-                  {
-                    takeaway: $('.kn-takeaway', edit).value.trim(),
-                    applied_to: $('.kn-applied', edit).value.trim(),
-                    reviewed_by: 'owner',
-                  }
-                );
-                toast('Learning recorded');
-                softRender();
-              } catch (e) {
-                toast(e.message, 'err');
-              }
-            })
         );
         await renderAIOptimizer();
       } catch (e) {
