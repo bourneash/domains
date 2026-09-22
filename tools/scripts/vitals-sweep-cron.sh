@@ -62,6 +62,12 @@ for row in report.get('sites', []):
     if row.get('error'):
         active[site] = 'error:' + str(row['error'])
         continue
+    warnings = row.get('warnings') or []
+    if warnings:
+        active[site] = 'warning:' + ';'.join(sorted(str(w) for w in warnings))
+        continue
+    if row.get('status') == 'skipped':
+        continue
     metrics = row.get('metrics') or {}
     flags = sorted(set(row.get('budget_breaches') or []) | set(row.get('regressions') or []))
     if flags:
@@ -77,8 +83,12 @@ for site, signature in sorted(active.items()):
         detail = str(row['error'])
     else:
         m = row.get('metrics') or {}
-        headline = f'{factor} web vitals need attention'
-        detail = f"flags={signature}; performance={m.get('performance')}; LCP={m.get('lcp_ms')}ms; CLS={m.get('cls')}"
+        if str(signature).startswith('warning:'):
+            headline = f'{factor} web-vitals configuration needs attention'
+            detail = str(signature)[len('warning:'):]
+        else:
+            headline = f'{factor} web vitals need attention'
+            detail = f"flags={signature}; performance={m.get('performance')}; LCP={m.get('lcp_ms')}ms; CLS={m.get('cls')}"
     print(json.dumps({'status':'warn','site':site,'headline':headline,'detail':detail}))
 for site in sorted(set(old) - set(active)):
         print(json.dumps({'status':'ok','site':site,'headline':f'{factor} web vitals recovered','detail':'The latest sweep has no active budget, regression, or measurement errors.'}))
@@ -89,7 +99,7 @@ tmp.replace(state_path)
 PY
 )"
 
-summary="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]); print("sites=%s errors=%s regressed=%s over_budget=%s a11y=%s" % (r["totals"]["sites"],r["totals"]["errors"],r["totals"]["regressed"],r["totals"]["over_budget"],r["totals"]["a11y_failing"]))' "$report")"
+summary="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]); t=r["totals"]; print("sites=%s skipped=%s warnings=%s errors=%s regressed=%s over_budget=%s a11y=%s" % (t["sites"],t.get("skipped",0),t.get("warnings",0),t["errors"],t["regressed"],t["over_budget"],t["a11y_failing"]))' "$report")"
 log "sweep ok form_factor=$FORM_FACTOR $summary"
 
 while IFS= read -r event; do

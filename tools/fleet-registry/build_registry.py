@@ -40,7 +40,10 @@ OUT = ROOT / "registry" / "fleet.yaml"
 REPORT = Path(__file__).resolve().parent / "MERGE_REPORT.md"
 
 # Fields a human owns once the file exists — never overwritten by a re-run.
-PRESERVED_KEYS = {"status", "tags", "notes", "capabilities_override", "analytics_external"}
+PRESERVED_KEYS = {
+    "status", "tags", "notes", "capabilities_override", "analytics_external",
+    "access_gated",
+}
 
 # A stored status is a human policy call and is kept — with one exception: a
 # site stored as "scaffold" that now has cron or smoke on disk really did go
@@ -368,7 +371,8 @@ def write_registry() -> tuple[dict, str]:
         "# tools apply). Consumers read this instead of keeping their own roster.\n"
         "#\n"
         "# Derived fields are refreshed by tools/fleet-registry/build_registry.py\n"
-        "# --write. Hand-owned fields (status, tags, notes, capabilities_override)\n"
+        "# --write. Hand-owned fields (status, tags, notes, capabilities_override,\n"
+        "# access_gated)\n"
         "# survive a rebuild — edit those here freely.\n"
     )
     OUT.write_text(

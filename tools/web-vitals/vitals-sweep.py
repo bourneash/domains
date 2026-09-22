@@ -56,6 +56,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from urllib.request import Request, urlopen
 from pathlib import Path
 
 TOOL_DIR = Path(__file__).resolve().parent
@@ -82,14 +83,16 @@ def log(msg: str) -> None:
     print(f"[vitals-sweep] {msg}", file=sys.stderr, flush=True)
 
 
-def load_live_sites(only: list[str] | None) -> list[str]:
+def load_site_sets(only: list[str] | None) -> tuple[list[str], set[str]]:
     """Live domains from the canonical registry. Narrow reader, no PyYAML
     dependency — same rationale as tools/link-rot/link-sweep.py."""
     if not REGISTRY.exists():
         log(f"no registry at {REGISTRY}")
-        return []
+        return [], set()
     sites: list[str] = []
+    gated: set[str] = set()
     current: str | None = None
+    access_gated = False
     in_sites = False
     for raw in REGISTRY.read_text(encoding="utf-8").splitlines():
         if not raw.strip() or raw.lstrip().startswith("#"):
@@ -101,16 +104,58 @@ def load_live_sites(only: list[str] | None) -> list[str]:
             continue
         if raw.startswith("  ") and not raw.startswith("    ") and raw.rstrip().endswith(":"):
             current = raw.strip().rstrip(":")
+            access_gated = False
+            continue
+        if current and raw.strip() == "access_gated: true":
+            access_gated = True
+            if current in sites:
+                sites.remove(current)
+                gated.add(current)
+                log(f"skipping {current}: access-gated private preview")
             continue
         if current and raw.strip() == "status: live":
-            sites.append(current)
+            if access_gated:
+                gated.add(current)
+                log(f"skipping {current}: access-gated private preview")
+            else:
+                sites.append(current)
     if only:
         want = set(only)
-        missing = want - set(sites)
+        missing = want - set(sites) - gated
         if missing:
             log(f"not live in the registry, skipping: {', '.join(sorted(missing))}")
         sites = [s for s in sites if s in want]
-    return sorted(sites)
+    if only:
+        gated = gated & set(only)
+    return sorted(sites), gated
+
+
+def load_live_sites(only: list[str] | None) -> list[str]:
+    """Compatibility wrapper returning only measurable live domains."""
+    sites, _gated = load_site_sets(only)
+    return sites
+
+
+def probe_access_gate(domain: str, timeout: int = 15) -> tuple[str, str]:
+    """Classify the public homepage without credentials."""
+    request = Request(
+        f"https://{domain}",
+        headers={"User-Agent": "fleet-web-vitals-gate-probe/1.0"},
+    )
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            body = response.read(200_000).decode("utf-8", "replace").lower()
+    except Exception as exc:  # noqa: BLE001 — probe must not abort the sweep
+        return "unverified", f"gate probe failed: {type(exc).__name__}"
+    is_gate = (
+        "private preview" in body
+        and (
+            'type="password"' in body
+            or "type='password'" in body
+            or 'name="password"' in body
+        )
+    )
+    return ("gated", "private-preview access page") if is_gate else ("open", "live page is not access-gated")
 
 
 def chrome_path() -> str | None:
@@ -251,7 +296,11 @@ def load_previous(form_factor: str) -> dict:
         return {}
     if prev.get("form_factor") != form_factor:
         return {}
-    return {s["site"]: s.get("metrics") for s in prev.get("sites", []) if not s.get("error")}
+    return {
+        s["site"]: s["metrics"]
+        for s in prev.get("sites", [])
+        if not s.get("error") and isinstance(s.get("metrics"), dict)
+    }
 
 
 def write_reports(payload: dict, *, partial: bool) -> None:
@@ -301,7 +350,7 @@ def write_reports(payload: dict, *, partial: bool) -> None:
     # partial run would append stale rows for sites it never touched.
     with (REPORTS / "history.jsonl").open("a", encoding="utf-8") as fh:
         for s in payload["sites"]:
-            if s.get("error"):
+            if s.get("error") or not s.get("metrics"):
                 continue
             m = s["metrics"]
             fh.write(json.dumps({
@@ -325,6 +374,12 @@ def table(payload: dict) -> None:
     print(f"{'site':<26} {'perf':>5} {'a11y':>5} {'LCP':>7} {'CLS':>6} {'TBT':>6}  flags")
     print("-" * 84)
     for s in payload["sites"]:
+        if s.get("status") == "skipped":
+            print(
+                f"{s['site']:<26} {'-':>5} {'-':>5} {'-':>7} {'-':>6} {'-':>6}  "
+                f"SKIPPED: {s.get('reason', 'policy')}"
+            )
+            continue
         if s.get("error"):
             print(f"{s['site']:<26} {'-':>5} {'-':>5} {'-':>7} {'-':>6} {'-':>6}  {s['error']}")
             continue
@@ -336,6 +391,8 @@ def table(payload: dict) -> None:
             flags.append("over budget: " + ",".join(s["budget_breaches"]))
         if m["a11y_failures"]:
             flags.append(f"a11y: {','.join(m['a11y_failures'][:3])}")
+        if s.get("warnings"):
+            flags.append("warning: " + "; ".join(s["warnings"]))
         print(
             f"{s['site']:<26} {fmt(m['performance'],'score'):>5} {fmt(m['accessibility'],'score'):>5} "
             f"{fmt(m['lcp_ms'],'ms'):>7} {fmt(m['cls'],'n'):>6} {fmt(m['tbt_ms'],'ms'):>6}  {' · '.join(flags)}"
@@ -344,6 +401,7 @@ def table(payload: dict) -> None:
     print("-" * 84)
     print(
         f"{t['sites']} sites ({payload['form_factor']}) · {t['errors']} unmeasurable · "
+        f"{t.get('skipped', 0)} skipped · {t.get('warnings', 0)} warnings · "
         f"{t['regressed']} regressed · {t['over_budget']} over budget · {t['a11y_failing']} with a11y failures"
     )
 
@@ -363,17 +421,41 @@ def main() -> int:
     ap.add_argument("--no-write", action="store_true", help="do not touch reports/")
     args = ap.parse_args()
 
-    sites = load_live_sites(args.site)
-    if not sites:
-        log("no live sites to sweep")
-        return 0
-    if not chrome_path():
+    sites, gated = load_site_sets(args.site)
+    results = []
+    warnings_by_site: dict[str, list[str]] = {}
+    for d in sorted(gated):
+        state, detail = probe_access_gate(d)
+        if state == "open":
+            warning = "registry access_gated=true but live page is open"
+            log(f"WARNING {d}: {warning}")
+            warnings_by_site[d] = [warning]
+            sites.append(d)
+        elif state == "unverified":
+            warning = f"could not verify access gate ({detail})"
+            log(f"WARNING {d}: {warning}")
+            results.append({
+                "site": d,
+                "status": "skipped",
+                "error": None,
+                "reason": "access_gated",
+                "warnings": [warning],
+            })
+        else:
+            results.append({
+                "site": d,
+                "status": "skipped",
+                "error": None,
+                "reason": "access_gated",
+                "warnings": [],
+            })
+    sites = sorted(set(sites))
+    if sites and not chrome_path():
         log("no Chrome/Chromium found — set CHROME_PATH")
         return 2
 
     form_factor = "desktop" if args.desktop else "mobile"
     previous = load_previous(form_factor)
-    results = []
     # Deliberately serial. Lighthouse's numbers are only comparable when the
     # machine is not otherwise busy; running 8 headless Chromes in parallel
     # would make the sweep fast and the data worthless.
@@ -381,15 +463,17 @@ def main() -> int:
         log(f"measuring {d} …")
         report, err = run_lighthouse(f"https://{d}", mobile=not args.desktop, timeout=args.timeout)
         if err:
-            results.append({"site": d, "error": err})
+            results.append({"site": d, "status": "error", "error": err, "warnings": []})
             continue
         m = extract(report)
         results.append({
             "site": d,
+            "status": "measured",
             "error": None,
             "metrics": m,
             "budget_breaches": breaches(m),
             "regressions": regressions(m, previous.get(d)),
+            "warnings": warnings_by_site.get(d, []),
         })
 
     payload = {
@@ -399,9 +483,11 @@ def main() -> int:
         "totals": {
             "sites": len(results),
             "errors": sum(1 for s in results if s.get("error")),
+            "skipped": sum(1 for s in results if s.get("status") == "skipped"),
+            "warnings": sum(1 for s in results if s.get("warnings")),
             "regressed": sum(1 for s in results if s.get("regressions")),
             "over_budget": sum(1 for s in results if s.get("budget_breaches")),
-            "a11y_failing": sum(1 for s in results if not s.get("error") and s["metrics"]["a11y_failures"]),
+            "a11y_failing": sum(1 for s in results if s.get("metrics") and s["metrics"]["a11y_failures"]),
         },
         "sites": results,
     }

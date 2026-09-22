@@ -61,6 +61,22 @@ test('snapshot keeps mobile and desktop baselines separate and includes trend da
   assert.equal(result.factors.mobile.age_seconds, 60);
 });
 
+test('snapshot preserves explicit skipped-site rows', () => {
+  const root = fixture();
+  const file = path.join(root, 'tools/web-vitals/reports/latest-mobile.json');
+  const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+  report.sites.push({
+    site: 'gated.example',
+    status: 'skipped',
+    error: null,
+    reason: 'access_gated',
+    warnings: [],
+  });
+  fs.writeFileSync(file, JSON.stringify(report));
+  const result = webvitals.snapshot(root, Date.parse('2026-09-21T12:01:00Z'));
+  assert.equal(result.sites.find(row => row.site === 'gated.example').mobile.reason, 'access_gated');
+});
+
 test('run queues the matching fleet scheduler job without launching a local process', async () => {
   const root = fixture();
   const calls = [];

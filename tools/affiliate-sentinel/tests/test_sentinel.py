@@ -780,6 +780,13 @@ def test_api_outage_falls_back_to_browser_check_when_no_cloak():
         check("verified via fallback", "verified 1/1" in text)
 
 
+def test_access_gate_only_finding_is_silent():
+    print("sentinel: access-gate-only finding")
+    check("gate-only finding suppresses", sentinel.gate_only_finding("private preview", [[]]))
+    check("real cloak finding still alerts", not sentinel.gate_only_finding("private preview", [["broken"]]))
+    check("no gate never suppresses", not sentinel.gate_only_finding(None, [[]]))
+
+
 def main() -> int:
     for fn in (
         test_registry_parse,
@@ -801,6 +808,7 @@ def main() -> int:
         test_a_run_that_checks_nothing_exits_5,
         test_direct_search_links_are_verified,
         test_api_outage_falls_back_to_browser_check_when_no_cloak,
+        test_access_gate_only_finding_is_silent,
         test_redirects_rewrite_is_precise,
         test_heal_validation_and_revert,
     ):

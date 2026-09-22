@@ -1103,6 +1103,7 @@ sites:
     - domains-index
     - site-tracker
   weapontester.com:
+    access_gated: true
     status: live
     repo: bourneash/weapontester.com
     worker: weapontester

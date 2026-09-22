@@ -4,6 +4,13 @@
 in `registry/fleet.yaml`. It records performance, LCP, CLS, TBT, accessibility,
 absolute budget breaches, and regressions against the previous run.
 
+Live sites marked `access_gated: true` in the fleet registry are probed first.
+An active private-preview gate is recorded as an explicit skipped row because
+Lighthouse cannot measure the public site through it. If the page is open, the
+site is measured and a configuration warning alerts the fleet so the stale
+registry flag can be removed. Probe failures remain visible as skipped rows
+with warnings.
+
 The fleet scheduler runs mobile daily and desktop weekly. Reports are kept
 separate so a desktop run cannot replace the mobile baseline:
 

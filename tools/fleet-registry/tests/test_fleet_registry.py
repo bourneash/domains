@@ -154,6 +154,16 @@ def test_merge_never_demotes_hand_set_live(monkeypatch, tmp_path):
     assert merged["a.com"]["status"] == "live"
 
 
+def test_merge_preserves_access_gate_policy(monkeypatch, tmp_path):
+    merged = _merge(
+        monkeypatch,
+        tmp_path,
+        {"a.com": {"status": "live", "access_gated": True}},
+        {"a.com": {"status": "live"}},
+    )
+    assert merged["a.com"]["access_gated"] is True
+
+
 @pytest.mark.parametrize("stored", ["parked", "redirect", "staging"])
 def test_merge_preserves_policy_statuses(monkeypatch, tmp_path, stored):
     merged = _merge(monkeypatch, tmp_path,

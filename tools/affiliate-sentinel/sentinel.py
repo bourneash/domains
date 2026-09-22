@@ -224,6 +224,11 @@ def _describe_sources(site_root: Path, sources: set, fallback) -> str:
     return ", ".join(parts)
 
 
+def gate_only_finding(site_gated: str | None, findings: list[object]) -> bool:
+    """Return true when an access gate is the only sentinel finding."""
+    return bool(site_gated) and not any(findings)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--site-root", default=".", help="site repo root (contains ops/ and site/)")
@@ -843,12 +848,23 @@ def main() -> int:
     write_outage_marker(
         site_root, today, len(asin_products), api_error if api_outage_only else None
     )
-    suppressed = api_outage_only and not args.post_api_outage
+    # An intentional private-preview gate makes every cloak return the same
+    # access page. The check above already suppresses those per-link failures;
+    # do not turn the resulting informational state into a nightly Slack
+    # warning. If any independent finding exists, keep the normal post.
+    gate_only = gate_only_finding(site_gated, [
+        healed, unhealed, actionable_dead, cloak_failures,
+        direct_failures, actionable_oos, api_error, nothing_checked,
+    ])
+    suppressed = (api_outage_only and not args.post_api_outage) or gate_only
     if suppressed:
-        log(
-            "per-site Slack suppressed: an API outage is the only finding — "
-            "reported once fleet-wide instead (exit 4)"
-        )
+        if gate_only:
+            log("per-site Slack suppressed: access-gated private preview is the only finding")
+        else:
+            log(
+                "per-site Slack suppressed: an API outage is the only finding — "
+                "reported once fleet-wide instead (exit 4)"
+            )
     if not args.dry_run and not suppressed:
         notify.post(site_root, channel, text, color)
 
