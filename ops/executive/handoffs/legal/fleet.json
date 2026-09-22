@@ -1,0 +1,25 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "legal",
+  "site": "fleet",
+  "generated_at": "2026-09-22T14:40:23.630Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain a report-only launch-readiness review for searchwoot.com. Evidence supports only a private, gated preview with noindex/nofollow; public monetization is not approved. Owner must choose keep-private, bounded beta, or full launch after confirming privacy, terms, data provenance and rights, deal accuracy, affiliate disclosure, consent, platform policy, analytics, attribution, and rollback requirements.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "SearchWoot launch-readiness and monetization decision",
+        "summary": "Decide whether searchwoot.com should remain private preview or proceed toward a bounded public beta or full launch. No production change is requested.",
+        "requested_action": "Owner: name the decision owner and choose keep-private, bounded public beta, or full launch. Before go-live, complete the legal/compliance and technical checklists, confirm data-source rights and accuracy controls, implement clear affiliate disclosure and privacy/consent treatment, define attribution and contribution-margin inputs, and document success, stop, and rollback conditions.",
+        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
+      }
+    ]
+  }
+}
