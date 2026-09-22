@@ -78,3 +78,16 @@ test('does not measure before either gate', async () => {
   assert.equal(store.getImprovement('run-1').state, 'measuring');
   store.close();
 });
+
+test('keeps unavailable search telemetry distinct from zero impressions', async () => {
+  const root = fixture();
+  const result = await measurement.run({
+    root,
+    now: new Date('2026-09-05T00:00:00.000Z'),
+    analytics: {
+      gscSeries: async () => ({ ok: false, error: 'data hub unavailable', records: [] }),
+      summary: async () => ({ has_data: false }),
+    },
+  });
+  assert.equal(result.results[0].new_impressions, null);
+});

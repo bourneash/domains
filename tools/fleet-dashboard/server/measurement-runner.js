@@ -35,6 +35,7 @@ async function newImpressionsSince(site, since, now, analytics) {
   if (typeof analytics.gscSeries !== 'function') return null;
   const days = Math.max(1, Math.min(400, Math.ceil(daysSince(since, now)) + 1));
   const series = await analytics.gscSeries(site, days);
+  if (series?.ok === false || series?.has_data === false || series?.error) return null;
   if (!Array.isArray(series?.records)) return null;
   const cutoff = dateOnly(since);
   return series.records
