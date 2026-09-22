@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:52:04.841Z",
+  "generated_at": "2026-09-22T00:54:06.729Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Analytics and Data Hub failed in the 2026-09-21 snapshot, so traffic and operating metrics are unavailable—not zero. Latest AI observability records $717.08 across 4,238 calls from 2026-09-01 through 2026-09-21; this does not establish avoidable spend or return. Continue through recurring snapshots and approved reports.",
+        "summary": "Revenue and contribution margin remain uncalculable at site level because Amazon attribution is incomplete. The $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items support aggregate observed activity only—not site revenue, CAC, payback, cost-to-learn, forecasts, or profitability claims. AI cost of $718.38 for 2026-09-01 through 2026-09-22 is observational; infrastructure, billing, and other operating costs are unavailable, so fleet margin and budget exposure cannot be established. No spend or billing changes recommended.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:52:04.841Z",
+  "generated_at": "2026-09-22T00:54:06.728Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Great American Lakes remains the first measured revenue pilot. Amazon Associates reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but site attribution is incomplete; revenue, margin, CAC, payback, and experiment results remain unsupported. Retain the verified report-only assessment and propose no duplicate work or production changes.",
+        "summary": "Maintain read-only posture. Latest snapshot supports no attributable revenue forecast or production recommendation: Amazon reports $4.92 commission for 2026-09-21, but site attribution is incomplete. Operations/deploy telemetry has no available sweep, so treat it as unavailable rather than zero and rely on recurring snapshots.",
         "requested_action": null,
         "proposal_id": null
       }

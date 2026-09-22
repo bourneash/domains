@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-21T22:52:04.842Z",
+  "generated_at": "2026-09-22T00:54:06.730Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "SEO reports 21 actions across 38 sites, including 11 high-priority items, but traffic and conversion telemetry are unavailable. Do not queue implementation until attribution and source health are restored through approved owner decisions; no credentials, deployments, configuration, or infrastructure changes are authorized.",
+        "summary": "No new implementation or queue work. The latest evidence does not establish a validated measurable outcome; retain existing approved and completed records only.",
         "requested_action": null,
         "proposal_id": null
       }
