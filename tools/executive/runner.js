@@ -260,6 +260,7 @@ async function buildBrief(store, root = ROOT) {
     .slice(0, 10);
   const messages = store.listExecutiveMessages({ limit: 10 });
   const work_items = store.listExecutiveWorkItems({ limit: 100 });
+  const knowledge = store.listExecutiveKnowledge({ limit: 100 });
   const task_queue = {
     engineer: store.listChangeRequests({ assigned_role: 'engineer', limit: 50 }),
     principal_engineer: store.listChangeRequests({
@@ -304,6 +305,7 @@ async function buildBrief(store, root = ROOT) {
         'cro_disposable_repo_lab',
         'allowlisted_fleet_operating_baseline_publish',
         'executive_workbench_case_management',
+        'curated_knowledge_shelf_and_learning_queue',
       ],
       research_limits: {
         max_requests_per_tick: 10,
@@ -418,6 +420,7 @@ async function buildBrief(store, root = ROOT) {
     ),
     task_queue,
     work_items,
+    knowledge,
     conversation: messages
       .slice()
       .reverse()
@@ -460,6 +463,7 @@ Rules:
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
 - Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes. The one fleet write available to you is an allowlisted factual operating-baseline report; it never edits site code.
 - Use the workbench for durable follow-through. Create or update a work_item when an evidence gap, legal/security review, decision, incident, or education need has a concrete next action. Do not create duplicate work when an existing item covers the same issue; update it with the latest status, owner, evidence, and next action.
+- Use knowledge as a bounded learning queue, not a link dump. Prefer primary, official, open-licensed, or clearly attributed sources; record publisher, jurisdiction, date, license, and why the source is relevant. Create an education work_item when a role needs to apply the material, and never treat a book or course as legal advice or a substitute for counsel.
 
 Return ONLY valid JSON with this shape:
 {
@@ -469,7 +473,8 @@ Return ONLY valid JSON with this shape:
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}]
+  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|legal|security|cro|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id"}]
 }
 
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
@@ -520,6 +525,7 @@ function parseOutput(text) {
     'change_requests',
     'research_requests',
     'work_items',
+    'knowledge',
   ])
     if (result[key] !== undefined && !Array.isArray(result[key]))
       throw new Error(`${key} must be an array`);
@@ -531,6 +537,7 @@ function parseOutput(text) {
     change_requests: result.change_requests || [],
     research_requests: result.research_requests || [],
     work_items: result.work_items || [],
+    knowledge: result.knowledge || [],
   };
   normalizeProviderProposalTypes(plan);
   validatePlan(plan);
@@ -619,6 +626,7 @@ function normalizeProviderProposalTypes(plan) {
 }
 
 function validatePlan(plan) {
+  if (!Array.isArray(plan.knowledge)) plan.knowledge = [];
   if (
     plan.messages.length > 20 ||
     plan.proposal_reviews.length > 20 ||
@@ -626,7 +634,8 @@ function validatePlan(plan) {
     plan.proposals.length > 20 ||
     plan.change_requests.length > 20 ||
     plan.research_requests.length > 10 ||
-    plan.work_items.length > 20
+    plan.work_items.length > 20 ||
+    plan.knowledge.length > 20
   )
     throw new Error('provider plan exceeds per-tick item limit');
   for (const item of plan.data_requests) {
@@ -739,6 +748,36 @@ function validatePlan(plan) {
       throw new Error('executive plan targets an excluded site');
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
       throw new Error('executive plan references an excluded site');
+  }
+  if (plan.knowledge.length > 20) throw new Error('provider plan exceeds knowledge item limit');
+  for (const item of plan.knowledge) {
+    if (
+      (!item.knowledge_id && !String(item.title || '').trim()) ||
+      String(item.title || '').length > 300 ||
+      String(item.summary || '').length > 4000 ||
+      !['official', 'book', 'course', 'checklist', 'paper', 'reference'].includes(
+        String(item.resource_type || 'official')
+      ) ||
+      ![
+        'all',
+        'ceo',
+        'cto',
+        'cfo',
+        'legal',
+        'security',
+        'cro',
+        'domain-manager',
+        'engineer',
+      ].includes(String(item.audience || 'all')) ||
+      !['candidate', 'queued', 'in_progress', 'complete', 'rejected'].includes(
+        String(item.status || 'candidate')
+      ) ||
+      (item.url && !/^https?:\/\//i.test(String(item.url))) ||
+      (item.tags !== undefined && (!Array.isArray(item.tags) || item.tags.length > 20))
+    )
+      throw new Error('invalid knowledge item in provider plan');
+    if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
+      throw new Error('knowledge item references an excluded site');
   }
   for (const item of plan.change_requests) {
     if (
@@ -885,6 +924,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     proposals: [],
     change_requests: [],
     work_items: [],
+    knowledge: [],
     skipped_change_requests: [],
     research: [],
     telemetry_satisfied: [],
@@ -911,6 +951,17 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       status: 'completed',
       result: { work_id: workItem.work_id, status: workItem.status },
     });
+  }
+  for (const item of plan.knowledge) {
+    const existing = item.knowledge_id
+      ? store
+          .listExecutiveKnowledge({ limit: 1000 })
+          .find(row => row.knowledge_id === item.knowledge_id)
+      : null;
+    const knowledge = existing
+      ? store.updateExecutiveKnowledge(existing.knowledge_id, item)
+      : store.createExecutiveKnowledge({ ...item, created_by: item.created_by || 'system' });
+    created.knowledge.push(knowledge);
   }
   if (plan.data_requests.length) {
     const audit = executive.action(store, {

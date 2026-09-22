@@ -56,6 +56,8 @@ Key views include:
   follow-through. Roles can create and update cases from autonomous plans;
   owner interaction is reserved for decisions and approvals.
 
+- **Knowledge Shelf** — curated, attributable sources with role-specific learning queues.
+
 - **Priorities** — a cross-fleet decision queue that joins canonical lifecycle
   policy, analytics coverage, task ownership, and SEO evidence. Recommendations
   expose confidence and proxy value while expected profit remains deliberately

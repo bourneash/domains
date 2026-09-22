@@ -31,6 +31,7 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   assert.match(brief.specialist_inputs.cro_contract, /license fit, security/);
   assert.deepEqual(brief.task_queue, { engineer: [], principal_engineer: [] });
   assert.deepEqual(brief.work_items, []);
+  assert.deepEqual(brief.knowledge, []);
   store.close();
 });
 
@@ -70,6 +71,31 @@ test('roles can create and update bounded workbench cases through the plan', asy
   const updated = await runner.applyPlan(store, update, { root });
   assert.equal(updated.work_items[0].status, 'in_progress');
   assert.equal(store.getExecutiveWorkItem(id).owner, 'cto');
+  store.close();
+});
+
+test('roles can curate a source and move it through the learning queue', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      knowledge: [
+        {
+          title: 'OWASP Top 10',
+          resource_type: 'official',
+          audience: 'security',
+          status: 'queued',
+          url: 'https://owasp.org/www-project-top-ten/',
+          publisher: 'OWASP',
+          license: 'CC BY-SA',
+          summary: 'Primary security risk taxonomy for review planning.',
+          tags: ['security', 'baseline'],
+        },
+      ],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.knowledge.length, 1);
+  assert.equal(store.listExecutiveKnowledge({ audience: 'security' })[0].status, 'queued');
   store.close();
 });
 

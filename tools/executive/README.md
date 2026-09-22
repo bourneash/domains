@@ -24,6 +24,10 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   evidence gaps. Roles may create or update bounded cases in their autonomous
   plan; owner attention is reserved for actual decisions, approvals, or
   escalations.
+- `GET/POST/PATCH /api/executive/knowledge` — the provenance-aware Knowledge
+  Shelf and role learning queue. Sources retain publisher, jurisdiction, date,
+  license, relevance, and lifecycle status; they are educational inputs, not
+  legal advice or a replacement for counsel.
 
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
 searches public GitHub repositories against purpose-scoped fleet needs

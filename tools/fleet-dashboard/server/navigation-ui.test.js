@@ -41,6 +41,13 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /api\/executive\/work-items/);
 });
 
+test('knowledge shelf is a first-class operator route', () => {
+  assert.equal(routeFor('#knowledge').view, 'knowledge');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /Knowledge shelf/);
+  assert.match(app, /api\/executive\/knowledge/);
+});
+
 test('Git operations and Git Hygiene share one page with distinct tabs', () => {
   assert.equal(routeFor('#git').view, 'git');
   assert.equal(routeFor('#git').gitTab, 'operations');

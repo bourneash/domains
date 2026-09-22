@@ -98,6 +98,33 @@ test('persists and updates assistive executive workbench cases', () => {
   db.close();
 });
 
+test('curates knowledge with provenance and a role learning queue', () => {
+  const db = store();
+  const source = db.createExecutiveKnowledge({
+    title: 'FTC Endorsement Guides',
+    resource_type: 'official',
+    audience: 'legal',
+    status: 'queued',
+    url: 'https://www.ftc.gov/business-guidance/advertising-marketing/endorsements-influencers-reviews',
+    publisher: 'Federal Trade Commission',
+    jurisdiction: 'US',
+    license: 'official government guidance',
+    summary: 'Primary source for disclosure triage.',
+    tags: ['disclosure', 'affiliate'],
+  });
+  assert.equal(
+    db.listExecutiveKnowledge({ audience: 'legal' })[0].knowledge_id,
+    source.knowledge_id
+  );
+  const complete = db.updateExecutiveKnowledge(source.knowledge_id, { status: 'complete' });
+  assert.equal(complete.status, 'complete');
+  assert.throws(
+    () => db.createExecutiveKnowledge({ title: 'Unsafe', url: 'javascript:alert(1)' }),
+    /http/
+  );
+  db.close();
+});
+
 test('allows the research officer to submit an executive proposal', () => {
   const db = store();
   const proposal = executive.proposal(db, {

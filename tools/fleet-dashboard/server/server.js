@@ -1448,6 +1448,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/executive/knowledge', (req, res) => {
+    try {
+      res.json({ knowledge: events.listExecutiveKnowledge(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/knowledge', (req, res) => {
+    try {
+      res.status(201).json({ knowledge: events.createExecutiveKnowledge(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/knowledge/:id', (req, res) => {
+    try {
+      res.json({ knowledge: events.updateExecutiveKnowledge(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/change-requests/transcribe', async (req, res) => {
     try {
       res.json(await changequeue.transcribe(req.body || {}));

@@ -160,6 +160,26 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_work_items_queue ON executive_work_items(status, priority, updated_at DESC);
     CREATE INDEX IF NOT EXISTS executive_work_items_owner ON executive_work_items(owner, status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_knowledge_items (
+      knowledge_id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      resource_type TEXT NOT NULL DEFAULT 'official',
+      audience TEXT NOT NULL DEFAULT 'all',
+      status TEXT NOT NULL DEFAULT 'candidate',
+      url TEXT,
+      publisher TEXT,
+      jurisdiction TEXT,
+      license TEXT,
+      published_at TEXT,
+      summary TEXT NOT NULL DEFAULT '',
+      tags_json TEXT NOT NULL DEFAULT '[]',
+      source_work_id TEXT,
+      created_by TEXT NOT NULL DEFAULT 'system',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      completed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS executive_knowledge_queue ON executive_knowledge_items(status, audience, updated_at DESC);
     CREATE TABLE IF NOT EXISTS change_queue_settings (
       id INTEGER PRIMARY KEY CHECK (id = 1),
       enabled INTEGER NOT NULL DEFAULT 0,
@@ -1095,6 +1115,155 @@ function open(root, { file } = {}) {
     return getExecutiveWorkItem(id);
   }
 
+  const KNOWLEDGE_TYPES = new Set([
+    'official',
+    'book',
+    'course',
+    'checklist',
+    'paper',
+    'reference',
+  ]);
+  const KNOWLEDGE_AUDIENCES = new Set([
+    'all',
+    'ceo',
+    'cto',
+    'cfo',
+    'legal',
+    'security',
+    'cro',
+    'domain-manager',
+    'engineer',
+  ]);
+  const KNOWLEDGE_STATUSES = new Set([
+    'candidate',
+    'queued',
+    'in_progress',
+    'complete',
+    'rejected',
+  ]);
+
+  function decodeKnowledge(row) {
+    return { ...row, tags: safeJson(row.tags_json), tags_json: undefined };
+  }
+
+  function validateKnowledge(row) {
+    if (!row.title) throw httpErr(400, 'knowledge title is required');
+    if (!KNOWLEDGE_TYPES.has(row.resource_type))
+      throw httpErr(400, 'invalid knowledge resource type');
+    if (!KNOWLEDGE_AUDIENCES.has(row.audience)) throw httpErr(400, 'invalid knowledge audience');
+    if (!KNOWLEDGE_STATUSES.has(row.status)) throw httpErr(400, 'invalid knowledge status');
+    if (row.url && !/^https?:\/\//i.test(row.url))
+      throw httpErr(400, 'knowledge url must be http(s)');
+  }
+
+  function createExecutiveKnowledge(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const row = {
+      knowledge_id: input.knowledge_id || crypto.randomUUID(),
+      title: String(input.title || '').trim(),
+      resource_type: String(input.resource_type || 'official').trim(),
+      audience: String(input.audience || 'all').trim(),
+      status: String(input.status || 'candidate').trim(),
+      url: input.url ? String(input.url).trim() : null,
+      publisher: input.publisher ? String(input.publisher).trim() : null,
+      jurisdiction: input.jurisdiction ? String(input.jurisdiction).trim() : null,
+      license: input.license ? String(input.license).trim() : null,
+      published_at: input.published_at ? String(input.published_at).trim() : null,
+      summary: String(input.summary || '').trim(),
+      tags: Array.isArray(input.tags) ? input.tags.slice(0, 20).map(String) : [],
+      source_work_id: input.source_work_id ? String(input.source_work_id).trim() : null,
+      created_by: String(input.created_by || 'system').trim(),
+      created_at: now,
+      updated_at: now,
+      completed_at: null,
+    };
+    validateKnowledge(row);
+    db.prepare(
+      `INSERT INTO executive_knowledge_items
+      (knowledge_id,title,resource_type,audience,status,url,publisher,jurisdiction,license,published_at,summary,tags_json,source_work_id,created_by,created_at,updated_at,completed_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      row.knowledge_id,
+      row.title,
+      row.resource_type,
+      row.audience,
+      row.status,
+      row.url,
+      row.publisher,
+      row.jurisdiction,
+      row.license,
+      row.published_at,
+      row.summary,
+      JSON.stringify(row.tags),
+      row.source_work_id,
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.completed_at
+    );
+    return row;
+  }
+
+  function listExecutiveKnowledge({ status, audience, resource_type, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [column, value] of [
+      ['status', status],
+      ['audience', audience],
+      ['resource_type', resource_type],
+    ]) {
+      if (value) {
+        clauses.push(`${column} = ?`);
+        args.push(String(value));
+      }
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    const where = clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
+    return db
+      .prepare(
+        `SELECT * FROM executive_knowledge_items${where} ORDER BY CASE status WHEN 'in_progress' THEN 0 WHEN 'queued' THEN 1 WHEN 'candidate' THEN 2 ELSE 3 END, updated_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeKnowledge);
+  }
+
+  function updateExecutiveKnowledge(id, patch = {}) {
+    const current = db
+      .prepare('SELECT * FROM executive_knowledge_items WHERE knowledge_id = ?')
+      .get(String(id));
+    if (!current) throw httpErr(404, 'knowledge item not found');
+    const next = { ...decodeKnowledge(current), ...patch };
+    next.title = String(next.title || '').trim();
+    next.resource_type = String(next.resource_type || '').trim();
+    next.audience = String(next.audience || '').trim();
+    next.status = String(next.status || '').trim();
+    validateKnowledge(next);
+    const now = new Date().toISOString();
+    const completed = next.status === 'complete' ? next.completed_at || now : null;
+    db.prepare(
+      `UPDATE executive_knowledge_items SET title=?,resource_type=?,audience=?,status=?,url=?,publisher=?,jurisdiction=?,license=?,published_at=?,summary=?,tags_json=?,source_work_id=?,updated_at=?,completed_at=? WHERE knowledge_id=?`
+    ).run(
+      next.title,
+      next.resource_type,
+      next.audience,
+      next.status,
+      next.url || null,
+      next.publisher || null,
+      next.jurisdiction || null,
+      next.license || null,
+      next.published_at || null,
+      String(next.summary || ''),
+      JSON.stringify(Array.isArray(next.tags) ? next.tags.slice(0, 20).map(String) : []),
+      next.source_work_id || null,
+      now,
+      completed,
+      String(id)
+    );
+    return decodeKnowledge(
+      db.prepare('SELECT * FROM executive_knowledge_items WHERE knowledge_id = ?').get(String(id))
+    );
+  }
+
   return {
     record,
     recordOnce,
@@ -1128,6 +1297,9 @@ function open(root, { file } = {}) {
     listExecutiveWorkItems,
     getExecutiveWorkItem,
     updateExecutiveWorkItem,
+    createExecutiveKnowledge,
+    listExecutiveKnowledge,
+    updateExecutiveKnowledge,
     close,
     file: dbFile,
   };

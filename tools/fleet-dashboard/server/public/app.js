@@ -10457,6 +10457,7 @@ function topViews() {
     'priorities',
     'improvements',
     'workbench',
+    'knowledge',
     'executive',
     'agents',
     ...Object.keys(NAV_GROUPS),
@@ -12061,6 +12062,90 @@ async function renderWorkbench() {
   stamp();
 }
 
+const KNOWLEDGE_UI = { status: '', audience: '' };
+
+function renderKnowledge() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading knowledge shelf…</div>';
+  api('GET', '/api/executive/knowledge?limit=300')
+    .then(data => {
+      const all = data.knowledge || [];
+      const visible = all.filter(
+        item =>
+          (!KNOWLEDGE_UI.status || item.status === KNOWLEDGE_UI.status) &&
+          (!KNOWLEDGE_UI.audience || item.audience === KNOWLEDGE_UI.audience)
+      );
+      const options = (values, selected, label) =>
+        `<option value="">${label}</option>${values.map(value => `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${esc(value.replace('_', ' '))}</option>`).join('')}`;
+      const cards = visible
+        .map(
+          item => `<article class="kn-card">
+      <div class="kn-card-head"><div><h3>${item.url ? `<a href="${safeHref(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)} ↗</a>` : esc(item.title)}</h3><div class="muted">${esc(item.publisher || 'Publisher not recorded')}${item.jurisdiction ? ` · ${esc(item.jurisdiction)}` : ''}</div></div><div>${workItemBadge(item.status)} ${workItemBadge(item.resource_type)}</div></div>
+      <p>${esc(item.summary || 'No relevance note recorded.')}</p>
+      <div class="kn-meta"><span>${esc(item.audience)}${item.license ? ` · ${esc(item.license)}` : ''}</span>${item.published_at ? `<span>published ${esc(item.published_at)}</span>` : ''}</div>
+      <div class="kn-foot"><span class="muted">${(item.tags || []).map(esc).join(' · ') || 'No tags'}</span><select class="cm-input kn-status" data-id="${esc(item.knowledge_id)}" aria-label="Status for ${esc(item.title)}">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], item.status, 'Change status')}</select></div>
+    </article>`
+        )
+        .join('');
+      app.innerHTML = `<div class="kn-shell"><div class="page-head"><div><div class="wb-eyebrow">CURATED LEARNING SYSTEM</div><h2 class="page-title">Knowledge shelf</h2><div class="muted">Short, attributable resources for the roles. Every source carries provenance and a reason to learn it; no random textbook pile and no substitute for counsel.</div></div><button class="btn primary" id="kn-new-toggle">＋ Add source</button></div>
+      <section class="kn-kpis"><div><b>${all.filter(i => ['queued', 'in_progress'].includes(i.status)).length}</b><span>learning queue</span></div><div><b>${all.filter(i => i.status === 'complete').length}</b><span>completed</span></div><div><b>${all.filter(i => i.audience === 'legal').length}</b><span>legal resources</span></div><div><b>${all.length}</b><span>catalogued</span></div></section>
+      <section class="card kn-new hidden" id="kn-new"><div class="page-head"><div><h3>Add a source</h3><p class="muted">Record enough provenance that a role can judge whether it is worth its time.</p></div><button class="icon-btn" id="kn-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="kn-title" class="cm-input" placeholder="e.g. FTC Endorsement Guides"></label><label>Type<select id="kn-type" class="cm-input">${options(['official', 'book', 'course', 'checklist', 'paper', 'reference'], 'official', 'Choose type')}</select></label><label>Audience<select id="kn-audience-new" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], 'all', 'Choose audience')}</select></label><label>URL<input id="kn-url" class="cm-input" type="url" placeholder="https://…"></label><label>Publisher<input id="kn-publisher" class="cm-input" placeholder="Publisher or institution"></label><label>Jurisdiction<input id="kn-jurisdiction" class="cm-input" placeholder="US / EU / general"></label><label>License<input id="kn-license" class="cm-input" placeholder="Public / CC BY / paid / verify"></label></div><label>Why it matters<textarea id="kn-summary" class="cm-input" rows="2" placeholder="What decision or capability does this support?"></textarea><div class="task-toolbar"><span class="muted">Sources can be queued for a role without interrupting the human owner.</span><button class="btn primary" id="kn-create">Add source</button></div></section>
+      <section class="kn-toolbar"><label>Status<select id="kn-filter-status" class="cm-input">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], KNOWLEDGE_UI.status, 'All statuses')}</select></label><label>Audience<select id="kn-filter-audience" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], KNOWLEDGE_UI.audience, 'All roles')}</select></label><span class="muted">${visible.length} of ${all.length} sources shown</span></section><section class="kn-list">${cards || '<div class="empty">No sources match this view.</div>'}</section></div>`;
+      $('#kn-new-toggle').onclick = () => $('#kn-new').classList.toggle('hidden');
+      $('#kn-new-close').onclick = () => $('#kn-new').classList.add('hidden');
+      $('#kn-filter-status').onchange = e => {
+        KNOWLEDGE_UI.status = e.target.value;
+        softRender();
+      };
+      $('#kn-filter-audience').onchange = e => {
+        KNOWLEDGE_UI.audience = e.target.value;
+        softRender();
+      };
+      $('#kn-create').onclick = async () => {
+        const title = $('#kn-title').value.trim();
+        if (!title) return toast('Title is required', 'err');
+        try {
+          await api('POST', '/api/executive/knowledge', {
+            title,
+            resource_type: $('#kn-type').value,
+            audience: $('#kn-audience-new').value,
+            url: $('#kn-url').value.trim(),
+            publisher: $('#kn-publisher').value.trim(),
+            jurisdiction: $('#kn-jurisdiction').value.trim(),
+            license: $('#kn-license').value.trim(),
+            summary: $('#kn-summary').value.trim(),
+            created_by: 'owner',
+          });
+          toast('Source added');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      };
+      $$('.kn-status').forEach(
+        select =>
+          (select.onchange = async () => {
+            try {
+              await api(
+                'PATCH',
+                `/api/executive/knowledge/${encodeURIComponent(select.dataset.id)}`,
+                { status: select.value }
+              );
+              toast('Learning status updated');
+              softRender();
+            } catch (e) {
+              toast(e.message, 'err');
+            }
+          })
+      );
+      if (!FRESH) applyUISnap();
+      stamp();
+    })
+    .catch(e => {
+      app.innerHTML = `<div class="error-box">Knowledge shelf failed to load: ${esc(e.message)}</div>`;
+    });
+}
+
 function render() {
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -12072,6 +12157,7 @@ function render() {
   else if (STATE.view === 'priorities') return renderPriorities();
   else if (STATE.view === 'improvements') return renderImprovements();
   else if (STATE.view === 'workbench') return renderWorkbench();
+  else if (STATE.view === 'knowledge') return renderKnowledge();
   else if (STATE.view === 'executive') return renderExecutive();
   else if (STATE.view === 'agents') return renderCategoryRoot('agents');
   else if (NAV_GROUPS[STATE.view]) return renderCategoryRoot(STATE.view);
