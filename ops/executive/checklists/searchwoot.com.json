@@ -5,6 +5,56 @@
   "current_disposition": "keep_private",
   "target_disposition": "bounded_public_beta",
   "owner_decision_required": "Do not change the private-preview gate until the checklist is complete and the owner chooses keep-private or bounded beta.",
+  "tracking": {
+    "status": "active",
+    "cadence": "every executive six-hour cycle",
+    "portfolio_owner": "ceo",
+    "review_roles": ["ceo", "cto", "cfo", "legal", "security"],
+    "execution_rule": "Open evidence tasks are reviewed each cycle; routine read-only evidence work may proceed through the existing executive research/evidence path, while production, spend, data-collection, or legal-risk changes still require their normal gates.",
+    "completion_rule": "Close only when every applicable task has evidence, Legal has issued a disposition for each data-use item, Security/CTO/CFO gates are satisfied, and the owner has selected the next disposition."
+  },
+  "tasks": [
+    {
+      "task_id": "searchwoot-legal-source-rights",
+      "title": "Verify Woot source rights and data-use limits",
+      "owner_role": "legal",
+      "support_role": "cto",
+      "status": "open",
+      "deliverable": "Record the current API terms or written permission, field-level provenance, permitted caching/display/alert use, attribution requirements, freshness limits, and correction/takedown process.",
+      "next_action": "Locate the authoritative public terms or permission record and attach the evidence to the checklist.",
+      "blocks": ["public_beta", "full_launch", "affiliate_or_advertising_change"]
+    },
+    {
+      "task_id": "searchwoot-data-flow-retention",
+      "title": "Document alert-data flow and retention",
+      "owner_role": "legal",
+      "support_role": "cto",
+      "status": "open",
+      "deliverable": "Map alert rules, access/session identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior.",
+      "next_action": "Produce a read-only data-flow and retention table from the repository and deployed configuration.",
+      "blocks": ["public_beta", "full_launch", "notification_expansion"]
+    },
+    {
+      "task_id": "searchwoot-ga4-consent-evidence",
+      "title": "Verify analytics consent and GA4 settings",
+      "owner_role": "legal",
+      "support_role": "cto",
+      "status": "open",
+      "deliverable": "Capture consent/withdrawal behavior, GA4 property and data-sharing settings, retention, vendor disclosure, and intended jurisdiction treatment.",
+      "next_action": "Run a read-only consent/configuration evidence capture; do not enable new tracking or advertising.",
+      "blocks": ["public_beta", "full_launch", "remarketing"]
+    },
+    {
+      "task_id": "searchwoot-logs-vendors-incident",
+      "title": "Inventory logs, vendors, and data incident handling",
+      "owner_role": "legal",
+      "support_role": "security",
+      "status": "open",
+      "deliverable": "Identify log fields, retention/access controls, Cloudflare and other vendor terms/DPA coverage, incident response, breach, and data-subject request procedures.",
+      "next_action": "Produce a read-only operator/vendor inventory and identify any counsel-required gaps.",
+      "blocks": ["public_beta", "full_launch"]
+    }
+  ],
   "legal_scope": {
     "role": "legal",
     "purpose": "Review whether each data source and processing purpose is allowed for the proposed beta, what disclosures or consent are required, and where human counsel must decide.",
