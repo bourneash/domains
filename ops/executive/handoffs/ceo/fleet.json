@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:26:37.841Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-22T17:12:47.175Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep searchwoot.com private and reject sitemap work this cycle. Evidence: public inspection shows password gate plus noindex/nofollow; SEO reports 0 impressions, clicks, sessions, and conversions, while analytics and Data Hub are unavailable—not zero. Unknowns are source rights, accuracy controls, security readiness, attribution, and margin. Smallest next step: owner chooses keep-private, bounded beta, or full launch. Please confirm one option.",
+        "summary": "Recommendation: keep searchwoot.com private and reject sitemap or monetization work this cycle. Evidence: password gate, noindex/nofollow, SEO reports 0 impressions/clicks/sessions/conversions in the current snapshot, and analytics/Data Hub are unavailable—not zero. Amazon reported $4.92 commission on 6,219 clicks for 2026-09-21, but attribution is incomplete. Unknowns are source rights, legal/security readiness, accuracy, and margin. Owner decision: choose keep-private, bounded beta after checklist completion, or full launch after checklist completion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep searchwoot.com private and reject sitemap work this cycle. Public inspection shows a password gate and noindex/nofollow; SEO reports zero activity, while analytics and Data Hub are unavailable. Owner must choose keep-private, bounded beta, or full launch.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: keep searchwoot.com private and reject sitemap work while it is password-gated and noindex/nofollow. SEO reports 0 impressions, clicks, sessions, and conversions; Amazon reported $4.92 commission on 6,219 clicks for 2026-09-21, but site attribution is incomplete. Unknown: whether the owner wants keep-private, bounded beta, or full launch, and required legal/security/data-rights evidence. Smallest next step: owner chooses one option—keep-private, bounded beta after checklist, or full launch after checklist. Confirm the disposition?",
+        "summary": "Recommendation: keep searchwoot.com private and reject sitemap or monetization work this cycle. Evidence: password gate, noindex/nofollow, SEO reports 0 impressions/clicks/sessions/conversions in the current snapshot, and analytics/Data Hub are unavailable—not zero. Amazon reported $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but attribution is incomplete. Owner decision: choose keep-private, bounded beta after checklist completion, or full launch after checklist completion.",
         "requested_action": null,
         "proposal_id": null
       }

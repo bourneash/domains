@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:26:37.866Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-22T17:12:47.175Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no additional spend, monetization expansion, or public launch this cycle; keep searchwoot.com private pending owner disposition and finance-grade gates. Supported revenue is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21. Attribution is incomplete: 629 clicks and all 28 ordered items are under tracking_id \"other\", while named site IDs show zero orders and commission. Analytics is unavailable for all 60 registry sites. AI usage cost is $733.04 across 4,340 calls from 2026-09-01 through 2026-09-22, including 136 errors; it is observability, not proven return. Contribution margin, cost-to-learn, CAC, payback, infrastructure spend, total operating spend, ROI, and forecasts are not calculable because site-level revenue attribution, traffic/exposure denominators, direct infrastructure/domain costs, and experiment outcome records are missing. Minimum measurement is reconciliation of affiliate events to site/content IDs, site traffic and conversion telemetry, direct cost allocation by site, and experiment exposure/incremental-outcome records. Treat clicks, ordered items, SEO activity, social coverage, and AI call volume as non-financial activity metrics; continue only already-approved measurement gates without duplicate work.",
+        "summary": "Recommendation: keep searchwoot.com private and authorize no additional spend, monetization expansion, or public launch this cycle. Supported revenue is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; 629 clicks and all 28 ordered items are under tracking_id \"other\", while named site IDs show zero orders and commission. Attributed site income is therefore $0 in the available report and revenue claims by site are unsupported. Analytics is unavailable for all 60 registry sites, so sessions, conversion rates, CAC, payback, and cost-to-learn are not calculable. AI usage from 2026-09-01 through 2026-09-22 is $745.413324 across 4,431 calls, including 139 errors; this is observability only and does not establish return. Contribution margin, infrastructure/domain spend, total operating spend, ROI, and forecasts cannot be calculated because site-level revenue reconciliation, traffic/exposure denominators, direct cost allocation, and experiment outcome records are missing. Minimum measurement is affiliate event reconciliation to site and content IDs, site traffic and conversion telemetry, direct cost allocation by site, and experiment exposure plus incremental outcomes. The proposed routing changes are financially neutral and may proceed as reversible task-assignment corrections; they do not authorize production changes or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Authorize no additional spend, monetization expansion, or public launch. Supported evidence is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; attribution is incomplete. Revenue, margin, CAC, payback, ROI, forecasts, and total operating spend remain unsupported. Continue only existing measurement gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Authorize no additional spend or monetization expansion. Supported evidence is $4.92 commission on 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; attribution is incomplete. Revenue, margin, CAC, payback, ROI, forecasts, and total operating spend remain unsupported. Continue only existing measurement gates.",
+        "summary": "Recommendation: keep searchwoot.com private and authorize no additional spend, monetization expansion, or public launch this cycle. Site-level revenue, margin, CAC, payback, ROI, and forecasts remain unsupported because attribution and analytics are incomplete. Financially neutral task-routing corrections may proceed as reversible metadata changes only.",
         "requested_action": null,
         "proposal_id": null
       }

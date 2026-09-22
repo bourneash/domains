@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:26:37.867Z",
+  "generated_at": "2026-09-22T17:12:47.176Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: blocked for bounded public beta or full launch; conditional only for continued private preview. Concrete evidence is a password-gated private preview with noindex/nofollow, zero reported SEO activity, unavailable operations and security telemetry, and no evidenced authentication and authorization boundaries, secret handling, container or runtime isolation, TLS posture, release and deploy controls, dependency or supply-chain review, data minimization, monitoring, incident response, or security.txt/disclosure contact. Severity is high for public exposure because the required controls are unverified and the site handles alert rules, sync results, operational logs, and hosting data. Recommend retaining the private gate and escalating the owner-facing launch-readiness proposal. Before public exposure, require an owner-approved checklist with evidence for access control, secrets, isolation, TLS, release controls, dependency provenance and vulnerability handling, data exposure limits, monitoring and incident response, and a security.txt or equivalent disclosure contact. No sitemap, monetization expansion, production change, credential change, schedule change, or go-live approval is recommended.",
+        "summary": "Security disposition: blocked for bounded public beta or full launch; conditional for continued private preview. Evidence: password-gated private preview with noindex/nofollow; security, operations, and fleet-doctor telemetry provide no completed deployment, uptime, error, authentication, authorization, secret-handling, runtime-isolation, release-control, dependency, monitoring, or incident evidence. TLS is only technically indicated by the compliance scan and does not establish complete TLS configuration. No security.txt or disclosure-contact evidence is present. Severity is high for public exposure because alert rules, sync results, operational logs, and hosting data are in scope. Recommend retaining keep_private and requiring owner-approved evidence for access boundaries, secrets, isolation, TLS, release controls, dependency provenance and vulnerability handling, data minimization, monitoring, incident response, and disclosure readiness. Do not approve sitemap, monetization expansion, credentials, schedules, production changes, or go-live.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Public exposure is blocked. Current evidence does not establish authentication boundaries, secret handling, isolation, TLS, release controls, dependency review, data minimization, monitoring, incident response, or disclosure readiness. Keep the private gate until an owner-approved security checklist is complete.",
+        "summary": "The available security baseline is read-only triage, not penetration testing or certification. Missing telemetry is evidence of an unresolved control gap, not evidence of compromise or a clean bill of health. Continue only the private-preview posture and existing approved measurement work.",
         "requested_action": null,
         "proposal_id": null
       }

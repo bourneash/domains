@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T16:26:37.867Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-22T17:12:47.176Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep searchwoot.com private and reject sitemap or other production work this cycle. The password gate and noindex/nofollow posture make crawl exposure premature and non-measurable. No repository, configuration, credential, infrastructure, schedule, telemetry, or deployment change is authorized. Retain the owner-facing launch-readiness decision; public exposure requires owner disposition plus completed legal, data-rights, accuracy, privacy, security, isolation, attribution, margin, and rollback gates. Existing deployed improvements should continue scheduled measurement without duplicate work.",
+        "summary": "CTO review: retain searchwoot.com as private. Reject sitemap, monetization, launch, telemetry, credential, infrastructure, schedule, and deployment changes this cycle. Current evidence supports only continued private-preview operation; analytics and Data Hub are unavailable, attribution is incomplete, and legal, accuracy, isolation, security, and rollback gates remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject sitemap and other production work this cycle. The password gate and noindex/nofollow posture make crawl exposure premature and non-measurable. No configuration, credential, infrastructure, schedule, telemetry, or deployment change is authorized.",
+        "summary": "Approve up to three reversible task-assignment corrections: route the 0daynews.com daily briefing to content-writer, the allthingsmasonic.com performance-budget task to seo-analyst, and the americastrikes.com solar-power-bank replacement to content-writer. These are queue metadata changes only; they must not modify site code, content, links, schedules, credentials, deployment, or telemetry. Acceptance is recorded reassignment with restoration of the prior assignment as rollback.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Defer the eastcoastrappers.com internal-link task and saveusfarms.com Reddit-draft task to the next queue window because the action mandate caps queued actions at three. No production or social-account work is authorized by this review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Existing deployed improvements should continue their scheduled measurement. Do not duplicate experiments or claim success without the existing outcome records and measurement thresholds.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO review: retain searchwoot.com as private. Reject sitemap, monetization, launch, telemetry, credential, infrastructure, schedule, and deployment changes this cycle. Existing deployed improvements may continue scheduled measurement without duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }
