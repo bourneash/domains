@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T13:35:25.679Z",
+  "generated_at": "2026-09-22T14:51:41.749Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new queue action this cycle. The only candidate, searchwoot.com sitemap restoration, is rejected because the 2026-09-22 SEO snapshot shows a private-preview site with noindex/nofollow, and public research confirms the gated preview; exposing a sitemap before launch is not a reversible revenue improvement. Existing deployed work remains in measurement, so no duplicate site work is queued.",
+        "summary": "Owner decision required: should searchwoot.com remain private, enter a bounded public beta, or proceed toward full launch? Evidence: public inspection on 2026-09-22 confirmed password-gated private preview with noindex/nofollow; current SEO snapshot reports 0 impressions, clicks, sessions, and conversions. Launch requires Legal/Compliance and Security review, data-rights and accuracy controls, privacy/consent treatment, affiliate disclosure, attribution, margin inputs, and rollback criteria. The only current revenue evidence is $4.92 commission from 6,219 clicks on 2026-09-21, with site attribution incomplete. No sitemap change is queued; existing deployed work remains in measurement.",
         "requested_action": null,
         "proposal_id": null
       }

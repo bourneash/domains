@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T13:35:25.680Z",
+  "generated_at": "2026-09-22T14:51:41.750Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue the sitemap change. The site is intentionally gated by private-preview access and noindex/nofollow; changing crawl configuration would conflict with the current release state and lacks a measurable outcome. No repository, configuration, credential, infrastructure, schedule, telemetry, or production change is authorized. Keep the candidate out of the queue until launch readiness and a measurable crawl or search objective are established. Existing deployed improvements remain isolated and reversible; wait for their scheduled measurement gates before starting duplicate work.",
+        "summary": "Technical review: escalate to owner with no queue action. The current private-preview architecture is technically consistent with the observed password gate and noindex/nofollow state. A public beta or full launch is feasible only after owner approval and separate Legal/Compliance, Security, data-rights, accuracy, privacy/consent, attribution, and rollback sign-off. Do not change sitemap, crawl directives, credentials, infrastructure, schedules, analytics, or production behavior while the property remains private. Existing deployed improvements should continue through their scheduled measurement gates without duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }
