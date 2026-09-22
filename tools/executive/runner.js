@@ -333,7 +333,7 @@ async function buildBrief(store, root = ROOT) {
     action_mandate: {
       cadence: 'six_hour',
       minimum_evidence_backed_action: 1,
-      maximum_queued_actions: 3,
+      maximum_queued_actions: 6,
       rule: 'When an evidence-backed, low-risk and reversible candidate exists, the CEO/CTO pass must either queue it for the engineer or explain why it was rejected. Do not let low-volume affiliate attribution create a no-op.',
       candidates: actionCandidates(intel.intelligence, sites),
     },
