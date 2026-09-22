@@ -338,7 +338,11 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
   const brief = { action_mandate: { candidates: [{ site: 'example.com' }] } };
   assert.equal(
     runner.actionMandateSatisfied(
-      { change_requests: [{ site: 'example.com' }], proposals: [], messages: [] },
+      {
+        change_requests: [{ site: 'example.com' }],
+        proposals: [],
+        messages: [{ body: 'Recommendation: run the bounded test.' }],
+      },
       brief
     ),
     true
@@ -348,7 +352,7 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
       {
         change_requests: [],
         proposals: [],
-        messages: [{ body: 'Owner, should we reject this candidate or run the bounded test?' }],
+        messages: [{ body: 'Recommendation: run the bounded test. Owner, should we proceed?' }],
       },
       brief
     ),

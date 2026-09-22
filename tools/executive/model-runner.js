@@ -86,7 +86,7 @@ async function main() {
   // select or explicitly reject a candidate, fail closed before the trusted
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
-    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe action mandate was not satisfied. Return the complete plan again and either (a) route one highest-confidence, low-risk, reversible candidate to engineer with acceptance and rollback criteria, or (b) include a concise owner message explicitly rejecting every listed candidate with an evidence-based reason. Do not return an observation-only plan.`;
+    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe action mandate was not satisfied. Return the complete plan again and either (a) route one highest-confidence, low-risk, reversible candidate to engineer with acceptance and rollback criteria, or (b) include one owner-facing message beginning with Recommendation: that gives a clear evidence-backed disposition and asks at most one concrete decision question. Do not return an observation-only plan or a question without a recommendation.`;
     const repairedOutput = await runner.runProvider(repairPrompt);
     plan = mergePassPlans(plan, runner.parseOutput(repairedOutput));
     for (const review of plan.proposal_reviews || [])
