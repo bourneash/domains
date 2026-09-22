@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T17:12:47.176Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-22T22:05:15.894Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: retain searchwoot.com as private. Reject sitemap, monetization, launch, telemetry, credential, infrastructure, schedule, and deployment changes this cycle. Current evidence supports only continued private-preview operation; analytics and Data Hub are unavailable, attribution is incomplete, and legal, accuracy, isolation, security, and rollback gates remain unresolved.",
+        "summary": "Retain searchwoot.com as private. Do not authorize public beta, monetization, telemetry, credential, infrastructure, schedule, or deployment changes this cycle. Continue existing Great American Lakes measurement without duplication.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve up to three reversible task-assignment corrections: route the 0daynews.com daily briefing to content-writer, the allthingsmasonic.com performance-budget task to seo-analyst, and the americastrikes.com solar-power-bank replacement to content-writer. These are queue metadata changes only; they must not modify site code, content, links, schedules, credentials, deployment, or telemetry. Acceptance is recorded reassignment with restoration of the prior assignment as rollback.",
+        "summary": "Defer the eastcoastrappers.com internal-link change and saveusfarms.com Reddit drafts to the next queue window. Both are bounded in scope, but they are production or external-channel work and the current action mandate is already consumed by three higher-priority reversible task-routing corrections. No site, social-account, analytics, UTM, or publishing changes are authorized now.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer the eastcoastrappers.com internal-link task and saveusfarms.com Reddit-draft task to the next queue window because the action mandate caps queued actions at three. No production or social-account work is authorized by this review.",
+        "summary": "Retain only these queue-safe actions: route the 0daynews.com daily briefing to content-writer, route the allthingsmasonic.com performance-budget task to seo-analyst, and route the americastrikes.com affiliate replacement task to content-writer. These are metadata-only, reversible assignment corrections; do not modify code, content, links, schedules, credentials, deployment, telemetry, or spending.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Existing deployed improvements should continue their scheduled measurement. Do not duplicate experiments or claim success without the existing outcome records and measurement thresholds.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO review: retain searchwoot.com as private. Reject sitemap, monetization, launch, telemetry, credential, infrastructure, schedule, and deployment changes this cycle. Existing deployed improvements may continue scheduled measurement without duplicate work.",
+        "summary": "Retain searchwoot.com as private. Do not authorize public beta, monetization, telemetry, credential, infrastructure, schedule, deployment, or external-channel changes this cycle. Continue existing Great American Lakes measurement without duplication or declaring success before recorded thresholds and outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

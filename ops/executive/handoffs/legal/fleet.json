@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-22T17:12:47.176Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-22T22:05:15.895Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for bounded public beta or full launch; conditional for continued private preview. Recommendation: retain keep_private, reject sitemap, monetization expansion, and production changes. Evidence: searchwoot.com is password-gated, noindex/nofollow, and publicly observed as a private preview; SEO reports zero activity, while analytics and Data Hub are unavailable rather than zero. Compliance baseline is incomplete fleet-wide: 37 pass, 16 fail, 6 unknown; failures include missing cookie banner/accept/reject controls on 16 sites and missing privacy/terms evidence on 4 sites. This is technical triage, not legal certification. Human counsel is required for unresolved API/source rights, privacy and consent scope, consumer and affiliate disclosures, copyright/trademark use, platform policy, and any regulated or age-sensitive content decision. Incomplete telemetry alone does not block ordinary growth, but it is insufficient evidence for this gated public launch.",
+        "summary": "Risk disposition: blocked for bounded public beta or full launch; conditional for continued private preview. Evidence: searchwoot.com is password-gated and noindex/nofollow; source rights, accuracy/freshness, privacy, consent, disclosures, security, attribution, margin, and rollback evidence remain unresolved. Fleet compliance is technical triage only: 37 pass, 16 fail, 6 unknown; failures include missing cookie controls on 16 sites and missing privacy/terms evidence on 4 sites. Human counsel is required for unresolved Woot/API rights, privacy and consent scope, consumer and affiliate disclosures, copyright/trademark use, platform policy, and any regulated or age-sensitive determination. Incomplete telemetry alone does not block ordinary growth, but it cannot support this gated launch. Recommendation: retain keep_private and authorize no public beta, monetization expansion, advertising, or production launch change this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed; all 4 remain open because no supporting evidence is present. Non-legal gates are also blocked: accuracy/freshness, measurement/attribution, and security/release. Next evidence action: attach the authoritative Woot API terms or written permission, field-level provenance, permitted caching/display/alert uses, attribution requirements, freshness limits, and correction/takedown process to searchwoot-legal-source-rights. Do not close the task until that evidence is recorded.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are closed; all four remain open because supporting evidence is absent. Non-legal gates remain blocked for accuracy/freshness, measurement/attribution, and security/release. Next evidence action: attach authoritative Woot API terms or written permission, field-level provenance, permitted caching/display/alert uses, attribution requirements, freshness limits, and correction/takedown process to searchwoot-legal-source-rights. Close no task without evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use decisions for searchwoot.com: Woot API deal and price-history data—evidence_needed; missing current source terms or permission, field provenance, freshness/stale-data behavior, accuracy controls, correction/takedown process, and confirmed rights for public display, historical derivatives, images, trademarks, prices, savings claims, alerts, affiliate links, or advertising. Smallest next action: produce the owner-approved rights-and-data inventory. User alert rules and sync results—evidence_needed; missing field inventory, retention/deletion, access/correction workflow, Slack/email processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only data-flow and retention table. GA4 analytics—evidence_needed; missing deployed consent and withdrawal capture, property/data-sharing settings, retention, vendor disclosure, and jurisdiction treatment. Smallest next action: perform a read-only consent/configuration evidence capture without enabling tracking. Operational logs and Cloudflare hosting data—evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/data-subject-request procedures. Smallest next action: produce the operator/vendor inventory and flag counsel-required gaps.",
+        "summary": "Data-use review: Woot API deal and price-history data = evidence_needed. Missing current terms or permission, field provenance, rights for storage, historical derivatives, public display, images, trademarks, prices, savings claims, alerts, affiliate links, and advertising, plus freshness and correction controls. Smallest next action: produce the owner-approved rights-and-data inventory. User alert rules and sync results = evidence_needed. Missing field inventory, retention/deletion, access/correction, Slack/email processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only data-flow and retention table. GA4 analytics = evidence_needed. Missing deployed consent/withdrawal capture, property and data-sharing settings, retention, vendor disclosure, and jurisdiction treatment. Smallest next action: capture consent and configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data = evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/data-subject-request procedures. Smallest next action: produce the operator/vendor inventory and flag counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue and attribution evidence does not support launch or monetization claims: Amazon reports $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but 629 clicks and all 28 ordered items are under tracking_id \"other\"; named site IDs show zero orders and commission. Analytics is unavailable for all 60 registry sites, so site-level revenue, margin, CAC, ROI, payback, and forecasts remain unsupported. No new tracking, affiliate configuration, advertising, or monetization proposal is recommended.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Risk disposition: blocked for bounded public beta or full launch; conditional for continued private preview. Retain keep_private pending source-rights, accuracy, privacy, consent, disclosure, security, attribution, margin, and rollback evidence. This is technical triage, not legal certification.",
+        "summary": "Revenue and data-quality evidence does not support site-level monetization claims: Amazon reports $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but 629 clicks and all 28 ordered items are under tracking_id \"other\"; named site IDs show zero orders and commission. Analytics is unavailable for all 60 registry sites. Site revenue, margin, CAC, ROI, payback, forecasts, and experiment impact remain unsupported. Continue only ordinary low-risk work that is separately authorized; do not treat missing telemetry as proof of failure or as a reason to invent results.",
         "requested_action": null,
         "proposal_id": null
       }

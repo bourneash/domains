@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-22T17:12:47.176Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-22T22:05:15.896Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep searchwoot.com private and reject sitemap, monetization, public-launch, and production work this cycle. The owner must choose keep-private, bounded beta, or full launch after the applicable evidence gates are complete.",
+        "summary": "Reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. Analytics is unavailable across the registry and affiliate attribution is incomplete. Retain SearchWoot as private; reject public launch, monetization, telemetry, credential, infrastructure, schedule, deployment, external-channel, and production work this cycle. Reject queued production work lacking measurable attributable outcomes. Existing approved measurement may continue without duplication. Owner must resolve launch gates before reconsideration.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep searchwoot.com private. Reject sitemap, monetization, public-launch, telemetry, credential, infrastructure, schedule, deployment, and other production work this cycle. The available evidence supports only the reported $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; site attribution and analytics are incomplete, so site revenue, margin, ROI, CAC, payback, forecasts, and experiment impact remain unsupported. Owner must choose keep-private, bounded beta after all applicable gates, or full launch after all applicable gates.",
+        "summary": "Recommendation: retain the private-preview posture, reject unsupported financial and launch claims, and authorize only three reversible queue-metadata corrections: route the 0daynews.com briefing to content-writer, the allthingsmasonic.com performance task to seo-analyst, and the americastrikes.com affiliate replacement task to content-writer. No code, content, links, schedules, credentials, deployment, telemetry, spending, or external publishing changes are authorized. Existing approved measurement may continue without duplication.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only three reversible metadata-only task-routing corrections: 0daynews.com daily briefing to content-writer, allthingsmasonic.com performance task to seo-analyst, and americastrikes.com affiliate replacement task to content-writer. No site code, content, links, schedules, credentials, deployment, telemetry, spending, or production changes are authorized. Defer the remaining queue candidates because the action cap is three.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Existing deployed improvements may continue scheduled measurement. Do not duplicate experiments or declare success without recorded outcome data and thresholds.",
+        "summary": "Analytics is unavailable across the registry and affiliate attribution is incomplete. The available evidence supports only $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; site revenue, margin, ROI, CAC, payback, forecasts, and experiment impact remain unsupported. Retain SearchWoot as private until its source-rights, accuracy, privacy, security, attribution, and rollback gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
-        "summary": "Retain the private-preview gate and escalate only the owner disposition. Public beta or full launch remains blocked pending source rights, accuracy, privacy, consent, disclosure, security, attribution, margin, rollback, and counsel-required evidence.",
+        "summary": null,
         "requested_action": "escalate_owner",
         "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
       }

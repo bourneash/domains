@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T19:35:44.513Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-22T22:05:15.892Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize three bounded, reversible actions now: add internal links on eastcoastrappers.com, prepare two consent-aware Reddit drafts for saveusfarms.com, and run a report-only revenue-readiness baseline for 0xroulette.com. Evidence: the actionability window is 30 days with 9 active improvements, 2 awaiting measurement, and 0 measured; Amazon reported $4.92 commission on 6,219 clicks for 2026-09-21, but site attribution is incomplete and analytics is unavailable for all 60 registry sites, so site revenue, margin, and ROI are not calculable. Main unknown: which sites can produce attributable contribution margin after measurement is restored. Smallest next step: complete these bounded tasks and record baseline, outcome, and rollback evidence. Owner question: approve this three-site batch, or choose defer?",
+        "summary": "Recommendation: keep searchwoot.com private and advance two reversible actions: add internal links on eastcoastrappers.com and prepare two consent-aware Reddit drafts for saveusfarms.com. Evidence: 30-day actionability is 6%; 2 deployed improvements await measurement and 0 are measured. Amazon reported $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21, but attribution and analytics are incomplete, so site revenue, margin, and ROI are unknown. The third eligible candidate is deferred because other candidates already have active work. Smallest next step: complete these actions and record outcomes. Owner decision: keep SearchWoot private, authorize bounded beta after gates, or defer a decision?",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "0xroulette.com revenue-readiness baseline",
-        "summary": "Produce a bounded read-only baseline for 0xroulette.com covering observable monetization paths, current measurement availability, attribution requirements, contribution-margin inputs, and one reversible growth hypothesis.",
-        "requested_action": "Approve a read-only baseline only; do not deploy, spend, change credentials, or alter monetization.",
-        "proposal_id": "6ad4d2a5-adad-4a56-9c68-ec7dcecda79a"
       }
     ]
   }
