@@ -129,6 +129,25 @@ test('normalizes ordinary Legal review wording to the internal CRO handoff state
   assert.equal(plan.proposal_reviews[0].status, 'accepted_research');
 });
 
+test('normalizes human-readable Legal and Security actor aliases without allowing owner spoofing', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        { actor: 'Legal/Compliance', body: 'Recommendation: keep the launch gated.' },
+        { actor: 'Security Review', body: 'Recommendation: require a release checklist.' },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.messages.map(message => message.actor),
+    ['legal', 'security']
+  );
+  assert.throws(
+    () => runner.parseOutput(JSON.stringify({ messages: [{ actor: 'owner', body: 'spoof' }] })),
+    /invalid executive message/
+  );
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'

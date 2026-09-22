@@ -504,6 +504,42 @@ function normalizeProviderProposalTypes(plan) {
     }[raw];
     if (alias) item.status = alias;
   }
+  const actorAliases = {
+    'chief executive officer': 'ceo',
+    'chief technology officer': 'cto',
+    'chief financial officer': 'cfo',
+    compliance: 'legal',
+    'legal/compliance': 'legal',
+    'legal-compliance': 'legal',
+    'legal review': 'legal',
+    'security review': 'security',
+    'security officer': 'security',
+    'security/compliance': 'security',
+  };
+  for (const item of plan.messages) {
+    const raw = String(item?.actor || '')
+      .trim()
+      .toLowerCase();
+    item.actor = actorAliases[raw] || raw;
+  }
+  for (const item of plan.data_requests) {
+    const raw = String(item?.requested_by || '')
+      .trim()
+      .toLowerCase();
+    item.requested_by = actorAliases[raw] || raw;
+  }
+  for (const item of plan.proposal_reviews) {
+    const raw = String(item?.reviewed_by || '')
+      .trim()
+      .toLowerCase();
+    item.reviewed_by = actorAliases[raw] || raw;
+  }
+  for (const item of plan.proposals) {
+    const raw = String(item?.created_by || '')
+      .trim()
+      .toLowerCase();
+    item.created_by = actorAliases[raw] || raw;
+  }
   return plan;
 }
 
