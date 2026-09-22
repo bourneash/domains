@@ -57,9 +57,54 @@ test('supports CFO review and on-demand managed-site context without widening sc
   assert.equal(plan.messages[0].actor, 'cfo');
   assert.equal(plan.proposals[0].created_by, 'cfo');
   assert.match(runner.buildPassPrompt(brief, 'cfo'), /created_by to cfo/);
+  assert.match(runner.buildPassPrompt(brief, 'legal'), /compliance/);
   assert.match(runner.buildPassPrompt(brief, 'domain-manager'), /created_by to domain-manager/);
   delete process.env.EXECUTIVE_DOMAIN;
   store.close();
+});
+
+test('accepts Legal messages and rejects unreviewed go-live proposals', () => {
+  const legalPlan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ actor: 'legal', body: 'The launch needs a documented compliance checklist.' }],
+      proposals: [
+        {
+          created_by: 'legal',
+          title: 'Launch-readiness checklist',
+          proposal_type: 'growth',
+          summary: 'Resolve the private preview decision with evidence.',
+          requested_action: 'Review the checklist before launch.',
+          implementation: {
+            site: 'example.com',
+            launch_gate: 'go_live',
+            legal_review: {
+              status: 'approved',
+              reviewed_by: 'legal',
+              decision_note: 'No blocker found in the baseline.',
+            },
+          },
+        },
+      ],
+    })
+  );
+  assert.equal(legalPlan.messages[0].actor, 'legal');
+  assert.throws(
+    () =>
+      runner.parseOutput(
+        JSON.stringify({
+          proposals: [
+            {
+              created_by: 'ceo',
+              title: 'Launch now',
+              summary: 'Go live.',
+              requested_action: 'Launch.',
+              implementation: { site: 'example.com', launch_gate: 'go_live' },
+            },
+          ],
+        })
+      ),
+    /approved legal review/
+  );
 });
 
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {

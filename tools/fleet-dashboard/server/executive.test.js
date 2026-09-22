@@ -104,6 +104,24 @@ test('allows CFO and domain-manager messages and proposals', () => {
   db.close();
 });
 
+test('allows Legal messages and proposals', () => {
+  const db = store();
+  executive.message(db, {
+    actor: 'legal',
+    body: 'Searchwoot needs a launch and compliance review.',
+  });
+  const proposal = executive.proposal(db, {
+    title: 'Searchwoot launch-readiness review',
+    proposal_type: 'business',
+    created_by: 'legal',
+    summary: 'Resolve the private-preview launch, disclosure, and compliance questions.',
+    requested_action: 'Review the launch checklist with the owner.',
+  });
+  assert.equal(proposal.created_by, 'legal');
+  assert.equal(db.listExecutiveMessages({ actor: 'legal' }).length, 1);
+  db.close();
+});
+
 test('CEO can close a CRO handoff without granting owner approval', () => {
   const db = store();
   const proposal = executive.proposal(db, {
@@ -154,6 +172,63 @@ test('owner approval turns a bounded implementation into a linked change request
   assert.equal(db.getChangeRequest(approved.linked_request_id).site, 'example.com');
   assert.equal(db.getChangeRequest(approved.linked_request_id).assigned_role, 'seo-analyst');
   assert.equal(db.list({ event_type: 'executive.proposal.task-routed' }).length, 1);
+  db.close();
+});
+
+test('requires Legal approval before a go-live proposal can route work', () => {
+  const db = store();
+  const proposal = executive.proposal(db, {
+    title: 'Launch example.com',
+    proposal_type: 'growth',
+    summary: 'Remove the private preview gate after a documented launch review.',
+    requested_action: 'Approve production launch after Legal review.',
+    implementation: {
+      site: 'example.com',
+      launch_gate: 'go_live',
+      title: 'Launch example.com',
+      body: 'Publish the reviewed launch change.',
+      category: 'engineering',
+      priority: 'medium',
+      assigned_role: 'engineer',
+    },
+  });
+  assert.throws(
+    () =>
+      executive.decision(
+        db,
+        proposal.proposal_id,
+        { status: 'approved' },
+        { knownSite: site => site === 'example.com' }
+      ),
+    /approved Legal review/
+  );
+  const reviewed = executive.proposal(db, {
+    title: 'Launch example.com with Legal review',
+    proposal_type: 'growth',
+    summary: 'Launch after the Legal pass approved the checklist.',
+    requested_action: 'Approve production launch.',
+    implementation: {
+      site: 'example.com',
+      launch_gate: 'go_live',
+      legal_review: {
+        status: 'approved',
+        reviewed_by: 'legal',
+        decision_note: 'Checklist passed.',
+      },
+      title: 'Launch example.com',
+      body: 'Publish the reviewed launch change.',
+      category: 'engineering',
+      priority: 'medium',
+      assigned_role: 'engineer',
+    },
+  });
+  const approved = executive.decision(
+    db,
+    reviewed.proposal_id,
+    { status: 'approved' },
+    { knownSite: site => site === 'example.com' }
+  );
+  assert.equal(approved.status, 'approved');
   db.close();
 });
 

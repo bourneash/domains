@@ -12,11 +12,11 @@ async function main() {
   if (
     !requestedPasses.length ||
     requestedPasses.some(
-      x => !['adaptive', 'ceo', 'cto', 'cfo', 'domain-manager', 'reviewer'].includes(x)
+      x => !['adaptive', 'ceo', 'cto', 'cfo', 'legal', 'domain-manager', 'reviewer'].includes(x)
     )
   )
     throw new Error(
-      'EXECUTIVE_PASSES must contain adaptive or ceo, cto, cfo, domain-manager, reviewer'
+      'EXECUTIVE_PASSES must contain adaptive or ceo, cto, cfo, legal, domain-manager, reviewer'
     );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);
@@ -37,7 +37,7 @@ async function main() {
       // Allow one bounded correction attempt, then fail closed.
       repaired = true;
       output = await runner.runProvider(
-        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner, reviewer, system, markdown, or commentary.`
+        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary.`
       );
       plan = runner.parseOutput(output);
     }
@@ -52,7 +52,7 @@ async function main() {
       const hasWork = ['proposals', 'change_requests', 'research_requests'].some(
         key => plan[key]?.length
       );
-      if (hasWork) passes.push('cfo', 'cto', 'reviewer');
+      if (hasWork) passes.push('cfo', 'cto', 'legal', 'reviewer');
     }
   }
   // Do not silently turn a telemetry-rich cycle into an observation-only

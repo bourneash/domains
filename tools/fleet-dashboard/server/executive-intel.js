@@ -20,6 +20,8 @@ const eventstore = require('./eventstore');
 const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
+const compliance = require('./compliance');
+const dataquality = require('./dataquality');
 
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
@@ -53,6 +55,14 @@ const TOOL_CATALOG = [
   {
     key: 'operations',
     purpose: 'deployment health, uptime, fleet doctor findings, and error rollups',
+  },
+  {
+    key: 'compliance',
+    purpose: 'technical privacy baseline, consent, legal-page presence, failures, and scan history',
+  },
+  {
+    key: 'data_quality',
+    purpose: 'freshness, completeness, attribution boundaries, and unavailable evidence',
   },
 ];
 
@@ -294,6 +304,52 @@ function compactOperations(value) {
   };
 }
 
+function compactCompliance(rows, history) {
+  const checks = [
+    'https',
+    'banner',
+    'accept',
+    'reject',
+    'ga4',
+    'gaConsentGated',
+    'privacy',
+    'terms',
+  ];
+  const summary = {
+    sites: rows.length,
+    pass: rows.filter(row => row.status === 'pass').length,
+    fail: rows.filter(row => row.status === 'fail').length,
+    unknown: rows.filter(row => row.status === 'unknown').length,
+    open_findings: {},
+  };
+  for (const check of checks) {
+    const failures = rows.filter(row => row.checks?.[check] === false).length;
+    if (failures) summary.open_findings[check] = failures;
+  }
+  return {
+    generated_at:
+      rows
+        .map(row => row.checkedAt)
+        .filter(Boolean)
+        .sort()
+        .at(-1) || null,
+    summary,
+    sites: rows.map(row => ({
+      site: row.site,
+      checked_at: row.checkedAt || null,
+      reachable: row.reachable,
+      status: row.status,
+      checks: Object.fromEntries(checks.map(check => [check, row.checks?.[check] ?? null])),
+      failures: (row.failures || []).slice(0, 12),
+      error: row.error || null,
+      error_type: row.errorType || null,
+      history_stats: row.historyStats || {},
+    })),
+    history: (history || []).slice(-12),
+    notice: 'Technical baseline only; this is not legal certification or legal advice.',
+  };
+}
+
 async function collect({ root, sites = [] } = {}) {
   const managedSites = sites.filter(site => !EXCLUDED_SITES.has(site));
   const now = new Date();
@@ -318,6 +374,13 @@ async function collect({ root, sites = [] } = {}) {
   const campaignsData = campaigns.summary(store);
   store.close();
 
+  // Compliance and data quality are read-only control-plane inputs. They do
+  // not trigger a scan or change site state from an executive run.
+  const complianceData = compactCompliance(
+    compliance.matrix(managedSites),
+    compliance.fleetHistory(managedSites, 12)
+  );
+
   const analyticsData = analyticsResult.data || {};
   const seoData = seoResult.data || {};
   const revenueData = revenueResult.data || {};
@@ -328,6 +391,16 @@ async function collect({ root, sites = [] } = {}) {
   const safeAiData = removeExcluded(aiData);
   const priorityData = removeExcluded(
     priorities.build({
+      root,
+      discoveredSites: managedSites,
+      seo: seoData,
+      revenue: revenueData,
+      analyticsHealth: analyticsData,
+      aiUsage: aiData,
+    })
+  );
+  const qualityData = removeExcluded(
+    dataquality.assess({
       root,
       discoveredSites: managedSites,
       seo: seoData,
@@ -363,6 +436,13 @@ async function collect({ root, sites = [] } = {}) {
       revops: diagnostics({ source: 'revops', ok: true, data: revopsData }),
       experiments: diagnostics({ source: 'experiments', ok: true, data: experimentsData }),
       campaigns: diagnostics({ source: 'campaigns', ok: true, data: campaignsData }),
+      compliance: diagnostics({
+        source: 'compliance',
+        ok: true,
+        data: complianceData,
+        observed_at: complianceData.generated_at,
+      }),
+      data_quality: diagnostics({ source: 'data_quality', ok: true, data: qualityData }),
     },
     // These are the compact, decision-useful views. Raw source payloads remain
     // available under sources for audit/debugging without making the prompt huge.
@@ -396,6 +476,8 @@ async function collect({ root, sites = [] } = {}) {
       revops: revopsData,
       experiments: experimentsData,
       campaigns: campaignsData,
+      compliance: complianceData,
+      data_quality: qualityData,
     },
   };
 }

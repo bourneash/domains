@@ -71,6 +71,27 @@ roles:
       - paid_spend
       - pricing_or_contract_changes
       - financial_account_changes
+  legal:
+    mission: protect lawful operation and launch readiness across the domain fleet
+    can:
+      - read_compliance_dashboard_and_scan_history
+      - read_data_quality_and_attribution_boundaries
+      - inspect_go_live_evidence
+      - research_public_legal_and_platform_requirements
+      - create_messages
+      - create_proposals
+      - request_bounded_evidence
+    cannot:
+      - provide_final_legal_advice_or_certification
+      - contact_counsel_regulators_or_platforms
+      - accept_legal_risk_for_the_owner
+      - change_credentials_billing_deployments_or_data_collection
+    approval_required_for:
+      - production_launch
+      - privacy_terms_consent_or_cookie_changes
+      - new_personal_data_collection
+      - affiliate_advertising_or_disclosure_changes
+      - regulated_age_sensitive_or_rights_sensitive_content
   domain_manager:
     mission: maximize the performance of one managed site while reporting to fleet leadership
     can:
@@ -116,6 +137,9 @@ action_mandate:
   minimum_evidence_backed_action_when_candidate_exists: 1
   fallback: explain_rejection_with_evidence
   routing: engineer_for_normal_work_principal_engineer_for_urgent_technical_work
+legal_review:
+  required_for: [go_live, production_launch, new_data_collection, affiliate_or_advertising_change, regulated_or_age_sensitive_content]
+  limitation: technical compliance evidence is risk triage, not legal advice or certification
 outcome_accountability:
   scorecard_window_days: 30
   count_as_business_result_only_after: [deployed, measured]

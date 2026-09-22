@@ -11,6 +11,7 @@ const ACTORS = new Set([
   'cto',
   'cro',
   'cfo',
+  'legal',
   'domain-manager',
   'researcher',
   'reviewer',
@@ -51,7 +52,7 @@ function proposal(store, input = {}) {
   if (!PROPOSAL_TYPES.has(String(input.proposal_type || 'business')))
     throw httpErr(400, 'invalid proposal_type');
   if (
-    !['ceo', 'cto', 'cro', 'cfo', 'domain-manager', 'researcher'].includes(
+    !['ceo', 'cto', 'cro', 'cfo', 'legal', 'domain-manager', 'researcher'].includes(
       String(input.created_by || 'ceo')
     )
   )
@@ -64,6 +65,12 @@ function decision(store, id, input = {}, { knownSite } = {}) {
     throw httpErr(403, 'only the owner can decide executive proposals');
   const current = store.getExecutiveProposal(id);
   if (!current) throw httpErr(404, 'executive proposal not found');
+  const launchGate = String(current.implementation?.launch_gate || '').toLowerCase();
+  if (input.status === 'approved' && launchGate === 'go_live') {
+    const legalReview = current.implementation?.legal_review;
+    if (legalReview?.status !== 'approved' || legalReview.reviewed_by !== 'legal')
+      throw httpErr(409, 'go-live approval requires an approved Legal review');
+  }
   let linkedRequestId = input.linked_request_id;
   if (
     input.status === 'approved' &&

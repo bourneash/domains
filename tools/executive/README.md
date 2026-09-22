@@ -1,7 +1,8 @@
 # Fleet Executive
 
 Fleet Executive is the control-plane contract for an autonomous CEO/CTO agent
-that runs the domain portfolio under owner oversight.
+that runs the domain portfolio under owner oversight. The leadership sequence
+also includes CFO and Legal/Compliance review passes.
 
 The first slice lives in the Fleet Dashboard event store and exposes:
 
@@ -16,6 +17,8 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   ticks, queue delivery, active improvements, measurement state, and recorded
   metric deltas. Proposals and messages are intentionally not counted as
   business results.
+- `GET /api/executive/intelligence` — the shared read-only evidence bundle,
+  including compliance scan history and data-quality/attribution boundaries.
 
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
 searches public GitHub repositories against purpose-scoped fleet needs
@@ -68,6 +71,24 @@ message, create backlog work, and prepare proposals. High-impact actions must
 enter the proposal flow. An approval should then create a normal change request
 and use the existing isolated worktree → review → validation → deploy → measure
 pipeline.
+
+## CEO growth challenge and Legal gate
+
+Private, password-protected, preview-only, parked, or noindex sites are not
+treated as completed decisions. The CEO must ask why the site is gated, who owns
+the launch decision, whether it can monetize while gated, what must be true to
+go live, and what revenue/opportunity cost comes from remaining private. It
+should produce a bounded launch-readiness or monetization proposal when the
+evidence supports one.
+
+Legal/Compliance runs as a sequential leadership pass. It receives the same
+read-only compliance baseline, scan history, data-quality boundaries, analytics,
+revenue, and site evidence. It triages privacy/consent/terms, disclosures,
+data provenance, claims, rights, and launch risks; it does not certify legal
+compliance or replace human counsel. Any proposal marked
+`implementation.launch_gate: go_live` must carry an approved
+`implementation.legal_review` from the Legal pass before the owner approval
+endpoint will route it to engineering.
 
 ## Executive-to-engineering task routing
 

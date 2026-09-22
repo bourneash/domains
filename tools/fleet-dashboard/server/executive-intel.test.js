@@ -16,6 +16,8 @@ test('catalog covers the dashboard intelligence needed by executive roles', () =
     'datahub',
     'priorities',
     'operations',
+    'compliance',
+    'data_quality',
   ]) {
     assert.ok(keys.has(key), `missing ${key}`);
   }
