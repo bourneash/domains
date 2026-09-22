@@ -51,6 +51,11 @@ dirty worktrees are preserved and require operator recovery.
 
 Key views include:
 
+- **Executive Workbench** — one assistive case queue for decisions, evidence
+  gaps, incidents, Legal/Security reviews, education, and implementation
+  follow-through. Roles can create and update cases from autonomous plans;
+  owner interaction is reserved for decisions and approvals.
+
 - **Priorities** — a cross-fleet decision queue that joins canonical lifecycle
   policy, analytics coverage, task ownership, and SEO evidence. Recommendations
   expose confidence and proxy value while expected profit remains deliberately

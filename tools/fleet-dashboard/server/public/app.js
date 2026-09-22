@@ -107,6 +107,16 @@ async function api(method, url, body) {
   return data;
 }
 
+// Optional panels must never hold an entire view hostage. Keep the primary
+// dashboard usable when an auxiliary collector is slow, offline, or being
+// restarted; the panel can simply render its empty state for this refresh.
+function apiOptional(method, url, fallback, timeoutMs = 2500) {
+  return Promise.race([
+    api(method, url),
+    new Promise(resolve => setTimeout(() => resolve(fallback), timeoutMs)),
+  ]).catch(() => fallback);
+}
+
 /* ---- auth gate (F1) ---- */
 function showLogin() {
   const o = $('#login-overlay');
@@ -145,6 +155,37 @@ function toast(msg, kind = 'ok') {
 
 function stamp() {
   $('#updated').textContent = 'updated ' + new Date().toLocaleTimeString();
+}
+
+/* Shared reading-density preference. The dashboard has many dense operational
+ * views, so this belongs to the shell rather than any one renderer. */
+function densityCfg() {
+  let value = null;
+  try {
+    value = localStorage.getItem('fd.density');
+  } catch {
+    // Storage can be blocked by privacy mode; density is non-essential.
+  }
+  return value === 'compact' ? 'compact' : 'comfortable';
+}
+function applyDensityUI() {
+  const density = densityCfg();
+  document.body.dataset.density = density;
+  const button = $('#density-toggle');
+  if (!button) return;
+  button.textContent = density === 'compact' ? 'Density: Compact' : 'Density: Comfortable';
+  button.setAttribute(
+    'aria-label',
+    `Dashboard density: ${density}. Activate to switch to ${density === 'compact' ? 'comfortable' : 'compact'} spacing.`
+  );
+}
+function toggleDensity() {
+  try {
+    localStorage.setItem('fd.density', densityCfg() === 'compact' ? 'comfortable' : 'compact');
+  } catch {
+    // Keep the current session usable even when preferences cannot persist.
+  }
+  applyDensityUI();
 }
 
 /* ---- persisted collapsible panels ---- */
@@ -10415,6 +10456,7 @@ function topViews() {
     'control',
     'priorities',
     'improvements',
+    'workbench',
     'executive',
     'agents',
     ...Object.keys(NAV_GROUPS),
@@ -11705,7 +11747,7 @@ async function renderExecutive() {
       api('GET', '/api/executive/reports?limit=20'),
       api('GET', '/api/executive/domain-manager-queue'),
       api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
-      api('GET', '/api/executive/cro-lab/runs?limit=12'),
+      apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
     ]);
   } catch (e) {
     app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
@@ -11893,6 +11935,132 @@ async function renderExecutive() {
   stamp();
 }
 
+const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '' };
+
+function workItemBadge(value, type = 'status') {
+  const classes = {
+    urgent: 'b-red',
+    high: 'b-yellow',
+    normal: 'b-blue',
+    low: 'b-gray',
+    open: 'b-blue',
+    in_progress: 'b-purple',
+    blocked: 'b-red',
+    waiting: 'b-yellow',
+    done: 'b-green',
+    cancelled: 'b-gray',
+  };
+  return `<span class="badge ${classes[value] || 'b-gray'}">${esc(String(value || '').replace('_', ' '))}</span>`;
+}
+
+async function renderWorkbench() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading executive workbench…</div>';
+  let data;
+  try {
+    data = await api('GET', '/api/executive/work-items?limit=300');
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">Workbench failed to load: ${esc(e.message)}</div>`;
+    return;
+  }
+  const all = data.work_items || [];
+  const active = all.filter(item => !['done', 'cancelled'].includes(item.status));
+  const visible = all.filter(item => {
+    const statuses = WORKBENCH_UI.status.split(',').filter(Boolean);
+    return (
+      (!statuses.length || statuses.includes(item.status)) &&
+      (!WORKBENCH_UI.owner || item.owner === WORKBENCH_UI.owner) &&
+      (!WORKBENCH_UI.kind || item.kind === WORKBENCH_UI.kind)
+    );
+  });
+  const options = (values, selected, label) =>
+    `<option value="">${label}</option>${values.map(value => `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${esc(value.replace('_', ' '))}</option>`).join('')}`;
+  const rows = visible
+    .map(
+      item => `<article class="wb-item" data-work-id="${esc(item.work_id)}">
+    <div class="wb-item-head"><div><div class="wb-item-title">${esc(item.title)}</div><div class="muted">${esc(item.site || 'fleet')} · ${esc(item.owner)}${item.source_type ? ` · ${esc(item.source_type)}` : ''}</div></div><div class="wb-badges">${workItemBadge(item.priority, 'priority')}${workItemBadge(item.status)}</div></div>
+    <p class="wb-summary">${esc(item.summary || 'No context recorded.')}</p>
+    <div class="wb-next"><span class="wb-label">NEXT</span>${esc(item.next_action || 'No next action recorded.')}</div>
+    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div>
+  </article>`
+    )
+    .join('');
+  const count = status => all.filter(item => item.status === status).length;
+  app.innerHTML = `<div class="wb-shell"><div class="page-head wb-head"><div><div class="wb-eyebrow">ASSISTIVE OPERATING QUEUE</div><h2 class="page-title">Executive Workbench</h2><div class="muted">One place for decisions, evidence gaps, reviews, incidents, and learning. Roles can update cases autonomously; humans step in only when a decision or approval is actually required.</div></div><button class="btn primary" id="wb-new-toggle">＋ New case</button></div>
+    <section class="wb-kpis"><div><b>${active.length}</b><span>active cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section>
+    <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
+    <section class="wb-toolbar"><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
+    <section class="wb-list">${rows || '<div class="empty">No workbench cases match this view.</div>'}</section></div>`;
+  $('#wb-new-toggle').onclick = () => $('#wb-new').classList.toggle('hidden');
+  $('#wb-new-close').onclick = () => $('#wb-new').classList.add('hidden');
+  $('#wb-filter-status').onchange = e => {
+    WORKBENCH_UI.status = [...e.target.selectedOptions].map(option => option.value).join(',');
+    softRender();
+  };
+  $('#wb-filter-owner').onchange = e => {
+    WORKBENCH_UI.owner = e.target.value;
+    softRender();
+  };
+  $('#wb-filter-kind').onchange = e => {
+    WORKBENCH_UI.kind = e.target.value;
+    softRender();
+  };
+  $('#wb-create').onclick = async () => {
+    const title = $('#wb-title').value.trim();
+    const kind = $('#wb-kind').value;
+    if (!title || !kind) return toast('Title and kind are required', 'err');
+    const button = $('#wb-create');
+    button.disabled = true;
+    try {
+      await api('POST', '/api/executive/work-items', {
+        title,
+        kind,
+        owner: $('#wb-owner-new').value,
+        priority: $('#wb-priority').value,
+        summary: $('#wb-summary').value.trim(),
+        next_action: $('#wb-next').value.trim(),
+        created_by: 'owner',
+      });
+      toast('Workbench case created');
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      button.disabled = false;
+    }
+  };
+  $$('.wb-status').forEach(
+    select =>
+      (select.onchange = async () => {
+        try {
+          await api('PATCH', `/api/executive/work-items/${encodeURIComponent(select.dataset.id)}`, {
+            status: select.value,
+          });
+          toast('Case status updated');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.wb-owner').forEach(
+    select =>
+      (select.onchange = async () => {
+        try {
+          await api('PATCH', `/api/executive/work-items/${encodeURIComponent(select.dataset.id)}`, {
+            owner: select.value,
+          });
+          toast('Case owner updated');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      })
+  );
+  if (!FRESH) applyUISnap();
+  stamp();
+}
+
 function render() {
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -11903,6 +12071,7 @@ function render() {
   if (STATE.view === 'control') return renderControl();
   else if (STATE.view === 'priorities') return renderPriorities();
   else if (STATE.view === 'improvements') return renderImprovements();
+  else if (STATE.view === 'workbench') return renderWorkbench();
   else if (STATE.view === 'executive') return renderExecutive();
   else if (STATE.view === 'agents') return renderCategoryRoot('agents');
   else if (NAV_GROUPS[STATE.view]) return renderCategoryRoot(STATE.view);
@@ -12312,6 +12481,7 @@ async function checkVersion() {
 }
 
 async function boot() {
+  applyDensityUI();
   // Auth gate (F1): if the server requires a token and we don't have one, show
   // the login overlay and stop — don't render the dashboard behind it.
   const loginForm = $('#login-form');
@@ -12365,6 +12535,7 @@ async function boot() {
     if (!e.target.closest('.nav-group')) closeNavGroupMenus();
   });
   $('#refresh').addEventListener('click', softRender);
+  $('#density-toggle').addEventListener('click', toggleDensity);
   const ff = $('#fleet-filter');
   if (ff) ff.addEventListener('input', applyFleetFilter);
   $('#auto-on').addEventListener('change', e => {

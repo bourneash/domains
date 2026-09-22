@@ -239,6 +239,8 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 
 .actions { gap: 14px; }
 #updated { font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+#updated { min-width: 132px; }
+.density-toggle { white-space: nowrap; }
 
 /* --------------------------------------------------------------- buttons -- */
 .btn {
@@ -507,6 +509,65 @@ body[data-view="socialhub"] .loading {
   animation: none;
 }
 .empty { color: var(--faint); }
+
+/* ------------------------------------------------------- reading density -- */
+/* Compact is intentionally a preference, not a separate layout. It reduces
+   vertical chrome across shared primitives so every view benefits without
+   each renderer growing its own “dense” variant. */
+body[data-density="compact"] main { padding-top: 16px; padding-bottom: 42px; }
+body[data-density="compact"] #vitals { padding-top: 12px; gap: 8px; }
+body[data-density="compact"] .vt { padding: 9px 11px 10px; }
+body[data-density="compact"] .page-head { margin-bottom: 10px; }
+body[data-density="compact"] .card,
+body[data-density="compact"] .help-panel,
+body[data-density="compact"] .filter-panel,
+body[data-density="compact"] .col,
+body[data-density="compact"] .dh-panel,
+body[data-density="compact"] .dhi-panel,
+body[data-density="compact"] .cm-card,
+body[data-density="compact"] .soc-table-card,
+body[data-density="compact"] .compliance-table,
+body[data-density="compact"] .error-card { border-radius: var(--radius-sm); }
+body[data-density="compact"] th { padding-top: 7px; padding-bottom: 7px; }
+body[data-density="compact"] td { padding-top: 7px; padding-bottom: 7px; }
+body[data-density="compact"] .task-toolbar { margin-bottom: 10px; }
+body[data-density="compact"] .form-grid { gap: 8px; margin-top: 8px; }
+body[data-density="compact"] .btn { padding-top: 5px; padding-bottom: 5px; }
+body[data-density="compact"] .btn.sm { padding-top: 3px; padding-bottom: 3px; }
+body[data-density="compact"] .stat-grid { gap: 8px; }
+
+/* ---------------------------------------------------------- workbench -- */
+.wb-shell { max-width: 1240px; }
+.wb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.wb-eyebrow { color: var(--a3); font-size: 10px; font-weight: 750; letter-spacing: .13em; }
+.wb-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 14px; }
+.wb-kpis > div { padding: 14px 16px; background: var(--grad-panel), linear-gradient(180deg, rgba(19,24,34,.92), rgba(14,18,26,.92)); border: 1px solid rgba(255,255,255,.075); border-radius: var(--radius); box-shadow: var(--sh-2); }
+.wb-kpis b { display: block; color: var(--text-hi); font-size: 24px; line-height: 1.1; }
+.wb-kpis span { display: block; margin-top: 6px; color: var(--faint); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.wb-new { padding: 18px; margin-bottom: 14px; }
+.wb-new.hidden { display: none; }
+.wb-new-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.wb-new h3 { margin: 0; }
+.wb-new p { margin: 4px 0 0; }
+.wb-new > label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 12px; }
+.wb-toolbar { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; padding: 12px 14px; margin-bottom: 12px; background: rgba(16,20,29,.72); border: 1px solid rgba(255,255,255,.07); border-radius: var(--radius-sm); }
+.wb-toolbar label { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.wb-toolbar select { min-width: 145px; }
+.wb-toolbar select[multiple] { min-width: 175px; min-height: 74px; }
+.wb-count { margin-left: auto; padding-bottom: 7px; }
+.wb-list { display: flex; flex-direction: column; gap: 9px; }
+.wb-item { padding: 15px 17px; background: var(--grad-panel), linear-gradient(180deg, rgba(19,24,34,.92), rgba(14,18,26,.92)); border: 1px solid rgba(255,255,255,.075); border-radius: var(--radius-sm); box-shadow: var(--sh-1); }
+.wb-item:hover { border-color: rgba(94,169,255,.25); box-shadow: var(--sh-2); }
+.wb-item-head, .wb-item-foot { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.wb-item-title { color: var(--text-hi); font-size: 14px; font-weight: 700; }
+.wb-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+.wb-summary { max-width: 860px; margin: 11px 0; color: var(--text); line-height: 1.5; }
+.wb-next { padding: 9px 11px; color: var(--muted); background: rgba(94,169,255,.055); border-left: 2px solid var(--a1); font-size: 12px; }
+.wb-label { margin-right: 8px; color: var(--a1); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.wb-item-foot { align-items: center; margin-top: 11px; }
+.wb-actions { display: flex; gap: 7px; }
+.wb-actions select { min-width: 120px; padding: 4px 7px; font-size: 11px; }
+@media (max-width: 720px) { .wb-head { flex-direction: column; } .wb-head .btn { width: 100%; } .wb-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wb-item-head, .wb-item-foot { flex-direction: column; } .wb-badges { justify-content: flex-start; } .wb-actions { width: 100%; } .wb-actions select { flex: 1; } .wb-count { margin-left: 0; } }
 
 /* --------------------------------------------------------------- kanban --- */
 /* style.css hard-codes 4 columns; the Guides board has 5 (Ideas → Rejected),

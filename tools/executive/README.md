@@ -19,6 +19,11 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   business results.
 - `GET /api/executive/intelligence` — the shared read-only evidence bundle,
   including compliance scan history and data-quality/attribution boundaries.
+- `GET/POST/PATCH /api/executive/work-items` — the durable Executive Workbench
+  for decisions, research, incidents, Legal/Security reviews, education, and
+  evidence gaps. Roles may create or update bounded cases in their autonomous
+  plan; owner attention is reserved for actual decisions, approvals, or
+  escalations.
 
 The CRO (research officer) runs daily at 07:15 ET from the fleet scheduler. It
 searches public GitHub repositories against purpose-scoped fleet needs

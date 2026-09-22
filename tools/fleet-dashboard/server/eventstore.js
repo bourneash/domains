@@ -138,6 +138,28 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_actions_time ON executive_actions(started_at DESC);
     CREATE INDEX IF NOT EXISTS executive_actions_actor ON executive_actions(actor, started_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_work_items (
+      work_id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open',
+      priority TEXT NOT NULL DEFAULT 'normal',
+      owner TEXT NOT NULL DEFAULT 'ceo',
+      source_type TEXT,
+      source_id TEXT,
+      site TEXT,
+      summary TEXT NOT NULL DEFAULT '',
+      next_action TEXT NOT NULL DEFAULT '',
+      due_at TEXT,
+      evidence_json TEXT NOT NULL DEFAULT '[]',
+      created_by TEXT NOT NULL DEFAULT 'system',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      resolved_at TEXT,
+      resolution_note TEXT
+    );
+    CREATE INDEX IF NOT EXISTS executive_work_items_queue ON executive_work_items(status, priority, updated_at DESC);
+    CREATE INDEX IF NOT EXISTS executive_work_items_owner ON executive_work_items(owner, status, updated_at DESC);
     CREATE TABLE IF NOT EXISTS change_queue_settings (
       id INTEGER PRIMARY KEY CHECK (id = 1),
       enabled INTEGER NOT NULL DEFAULT 0,
@@ -902,6 +924,177 @@ function open(root, { file } = {}) {
     return getExecutiveAction(id);
   }
 
+  const WORK_ITEM_KINDS = new Set([
+    'decision',
+    'research',
+    'incident',
+    'legal',
+    'security',
+    'education',
+    'evidence',
+    'implementation',
+  ]);
+  const WORK_ITEM_STATUSES = new Set([
+    'open',
+    'in_progress',
+    'blocked',
+    'waiting',
+    'done',
+    'cancelled',
+  ]);
+  const WORK_ITEM_PRIORITIES = new Set(['urgent', 'high', 'normal', 'low']);
+  const WORK_ITEM_OWNERS = new Set([
+    'ceo',
+    'cto',
+    'cfo',
+    'legal',
+    'security',
+    'cro',
+    'domain-manager',
+    'principal-engineer',
+    'engineer',
+    'owner',
+  ]);
+
+  function decodeExecutiveWorkItem(row) {
+    return {
+      ...row,
+      evidence: safeJson(row.evidence_json),
+      evidence_json: undefined,
+    };
+  }
+
+  function createExecutiveWorkItem(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const row = {
+      work_id: input.work_id || crypto.randomUUID(),
+      title: String(input.title || '').trim(),
+      kind: String(input.kind || 'decision').trim(),
+      status: String(input.status || 'open').trim(),
+      priority: String(input.priority || 'normal').trim(),
+      owner: String(input.owner || 'ceo').trim(),
+      source_type: input.source_type ? String(input.source_type).trim() : null,
+      source_id: input.source_id ? String(input.source_id).trim() : null,
+      site: input.site ? String(input.site).trim() : null,
+      summary: String(input.summary || '').trim(),
+      next_action: String(input.next_action || '').trim(),
+      due_at: input.due_at ? String(input.due_at).trim() : null,
+      evidence: Array.isArray(input.evidence) ? input.evidence.slice(0, 20) : [],
+      created_by: String(input.created_by || 'system').trim(),
+      created_at: now,
+      updated_at: now,
+      resolved_at: null,
+      resolution_note: null,
+    };
+    if (!row.title) throw httpErr(400, 'title is required');
+    if (!WORK_ITEM_KINDS.has(row.kind)) throw httpErr(400, 'invalid work item kind');
+    if (!WORK_ITEM_STATUSES.has(row.status)) throw httpErr(400, 'invalid work item status');
+    if (!WORK_ITEM_PRIORITIES.has(row.priority)) throw httpErr(400, 'invalid work item priority');
+    if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid work item owner');
+    db.prepare(
+      `INSERT INTO executive_work_items
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,summary,next_action,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      row.work_id,
+      row.title,
+      row.kind,
+      row.status,
+      row.priority,
+      row.owner,
+      row.source_type,
+      row.source_id,
+      row.site,
+      row.summary,
+      row.next_action,
+      row.due_at,
+      JSON.stringify(row.evidence),
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.resolved_at,
+      row.resolution_note
+    );
+    return row;
+  }
+
+  function listExecutiveWorkItems({ status, owner, kind, priority, site, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (owner) {
+      clauses.push('owner = ?');
+      args.push(String(owner));
+    }
+    if (kind) {
+      clauses.push('kind = ?');
+      args.push(String(kind));
+    }
+    if (priority) {
+      clauses.push('priority = ?');
+      args.push(String(priority));
+    }
+    if (site) {
+      clauses.push('site = ?');
+      args.push(String(site));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    const where = clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
+    return db
+      .prepare(
+        `SELECT * FROM executive_work_items${where} ORDER BY CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, updated_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeExecutiveWorkItem);
+  }
+
+  function getExecutiveWorkItem(id) {
+    const row = db.prepare('SELECT * FROM executive_work_items WHERE work_id = ?').get(String(id));
+    return row ? decodeExecutiveWorkItem(row) : null;
+  }
+
+  function updateExecutiveWorkItem(id, patch = {}) {
+    const current = getExecutiveWorkItem(id);
+    if (!current) throw httpErr(404, 'executive work item not found');
+    const next = { ...current, ...patch };
+    next.title = String(next.title || '').trim();
+    next.kind = String(next.kind || '').trim();
+    next.status = String(next.status || '').trim();
+    next.priority = String(next.priority || '').trim();
+    next.owner = String(next.owner || '').trim();
+    if (!next.title) throw httpErr(400, 'title is required');
+    if (!WORK_ITEM_KINDS.has(next.kind)) throw httpErr(400, 'invalid work item kind');
+    if (!WORK_ITEM_STATUSES.has(next.status)) throw httpErr(400, 'invalid work item status');
+    if (!WORK_ITEM_PRIORITIES.has(next.priority)) throw httpErr(400, 'invalid work item priority');
+    if (!WORK_ITEM_OWNERS.has(next.owner)) throw httpErr(400, 'invalid work item owner');
+    const now = new Date().toISOString();
+    const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
+    db.prepare(
+      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=? WHERE work_id=?`
+    ).run(
+      next.title,
+      next.kind,
+      next.status,
+      next.priority,
+      next.owner,
+      next.source_type || null,
+      next.source_id || null,
+      next.site || null,
+      String(next.summary || ''),
+      String(next.next_action || ''),
+      next.due_at || null,
+      JSON.stringify(Array.isArray(next.evidence) ? next.evidence.slice(0, 20) : []),
+      now,
+      resolved,
+      next.resolution_note || null,
+      String(id)
+    );
+    return getExecutiveWorkItem(id);
+  }
+
   return {
     record,
     recordOnce,
@@ -931,6 +1124,10 @@ function open(root, { file } = {}) {
     listExecutiveActions,
     getExecutiveAction,
     finishExecutiveAction,
+    createExecutiveWorkItem,
+    listExecutiveWorkItems,
+    getExecutiveWorkItem,
+    updateExecutiveWorkItem,
     close,
     file: dbFile,
   };

@@ -1426,6 +1426,28 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/executive/work-items', (req, res) => {
+    try {
+      res.json({ work_items: events.listExecutiveWorkItems(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items', (req, res) => {
+    try {
+      const workItem = events.createExecutiveWorkItem(req.body || {});
+      res.status(201).json({ work_item: workItem });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/work-items/:id', (req, res) => {
+    try {
+      res.json({ work_item: events.updateExecutiveWorkItem(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/change-requests/transcribe', async (req, res) => {
     try {
       res.json(await changequeue.transcribe(req.body || {}));

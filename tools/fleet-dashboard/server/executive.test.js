@@ -72,6 +72,32 @@ test('records and completes an auditable executive action', () => {
   db.close();
 });
 
+test('persists and updates assistive executive workbench cases', () => {
+  const db = store();
+  const item = db.createExecutiveWorkItem({
+    title: 'Confirm affiliate disclosure requirements',
+    kind: 'legal',
+    owner: 'legal',
+    priority: 'high',
+    summary: 'The launch checklist needs a source-backed disclosure decision.',
+    next_action: 'Review the current site facts and record the smallest evidence gap.',
+    evidence: [{ label: 'site facts', url: '/api/sitefacts', note: 'current baseline' }],
+    created_by: 'system',
+  });
+  assert.equal(db.listExecutiveWorkItems({ owner: 'legal' })[0].work_id, item.work_id);
+  const updated = db.updateExecutiveWorkItem(item.work_id, {
+    status: 'blocked',
+    next_action: 'Escalate the unresolved jurisdiction question to counsel.',
+  });
+  assert.equal(updated.status, 'blocked');
+  assert.equal(updated.evidence[0].label, 'site facts');
+  assert.throws(
+    () => db.updateExecutiveWorkItem(item.work_id, { owner: 'not-a-role' }),
+    /invalid work item owner/
+  );
+  db.close();
+});
+
 test('allows the research officer to submit an executive proposal', () => {
   const db = store();
   const proposal = executive.proposal(db, {

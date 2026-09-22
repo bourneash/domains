@@ -30,6 +30,46 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   assert.deepEqual(brief.specialist_inputs.cro_github_trends, []);
   assert.match(brief.specialist_inputs.cro_contract, /license fit, security/);
   assert.deepEqual(brief.task_queue, { engineer: [], principal_engineer: [] });
+  assert.deepEqual(brief.work_items, []);
+  store.close();
+});
+
+test('roles can create and update bounded workbench cases through the plan', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      work_items: [
+        {
+          title: 'Build a legal source checklist',
+          kind: 'education',
+          owner: 'legal',
+          priority: 'normal',
+          summary: 'Create a small curated reading path for recurring disclosure reviews.',
+          next_action: 'Collect primary sources and record jurisdiction/date metadata.',
+        },
+      ],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.work_items.length, 1);
+  assert.equal(store.listExecutiveWorkItems()[0].owner, 'legal');
+  const id = created.work_items[0].work_id;
+  const update = runner.parseOutput(
+    JSON.stringify({
+      work_items: [
+        {
+          work_id: id,
+          status: 'in_progress',
+          owner: 'cto',
+          next_action: 'Review the source registry schema.',
+        },
+      ],
+    })
+  );
+  const updated = await runner.applyPlan(store, update, { root });
+  assert.equal(updated.work_items[0].status, 'in_progress');
+  assert.equal(store.getExecutiveWorkItem(id).owner, 'cto');
   store.close();
 });
 

@@ -34,6 +34,13 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /fleet AI spend telemetry/);
 });
 
+test('executive workbench is a first-class operator route', () => {
+  assert.equal(routeFor('#workbench').view, 'workbench');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /Executive Workbench/);
+  assert.match(app, /api\/executive\/work-items/);
+});
+
 test('Git operations and Git Hygiene share one page with distinct tabs', () => {
   assert.equal(routeFor('#git').view, 'git');
   assert.equal(routeFor('#git').gitTab, 'operations');

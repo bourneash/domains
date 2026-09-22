@@ -259,6 +259,7 @@ async function buildBrief(store, root = ROOT) {
     .filter(item => ['proposed', 'feedback'].includes(item.status))
     .slice(0, 10);
   const messages = store.listExecutiveMessages({ limit: 10 });
+  const work_items = store.listExecutiveWorkItems({ limit: 100 });
   const task_queue = {
     engineer: store.listChangeRequests({ assigned_role: 'engineer', limit: 50 }),
     principal_engineer: store.listChangeRequests({
@@ -302,6 +303,7 @@ async function buildBrief(store, root = ROOT) {
         'bounded_public_research',
         'cro_disposable_repo_lab',
         'allowlisted_fleet_operating_baseline_publish',
+        'executive_workbench_case_management',
       ],
       research_limits: {
         max_requests_per_tick: 10,
@@ -415,6 +417,7 @@ async function buildBrief(store, root = ROOT) {
       })
     ),
     task_queue,
+    work_items,
     conversation: messages
       .slice()
       .reverse()
@@ -456,6 +459,7 @@ Rules:
 - You may recommend ethical technical/editorial SEO, experimentation, partnerships, outreach with consent, product work, and redesigns.
 - Never propose cloaking, link spam, fake reviews, fake engagement, impersonation, credential abuse, platform evasion, or deceptive marketing.
 - Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes. The one fleet write available to you is an allowlisted factual operating-baseline report; it never edits site code.
+- Use the workbench for durable follow-through. Create or update a work_item when an evidence gap, legal/security review, decision, incident, or education need has a concrete next action. Do not create duplicate work when an existing item covers the same issue; update it with the latest status, owner, evidence, and next action.
 
 Return ONLY valid JSON with this shape:
 {
@@ -464,7 +468,8 @@ Return ONLY valid JSON with this shape:
   "data_requests": [{"requested_by":"ceo|cto|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}]
+  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"claude|chatgpt","max_turns":20,"auto_review":true}],
+  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}]
 }
 
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
@@ -514,6 +519,7 @@ function parseOutput(text) {
     'proposals',
     'change_requests',
     'research_requests',
+    'work_items',
   ])
     if (result[key] !== undefined && !Array.isArray(result[key]))
       throw new Error(`${key} must be an array`);
@@ -524,6 +530,7 @@ function parseOutput(text) {
     proposals: result.proposals || [],
     change_requests: result.change_requests || [],
     research_requests: result.research_requests || [],
+    work_items: result.work_items || [],
   };
   normalizeProviderProposalTypes(plan);
   validatePlan(plan);
@@ -602,6 +609,12 @@ function normalizeProviderProposalTypes(plan) {
       .toLowerCase();
     item.created_by = actorAliases[raw] || raw;
   }
+  for (const item of plan.work_items) {
+    const raw = String(item?.owner || '')
+      .trim()
+      .toLowerCase();
+    item.owner = actorAliases[raw] || raw;
+  }
   return plan;
 }
 
@@ -612,7 +625,8 @@ function validatePlan(plan) {
     plan.data_requests.length > 10 ||
     plan.proposals.length > 20 ||
     plan.change_requests.length > 20 ||
-    plan.research_requests.length > 10
+    plan.research_requests.length > 10 ||
+    plan.work_items.length > 20
   )
     throw new Error('provider plan exceeds per-tick item limit');
   for (const item of plan.data_requests) {
@@ -687,6 +701,44 @@ function validatePlan(plan) {
       if (securityReview?.status !== 'approved' || securityReview.reviewed_by !== 'security')
         throw new Error('security-sensitive proposal requires approved security review');
     }
+  }
+  for (const item of plan.work_items) {
+    if (
+      (!item.work_id && !String(item.title || '').trim()) ||
+      String(item.title || '').length > 300 ||
+      String(item.summary || '').length > 4000 ||
+      String(item.next_action || '').length > 1000 ||
+      ![
+        'decision',
+        'research',
+        'incident',
+        'legal',
+        'security',
+        'education',
+        'evidence',
+        'implementation',
+      ].includes(String(item.kind || 'decision')) ||
+      !['open', 'in_progress', 'blocked', 'waiting'].includes(String(item.status || 'open')) ||
+      !['urgent', 'high', 'normal', 'low'].includes(String(item.priority || 'normal')) ||
+      ![
+        'ceo',
+        'cto',
+        'cfo',
+        'legal',
+        'security',
+        'cro',
+        'domain-manager',
+        'principal-engineer',
+        'engineer',
+        'owner',
+      ].includes(String(item.owner || 'ceo')) ||
+      (item.evidence !== undefined && (!Array.isArray(item.evidence) || item.evidence.length > 20))
+    )
+      throw new Error('invalid work item in provider plan');
+    if (item.site && EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))
+      throw new Error('executive plan targets an excluded site');
+    if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
+      throw new Error('executive plan references an excluded site');
   }
   for (const item of plan.change_requests) {
     if (
@@ -832,10 +884,34 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     data_requests: [],
     proposals: [],
     change_requests: [],
+    work_items: [],
     skipped_change_requests: [],
     research: [],
     telemetry_satisfied: [],
   };
+  for (const item of plan.work_items) {
+    const existing = item.work_id ? store.getExecutiveWorkItem(item.work_id) : null;
+    const payload = {
+      ...item,
+      created_by: item.created_by || 'system',
+      source_type: item.source_type || 'executive-tick',
+    };
+    const workItem = existing
+      ? store.updateExecutiveWorkItem(existing.work_id, payload)
+      : store.createExecutiveWorkItem(payload);
+    created.work_items.push(workItem);
+    const audit = executive.action(store, {
+      actor: payload.created_by,
+      action_type: 'other',
+      summary: `${existing ? 'Updated' : 'Created'} workbench item: ${workItem.title}`,
+      target_type: 'executive-work-item',
+      target_id: workItem.work_id,
+    });
+    executive.finishAction(store, audit.action_id, {
+      status: 'completed',
+      result: { work_id: workItem.work_id, status: workItem.status },
+    });
+  }
   if (plan.data_requests.length) {
     const audit = executive.action(store, {
       actor: 'system',
