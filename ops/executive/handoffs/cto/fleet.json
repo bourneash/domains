@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T10:01:56.446Z",
+  "generated_at": "2026-09-22T13:35:25.680Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve one isolated low-priority engineer task. Limit changes to existing above-the-fold assets and blocking JavaScript. Require focused tests, build success, route checks, changed-file documentation, and comparable mobile lab measurements. Do not change content, monetization, navigation, credentials, infrastructure, schedules, dependencies, or analytics. Roll back if functionality, performance, LCP, or TBT worsens.",
+        "summary": "Do not queue the sitemap change. The site is intentionally gated by private-preview access and noindex/nofollow; changing crawl configuration would conflict with the current release state and lacks a measurable outcome. No repository, configuration, credential, infrastructure, schedule, telemetry, or production change is authorized. Keep the candidate out of the queue until launch readiness and a measurable crawl or search objective are established. Existing deployed improvements remain isolated and reversible; wait for their scheduled measurement gates before starting duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }

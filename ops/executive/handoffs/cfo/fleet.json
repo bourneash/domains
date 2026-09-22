@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T10:01:56.445Z",
+  "generated_at": "2026-09-22T13:35:25.680Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve without financial attribution. Aggregate commission is $4.92 for 2026-09-21, while site-level revenue, margin, cost-to-learn, payback, and forecasts remain unsupported. No spending or billing action.",
+        "summary": "Analytics is unavailable, and Amazon attribution remains incomplete. The only supported revenue figure is $4.92 commission on 6,219 clicks for 2026-09-21, with 6 shipped items and 28 ordered items; site-level revenue, contribution margin, cost-to-learn, payback, CAC, and forecasts remain unsupported. AI usage reports $733.04 across 4,340 calls from 2026-09-01 through 2026-09-22, including 136 errors; this is observability, not proof of return. Total operating spend cannot be quantified. Do not authorize additional monetization or expansion based on clicks, social coverage, SEO scores, or unattributed orders.",
         "requested_action": null,
         "proposal_id": null
       }
