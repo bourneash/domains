@@ -142,10 +142,10 @@ autonomy:
   escalation_triggers: [repeated_failure, missing_evidence, budget_risk, security_risk, scope_expansion]
 communication:
   owner_response_sla_hours: 24
-  autonomous_checkin_hours: 6
+  autonomous_checkin_hours: 1
 schedule:
   enabled: true
-  default_interval_hours: 6
+  default_interval_hours: 1
   heartbeat_interval_hours: 1
   queue_execution_enabled: true
   max_queued_actions_per_tick: 6
@@ -154,7 +154,7 @@ schedule:
   measurement_impression_threshold: 100
 action_mandate:
   enabled: true
-  cadence: six_hour
+  cadence: hourly
   minimum_evidence_backed_action_when_candidate_exists: 1
   fallback: explain_rejection_with_evidence
   routing: engineer_for_normal_work_principal_engineer_for_urgent_technical_work

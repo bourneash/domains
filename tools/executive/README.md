@@ -140,7 +140,7 @@ The eventual CEO runner should execute a recurring loop:
 5. Publish a concise owner update and create proposals for material decisions.
 6. Measure results and update the strategy from outcomes, not activity.
 
-Recurring scheduling is enabled under the owner-approved six-hour cadence. A
+Recurring scheduling is enabled under the owner-approved hourly cadence. A
 cheap hourly heartbeat records actionability and outcome state without invoking
 an AI model; it only posts an inbox update when the delivery state changes or a
 new attention item appears. The
@@ -159,7 +159,7 @@ supplemented by a rotating cohort of bounded site-baseline checks; missing
 telemetry is reported as unavailable, never treated as zero.
 
 The one-shot scheduler entrypoint is `run-scheduled.sh`. It is installed in the
-fleet scheduler at six-hour intervals; `run-sandbox.sh` retains the
+fleet scheduler at hourly intervals; `run-sandbox.sh` retains the
 single-flight lock, container timeout, fail-closed validation, and audit path.
 For a supervised long-running process, use `run-loop.sh` with
 `EXECUTIVE_INTERVAL_SECONDS`; it handles cadence and termination while the
