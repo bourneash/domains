@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-22T22:05:15.894Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-22T23:29:38.227Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain searchwoot.com as private. Do not authorize public beta, monetization, telemetry, credential, infrastructure, schedule, or deployment changes this cycle. Continue existing Great American Lakes measurement without duplication.",
+        "summary": "CTO disposition: approve no new implementation work this cycle. Preserve isolation between sites and existing queues; do not retry failed requests blindly, duplicate active work, or change code, content, links, schedules, credentials, deployment, telemetry, or spending. The three metadata-only routing corrections remain the only queue-safe candidates, but require failure-cause diagnosis before retry. Continue Great American Lakes measurement without duplication and record outcomes only at the existing thresholds.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer the eastcoastrappers.com internal-link change and saveusfarms.com Reddit drafts to the next queue window. Both are bounded in scope, but they are production or external-channel work and the current action mandate is already consumed by three higher-priority reversible task-routing corrections. No site, social-account, analytics, UTM, or publishing changes are authorized now.",
+        "summary": "Measurement and reversibility gate: retain the existing Great American Lakes deployments in measurement, with no new instrumentation proposal because telemetry status is already available in the scheduled snapshot. Do not declare success before the recorded 14-day or 100-impression thresholds and outcome capture. SearchWoot remains private pending authoritative source-rights evidence, accuracy/freshness controls, security/release evidence, attribution reconciliation, and owner disposition.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only these queue-safe actions: route the 0daynews.com daily briefing to content-writer, route the allthingsmasonic.com performance-budget task to seo-analyst, and route the americastrikes.com affiliate replacement task to content-writer. These are metadata-only, reversible assignment corrections; do not modify code, content, links, schedules, credentials, deployment, telemetry, or spending.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain searchwoot.com as private. Do not authorize public beta, monetization, telemetry, credential, infrastructure, schedule, deployment, or external-channel changes this cycle. Continue existing Great American Lakes measurement without duplication or declaring success before recorded thresholds and outcomes.",
+        "summary": "Approve only metadata-only routing corrections for 0daynews.com, allthingsmasonic.com, and americastrikes.com. Engineer must update assignment metadata and preserve task content, scope, schedules, credentials, deployment, telemetry, and spending. Do not retry failed production work or duplicate active measurement.",
         "requested_action": null,
         "proposal_id": null
       }

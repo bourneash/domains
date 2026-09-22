@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T22:05:15.893Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-22T23:29:38.228Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the private-preview posture and authorize only the two financially neutral, reversible actions proposed: internal links on eastcoastrappers.com and unpublished consent-aware Reddit drafts for saveusfarms.com. Do not authorize spend, monetization expansion, or public launch. Amazon supports only $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; 629 clicks and all 28 ordered items are under tracking_id \"other\", so site revenue claims are unsupported. Analytics is unavailable for all 60 registry sites. AI usage cost was $745.413324 across 4,431 calls from 2026-09-01 through 2026-09-22, including 139 errors; allocation to revenue, contribution margin, and cost-to-learn is not calculable because site traffic, attributable revenue, direct infrastructure/domain costs, and experiment exposure/outcomes are missing. Minimum measurement: reconcile affiliate events to site and content IDs, restore site traffic/conversion telemetry, allocate direct costs by site, and record experiment exposures with incremental outcomes. Continue existing Great American Lakes measurement without duplicating work or claiming success.",
+        "summary": "Financial disposition: reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. The supplied Amazon figures support portfolio activity and $4.92 commission for 2026-09-21 only; attribution remains incomplete. AI usage costs cannot be compared with that one-day revenue window or allocated to contribution margin without reconciled site/content outcomes and direct costs. Do not authorize spending or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. The supplied evidence supports only portfolio-level $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; attribution remains incomplete and analytics is unavailable. Continue existing measurement without duplication.",
         "requested_action": null,
         "proposal_id": null
       }

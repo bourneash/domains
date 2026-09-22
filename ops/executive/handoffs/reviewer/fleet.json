@@ -2,37 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-22T22:05:15.896Z",
+  "generated_at": "2026-09-22T23:29:38.229Z",
   "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. Analytics is unavailable across the registry and affiliate attribution is incomplete. Retain SearchWoot as private; reject public launch, monetization, telemetry, credential, infrastructure, schedule, deployment, external-channel, and production work this cycle. Reject queued production work lacking measurable attributable outcomes. Existing approved measurement may continue without duplication. Owner must resolve launch gates before reconsideration.",
+        "summary": "Reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. Retain SearchWoot as private. Reject new production, spending, telemetry, credential, schedule, deployment, external-channel, and queue work this cycle; failed routing corrections require diagnosis before any retry. Continue only existing Great American Lakes measurement without duplication or declaring success before its recorded thresholds. Available evidence supports portfolio-level $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21 only; attribution remains incomplete and analytics is unavailable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the private-preview posture, reject unsupported financial and launch claims, and authorize only three reversible queue-metadata corrections: route the 0daynews.com briefing to content-writer, the allthingsmasonic.com performance task to seo-analyst, and the americastrikes.com affiliate replacement task to content-writer. No code, content, links, schedules, credentials, deployment, telemetry, spending, or external publishing changes are authorized. Existing approved measurement may continue without duplication.",
+        "summary": "Smallest defensible plan: preserve existing approved measurement and blocked launch-readiness work; create no new proposals, change requests, data requests, or research requests. Existing public research and scheduled telemetry already cover the current evidence gaps; additional research would duplicate them.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Analytics is unavailable across the registry and affiliate attribution is incomplete. The available evidence supports only $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items for 2026-09-21; site revenue, margin, ROI, CAC, payback, forecasts, and experiment impact remain unsupported. Retain SearchWoot as private until its source-rights, accuracy, privacy, security, attribution, and rollback gates are evidenced.",
+        "summary": "Recommendation: retain SearchWoot as private, reject unsupported site-level financial and launch claims, continue the existing Great American Lakes measurement window, and route only three reversible queue-metadata corrections to engineer: correct task ownership for 0daynews.com, allthingsmasonic.com, and americastrikes.com. Do not modify code, content, links, telemetry, credentials, schedules, deployment, spending, or external publishing. Owner decision: keep SearchWoot private until all legal, security, accuracy, and attribution gates are evidenced?",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
-        "summary": null,
-        "requested_action": "escalate_owner",
-        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing Great American Lakes measurement window and record outcomes only at the existing 14-day or 100-impression thresholds. Do not declare success before measured outcomes are available.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }
