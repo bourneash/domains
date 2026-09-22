@@ -37,7 +37,7 @@ async function main() {
       // Allow one bounded correction attempt, then fail closed.
       repaired = true;
       output = await runner.runProvider(
-        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary.`
+        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|domain-manager|reviewer, and status accepted_research|escalate_owner|declined.`
       );
       plan = runner.parseOutput(output);
     }

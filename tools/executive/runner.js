@@ -394,7 +394,7 @@ Rules:
 Return ONLY valid JSON with this shape:
 {
   "messages": [{"actor":"ceo|cto|cfo|legal|domain-manager|reviewer","body":"concise owner update"}],
-  "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
+  "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"claude|chatgpt","max_turns":20,"auto_review":true}}],
@@ -482,6 +482,21 @@ function normalizeProviderProposalTypes(plan) {
     // evidence and route genuinely unknown model labels to the safest valid
     // bucket instead of retrying the entire manager run.
     item.proposal_type = 'report-only';
+  }
+  for (const item of plan.proposal_reviews) {
+    const raw = String(item?.status || '')
+      .trim()
+      .toLowerCase();
+    const alias = {
+      accepted: 'accepted_research',
+      approved: 'accepted_research',
+      reviewed: 'accepted_research',
+      rejected: 'declined',
+      denied: 'declined',
+      feedback: 'escalate_owner',
+      owner_review: 'escalate_owner',
+    }[raw];
+    if (alias) item.status = alias;
   }
   return plan;
 }

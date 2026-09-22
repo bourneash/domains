@@ -107,6 +107,22 @@ test('accepts Legal messages and rejects unreviewed go-live proposals', () => {
   );
 });
 
+test('normalizes ordinary Legal review wording to the internal CRO handoff states', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      proposal_reviews: [
+        {
+          proposal_id: 'cro-1',
+          reviewed_by: 'legal',
+          status: 'approved',
+          decision_note: 'The public-purpose fit is acceptable for research.',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.proposal_reviews[0].status, 'accepted_research');
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'
