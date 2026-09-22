@@ -18,6 +18,7 @@ test('catalog covers the dashboard intelligence needed by executive roles', () =
     'operations',
     'compliance',
     'data_quality',
+    'security',
   ]) {
     assert.ok(keys.has(key), `missing ${key}`);
   }

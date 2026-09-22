@@ -2,7 +2,7 @@
 
 Fleet Executive is the control-plane contract for an autonomous CEO/CTO agent
 that runs the domain portfolio under owner oversight. The leadership sequence
-also includes CFO and Legal/Compliance review passes.
+also includes CFO, Legal/Compliance, and Security review passes.
 
 The first slice lives in the Fleet Dashboard event store and exposes:
 
@@ -89,6 +89,14 @@ compliance or replace human counsel. Any proposal marked
 `implementation.launch_gate: go_live` must carry an approved
 `implementation.legal_review` from the Legal pass before the owner approval
 endpoint will route it to engineering.
+
+Security runs immediately after Legal in the leadership sequence. It receives a
+read-only security baseline built from Fleet Manager site facts, TLS/page
+signals, fleet-doctor container invariants, compliance, operations, and data
+quality. It performs risk triage only—never penetration testing, exploitation,
+credential access, or security certification. Go-live and explicitly
+security-sensitive proposals require approved Legal and Security reviews before
+the owner approval endpoint will route them to engineering.
 
 ## Executive-to-engineering task routing
 

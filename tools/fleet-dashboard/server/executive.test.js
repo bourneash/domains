@@ -122,6 +122,24 @@ test('allows Legal messages and proposals', () => {
   db.close();
 });
 
+test('allows Security messages and proposals', () => {
+  const db = store();
+  executive.message(db, {
+    actor: 'security',
+    body: 'The launch needs a release and isolation review.',
+  });
+  const proposal = executive.proposal(db, {
+    title: 'SearchWoot security launch review',
+    proposal_type: 'report-only',
+    created_by: 'security',
+    summary: 'Review release, access, TLS, and supply-chain evidence before launch.',
+    requested_action: 'Complete the bounded Security checklist.',
+  });
+  assert.equal(proposal.created_by, 'security');
+  assert.equal(db.listExecutiveMessages({ actor: 'security' }).length, 1);
+  db.close();
+});
+
 test('CEO can close a CRO handoff without granting owner approval', () => {
   const db = store();
   const proposal = executive.proposal(db, {
@@ -214,6 +232,11 @@ test('requires Legal approval before a go-live proposal can route work', () => {
         status: 'approved',
         reviewed_by: 'legal',
         decision_note: 'Checklist passed.',
+      },
+      security_review: {
+        status: 'approved',
+        reviewed_by: 'security',
+        decision_note: 'Release boundary passed.',
       },
       title: 'Launch example.com',
       body: 'Publish the reviewed launch change.',

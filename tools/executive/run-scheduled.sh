@@ -20,7 +20,7 @@ if [[ "${EXECUTIVE_FORCE:-0}" != "1" ]]; then
     export EXECUTIVE_ALLOW_QUEUE=0
   fi
 fi
-export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-ceo,cfo,cto,legal,reviewer}"
+export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-ceo,cfo,cto,legal,security,reviewer}"
 echo "[$(date -Is)] executive scheduled tick start"
 "$ROOT/tools/executive/run-sandbox.sh"
 "$ROOT/tools/executive/checkin.sh"

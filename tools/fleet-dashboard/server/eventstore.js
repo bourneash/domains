@@ -793,7 +793,11 @@ function open(root, { file } = {}) {
   ) {
     if (!['reviewed', 'declined', 'feedback'].includes(String(status)))
       throw httpErr(400, 'status must be reviewed, declined or feedback');
-    if (!['ceo', 'cto', 'cfo', 'legal', 'domain-manager', 'reviewer'].includes(String(reviewed_by)))
+    if (
+      !['ceo', 'cto', 'cfo', 'legal', 'security', 'domain-manager', 'reviewer'].includes(
+        String(reviewed_by)
+      )
+    )
       throw httpErr(403, 'invalid executive reviewer');
     const current = getExecutiveProposal(id);
     if (!current) throw httpErr(404, 'executive proposal not found');

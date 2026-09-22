@@ -12,6 +12,7 @@ const ACTORS = new Set([
   'cro',
   'cfo',
   'legal',
+  'security',
   'domain-manager',
   'researcher',
   'reviewer',
@@ -52,7 +53,7 @@ function proposal(store, input = {}) {
   if (!PROPOSAL_TYPES.has(String(input.proposal_type || 'business')))
     throw httpErr(400, 'invalid proposal_type');
   if (
-    !['ceo', 'cto', 'cro', 'cfo', 'legal', 'domain-manager', 'researcher'].includes(
+    !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'researcher'].includes(
       String(input.created_by || 'ceo')
     )
   )
@@ -70,6 +71,17 @@ function decision(store, id, input = {}, { knownSite } = {}) {
     const legalReview = current.implementation?.legal_review;
     if (legalReview?.status !== 'approved' || legalReview.reviewed_by !== 'legal')
       throw httpErr(409, 'go-live approval requires an approved Legal review');
+    const securityReview = current.implementation?.security_review;
+    if (securityReview?.status !== 'approved' || securityReview.reviewed_by !== 'security')
+      throw httpErr(409, 'go-live approval requires an approved Security review');
+  }
+  if (
+    input.status === 'approved' &&
+    String(current.implementation?.security_gate || '').toLowerCase() === 'required'
+  ) {
+    const securityReview = current.implementation?.security_review;
+    if (securityReview?.status !== 'approved' || securityReview.reviewed_by !== 'security')
+      throw httpErr(409, 'security-sensitive approval requires an approved Security review');
   }
   let linkedRequestId = input.linked_request_id;
   if (

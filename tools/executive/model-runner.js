@@ -3,6 +3,20 @@
 const fs = require('node:fs');
 const runner = require('./runner');
 
+function mergePassPlans(previous, next) {
+  if (!previous) return next;
+  const seen = new Set();
+  const messages = [...(previous.messages || []), ...(next.messages || [])]
+    .filter(message => {
+      const key = JSON.stringify([message.actor, message.body]);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(-20);
+  return { ...next, messages };
+}
+
 async function main() {
   const brief = JSON.parse(fs.readFileSync('/input/brief.json', 'utf8'));
   const requestedPasses = String(process.env.EXECUTIVE_PASSES || 'adaptive')
@@ -12,11 +26,21 @@ async function main() {
   if (
     !requestedPasses.length ||
     requestedPasses.some(
-      x => !['adaptive', 'ceo', 'cto', 'cfo', 'legal', 'domain-manager', 'reviewer'].includes(x)
+      x =>
+        ![
+          'adaptive',
+          'ceo',
+          'cto',
+          'cfo',
+          'legal',
+          'security',
+          'domain-manager',
+          'reviewer',
+        ].includes(x)
     )
   )
     throw new Error(
-      'EXECUTIVE_PASSES must contain adaptive or ceo, cto, cfo, legal, domain-manager, reviewer'
+      'EXECUTIVE_PASSES must contain adaptive or ceo, cto, cfo, legal, security, domain-manager, reviewer'
     );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);
@@ -31,15 +55,17 @@ async function main() {
     let output = await runner.runProvider(prompt);
     let repaired = false;
     try {
-      plan = runner.parseOutput(output);
+      const nextPlan = runner.parseOutput(output);
+      plan = mergePassPlans(plan, nextPlan);
     } catch (error) {
       // Formatting failures never reach the trusted host application path.
       // Allow one bounded correction attempt, then fail closed.
       repaired = true;
       output = await runner.runProvider(
-        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|domain-manager|reviewer, and status accepted_research|escalate_owner|declined.`
+        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|security|domain-manager|reviewer, and status accepted_research|escalate_owner|declined.`
       );
-      plan = runner.parseOutput(output);
+      const nextPlan = runner.parseOutput(output);
+      plan = mergePassPlans(plan, nextPlan);
     }
     audit.push({
       role,
@@ -52,7 +78,7 @@ async function main() {
       const hasWork = ['proposals', 'change_requests', 'research_requests'].some(
         key => plan[key]?.length
       );
-      if (hasWork) passes.push('cfo', 'cto', 'legal', 'reviewer');
+      if (hasWork) passes.push('cfo', 'cto', 'legal', 'security', 'reviewer');
     }
   }
   // Do not silently turn a telemetry-rich cycle into an observation-only
@@ -62,7 +88,7 @@ async function main() {
   if (!runner.actionMandateSatisfied(plan, brief)) {
     const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe action mandate was not satisfied. Return the complete plan again and either (a) route one highest-confidence, low-risk, reversible candidate to engineer with acceptance and rollback criteria, or (b) include a concise owner message explicitly rejecting every listed candidate with an evidence-based reason. Do not return an observation-only plan.`;
     const repairedOutput = await runner.runProvider(repairPrompt);
-    plan = runner.parseOutput(repairedOutput);
+    plan = mergePassPlans(plan, runner.parseOutput(repairedOutput));
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -85,3 +111,5 @@ main().catch(error => {
   console.error(error.message);
   process.exitCode = 1;
 });
+
+module.exports = { mergePassPlans };

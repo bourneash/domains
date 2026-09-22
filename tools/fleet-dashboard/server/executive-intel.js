@@ -22,6 +22,7 @@ const experiments = require('./experiments');
 const campaigns = require('./campaigns');
 const compliance = require('./compliance');
 const dataquality = require('./dataquality');
+const executiveSecurity = require('./executive-security');
 
 const EXCLUDED_SITES = new Set(['3boobs.com']);
 
@@ -63,6 +64,11 @@ const TOOL_CATALOG = [
   {
     key: 'data_quality',
     purpose: 'freshness, completeness, attribution boundaries, and unavailable evidence',
+  },
+  {
+    key: 'security',
+    purpose:
+      'read-only fleet security baseline, TLS/page signals, container invariants, and limitations',
   },
 ];
 
@@ -409,6 +415,7 @@ async function collect({ root, sites = [] } = {}) {
       aiUsage: aiData,
     })
   );
+  const securityData = removeExcluded(executiveSecurity.collect({ sites: managedSites }));
 
   return {
     generated_at: new Date().toISOString(),
@@ -443,6 +450,12 @@ async function collect({ root, sites = [] } = {}) {
         observed_at: complianceData.generated_at,
       }),
       data_quality: diagnostics({ source: 'data_quality', ok: true, data: qualityData }),
+      security: diagnostics({
+        source: 'security',
+        ok: true,
+        data: securityData,
+        observed_at: securityData.generated_at,
+      }),
     },
     // These are the compact, decision-useful views. Raw source payloads remain
     // available under sources for audit/debugging without making the prompt huge.
@@ -478,6 +491,7 @@ async function collect({ root, sites = [] } = {}) {
       campaigns: campaignsData,
       compliance: complianceData,
       data_quality: qualityData,
+      security: securityData,
     },
   };
 }

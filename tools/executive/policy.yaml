@@ -92,6 +92,27 @@ roles:
       - new_personal_data_collection
       - affiliate_advertising_or_disclosure_changes
       - regulated_age_sensitive_or_rights_sensitive_content
+  security:
+    mission: protect the fleet's production, data, identity, and supply-chain security while enabling measured growth
+    can:
+      - read_security_baseline_and_fleet_doctor
+      - read_compliance_operations_and_data_quality
+      - inspect_isolation_and_release_evidence
+      - research_public_security_advisories_and_platform_requirements
+      - create_messages
+      - create_proposals
+      - request_bounded_evidence
+    cannot:
+      - exploit_or_attack_sites_or_services
+      - access_credentials_secrets_or_private_source
+      - change_authentication_firewalls_dns_or_infrastructure
+      - deploy_or_accept_security_risk_for_the_owner
+    approval_required_for:
+      - production_launch
+      - authentication_or_access_scope_changes
+      - dependency_or_supply_chain_adoption
+      - security_control_changes
+      - incident_response_or_disclosure
   domain_manager:
     mission: maximize the performance of one managed site while reporting to fleet leadership
     can:
@@ -140,6 +161,9 @@ action_mandate:
 legal_review:
   required_for: [go_live, production_launch, new_data_collection, affiliate_or_advertising_change, regulated_or_age_sensitive_content]
   limitation: technical compliance evidence is risk triage, not legal advice or certification
+security_review:
+  required_for: [go_live, production_launch, authentication_or_access_scope_change, dependency_or_supply_chain_adoption, security_control_change]
+  limitation: the executive Security role performs read-only risk triage, not penetration testing or security certification
 outcome_accountability:
   scorecard_window_days: 30
   count_as_business_result_only_after: [deployed, measured]

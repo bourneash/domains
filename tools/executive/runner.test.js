@@ -58,6 +58,7 @@ test('supports CFO review and on-demand managed-site context without widening sc
   assert.equal(plan.proposals[0].created_by, 'cfo');
   assert.match(runner.buildPassPrompt(brief, 'cfo'), /created_by to cfo/);
   assert.match(runner.buildPassPrompt(brief, 'legal'), /compliance/);
+  assert.match(runner.buildPassPrompt(brief, 'security'), /fleet-doctor|security baseline/);
   assert.match(runner.buildPassPrompt(brief, 'domain-manager'), /created_by to domain-manager/);
   delete process.env.EXECUTIVE_DOMAIN;
   store.close();
@@ -81,6 +82,11 @@ test('accepts Legal messages and rejects unreviewed go-live proposals', () => {
               status: 'approved',
               reviewed_by: 'legal',
               decision_note: 'No blocker found in the baseline.',
+            },
+            security_review: {
+              status: 'approved',
+              reviewed_by: 'security',
+              decision_note: 'Release boundary is bounded.',
             },
           },
         },
@@ -342,11 +348,22 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
       {
         change_requests: [],
         proposals: [],
-        messages: [{ body: 'No safe action is justified by the evidence.' }],
+        messages: [{ body: 'Owner, should we reject this candidate or run the bounded test?' }],
       },
       brief
     ),
     true
+  );
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        change_requests: [],
+        proposals: [],
+        messages: [{ body: 'No safe action is justified by the evidence.' }],
+      },
+      brief
+    ),
+    false
   );
   assert.equal(
     runner.actionMandateSatisfied({ messages: [], proposals: [], change_requests: [] }, brief),
