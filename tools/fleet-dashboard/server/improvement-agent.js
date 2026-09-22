@@ -104,7 +104,8 @@ function launch({
         `If failing, briefly explain the blocking issue before the marker.\n\nRequest:\n${String(taskBody || run.title).slice(0, 30000)}`
       : `You are implementing one approved site improvement in an isolated git worktree.\n\n` +
         `Read and obey AGENTS.md and CLAUDE.md in the workspace before editing. Work only in the current workspace. ` +
-        `Do not deploy, push, switch branches, modify ops/tasks, or modify files outside it. Implement the task, run focused checks, ` +
+        `Do not deploy, push, or switch branches. Do not modify files outside the workspace. Do not modify ops/tasks unless the request explicitly requires ` +
+        `a task, assignment, or queue metadata change; when it does, edit the existing task in place and record rollback metadata. Implement the task, run focused checks, ` +
         `and leave all changes uncommitted for dashboard review. You are acting as the ${selectedRole} role.\n\nTask:\n${String(taskBody || run.title).slice(0, 30000)}`;
   const container = run.sandbox.container || `dd-${run.sandbox.instance}`;
   const selectedModel = model ? String(model) : '';

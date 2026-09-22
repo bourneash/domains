@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor
 
 from datahub import store
 
@@ -48,6 +49,16 @@ def test_pull_log_roundtrip(db):
     assert rows[0]["endpoint"] == "datasets/launches"   # newest first
     only = store.query_pulls(db, site="americastrikes.com")
     assert len(only) == 1 and only[0]["item_count"] == 42 and only[0]["client_ip"] == "172.30.68.8"
+
+
+def test_pull_logging_serializes_shared_connection_writes(db):
+    def record(index):
+        store.record_pull(db, site=f"site-{index}", endpoint="metrics/summary", item_count=index)
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(record, range(40)))
+
+    assert db.execute("SELECT COUNT(*) c FROM pull_log").fetchone()["c"] == 40
 
 
 def test_upsert_dedups_by_url(db):

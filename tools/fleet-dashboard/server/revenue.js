@@ -168,4 +168,32 @@ function amazonSummary(root) {
   }
 }
 
-module.exports = { amazonSummary, trackingId, discoverTrackingTags };
+function siteAttribution(summary, site) {
+  if (!summary || summary.has_data !== true) return null;
+  const wanted = String(site || '')
+    .trim()
+    .toLowerCase();
+  if (!wanted) return null;
+  const row = (summary.attribution || []).find(
+    item =>
+      String(item?.site || '')
+        .trim()
+        .toLowerCase() === wanted
+  );
+  if (!row) return null;
+  return {
+    source: summary.source || 'amazon-associates',
+    site: wanted,
+    tracking_id: row.tracking_id || null,
+    rows: Number(row.rows) || 0,
+    clicks: Number(row.clicks) || 0,
+    ordered_items: Number(row.ordered_items) || 0,
+    shipped_items: Number(row.shipped_items) || 0,
+    commission_income: Number(row.commission_income) || 0,
+    fetched_at: summary.fetched_at || null,
+    has_data: true,
+    attribution_complete: summary.attribution_complete === true,
+  };
+}
+
+module.exports = { amazonSummary, siteAttribution, trackingId, discoverTrackingTags };

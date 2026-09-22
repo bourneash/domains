@@ -375,7 +375,7 @@ async function buildBrief(store, root = ROOT) {
     owner_strategy: store.getExecutiveSettings(),
     actionability,
     action_mandate: {
-      cadence: 'six_hour',
+      cadence: 'hourly',
       minimum_evidence_backed_action: 1,
       maximum_queued_actions: 6,
       rule: 'When an evidence-backed, low-risk and reversible candidate exists, the CEO/CTO pass must either queue it for the engineer or explain why it was rejected. Do not let low-volume affiliate attribution create a no-op.',
@@ -486,7 +486,7 @@ Rules:
 - Every cycle with an unblocked candidate, parked/scaffold opportunity, CRO lead, launch blocker, or material revenue question must contain either (a) one direct owner-facing question with concrete answer options and the evidence behind it, or (b) one measurable growth action/proposal with an owner, metric, baseline, time-to-learn, and rollback. A maintenance summary alone is not an acceptable CEO result.
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
-- Follow action_mandate every six-hour cycle: when candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements for distinct sites, or explain in a message why every candidate was rejected. When three or more distinct candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work.
+- Follow action_mandate every hourly cycle: when candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as change_requests for the engineer across distinct sites, or explain in a message why every candidate was rejected. When three or more distinct candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
@@ -866,10 +866,7 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
     brief.action_mandate.candidates.map(item => item.site).filter(site => site && site !== 'fleet')
   );
   const requiredSites = Math.min(3, candidateSites.size);
-  const boundedSites = new Set([
-    ...(plan.change_requests || []).map(item => item.site),
-    ...(plan.proposals || []).map(item => item.implementation?.site),
-  ]);
+  const boundedSites = new Set((plan.change_requests || []).map(item => item.site));
   const coveredSites = [...candidateSites].filter(site => boundedSites.has(site)).length;
   // A single material owner decision (for example a gated launch) may remain
   // a question after a recommendation. Once the brief contains a portfolio
@@ -878,9 +875,10 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   const portfolioSpread = candidateSites.size < 3 || coveredSites >= requiredSites;
   const hasBoundedWork =
     (plan.change_requests || []).length > 0 ||
-    (plan.proposals || []).some(
-      item => item.implementation && Object.keys(item.implementation).length
-    );
+    (candidateSites.size < 3 &&
+      (plan.proposals || []).some(
+        item => item.implementation && Object.keys(item.implementation).length
+      ));
   const hasRecommendation = (plan.messages || []).some(message =>
     /recommend(?:ation)?\s*:/i.test(String(message.body || ''))
   );
@@ -1260,6 +1258,16 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
         apply,
         allowQueue,
         counts: Object.fromEntries(Object.entries(plan).map(([key, value]) => [key, value.length])),
+        ...(created
+          ? {
+              created_counts: Object.fromEntries(
+                Object.entries(created).map(([key, value]) => [
+                  key,
+                  Array.isArray(value) ? value.length : 0,
+                ])
+              ),
+            }
+          : {}),
       },
     });
     return { brief, plan, created };
@@ -1304,6 +1312,12 @@ async function main(argv = process.argv.slice(2)) {
         return;
       }
       const created = await applyPlan(store, plan, { allowQueue, root: ROOT });
+      const createdCounts = Object.fromEntries(
+        Object.entries(created).map(([key, value]) => [
+          key,
+          Array.isArray(value) ? value.length : 0,
+        ])
+      );
       executive.finishAction(store, tickAction.action_id, {
         status: 'completed',
         result: {
@@ -1313,6 +1327,7 @@ async function main(argv = process.argv.slice(2)) {
           counts: Object.fromEntries(
             Object.entries(plan).map(([key, value]) => [key, value.length])
           ),
+          created_counts: createdCounts,
         },
       });
       process.stdout.write(

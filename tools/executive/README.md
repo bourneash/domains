@@ -161,7 +161,7 @@ change queue is enabled. A production tick must be single-flight, bounded by
 timeout and cost, idempotent by plan fingerprint, and must leave a completed
 or failed audit record.
 
-Every six-hour cycle carries an action mandate: when the telemetry bundle has
+Every hourly cycle carries an action mandate: when the telemetry bundle has
 evidence-backed, low-risk candidates, the executive pass should route a small
 portfolio batch across distinct sites or explain why all candidates were
 rejected. The trusted control plane caps a cycle at six queued actions and one
@@ -180,7 +180,7 @@ The CRO entrypoint is `run-cro-scheduled.sh`. Disable it with
 `touch tools/executive/.cro-disabled`; remove that file to resume the next
 daily run.
 
-`run-measurements.sh` is deterministic and runs every six hours before the
+`run-measurements.sh` is deterministic and runs hourly before the
 next executive tick. It moves deployed improvements into measurement and
 closes them after 14 days or 100 new search impressions, whichever comes first.
 Missing telemetry produces an inconclusive result and never counts as zero or

@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Deterministic measurement is cheap and does not launch an AI worker. It runs
 # before the next executive tick so the CEO sees the latest measured outcomes.
+# This is hourly and deterministic; it does not consume model tokens.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 node - "$ROOT" <<'NODE'
 const root = process.argv[2];

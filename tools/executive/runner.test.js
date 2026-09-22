@@ -500,6 +500,38 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
     runner.actionMandateSatisfied({ messages: [], proposals: [], change_requests: [] }, brief),
     false
   );
+
+  const portfolioBrief = {
+    action_mandate: {
+      candidates: [{ site: 'a.com' }, { site: 'b.com' }, { site: 'c.com' }],
+    },
+  };
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        proposals: [
+          { implementation: { site: 'a.com', title: 'Routine fix', body: 'Do it' } },
+          { implementation: { site: 'b.com', title: 'Routine fix', body: 'Do it' } },
+          { implementation: { site: 'c.com', title: 'Routine fix', body: 'Do it' } },
+        ],
+        change_requests: [],
+        messages: [{ body: 'Recommendation: route the bounded work.' }],
+      },
+      portfolioBrief
+    ),
+    false
+  );
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        proposals: [],
+        change_requests: [{ site: 'a.com' }, { site: 'b.com' }, { site: 'c.com' }],
+        messages: [{ body: 'Recommendation: route the bounded work.' }],
+      },
+      portfolioBrief
+    ),
+    true
+  );
 });
 
 test('surfaces a rotating multi-site portfolio batch from priorities and scorecards', () => {

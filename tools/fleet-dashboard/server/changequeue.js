@@ -43,7 +43,7 @@ const TRANSITIONS = {
   claimed: ['running', 'failed', 'cancelled'],
   running: ['reviewing', 'review', 'failed', 'cancelled'],
   reviewing: ['review', 'failed', 'cancelled'],
-  review: ['reviewing', 'committed', 'verified', 'failed', 'cancelled'],
+  review: ['reviewing', 'running', 'committed', 'verified', 'failed', 'cancelled'],
   committed: ['deployed', 'failed', 'cancelled'],
   deployed: ['verified', 'failed'],
   verified: [],

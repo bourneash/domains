@@ -9,6 +9,7 @@ const analyticsDefault = require('./analytics');
 const eventstore = require('./eventstore');
 const executive = require('./executive');
 const improvements = require('./improvements');
+const revenueDefault = require('./revenue');
 
 const MEASUREMENT_DAYS = 14;
 const IMPRESSION_THRESHOLD = 100;
@@ -43,7 +44,26 @@ async function newImpressionsSince(site, since, now, analytics) {
     .reduce((sum, row) => sum + (Number(row.impressions) || 0), 0);
 }
 
-async function run({ root, now = new Date(), analytics = analyticsDefault } = {}) {
+async function captureMetrics(root, site, analytics = analyticsDefault, revenue = revenueDefault) {
+  const [analyticsResult, revenueResult] = await Promise.all([
+    analytics.summary(site, MEASUREMENT_DAYS),
+    Promise.resolve(revenue.amazonSummary(root)),
+  ]);
+  return {
+    ...analyticsResult,
+    revenue: revenue.siteAttribution(revenueResult, site) || {
+      has_data: false,
+      site,
+    },
+  };
+}
+
+async function run({
+  root,
+  now = new Date(),
+  analytics = analyticsDefault,
+  revenue = revenueDefault,
+} = {}) {
   if (!root) throw new Error('measurement runner requires root');
   const store = eventstore.open(root);
   const audit = executive.action(store, {
@@ -90,7 +110,7 @@ async function run({ root, now = new Date(), analytics = analyticsDefault } = {}
         continue;
       }
 
-      const currentMetrics = await analytics.summary(current.site, MEASUREMENT_DAYS);
+      const currentMetrics = await captureMetrics(root, current.site, analytics, revenue);
       const outcome = improvements.compareOutcome(
         current.baseline?.analytics || {},
         currentMetrics,
@@ -135,5 +155,6 @@ module.exports = {
   deploymentAt,
   daysSince,
   newImpressionsSince,
+  captureMetrics,
   run,
 };

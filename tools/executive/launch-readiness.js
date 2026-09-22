@@ -9,6 +9,84 @@ const path = require('node:path');
 
 const DIR = path.join('ops', 'executive', 'checklists');
 
+function exists(root, relative) {
+  try {
+    return fs.existsSync(path.join(root, 'sites', relative));
+  } catch {
+    return false;
+  }
+}
+
+function evidenceSummary(root, checklist) {
+  const site = String(checklist?.site || '').trim();
+  if (!site) return null;
+  const manual = exists(root, `${site}/WootDeveloperManual/woot_api_documentation.md`);
+  const terms = exists(root, `${site}/site/public/terms.html`);
+  const privacy = exists(root, `${site}/site/public/privacy.html`);
+  const cookiePolicy = exists(root, `${site}/site/public/cookie-policy.html`);
+  const backend = exists(root, `${site}/backend/api/main.py`);
+  const fetcher = exists(root, `${site}/backend/services/fetcher.py`);
+  const config = exists(root, `${site}/config.yml`);
+  const sourceRights = manual
+    ? {
+        status: 'evidence_needed',
+        local_source: 'WootDeveloperManual/woot_api_documentation.md',
+        source_url: 'https://developer.woot.com/',
+        documented: [
+          'API key header',
+          'rate limits',
+          'feed and offer endpoints',
+          'developer contact',
+        ],
+        missing: [
+          'current API agreement or written permission for storage, historical derivatives, public display, and alerts',
+          'field-level permissions, attribution, freshness, correction, and takedown terms',
+        ],
+      }
+    : {
+        status: 'missing',
+        local_source: null,
+        source_url: 'https://developer.woot.com/',
+        documented: [],
+        missing: ['official API documentation and the API agreement or written permission'],
+      };
+  return {
+    generated_at: new Date().toISOString(),
+    site,
+    disposition: checklist.current_disposition || 'unknown',
+    source_rights: sourceRights,
+    data_flow: {
+      status: backend && fetcher && config ? 'partial' : 'missing',
+      evidence_files: [
+        backend && 'backend/api/main.py',
+        fetcher && 'backend/services/fetcher.py',
+        config && 'config.yml',
+      ].filter(Boolean),
+      missing: [
+        'operator-confirmed retention, deletion, correction, access, and notification records',
+      ],
+    },
+    consent_and_analytics: {
+      status: privacy && cookiePolicy ? 'partial' : 'missing',
+      evidence_files: [
+        privacy && 'site/public/privacy.html',
+        cookiePolicy && 'site/public/cookie-policy.html',
+      ].filter(Boolean),
+      missing: ['GA4 property/data-sharing settings and jurisdiction-specific counsel review'],
+    },
+    public_terms: {
+      status: terms ? 'draft_only' : 'missing',
+      evidence_files: terms ? ['site/public/terms.html'] : [],
+      note: 'Site terms are not evidence of permission from the upstream data provider.',
+    },
+    launch_blockers: [
+      'authoritative Woot API rights/permission evidence',
+      'human legal review of data use, privacy, and any future affiliate or advertising use',
+      'security, accuracy/freshness, measurement, and owner launch disposition',
+    ],
+  };
+}
+
 function read(root, site = null) {
   const dir = path.join(root, DIR);
   let files = [];
@@ -24,7 +102,8 @@ function read(root, site = null) {
   return files
     .map(file => {
       try {
-        return JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+        const item = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+        return { ...item, evidence_summary: evidenceSummary(root, item) };
       } catch {
         return null;
       }

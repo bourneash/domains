@@ -91,3 +91,33 @@ test('keeps unavailable search telemetry distinct from zero impressions', async 
   });
   assert.equal(result.results[0].new_impressions, null);
 });
+
+test('captures site-attributed affiliate data alongside analytics', async () => {
+  const root = fixture();
+  const metrics = await measurement.captureMetrics(
+    root,
+    'example.com',
+    { summary: async () => ({ has_data: false }) },
+    {
+      amazonSummary: () => ({
+        has_data: true,
+        attribution_complete: false,
+        attribution: [
+          {
+            site: 'example.com',
+            tracking_id: 'example-20',
+            rows: 1,
+            clicks: 12,
+            ordered_items: 4,
+            shipped_items: 3,
+            commission_income: 30,
+          },
+        ],
+      }),
+      siteAttribution: (summary, site) => ({ ...summary.attribution[0], site, has_data: true }),
+    }
+  );
+  assert.equal(metrics.has_data, false);
+  assert.equal(metrics.revenue.site, 'example.com');
+  assert.equal(metrics.revenue.commission_income, 30);
+});

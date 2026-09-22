@@ -1,6 +1,16 @@
 import json
 import sqlite3
+import threading
 from datetime import datetime, timedelta, timezone
+
+
+# FastAPI serves requests on multiple worker threads while this service keeps
+# one long-lived connection for its read-heavy API.  SQLite connections are
+# thread-shareable here, but transaction boundaries are not: two audit writes
+# can otherwise interleave and one thread can commit the other thread's
+# transaction.  Keep the small API-side write operations serialized; the
+# collector is a separate process/connection and remains protected by WAL.
+_WRITE_LOCK = threading.RLock()
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS items (
@@ -338,25 +348,27 @@ def query_items(conn, tags_any=None, tags_all=None, include_sources=None,
 
 def record_egress(conn, *, source_id, target_host, policy, exit_node, exit_ip,
                   status, item_count=0, byte_count=0, duration_ms=0, note="") -> None:
-    conn.execute(
-        "INSERT INTO egress_log "
-        "(ts, source_id, target_host, policy, exit_node, exit_ip, status, item_count, byte_count, duration_ms, note) "
-        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-        (_now(), source_id, target_host, policy, exit_node, exit_ip, status,
-         item_count, byte_count, duration_ms, note),
-    )
-    conn.commit()
+    with _WRITE_LOCK:
+        conn.execute(
+            "INSERT INTO egress_log "
+            "(ts, source_id, target_host, policy, exit_node, exit_ip, status, item_count, byte_count, duration_ms, note) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (_now(), source_id, target_host, policy, exit_node, exit_ip, status,
+             item_count, byte_count, duration_ms, note),
+        )
+        conn.commit()
 
 
 def record_pull(conn, *, site="", endpoint="", item_count=0, client_ip="") -> None:
     """Record an inbound consumer pull (a site/agent querying the hub API): which
     endpoint, how many items it received, from which client IP, and when. The
     inbound counterpart to record_egress (which logs the hub's outbound fetches)."""
-    conn.execute(
-        "INSERT INTO pull_log (ts, site, endpoint, item_count, client_ip) VALUES (?,?,?,?,?)",
-        (_now(), site, endpoint, int(item_count), client_ip),
-    )
-    conn.commit()
+    with _WRITE_LOCK:
+        conn.execute(
+            "INSERT INTO pull_log (ts, site, endpoint, item_count, client_ip) VALUES (?,?,?,?,?)",
+            (_now(), site, endpoint, int(item_count), client_ip),
+        )
+        conn.commit()
 
 
 def query_pulls(conn, since_iso=None, limit=200, site=None) -> list[dict]:

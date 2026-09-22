@@ -215,6 +215,23 @@ function compareOutcome(baseline, current, measuredAt = new Date().toISOString()
       percent: before === 0 ? null : Math.round(((after - before) / before) * 1000) / 10,
     };
   }
+  const revenueBaseline = baseline?.revenue || {};
+  const revenueCurrent = current?.revenue || {};
+  for (const key of ['commission_income', 'ordered_items', 'shipped_items']) {
+    if (
+      !Number.isFinite(Number(revenueBaseline[key])) ||
+      !Number.isFinite(Number(revenueCurrent[key]))
+    )
+      continue;
+    const before = Number(revenueBaseline[key]);
+    const after = Number(revenueCurrent[key]);
+    deltas[key] = {
+      before,
+      after,
+      absolute: after - before,
+      percent: before === 0 ? null : Math.round(((after - before) / before) * 1000) / 10,
+    };
+  }
   const conversion = deltas.conversions;
   const traffic = deltas.sessions || deltas.clicks;
   const sample = Math.max(Number(baseline?.sessions) || 0, Number(baseline?.impressions) || 0);
@@ -222,26 +239,43 @@ function compareOutcome(baseline, current, measuredAt = new Date().toISOString()
     (deltas.sessions && Number(baseline.sessions) >= 100) ||
     (deltas.clicks && Number(baseline.impressions) >= 500);
   const enoughConversions = conversion && Number(baseline.conversions) >= 5;
+  const commission = deltas.commission_income;
+  const enoughRevenue =
+    Boolean(revenueBaseline.has_data && revenueCurrent.has_data) &&
+    (Number(revenueBaseline.ordered_items) >= 3 || Number(revenueBaseline.commission_income) >= 25);
   let classification = 'inconclusive';
   if (
     (enoughConversions && conversion.percent >= 10) ||
-    (enoughTraffic && traffic.percent != null && traffic.percent >= 10)
+    (enoughTraffic && traffic.percent != null && traffic.percent >= 10) ||
+    (enoughRevenue && commission?.percent != null && commission.percent >= 10)
   )
     classification = 'proven';
   else if (
     (enoughConversions && conversion.percent <= -10) ||
-    (enoughTraffic && traffic.percent != null && traffic.percent <= -10)
+    (enoughTraffic && traffic.percent != null && traffic.percent <= -10) ||
+    (enoughRevenue && commission?.percent != null && commission.percent <= -10)
   )
     classification = 'regressed';
   return {
     measured_at: measuredAt,
     window_days: current?.window_days || 28,
-    has_data: current?.has_data !== false && Object.keys(deltas).length > 0,
+    has_data:
+      (current?.has_data !== false || current?.revenue?.has_data === true) &&
+      Object.keys(deltas).length > 0,
     deltas,
     confidence: sample >= 1000 ? 'high' : sample >= 100 ? 'medium' : 'low',
-    thresholds: { minimum_sessions: 100, minimum_impressions: 500, material_change_percent: 10 },
+    thresholds: {
+      minimum_sessions: 100,
+      minimum_impressions: 500,
+      minimum_ordered_items: 3,
+      minimum_commission_income: 25,
+      material_change_percent: 10,
+    },
     classification:
-      current?.has_data === false || !Object.keys(deltas).length ? 'inconclusive' : classification,
+      !(current?.has_data !== false || current?.revenue?.has_data === true) ||
+      !Object.keys(deltas).length
+        ? 'inconclusive'
+        : classification,
   };
 }
 

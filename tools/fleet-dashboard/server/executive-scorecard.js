@@ -59,6 +59,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const ticks = actions.filter(row => row.action_type === 'tick');
 
   const queueActions = actions.filter(row => row.action_type === 'queue-work');
+  const failedTicks = ticks.filter(row => row.status === 'failed');
   const deliveredRequests = requests.filter(row => DELIVERED_REQUESTS.has(row.status));
   const measured = improvements.filter(row => MEASURED_IMPROVEMENTS.has(row.state));
   const proven = improvements.filter(row => row.state === 'proven');
@@ -70,9 +71,11 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   );
   const pendingApprovals = proposals.filter(row => ['proposed', 'feedback'].includes(row.status));
   const failedRequests = requests.filter(row => row.status === 'failed');
-  const ticksWithQueueWork = ticks.filter(
-    row => Number(row.result?.counts?.change_requests || 0) > 0
-  );
+  const queueCountForTick = row =>
+    row.result?.created_counts
+      ? Number(row.result.created_counts.change_requests || 0)
+      : Number(row.result?.counts?.change_requests || 0);
+  const ticksWithQueueWork = ticks.filter(row => queueCountForTick(row) > 0);
   const ticksWithProposals = ticks.filter(row => Number(row.result?.counts?.proposals || 0) > 0);
   const actionabilityRate = ticks.length
     ? Math.round((ticksWithQueueWork.length / ticks.length) * 100)
@@ -108,6 +111,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     cadence: {
       ticks: ticks.length,
       ticks_with_queue_action: ticksWithQueueWork.length,
+      queued_actions_created: ticks.reduce((sum, row) => sum + queueCountForTick(row), 0),
       ticks_with_proposals: ticksWithProposals.length,
       actionability_rate_percent: actionabilityRate,
     },
@@ -121,6 +125,8 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     execution: {
       audited_actions: actions.length,
       queue_actions: queueActions.length,
+      failed_ticks: failedTicks.length,
+      historical_failures_retained: failedTicks.length > 0,
       by_action: countBy(actions, 'action_type'),
       requests_created: requests.length,
       requests_by_status: countBy(requests, 'status'),
@@ -144,6 +150,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
         : []),
       ...(failedRequests.length
         ? [`${failedRequests.length} implementation request(s) failed`]
+        : []),
+      ...(failedTicks.length
+        ? [`${failedTicks.length} executive tick failure(s) retained in the audit log`]
         : []),
     ],
   };

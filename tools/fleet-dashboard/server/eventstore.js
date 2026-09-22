@@ -90,6 +90,7 @@ function open(root, { file } = {}) {
       heartbeat_at TEXT,
       run_id TEXT,
       attempts INTEGER NOT NULL DEFAULT 0,
+      review_attempts INTEGER NOT NULL DEFAULT 0,
       error TEXT
     );
     CREATE INDEX IF NOT EXISTS change_requests_queue ON change_requests(status, priority, created_at);
@@ -212,6 +213,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'change_requests', 'action_key', 'TEXT');
   ensureColumn(db, 'change_requests', 'requested_by', 'TEXT');
   ensureColumn(db, 'change_requests', 'source_proposal_id', 'TEXT');
+  ensureColumn(db, 'change_requests', 'review_attempts', 'INTEGER NOT NULL DEFAULT 0');
   ensureColumn(db, 'change_requests', 'lease_owner', 'TEXT');
   ensureColumn(db, 'change_requests', 'lease_expires_at', 'TEXT');
   ensureColumn(db, 'change_requests', 'heartbeat_at', 'TEXT');
@@ -476,13 +478,14 @@ function open(root, { file } = {}) {
       heartbeat_at: null,
       run_id: null,
       attempts: 0,
+      review_attempts: 0,
       error: null,
     };
     if (!row.site || !row.title) throw httpErr(400, 'site and title are required');
     db.prepare(
       `INSERT INTO change_requests
-      (request_id,site,title,body,category,priority,assigned_role,provider,model,delivery_mode,action_key,max_turns,auto_review,voice_transcript,requested_by,source_proposal_id,status,created_at,updated_at,next_attempt_at,claimed_at,lease_owner,lease_expires_at,heartbeat_at,run_id,attempts,error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (request_id,site,title,body,category,priority,assigned_role,provider,model,delivery_mode,action_key,max_turns,auto_review,voice_transcript,requested_by,source_proposal_id,status,created_at,updated_at,next_attempt_at,claimed_at,lease_owner,lease_expires_at,heartbeat_at,run_id,attempts,review_attempts,error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.request_id,
       row.site,
@@ -510,6 +513,7 @@ function open(root, { file } = {}) {
       row.heartbeat_at,
       row.run_id,
       row.attempts,
+      row.review_attempts,
       row.error
     );
     return row;
@@ -622,6 +626,7 @@ function open(root, { file } = {}) {
       'heartbeat_at',
       'run_id',
       'attempts',
+      'review_attempts',
       'error',
       'updated_at',
     ];
@@ -631,7 +636,7 @@ function open(root, { file } = {}) {
     };
     next.updated_at = new Date().toISOString();
     db.prepare(
-      `UPDATE change_requests SET site=?,title=?,body=?,category=?,priority=?,assigned_role=?,provider=?,model=?,delivery_mode=?,action_key=?,max_turns=?,auto_review=?,voice_transcript=?,requested_by=?,source_proposal_id=?,status=?,updated_at=?,next_attempt_at=?,claimed_at=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,run_id=?,attempts=?,error=? WHERE request_id=?`
+      `UPDATE change_requests SET site=?,title=?,body=?,category=?,priority=?,assigned_role=?,provider=?,model=?,delivery_mode=?,action_key=?,max_turns=?,auto_review=?,voice_transcript=?,requested_by=?,source_proposal_id=?,status=?,updated_at=?,next_attempt_at=?,claimed_at=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,run_id=?,attempts=?,review_attempts=?,error=? WHERE request_id=?`
     ).run(
       next.site,
       next.title,
@@ -657,6 +662,7 @@ function open(root, { file } = {}) {
       next.heartbeat_at,
       next.run_id,
       next.attempts,
+      next.review_attempts,
       next.error,
       String(id)
     );

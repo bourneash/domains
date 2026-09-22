@@ -51,6 +51,7 @@ const eventstore = require('./eventstore');
 const priorities = require('./priorities');
 const dataquality = require('./dataquality');
 const improvements = require('./improvements');
+const measurementRunner = require('./measurement-runner');
 const improvementAgent = require('./improvement-agent');
 const changequeue = require('./changequeue');
 const changequeueNotify = require('./changequeue-notify');
@@ -76,6 +77,7 @@ const PORT = parseInt(process.env.FD_PORT || '4754', 10);
 const HOST = process.env.FD_HOST || '127.0.0.1';
 const QUALITY_GATES = ['diff', 'tests', 'build', 'preview', 'browser'];
 const MAX_AUTOMATIC_QUEUE_ATTEMPTS = 3;
+const MAX_AUTOMATIC_REVIEW_REPAIRS = 2;
 
 function isKnownTarget(root, target) {
   return target === 'fleet' || isKnownSite(root, target);
@@ -263,9 +265,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         // Capture the pre-change window while the request is being claimed.
         // A missing data hub must not strand safe implementation work; it is
         // recorded as unavailable and the later measurement remains honest.
-        baseline = await analytics.summary(claimed.site, 14);
+        const [analyticsBaseline, revenueSnapshot] = await Promise.all([
+          analytics.summary(claimed.site, 14),
+          Promise.resolve(revenue.amazonSummary(root)),
+        ]);
+        baseline = {
+          ...analyticsBaseline,
+          revenue: revenue.siteAttribution(revenueSnapshot, claimed.site) || {
+            has_data: false,
+            site: claimed.site,
+          },
+        };
       } catch {
-        baseline = { has_data: false, error: 'baseline collection failed' };
+        baseline = {
+          has_data: false,
+          error: 'baseline collection failed',
+          revenue: { has_data: false, site: claimed.site },
+        };
       }
       const created = improvements.startManual({ store: events, root, request: claimed, baseline });
       createdRun = created.run;
@@ -876,6 +892,88 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return { run: changed, deployment: deployed };
   }
 
+  function automaticReviewFeedback(rootPath, run, error) {
+    const status = run ? improvementAgent.status(rootPath, run) : null;
+    const log = String(status?.log_tail || '').trim();
+    return `${String(error?.message || error || 'automatic review failed')}\n${log}`.slice(-8000);
+  }
+
+  function startAutomaticReviewRepair(request, run, error) {
+    const settings = events.getChangeQueueSettings();
+    if (!request || !run || request.auto_review === 0 || !settings.auto_review_enabled)
+      return false;
+    const repairCount = Number(request.review_attempts || 0);
+    if (repairCount >= MAX_AUTOMATIC_REVIEW_REPAIRS || improvementAgent.status(root, run).running)
+      return false;
+
+    const feedback = automaticReviewFeedback(root, run, error);
+    const task = findImprovementTask(root, run);
+    const taskBody = [
+      task?.body || request.body,
+      '',
+      'AUTOMATIC REVIEW REPAIR',
+      `This is bounded repair attempt ${repairCount + 1} of ${MAX_AUTOMATIC_REVIEW_REPAIRS}.`,
+      'The previous implementation did not satisfy the request. Inspect the existing worktree and make the smallest correction that completes the original request.',
+      'Reviewer feedback:',
+      feedback,
+      'Do not merely add another backlog item when the request asks you to edit or reassign an existing task; make the requested change in place and record rollback metadata.',
+    ].join('\n');
+    try {
+      const updated = changequeue.update(
+        events,
+        request.request_id,
+        {
+          status: 'running',
+          review_attempts: repairCount + 1,
+          error: `automatic review repair ${repairCount + 1}/${MAX_AUTOMATIC_REVIEW_REPAIRS} started`,
+          lease_owner: queueWorkerId,
+          lease_expires_at: leaseExpiry(settings.lease_minutes),
+          heartbeat_at: new Date().toISOString(),
+        },
+        site => isKnownTarget(root, site)
+      );
+      events.record({
+        event_type: 'change-request.review-repair-started',
+        source: 'fleet-dashboard',
+        site_id: `site:${request.site}`,
+        entity_type: 'change-request',
+        entity_id: request.request_id,
+        correlation_id: `change-request:${request.request_id}`,
+        payload: { run_id: run.run_id, review_attempts: updated.review_attempts },
+      });
+      improvementAgent.start({
+        root,
+        store: events,
+        run,
+        taskBody,
+        provider: request.provider,
+        model: request.model,
+        maxTurns: request.max_turns,
+        role: request.assigned_role || 'engineer',
+        onFinished: result => {
+          if (result.code === 0 && !result.timedOut && request.auto_review !== 0) {
+            autoReviewRequest(request.request_id).catch(repairError =>
+              recordAutoReviewFailure(request.request_id, repairError)
+            );
+          }
+        },
+      });
+      return true;
+    } catch (repairError) {
+      try {
+        changequeue.update(
+          events,
+          request.request_id,
+          { status: 'review', error: `automatic repair could not start: ${repairError.message}` },
+          site => isKnownTarget(root, site)
+        );
+      } catch {
+        /* preserve the original review failure */
+      }
+      return false;
+    }
+  }
+
   function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
@@ -883,6 +981,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
       return;
     const message = String(error.message || error);
+    if (startAutomaticReviewRepair(request, run, error)) return;
     try {
       changequeue.update(
         events,
@@ -919,7 +1018,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function recoverAutomaticReviewHandoffs() {
     for (const request of events.listChangeRequests({ limit: 1000 })) {
-      if (request.status !== 'reviewing' || activeAutomaticReviews.has(request.request_id))
+      if (
+        !['reviewing', 'review'].includes(request.status) ||
+        activeAutomaticReviews.has(request.request_id)
+      )
         continue;
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
       if (!run || run.agent?.phase !== 'reviewer' || run.agent?.status !== 'completed') continue;
@@ -937,7 +1039,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
     const request = events.getChangeRequest(id);
     if (!request) throw Object.assign(new Error('change request not found'), { httpStatus: 404 });
-    if (!['review', 'reviewing'].includes(request.status))
+    if (!['review', 'reviewing', 'running'].includes(request.status))
       throw Object.assign(new Error(`request is ${request.status}, not awaiting review`), {
         httpStatus: 409,
       });
@@ -2005,12 +2107,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (!isKnownSite(root, site)) return res.status(404).json({ error: 'unknown site' });
       if (!/^[a-f0-9]{20}$/.test(String(key || '')))
         return res.status(400).json({ error: 'invalid intelligence action key' });
-      const [snapshot, baseline] = await Promise.all([
+      const [snapshot, analyticsBaseline, revenueSnapshot] = await Promise.all([
         seoIntelligence.buildSnapshot({ root }),
         analytics.summary(site, 28),
+        Promise.resolve(revenue.amazonSummary(root)),
       ]);
       const action = snapshot.actions.find(row => row.site === site && row.key === key);
       if (!action) return res.status(404).json({ error: 'intelligence action no longer exists' });
+      const baseline = {
+        ...analyticsBaseline,
+        revenue: revenue.siteAttribution(revenueSnapshot, site) || {
+          has_data: false,
+          site,
+        },
+      };
       const result = improvements.start({ store: events, root, site, action, baseline });
       if (!result.duplicate) {
         const rel = `ops/tasks/backlog/${result.run.task_file}`;
@@ -2108,11 +2218,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const today = new Date().toISOString().slice(0, 10);
       if (item.measurement_due && item.measurement_due > today && !(req.body && req.body.force))
         return res.status(409).json({ error: `measurement window closes ${item.measurement_due}` });
-      const current = await analytics.summary(
-        item.site,
-        Number(item.baseline?.analytics?.window_days) || 28
+      const current = await measurementRunner.captureMetrics(root, item.site, analytics, revenue);
+      const outcome = improvements.compareOutcome(
+        item.baseline?.analytics || item.baseline || {},
+        current
       );
-      const outcome = improvements.compareOutcome(item.baseline?.analytics || {}, current);
       const changed = improvements.transition(events, item.run_id, {
         state: outcome.classification,
         outcome,
