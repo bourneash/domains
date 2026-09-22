@@ -171,7 +171,12 @@ async function collectIntel(root, sites) {
 async function buildBrief(store, root = ROOT) {
   const queued = store.listChangeRequests({ limit: 50 });
   const improvements = store.listImprovements({ limit: 50 });
-  const proposals = store.listExecutiveProposals({ limit: 10 });
+  const allProposals = store.listExecutiveProposals({ limit: 100 });
+  const proposals = allProposals.slice(0, 10);
+  const croProposals = allProposals
+    .filter(item => ['researcher', 'cro'].includes(item.created_by))
+    .filter(item => ['proposed', 'feedback'].includes(item.status))
+    .slice(0, 10);
   const messages = store.listExecutiveMessages({ limit: 10 });
   const task_queue = {
     engineer: store.listChangeRequests({ assigned_role: 'engineer', limit: 50 }),
@@ -275,6 +280,31 @@ async function buildBrief(store, root = ROOT) {
         requested_action,
       })
     ),
+    cro_proposals: croProposals.map(
+      ({
+        proposal_id,
+        title,
+        proposal_type,
+        summary,
+        rationale,
+        expected_upside,
+        risks,
+        requested_action,
+        status,
+        created_at,
+      }) => ({
+        proposal_id,
+        title,
+        proposal_type,
+        summary,
+        rationale,
+        expected_upside,
+        risks,
+        requested_action,
+        status,
+        created_at,
+      })
+    ),
     task_queue,
     conversation: messages
       .slice()
@@ -295,6 +325,7 @@ Rules:
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends as a lead feed from the CRO. Validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption; never install or deploy a discovered repository directly.
+- Treat cro_proposals as CRO handoffs for CEO/CTO review, not owner approval requests. For each useful lead, either create a bounded public research request, create a separate owner-facing proposal with measurable acceptance criteria, or explain why no action is justified. Do not leave the lead waiting on the owner merely because it came from the CRO.
 - Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
 - Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.

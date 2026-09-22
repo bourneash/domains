@@ -11682,14 +11682,31 @@ async function renderExecutive() {
         `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
     )
     .join('');
+  const isCROHandoff = p => ['researcher', 'cro'].includes(String(p.created_by));
   const proposalRows = (proposals.proposals || [])
-    .map(
-      p =>
-        `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${p.status === 'approved' ? 'b-green' : p.status === 'declined' ? 'b-red' : p.status === 'feedback' ? 'b-yellow' : 'b-blue'}">${esc(p.status)}</span></td><td>${['proposed', 'feedback'].includes(p.status) ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>` : esc(p.decision_note || '')}</td></tr>`
-    )
+    .map(p => {
+      const croHandoff = isCROHandoff(p);
+      const pending = ['proposed', 'feedback'].includes(p.status);
+      const status = croHandoff && pending ? 'exec review' : p.status;
+      const badge =
+        p.status === 'approved'
+          ? 'b-green'
+          : p.status === 'declined'
+            ? 'b-red'
+            : p.status === 'feedback'
+              ? 'b-yellow'
+              : 'b-blue';
+      const decision =
+        croHandoff && pending
+          ? 'Presented to CEO/CTO'
+          : pending
+            ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
+            : esc(p.decision_note || '');
+      return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(status)}</span></td><td>${decision}</td></tr>`;
+    })
     .join('');
   const pendingApprovalRows = (proposals.proposals || [])
-    .filter(p => ['proposed', 'feedback'].includes(p.status))
+    .filter(p => ['proposed', 'feedback'].includes(p.status) && !isCROHandoff(p))
     .map(p => {
       const impl = p.implementation || {};
       const route = [
@@ -11700,6 +11717,13 @@ async function renderExecutive() {
       return `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · proposed by ${esc(p.created_by)} · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-yellow">${esc(p.status === 'feedback' ? 'needs revision' : 'awaiting approval')}</span></div><p>${esc(p.summary)}</p><div class="muted"><b>Implementation route:</b> ${esc(route)}${impl.site ? ` · ${esc(impl.site)}` : ''}</div><div class="task-toolbar"><button class="btn primary ex-approve" data-id="${esc(p.proposal_id)}">Approve request</button><button class="btn ex-feedback" data-id="${esc(p.proposal_id)}">Request feedback</button><button class="btn danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button></div></article>`;
     })
     .join('');
+  const croReviewRows = (proposals.proposals || [])
+    .filter(p => ['proposed', 'feedback'].includes(p.status) && isCROHandoff(p))
+    .map(
+      p =>
+        `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · CRO research lead · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-blue">awaiting CEO/CTO review</span></div><p>${esc(p.summary)}</p><p class="muted" style="margin-bottom:0">This is a research handoff. CEO/CTO will validate fit, license, security, and measurable fleet value. It does not require owner approval unless they convert it into an implementation or spend proposal.</p></article>`
+    )
+    .join('');
   const actionRows = (actions.actions || [])
     .map(
       a =>
@@ -11709,8 +11733,8 @@ async function renderExecutive() {
   const s = settings.settings || {};
   const intel = brief.brief?.intelligence || {};
   const executiveBreadcrumb = STATE.view === 'agent' ? breadcrumb('executive') : '';
-  const pendingCount = (proposals.proposals || []).filter(p =>
-    ['proposed', 'feedback'].includes(p.status)
+  const pendingCount = (proposals.proposals || []).filter(
+    p => ['proposed', 'feedback'].includes(p.status) && !isCROHandoff(p)
   ).length;
   const fleetCost = intel.ai_usage?.summary?.total_cost_usd;
   const fleetCalls = intel.ai_usage?.summary?.calls;
@@ -11731,6 +11755,7 @@ async function renderExecutive() {
     <section class="card" style="margin-bottom:12px"><h3>Domain-manager dispatch queue</h3><div class="muted">Candidates are deduplicated, priority-ranked, leased, and processed with two active workers and one new site every minute. Great American Lakes is the owner-priority site.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(managerQueueSummary.queued ?? 0)}</b><span>queued</span></div><div><b>${esc(managerQueueSummary.running ?? 0)}</b><span>running</span></div><div><b>${esc(managerQueueSummary.completed ?? 0)}</b><span>completed</span></div><div><b>${esc(managerQueueSummary.failed ?? 0)}</b><span>failed</span></div></div><p class="muted" style="margin-bottom:0">The queue is staggered to avoid load spikes and retries failed work with bounded attempts.</p></section>
     <section class="card" style="margin-bottom:12px"><h3>Principal Engineer task queue</h3><div class="muted">The Principal Engineer is the CTO's senior right hand for urgent technical work, incidents, architecture fixes, and emergency pickup. Approved executive work is routed here instead of waiting in the normal engineer queue.</div><div class="stat-grid" style="margin-top:10px"><div><b>${esc(principalQueueSummary.queued ?? 0)}</b><span>queued</span></div><div><b>${esc(principalQueueSummary.active ?? 0)}</b><span>active</span></div><div><b>${esc(principalQueueSummary.review ?? 0)}</b><span>in review</span></div><div><b>${esc(principalQueueSummary.failed ?? 0)}</b><span>failed</span></div></div><p class="muted" style="margin-bottom:0">Normal bounded implementation goes to engineer; high-impact or urgent technical work goes to principal-engineer. <a href="#change-queue">Open Change Queue</a></p></section>
     <section class="card" style="margin-bottom:12px"><h3>Conversation</h3>${messageRows || '<div class="empty">No executive messages yet.</div>'}</section>
+    <section style="margin-bottom:12px"><div class="page-head"><div><h3>CRO → CEO/CTO review</h3><div class="muted">CRO research leads go to executive review first; they do not wait in the owner approval queue.</div></div><span class="badge ${croReviewRows ? 'b-blue' : 'b-green'}">${croReviewRows ? 'review needed' : 'clear'}</span></div>${croReviewRows || '<div class="card empty">No CRO handoffs awaiting executive review.</div>'}</section>
     <section style="margin-bottom:12px"><div class="page-head"><div><h3>Owner approval queue</h3><div class="muted">Approve only work you want converted into a bounded change request.</div></div><span class="badge ${pendingCount ? 'b-yellow' : 'b-green'}">${pendingCount} awaiting decision</span></div>${pendingApprovalRows || '<div class="card empty">No executive requests need approval.</div>'}</section>
     <section class="card" style="margin-bottom:12px"><h3>Decision proposals</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals yet.</td></tr>'}</tbody></table></div></section>
     <section class="card"><h3>Action audit log</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></section>`;
