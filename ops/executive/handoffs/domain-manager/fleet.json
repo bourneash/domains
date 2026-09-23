@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:53:51.541Z",
+  "generated_at": "2026-09-23T08:57:42.017Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run bounded audience and monetization baseline",
-        "summary": "Produce a read-only baseline of observable audience positioning, conversion paths, monetization readiness, and health signals before any production work.",
-        "requested_action": "Approve bounded public inspection and report-only analysis. Do not configure analytics, deploy changes, spend money, change credentials, or make financial claims.",
-        "proposal_id": null
+        "title": "Restore Google Search Console coverage",
+        "summary": "Diagnose and repair the site’s GSC property permission or collector configuration so organic-search opportunities can be evaluated without treating missing data as zero.",
+        "requested_action": "Route a bounded read-only permission/configuration diagnosis to the appropriate technical owner, then rerun the deterministic collector. Do not change site code, credentials, deployment, spending, or production configuration without approval.",
+        "proposal_id": "9f79906a-55ca-4696-8a07-00d23523a751"
       }
     ]
   }
