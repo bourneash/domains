@@ -65,6 +65,22 @@ cmd_start() {
     if [[ "${dev_script}" != *"--host "* ]]; then
         dev_script="${dev_script} --host 0.0.0.0"
     fi
+    # Wrangler refuses local preview when a site's production compatibility
+    # date is newer than the CLI bundled in this image. Preview is an
+    # isolated validation tool, so pin only its local runtime to the newest
+    # date this image supports; production config remains untouched.
+    if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--compatibility-date"* ]]; then
+        dev_script="${dev_script} --compatibility-date ${DD_DEV_COMPATIBILITY_DATE:-2026-09-07}"
+    fi
+    if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--port"* ]]; then
+        dev_script="${dev_script} --port ${DD_DEV_PORT:-4321}"
+    fi
+    if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"SITE_SHARED_PASSWORD"* ]]; then
+        # Give private Workers a disposable local gate so preview/browser
+        # checks can render the site without mounting or copying production
+        # credentials into the project-scoped sandbox.
+        dev_script="${dev_script} --var SITE_SHARED_PASSWORD:${DD_DEV_PREVIEW_PASSWORD:-fd-preview-only}"
+    fi
 
     # Wrap in `bash -c` so a single PG covers install + dev — killing the
     # group later cleanly takes out npm children and the site server.

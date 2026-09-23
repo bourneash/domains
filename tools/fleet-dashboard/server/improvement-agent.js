@@ -8,6 +8,10 @@ const AUTOMATIC_RETRY_ATTEMPTS = 3;
 const { spawn, execFile } = require('node:child_process');
 
 const ACTIVE = new Map();
+const WORKER_START_GRACE_MS = Math.max(
+  10_000,
+  Number(process.env.FD_CHANGE_QUEUE_WORKER_START_GRACE_MS || 120_000)
+);
 
 // The fleet worker image has a project-scoped Codex credential, while Claude
 // intentionally has no shared OAuth credential in the dashboard container.
@@ -209,6 +213,9 @@ function launch({
       max_turns: turns,
       assigned_role: selectedRole,
       started_at: startedAt,
+      finished_at: null,
+      exit_code: null,
+      error: null,
       log: file,
     },
   });
@@ -355,6 +362,17 @@ function workerProcessAlive(run) {
   });
 }
 
+// A dashboard restart can restore a durable `running` row before the provider
+// process has been reattached inside its already-running sandbox. Treat that
+// short handoff as pending, not as a failed implementation. The grace window
+// is deliberately bounded; an actually dead provider still becomes a durable
+// failure and follows the normal retry/audit path once the window closes.
+function workerStartupGraceActive(run, now = Date.now()) {
+  if (run?.agent?.status !== 'running') return false;
+  const startedAt = Date.parse(run.agent.started_at || '');
+  return Number.isFinite(startedAt) && now >= startedAt && now - startedAt < WORKER_START_GRACE_MS;
+}
+
 // The dashboard has a short handoff window between the provider process
 // exiting and the child `close` callback persisting its completed state. The
 // durable row may still say `running` during that window, so recovery must not
@@ -387,6 +405,8 @@ module.exports = {
   workerProcessAlive,
   isActive,
   processListHasWorker,
+  workerStartupGraceActive,
+  WORKER_START_GRACE_MS,
   defaultProvider,
   defaultModel,
   resolveWorkerProvider,

@@ -56,6 +56,31 @@ test('worker liveness accepts the portable docker top command output', () => {
   );
 });
 
+test('worker startup grace protects a durable running row during provider reattach', () => {
+  const startedAt = Date.now() - 1000;
+  assert.equal(
+    agent.workerStartupGraceActive({
+      agent: { status: 'running', started_at: new Date(startedAt).toISOString() },
+    }),
+    true
+  );
+  assert.equal(
+    agent.workerStartupGraceActive({
+      agent: {
+        status: 'running',
+        started_at: new Date(Date.now() - agent.WORKER_START_GRACE_MS - 1000).toISOString(),
+      },
+    }),
+    false
+  );
+  assert.equal(
+    agent.workerStartupGraceActive({
+      agent: { status: 'completed', started_at: new Date().toISOString() },
+    }),
+    false
+  );
+});
+
 test('provider preflight rejects missing sandbox and unsafe command values', async () => {
   assert.throws(() => agent.preflight({ run: {}, provider: 'chatgpt' }), /sandbox is required/);
   const previous = process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND;

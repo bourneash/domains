@@ -151,6 +151,12 @@ function amazonSummary(root) {
     const attribution = Object.values(attributed);
     const unmapped = attribution.filter(row => !row.site && row.attribution_scope !== 'aggregate');
     const aggregate = attribution.filter(row => row.attribution_scope === 'aggregate');
+    const aggregateIncome = aggregate.reduce((n, r) => n + r.commission_income, 0);
+    const attributionStatus = unmapped.length
+      ? 'incomplete_unmapped'
+      : aggregateIncome > 0
+        ? 'partial_aggregate'
+        : 'complete';
     return {
       ...base,
       has_data: true,
@@ -178,6 +184,15 @@ function amazonSummary(root) {
         .reduce((n, r) => n + r.commission_income, 0),
       aggregate_unattributed_income: aggregate.reduce((n, r) => n + r.commission_income, 0),
       aggregate_tracking_ids: aggregate.map(r => r.tracking_id).filter(Boolean),
+      attribution_status: attributionStatus,
+      site_level_revenue_coverage: {
+        status: attributionStatus,
+        named_tracking_rows: attribution.filter(r => r.attribution_scope === 'site').length,
+        mapped_rows: attribution.filter(r => r.site).length,
+        unmapped_rows: unmapped.length,
+        aggregate_rows: aggregate.length,
+        aggregate_income: aggregateIncome,
+      },
       // Complete means every site-level tag is mapped. Aggregate provider
       // rows remain visible and explicitly unassignable instead of blocking
       // the operating loop or being falsely assigned to a site.
@@ -217,6 +232,11 @@ function siteAttribution(summary, site) {
     ordered_items: Number(row.ordered_items) || 0,
     shipped_items: Number(row.shipped_items) || 0,
     commission_income: Number(row.commission_income) || 0,
+    attribution_scope: row.attribution_scope || 'site',
+    attribution_status: summary.attribution_status || null,
+    site_level_revenue_complete:
+      summary.attribution_status === 'complete' ||
+      (summary.attribution_status === 'partial_aggregate' && Number(row.commission_income) > 0),
     fetched_at: summary.fetched_at || null,
     has_data: true,
     attribution_complete: summary.attribution_complete === true,

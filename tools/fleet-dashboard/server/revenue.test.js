@@ -80,6 +80,7 @@ test('amazonSummary reads the wrapped interactive Associates export', () => {
   assert.equal(result.commission_income, 4.92);
   assert.equal(result.owner_action_required, null);
   assert.equal(result.attribution_complete, false);
+  assert.equal(result.attribution_status, 'incomplete_unmapped');
   assert.deepEqual(result.aggregate_tracking_ids, ['other']);
   assert.equal(result.aggregate_unattributed_income, 0);
 });
@@ -102,6 +103,8 @@ test('keeps Amazon aggregate Other revenue visible without treating it as a site
   );
   const result = revenue.amazonSummary(dir);
   assert.equal(result.attribution_complete, true);
+  assert.equal(result.attribution_status, 'partial_aggregate');
+  assert.equal(result.site_level_revenue_coverage.aggregate_income, 4.92);
   assert.equal(result.attributed_income, 2);
   assert.equal(result.aggregate_unattributed_income, 4.92);
   assert.deepEqual(result.unmapped_tracking_ids, []);
@@ -132,6 +135,7 @@ test('amazonSummary attributes a unique tracking ID to its site', () => {
   );
   const result = revenue.amazonSummary(dir);
   assert.equal(result.attribution_complete, true);
+  assert.equal(result.attribution_status, 'complete');
   assert.equal(result.attribution[0].site, 'example.com');
   assert.equal(result.attributed_income, 2.5);
 });

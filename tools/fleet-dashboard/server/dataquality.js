@@ -44,6 +44,17 @@ function assess({
   const siteAttributionRows = (revenue.attribution || []).filter(
     row => row.attribution_scope !== 'aggregate'
   );
+  const aggregateIncome = aggregateRevenue.reduce(
+    (sum, row) => sum + (Number(row.commission_income) || 0),
+    0
+  );
+  const attributionStatus =
+    revenue.attribution_status ||
+    (unmappedRevenue.length
+      ? 'incomplete_unmapped'
+      : aggregateIncome > 0
+        ? 'partial_aggregate'
+        : 'complete');
   const now = Date.now();
   const contracts = [
     contract('fleet-registry', reg.ok, reg.sites.length, reg.sites.length, null, reg.error),
@@ -119,6 +130,7 @@ function assess({
           : null,
       },
       revenue_attribution: {
+        status: attributionStatus,
         tracking_rows: (revenue.attribution || []).length,
         mapped_rows: (revenue.attribution || []).filter(row => row.site).length,
         unmapped_rows: unmappedRevenue.length,

@@ -101,6 +101,35 @@ test('enforces lifecycle gates and measured outcomes', () => {
   store.close();
 });
 
+test('permits reviewer recovery when an interrupted worker left a dirty worktree', () => {
+  const { root, store } = fixture();
+  const { run } = improvements.start({ store, root, site: 'example.com', action });
+  improvements.transition(store, run.run_id, { state: 'building', branch: 'improve/page' });
+  const failed = improvements.transition(store, run.run_id, {
+    state: 'failed',
+    outcome: {
+      error: 'worker process is no longer present in its isolated container',
+    },
+  });
+  assert.equal(
+    improvements.canRecoverInterruptedWorker(failed, {
+      state: 'building',
+      recover_worker: true,
+      worktree_dirty: true,
+    }),
+    true
+  );
+  assert.equal(
+    improvements.canRecoverInterruptedWorker(failed, {
+      state: 'building',
+      recover_worker: true,
+      worktree_dirty: false,
+    }),
+    false
+  );
+  store.close();
+});
+
 test('compares captured and current analytics without inventing missing data', () => {
   const positive = improvements.compareOutcome(
     { sessions: 100, conversions: 2 },

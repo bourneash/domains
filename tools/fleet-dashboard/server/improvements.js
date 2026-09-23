@@ -54,6 +54,21 @@ function canRecoverReviewerFailure(current, input = {}) {
   );
 }
 
+// A provider can exit after writing a useful isolated diff but before the
+// dashboard receives its close callback. That is an interrupted handoff, not
+// proof that the work is empty or unsafe. Permit only the narrow recovery
+// shape used by the dashboard when it has independently observed a dirty
+// worktree and preserved the original failure in the event log.
+function canRecoverInterruptedWorker(current, input = {}) {
+  return (
+    current?.state === 'failed' &&
+    input.state === 'building' &&
+    input.recover_worker === true &&
+    input.worktree_dirty === true &&
+    current?.outcome?.error === FALSE_LIVENESS_ERROR
+  );
+}
+
 function reportOnlyEvidenceReady(logText = '') {
   const text = String(logText).slice(-60000);
   return (
@@ -233,7 +248,8 @@ function transition(store, runId, input = {}) {
   if (
     !(TRANSITIONS[current.state] || []).includes(state) &&
     !canRecoverReportOnly(current, input) &&
-    !canRecoverReviewerFailure(current, input)
+    !canRecoverReviewerFailure(current, input) &&
+    !canRecoverInterruptedWorker(current, input)
   )
     throw httpErr(409, `cannot transition ${current.state} to ${state}`);
   if (state === 'deployed' && !input.deployment_id) throw httpErr(400, 'deployment_id is required');
@@ -384,6 +400,7 @@ module.exports = {
   FALSE_LIVENESS_ERROR,
   canRecoverReportOnly,
   canRecoverReviewerFailure,
+  canRecoverInterruptedWorker,
   reportOnlyEvidenceReady,
   start,
   startManual,

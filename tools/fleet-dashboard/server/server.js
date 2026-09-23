@@ -930,7 +930,64 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // The durable row can outlive the dashboard process. Check the actual
       // isolated container rather than trusting the in-memory child map.
       if (await improvementAgent.workerProcessAlive(run)) continue;
+      if (improvementAgent.workerStartupGraceActive(run)) continue;
       const request = run.source_id ? events.getChangeRequest(run.source_id) : null;
+      let snapshot = null;
+      try {
+        snapshot = await git.worktreeSnapshot(run.workspace_path);
+      } catch {
+        /* missing worktree remains a real interrupted-worker failure */
+      }
+      // Preserve useful work when the provider died after editing but before
+      // its close callback. The original interrupted state is still recorded
+      // below as an event; the recovered run gets the normal independent
+      // reviewer and deterministic delivery gates.
+      if (request && snapshot?.dirty > 0) {
+        try {
+          events.updateImprovement(run.run_id, {
+            agent: {
+              status: 'completed',
+              finished_at: new Date().toISOString(),
+              recovered_from: 'interrupted-worker-with-dirty-worktree',
+              error: 'provider exited after producing an isolated diff; reviewer recovery started',
+            },
+          });
+          if (request.status !== 'review')
+            changequeue.update(
+              events,
+              request.request_id,
+              {
+                status: 'review',
+                error: 'worker exited after producing an isolated diff; reviewer recovery started',
+                next_attempt_at: null,
+                lease_owner: null,
+                lease_expires_at: null,
+                heartbeat_at: null,
+              },
+              site => isKnownTarget(root, site)
+            );
+          events.record({
+            event_type: 'improvement.worker_evidence_recovered',
+            source: 'improvement-workbench',
+            site_id: `site:${run.site}`,
+            entity_type: 'improvement',
+            entity_id: run.run_id,
+            correlation_id: run.correlation_id,
+            payload: {
+              request_id: request.request_id,
+              dirty_files: snapshot.dirty,
+              diff_stat: snapshot.diff_stat,
+            },
+          });
+          autoReviewRequest(request.request_id).catch(error =>
+            recordAutoReviewFailure(request.request_id, error)
+          );
+          changed += 1;
+          continue;
+        } catch {
+          /* fall through to the durable failure path below */
+        }
+      }
       try {
         const failedRun = improvements.transition(events, run.run_id, {
           state: 'failed',
@@ -1003,6 +1060,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   function retryableQueueFailure(request, run) {
+    if (run?.validation && validationInfrastructureBlock(run.validation)) return false;
     const text = `${request?.error || ''} ${failedRequestReason(request, run)}`;
     return /(worker process|implementation agent ended|reviewer handoff|automatic reviewer|quality gates? (?:did not pass|failed)|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding)/i.test(
       text
@@ -1200,6 +1258,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       await reconcileInterruptedWorkers();
       await reconcileFalseFailedReportRuns();
+      // A prior dashboard process may already have persisted the liveness
+      // failure before this process came back. Recover those durable rows too
+      // when their isolated checkout still contains useful work; otherwise
+      // the retry path would strand the evidence or detach it into a fresh
+      // empty run.
+      for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
+        const run = request.run_id ? events.getImprovement(request.run_id) : null;
+        await recoverInterruptedWorkerEvidence(request, run);
+      }
       reconcileStalledImprovementRuns();
       reconcileFailedRequestErrors();
       // Older failed rows were historically left with no next_attempt_at,
@@ -1415,6 +1482,78 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
     }
     return current;
+  }
+
+  async function recoverInterruptedWorkerEvidence(request, run) {
+    if (!request || !run?.workspace_path) return false;
+    if (run.outcome?.error !== improvements.FALSE_LIVENESS_ERROR) return false;
+    let snapshot;
+    try {
+      snapshot = await git.worktreeSnapshot(run.workspace_path);
+    } catch {
+      return false;
+    }
+    if (!snapshot?.dirty) return false;
+
+    try {
+      let recovered = run;
+      if (run.state === 'failed') {
+        recovered = improvements.transition(events, run.run_id, {
+          state: 'building',
+          recover_worker: true,
+          worktree_dirty: true,
+          outcome: {
+            ...(run.outcome || {}),
+            recovered_at: new Date().toISOString(),
+            recovery_reason: 'interrupted worker left a dirty isolated worktree',
+          },
+        });
+      }
+      events.updateImprovement(recovered.run_id, {
+        agent: {
+          ...(recovered.agent || {}),
+          status: 'completed',
+          finished_at: new Date().toISOString(),
+          recovered_from: 'interrupted-worker-with-dirty-worktree',
+          error: 'provider exited after producing an isolated diff; reviewer recovery started',
+        },
+      });
+      const currentRequest = events.getChangeRequest(request.request_id);
+      if (currentRequest && currentRequest.status !== 'review')
+        changequeue.update(
+          events,
+          request.request_id,
+          {
+            status: 'review',
+            error: 'worker exited after producing an isolated diff; reviewer recovery started',
+            next_attempt_at: null,
+            lease_owner: null,
+            lease_expires_at: null,
+            heartbeat_at: null,
+          },
+          site => isKnownTarget(root, site)
+        );
+      events.record({
+        event_type: 'improvement.worker_evidence_recovered',
+        source: 'improvement-workbench',
+        site_id: `site:${recovered.site}`,
+        entity_type: 'improvement',
+        entity_id: recovered.run_id,
+        correlation_id: recovered.correlation_id,
+        payload: {
+          request_id: request.request_id,
+          dirty_files: snapshot.dirty,
+          diff_stat: snapshot.diff_stat,
+          previous_state: run.state,
+        },
+      });
+      autoReviewRequest(request.request_id).catch(error =>
+        recordAutoReviewFailure(request.request_id, error)
+      );
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   const activeAutomaticReviews = new Set();
@@ -1687,7 +1826,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function validationInfrastructureBlock(validation) {
     const text = JSON.stringify(validation || {});
-    return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial)/i.test(
+    return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed)/i.test(
       text
     );
   }
@@ -1815,7 +1954,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const message = String(error.message || error);
     if (error?.noAutomaticRepair) {
       const failedRun = markImprovementFailed(run, error);
-      const retryable = request.attempts < MAX_AUTOMATIC_QUEUE_ATTEMPTS;
+      // Infrastructure failures need an operator/tooling fix, not another
+      // identical model attempt. Keep the failed request and evidence
+      // visible, but do not schedule a retry until the infrastructure is
+      // repaired or the owner explicitly retries it.
+      const retryable = false;
       try {
         changequeue.update(
           events,
