@@ -12,7 +12,12 @@ function fakeStore() {
         started_at: '2026-09-22T00:00:00.000Z',
         result: { counts: { change_requests: 1 } },
       },
-      { action_type: 'queue-work', started_at: '2026-09-22T00:02:00.000Z', result: {} },
+      {
+        action_type: 'queue-work',
+        target_type: 'approved-executive-work',
+        started_at: '2026-09-22T00:02:00.000Z',
+        result: { queued: 2 },
+      },
       { action_type: 'propose', started_at: '2026-09-22T00:03:00.000Z', result: {} },
     ],
     listExecutiveProposals: () => [
@@ -42,6 +47,8 @@ test('scorecard reports delivery and measurable outcomes instead of activity alo
   assert.equal(result.outcomes.proven, 1);
   assert.equal(result.outcomes.metric_deltas.conversions, 4);
   assert.equal(result.execution.delivered_requests, 1);
+  assert.equal(result.execution.approved_work_drain_runs, 1);
+  assert.equal(result.execution.approved_work_drained, 2);
   assert.equal(result.decisions.pending_owner_approval, 1);
   assert.equal(result.cadence.ticks, 1);
   assert.equal(result.cadence.actionability_rate_percent, 100);

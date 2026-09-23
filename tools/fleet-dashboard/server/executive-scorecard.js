@@ -112,6 +112,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const ticks = actions.filter(row => row.action_type === 'tick');
 
   const queueActions = actions.filter(row => row.action_type === 'queue-work');
+  const approvedWorkDrains = actions.filter(
+    row => row.action_type === 'queue-work' && row.target_type === 'approved-executive-work'
+  );
   const failedTicks = ticks.filter(row => row.status === 'failed');
   const deliveredRequests = requests.filter(row => DELIVERED_REQUESTS.has(row.status));
   const measured = improvements.filter(row => MEASURED_IMPROVEMENTS.has(row.state));
@@ -209,6 +212,11 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     execution: {
       audited_actions: actions.length,
       queue_actions: queueActions.length,
+      approved_work_drain_runs: approvedWorkDrains.length,
+      approved_work_drained: approvedWorkDrains.reduce(
+        (sum, row) => sum + Number(row.result?.queued || 0),
+        0
+      ),
       failed_ticks: failedTicks.length,
       historical_failures_retained: failedTicks.length > 0,
       by_action: countBy(actions, 'action_type'),
