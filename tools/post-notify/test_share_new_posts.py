@@ -23,12 +23,19 @@ class FakeResponse:
 
 class ShareNewPostsTests(unittest.TestCase):
     @patch("share_new_posts.urllib.request.urlopen")
-    def test_image_preflight_requires_success_and_content_length(self, urlopen):
-        urlopen.return_value = FakeResponse(headers={"Content-Length": "123"})
+    def test_image_preflight_requires_success_and_image_content_type(self, urlopen):
+        urlopen.return_value = FakeResponse(headers={
+            "Content-Type": "image/jpeg",
+            "Content-Length": "123",
+        })
         self.assertTrue(share_new_posts.check_image_url("https://example.test/card.jpg"))
 
         urlopen.return_value = FakeResponse(headers={})
         self.assertFalse(share_new_posts.check_image_url("https://example.test/card.jpg"))
+
+        # Cloudflare can omit Content-Length for a valid chunked response.
+        urlopen.return_value = FakeResponse(headers={"Content-Type": "image/jpeg"})
+        self.assertTrue(share_new_posts.check_image_url("https://example.test/card.jpg"))
 
         urlopen.return_value = FakeResponse(status=404, headers={"Content-Length": "123"})
         self.assertFalse(share_new_posts.check_image_url("https://example.test/card.jpg"))

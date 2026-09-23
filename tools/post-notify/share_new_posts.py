@@ -163,12 +163,18 @@ def log_to_disk(repo_root, channel, severity, text):
 
 
 def check_image_url(url, timeout=5):
-    """Return True when an image URL is ready for Slack's HEAD probe."""
+    """Return True when an image URL is ready for Slack's HEAD probe.
+
+    Cloudflare may use chunked transfer encoding and omit Content-Length even
+    for a healthy cached image. Content-Type plus a successful status is the
+    reliable readiness signal here; requiring Content-Length caused valid
+    America Strikes covers to be stripped from Slack cards.
+    """
     try:
         req = urllib.request.Request(url, method="HEAD")
         with urllib.request.urlopen(req, timeout=timeout) as response:
-            content_length = response.headers.get("Content-Length")
-            return 200 <= response.status < 400 and content_length is not None
+            content_type = response.headers.get("Content-Type", "").lower()
+            return 200 <= response.status < 400 and content_type.startswith("image/")
     except Exception:
         return False
 
@@ -288,11 +294,23 @@ def main():
             (b.get("image_url") for b in blocks if b.get("type") == "image"),
             None,
         )
-        if image_url and not check_image_url(image_url):
-            print("  ! image preflight failed — posting without cover image")
-            blocks = [b for b in blocks if b.get("type") != "image"]
+        if not image_url:
+            # Do not publish a text-only announcement when the content itself
+            # has no image reference. Leave the slug out of state so a later
+            # image backfill can make it eligible for sharing.
+            print("  ! article has no cover URL — deferring share until image is added")
             log_to_disk(repo_root, channel, "warning",
-                        "post-notify: skipped cover image for %r after HEAD preflight failed" % slug)
+                        "post-notify: deferred share for %r because frontmatter has no image URL" % slug)
+            continue
+        if not check_image_url(image_url):
+            # Do not publish a text-only announcement. Leave this slug out of
+            # state so the next deploy/share tick retries after edge
+            # propagation. A missing cover is a recoverable timing problem,
+            # not a reason to permanently announce an image-less card.
+            print("  ! image preflight failed — deferring share until cover is live")
+            log_to_disk(repo_root, channel, "warning",
+                        "post-notify: deferred share for %r after HEAD preflight failed; cover must be live before posting" % slug)
+            continue
         err = post_to_slack(token, channel, blocks, fallback)
         if err == "invalid_blocks":
             image_url = next(
@@ -309,12 +327,11 @@ def main():
             else:
                 print("  ⟳ image no longer passes HEAD preflight — skipping retries")
         if err == "invalid_blocks":
-            no_img = [b for b in blocks if b.get("type") != "image"]
-            if len(no_img) != len(blocks):
-                print("  ⟳ giving up on the image — retrying Slack card without it (invalid_blocks)")
-                log_to_disk(repo_root, channel, "warning",
-                            "post-notify: dropped cover image for %r after invalid_blocks — image_url likely unreachable to Slack's fetcher (e.g. missing Content-Length on HEAD)" % slug)
-                err = post_to_slack(token, channel, no_img, fallback)
+            # Never silently downgrade to a text-only announcement. Keep the
+            # slug unrecorded so a later tick can retry with the cover.
+            print("  ! image card still rejected — deferring share; will retry later")
+            log_to_disk(repo_root, channel, "warning",
+                        "post-notify: deferred share for %r after Slack rejected image card; cover was not dropped" % slug)
         if err is not None:
             log_to_disk(repo_root, channel, "error",
                         "post-notify: failed to share %r to Slack — %s" % (slug, err))
