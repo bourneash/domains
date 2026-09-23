@@ -141,6 +141,27 @@ test('restores an exact trusted task-routing key omitted by a provider', () => {
   assert.equal(plan.change_requests[0].action_key, 'task-routing:example.com:ops/tasks/content.md');
 });
 
+test('reserves queue capacity for approved implementation work', () => {
+  assert.deepEqual(runner.approvedWorkQueueBudgets(6), {
+    total: 6,
+    proposals: 2,
+    failureDiagnostics: 2,
+    dataQuality: 2,
+  });
+  assert.deepEqual(runner.approvedWorkQueueBudgets(2), {
+    total: 2,
+    proposals: 1,
+    failureDiagnostics: 1,
+    dataQuality: 0,
+  });
+  assert.deepEqual(runner.approvedWorkQueueBudgets(1), {
+    total: 1,
+    proposals: 0,
+    failureDiagnostics: 1,
+    dataQuality: 0,
+  });
+});
+
 test('does not infer a task-routing key from a near-match', () => {
   const plan = {
     change_requests: [{ site: 'example.com', title: 'Route another content task' }],

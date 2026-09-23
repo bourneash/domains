@@ -22,33 +22,31 @@ const audit = executive.action(store, {
   target_type: 'approved-executive-work',
 });
 try {
-  // Reserve half the cheap queue for telemetry/reliability evidence so a
-  // large historical failure backlog cannot starve live analytics and
-  // attribution gaps forever.
-  const failureBudget = Math.max(1, Math.ceil(Number(maxQueue) / 2));
+  // Reserve capacity for approved implementation-ready proposals. Historical
+  // diagnostics remain useful, but they must not consume every cheap queue
+  // slot and leave the executive team's actionable work waiting indefinitely.
+  const budgets = runner.approvedWorkQueueBudgets(maxQueue);
   const failureDiagnostics = runner.drainFailureDiagnostics(store, {
     root,
-    maxQueue: failureBudget,
+    maxQueue: budgets.failureDiagnostics,
   });
   const dataQuality = runner.drainDataQualityWork(store, {
     root,
-    maxQueue: Math.max(0, Number(maxQueue) - failureDiagnostics.filter(row => row.type === 'queued-failure-diagnosis').length),
+    maxQueue: budgets.dataQuality,
   });
-  const alreadyQueued =
-    failureDiagnostics.filter(row => row.type === 'queued-failure-diagnosis').length +
-    dataQuality.filter(row => row.type === 'queued-data-quality').length;
   const result = [
     ...failureDiagnostics,
     ...dataQuality,
     ...runner.drainApprovedProposalQueue(store, {
       root,
-      maxQueue: Math.max(0, Number(maxQueue) - alreadyQueued),
+      maxQueue: budgets.proposals,
     }),
   ];
   executive.finishAction(store, audit.action_id, {
     status: 'completed',
     result: {
       max_queue: maxQueue,
+      budgets,
       queued:
         result.filter(row =>
           ['queued', 'queued-failure-diagnosis', 'queued-data-quality'].includes(row.type)

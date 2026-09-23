@@ -1617,7 +1617,7 @@ function approvedReportOnlyImplementation(proposal, root = ROOT) {
     assigned_role: reportOnlyRole(category, site, root),
     requested_by: proposal.created_by === 'researcher' ? 'cro' : proposal.created_by,
     provider: 'chatgpt',
-    model: 'gpt-5.6-luna',
+    model: 'gpt-5',
     max_turns: 12,
     auto_review: true,
     delivery_mode: 'report_only',
@@ -1944,6 +1944,25 @@ function drainApprovedProposalQueue(store, { root = ROOT, maxQueue = 6 } = {}) {
   });
 }
 
+// Keep deterministic diagnostics from consuming every queue slot. Approved
+// implementation-ready proposals are the path from executive planning to
+// measurable work, so reserve one slot even on a small queue and up to one
+// third of a normal batch for them. The remaining capacity is shared by
+// failure diagnosis and data-quality evidence.
+function approvedWorkQueueBudgets(maxQueue = 6) {
+  const total = Math.max(0, Math.min(12, Number(maxQueue) || 0));
+  if (!total) return { total: 0, proposals: 0, failureDiagnostics: 0, dataQuality: 0 };
+  const proposals = Math.min(total, Math.max(total >= 2 ? 1 : 0, Math.floor(total / 3)));
+  const evidence = total - proposals;
+  const failureDiagnostics = Math.min(2, Math.ceil(evidence / 2));
+  return {
+    total,
+    proposals,
+    failureDiagnostics,
+    dataQuality: evidence - failureDiagnostics,
+  };
+}
+
 function reportWorkRequestKey(prefix, workId) {
   return `${prefix}:${String(workId || '').trim()}`;
 }
@@ -1991,7 +2010,7 @@ function queueBoundedReportWork(
       assigned_role: assignedRole,
       requested_by: requestedBy,
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 12,
       auto_review: true,
       delivery_mode: 'report_only',
@@ -2277,7 +2296,7 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
         assigned_role: 'engineer',
         requested_by: 'ceo',
         provider: 'chatgpt',
-        model: 'gpt-5.6-luna',
+        model: 'gpt-5',
         max_turns: 12,
         auto_review: true,
         ...(reportOnly ? { delivery_mode: 'report_only' } : {}),
@@ -2932,6 +2951,7 @@ module.exports = {
   actionMandateSatisfied,
   reconcileApprovedProposalFollowThrough,
   drainApprovedProposalQueue,
+  approvedWorkQueueBudgets,
   drainDataQualityWork,
   drainFailureDiagnostics,
   applyPlan,
