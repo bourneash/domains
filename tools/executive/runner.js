@@ -1213,7 +1213,7 @@ function validatePlan(plan) {
   }
   for (const item of plan.proposals) {
     if (
-      !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager'].includes(
+      !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'researcher'].includes(
         String(item.created_by || 'ceo')
       ) ||
       !String(item.title || '').trim() ||
@@ -1534,6 +1534,30 @@ function isTelemetryRequestProposal(item = {}) {
   );
 }
 
+function proposalDedupeKey(item = {}) {
+  const implementation =
+    item.implementation && typeof item.implementation === 'object' ? item.implementation : {};
+  return [
+    item.proposal_type || 'business',
+    item.created_by || 'ceo',
+    item.title || '',
+    implementation.site || '',
+    implementation.action_key || '',
+  ]
+    .map(value => String(value).trim().toLowerCase().replace(/\s+/g, ' '))
+    .join('|');
+}
+
+function openProposalDuplicate(store, item) {
+  const key = proposalDedupeKey(item);
+  return store
+    .listExecutiveProposals({ limit: 500 })
+    .find(
+      existing =>
+        ['proposed', 'feedback'].includes(existing.status) && proposalDedupeKey(existing) === key
+    );
+}
+
 function runProvider(
   prompt,
   {
@@ -1608,6 +1632,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     work_items: [],
     knowledge: [],
     skipped_change_requests: [],
+    skipped_proposals: [],
     research: [],
     telemetry_satisfied: [],
   };
@@ -1751,6 +1776,26 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
             'fleet-manager-control-plane',
           ],
         },
+      });
+      continue;
+    }
+    const duplicate = openProposalDuplicate(store, item);
+    if (duplicate) {
+      created.skipped_proposals.push({
+        title: item.title,
+        duplicate_of: duplicate.proposal_id,
+        reason: 'an open proposal with the same role, type, title, site, and action already exists',
+      });
+      const dedupeAudit = executive.action(store, {
+        actor: item.created_by || 'ceo',
+        action_type: 'observe',
+        summary: `Deduplicated open executive proposal: ${item.title}`,
+        target_type: 'executive-proposal',
+        target_id: duplicate.proposal_id,
+      });
+      executive.finishAction(store, dedupeAudit.action_id, {
+        status: 'skipped',
+        result: created.skipped_proposals.at(-1),
       });
       continue;
     }

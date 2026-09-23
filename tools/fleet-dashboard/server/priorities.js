@@ -2,7 +2,7 @@
 
 const registry = require('./fleetregistry');
 const tasks = require('./tasks');
-const { ownershipMismatch } = require('./task-routing');
+const { assignedRoleForSite, ownershipMismatch } = require('./task-routing');
 
 function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUsage = {} }) {
   const reg = registry.read(root);
@@ -57,27 +57,75 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     /* surface remains useful */
   }
   const installedRoles = new Map();
+  const availableRoles = new Map();
+  const rolesForSite = site => {
+    if (availableRoles.has(site)) return availableRoles.get(site);
+    const ops = require('node:path').join(root, 'sites', site, 'ops');
+    const found = new Set();
+    try {
+      for (const file of require('node:fs').readdirSync(require('node:path').join(ops, 'roles'))) {
+        if (file.endsWith('.md')) found.add(file.slice(0, -3));
+      }
+    } catch {
+      /* older/scaffold sites may not have a roles directory */
+    }
+    try {
+      const crontab = require('node:fs').readFileSync(
+        require('node:path').join(ops, 'docker', 'crontab.docker'),
+        'utf8'
+      );
+      for (const match of crontab.matchAll(/run-worker\.sh\s+([a-z0-9][a-z0-9-]*)/gi))
+        found.add(match[1]);
+    } catch {
+      /* role files are sufficient when the checkout has no cron definition */
+    }
+    const result = [...found];
+    availableRoles.set(site, result);
+    return result;
+  };
   for (const task of allTasks) {
     if (!task.assigned_role || !['backlog', 'in-progress'].includes(task.column)) continue;
     const key = `${task.site}:${task.assigned_role}`;
     if (!installedRoles.has(key))
       installedRoles.set(key, roleInstalled(root, task.site, task.assigned_role));
-    if (!installedRoles.get(key))
-      items.push({
-        id: `task-owner:${task.site}:${task.file}`,
-        kind: 'execution',
-        site: task.site,
-        site_id: `site:${task.site}`,
-        title: `Reassign task owned by missing role: ${task.title}`,
-        evidence: `${task.assigned_role} is not installed for ${task.site}`,
-        score: 91,
-        confidence: 'high',
-        state: 'blocked',
-        source: 'task-board',
-        proxy_value: 0,
-        expected_profit_usd: null,
-        task: { file: task.file, column: task.column },
-      });
+    if (!installedRoles.get(key)) {
+      const effective = task.type
+        ? assignedRoleForSite(task.type, task.assigned_role, rolesForSite(task.site))
+        : null;
+      items.push(
+        effective && effective !== task.assigned_role
+          ? {
+              id: `task-routing:${task.site}:${task.file}`,
+              kind: 'execution',
+              site: task.site,
+              site_id: `site:${task.site}`,
+              title: `Reassign task to ${effective}: ${task.title}`,
+              evidence: `${task.assigned_role} is not installed; ${effective} is the nearest installed owner for type=${task.type}`,
+              score: 96,
+              confidence: 'high',
+              state: 'blocked',
+              source: 'task-routing-audit',
+              proxy_value: 0,
+              expected_profit_usd: null,
+              task: { file: task.file, column: task.column, expected_role: effective },
+            }
+          : {
+              id: `task-owner:${task.site}:${task.file}`,
+              kind: 'execution',
+              site: task.site,
+              site_id: `site:${task.site}`,
+              title: `Reassign task owned by missing role: ${task.title}`,
+              evidence: `${task.assigned_role} is not installed for ${task.site}`,
+              score: 91,
+              confidence: 'high',
+              state: 'blocked',
+              source: 'task-board',
+              proxy_value: 0,
+              expected_profit_usd: null,
+              task: { file: task.file, column: task.column },
+            }
+      );
+    }
   }
 
   // Defense-in-depth audit for tasks written outside the dashboard API, such
@@ -87,20 +135,30 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     if (!['backlog', 'in-progress'].includes(task.column)) continue;
     const mismatch = ownershipMismatch(task.type, task.assigned_role);
     if (!mismatch) continue;
+    const effective = assignedRoleForSite(
+      task.type,
+      mismatch.expected_role,
+      rolesForSite(task.site)
+    );
+    // A site's installed equivalent is valid ownership. Do not manufacture a
+    // blocked request asking an AI worker to replace `news-writer` with the
+    // fleet-wide `content-writer` when the former is the site's real owner.
+    if (effective && effective === task.assigned_role) continue;
+    const expectedRole = effective || mismatch.expected_role;
     items.push({
       id: `task-routing:${task.site}:${task.file}`,
       kind: 'execution',
       site: task.site,
       site_id: `site:${task.site}`,
-      title: `Reassign task to ${mismatch.expected_role}: ${task.title}`,
-      evidence: `type=${task.type} requires ${mismatch.expected_role}; found ${task.assigned_role || 'unassigned'}`,
+      title: `Reassign task to ${expectedRole}: ${task.title}`,
+      evidence: `type=${task.type} requires ${expectedRole}; found ${task.assigned_role || 'unassigned'}`,
       score: 96,
       confidence: 'high',
       state: 'blocked',
       source: 'task-routing-audit',
       proxy_value: 0,
       expected_profit_usd: null,
-      task: { file: task.file, column: task.column, expected_role: mismatch.expected_role },
+      task: { file: task.file, column: task.column, expected_role: expectedRole },
     });
   }
 

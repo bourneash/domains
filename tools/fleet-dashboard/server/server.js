@@ -2921,8 +2921,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const ttlHours = Math.max(1, Number(process.env.FD_IMPROVEMENT_SANDBOX_TTL_HOURS || 24));
     const cutoff = Date.now() - ttlHours * 3600000;
     for (const run of events.listImprovements({ limit: 1000 })) {
-      if (!['cancelled', 'proven', 'inconclusive', 'rolled-back'].includes(run.state)) continue;
-      if (Date.parse(run.updated_at || run.created_at) > cutoff) continue;
+      const terminal = ['cancelled', 'failed', 'proven', 'inconclusive', 'rolled-back'].includes(
+        run.state
+      );
+      if (!terminal) continue;
+      // Failed runs are safe to reap as soon as their worker is no longer
+      // active. They commonly represent a provider/reviewer failure and must
+      // not retain an idle ttyd/container until the 24-hour evidence TTL.
+      // Successful terminal runs keep the historical TTL to preserve an
+      // operator's short-lived preview/review surface.
+      if (run.state !== 'failed' && Date.parse(run.updated_at || run.created_at) > cutoff) continue;
+      if (improvementAgent.isActive(run) || (await improvementAgent.workerProcessAlive(run)))
+        continue;
       try {
         const result = await cleanupImprovementResources(root, run);
         if (result.cleaned)
@@ -5144,23 +5154,30 @@ async function syncImprovementTask(root, run, target) {
 }
 
 async function cleanupImprovementResources(root, run) {
+  let cleaned = true;
+  let cleanupError = null;
   if (run.workspace_path) {
     try {
       await git.removeWorktree(root, run.site, run.run_id);
     } catch (error) {
       if (error.httpStatus !== 409) throw error;
-      // Preserve a dirty worktree for recovery rather than deleting evidence.
-      return { cleaned: false, error: error.message };
+      // Preserve a dirty worktree for recovery rather than deleting evidence,
+      // but continue to remove the disposable sandbox below. A failed worker
+      // must not leave an idle container consuming resources just because its
+      // worktree needs operator review.
+      cleaned = false;
+      cleanupError = error.message;
     }
   }
   if (run.sandbox?.instance) {
     try {
       await devsandbox.remove(run.sandbox.instance);
-    } catch {
-      /* already absent */
+    } catch (error) {
+      cleaned = false;
+      cleanupError = cleanupError || error.message;
     }
   }
-  return { cleaned: true };
+  return { cleaned, error: cleanupError };
 }
 
 async function validatePreview(instance, url) {

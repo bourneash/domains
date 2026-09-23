@@ -17,6 +17,11 @@ function fixture() {
   fs.mkdirSync(path.join(root, 'sites', 'live.example', 'ops', 'tasks', 'backlog'), {
     recursive: true,
   });
+  fs.mkdirSync(path.join(root, 'sites', 'live.example', 'ops', 'roles'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'sites', 'live.example', 'ops', 'roles', 'news-writer.md'),
+    '# News writer\n'
+  );
   fs.writeFileSync(
     path.join(root, 'sites', 'live.example', 'ops', 'tasks', 'backlog', 'work.md'),
     `---\ntitle: Do work\nassigned_role: missing-role\n---\nBody\n`
@@ -24,6 +29,10 @@ function fixture() {
   fs.writeFileSync(
     path.join(root, 'sites', 'live.example', 'ops', 'tasks', 'backlog', 'seo.md'),
     `---\ntitle: SEO work\ntype: seo\nassigned_role: engineer\n---\nBody\n`
+  );
+  fs.writeFileSync(
+    path.join(root, 'sites', 'live.example', 'ops', 'tasks', 'backlog', 'content.md'),
+    `---\ntitle: Editorial work\ntype: content\nassigned_role: news-writer\n---\nBody\n`
   );
   return root;
 }
@@ -56,6 +65,10 @@ test('joins lifecycle, analytics gaps, task ownership and growth actions', () =>
   assert.ok(out.items.some(x => x.source === 'task-board' && x.state === 'blocked'));
   assert.ok(
     out.items.some(x => x.source === 'task-routing-audit' && x.task.expected_role === 'seo-analyst')
+  );
+  assert.ok(
+    !out.items.some(x => x.title.includes('Editorial work') && x.source === 'task-routing-audit'),
+    'installed site-equivalent roles must not become false routing blockers'
   );
   assert.equal(out.scorecards[0].profit_attributable, false);
   assert.equal(out.scorecards[0].allocation, 'repair');

@@ -799,10 +799,67 @@ test('does not trust provider proposal IDs across recurring runs', async () => {
     })
   );
   const first = await runner.applyPlan(store, plan, { root });
-  const second = await runner.applyPlan(store, plan, { root });
+  const second = await runner.applyPlan(
+    store,
+    { ...plan, proposals: [{ ...plan.proposals[0], title: 'Finance review follow-up' }] },
+    { root }
+  );
   assert.notEqual(first.proposals[0].proposal_id, 'provider-reused-slug');
   assert.notEqual(first.proposals[0].proposal_id, second.proposals[0].proposal_id);
   store.close();
+});
+
+test('does not create another open proposal for the same executive decision', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'ceo',
+          title: 'Run a bounded revenue test',
+          proposal_type: 'growth',
+          summary: 'Use the strongest current evidence.',
+          requested_action: 'Queue the reversible test.',
+          implementation: {
+            site: 'example.com',
+            action_key: 'growth:test',
+            title: 'Run a bounded revenue test',
+            body: 'Run the reversible test and record the result.',
+          },
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  const first = await runner.applyPlan(store, plan, { root });
+  const second = await runner.applyPlan(store, plan, { root });
+  assert.equal(first.proposals.length, 1);
+  assert.equal(second.proposals.length, 0);
+  assert.equal(second.skipped_proposals.length, 1);
+  assert.equal(store.listExecutiveProposals({ limit: 100 }).length, 1);
+  store.close();
+});
+
+test('accepts researcher proposals as CRO evidence handoffs', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'researcher',
+          title: 'Purpose-fit repository review',
+          proposal_type: 'report-only',
+          summary: 'A CRO lab lead for CEO and CTO review.',
+          requested_action: 'Review the evidence before any adoption decision.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  assert.equal(plan.proposals[0].created_by, 'researcher');
 });
 
 test('rejects non-JSON provider output', () => {
