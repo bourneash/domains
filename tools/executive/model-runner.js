@@ -3,6 +3,8 @@
 const fs = require('node:fs');
 const runner = require('./runner');
 
+let activeRun = null;
+
 function estimateTokens(value) {
   return Math.ceil(Buffer.byteLength(String(value || ''), 'utf8') / 4);
 }
@@ -127,15 +129,38 @@ async function main() {
   // Preserve partial cost/pass evidence when a provider response fails
   // validation. The sandbox may not produce a plan, but it must still export
   // the calls already made so failures cannot disappear from the audit ledger.
+  activeRun = { audit, usage, failure: null };
   process.on('exit', () => {
     if (finalized) return;
     try {
       fs.writeFileSync(
         '/output/passes.json',
-        JSON.stringify({ passes: audit, incomplete: true }, null, 2),
+        JSON.stringify(
+          { passes: audit, incomplete: true, failure: activeRun?.failure || null },
+          null,
+          2
+        ),
         { mode: 0o600 }
       );
       fs.writeFileSync('/output/usage.json', JSON.stringify(usage, null, 2), { mode: 0o600 });
+      if (activeRun?.failure) {
+        fs.writeFileSync(
+          '/output/failure.json',
+          JSON.stringify(
+            {
+              error: activeRun.failure,
+              passes_completed: audit,
+              usage: {
+                calls: usage.calls.length,
+                estimated_total_tokens: usage.estimated_total_tokens,
+              },
+            },
+            null,
+            2
+          ),
+          { mode: 0o600 }
+        );
+      }
     } catch {
       /* best effort during process shutdown */
     }
@@ -153,7 +178,7 @@ async function main() {
       // Allow one bounded correction attempt, then fail closed.
       repaired = true;
       output = await runTracked(
-        `${prompt}\n\nYour previous response failed validation (${error.message}). Return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|security|domain-manager|reviewer, and status accepted_research|escalate_owner|declined.`,
+        `${prompt}\n\nYour previous response failed validation (${error.message}). Correct that exact validation error and return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|security|domain-manager|reviewer, and status accepted_research|escalate_owner|declined. Proposals must include created_by, title, summary, and requested_action; created_by must be ceo|cto|cro|cfo|legal|security|domain-manager|researcher.`,
         usage,
         role,
         true
@@ -240,6 +265,7 @@ async function main() {
 
 if (require.main === module) {
   main().catch(error => {
+    if (activeRun) activeRun.failure = String(error.message || error);
     console.error(error.message);
     process.exitCode = 1;
   });

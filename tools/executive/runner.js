@@ -1299,17 +1299,23 @@ function validatePlan(plan) {
     if (/3boobs(?:\.com)?/i.test(String(item.body)))
       throw new Error('executive plan references an excluded site');
   }
-  for (const item of plan.proposals) {
+  for (const [index, item] of plan.proposals.entries()) {
+    const invalid = [];
     if (
+      !item ||
       !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'researcher'].includes(
-        String(item.created_by || 'ceo')
-      ) ||
-      !String(item.title || '').trim() ||
-      String(item.title).length > 300 ||
-      !String(item.summary || '').trim() ||
-      !String(item.requested_action || '').trim()
+        String(item?.created_by || 'ceo')
+      )
     )
-      throw new Error('invalid executive proposal in provider plan');
+      invalid.push(`created_by=${String(item?.created_by || '')}`);
+    if (!String(item?.title || '').trim()) invalid.push('title=missing');
+    else if (String(item.title).length > 300) invalid.push('title=too-long');
+    if (!String(item?.summary || '').trim()) invalid.push('summary=missing');
+    if (!String(item?.requested_action || '').trim()) invalid.push('requested_action=missing');
+    if (invalid.length)
+      throw new Error(
+        `invalid executive proposal in provider plan at index ${index} (${invalid.join(', ')})`
+      );
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
       throw new Error('executive plan references an excluded site');
     const assignedRole = item.implementation?.assigned_role;
