@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:24:13.711Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T07:39:09.382Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: retain both proposals as deferred backlog hypotheses, but decline new queue actions this cycle. Existing work remains isolated, reversible, and measurement-gated; no new telemetry, production changes, credentials, spending, or monetization changes are justified.",
+        "summary": "CTO review: approve the CEO recommendation to queue nothing new. Existing work is technically feasible only within isolated, bounded, reversible workstreams with current owners and measurement gates. Do not duplicate candidates, restore telemetry, change production configuration, deploy, spend, alter credentials, or expand monetization. Fleet-doctor and operations sweeps are unavailable, 15 implementation requests have failed, and zero outcomes are proven. Existing work may continue only after isolated-worktree cleanup, quality checks, smoke validation, explicit rollback notes, and recorded measurement at the existing gates. Do not invent telemetry or claim causal lift, revenue, margin, ROI, CAC, payback, or forecasts.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Isolation and instrumentation gate: continue only existing work items that use disposable or isolated execution, preserve site boundaries, avoid shared production changes, and expose deployment, smoke, error, exposure, and outcome records through existing systems. Because operations and fleet-doctor sweeps are unavailable, no work may be treated as production-safe without the existing reviewer and rollback checks. Existing measurement observations must remain labeled unavailable when fetches fail.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,43 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:24:13.712Z",
-  "summary": "security checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T07:39:09.383Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: conditional for ordinary bounded growth; blocked for security-sensitive go-live, release, or production changes. Evidence: TLS expiry check found no certificates expiring within 30 days, but fleet-doctor has never run, deployment/uptime/error sweeps are unavailable, and no evidence supports authentication boundaries, secret handling, container isolation, release controls, dependency or supply-chain review, data-exposure controls, incident monitoring, or disclosure readiness. Missing evidence is not evidence of safety. Continue only existing reversible workstreams; do not block ordinary growth for optional hardening alone.",
+        "summary": "Security disposition: conditional for ordinary bounded reversible growth; evidence_needed for fleet-wide security assurance; blocked for SearchWoot public beta or full launch. Evidence: security baseline covers 59 sites but fleet-doctor is unavailable with no run, operations deploy/uptime/error sweeps are unavailable, and no security checks are reported. TLS has no certificates expiring within 30 days, and no active incident, credential exposure, or exploit is evidenced. Risk severity is high for go-live and security-sensitive production changes because authentication/access boundaries, secrets exposure, container isolation, release controls, dependency risk, data exposure, incident readiness, and disclosure readiness are not evidenced; medium for ordinary growth because no concrete active security incident is reported. Exact recommendation: keep SearchWoot private, queue nothing new, and continue only existing isolated reversible work with reviewer, smoke, rollback, and measurement gates. Do not claim certification or a clean bill of health from missing telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Exact decision: keep SearchWoot private. Do not authorize public beta, full launch, notification expansion, credential changes, production configuration changes, or monetization changes until access, secrets, isolation, release, dependency, TLS, data-exposure, monitoring, incident-response, and disclosure-readiness evidence is complete and reviewed. Security-sensitive implementation must include implementation.security_review with status approved or needs_owner, reviewed_by security, and an evidence-backed decision_note.",
+        "summary": "Security release decision: do not authorize SearchWoot public beta, full launch, monetization expansion, or security-sensitive production change. The launch checklist explicitly marks security_and_release blocked, while fleet-doctor and operations sweeps have no usable results. Required evidence before reconsideration: authenticated access and boundary review, secret-handling evidence, runtime/container isolation, release and rollback controls, dependency and supply-chain review, TLS and security-header evidence, data-flow and log exposure review, incident signals and response ownership, and security.txt or equivalent disclosure readiness where applicable. Missing evidence is an uncertainty, not proof of compromise.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk severity: high for go-live and security-sensitive production changes because fleet-doctor is unavailable and operational security telemetry is missing; medium for ordinary growth because no active incident, credential exposure, exploit, or expiring certificate is evidenced. Missing security.txt or disclosure evidence remains a readiness gap, not proof of vulnerability.",
+        "summary": "For ordinary fleet growth, retain existing bounded reversible work only. Security does not recommend blocking routine SEO or content work solely for optional hardening when the work introduces no new data collection, credentials, access surface, deployment scope, or monetization-sensitive behavior. Existing work must remain isolated, preserve site boundaries, pass reviewer and smoke checks, document rollback, and stop on any newly observed incident, secret exposure, access-control regression, dependency concern, or data leakage signal.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Fleet affiliate attribution guardrail prototype",
-        "summary": "Report-only checker concept for validating registered affiliate tracking IDs before publication. Retain as backlog evidence; no implementation this cycle.",
-        "requested_action": "Defer pending measured outcomes and confirmation that the work does not duplicate existing attribution controls. No deployment, credential change, spending, or affiliate-account change.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Great American Lakes contextual commerce CTA experiment",
-        "summary": "Potential isolated CTA experiment for a high-intent fishing page after the existing measurement gate completes. Retain as backlog evidence; no implementation this cycle.",
-        "requested_action": "Defer until active measurement records an outcome. Require approved destinations and disclosures, existing measurement only, isolated reversible scope, quality gates, stop conditions, and rollback criteria.",
         "proposal_id": null
       }
     ]
