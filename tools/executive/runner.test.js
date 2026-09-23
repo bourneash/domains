@@ -160,6 +160,45 @@ test('routes an engineering-labelled content handoff through the content lane', 
   assert.equal(plan.change_requests[0].assigned_role, 'engineer');
 });
 
+test('does not reissue a delivered candidate with the same action key or title', () => {
+  const intelligence = {
+    decision_support: {
+      seo: {
+        actions: [
+          { site: 'done.example', key: 'done-key', title: 'Already shipped', score: 100 },
+          { site: 'new.example', key: 'new-key', title: 'New opportunity', score: 90 },
+        ],
+      },
+    },
+  };
+  const candidates = runner.actionCandidates(intelligence, ['done.example', 'new.example'], {
+    keys: new Set(['done-key']),
+    titles: new Set(),
+  });
+  assert.deepEqual(
+    candidates.map(row => row.site),
+    ['new.example']
+  );
+});
+
+test('provides a dedicated CRO review prompt and lets CEO review its plan', () => {
+  const brief = {
+    sites: ['example.com'],
+    tool_contract: {},
+    specialist_inputs: {},
+    intelligence: { research: [] },
+    task_queue: {},
+    work_items: [],
+    action_mandate: { candidates: [] },
+  };
+  assert.match(runner.buildPassPrompt(brief, 'cro'), /CRO pass/);
+  assert.match(runner.buildPassPrompt(brief, 'cro'), /created_by to cro|created_by.*cro/i);
+  assert.match(
+    runner.buildPassPrompt(brief, 'ceo', { proposals: [{ title: 'CRO lead' }] }),
+    /CANDIDATE PLAN FROM THE CRO/
+  );
+});
+
 test('roles can create and update bounded workbench cases through the plan', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

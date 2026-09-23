@@ -5,6 +5,16 @@ set -euo pipefail
 # This is intentionally deterministic at the orchestration layer: no model is
 # needed to collect the data and no owner approval is required.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+# Match the service-network route used by fleet-cron. An explicit value from
+# the scheduler remains authoritative; this fallback prevents host/manual
+# runs from silently selecting a container-only hostname.
+if [[ -z "${DATAHUB_API:-}" ]]; then
+  if [[ -f /.dockerenv ]]; then
+    export DATAHUB_API="http://datahub-api:4760"
+  else
+    export DATAHUB_API="http://127.0.0.1:4760"
+  fi
+fi
 node - "$ROOT" <<'NODE'
 const root = process.argv[2];
 const runner = require(`${root}/tools/executive/runner`);

@@ -68,7 +68,25 @@ function mergePassPlans(previous, next) {
       return true;
     })
     .slice(-20);
-  return { ...next, messages };
+  // Review passes commonly return only the fields they changed. Treating an
+  // omitted/empty array as an instruction to erase the prior pass silently
+  // converted good CEO decisions into observation-only cycles. Preserve
+  // earlier durable work unless a later pass supplies a replacement list.
+  const preserveWhenEmpty = [
+    'proposal_reviews',
+    'data_requests',
+    'proposals',
+    'change_requests',
+    'research_requests',
+    'work_items',
+    'knowledge',
+  ];
+  const merged = { ...next, messages };
+  for (const key of preserveWhenEmpty) {
+    if ((!Array.isArray(next[key]) || next[key].length === 0) && Array.isArray(previous[key]))
+      merged[key] = previous[key];
+  }
+  return merged;
 }
 
 async function main() {
@@ -84,6 +102,7 @@ async function main() {
         ![
           'adaptive',
           'ceo',
+          'cro',
           'cto',
           'cfo',
           'legal',
@@ -94,7 +113,7 @@ async function main() {
     )
   )
     throw new Error(
-      'EXECUTIVE_PASSES must contain adaptive or ceo, cto, cfo, legal, security, domain-manager, reviewer'
+      'EXECUTIVE_PASSES must contain adaptive or ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
     );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);
@@ -201,9 +220,11 @@ async function main() {
   process.stdout.write(JSON.stringify({ passes: audit, usage }) + '\n');
 }
 
-main().catch(error => {
-  console.error(error.message);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch(error => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}
 
 module.exports = { mergePassPlans };

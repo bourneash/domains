@@ -103,6 +103,7 @@ async function run({
           site: current.site,
           state: current.state,
           status: 'waiting',
+          telemetry_status: newImpressions == null ? 'unavailable' : 'available',
           elapsed_days: Math.round(elapsedDays * 10) / 10,
           new_impressions: newImpressions,
           measurement_due: current.measurement_due,

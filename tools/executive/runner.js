@@ -58,7 +58,40 @@ function executiveTarget(root, site) {
   return site === 'fleet' || executiveSites(root).includes(site);
 }
 
-function actionCandidates(intelligence, sites) {
+function normalizeActionTitle(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[“”‘’]/g, "'")
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function completedActionIndex(store) {
+  const keys = new Set();
+  const titles = new Set();
+  if (!store) return { keys, titles };
+  for (const request of store.listChangeRequests({ limit: 1000 })) {
+    if (!['committed', 'deployed', 'verified'].includes(String(request.status))) continue;
+    if (request.action_key) keys.add(String(request.action_key));
+    const site = String(request.site || '')
+      .trim()
+      .toLowerCase();
+    const title = normalizeActionTitle(request.title);
+    if (site && title) titles.add(`${site}:${title}`);
+  }
+  for (const run of store.listImprovements({ limit: 1000 })) {
+    if (!['reported', 'deployed', 'measuring', 'proven'].includes(String(run.state))) continue;
+    const site = String(run.site || '')
+      .trim()
+      .toLowerCase();
+    const title = normalizeActionTitle(run.title);
+    if (site && title) titles.add(`${site}:${title}`);
+  }
+  return { keys, titles };
+}
+
+function actionCandidates(intelligence, sites, completed = { keys: new Set(), titles: new Set() }) {
   const allowed = new Set(sites);
   const seoActions = Array.isArray(intelligence?.decision_support?.seo?.actions)
     ? intelligence.decision_support.seo.actions
@@ -94,6 +127,11 @@ function actionCandidates(intelligence, sites) {
   // entire executive cycle while fleet-wide blockers remained hidden.
   const bySite = new Map();
   for (const candidate of [...seoActions, ...priorityItems]) {
+    const key = candidate.key ? String(candidate.key) : '';
+    const titleKey = `${String(candidate.site || '')
+      .trim()
+      .toLowerCase()}:${normalizeActionTitle(candidate.title)}`;
+    if ((key && completed.keys.has(key)) || completed.titles.has(titleKey)) continue;
     const current = bySite.get(candidate.site);
     if (!current || Number(candidate.score || 0) > Number(current.score || 0))
       bySite.set(candidate.site, candidate);
@@ -379,7 +417,7 @@ async function buildBrief(store, root = ROOT) {
       minimum_evidence_backed_action: 1,
       maximum_queued_actions: 6,
       rule: 'When an evidence-backed, low-risk and reversible candidate exists, the CEO/CTO pass must either queue it for the engineer or explain why it was rejected. Do not let low-volume affiliate attribution create a no-op.',
-      candidates: actionCandidates(intel.intelligence, sites),
+      candidates: actionCandidates(intel.intelligence, sites, completedActionIndex(store)),
     },
     intelligence: intel,
     launch_readiness: launchReadiness.read(root),
@@ -721,22 +759,29 @@ ${JSON.stringify(modelBrief)}`;
 }
 
 function buildPassPrompt(brief, role, candidate = null) {
-  if (role === 'ceo') return buildPrompt(brief);
+  if (role === 'ceo') {
+    const prompt = buildPrompt(brief);
+    return candidate
+      ? `${prompt}\n\nCANDIDATE PLAN FROM THE CRO OR EARLIER PASS:\n${JSON.stringify(compactModelValue(candidate))}\n\nReview and preserve useful evidence-backed work; correct or reject unsafe items explicitly.`
+      : prompt;
+  }
   const modelBrief = compactModelBrief(brief);
   const base =
-    role === 'cto'
-      ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
-      : role === 'cfo'
-        ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
-        : role === 'principal-engineer'
-          ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
-          : role === 'legal'
-            ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
-            : role === 'security'
-              ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
-              : role === 'domain-manager'
-                ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager.'
-                : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+    role === 'cro'
+      ? 'You are the CRO pass for an autonomous domain-fleet executive. Turn purpose-fit market, GitHub, CRO-lab, search, affiliate, and audience signals into concrete revenue experiments and product opportunities. Do not merely list popular repositories: explain the fleet use case, validation evidence, license/security/maintenance risks, expected metric, time-to-learn, and smallest reversible prototype. CRO leads are handoffs to the CEO and CTO, not owner approval requests. Every proposal you retain must set created_by to cro, and you must not directly deploy, spend, change credentials, or add domains.'
+      : role === 'cto'
+        ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
+        : role === 'cfo'
+          ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
+          : role === 'principal-engineer'
+            ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
+            : role === 'legal'
+              ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
+              : role === 'security'
+                ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
+                : role === 'domain-manager'
+                  ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager.'
+                  : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
 

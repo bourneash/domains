@@ -1002,6 +1002,48 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return 'failed request has no linked improvement run or recorded reason; manual inspection is required';
   }
 
+  function retryableQueueFailure(request, run) {
+    const text = `${request?.error || ''} ${failedRequestReason(request, run)}`;
+    return /(worker process|implementation agent ended|reviewer handoff|automatic reviewer|quality gates? (?:did not pass|failed)|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding)/i.test(
+      text
+    );
+  }
+
+  function scheduleFailedRequestRetry(
+    request,
+    reason = request?.error || 'bounded automatic retry'
+  ) {
+    if (!request || request.status !== 'failed') return false;
+    if (request.next_attempt_at || Number(request.attempts || 0) >= MAX_AUTOMATIC_QUEUE_ATTEMPTS)
+      return false;
+    const run = request.run_id ? events.getImprovement(request.run_id) : null;
+    if (!retryableQueueFailure(request, run)) return false;
+    const nextAttempt = new Date(Date.now() + 5 * 60000).toISOString();
+    try {
+      changequeue.update(events, request.request_id, { next_attempt_at: nextAttempt }, site =>
+        isKnownTarget(root, site)
+      );
+      events.record({
+        event_type: 'change-request.retry-scheduled',
+        source: 'fleet-dashboard',
+        site_id: `site:${request.site}`,
+        entity_type: 'change-request',
+        entity_id: request.request_id,
+        correlation_id: `change-request:${request.request_id}`,
+        payload: {
+          reason: 'bounded retry scheduled after recoverable worker/reviewer failure',
+          failure: String(reason).slice(0, 1000),
+          attempts: Number(request.attempts || 0),
+          max_automatic_attempts: MAX_AUTOMATIC_QUEUE_ATTEMPTS,
+          next_attempt_at: nextAttempt,
+        },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   function reconcileFailedRequestErrors() {
     let changed = 0;
     for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
@@ -1027,9 +1069,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (request.error) continue;
       const error = failedRequestReason(request, run);
       try {
-        changequeue.update(events, request.request_id, { status: 'failed', error }, site =>
-          isKnownTarget(root, site)
+        const diagnosed = changequeue.update(
+          events,
+          request.request_id,
+          { status: 'failed', error },
+          site => isKnownTarget(root, site)
         );
+        scheduleFailedRequestRetry(diagnosed, error);
         events.record({
           event_type: 'change-request.failure-diagnosed',
           source: 'fleet-dashboard',
@@ -1156,6 +1202,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       await reconcileFalseFailedReportRuns();
       reconcileStalledImprovementRuns();
       reconcileFailedRequestErrors();
+      // Older failed rows were historically left with no next_attempt_at,
+      // which made them permanent queue tombstones. Keep those failure rows
+      // intact for audit, but give transient worker/reviewer/build failures a
+      // bounded path back into the normal queue.
+      for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 }))
+        scheduleFailedRequestRetry(request);
       const now = Date.now();
       const candidates = events
         .listChangeRequests({ status: 'failed', limit: 1000 })
