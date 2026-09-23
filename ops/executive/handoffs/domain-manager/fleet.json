@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:24:42.683Z",
+  "generated_at": "2026-09-23T09:27:47.410Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Continue bounded camera-settings SEO measurement",
-        "summary": "Continue the existing reversible improvement for /guides/best-camera-settings while preserving its measurement gate and prohibiting unsupported causal or financial claims.",
-        "requested_action": "Keep the existing implementation unchanged. Measure after 14 days or 100 new impressions, then record impressions, clicks, sessions, conversions, and attributable commission. Do not add duplicate work, claim causal lift, or expand monetization until results are recorded.",
+        "title": "Assess positioning, content, and affiliate readiness",
+        "summary": "Review the live site’s audience positioning, content coverage, affiliate conversion paths, analytics health, and prioritized backlog using available first-party evidence. The registry confirms site, operations, cron, smoke, tasks, affiliate, analytics, and social capabilities; GA4 and GSC are configured and healthy. No site-level revenue or performance totals are asserted here.",
+        "requested_action": "Approve a bounded report-only assessment. Document supplied facts, unavailable fields, observable conversion paths, content gaps, attribution boundaries, one reversible growth hypothesis, measurement criteria, stop conditions, and rollback notes. Do not deploy, change credentials or configuration, spend money, or alter production systems.",
         "proposal_id": null
       }
     ]
