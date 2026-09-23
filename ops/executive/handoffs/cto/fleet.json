@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:51:54.803Z",
+  "generated_at": "2026-09-23T03:01:02.749Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: review and queue the three bounded change requests. Acceptance requires baseline capture, reversible implementation or report-only evidence, quality checks, and rollback notes. Do not duplicate active work or alter SearchWoot's private gate.",
+        "summary": "Handoff: review and queue the three bounded requests below. Require baseline capture, reversible implementation or evidence output, smoke and link checks, measurement timing, and rollback notes. Do not duplicate active work or alter SearchWoot access.",
         "requested_action": null,
         "proposal_id": null
       }
