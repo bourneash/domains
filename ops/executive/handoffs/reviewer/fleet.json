@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:44:44.494Z",
+  "generated_at": "2026-09-23T08:47:39.555Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the driveford.net measurement-readiness proposal because the shared telemetry contract already reports analytics-configured=false and unavailable site data; it would duplicate existing evidence without a distinct owner decision or measurable outcome. Do not make growth, monetization, revenue, or production decisions for this site. Should the owner provide a specific measurement configuration decision that is not covered by the existing telemetry contract?",
+        "summary": "Recommendation: Reject the proposed analytics-configuration decision for dumbsluts.com as production work. The snapshot only establishes that analytics is unconfigured; it does not support claims of zero traffic, revenue, or conversions, and configuration would require credentials and owner authorization. Existing SEO candidates are already active, measuring, or deferred due to existing work, so no additional queue action is defensible. Authorize one bounded public inspection of the site’s observable conversion paths, or leave the property unprioritized until an owner-approved measurement decision exists. Decision question: authorize the bounded public inspection?",
         "requested_action": null,
         "proposal_id": null
       }
