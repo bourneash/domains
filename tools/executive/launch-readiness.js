@@ -27,29 +27,24 @@ function evidenceSummary(root, checklist) {
   const backend = exists(root, `${site}/backend/api/main.py`);
   const fetcher = exists(root, `${site}/backend/services/fetcher.py`);
   const config = exists(root, `${site}/config.yml`);
-  const sourceRights = manual
-    ? {
-        status: 'evidence_needed',
-        local_source: 'WootDeveloperManual/woot_api_documentation.md',
-        source_url: 'https://developer.woot.com/',
-        documented: [
-          'API key header',
-          'rate limits',
-          'feed and offer endpoints',
-          'developer contact',
-        ],
-        missing: [
-          'current API agreement or written permission for storage, historical derivatives, public display, and alerts',
-          'field-level permissions, attribution, freshness, correction, and takedown terms',
-        ],
-      }
-    : {
-        status: 'missing',
-        local_source: null,
-        source_url: 'https://developer.woot.com/',
-        documented: [],
-        missing: ['official API documentation and the API agreement or written permission'],
-      };
+  const authoritative = checklist.authoritative_evidence || {};
+  const sourceRights = {
+    status: authoritative.disposition || (manual ? 'evidence_needed' : 'missing'),
+    local_source: manual ? 'WootDeveloperManual/woot_api_documentation.md' : null,
+    source_url: authoritative.source_url || 'https://developer.woot.com/',
+    source_urls: [
+      authoritative.source_url,
+      ...(authoritative.sources || []).map(source => source.url),
+    ].filter(Boolean),
+    documented: authoritative.confirmed || (manual ? ['API documentation'] : []),
+    missing: authoritative.not_confirmed || [
+      manual
+        ? 'current API agreement or written permission for storage, historical derivatives, public display, and alerts'
+        : 'official API documentation and the API agreement or written permission',
+    ],
+    note: authoritative.note || null,
+    next_action: authoritative.next_action || null,
+  };
   return {
     generated_at: new Date().toISOString(),
     site,

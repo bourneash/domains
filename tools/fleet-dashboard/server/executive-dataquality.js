@@ -4,9 +4,24 @@
 // the executive roles from repeatedly asking for the same telemetry and gives
 // the owner a visible, auditable queue without manufacturing data.
 
+function analyticsSourceAvailable(quality = {}) {
+  const contract = (quality.contracts || []).find(row => row.source === 'analytics');
+  return contract ? contract.ok !== false : true;
+}
+
 function desiredItems(quality = {}) {
   const items = [];
-  for (const site of quality.coverage?.analytics?.missing_sites || []) {
+  const analyticsAvailable = analyticsSourceAvailable(quality);
+  const missingDetails = new Map(
+    (quality.coverage?.analytics?.missing_details || []).map(detail => [detail.site, detail])
+  );
+  for (const site of analyticsAvailable ? quality.coverage?.analytics?.missing_sites || [] : []) {
+    const detail = missingDetails.get(site) || {
+      site,
+      configured: null,
+      ga4_status: 'not_observed',
+      gsc_status: 'not_observed',
+    };
     items.push({
       work_id: `data-quality:analytics:${site}`,
       title: `Restore analytics coverage for ${site}`,
@@ -17,14 +32,17 @@ function desiredItems(quality = {}) {
       source_type: 'data-quality',
       source_id: `analytics:${site}`,
       site,
-      summary:
-        'The site is in the managed analytics scope but no successful GA4 or GSC source was observed.',
+      summary: `The site is in the managed analytics scope but no successful GA4 or GSC source was observed (configured=${detail.configured === true ? 'yes' : detail.configured === false ? 'no' : 'unknown'}, GA4=${detail.ga4_status}, GSC=${detail.gsc_status}).`,
       next_action:
-        'Verify the property IDs, permissions, and latest fetch result; record the exact missing dependency.',
+        'Verify the registry property IDs, service-account permissions, and latest fetch result; record the exact missing dependency and rerun the deterministic collector.',
       evidence: [
         {
           label: 'Executive data-quality contract',
           note: 'Missing telemetry is unavailable evidence, not zero traffic.',
+        },
+        {
+          label: 'Latest analytics health',
+          detail,
         },
       ],
       created_by: 'system',
@@ -60,6 +78,7 @@ function desiredItems(quality = {}) {
 function sync(store, quality = {}) {
   if (!store) throw new Error('data-quality work sync requires an event store');
   const desired = desiredItems(quality);
+  const analyticsAvailable = analyticsSourceAvailable(quality);
   const byId = new Map(desired.map(item => [item.work_id, item]));
   const existing = store
     .listExecutiveWorkItems({ limit: 1000 })
@@ -76,6 +95,7 @@ function sync(store, quality = {}) {
     }
   }
   for (const current of existing) {
+    if (!analyticsAvailable && current.work_id.startsWith('data-quality:analytics:')) continue;
     if (byId.has(current.work_id) || ['done', 'cancelled'].includes(current.status)) continue;
     resolved.push(
       store.updateExecutiveWorkItem(current.work_id, {

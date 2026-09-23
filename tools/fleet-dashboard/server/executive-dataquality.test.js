@@ -30,3 +30,21 @@ test('materializes and resolves deterministic telemetry-gap work items', () => {
   assert.equal(store.getExecutiveWorkItem('data-quality:revenue-attribution:other').status, 'done');
   store.close();
 });
+
+test('does not turn an analytics source outage into per-site work or resolve known gaps', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-data-quality-outage-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  dataquality.sync(store, {
+    contracts: [{ source: 'analytics', ok: true }],
+    coverage: { analytics: { missing_sites: ['a.com'] } },
+  });
+  const result = dataquality.sync(store, {
+    contracts: [{ source: 'analytics', ok: false }],
+    coverage: { analytics: { missing_sites: ['a.com', 'b.com'] } },
+  });
+  assert.equal(result.created.length, 0);
+  assert.equal(result.resolved.length, 0);
+  assert.equal(store.getExecutiveWorkItem('data-quality:analytics:a.com').status, 'open');
+  assert.equal(store.getExecutiveWorkItem('data-quality:analytics:b.com'), null);
+  store.close();
+});

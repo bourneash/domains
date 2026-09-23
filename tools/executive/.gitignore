@@ -4,6 +4,8 @@ data/cro-lab/
 data/.cro-lab-workspaces/
 data/reports/
 data/intelligence/
+data/usage/
+data/data-requests/
 data/domain-manager-dispatch.json
 data/.run.*
 logs/

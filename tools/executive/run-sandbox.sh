@@ -92,5 +92,14 @@ args+=( "$IMAGE" node /app/tools/executive/model-runner.js )
 # isolated model container starts on the production scheduler image.
 timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker "${args[@]}"
 
+# Preserve the model's bounded, non-secret usage estimate outside the transient
+# exchange directory. This gives the dashboard/auditor a per-cycle record even
+# though the plan and prompts are removed when the run exits.
+if [[ -s "$RUN_DIR/output/usage.json" ]]; then
+  USAGE_DIR="$ROOT/tools/executive/data/usage"
+  mkdir -m 700 -p "$USAGE_DIR"
+  cp "$RUN_DIR/output/usage.json" "$USAGE_DIR/usage-$(date -u +%Y%m%dT%H%M%SZ)-$$.json"
+fi
+
 [[ -s "$RUN_DIR/output/plan.json" ]] || { echo "executive model produced no plan" >&2; exit 1; }
 node "$ROOT/tools/executive/runner.js" --apply-plan-file "$RUN_DIR/output/plan.json" $MODE

@@ -861,8 +861,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
     if (target === 'failed') {
       try {
-        return changequeue.update(events, request.request_id, { status: 'failed' }, site =>
-          isKnownSite(root, site)
+        const failure = String(
+          run.outcome?.error || request.error || `improvement run ${run.run_id} failed`
+        );
+        return changequeue.update(
+          events,
+          request.request_id,
+          { status: 'failed', error: failure },
+          site => isKnownSite(root, site)
         );
       } catch {
         return request;

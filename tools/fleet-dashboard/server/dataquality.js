@@ -19,6 +19,17 @@ function assess({
     .filter(s => s.capabilities.includes('analytics'))
     .map(s => s.domain);
   const analyticsSites = analyticsHealth.sites || {};
+  const analyticsMissingDetails = site => {
+    const row = analyticsSites[site] || {};
+    return {
+      site,
+      configured: row.configured === true,
+      ga4_status: row.ga4?.status || 'not_observed',
+      gsc_status: row.gsc?.status || 'not_observed',
+      ga4_last_fetch_at: row.ga4?.last_fetch_at || null,
+      gsc_last_fetch_at: row.gsc?.last_fetch_at || null,
+    };
+  };
   const analyticsObserved = site => {
     const row = analyticsSites[site];
     return Boolean(row && (row.ga4?.status === 'ok' || row.gsc?.status === 'ok'));
@@ -36,7 +47,7 @@ function assess({
     ),
     contract(
       'analytics',
-      true,
+      analyticsHealth.ok !== false,
       expectedAnalytics.length,
       expectedAnalytics.filter(analyticsObserved).length,
       newest(
@@ -89,6 +100,7 @@ function assess({
         expected_sites: expectedAnalytics.length,
         observed_sites: expectedAnalytics.length - analyticsMissingSites.length,
         missing_sites: analyticsMissingSites,
+        missing_details: analyticsMissingSites.map(analyticsMissingDetails),
         next_action: analyticsMissingSites.length
           ? 'Provision or verify GA4/GSC access for the listed sites; missing telemetry is unavailable, not zero.'
           : null,

@@ -33,3 +33,25 @@ test('rejects stale executive intelligence snapshots', () => {
   );
   assert.equal(snapshot.readLatest(root, { sites: ['example.com'] }), null);
 });
+
+test('keeps a degraded analytics snapshot out of the latest usable bundle', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'executive-snapshot-degraded-'));
+  const good = snapshot.write(root, {
+    scope: { managed_sites: ['example.com'] },
+    sources: { analytics: { ok: true, sessions: 4 } },
+    decision_support: {},
+  });
+  const degraded = snapshot.write(root, {
+    scope: { managed_sites: ['example.com'] },
+    sources: { analytics: { ok: false, error: 'fetch failed' } },
+    decision_support: {},
+  });
+  assert.equal(good.latest_updated, true);
+  assert.equal(degraded.degraded, true);
+  assert.equal(degraded.latest_updated, false);
+  assert.equal(
+    snapshot.readLatest(root, { sites: ['example.com'] }).intelligence.sources.analytics.sessions,
+    4
+  );
+  assert.match(degraded.file, /\.degraded\.json$/);
+});
