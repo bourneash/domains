@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T01:42:11.613Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T04:10:00.169Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing Great American Lakes measurements through their recorded 14-day or 100-impression thresholds. Current SEO evidence shows /fishing/muskellunge/erie at 113 impressions, position 7.2, 2 clicks, 3 sessions, and 0 conversions; defer a new implementation proposal until existing outcomes are recorded to avoid duplicate work.",
-        "requested_action": null,
-        "proposal_id": null
-      }
-    ]
+    "report_id": "86a47e17-d250-42a0-a9f8-0f96dc87013b",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 1,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }

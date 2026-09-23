@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:48:43.051Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T04:04:58.995Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue only the six existing bounded, reversible workstreams below. Attribution is incomplete and direct costs are unavailable, so reject site-level revenue, ROI, margin, CAC, payback, profitability, and forecast claims; keep SearchWoot private and authorize no new production, security-sensitive, spending, or high-priority queue work. Measure each change after 14 days or 100 new impressions. Owner decision: keep the private launch gate unchanged?",
+        "summary": "Keep SearchWoot private. Public launch, monetization expansion, security-sensitive work, and high-priority queue work are rejected because source rights, security, accuracy, privacy, attribution, and owner gates remain unresolved. Owner must choose: prepare an unsent permission request, keep private with no outreach, or end the public-beta pursuit. Do not send outreach or change production.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the six already-active bounded workstreams: 0xroulette revenue-readiness evidence, marineactivity AIS baseline, aliencouncil UAP baseline, fishhooklabs guide improvement, stinkyleftfoot guide improvement, and Americas Strikes affiliate repair. Do not create duplicate queue work or claim success before measurement at 14 days or 100 new impressions. Require acceptance criteria, smoke or reachability checks, rollback notes, and recorded outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep SearchWoot private and authorize only preparation of an unsent permission request. Do not launch, send outreach, change production, expand monetization, or claim site-level revenue, ROI, margin, CAC, payback, profitability, or forecasts. Attribution is incomplete and direct costs are unavailable. Owner decision: approve preparation of the unsent request?",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only bounded, reversible, report-only or isolated SEO work with explicit acceptance and rollback criteria. Missing telemetry remains unavailable evidence, not zero performance. Existing active workstreams and failed requests must not be duplicated.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported financial claims, production launches, spending, credential or configuration changes, unsafe tactics, and high-priority queue work. Portfolio-level commission remains $4.92 for the supplied period, but site attribution is incomplete and direct costs are unavailable.",
         "requested_action": null,
         "proposal_id": null
       }

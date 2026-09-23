@@ -2,30 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:46:50.504Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T04:04:58.994Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: no production launch or security-sensitive change is recommended this cycle. The available security source is a read-only baseline, not certification; SearchWoot remains blocked pending access, secrets, isolation, monitoring, incident, and rollback review.",
+        "summary": "Disposition: blocked for SearchWoot public beta or full launch; conditional for continued private preview and preparation of an unsent permission request. Evidence: the security baseline is read-only and not certification; fleet-doctor, deploy, uptime, and error sweeps are unavailable; authentication and access boundaries, secrets exposure, container isolation, release controls, dependency risk, monitoring, incident handling, TLS detail, and disclosure readiness are unverified. Compliance also reports 16 failing and 6 unknown sites. Exact decision: keep SearchWoot private, authorize no public launch, monetization expansion, credential change, or security-sensitive deployment, and complete the security evidence gate before reconsideration. Optional hardening alone is not a fleet-wide blocker.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No production launch or security-sensitive change is cleared. The available security source is a read-only baseline, not certification; SearchWoot remains blocked pending access, secrets, isolation, monitoring, incident, and rollback evidence.",
+        "summary": "Continue only existing bounded, reversible report-only, repair, and measurement work that does not expand permissions, expose new data, change credentials, alter security controls, or create production launch risk. Missing telemetry and unavailable security sweeps must remain labeled as unavailable evidence, not passed checks. Reject new security-sensitive queue work until the owner and technical owners provide the required evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked for go-live or security-sensitive production changes; conditional continuation for existing report-only and reversible work. Evidence: the security baseline is read-only and not certification; fleet-doctor is unavailable, operations deploy/uptime/error sweeps are absent, and no security checks are populated. Authentication and access boundaries, secrets exposure, container isolation, release controls, dependency risk, monitoring, incident handling, rollback, and disclosure readiness therefore remain unverified. Compliance also reports 16 failing and 6 unknown sites. Exact decision: keep SearchWoot private and authorize no production launch, public beta, monetization expansion, credential change, or security-sensitive deployment until the security evidence gate is completed. Optional hardening alone is not a fleet-wide blocker.",
+        "summary": "Retain the private-preview gate. Preparation of an unsent permission request may proceed only after owner approval and must not send outreach, change access controls, alter production, or expand monetization. Public beta and full launch remain blocked pending source-rights, privacy, accuracy, attribution, and security evidence.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
+        "summary": null,
+        "requested_action": "escalate_owner",
+        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
       }
     ]
   }
