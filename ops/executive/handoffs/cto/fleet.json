@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:19:09.587Z",
+  "generated_at": "2026-09-23T03:22:45.714Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: execute only the four new bounded workstreams below. Each requires baseline evidence, no production deployment, smoke or reachability checks where applicable, explicit unknowns, and rollback or cancellation notes. Do not duplicate existing active work on fishhooklabs.com, allthingsmasonic.com, americastrikes.com, saveusfarms.com, deeppenetrations.com, broadwayshowgirls.com, marineactivity.com, aliencouncil.com, or xxxtea.com.",
+        "summary": "Handoff: execute four bounded, reversible workstreams for 0daynews.com, 0xroulette.com, complicated.work, and deadlymaracas.com. Require baseline evidence, no production deployment, reachability or smoke checks where applicable, explicit unknowns, and rollback or cancellation notes.",
         "requested_action": null,
         "proposal_id": null
       }
