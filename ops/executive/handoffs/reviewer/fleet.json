@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:37:16.679Z",
+  "generated_at": "2026-09-23T02:45:33.881Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new queue and production work this cycle. Retain the existing Great American Lakes measurement gate, keep SearchWoot private, and await attribution reconciliation and recorded measurement thresholds. Amazon data covers only 2026-09-21 with $4.92 commission, while one tracking ID remains unmapped; no site-level ROI, margin, payback, or forecast claims are supported. Prior implementation attempts also failed and no outcomes are proven. Owner decision: approve waiting for existing measurement and attribution evidence before authorizing further implementation?",
+        "summary": "Recommendation: reject all new queue and production work this cycle. No defensible production candidate remains because attribution is incomplete, telemetry is low-volume, no outcomes are proven, and prior implementation attempts failed. Retain the existing Great American Lakes measurement gate, keep SearchWoot private, and await the recorded measurement thresholds plus affiliate attribution reconciliation. Will you approve waiting for those existing evidence gates before authorizing further implementation?",
         "requested_action": null,
         "proposal_id": null
       }

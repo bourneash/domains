@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:37:16.680Z",
+  "generated_at": "2026-09-23T02:45:33.881Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the active SEO and Great American Lakes measurement work, and queue three report-only, reversible evidence tasks for xxxtea.com, marineactivity.com, and aliencouncil.com. The 30-day SEO window records 87 shared impressions across five xxxtea pages, 239 impressions at position 8.3 for marineactivity.com, and 77 impressions at position 5.5 for aliencouncil.com. Amazon commission was $4.92 on 2026-09-21, but site-level margin and ROI are not calculable because attribution is incomplete and one tracking ID is unmapped. The main unknown is whether these opportunities can produce qualified clicks or conversions without harming existing rankings. Smallest next step: capture baselines and return one bounded recommendation per site; do not deploy changes. SearchWoot remains private pending legal, security, accuracy, and measurement gates. Owner question: should SearchWoot remain private, or should we authorize preparing—but not sending—a written Woot permission request?",
+        "summary": "Recommendation: preserve the active Great American Lakes and SEO measurement work, and queue bounded report-only baselines for xxxtea.com, marineactivity.com, and aliencouncil.com. Evidence: the 30-day SEO window shows 87 shared impressions across five xxxtea pages, 239 impressions at position 8.3 for marineactivity.com, and 77 impressions at position 5.5 for aliencouncil.com. Amazon reported $4.92 commission on 2026-09-21, but site-level margin and ROI are not calculable because attribution is incomplete and one tracking ID is unmapped. The main unknown is whether each opportunity can improve qualified clicks or conversions without harming existing rankings. Smallest next step: capture baselines and return one reversible recommendation per site, with a 14-day or 100-impression measurement gate and rollback criteria. Owner question: should SearchWoot remain private, or should I prepare a bounded owner-approved request for Woot commercial/public-display permission?",
         "requested_action": null,
         "proposal_id": null
       }
