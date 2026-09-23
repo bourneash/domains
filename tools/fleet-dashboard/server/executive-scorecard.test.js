@@ -62,6 +62,41 @@ test('scorecard makes an unproductive executive cycle visible', () => {
   assert.match(result.next_step, /bounded, measurable action/);
 });
 
+test('proposal execution summary distinguishes approved work from unexecuted approvals', () => {
+  const summary = scorecard.proposalExecutionSummary(
+    [
+      {
+        proposal_id: 'p-linked',
+        status: 'approved',
+        title: 'Ship the bounded improvement',
+        implementation: { site: 'example.com' },
+      },
+      {
+        proposal_id: 'p-source-linked',
+        status: 'approved',
+        title: 'Run the evidence task',
+      },
+      {
+        proposal_id: 'p-unexecuted',
+        status: 'approved',
+        title: 'Needs a real follow-through task',
+        implementation: {},
+      },
+      { proposal_id: 'p-pending', status: 'proposed', title: 'Not approved yet' },
+    ],
+    [
+      { request_id: 'r-linked', source_proposal_id: 'p-linked', status: 'verified' },
+      { request_id: 'r-source', source_proposal_id: 'p-source-linked', status: 'queued' },
+    ]
+  );
+  assert.equal(summary.approved_proposals, 3);
+  assert.equal(summary.approved_proposals_with_execution, 2);
+  assert.equal(summary.approved_proposals_unexecuted, 1);
+  assert.equal(summary.approved_proposal_execution_rate_percent, 67);
+  assert.deepEqual(summary.linked_request_statuses, { verified: 1, queued: 1 });
+  assert.equal(summary.unexecuted_proposals[0].proposal_id, 'p-unexecuted');
+});
+
 test('scorecard does not score deliberate dry runs as executable no-ops', () => {
   const store = {
     listExecutiveActions: () => [

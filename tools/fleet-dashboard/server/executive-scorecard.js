@@ -37,6 +37,55 @@ function metricDeltas(improvements) {
   return totals;
 }
 
+function proposalExecutionSummary(proposals, requests) {
+  const requestRows = Array.isArray(requests) ? requests : [];
+  const proposalRows = Array.isArray(proposals) ? proposals : [];
+  const requestsById = new Map(requestRows.map(row => [String(row.request_id), row]));
+  const requestsByProposal = new Map();
+  for (const request of requestRows) {
+    if (!request.source_proposal_id) continue;
+    const key = String(request.source_proposal_id);
+    if (!requestsByProposal.has(key)) requestsByProposal.set(key, []);
+    requestsByProposal.get(key).push(request);
+  }
+  const approved = proposalRows.filter(row => row.status === 'approved');
+  const linked = approved.map(proposal => {
+    const explicitRequest = proposal.linked_request_id
+      ? requestsById.get(String(proposal.linked_request_id)) || null
+      : null;
+    const sourceRequests = requestsByProposal.get(String(proposal.proposal_id)) || [];
+    const request = explicitRequest || sourceRequests[0] || null;
+    return { proposal, request };
+  });
+  const unexecuted = linked
+    .filter(row => !row.request)
+    .map(({ proposal }) => ({
+      proposal_id: proposal.proposal_id,
+      title: proposal.title,
+      proposal_type: proposal.proposal_type,
+      created_by: proposal.created_by,
+      created_at: proposal.created_at,
+      summary: proposal.summary,
+      requested_action: proposal.requested_action,
+      has_implementation: Boolean(
+        proposal.implementation && Object.keys(proposal.implementation).length
+      ),
+    }));
+  return {
+    approved_proposals: approved.length,
+    approved_proposals_with_execution: approved.length - unexecuted.length,
+    approved_proposals_unexecuted: unexecuted.length,
+    approved_proposal_execution_rate_percent: approved.length
+      ? Math.round(((approved.length - unexecuted.length) / approved.length) * 100)
+      : null,
+    unexecuted_proposals: unexecuted.slice(0, 12),
+    linked_request_statuses: countBy(
+      linked.filter(row => row.request).map(row => ({ status: row.request.status })),
+      'status'
+    ),
+  };
+}
+
 function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   if (!store) throw new Error('executive scorecard requires an event store');
   const days = Math.max(1, Math.min(365, Number(windowDays) || 30));
@@ -51,6 +100,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     .listChangeRequests({ limit: 1000 })
     .filter(row => inWindow(row.created_at, cutoff));
   const requestsById = new Map(requests.map(row => [String(row.request_id), row]));
+  const proposalExecution = proposalExecutionSummary(proposals, requests);
   const improvements = store
     .listImprovements({ limit: 1000 })
     .filter(row => inWindow(row.created_at, cutoff) || row.state === 'measuring');
@@ -164,6 +214,11 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       requests_by_status: countBy(requests, 'status'),
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
+      approved_proposals: proposalExecution.approved_proposals,
+      approved_proposals_with_execution: proposalExecution.approved_proposals_with_execution,
+      approved_proposals_unexecuted: proposalExecution.approved_proposals_unexecuted,
+      approved_proposal_execution_rate_percent:
+        proposalExecution.approved_proposal_execution_rate_percent,
     },
     outcomes: {
       improvements_started: improvements.length,
@@ -186,12 +241,19 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       ...(failedTicks.length
         ? [`${failedTicks.length} executive tick failure(s) retained in the audit log`]
         : []),
+      ...(proposalExecution.approved_proposals_unexecuted
+        ? [
+            `${proposalExecution.approved_proposals_unexecuted} approved proposal(s) lack an execution request`,
+          ]
+        : []),
     ],
+    proposal_execution: proposalExecution,
   };
 }
 
 module.exports = {
   DELIVERED_REQUESTS: [...DELIVERED_REQUESTS],
   MEASURED_IMPROVEMENTS: [...MEASURED_IMPROVEMENTS],
+  proposalExecutionSummary,
   buildScorecard,
 };

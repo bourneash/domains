@@ -316,8 +316,13 @@ async function collectIntel(root, sites) {
 async function buildBrief(store, root = ROOT) {
   const queued = store.listChangeRequests({ limit: 50 });
   const improvements = store.listImprovements({ limit: 50 });
-  const allProposals = store.listExecutiveProposals({ limit: 100 });
+  // The model only receives a compact slice below, but the deterministic
+  // execution metric must reconcile the whole bounded proposal history. A
+  // 100-row sample made approved work disappear from the CEO's backlog.
+  const allProposals = store.listExecutiveProposals({ limit: 1000 });
   const proposals = allProposals.slice(0, 10);
+  const allRequests = store.listChangeRequests({ limit: 1000 });
+  const proposalExecution = executiveScorecard.proposalExecutionSummary(allProposals, allRequests);
   const croProposals = allProposals
     .filter(item => ['researcher', 'cro'].includes(item.created_by))
     .filter(item => ['proposed', 'feedback'].includes(item.status))
@@ -470,6 +475,7 @@ async function buildBrief(store, root = ROOT) {
     },
     owner_strategy: store.getExecutiveSettings(),
     actionability,
+    proposal_execution: proposalExecution,
     action_mandate: {
       cadence: 'hourly',
       minimum_evidence_backed_action: 1,
@@ -783,6 +789,7 @@ Rules:
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
+- Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
 - Treat Legal/Compliance as a required launch and risk pass. Use the compliance baseline and history to identify privacy, consent, terms, disclosure, data-rights, claims, copyright/trademark, platform-policy, and age/regulated-content questions when supported by evidence. Legal performs risk triage, not legal advice or certification; escalate material uncertainty to the owner or counsel. Do not let incomplete telemetry block ordinary growth, but do not recommend a go-live proposal without a concrete legal review and launch checklist.
