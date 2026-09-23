@@ -663,6 +663,10 @@ async function preview(instance, pathname = '/') {
 async function browserAudit(root, instance, site) {
   const persistDir = path.join(root, 'tools', 'domain-developer', 'state', instance, 'persist');
   fs.mkdirSync(persistDir, { recursive: true });
+  // A prior Chromium/Lighthouse process can outlive its timeout briefly. A
+  // unique profile per audit prevents Chromium's ProcessSingleton lock from
+  // turning that overlap into a false browser-gate failure.
+  const auditId = crypto.randomUUID();
   const shots = [
     ['production.png', `https://${site}/`],
     ['preview.png', `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}/`],
@@ -672,7 +676,7 @@ async function browserAudit(root, instance, site) {
     // Chromium's process singleton makes a shared profile unsafe when a
     // previous headless process is still unwinding. Keep every audit browser
     // invocation isolated, including the Lighthouse browser below.
-    const profile = `/tmp/fd-browser-profile-${instance}-${name.replace(/[^a-z0-9]+/gi, '-')}`;
+    const profile = `/tmp/fd-browser-profile-${instance}-${auditId}-${name.replace(/[^a-z0-9]+/gi, '-')}`;
     const r = await docker(
       sandboxExecCommand(instance, [
         'timeout',
@@ -728,7 +732,7 @@ async function browserAudit(root, instance, site) {
       '--quiet',
       '--output=json',
       '--output-path=/home/dev/persist/lighthouse.json',
-      `--chrome-flags=--headless --no-sandbox --disable-gpu --disable-background-networking --disable-extensions --disable-component-update --no-zygote --renderer-process-limit=1 --user-data-dir=/tmp/fd-browser-profile-${instance}-lighthouse`,
+      `--chrome-flags=--headless --no-sandbox --disable-gpu --disable-background-networking --disable-extensions --disable-component-update --no-zygote --renderer-process-limit=1 --user-data-dir=/tmp/fd-browser-profile-${instance}-${auditId}-lighthouse`,
     ]),
     { timeout: 3 * 60 * 1000, maxBuffer: 2 * 1024 * 1024 }
   );
