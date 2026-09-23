@@ -393,6 +393,28 @@ test('normalizes ordinary Legal review wording to the internal CRO handoff state
   assert.equal(plan.proposal_reviews[0].status, 'accepted_research');
 });
 
+test('drops a blank optional proposal review without discarding the rest of the plan', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ actor: 'reviewer', body: 'Recommendation: keep the bounded work.' }],
+      proposal_reviews: [
+        { proposal_id: 'stale-review', reviewed_by: 'reviewer', status: '' },
+        {
+          proposal_id: 'valid-review',
+          reviewed_by: 'reviewer',
+          status: 'accepted_research',
+          decision_note: 'Useful evidence handoff.',
+        },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.proposal_reviews.map(item => item.proposal_id),
+    ['valid-review']
+  );
+  assert.equal(plan.messages.length, 1);
+});
+
 test('normalizes human-readable Legal and Security actor aliases without allowing owner spoofing', () => {
   const plan = runner.parseOutput(
     JSON.stringify({

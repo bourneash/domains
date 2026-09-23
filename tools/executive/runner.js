@@ -848,10 +848,14 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
     // bucket instead of retrying the entire manager run.
     item.proposal_type = 'report-only';
   }
-  for (const item of plan.proposal_reviews) {
+  // Proposal reviews are optional metadata. A reviewer occasionally emits a
+  // blank review while preserving the rest of a useful plan; discard only
+  // that malformed optional row instead of failing the entire executive cycle.
+  plan.proposal_reviews = plan.proposal_reviews.filter(item => {
     const raw = String(item?.status || '')
       .trim()
       .toLowerCase();
+    if (!raw) return false;
     const alias = {
       accepted: 'accepted_research',
       approved: 'accepted_research',
@@ -868,7 +872,8 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
       needs_owner: 'escalate_owner',
     }[raw];
     if (alias) item.status = alias;
-  }
+    return true;
+  });
   const actorAliases = {
     'chief executive officer': 'ceo',
     'chief technology officer': 'cto',

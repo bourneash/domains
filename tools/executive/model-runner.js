@@ -123,6 +123,23 @@ async function main() {
   let plan = null;
   const audit = [];
   const usage = createUsageLedger();
+  let finalized = false;
+  // Preserve partial cost/pass evidence when a provider response fails
+  // validation. The sandbox may not produce a plan, but it must still export
+  // the calls already made so failures cannot disappear from the audit ledger.
+  process.on('exit', () => {
+    if (finalized) return;
+    try {
+      fs.writeFileSync(
+        '/output/passes.json',
+        JSON.stringify({ passes: audit, incomplete: true }, null, 2),
+        { mode: 0o600 }
+      );
+      fs.writeFileSync('/output/usage.json', JSON.stringify(usage, null, 2), { mode: 0o600 });
+    } catch {
+      /* best effort during process shutdown */
+    }
+  });
   const proposalReviews = new Map();
   for (const role of passes) {
     const prompt = runner.buildPassPrompt(brief, role, plan);
@@ -217,6 +234,7 @@ async function main() {
   fs.writeFileSync('/output/plan.json', JSON.stringify(plan, null, 2), { mode: 0o600 });
   fs.writeFileSync('/output/passes.json', JSON.stringify(audit, null, 2), { mode: 0o600 });
   fs.writeFileSync('/output/usage.json', JSON.stringify(usage, null, 2), { mode: 0o600 });
+  finalized = true;
   process.stdout.write(JSON.stringify({ passes: audit, usage }) + '\n');
 }
 
