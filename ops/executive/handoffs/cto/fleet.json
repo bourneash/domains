@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:39:29.758Z",
+  "generated_at": "2026-09-23T03:42:23.351Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing bounded evidence work for aliencouncil.com, marineactivity.com, fishhooklabs.com, stinkyleftfoot.com, and 0xroulette.com. Require baseline evidence, acceptance criteria, smoke or reachability checks, measurement thresholds, and rollback notes; create no duplicate site tasks.",
+        "summary": "Handoff: continue the existing report-only and reversible work for 0xroulette.com, marineactivity.com, aliencouncil.com, fishhooklabs.com, and stinkyleftfoot.com. Require baseline evidence, acceptance criteria, smoke or reachability checks, 14-day or 100-impression measurement gates, and rollback notes. Do not duplicate active site work or deploy changes.",
         "requested_action": null,
         "proposal_id": null
       }
