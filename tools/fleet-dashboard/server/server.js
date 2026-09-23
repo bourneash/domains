@@ -1465,7 +1465,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // run in building. Do not let the periodic failed-row reconciliation
       // immediately move that work back to review while its gates execute.
       if (run?.state === 'building') continue;
-      if (!run?.validation || !validationInfrastructureBlock(run.validation)) continue;
+      // The durable outcome marker is authoritative when quality policy
+      // preserved an implementation because infrastructure was unavailable,
+      // even if the validation payload itself was otherwise passed.
+      if (
+        run?.outcome?.infrastructure_blocked !== true &&
+        (!run?.validation || !validationInfrastructureBlock(run.validation))
+      )
+        continue;
       const recovered = preserveInfrastructureBlockedReview(request, run, {
         message:
           'previous validation run recorded an infrastructure failure; revalidation is required',
