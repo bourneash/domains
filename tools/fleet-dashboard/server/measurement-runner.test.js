@@ -75,7 +75,10 @@ test('does not measure before either gate', async () => {
   });
   assert.equal(result.results[0].status, 'waiting');
   const store = eventstore.open(root);
-  assert.equal(store.getImprovement('run-1').state, 'measuring');
+  const run = store.getImprovement('run-1');
+  assert.equal(run.state, 'measuring');
+  assert.equal(run.outcome.measurement_observations.length, 1);
+  assert.equal(run.outcome.measurement_observations[0].analytics.sessions, 100);
   store.close();
 });
 

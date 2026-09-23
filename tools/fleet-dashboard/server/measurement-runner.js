@@ -32,6 +32,78 @@ function daysSince(value, now) {
   return Number.isFinite(elapsed) ? Math.max(0, elapsed / 86400000) : 0;
 }
 
+function compactObservation(metrics = {}, { captured_at, new_impressions } = {}) {
+  const analytics = metrics || {};
+  const revenue = metrics.revenue || {};
+  return {
+    captured_at: captured_at || new Date().toISOString(),
+    new_impressions: new_impressions == null ? null : Number(new_impressions),
+    analytics: {
+      has_data: analytics.has_data !== false,
+      sessions: Number.isFinite(Number(analytics.sessions)) ? Number(analytics.sessions) : null,
+      impressions: Number.isFinite(Number(analytics.impressions))
+        ? Number(analytics.impressions)
+        : null,
+      clicks: Number.isFinite(Number(analytics.clicks)) ? Number(analytics.clicks) : null,
+      conversions: Number.isFinite(Number(analytics.conversions))
+        ? Number(analytics.conversions)
+        : null,
+      window_days: Number.isFinite(Number(analytics.window_days))
+        ? Number(analytics.window_days)
+        : null,
+      error: analytics.error || null,
+    },
+    revenue: {
+      has_data: revenue.has_data === true,
+      site: revenue.site || null,
+      clicks: Number.isFinite(Number(revenue.clicks)) ? Number(revenue.clicks) : null,
+      ordered_items: Number.isFinite(Number(revenue.ordered_items))
+        ? Number(revenue.ordered_items)
+        : null,
+      shipped_items: Number.isFinite(Number(revenue.shipped_items))
+        ? Number(revenue.shipped_items)
+        : null,
+      commission_income: Number.isFinite(Number(revenue.commission_income))
+        ? Number(revenue.commission_income)
+        : null,
+      attribution_status: revenue.attribution_status || null,
+      attribution_complete: revenue.attribution_complete === true,
+      fetched_at: revenue.fetched_at || null,
+    },
+  };
+}
+
+function recordObservation(store, current, metrics, { capturedAt, newImpressions } = {}) {
+  const observation = compactObservation(metrics, {
+    captured_at: capturedAt,
+    new_impressions: newImpressions,
+  });
+  const existing = Array.isArray(current.outcome?.measurement_observations)
+    ? current.outcome.measurement_observations
+    : [];
+  const outcome = {
+    ...(current.outcome || {}),
+    last_observed_at: observation.captured_at,
+    measurement_observations: [...existing, observation].slice(-30),
+  };
+  const updated = store.updateImprovement(current.run_id, { outcome });
+  store.record({
+    event_type: 'improvement.measurement_observed',
+    source: 'improvement-measurement',
+    site_id: `site:${current.site}`,
+    entity_type: 'improvement',
+    entity_id: current.run_id,
+    correlation_id: current.correlation_id,
+    payload: {
+      captured_at: observation.captured_at,
+      new_impressions: observation.new_impressions,
+      analytics_has_data: observation.analytics.has_data,
+      revenue_has_data: observation.revenue.has_data,
+    },
+  });
+  return updated;
+}
+
 async function newImpressionsSince(site, since, now, analytics) {
   if (typeof analytics.gscSeries !== 'function') return null;
   const days = Math.max(1, Math.min(400, Math.ceil(daysSince(since, now)) + 1));
@@ -98,6 +170,14 @@ async function run({
       const due = !current.measurement_due || current.measurement_due <= dateOnly(now);
       const thresholdReached = newImpressions != null && newImpressions >= IMPRESSION_THRESHOLD;
       if (!due && !thresholdReached) {
+        // Capture a bounded, read-only interim sample every measurement tick.
+        // This gives the executive team immediate evidence about freshness,
+        // attribution, and direction without prematurely declaring success.
+        const observedMetrics = await captureMetrics(root, current.site, analytics, revenue);
+        current = recordObservation(store, current, observedMetrics, {
+          capturedAt: now.toISOString(),
+          newImpressions,
+        });
         results.push({
           run_id: current.run_id,
           site: current.site,
@@ -107,6 +187,8 @@ async function run({
           elapsed_days: Math.round(elapsedDays * 10) / 10,
           new_impressions: newImpressions,
           measurement_due: current.measurement_due,
+          last_observed_at: current.outcome?.last_observed_at || null,
+          observation_count: current.outcome?.measurement_observations?.length || 0,
         });
         continue;
       }
@@ -155,6 +237,8 @@ module.exports = {
   IMPRESSION_THRESHOLD,
   deploymentAt,
   daysSince,
+  compactObservation,
+  recordObservation,
   newImpressionsSince,
   captureMetrics,
   run,

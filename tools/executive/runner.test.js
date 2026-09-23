@@ -137,6 +137,34 @@ test('marks SEO-labelled baselines as report-only work', () => {
   assert.equal(plan.change_requests[0].delivery_mode, 'report_only');
 });
 
+test('keeps a site behind a blocked private launch gate out of direct delivery', () => {
+  const plan = runner.buildActionMandateFallback(
+    { messages: [], change_requests: [] },
+    {
+      queue: [],
+      improvements: [],
+      launch_readiness: [
+        {
+          site: 'searchwoot.com',
+          current_disposition: 'keep_private',
+          authoritative_evidence: { disposition: 'blocked' },
+        },
+      ],
+      action_mandate: {
+        candidates: [
+          {
+            site: 'searchwoot.com',
+            type: 'crawlability',
+            title: 'Restore the sitemap crawl path',
+            recommendation: 'Inspect the private preview sitemap without changing production.',
+          },
+        ],
+      },
+    }
+  );
+  assert.equal(plan.change_requests[0].delivery_mode, 'report_only');
+});
+
 test('routes an engineering-labelled content handoff through the content lane', () => {
   const plan = runner.buildActionMandateFallback(
     { messages: [], change_requests: [] },
@@ -179,6 +207,37 @@ test('does not reissue a delivered candidate with the same action key or title',
     candidates.map(row => row.site),
     ['new.example']
   );
+});
+
+test('does not create a duplicate candidate while the failed request is retryable', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-09-23T07:00:00.000Z',
+      decision_support: {
+        seo: {
+          actions: [
+            {
+              site: 'example.com',
+              title: 'Repair metadata',
+              rankScore: 90,
+            },
+          ],
+        },
+      },
+    },
+    ['example.com'],
+    {
+      keys: new Set(),
+      titles: new Set(),
+      failed: new Map([
+        [
+          'example.com:repair metadata',
+          { until: Date.parse('2026-09-23T07:30:00.000Z'), attempts: 1 },
+        ],
+      ]),
+    }
+  );
+  assert.equal(candidates.length, 0);
 });
 
 test('provides a dedicated CRO review prompt and lets CEO review its plan', () => {

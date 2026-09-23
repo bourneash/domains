@@ -70,8 +70,24 @@ function normalizeActionTitle(value) {
 function completedActionIndex(store) {
   const keys = new Set();
   const titles = new Set();
+  const failed = new Map();
   if (!store) return { keys, titles };
   for (const request of store.listChangeRequests({ limit: 1000 })) {
+    if (String(request.status) === 'failed') {
+      const site = String(request.site || '')
+        .trim()
+        .toLowerCase();
+      const title = normalizeActionTitle(request.title);
+      if (site && title) {
+        const retryAt = Date.parse(request.next_attempt_at || '');
+        const updatedAt = Date.parse(request.updated_at || request.created_at || '') || Date.now();
+        failed.set(`${site}:${title}`, {
+          until: Number.isFinite(retryAt) ? retryAt : updatedAt + 24 * 3600 * 1000,
+          attempts: Number(request.attempts || 0),
+        });
+      }
+      continue;
+    }
     if (!['committed', 'deployed', 'verified'].includes(String(request.status))) continue;
     if (request.action_key) keys.add(String(request.action_key));
     const site = String(request.site || '')
@@ -88,11 +104,12 @@ function completedActionIndex(store) {
     const title = normalizeActionTitle(run.title);
     if (site && title) titles.add(`${site}:${title}`);
   }
-  return { keys, titles };
+  return { keys, titles, failed };
 }
 
 function actionCandidates(intelligence, sites, completed = { keys: new Set(), titles: new Set() }) {
   const allowed = new Set(sites);
+  const now = Date.parse(intelligence?.generated_at || '') || Date.now();
   const seoActions = Array.isArray(intelligence?.decision_support?.seo?.actions)
     ? intelligence.decision_support.seo.actions
         .filter(action => allowed.has(action.site) && action.filed !== true)
@@ -132,6 +149,8 @@ function actionCandidates(intelligence, sites, completed = { keys: new Set(), ti
       .trim()
       .toLowerCase()}:${normalizeActionTitle(candidate.title)}`;
     if ((key && completed.keys.has(key)) || completed.titles.has(titleKey)) continue;
+    const failed = completed.failed?.get(titleKey);
+    if (failed && now < failed.until) continue;
     const current = bySite.get(candidate.site);
     if (!current || Number(candidate.score || 0) > Number(current.score || 0))
       bySite.set(candidate.site, candidate);
@@ -1375,6 +1394,7 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
       // report-only intent from either the candidate type or its wording.
       const reportOnly =
         type === 'portfolio-baseline' ||
+        isPrivateLaunchGate(candidate.site, brief.launch_readiness) ||
         /\b(?:baseline|read[- ]only|report[- ]only|no production changes?)\b/i.test(
           `${candidate.title || ''} ${candidate.recommendation || ''}`
         );
@@ -1414,6 +1434,23 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
     });
   }
   return { ...basePlan, change_requests, messages };
+}
+
+function isPrivateLaunchGate(site, launchReadiness = []) {
+  const normalized = String(site || '')
+    .trim()
+    .toLowerCase();
+  const checklist = (Array.isArray(launchReadiness) ? launchReadiness : []).find(
+    item =>
+      String(item?.site || '')
+        .trim()
+        .toLowerCase() === normalized
+  );
+  if (!checklist) return false;
+  return (
+    checklist.current_disposition === 'keep_private' ||
+    checklist.authoritative_evidence?.disposition === 'blocked'
+  );
 }
 
 function isTelemetryRequestProposal(item = {}) {

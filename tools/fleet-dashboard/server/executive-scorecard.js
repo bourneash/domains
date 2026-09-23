@@ -85,7 +85,23 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       : Number(row.result?.counts?.change_requests || 0);
   const ticksWithQueueWork = ticks.filter(row => queueCountForTick(row) > 0);
   const ticksWithProposals = ticks.filter(row => Number(row.result?.counts?.proposals || 0) > 0);
-  const actionabilityRate = ticks.length
+  const queueEligibleTicks = ticks.filter(row => row.result?.allowQueue === true);
+  const ticksWithQueueWorkWhenEligible = queueEligibleTicks.filter(
+    row => queueCountForTick(row) > 0
+  );
+  // Older tick rows did not persist allowQueue. Keep their historical metric
+  // comparable, but once the field exists, do not score deliberate dry runs as
+  // CEO no-ops. The dashboard now reports both views so audit history remains
+  // intact while the operating KPI reflects executable cycles.
+  const hasQueueModeMetadata = ticks.some(row => typeof row.result?.allowQueue === 'boolean');
+  const actionabilityDenominator = hasQueueModeMetadata ? queueEligibleTicks.length : ticks.length;
+  const actionabilityNumerator = hasQueueModeMetadata
+    ? ticksWithQueueWorkWhenEligible.length
+    : ticksWithQueueWork.length;
+  const actionabilityRate = actionabilityDenominator
+    ? Math.round((actionabilityNumerator / actionabilityDenominator) * 100)
+    : null;
+  const allTicksActionabilityRate = ticks.length
     ? Math.round((ticksWithQueueWork.length / ticks.length) * 100)
     : null;
 
@@ -118,10 +134,18 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     next_step: nextStep,
     cadence: {
       ticks: ticks.length,
+      queue_eligible_ticks: hasQueueModeMetadata ? queueEligibleTicks.length : null,
+      queue_disabled_ticks: hasQueueModeMetadata
+        ? ticks.filter(row => row.result?.allowQueue === false).length
+        : null,
       ticks_with_queue_action: ticksWithQueueWork.length,
+      ticks_with_queue_action_when_enabled: hasQueueModeMetadata
+        ? ticksWithQueueWorkWhenEligible.length
+        : ticksWithQueueWork.length,
       queued_actions_created: ticks.reduce((sum, row) => sum + queueCountForTick(row), 0),
       ticks_with_proposals: ticksWithProposals.length,
       actionability_rate_percent: actionabilityRate,
+      all_ticks_actionability_rate_percent: allTicksActionabilityRate,
     },
     decisions: {
       proposals: proposals.length,

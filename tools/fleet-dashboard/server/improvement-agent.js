@@ -148,6 +148,7 @@ function launch({
         `If the worktree is dirty, inspect git diff; if it is clean, inspect the improvement commit with git diff HEAD^ HEAD. ` +
         `Run focused checks when useful. Do not edit files, commit, push, deploy, switch branches, or modify ops/tasks. ` +
         `Check that the request is actually satisfied, that site instructions are respected, and that the change is safe to ship. ` +
+        `The dashboard runs the authoritative build, test, preview, and browser gates after your review. Do not reject a bounded diff solely because an optional local tool is unavailable (for example a missing Playwright browser executable, a missing dev dependency, or a transient upstream service); record that as an infrastructure warning and let the deterministic gate classify it. Reject it when the diff itself is wrong, unrelated, unsafe, or violates the site's instructions. ` +
         `Treat command exit codes and recorded validation output as authoritative: never describe a failed build, test, preview, or browser check as passing. ` +
         `You must finish with exactly one marker: FD_REVIEW_RESULT: PASS or FD_REVIEW_RESULT: FAIL. ` +
         `If failing, briefly explain the blocking issue before the marker.\n\nRequest:\n${String(taskBody || run.title).slice(0, 30000)}`

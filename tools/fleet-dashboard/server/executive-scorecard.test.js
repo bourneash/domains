@@ -61,3 +61,35 @@ test('scorecard makes an unproductive executive cycle visible', () => {
   assert.equal(result.status, 'no-delivery');
   assert.match(result.next_step, /bounded, measurable action/);
 });
+
+test('scorecard does not score deliberate dry runs as executable no-ops', () => {
+  const store = {
+    listExecutiveActions: () => [
+      {
+        action_type: 'tick',
+        started_at: '2026-09-22T00:00:00.000Z',
+        result: {
+          allowQueue: false,
+          counts: { change_requests: 4 },
+          created_counts: { change_requests: 0 },
+        },
+      },
+      {
+        action_type: 'tick',
+        started_at: '2026-09-22T00:10:00.000Z',
+        result: { allowQueue: true, created_counts: { change_requests: 2 } },
+      },
+    ],
+    listExecutiveProposals: () => [],
+    listChangeRequests: () => [],
+    listImprovements: () => [],
+    list: () => [],
+  };
+  const result = scorecard.buildScorecard(store, {
+    now: new Date('2026-09-22T01:00:00.000Z'),
+  });
+  assert.equal(result.cadence.queue_eligible_ticks, 1);
+  assert.equal(result.cadence.queue_disabled_ticks, 1);
+  assert.equal(result.cadence.actionability_rate_percent, 100);
+  assert.equal(result.cadence.all_ticks_actionability_rate_percent, 50);
+});

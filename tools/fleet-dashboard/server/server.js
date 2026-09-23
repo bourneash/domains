@@ -525,6 +525,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             return;
           }
           if (completionPath === 'review') {
+            // Task-routing requests are metadata-only work. Normalize an
+            // invalid canonical role in the isolated checkout before the
+            // independent reviewer sees it. This keeps a site's installed
+            // role inventory authoritative even when the model copied the
+            // fleet-wide role name into frontmatter.
+            if (result.code === 0 && !result.timedOut) {
+              try {
+                const finished = events.getImprovement(created.run.run_id);
+                if (!finished) throw new Error('routing improvement run disappeared');
+                normalizeTaskRoutingWorktree(finished, claimed);
+              } catch (error) {
+                recordAutoReviewFailure(claimed.request_id, error);
+                return;
+              }
+            }
             autoReviewRequest(claimed.request_id).catch(error =>
               recordAutoReviewFailure(claimed.request_id, error)
             );
@@ -1607,6 +1622,54 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return null;
   }
 
+  function normalizeTaskRoutingWorktree(run, request) {
+    if (!String(request?.action_key || '').startsWith('task-routing:')) return false;
+    const workTask = findWorktreeTask(run.workspace_path, run.task_file);
+    if (!workTask) throw new Error(`routing task ${run.task_file} is missing from worktree`);
+    const parsed = tasks.parseTask(fs.readFileSync(workTask.path, 'utf8'));
+    const available = installedSiteRoles(root, request.site);
+    const requestedRole = request.assigned_role || parsed.meta.assigned_role;
+    const effectiveRole =
+      assignedRoleForSite(parsed.meta.type || request.category, requestedRole, available) ||
+      assignedRoleForType(parsed.meta.type || request.category, requestedRole);
+    if (!effectiveRole || effectiveRole === parsed.meta.assigned_role) return false;
+
+    const previousRole = parsed.meta.assigned_role || null;
+    const stamp = new Date().toISOString().slice(0, 10);
+    const note = [
+      '',
+      '## Assignment normalization record',
+      '',
+      `- Normalized: ${stamp}`,
+      `- Requested role: ${requestedRole || 'unassigned'}`,
+      `- Effective installed role: ${effectiveRole}`,
+      `- Previous task role: ${previousRole || 'unassigned'}`,
+      '- Reason: the requested role is not installed for this site; the queue selected the nearest installed owner for this task type.',
+      '- Rollback: restore the previous role only after that role is installed and the task is intentionally reassigned.',
+      '',
+    ].join('\n');
+    fs.writeFileSync(
+      workTask.path,
+      tasks.serializeTask({ ...parsed.meta, assigned_role: effectiveRole }, `${parsed.body}${note}`)
+    );
+    events.record({
+      event_type: 'change-request.role_normalized_in_worktree',
+      source: 'fleet-dashboard',
+      site_id: `site:${request.site}`,
+      entity_type: 'change-request',
+      entity_id: request.request_id,
+      correlation_id: `change-request:${request.request_id}`,
+      payload: {
+        run_id: run.run_id,
+        previous_role: previousRole,
+        requested_role: requestedRole || null,
+        effective_role: effectiveRole,
+        installed_roles: available,
+      },
+    });
+    return true;
+  }
+
   async function deliverTaskRoutingAutomatically(item, request) {
     const workTask = findWorktreeTask(item.workspace_path, item.task_file);
     if (!workTask) throw new Error(`routing task ${item.task_file} is missing from worktree`);
@@ -1815,6 +1878,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return [
       'TASK-ROUTING REVIEW CONTRACT',
       "Review the requested queue-routing metadata change only. Do not require the underlying task's implementation acceptance criteria to be completed in this run.",
+      `The effective installed queue role for this request is ${request.assigned_role || 'engineer'}. If the diff contains a fleet-wide alias that is not installed on this site, treat the normalized installed role as the correct result when the substitution and rollback record are present.`,
       'PASS when the diff edits the existing task in place, assigns an installed effective role, records the requested role/substitution and rollback metadata where applicable, and contains no unrelated production changes.',
       'FAIL only when the existing task was not edited, the effective role is not installed, rollback metadata is missing when needed, or unrelated changes were made.',
       '',
@@ -1828,6 +1892,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const text = JSON.stringify(validation || {});
     return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed)/i.test(
       text
+    );
+  }
+
+  function reviewInfrastructureBlock(rootPath, run, error) {
+    const evidence = automaticReviewFeedback(rootPath, run, error);
+    return /(?:ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|browserType\.launch|executable doesn't exist|playwright install|missing (?:browser|chromium)|cannot find module|network request failed)/i.test(
+      evidence
     );
   }
 
@@ -1952,6 +2023,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
       return;
     const message = String(error.message || error);
+    // A reviewer can report a real code concern and an unavailable local
+    // tool in the same log. Preserve that failure, but do not spend bounded
+    // repair attempts repeating a model call that cannot fix the environment.
+    if (!error?.noAutomaticRepair && reviewInfrastructureBlock(root, run, error))
+      error.noAutomaticRepair = true;
     if (error?.noAutomaticRepair) {
       const failedRun = markImprovementFailed(run, error);
       // Infrastructure failures need an operator/tooling fix, not another
