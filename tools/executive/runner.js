@@ -1210,7 +1210,15 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
       const category = ['seo', 'engineering', 'content', 'design', 'marketing'].includes(type)
         ? type
         : 'engineering';
-      const reportOnly = type === 'portfolio-baseline';
+      // A baseline/evidence candidate must never enter the deployment path
+      // just because intelligence classified its source as SEO or engineering.
+      // The delivery mode is a safety boundary, so preserve the explicit
+      // report-only intent from either the candidate type or its wording.
+      const reportOnly =
+        type === 'portfolio-baseline' ||
+        /\b(?:baseline|read[- ]only|report[- ]only|no production changes?)\b/i.test(
+          `${candidate.title || ''} ${candidate.recommendation || ''}`
+        );
       const evidence = candidate.evidence
         ? JSON.stringify(candidate.evidence)
         : 'See the executive intelligence snapshot.';

@@ -115,6 +115,28 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 
+test('marks SEO-labelled baselines as report-only work', () => {
+  const plan = runner.buildActionMandateFallback(
+    { messages: [], change_requests: [] },
+    {
+      queue: [],
+      improvements: [],
+      action_mandate: {
+        candidates: [
+          {
+            site: 'example.com',
+            type: 'seo',
+            title: 'Baseline example.com search opportunity',
+            recommendation: 'Capture a read-only baseline before changing production.',
+            metric: 'qualified clicks',
+          },
+        ],
+      },
+    }
+  );
+  assert.equal(plan.change_requests[0].delivery_mode, 'report_only');
+});
+
 test('roles can create and update bounded workbench cases through the plan', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(
