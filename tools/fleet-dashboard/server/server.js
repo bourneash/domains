@@ -2307,7 +2307,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // code failure. The original failure remains in the event log and outcome.
   function preserveInfrastructureBlockedReview(request, run, error) {
     const validation = error?.validation || run?.validation;
-    if (!request || !run || !validation || !validationInfrastructureBlock(validation)) return false;
+    const infrastructureBlocked =
+      run?.outcome?.infrastructure_blocked === true || validationInfrastructureBlock(validation);
+    if (!request || !run || !validation || !infrastructureBlocked) return false;
     const message = String(
       error?.message ||
         run.outcome?.infrastructure_error ||
