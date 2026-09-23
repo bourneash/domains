@@ -69,7 +69,7 @@ grep -q 'head_commit_age.*-gt.*UNPUSHED_COMMIT_GRACE_SECS' "$allthings_engineer"
 # Exercise the real grace-window function at both sides of the boundary and
 # verify that a missing git timestamp fails closed.
 git_fixture="$(mktemp -d)"
-trap 'rm -rf "$tmp" "$fixture" "$git_fixture"' EXIT
+trap 'rm -rf "$git_fixture"' EXIT
 git -C "$git_fixture" init -q
 git -C "$git_fixture" config user.name test
 git -C "$git_fixture" config user.email test@example.invalid
