@@ -93,6 +93,22 @@ function workerCompletionPath(request, result, settings) {
   return 'none';
 }
 
+function shouldRetryQueueFailure(text, validation = null) {
+  const value = String(text || '');
+  // Reviewer rejection is a substantive decision about the diff. Repeating
+  // the same worker without new feedback only burns a slot and creates audit
+  // noise; bounded reviewer repair is handled separately.
+  if (/automatic reviewer rejected the change|reviewer rejected/i.test(value)) return false;
+  // Once deterministic validation has run, preserve the failure for an owner
+  // or tooling fix. Automatic review already marks infrastructure blocks
+  // explicitly; blindly retrying the unchanged checkout is not recovery.
+  if (validation?.passed === false) return false;
+  if (/quality gates? (?:did not pass|failed)/i.test(value)) return false;
+  return /(worker process|implementation agent ended|reviewer handoff|automatic reviewer handoff|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding)/i.test(
+    value
+  );
+}
+
 function isKnownTarget(root, target) {
   return target === 'fleet' || isKnownSite(root, target);
 }
@@ -1077,9 +1093,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function retryableQueueFailure(request, run) {
     if (run?.validation && validationInfrastructureBlock(run.validation)) return false;
     const text = `${request?.error || ''} ${failedRequestReason(request, run)}`;
-    return /(worker process|implementation agent ended|reviewer handoff|automatic reviewer|quality gates? (?:did not pass|failed)|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding)/i.test(
-      text
-    );
+    return shouldRetryQueueFailure(text, run?.validation || null);
   }
 
   function scheduleFailedRequestRetry(
@@ -5291,4 +5305,4 @@ if (require.main === module) {
   createApp().listen(PORT, HOST, () => console.log(`fleet-dashboard on http://${HOST}:${PORT}`));
 }
 
-module.exports = { createApp, workerCompletionPath };
+module.exports = { createApp, workerCompletionPath, shouldRetryQueueFailure };

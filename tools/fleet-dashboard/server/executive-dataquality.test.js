@@ -111,3 +111,21 @@ test('updates an existing work ID created by an older executive source', () => {
   );
   store.close();
 });
+
+test('creates source-specific work for partial analytics coverage', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-data-quality-source-work-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const result = dataquality.sync(store, {
+    contracts: [{ source: 'analytics', ok: true }],
+    coverage: {
+      analytics: {
+        missing_sites: [],
+        source_issues: [{ site: 'a.com', source: 'gsc', status: 'error', error: '403' }],
+      },
+    },
+  });
+  assert.equal(result.created.length, 1);
+  assert.equal(result.created[0].work_id, 'data-quality:analytics:gsc:a.com');
+  assert.equal(result.created[0].owner, 'cto');
+  store.close();
+});

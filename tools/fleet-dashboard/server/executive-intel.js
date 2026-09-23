@@ -152,10 +152,20 @@ function compactAnalytics(data) {
     sites[site] = {
       configured: row?.configured !== false,
       ga4: row?.ga4
-        ? { status: row.ga4.status || null, last_fetch_at: row.ga4.last_fetch_at || null }
+        ? {
+            status: row.ga4.status || null,
+            last_fetch_at: row.ga4.last_fetch_at || null,
+            stale: row.ga4.stale ?? null,
+            error: row.ga4.error || null,
+          }
         : null,
       gsc: row?.gsc
-        ? { status: row.gsc.status || null, last_fetch_at: row.gsc.last_fetch_at || null }
+        ? {
+            status: row.gsc.status || null,
+            last_fetch_at: row.gsc.last_fetch_at || null,
+            stale: row.gsc.stale ?? null,
+            error: row.gsc.error || null,
+          }
         : null,
     };
   }

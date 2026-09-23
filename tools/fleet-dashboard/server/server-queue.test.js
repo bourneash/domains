@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { workerCompletionPath } = require('./server');
+const { workerCompletionPath, shouldRetryQueueFailure } = require('./server');
 
 test('successful report-only workers finalize evidence without a second model reviewer', () => {
   assert.equal(
@@ -43,4 +43,14 @@ test('failed or timed-out workers never finalize automatically', () => {
     ),
     'none'
   );
+});
+
+test('does not retry reviewer rejections or deterministic quality-gate failures', () => {
+  assert.equal(shouldRetryQueueFailure('automatic reviewer rejected the change'), false);
+  assert.equal(shouldRetryQueueFailure('quality gates did not pass', { passed: false }), false);
+  assert.equal(
+    shouldRetryQueueFailure('automatic reviewer handoff was interrupted; retry required'),
+    true
+  );
+  assert.equal(shouldRetryQueueFailure('implementation agent ended failed'), true);
 });

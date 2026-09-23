@@ -119,8 +119,36 @@ test('does not turn an Amazon aggregate Other row into a false site mapping bloc
     },
   });
   const contract = out.contracts.find(row => row.source === 'revenue-attribution');
-  assert.equal(contract.status, 'green');
+  assert.equal(contract.status, 'yellow');
+  assert.match(contract.notice, /aggregate earnings/);
   assert.deepEqual(out.coverage.revenue_attribution.unmapped_tracking_ids, []);
   assert.deepEqual(out.coverage.revenue_attribution.aggregate_tracking_ids, ['other']);
   assert.equal(out.next_actions.includes('resolve affiliate tracking-ID attribution'), false);
+});
+
+test('keeps partial GA4/GSC coverage visible as source-specific issues', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-source-coverage-'));
+  fs.mkdirSync(path.join(root, 'registry'));
+  fs.writeFileSync(
+    path.join(root, 'registry', 'fleet.yaml'),
+    'sites:\n  a.com:\n    status: live\n    capabilities: [analytics]\n'
+  );
+  const out = dataquality.assess({
+    root,
+    discoveredSites: ['a.com'],
+    analyticsHealth: {
+      sites: {
+        'a.com': {
+          ga4: { status: 'ok', last_fetch_at: '2026-09-23T00:00:00Z' },
+          gsc: { status: 'error', error: 'permission denied' },
+        },
+      },
+    },
+  });
+  const analytics = out.contracts.find(row => row.source === 'analytics');
+  assert.equal(analytics.completeness, 1);
+  assert.equal(analytics.status, 'yellow');
+  assert.deepEqual(out.coverage.analytics.source_coverage.gsc.error_sites, ['a.com']);
+  assert.equal(out.coverage.analytics.source_issues[0].source, 'gsc');
+  assert.ok(out.next_actions.includes('repair analytics source permissions or collector errors'));
 });

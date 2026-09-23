@@ -69,6 +69,44 @@ const changequeue = require(`${root}/tools/fleet-dashboard/server/changequeue`);
       )
     );
   }
+  const missingAnalyticsSites = new Set(analyticsGaps.missing_sites || []);
+  for (const issue of analyticsSourceAvailable ? analyticsGaps.source_issues || [] : []) {
+    const site = String(issue.site || '').trim().toLowerCase();
+    const source = String(issue.source || 'analytics').trim().toLowerCase();
+    if (!site || !sites.includes(site) || missingAnalyticsSites.has(site)) continue;
+    const actionKey = `data-quality:analytics:${source}:${site}`;
+    const existing = store
+      .listChangeRequests({ limit: 1000 })
+      .find(request => request.action_key === actionKey && request.status !== 'cancelled');
+    if (existing) continue;
+    const label = source === 'gsc' ? 'GSC' : source === 'ga4' ? 'GA4' : source;
+    analyticsRequests.push(
+      changequeue.create(
+        store,
+        {
+          site,
+          title: `Produce ${label} permission diagnosis for ${site}`,
+          body: [
+            `Read-only ${label} analytics source diagnosis. Do not change credentials, property configuration, tracking code, schedules, deployment, or production data.`,
+            `Current deterministic health: source=${label}, status=${issue.status}, last_fetch_at=${issue.last_fetch_at || 'unavailable'}, error=${issue.error || 'none recorded'}.`,
+            'Inspect the canonical analytics registry, latest collector/source health, and site repository only as needed. Identify the exact permission, property, fetch, or deployment dependency and write a concise evidence report with the smallest owner-approved repair.',
+            'Acceptance: distinguish unavailable evidence from zero; include the exact registry entry and failed source/error details; make no production or credential changes.',
+          ].join('\n'),
+          category: 'engineering',
+          priority: 'medium',
+          assigned_role: 'engineer',
+          provider: 'chatgpt',
+          model: 'gpt-5.6-luna',
+          max_turns: 8,
+          auto_review: true,
+          delivery_mode: 'report_only',
+          requested_by: 'system',
+          action_key: actionKey,
+        },
+        target => sites.includes(target)
+      )
+    );
+  }
   const audit = executive.action(store, {
     actor: 'system',
     action_type: 'observe',

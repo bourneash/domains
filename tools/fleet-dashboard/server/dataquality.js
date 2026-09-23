@@ -1,6 +1,37 @@
 'use strict';
 
 const registry = require('./fleetregistry');
+const ANALYTICS_SOURCES = ['ga4', 'gsc'];
+
+function analyticsSourceCoverage(expectedSites, analyticsSites) {
+  const sourceCoverage = {};
+  const sourceIssues = [];
+  for (const source of ANALYTICS_SOURCES) {
+    const details = expectedSites.map(site => {
+      const health = analyticsSites[site]?.[source] || {};
+      return {
+        site,
+        source,
+        status: health.status || 'not_observed',
+        error: health.error || null,
+        last_fetch_at: health.last_fetch_at || null,
+      };
+    });
+    const observed = details.filter(detail => detail.status === 'ok');
+    const issues = details.filter(detail => detail.status !== 'ok');
+    sourceCoverage[source] = {
+      expected_sites: details.length,
+      observed_sites: observed.length,
+      missing_sites: issues.map(detail => detail.site),
+      error_sites: issues
+        .filter(detail => detail.status !== 'not_observed')
+        .map(detail => detail.site),
+      issues,
+    };
+    sourceIssues.push(...issues);
+  }
+  return { sourceCoverage, sourceIssues };
+}
 
 function assess({
   root,
@@ -19,6 +50,10 @@ function assess({
     .filter(s => s.capabilities.includes('analytics'))
     .map(s => s.domain);
   const analyticsSites = analyticsHealth.sites || {};
+  const { sourceCoverage, sourceIssues } = analyticsSourceCoverage(
+    expectedAnalytics,
+    analyticsSites
+  );
   const analyticsMissingDetails = site => {
     const row = analyticsSites[site] || {};
     return {
@@ -116,6 +151,18 @@ function assess({
     row.age_ms = row.freshest_at ? Math.max(0, now - Date.parse(row.freshest_at)) : null;
     row.status = !row.ok ? 'red' : row.completeness < 1 ? 'yellow' : 'green';
   }
+  const analyticsContract = contracts.find(row => row.source === 'analytics');
+  if (analyticsContract && sourceIssues.length && analyticsContract.status === 'green') {
+    analyticsContract.status = 'yellow';
+    analyticsContract.notice =
+      'At least one GA4 or GSC source is unavailable or returning an error.';
+  }
+  const attributionContract = contracts.find(row => row.source === 'revenue-attribution');
+  if (attributionContract && aggregateRevenue.length && attributionContract.status === 'green') {
+    attributionContract.status = 'yellow';
+    attributionContract.notice =
+      'Amazon supplied aggregate earnings that are visible but cannot be assigned to a site.';
+  }
   return {
     generated_at: new Date().toISOString(),
     contracts,
@@ -125,9 +172,13 @@ function assess({
         observed_sites: expectedAnalytics.length - analyticsMissingSites.length,
         missing_sites: analyticsMissingSites,
         missing_details: analyticsMissingSites.map(analyticsMissingDetails),
+        source_coverage: sourceCoverage,
+        source_issues: sourceIssues,
         next_action: analyticsMissingSites.length
           ? 'Provision or verify GA4/GSC access for the listed sites; missing telemetry is unavailable, not zero.'
-          : null,
+          : sourceIssues.length
+            ? 'Repair the listed GA4/GSC source permissions or collector errors; do not treat the failing source as zero.'
+            : null,
       },
       revenue_attribution: {
         status: attributionStatus,
@@ -150,6 +201,7 @@ function assess({
     },
     next_actions: [
       ...(analyticsMissingSites.length ? ['close analytics coverage gaps'] : []),
+      ...(sourceIssues.length ? ['repair analytics source permissions or collector errors'] : []),
       ...(unmappedRevenue.length ? ['resolve affiliate tracking-ID attribution'] : []),
     ],
     totals: {

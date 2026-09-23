@@ -48,6 +48,31 @@ function desiredItems(quality = {}) {
       created_by: 'system',
     });
   }
+  const missingSites = new Set(quality.coverage?.analytics?.missing_sites || []);
+  for (const issue of quality.coverage?.analytics?.source_issues || []) {
+    // A site with neither source already has one site-level recovery item.
+    // Source-specific items are for partial coverage, such as GA4 working
+    // while GSC permissions are broken, and prevent the gap from being hidden.
+    if (missingSites.has(issue.site)) continue;
+    const source = String(issue.source || 'analytics').toLowerCase();
+    const label = source === 'gsc' ? 'GSC' : source === 'ga4' ? 'GA4' : source;
+    items.push({
+      work_id: `data-quality:analytics:${source}:${issue.site}`,
+      title: `Restore ${label} coverage for ${issue.site}`,
+      kind: 'evidence',
+      status: 'open',
+      priority: 'normal',
+      owner: 'cto',
+      source_type: 'data-quality',
+      source_id: `analytics:${source}:${issue.site}`,
+      site: issue.site,
+      summary: `${label} is not healthy for this managed site (status=${issue.status}). Other analytics sources may still be available; this source must not be represented as zero.`,
+      next_action:
+        'Verify the source property/permission configuration and rerun the deterministic collector; record the exact evidence before changing site code.',
+      evidence: [{ label: 'Executive analytics source health', detail: issue }],
+      created_by: 'system',
+    });
+  }
   for (const trackingId of quality.coverage?.revenue_attribution?.unmapped_tracking_ids || []) {
     items.push({
       work_id: `data-quality:revenue-attribution:${trackingId.toLowerCase()}`,
