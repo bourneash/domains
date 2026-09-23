@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:43:21.123Z",
+  "generated_at": "2026-09-23T11:34:34.476Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize only preparation of an unsent written permission request to Woot. Evidence: current Woot terms do not establish rights for public commercial display, derivatives, caching, or alerts; legal, security, accuracy, attribution, and measurement gates remain blocked. Unknown: whether Woot will grant the required rights. Smallest next step: owner selects one option—(A) prepare the permission request for review, (B) no outreach and keep private, or (C) end the public-beta pursuit. Separately, prioritize four reversible SEO changes below: the scorecard has 75 SEO actions, 48 high priority, 0 proven improvements, and 3 changes still measuring.",
+        "summary": "Recommendation: keep SearchWoot private and do not authorize outreach, launch, credentials, spend, or production changes until Woot rights and Legal, Security, accuracy, and measurement gates are complete. Evidence: official Woot terms do not establish rights for public commercial display, derivatives, caching, or alerts; the checklist remains blocked. Unknown: whether Woot would grant written permission. Owner decision: choose A) authorize preparation of an unsent permission request, B) keep private with no outreach, or C) stop pursuing public beta.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO leads for markitdown, shadcn/ui, the Great Lakes affiliate module, and the Deep Penetrations experiment are deferred this cycle: existing approved-proposal execution is only 9%, 129 approved proposals lack execution requests, and the relevant sites already have active or measuring work. The evidence is preserved; no additional research or adoption is justified until the execution backlog drains.",
+        "summary": "Recommendation: prioritize three reversible SEO briefs across deeppenetrations.com, stinkyleftfoot.com, and aliencouncil.com, then measure before expanding. Evidence from the 30-day SEO snapshot: 585 impressions at position 4.1, 574 at 9.5, and 190 at 4.3 respectively; no attributable revenue lift is calculable. The fleet has 129 approved proposals without execution and zero proven improvements, so no new material scope is recommended this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

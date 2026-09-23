@@ -2,44 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:43:21.123Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T11:34:34.477Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Keep SearchWoot private. Woot documentation confirms API access but not rights to store, derive, cache, publicly display, or alert on returned data; public terms point against commercial/public data use. Security, accuracy/freshness, attribution, measurement, privacy, and owner gates remain incomplete. No go-live recommendation is supported.",
+        "summary": "Risk disposition: blocked. Recommendation: keep SearchWoot private; do not authorize public beta, monetization expansion, outreach, credentials, spending, configuration, or production changes. Evidence: Woot documentation confirms API access but not redistribution rights; current public terms restrict collection, derivative use, and commercial/public data use. Legal, security, accuracy/freshness, attribution, measurement, and owner gates remain incomplete. Exact decision: retain keep_private until written source permission, documented data controls, human-counsel review where required, and all non-legal gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active with zero tasks closed this cycle. Evidence progress: authoritative Woot terms and API documentation are recorded; data-flow and privacy artifacts are partial; no permission, retention/deletion, processor, GA4-settings, or incident-procedure evidence has closed a task. Next evidence action: produce the read-only data-flow/retention table and operator/vendor inventory, then attach the resulting artifacts to the four open checklist tasks.",
+        "summary": "Fleet compliance is not a launch certification. The baseline reports 37 pass, 16 fail, and 6 unknown sites, with open banner, consent, GA4, privacy, and terms findings. Analytics is broadly available but has permission errors for some GSC properties; revenue contains $4.92 of aggregate unattributed commission; operations and fleet-doctor evidence is unavailable. Do not treat missing telemetry as zero, and do not block ordinary report-only growth solely for telemetry gaps. Private or gated sites require an explicit keep-private or bounded-beta decision.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data: blocked pending written rights and field-level terms; next action is prepare an unsent permission request for owner review. User alert rules and sync results: evidence_needed pending data inventory, retention, deletion/correction, processor terms, and unsubscribe evidence; next action is document the deployed flow. GA4 analytics: evidence_needed pending consent behavior, property/data-sharing settings, retention, and jurisdiction review; next action is capture read-only configuration evidence. Operational logs and Cloudflare data: evidence_needed pending log fields, retention/access controls, vendor terms or DPA review, and incident/request procedures; next action is produce the operator/vendor inventory.",
+        "summary": "Launch-readiness progress: source-rights evidence is partially complete through the official Woot developer documentation, public terms, and support page, but the rights task remains open because no written permission covers storage, derivatives, public display, caching, alerts, attribution, freshness, correction, takedown, or affiliate use. Data-flow evidence is partial from backend/api/main.py, backend/services/fetcher.py, and config.yml. Consent evidence is partial from privacy.html and cookie-policy.html. No task is closed without the missing evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "2836f6bb-0839-48b4-828b-ad9774fcea3c",
-        "summary": "Accept bounded read-only security evidence capture while preserving the private gate; no credentials, outreach, deployment, spending, or production changes.",
-        "requested_action": "accepted_research",
-        "proposal_id": "2836f6bb-0839-48b4-828b-ad9774fcea3c"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "0df19dc7-5bb3-445d-94fc-7960d14c54dd",
-        "summary": "Accept completion of the existing SearchWoot security evidence checklist; public launch remains blocked until all applicable gates are evidenced.",
-        "requested_action": "accepted_research",
-        "proposal_id": "0df19dc7-5bb3-445d-94fc-7960d14c54dd"
+        "kind": "message",
+        "title": null,
+        "summary": "The three proposed SEO briefs are conditionally acceptable as report-only evidence work. Their supplied impressions, rankings, and clicks support traffic hypotheses only; no revenue, causal lift, or monetization claim is supported. Preserve disclosures, source attribution, rollback criteria, and existing measurement gates. No production implementation is approved.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:43:21.123Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T11:34:34.476Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: do not expand monetization, marketing, or AI-intensive production work this cycle. Retain only bounded report-only measurement and control work. The 2026-09-01 through 2026-09-23 AI usage report shows $775.70 across 4,611 calls and 39 instrumented sites, while Amazon data covers only 2026-09-21 and reports $4.92 commission, all in an unattributed aggregate row. These periods and attribution scopes do not support contribution margin, ROI, payback, CAC, or revenue forecasts. Existing SEO impressions, clicks, sessions, and conversions are leading indicators, not revenue evidence. No budget, infrastructure spend, labor cost, or fixed-cost schedule is supplied, so total margin and budget exposure are uncalculable. Keep the current private launch gate and existing measurement windows unchanged; do not add the proposed CRO experiments until attributable revenue and cost baselines are available.",
+        "summary": "Recommendation: hold new monetization, production growth, and public launch expansion until attribution and unit economics are decision-grade. Amazon data for 2026-09-21 shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission income; all $4.92 is in an aggregate row, so site-attributed revenue is $0 and no site revenue claim is supported. AI usage from 2026-09-01 through 2026-09-23 is $779.85 across 4,620 calls, with 207 errors; this is observed AI cost, not complete contribution cost. Contribution margin, payback, CAC, and cost-to-learn are not calculable because site-level revenue, infrastructure/domain costs, labor allocation, experiment exposure, and outcome data are missing. Keep SearchWoot private, allow only existing measurement gates, and do not authorize production CTA changes or forecast revenue.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The proposed SEO work should be treated as traffic experiments, not revenue initiatives. Impressions, rankings, clicks, and sessions are leading indicators; they do not establish contribution margin or causal revenue lift. Existing deployed work should reach its measurement gates, but no expansion should be justified until attributable affiliate clicks, orders, shipped items, commission, and direct cost are reconciled.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "d9107dae-3b9c-4547-ad08-e431850f661b",
+        "summary": "Accept only as staging research with a text-only control. Impressions and rankings are not sufficient financial evidence; require page-weight, accessibility, editing effort, and later attributable conversion measurement before any rollout.",
+        "requested_action": "accepted_research",
+        "proposal_id": "d9107dae-3b9c-4547-ad08-e431850f661b"
       }
     ]
   }

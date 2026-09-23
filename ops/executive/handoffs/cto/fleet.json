@@ -2,37 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:43:21.123Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T11:34:34.477Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep the private-preview gate unchanged. Preparing an unsent permission request is technically safe and reversible, but it requires an explicit owner choice before any outreach. No public launch, credential change, data-flow expansion, monetization, or production change is authorized while rights, security, accuracy, attribution, measurement, and privacy gates remain incomplete.",
+        "summary": "Keep SearchWoot private. No outreach, credentials, spending, configuration, deployment, or public launch is technically authorized while source rights, accuracy, security, privacy, attribution, measurement, and owner gates remain blocked. Existing report-only evidence work may continue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the four proposed SEO changes for the existing engineer queue. Each is isolated to one page, reversible, low-risk, and supported by supplied Search Console evidence. Require factual edits, pre/post snapshots, indexing and disclosure checks, and measurement only from available telemetry. Do not treat impressions, clicks, sessions, or conversions as revenue or causal lift.",
+        "summary": "Approve only report-only SEO briefs for deeppenetrations.com, stinkyleftfoot.com, and aliencouncil.com. Do not authorize direct production implementation in this cycle. Each brief must preserve the current page, provide a previewable diff, define rollback and validation, and wait for existing site capacity and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer CRO tooling, affiliate-module expansion, and additional AI-intensive production work. Existing work is already measuring, execution backlog is materially larger than completed outcomes, and the supplied evidence does not support adoption, revenue, margin, or payback claims.",
+        "summary": "The fleet is not ready for broad queue expansion: 129 approved proposals lack execution requests, zero improvements are proven, multiple recent runs failed quality or infrastructure gates, and operations/fleet-doctor evidence is unavailable. Continue existing measurement and bounded evidence work before adding material implementation scope.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve bounded report-only reconciliation of contribution-margin inputs and AI spend exposure. These reports must align source windows, distinguish observed usage from avoidable or billable cost, preserve aggregate revenue as unattributed, and define control requirements without changing schedules, queues, models, credentials, billing, or production configuration.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "3a20f439-f297-44e4-b7ef-c26146da7165",
+        "summary": "Accept only as an isolated offline prototype using supplied or synthetic documents. No production dependency, content automation, credential access, or deployment. Require reproducible output, manual acceptance review, dependency/license review, resource limits, and a defined editor-effort measurement before any adoption proposal.",
+        "requested_action": "accepted_research",
+        "proposal_id": "3a20f439-f297-44e4-b7ef-c26146da7165"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "895c4ffe-98f3-4bee-9db9-498fc8929b5a",
+        "summary": "No production adoption or prototype queue entry is justified while current execution and measurement backlog remains unresolved.",
+        "requested_action": "declined",
+        "proposal_id": "895c4ffe-98f3-4bee-9db9-498fc8929b5a"
       }
     ]
   }

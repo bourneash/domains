@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:43:21.124Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T11:34:34.477Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all four SEO queue changes and both security evidence proposals this cycle. Missing attribution, low-volume telemetry, zero proven outcomes, and an already active evidence backlog do not support new production or duplicate queue work. Keep the private-preview gate unchanged, make no financial claims, and preserve existing measurement windows. No qualifying non-duplicate public research request remains.",
+        "summary": "Keep SearchWoot private and authorize no outreach, credentials, spending, configuration, deployment, or public launch. Rights, security, accuracy, privacy, attribution, and measurement gates remain incomplete. Allow only bounded read-only evidence and existing measurement gates. Treat the three SEO briefs as traffic hypotheses only; no revenue, causal-lift, or ROI claim is supported.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032",
+        "summary": "Accept bounded read-only security evidence capture only. Retain the private-preview gate; no credentials, outreach, spending, deployment, configuration, or public exposure.",
+        "requested_action": "accepted_research",
+        "proposal_id": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "2836f6bb-0839-48b4-828b-ad9774fcea3c",
+        "summary": "Accept bounded read-only fleet security evidence capture only. Missing checks are evidence gaps, not clean results, and do not block ordinary report-only work.",
+        "requested_action": "accepted_research",
+        "proposal_id": "2836f6bb-0839-48b4-828b-ad9774fcea3c"
       }
     ]
   }
