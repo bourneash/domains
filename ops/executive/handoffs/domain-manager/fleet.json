@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:10:00.169Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-23T08:18:07.768Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "86a47e17-d250-42a0-a9f8-0f96dc87013b",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 1,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Complete existing Great American Lakes measurement gate before adding work",
+        "summary": "Do not add new production changes while the two approved improvements remain in measurement. The site has 970 impressions, 3 clicks, 53 sessions, and 2 conversions in the SEO summary; the active 14-day observations show 1,533 impressions, 28 clicks, 29 sessions, and 1 conversion, but no causal lift or site-attributed revenue is established.",
+        "requested_action": "Continue measurement through the existing October 6 gate or until 100 new impressions, then record impressions, clicks, sessions, conversions, and attributable commission. Keep financial and causal claims unsupported until site-level attribution is available.",
+        "proposal_id": null
+      }
+    ]
   }
 }
