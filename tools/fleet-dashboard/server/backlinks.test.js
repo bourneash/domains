@@ -72,4 +72,10 @@ test('queues idempotent baseline tasks for every unmeasured site', () => {
     fs.readdirSync(path.join(root, 'sites', sites[0], 'ops', 'tasks', 'backlog')).length,
     1
   );
+  const taskFile = fs.readdirSync(path.join(root, 'sites', sites[0], 'ops', 'tasks', 'backlog'))[0];
+  const taskText = fs.readFileSync(
+    path.join(root, 'sites', sites[0], 'ops', 'tasks', 'backlog', taskFile),
+    'utf8'
+  );
+  assert.match(taskText, /documented no-provider path satisfies this task/);
 });

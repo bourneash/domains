@@ -65,7 +65,8 @@ function createBaselineTasks(root) {
         `Run the strongest available legitimate source (Bing Webmaster, Moz, Ahrefs, or DataForSEO). ` +
         `Record the provider, capture date, referring-domain count, backlink count, anchor/target samples, ` +
         'and any legacy URLs worth reclaiming in `ops/seo/backlinks-YYYY-MM-DD.md`. ' +
-        `If no provider is available, document the exact blocker and leave counts unmeasured; do not infer zero.\n`,
+        `If no provider is available, document the exact blocker and leave counts unmeasured; do not infer zero. ` +
+        `That documented no-provider path satisfies this task; do not leave it blocked or escalate merely because provider access is unavailable.\n`,
     });
     created.push({ site: record.site, file });
   }

@@ -84,8 +84,12 @@ actionable engineering work belongs in `backlog/`.
 ## Records & escalation
 - Ledger: `ops/board/engineer-log.md`. Console log: `ops/logs/engineer-*.log`.
 - Heartbeat + work summaries post to Slack `{{SLACK_CHANNEL_DEFAULT}}` automatically.
-- Anything risky, ambiguous, or needing the owner (Cloudflare binding, DNS, account
-  access, a fix that won't build) → set `ENGINEER_ESCALATE` and keep a task for it.
+- Anything risky, ambiguous, or requiring owner action to complete (Cloudflare binding,
+  DNS, account access, a fix that won't build) → set `ENGINEER_ESCALATE` and keep a task
+  for it. Do not escalate an optional follow-up after the task's acceptance criteria are
+  satisfied. In particular, a backlink baseline task explicitly permits the no-provider
+  path: document the blocker, leave counts unmeasured, close the task, and set
+  `ENGINEER_ESCALATE=none`.
 
 ## Controls (operator)
 - **Pause task pickup (monitor-only):** `touch ops/.engineer-paused` — still

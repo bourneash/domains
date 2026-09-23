@@ -274,6 +274,8 @@ Queued engineer tasks (in ops/tasks/backlog/, up to 3): ${QUEUE_LIST:-none}
    any read-only or no-production-change requirement), implement only what its
    acceptance asks for, and move it backlog/ → done/. Task-specific constraints
    override this generic instruction and the role contract where they conflict.
+   A documented no-provider outcome is a valid completion for backlink baseline tasks;
+   do not emit an owner escalation for optional provider access after closing that task.
 3. After edits, run \`cd site && npm run build\` — it MUST pass. If it fails, REVERT your
    change (don't leave the tree broken) and escalate it instead.
 4. Do NOT git commit or git push — the wrapper handles build-gating, commit, and push.
@@ -301,6 +303,27 @@ tee -a "$LOG" < "$RESULT_FILE" > /dev/null
 CHANGED=$(grep '^ENGINEER_CHANGED=' "$RESULT_FILE" | tail -1 | cut -d= -f2 | tr -d ' \r\n'); CHANGED="${CHANGED:-0}"
 SUMMARY=$(grep '^ENGINEER_SUMMARY=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); SUMMARY="${SUMMARY:-engineer run complete}"
 ESCALATE=$(grep '^ENGINEER_ESCALATE=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); ESCALATE="${ESCALATE:-none}"
+
+# A backlink baseline's documented no-provider path is a valid completion, not
+# an owner blocker. Guard the notification boundary as a final safety net: if
+# every queued baseline task was moved to done/ and the only escalation is
+# provider access, suppress the stale/optional alert.
+if [[ "$ESCALATE" != "none" && -n "$QUEUE_LIST" ]] \
+  && echo "$ESCALATE" | grep -qiE 'bing webmaster|moz|ahrefs|dataforseo|backlink provider'; then
+  _all_baselines_done=1
+  IFS=',' read -r -a _completed_tasks <<< "$QUEUE_LIST"
+  for _task in "${_completed_tasks[@]}"; do
+    if [[ -z "$_task" || -f "$REPO_ROOT/ops/tasks/backlog/$_task" ]] \
+      || ! grep -qiE '^source:[[:space:]]*backlink-baseline[[:space:]]*$' "$REPO_ROOT/ops/tasks/done/$_task" 2>/dev/null; then
+      _all_baselines_done=0
+      break
+    fi
+  done
+  if [[ "$_all_baselines_done" == "1" ]]; then
+    log "suppressing provider escalation — backlink baseline task completed via documented no-provider path"
+    ESCALATE="none"
+  fi
+fi
 
 if [[ "$CF_CREDENTIAL_PENDING" == "1" ]] && [[ "$ESCALATE" != "none" ]] \
   && echo "$ESCALATE" | grep -qi 'Workers Scripts:Read' \
