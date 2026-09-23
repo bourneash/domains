@@ -384,6 +384,25 @@ test('binds an omitted actor to the authenticated pass role', () => {
   );
 });
 
+test('normalizes specialist review message types without widening the message contract', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        { actor: 'legal', message_type: 'data_use_review', body: 'Recommendation: keep the gate.' },
+        {
+          actor: 'security',
+          message_type: 'security_review',
+          body: 'Recommendation: retain isolation.',
+        },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.messages.map(message => message.message_type),
+    ['update', 'update']
+  );
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'

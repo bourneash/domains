@@ -871,6 +871,13 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
       research: 'handoff',
       research_request: 'handoff',
       task_handoff: 'handoff',
+      handoff_request: 'handoff',
+      status_report: 'update',
+      data_use_review: 'update',
+      legal_review: 'update',
+      compliance_review: 'update',
+      security_review: 'update',
+      launch_review: 'update',
     };
     if (messageTypeAliases[messageType]) item.message_type = messageTypeAliases[messageType];
   }
