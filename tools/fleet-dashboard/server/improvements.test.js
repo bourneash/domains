@@ -207,6 +207,45 @@ test('permits only successful report-only liveness recovery from a failed run', 
   store.close();
 });
 
+test('permits report-only recovery when only the redundant reviewer rejected a completed worker', () => {
+  const { root, store } = fixture();
+  const { run } = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'report-review-rejection',
+      site: 'example.com',
+      title: 'Report-only reviewer fallback',
+      body: 'Capture evidence',
+      category: 'seo',
+      priority: 'low',
+      assigned_role: 'seo-analyst',
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 2,
+      delivery_mode: 'report_only',
+    },
+  });
+  improvements.transition(store, run.run_id, { state: 'building' });
+  improvements.transition(store, run.run_id, {
+    state: 'failed',
+    outcome: { phase: 'reviewer', error: 'automatic reviewer rejected the change' },
+  });
+  store.updateImprovement(run.run_id, {
+    agent: { phase: 'reviewer', status: 'completed', exit_code: 0 },
+  });
+  const failed = store.getImprovement(run.run_id);
+  assert.equal(
+    improvements.canRecoverReportOnly(failed, {
+      state: 'reported',
+      recover_report_only: true,
+      delivery_mode: 'report_only',
+    }),
+    true
+  );
+  store.close();
+});
+
 test('requires a complete evidence shape before recovering a report-only worker', () => {
   assert.equal(
     improvements.reportOnlyEvidenceReady(

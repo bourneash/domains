@@ -21,6 +21,11 @@ const TRANSITIONS = {
 const FALSE_LIVENESS_ERROR = 'worker process is no longer present in its isolated container';
 
 function canRecoverReportOnly(current, input = {}) {
+  const reviewerRejectedAfterSuccessfulWorker =
+    current?.agent?.phase === 'reviewer' &&
+    current?.agent?.status === 'completed' &&
+    Number(current?.agent?.exit_code) === 0 &&
+    current?.outcome?.phase === 'reviewer';
   return (
     current?.state === 'failed' &&
     input.state === 'reported' &&
@@ -28,7 +33,7 @@ function canRecoverReportOnly(current, input = {}) {
     input.delivery_mode === 'report_only' &&
     current.agent?.status === 'completed' &&
     Number(current.agent?.exit_code) === 0 &&
-    current.outcome?.error === FALSE_LIVENESS_ERROR
+    (current.outcome?.error === FALSE_LIVENESS_ERROR || reviewerRejectedAfterSuccessfulWorker)
   );
 }
 

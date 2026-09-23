@@ -83,6 +83,16 @@ const MAX_AUTOMATIC_REVIEW_REPAIRS = 2;
 // an interrupted handoff during the 15-second queue pulse.
 const AUTOMATIC_REVIEW_HANDOFF_GRACE_MS = 2 * 60 * 1000;
 
+// Report-only work produces evidence in an isolated checkout and cannot ship
+// code. It should not spend another model call on a release-marker review;
+// direct and pull-request work still require the independent reviewer.
+function workerCompletionPath(request, result, settings) {
+  if (!request || result?.code !== 0 || result?.timedOut) return 'none';
+  if (request.delivery_mode === 'report_only') return 'report-only';
+  if (request.auto_review && settings?.auto_review_enabled) return 'review';
+  return 'none';
+}
+
 function isKnownTarget(root, target) {
   return target === 'fleet' || isKnownSite(root, target);
 }
@@ -404,11 +414,28 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         maxTurns: claimed.max_turns,
         role: claimed.assigned_role,
         onFinished: result => {
-          if (
-            result.code === 0 &&
-            claimed.auto_review &&
-            events.getChangeQueueSettings().auto_review_enabled
-          ) {
+          const completionPath = workerCompletionPath(
+            claimed,
+            result,
+            events.getChangeQueueSettings()
+          );
+          if (completionPath === 'none') return;
+          // Report-only work cannot deploy, push, or change production. Once
+          // the bounded worker exits successfully, finalize its evidence
+          // deterministically instead of sending it through a second model
+          // reviewer that can reject a safe report for formatting or marker
+          // reasons. Direct/pull-request work keeps the independent reviewer.
+          if (completionPath === 'report-only') {
+            Promise.resolve()
+              .then(async () => {
+                const finished = events.getImprovement(created.run.run_id);
+                if (!finished) throw new Error('report-only improvement run disappeared');
+                await deliverAutomatically(finished);
+              })
+              .catch(error => recordAutoReviewFailure(claimed.request_id, error));
+            return;
+          }
+          if (completionPath === 'review') {
             autoReviewRequest(claimed.request_id).catch(error =>
               recordAutoReviewFailure(claimed.request_id, error)
             );
@@ -969,12 +996,24 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           },
         });
       }
+      // A report-only implementation already completed before an old
+      // dashboard process sent it through the model reviewer. A reviewer
+      // rejection cannot invalidate a read-only evidence artifact, provided
+      // the implementation log contains the required report sections.
+      const reviewerRejectedAfterSuccessfulWorker =
+        run?.state === 'failed' &&
+        run.agent?.phase === 'reviewer' &&
+        run.agent?.status === 'completed' &&
+        Number(run.agent?.exit_code) === 0 &&
+        run.outcome?.phase === 'reviewer' &&
+        reportOnlyEvidenceReady(run);
       if (
         !improvements.canRecoverReportOnly(run, {
           state: 'reported',
           recover_report_only: true,
           delivery_mode: request.delivery_mode,
-        })
+        }) ||
+        (reviewerRejectedAfterSuccessfulWorker && request.delivery_mode !== 'report_only')
       )
         continue;
       try {
@@ -987,7 +1026,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           entity_id: request.request_id,
           correlation_id: `change-request:${request.request_id}`,
           payload: {
-            reason: 'completed report-only worker was falsely marked failed by the liveness probe',
+            reason: reviewerRejectedAfterSuccessfulWorker
+              ? 'report-only implementation was complete; reviewer rejection was non-blocking'
+              : 'completed report-only worker was falsely marked failed by the liveness probe',
             run_id: run.run_id,
           },
         });
@@ -4723,4 +4764,4 @@ if (require.main === module) {
   createApp().listen(PORT, HOST, () => console.log(`fleet-dashboard on http://${HOST}:${PORT}`));
 }
 
-module.exports = { createApp };
+module.exports = { createApp, workerCompletionPath };
