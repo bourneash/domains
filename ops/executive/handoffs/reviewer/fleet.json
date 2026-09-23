@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:15:35.870Z",
+  "generated_at": "2026-09-23T03:19:09.586Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue only the three existing bounded engineer workstreams on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com. Require baseline evidence, smoke/link checks, measurable outcomes after 14 days or 100 new impressions, and rollback notes. Reject unsupported revenue, ROI, margin, forecast, production-expansion, high-priority queue-routing, and duplicate telemetry work. Keep SearchWoot private. No owner decision is required this tick.",
+        "summary": "Recommendation: retain the existing three bounded workstreams on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com. Revenue, ROI, margin, and forecasts remain unsupported because attribution is incomplete and direct costs are unavailable. Keep SearchWoot private and reject production expansion, duplicate telemetry work, and high-priority routing. No owner decision is required this tick.",
         "requested_action": null,
         "proposal_id": null
       }

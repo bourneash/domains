@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:15:35.871Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T03:19:09.587Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue the active reversible work on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com, and correct the failed 0daynews.com task routing. The 30-day SEO window shows fishhooklabs.com at 138 impressions, position 9.3, and 2 clicks; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is whether the active changes improve qualified clicks and attributable revenue. Smallest next step: complete the existing baselines, apply bounded changes, run smoke/link checks, and measure after 14 days or 100 new impressions. Owner question: for SearchWoot choose (A) prepare an unsent Woot permission request, (B) keep private with no outreach, or (C) stop pursuing public beta.",
+        "summary": "Recommendation: continue the active reversible SEO and monetization work, while adding bounded evidence work for 0daynews.com, 0xroulette.com, complicated.work, and deadlymaracas.com. Known evidence: the 30-day SEO window reports 13,177 impressions, 126 clicks, 932 sessions, and 13 conversions across measured sites; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is which additional sites can produce attributable revenue without disproportionate build or renewal cost. Smallest next step: complete the four bounded reports, preserve rollback notes, and measure existing implementations after 14 days or 100 new impressions. Owner question: for SearchWoot choose (A) prepare an unsent Woot permission request, (B) keep private with no outreach, or (C) stop pursuing public beta.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Parked-domain monetization and renewal triage",
+        "summary": "Run a bounded, read-only comparison of complicated.work and deadlymaracas.com before committing to production launch work or continued renewal.",
+        "requested_action": "Approve the read-only triage and require a later owner decision among keep parked, prepare a bounded launch proposal, or retire before renewal.",
+        "proposal_id": "26291a96-9f65-4623-a108-85706e61a1d2"
       }
     ]
   }
