@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:35:33.772Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:48:49.406Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: Amazon revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Site-level contribution margin, ROI, and experiment payback remain unsupported until the unmatched tracking ID is mapped and direct costs are available.",
+        "summary": "Retain SearchWoot as private and do not authorize monetization or public launch. Amazon reported $4.92 commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items, but site-level revenue, margin, ROI, payback, and forecasts remain unsupported because one tracking ID is unmapped and direct costs are unavailable. Retain the three report-only SEO baselines; no production work or spend is authorized by this review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Amazon data supports only $4.92 commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Do not make site-level revenue, contribution-margin, ROI, payback, forecast, or cost-to-learn claims until attribution is reconciled and direct costs are available.",
         "requested_action": null,
         "proposal_id": null
       }

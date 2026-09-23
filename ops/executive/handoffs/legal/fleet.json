@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:34:56.187Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:48:49.405Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: BLOCKED for any public beta or full launch; retain SearchWoot as private preview. Woot documentation confirms API access but not commercial/public redistribution rights, while public terms restrict collection, derivative use, and commercial use of listings, descriptions, and prices. Human counsel is required for any rights interpretation or proposed affiliate/advertising use. No fleet-wide growth work is blocked by incomplete telemetry; preserve existing measurement-only work and create no duplicate queue work.",
+        "summary": "Risk disposition: blocked for public beta, full launch, and monetization. Keep SearchWoot private. Woot documentation confirms API access but not commercial/public display, caching, derivatives, alerts, affiliate use, or advertising rights; public terms point against those uses. Security, accuracy/freshness, measurement, attribution, privacy, and owner gates remain incomplete. Prepare an internal permission-request draft only; do not send it or alter the gate. Data-use decisions: Woot deal data=blocked pending written rights and field-level terms; user alerts=evidence_needed pending data-flow, retention, deletion, processor, consent, and unsubscribe evidence; GA4=evidence_needed pending deployed consent, property settings, retention, vendor disclosure, and jurisdiction review; operational logs/Cloudflare=evidence_needed pending log-field, retention/access, vendor/DPA, incident, and request procedures. No legal task is closed; four legal tasks remain open. Next evidence action: produce the internal Woot permission-request draft and read-only data-flow, consent/configuration, and vendor/log inventories for legal and owner review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: no legal task is closed because none has complete evidence. Source-rights evidence remains blocked; data-flow, consent/GA4, and logs/vendor/incident tasks remain evidence_needed. Next evidence action: attach an authoritative Woot permission or terms record, plus field-level rights and retention/display/alert limits, before reconsidering the private gate.",
+        "summary": "The private-preview gate remains unchanged. Ordinary report-only SEO evidence work may continue because incomplete telemetry is not itself a growth blocker; no public exposure, affiliate expansion, advertising, or new data collection is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance disposition: ordinary growth may continue under existing approved measurement gates. Compliance baseline is 37 pass, 16 fail, and 6 unknown; data quality is green for registry and SEO, yellow for analytics coverage, and red for revenue attribution. Do not claim site-level revenue, ROI, margin, or experiment payback until the unmatched affiliate tracking ID is mapped. Missing telemetry is unavailable evidence, not zero traffic.",
+        "summary": "Risk disposition: blocked for public beta, full launch, and monetization. Keep SearchWoot private. Prepare an internal permission-request draft only; do not send it or alter the gate. Ordinary report-only SEO evidence work may continue because incomplete telemetry is not itself a growth blocker.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the private preview private. Public launch remains blocked pending source-rights evidence, human legal review, privacy and data-use evidence, and completion of technical, security, accuracy, and measurement gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the private preview gated. Source rights, privacy, accuracy, security, attribution, and rollback evidence remain incomplete; no public beta or full launch is approved.",
+        "summary": "Keep SearchWoot private. Woot rights, privacy, accuracy, security, measurement, attribution, and owner gates remain incomplete. No public exposure, monetization, data collection, or production change is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

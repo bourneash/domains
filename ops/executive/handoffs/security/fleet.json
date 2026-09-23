@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:34:56.188Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:48:49.406Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: EVIDENCE_NEEDED for the managed fleet and BLOCKED for any SearchWoot public beta or full launch. Concrete evidence: security fleet-doctor status is unavailable (ok=false, last_run=null, no checks or failing-site results); operations deploy, uptime, and error sweeps are also unavailable; all 59 site legal-family classifications are unknown; TLS expiry evidence is empty, not proof of safety. Authentication and access boundaries, secrets exposure, container isolation, release controls, dependency risk, incident signals, and security.txt/disclosure readiness are therefore unverified. Exact decision: retain SearchWoot as private preview and authorize no public exposure or security-sensitive release. Ordinary reversible growth and existing measurement work may continue conditionally because no active security incident or concrete vulnerability is evidenced; do not treat missing telemetry as a clean bill of health.",
+        "summary": "Security disposition: blocked for public exposure, monetization, or security-sensitive release; conditional for existing report-only SEO evidence work. Fleet-doctor and operations sweeps are unavailable, and security evidence does not establish authentication boundaries, secrets handling, container isolation, release controls, dependency posture, monitoring, incident readiness, or disclosure readiness. No clean bill of health is supportable. Keep SearchWoot private and require evidence-backed security review before any go-live or sensitive release.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the no-new-work plan, continue the existing measurement gates, and do not duplicate SEO work or retry failed implementations. The security baseline does not justify blocking ordinary reversible SEO work, but any deployment, authentication change, new data collection, public beta, or release of a security-sensitive feature requires the missing security evidence first.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Authorize no public exposure or security-sensitive release. Fleet security and operations evidence is incomplete; ordinary existing measurement work may continue conditionally, but no new production changes are justified.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Security evidence is incomplete because fleet-doctor, operations sweeps, legal-family classification, and release-risk checks are unavailable. Retain the private gate and authorize no public exposure or security-sensitive release.",
+        "summary": "Security evidence is incomplete; no clean bill of health is supportable. Block public exposure, monetization, and security-sensitive release. Existing report-only SEO evidence work may continue conditionally.",
         "requested_action": null,
         "proposal_id": null
       }
