@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:48:49.404Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:49:25.409Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and approve preparation of a written Woot permission request, without sending it or changing the gate. Woot's public terms do not establish rights for commercial public display, caching, derivatives, or alerts; security, accuracy, legal, and attribution gates remain incomplete. The CFO confirms that Amazon commission was $4.92 on 2026-09-21, while site-level margin, ROI, payback, and forecasts remain unsupported. Prepare the request for review only and retain the private gate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: keep SearchWoot private and approve preparation of a written Woot permission request, without sending it or changing the gate. Woot's public terms do not establish rights for commercial public display, caching, derivatives, or alerts; security, accuracy, legal, and attribution gates remain incomplete. Prepare the request for review only and retain the private gate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: run three bounded, report-only SEO evidence tasks for xxxtea.com, marineactivity.com, and aliencouncil.com while preserving existing implementation and measurement work. Evidence: the 30-day SEO window shows 87 shared impressions across five xxxtea pages, 239 impressions at position 8.3 for marineactivity.com, and 77 impressions at position 5.5 for aliencouncil.com. Site-level revenue, margin, and ROI are not calculable because Amazon attribution is incomplete and one tracking ID remains unmapped; the main unknown is whether these pages can gain qualified clicks or conversions without harming existing rankings. Smallest next step: capture baselines and return one reversible recommendation per site with guardrails, a sample threshold, and rollback. Owner question: should SearchWoot remain private, or should we prepare a written Woot permission request for your approval? Options: keep private; prepare permission request.",
+        "summary": "Recommendation: preserve the active Great American Lakes measurement gate and existing SEO work on saveusfarms.com, deeppenetrations.com, broadwayshowgirls.com, stinkyleftfoot.com, xxxtea.com, marineactivity.com, and aliencouncil.com; create no duplicate queue work this cycle. Evidence: the 30-day SEO window shows 1,668 impressions for saveusfarms.com, 511 for deeppenetrations.com, 55 for broadwayshowgirls.com, 87 shared xxxtea impressions, 239 marineactivity impressions, and 77 aliencouncil impressions. Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks and 28 ordered items, but site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. Main unknown: whether the active reversible changes improve qualified clicks or conversions without ranking or monetization regression. Smallest next step: complete the queued work, capture before-state metrics, and measure after 14 days or 100 new impressions with rollback on guardrail regression. Owner question: should SearchWoot remain private, or should I prepare a bounded written-permission request to Woot? Options: keep private pending evidence; prepare request without sending; owner-approved request after Legal review.",
         "requested_action": null,
         "proposal_id": null
       }

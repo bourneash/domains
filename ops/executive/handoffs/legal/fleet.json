@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:48:49.405Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:49:25.410Z",
+  "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta, full launch, and monetization. Keep SearchWoot private. Woot documentation confirms API access but not commercial/public display, caching, derivatives, alerts, affiliate use, or advertising rights; public terms point against those uses. Security, accuracy/freshness, measurement, attribution, privacy, and owner gates remain incomplete. Prepare an internal permission-request draft only; do not send it or alter the gate. Data-use decisions: Woot deal data=blocked pending written rights and field-level terms; user alerts=evidence_needed pending data-flow, retention, deletion, processor, consent, and unsubscribe evidence; GA4=evidence_needed pending deployed consent, property settings, retention, vendor disclosure, and jurisdiction review; operational logs/Cloudflare=evidence_needed pending log-field, retention/access, vendor/DPA, incident, and request procedures. No legal task is closed; four legal tasks remain open. Next evidence action: produce the internal Woot permission-request draft and read-only data-flow, consent/configuration, and vendor/log inventories for legal and owner review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The private-preview gate remains unchanged. Ordinary report-only SEO evidence work may continue because incomplete telemetry is not itself a growth blocker; no public exposure, affiliate expansion, advertising, or new data collection is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Risk disposition: blocked for public beta, full launch, and monetization. Keep SearchWoot private. Prepare an internal permission-request draft only; do not send it or alter the gate. Ordinary report-only SEO evidence work may continue because incomplete telemetry is not itself a growth blocker.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private. Woot rights, privacy, accuracy, security, measurement, attribution, and owner gates remain incomplete. No public exposure, monetization, data collection, or production change is authorized.",
+        "summary": "Update: SearchWoot remains keep_private. Woot documentation confirms an API mechanism but not commercial/public redistribution rights; public terms point against the proposed use. Continue the active legal, privacy, accuracy, security, and measurement checklist without changing the gate.",
         "requested_action": null,
         "proposal_id": null
       }

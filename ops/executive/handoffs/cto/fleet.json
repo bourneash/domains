@@ -2,56 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:48:49.405Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:49:25.409Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: run report-only baselines for xxxtea.com, marineactivity.com, and aliencouncil.com. Do not deploy, spend, or alter telemetry. Capture before-state evidence, one reversible recommendation per site, metric, sample threshold, guardrails, and rollback.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private. Preparation of a written permission request is safe only as an internal, report-only legal artifact; do not send it, alter the launch gate, collect new data, or change production. The three SEO baselines are technically feasible, isolated, reversible, and measurement-ready, but are already in progress; do not enqueue duplicate requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the three existing report-only baseline work items for xxxtea.com, marineactivity.com, and aliencouncil.com. No deployment, spend, telemetry changes, or monetization changes are authorized. Require evidence capture, one bounded recommendation per site, explicit metric and guardrails, a 14-day or 100-new-impression threshold, and rollback instructions.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain report-only baselines for xxxtea.com, marineactivity.com, and aliencouncil.com. Do not deploy, spend, alter telemetry, or duplicate active work. Capture before-state evidence, one reversible recommendation per site, metric, sample threshold, guardrails, and rollback.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain report-only baselines for xxxtea.com, marineactivity.com, and aliencouncil.com. Do not deploy, spend, alter telemetry, or duplicate active work. Capture before-state evidence, one bounded recommendation per site, metric, sample threshold, guardrails, and rollback.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue only the existing report-only baselines for xxxtea.com, marineactivity.com, and aliencouncil.com. Do not deploy, spend, alter telemetry, change monetization, or duplicate queue work. Acceptance requires captured before-state evidence, one bounded recommendation per site, a primary metric, guardrails, a 14-day or 100-new-impression threshold, and rollback instructions.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: produce report-only baselines for xxxtea.com, marineactivity.com, and aliencouncil.com. Capture current query/page evidence, conversion paths, proposed reversible change, primary metric, guardrails, sample threshold, and rollback. Do not deploy, change telemetry, retry failed routing, or duplicate active work.",
+        "summary": "Handoff: continue only the existing bounded evidence and SEO work across the active seven-site batch. Do not duplicate queue items, retry failed routing, deploy unapproved changes, or alter telemetry. Acceptance criteria: baseline captured, reversible implementation or report completed, quality checks passed, and measurement scheduled for 14 days or 100 new impressions with rollback notes.",
         "requested_action": null,
         "proposal_id": null
       }
