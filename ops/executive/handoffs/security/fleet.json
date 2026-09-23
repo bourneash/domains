@@ -2,36 +2,57 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T12:28:56.224Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T14:00:20.853Z",
+  "summary": "security checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet. The read-only security baseline reports fleet-doctor unavailable, no site checks, and unknown legal-family/security facts for all 59 in-scope sites. No evidence supports a clean bill of health. Ordinary growth may continue, but security-sensitive releases require targeted evidence first.",
+        "summary": "Security disposition: evidence_needed for the managed fleet. The security baseline is read-only and incomplete: fleet-doctor is unavailable, site checks are absent, 59 sites have unknown legal-family evidence, and no evidence is supplied for access boundaries, secrets, isolation, release controls, dependencies, monitoring, incidents, or disclosure readiness. Do not claim security clearance or block ordinary growth solely for optional hardening.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot security disposition: blocked for public beta. Authentication, secret handling, runtime isolation, release controls, dependency risk, data exposure, incident readiness, TLS evidence, and disclosure readiness are incomplete. Exact decision: keep private; permit only bounded read-only evidence capture. Do not expose data, add credentials, change configuration, monetize, deploy, or launch.",
+        "summary": "Security disposition: blocked for SearchWoot public beta or full launch. The security release gate is explicitly blocked, and authentication, secret handling, runtime isolation, release controls, TLS, dependency risk, data exposure, incident handling, and disclosure readiness are not evidenced. Keep the private-preview gate unchanged; permit only bounded read-only evidence capture.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Concrete evidence: security.fleet_doctor.ok=false with no checks or site results; operations.fleet_doctor.ok=false with no last run; compliance has 17 failures and 6 unknowns; several sites are unreachable; analytics has permission/source errors; and 27 implementation requests have failed with 29 repair items open. These are evidence gaps and operational risk signals, not proof of compromise.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: authorize one bounded, read-only security evidence pass covering authentication and access boundaries, secret exposure controls, container/runtime isolation, release and deploy controls, TLS, dependency and supply-chain evidence, data exposure, incident signals, and security.txt or disclosure readiness. Do not provision credentials, exploit targets, deploy changes, or contact providers.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The fleet security baseline remains evidence-needed, not cleared. Continue bounded read-only evidence capture, while ordinary reversible work remains separately gated and no security-sensitive launch or exposure is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Complete fleet security baseline evidence",
-        "summary": "Capture bounded read-only evidence for authentication and access boundaries, secrets exposure controls, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness. The current fleet-doctor baseline is unavailable and site security checks are absent, so disposition is evidence_needed rather than clear.",
-        "requested_action": "Approve read-only evidence capture only. Do not block ordinary growth for optional hardening, and do not treat unavailable checks as passing. Escalate any confirmed high-severity control failure to CTO and CEO before affected security-sensitive release.",
+        "summary": "Perform bounded read-only evidence capture for access boundaries, secrets handling, runtime isolation, release controls, TLS, dependencies, incident signals, and disclosure readiness.",
+        "requested_action": "Approve evidence capture only; do not access credentials, mutate production, deploy, spend, or contact external parties.",
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Complete SearchWoot security release-gate evidence",
-        "summary": "Keep SearchWoot private while completing bounded read-only evidence for authentication and access boundaries, secret handling, runtime isolation, release controls, TLS, dependencies, data exposure, incident handling, and security.txt or disclosure readiness. Current evidence does not establish safe public exposure.",
-        "requested_action": "Approve evidence capture only. Keep the private-preview gate unchanged; authorize no credentials, outreach, public data exposure, monetization, configuration change, spending, or deployment. Reassess only after evidence is recorded and unresolved high-severity risks have an owner decision.",
+        "summary": "Complete bounded read-only evidence capture for SearchWoot while preserving the private-preview gate and unresolved legal, accuracy, attribution, and measurement blockers.",
+        "requested_action": "Approve evidence capture only; do not expose data publicly, provision credentials, alter configuration, deploy, spend, or conduct outreach.",
         "proposal_id": null
       }
     ]

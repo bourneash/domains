@@ -2,43 +2,43 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T12:28:56.224Z",
+  "generated_at": "2026-09-23T14:00:20.853Z",
   "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, forecast, and causal-lift claims. Amazon commission is aggregate and unattributed; AI cost is not a comparable margin input. Keep SearchWoot private and require owner approval before any outreach or launch change. Reject new high-priority queue work and production proposals until existing failures and measurement gates are resolved.",
+        "summary": "Reject new production work and unsupported revenue claims. Site-level attribution is incomplete, aggregate commission is unattributed, telemetry is low-volume, and the active queue contains failed and repair work. Keep the private launch gate unchanged; allow only bounded read-only evidence work and isolated research. Do not authorize the proposed affiliate experiment until attribution, consent, disclosure, rollback, and measurable baseline evidence are sufficient.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed security evidence work is read-only but is high-priority queue work with no measurable outcome specified and unavailable internal telemetry cannot be repaired through this plan. Do not queue it here; retain the private gate and existing evidence-needed disposition.",
+        "summary": "Reject high-priority queue additions this cycle. Existing scored candidates are active, measuring, failed, or under repair, and the execution backlog is saturated. Route repair diagnosis through CTO or Principal Engineer before any retry; do not retry unchanged requests.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve no new production, growth, spending, or high-priority queue work this cycle. Fewer than three candidates are actionable: the remaining SEO opportunities are already active, failed, or awaiting repair, while telemetry supports no site-level revenue or ROI claims. Continue only existing bounded measurement, failure repair, and private launch-gate work. Owner decision question: should the existing Great American Lakes measurement gate remain unchanged until 2026-10-06 or 100 new impressions?",
+        "summary": "SearchWoot public exposure remains blocked by unresolved source rights, security, accuracy, attribution, measurement, and legal gates. Draft-only internal preparation may proceed, but no outreach, credentials, configuration, spending, data collection, deployment, or gate change is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032",
-        "summary": null,
-        "requested_action": "declined",
+        "summary": "Accept only bounded read-only SearchWoot security evidence capture while keeping the private-preview gate unchanged.",
+        "requested_action": "accepted_research",
         "proposal_id": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032"
       },
       {
         "kind": "proposal-review",
         "title": "64fb1fa7-f4fd-4b99-b172-f2d0e168b899",
-        "summary": null,
-        "requested_action": "declined",
+        "summary": "Accept only bounded read-only fleet security evidence capture. Do not treat missing evidence as clearance or proof of compromise.",
+        "requested_action": "accepted_research",
         "proposal_id": "64fb1fa7-f4fd-4b99-b172-f2d0e168b899"
       }
     ]

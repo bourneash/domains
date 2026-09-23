@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T12:28:56.223Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T14:00:20.854Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve no new growth spend or revenue forecast. Continue only existing measurement and failure-repair work until attribution and contribution margin are decision-grade. The 2026-09-21 Amazon report shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission income, but all commission is in an aggregate row and site-attributed income is $0. The AI window 2026-09-01 through 2026-09-23 records $784.19 across 4,633 calls, including 207 errors; it cannot be compared as a same-period margin without aligned revenue and infrastructure costs. Budget exposure is not calculable because monthly spend, fixed costs, revenue floor, and marketing budget are blank. Vanity metrics such as impressions, clicks, sessions, opportunity scores, and GitHub stars do not support ROI or revenue claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial disposition: keep SearchWoot private and reject any monetization or public-beta forecast until source rights, measurement, and direct-cost evidence close. Its CFO gate correctly requires reconciliation of traffic, affiliate clicks, orders, commission, and direct costs to site/content identifiers; no such complete reconciliation is present.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Great American Lakes remains a measurement pilot, not a proven investment. The snapshot reports 53 sessions, 2 conversions, and $2.45 AI cost, while the active experiment has no attributable commission and is due for measurement on 2026-10-06 or after 100 new impressions. Do not claim revenue lift, margin, CAC, payback, or causal impact before that gate.",
+        "summary": "Do not claim site-level revenue, ROI, margin, CAC, payback, or causal lift. The $4.92 aggregate commission is unattributed; current telemetry supports measurement only, not new monetization production work.",
         "requested_action": null,
         "proposal_id": null
       }

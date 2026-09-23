@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T11:34:34.476Z",
+  "generated_at": "2026-09-23T14:00:20.853Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and do not authorize outreach, launch, credentials, spend, or production changes until Woot rights and Legal, Security, accuracy, and measurement gates are complete. Evidence: official Woot terms do not establish rights for public commercial display, derivatives, caching, or alerts; the checklist remains blocked. Unknown: whether Woot would grant written permission. Owner decision: choose A) authorize preparation of an unsent permission request, B) keep private with no outreach, or C) stop pursuing public beta.",
+        "summary": "Recommendation: keep SearchWoot private and authorize only a report-only draft of a written permission request for owner and Legal review. Official API access does not establish redistribution rights, and legal, security, accuracy, attribution, and measurement gates remain blocked. Existing scored candidates are not actionable for new queue work because they are active, measuring, failed, or under repair. Owner decision: authorize draft-only preparation without sending outreach or changing the gate?",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: prioritize three reversible SEO briefs across deeppenetrations.com, stinkyleftfoot.com, and aliencouncil.com, then measure before expanding. Evidence from the 30-day SEO snapshot: 585 impressions at position 4.1, 574 at 9.5, and 190 at 4.3 respectively; no attributable revenue lift is calculable. The fleet has 129 approved proposals without execution and zero proven improvements, so no new material scope is recommended this cycle.",
+        "summary": "Recommendation: do not queue new implementation this cycle. The available scored candidates are already active, measuring, failed, or under repair; duplicate queue work would increase backlog while 27 requests remain failed and 124 approved proposals lack execution.",
         "requested_action": null,
         "proposal_id": null
       }
