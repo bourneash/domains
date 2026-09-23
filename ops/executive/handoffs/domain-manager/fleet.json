@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:42:41.623Z",
+  "generated_at": "2026-09-23T15:01:37.620Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run bounded revenue-readiness baseline for broadwayshowgirls.com",
-        "summary": "Review the live site's audience positioning, content and SEO readiness, conversion paths, monetization coverage, and existing failed improvement work before any further production changes.",
-        "requested_action": "Approve a report-only assessment that documents supplied telemetry, unavailable evidence, conversion and affiliate gaps, failed-reviewer blockers, one reversible measurable next step, and rollback criteria. Do not deploy, modify production, change credentials, or spend money.",
-        "proposal_id": "ee54f690-c817-4ec7-8b09-4e5bb3c876f5"
+        "title": "Assess measurement and launch readiness",
+        "summary": "Review infrainnovator.com’s current audience positioning, content scope, monetization readiness, health, and minimum viable launch path. Analytics is not configured for the site, so traffic, conversions, revenue, and attribution are unavailable and must not be inferred.",
+        "requested_action": "Approve a report-only assessment documenting observable site readiness, unavailable telemetry, content and monetization gaps, validation criteria, and a prioritized backlog. Do not deploy, modify production, change credentials, alter schedules, or spend money.",
+        "proposal_id": null
       }
     ]
   }

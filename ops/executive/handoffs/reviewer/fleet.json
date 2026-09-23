@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:59:29.919Z",
+  "generated_at": "2026-09-23T15:01:37.619Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject production changes, financial claims, and retries of failed queue work. Current telemetry is too low-volume and site-level revenue is unavailable; 31 repair items remain open and no improvements are proven. Preserve existing measurement gates and authorize one bounded, read-only public reachability check for blackmarketapparel.com to distinguish a transient compliance probe failure from an actual outage. Decision question: authorize this single evidence-only check?",
+        "summary": "Recommendation: reject production, monetization, financial, and failed-queue work for now. Telemetry is absent or low-volume, attribution is incomplete, 31 repair items remain open, and no improvement is proven. Keep existing measurement gates, authorize only bounded read-only public research for broadwayshowgirls.com and blackmarketapparel.com, and preserve the infrainnovator.com assessment as non-executable. Decision question: authorize these two evidence-only checks?",
         "requested_action": null,
         "proposal_id": null
       }
