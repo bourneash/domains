@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:39:09.383Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T07:58:10.894Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth. Evidence: Woot API documentation confirms access and rate limits but not commercial/public redistribution rights; current Woot terms restrict use of listings, descriptions, prices, derivative use, data mining, and similar collection. Compliance baseline reports 37 pass, 16 fail, and 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Recommendation: keep SearchWoot private, make no production or monetization change, and require owner direction before preparing an unsent permission request. Ordinary growth may continue only within existing bounded, reversible workstreams; incomplete telemetry alone is not a blocker, but no unsupported revenue, causal-lift, privacy, rights, or compliance claims are permitted.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary existing fleet growth. Exact decision: keep SearchWoot private, authorize no launch, outreach, monetization expansion, telemetry change, credentials, spending, or production work. Preserve only already-approved bounded work that introduces no new data collection or monetization-sensitive behavior. Evidence: Woot documentation confirms API access mechanics but not redistribution rights; current public terms restrict commercial/public collection, derivatives, display, and pricing use. Compliance baseline reports 37 passes, 16 fails, and 6 unknowns across 59 sites. Telemetry incompleteness alone is not a growth blocker, but site-specific compliance failures block launch or monetization for affected sites until evidenced resolved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: no SearchWoot legal task is closed. Source-rights, data-flow/retention, GA4-consent, and logs/vendors/incident tasks remain open because the supplied evidence is partial and does not establish permission, retention/deletion workflows, GA4 settings, vendor coverage, or incident/request procedures. Next evidence actions are respectively: attach current provider permission or authoritative terms; produce a repository/deployment data-flow and retention table; capture deployed consent behavior and GA4 settings read-only; inventory log fields, access, retention, vendors, and incident/request procedures.",
+        "summary": "SearchWoot launch-readiness tracking remains active with 0 of 4 legal tasks closed. No task is closed because the required evidence is not present. Current blockers are authoritative source rights, documented data flow and retention, GA4 consent/configuration evidence, and vendor/log/incident handling. The next evidence action is to produce one read-only evidence bundle from the repository and deployed configuration covering source fields, retention, deletion, correction, access, notification delivery, GA4 settings, log fields, vendor terms, and incident/request procedures. Keep the private gate unchanged pending the owner's concrete choice: prepare an unsent permission request, keep private with no outreach, or end the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "For the wider fleet, retain existing reversible work only. The compliance and analytics evidence supports continued ordinary growth where the site is already operating and no new data use, monetization expansion, regulated claim, or platform-sensitive behavior is introduced. Sites with failed or unknown compliance checks require their concrete banner/consent/privacy/terms or reachability evidence repaired before any new launch or monetization decision. Do not treat missing analytics as zero activity or as a reason to block unrelated reversible growth.",
+        "summary": "Data-use dispositions: Woot deal and price-history data is blocked because current terms do not establish rights for storage, derivatives, public display, caching, alerts, affiliate use, or advertising. Smallest next action: obtain a current written provider permission or agreement specifying permitted fields, retention, display, alerts, attribution, freshness, correction, and takedown. User alert rules and sync results are evidence_needed; missing inventory, retention, deletion/correction/access workflow, processor terms, consent, and unsubscribe behavior. Smallest next action: document the deployed alert data flow and retention/deletion controls. GA4 analytics is evidence_needed; missing deployed consent/withdrawal capture, property and data-sharing settings, retention, vendor disclosure, and jurisdiction review. Smallest next action: capture read-only consent and GA4 configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data are evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/data-request procedures. Smallest next action: produce the operator/vendor inventory and identify counsel-required gaps.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Human counsel is required before any public beta involving Woot data, affiliate monetization, advertising, historical price derivatives, public product imagery or trademark use, or jurisdiction-specific personal-data processing. The site terms, privacy page, cookie policy, and technical compliance scan are evidence of implementation posture only; they do not establish upstream data rights or constitute legal certification. Affiliate disclosures, claims about price or savings, copyright/trademark provenance, platform-policy compliance, and any regulated or age-sensitive use require site-specific evidence before expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Ordinary bounded SEO/content work may continue conditionally under existing owners and measurement gates when it preserves site boundaries, uses no new personal-data collection, adds no monetization-sensitive behavior, and passes quality, smoke, rollback, and measurement checks. Do not treat incomplete telemetry as proof of noncompliance or as a reason to block routine growth. Do not make revenue, margin, ROI, CAC, payback, forecast, or causal-lift claims; the supplied Amazon evidence supports only $4.92 aggregate commission for 2026-09-21, with site-level attribution unsupported.",
         "requested_action": null,
         "proposal_id": null
       }

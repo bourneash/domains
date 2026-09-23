@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:39:09.384Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T07:58:10.896Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new proposals, queue actions, production changes, monetization expansion, and unsupported financial or causal-lift claims this cycle. Preserve only existing bounded, reversible work with its current owners and measurement gates. Amazon reports $4.92 aggregate unattributed commission for 2026-09-21; site revenue, margin, ROI, CAC, payback, profitability, forecasts, and cost-to-learn remain unsupported. Keep SearchWoot private pending owner direction and unresolved rights, legal, security, accuracy, privacy, attribution, and measurement gates.",
+        "summary": "Reject all new proposals, high-priority queue work, production changes, monetization expansion, unsupported financial claims, telemetry duplication, and duplicate retries this cycle. Preserve only existing bounded reversible work with its current owners, quality gates, rollback notes, and measurement thresholds. Amazon evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; site revenue, margin, ROI, CAC, payback, forecasts, and causal lift remain unsupported. Keep SearchWoot private pending the owner's choice on an unsent permission request, no outreach, or ending the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner decision required: choose one option for SearchWoot—authorize preparation of an unsent provider-permission request, keep private with no outreach, or end the public-beta pursuit. No outreach, credential or configuration change, spending, schedule change, telemetry change, launch, or production work is authorized.",
+        "summary": "Continue the existing Great American Lakes measurement gate and retain the already-produced marineactivity.com and aliencouncil.com report-only baselines. Do not create new queue requests or duplicate failed work. Stop or reject any change lacking a measurable outcome, supported attribution, explicit rollback, and passed quality and smoke checks.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: route only the three existing bounded workstreams below to engineer under their current owners and measurement gates. Reject all new monetization, unsupported financial claims, high-priority queue work, telemetry duplication, production expansion, spending, credential changes, and SearchWoot launch activity. Accept work only after isolated execution, quality and smoke checks, explicit rollback notes, and measurement at 14 days or 100 new impressions. No revenue, ROI, margin, CAC, payback, profitability, forecast, or causal-lift claims are supported.",
+        "summary": "SearchWoot remains private. Source rights, legal, security, accuracy, privacy, attribution, and measurement gates are unresolved. No launch, outreach, credential, configuration, schedule, spending, telemetry, or production action is authorized without the owner's disposition and completed gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve only bounded, reversible report-only work and route three existing evidence baselines to engineer across distinct sites. Reject new production, monetization, unsupported financial claims, high-priority queue work, telemetry duplication, spending, credential changes, and launch activity. Amazon commission remains $4.92 aggregate and unattributed; site revenue, margin, ROI, CAC, payback, forecasts, and causal lift are unsupported. SearchWoot remains private pending owner direction and unresolved rights, legal, security, accuracy, privacy, attribution, and measurement gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner decision required: choose one SearchWoot disposition—authorize preparation of an unsent provider-permission request, keep private with no outreach, or end the public-beta pursuit. No outreach, launch, production, credential, configuration, telemetry, spending, or schedule changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

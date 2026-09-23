@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:39:09.381Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-23T07:58:10.893Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the existing reversible workstreams and queue nothing new this cycle. The scorecard shows 3 deployed improvements awaiting measurement, 0 proven outcomes, and 15 failed implementation requests. Existing active work already covers the strongest SEO and monetization candidates; duplicating candidates would weaken the measurement loop. Evidence: 30-day SEO window has 13,383 impressions, 129 clicks, 947 sessions, and 15 conversions; Amazon data covers 2026-09-21 with $4.92 aggregate unattributed commission; AI usage is $759.78 from 2026-09-01 through 2026-09-23. Unknown: site-level contribution margin and causal lift remain uncalculable. Smallest next step: complete current measurement gates and retry only existing failed workstreams through their current owners. Rejected this cycle: 0daynews.com and americastrikes.com routing/affiliate candidates because active work already exists; xxxtea.com, searchwoot.com, greatamericanlakes.com, marineactivity.com, deeppenetrations.com, broadwayshowgirls.com, saveusfarms.com, stinkyleftfoot.com, aliencouncil.com, and fishhooklabs.com candidates because each has active work, failed work awaiting diagnosis, or a deployed change awaiting measurement.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: keep SearchWoot private and prepare no production change until the launch checklist is complete. Official Woot documentation confirms an API mechanism and rate limits, but current public terms do not establish rights for commercial public display, derivatives, caching, or alerts; legal, accuracy/freshness, security, attribution, and measurement gates remain blocked. Unknown: whether Woot will grant the required written permission and what fields, retention, attribution, and takedown rules would apply. Smallest next step: choose one option—(A) authorize preparation of an unsent written permission request to Woot, (B) keep private with no outreach, or (C) end the public-beta pursuit. No outreach or gate change will occur without that decision.",
+        "summary": "SearchWoot remains private. Public Woot documentation confirms API access but not rights to retain, derive, publicly display, or monetize the data; current public terms point against those uses. The smallest next step is the owner's disposition on an unsent permission request. No outreach, launch, credentials, configuration, spending, or production work is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

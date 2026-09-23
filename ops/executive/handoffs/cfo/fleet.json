@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:39:09.382Z",
+  "generated_at": "2026-09-23T07:58:10.894Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: hold new spend, monetization expansion, and new queue actions; preserve only existing bounded reversible work until measurement closes. Known facts: AI usage cost $759.78 for 2026-09-01 through 2026-09-23 across 4,529 calls; Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, with $0 site-attributed income and all $4.92 explicitly unattributed. Therefore revenue claims, site-level contribution margin, ROI, CAC, payback, profitability, and forecasts are unsupported. A simple $4.92 minus $759.78 comparison is not a valid margin because the periods, attribution, and cost scopes do not match. Cost-to-learn is also not calculable: three improvements await measurement, zero outcomes are proven, and AI cost is not mapped to experiment, site, or causal lift. Minimum measurement: daily site/content identifiers connecting AI and infrastructure costs, analytics sessions and conversion events, affiliate clicks, orders, shipped items, commissions, and experiment exposure/control with a defined measurement window. Direct infrastructure spend, fixed costs, labor cost, and budget limits are unavailable, so budget exposure cannot be quantified. Recommendation remains to complete existing measurement gates, avoid duplicate work, and reject vanity metrics such as impressions, clicks, calls, and conversions as financial proof without attributable revenue and incremental lift.",
+        "summary": "Financial recommendation: preserve only existing bounded work and authorize no new spend, monetization expansion, or queue actions this cycle. Revenue claims are not supported beyond $4.92 aggregate Amazon commission for 2026-09-21; site-attributed commission is $0 because the 629-click aggregate row cannot be assigned without inventing attribution. Contribution margin, ROI, CAC, payback, and cost-to-learn are not calculable: direct infrastructure, domains, labor, and experiment costs are unavailable, and revenue covers only one day while AI usage covers 2026-09-01 through 2026-09-23. AI usage is $759.78 across 4,529 calls, with 207 errors; this is an observability figure, not a complete infrastructure-cost ledger. The minimum finance measurement is a daily site/content ledger joining registered tracking ID, affiliate clicks/orders/shipped items/commission, GA4 sessions and conversions, AI cost, infrastructure/domain costs, and experiment exposure. Continue existing measurement gates and reject vanity metrics such as impressions, clicks, sessions, and SEO opportunity estimates unless they produce attributable revenue or validated learning.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO review: retain the private-preview gate. No revenue or margin claim should be made until source rights, affiliate attribution, direct-cost inputs, and measurement controls are complete. No budget, billing, banking, contract, credential, or production action is recommended. The minimum finance gate is a reconciled report tying traffic, affiliate events, orders, shipped items, commission, AI cost, infrastructure cost, and experiment exposure to site and content identifiers.",
+        "summary": "SearchWoot must remain private from a finance perspective. No monetization or public-beta forecast is supportable until source rights, affiliate attribution, direct-cost inputs, and contribution-margin measurement are complete. The owner may choose among the existing disposition options; no outreach, spending, billing, credential, contract, or production action is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: hold new spend, monetization expansion, and new queue actions; preserve only existing bounded reversible work until measurement closes. Known facts: AI usage cost $759.78 for 2026-09-01 through 2026-09-23 across 4,529 calls; Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, with $0 site-attributed income and all $4.92 explicitly unattributed. Therefore revenue claims, site-level contribution margin, ROI, CAC, payback, profitability, and forecasts are unsupported. A simple $4.92 minus $759.78 comparison is not a valid margin because the periods, attribution, and cost scopes do not match. Cost-to-learn is also not calculable: three improvements await measurement, zero outcomes are proven, and AI cost is not mapped to experiment, site, or causal lift.",
+        "summary": "Existing Great American Lakes measurement may continue through its 14-day or 100-new-impression gate, but the observed 29 sessions, 1 conversion, and 1,533 impressions in the current observation do not establish revenue, margin, or causal lift because affiliate revenue is unavailable. Marineactivity.com and aliencouncil.com report-only baselines should remain report-only. Do not repeat failed or duplicate implementation work.",
         "requested_action": null,
         "proposal_id": null
       }
