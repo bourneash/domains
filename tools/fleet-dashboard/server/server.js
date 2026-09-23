@@ -661,9 +661,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   let failedRecoveryRunning = false;
   function reconcileStalledImprovementRuns() {
     let changed = 0;
-    for (const request of events.listChangeRequests({ limit: 1000 })) {
-      if (!request.run_id) continue;
-      const run = events.getImprovement(request.run_id);
+    // The request/run link can be lost during a crash between creating the
+    // improvement row and writing change_requests.run_id. The improvement's
+    // source_id is the second durable join key; inspect both so a failed
+    // worker cannot leave a queued request permanently blocked by a stale
+    // building run.
+    for (const run of events.listImprovements({ source: 'fleet-dashboard', limit: 1000 })) {
+      const request = run.source_id ? events.getChangeRequest(run.source_id) : null;
+      if (!request || request.status === 'cancelled') continue;
+      if (request.run_id && request.run_id !== run.run_id) continue;
       if (!run || run.state !== 'building') continue;
       const agentFailed = ['failed', 'timed-out'].includes(run.agent?.status);
       const reviewExhausted =
