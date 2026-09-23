@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T15:22:44.472Z",
+  "generated_at": "2026-09-23T15:30:14.120Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Assess shoppinkflamingo.com attribution and monetization readiness",
-        "summary": "Review observable positioning, conversion paths, affiliate implementation, attribution boundaries, and measurement readiness. Supplied revenue evidence shows 32 Amazon clicks, 0 ordered items, and $0 commission for the registered site tracking ID; site-level sessions and conversion detail are unavailable.",
-        "requested_action": "Approve a report-only assessment documenting supplied telemetry, unavailable evidence, observable conversion and affiliate gaps, one reversible measurable next step, validation criteria, and rollback criteria. Do not deploy, modify production, change credentials, or spend money.",
-        "proposal_id": null
+        "kind": "message",
+        "title": "Run bounded revenue-readiness baseline for ultrarough.com",
+        "summary": "ultrarough.com is live with 31 sessions, 1 conversion, 2,063 search impressions, 1 click, 11 SEO actions including 4 high-priority findings, zero attributed revenue, and $11.91 AI cost in the supplied snapshot. Assess the highest-value reversible improvement before further investment.",
+        "requested_action": "Approve a report-only revenue-readiness baseline for ultrarough.com and route the resulting artifact to fleet leadership for prioritization.",
+        "proposal_id": "261a0af2-d5fd-474b-94ac-9e899424abe4"
       }
     ]
   }
