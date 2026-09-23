@@ -259,6 +259,9 @@ async function main() {
         throw new Error('executive action mandate was not satisfied');
     }
   }
+  // The host owns action keys. Restore a trusted task-routing key when a
+  // provider restates the exact candidate without carrying that metadata.
+  runner.attachKnownActionKeys(plan, brief);
   // Later review passes are allowed to revise an earlier conclusion, but a
   // pass that simply omits a CRO handoff must not reopen it for the owner.
   plan.proposal_reviews = [...proposalReviews.values()];

@@ -84,6 +84,7 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
       candidates: [
         {
           site: 'one.com',
+          key: 'seo:one.com:metadata',
           type: 'seo',
           title: 'Improve one.com metadata',
           recommendation: 'Update the title and description using the observed query gap.',
@@ -92,6 +93,7 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
         },
         {
           site: 'two.com',
+          key: 'task-routing:two.com:content.md',
           type: 'portfolio-baseline',
           title: 'Baseline two.com',
           recommendation: 'Produce a read-only revenue-readiness baseline.',
@@ -103,6 +105,7 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   };
   const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
   assert.equal(plan.change_requests.length, 2);
+  assert.equal(plan.change_requests[1].action_key, 'task-routing:two.com:content.md');
   assert.deepEqual(
     plan.change_requests.map(item => [item.site, item.delivery_mode || 'direct']),
     [
@@ -113,6 +116,47 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   assert.match(plan.messages[0].body, /^Recommendation:/);
   runner.validatePlan(plan);
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
+});
+
+test('restores an exact trusted task-routing key omitted by a provider', () => {
+  const plan = {
+    change_requests: [
+      {
+        site: 'example.com',
+        title: 'Route the existing content task',
+      },
+    ],
+  };
+  runner.attachKnownActionKeys(plan, {
+    action_mandate: {
+      candidates: [
+        {
+          site: 'example.com',
+          title: 'Route the existing content task',
+          key: 'task-routing:example.com:ops/tasks/content.md',
+        },
+      ],
+    },
+  });
+  assert.equal(plan.change_requests[0].action_key, 'task-routing:example.com:ops/tasks/content.md');
+});
+
+test('does not infer a task-routing key from a near-match', () => {
+  const plan = {
+    change_requests: [{ site: 'example.com', title: 'Route another content task' }],
+  };
+  runner.attachKnownActionKeys(plan, {
+    action_mandate: {
+      candidates: [
+        {
+          site: 'example.com',
+          title: 'Route the existing content task',
+          key: 'task-routing:example.com:ops/tasks/content.md',
+        },
+      ],
+    },
+  });
+  assert.equal(plan.change_requests[0].action_key, undefined);
 });
 
 test('marks SEO-labelled baselines as report-only work', () => {
