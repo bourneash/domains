@@ -1526,7 +1526,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         entity_type: 'change-request',
         entity_id: request.request_id,
         correlation_id: `change-request:${request.request_id}`,
-        payload: { run_id: run.run_id, review_attempts: updated.review_attempts },
+        payload: { run_id: run.run_id, review_attempts: repairCount + 1 },
       });
       improvementAgent.start({
         root,
