@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { workerCompletionPath, shouldRetryQueueFailure } = require('./server');
+const { workerCompletionPath, shouldRetryQueueFailure, applyQualityPolicy } = require('./server');
 
 test('successful report-only workers finalize evidence without a second model reviewer', () => {
   assert.equal(
@@ -53,4 +53,18 @@ test('does not retry reviewer rejections or deterministic quality-gate failures'
     true
   );
   assert.equal(shouldRetryQueueFailure('implementation agent ended failed'), true);
+});
+
+test('browser runtime warnings do not reject otherwise passing delivery gates', () => {
+  const validation = applyQualityPolicy('/tmp/does-not-exist', 'example.com', {
+    checks: { diff: { status: 'pass' }, tests: { status: 'pass' }, build: { status: 'pass' } },
+    preview: { passed: true },
+    browser: {
+      passed: false,
+      infrastructure_warning: true,
+      lighthouse: { error: 'browser tab has unexpectedly crashed' },
+    },
+  });
+  assert.equal(validation.passed, true);
+  assert.equal(validation.policy.status.browser, 'warn');
 });

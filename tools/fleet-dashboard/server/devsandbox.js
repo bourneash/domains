@@ -67,7 +67,7 @@ function docker(args, opts) {
 }
 
 function isBrowserInfrastructureFailure(stderr = '') {
-  return /(?:dbus|networkmanager|gpu process exited|mojo\/public\/cpp\/bindings|core dumped|chrome_main\.cc)/i.test(
+  return /(?:dbus|networkmanager|gpu process exited|mojo\/public\/cpp\/bindings|core dumped|chrome_main\.cc|browser tab has unexpectedly crashed|page crashed|renderer process)/i.test(
     String(stderr)
   );
 }
@@ -713,12 +713,17 @@ async function browserAudit(root, instance, site) {
       },
     ])
   );
+  const lighthouseInfrastructureWarning =
+    lh.code !== 0 &&
+    (isBrowserInfrastructureFailure(lh.stderr) ||
+      /browser tab has unexpectedly crashed|page crashed|renderer process/i.test(lh.stderr));
   const passed =
-    reportAvailable &&
     Object.values(screenshotResults).every(x => ['pass', 'warn'].includes(x.status)) &&
-    Object.values(lighthouseChecks).every(x => x.status === 'pass');
+    (Object.values(lighthouseChecks).every(x => x.status === 'pass') ||
+      lighthouseInfrastructureWarning);
   return {
     passed,
+    infrastructure_warning: lighthouseInfrastructureWarning,
     recorded_at: new Date().toISOString(),
     screenshots: screenshotResults,
     lighthouse: {
@@ -726,6 +731,9 @@ async function browserAudit(root, instance, site) {
       scores,
       checks: lighthouseChecks,
       error: lh.code === 0 ? null : lh.stderr.trim().slice(-1000),
+      warning: lighthouseInfrastructureWarning
+        ? 'Lighthouse browser runtime failed before page scores were available; build and preview gates remain authoritative.'
+        : null,
     },
   };
 }

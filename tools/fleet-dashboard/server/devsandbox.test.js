@@ -36,6 +36,12 @@ test('browser audit distinguishes sandbox runtime crashes from page failures', (
     devsandbox.isBrowserInfrastructureFailure('curl: (7) Failed to connect to 127.0.0.1'),
     false
   );
+  assert.equal(
+    devsandbox.isBrowserInfrastructureFailure(
+      'Runtime error: Browser tab has unexpectedly crashed'
+    ),
+    true
+  );
 });
 
 test('improvement sandboxes mount only the site Git admin directory', () => {
