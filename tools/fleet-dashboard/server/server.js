@@ -167,6 +167,26 @@ function infrastructureReviewProjectionPatch(request, queueError) {
   };
 }
 
+function shouldRecoverStaleDeliveryClaim(
+  request,
+  run,
+  now = Date.now(),
+  maxAgeMs = AUTOMATIC_DELIVERY_CLAIM_MAX_MS
+) {
+  const claimedAt = Date.parse(run?.outcome?.delivery_claimed_at || '');
+  return Boolean(
+    request &&
+    ['reviewing', 'review'].includes(request.status) &&
+    run?.state === 'review' &&
+    run.validation?.passed === true &&
+    run.outcome?.delivery_claimed === true &&
+    run.agent?.phase === 'reviewer' &&
+    run.agent?.status === 'completed' &&
+    Number.isFinite(claimedAt) &&
+    now - claimedAt >= Number(maxAgeMs)
+  );
+}
+
 function shouldValidateBeforeDelivery(item) {
   return !(item?.state === 'review' && item.validation?.passed === true);
 }
@@ -2572,6 +2592,39 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           correlation_id: run.correlation_id,
           payload: { request_id: request.request_id, handoff_age_ms: handoffAge },
         });
+      }
+      // A process can die after claiming delivery but before the deterministic
+      // deployment handoff completes. Once the bounded claim window expires,
+      // clear only that retry lock and let the durable reviewer PASS marker
+      // drive one fresh delivery attempt. Never recover a building or
+      // unvalidated run here: those still have active validation work.
+      if (
+        shouldRecoverStaleDeliveryClaim(request, run) &&
+        !activeAutomaticReviews.has(request.request_id)
+      ) {
+        const recoveredAt = new Date().toISOString();
+        try {
+          events.updateImprovement(run.run_id, {
+            outcome: {
+              ...(run.outcome || {}),
+              delivery_claimed: false,
+              delivery_claim_recovered_at: recoveredAt,
+              delivery_claim_recovery_reason:
+                'stale validated delivery claim; no active handoff owner',
+            },
+          });
+          events.record({
+            event_type: 'improvement.delivery_claim_recovered',
+            source: 'fleet-dashboard',
+            site_id: `site:${run.site}`,
+            entity_type: 'improvement',
+            entity_id: run.run_id,
+            correlation_id: run.correlation_id,
+            payload: { request_id: request.request_id, recovered_at: recoveredAt },
+          });
+        } catch {
+          /* another recovery pass may already own the durable handoff */
+        }
       }
       // Validation-infrastructure blocks are preserved in review, but a
       // versioned harness fix gets one bounded automatic revalidation. This
@@ -5826,6 +5879,7 @@ module.exports = {
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
   infrastructureReviewProjectionPatch,
+  shouldRecoverStaleDeliveryClaim,
   shouldValidateBeforeDelivery,
   applyQualityPolicy,
 };

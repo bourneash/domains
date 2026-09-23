@@ -8,6 +8,7 @@ const {
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
   infrastructureReviewProjectionPatch,
+  shouldRecoverStaleDeliveryClaim,
   shouldValidateBeforeDelivery,
   applyQualityPolicy,
 } = require('./server');
@@ -120,6 +121,44 @@ test('preserved infrastructure reviews do not re-submit the same lifecycle statu
   assert.equal(
     infrastructureReviewProjectionPatch({ status: 'reviewing' }, 'blocked').status,
     'review'
+  );
+});
+
+test('stale delivery claims recover only after a validated reviewer handoff', () => {
+  const now = Date.parse('2026-09-23T15:00:00.000Z');
+  const run = {
+    state: 'review',
+    validation: { passed: true },
+    outcome: {
+      delivery_claimed: true,
+      delivery_claimed_at: '2026-09-23T14:40:00.000Z',
+    },
+    agent: { phase: 'reviewer', status: 'completed' },
+  };
+  assert.equal(
+    shouldRecoverStaleDeliveryClaim({ status: 'reviewing' }, run, now, 15 * 60 * 1000),
+    true
+  );
+  assert.equal(
+    shouldRecoverStaleDeliveryClaim({ status: 'reviewing' }, { ...run, state: 'building' }, now),
+    false
+  );
+  assert.equal(
+    shouldRecoverStaleDeliveryClaim(
+      { status: 'reviewing' },
+      { ...run, validation: { passed: false } },
+      now
+    ),
+    false
+  );
+  assert.equal(
+    shouldRecoverStaleDeliveryClaim(
+      { status: 'reviewing' },
+      { ...run, outcome: { ...run.outcome, delivery_claimed_at: '2026-09-23T14:50:00.000Z' } },
+      now,
+      15 * 60 * 1000
+    ),
+    false
   );
 });
 
