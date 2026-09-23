@@ -47,7 +47,7 @@ const TRANSITIONS = {
   committed: ['deployed', 'failed', 'cancelled'],
   deployed: ['verified', 'failed'],
   verified: [],
-  failed: ['queued', 'cancelled'],
+  failed: ['queued', 'review', 'cancelled'],
   cancelled: [],
 };
 

@@ -1501,11 +1501,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           recover_reviewer: true,
         });
       }
-      const updated = changequeue.update(
+      const recoveryStatus = request.status === 'failed' ? 'review' : 'running';
+      changequeue.update(
         events,
         request.request_id,
         {
-          status: 'running',
+          status: recoveryStatus,
           review_attempts: repairCount + 1,
           error: `automatic review repair ${repairCount + 1}/${MAX_AUTOMATIC_REVIEW_REPAIRS} started`,
           lease_owner: queueWorkerId,
@@ -1514,6 +1515,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         },
         site => isKnownTarget(root, site)
       );
+      if (recoveryStatus === 'review')
+        changequeue.update(events, request.request_id, { status: 'running' }, site =>
+          isKnownTarget(root, site)
+        );
       events.record({
         event_type: 'change-request.review-repair-started',
         source: 'fleet-dashboard',
@@ -2349,6 +2354,30 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const existing = events.getChangeRequest(req.params.id);
       if (!existing) return res.status(404).json({ error: 'change request not found' });
+      const existingRun = existing.run_id ? events.getImprovement(existing.run_id) : null;
+      // Preserve a dirty reviewer worktree and repair it in place. The normal
+      // retry path intentionally refuses dirty cleanup, but a successful
+      // reviewer process that rejected the change is exactly the bounded
+      // recovery case covered by the improvement transition guard.
+      if (
+        existingRun &&
+        improvements.canRecoverReviewerFailure(existingRun, {
+          state: 'building',
+          recover_reviewer: true,
+        })
+      ) {
+        const started = startAutomaticReviewRepair(
+          existing,
+          existingRun,
+          new Error(existing.error || 'reviewer rejected the change; bounded repair requested')
+        );
+        if (started)
+          return res.status(202).json({
+            repaired_in_place: true,
+            request: events.getChangeRequest(existing.request_id),
+            run: events.getImprovement(existingRun.run_id),
+          });
+      }
       await resetChangeRequestRun(existing);
       res.json({
         request: changequeue.update(
