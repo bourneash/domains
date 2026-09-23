@@ -1513,14 +1513,29 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const busySites = new Set(
       events
         .listImprovements({ limit: 1000 })
-        .filter(r => ['building', 'review', 'measuring'].includes(r.state))
+        .filter(r => ['building', 'review'].includes(r.state))
         .map(r => r.site)
     );
-    const picked = changequeue.pick(events, { max: slots }).filter(request => {
-      if (busySites.has(request.site)) return false;
-      busySites.add(request.site);
-      return true;
-    });
+    const measuringSites = new Set(
+      events
+        .listImprovements({ limit: 1000 })
+        .filter(r => r.state === 'measuring')
+        .map(r => r.site)
+    );
+    // Pull a wider candidate window so a code change that must wait for a
+    // measurement window does not hide a later report-only request that can
+    // safely run on the same site. `pick` only reads queued rows; claiming
+    // still happens inside dispatchChangeRequest.
+    const candidates = changequeue.pick(events, { max: Math.min(100, Math.max(slots, 1) * 25) });
+    const picked = candidates
+      .filter(request => {
+        if (busySites.has(request.site)) return false;
+        if (measuringSites.has(request.site) && request.delivery_mode !== 'report_only')
+          return false;
+        busySites.add(request.site);
+        return true;
+      })
+      .slice(0, slots);
     const results = [];
     for (const request of picked) {
       try {

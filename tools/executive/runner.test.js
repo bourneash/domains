@@ -788,6 +788,33 @@ test('deterministic approved-work drain routes approved work without a model pla
   store.close();
 });
 
+test('approved report-only work can run while a deployed improvement is measuring', () => {
+  const { root, store } = db();
+  store.createImprovement({
+    site: 'example.com',
+    source: 'fleet-dashboard',
+    title: 'Already deployed improvement',
+    state: 'measuring',
+    outcome: { deployment_verified_at: new Date().toISOString() },
+  });
+  const proposal = store.createExecutiveProposal({
+    created_by: 'ceo',
+    title: 'Assess example.com measurement readiness',
+    proposal_type: 'report-only',
+    summary: 'Review the current measurement evidence and identify any gaps.',
+    requested_action:
+      'Approve a bounded report-only assessment. Do not deploy, spend money, or change production.',
+  });
+  store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
+
+  const drained = runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
+  assert.equal(drained.filter(row => row.type === 'queued').length, 1);
+  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
+  assert.equal(request.site, 'example.com');
+  assert.equal(request.delivery_mode, 'report_only');
+  store.close();
+});
+
 test('caps new proposals while approved execution backlog is high', async () => {
   const { root, store } = db();
   for (let index = 0; index < 10; index += 1) {
@@ -1096,6 +1123,14 @@ test('accepts researcher proposals as CRO evidence handoffs', () => {
 
 test('rejects non-JSON provider output', () => {
   assert.throws(() => runner.parseOutput('not json'), /valid JSON/);
+});
+
+test('accepts provider JSON wrapped in commentary and repairs raw string controls', () => {
+  const plan = runner.parseOutput(
+    `Here is the plan:\n{"messages":[{"actor":"ceo","body":"Recommendation: inspect the evidence\nthen measure it."}],"proposals":[],"change_requests":[],"research_requests":[]}`
+  );
+  assert.equal(plan.messages[0].actor, 'ceo');
+  assert.match(plan.messages[0].body, /inspect the evidence\nthen measure it/);
 });
 
 test('normalizes model proposal labels instead of retrying the manager run', () => {

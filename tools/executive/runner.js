@@ -853,6 +853,85 @@ function buildPassPrompt(brief, role, candidate = null) {
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
 
+function extractJsonObject(text) {
+  const start = String(text || '').indexOf('{');
+  if (start < 0) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+    if (char === '{') depth += 1;
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, index + 1);
+    }
+  }
+  return null;
+}
+
+// Some CLI providers wrap the object in a code fence or add one sentence of
+// commentary. Raw control characters inside a JSON string are another common
+// formatting defect. Repair only those unambiguous transport defects; quotes,
+// commas, and schema errors still fail closed and go through the bounded retry.
+function escapeJsonControlCharacters(text) {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+  for (const char of String(text || '')) {
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        out += char;
+      } else if (char === '\\') {
+        escaped = true;
+        out += char;
+      } else if (char === '"') {
+        inString = false;
+        out += char;
+      } else if (char.charCodeAt(0) < 0x20) {
+        const escapes = { '\n': '\\n', '\r': '\\r', '\t': '\\t', '\b': '\\b', '\f': '\\f' };
+        out += escapes[char] || `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`;
+      } else {
+        out += char;
+      }
+    } else {
+      out += char;
+      if (char === '"') inString = true;
+    }
+  }
+  return out;
+}
+
+function parseProviderJson(raw) {
+  const candidates = [raw];
+  const extracted = extractJsonObject(raw);
+  if (extracted && extracted !== raw) candidates.push(extracted);
+  let lastError;
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(escapeJsonControlCharacters(candidate));
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error('provider output is empty');
+}
+
 function parseOutput(text, { defaultActor = '' } = {}) {
   const raw = String(text || '')
     .trim()
@@ -862,7 +941,7 @@ function parseOutput(text, { defaultActor = '' } = {}) {
   if (raw.length > 1024 * 1024) throw new Error('provider output exceeds 1 MiB');
   let result;
   try {
-    result = JSON.parse(raw);
+    result = parseProviderJson(raw);
   } catch (error) {
     throw new Error(`provider did not return valid JSON: ${error.message}`);
   }
@@ -1605,8 +1684,12 @@ function reconcileApprovedProposalFollowThrough(
       .map(row => String(row.site || '').toLowerCase())
       .filter(Boolean)
   );
+  // A deployed or measuring improvement is no longer occupying the
+  // implementation slot. It must continue measuring, but it should not block
+  // a bounded read-only evidence/report request for the same site. Only work
+  // that can still change the checkout belongs in this capacity set.
   for (const row of store.listImprovements({ limit: 1000 })) {
-    if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(row.state))
+    if (['proposed', 'building', 'review'].includes(row.state))
       activeSites.add(String(row.site || '').toLowerCase());
   }
   let queued = 0;
