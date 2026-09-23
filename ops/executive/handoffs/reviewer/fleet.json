@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:47:50.571Z",
+  "generated_at": "2026-09-23T03:48:43.051Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Continue only the six existing bounded, reversible workstreams below; keep SearchWoot private and reject new production, security-sensitive, monetization, spending, and high-priority queue work. Attribution is incomplete and direct costs are unavailable, so do not claim site revenue, ROI, margin, CAC, payback, profitability, or forecasts. Which disposition should govern SearchWoot: keep private, prepare an unsent permission request, or end the public-beta pursuit?",
+        "summary": "Recommendation: continue only the six existing bounded, reversible workstreams below. Attribution is incomplete and direct costs are unavailable, so reject site-level revenue, ROI, margin, CAC, payback, profitability, and forecast claims; keep SearchWoot private and authorize no new production, security-sensitive, spending, or high-priority queue work. Measure each change after 14 days or 100 new impressions. Owner decision: keep the private launch gate unchanged?",
         "requested_action": null,
         "proposal_id": null
       }
