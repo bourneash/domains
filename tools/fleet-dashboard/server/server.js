@@ -187,6 +187,26 @@ function shouldRecoverStaleDeliveryClaim(
   );
 }
 
+// A dashboard restart can leave the old worker's delivery claim behind while
+// the reviewer has already completed successfully. A durable reviewer PASS is
+// the handoff authority here: the recovery sweep only calls this path after it
+// found that PASS marker (or the live callback supplied it), and the old claim
+// must belong to a different worker. This prevents a recovered PASS from
+// waiting for the full stale-claim timeout without allowing an unreviewed run
+// to replace a live delivery claim.
+function shouldRecoverReviewerDeliveryClaim(request, run, currentWorkerId) {
+  return Boolean(
+    request?.status === 'reviewing' &&
+    run?.state === 'building' &&
+    run.agent?.phase === 'reviewer' &&
+    run.agent?.status === 'completed' &&
+    Number(run.agent?.exit_code) === 0 &&
+    run.outcome?.delivery_claimed === true &&
+    run.outcome?.delivery_claimed_by &&
+    run.outcome.delivery_claimed_by !== currentWorkerId
+  );
+}
+
 function shouldValidateBeforeDelivery(item) {
   return !(item?.state === 'review' && item.validation?.passed === true);
 }
@@ -2643,7 +2663,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         run?.state === 'building' &&
         run.agent?.phase === 'reviewer' &&
         run.agent?.status === 'completed';
-      if (run?.outcome?.infrastructure_blocked === true && !completedReviewerHandoff) {
+      const infrastructureStillBlocked =
+        run?.outcome?.infrastructure_blocked === true && run?.validation?.passed !== true;
+      if (infrastructureStillBlocked && !completedReviewerHandoff) {
         if (
           shouldAutoRevalidateInfrastructureReview(request, run) &&
           events.listChangeRequests({ status: 'reviewing', limit: 1000 }).length <
@@ -2719,6 +2741,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const latest = events.getImprovement(run.run_id);
       if (!latest) throw new Error('reviewed improvement run disappeared');
+      const request = events.getChangeRequest(id);
+      if (shouldRecoverReviewerDeliveryClaim(request, latest, queueWorkerId)) {
+        const recoveredAt = new Date().toISOString();
+        events.updateImprovement(latest.run_id, {
+          outcome: {
+            ...(latest.outcome || {}),
+            delivery_claimed: false,
+            delivery_claim_recovered_at: recoveredAt,
+            delivery_claim_recovery_reason:
+              'completed reviewer handoff owns the queue lease after worker recovery',
+          },
+        });
+        events.record({
+          event_type: 'improvement.delivery_claim_recovered',
+          source: 'fleet-dashboard',
+          site_id: `site:${latest.site}`,
+          entity_type: 'improvement',
+          entity_id: latest.run_id,
+          correlation_id: latest.correlation_id,
+          payload: {
+            request_id: id,
+            recovered_at: recoveredAt,
+            recovered_by: queueWorkerId,
+            reason: 'completed reviewer handoff owns the queue lease after worker recovery',
+          },
+        });
+      }
       let snapshot = await git.worktreeSnapshot(latest.workspace_path);
       if (snapshot.dirty)
         snapshot = await git.commitWorktree(latest.workspace_path, `feat: ${latest.title}`);
@@ -5890,6 +5939,7 @@ module.exports = {
   shouldAutoRevalidateInfrastructureReview,
   infrastructureReviewProjectionPatch,
   shouldRecoverStaleDeliveryClaim,
+  shouldRecoverReviewerDeliveryClaim,
   shouldValidateBeforeDelivery,
   applyQualityPolicy,
 };

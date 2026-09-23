@@ -9,6 +9,7 @@ const {
   shouldAutoRevalidateInfrastructureReview,
   infrastructureReviewProjectionPatch,
   shouldRecoverStaleDeliveryClaim,
+  shouldRecoverReviewerDeliveryClaim,
   shouldValidateBeforeDelivery,
   applyQualityPolicy,
 } = require('./server');
@@ -157,6 +158,38 @@ test('stale delivery claims recover only after a validated reviewer handoff', ()
       { ...run, outcome: { ...run.outcome, delivery_claimed_at: '2026-09-23T14:50:00.000Z' } },
       now,
       15 * 60 * 1000
+    ),
+    false
+  );
+});
+
+test('a completed reviewer can replace a prior worker claim during recovery', () => {
+  const run = {
+    state: 'building',
+    outcome: { delivery_claimed: true, delivery_claimed_by: 'old-worker' },
+    agent: { phase: 'reviewer', status: 'completed', exit_code: 0 },
+  };
+  assert.equal(
+    shouldRecoverReviewerDeliveryClaim(
+      { status: 'reviewing', lease_owner: 'current-worker' },
+      run,
+      'current-worker'
+    ),
+    true
+  );
+  assert.equal(
+    shouldRecoverReviewerDeliveryClaim(
+      { status: 'reviewing', lease_owner: 'other-worker' },
+      run,
+      'current-worker'
+    ),
+    true
+  );
+  assert.equal(
+    shouldRecoverReviewerDeliveryClaim(
+      { status: 'reviewing', lease_owner: 'current-worker' },
+      { ...run, outcome: { ...run.outcome, delivery_claimed_by: 'current-worker' } },
+      'current-worker'
     ),
     false
   );
