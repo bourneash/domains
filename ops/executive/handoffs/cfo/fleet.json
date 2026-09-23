@@ -2,30 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T11:34:34.476Z",
+  "generated_at": "2026-09-23T12:28:56.223Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: hold new monetization, production growth, and public launch expansion until attribution and unit economics are decision-grade. Amazon data for 2026-09-21 shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission income; all $4.92 is in an aggregate row, so site-attributed revenue is $0 and no site revenue claim is supported. AI usage from 2026-09-01 through 2026-09-23 is $779.85 across 4,620 calls, with 207 errors; this is observed AI cost, not complete contribution cost. Contribution margin, payback, CAC, and cost-to-learn are not calculable because site-level revenue, infrastructure/domain costs, labor allocation, experiment exposure, and outcome data are missing. Keep SearchWoot private, allow only existing measurement gates, and do not authorize production CTA changes or forecast revenue.",
+        "summary": "Recommendation: approve no new growth spend or revenue forecast. Continue only existing measurement and failure-repair work until attribution and contribution margin are decision-grade. The 2026-09-21 Amazon report shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission income, but all commission is in an aggregate row and site-attributed income is $0. The AI window 2026-09-01 through 2026-09-23 records $784.19 across 4,633 calls, including 207 errors; it cannot be compared as a same-period margin without aligned revenue and infrastructure costs. Budget exposure is not calculable because monthly spend, fixed costs, revenue floor, and marketing budget are blank. Vanity metrics such as impressions, clicks, sessions, opportunity scores, and GitHub stars do not support ROI or revenue claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed SEO work should be treated as traffic experiments, not revenue initiatives. Impressions, rankings, clicks, and sessions are leading indicators; they do not establish contribution margin or causal revenue lift. Existing deployed work should reach its measurement gates, but no expansion should be justified until attributable affiliate clicks, orders, shipped items, commission, and direct cost are reconciled.",
+        "summary": "Financial disposition: keep SearchWoot private and reject any monetization or public-beta forecast until source rights, measurement, and direct-cost evidence close. Its CFO gate correctly requires reconciliation of traffic, affiliate clicks, orders, commission, and direct costs to site/content identifiers; no such complete reconciliation is present.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "d9107dae-3b9c-4547-ad08-e431850f661b",
-        "summary": "Accept only as staging research with a text-only control. Impressions and rankings are not sufficient financial evidence; require page-weight, accessibility, editing effort, and later attributable conversion measurement before any rollout.",
-        "requested_action": "accepted_research",
-        "proposal_id": "d9107dae-3b9c-4547-ad08-e431850f661b"
+        "kind": "message",
+        "title": null,
+        "summary": "Great American Lakes remains a measurement pilot, not a proven investment. The snapshot reports 53 sessions, 2 conversions, and $2.45 AI cost, while the active experiment has no attributable commission and is due for measurement on 2026-10-06 or after 100 new impressions. Do not claim revenue lift, margin, CAC, payback, or causal impact before that gate.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

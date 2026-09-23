@@ -2,44 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T11:34:34.477Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T12:28:56.223Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private. No outreach, credentials, spending, configuration, deployment, or public launch is technically authorized while source rights, accuracy, security, privacy, attribution, measurement, and owner gates remain blocked. Existing report-only evidence work may continue.",
+        "summary": "Failure-repair handoff: inspect the failed 0xroulette.com revenue-readiness report, preserve the no-production-change scope, and either produce a bounded report-only replacement or close it with the missing evidence documented. Do not retry unchanged. Failure evidence: request ecc5d6e2-d020-4d57-89a4-00b824439320 ended with agent exit code 1 after reviewer recovery.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only report-only SEO briefs for deeppenetrations.com, stinkyleftfoot.com, and aliencouncil.com. Do not authorize direct production implementation in this cycle. Each brief must preserve the current page, provide a previewable diff, define rollback and validation, and wait for existing site capacity and measurement gates.",
+        "summary": "Technical disposition: approve the CEO recommendation with the public-beta gate unchanged. Preparing an unsent rights request is reversible and isolated, but sending outreach, changing access, exposing data, enabling monetization, or deploying remains unauthorized until Legal, Security, accuracy/freshness, attribution, CFO, and owner gates close.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The fleet is not ready for broad queue expansion: 129 approved proposals lack execution requests, zero improvements are proven, multiple recent runs failed quality or infrastructure gates, and operations/fleet-doctor evidence is unavailable. Continue existing measurement and bounded evidence work before adding material implementation scope.",
+        "summary": "Queue disposition: do not add new growth experiments this cycle. Existing measurement and failure-repair work should drain first; zero proven improvements and 19 failed requests with open repair work make additional parallel execution unsafe for queue capacity and review quality.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "3a20f439-f297-44e4-b7ef-c26146da7165",
-        "summary": "Accept only as an isolated offline prototype using supplied or synthetic documents. No production dependency, content automation, credential access, or deployment. Require reproducible output, manual acceptance review, dependency/license review, resource limits, and a defined editor-effort measurement before any adoption proposal.",
-        "requested_action": "accepted_research",
-        "proposal_id": "3a20f439-f297-44e4-b7ef-c26146da7165"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "895c4ffe-98f3-4bee-9db9-498fc8929b5a",
-        "summary": "No production adoption or prototype queue entry is justified while current execution and measurement backlog remains unresolved.",
-        "requested_action": "declined",
-        "proposal_id": "895c4ffe-98f3-4bee-9db9-498fc8929b5a"
+        "kind": "message",
+        "title": null,
+        "summary": "Failure-repair disposition: retain the 0xroulette.com report-only repair handoff. The prior request failed after reviewer recovery, so an unchanged retry is prohibited. Requeue only a bounded replacement after inspecting the worker/reviewer evidence; no production changes, credentials, schedules, spending, or telemetry changes.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

@@ -2,30 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T11:34:34.477Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T12:28:56.224Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private and authorize no outreach, credentials, spending, configuration, deployment, or public launch. Rights, security, accuracy, privacy, attribution, and measurement gates remain incomplete. Allow only bounded read-only evidence and existing measurement gates. Treat the three SEO briefs as traffic hypotheses only; no revenue, causal-lift, or ROI claim is supported.",
+        "summary": "Reject unsupported revenue, ROI, margin, forecast, and causal-lift claims. Amazon commission is aggregate and unattributed; AI cost is not a comparable margin input. Keep SearchWoot private and require owner approval before any outreach or launch change. Reject new high-priority queue work and production proposals until existing failures and measurement gates are resolved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The proposed security evidence work is read-only but is high-priority queue work with no measurable outcome specified and unavailable internal telemetry cannot be repaired through this plan. Do not queue it here; retain the private gate and existing evidence-needed disposition.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: approve no new production, growth, spending, or high-priority queue work this cycle. Fewer than three candidates are actionable: the remaining SEO opportunities are already active, failed, or awaiting repair, while telemetry supports no site-level revenue or ROI claims. Continue only existing bounded measurement, failure repair, and private launch-gate work. Owner decision question: should the existing Great American Lakes measurement gate remain unchanged until 2026-10-06 or 100 new impressions?",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032",
-        "summary": "Accept bounded read-only security evidence capture only. Retain the private-preview gate; no credentials, outreach, spending, deployment, configuration, or public exposure.",
-        "requested_action": "accepted_research",
+        "summary": null,
+        "requested_action": "declined",
         "proposal_id": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032"
       },
       {
         "kind": "proposal-review",
-        "title": "2836f6bb-0839-48b4-828b-ad9774fcea3c",
-        "summary": "Accept bounded read-only fleet security evidence capture only. Missing checks are evidence gaps, not clean results, and do not block ordinary report-only work.",
-        "requested_action": "accepted_research",
-        "proposal_id": "2836f6bb-0839-48b4-828b-ad9774fcea3c"
+        "title": "64fb1fa7-f4fd-4b99-b172-f2d0e168b899",
+        "summary": null,
+        "requested_action": "declined",
+        "proposal_id": "64fb1fa7-f4fd-4b99-b172-f2d0e168b899"
       }
     ]
   }
