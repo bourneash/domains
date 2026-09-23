@@ -179,6 +179,26 @@ test('report-only requests finish as verified without a deployment state', () =>
   store.close();
 });
 
+test('reconciles a failed request to verified when a durable report survives', () => {
+  const { store } = fixture();
+  const request = queue.create(
+    store,
+    { site: 'example.com', title: 'Recover report', delivery_mode: 'report_only' },
+    () => true
+  );
+  for (const status of ['claimed', 'running', 'failed'])
+    queue.update(
+      store,
+      request.request_id,
+      { status, ...(status === 'failed' ? { error: 'stale lease' } : {}) },
+      () => true
+    );
+  const verified = queue.reconcileVerified(store, request.request_id, () => true);
+  assert.equal(verified.status, 'verified');
+  assert.equal(verified.error, null);
+  store.close();
+});
+
 test('report-only requests cannot disable automatic review', () => {
   const { store } = fixture();
   assert.throws(

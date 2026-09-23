@@ -320,6 +320,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
       const created = improvements.startManual({ store: events, root, request: claimed, baseline });
       createdRun = created.run;
+      // A retry can arrive after the task/run was created but before the
+      // request was linked or the worker was started. Reuse a live run rather
+      // than creating another sandbox; a proposed run is safe to resume
+      // through the normal setup below.
+      if (created.duplicate && created.run.state !== 'proposed') {
+        const resumed = changequeue.update(events, claimed.request_id, {
+          status: 'running',
+          run_id: created.run.run_id,
+          error: null,
+          lease_owner: queueWorkerId,
+          lease_expires_at: new Date(Date.now() + Number(lease) * 60000).toISOString(),
+          heartbeat_at: new Date().toISOString(),
+        });
+        return { request: resumed, run: created.run, deduplicated: true };
+      }
       await git.commit(
         root,
         claimed.site,
@@ -672,8 +687,54 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // building run.
     for (const run of events.listImprovements({ source: 'fleet-dashboard', limit: 1000 })) {
       const request = run.source_id ? events.getChangeRequest(run.source_id) : null;
-      if (!request || request.status === 'cancelled') continue;
+      if (!request || request.status === 'cancelled') {
+        // A cancelled request must not leave its old building run in the busy
+        // site set forever. Only close it once the agent is no longer running;
+        // an active worker still gets to finish its current isolated process.
+        if (
+          ['proposed', 'building', 'review'].includes(run.state) &&
+          run.agent?.status !== 'running'
+        ) {
+          try {
+            improvements.transition(events, run.run_id, {
+              state: 'cancelled',
+              outcome: {
+                ...(run.outcome || {}),
+                cancelled_at: new Date().toISOString(),
+                error: request
+                  ? 'linked change request was cancelled before the improvement run completed'
+                  : 'orphaned improvement run had no linked change request',
+              },
+            });
+            changed += 1;
+          } catch {
+            /* preserve the audit row if another worker advanced it */
+          }
+        }
+        continue;
+      }
       if (request.run_id && request.run_id !== run.run_id) continue;
+      if (['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state)) {
+        const previousStatus = request.status;
+        const synced = syncChangeRequestFromRun(run);
+        if (synced && synced.status !== previousStatus) {
+          events.record({
+            event_type: 'change-request.reconciled',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: request.request_id,
+            correlation_id: `change-request:${request.request_id}`,
+            payload: {
+              reason: 'queue projection lagged behind terminal improvement run',
+              previous_status: previousStatus,
+              status: synced.status,
+              run_id: run.run_id,
+            },
+          });
+        }
+        continue;
+      }
       if (!run || run.state !== 'building') continue;
       const agentFailed = ['failed', 'timed-out'].includes(run.agent?.status);
       const reviewExhausted =
@@ -702,11 +763,137 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return changed;
   }
 
+  async function reconcileInterruptedWorkers() {
+    let changed = 0;
+    for (const run of events.listImprovements({ source: 'fleet-dashboard', limit: 1000 })) {
+      if (run.state !== 'building' || run.agent?.status !== 'running') continue;
+      // The durable row can outlive the dashboard process. Check the actual
+      // isolated container rather than trusting the in-memory child map.
+      if (await improvementAgent.workerProcessAlive(run)) continue;
+      const request = run.source_id ? events.getChangeRequest(run.source_id) : null;
+      try {
+        const failedRun = improvements.transition(events, run.run_id, {
+          state: 'failed',
+          outcome: {
+            ...(run.outcome || {}),
+            failed_at: new Date().toISOString(),
+            error: 'worker process is no longer present in its isolated container',
+          },
+        });
+        events.updateImprovement(run.run_id, {
+          agent: {
+            status: 'interrupted',
+            finished_at: new Date().toISOString(),
+            error: 'worker process is no longer present in its isolated container',
+          },
+        });
+        const failedRequest = syncChangeRequestFromRun(failedRun, 'failed');
+        if (failedRequest && failedRequest.status === 'failed') {
+          const retryable = failedRequest.attempts < MAX_AUTOMATIC_QUEUE_ATTEMPTS;
+          changequeue.update(
+            events,
+            failedRequest.request_id,
+            {
+              next_attempt_at: retryable ? new Date().toISOString() : null,
+              lease_owner: null,
+              lease_expires_at: null,
+              heartbeat_at: null,
+            },
+            site => isKnownTarget(root, site)
+          );
+        }
+        events.record({
+          event_type: 'improvement.worker_interrupted',
+          source: 'fleet-dashboard',
+          site_id: `site:${run.site}`,
+          entity_type: 'improvement',
+          entity_id: run.run_id,
+          correlation_id: run.correlation_id,
+          payload: {
+            request_id: request?.request_id || null,
+            error: 'worker process is no longer present in its isolated container',
+          },
+        });
+        changed += 1;
+      } catch {
+        /* preserve the audit row if a concurrent worker advanced it */
+      }
+    }
+    return changed;
+  }
+
+  function failedRequestReason(request, run) {
+    if (run?.outcome?.error) return String(run.outcome.error);
+    if (run?.validation?.passed === false) {
+      const failedGates = Object.entries(run.validation.policy?.status || {})
+        .filter(([, status]) => status === 'fail')
+        .map(([gate]) => gate);
+      if (failedGates.length) return `quality gates failed: ${failedGates.join(', ')}`;
+      return 'quality gates did not pass';
+    }
+    if (run?.agent?.status === 'failed' || run?.agent?.status === 'timed-out')
+      return `implementation agent ended ${run.agent.status}`;
+    if (run?.agent?.phase === 'reviewer' && run?.agent?.status === 'completed')
+      return 'automatic reviewer handoff ended without a durable reason';
+    if (run?.state === 'building')
+      return 'request is failed while its linked improvement run remains building; manual worker inspection is required';
+    if (run)
+      return `linked improvement run ${run.run_id} failed without a recorded reason; manual inspection is required`;
+    return 'failed request has no linked improvement run or recorded reason; manual inspection is required';
+  }
+
+  function reconcileFailedRequestErrors() {
+    let changed = 0;
+    for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
+      const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      // A report-only run is complete work. Repair the queue projection rather
+      // than asking an operator to retry a missing worktree.
+      if (run?.state === 'reported') {
+        const synced = syncChangeRequestFromRun(run);
+        if (synced?.status === 'verified') {
+          events.record({
+            event_type: 'change-request.reconciled',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: request.request_id,
+            correlation_id: `change-request:${request.request_id}`,
+            payload: { reason: 'linked report run was already reported', run_id: run.run_id },
+          });
+          changed += 1;
+        }
+        continue;
+      }
+      if (request.error) continue;
+      const error = failedRequestReason(request, run);
+      try {
+        changequeue.update(events, request.request_id, { status: 'failed', error }, site =>
+          isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.failure-diagnosed',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: request.request_id,
+          correlation_id: `change-request:${request.request_id}`,
+          payload: { error, run_id: request.run_id || null, historical_reason_missing: true },
+        });
+        changed += 1;
+      } catch {
+        /* another worker may have advanced the request */
+      }
+    }
+    return changed;
+  }
+
   async function recoverFailedQueueWork() {
     if (failedRecoveryRunning) return 0;
     failedRecoveryRunning = true;
     try {
+      await reconcileInterruptedWorkers();
       reconcileStalledImprovementRuns();
+      reconcileFailedRequestErrors();
       const now = Date.now();
       const candidates = events
         .listChangeRequests({ status: 'failed', limit: 1000 })
@@ -838,6 +1025,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
     if (!target) return request;
     if (target === request.status) {
+      // Never erase the only durable explanation for a failed request. Older
+      // sync paths cleared it when the run and queue were already both failed,
+      // which made the audit trail look like an unexplained worker failure.
+      if (target === 'failed') {
+        const failure = String(
+          run.outcome?.error || request.error || `improvement run ${run.run_id} failed`
+        );
+        if (request.error === failure) return request;
+        try {
+          return changequeue.update(events, request.request_id, { error: failure }, site =>
+            isKnownSite(root, site)
+          );
+        } catch {
+          return request;
+        }
+      }
       if (!request.error) return request;
       try {
         return changequeue.update(events, request.request_id, { error: null }, site =>
@@ -849,11 +1052,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
     if (target === 'verified' && run.state === 'reported') {
       try {
-        return changequeue.update(
-          events,
-          request.request_id,
-          { status: 'verified', error: null },
-          site => isKnownTarget(root, site)
+        return changequeue.reconcileVerified(events, request.request_id, site =>
+          isKnownTarget(root, site)
         );
       } catch {
         return request;
@@ -2041,6 +2241,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   const queuePulse = setInterval(() => {
     renewQueueLeases();
     recoverAutomaticReviewHandoffs();
+    reconcileInterruptedWorkers().catch(() => {});
+    // Projection repair is cheap and must not wait for the slower pickup
+    // interval. A worker can finish between pickups, leaving a reported run
+    // displayed as reviewing until the next ten-minute queue pass.
+    try {
+      reconcileStalledImprovementRuns();
+      reconcileFailedRequestErrors();
+    } catch {
+      /* the next pulse retries reconciliation without interrupting pickup */
+    }
     recoverExpiredQueueWork().catch(() => {});
     if (Date.now() - lastImprovementCleanup >= 3600000) {
       lastImprovementCleanup = Date.now();

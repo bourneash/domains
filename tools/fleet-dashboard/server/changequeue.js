@@ -191,6 +191,37 @@ function update(store, id, patch, knownSite) {
   return next;
 }
 
+// Reconcile a queue projection from durable terminal evidence. This is kept
+// separate from update() so a normal request cannot skip lifecycle gates just
+// by submitting a status patch. Only a terminal report may use this path.
+function reconcileVerified(store, id, knownSite) {
+  const current = store.getChangeRequest(id);
+  if (!current) throw httpErr(404, 'change request not found');
+  if (current.status === 'verified') return current;
+  if (
+    !['failed', 'running', 'reviewing', 'review', 'committed', 'deployed'].includes(current.status)
+  )
+    throw httpErr(409, `cannot reconcile ${current.status} to verified`);
+  if (!knownSite(current.site)) throw httpErr(404, 'unknown site');
+  const next = store.updateChangeRequest(id, {
+    status: 'verified',
+    error: null,
+    lease_owner: null,
+    lease_expires_at: null,
+    heartbeat_at: null,
+  });
+  store.record({
+    event_type: 'change-request.verified',
+    source: 'fleet-dashboard',
+    site_id: `site:${next.site}`,
+    entity_type: 'change-request',
+    entity_id: next.request_id,
+    correlation_id: `change-request:${next.request_id}`,
+    payload: { status: next.status, error: null, reconciled: true },
+  });
+  return next;
+}
+
 function pick(store, { now = new Date(), max = 1 } = {}) {
   const due = store
     .listChangeRequests({ status: 'queued', limit: 100 })
@@ -244,6 +275,7 @@ module.exports = {
   TRANSITIONS,
   create,
   update,
+  reconcileVerified,
   pick,
   transcribe,
 };

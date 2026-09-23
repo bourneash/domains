@@ -334,6 +334,23 @@ function status(root, run) {
   };
 }
 
+function workerProcessAlive(run) {
+  const container =
+    run?.sandbox?.container || (run?.sandbox?.instance ? `dd-${run.sandbox.instance}` : null);
+  if (!container) return Promise.resolve(false);
+  return new Promise(resolve => {
+    execFile(
+      'docker',
+      ['top', container, '--format', '{{.Command}}'],
+      { timeout: 5000, maxBuffer: 1024 * 1024 },
+      (error, stdout) => {
+        if (error) return resolve(false);
+        resolve(/\b(?:codex|claude|ollama)(?:\s|$)/i.test(String(stdout || '')));
+      }
+    );
+  });
+}
+
 function httpErr(status, message) {
   const e = new Error(message);
   e.httpStatus = status;
@@ -349,6 +366,7 @@ module.exports = {
   providerExecutable,
   reviewResult,
   appendOutput,
+  workerProcessAlive,
   defaultProvider,
   defaultModel,
   resolveWorkerProvider,
