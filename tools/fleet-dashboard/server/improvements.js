@@ -18,6 +18,20 @@ const TRANSITIONS = {
   reported: [],
 };
 
+const FALSE_LIVENESS_ERROR = 'worker process is no longer present in its isolated container';
+
+function canRecoverReportOnly(current, input = {}) {
+  return (
+    current?.state === 'failed' &&
+    input.state === 'reported' &&
+    input.recover_report_only === true &&
+    input.delivery_mode === 'report_only' &&
+    current.agent?.status === 'completed' &&
+    Number(current.agent?.exit_code) === 0 &&
+    current.outcome?.error === FALSE_LIVENESS_ERROR
+  );
+}
+
 function measurementDate(days = 28, now = Date.now()) {
   return new Date(now + days * 86400000).toISOString().slice(0, 10);
 }
@@ -86,6 +100,19 @@ function start({ store, root, site, action, baseline = {} }) {
 }
 
 function startManual({ store, root, request, baseline = {} }) {
+  // Queue delivery is retried after crashes/timeouts. The request id is the
+  // durable idempotency key; do not create a second task/run while the
+  // existing run is still live.
+  const duplicate = store
+    .listImprovements({
+      site: request.site,
+      source: 'fleet-dashboard',
+      source_id: request.request_id,
+      limit: 10,
+    })
+    .find(row => !['cancelled', 'failed', 'rolled-back'].includes(row.state));
+  if (duplicate) return { run: duplicate, task_file: duplicate.task_file, duplicate: true };
+
   const runId = crypto.randomUUID();
   const taskId = crypto.randomUUID();
   const correlationId = `change-request:${request.request_id}`;
@@ -140,7 +167,7 @@ function transition(store, runId, input = {}) {
   const current = store.getImprovement(runId);
   if (!current) throw httpErr(404, 'improvement run not found');
   const state = String(input.state || '');
-  if (!(TRANSITIONS[current.state] || []).includes(state))
+  if (!(TRANSITIONS[current.state] || []).includes(state) && !canRecoverReportOnly(current, input))
     throw httpErr(409, `cannot transition ${current.state} to ${state}`);
   if (state === 'deployed' && !input.deployment_id) throw httpErr(400, 'deployment_id is required');
   if (input.preview_url && !/^https?:\/\/[^\s]+$/i.test(String(input.preview_url)))
@@ -287,6 +314,8 @@ function httpErr(status, message) {
 }
 
 module.exports = {
+  FALSE_LIVENESS_ERROR,
+  canRecoverReportOnly,
   start,
   startManual,
   transition,

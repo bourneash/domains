@@ -887,11 +887,59 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return changed;
   }
 
+  async function reconcileFalseFailedReportRuns() {
+    let changed = 0;
+    for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
+      if (request.delivery_mode !== 'report_only' || !request.run_id) continue;
+      const run = events.getImprovement(request.run_id);
+      if (
+        !improvements.canRecoverReportOnly(run, {
+          state: 'reported',
+          recover_report_only: true,
+          delivery_mode: request.delivery_mode,
+        })
+      )
+        continue;
+      try {
+        await deliverAutomatically(run);
+        events.record({
+          event_type: 'change-request.reconciled',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: request.request_id,
+          correlation_id: `change-request:${request.request_id}`,
+          payload: {
+            reason: 'completed report-only worker was falsely marked failed by the liveness probe',
+            run_id: run.run_id,
+          },
+        });
+        changed += 1;
+      } catch (error) {
+        events.record({
+          event_type: 'change-request.reconciliation_failed',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: request.request_id,
+          correlation_id: `change-request:${request.request_id}`,
+          payload: {
+            reason: 'report-only recovery could not finalize the completed worker',
+            run_id: run.run_id,
+            error: String(error.message || error).slice(0, 1000),
+          },
+        });
+      }
+    }
+    return changed;
+  }
+
   async function recoverFailedQueueWork() {
     if (failedRecoveryRunning) return 0;
     failedRecoveryRunning = true;
     try {
       await reconcileInterruptedWorkers();
+      await reconcileFalseFailedReportRuns();
       reconcileStalledImprovementRuns();
       reconcileFailedRequestErrors();
       const now = Date.now();
@@ -1158,6 +1206,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const artifact = writeReportArtifact(root, request, item, diff.text, agentStatus.log_tail);
       const reported = improvements.transition(events, item.run_id, {
         state: 'reported',
+        ...(item.state === 'failed'
+          ? { recover_report_only: true, delivery_mode: 'report_only' }
+          : {}),
         outcome: {
           measured_at: new Date().toISOString(),
           kind: 'report-only',

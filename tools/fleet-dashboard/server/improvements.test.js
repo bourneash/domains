@@ -162,6 +162,77 @@ test('records failed implementation runs as terminal audit state', () => {
   store.close();
 });
 
+test('permits only successful report-only liveness recovery from a failed run', () => {
+  const { root, store } = fixture();
+  const { run } = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'report-recovery',
+      site: 'example.com',
+      title: 'Report-only recovery',
+      body: 'Capture evidence',
+      category: 'seo',
+      priority: 'low',
+      assigned_role: 'seo-analyst',
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 2,
+      delivery_mode: 'report_only',
+    },
+  });
+  improvements.transition(store, run.run_id, { state: 'building' });
+  const failed = improvements.transition(store, run.run_id, {
+    state: 'failed',
+    outcome: { error: improvements.FALSE_LIVENESS_ERROR },
+  });
+  store.updateImprovement(run.run_id, { agent: { status: 'completed', exit_code: 0 } });
+  const completed = store.getImprovement(run.run_id);
+  assert.equal(
+    improvements.canRecoverReportOnly(completed, {
+      state: 'reported',
+      recover_report_only: true,
+      delivery_mode: 'report_only',
+    }),
+    true
+  );
+  const reported = improvements.transition(store, run.run_id, {
+    state: 'reported',
+    recover_report_only: true,
+    delivery_mode: 'report_only',
+    outcome: { measured_at: new Date().toISOString(), kind: 'report-only' },
+  });
+  assert.equal(reported.state, 'reported');
+  assert.equal(failed.state, 'failed');
+  store.close();
+});
+
+test('does not create duplicate manual tasks when queue delivery is retried', () => {
+  const { root, store } = fixture();
+  const request = {
+    request_id: 'request-idempotent',
+    site: 'example.com',
+    title: 'Bounded change',
+    body: 'Do one thing',
+    category: 'engineering',
+    priority: 'low',
+    assigned_role: 'engineer',
+    provider: 'chatgpt',
+    model: 'gpt-5.6-luna',
+    max_turns: 2,
+  };
+  const first = improvements.startManual({ store, root, request });
+  const retry = improvements.startManual({ store, root, request });
+  assert.equal(retry.duplicate, true);
+  assert.equal(retry.run.run_id, first.run.run_id);
+  assert.equal(store.listImprovements({ source: 'fleet-dashboard' }).length, 1);
+  assert.equal(
+    fs.readdirSync(path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog')).length,
+    1
+  );
+  store.close();
+});
+
 test('records attributed affiliate deltas without treating unmapped revenue as site revenue', () => {
   const outcome = improvements.compareOutcome(
     {
