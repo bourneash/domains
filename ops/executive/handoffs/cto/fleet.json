@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:10:40.861Z",
+  "generated_at": "2026-09-23T03:13:41.149Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue only the existing bounded workstreams on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com. No new change requests are created because the highest-ranked candidates are already covered by active work items or failed runs; duplicating them would violate queue controls. Require baseline evidence, smoke/link checks, measurement threshold, and rollback notes.",
+        "summary": "Handoff: continue bounded evidence or implementation work on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com. Do not create duplicate change requests because each site already has active coverage. Require baseline evidence, smoke/link checks, a 14-day or 100-impression measurement gate, and rollback notes. Existing failed routing requests should be repaired only through the current queue controls.",
         "requested_action": null,
         "proposal_id": null
       }
