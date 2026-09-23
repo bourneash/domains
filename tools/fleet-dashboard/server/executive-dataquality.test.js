@@ -48,3 +48,28 @@ test('does not turn an analytics source outage into per-site work or resolve kno
   assert.equal(store.getExecutiveWorkItem('data-quality:analytics:b.com'), null);
   store.close();
 });
+
+test('reopens a returned gap without stale resolution metadata', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-data-quality-reopen-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  dataquality.sync(store, {
+    contracts: [{ source: 'analytics', ok: true }],
+    coverage: { analytics: { missing_sites: ['a.com'] } },
+  });
+  store.updateExecutiveWorkItem('data-quality:analytics:a.com', {
+    status: 'cancelled',
+    resolution_note: 'Cancelled during a temporary source outage.',
+  });
+
+  const result = dataquality.sync(store, {
+    contracts: [{ source: 'analytics', ok: true }],
+    coverage: { analytics: { missing_sites: ['a.com'] } },
+  });
+
+  assert.equal(result.updated.length, 1);
+  const reopened = store.getExecutiveWorkItem('data-quality:analytics:a.com');
+  assert.equal(reopened.status, 'open');
+  assert.equal(reopened.resolved_at, null);
+  assert.equal(reopened.resolution_note, null);
+  store.close();
+});

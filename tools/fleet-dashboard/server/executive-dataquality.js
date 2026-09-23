@@ -89,7 +89,17 @@ function sync(store, quality = {}) {
   for (const item of desired) {
     const current = existing.find(row => row.work_id === item.work_id);
     if (current) {
-      updated.push(store.updateExecutiveWorkItem(current.work_id, item));
+      // A gap can disappear from one snapshot and return in a later one. Do
+      // not carry a historical cancellation/resolution note onto reopened
+      // work: that makes a currently observed gap look already handled to the
+      // executive UI and to the next role prompt.
+      updated.push(
+        store.updateExecutiveWorkItem(current.work_id, {
+          ...item,
+          resolved_at: null,
+          resolution_note: null,
+        })
+      );
     } else {
       created.push(store.createExecutiveWorkItem(item));
     }
