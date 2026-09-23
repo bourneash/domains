@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:35:19.404Z",
+  "generated_at": "2026-09-23T03:39:29.757Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain only the existing bounded, reversible workstreams and reject new queue work, production changes, revenue/ROI claims, and launch proposals. Attribution remains incomplete, direct costs are unavailable, several telemetry sources are missing, and active site work already covers the defensible candidates; do not duplicate it. Keep the private-preview gate unchanged. Owner decision: authorize continuation of the existing report-only evidence and measurement work until its stated acceptance thresholds are met?",
+        "summary": "Recommendation: retain only the existing reversible affiliate-reference repair and active measurement/evidence work; reject new queue work, production changes, unsupported revenue or ROI claims, and duplicate tasks. Attribution remains incomplete and direct costs are unavailable, so no financial outcome is supportable. No new actionable sites remain beyond existing workstreams. Owner decision: authorize continuation until the stated validation and measurement thresholds are met?",
         "requested_action": null,
         "proposal_id": null
       }

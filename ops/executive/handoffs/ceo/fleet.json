@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:35:19.405Z",
+  "generated_at": "2026-09-23T03:39:29.758Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: finish the existing reversible measurement and evidence work, with priority on retrying 0xroulette.com and completing bounded triage for complicated.work and deadlymaracas.com; do not duplicate active site tasks. The 30-day SEO window through 2026-09-23 recorded 13,177 impressions, 126 clicks, 932 sessions, and 13 conversions. Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin, ROI, and payback are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is which sites can produce attributable contribution margin without disproportionate build or renewal cost. Smallest next step: complete the three bounded evidence workstreams, record baselines and rollback notes, and measure deployed changes after 14 days or 100 new impressions. Owner question: for SearchWoot choose A) authorize preparation of an unsent Woot permission request, B) keep private with no outreach, or C) end the public-beta pursuit; the current evidence supports keeping it private until rights and legal, security, accuracy, and measurement gates are complete.",
+        "summary": "Recommendation: continue the existing bounded, reversible measurement and evidence work, with no duplicate queue tasks. The 30-day SEO window through 2026-09-23 recorded 13,177 impressions, 126 clicks, 932 sessions, and 13 conversions; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is which sites can produce attributable contribution margin without disproportionate build or renewal cost. Smallest next step: complete the active evidence and measurement gates for at least three sites, then measure deployed changes after 14 days or 100 new impressions. Owner question: for SearchWoot choose A) keep private, B) approve preparation of an unsent Woot permission request, or C) end the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       }
