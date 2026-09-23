@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T15:30:14.119Z",
+  "generated_at": "2026-09-23T20:39:07.102Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the report-only ultrarough.com assessment. Reject production changes, financial claims, spending, and retries of failed queue work because attribution is zero and telemetry remains low-volume. May the owner authorize this single evidence-only assessment?",
+        "summary": "Recommendation: approve only the bounded, report-only 0xroulette.com baseline retry. Reject high-priority production queue work and unsupported revenue claims: attribution is partial, revenue is aggregate/unattributed, outcomes are unmeasured, and validation infrastructure has recently failed. The retry must document evidence boundaries, one measurable reversible hypothesis, acceptance criteria, and rollback/stop rules without changing production.",
         "requested_action": null,
         "proposal_id": null
       }
