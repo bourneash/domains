@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:04:58.992Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-23T04:40:57.644Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize preparation of an unsent Woot permission request. Evidence: official API docs confirm access but not redistribution rights; Woot’s public terms restrict commercial/public reuse; legal, security, accuracy, measurement, and attribution gates remain blocked. Unknown: whether Woot would grant written permission. Smallest next step: prepare the request without sending or changing the gate. Owner decision: choose (A) prepare unsent request, (B) keep private with no outreach, or (C) end the public-beta pursuit.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: continue the existing bounded workstreams and queue no duplicate implementation. The actionability scorecard is results-pending: 2 deployed improvements await measurement, 0 are proven, and active work already covers saveusfarms, xxxtea, deeppenetrations, 0daynews, americastrikes, greatamericanlakes, marineactivity, aliencouncil, broadwayshowgirls, fishhooklabs, and stinkyleftfoot. The remaining candidates are therefore rejected for new queue work this cycle; measure existing changes after 14 days or 100 new impressions.",
+        "summary": "Recommendation: continue measurement and existing bounded work rather than queue duplicate changes. The 30-day scorecard has 2 deployed improvements awaiting measurement, 0 proven outcomes, 12 failed implementation requests, and 10 retained tick failures. All current SEO and repair candidates are already active, filed, blocked by routing, or awaiting measurement; no new change request is justified this cycle. Affiliate revenue is $4.92 for 2026-09-21, all unattributed to sites, so no site-level ROI claim is calculable.",
         "requested_action": null,
         "proposal_id": null
       }

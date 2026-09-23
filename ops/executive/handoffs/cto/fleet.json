@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:04:58.993Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T04:40:57.645Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing six bounded workstreams previously approved: 0xroulette revenue-readiness evidence, marineactivity AIS baseline, aliencouncil UAP baseline, fishhooklabs guide improvement, stinkyleftfoot guide improvement, and Americas Strikes affiliate repair. Require acceptance criteria, smoke/reachability checks, rollback notes, and measurement at 14 days or 100 new impressions. Do not duplicate failed or active site work.",
+        "summary": "Technical disposition: continue the existing bounded, reversible workstreams and do not create duplicate queue actions. Current telemetry supports measurement planning only; zero measured outcomes, failed isolated workers, unavailable operations sweeps, incomplete attribution, and missing direct-cost inputs do not support success, ROI, or margin claims. Existing work must retain isolated scope, smoke/reachability checks, explicit rollback notes, and measurement at 14 days or 100 new impressions.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private. Authorize only preparation of an unsent permission request, contingent on owner approval; do not send it, change the launch gate, alter production, or expand monetization. Source rights, security, accuracy, measurement, attribution, and legal gates remain blocked.",
+        "summary": "SearchWoot remains private. Preparing an unsent permission request is technically feasible and reversible, but it is evidence/documentation work rather than an engineering implementation. It may proceed only after owner approval, with no credentials, access controls, data flow, schedules, production configuration, or launch gate changes. Assign drafting and legal review to the existing legal/owner workflow; principal-engineer execution is unnecessary.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the six existing bounded workstreams: 0xroulette revenue-readiness evidence, marineactivity AIS baseline, aliencouncil UAP baseline, fishhooklabs guide improvement, stinkyleftfoot guide improvement, and Americas Strikes affiliate repair. No duplicate queue items or new production work. Require isolated execution, acceptance criteria, smoke or reachability checks, rollback notes, and measurement after 14 days or 100 new impressions.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all remaining candidates for new queue work this cycle. Existing work is already active across the relevant sites, two deployed improvements await measurement, and no outcomes are proven. Missing telemetry remains unavailable evidence, not zero performance.",
+        "summary": "Do not queue new production or telemetry work this cycle. Existing analytics, SEO, revenue, compliance, and security evidence is already available; missing or failed sources must remain labeled unavailable. The queue has failed isolated requests and pending measurement, so retries must be limited to already-approved work items and must not duplicate active or filed candidates.",
         "requested_action": null,
         "proposal_id": null
       }
