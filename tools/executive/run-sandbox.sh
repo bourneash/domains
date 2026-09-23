@@ -8,7 +8,11 @@ IMAGE="${EXECUTIVE_IMAGE:-domains-executive-runner:latest}"
 MODE="${EXECUTIVE_MODE:---apply}"
 IMAGE_SOURCE_LABEL="com.bourneash.executive.source-sha"
 LOCK_FILE="${EXECUTIVE_LOCK_FILE:-/tmp/domains-executive.lock}"
-CONTAINER_NAME="${EXECUTIVE_CONTAINER_NAME:-executive-ceo-cto}"
+# An explicit name is used by per-site dispatch so its site lock can make the
+# identity easy to audit. The fleet-wide default gets a process-specific
+# suffix so an orphaned Docker object cannot collide with the next tick after a
+# host or scheduler interruption.
+CONTAINER_NAME="${EXECUTIVE_CONTAINER_NAME:-executive-ceo-cto-${BASHPID}}"
 export EXECUTIVE_PROVIDER="${EXECUTIVE_PROVIDER:-chatgpt}"
 export EXECUTIVE_MODEL="${EXECUTIVE_MODEL:-gpt-5.6-luna}"
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-adaptive}"
