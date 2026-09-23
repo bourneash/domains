@@ -63,6 +63,7 @@ suites:
   fleet-git:         { runner: node-test }
   backlink-audit:    { runner: node-test }
   executive:         { runner: node-test }
+  web-vitals:        { runner: pytest }
 
   # Standalone node test file, no package.json of its own — the client shim
   # that ships alongside the python service.

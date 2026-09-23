@@ -7,18 +7,20 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT/tools/executive/logs"
 mkdir -p "$LOG_DIR"
 exec >>"$LOG_DIR/scheduled.log" 2>&1
-if [[ "${EXECUTIVE_FORCE:-0}" != "1" ]]; then
-  settings="$(node -e "const s=require('$ROOT/tools/fleet-dashboard/server/eventstore').open('$ROOT'); const x=s.getExecutiveSettings(); const q=s.getChangeQueueSettings(); const enabled=x.queue_execution_enabled === undefined ? q.enabled === true : x.queue_execution_enabled === true; process.stdout.write([x.tick_enabled === true ? '1' : '0', enabled ? '1' : '0'].join('|')); s.close()" 2>/dev/null || printf '0|0')"
-  IFS='|' read -r enabled queue_enabled <<<"$settings"
-  if [[ "$enabled" != "1" ]]; then
-    echo "[$(date -Is)] executive scheduled tick skipped: tick_enabled is false"
-    exit 0
-  fi
-  if [[ "$queue_enabled" == "1" ]]; then
-    export EXECUTIVE_ALLOW_QUEUE=1
-  else
-    export EXECUTIVE_ALLOW_QUEUE=0
-  fi
+settings="$(node -e "const s=require('$ROOT/tools/fleet-dashboard/server/eventstore').open('$ROOT'); const x=s.getExecutiveSettings(); const q=s.getChangeQueueSettings(); const enabled=x.queue_execution_enabled === undefined ? q.enabled === true : x.queue_execution_enabled === true; process.stdout.write([x.tick_enabled === true ? '1' : '0', enabled ? '1' : '0'].join('|')); s.close()" 2>/dev/null || printf '0|0')"
+IFS='|' read -r enabled queue_enabled <<<"$settings"
+# EXECUTIVE_FORCE bypasses the recurring tick_enabled switch for an operator
+# run, but never bypasses the separately reviewed queue_execution setting.
+# Reading both settings in every mode also keeps queue_enabled initialized
+# under set -u, which previously made forced/manual runs brittle.
+if [[ "${EXECUTIVE_FORCE:-0}" != "1" && "$enabled" != "1" ]]; then
+  echo "[$(date -Is)] executive scheduled tick skipped: tick_enabled is false"
+  exit 0
+fi
+if [[ "$queue_enabled" == "1" ]]; then
+  export EXECUTIVE_ALLOW_QUEUE=1
+else
+  export EXECUTIVE_ALLOW_QUEUE=0
 fi
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-cro,ceo,cfo,cto,legal,security,reviewer}"
 echo "[$(date -Is)] executive scheduled tick start"

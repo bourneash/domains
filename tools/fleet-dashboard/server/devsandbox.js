@@ -109,6 +109,13 @@ function sandboxRuntimeEnvironment() {
   return { NODE_OPTIONS: NODE_RUNTIME_OPTIONS };
 }
 
+// Apply the same runtime policy to commands in already-running sandboxes.
+// Container creation alone is insufficient because durable review work may
+// outlive a dashboard restart and keep its original environment.
+function sandboxExecCommand(instance, args) {
+  return ['exec', '-e', `NODE_OPTIONS=${NODE_RUNTIME_OPTIONS}`, containerName(instance), ...args];
+}
+
 async function ensureSandboxNetwork(instance) {
   const name = sandboxNetworkName(instance);
   const existing = await docker(['network', 'inspect', name]);
@@ -502,7 +509,7 @@ function parseKV(stdout) {
   return out;
 }
 async function devExec(site, ...args) {
-  const r = await docker(['exec', containerName(site), 'dd-dev', ...args]);
+  const r = await docker(sandboxExecCommand(site, ['dd-dev', ...args]));
   return { code: r.code, stdout: r.stdout, stderr: r.stderr, kv: parseKV(r.stdout) };
 }
 
@@ -521,7 +528,7 @@ async function prepareDependencies(site) {
     'if [ ! -d node_modules ]; then ' +
     'if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; ' +
     'else npm install --no-audit --no-fund; fi; fi';
-  const r = await docker(['exec', containerName(site), 'sh', '-lc', command], {
+  const r = await docker(sandboxExecCommand(site, ['sh', '-lc', command]), {
     timeout: 10 * 60 * 1000,
     maxBuffer: 4 * 1024 * 1024,
   });
@@ -539,9 +546,7 @@ async function waitForPreview(site, timeoutMs = PREVIEW_READY_TIMEOUT_MS) {
   let lastError = 'preview server did not become ready';
   while (Date.now() < deadline) {
     const r = await docker(
-      [
-        'exec',
-        containerName(site),
+      sandboxExecCommand(site, [
         'curl',
         '-sS',
         '-L',
@@ -552,7 +557,7 @@ async function waitForPreview(site, timeoutMs = PREVIEW_READY_TIMEOUT_MS) {
         '-w',
         '%{http_code}',
         `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}/`,
-      ],
+      ]),
       { timeout: 5000 }
     );
     const status = Number(String(r.stdout).trim());
@@ -607,7 +612,7 @@ async function validate(site) {
   const results = {};
   for (const [name, command] of checks) {
     const started = Date.now();
-    const r = await docker(['exec', containerName(site), 'sh', '-lc', command], {
+    const r = await docker(sandboxExecCommand(site, ['sh', '-lc', command]), {
       timeout: 10 * 60 * 1000,
       maxBuffer: 4 * 1024 * 1024,
     });
@@ -632,9 +637,7 @@ async function preview(instance, pathname = '/') {
     throw httpErr(400, 'invalid preview path');
   const marker = '__FD_HTTP_STATUS__:';
   const r = await docker(
-    [
-      'exec',
-      containerName(instance),
+    sandboxExecCommand(instance, [
       'curl',
       '-sS',
       '-L',
@@ -643,7 +646,7 @@ async function preview(instance, pathname = '/') {
       '-w',
       `\n${marker}%{http_code}`,
       `http://127.0.0.1:${DEV_PORT_IN_CONTAINER}${pathname}`,
-    ],
+    ]),
     { timeout: 20000 }
   );
   const at = r.stdout.lastIndexOf(`\n${marker}`);
@@ -671,9 +674,7 @@ async function browserAudit(root, instance, site) {
     // invocation isolated, including the Lighthouse browser below.
     const profile = `/tmp/fd-browser-profile-${instance}-${name.replace(/[^a-z0-9]+/gi, '-')}`;
     const r = await docker(
-      [
-        'exec',
-        containerName(instance),
+      sandboxExecCommand(instance, [
         'timeout',
         '--signal=TERM',
         '--kill-after=5s',
@@ -695,7 +696,7 @@ async function browserAudit(root, instance, site) {
         '--window-size=1440,1000',
         `--screenshot=/home/dev/persist/${name}`,
         url,
-      ],
+      ]),
       { timeout: 60000 }
     );
     screenshotResults[name] = {
@@ -717,9 +718,7 @@ async function browserAudit(root, instance, site) {
   }
   const lighthouseFile = path.join(persistDir, 'lighthouse.json');
   const lh = await docker(
-    [
-      'exec',
-      containerName(instance),
+    sandboxExecCommand(instance, [
       'timeout',
       '--signal=TERM',
       '--kill-after=10s',
@@ -730,7 +729,7 @@ async function browserAudit(root, instance, site) {
       '--output=json',
       '--output-path=/home/dev/persist/lighthouse.json',
       `--chrome-flags=--headless --no-sandbox --disable-gpu --disable-background-networking --disable-extensions --disable-component-update --no-zygote --renderer-process-limit=1 --user-data-dir=/tmp/fd-browser-profile-${instance}-lighthouse`,
-    ],
+    ]),
     { timeout: 3 * 60 * 1000, maxBuffer: 2 * 1024 * 1024 }
   );
   let scores = {};
@@ -909,6 +908,7 @@ module.exports = {
   sandboxNetworkName,
   sandboxSecurityArgs,
   sandboxRuntimeEnvironment,
+  sandboxExecCommand,
   parsePublishedPorts,
   runningPublishedPorts,
   stats,

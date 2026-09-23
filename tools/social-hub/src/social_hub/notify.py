@@ -220,15 +220,23 @@ def notify_published(post: dict) -> bool:
     preview = re.sub(r"\s+", " ", str(post.get("body") or "")).strip()
     if len(preview) > 280:
         preview = preview[:279].rstrip() + "…"
-    block_text = (
+    header_text = (
         f":white_check_mark: *{_slack_escape(label)} post published* for "
         f"*{_slack_escape(site)}*"
     )
+    blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": header_text}}]
     if preview:
-        block_text += f"\n>{_slack_escape(preview)}"
-    block_text += f"\n{' · '.join(link for link in links if link)}"
+        blocks.append(
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f">{_slack_escape(preview)}"},
+            }
+        )
+    link_text = " · ".join(link for link in links if link)
+    if link_text:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": link_text}})
     return post_message(
         site,
         text,
-        [{"type": "section", "text": {"type": "mrkdwn", "text": block_text}}],
+        blocks,
     )

@@ -77,7 +77,8 @@ fi
 CLAUDE_TRACKED="$REPO_ROOT/.monorepo-tools/scripts/claude-tracked.sh"
 [[ -x "$CLAUDE_TRACKED" ]] || CLAUDE_TRACKED="$REPO_ROOT/../../tools/scripts/claude-tracked.sh"
 
-log() { echo "[$(date -Iseconds)] run-engineer: $*" | tee -a "$LOG"; }
+# run-role.sh owns the single stdout -> log append; do not append here too.
+log() { echo "[$(date -Iseconds)] run-engineer: $*"; }
 slack() { [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" "$1" "${2:-good}" 2>/dev/null || true; }
 
 # Time-based per-site work lock (atomic mkdir). acquire returns 0 on success.

@@ -323,7 +323,11 @@ except Exception: print("(could not fetch build log)")' 2>/dev/null)"
 
   if [ "$BUILD_CONFIRMED" != "1" ] && [ "${DEPLOY_ALLOW_UNCONFIRMED_BUILD:-0}" != "1" ]; then
     log "FAIL: could not confirm a successful Cloudflare build for ${PUSHED_SHA:0:8} — refusing to smoke-test an unknown deployment"
-    notify_role --status fail --headline "Deploy verification unavailable — matching Cloudflare build not confirmed" --files "${FILES[@]}"
+    notify_role --status fail \
+      --headline "Cloudflare build confirmation timed out after 12m — deployment status unknown; next deployer tick will retry" \
+      --detail "Push: ${PUSHED_SHA:0:8}; no matching successful Workers Build was returned by the API" \
+      --detail "Action: do not assume this release is live; inspect the CF build for this commit or wait for the retry" \
+      --files "${FILES[@]}"
     emit_incident --class cf-build-unconfirmed --summary "no successful Cloudflare build confirmed for ${PUSHED_SHA:0:8}"
     exit 1
   fi

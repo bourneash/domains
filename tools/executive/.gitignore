@@ -6,6 +6,7 @@ data/reports/
 data/intelligence/
 data/usage/
 data/data-requests/
+data/failures/
 data/domain-manager-dispatch.json
 data/.run.*
 logs/

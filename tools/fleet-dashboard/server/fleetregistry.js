@@ -15,6 +15,7 @@ function read(root) {
       repo: row.repo || null,
       worker: row.worker || null,
       capabilities: Array.isArray(row.capabilities) ? row.capabilities : [],
+      disabled_task_roles: Array.isArray(row.disabled_task_roles) ? row.disabled_task_roles : [],
       registered_in: Array.isArray(row.registered_in) ? row.registered_in : [],
     }));
     return { ok: true, file, sites, byDomain: Object.fromEntries(sites.map(s => [s.domain, s])) };

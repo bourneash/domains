@@ -94,7 +94,10 @@ args+=( "$IMAGE" node /app/tools/executive/model-runner.js )
 # Use the BusyBox-compatible timeout flags available in fleet-cron as well as
 # GNU coreutils. The long GNU spellings make the dispatcher fail before the
 # isolated model container starts on the production scheduler image.
+set +e
 timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker "${args[@]}"
+MODEL_STATUS=$?
+set -e
 
 # Preserve the model's bounded, non-secret usage estimate outside the transient
 # exchange directory. This gives the dashboard/auditor a per-cycle record even
@@ -103,6 +106,54 @@ if [[ -s "$RUN_DIR/output/usage.json" ]]; then
   USAGE_DIR="$ROOT/tools/executive/data/usage"
   mkdir -m 700 -p "$USAGE_DIR"
   cp "$RUN_DIR/output/usage.json" "$USAGE_DIR/usage-$(date -u +%Y%m%dT%H%M%SZ)-$$.json"
+fi
+
+if [[ "$MODEL_STATUS" -ne 0 ]]; then
+  FAILURE_DIR="$ROOT/tools/executive/data/failures"
+  mkdir -m 700 -p "$FAILURE_DIR"
+  if [[ -s "$RUN_DIR/output/failure.json" ]]; then
+    cp "$RUN_DIR/output/failure.json" "$FAILURE_DIR/failure-$(date -u +%Y%m%dT%H%M%SZ)-$$.json"
+  fi
+  # The trusted host records a failed tick even when the isolated provider
+  # exits before it can produce a plan. This preserves the historical failure
+  # without allowing partial or malformed model output into applyPlan().
+  node - "$ROOT" "$MODEL_STATUS" "$RUN_DIR/output/failure.json" <<'NODE'
+const fs = require('node:fs');
+const root = process.argv[2];
+const exitCode = Number(process.argv[3]);
+const failureFile = process.argv[4];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
+const store = eventstore.open(root);
+try {
+  let details = { error: `isolated executive model exited with status ${exitCode}` };
+  try {
+    if (fs.existsSync(failureFile)) details = JSON.parse(fs.readFileSync(failureFile, 'utf8'));
+  } catch {
+    /* Keep the exit-code audit when the provider did not write diagnostics. */
+  }
+  const audit = executive.action(store, {
+    actor: 'system',
+    action_type: 'tick',
+    summary: 'Executive isolated model run failed before plan application',
+    target_type: 'executive-model-run',
+    target_id: `sandbox-${process.pid}`,
+  });
+  executive.finishAction(store, audit.action_id, {
+    status: 'failed',
+    error: String(details.error || `isolated executive model exited with status ${exitCode}`),
+    result: {
+      exit_code: exitCode,
+      passes_completed: Array.isArray(details.passes_completed) ? details.passes_completed.length : 0,
+      estimated_total_tokens: Number(details.usage?.estimated_total_tokens || 0),
+      failure_artifact: fs.existsSync(failureFile) ? failureFile : null,
+    },
+  });
+} finally {
+  store.close();
+}
+NODE
+  exit "$MODEL_STATUS"
 fi
 
 [[ -s "$RUN_DIR/output/plan.json" ]] || { echo "executive model produced no plan" >&2; exit 1; }

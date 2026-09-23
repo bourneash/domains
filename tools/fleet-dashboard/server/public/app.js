@@ -298,6 +298,11 @@ function healthCell(h) {
   const tip = `last 24h: ${ok} healthy · ${bad} issue · ${miss} missed (of ${shown} runs) · 3-day coverage ${h.coverage}%`;
   return `<span class="hcell" title="${esc(tip)}">${healthBar(tl)}<span class="${cls} hpct">${pct}%</span></span>`;
 }
+function agentHealthCell(h) {
+  if (!h) return '<span class="muted">—</span>';
+  const detail = `${h.expected} expected · ${h.observed} observed · ${h.failed} failed · ${h.missed} missed · ${fmtUSD(h.costUsd)} AI cost${h.drift ? ' · prompt/runner drift' : ''}`;
+  return `<span class="agent-health-summary" title="${esc(detail)}"><b>${h.observed}/${h.expected}</b> seen · ${h.failed ? `<span class="flag">${h.failed} fail</span>` : '0 fail'} · ${h.missed ? `<span class="flag">${h.missed} miss</span>` : '0 miss'}<br><span class="muted">${fmtUSD(h.costUsd)}${h.drift ? ' · drift' : ''}</span></span>`;
+}
 
 async function renderEngineers() {
   const app = $('#app');
@@ -318,6 +323,7 @@ async function renderEngineers() {
     return;
   }
   const histBy = Object.fromEntries(hist.map(h => [h.site, h]));
+  const healthBy = Object.fromEntries((healthData?.rows || []).map(h => [h.site, h]));
 
   const eng = rows.filter(r => r.engineer);
   const tiers = {};
@@ -338,6 +344,7 @@ async function renderEngineers() {
   const body = rows
     .map(r => {
       const h = histBy[r.site];
+      const ah = healthBy[r.site];
       const cf =
         r.cf == null
           ? '<span class="muted">—</span>'
@@ -364,6 +371,9 @@ async function renderEngineers() {
         ? runBtn +
           pauseBtn +
           tasksBtn +
+          (ah
+            ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>`
+            : '') +
           ` <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
         : tasksBtn;
       return `<tr>
@@ -376,10 +386,10 @@ async function renderEngineers() {
       <td class="mono">${r.render ? esc(r.render) : '—'}</td>
       <td>${cf}</td>
       <td class="mono">${r.queue || 0}</td>
-      <td>${cover}</td>
+      <td><div>${cover}</div><div class="agent-health-7d">${agentHealthCell(ah)}</div></td>
       <td>${flagHtml}</td>
       <td class="run-cell">${actions}</td>
-    </tr>`;
+    </tr>${ah ? healthDetailRow(ah, 12) : ''}`;
     })
     .join('');
 
@@ -482,7 +492,7 @@ async function renderEngineers() {
         Hover any column header for the same description.
       </div>
     </div>
-    <div class="card"><table>
+    <div class="card agent-table-wrap"><table class="agent-table">
       <thead><tr>${thead}</tr></thead>
       <tbody>${body}</tbody>
     </table></div>
@@ -546,22 +556,12 @@ function openSiteTasks(site) {
 
 function engineerHealthPanel(data) {
   if (!data) return '';
-  const rows = (data.rows || [])
-    .map(
-      r => `<tr data-fleet-row data-site="${esc(r.site)}">
-    <td>${siteLink(r.site)}</td><td><span class="badge ${r.state === 'fresh' ? 'b-green' : r.state === 'paused' ? 'b-gray' : r.state === 'overdue' ? 'b-red' : 'b-yellow'}">${esc(r.state)}</span></td>
-    <td class="mono">${r.expected}</td><td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td><td class="mono">${r.missed ? `<span class="flag">${r.missed}</span>` : '0'}</td><td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
-    <td class="cn-actions"><button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>${r.worker ? ` <button class="btn sm ag-health-toggle" data-site="${esc(r.site)}" data-role="engineer" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>` : ''}${r.worker && r.enabled ? ` <button class="btn sm ag-health-run" data-site="${esc(r.site)}">▶ Run</button>` : ''}</td>
-  </tr>${healthDetailRow(r)}`
-    )
-    .join('');
   return `<details class="card ag-health" open><summary><strong>Agent health · last ${data.windowDays} days</strong><span class="muted">${data.summary.expected} expected · ${data.summary.missed} missed · ${data.summary.failed} failures · ${fmtUSD(data.summary.costUsd)} AI cost</span></summary>
     <div class="task-toolbar ag-health-toolbar"><span>${data.summary.fresh} fresh · ${data.summary.stale} stale · ${data.summary.overdue} overdue · ${data.summary.paused} paused</span><span>${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
-    <p class="muted ag-health-note">Expected slots come from the active cron schedule. A missed slot means no matching run evidence was found; paused roles are excluded. AI cost comes from the tracked usage ledger.</p>
-    <table><thead><tr><th>Site</th><th>State</th><th>Expected</th><th>Observed</th><th>OK</th><th>Failed</th><th>Missed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="10" class="empty">No enrolled sites.</td></tr>'}</tbody></table></details>`;
+    <p class="muted ag-health-note">The table below combines current enrollment, live status, and seven-day run health. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p></details>`;
 }
 
-function healthDetailRow(row) {
+function healthDetailRow(row, colspan = 10) {
   const failures = (row.failures || []).length
     ? row.failures
         .map(
@@ -579,7 +579,7 @@ function healthDetailRow(row) {
         )
         .join('')
     : '<li class="muted">No expected run slots in this window.</li>';
-  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}"><td colspan="10"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
+  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}"><td colspan="${colspan}"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
 }
 
 function toggleHealthDetail(button) {
@@ -4064,6 +4064,7 @@ async function renderGenericAgent(role) {
   ROLEMATRIX = data;
   AGENT_HEALTH = healthData;
   const rows = data.sites.filter(s => s.cells[role]).map(s => ({ site: s.site, ...s.cells[role] }));
+  const healthBy = Object.fromEntries((healthData?.rows || []).map(h => [h.site, h]));
   const enrolled = new Set(rows.map(r => r.site));
   const notEnrolled = (
     Array.isArray(data.allSites) ? data.allSites : data.sites.map(s => s.site)
@@ -4074,34 +4075,26 @@ async function renderGenericAgent(role) {
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
   const suggestedSchedule = rows[0]?.schedule || '0 */2 * * *';
-  const healthRows = (healthData?.rows || [])
-    .map(
-      r => `<tr data-fleet-row data-site="${esc(r.site)}">
-    <td>${siteLink(r.site)}</td>
-    <td><span class="badge ${r.state === 'fresh' ? 'b-green' : r.state === 'paused' ? 'b-gray' : r.state === 'overdue' ? 'b-red' : 'b-yellow'}">${esc(r.state)}</span></td>
-    <td class="mono">${r.expected}</td><td class="mono">${r.observed}</td><td class="mono">${r.succeeded}</td><td class="mono">${r.failed ? `<span class="flag">${r.failed}</span>` : '0'}</td><td class="mono">${r.missed ? `<span class="flag">${r.missed}</span>` : '0'}</td>
-    <td class="mono">${fmtUSD(r.costUsd)}</td><td>${r.drift ? '<span class="badge b-yellow">drift</span>' : '<span class="muted">—</span>'}</td>
-    <td class="cn-actions"><button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>${r.worker ? ` <button class="btn sm ag-health-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>` : ''}${r.worker && r.enabled ? ` <button class="btn sm ag-health-run" data-site="${esc(r.site)}">▶ Run</button>` : ''}</td>
-  </tr>${healthDetailRow(r)}`
-    )
-    .join('');
   const healthPanel = healthData
     ? `<details class="card ag-health" open>
     <summary><strong>Agent health · last ${healthData.windowDays} days</strong><span class="muted">${healthData.summary.expected} expected · ${healthData.summary.missed} missed · ${healthData.summary.failed} failures · ${fmtUSD(healthData.summary.costUsd)} AI cost</span></summary>
     <div class="task-toolbar ag-health-toolbar"><span>${healthData.summary.fresh} fresh · ${healthData.summary.stale} stale · ${healthData.summary.overdue} overdue · ${healthData.summary.paused} paused</span><span>${healthData.summary.expected} expected · ${healthData.summary.observed} observed · ${healthData.summary.missed} missed</span><span>${healthData.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
-    <p class="muted ag-health-note">Expected slots come from the active cron schedule. A missed slot means no matching run evidence was found; paused roles are excluded. AI cost comes from the tracked usage ledger.</p>
-    <table><thead><tr><th>Site</th><th>State</th><th>Expected</th><th>Observed</th><th>OK</th><th>Failed</th><th>Missed</th><th>AI cost</th><th>Drift</th><th>Actions</th></tr></thead><tbody>${healthRows || '<tr><td colspan="10" class="empty">No enrolled sites.</td></tr>'}</tbody></table>
+    <p class="muted ag-health-note">The table below combines current enrollment, live status, and seven-day run health. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p>
   </details>`
     : '';
 
   const body = rows
     .map(r => {
+      const h = healthBy[r.site];
       const runBtn = r.worker
         ? `<button class="btn sm ag-run" data-site="${esc(r.site)}">▶ Run</button>`
         : '';
       const ctrl = r.worker
         ? `${runBtn} <button class="btn sm ${r.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>`
         : '<span class="muted" style="font-size:11px">not controllable</span>';
+      const healthDetails = h
+        ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>`
+        : '';
       const badge = !r.enabled
         ? '<span class="badge b-gray">paused</span>'
         : r.state === 'fresh'
@@ -4114,9 +4107,10 @@ async function renderGenericAgent(role) {
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted">${esc(r.schedule)}</td>
-      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}">📜 Logs</button> ${ctrl} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(role)}">Remove</button></td>
-    </tr>
-    <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="5"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
+      <td>${agentHealthCell(h)}</td>
+      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(role)}">Remove</button></td>
+    </tr>${h ? healthDetailRow(h, 6) : ''}
+    <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="6"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
     })
     .join('');
 
@@ -4137,9 +4131,9 @@ async function renderGenericAgent(role) {
       }
     </div>
     ${healthPanel}
-    <div class="card"><table>
-      <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Schedule</th><th>Actions</th></tr></thead>
-      <tbody>${body || '<tr><td colspan="5" class="empty">No sites currently run this agent.</td></tr>'}</tbody>
+    <div class="card agent-table-wrap"><table class="agent-table">
+      <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Schedule</th><th>Health · 7d</th><th>Actions</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="6" class="empty">No sites currently run this agent.</td></tr>'}</tbody>
     </table></div>
     <p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site. ← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
 

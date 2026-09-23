@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-23T02:25:00.457Z",
+  "updated_at": "2026-09-23T13:04:00.386Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -1439,13 +1439,14 @@
         "routine_fleet_review"
       ],
       "report_id": "484c8e5c-0466-41a8-a771-ef3fb7ff33d5",
-      "status": "running",
+      "status": "failed",
       "attempts": 3,
       "requested_at": "2026-09-22T10:11:00.124Z",
       "next_attempt_at": "2026-09-22T22:25:36.751Z",
-      "lease_until": "2026-09-23T02:55:00.403Z",
-      "last_error": "(node:127527) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid proposal review in provider plan\n",
-      "claimed_at": "2026-09-23T02:25:00.403Z"
+      "lease_until": null,
+      "last_error": "building domains-executive-runner:latest from current executive source (dbc0e4fcd2ce2851e8d86563ced130a957475be8a8f72957dbb85f172ed7faf0)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\n(node:154982) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid proposal review in provider plan at index 0 (reviewed_by=reviewer, status=, proposal_id=current-ceo-seo-batch)\n",
+      "claimed_at": "2026-09-23T02:25:00.403Z",
+      "failed_at": "2026-09-23T02:26:05.786Z"
     },
     {
       "job_id": "83555ef9-3138-4807-8e9b-396c42db93fe",
@@ -1455,13 +1456,14 @@
         "routine_fleet_review"
       ],
       "report_id": "484c8e5c-0466-41a8-a771-ef3fb7ff33d5",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-22T10:11:00.124Z",
       "next_attempt_at": "2026-09-22T22:28:08.767Z",
       "lease_until": null,
-      "last_error": "(node:128432) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\nCannot create property 'actor' on string 'Recommendation: reject both Seed to Sauce proposals this cycle. The measurement proposal is high-priority production/configuration work requiring owner access while fleet analytics is unavailable; the linking test lacks a measurable baseline and would be premature. Keep both unqueued and authorize no credentials, configuration, deployment, content, or spend changes. Will the owner defer both proposals until telemetry and release-readiness evidence are available?'\n",
-      "claimed_at": "2026-09-22T16:26:00.558Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:27:00.368Z",
+      "completed_at": "2026-09-23T02:28:40.351Z"
     },
     {
       "job_id": "56426020-7a5f-48a8-95be-990199ae2bfc",
@@ -1471,13 +1473,14 @@
         "routine_fleet_review"
       ],
       "report_id": "484c8e5c-0466-41a8-a771-ef3fb7ff33d5",
-      "status": "queued",
-      "attempts": 2,
+      "status": "failed",
+      "attempts": 3,
       "requested_at": "2026-09-22T10:11:00.124Z",
       "next_attempt_at": "2026-09-22T22:29:45.022Z",
       "lease_until": null,
-      "last_error": "(node:129660) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid proposal review in provider plan\n",
-      "claimed_at": "2026-09-22T16:29:03.111Z"
+      "last_error": "(node:156856) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid proposal review in provider plan at index 0 (reviewed_by=reviewer, status=, proposal_id=seo-batch-xxxtea-marineactivity-fishhooklabs)\n",
+      "claimed_at": "2026-09-23T02:29:00.607Z",
+      "failed_at": "2026-09-23T02:29:42.545Z"
     },
     {
       "job_id": "b09892f2-5614-4ed1-ba5d-1995258a30c3",
@@ -1487,13 +1490,14 @@
         "routine_fleet_review"
       ],
       "report_id": "484c8e5c-0466-41a8-a771-ef3fb7ff33d5",
-      "status": "queued",
-      "attempts": 2,
+      "status": "failed",
+      "attempts": 3,
       "requested_at": "2026-09-22T10:11:00.124Z",
       "next_attempt_at": "2026-09-22T22:30:48.697Z",
       "lease_until": null,
-      "last_error": "(node:130831) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive message in provider plan\n",
-      "claimed_at": "2026-09-22T16:30:00.317Z"
+      "last_error": "(node:158825) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid proposal review in provider plan at index 0 (reviewed_by=reviewer, status=, proposal_id=ceo-seo-batch)\n",
+      "claimed_at": "2026-09-23T02:30:00.366Z",
+      "failed_at": "2026-09-23T02:30:45.064Z"
     },
     {
       "job_id": "cfa0e415-980f-4df9-b941-132ad72d3653",
@@ -226797,11 +226801,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T14:32:49.926Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:490273) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n",
+      "claimed_at": "2026-09-23T08:32:00.327Z"
     },
     {
       "job_id": "cb8482c8-dd92-4b08-9ab1-5da50aea9537",
@@ -226812,11 +226817,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T14:34:02.318Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:490812) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n",
+      "claimed_at": "2026-09-23T08:33:00.379Z"
     },
     {
       "job_id": "9c94713d-4e35-4c14-a906-c503deeeb681",
@@ -226826,12 +226832,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:33:55.146Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:35:00.319Z",
+      "completed_at": "2026-09-23T08:35:49.495Z"
     },
     {
       "job_id": "1b6b1b5c-70ae-4263-ba0e-9b4fa2e91a7b",
@@ -226841,12 +226849,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:34:00.431Z",
+      "completed_at": "2026-09-23T02:35:36.024Z"
     },
     {
       "job_id": "ac480696-f755-48cb-9bc9-c006fa52438e",
@@ -226856,12 +226866,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:36:00.536Z",
+      "completed_at": "2026-09-23T02:37:18.905Z"
     },
     {
       "job_id": "a4940626-7326-4f1c-bea9-dbd5bf6f549b",
@@ -226872,11 +226884,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T14:39:59.721Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "building domains-executive-runner:latest from current executive source (5099dad11c0110c73e93a2ba63bd9b6e8c6b304817f220286bdac0c8c50d889a)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\n(node:494297) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
+      "claimed_at": "2026-09-23T08:39:00.418Z"
     },
     {
       "job_id": "1f1c1e74-591b-47af-ade6-384206889819",
@@ -226887,11 +226900,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T14:40:56.268Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:495648) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
+      "claimed_at": "2026-09-23T08:40:00.358Z"
     },
     {
       "job_id": "c8178ed2-0d84-4774-aea2-90dc4e9cea9f",
@@ -226901,12 +226915,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:40:55.797Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:41:00.355Z",
+      "completed_at": "2026-09-23T08:41:39.579Z"
     },
     {
       "job_id": "6a5ab5cd-11b5-4205-8979-175c6fe485a4",
@@ -226916,12 +226932,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:42:21.617Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:43:00.334Z",
+      "completed_at": "2026-09-23T08:43:38.287Z"
     },
     {
       "job_id": "789d7d2b-6d2e-4923-83fb-0515726a192e",
@@ -226931,12 +226949,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:43:56.401Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:44:00.342Z",
+      "completed_at": "2026-09-23T08:44:46.117Z"
     },
     {
       "job_id": "e7a0a88f-f2a1-4546-9263-4b721eefd103",
@@ -226946,12 +226966,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:44:00.353Z",
+      "completed_at": "2026-09-23T02:45:35.640Z"
     },
     {
       "job_id": "c43a9024-0b73-4622-81f2-3bb1841e7049",
@@ -226961,12 +226983,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:46:48.138Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:47:00.350Z",
+      "completed_at": "2026-09-23T08:47:41.382Z"
     },
     {
       "job_id": "9dbd26f6-17dd-4df2-be0a-a3d798d0dfe4",
@@ -226976,12 +227000,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:47:52.968Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:48:00.331Z",
+      "completed_at": "2026-09-23T08:48:52.140Z"
     },
     {
       "job_id": "41adc3f1-93e1-4ec7-86a1-c4a068afeb09",
@@ -226991,12 +227017,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:48:00.318Z",
+      "completed_at": "2026-09-23T02:49:27.100Z"
     },
     {
       "job_id": "523219b3-b329-4e8f-8d35-fadcd8f83a81",
@@ -227006,12 +227034,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:50:03.479Z",
+      "completed_at": "2026-09-23T02:51:56.793Z"
     },
     {
       "job_id": "cd8a9f86-b553-48db-8cf2-68d2957d50a3",
@@ -227021,12 +227051,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:52:50.861Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:53:00.349Z",
+      "completed_at": "2026-09-23T08:53:53.377Z"
     },
     {
       "job_id": "ed2a8903-f0f3-4369-8152-7eb8e07405ed",
@@ -227036,12 +227068,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:53:53.151Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:54:00.319Z",
+      "completed_at": "2026-09-23T08:55:05.408Z"
     },
     {
       "job_id": "f6628148-966e-449c-aefe-26ed6192e2f5",
@@ -227051,12 +227085,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:54:44.458Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:56:00.345Z",
+      "completed_at": "2026-09-23T08:56:47.158Z"
     },
     {
       "job_id": "0fc4279b-0c4c-48dd-a15c-b77bfab65a9f",
@@ -227066,12 +227102,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T08:56:03.804Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:57:00.356Z",
+      "completed_at": "2026-09-23T08:57:43.721Z"
     },
     {
       "job_id": "49cc4de5-25f7-4056-b9af-a17e3c04e642",
@@ -227081,13 +227119,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 1,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T08:16:43.133Z",
       "lease_until": null,
-      "last_error": "(node:144214) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid proposal review in provider plan\n",
-      "claimed_at": "2026-09-23T02:16:00.456Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T08:17:00.344Z",
+      "completed_at": "2026-09-23T08:18:10.296Z"
     },
     {
       "job_id": "93f85cfb-b5ef-4b6f-8238-5697fec3072a",
@@ -227098,11 +227137,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T14:58:44.264Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:510331) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid work item in provider plan\n",
+      "claimed_at": "2026-09-23T08:58:00.346Z"
     },
     {
       "job_id": "777a906c-a038-4d3d-99d6-7c46a448d734",
@@ -227113,11 +227153,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T14:59:52.304Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:510860) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
+      "claimed_at": "2026-09-23T08:59:00.368Z"
     },
     {
       "job_id": "00c24b39-1381-4540-b5aa-fb15d13958cf",
@@ -227127,12 +227168,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T02:59:00.341Z",
+      "completed_at": "2026-09-23T03:01:04.472Z"
     },
     {
       "job_id": "785734bb-2b11-4920-84c8-83f4ce9c9586",
@@ -227142,12 +227185,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:02:41.740Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:03:00.329Z",
+      "completed_at": "2026-09-23T09:03:49.743Z"
     },
     {
       "job_id": "67b63db4-16ea-42e1-b798-9eb0ee6c2c87",
@@ -227157,12 +227202,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:03:47.159Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:04:00.357Z",
+      "completed_at": "2026-09-23T09:04:51.925Z"
     },
     {
       "job_id": "0bd33086-4e15-4db2-8e91-9868b858ee2d",
@@ -227172,12 +227219,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:04:43.766Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:05:00.415Z",
+      "completed_at": "2026-09-23T09:05:54.508Z"
     },
     {
       "job_id": "5fa63318-a606-4198-8fb8-fe7ef6511caf",
@@ -227187,12 +227236,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:05:00.329Z",
+      "completed_at": "2026-09-23T03:06:33.096Z"
     },
     {
       "job_id": "021a8a19-4879-4962-9010-0140c3f03344",
@@ -227202,12 +227253,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:07:52.544Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:08:00.366Z",
+      "completed_at": "2026-09-23T09:08:49.995Z"
     },
     {
       "job_id": "f55242e1-7508-4d69-a870-8619e60a1701",
@@ -227218,11 +227271,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T15:09:44.938Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:518692) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
+      "claimed_at": "2026-09-23T09:09:00.352Z"
     },
     {
       "job_id": "843ed5c1-4bdd-4010-94bb-deb2b4d8c68a",
@@ -227232,12 +227286,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:09:00.350Z",
+      "completed_at": "2026-09-23T03:10:42.529Z"
     },
     {
       "job_id": "904d9154-88ae-4a56-9218-1fa4104228f8",
@@ -227247,12 +227303,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:11:41.081Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:12:00.534Z",
+      "completed_at": "2026-09-23T09:12:52.705Z"
     },
     {
       "job_id": "0cb5dda5-84d1-4fbd-9347-fbdd5584d116",
@@ -227262,12 +227320,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:12:00.354Z",
+      "completed_at": "2026-09-23T03:13:42.809Z"
     },
     {
       "job_id": "50e94f8a-b01a-419b-8e1a-abb659cb477b",
@@ -227277,12 +227337,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:14:00.329Z",
+      "completed_at": "2026-09-23T03:15:37.513Z"
     },
     {
       "job_id": "c19937d8-0f5c-451b-90a0-9654c8de8e44",
@@ -227292,12 +227354,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:16:42.028Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:17:00.351Z",
+      "completed_at": "2026-09-23T09:17:44.117Z"
     },
     {
       "job_id": "4d93544a-d68c-40fa-8ba7-a8850b477254",
@@ -227307,12 +227371,14 @@
         "high_priority_seo_actions"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:17:00.335Z",
+      "completed_at": "2026-09-23T03:19:11.512Z"
     },
     {
       "job_id": "b8833dcc-e9fc-4fc5-bacf-42968d833a79",
@@ -227323,11 +227389,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T15:21:58.135Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "e when supplied\n  ---\n  duration_ms: 2.049689\n  type: 'test'\n  ...\n# Subtest: controller controls and learning reviews stay behind the hub proxy\nok 364 - controller controls and learning reviews stay behind the hub proxy\n  ---\n  duration_ms: 1.072811\n  type: 'test'\n  ...\n# Subtest: task serialization preserves lineage and measurement fields\nok 365 - task serialization preserves lineage and measurement fields\n  ---\n  duration_ms: 6.853974\n  type: 'test'\n  ...\n# Subtest: moving a task records lifecycle timestamps\nok 366 - moving a task records lifecycle timestamps\n  ---\n  duration_ms: 2.997376\n  type: 'test'\n  ...\n# Subtest: SEO tasks always start with the SEO analyst\nok 367 - SEO tasks always start with the SEO analyst\n  ---\n  duration_ms: 2.560692\n  type: 'test'\n  ...\n# Subtest: site-aware routing uses an installed equivalent role\nok 368 - site-aware routing uses an installed equivalent role\n  ---\n  duration_ms: 0.33067\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 369 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 3.36698\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 370 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.230647\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 371 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.007753\n  type: 'test'\n  ...\n1..371\n# tests 371\n# suites 0\n# pass 370\n# fail 0\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 12154.622376\ntools/executive/runner.js 278ms (unchanged)\ntools/fleet-dashboard/server/executive-scorecard.js 37ms (unchanged)\ntools/fleet-dashboard/server/executive-scorecard.test.js 13ms (unchanged)\nfatal: cannot lock ref 'HEAD': is at ff7a05d57bdcf168ebea9e5c22368daf8e2a5659 but expected 0693c11f2406b93fa6ef6627d15582cc8e44c8b7\n",
+      "claimed_at": "2026-09-23T09:21:00.660Z"
     },
     {
       "job_id": "40c1e08e-7742-4859-9701-1b76e4d6cb9b",
@@ -227337,12 +227404,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:21:00.363Z",
+      "completed_at": "2026-09-23T03:22:47.458Z"
     },
     {
       "job_id": "7298e9f4-f6ab-4717-8c66-bc819bcc5e03",
@@ -227352,12 +227421,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:23:57.501Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:24:00.355Z",
+      "completed_at": "2026-09-23T09:24:44.395Z"
     },
     {
       "job_id": "fc3c04b5-7a80-431b-ba79-fe0d57aa5f10",
@@ -227367,12 +227438,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:24:00.330Z",
+      "completed_at": "2026-09-23T03:25:56.427Z"
     },
     {
       "job_id": "9434766f-c0da-4855-a36b-496a343c4126",
@@ -227382,12 +227455,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:26:42.620Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:27:00.356Z",
+      "completed_at": "2026-09-23T09:27:49.224Z"
     },
     {
       "job_id": "00165b7f-ade7-413b-be70-486584836406",
@@ -227398,11 +227473,12 @@
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
       "status": "queued",
-      "attempts": 0,
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T15:28:48.054Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": "(node:534017) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n",
+      "claimed_at": "2026-09-23T09:28:00.327Z"
     },
     {
       "job_id": "1ded0692-c96a-483e-8e5a-c126eb1d060f",
@@ -227412,12 +227488,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:28:00.368Z",
+      "completed_at": "2026-09-23T03:29:37.064Z"
     },
     {
       "job_id": "43816646-1072-4a5a-a1ce-febe926aef80",
@@ -227427,12 +227505,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:30:59.457Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:31:00.492Z",
+      "completed_at": "2026-09-23T09:31:53.015Z"
     },
     {
       "job_id": "65ff4238-0b17-4963-8371-2ee5b396a492",
@@ -227442,12 +227522,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:31:55.597Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:32:00.321Z",
+      "completed_at": "2026-09-23T09:32:55.157Z"
     },
     {
       "job_id": "a572f825-1c08-4904-a9f4-f706620752d8",
@@ -227457,12 +227539,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:32:45.642Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:33:00.330Z",
+      "completed_at": "2026-09-23T09:33:39.095Z"
     },
     {
       "job_id": "89839a3b-52e2-4a68-ad0f-973733b270e1",
@@ -227472,12 +227556,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:33:53.168Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:34:00.352Z",
+      "completed_at": "2026-09-23T09:34:40.906Z"
     },
     {
       "job_id": "4b459c60-468d-4e7a-baeb-bdbba8a48faa",
@@ -227487,12 +227573,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T02:15:00.180Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:34:00.334Z",
+      "completed_at": "2026-09-23T03:35:21.040Z"
     },
     {
       "job_id": "44596de8-56b6-41f3-a5f6-2294cdf59211",
@@ -227502,12 +227590,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:36:30.039Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:37:00.312Z",
+      "completed_at": "2026-09-23T09:37:53.427Z"
     },
     {
       "job_id": "9c03f1bb-dad4-412b-9b04-efd50dea56af",
@@ -227517,12 +227607,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-23T02:15:00.180Z",
-      "next_attempt_at": "2026-09-23T02:15:00.180Z",
+      "next_attempt_at": "2026-09-23T09:37:35.199Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T09:38:00.335Z",
+      "completed_at": "2026-09-23T09:38:51.844Z"
     },
     {
       "job_id": "4fbd8c34-8d72-4d97-b532-607e062b79b0",
@@ -227532,12 +227624,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:18:00.948Z",
       "next_attempt_at": "2026-09-23T02:18:00.948Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:38:00.348Z",
+      "completed_at": "2026-09-23T03:39:31.470Z"
     },
     {
       "job_id": "a5d84417-9755-4d57-afdc-8a342bb805d2",
@@ -227547,12 +227641,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:18:00.948Z",
       "next_attempt_at": "2026-09-23T02:18:00.948Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:40:00.420Z",
+      "completed_at": "2026-09-23T03:40:51.788Z"
     },
     {
       "job_id": "1b04e40e-e4ba-4889-bd39-2a6d440a22df",
@@ -227562,12 +227658,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:20:00.160Z",
       "next_attempt_at": "2026-09-23T02:20:00.160Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:41:00.429Z",
+      "completed_at": "2026-09-23T03:42:25.233Z"
     },
     {
       "job_id": "b59c61fb-c01f-40af-adc7-f60293b9b92a",
@@ -227577,12 +227675,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:22:00.390Z",
       "next_attempt_at": "2026-09-23T02:22:00.390Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:43:00.338Z",
+      "completed_at": "2026-09-23T03:43:38.577Z"
     },
     {
       "job_id": "7db8d2c9-b199-436d-8855-f3930739e4f6",
@@ -227592,12 +227692,65 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 0,
+      "status": "completed",
+      "attempts": 1,
       "requested_at": "2026-09-23T02:23:00.311Z",
       "next_attempt_at": "2026-09-23T02:23:00.311Z",
       "lease_until": null,
-      "last_error": null
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:44:00.332Z",
+      "completed_at": "2026-09-23T03:45:36.583Z"
+    },
+    {
+      "job_id": "614b430f-b61c-4f88-a259-8066e4923911",
+      "fingerprint": "71ef498ab24b457b8edcf7fbf226933a57b90adc223715cab1dfdc8ca8943f87",
+      "site": "saveusfarms.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-23T02:27:00.170Z",
+      "next_attempt_at": "2026-09-23T02:27:00.170Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:46:00.475Z",
+      "completed_at": "2026-09-23T03:46:44.300Z"
+    },
+    {
+      "job_id": "c879d0e5-54eb-4cd0-8c2f-8e7ffbff4587",
+      "fingerprint": "b71e392c9eeca76627c5e2f90aa8302fd3200de43906ef62c60aebec9b7e6a18",
+      "site": "shoptopless.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-23T02:30:00.169Z",
+      "next_attempt_at": "2026-09-23T02:30:00.169Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:47:00.325Z",
+      "completed_at": "2026-09-23T03:47:52.238Z"
+    },
+    {
+      "job_id": "618facee-a49e-425e-9dde-8764fed2fd2b",
+      "fingerprint": "fd4ffa7074ac495d1ccb0025135cd98c738a0c6d6796f0cfe2c762fbc455beca",
+      "site": "totaljerks.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-23T02:31:00.158Z",
+      "next_attempt_at": "2026-09-23T02:31:00.158Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-23T03:48:00.343Z",
+      "completed_at": "2026-09-23T03:48:44.783Z"
     }
   ]
 }

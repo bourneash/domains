@@ -60,6 +60,9 @@ defaults:
 per_site_vault:
   - CLOUDFLARE_API_TOKEN
   - CLOUDFLARE_API_READ_TOKEN
+  # Optional least-privilege token for deploy-time Workers Builds reads.
+  # Sites fall back to CLOUDFLARE_API_TOKEN until this is provisioned.
+  - CLOUDFLARE_BUILDS_READ_TOKEN
   # Authenticates a container to tools/cf-broker, which performs the Cloudflare
   # READS deploy.sh needs and holds the Cloudflare credential itself. The broker
   # derives the site from this token, so it is also the container's identity —

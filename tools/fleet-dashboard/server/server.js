@@ -90,7 +90,7 @@ const AUTOMATIC_REVIEW_HANDOFF_GRACE_MS = 2 * 60 * 1000;
 // Bump this when the validation harness changes. A preserved implementation
 // may then receive one bounded revalidation automatically, without reopening
 // the same infrastructure failure on every queue pulse.
-const INFRASTRUCTURE_REVALIDATION_VERSION = 'ipv4-preview-v1';
+const INFRASTRUCTURE_REVALIDATION_VERSION = 'ipv4-preview-v2';
 // Recovery inspects historical failed work and may need Docker/Git probes.
 // It must not hold the normal queue pickup path hostage when an old worker or
 // container is slow; the recovery lock keeps the long pass single-flight.
@@ -131,11 +131,16 @@ function shouldAutoRevalidateInfrastructureReview(
   run,
   version = INFRASTRUCTURE_REVALIDATION_VERSION
 ) {
+  const completedReviewerHandoff =
+    run?.state === 'building' &&
+    run.agent?.phase === 'reviewer' &&
+    run.agent?.status === 'completed' &&
+    Number(run.agent?.exit_code) === 0;
   return Boolean(
     request &&
     request.status === 'review' &&
     run &&
-    run.state === 'review' &&
+    (run.state === 'review' || completedReviewerHandoff) &&
     run.outcome?.infrastructure_blocked === true &&
     run.outcome?.infrastructure_revalidation_version !== version
   );

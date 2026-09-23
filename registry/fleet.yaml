@@ -23,6 +23,10 @@ sites:
     - analytics
     - social
     - data-hub
+    # 0daynews uses news-writer for all editorial work; fleet-wide
+    # content-writer routing is not a valid task owner for this site.
+    disabled_task_roles:
+    - content-writer
     analytics:
       ga4_property_id: '544645637'
       ga4_measurement_id: G-F9JRVHH3MW

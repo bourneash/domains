@@ -77,11 +77,14 @@ def test_successful_publish_links_platform_source_and_dashboard(synced, monkeypa
     assert len(calls) == 1
     assert calls[0]["site"] == "alpha.com"
     assert "https://fake/1" in calls[0]["text"]
-    message = calls[0]["blocks"][0]["text"]["text"]
-    assert "<https://fake/1|View on Fake>" in message
-    assert "<https://alpha.com/story|Open linked page>" in message
-    assert "status=posted" in message and "site=alpha.com" in message
-    assert "&lt;with markup&gt;" in message
+    all_block_text = "\n".join(block["text"]["text"] for block in calls[0]["blocks"])
+    assert "<https://fake/1|View on Fake>" in all_block_text
+    assert "<https://alpha.com/story|Open linked page>" in all_block_text
+    assert "status=posted" in all_block_text and "site=alpha.com" in all_block_text
+    assert "&lt;with markup&gt;" in all_block_text
+    assert len(calls[0]["blocks"]) == 3
+    assert calls[0]["blocks"][0]["text"]["text"].endswith("*alpha.com*")
+    assert calls[0]["blocks"][1]["text"]["text"].startswith(">")
 
 
 def test_console_previews_and_replies_do_not_create_publish_alerts(monkeypatch):

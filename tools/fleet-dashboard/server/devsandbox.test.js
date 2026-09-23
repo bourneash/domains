@@ -52,6 +52,17 @@ test('browser audit distinguishes sandbox runtime crashes from page failures', (
   );
 });
 
+test('commands in existing developer sandboxes inherit the IPv4-first runtime', () => {
+  assert.deepEqual(devsandbox.sandboxExecCommand('imp-12345678', ['dd-dev', 'status']), [
+    'exec',
+    '-e',
+    'NODE_OPTIONS=--dns-result-order=ipv4first',
+    'dd-imp-12345678',
+    'dd-dev',
+    'status',
+  ]);
+});
+
 test('published-port parsing exposes host bindings so stale allocator state is not reused', () => {
   const ports = devsandbox.parsePublishedPorts(
     '127.0.0.1:7900->4321/tcp, 0.0.0.0:8000-8001->4321/tcp'

@@ -42,7 +42,7 @@ REPORT = Path(__file__).resolve().parent / "MERGE_REPORT.md"
 # Fields a human owns once the file exists — never overwritten by a re-run.
 PRESERVED_KEYS = {
     "status", "tags", "notes", "capabilities_override", "analytics_external",
-    "access_gated",
+    "access_gated", "disabled_task_roles",
 }
 
 # A stored status is a human policy call and is kept — with one exception: a
