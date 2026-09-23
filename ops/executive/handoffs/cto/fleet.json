@@ -2,65 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T15:45:06.238Z",
-  "summary": "cto checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-23T22:07:51.835Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: defer the MarkItDown prototype. The bounded draft-only prototype is technically isolatable, but current execution health is insufficient to justify new research scope: 124 approved proposals lack execution requests, 27 failed requests have open repairs, and 10 deployed improvements await measurement. Reconsider after backlog execution exceeds 50% or with explicit owner prioritization.",
+        "summary": "Recommendation: keep SearchWoot private. Source rights, accuracy, security, and measurement gates remain incomplete; permit only bounded read-only evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep the Great American Lakes pilot in its existing measurement gate through 2026-10-06. Do not add a concurrent CRO or affiliate variant until the existing runs are reconciled. Unavailable revenue and causal lift must remain unavailable.",
+        "summary": "Repair or explicitly close the open marineactivity.com and stinkyleftfoot.com failures using existing evidence, isolated worktrees, deterministic validation, and rollback notes. Do not add high-priority queue work in this pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only bounded, single-site queue work with explicit ownership, isolated diffs, focused validation, and rollback. Do not retry failed work unchanged; repair evidence must identify the defect, validation gate, and rollback before requeue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: retain report-only finance reconciliation. The supplied telemetry supports known-cost and attribution-boundary reporting, but not site-level revenue, margin, CAC, payback, or ROI claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Prioritize repair triage for failed queue work. Requeue only after identifying the smallest defect, validation gate, and rollback. Do not retry failed work unchanged.",
+        "summary": "Pause new production monetization changes until treatment-level clicks, orders, shipped items, commission, AI cost, and measurement windows are registered. Existing deployed work remains in its measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "723c0024-465d-4418-a5c7-3ee30824cd35",
-        "summary": "Defer the MarkItDown prototype while execution and repair backlog remains material. Reconsider only with explicit prioritization or improved backlog execution.",
-        "requested_action": "declined",
+        "summary": "Accept only the already-bounded isolated prototype. No dependency installation, production adoption, deployment, or spend authorization. Record conversion fidelity, operator time saved, failure rate, and incremental cost if available.",
+        "requested_action": "accepted_research",
         "proposal_id": "723c0024-465d-4418-a5c7-3ee30824cd35"
       },
       {
         "kind": "proposal-review",
-        "title": "f36f3531-8140-4277-b64d-f076a3c4b637",
-        "summary": "Accept as report-only reconciliation using existing read-only telemetry. Preserve unavailable fields and distinguish aggregate from site-attributed revenue.",
+        "title": "f82b0ccf-be7e-46b4-835f-887219d10e9d",
+        "summary": "Accept report-only diagnosis of orchestration failures. Do not mutate queue state, schedules, credentials, spending, or production configuration.",
         "requested_action": "accepted_research",
-        "proposal_id": "f36f3531-8140-4277-b64d-f076a3c4b637"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "22e21974-37fa-4ff0-beed-57f69b024dbc",
-        "summary": "Accept as report-only measurement-gap documentation. Do not alter analytics, affiliate settings, billing, budgets, or production.",
-        "requested_action": "accepted_research",
-        "proposal_id": "22e21974-37fa-4ff0-beed-57f69b024dbc"
+        "proposal_id": "f82b0ccf-be7e-46b4-835f-887219d10e9d"
       }
     ]
   }

@@ -2,44 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T15:45:06.237Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T22:07:51.834Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue the Great American Lakes pilot without adding a concurrent CRO variant. Existing improvements remain in measurement through 2026-10-06; the site has 53 sessions, 970 impressions, 3 clicks, and 2 conversions in the 30-day snapshot. The smallest next step is to reconcile the measurement gate, then decide on a single-page affiliate-module test.",
+        "summary": "Recommendation: keep SearchWoot private. Woot's public terms do not establish rights for commercial/public display, derivatives, caching, or alerts; legal, accuracy, security, and measurement gates remain incomplete. Unknown: whether Woot will grant written permission. Smallest next step: choose one—A) authorize preparation of an unsent permission request to Woot, B) keep private with no outreach, or C) end the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: CTO should prioritize repair triage for failed queue work rather than unchanged retries. 27 failed requests and 27 open repair items are recorded; repair evidence must identify the smallest defect, validation gate, and rollback before requeue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private and prioritize execution and repair backlog. Do not approve new production growth, monetization, spending, credentials, or unchanged retries. Continue existing measurement gates and bounded report-only reconciliation.",
+        "summary": "Recommendation: drain failure-repair work before adding further portfolio ideas. Twelve failure follow-ups remain open, 11 improvements await measurement, and zero improvements are proven. CTO/Principal Engineer should repair or explicitly close the marineactivity.com and stinkyleftfoot.com failures with evidence and rollback notes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9",
-        "summary": "Mermaid has plausible fit and MIT licensing, but no executable lab checks were available and its upside is lower priority than backlog repair and the Great American Lakes measurement gate.",
-        "requested_action": "declined",
-        "proposal_id": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae",
-        "summary": "Defer platform-UX adoption while 124 approved proposals remain unexecuted and no fleet-specific conversion evidence supports the change.",
-        "requested_action": "declined",
-        "proposal_id": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae"
+        "title": "68a72895-e4f5-487d-8bb2-f05090f7a3bf",
+        "summary": "Accept bounded metadata-only security evidence capture. Fleet-doctor and core control evidence are unavailable; preserve unknowns and do not access credentials, exploit targets, or change production.",
+        "requested_action": "accepted_research",
+        "proposal_id": "68a72895-e4f5-487d-8bb2-f05090f7a3bf"
       }
     ]
   }

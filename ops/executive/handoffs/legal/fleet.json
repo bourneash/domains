@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T15:45:06.238Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T22:07:51.835Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary fleet growth. Current evidence shows Woot API access but no redistribution, retention, derivative, public-display, alert, affiliate, or advertising rights; Woot public terms point against the proposed commercial/public data product. Keep SearchWoot private. Ordinary growth may continue only where the compliance baseline passes and claims, disclosures, provenance, and monetization rights are evidenced. Human counsel is required for any upstream-rights exception, jurisdictional privacy decision, regulated or age-sensitive use, or future affiliate/advertising expansion.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary managed-fleet growth. Evidence supports continued private operation and bounded read-only evidence work. Public launch is blocked by unresolved Woot redistribution rights, four open data-use reviews, and incomplete accuracy, security, measurement, and owner gates. Fleet compliance evidence is mixed: 37 pass, 16 fail, 6 unknown; 16 banner/consent/GA4 findings and 4 privacy/terms findings remain. Incomplete telemetry is not independently a legal blocker for ordinary growth, but unsupported revenue, attribution, privacy, or rights claims must not be made.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: 0 of 4 SearchWoot legal tasks are closed. Source-rights evidence is materially advanced but remains blocked because current public terms do not grant the required rights and no written permission is recorded. Data-flow and consent evidence are partial; vendor/log and incident evidence are not complete. Next evidence action: produce the repository/deployed-configuration data-flow, retention, log-field, vendor, and consent evidence tables, then prepare—not send—a written Woot permission request for owner and counsel review.",
+        "summary": "Launch-readiness tracking remains active with 0 of 4 tasks closed. No task is closed because the supplied record contains no completed deliverable for source rights, data flow/retention, GA4 consent settings, or vendors/incidents. Next evidence actions: attach the authoritative Woot permission or terms record; produce the repository/deployed data-flow and retention table; capture deployed consent behavior plus GA4 property/data-sharing and retention settings; and produce a metadata-only log/vendor/incident inventory with counsel-required gaps. Do not send outreach, change the private gate, enable tracking, or expand notifications without the applicable approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance baseline is technical triage, not certification: 37 sites pass, 16 fail, and 6 are unknown; open findings include banner, accept/reject controls, GA4, privacy, and terms. Do not treat incomplete telemetry as a legal blocker for ordinary growth, but do not approve new monetization, public launch, regulated claims, age-sensitive exposure, or unsupported provenance/copyright/trademark claims where the applicable site evidence fails or is unknown.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data = blocked because API access is documented but public terms do not establish commercial/public display, derivatives, caching, alerts, affiliate use, or advertising rights. Smallest next action: obtain written SearchWoot-specific permission defining fields, retention, display, alerts, attribution, freshness, correction, and takedown. User alert rules and sync results = evidence_needed; missing inventory, retention, deletion/correction/access workflow, processor terms, consent, and unsubscribe behavior. Smallest next action: produce the read-only data-flow and retention table. GA4 analytics = conditional; the stated consent-gated, measurement-only purpose is potentially supportable, but deployed consent/withdrawal behavior, GA4 settings, retention, vendor disclosure, and jurisdiction review are missing. Smallest next action: capture those settings without enabling new tracking. Operational logs and Cloudflare hosting data = conditional for operational use only; missing log-field inventory, retention/access controls, vendor/DPA review, and incident/request procedures. Smallest next action: produce the metadata-only vendor and log-control inventory. Human counsel is required for the upstream rights question and jurisdiction-specific privacy/terms analysis.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private. Public beta and full launch remain blocked by unresolved source-rights, privacy, accuracy, security, measurement, and owner gates.",
+        "summary": "Affiliate and revenue disposition: do not claim site-level revenue, margin, ROI, or causal lift from the supplied data. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but the $4.92 is an aggregate unattributed row and site-attributed income is $0. Existing affiliate growth may continue only with accurate affiliate disclosures, registered tracking IDs, provenance/rights checks, and measurement boundaries. Future affiliate or advertising use of upstream Woot data requires a separate legal review and may require counsel.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Compliance recommendation for the broader fleet: conditional, not globally blocked. The compliance baseline is a technical triage signal, not certification. Remediate the evidenced banner, consent, GA4, privacy, and terms failures/unknowns before materially expanding tracking, collecting user data, or monetizing affected properties. Do not infer adult, regulated, or age-sensitive status from domain names; escalate only when site content or a concrete data/use case supplies evidence. Preserve ordinary low-risk growth where disclosures and consent controls are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }
