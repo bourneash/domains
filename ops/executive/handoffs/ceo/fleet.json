@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:34:56.188Z",
+  "generated_at": "2026-09-23T02:35:33.771Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: queue three bounded, reversible SEO improvements on deeppenetrations.com, broadwayshowgirls.com, and stinkyleftfoot.com while preserving the existing Great American Lakes measurement gate and keeping SearchWoot private. The 30-day SEO window shows 511 impressions at position 4.3 for deeppenetrations.com, 55 impressions at position 1.9 for broadwayshowgirls.com, and 323 impressions at position 13.5 for stinkyleftfoot.com. Amazon reported $4.92 commission on 2026-09-21, but site-level margin and ROI are not calculable because attribution is incomplete and one tracking ID is unmapped. The main unknown is whether snippet and internal-link improvements increase qualified clicks or conversions. Smallest next step: capture baselines, implement the three reversible changes, and measure at 14 days or 100 new impressions with rollback if guardrails regress. Owner question: for SearchWoot, choose A) keep private pending all gates (recommended), or B) authorize preparation—but not sending—of a written Woot permission request.",
+        "summary": "Recommendation: keep SearchWoot private and queue three reversible SEO improvements on saveusfarms.com, deeppenetrations.com, and broadwayshowgirls.com while preserving the active Great American Lakes measurement gate. Evidence: the 30-day SEO window shows saveusfarms.com at 1,668 impressions, position 10.5, and 0 clicks; deeppenetrations.com at 511 impressions, position 4.3, and 1 click; broadwayshowgirls.com at 55 impressions, position 1.9, and 0 clicks. Amazon reported $4.92 commission for 2026-09-21, but site-level margin and ROI are not calculable because attribution is incomplete and one tracking ID is unmapped. The main unknown is whether these changes improve qualified clicks or conversions. Smallest next step: capture before-state metrics, implement the three bounded changes, and measure after 14 days or 100 new impressions with rollback if guardrails regress. Owner question: for SearchWoot, choose A) keep private pending legal, security, accuracy, and attribution gates (recommended), or B) authorize preparation—but not sending—of a written Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }
