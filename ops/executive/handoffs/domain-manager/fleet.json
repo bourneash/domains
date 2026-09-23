@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:32:53.427Z",
+  "generated_at": "2026-09-23T09:33:37.331Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess positioning, content, and affiliate readiness",
-        "summary": "Produce a bounded assessment of weapontester.com’s observable audience positioning, content scope, affiliate conversion paths, measurement coverage, and prioritized backlog before further growth investment.",
-        "requested_action": "Approve a report-only assessment using available site and read-only telemetry evidence. Document audience hypotheses, content gaps, observable monetization paths, attribution requirements, validation criteria, and rollback boundaries. Do not deploy, alter production configuration, change credentials or schedules, spend money, or infer revenue or conversions.",
+        "title": "Assess affiliate conversion and monetization readiness",
+        "summary": "Review the site’s observable affiliate conversion paths, product relevance, disclosure placement, and measurement readiness before further monetization work.",
+        "requested_action": "Approve a bounded, read-only assessment of affiliate link placement, content-to-product relevance, disclosure coverage, conversion definitions, and attribution reconciliation. Do not deploy, change credentials or configuration, spend money, or claim revenue or causal lift.",
         "proposal_id": null
       }
     ]
