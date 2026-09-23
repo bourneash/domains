@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:06:31.057Z",
+  "generated_at": "2026-09-23T03:10:40.860Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private, preserve active measurement gates, and continue bounded reversible work on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com. Evidence: the 30-day SEO window shows fishhooklabs.com at 138 impressions and position 9.3; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. Main unknown: whether the active fixes improve qualified clicks or monetization without regression. Smallest next step: capture baselines, complete only the existing reversible work, run smoke/link checks, and measure after 14 days or 100 new impressions. Owner question: authorize an unsent Woot permission request, keep the private gate unchanged without outreach, or stop pursuing public beta?",
+        "summary": "Recommendation: continue the existing reversible work on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com, while keeping SearchWoot private. Known evidence: fishhooklabs.com has 138 impressions at position 9.3 in the 30-day SEO window; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is whether the active fixes improve qualified clicks or monetization without regression. Smallest next step: complete baseline capture, reversible implementation, smoke/link checks, and measure after 14 days or 100 new impressions. Owner question: for SearchWoot, choose (A) prepare an unsent Woot permission request, (B) keep private with no outreach, or (C) stop pursuing public beta.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:06:31.058Z",
+  "generated_at": "2026-09-23T03:10:40.862Z",
   "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains keep_private. Woot documentation confirms API access but not commercial or public redistribution rights; privacy, accuracy, security, attribution, counsel, and owner launch gates remain incomplete.",
+        "summary": "Update: keep SearchWoot private. Woot documentation confirms API access but not commercial or public redistribution rights; legal, privacy, accuracy, security, measurement, and owner launch gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }

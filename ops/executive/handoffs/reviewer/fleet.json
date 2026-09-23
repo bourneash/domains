@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:06:31.056Z",
+  "generated_at": "2026-09-23T03:10:40.859Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain only three bounded, reversible continuations: fishhooklabs.com SEO improvement, allthingsmasonic.com monetization-readiness evidence, and americastrikes.com stale-affiliate repair. Reject unsupported financial claims, high-priority queue work, SearchWoot exposure, duplicated telemetry requests, and unmeasured production changes. Attribution remains incomplete: the supplied revenue window reports $4.92 commission with one unmapped tracking ID and no site-level margin or ROI evidence.",
+        "summary": "Recommendation: retain only three bounded continuations: fishhooklabs.com SEO improvement, allthingsmasonic.com monetization-readiness evidence, and americastrikes.com stale-affiliate repair. Reject unsupported revenue, ROI, margin, or forecast claims because attribution is incomplete and direct costs are unavailable. Keep SearchWoot private; do not authorize exposure, credentials, spending, or duplicated telemetry work. Decision question: should the owner authorize preparation of an unsent Woot permission request, or keep the gate unchanged without outreach?",
         "requested_action": null,
         "proposal_id": null
       }
