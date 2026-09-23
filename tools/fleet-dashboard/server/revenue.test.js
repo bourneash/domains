@@ -79,6 +79,36 @@ test('amazonSummary reads the wrapped interactive Associates export', () => {
   assert.equal(result.shipped_items, 1);
   assert.equal(result.commission_income, 4.92);
   assert.equal(result.owner_action_required, null);
+  assert.equal(result.attribution_complete, false);
+  assert.deepEqual(result.aggregate_tracking_ids, ['other']);
+  assert.equal(result.aggregate_unattributed_income, 0);
+});
+
+test('keeps Amazon aggregate Other revenue visible without treating it as a site gap', () => {
+  const dir = root();
+  const out = path.join(dir, 'tools', 'amz-stats', 'out');
+  fs.writeFileSync(path.join(out, '.session.json'), '{}');
+  fs.writeFileSync(
+    path.join(out, 'earnings-latest.json'),
+    JSON.stringify([
+      { tracking_id: 'exampletag-20', clicks: 1, total_earnings: 2 },
+      { tracking_id: 'Other', clicks: 3, total_earnings: 4.92 },
+    ])
+  );
+  fs.mkdirSync(path.join(dir, 'sites', 'example.com', 'site', 'src'), { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, 'sites', 'example.com', 'site', 'src', 'affiliate.ts'),
+    "'exampletag-20'"
+  );
+  const result = revenue.amazonSummary(dir);
+  assert.equal(result.attribution_complete, true);
+  assert.equal(result.attributed_income, 2);
+  assert.equal(result.aggregate_unattributed_income, 4.92);
+  assert.deepEqual(result.unmapped_tracking_ids, []);
+  assert.equal(
+    result.attribution.find(row => row.tracking_id === 'other').attribution_scope,
+    'aggregate'
+  );
 });
 
 test('amazonSummary attributes a unique tracking ID to its site', () => {

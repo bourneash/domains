@@ -1491,6 +1491,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       'Do not merely add another backlog item when the request asks you to edit or reassign an existing task; make the requested change in place and record rollback metadata.',
     ].join('\n');
     try {
+      // A reviewer handoff can race the durable failure update. Reopen only a
+      // reviewer-completed run, preserving the failure in the event log while
+      // allowing the bounded repair attempt to do real corrective work.
+      let repairRun = run;
+      if (run.state === 'failed') {
+        repairRun = improvements.transition(events, run.run_id, {
+          state: 'building',
+          recover_reviewer: true,
+        });
+      }
       const updated = changequeue.update(
         events,
         request.request_id,
@@ -1516,7 +1526,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       improvementAgent.start({
         root,
         store: events,
-        run,
+        run: repairRun,
         taskBody,
         provider: request.provider,
         model: request.model,

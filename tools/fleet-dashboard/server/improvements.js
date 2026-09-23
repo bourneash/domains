@@ -37,6 +37,23 @@ function canRecoverReportOnly(current, input = {}) {
   );
 }
 
+// A reviewer can finish successfully while rejecting the implementation. A
+// dashboard restart or callback race may persist that rejection as `failed`
+// before the bounded repair callback gets a chance to reopen the work. Permit
+// only the narrow, auditable recovery shape below; ordinary failed work stays
+// terminal and cannot be silently retried.
+function canRecoverReviewerFailure(current, input = {}) {
+  return (
+    current?.state === 'failed' &&
+    input.state === 'building' &&
+    input.recover_reviewer === true &&
+    current?.agent?.phase === 'reviewer' &&
+    current?.agent?.status === 'completed' &&
+    Number(current?.agent?.exit_code) === 0 &&
+    current?.outcome?.phase === 'reviewer'
+  );
+}
+
 function reportOnlyEvidenceReady(logText = '') {
   const text = String(logText).slice(-60000);
   return (
@@ -181,7 +198,11 @@ function transition(store, runId, input = {}) {
   const current = store.getImprovement(runId);
   if (!current) throw httpErr(404, 'improvement run not found');
   const state = String(input.state || '');
-  if (!(TRANSITIONS[current.state] || []).includes(state) && !canRecoverReportOnly(current, input))
+  if (
+    !(TRANSITIONS[current.state] || []).includes(state) &&
+    !canRecoverReportOnly(current, input) &&
+    !canRecoverReviewerFailure(current, input)
+  )
     throw httpErr(409, `cannot transition ${current.state} to ${state}`);
   if (state === 'deployed' && !input.deployment_id) throw httpErr(400, 'deployment_id is required');
   if (input.preview_url && !/^https?:\/\/[^\s]+$/i.test(String(input.preview_url)))
@@ -330,6 +351,7 @@ function httpErr(status, message) {
 module.exports = {
   FALSE_LIVENESS_ERROR,
   canRecoverReportOnly,
+  canRecoverReviewerFailure,
   reportOnlyEvidenceReady,
   start,
   startManual,

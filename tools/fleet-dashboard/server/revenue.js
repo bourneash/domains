@@ -4,11 +4,20 @@ const fs = require('node:fs');
 const path = require('node:path');
 const TAG_CACHE_MS = 5 * 60 * 1000;
 const tagCache = new Map();
+const AGGREGATE_TRACKING_IDS = new Set(['other', 'unattributed', 'unknown']);
 
 function trackingId(row) {
   return (
     String(row.tracking_id || row.tracking_id_1 || row.store_id || row.associate_id || '').trim() ||
     null
+  );
+}
+
+function isAggregateTrackingId(value) {
+  return AGGREGATE_TRACKING_IDS.has(
+    String(value || '')
+      .trim()
+      .toLowerCase()
   );
 }
 
@@ -111,10 +120,18 @@ function amazonSummary(root) {
       const tag = trackingId(row)?.toLowerCase();
       const sites = tag ? tagMap[tag] || [] : [];
       const site = sites.length === 1 ? sites[0] : null;
-      const key = site || (tag ? `unmapped:${tag}` : 'unattributed');
+      const aggregate = !site && isAggregateTrackingId(tag);
+      const key =
+        site || (aggregate ? `aggregate:${tag}` : tag ? `unmapped:${tag}` : 'unattributed');
       const cur = attributed[key] || {
         site,
         tracking_id: tag,
+        attribution_scope: aggregate ? 'aggregate' : site ? 'site' : 'unmapped',
+        attribution_reason: aggregate
+          ? 'Amazon supplied an aggregate row; it cannot be assigned to a site without inventing attribution.'
+          : site
+            ? null
+            : 'No unique managed-site configuration matched this tracking ID.',
         rows: 0,
         clicks: 0,
         ordered_items: 0,
@@ -131,6 +148,9 @@ function amazonSummary(root) {
       );
       attributed[key] = cur;
     }
+    const attribution = Object.values(attributed);
+    const unmapped = attribution.filter(row => !row.site && row.attribution_scope !== 'aggregate');
+    const aggregate = attribution.filter(row => row.attribution_scope === 'aggregate');
     return {
       ...base,
       has_data: true,
@@ -152,11 +172,18 @@ function amazonSummary(root) {
           sum + number(row, 'commission_income', 'total_earnings', 'items_shipped_earnings'),
         0
       ),
-      attribution: Object.values(attributed),
-      attributed_income: Object.values(attributed)
+      attribution,
+      attributed_income: attribution
         .filter(r => r.site)
         .reduce((n, r) => n + r.commission_income, 0),
-      attribution_complete: Object.values(attributed).every(r => Boolean(r.site)),
+      aggregate_unattributed_income: aggregate.reduce((n, r) => n + r.commission_income, 0),
+      aggregate_tracking_ids: aggregate.map(r => r.tracking_id).filter(Boolean),
+      // Complete means every site-level tag is mapped. Aggregate provider
+      // rows remain visible and explicitly unassignable instead of blocking
+      // the operating loop or being falsely assigned to a site.
+      attribution_complete: unmapped.length === 0,
+      site_level_attribution_complete: unmapped.length === 0,
+      unmapped_tracking_ids: unmapped.map(r => r.tracking_id).filter(Boolean),
       fetched_at: fs.statSync(earningsFile).mtime.toISOString(),
     };
   } catch (error) {
@@ -196,4 +223,10 @@ function siteAttribution(summary, site) {
   };
 }
 
-module.exports = { amazonSummary, siteAttribution, trackingId, discoverTrackingTags };
+module.exports = {
+  amazonSummary,
+  siteAttribution,
+  trackingId,
+  isAggregateTrackingId,
+  discoverTrackingTags,
+};

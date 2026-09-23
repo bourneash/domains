@@ -155,6 +155,18 @@ async function main() {
       counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
     });
     if (!runner.actionMandateSatisfied(plan, brief)) {
+      // The trusted brief already contains the candidate sites and evidence.
+      // Use the deterministic bounded fallback before spending another model
+      // call trying to restate the same portfolio decision. The fallback is
+      // still validated and queued through the normal host path.
+      plan = runner.buildActionMandateFallback(plan, brief);
+      audit.push({
+        role: 'action-mandate-fallback',
+        repaired: true,
+        counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
+      });
+    }
+    if (!runner.actionMandateSatisfied(plan, brief)) {
       const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL PORTFOLIO DECISION-MEMO REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve the useful existing work, and include a concise CEO message whose body starts with Recommendation: and gives: (1) the action you recommend now, (2) at least one known number/date or an explicit statement that the number is not calculable and why, (3) the main unknown, (4) the smallest next step, and (5) at most one direct owner question with concrete options. When the brief has three or more actionable sites, also include bounded, reversible implementation or evidence work covering at least three distinct sites. Do not return a maintenance-only update or a question without a recommendation.`;
       const finalRepairOutput = await runTracked(
         finalRepairPrompt,

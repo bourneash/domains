@@ -35,7 +35,15 @@ function assess({
     return Boolean(row && (row.ga4?.status === 'ok' || row.gsc?.status === 'ok'));
   };
   const analyticsMissingSites = expectedAnalytics.filter(site => !analyticsObserved(site));
-  const unmappedRevenue = (revenue.attribution || []).filter(row => !row.site);
+  const aggregateRevenue = (revenue.attribution || []).filter(
+    row => row.attribution_scope === 'aggregate'
+  );
+  const unmappedRevenue = (revenue.attribution || []).filter(
+    row => !row.site && row.attribution_scope !== 'aggregate'
+  );
+  const siteAttributionRows = (revenue.attribution || []).filter(
+    row => row.attribution_scope !== 'aggregate'
+  );
   const now = Date.now();
   const contracts = [
     contract('fleet-registry', reg.ok, reg.sites.length, reg.sites.length, null, reg.error),
@@ -79,13 +87,18 @@ function assess({
     ),
     contract(
       'revenue-attribution',
-      Boolean(revenue.has_data && revenue.attribution_complete),
-      revenue.attribution?.length || 0,
-      (revenue.attribution || []).filter(r => r.site).length,
+      Boolean(
+        revenue.has_data &&
+        (revenue.site_level_attribution_complete ?? revenue.attribution_complete)
+      ),
+      siteAttributionRows.length,
+      siteAttributionRows.filter(r => r.site).length,
       revenue.fetched_at,
-      revenue.has_data && !revenue.attribution_complete
+      revenue.has_data && unmappedRevenue.length
         ? 'Some tracking IDs cannot be mapped uniquely to a site.'
-        : null
+        : aggregateRevenue.length
+          ? 'Amazon supplied aggregate tracking rows; they are visible but cannot be assigned to a site.'
+          : null
     ),
   ];
   for (const row of contracts) {
@@ -110,9 +123,17 @@ function assess({
         mapped_rows: (revenue.attribution || []).filter(row => row.site).length,
         unmapped_rows: unmappedRevenue.length,
         unmapped_tracking_ids: unmappedRevenue.map(row => row.tracking_id).filter(Boolean),
+        aggregate_rows: aggregateRevenue.length,
+        aggregate_tracking_ids: aggregateRevenue.map(row => row.tracking_id).filter(Boolean),
+        aggregate_unattributed_income: aggregateRevenue.reduce(
+          (sum, row) => sum + (Number(row.commission_income) || 0),
+          0
+        ),
         next_action: unmappedRevenue.length
           ? 'Map each unmatched affiliate tracking ID to one managed site before assigning revenue or ROI.'
-          : null,
+          : aggregateRevenue.length
+            ? 'Keep aggregate provider rows visible; require every new site link to use its registered tracking ID.'
+            : null,
       },
     },
     next_actions: [

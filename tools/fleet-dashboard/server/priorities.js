@@ -196,12 +196,28 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     discovered_sites: discovered.size,
     analytics_sites: Object.keys(analytics).length,
     revenue_connected: Boolean(revenue && revenue.connected),
-    revenue_attributed: false,
+    // Site-level attribution is sufficient for portfolio decisions. Provider
+    // aggregate rows (for example Amazon's `Other`) remain visible as an
+    // explicit boundary but must not make every site's revenue look missing.
+    revenue_attributed: Boolean(
+      revenue?.has_data &&
+      (revenue.site_level_attribution_complete ?? revenue.attribution_complete) &&
+      (revenue.attribution || []).some(row => row.site)
+    ),
+    aggregate_revenue_unattributed: Number(revenue?.aggregate_unattributed_income) || 0,
   };
   return {
     generated_at: new Date().toISOString(),
-    value_basis: revenue?.has_data ? 'revenue-unattributed' : 'proxy',
-    notice: 'Expected profit remains null until revenue is attributable by site and content.',
+    value_basis: coverage.revenue_attributed
+      ? 'site-attributed-revenue'
+      : revenue?.has_data
+        ? 'revenue-unattributed'
+        : 'proxy',
+    notice: coverage.revenue_attributed
+      ? coverage.aggregate_revenue_unattributed > 0
+        ? 'Site-level revenue is attributable; provider aggregate revenue remains explicitly unassigned.'
+        : 'Revenue is attributable by managed site where the provider supplied a site tracking ID.'
+      : 'Expected profit remains null until revenue is attributable by site and content.',
     coverage,
     totals: {
       recommendations: items.length,
