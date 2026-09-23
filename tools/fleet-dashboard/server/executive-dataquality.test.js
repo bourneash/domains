@@ -73,3 +73,41 @@ test('reopens a returned gap without stale resolution metadata', () => {
   assert.equal(reopened.resolution_note, null);
   store.close();
 });
+
+test('deduplicates repeated source-gap rows before syncing', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-data-quality-dedupe-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const result = dataquality.sync(store, {
+    contracts: [{ source: 'analytics', ok: true }],
+    coverage: { analytics: { missing_sites: ['a.com', 'a.com'] } },
+  });
+
+  assert.equal(result.created.length, 1);
+  assert.equal(store.listExecutiveWorkItems({ source_type: 'data-quality' }).length, 1);
+  store.close();
+});
+
+test('updates an existing work ID created by an older executive source', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-data-quality-legacy-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  store.createExecutiveWorkItem({
+    work_id: 'data-quality:revenue-attribution:other',
+    title: 'Legacy attribution case',
+    kind: 'evidence',
+    status: 'in_progress',
+    owner: 'cfo',
+    source_type: 'executive-tick',
+    source_id: 'revenue-attribution:other',
+  });
+
+  const result = dataquality.sync(store, {
+    coverage: { revenue_attribution: { unmapped_tracking_ids: ['other'] } },
+  });
+
+  assert.equal(result.updated.length, 1);
+  assert.equal(
+    store.getExecutiveWorkItem('data-quality:revenue-attribution:other').source_type,
+    'data-quality'
+  );
+  store.close();
+});

@@ -1073,7 +1073,15 @@ function open(root, { file } = {}) {
     return row;
   }
 
-  function listExecutiveWorkItems({ status, owner, kind, priority, site, limit = 200 } = {}) {
+  function listExecutiveWorkItems({
+    status,
+    owner,
+    kind,
+    priority,
+    site,
+    source_type,
+    limit = 200,
+  } = {}) {
     const clauses = [],
       args = [];
     if (status) {
@@ -1095,6 +1103,10 @@ function open(root, { file } = {}) {
     if (site) {
       clauses.push('site = ?');
       args.push(String(site));
+    }
+    if (source_type) {
+      clauses.push('source_type = ?');
+      args.push(String(source_type));
     }
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     const where = clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';

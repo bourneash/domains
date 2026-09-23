@@ -77,17 +77,23 @@ function desiredItems(quality = {}) {
 
 function sync(store, quality = {}) {
   if (!store) throw new Error('data-quality work sync requires an event store');
-  const desired = desiredItems(quality);
+  // Source snapshots can contain duplicate rows after a collector retry. The
+  // workbench key is intentionally idempotent, so collapse those rows before
+  // touching SQLite rather than allowing a duplicate INSERT to abort the
+  // entire intelligence snapshot.
+  const desired = [...new Map(desiredItems(quality).map(item => [item.work_id, item])).values()];
   const analyticsAvailable = analyticsSourceAvailable(quality);
   const byId = new Map(desired.map(item => [item.work_id, item]));
-  const existing = store
-    .listExecutiveWorkItems({ limit: 1000 })
-    .filter(item => item.source_type === 'data-quality');
+  const existing = store.listExecutiveWorkItems({ source_type: 'data-quality', limit: 1000 });
   const created = [];
   const updated = [];
   const resolved = [];
   for (const item of desired) {
-    const current = existing.find(row => row.work_id === item.work_id);
+    // Work IDs are globally unique, but older executive ticks may have
+    // created the same durable case under a different source_type. Query by
+    // the authoritative key instead of assuming the filtered source list
+    // contains every historical row.
+    const current = store.getExecutiveWorkItem(item.work_id);
     if (current) {
       // A gap can disappear from one snapshot and return in a later one. Do
       // not carry a historical cancellation/resolution note onto reopened
