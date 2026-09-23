@@ -84,7 +84,16 @@ function sync(store, quality = {}) {
   const desired = [...new Map(desiredItems(quality).map(item => [item.work_id, item])).values()];
   const analyticsAvailable = analyticsSourceAvailable(quality);
   const byId = new Map(desired.map(item => [item.work_id, item]));
-  const existing = store.listExecutiveWorkItems({ source_type: 'data-quality', limit: 1000 });
+  // Older executive ticks created the same durable IDs under
+  // `executive-tick`. Include those rows so a gap that is no longer desired
+  // can be resolved instead of remaining as a stale owner-facing blocker.
+  const existing = store
+    .listExecutiveWorkItems({ limit: 1000 })
+    .filter(
+      item =>
+        item.source_type === 'data-quality' ||
+        String(item.work_id || '').startsWith('data-quality:')
+    );
   const created = [];
   const updated = [];
   const resolved = [];
