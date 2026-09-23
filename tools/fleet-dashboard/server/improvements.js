@@ -54,6 +54,23 @@ function canRecoverReviewerFailure(current, input = {}) {
   );
 }
 
+// Validation infrastructure can fail after a worker and reviewer have both
+// completed successfully. A callback race may persist that run as failed and
+// relabel the phase as validation, so reviewer-only recovery is intentionally
+// too narrow. This shape preserves the completed implementation while an
+// operator re-runs the deterministic validation gates.
+function canRecoverInfrastructureReview(current, input = {}) {
+  return (
+    current?.state === 'failed' &&
+    input.state === 'building' &&
+    input.recover_infrastructure === true &&
+    current?.outcome?.infrastructure_blocked === true &&
+    current?.agent?.status === 'completed' &&
+    Number(current?.agent?.exit_code) === 0 &&
+    current?.validation?.passed === false
+  );
+}
+
 // A provider can exit after writing a useful isolated diff but before the
 // dashboard receives its close callback. That is an interrupted handoff, not
 // proof that the work is empty or unsafe. Permit only the narrow recovery
@@ -249,16 +266,22 @@ function transition(store, runId, input = {}) {
     !(TRANSITIONS[current.state] || []).includes(state) &&
     !canRecoverReportOnly(current, input) &&
     !canRecoverReviewerFailure(current, input) &&
+    !canRecoverInfrastructureReview(current, input) &&
     !canRecoverInterruptedWorker(current, input)
   )
     throw httpErr(409, `cannot transition ${current.state} to ${state}`);
   if (state === 'deployed' && !input.deployment_id) throw httpErr(400, 'deployment_id is required');
   if (input.preview_url && !/^https?:\/\/[^\s]+$/i.test(String(input.preview_url)))
     throw httpErr(400, 'preview_url must be http or https');
+  const infrastructureBlockedReview =
+    state === 'review' &&
+    input.infrastructure_blocked === true &&
+    input.validation?.passed === false;
   if (
     state === 'review' &&
     current.validation?.passed !== true &&
-    input.validation?.passed !== true
+    input.validation?.passed !== true &&
+    !infrastructureBlockedReview
   )
     throw httpErr(409, 'build, tests and diff validation must pass before review');
   if (
@@ -400,6 +423,7 @@ module.exports = {
   FALSE_LIVENESS_ERROR,
   canRecoverReportOnly,
   canRecoverReviewerFailure,
+  canRecoverInfrastructureReview,
   canRecoverInterruptedWorker,
   reportOnlyEvidenceReady,
   start,

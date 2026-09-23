@@ -1328,12 +1328,37 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return changed;
   }
 
+  function reconcileInfrastructureBlockedReviews() {
+    let changed = 0;
+    for (const request of events.listChangeRequests({ limit: 1000 })) {
+      if (!['failed', 'review'].includes(request.status)) continue;
+      if (!request.run_id) continue;
+      const run = events.getImprovement(request.run_id);
+      // An operator-triggered revalidation deliberately reopens the preserved
+      // run in building. Do not let the periodic failed-row reconciliation
+      // immediately move that work back to review while its gates execute.
+      if (run?.state === 'building') continue;
+      if (!run?.validation || !validationInfrastructureBlock(run.validation)) continue;
+      const recovered = preserveInfrastructureBlockedReview(request, run, {
+        message:
+          'previous validation run recorded an infrastructure failure; revalidation is required',
+        validation: run.validation,
+        noAutomaticRepair: true,
+      });
+      if (recovered) changed += 1;
+    }
+    return changed;
+  }
+
   async function recoverFailedQueueWork() {
     if (failedRecoveryRunning) return 0;
     failedRecoveryRunning = true;
     try {
       await reconcileInterruptedWorkers();
       await reconcileFalseFailedReportRuns();
+      // Preserve valid worker output from historical validation-infrastructure
+      // failures before normal retry/tombstone handling sees those requests.
+      reconcileInfrastructureBlockedReviews();
       // A prior dashboard process may already have persisted the liveness
       // failure before this process came back. Recover those durable rows too
       // when their isolated checkout still contains useful work; otherwise
@@ -1692,14 +1717,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         httpStatus: 409,
       });
     await devsandbox.prepareDependencies(item.sandbox.instance);
+    let previewStartError = null;
     try {
       await devsandbox.devStart(item.sandbox.instance);
-    } catch {
-      /* validation below records the failure */
+    } catch (error) {
+      previewStartError = String(error.message || error);
     }
     let validation = await devsandbox.validate(item.sandbox.instance);
     validation.commit = workspace.commit;
     validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
+    if (previewStartError) validation.preview.startup_error = previewStartError;
     validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
     validation = applyQualityPolicy(root, item.site, validation);
     const changed = events.updateImprovement(item.run_id, {
@@ -2029,6 +2056,109 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
+  // A completed worker can leave a valid isolated diff behind while the
+  // preview/browser harness is unavailable. Preserve that implementation for
+  // revalidation instead of converting an environment outage into a terminal
+  // code failure. The original failure remains in the event log and outcome.
+  function preserveInfrastructureBlockedReview(request, run, error) {
+    const validation = error?.validation || run?.validation;
+    if (!request || !run || !validation || !validationInfrastructureBlock(validation)) return false;
+    const message = String(
+      error?.message ||
+        run.outcome?.infrastructure_error ||
+        run.outcome?.error ||
+        'validation infrastructure is unavailable; implementation is preserved for revalidation'
+    );
+    const queueError = `implementation preserved; validation infrastructure blocked revalidation: ${message}`;
+    if (run.state === 'review' && run.outcome?.infrastructure_blocked === true) {
+      try {
+        if (request.status !== 'review' || request.error !== queueError)
+          changequeue.update(
+            events,
+            request.request_id,
+            {
+              status: 'review',
+              error: queueError,
+              next_attempt_at: null,
+              lease_owner: null,
+              lease_expires_at: null,
+              heartbeat_at: null,
+            },
+            site => isKnownTarget(root, site)
+          );
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    let current = run;
+    try {
+      if (current.state === 'failed') {
+        const reviewerRecovery = improvements.canRecoverReviewerFailure(current, {
+          state: 'building',
+          recover_reviewer: true,
+        });
+        const infrastructureRecovery = improvements.canRecoverInfrastructureReview(current, {
+          state: 'building',
+          recover_infrastructure: true,
+        });
+        if (!reviewerRecovery && !infrastructureRecovery) return false;
+        current = improvements.transition(events, current.run_id, {
+          state: 'building',
+          ...(reviewerRecovery ? { recover_reviewer: true } : { recover_infrastructure: true }),
+        });
+      }
+      if (current.state !== 'building') return false;
+      const reviewed = improvements.transition(events, current.run_id, {
+        state: 'review',
+        infrastructure_blocked: true,
+        validation: { ...validation, infrastructure_blocked: true },
+        outcome: {
+          ...(current.outcome || {}),
+          phase: 'validation',
+          infrastructure_blocked: true,
+          preserved_for_revalidation: true,
+          infrastructure_error: message,
+          preserved_at: new Date().toISOString(),
+        },
+      });
+      const updated = changequeue.update(
+        events,
+        request.request_id,
+        {
+          status: 'review',
+          error: queueError,
+          next_attempt_at: null,
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        },
+        site => isKnownTarget(root, site)
+      );
+      events.record({
+        event_type: 'change-request.infrastructure_blocked',
+        source: 'fleet-dashboard',
+        site_id: `site:${request.site}`,
+        entity_type: 'change-request',
+        entity_id: request.request_id,
+        correlation_id: `change-request:${request.request_id}`,
+        payload: {
+          run_id: reviewed.run_id,
+          previous_state: run.state,
+          status: 'review',
+          preserved_for_revalidation: true,
+          error: message,
+        },
+      });
+      emitChangeNotification('review blocked', updated, reviewed, message);
+      return true;
+    } catch {
+      // Keep the original failure if a concurrent queue callback advanced the
+      // run between the read and the guarded recovery transition.
+      return false;
+    }
+  }
+
   function startAutomaticReviewRepair(request, run, error) {
     const settings = events.getChangeQueueSettings();
     if (!request || !run || request.auto_review === 0 || !settings.auto_review_enabled)
@@ -2133,6 +2263,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!error?.noAutomaticRepair && reviewInfrastructureBlock(root, run, error))
       error.noAutomaticRepair = true;
     if (error?.noAutomaticRepair) {
+      if (preserveInfrastructureBlockedReview(request, run, error)) return;
       const failedRun = markImprovementFailed(run, error);
       // Infrastructure failures need an operator/tooling fix, not another
       // identical model attempt. Keep the failed request and evidence
@@ -2212,6 +2343,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       )
         continue;
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      // Validation-infrastructure blocks are deliberately preserved in review
+      // for operator/tooling revalidation. Do not let an old reviewer marker
+      // reopen a cleaned worktree or spend another model call.
+      if (run?.outcome?.infrastructure_blocked === true) continue;
       if (!run || run.agent?.phase !== 'reviewer' || run.agent?.status !== 'completed') continue;
       const finishedAt = Date.parse(run.agent.finished_at || '');
       if (
@@ -3530,6 +3665,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const validation = await devsandbox.validate(item.sandbox.instance);
       validation.commit = workspace.commit;
       validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
+      if (preview.error) validation.preview.startup_error = preview.error;
       validation.browser = await devsandbox.browserAudit(root, item.sandbox.instance, item.site);
       const finalValidation = applyQualityPolicy(root, item.site, validation);
       const changed = events.updateImprovement(item.run_id, {

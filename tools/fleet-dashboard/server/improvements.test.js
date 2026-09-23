@@ -101,6 +101,45 @@ test('enforces lifecycle gates and measured outcomes', () => {
   store.close();
 });
 
+test('allows an explicitly infrastructure-blocked implementation into review', () => {
+  const { root, store } = fixture();
+  const { run } = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'infra-review',
+      site: 'example.com',
+      title: 'Preserve implementation for revalidation',
+      body: 'Make one bounded change',
+      category: 'seo',
+      priority: 'low',
+      assigned_role: 'engineer',
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 2,
+    },
+  });
+  improvements.transition(store, run.run_id, { state: 'building' });
+  const reviewed = improvements.transition(store, run.run_id, {
+    state: 'review',
+    infrastructure_blocked: true,
+    validation: {
+      passed: false,
+      preview: { passed: false, error: 'ECONNREFUSED 127.0.0.1:4321' },
+      policy: { status: { preview: 'fail' } },
+    },
+    outcome: {
+      phase: 'validation',
+      infrastructure_blocked: true,
+      preserved_for_revalidation: true,
+    },
+  });
+  assert.equal(reviewed.state, 'review');
+  assert.equal(reviewed.validation.passed, false);
+  assert.equal(reviewed.outcome.preserved_for_revalidation, true);
+  store.close();
+});
+
 test('permits reviewer recovery when an interrupted worker left a dirty worktree', () => {
   const { root, store } = fixture();
   const { run } = improvements.start({ store, root, site: 'example.com', action });
@@ -268,6 +307,49 @@ test('permits only successful report-only liveness recovery from a failed run', 
   });
   assert.equal(reported.state, 'reported');
   assert.equal(failed.state, 'failed');
+  store.close();
+});
+
+test('preserves a completed implementation when validation infrastructure failed after reviewer handoff', () => {
+  const { root, store } = fixture();
+  const { run } = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'infrastructure-recovery',
+      site: 'example.com',
+      title: 'Infrastructure recovery',
+      body: 'Re-run validation when the preview service is available.',
+      category: 'seo',
+      priority: 'low',
+      assigned_role: 'engineer',
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 2,
+    },
+  });
+  improvements.transition(store, run.run_id, { state: 'building' });
+  improvements.transition(store, run.run_id, {
+    state: 'failed',
+    outcome: { phase: 'validation', infrastructure_blocked: true },
+    validation: { passed: false, infrastructure_blocked: true },
+  });
+  store.updateImprovement(run.run_id, {
+    agent: { phase: 'reviewer', status: 'completed', exit_code: 0 },
+  });
+  const failed = store.getImprovement(run.run_id);
+  assert.equal(
+    improvements.canRecoverInfrastructureReview(failed, {
+      state: 'building',
+      recover_infrastructure: true,
+    }),
+    true
+  );
+  const reopened = improvements.transition(store, run.run_id, {
+    state: 'building',
+    recover_infrastructure: true,
+  });
+  assert.equal(reopened.state, 'building');
   store.close();
 });
 

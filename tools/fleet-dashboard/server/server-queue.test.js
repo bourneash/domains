@@ -78,3 +78,21 @@ test('browser runtime warnings do not reject otherwise passing delivery gates', 
   assert.equal(validation.passed, true);
   assert.equal(validation.policy.status.browser, 'warn');
 });
+
+test('preview infrastructure failures remain a review block, not a code failure', () => {
+  const validation = applyQualityPolicy('/tmp/does-not-exist', 'example.com', {
+    checks: { diff: { status: 'pass' }, tests: { status: 'pass' }, build: { status: 'pass' } },
+    preview: {
+      passed: false,
+      error: 'curl: (7) Failed to connect to 127.0.0.1 port 4321',
+    },
+    browser: {
+      passed: false,
+      infrastructure_warning: false,
+      lighthouse: { error: 'Chrome prevented page load with an interstitial' },
+    },
+  });
+  assert.equal(validation.passed, false);
+  assert.equal(validation.policy.status.preview, 'fail');
+  assert.equal(validation.policy.status.browser, 'fail');
+});

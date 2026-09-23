@@ -67,7 +67,7 @@ function docker(args, opts) {
 }
 
 function isBrowserInfrastructureFailure(stderr = '') {
-  return /(?:dbus|networkmanager|gpu process exited|mojo\/public\/cpp\/bindings|core dumped|chrome_main\.cc|browser tab has unexpectedly crashed|page crashed|renderer process)/i.test(
+  return /(?:dbus|networkmanager|gpu process exited|mojo\/public\/cpp\/bindings|core dumped|chrome_main\.cc|browser tab has unexpectedly crashed|page crashed|renderer process|interstitial|server is not responding|failed to connect|connection refused|ECONNREFUSED)/i.test(
     String(stderr)
   );
 }
@@ -743,7 +743,9 @@ async function browserAudit(root, instance, site) {
   const lighthouseInfrastructureWarning =
     lh.code !== 0 &&
     (isBrowserInfrastructureFailure(lh.stderr) ||
-      /browser tab has unexpectedly crashed|page crashed|renderer process/i.test(lh.stderr));
+      /browser tab has unexpectedly crashed|page crashed|renderer process|interstitial|server is not responding|failed to connect|connection refused|ECONNREFUSED/i.test(
+        lh.stderr
+      ));
   const passed =
     Object.values(screenshotResults).every(x => ['pass', 'warn'].includes(x.status)) &&
     (Object.values(lighthouseChecks).every(x => x.status === 'pass') ||

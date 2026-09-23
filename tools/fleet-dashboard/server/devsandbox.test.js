@@ -34,12 +34,16 @@ test('browser audit distinguishes sandbox runtime crashes from page failures', (
   );
   assert.equal(
     devsandbox.isBrowserInfrastructureFailure('curl: (7) Failed to connect to 127.0.0.1'),
-    false
+    true
   );
   assert.equal(
     devsandbox.isBrowserInfrastructureFailure(
       'Runtime error: Browser tab has unexpectedly crashed'
     ),
+    true
+  );
+  assert.equal(
+    devsandbox.isBrowserInfrastructureFailure('Chrome prevented page load with an interstitial'),
     true
   );
 });
