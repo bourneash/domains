@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:57:42.016Z",
+  "generated_at": "2026-09-23T09:03:47.974Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the proposed GSC coverage work as duplicate of the existing shared analytics-permission work item. Approve no new production, financial, credential, configuration, spending, or queue work; continue existing bounded measurement and report-only work, and make no revenue or causal-lift claims until outcomes are measured. Do you approve keeping this disposition until the active measurement gates complete?",
+        "summary": "Recommendation: Reject production, financial, credential, configuration, spending, and high-priority queue work. Approve only the three bounded report-only SEO evidence baselines below. Existing changes must continue to their stated measurement gates; no revenue or causal-lift claims are supported. Keep mynewgm.com as a deferred readiness baseline because it has no telemetry or site-specific evidence. Proceed with the three report-only requests?",
         "requested_action": null,
         "proposal_id": null
       }
