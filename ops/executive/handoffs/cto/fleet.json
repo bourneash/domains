@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:25:54.677Z",
+  "generated_at": "2026-09-23T03:29:35.436Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the active workstreams and do not duplicate candidate sites already in progress. Complete bounded evidence or reversible implementation with explicit baselines, quality checks, acceptance criteria, and rollback notes; retry failed work only through its existing work item.",
+        "summary": "Handoff: continue existing bounded work for 0xroulette.com, complicated.work, deadlymaracas.com, fishhooklabs.com, marineactivity.com, and aliencouncil.com. Require baseline evidence, smoke or reachability checks, explicit unknowns, acceptance criteria, and rollback notes. Do not duplicate active site work or deploy changes.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:25:54.677Z",
+  "generated_at": "2026-09-23T03:29:35.436Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: retain attribution reconciliation as a portfolio control. The 2026-09-21 revenue window is measurable at portfolio level, but site-level contribution margin, ROI, and payback remain unsupported until the unmatched tracking ID and direct-cost inputs are resolved.",
+        "summary": "Update: retain revenue-attribution reconciliation as a portfolio control. The 2026-09-21 Amazon window reports $4.92 commission, but site-level contribution margin, ROI, payback, and forecasts remain unsupported until the unmatched tracking ID is mapped and direct costs are available.",
         "requested_action": null,
         "proposal_id": null
       }

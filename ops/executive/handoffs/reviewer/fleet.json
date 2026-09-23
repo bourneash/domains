@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:25:54.675Z",
+  "generated_at": "2026-09-23T03:29:35.434Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain active reversible work, keep SearchWoot private, reject unsupported revenue or ROI claims, and route only three bounded report-only evidence tasks for 0xroulette.com, complicated.work, and deadlymaracas.com. Do not execute high-priority routing work, duplicate telemetry requests, production changes, spending, credential changes, or renewal decisions without evidence.",
+        "summary": "Recommendation: retain active reversible work, keep SearchWoot private, reject unsupported revenue or ROI claims, and route only three normal-priority report-only evidence tasks for 0xroulette.com, complicated.work, and deadlymaracas.com. Attribution remains incomplete, direct costs are unavailable, and no production, spending, credential, scheduling, or renewal decisions are supported. Continue existing measurement gates and decide later whether any parked site merits a bounded launch proposal.",
         "requested_action": null,
         "proposal_id": null
       }

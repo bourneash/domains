@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:25:54.678Z",
+  "generated_at": "2026-09-23T03:29:35.437Z",
   "summary": "security checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: no production launch or security-sensitive change is recommended. The available security source is read-only baseline evidence, not certification; SearchWoot remains blocked pending access, secrets, isolation, monitoring, incident, and rollback review.",
+        "summary": "Update: no production launch or security-sensitive change is recommended. The available security source is a read-only baseline, not certification; SearchWoot remains blocked pending access, secrets, isolation, monitoring, incident, and rollback review.",
         "requested_action": null,
         "proposal_id": null
       }
