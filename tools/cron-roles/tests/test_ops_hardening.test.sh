@@ -24,9 +24,29 @@ for script in "${principals[@]}"; do
     || fail "principal preflight includes runtime bookkeeping: $script"
 done
 
+# Saltwater News has Workers Builds verification enabled. Keep the critical
+# fail-closed contracts regression-tested because this script is site-specific
+# and is not regenerated from the archetype on every fleet change.
+saltwater_deploy="$ROOT/sites/saltwaternews.com/ops/scripts/deploy.sh"
+bash -n "$saltwater_deploy" || fail "saltwaternews deploy verifier syntax error"
+grep -q 'CLOUDFLARE_BUILDS_READ_TOKEN' "$saltwater_deploy" \
+  || fail "saltwaternews verifier lacks least-privilege token hook"
+grep -q 'VERIFY_BASE_SHA' "$saltwater_deploy" \
+  || fail "saltwaternews verifier lacks pushed-range base"
+grep -q 'per_page=100&page=1' "$saltwater_deploy" \
+  || fail "saltwaternews verifier does not request sufficient build history"
+grep -q 'CF_API_ERROR' "$saltwater_deploy" \
+  || fail "saltwaternews verifier hides Cloudflare API errors"
+grep -q 'DEPLOY_ALLOW_UNCONFIRMED_BUILD=1' "$saltwater_deploy" \
+  || fail "saltwaternews emergency override is not explicitly logged"
+
 principal_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/principal-engineer.sh.tmpl"
 bash -n <(sed 's/{{[^}]*}}/placeholder/g' "$principal_template") \
   || fail "principal-engineer template syntax error"
+grep -q 'validate_result_contract' "$principal_template" \
+  || fail "principal-engineer template lacks result-contract validator"
+grep -q 'classify_pass_result' "$principal_template" \
+  || fail "principal-engineer template lacks pass-failure classifier"
 grep -q 'SYNC_ALERT_AFTER' "$principal_template" \
   || fail "principal-engineer template lacks sync defer threshold"
 bma_principal="$ROOT/sites/blackmarketapparel.com/ops/scripts/principal-engineer.sh"
@@ -65,6 +85,27 @@ grep -q 'could not determine commit age' "$allthings_engineer" \
   || fail "allthingsmasonic engineer git timestamp failure is not fail-closed"
 grep -q 'head_commit_age.*-gt.*UNPUSHED_COMMIT_GRACE_SECS' "$allthings_engineer" \
   || fail "allthingsmasonic engineer grace boundary missing"
+
+allthings_principal="$ROOT/sites/allthingsmasonic.com/ops/scripts/principal-engineer.sh"
+grep -q 'validate_result_contract' "$allthings_principal" \
+  || fail "allthingsmasonic principal wrapper lacks result-contract gate"
+grep -q 'classify_pass_result' "$allthings_principal" \
+  || fail "allthingsmasonic principal wrapper lacks pass-failure classifier"
+
+# Any wrapper using the stderr-preserving implementation must carry the same
+# result gate. This catches partial template stamps without forcing legacy
+# wrappers onto a fleet-wide rollout in the same change.
+for script in "${principals[@]}"; do
+  if grep -q 'PASS_ERR=' "$script"; then
+    grep -q 'validate_result_contract' "$script" \
+      || fail "stderr-preserving principal wrapper lacks result-contract gate: $script"
+    grep -q 'classify_pass_result' "$script" \
+      || fail "stderr-preserving principal wrapper lacks pass-failure classifier: $script"
+  fi
+done
+
+bash "$ROOT/tools/cron-roles/tests/test_principal_engineer_result_contract.test.sh" \
+  || fail "principal-engineer result-contract regression tests failed"
 
 # Exercise the real grace-window function at both sides of the boundary and
 # verify that a missing git timestamp fails closed.

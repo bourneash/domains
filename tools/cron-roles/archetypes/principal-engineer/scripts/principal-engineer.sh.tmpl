@@ -245,6 +245,39 @@ PASS_ERR="$(mktemp)"
 cleanup() { rm -f "$RESULT_FILE" "$PASS_ERR" 2>/dev/null || true; repo_mutation_lock_release; }
 trap cleanup EXIT
 
+validate_result_contract() {
+  local result_file="$1"
+  grep -Eq '^PE_STATUS=(resolved-real|resolved-noise|escalated)$' "$result_file" \
+    && grep -q '^PE_ROOT_CAUSE=.' "$result_file" \
+    && grep -q '^PE_FIX=.' "$result_file" \
+    && grep -q '^PE_HARDENING=.' "$result_file" \
+    && grep -Eq '^PE_ROLLOUT_CANDIDATE=(yes|no)$' "$result_file"
+}
+
+classify_pass_result() {
+  local result_file="$1" pass_err="$2" exit_code="$3"
+  RESULT_ROOT_CAUSE="unknown (pass did not report)"
+  RESULT_FIX="none"
+  RESULT_HARDENING="none"
+  if grep -Eqi 'account_usage_exhausted|out of usage|hit your limit' "$pass_err"; then
+    RESULT_ROOT_CAUSE="Claude pass did not run: shared Claude account usage limit exhausted (exit ${exit_code})"
+    RESULT_FIX="none — no model work ran"
+    RESULT_HARDENING="fleet auth monitor owns account recovery; wrapper reports the CLI failure explicitly"
+  elif [[ "$exit_code" != "0" ]]; then
+    RESULT_ROOT_CAUSE="Claude pass failed before its final report (exit ${exit_code}); see the principal-engineer log"
+    RESULT_FIX="none — pass did not complete"
+    RESULT_HARDENING="wrapper preserves stderr and reports non-zero CLI failures explicitly"
+  elif [[ -s "$result_file" ]]; then
+    RESULT_ROOT_CAUSE="Claude pass exited successfully but omitted its required PE report block"
+    RESULT_FIX="pass output was captured; wrapper will archive the partial result and restore the checkout"
+    RESULT_HARDENING="wrapper distinguishes a successful unstructured pass from a pass that never ran"
+  else
+    RESULT_ROOT_CAUSE="Claude pass exited successfully without output or its required PE report block"
+    RESULT_FIX="none — no actionable pass output was produced"
+    RESULT_HARDENING="wrapper reports empty successful passes explicitly"
+  fi
+}
+
 archive_and_restore() {  # $1=short reason
   local artifact_base="ops/health/principal-incidents/${FP}-$(date -u +%Y%m%dT%H%M%SZ)"
   mkdir -p "$(dirname "$artifact_base")"
@@ -341,23 +374,10 @@ ROLLOUT=$(grep '^PE_ROLLOUT_CANDIDATE=' "$RESULT_FILE" | tail -1 | cut -d= -f2- 
 # structured stdout report. Keep the raw result contract gate below, but make
 # the retained evidence and retry reason explain the actual failure.
 if [[ "$ROOT_CAUSE" == "unknown (pass did not report)" ]]; then
-  if grep -Eqi "account_usage_exhausted|out of usage|hit your limit" "$PASS_ERR"; then
-    ROOT_CAUSE="Claude pass did not run: shared Claude account usage limit exhausted (exit ${CLAUDE_EXIT})"
-    FIX="none — no model work ran"
-    HARDENING="fleet auth monitor owns account recovery; wrapper now reports the CLI failure explicitly"
-  elif [[ "$CLAUDE_EXIT" != "0" ]]; then
-    ROOT_CAUSE="Claude pass failed before its final report (exit ${CLAUDE_EXIT}); see the principal-engineer log"
-    FIX="none — pass did not complete"
-    HARDENING="wrapper now preserves stderr and reports non-zero CLI failures explicitly"
-  elif [[ -s "$RESULT_FILE" ]]; then
-    ROOT_CAUSE="Claude pass exited successfully but omitted its required PE report block"
-    FIX="pass output was captured; wrapper archived the partial result and restored the checkout"
-    HARDENING="wrapper now distinguishes a successful unstructured pass from a pass that never ran"
-  else
-    ROOT_CAUSE="Claude pass exited successfully without output or its required PE report block"
-    FIX="none — no actionable pass output was produced"
-    HARDENING="wrapper now reports empty successful passes explicitly"
-  fi
+  classify_pass_result "$RESULT_FILE" "$PASS_ERR" "$CLAUDE_EXIT"
+  ROOT_CAUSE="$RESULT_ROOT_CAUSE"
+  FIX="$RESULT_FIX"
+  HARDENING="$RESULT_HARDENING"
 fi
 
 mark_incident() {  # $1=status
