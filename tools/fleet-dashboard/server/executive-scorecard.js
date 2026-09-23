@@ -50,6 +50,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const requests = store
     .listChangeRequests({ limit: 1000 })
     .filter(row => inWindow(row.created_at, cutoff));
+  const requestsById = new Map(requests.map(row => [String(row.request_id), row]));
   const improvements = store
     .listImprovements({ limit: 1000 })
     .filter(row => inWindow(row.created_at, cutoff) || row.state === 'measuring');
@@ -63,8 +64,15 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const deliveredRequests = requests.filter(row => DELIVERED_REQUESTS.has(row.status));
   const measured = improvements.filter(row => MEASURED_IMPROVEMENTS.has(row.state));
   const proven = improvements.filter(row => row.state === 'proven');
-  const active = improvements.filter(row =>
-    ['proposed', 'building', 'review', 'deployed', 'measuring'].includes(row.state)
+  const isLiveImprovement = row => {
+    if (row.source !== 'fleet-dashboard' || !row.source_id) return true;
+    const request = requestsById.get(String(row.source_id));
+    return !request || !['cancelled', 'failed'].includes(String(request.status));
+  };
+  const active = improvements.filter(
+    row =>
+      isLiveImprovement(row) &&
+      ['proposed', 'building', 'review', 'deployed', 'measuring'].includes(row.state)
   );
   const pendingMeasurement = improvements.filter(row =>
     ['deployed', 'measuring'].includes(row.state)
