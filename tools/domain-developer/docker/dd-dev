@@ -49,6 +49,12 @@ cmd_start() {
     cd "${dev_dir}"
     : > "${LOG_FILE}"
 
+    # Astro/Vite can leave an SSR optimizer manifest from the preceding build.
+    # A later first request then points at a deleted deps_ssr module and kills
+    # the preview server. The worker checkout is disposable, so clear only
+    # its generated dev caches before starting the fresh validation server.
+    rm -rf node_modules/.vite .astro
+
     # If node_modules is missing, chain `npm install` before the site's dev
     # command. Read the command from package.json so the sandbox can normalize
     # a host address without editing the site's checkout. Several fleet sites
