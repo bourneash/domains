@@ -19,7 +19,8 @@ MODEL="{{MODEL}}"
 # bloat or a retry loop (the prompt below is already lean: a fixed-size status
 # summary + up to 3 queued task names). Raised for margin, same lever used for
 # principal-engineer's identical cap+1 pattern on 2026-09-07.
-MAX_TURNS=34
+DEFAULT_MAX_TURNS=34
+MAX_TURNS="$DEFAULT_MAX_TURNS"
 WORK_TIMEOUT=2400
 
 # --- Concurrency + heartbeat tuning ---
@@ -221,6 +222,25 @@ fi
 # ---- 3b. Work pass ({{MODEL}}) ----
 ISSUES_TEXT="(none)"; [[ -s "${ISSUES_FILE:-/dev/null}" ]] && ISSUES_TEXT="$(cat "$ISSUES_FILE")"
 QUEUE_LIST="${QUEUE_TASKS:-}"
+
+# Honor the task author's estimated_turns instead of always burning the
+# fleet-wide ceiling. Multiple selected tasks share one pass; cap their sum at
+# the normal ceiling. Issue-only passes retain the default budget.
+if [[ -n "$QUEUE_LIST" ]]; then
+  TASK_TURNS=0
+  IFS=',' read -r -a _queued_tasks <<< "$QUEUE_LIST"
+  for _task in "${_queued_tasks[@]}"; do
+    _task_estimate="$(sed -n 's/^estimated_turns:[[:space:]]*\([0-9][0-9]*\).*$/\1/p' "$REPO_ROOT/ops/tasks/backlog/$_task" 2>/dev/null | head -1)"
+    if [[ "$_task_estimate" =~ ^[1-9][0-9]*$ ]]; then
+      TASK_TURNS=$((TASK_TURNS + _task_estimate))
+    fi
+  done
+  if (( TASK_TURNS > 0 )); then
+    MAX_TURNS="$TASK_TURNS"
+    (( MAX_TURNS > DEFAULT_MAX_TURNS )) && MAX_TURNS="$DEFAULT_MAX_TURNS"
+  fi
+fi
+log "engineer turn budget: max=${MAX_TURNS} default=${DEFAULT_MAX_TURNS} queued_tasks=${QUEUE_LIST:-none}"
 RESULT_FILE="$(mktemp)"
 
 # A documented credential blocker is still visible in CREDENTIALS_NEEDED.md,
@@ -249,7 +269,10 @@ Queued engineer tasks (in ops/tasks/backlog/, up to 3): ${QUEUE_LIST:-none}
 
 ## Your job this run
 1. Fix every [warn] issue you can safely fix, at the source.
-2. For each queued task: read it fully, implement, move it backlog/ → done/.
+2. For each queued task: read it fully, obey its task-specific constraints (including
+   any read-only or no-production-change requirement), implement only what its
+   acceptance asks for, and move it backlog/ → done/. Task-specific constraints
+   override this generic instruction and the role contract where they conflict.
 3. After edits, run \`cd site && npm run build\` — it MUST pass. If it fails, REVERT your
    change (don't leave the tree broken) and escalate it instead.
 4. Do NOT git commit or git push — the wrapper handles build-gating, commit, and push.

@@ -47,6 +47,14 @@ class EngineerCloudflareHardeningTest(unittest.TestCase):
                 or "CF API status: ${CF_API_STATUS}" in source
             )
 
+    def test_queued_task_budget_and_constraints_are_honored(self):
+        for path in (RUN_TEMPLATE, SALTWATER_RUN):
+            source = path.read_text()
+            self.assertIn("estimated_turns", source)
+            self.assertIn("TASK_TURNS", source)
+            self.assertIn("DEFAULT_MAX_TURNS", source)
+            self.assertIn("Task-specific constraints", source)
+
 
 if __name__ == "__main__":
     unittest.main()
