@@ -241,7 +241,8 @@ if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthrop
 fi
 
 RESULT_FILE="$(mktemp)"
-cleanup() { rm -f "$RESULT_FILE" 2>/dev/null || true; repo_mutation_lock_release; }
+PASS_ERR="$(mktemp)"
+cleanup() { rm -f "$RESULT_FILE" "$PASS_ERR" 2>/dev/null || true; repo_mutation_lock_release; }
 trap cleanup EXIT
 
 archive_and_restore() {  # $1=short reason
@@ -324,9 +325,10 @@ timeout "$WORK_TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" \
   --model "$MODEL" \
   --max-turns "$MAX_TURNS" \
   --dangerously-skip-permissions \
-  > "$RESULT_FILE" 2>>"$LOG"
+  > "$RESULT_FILE" 2>"$PASS_ERR"
 CLAUDE_EXIT=$?
 set -e
+[[ ! -s "$PASS_ERR" ]] || cat "$PASS_ERR" >> "$LOG"
 tee -a "$LOG" < "$RESULT_FILE" > /dev/null
 
 PSTATUS=$(grep '^PE_STATUS=' "$RESULT_FILE" | tail -1 | cut -d= -f2- | tr -d ' \r\n' || true); PSTATUS="${PSTATUS:-escalated}"
@@ -334,6 +336,29 @@ ROOT_CAUSE=$(grep '^PE_ROOT_CAUSE=' "$RESULT_FILE" | tail -1 | cut -d= -f2- || t
 FIX=$(grep '^PE_FIX=' "$RESULT_FILE" | tail -1 | cut -d= -f2- || true); FIX="${FIX:-none}"
 HARDENING=$(grep '^PE_HARDENING=' "$RESULT_FILE" | tail -1 | cut -d= -f2- || true); HARDENING="${HARDENING:-none}"
 ROLLOUT=$(grep '^PE_ROLLOUT_CANDIDATE=' "$RESULT_FILE" | tail -1 | cut -d= -f2- | tr -d ' \r\n' || true); ROLLOUT="${ROLLOUT:-no}"
+
+# A failed Claude CLI call writes its useful diagnostic to stderr, not the
+# structured stdout report. Keep the raw result contract gate below, but make
+# the retained evidence and retry reason explain the actual failure.
+if [[ "$ROOT_CAUSE" == "unknown (pass did not report)" ]]; then
+  if grep -Eqi "account_usage_exhausted|out of usage|hit your limit" "$PASS_ERR"; then
+    ROOT_CAUSE="Claude pass did not run: shared Claude account usage limit exhausted (exit ${CLAUDE_EXIT})"
+    FIX="none — no model work ran"
+    HARDENING="fleet auth monitor owns account recovery; wrapper now reports the CLI failure explicitly"
+  elif [[ "$CLAUDE_EXIT" != "0" ]]; then
+    ROOT_CAUSE="Claude pass failed before its final report (exit ${CLAUDE_EXIT}); see the principal-engineer log"
+    FIX="none — pass did not complete"
+    HARDENING="wrapper now preserves stderr and reports non-zero CLI failures explicitly"
+  elif [[ -s "$RESULT_FILE" ]]; then
+    ROOT_CAUSE="Claude pass exited successfully but omitted its required PE report block"
+    FIX="pass output was captured; wrapper archived the partial result and restored the checkout"
+    HARDENING="wrapper now distinguishes a successful unstructured pass from a pass that never ran"
+  else
+    ROOT_CAUSE="Claude pass exited successfully without output or its required PE report block"
+    FIX="none — no actionable pass output was produced"
+    HARDENING="wrapper now reports empty successful passes explicitly"
+  fi
+fi
 
 mark_incident() {  # $1=status
   local safe_outcome; safe_outcome="$(redact_guardrail_terms "${PSTATUS}: ${ROOT_CAUSE}")"
