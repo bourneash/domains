@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:39:29.757Z",
+  "generated_at": "2026-09-23T03:40:50.083Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain only the existing reversible affiliate-reference repair and active measurement/evidence work; reject new queue work, production changes, unsupported revenue or ROI claims, and duplicate tasks. Attribution remains incomplete and direct costs are unavailable, so no financial outcome is supportable. No new actionable sites remain beyond existing workstreams. Owner decision: authorize continuation until the stated validation and measurement thresholds are met?",
+        "summary": "Recommendation: continue only the existing bounded, reversible workstreams below; reject new high-priority queue work, production launches, and revenue or ROI claims. Amazon attribution remains incomplete, direct costs are unavailable, and missing telemetry is not evidence of zero performance. No owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
