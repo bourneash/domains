@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T20:39:07.103Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T22:10:00.146Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "message",
-        "title": "Re-run 0xroulette revenue-readiness baseline",
-        "summary": "The live site has GA4 and GSC configured, affiliate and social capabilities, and an existing report-only baseline request failed. A bounded retry should document observable conversion paths, attribution limits, direct-cost inputs, and the next reversible test without changing production.",
-        "requested_action": "Approve a report-only revenue-readiness assessment for 0xroulette.com. Produce the acceptance artifact and route it to fleet leadership; do not deploy, modify production configuration, change credentials, alter schedules, or spend money.",
-        "proposal_id": "4743a676-58f2-4eba-8dde-ab0c683def9f"
-      }
-    ]
+    "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 1,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
