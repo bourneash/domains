@@ -66,6 +66,40 @@ test('never claims an excluded site', () => {
   assert.equal(dispatcher.claimNext(value), null);
 });
 
+test('collapses changing report reasons to one queued manager job per site', () => {
+  const value = root();
+  const report = {
+    report_id: 'report-2',
+    cadence: 'six_hour',
+    generated_at: '2026-09-21T15:00:00.000Z',
+    deep_dive_candidates: [
+      { site: 'greatamericanlakes.com', reasons: ['seo'] },
+      { site: 'greatamericanlakes.com', reasons: ['conversion'] },
+      { site: 'other.example', reasons: ['analytics'] },
+    ],
+  };
+  fs.writeFileSync(
+    path.join(reports.reportDir(value), 'six_hour-report.json'),
+    JSON.stringify(report)
+  );
+  const first = dispatcher.enqueueLatest(value, { now: new Date('2026-09-21T15:01:00.000Z') });
+  assert.equal(first.added.length, 2);
+  const state = dispatcher.readState(value);
+  state.jobs.push({
+    ...state.jobs.find(job => job.site === 'greatamericanlakes.com'),
+    job_id: 'duplicate',
+    requested_at: '2026-09-21T15:02:00.000Z',
+  });
+  dispatcher.writeState(value, state);
+  const compacted = dispatcher.enqueueLatest(value, {
+    now: new Date('2026-09-21T15:03:00.000Z'),
+  });
+  assert.equal(compacted.compacted, 1);
+  const finalState = dispatcher.readState(value);
+  assert.equal(finalState.jobs.filter(job => job.status === 'queued').length, 2);
+  assert.equal(finalState.jobs.filter(job => job.status === 'superseded').length, 1);
+});
+
 test('treats a global executive lock collision as busy instead of a failed attempt', async () => {
   const value = root();
   const script = path.join(value, 'busy.sh');

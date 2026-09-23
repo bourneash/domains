@@ -740,7 +740,7 @@ function buildPassPrompt(brief, role, candidate = null) {
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
 
-function parseOutput(text) {
+function parseOutput(text, { defaultActor = '' } = {}) {
   const raw = String(text || '')
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
@@ -777,12 +777,12 @@ function parseOutput(text) {
     work_items: result.work_items || [],
     knowledge: result.knowledge || [],
   };
-  normalizeProviderProposalTypes(plan);
+  normalizeProviderProposalTypes(plan, { defaultActor });
   validatePlan(plan);
   return plan;
 }
 
-function normalizeProviderProposalTypes(plan) {
+function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
   for (const item of plan.proposals) {
     const raw = String(item?.proposal_type || '')
       .trim()
@@ -810,11 +810,17 @@ function normalizeProviderProposalTypes(plan) {
     const alias = {
       accepted: 'accepted_research',
       approved: 'accepted_research',
+      approve: 'accepted_research',
+      accepted_research: 'accepted_research',
       reviewed: 'accepted_research',
       rejected: 'declined',
       denied: 'declined',
+      deny: 'declined',
+      declined: 'declined',
       feedback: 'escalate_owner',
       owner_review: 'escalate_owner',
+      owner: 'escalate_owner',
+      needs_owner: 'escalate_owner',
     }[raw];
     if (alias) item.status = alias;
   }
@@ -822,6 +828,11 @@ function normalizeProviderProposalTypes(plan) {
     'chief executive officer': 'ceo',
     'chief technology officer': 'cto',
     'chief financial officer': 'cfo',
+    'chief revenue officer': 'cro',
+    'domain manager': 'domain-manager',
+    domain_manager: 'domain-manager',
+    domainmanager: 'domain-manager',
+    'independent reviewer': 'reviewer',
     compliance: 'legal',
     'legal/compliance': 'legal',
     'legal-compliance': 'legal',
@@ -831,10 +842,37 @@ function normalizeProviderProposalTypes(plan) {
     'security/compliance': 'security',
   };
   for (const item of plan.messages) {
+    // Providers occasionally use the prompt's natural-language field names
+    // (role/from/content) even when the JSON contract says actor/body. These
+    // aliases are still validated against the closed actor/type allowlists
+    // below; they do not grant a new capability or actor.
+    if (!item.actor && item.role) item.actor = item.role;
+    if (!item.actor && item.from) item.actor = item.from;
+    if (!item.actor && defaultActor) item.actor = defaultActor;
+    if (!item.body && item.content) item.body = item.content;
+    if (!item.body && item.message) item.body = item.message;
     const raw = String(item?.actor || '')
       .trim()
       .toLowerCase();
     item.actor = actorAliases[raw] || raw;
+    const messageType = String(item?.message_type || '')
+      .trim()
+      .toLowerCase();
+    const messageTypeAliases = {
+      status: 'update',
+      status_update: 'update',
+      progress: 'update',
+      note: 'update',
+      report: 'update',
+      recommendation: 'decision_request',
+      decision: 'decision_request',
+      decision_request: 'decision_request',
+      review: 'update',
+      research: 'handoff',
+      research_request: 'handoff',
+      task_handoff: 'handoff',
+    };
+    if (messageTypeAliases[messageType]) item.message_type = messageTypeAliases[messageType];
   }
   for (const item of plan.data_requests) {
     const raw = String(item?.requested_by || '')
@@ -846,13 +884,13 @@ function normalizeProviderProposalTypes(plan) {
     const raw = String(item?.reviewed_by || '')
       .trim()
       .toLowerCase();
-    item.reviewed_by = actorAliases[raw] || raw;
+    item.reviewed_by = actorAliases[raw] || raw || defaultActor;
   }
   for (const item of plan.proposals) {
     const raw = String(item?.created_by || '')
       .trim()
       .toLowerCase();
-    item.created_by = actorAliases[raw] || raw;
+    item.created_by = actorAliases[raw] || raw || defaultActor;
   }
   for (const item of plan.work_items) {
     const raw = String(item?.owner || '')
@@ -895,7 +933,7 @@ function validatePlan(plan) {
       throw new Error('invalid research request in provider plan');
     research.validateUrl(item.url);
   }
-  for (const item of plan.proposal_reviews) {
+  for (const [index, item] of plan.proposal_reviews.entries()) {
     if (
       !String(item.proposal_id || '').trim() ||
       !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'reviewer'].includes(
@@ -904,11 +942,13 @@ function validatePlan(plan) {
       !['accepted_research', 'escalate_owner', 'declined'].includes(String(item.status || '')) ||
       String(item.decision_note || '').length > 2000
     )
-      throw new Error('invalid proposal review in provider plan');
+      throw new Error(
+        `invalid proposal review in provider plan at index ${index} (reviewed_by=${String(item.reviewed_by || '')}, status=${String(item.status || '')}, proposal_id=${String(item.proposal_id || '')})`
+      );
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
       throw new Error('executive plan references an excluded site');
   }
-  for (const item of plan.messages) {
+  for (const [index, item] of plan.messages.entries()) {
     if (
       !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'reviewer'].includes(
         String(item.actor)
@@ -922,7 +962,9 @@ function validatePlan(plan) {
       (item.metadata !== undefined &&
         (typeof item.metadata !== 'object' || Array.isArray(item.metadata)))
     )
-      throw new Error('invalid executive message in provider plan');
+      throw new Error(
+        `invalid executive message in provider plan at index ${index} (actor=${String(item.actor || '')}, message_type=${String(item.message_type || '')}, body_length=${String(item.body || '').length}, metadata=${item.metadata === undefined ? 'absent' : Array.isArray(item.metadata) ? 'array' : typeof item.metadata})`
+      );
     if (/3boobs(?:\.com)?/i.test(String(item.body)))
       throw new Error('executive plan references an excluded site');
   }

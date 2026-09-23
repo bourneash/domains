@@ -57,23 +57,58 @@ function fingerprint(candidate) {
     .digest('hex');
 }
 
+function compactQueuedJobs(state, now = new Date()) {
+  const seen = new Map();
+  let compacted = 0;
+  for (const job of state.jobs) {
+    if (job.status !== 'queued' || !job.site) continue;
+    const key = String(job.site).toLowerCase();
+    const previous = seen.get(key);
+    if (!previous) {
+      seen.set(key, job);
+      continue;
+    }
+    // A site has one lightweight manager slot. Keep the newest queued
+    // evidence and retain older rows as superseded audit records instead of
+    // allowing every six-hour report's changing reason text to fan out into
+    // thousands of duplicate jobs.
+    const previousTime = Date.parse(previous.requested_at || 0);
+    const currentTime = Date.parse(job.requested_at || 0);
+    const keep = currentTime >= previousTime ? job : previous;
+    const drop = keep === job ? previous : job;
+    drop.status = 'superseded';
+    drop.superseded_at = now.toISOString();
+    drop.last_error = `superseded by newer queued ${key} manager evidence`;
+    if (keep === job) seen.set(key, job);
+    compacted += 1;
+  }
+  return compacted;
+}
+
 function enqueueLatest(root, { now = new Date(), cooldownMs = DEFAULT_COOLDOWN_MS } = {}) {
-  const latest = reports.recent(root, 50).find(row => row.cadence === 'six_hour');
-  if (!latest) return { added: [], state: readState(root) };
-  const full = reports.get(root, latest.report_id);
-  if (!full) return { added: [], state: readState(root) };
   const state = readState(root);
+  const compacted = compactQueuedJobs(state, now);
+  const latest = reports.recent(root, 50).find(row => row.cadence === 'six_hour');
+  if (!latest) {
+    if (compacted) writeState(root, state);
+    return { added: [], compacted, state };
+  }
+  const full = reports.get(root, latest.report_id);
+  if (!full) {
+    if (compacted) writeState(root, state);
+    return { added: [], compacted, state };
+  }
   const added = [];
   for (const candidate of full.deep_dive_candidates || []) {
     if (!candidate.site || String(candidate.site).toLowerCase() === '3boobs.com') continue;
     const fp = fingerprint(candidate);
-    const existing = state.jobs.find(job => job.fingerprint === fp && job.site === candidate.site);
-    const recentlyCompleted =
-      existing &&
-      existing.status === 'completed' &&
-      now.getTime() - Date.parse(existing.completed_at || 0) < cooldownMs;
-    if (existing && (['queued', 'running'].includes(existing.status) || recentlyCompleted))
-      continue;
+    const siteJobs = state.jobs.filter(job => job.site === candidate.site);
+    const activeForSite = siteJobs.some(job => ['queued', 'running'].includes(job.status));
+    const recentlyCompleted = siteJobs.some(
+      job =>
+        job.status === 'completed' && now.getTime() - Date.parse(job.completed_at || 0) < cooldownMs
+    );
+    if (activeForSite || recentlyCompleted) continue;
     const job = {
       job_id: crypto.randomUUID(),
       fingerprint: fp,
@@ -91,7 +126,7 @@ function enqueueLatest(root, { now = new Date(), cooldownMs = DEFAULT_COOLDOWN_M
     added.push(job);
   }
   writeState(root, state);
-  return { added, state };
+  return { added, compacted, state };
 }
 
 function priority(job) {
@@ -250,6 +285,7 @@ module.exports = {
   readState,
   writeState,
   fingerprint,
+  compactQueuedJobs,
   enqueueLatest,
   claimNext,
   finish,

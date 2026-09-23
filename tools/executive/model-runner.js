@@ -110,7 +110,7 @@ async function main() {
     let output = await runTracked(prompt, usage, role);
     let repaired = false;
     try {
-      const nextPlan = runner.parseOutput(output);
+      const nextPlan = runner.parseOutput(output, { defaultActor: role });
       plan = mergePassPlans(plan, nextPlan);
     } catch (error) {
       // Formatting failures never reach the trusted host application path.
@@ -122,7 +122,7 @@ async function main() {
         role,
         true
       );
-      const nextPlan = runner.parseOutput(output);
+      const nextPlan = runner.parseOutput(output, { defaultActor: role });
       plan = mergePassPlans(plan, nextPlan);
     }
     audit.push({
@@ -146,7 +146,7 @@ async function main() {
   if (!runner.actionMandateSatisfied(plan, brief)) {
     const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and either (a) route a small batch of up to six highest-confidence, low-risk, reversible candidates to engineer across distinct sites, covering at least three sites when three or more candidates are available, with acceptance and rollback criteria, or (b) include one owner-facing message beginning with Recommendation: that gives a clear evidence-backed disposition and asks at most one concrete decision question when the brief has fewer than three actionable sites. Do not return an observation-only plan or a question without a recommendation.`;
     const repairedOutput = await runTracked(repairPrompt, usage, 'action-mandate-repair', true);
-    plan = mergePassPlans(plan, runner.parseOutput(repairedOutput));
+    plan = mergePassPlans(plan, runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -162,7 +162,7 @@ async function main() {
         'decision-memo-repair',
         true
       );
-      plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput));
+      plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo' }));
       audit.push({
         role: 'decision-memo-repair',
         repaired: true,

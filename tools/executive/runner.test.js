@@ -328,6 +328,62 @@ test('normalizes human-readable Legal and Security actor aliases without allowin
   );
 });
 
+test('normalizes domain-manager output aliases without weakening actor validation', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'domain manager',
+          message_type: 'recommendation',
+          body: 'Recommendation: refresh the site brief.',
+        },
+      ],
+      proposal_reviews: [
+        {
+          proposal_id: 'cro-domain-1',
+          reviewed_by: 'domain_manager',
+          status: 'approved',
+          decision_note: 'Accept the bounded research handoff.',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.messages[0].actor, 'domain-manager');
+  assert.equal(plan.messages[0].message_type, 'decision_request');
+  assert.equal(plan.proposal_reviews[0].reviewed_by, 'domain-manager');
+  assert.equal(plan.proposal_reviews[0].status, 'accepted_research');
+  assert.throws(
+    () =>
+      runner.parseOutput(JSON.stringify({ messages: [{ actor: 'unknown role', body: 'nope' }] })),
+    /invalid executive message/
+  );
+});
+
+test('accepts provider natural-language message field aliases inside the closed contract', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ role: 'domain manager', content: 'Recommendation: inspect the site backlog.' }],
+    })
+  );
+  assert.equal(plan.messages[0].actor, 'domain-manager');
+  assert.equal(plan.messages[0].body, 'Recommendation: inspect the site backlog.');
+});
+
+test('binds an omitted actor to the authenticated pass role', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({ messages: [{ body: 'Recommendation: keep this bounded.' }] }),
+    { defaultActor: 'domain-manager' }
+  );
+  assert.equal(plan.messages[0].actor, 'domain-manager');
+  assert.throws(
+    () =>
+      runner.parseOutput(JSON.stringify({ messages: [{ body: 'spoof' }] }), {
+        defaultActor: 'owner',
+      }),
+    /invalid executive message/
+  );
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'
