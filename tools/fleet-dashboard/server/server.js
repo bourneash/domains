@@ -2149,24 +2149,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   function claimAutomaticDelivery(item) {
-    const current = events.getImprovement(item.run_id);
-    if (!current) throw new Error('improvement run disappeared before delivery claim');
-    const claimedAt = Date.parse(current.outcome?.delivery_claimed_at || '');
-    if (
-      current.outcome?.delivery_claimed === true &&
-      Number.isFinite(claimedAt) &&
-      Date.now() - claimedAt < AUTOMATIC_DELIVERY_CLAIM_MAX_MS
-    )
-      return null;
     const now = new Date().toISOString();
-    const claimed = events.updateImprovement(item.run_id, {
-      outcome: {
-        ...(current.outcome || {}),
-        delivery_claimed: true,
-        delivery_claimed_at: now,
-        delivery_claimed_by: queueWorkerId,
-      },
+    const claimed = events.claimImprovementDelivery(item.run_id, {
+      maxAgeMs: AUTOMATIC_DELIVERY_CLAIM_MAX_MS,
+      claimedAt: now,
+      claimedBy: queueWorkerId,
     });
+    if (!claimed) return null;
     events.record({
       event_type: 'improvement.delivery_claimed',
       source: 'fleet-dashboard',

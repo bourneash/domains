@@ -449,6 +449,51 @@ function open(root, { file } = {}) {
     return getImprovement(runId);
   }
 
+  // Claim delivery under SQLite's write lock so two dashboard processes (or a
+  // reviewer callback racing recovery) cannot both observe an unclaimed run
+  // and start deployment/validation. A stale claim is recoverable after the
+  // bounded safety window; the caller remains responsible for recording the
+  // audit event.
+  function claimImprovementDelivery(
+    runId,
+    { maxAgeMs = 15 * 60 * 1000, claimedAt = new Date().toISOString(), claimedBy = null } = {}
+  ) {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const current = getImprovement(runId);
+      if (!current) throw httpErr(404, 'improvement run not found');
+      const previousAt = Date.parse(current.outcome?.delivery_claimed_at || '');
+      if (
+        current.outcome?.delivery_claimed === true &&
+        Number.isFinite(previousAt) &&
+        Date.parse(claimedAt) - previousAt < Number(maxAgeMs)
+      ) {
+        db.exec('COMMIT');
+        return null;
+      }
+      const outcome = {
+        ...(current.outcome || {}),
+        delivery_claimed: true,
+        delivery_claimed_at: claimedAt,
+        delivery_claimed_by: claimedBy,
+      };
+      db.prepare('UPDATE improvement_runs SET updated_at=?,outcome_json=? WHERE run_id=?').run(
+        claimedAt,
+        JSON.stringify(outcome),
+        String(runId)
+      );
+      db.exec('COMMIT');
+      return getImprovement(runId);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {
+        /* preserve the original transaction error */
+      }
+      throw error;
+    }
+  }
+
   function createChangeRequest(input) {
     const now = input.created_at || new Date().toISOString();
     const row = {
@@ -1344,6 +1389,7 @@ function open(root, { file } = {}) {
     listImprovements,
     getImprovement,
     updateImprovement,
+    claimImprovementDelivery,
     createChangeRequest,
     listChangeRequests,
     getChangeRequest,

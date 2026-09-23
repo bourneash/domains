@@ -68,6 +68,36 @@ test('persists and updates improvement runs', () => {
   store.close();
 });
 
+test('delivery claims are atomic and stale claims can be recovered', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-delivery-claims-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  const created = store.createImprovement({
+    site: 'example.com',
+    source: 'test-source',
+    title: 'Claim delivery',
+  });
+  const first = store.claimImprovementDelivery(created.run_id, {
+    claimedAt: '2026-09-23T12:00:00.000Z',
+    claimedBy: 'worker-a',
+  });
+  assert.equal(first.outcome.delivery_claimed, true);
+  assert.equal(first.outcome.delivery_claimed_by, 'worker-a');
+  assert.equal(
+    store.claimImprovementDelivery(created.run_id, {
+      claimedAt: '2026-09-23T12:05:00.000Z',
+      claimedBy: 'worker-b',
+    }),
+    null
+  );
+  const recovered = store.claimImprovementDelivery(created.run_id, {
+    maxAgeMs: 60_000,
+    claimedAt: '2026-09-23T12:16:00.000Z',
+    claimedBy: 'worker-b',
+  });
+  assert.equal(recovered.outcome.delivery_claimed_by, 'worker-b');
+  store.close();
+});
+
 test('filters the change queue by implementation role', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-change-role-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
