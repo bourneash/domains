@@ -900,10 +900,68 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
     item.created_by = actorAliases[raw] || raw || defaultActor;
   }
   for (const item of plan.work_items) {
+    // Work items are durable follow-through records, not executable commands.
+    // Providers still occasionally return human-facing aliases or omit the
+    // fields that are defaults in the prompt. Normalize those safe metadata
+    // variants here so one malformed case cannot discard an otherwise useful
+    // executive cycle. Unknown ownership is deliberately bound to the
+    // authenticated pass role (or CEO for the reviewer), never accepted as a
+    // new capability.
+    if (!item.work_id && item.id) item.work_id = item.id;
+    if (!item.title && (item.name || item.label)) item.title = item.name || item.label;
+    if (!item.title && item.work_id) item.title = `Executive follow-up: ${item.work_id}`;
+    if (!item.summary && item.description) item.summary = item.description;
+    if (!item.next_action && (item.action || item.next_step))
+      item.next_action = item.action || item.next_step;
+    if (item.site === undefined && item.domain !== undefined) item.site = item.domain;
+    const kindAliases = {
+      task: 'implementation',
+      bug: 'incident',
+      defect: 'incident',
+      analytics: 'evidence',
+      telemetry: 'evidence',
+      monitoring: 'evidence',
+      launch: 'decision',
+      growth: 'evidence',
+    };
+    const kind = String(item.kind || '')
+      .trim()
+      .toLowerCase();
+    if (kindAliases[kind]) item.kind = kindAliases[kind];
+    const statusAliases = {
+      active: 'in_progress',
+      started: 'in_progress',
+      pending: 'waiting',
+      queued: 'waiting',
+    };
+    const status = String(item.status || '')
+      .trim()
+      .toLowerCase();
+    if (statusAliases[status]) item.status = statusAliases[status];
+    const priorityAliases = { medium: 'normal', critical: 'urgent' };
+    const priority = String(item.priority || '')
+      .trim()
+      .toLowerCase();
+    if (priorityAliases[priority]) item.priority = priorityAliases[priority];
+    if (item.evidence && !Array.isArray(item.evidence)) item.evidence = [item.evidence];
     const raw = String(item?.owner || '')
       .trim()
       .toLowerCase();
-    item.owner = actorAliases[raw] || raw;
+    const normalizedOwner = actorAliases[raw] || raw;
+    const validOwners = new Set([
+      'ceo',
+      'cto',
+      'cfo',
+      'legal',
+      'security',
+      'cro',
+      'domain-manager',
+      'principal-engineer',
+      'engineer',
+      'owner',
+    ]);
+    const fallbackOwner = defaultActor && validOwners.has(defaultActor) ? defaultActor : 'ceo';
+    item.owner = validOwners.has(normalizedOwner) ? normalizedOwner : fallbackOwner;
   }
   return plan;
 }

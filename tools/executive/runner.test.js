@@ -425,6 +425,40 @@ test('normalizes specialist review message types without widening the message co
   );
 });
 
+test('normalizes sparse work-item aliases without widening ownership', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      work_items: [
+        {
+          id: 'existing-case',
+          owner: 'reviewer',
+          kind: 'analytics',
+          status: 'active',
+          priority: 'medium',
+          description: 'Telemetry needs a durable follow-up.',
+          action: 'Record the exact source dependency.',
+          evidence: { label: 'health', note: 'source unavailable' },
+        },
+      ],
+    }),
+    { defaultActor: 'cto' }
+  );
+  assert.deepEqual(plan.work_items[0], {
+    id: 'existing-case',
+    work_id: 'existing-case',
+    title: 'Executive follow-up: existing-case',
+    owner: 'cto',
+    kind: 'evidence',
+    status: 'in_progress',
+    priority: 'normal',
+    description: 'Telemetry needs a durable follow-up.',
+    summary: 'Telemetry needs a durable follow-up.',
+    action: 'Record the exact source dependency.',
+    next_action: 'Record the exact source dependency.',
+    evidence: [{ label: 'health', note: 'source unavailable' }],
+  });
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'
