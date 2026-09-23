@@ -1548,6 +1548,8 @@ function reconcileApprovedProposalFollowThrough(
   }
   let queued = 0;
   for (const proposal of proposals) {
+    const workId = `${FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`;
+    const existing = store.getExecutiveWorkItem(workId);
     const sourceRequests = requestsByProposal.get(String(proposal.proposal_id)) || [];
     const currentRequest =
       (proposal.linked_request_id && requestsById.get(String(proposal.linked_request_id))) ||
@@ -1578,7 +1580,50 @@ function reconcileApprovedProposalFollowThrough(
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =
       currentRequest && ['failed', 'cancelled'].includes(currentRequest.status);
-    if (currentRequest && !terminalRequest) continue;
+    if (currentRequest && !terminalRequest) {
+      if (existing && !['done', 'cancelled'].includes(existing.status)) {
+        const delivered = ['committed', 'deployed', 'verified'].includes(currentRequest.status);
+        const payload = followThroughWorkPayload(proposal, implementation, {
+          status: delivered ? 'done' : 'waiting',
+          nextAction: delivered
+            ? `No further follow-through is required; linked request ${currentRequest.request_id} is ${currentRequest.status}.`
+            : `Monitor linked request ${currentRequest.request_id} while it is ${currentRequest.status}.`,
+          blockers: [],
+        });
+        payload.resolution_note = delivered
+          ? `Linked request ${currentRequest.request_id} reached ${currentRequest.status}.`
+          : null;
+        if (sameFollowThroughFields(existing, payload)) {
+          store.updateExecutiveWorkItem(workId, payload);
+          const audit = executive.action(store, {
+            actor: 'system',
+            action_type: 'other',
+            summary: `Reconciled approved-proposal follow-through: ${proposal.title}`,
+            target_type: 'executive-work-item',
+            target_id: workId,
+            proposal_id: proposal.proposal_id,
+            request_id: currentRequest.request_id,
+          });
+          executive.finishAction(store, audit.action_id, {
+            status: 'completed',
+            result: {
+              proposal_id: proposal.proposal_id,
+              work_id: workId,
+              request_id: currentRequest.request_id,
+              status: payload.status,
+            },
+          });
+          result.push({
+            type: 'work-item-reconciled',
+            proposal_id: proposal.proposal_id,
+            work_id: workId,
+            request_id: currentRequest.request_id,
+            status: payload.status,
+          });
+        }
+      }
+      continue;
+    }
     if (terminalRequest)
       blockers.push(`existing request is ${currentRequest.status}; automatic retry is disabled`);
 
@@ -1626,8 +1671,6 @@ function reconcileApprovedProposalFollowThrough(
       }
     }
 
-    const workId = `${FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`;
-    const existing = store.getExecutiveWorkItem(workId);
     if (existing && ['done', 'cancelled'].includes(existing.status)) continue;
     const site = String(implementation.site || '').toLowerCase();
     let status = blockers.length ? 'blocked' : ready ? 'waiting' : 'open';
