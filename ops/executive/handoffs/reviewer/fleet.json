@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:34:01.146Z",
+  "generated_at": "2026-09-23T14:41:02.296Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the proposed high-priority 0daynews repair because it targets failed queue work and lacks a demonstrated production outcome. Preserve the verified daily briefing workflow, do not retry unchanged outputs, and require CTO/Principal Engineer validation before any requeue. No safe new production candidate is defensible while 31 repair items remain open and measured outcomes are zero. Decision question: should the owner authorize a future bounded repair only after the failed reviewer evidence is corrected and the existing workflow remains protected?",
+        "summary": "Recommendation: reject production and monetization work for blackmarketapparel.com pending stronger attributable evidence; retain only a bounded public reachability check to distinguish the compliance probe failure from an actual outage. The site has only 6 sessions and 2 conversions, no supplied site-level revenue, and compliance status is unknown due to fetch failure. Decision question: should the owner authorize this single read-only public check? ",
         "requested_action": null,
         "proposal_id": null
       }

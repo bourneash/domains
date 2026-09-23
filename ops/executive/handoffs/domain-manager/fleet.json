@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:34:01.146Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T14:41:02.296Z",
+  "summary": "domain-manager checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
+        "kind": "message",
+        "title": null,
+        "summary": "blackmarketapparel.com is live with GA4 and GSC active, but current evidence is limited to 6 sessions, 2 conversions, and $64.25 in AI usage cost; no site-level revenue is supplied. The compliance check recorded the site as unreachable, so additional monetization work should remain bounded until health and measurement are reviewed.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
         "kind": "proposal",
-        "title": "Repair and validate 0daynews content-routing workflow",
-        "summary": "Have CTO or Principal Engineer inspect the failed reviewer outputs for persona routing and daily desk briefing requests, correct the smallest defect, and requeue only after validation gates pass. Preserve the verified daily briefing request and avoid unchanged retries.",
-        "requested_action": "Approve bounded repair and validation of the existing failed requests. Do not deploy directly or create new telemetry.",
-        "proposal_id": "ac2a2225-050f-41b7-9c68-b52aeb19cf3d"
+        "title": "Run bounded revenue-readiness baseline for blackmarketapparel.com",
+        "summary": "Review the live luxury-fashion editorial and affiliate site using the available evidence: 6 sessions, 2 conversions, GA4/GSC configured, affiliate capability present, and $64.25 in AI usage cost. Document audience and content positioning, conversion paths, attribution boundaries, monetization readiness, direct-cost inputs, one reversible validation hypothesis, and a prioritized backlog without inventing revenue or traffic data.",
+        "requested_action": "Approve a report-only assessment. Do not change production systems, analytics, affiliate settings, schedules, credentials, or spending.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Diagnose blackmarketapparel.com reachability and compliance-check failure",
+        "summary": "The 2026-09-23 compliance snapshot marked blackmarketapparel.com unreachable with a network fetch failure, while the inventory identifies it as live with apex and www bindings. Produce a read-only diagnosis distinguishing transient monitoring failure from site availability, and record reversible remediation and validation criteria without treating the failure as proof of an outage.",
+        "requested_action": "Approve a bounded report-only health diagnosis. Do not deploy, modify DNS, change credentials, or alter production configuration.",
+        "proposal_id": "60588950-2592-4da9-9615-3070058f783e"
       }
     ]
   }
