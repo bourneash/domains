@@ -205,9 +205,13 @@ RUNTIME_PATHSPECS=(
   ':(exclude,glob)ops/health/**'
   ':(exclude,glob)ops/.locks/**'
   ':(exclude,glob)ops/facts.yaml'
-  # Only include paths with tracked git files here. git add exits 1 for
-  # :(exclude,glob) pathspecs that point at ignored, untracked paths; those
-  # files are already skipped by gitignore and need no explicit exclusion.
+  # These are operational bookkeeping written by cron roles, not shippable
+  # site changes. A live social post and a watchdog task must not deadlock
+  # the principal engineer from investigating an unrelated incident.
+  ':(exclude,glob)ops/tasks/**'
+  ':(exclude,glob)ops/social/post-log.jsonl'
+  ':(exclude,glob)ops/social/queue.jsonl'
+  ':(exclude,glob)ops/board/engineer-log.md'
 )
 PREEXISTING_EDITS="$(git status --porcelain --untracked-files=all -- . "${RUNTIME_PATHSPECS[@]}" 2>/dev/null || true)"
 if [[ -n "$PREEXISTING_EDITS" ]]; then
