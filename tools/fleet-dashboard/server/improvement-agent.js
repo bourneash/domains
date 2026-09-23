@@ -18,6 +18,7 @@ const WORKER_START_GRACE_MS = Math.max(
 // Keep the worker default explicit and auditable; Claude can still be selected
 // deliberately when a separately authenticated worker is configured.
 const SUPPORTED_PROVIDERS = new Set(['claude', 'chatgpt', 'local']);
+const CHATGPT_COMPATIBLE_MODEL = 'gpt-5.6-luna';
 
 function defaultProvider() {
   const requested = String(process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt').trim();
@@ -26,10 +27,29 @@ function defaultProvider() {
 
 function defaultModel(provider = defaultProvider()) {
   if (provider === 'chatgpt')
-    return String(process.env.FD_CHANGE_QUEUE_MODEL || 'gpt-5.6-luna').trim() || null;
+    return normalizeModel(provider, process.env.FD_CHANGE_QUEUE_MODEL || CHATGPT_COMPATIBLE_MODEL);
   if (provider === 'local')
     return String(process.env.FD_CHANGE_QUEUE_LOCAL_MODEL || 'llama3.2').trim() || null;
   return null;
+}
+
+// `gpt-5` is a valid-looking label but is rejected by the Codex executable
+// when it is authenticated with a ChatGPT account. Normalize legacy queue rows
+// to the known compatible model at the execution boundary, while retaining the
+// original request row and its audit history.
+function normalizeModel(provider, model) {
+  const value = String(model || '').trim();
+  if (provider === 'chatgpt' && value.toLowerCase() === 'gpt-5') return CHATGPT_COMPATIBLE_MODEL;
+  return value || (provider === 'chatgpt' ? CHATGPT_COMPATIBLE_MODEL : defaultModel(provider));
+}
+
+function modelNormalization(provider, model) {
+  const requested = String(model || '').trim();
+  const effective = normalizeModel(provider, requested);
+  return {
+    model: effective,
+    ...(requested && requested !== effective ? { model_normalized_from: requested } : {}),
+  };
 }
 
 function resolveWorkerProvider({ provider, model } = {}) {
@@ -37,7 +57,7 @@ function resolveWorkerProvider({ provider, model } = {}) {
   if (!SUPPORTED_PROVIDERS.has(requested))
     return {
       provider: defaultProvider(),
-      model: model || defaultModel(defaultProvider()),
+      model: defaultModel(defaultProvider()),
       fallback: true,
     };
   // Do not send work to a Claude CLI which is present but cannot authenticate.
@@ -51,7 +71,11 @@ function resolveWorkerProvider({ provider, model } = {}) {
       reason: 'claude worker auth is disabled in the fleet dashboard',
     };
   }
-  return { provider: requested, model: model || defaultModel(requested), fallback: false };
+  return {
+    provider: requested,
+    ...modelNormalization(requested, model || defaultModel(requested)),
+    fallback: false,
+  };
 }
 
 function logPath(root, runId) {
@@ -128,6 +152,9 @@ function launch({
   phase = 'implementation',
   onFinished = null,
 }) {
+  const resolved = resolveWorkerProvider({ provider, model });
+  provider = resolved.provider;
+  model = resolved.model;
   if (run.state !== 'building') throw httpErr(409, 'agent can only run while building');
   if (!run.workspace_path || !run.sandbox?.instance)
     throw httpErr(409, 'start the isolated sandbox first');
@@ -211,6 +238,9 @@ function launch({
       phase,
       provider,
       model: selectedModel || null,
+      ...(resolved.model_normalized_from
+        ? { model_normalized_from: resolved.model_normalized_from }
+        : {}),
       max_turns: turns,
       assigned_role: selectedRole,
       started_at: startedAt,

@@ -31,6 +31,12 @@ test('queue workers default to the project Codex model and rebind unauthenticate
       model: 'gpt-5.6-luna',
       fallback: false,
     });
+    assert.deepEqual(agent.resolveWorkerProvider({ provider: 'chatgpt', model: 'gpt-5' }), {
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      model_normalized_from: 'gpt-5',
+      fallback: false,
+    });
   } finally {
     if (provider === undefined) delete process.env.FD_CHANGE_QUEUE_PROVIDER;
     else process.env.FD_CHANGE_QUEUE_PROVIDER = provider;
