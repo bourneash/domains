@@ -134,6 +134,12 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   );
   const pendingApprovals = proposals.filter(row => ['proposed', 'feedback'].includes(row.status));
   const failedRequests = requests.filter(row => row.status === 'failed');
+  const failureFollowups =
+    typeof store.listExecutiveWorkItems === 'function'
+      ? store
+          .listExecutiveWorkItems({ source_type: 'failed-change-request', limit: 1000 })
+          .filter(row => !['done', 'cancelled'].includes(String(row.status)))
+      : [];
   const queueCountForTick = row =>
     row.result?.created_counts
       ? Number(row.result.created_counts.change_requests || 0)
@@ -173,8 +179,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       'Review the measured outcomes and either roll back, iterate, or select the next evidence-backed improvement.';
   } else if (pendingMeasurement.length) {
     status = 'results-pending';
-    nextStep =
-      'Wait for or run the measurement gate; do not call the work successful until the outcome is recorded.';
+    nextStep = failureFollowups.length
+      ? 'Route the open failure-repair work to CTO/Principal Engineer while the deployed improvements continue through the measurement gate.'
+      : 'Wait for or run the measurement gate; do not call the work successful until the outcome is recorded.';
   } else if (active.length || deliveredRequests.length) {
     status = 'work-in-flight';
     nextStep =
@@ -224,6 +231,8 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       requests_by_status: countBy(requests, 'status'),
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
+      failure_followups_open: failureFollowups.length,
+      failure_followups_by_owner: countBy(failureFollowups, 'owner'),
       approved_proposals: proposalExecution.approved_proposals,
       approved_proposals_with_execution: proposalExecution.approved_proposals_with_execution,
       approved_proposals_unexecuted: proposalExecution.approved_proposals_unexecuted,
@@ -249,6 +258,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
         : []),
       ...(failedRequests.length
         ? [`${failedRequests.length} implementation request(s) failed`]
+        : []),
+      ...(failureFollowups.length
+        ? [`${failureFollowups.length} failed request(s) have open repair work items`]
         : []),
       ...(failedTicks.length
         ? [`${failedTicks.length} executive tick failure(s) retained in the audit log`]

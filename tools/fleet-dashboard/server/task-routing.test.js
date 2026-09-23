@@ -19,5 +19,9 @@ test('SEO tasks always start with the SEO analyst', () => {
 
 test('site-aware routing uses an installed equivalent role', () => {
   assert.equal(assignedRoleForSite('content', 'content-writer', ['news-writer']), 'news-writer');
-  assert.equal(assignedRoleForSite('seo', 'seo-analyst', ['engineer']), 'engineer');
+  assert.equal(assignedRoleForSite('seo', 'seo-analyst', ['engineer']), undefined);
+  assert.equal(
+    assignedRoleForSite('seo', 'seo-analyst', ['seo-analyst', 'engineer']),
+    'seo-analyst'
+  );
 });

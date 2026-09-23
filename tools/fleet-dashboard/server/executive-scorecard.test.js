@@ -135,3 +135,24 @@ test('scorecard does not score deliberate dry runs as executable no-ops', () => 
   assert.equal(result.cadence.actionability_rate_percent, 100);
   assert.equal(result.cadence.all_ticks_actionability_rate_percent, 50);
 });
+
+test('scorecard exposes open repair work for terminal worker failures', () => {
+  const store = {
+    listExecutiveActions: () => [],
+    listExecutiveProposals: () => [],
+    listChangeRequests: () => [{ status: 'failed', created_at: '2026-09-22T00:00:00.000Z' }],
+    listImprovements: () => [{ state: 'deployed', created_at: '2026-09-20T00:00:00.000Z' }],
+    listExecutiveWorkItems: () => [
+      { source_type: 'failed-change-request', status: 'open', owner: 'cto' },
+      { source_type: 'failed-change-request', status: 'done', owner: 'principal-engineer' },
+    ],
+    list: () => [],
+  };
+  const result = scorecard.buildScorecard(store, {
+    now: new Date('2026-09-22T01:00:00.000Z'),
+  });
+  assert.equal(result.execution.failure_followups_open, 1);
+  assert.deepEqual(result.execution.failure_followups_by_owner, { cto: 1 });
+  assert.match(result.attention.join('\n'), /open repair work items/);
+  assert.match(result.next_step, /failure-repair/);
+});

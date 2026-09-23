@@ -56,6 +56,7 @@ const improvementAgent = require('./improvement-agent');
 const changequeue = require('./changequeue');
 const changequeueNotify = require('./changequeue-notify');
 const executiveFollowup = require('./executive-followup');
+const executiveFailureFollowup = require('./executive-failure-followup');
 const executiveData = require('./executive-data');
 const executive = require('./executive');
 const executiveRunner = require('../../executive/runner');
@@ -1182,6 +1183,31 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     let changed = 0;
     for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      try {
+        const followup = executiveFailureFollowup.upsert(events, request, run);
+        if (followup.changed) {
+          events.record({
+            event_type: followup.created
+              ? 'change-request.failure-followup-created'
+              : 'change-request.failure-followup-updated',
+            source: 'fleet-dashboard',
+            site_id: request.site ? `site:${request.site}` : null,
+            entity_type: 'change-request',
+            entity_id: request.request_id,
+            correlation_id: `change-request:${request.request_id}`,
+            payload: {
+              work_id: followup.item.work_id,
+              owner: followup.item.owner,
+              kind: followup.item.kind,
+              priority: followup.item.priority,
+            },
+          });
+          changed += 1;
+        }
+      } catch {
+        // A failure follow-up is useful recovery metadata, but it must never
+        // prevent queue reconciliation from diagnosing or retrying a request.
+      }
       // A report-only run is complete work. Repair the queue projection rather
       // than asking an operator to retry a missing worktree.
       if (run?.state === 'reported') {

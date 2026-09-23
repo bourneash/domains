@@ -13,10 +13,12 @@ const OWNERS_BY_TYPE = Object.freeze({
 
 // These are role-equivalent fallbacks for sites whose installed role set
 // predates the fleet-wide canonical names. They are intentionally ordered:
-// prefer the canonical owner, then the site's closest existing specialist,
-// and use engineering only when no content/SEO specialist exists.
+// prefer the canonical owner, then the site's closest existing specialist.
+// SEO intentionally has no engineering fallback: growth strategy, content,
+// and link-building are outside the engineer role's authority. Technical SEO
+// work is filed as engineering separately by the producer.
 const SITE_FALLBACKS_BY_TYPE = Object.freeze({
-  seo: ['seo-analyst', 'engineer', 'principal-engineer'],
+  seo: ['seo-analyst'],
   content: [
     'content-writer',
     'news-writer',
@@ -75,10 +77,7 @@ function assignedRoleForSite(type, assignedRole, availableRoles = []) {
   // belongs to the allowed lane; otherwise do not route into a nonexistent
   // canonical role just because the site uses an older naming convention.
   if (requested && candidates.includes(requested) && available.has(requested)) return requested;
-  return (
-    candidates.find(role => available.has(role)) ||
-    (available.has('engineer') ? 'engineer' : undefined)
-  );
+  return candidates.find(role => available.has(role));
 }
 
 function ownershipMismatch(type, assignedRole) {
