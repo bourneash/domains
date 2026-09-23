@@ -26,10 +26,17 @@ const DEV_PORT_IN_CONTAINER = parseInt(
   10
 );
 const PREVIEW_READY_TIMEOUT_MS = parseInt(
-  process.env.FD_DEVSANDBOX_PREVIEW_READY_TIMEOUT_MS || '30000',
+  process.env.FD_DEVSANDBOX_PREVIEW_READY_TIMEOUT_MS || '90000',
   10
 );
 const PUBLIC_HOST = process.env.FD_DEVSANDBOX_PUBLIC_HOST || '127.0.0.1';
+// Astro's Cloudflare adapter starts a local prerender server during builds.
+// Node's default resolver can bind that helper on IPv6 localhost while the
+// adapter dials 127.0.0.1, producing a false ECONNREFUSED quality-gate failure
+// inside otherwise healthy site sandboxes. Keep this scoped to the disposable
+// worker; production site configuration is not changed.
+const NODE_RUNTIME_OPTIONS =
+  process.env.FD_DEVSANDBOX_NODE_OPTIONS || '--dns-result-order=ipv4first';
 // Per-container resource caps — one runaway dev-server/build in a sandbox
 // shouldn't be able to starve the host or every other running container.
 const MEMORY_LIMIT = process.env.FD_DEVSANDBOX_MEMORY_LIMIT || '4g';
@@ -96,6 +103,10 @@ function sandboxSecurityArgs() {
     '--tmpfs',
     '/home/dev/.npm:rw,noexec,nosuid,size=512m',
   ];
+}
+
+function sandboxRuntimeEnvironment() {
+  return { NODE_OPTIONS: NODE_RUNTIME_OPTIONS };
 }
 
 async function ensureSandboxNetwork(instance) {
@@ -411,6 +422,8 @@ async function start(root, site, options = {}) {
     'TTYD_PORT=7681',
     '-e',
     'ASTRO_TELEMETRY_DISABLED=1',
+    '-e',
+    `NODE_OPTIONS=${NODE_RUNTIME_OPTIONS}`,
   ];
   const gitMount = gitWorkspaceMount(root, site, canonicalSiteDir, hostSiteDir);
   if (gitMount) {
@@ -895,6 +908,7 @@ module.exports = {
   gitWorkspaceMount,
   sandboxNetworkName,
   sandboxSecurityArgs,
+  sandboxRuntimeEnvironment,
   parsePublishedPorts,
   runningPublishedPorts,
   stats,

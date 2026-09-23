@@ -6,6 +6,8 @@ const {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
   shouldRetryQueueFailure,
+  shouldAutoRevalidateInfrastructureReview,
+  shouldValidateBeforeDelivery,
   applyQualityPolicy,
 } = require('./server');
 
@@ -63,6 +65,46 @@ test('does not retry reviewer rejections or deterministic quality-gate failures'
     true
   );
   assert.equal(shouldRetryQueueFailure('implementation agent ended failed'), true);
+});
+
+test('versioned validation fixes reopen each preserved infrastructure review at most once', () => {
+  const request = { status: 'review' };
+  const run = {
+    state: 'review',
+    outcome: { infrastructure_blocked: true },
+  };
+  assert.equal(shouldAutoRevalidateInfrastructureReview(request, run, 'ipv4-preview-v1'), true);
+  assert.equal(
+    shouldAutoRevalidateInfrastructureReview(
+      request,
+      {
+        ...run,
+        outcome: { ...run.outcome, infrastructure_revalidation_version: 'ipv4-preview-v1' },
+      },
+      'ipv4-preview-v1'
+    ),
+    false
+  );
+  assert.equal(
+    shouldAutoRevalidateInfrastructureReview(
+      request,
+      { ...run, state: 'failed' },
+      'ipv4-preview-v1'
+    ),
+    false
+  );
+});
+
+test('a passing review is delivered idempotently without running validation a second time', () => {
+  assert.equal(shouldValidateBeforeDelivery({ state: 'building', validation: null }), true);
+  assert.equal(
+    shouldValidateBeforeDelivery({ state: 'review', validation: { passed: false } }),
+    true
+  );
+  assert.equal(
+    shouldValidateBeforeDelivery({ state: 'review', validation: { passed: true } }),
+    false
+  );
 });
 
 test('browser runtime warnings do not reject otherwise passing delivery gates', () => {

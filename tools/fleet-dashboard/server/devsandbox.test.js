@@ -25,6 +25,10 @@ test('developer sandboxes drop capabilities and keep writable state explicit', (
   assert.ok(args.includes('/home/dev/.codex') === false);
 });
 
+test('developer sandboxes force IPv4-first resolution for Astro Cloudflare builds', () => {
+  assert.equal(devsandbox.sandboxRuntimeEnvironment().NODE_OPTIONS, '--dns-result-order=ipv4first');
+});
+
 test('browser audit distinguishes sandbox runtime crashes from page failures', () => {
   assert.equal(
     devsandbox.isBrowserInfrastructureFailure(

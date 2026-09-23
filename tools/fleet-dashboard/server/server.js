@@ -87,6 +87,10 @@ const AUTOMATIC_RETRY_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 // finishes the delivery handoff. Do not mistake that short, normal window for
 // an interrupted handoff during the 15-second queue pulse.
 const AUTOMATIC_REVIEW_HANDOFF_GRACE_MS = 2 * 60 * 1000;
+// Bump this when the validation harness changes. A preserved implementation
+// may then receive one bounded revalidation automatically, without reopening
+// the same infrastructure failure on every queue pulse.
+const INFRASTRUCTURE_REVALIDATION_VERSION = 'ipv4-preview-v1';
 // Recovery inspects historical failed work and may need Docker/Git probes.
 // It must not hold the normal queue pickup path hostage when an old worker or
 // container is slow; the recovery lock keeps the long pass single-flight.
@@ -120,6 +124,25 @@ function shouldRetryQueueFailure(text, validation = null) {
   return /(worker process|implementation agent ended|reviewer handoff|automatic reviewer handoff|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding)/i.test(
     value
   );
+}
+
+function shouldAutoRevalidateInfrastructureReview(
+  request,
+  run,
+  version = INFRASTRUCTURE_REVALIDATION_VERSION
+) {
+  return Boolean(
+    request &&
+    request.status === 'review' &&
+    run &&
+    run.state === 'review' &&
+    run.outcome?.infrastructure_blocked === true &&
+    run.outcome?.infrastructure_revalidation_version !== version
+  );
+}
+
+function shouldValidateBeforeDelivery(item) {
+  return !(item?.state === 'review' && item.validation?.passed === true);
 }
 
 function isKnownTarget(root, target) {
@@ -1963,20 +1986,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       emitChangeNotification('report ready', verified, reported, artifact.url);
       return { run: reported, report: artifact };
     }
-    const validated = await validateImprovementForDelivery(item);
-    if (validated.validation.passed !== true) {
-      const infrastructureBlock = validationInfrastructureBlock(validated.validation);
-      throw Object.assign(new Error('quality gates did not pass'), {
-        httpStatus: 409,
+    // Reviewer callbacks and the restart recovery sweep can both observe the
+    // same PASS marker. The first delivery attempt may already have completed
+    // deterministic validation and persisted `review`; make that handoff
+    // idempotent instead of trying to validate a second time from `review`.
+    let reviewRun = item;
+    if (shouldValidateBeforeDelivery(item)) {
+      const validated = await validateImprovementForDelivery(item);
+      if (validated.validation.passed !== true) {
+        const infrastructureBlock = validationInfrastructureBlock(validated.validation);
+        throw Object.assign(new Error('quality gates did not pass'), {
+          httpStatus: 409,
+          validation: validated.validation,
+          noAutomaticRepair: infrastructureBlock,
+        });
+      }
+      reviewRun = improvements.transition(events, item.run_id, {
+        state: 'review',
         validation: validated.validation,
-        noAutomaticRepair: infrastructureBlock,
       });
+      await syncImprovementTask(root, reviewRun, 'done');
     }
-    const reviewRun = improvements.transition(events, item.run_id, {
-      state: 'review',
-      validation: validated.validation,
-    });
-    await syncImprovementTask(root, reviewRun, 'done');
     const reviewRequest = events.getChangeRequest(reviewRun.source_id);
     if (reviewRequest?.delivery_mode === 'pull_request') {
       const published = await git.publishWorktree(
@@ -2407,10 +2437,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       )
         continue;
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
-      // Validation-infrastructure blocks are deliberately preserved in review
-      // for operator/tooling revalidation. Do not let an old reviewer marker
-      // reopen a cleaned worktree or spend another model call.
-      if (run?.outcome?.infrastructure_blocked === true) continue;
+      // Validation-infrastructure blocks are preserved in review, but a
+      // versioned harness fix gets one bounded automatic revalidation. This
+      // removes the operator bottleneck without retrying the same broken
+      // environment forever; the version marker remains in the audit record.
+      if (run?.outcome?.infrastructure_blocked === true) {
+        if (
+          shouldAutoRevalidateInfrastructureReview(request, run) &&
+          events.listChangeRequests({ status: 'reviewing', limit: 1000 }).length <
+            Number(events.getChangeQueueSettings().max_concurrent || 1)
+        ) {
+          const startedAt = new Date().toISOString();
+          try {
+            events.updateImprovement(run.run_id, {
+              outcome: {
+                ...(run.outcome || {}),
+                infrastructure_revalidation_version: INFRASTRUCTURE_REVALIDATION_VERSION,
+                infrastructure_revalidation_started_at: startedAt,
+              },
+            });
+            autoReviewRequest(request.request_id).catch(error =>
+              recordAutoReviewFailure(request.request_id, error)
+            );
+          } catch {
+            /* preserve the review block; the next versioned operator pass can retry */
+          }
+        }
+        continue;
+      }
       if (!run || run.agent?.phase !== 'reviewer' || run.agent?.status !== 'completed') continue;
       const finishedAt = Date.parse(run.agent.finished_at || '');
       if (
@@ -5619,5 +5673,7 @@ module.exports = {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
   shouldRetryQueueFailure,
+  shouldAutoRevalidateInfrastructureReview,
+  shouldValidateBeforeDelivery,
   applyQualityPolicy,
 };
