@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:33:37.330Z",
+  "generated_at": "2026-09-23T09:34:39.057Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the proposed affiliate-readiness assessment and all new queue, production, financial, credential, configuration, and spending work this tick. weirdassstuff.com has 359 attributed clicks but zero orders and commission, so no monetization or causal-lift claim is supported. Existing measurement gates should continue unchanged until recorded outcomes are available. Will the owner keep the current gates unchanged?",
+        "summary": "Recommendation: Reject the Weird Girl Store assessment and all new production, financial, credential, configuration, spending, and queue work this tick. The supplied telemetry is already available in the shared snapshot, the proposal duplicates existing evidence coverage, and no measurable outcome is defined. Existing measurement gates should continue unchanged; no revenue, margin, or causal-lift claims are supported. Will the owner keep current gates unchanged until recorded outcomes are available?",
         "requested_action": null,
         "proposal_id": null
       }

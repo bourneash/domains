@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:33:37.331Z",
+  "generated_at": "2026-09-23T09:34:39.058Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Assess affiliate conversion and monetization readiness",
-        "summary": "Review the site’s observable affiliate conversion paths, product relevance, disclosure placement, and measurement readiness before further monetization work.",
-        "requested_action": "Approve a bounded, read-only assessment of affiliate link placement, content-to-product relevance, disclosure coverage, conversion definitions, and attribution reconciliation. Do not deploy, change credentials or configuration, spend money, or claim revenue or causal lift.",
+        "title": "Assess Weird Girl Store audience and monetization readiness",
+        "summary": "Produce a bounded, read-only assessment of weirdgirlstore.com’s audience positioning, content structure, affiliate conversion paths, analytics health, SEO opportunities, and operational backlog. GA4 and GSC are configured and currently reporting healthy status; no traffic, revenue, conversion, or causal-lift claims are made from the supplied snapshot.",
+        "requested_action": "Approve a report-only assessment using authoritative site evidence, explicitly labeling unavailable fields and prioritizing reversible validation work. Do not deploy, change credentials or configuration, spend money, or claim unsupported telemetry.",
         "proposal_id": null
       }
     ]
