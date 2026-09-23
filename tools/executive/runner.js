@@ -1298,8 +1298,16 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
     ...basePlan.change_requests,
     ...selected.map(candidate => {
       const type = String(candidate.type || '').toLowerCase();
-      const category = ['seo', 'engineering', 'content', 'design', 'marketing'].includes(type)
-        ? type
+      const signal = `${candidate.title || ''} ${candidate.recommendation || ''} ${JSON.stringify(candidate.evidence || '')}`;
+      const inferredCategory =
+        type === 'engineering' &&
+        /\b(?:type\s*[=:]\s*content|content task|content refresh)\b/i.test(signal)
+          ? 'content'
+          : type;
+      const category = ['seo', 'engineering', 'content', 'design', 'marketing'].includes(
+        inferredCategory
+      )
+        ? inferredCategory
         : 'engineering';
       // A baseline/evidence candidate must never enter the deployment path
       // just because intelligence classified its source as SEO or engineering.

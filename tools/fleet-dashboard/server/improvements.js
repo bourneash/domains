@@ -147,18 +147,26 @@ function startManual({ store, root, request, baseline = {} }) {
   const runId = crypto.randomUUID();
   const taskId = crypto.randomUUID();
   const correlationId = `change-request:${request.request_id}`;
-  const file = tasks.create(root, request.site, 'backlog', {
-    task_id: taskId,
-    title: request.title,
-    priority: request.priority === 'high' ? 1 : request.priority === 'medium' ? 2 : 3,
-    type: request.category,
-    estimated_turns: request.max_turns,
-    assigned_role: request.assigned_role || 'engineer',
-    source: 'fleet-dashboard',
-    source_id: request.request_id,
-    correlation_id: correlationId,
-    body: `## Human request\n\n${request.body}\n\n## Agent configuration\n\n- Provider: ${request.provider}\n- Model: ${request.model || 'provider default'}\n- Max turns: ${request.max_turns}\n- Role: ${request.assigned_role || 'engineer'}\n\nchange-request: ${request.request_id}\n`,
-  });
+  const taskTarget = taskRoutingTarget(root, request);
+  const file = taskTarget
+    ? taskTarget.file
+    : tasks.create(root, request.site, 'backlog', {
+        task_id: taskId,
+        title: request.title,
+        priority: request.priority === 'high' ? 1 : request.priority === 'medium' ? 2 : 3,
+        type: request.category,
+        estimated_turns: request.max_turns,
+        assigned_role: request.assigned_role || 'engineer',
+        source: 'fleet-dashboard',
+        source_id: request.request_id,
+        correlation_id: correlationId,
+        body:
+          `## Human request\n\n${request.body}\n\n## Agent configuration\n\n` +
+          `- Provider: ${request.provider}\n- Model: ${request.model || 'provider default'}\n` +
+          `- Max turns: ${request.max_turns}\n- Effective installed queue role: ${request.assigned_role || 'engineer'}\n` +
+          `If the human request names a role that is not installed on this site, use the effective installed queue role above and record that substitution in the task.\n\n` +
+          `change-request: ${request.request_id}\n`,
+      });
   const run = store.createImprovement({
     run_id: runId,
     site: request.site,
@@ -191,7 +199,31 @@ function startManual({ store, root, request, baseline = {} }) {
     correlation_id: correlationId,
     payload: { task_id: taskId, task_file: file, request_id: request.request_id },
   });
-  return { run, task_file: file };
+  return {
+    run,
+    task_file: file,
+    task_column: taskTarget?.column || 'backlog',
+    task_reused: Boolean(taskTarget),
+  };
+}
+
+// Executive task-routing actions already identify the existing board item in
+// action_key. Reusing that file avoids creating a wrapper task that the worker
+// then mistakes for a second implementation target. The filename is validated
+// by tasks.get, and a missing target falls back to the normal new-task path.
+function taskRoutingTarget(root, request = {}) {
+  const match = String(request.action_key || '').match(/^task-routing:[^:]+:(.+)$/);
+  const file = match?.[1] || '';
+  if (!file) return null;
+  for (const column of tasks.COLUMNS) {
+    try {
+      tasks.get(root, request.site, column, file);
+      return { file, column };
+    } catch {
+      /* target may live in another board column */
+    }
+  }
+  return null;
 }
 
 function transition(store, runId, input = {}) {

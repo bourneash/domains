@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { assignedRoleForType, ownershipMismatch } = require('./task-routing');
+const { assignedRoleForType, assignedRoleForSite, ownershipMismatch } = require('./task-routing');
 
 test('SEO tasks always start with the SEO analyst', () => {
   assert.equal(assignedRoleForType('seo', 'engineer'), 'seo-analyst');
@@ -15,4 +15,9 @@ test('SEO tasks always start with the SEO analyst', () => {
     allowed_roles: ['seo-analyst'],
   });
   assert.equal(ownershipMismatch('engineering', 'engineer'), null);
+});
+
+test('site-aware routing uses an installed equivalent role', () => {
+  assert.equal(assignedRoleForSite('content', 'content-writer', ['news-writer']), 'news-writer');
+  assert.equal(assignedRoleForSite('seo', 'seo-analyst', ['engineer']), 'engineer');
 });

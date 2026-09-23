@@ -70,7 +70,7 @@ const campaigns = require('./campaigns');
 const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
-const { assignedRoleForType } = require('./task-routing');
+const { assignedRoleForType, assignedRoleForSite } = require('./task-routing');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -95,6 +95,18 @@ function workerCompletionPath(request, result, settings) {
 
 function isKnownTarget(root, target) {
   return target === 'fleet' || isKnownSite(root, target);
+}
+
+function installedSiteRoles(root, site) {
+  if (!site || site === 'fleet') return [];
+  try {
+    return fs
+      .readdirSync(path.join(root, 'sites', site, 'ops', 'roles'))
+      .filter(file => file.endsWith('.md'))
+      .map(file => file.slice(0, -3));
+  } catch {
+    return [];
+  }
 }
 
 function reportArtifactPath(root, requestId) {
@@ -294,10 +306,37 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         httpStatus: 409,
       });
     // Last-mile defense for requests queued before role routing was enforced.
-    // Normalize before creating the improvement run or launching the agent;
-    // otherwise the task file could be corrected while the agent still runs
-    // under the stale engineer role from SQLite.
-    claimed.assigned_role = assignedRoleForType(claimed.category, claimed.assigned_role);
+    // Resolve against the site's installed roles: `content-writer` is the
+    // canonical fleet owner, but some sites intentionally use `news-writer`,
+    // and some older sites have no SEO analyst at all. Never launch a worker
+    // under a role that does not exist in its own site checkout.
+    const previousRole = claimed.assigned_role;
+    const routedRole =
+      assignedRoleForSite(
+        claimed.category,
+        claimed.assigned_role,
+        installedSiteRoles(root, claimed.site)
+      ) || assignedRoleForType(claimed.category, claimed.assigned_role);
+    if (routedRole && routedRole !== previousRole) {
+      const rebound = events.updateChangeRequest(claimed.request_id, {
+        assigned_role: routedRole,
+      });
+      Object.assign(claimed, rebound);
+      events.record({
+        event_type: 'change-request.role_rebound',
+        source: 'fleet-dashboard',
+        site_id: `site:${claimed.site}`,
+        entity_type: 'change-request',
+        entity_id: claimed.request_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: {
+          previous_role: previousRole,
+          assigned_role: routedRole,
+          category: claimed.category,
+          reason: 'canonical role is not installed on this site',
+        },
+      });
+    }
     const workerProvider = improvementAgent.resolveWorkerProvider(claimed);
     if (
       workerProvider.fallback ||
@@ -383,12 +422,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         });
         return { request: resumed, run: created.run, deduplicated: true };
       }
-      await git.commit(
-        root,
-        claimed.site,
-        [`ops/tasks/backlog/${created.task_file}`],
-        `chore: queue ${claimed.title}`
-      );
+      const queuedTask = findImprovementTask(root, createdRun);
+      if (!queuedTask)
+        throw new Error(`linked task ${created.task_file} is missing before queue commit`);
+      // A task-routing request points at an existing, already committed board
+      // item. Do not manufacture an empty commit for it: the worker's isolated
+      // worktree is based on that existing item and owns the next edit. New
+      // tasks still get the normal path-limited queue commit.
+      if (!created.task_reused) {
+        await git.commit(
+          root,
+          claimed.site,
+          [`ops/tasks/${queuedTask.column}/${created.task_file}`],
+          `chore: queue ${claimed.title}`
+        );
+      }
       const worktree = await git.createWorktree(root, claimed.site, created.run.run_id);
       const sandbox = await devsandbox.startImprovement(
         root,
@@ -442,11 +490,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         branch: worktree.branch,
       });
       const runnable = events.getImprovement(created.run.run_id);
+      const workerTaskBody = String(claimed.action_key || '').startsWith('task-routing:')
+        ? `${claimed.body}\n\nTASK-ROUTING EXECUTION CONTRACT:\n- Edit the existing task identified by action_key.\n- Do not create a replacement or wrapper task.\n- Use the effective installed queue role ${claimed.assigned_role || 'engineer'}; if the request text names a role that is not installed, substitute this role and record the reason.\n- Preserve rollback metadata and leave unrelated tasks unchanged.`
+        : claimed.body;
       const result = improvementAgent.start({
         root,
         store: events,
         run: runnable,
-        taskBody: claimed.body,
+        taskBody: workerTaskBody,
         provider: claimed.provider,
         model: claimed.model,
         maxTurns: claimed.max_turns,
@@ -624,11 +675,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!request.run_id) return;
     const run = events.getImprovement(request.run_id);
     if (!run || !['proposed', 'building', 'failed'].includes(run.state)) return;
-    // A report-only worker may leave useful but incomplete evidence in a dirty
-    // worktree after an interruption. Preserve that checkout for audit and
-    // detach the request so a retry gets a fresh isolated worktree; otherwise
-    // the retry path is permanently blocked by its own evidence.
-    if (run.state === 'failed' && request.delivery_mode === 'report_only') {
+    // Any failed worker may leave useful or partially corrected work in a
+    // dirty checkout. Preserve that checkout for audit and detach the request
+    // so a retry gets a fresh isolated worktree. Refusing every retry because
+    // the previous worker left changes behind is a major source of queue
+    // starvation; preserving the evidence is safer than deleting it.
+    if (run.state === 'failed') {
       let dirty = false;
       try {
         dirty = (await git.worktreeSnapshot(run.workspace_path)).dirty;
@@ -655,7 +707,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           correlation_id: `change-request:${request.request_id}`,
           payload: {
             previous_run_id: run.run_id,
-            reason: 'preserved incomplete report-only evidence before retry',
+            reason: 'preserved failed worker changes before retry',
+            delivery_mode: request.delivery_mode,
           },
         });
         return;
@@ -1355,8 +1408,85 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return { run: changed, validation };
   }
 
+  function findWorktreeTask(workspacePath, file) {
+    for (const column of tasks.COLUMNS) {
+      const candidate = path.join(workspacePath, 'ops', 'tasks', column, file);
+      if (fs.existsSync(candidate)) return { column, path: candidate };
+    }
+    return null;
+  }
+
+  async function deliverTaskRoutingAutomatically(item, request) {
+    const workTask = findWorktreeTask(item.workspace_path, item.task_file);
+    if (!workTask) throw new Error(`routing task ${item.task_file} is missing from worktree`);
+    const canonicalTask = findImprovementTask(root, item);
+    if (!canonicalTask) throw new Error(`routing task ${item.task_file} is missing from site`);
+    const canonicalPath = path.join(
+      root,
+      'sites',
+      item.site,
+      'ops',
+      'tasks',
+      canonicalTask.column,
+      item.task_file
+    );
+    const canonicalStatus = await git.status(root, item.site);
+    const canonicalRel = `ops/tasks/${canonicalTask.column}/${item.task_file}`;
+    if (canonicalStatus.files.some(file => file.path === canonicalRel))
+      throw new Error(`canonical routing task is already dirty: ${canonicalRel}`);
+    const worker = tasks.parseTask(fs.readFileSync(workTask.path, 'utf8'));
+    const current = tasks.parseTask(fs.readFileSync(canonicalPath, 'utf8'));
+    if (worker.body !== current.body)
+      throw new Error('routing worker changed task body; refusing metadata-only delivery');
+
+    // Routing is an auditable ops metadata change, not a production-code
+    // improvement. Merge only worker metadata onto the current canonical task
+    // so completion timestamps and concurrent board lifecycle fields survive.
+    const lifecycle = new Map(
+      ['task_id', 'created', 'started_at', 'completed_at', 'measurement_due'].map(key => [
+        key,
+        current.meta[key],
+      ])
+    );
+    const mergedMeta = { ...current.meta, ...worker.meta };
+    for (const [key, value] of lifecycle) {
+      if (value !== undefined) mergedMeta[key] = value;
+    }
+    fs.writeFileSync(canonicalPath, tasks.serializeTask(mergedMeta, current.body));
+    const committed = await git.commit(
+      root,
+      item.site,
+      [canonicalRel],
+      `chore: route ${item.title}`
+    );
+    const pushed = await git.push(root, item.site);
+    const reported = improvements.transition(events, item.run_id, {
+      state: 'reported',
+      deployment_id: committed.out || null,
+      outcome: {
+        measured_at: new Date().toISOString(),
+        kind: 'task-routing',
+        request_id: request.request_id,
+        commit: pushed.out || committed.out || null,
+        assigned_role: request.assigned_role,
+      },
+    });
+    const verified = syncChangeRequestFromRun(reported);
+    events.updateChangeRequest(request.request_id, {
+      lease_owner: null,
+      lease_expires_at: null,
+      heartbeat_at: null,
+    });
+    emitChangeNotification('verified', verified, reported, pushed.out || committed.out || null);
+    const cleaned = await cleanupImprovementResources(root, reported);
+    if (!cleaned.cleaned) throw new Error(cleaned.error);
+    return { run: reported, deployment: { committed, pushed } };
+  }
+
   async function deliverAutomatically(item) {
     const request = events.getChangeRequest(item.source_id);
+    if (String(request?.action_key || '').startsWith('task-routing:'))
+      return deliverTaskRoutingAutomatically(item, request);
     if (request?.delivery_mode === 'report_only') {
       let workspace = await git.worktreeSnapshot(item.workspace_path);
       if (workspace.dirty) {
@@ -1483,6 +1613,26 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return `${String(error?.message || error || 'automatic review failed')}\n${log}`.slice(-8000);
   }
 
+  function reviewTaskBodyForRequest(request, task) {
+    const taskBody = task?.body || request.body;
+    if (!String(request.action_key || '').startsWith('task-routing:')) return taskBody;
+    // A routing request intentionally changes assignment metadata on an
+    // existing board item; its underlying task may describe a much larger
+    // future implementation. The reviewer must validate the routing request,
+    // not reject the metadata-only handoff for not already completing that
+    // future implementation.
+    return [
+      'TASK-ROUTING REVIEW CONTRACT',
+      "Review the requested queue-routing metadata change only. Do not require the underlying task's implementation acceptance criteria to be completed in this run.",
+      'PASS when the diff edits the existing task in place, assigns an installed effective role, records the requested role/substitution and rollback metadata where applicable, and contains no unrelated production changes.',
+      'FAIL only when the existing task was not edited, the effective role is not installed, rollback metadata is missing when needed, or unrelated changes were made.',
+      '',
+      `Routing request:\n${String(request.body || '').slice(0, 12000)}`,
+      '',
+      `Existing task context:\n${String(taskBody || '').slice(0, 24000)}`,
+    ].join('\n');
+  }
+
   function validationInfrastructureBlock(validation) {
     const text = JSON.stringify(validation || {});
     return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial)/i.test(
@@ -1524,7 +1674,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const feedback = automaticReviewFeedback(root, run, error);
     const task = findImprovementTask(root, run);
     const taskBody = [
-      task?.body || request.body,
+      reviewTaskBodyForRequest(request, task),
       '',
       'AUTOMATIC REVIEW REPAIR',
       `This is bounded repair attempt ${repairCount + 1} of ${MAX_AUTOMATIC_REVIEW_REPAIRS}.`,
@@ -1743,7 +1893,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         root,
         store: events,
         run,
-        taskBody: task?.body || request.body,
+        taskBody: reviewTaskBodyForRequest(request, task),
         provider: request.provider,
         model: request.model,
         maxTurns: request.max_turns,

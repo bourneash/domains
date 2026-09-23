@@ -137,6 +137,29 @@ test('marks SEO-labelled baselines as report-only work', () => {
   assert.equal(plan.change_requests[0].delivery_mode, 'report_only');
 });
 
+test('routes an engineering-labelled content handoff through the content lane', () => {
+  const plan = runner.buildActionMandateFallback(
+    { messages: [], change_requests: [] },
+    {
+      queue: [],
+      improvements: [],
+      action_mandate: {
+        candidates: [
+          {
+            site: 'news.example.com',
+            type: 'engineering',
+            title: 'Reassign the daily briefing task',
+            recommendation: 'Route the existing content task to its installed writer role.',
+            evidence: 'type=content requires content-writer; found news-writer',
+          },
+        ],
+      },
+    }
+  );
+  assert.equal(plan.change_requests[0].category, 'content');
+  assert.equal(plan.change_requests[0].assigned_role, 'engineer');
+});
+
 test('roles can create and update bounded workbench cases through the plan', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

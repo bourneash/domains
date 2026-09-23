@@ -162,6 +162,41 @@ test('records failed implementation runs as terminal audit state', () => {
   store.close();
 });
 
+test('task-routing requests reuse the referenced task instead of creating a duplicate wrapper', () => {
+  const { root, store } = fixture();
+  const column = path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'in-progress');
+  fs.mkdirSync(column, { recursive: true });
+  fs.writeFileSync(
+    path.join(column, 'existing-task.md'),
+    '---\ntitle: Existing\n---\n\nKeep this task.\n'
+  );
+  const result = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'task-routing-1',
+      site: 'example.com',
+      action_key: 'task-routing:example.com:existing-task.md',
+      title: 'Route existing task',
+      body: 'Edit the existing task only.',
+      category: 'engineering',
+      priority: 'low',
+      assigned_role: 'engineer',
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 2,
+    },
+  });
+  assert.equal(result.task_file, 'existing-task.md');
+  assert.equal(result.task_column, 'in-progress');
+  assert.equal(result.task_reused, true);
+  assert.equal(
+    fs.readdirSync(path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog')).length,
+    0
+  );
+  store.close();
+});
+
 test('permits only successful report-only liveness recovery from a failed run', () => {
   const { root, store } = fixture();
   const { run } = improvements.startManual({
