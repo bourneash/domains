@@ -52,6 +52,8 @@ import argparse
 import json
 import os
 import shutil
+import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -168,6 +170,65 @@ def chrome_path() -> str | None:
     return shutil.which("google-chrome") or shutil.which("chromium")
 
 
+def start_chrome(
+    chrome: str, profile_dir: Path,
+) -> tuple[subprocess.Popen | None, int | None, str | None]:
+    """Start the selected browser without chrome-launcher's shell discovery."""
+    try:
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            port = sock.getsockname()[1]
+        proc = subprocess.Popen(
+            [
+                chrome,
+                "--headless=new",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+                "--no-first-run",
+                "--no-default-browser-check",
+                f"--remote-debugging-port={port}",
+                f"--user-data-dir={profile_dir}",
+                "about:blank",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            start_new_session=True,
+        )
+    except OSError as exc:
+        return None, None, f"could not start Chrome directly: {exc}"
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        if proc.poll() is not None:
+            detail = (proc.stderr.read() or b"").decode("utf-8", "replace").strip()
+            return None, None, detail or f"Chrome exited with status {proc.returncode}"
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+                return proc, port, None
+        except OSError:
+            time.sleep(0.1)
+    stop_chrome(proc)
+    return None, None, "Chrome did not open its debugging port within 10s"
+
+
+def stop_chrome(proc: subprocess.Popen | None) -> None:
+    """Stop Chrome and descendants; Chrome forks renderer processes."""
+    if proc is None or proc.poll() is not None:
+        return
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except (OSError, ProcessLookupError):
+        proc.terminate()
+    try:
+        proc.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except (OSError, ProcessLookupError):
+            proc.kill()
+        proc.wait(timeout=2)
+
+
 def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None, str | None]:
     node_bin = os.environ.get("FLEET_NODE_BIN", "/home/jesse/.nvm/versions/node/v23.7.0/bin")
     env = dict(os.environ)
@@ -179,9 +240,9 @@ def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None
 
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "lh.json"
+        lighthouse_cmd = os.environ.get("FLEET_LIGHTHOUSE_CMD")
         cmd = [
-            os.environ.get("FLEET_LIGHTHOUSE_CMD", "npx"),
-            *( [] if os.environ.get("FLEET_LIGHTHOUSE_CMD") else ["lighthouse"] ),
+            *( [lighthouse_cmd] if lighthouse_cmd else [str(TOOL_DIR / "node_modules/.bin/lighthouse")] ),
             url,
             "--only-categories=performance,accessibility",
             "--output=json", f"--output-path={out}",
@@ -192,20 +253,49 @@ def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None
         ]
         if not mobile:
             cmd += ["--preset=desktop"]
-        try:
-            proc = subprocess.run(
-                cmd, cwd=TOOL_DIR, env=env, timeout=timeout,
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-            )
-        except subprocess.TimeoutExpired:
-            return None, f"lighthouse timed out after {timeout}s"
-        if not out.exists():
-            err = (proc.stderr or b"").decode("utf-8", "replace").strip().splitlines()
-            return None, (err[-1] if err else f"lighthouse exit {proc.returncode}")
-        try:
-            return json.loads(out.read_text(encoding="utf-8")), None
-        except Exception as e:  # noqa: BLE001
-            return None, f"unreadable report: {e}"
+        last_error = None
+        # Chrome startup is occasionally transient (stale profile/process,
+        # launcher race, or a short-lived host resource issue). Retry once so
+        # one launch blip does not page the site owner as a site outage.
+        for attempt in range(2):
+            chrome_proc, port, chrome_error = start_chrome(chrome, Path(td) / f"chrome-profile-{attempt}")
+            if chrome_error:
+                last_error = f"Chrome launch failed: {chrome_error}"
+                if attempt == 0:
+                    time.sleep(2)
+                continue
+            try:
+                proc = subprocess.run(
+                    [*cmd, f"--port={port}"], cwd=TOOL_DIR, env=env, timeout=timeout,
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                )
+            except subprocess.TimeoutExpired:
+                stop_chrome(chrome_proc)
+                return None, f"lighthouse timed out after {timeout}s"
+            try:
+                if out.exists():
+                    try:
+                        return json.loads(out.read_text(encoding="utf-8")), None
+                    except Exception as e:  # noqa: BLE001
+                        last_error = f"unreadable report: {e}"
+                else:
+                    lines = (proc.stderr or b"").decode("utf-8", "replace").strip().splitlines()
+                    # Keep both the high-level runtime error and the final
+                    # stack line; the latter alone is not actionable in Slack.
+                    useful = [line.strip() for line in lines if line.strip()]
+                    if useful:
+                        diagnosis = next(
+                            (line for line in useful if "Runtime error" in line or "Error:" in line),
+                            useful[0],
+                        )
+                        last_error = " | ".join(dict.fromkeys([diagnosis, *useful[-2:]]))
+                    else:
+                        last_error = f"lighthouse exit {proc.returncode}"
+            finally:
+                stop_chrome(chrome_proc)
+            if attempt == 0:
+                time.sleep(2)
+        return None, last_error
 
 
 def extract(report: dict) -> dict:
