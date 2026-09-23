@@ -673,7 +673,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         Number(request.review_attempts || 0) >= MAX_AUTOMATIC_REVIEW_REPAIRS;
       if (!agentFailed && !reviewExhausted) continue;
       try {
-        improvements.transition(events, run.run_id, {
+        const failedRun = improvements.transition(events, run.run_id, {
           state: 'failed',
           outcome: {
             ...(run.outcome || {}),
@@ -683,6 +683,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               : 'automatic reviewer handoff exhausted its bounded repair attempts',
           },
         });
+        syncChangeRequestFromRun(failedRun, 'failed');
         changed += 1;
       } catch {
         /* keep the existing audit record if a concurrent worker advanced it */
@@ -1062,9 +1063,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   function markImprovementFailed(run, error) {
-    if (!run || !['proposed', 'building'].includes(run.state)) return run;
+    if (!run) return run;
+    if (run.state === 'failed') {
+      syncChangeRequestFromRun(run, 'failed');
+      return run;
+    }
+    if (!['proposed', 'building'].includes(run.state)) return run;
     try {
-      return improvements.transition(events, run.run_id, {
+      const failedRun = improvements.transition(events, run.run_id, {
         state: 'failed',
         outcome: {
           failed_at: new Date().toISOString(),
@@ -1072,6 +1078,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           error: String(error?.message || error || 'automatic review failed'),
         },
       });
+      syncChangeRequestFromRun(failedRun, 'failed');
+      return failedRun;
     } catch {
       return run;
     }
@@ -1161,13 +1169,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return;
     const message = String(error.message || error);
     if (error?.noAutomaticRepair) {
-      markImprovementFailed(run, error);
+      const failedRun = markImprovementFailed(run, error);
       try {
         changequeue.update(
           events,
           id,
           {
-            status: 'review',
+            status: failedRun?.state === 'failed' ? 'failed' : 'review',
             error: message,
             lease_owner: null,
             lease_expires_at: null,
@@ -1191,13 +1199,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return;
     }
     if (startAutomaticReviewRepair(request, run, error)) return;
-    markImprovementFailed(run, error);
+    const failedRun = markImprovementFailed(run, error);
     try {
       changequeue.update(
         events,
         id,
         {
-          status: 'review',
+          status: failedRun?.state === 'failed' ? 'failed' : 'review',
           error: message,
           lease_owner: null,
           lease_expires_at: null,
