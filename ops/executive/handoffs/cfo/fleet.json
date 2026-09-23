@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:49:25.409Z",
+  "generated_at": "2026-09-23T02:51:54.803Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: retain the attribution work item. Revenue is measurable only at portfolio level for 2026-09-21: $4.92 commission, 28 ordered items, and 6 shipped items from 6,219 clicks. Site-level contribution margin, ROI, and payback remain unsupported until the unmatched tracking ID is mapped and direct costs are supplied.",
+        "summary": "Update: retain the open attribution work item. Site-level revenue, contribution margin, ROI, payback, and forecasts remain unsupported until the unmatched tracking ID is mapped and direct costs are available.",
         "requested_action": null,
         "proposal_id": null
       }

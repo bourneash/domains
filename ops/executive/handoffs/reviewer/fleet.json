@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:49:25.408Z",
+  "generated_at": "2026-09-23T02:51:54.801Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new queue and production work this cycle. Preserve the existing Great American Lakes and SEO measurement work, keep SearchWoot private, and await recorded measurement thresholds plus affiliate-attribution reconciliation. No site-level ROI, margin, payback, forecast, or revenue claim is supported because attribution is incomplete, telemetry is low-volume, no outcomes are proven, and prior implementation attempts failed. Approve waiting for these evidence gates before authorizing further implementation?",
+        "summary": "Recommendation: Reject all new queue, production, financial, and high-priority work this cycle. Preserve only the already-approved reversible SEO and measurement work across the active sites, including the Great American Lakes measurement gate; do not duplicate telemetry requests or retry failed routing. Site-level revenue, margin, ROI, payback, forecasts, and cost-to-learn claims remain unsupported because attribution is incomplete, one tracking ID is unmapped, direct costs are unavailable, and no outcomes are proven. Keep SearchWoot private pending legal, security, accuracy, measurement, and owner gates. Decision question: should the owner authorize preparation—but not sending—of an unsent written permission request to Woot?",
         "requested_action": null,
         "proposal_id": null
       }
