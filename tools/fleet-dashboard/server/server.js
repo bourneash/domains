@@ -86,6 +86,10 @@ const AUTOMATIC_RETRY_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 // finishes the delivery handoff. Do not mistake that short, normal window for
 // an interrupted handoff during the 15-second queue pulse.
 const AUTOMATIC_REVIEW_HANDOFF_GRACE_MS = 2 * 60 * 1000;
+// Recovery inspects historical failed work and may need Docker/Git probes.
+// It must not hold the normal queue pickup path hostage when an old worker or
+// container is slow; the recovery lock keeps the long pass single-flight.
+const QUEUE_RECOVERY_WAIT_MS = 5000;
 
 // Report-only work produces evidence in an isolated checkout and cannot ship
 // code. It should not spend another model call on a release-marker review;
@@ -95,6 +99,10 @@ function workerCompletionPath(request, result, settings) {
   if (request.delivery_mode === 'report_only') return 'report-only';
   if (request.auto_review && settings?.auto_review_enabled) return 'review';
   return 'none';
+}
+
+function interruptedWorkerRecoveryPath(request) {
+  return request?.delivery_mode === 'report_only' ? 'report-only' : 'review';
 }
 
 function shouldRetryQueueFailure(text, validation = null) {
@@ -985,19 +993,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
       // Preserve useful work when the provider died after editing but before
       // its close callback. The original interrupted state is still recorded
-      // below as an event; the recovered run gets the normal independent
-      // reviewer and deterministic delivery gates.
+      // below as an event. Report-only work goes straight to deterministic
+      // artifact delivery; code work retains the independent reviewer gate.
       if (request && snapshot?.dirty > 0) {
         try {
+          const recoveryPath = interruptedWorkerRecoveryPath(request);
           events.updateImprovement(run.run_id, {
             agent: {
               status: 'completed',
               finished_at: new Date().toISOString(),
               recovered_from: 'interrupted-worker-with-dirty-worktree',
-              error: 'provider exited after producing an isolated diff; reviewer recovery started',
+              error:
+                recoveryPath === 'report-only'
+                  ? 'provider exited after producing an isolated report; deterministic report recovery started'
+                  : 'provider exited after producing an isolated diff; reviewer recovery started',
             },
           });
-          if (request.status !== 'review')
+          if (recoveryPath === 'review' && request.status !== 'review')
             changequeue.update(
               events,
               request.request_id,
@@ -1022,11 +1034,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               request_id: request.request_id,
               dirty_files: snapshot.dirty,
               diff_stat: snapshot.diff_stat,
+              recovery_path: recoveryPath,
             },
           });
-          autoReviewRequest(request.request_id).catch(error =>
-            recordAutoReviewFailure(request.request_id, error)
-          );
+          if (recoveryPath === 'report-only') {
+            Promise.resolve()
+              .then(async () => {
+                const recovered = events.getImprovement(run.run_id);
+                if (!recovered) throw new Error('recovered report-only improvement disappeared');
+                await deliverAutomatically(recovered);
+              })
+              .catch(error => recordAutoReviewFailure(request.request_id, error));
+          } else {
+            autoReviewRequest(request.request_id).catch(error =>
+              recordAutoReviewFailure(request.request_id, error)
+            );
+          }
           changed += 1;
           continue;
         } catch {
@@ -1443,7 +1466,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   async function pickupChangeRequests(max) {
-    await recoverFailedQueueWork();
+    // Start the audit-preserving recovery pass, but do not make fresh queued
+    // work wait behind every historical failure. A completed recovery pass is
+    // still awaited when it is fast; otherwise it continues under its own
+    // single-flight guard while the worker queue makes progress.
+    const recovery = recoverFailedQueueWork().catch(() => 0);
+    await Promise.race([
+      recovery,
+      new Promise(resolve => setTimeout(resolve, QUEUE_RECOVERY_WAIT_MS)),
+    ]);
     const settings = events.getChangeQueueSettings();
     const running = events
       .listChangeRequests({ limit: 1000 })
@@ -5383,4 +5414,10 @@ if (require.main === module) {
   createApp().listen(PORT, HOST, () => console.log(`fleet-dashboard on http://${HOST}:${PORT}`));
 }
 
-module.exports = { createApp, workerCompletionPath, shouldRetryQueueFailure, applyQualityPolicy };
+module.exports = {
+  createApp,
+  workerCompletionPath,
+  interruptedWorkerRecoveryPath,
+  shouldRetryQueueFailure,
+  applyQualityPolicy,
+};

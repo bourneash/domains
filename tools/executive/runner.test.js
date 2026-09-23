@@ -732,6 +732,42 @@ test('routes approved implementation and creates durable follow-through for unfi
   store.close();
 });
 
+test('turns an approved site-specific report-only proposal into bounded worker work', async () => {
+  const { root, store } = db();
+  const proposal = store.createExecutiveProposal({
+    created_by: 'ceo',
+    title: 'Assess example.com search readiness',
+    proposal_type: 'report-only',
+    summary: 'Review example.com search coverage, content gaps, and measurable next steps.',
+    requested_action:
+      'Approve a report-only assessment. Do not deploy, change production, or modify credentials.',
+  });
+  store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
+
+  const result = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      change_requests: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+    },
+    { allowQueue: true, root }
+  );
+  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
+  assert.equal(result.follow_through.filter(row => row.type === 'queued').length, 1);
+  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(request.site, 'example.com');
+  assert.equal(request.assigned_role, 'seo-analyst');
+  assert.equal(request.status, 'queued');
+  assert.ok(store.getExecutiveProposal(proposal.proposal_id).linked_request_id);
+  store.close();
+});
+
 test('failed approved execution becomes a blocked follow-through case instead of a blind retry', async () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({

@@ -44,6 +44,16 @@ test('browser audit distinguishes sandbox runtime crashes from page failures', (
   );
 });
 
+test('published-port parsing exposes host bindings so stale allocator state is not reused', () => {
+  const ports = devsandbox.parsePublishedPorts(
+    '127.0.0.1:7900->4321/tcp, 0.0.0.0:8000-8001->4321/tcp'
+  );
+  assert.deepEqual(
+    [...ports].sort((a, b) => a - b),
+    [7900, 8000, 8001]
+  );
+});
+
 test('improvement sandboxes mount only the site Git admin directory', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-devsandbox-'));
   const canonical = path.join(root, 'sites', 'example.com');

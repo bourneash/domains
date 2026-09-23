@@ -789,7 +789,7 @@ Rules:
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
-- Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
+- Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, convert a clearly site-specific and explicitly report-only proposal into a bounded report request, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
 - Treat approved proposals with failed or cancelled requests as unfinished. Do not blindly retry them; create or update the durable follow-through work item with the failure evidence and the smallest repair/replacement action.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
@@ -1438,9 +1438,71 @@ function followThroughKind(proposalType) {
   );
 }
 
-function approvedImplementation(proposal) {
+function proposalSite(proposal, root = ROOT) {
+  const explicit = [proposal?.site, proposal?.domain, proposal?.implementation?.site]
+    .map(value =>
+      String(value || '')
+        .trim()
+        .toLowerCase()
+    )
+    .find(site => site && executiveSites(root).includes(site));
+  if (explicit) return explicit;
+  const text =
+    `${proposal?.title || ''}\n${proposal?.summary || ''}\n${proposal?.requested_action || ''}`.toLowerCase();
+  const matches = executiveSites(root).filter(site => text.includes(site.toLowerCase()));
+  return matches.length === 1 ? matches[0] : null;
+}
+
+function approvedReportOnlyImplementation(proposal, root = ROOT) {
   const implementation = proposal?.implementation;
-  return implementation && typeof implementation === 'object' ? implementation : {};
+  if (implementation && typeof implementation === 'object' && Object.keys(implementation).length)
+    return implementation;
+  const text = `${proposal?.title || ''}\n${proposal?.summary || ''}\n${proposal?.requested_action || ''}`;
+  const explicitlyReadOnly =
+    String(proposal?.proposal_type || '').toLowerCase() === 'report-only' ||
+    /\b(?:report[- ]only|read[- ]only|no production changes?|do not deploy|do not change production)\b/i.test(
+      text
+    );
+  if (!explicitlyReadOnly) return {};
+  const site = proposalSite(proposal, root);
+  if (!site || EXECUTIVE_EXCLUDED_SITES.has(site)) return {};
+  const category = /\b(?:seo|search|gsc|crawl|sitemap|organic|index(?:ing)?|snippet|query)\b/i.test(
+    text
+  )
+    ? 'seo'
+    : /\b(?:performance|analytics|measurement|attribution|cost|technical|lcp|cls|orchestration|runtime|data)\b/i.test(
+          text
+        )
+      ? 'engineering'
+      : 'other';
+  return {
+    site,
+    title: proposal.title,
+    body: [
+      `Execute the approved report-only proposal: ${proposal.title}.`,
+      `Objective: ${proposal.summary || 'Produce the requested evidence and recommendations.'}`,
+      `Owner direction: ${proposal.requested_action || 'Return a concise evidence-backed report.'}`,
+      'Delivery boundary: read-only evidence and an artifact only. Do not deploy, push code, change credentials, schedules, configuration, spending, DNS, or production data.',
+      'Acceptance: write a timestamped report artifact with observed facts, unavailable fields, prioritized recommendations, validation criteria, and rollback or follow-up notes where applicable.',
+    ].join('\n'),
+    category,
+    priority: 'low',
+    assigned_role: category === 'seo' ? 'seo-analyst' : 'engineer',
+    requested_by: proposal.created_by === 'researcher' ? 'cro' : proposal.created_by,
+    provider: 'chatgpt',
+    model: 'gpt-5.6-luna',
+    max_turns: 12,
+    auto_review: true,
+    delivery_mode: 'report_only',
+    action_key: 'approved-proposal-report',
+  };
+}
+
+function approvedImplementation(proposal, root = ROOT) {
+  const implementation = proposal?.implementation;
+  if (implementation && typeof implementation === 'object' && Object.keys(implementation).length)
+    return implementation;
+  return approvedReportOnlyImplementation(proposal, root);
 }
 
 function implementationBlockers(proposal, implementation) {
@@ -1575,7 +1637,7 @@ function reconcileApprovedProposalFollowThrough(
         request_id: currentRequest.request_id,
       });
     }
-    const implementation = approvedImplementation(proposal);
+    const implementation = approvedImplementation(proposal, root);
     const ready = Boolean(implementation.site && implementation.title && implementation.body);
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =

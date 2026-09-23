@@ -166,6 +166,27 @@ function parsePortsString(portsStr) {
   return out;
 }
 
+// Docker preserves a stopped container's published-port metadata, and the
+// durable allocator state can outlive that container. Before creating a new
+// worker, inspect only currently running containers so a stale assignment is
+// never reused over a live host binding.
+function parsePublishedPorts(text = '') {
+  const ports = new Set();
+  const pattern = /:(\d+)(?:-(\d+))?->/g;
+  for (const match of String(text).matchAll(pattern)) {
+    const start = Number(match[1]);
+    const end = Number(match[2] || match[1]);
+    if (!Number.isInteger(start) || !Number.isInteger(end) || end < start) continue;
+    for (let port = start; port <= end; port += 1) ports.add(port);
+  }
+  return ports;
+}
+
+async function runningPublishedPorts() {
+  const result = await docker(['ps', '--format', '{{.Ports}}']);
+  return result.code === 0 ? parsePublishedPorts(result.stdout) : new Set();
+}
+
 function loadState() {
   try {
     return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
@@ -178,21 +199,26 @@ function saveState(s) {
   fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2));
 }
 
-function allocPorts(site) {
+function allocPorts(site, { reservedHostPorts = new Set() } = {}) {
   const state = loadState();
-  const existing = state.ports[site] || {};
+  const existing = { ...(state.ports[site] || {}) };
   const usedTtyd = new Set();
   const usedDev = new Set();
-  for (const p of Object.values(state.ports)) {
+  for (const [name, p] of Object.entries(state.ports)) {
+    if (name === site) continue;
     if (p.ttyd) usedTtyd.add(p.ttyd);
     if (p.dev) usedDev.add(p.dev);
   }
-  if (!existing.ttyd) {
+  for (const port of reservedHostPorts) {
+    usedTtyd.add(port);
+    usedDev.add(port);
+  }
+  if (!existing.ttyd || reservedHostPorts.has(existing.ttyd)) {
     let p = TTYD_PORT_BASE;
     while (usedTtyd.has(p)) p++;
     existing.ttyd = p;
   }
-  if (!existing.dev) {
+  if (!existing.dev || reservedHostPorts.has(existing.dev)) {
     let p = DEV_PORT_BASE;
     while (usedDev.has(p)) p++;
     existing.dev = p;
@@ -303,8 +329,7 @@ async function start(root, site, options = {}) {
   if (!fs.existsSync(hostSiteDir)) throw httpErr(404, `site dir not found: ${hostSiteDir}`);
 
   const cur = await inspectStatus(instance);
-  const ports = loadState().ports[instance] || allocPorts(instance);
-  if (cur.status === 'running') return { started: false, ports };
+  if (cur.status === 'running') return { started: false, ports: loadState().ports[instance] || {} };
 
   if (cur.exists) {
     // Workers are cattle: a stopped container may pin an old image and may
@@ -315,7 +340,9 @@ async function start(root, site, options = {}) {
     await removeSandboxNetwork(instance);
   }
 
-  const { ttyd: ttydPort, dev: devPort } = allocPorts(instance);
+  const { ttyd: ttydPort, dev: devPort } = allocPorts(instance, {
+    reservedHostPorts: await runningPublishedPorts(),
+  });
   const hostHome = process.env.HOME || '/root';
   const network = await ensureSandboxNetwork(instance);
 
@@ -866,6 +893,8 @@ module.exports = {
   gitWorkspaceMount,
   sandboxNetworkName,
   sandboxSecurityArgs,
+  parsePublishedPorts,
+  runningPublishedPorts,
   stats,
   findOrphans,
   cleanupOrphans,

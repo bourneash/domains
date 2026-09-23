@@ -2,7 +2,12 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { workerCompletionPath, shouldRetryQueueFailure, applyQualityPolicy } = require('./server');
+const {
+  workerCompletionPath,
+  interruptedWorkerRecoveryPath,
+  shouldRetryQueueFailure,
+  applyQualityPolicy,
+} = require('./server');
 
 test('successful report-only workers finalize evidence without a second model reviewer', () => {
   assert.equal(
@@ -43,6 +48,11 @@ test('failed or timed-out workers never finalize automatically', () => {
     ),
     'none'
   );
+});
+
+test('interrupted report-only workers bypass the reviewer recovery path', () => {
+  assert.equal(interruptedWorkerRecoveryPath({ delivery_mode: 'report_only' }), 'report-only');
+  assert.equal(interruptedWorkerRecoveryPath({ delivery_mode: 'direct' }), 'review');
 });
 
 test('does not retry reviewer rejections or deterministic quality-gate failures', () => {
