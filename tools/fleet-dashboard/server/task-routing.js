@@ -4,6 +4,7 @@
 // Technical follow-on work should use type=engineering after the owning role
 // has made the editorial or marketing decision.
 const OWNERS_BY_TYPE = Object.freeze({
+  engineering: ['engineer'],
   seo: ['seo-analyst'],
   content: ['content-writer'],
   refresh: ['content-writer'],
@@ -18,27 +19,12 @@ const OWNERS_BY_TYPE = Object.freeze({
 // and link-building are outside the engineer role's authority. Technical SEO
 // work is filed as engineering separately by the producer.
 const SITE_FALLBACKS_BY_TYPE = Object.freeze({
+  engineering: ['engineer', 'principal-engineer'],
   seo: ['seo-analyst'],
-  content: [
-    'content-writer',
-    'news-writer',
-    'guide-writer',
-    'weekly-editorial',
-    'breaking-news',
-    'engineer',
-    'principal-engineer',
-  ],
-  refresh: [
-    'content-writer',
-    'news-writer',
-    'guide-writer',
-    'weekly-editorial',
-    'breaking-news',
-    'engineer',
-    'principal-engineer',
-  ],
-  marketing: ['social-media', 'social-poster', 'promoter', 'engineer', 'principal-engineer'],
-  social: ['social-media', 'social-poster', 'promoter', 'engineer', 'principal-engineer'],
+  content: ['content-writer', 'news-writer', 'guide-writer', 'weekly-editorial', 'breaking-news'],
+  refresh: ['content-writer', 'news-writer', 'guide-writer', 'weekly-editorial', 'breaking-news'],
+  marketing: ['social-media', 'social-poster', 'promoter'],
+  social: ['social-media', 'social-poster', 'promoter'],
 });
 
 function ownersForType(type) {
@@ -66,12 +52,13 @@ function assignedRoleForSite(type, assignedRole, availableRoles = []) {
       .map(role => String(role || '').trim())
       .filter(Boolean)
   );
-  if (!available.size) return assignedRoleForType(type, assignedRole);
+  // An empty inventory is not evidence that the canonical role is available.
+  // Callers that need legacy behavior must resolve it explicitly before
+  // entering site-aware routing.
+  if (!available.size) return undefined;
   const candidates = SITE_FALLBACKS_BY_TYPE[normalized];
   if (!candidates?.length)
-    return available.has(String(assignedRole || '').trim())
-      ? assignedRole
-      : assignedRole || undefined;
+    return available.has(String(assignedRole || '').trim()) ? assignedRole : undefined;
   const requested = String(assignedRole || '').trim();
   // Preserve an explicitly selected role when it is actually installed and
   // belongs to the allowed lane; otherwise do not route into a nonexistent

@@ -350,12 +350,35 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // and some older sites have no SEO analyst at all. Never launch a worker
     // under a role that does not exist in its own site checkout.
     const previousRole = claimed.assigned_role;
-    const routedRole =
-      assignedRoleForSite(
-        claimed.category,
-        claimed.assigned_role,
-        installedSiteRoles(root, claimed.site)
-      ) || assignedRoleForType(claimed.category, claimed.assigned_role);
+    const availableRoles = installedSiteRoles(root, claimed.site);
+    const routedRole = assignedRoleForSite(claimed.category, claimed.assigned_role, availableRoles);
+    if (claimed.site !== 'fleet' && (!routedRole || !availableRoles.includes(routedRole))) {
+      const reason =
+        `no installed owner for category=${claimed.category} on ${claimed.site}; ` +
+        `requested role=${claimed.assigned_role || 'unassigned'}`;
+      const blocked = events.updateChangeRequest(claimed.request_id, {
+        status: 'failed',
+        error: reason,
+        next_attempt_at: null,
+        lease_owner: null,
+        lease_expires_at: null,
+        heartbeat_at: null,
+      });
+      events.record({
+        event_type: 'change-request.owner_missing',
+        source: 'fleet-dashboard',
+        site_id: `site:${claimed.site}`,
+        entity_type: 'change-request',
+        entity_id: claimed.request_id,
+        correlation_id: `change-request:${claimed.request_id}`,
+        payload: {
+          category: claimed.category,
+          requested_role: claimed.assigned_role,
+          available_roles: availableRoles,
+        },
+      });
+      throw Object.assign(new Error(reason), { httpStatus: 409, request: blocked });
+    }
     if (routedRole && routedRole !== previousRole) {
       const rebound = events.updateChangeRequest(claimed.request_id, {
         assigned_role: routedRole,

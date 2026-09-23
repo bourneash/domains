@@ -8,6 +8,10 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   const reg = registry.read(root);
   const discovered = new Set(discoveredSites || []);
   const live = reg.sites.filter(s => s.lifecycle === 'live');
+  const disabledTaskRoles = new Map(
+    reg.sites.map(site => [site.domain, new Set(site.disabled_task_roles || [])])
+  );
+  const taskRoleDisabled = (site, role) => disabledTaskRoles.get(site)?.has(role) === true;
   const analytics = analyticsHealth.sites || {};
   const items = [];
 
@@ -85,6 +89,10 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   };
   for (const task of allTasks) {
     if (!task.assigned_role || !['backlog', 'in-progress'].includes(task.column)) continue;
+    // A parked/missing role that is explicitly disabled for this site is a
+    // configuration boundary, not an executive action. Do not expose it as a
+    // routing candidate for the model to regenerate on the next tick.
+    if (taskRoleDisabled(task.site, task.assigned_role)) continue;
     const key = `${task.site}:${task.assigned_role}`;
     if (!installedRoles.has(key))
       installedRoles.set(key, roleInstalled(root, task.site, task.assigned_role));
@@ -133,6 +141,10 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   // visible without mutating the site repository.
   for (const task of allTasks) {
     if (!['backlog', 'in-progress'].includes(task.column)) continue;
+    // The missing-role pass above already emitted the owner-gap item when the
+    // task's assigned role is not installed. Do not emit a second routing
+    // action for the same task merely because its type has a canonical owner.
+    if (task.assigned_role && !roleInstalled(root, task.site, task.assigned_role)) continue;
     const mismatch = ownershipMismatch(task.type, task.assigned_role);
     if (!mismatch) continue;
     const effective = assignedRoleForSite(
@@ -140,6 +152,7 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
       mismatch.expected_role,
       rolesForSite(task.site)
     );
+    if (taskRoleDisabled(task.site, mismatch.expected_role)) continue;
     // A site's installed equivalent is valid ownership. Do not manufacture a
     // blocked request asking an AI worker to replace `news-writer` with the
     // fleet-wide `content-writer` when the former is the site's real owner.

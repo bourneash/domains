@@ -25,3 +25,18 @@ test('site-aware routing uses an installed equivalent role', () => {
     'seo-analyst'
   );
 });
+
+test('SEO never treats an installed engineer as the SEO owner', () => {
+  assert.equal(assignedRoleForSite('seo', 'engineer', ['engineer', 'promoter']), undefined);
+});
+
+test('implementation work selects an installed engineering owner', () => {
+  assert.equal(assignedRoleForSite('engineering', 'principal-engineer', ['engineer']), 'engineer');
+  assert.equal(assignedRoleForSite('engineering', 'principal-engineer', ['promoter']), undefined);
+});
+
+test('site-aware routing fails closed for empty inventories and non-owner substitutes', () => {
+  assert.equal(assignedRoleForSite('seo', 'seo-analyst', []), undefined);
+  assert.equal(assignedRoleForSite('content', 'engineer', ['engineer']), undefined);
+  assert.equal(assignedRoleForSite('marketing', 'engineer', ['engineer']), undefined);
+});
