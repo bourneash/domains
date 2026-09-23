@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:08:48.234Z",
+  "generated_at": "2026-09-23T09:12:50.975Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish nsfwpixles.com readiness and measurement baseline",
-        "summary": "Produce a bounded read-only site baseline covering observable audience positioning, monetization paths, analytics prerequisites, compliance posture, and one reversible hypothesis, while clearly labeling unavailable telemetry.",
-        "requested_action": "Route a report-only baseline for owner review. Do not deploy, spend, change credentials, configure analytics, alter production, or claim traffic, revenue, conversions, or causal lift.",
+        "title": "Restore measurable analytics coverage",
+        "summary": "The authoritative snapshot reports pervypotion.com as not configured for analytics, so audience and monetization performance cannot be evaluated without inventing telemetry.",
+        "requested_action": "Route a bounded read-only diagnosis of GA4/GSC property configuration and required owner-approved credentials or setup decisions. Do not deploy, spend, change production configuration, or claim traffic, revenue, or conversions.",
         "proposal_id": null
       }
     ]
