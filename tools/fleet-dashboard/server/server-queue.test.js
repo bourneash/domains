@@ -93,6 +93,18 @@ test('versioned validation fixes reopen each preserved infrastructure review at 
     ),
     false
   );
+  assert.equal(
+    shouldAutoRevalidateInfrastructureReview(
+      request,
+      {
+        ...run,
+        state: 'building',
+        agent: { phase: 'reviewer', status: 'completed', exit_code: 0 },
+      },
+      'ipv4-preview-v1'
+    ),
+    true
+  );
 });
 
 test('a passing review is delivered idempotently without running validation a second time', () => {
