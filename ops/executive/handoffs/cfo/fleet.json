@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-22T23:39:58.567Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:24:56.310Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the two deployed Great American Lakes measurements only until the recorded 14-day or 100-impression thresholds. Capture available clicks, impressions, sessions, conversions, and attributable commission; label unavailable attribution or direct-cost fields as unavailable and do not declare success early.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial disposition: reject unsupported site-level revenue, margin, ROI, CAC, payback, forecast, and experiment-impact claims. Supported evidence is portfolio-level Amazon activity for 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Attribution is incomplete because 629 clicks and all 28 orders use tracking_id other. Continue only the existing Great American Lakes measurement window; authorize no new spending or monetization expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI usage of $745.413324 across 4,489 calls from 2026-09-01 through 2026-09-22 cannot be compared with the one-day revenue figure. Direct infrastructure, domain, labor, marketing, and other costs are unavailable. Do not invent margin or cost-to-learn outcomes. Capture the existing measurement thresholds and label unavailable attribution and direct-cost fields explicitly.",
+        "summary": "Update: Amazon data covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Attribution is incomplete, including one unmapped tracking ID, so no site-level contribution margin or ROI claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }
