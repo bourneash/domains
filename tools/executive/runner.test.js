@@ -788,6 +788,57 @@ test('deterministic approved-work drain routes approved work without a model pla
   store.close();
 });
 
+test('caps new proposals while approved execution backlog is high', async () => {
+  const { root, store } = db();
+  for (let index = 0; index < 10; index += 1) {
+    const proposal = store.createExecutiveProposal({
+      created_by: 'ceo',
+      title: `Approved backlog item ${index}`,
+      proposal_type: 'report-only',
+      summary: 'An approved site-specific report remains to be executed.',
+      requested_action: 'Approve a read-only report for example.com.',
+    });
+    store.decideExecutiveProposal(proposal.proposal_id, {
+      status: 'approved',
+      decided_by: 'owner',
+    });
+  }
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'ceo',
+          title: 'New idea one',
+          proposal_type: 'business',
+          summary: 'one',
+          requested_action: 'Review one.',
+        },
+        {
+          created_by: 'ceo',
+          title: 'New idea two',
+          proposal_type: 'business',
+          summary: 'two',
+          requested_action: 'Review two.',
+        },
+        {
+          created_by: 'ceo',
+          title: 'New idea three',
+          proposal_type: 'business',
+          summary: 'three',
+          requested_action: 'Review three.',
+        },
+      ],
+      change_requests: [],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.proposals.length, 2);
+  assert.equal(created.skipped_proposals.length, 1);
+  assert.match(created.skipped_proposals[0].reason, /backlog/);
+  store.close();
+});
+
 test('failed approved execution becomes a blocked follow-through case instead of a blind retry', async () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({

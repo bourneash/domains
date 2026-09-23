@@ -790,6 +790,7 @@ Rules:
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
 - Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, convert a clearly site-specific and explicitly report-only proposal into a bounded report request, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
+- When the approved-execution backlog is high, prioritize draining it over generating new proposals. The trusted control plane applies a small proposal budget and records any suppressed ideas for audit; use messages, work items, and execution requests to move existing commitments instead.
 - Treat approved proposals with failed or cancelled requests as unfinished. Do not blindly retry them; create or update the durable follow-through work item with the failure evidence and the smallest repair/replacement action.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
@@ -1979,6 +1980,21 @@ function openProposalDuplicate(store, item) {
     );
 }
 
+function proposalCreationBudget(store, { normal = 6, backlogThreshold = 10, backlog = 2 } = {}) {
+  const proposals = store?.listExecutiveProposals({ status: 'approved', limit: 1000 }) || [];
+  const requests = store?.listChangeRequests({ limit: 1000 }) || [];
+  const executed = new Set(
+    requests
+      .filter(request => request.source_proposal_id)
+      .map(request => String(request.source_proposal_id))
+  );
+  const unexecuted = proposals.filter(proposal => !executed.has(String(proposal.proposal_id)));
+  return {
+    limit: unexecuted.length >= backlogThreshold ? backlog : normal,
+    approved_unexecuted: unexecuted.length,
+  };
+}
+
 function runProvider(
   prompt,
   {
@@ -2175,6 +2191,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     });
     created.proposal_reviews.push(reviewed);
   }
+  const proposalBudget = proposalCreationBudget(store);
+  let createdProposalCount = 0;
   for (const item of plan.proposals) {
     if (isTelemetryRequestProposal(item)) {
       const audit = executive.action(store, {
@@ -2221,6 +2239,23 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       });
       continue;
     }
+    if (createdProposalCount >= proposalBudget.limit) {
+      const skipped = {
+        title: item.title,
+        reason: 'approved execution backlog is above the proposal budget',
+        approved_unexecuted: proposalBudget.approved_unexecuted,
+        budget: proposalBudget.limit,
+      };
+      created.skipped_proposals.push(skipped);
+      const budgetAudit = executive.action(store, {
+        actor: item.created_by || 'ceo',
+        action_type: 'observe',
+        summary: `Deferred new proposal until approved work drains: ${item.title}`,
+        target_type: 'executive-proposal',
+      });
+      executive.finishAction(store, budgetAudit.action_id, { status: 'skipped', result: skipped });
+      continue;
+    }
     const audit = executive.action(store, {
       actor: item.created_by || 'ceo',
       action_type: 'propose',
@@ -2236,6 +2271,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         created_at: undefined,
       });
       created.proposals.push(proposal);
+      createdProposalCount += 1;
       executive.finishAction(store, audit.action_id, {
         status: 'completed',
         result: { proposal_id: proposal.proposal_id },
