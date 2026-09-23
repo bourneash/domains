@@ -43,7 +43,7 @@ function assignedRoleForType(type, assignedRole) {
   return assignedRole || undefined;
 }
 
-function assignedRoleForSite(type, assignedRole, availableRoles = []) {
+function assignedRoleForSite(type, assignedRole, availableRoles = [], options = {}) {
   const normalized = String(type || '')
     .trim()
     .toLowerCase();
@@ -60,6 +60,17 @@ function assignedRoleForSite(type, assignedRole, availableRoles = []) {
   if (!candidates?.length)
     return available.has(String(assignedRole || '').trim()) ? assignedRole : undefined;
   const requested = String(assignedRole || '').trim();
+  // Report-only SEO is evidence collection, not SEO publishing or outreach.
+  // Legacy sites may not have an SEO analyst; an installed engineer may
+  // produce the bounded read-only artifact without becoming the site's SEO
+  // owner for production work.
+  if (
+    normalized === 'seo' &&
+    String(options.delivery_mode || '') === 'report_only' &&
+    ['engineer', 'principal-engineer'].includes(requested) &&
+    available.has(requested)
+  )
+    return requested;
   // Preserve an explicitly selected role when it is actually installed and
   // belongs to the allowed lane; otherwise do not route into a nonexistent
   // canonical role just because the site uses an older naming convention.

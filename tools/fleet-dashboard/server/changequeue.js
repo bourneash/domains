@@ -119,12 +119,18 @@ function create(store, input, knownSite) {
       : provider === 'local'
         ? process.env.FD_CHANGE_QUEUE_LOCAL_MODEL || 'llama3.2'
         : null);
+  const reportOnlySeoFallback =
+    normalized.delivery_mode === 'report_only' &&
+    normalized.category === 'seo' &&
+    ['engineer', 'principal-engineer'].includes(String(normalized.assigned_role || ''));
   const request = store.createChangeRequest({
     ...normalized,
     provider,
     model,
     max_turns: Number(normalized.max_turns || 20),
-    assigned_role: assignedRoleForType(normalized.category, normalized.assigned_role),
+    assigned_role: reportOnlySeoFallback
+      ? normalized.assigned_role
+      : assignedRoleForType(normalized.category, normalized.assigned_role),
   });
   store.record({
     event_type: 'change-request.queued',
@@ -207,11 +213,15 @@ function update(store, id, patch, knownSite) {
       ? { delivery_mode: merged.delivery_mode }
       : {}),
   };
+  const reportOnlySeoFallback =
+    merged.delivery_mode === 'report_only' &&
+    merged.category === 'seo' &&
+    ['engineer', 'principal-engineer'].includes(String(merged.assigned_role || ''));
   const next = store.updateChangeRequest(id, {
     ...normalizedPatch,
     // Repair queued requests created before the routing invariant existed and
     // prevent an edit from putting an SEO request back on the engineer queue.
-    ...(String(merged.category || '').toLowerCase() === 'seo'
+    ...(String(merged.category || '').toLowerCase() === 'seo' && !reportOnlySeoFallback
       ? { assigned_role: assignedRoleForType(merged.category, merged.assigned_role) }
       : {}),
   });

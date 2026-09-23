@@ -768,6 +768,29 @@ test('turns an approved site-specific report-only proposal into bounded worker w
   store.close();
 });
 
+test('routes approved SEO evidence to an installed engineer on legacy sites', async () => {
+  const { root, store } = db();
+  fs.mkdirSync(path.join(root, 'sites', 'example.com', 'ops', 'roles'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'sites', 'example.com', 'ops', 'roles', 'engineer.md'),
+    '# engineer\n'
+  );
+  const proposal = store.createExecutiveProposal({
+    created_by: 'ceo',
+    title: 'Assess example.com SEO coverage',
+    proposal_type: 'report-only',
+    summary: 'Review example.com search coverage and measurable next steps.',
+    requested_action: 'Approve a read-only assessment. Do not deploy or change production.',
+  });
+  store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
+
+  runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
+  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
+  assert.equal(request.assigned_role, 'engineer');
+  assert.equal(request.delivery_mode, 'report_only');
+  store.close();
+});
+
 test('deterministic approved-work drain routes approved work without a model plan', () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({

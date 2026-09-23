@@ -58,6 +58,31 @@ function executiveTarget(root, site) {
   return site === 'fleet' || executiveSites(root).includes(site);
 }
 
+function installedSiteRoles(root, site) {
+  if (!site || site === 'fleet') return [];
+  try {
+    return fs
+      .readdirSync(path.join(root, 'sites', site, 'ops', 'roles'))
+      .filter(file => file.endsWith('.md'))
+      .map(file => file.slice(0, -3));
+  } catch {
+    return [];
+  }
+}
+
+function reportOnlyRole(category, site, root) {
+  // A read-only SEO assessment is evidence work, not an SEO publishing or
+  // link-building action. If a legacy site has no SEO analyst installed,
+  // let its installed engineer produce the report instead of failing a safe
+  // approved request. Keep the canonical specialist when it exists.
+  if (category !== 'seo') return 'engineer';
+  const roles = installedSiteRoles(root, site);
+  if (roles.includes('seo-analyst')) return 'seo-analyst';
+  if (roles.includes('engineer')) return 'engineer';
+  if (roles.includes('principal-engineer')) return 'principal-engineer';
+  return 'seo-analyst';
+}
+
 function normalizeActionTitle(value) {
   return String(value || '')
     .toLowerCase()
@@ -1573,7 +1598,7 @@ function approvedReportOnlyImplementation(proposal, root = ROOT) {
     ].join('\n'),
     category,
     priority: 'low',
-    assigned_role: category === 'seo' ? 'seo-analyst' : 'engineer',
+    assigned_role: reportOnlyRole(category, site, root),
     requested_by: proposal.created_by === 'researcher' ? 'cro' : proposal.created_by,
     provider: 'chatgpt',
     model: 'gpt-5.6-luna',

@@ -385,7 +385,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // under a role that does not exist in its own site checkout.
     const previousRole = claimed.assigned_role;
     const availableRoles = installedSiteRoles(root, claimed.site);
-    const routedRole = assignedRoleForSite(claimed.category, claimed.assigned_role, availableRoles);
+    const routedRole = assignedRoleForSite(
+      claimed.category,
+      claimed.assigned_role,
+      availableRoles,
+      { delivery_mode: claimed.delivery_mode }
+    );
     if (claimed.site !== 'fleet' && (!routedRole || !availableRoles.includes(routedRole))) {
       const reason =
         `no installed owner for category=${claimed.category} on ${claimed.site}; ` +
@@ -999,6 +1004,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             },
           });
         }
+        continue;
+      }
+      if (run.state === 'cancelled' && request.status !== 'cancelled') {
+        syncChangeRequestFromRun(run, 'cancelled');
         continue;
       }
       if (!run || run.state !== 'building') continue;
@@ -1682,6 +1691,42 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         return request;
       }
     }
+    if (target === 'cancelled') {
+      try {
+        const cancelled = changequeue.update(
+          events,
+          request.request_id,
+          {
+            status: 'cancelled',
+            error:
+              run.outcome?.error ||
+              request.error ||
+              `linked improvement run ${run.run_id} was cancelled`,
+            lease_owner: null,
+            lease_expires_at: null,
+            heartbeat_at: null,
+          },
+          site => isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.reconciled',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: request.request_id,
+          correlation_id: `change-request:${request.request_id}`,
+          payload: {
+            reason: 'linked improvement run was cancelled',
+            previous_status: request.status,
+            status: cancelled.status,
+            run_id: run.run_id,
+          },
+        });
+        return cancelled;
+      } catch {
+        return request;
+      }
+    }
     if (target === 'failed') {
       try {
         const failure = String(
@@ -1859,8 +1904,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const available = installedSiteRoles(root, request.site);
     const requestedRole = request.assigned_role || parsed.meta.assigned_role;
     const effectiveRole =
-      assignedRoleForSite(parsed.meta.type || request.category, requestedRole, available) ||
-      assignedRoleForType(parsed.meta.type || request.category, requestedRole);
+      assignedRoleForSite(parsed.meta.type || request.category, requestedRole, available, {
+        delivery_mode: request.delivery_mode,
+      }) || assignedRoleForType(parsed.meta.type || request.category, requestedRole);
     if (!effectiveRole || effectiveRole === parsed.meta.assigned_role) return false;
 
     const previousRole = parsed.meta.assigned_role || null;
