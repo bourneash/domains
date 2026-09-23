@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:04:50.258Z",
+  "generated_at": "2026-09-23T09:05:52.753Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Defer mynewgm.info readiness baseline",
-        "summary": "Keep mynewgm.info deferred while a bounded, read-only readiness baseline is prepared; do not infer audience, performance, monetization, or health from unavailable telemetry.",
-        "requested_action": "Approve only a report-only assessment covering observable site positioning, analytics availability, monetization paths, attribution prerequisites, one reversible hypothesis, measurement requirements, stop conditions, and rollback notes. Do not deploy, spend, change credentials, alter configuration, or claim traffic, revenue, or conversions.",
+        "title": "Establish noveltyguns.com readiness baseline",
+        "summary": "Produce a bounded, read-only baseline covering observable audience positioning, content structure, monetization paths, compliance signals, site health, analytics availability, and the smallest reversible validation opportunity.",
+        "requested_action": "Approve report-only assessment only. Do not deploy, spend, change credentials or configuration, infer audience status from the domain name, or make revenue or traffic claims. Include unavailable evidence, one reversible hypothesis, its primary metric, sample threshold, stop rule, and rollback notes.",
         "proposal_id": null
       }
     ]
