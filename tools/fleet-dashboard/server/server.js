@@ -152,6 +152,21 @@ function shouldAutoRevalidateInfrastructureReview(
   );
 }
 
+// Re-projecting a preserved infrastructure review must be idempotent. The
+// change-queue store intentionally rejects lifecycle updates that attempt to
+// transition a request to its current status, so callers must omit `status`
+// when the durable row is already in review.
+function infrastructureReviewProjectionPatch(request, queueError) {
+  return {
+    ...(request?.status === 'review' ? {} : { status: 'review' }),
+    error: queueError,
+    next_attempt_at: null,
+    lease_owner: null,
+    lease_expires_at: null,
+    heartbeat_at: null,
+  };
+}
+
 function shouldValidateBeforeDelivery(item) {
   return !(item?.state === 'review' && item.validation?.passed === true);
 }
@@ -2279,14 +2294,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           changequeue.update(
             events,
             request.request_id,
-            {
-              status: 'review',
-              error: queueError,
-              next_attempt_at: null,
-              lease_owner: null,
-              lease_expires_at: null,
-              heartbeat_at: null,
-            },
+            infrastructureReviewProjectionPatch(request, queueError),
             site => isKnownTarget(root, site)
           );
         return true;
@@ -5817,6 +5825,7 @@ module.exports = {
   interruptedWorkerRecoveryPath,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
+  infrastructureReviewProjectionPatch,
   shouldValidateBeforeDelivery,
   applyQualityPolicy,
 };

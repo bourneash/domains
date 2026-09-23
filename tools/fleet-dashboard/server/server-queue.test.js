@@ -7,6 +7,7 @@ const {
   interruptedWorkerRecoveryPath,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
+  infrastructureReviewProjectionPatch,
   shouldValidateBeforeDelivery,
   applyQualityPolicy,
 } = require('./server');
@@ -104,6 +105,21 @@ test('versioned validation fixes reopen each preserved infrastructure review at 
       'ipv4-preview-v1'
     ),
     true
+  );
+});
+
+test('preserved infrastructure reviews do not re-submit the same lifecycle status', () => {
+  const patch = infrastructureReviewProjectionPatch(
+    { status: 'review' },
+    'implementation preserved; validation infrastructure blocked revalidation'
+  );
+  assert.equal(Object.hasOwn(patch, 'status'), false);
+  assert.equal(patch.error.includes('preserved'), true);
+  assert.equal(patch.next_attempt_at, null);
+
+  assert.equal(
+    infrastructureReviewProjectionPatch({ status: 'reviewing' }, 'blocked').status,
+    'review'
   );
 });
 
