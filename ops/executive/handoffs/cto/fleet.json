@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:45:34.897Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T03:46:50.505Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: maintain the active bounded evidence and implementation work across aliencouncil.com, marineactivity.com, fishhooklabs.com, stinkyleftfoot.com, saveusfarms.com, and 0xroulette.com. Require baseline evidence, smoke or reachability checks, 14-day or 100-impression measurement gates, acceptance criteria, and rollback notes. Do not duplicate active site work.",
+        "summary": "Approved with constraints: continue only existing report-only, reversible evidence, repair, attribution, and measurement work. No duplicate queue tasks, production changes, new spending, monetization expansion, or unsupported revenue, ROI, margin, CAC, payback, or forecast claims. Require baseline evidence, acceptance criteria, smoke or reachability checks, 14-day or 100-impression measurement gates, and rollback notes for each active workstream. Missing telemetry remains unavailable evidence, not zero performance. Keep SearchWoot private pending source-rights, legal, privacy, accuracy, security, attribution, and owner gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain affiliate attribution reconciliation as a portfolio control. The supplied 2026-09-21 revenue figures remain portfolio-level evidence only until the unmatched tracking ID is mapped and direct-cost inputs are available. Do not create telemetry requests for sources already present in the authoritative snapshot.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new queue work is authorized this cycle. Existing active work may proceed only within its declared site boundary, isolated execution path, reversible scope, and measurement gate. Failed isolated-worker runs require a bounded retry or report-only fallback, not broader permissions or duplicate tasks.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing report-only and reversible work within declared site boundaries, with baseline evidence, smoke or reachability checks, acceptance criteria, 14-day or 100-impression measurement gates, and rollback notes. No new production changes or duplicate queue tasks.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: route only the six bounded work items listed in the change requests. Do not create duplicate tasks or broaden permissions after failed worker runs. Missing telemetry is unavailable evidence, not zero performance.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:45:34.898Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T03:46:50.505Z",
+  "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: retain revenue attribution as a portfolio control. The 2026-09-21 Amazon result is $4.92 commission from 6,219 clicks, 28 ordered items, and 6 shipped items; site-level contribution margin, ROI, and payback remain unsupported until the unmatched tracking ID is mapped and direct costs are available.",
+        "summary": "Recommendation: approve continuation only of existing report-only, reversible measurement, repair, and attribution work; reject new spending, production changes, monetization expansion, and unsupported revenue or ROI claims. Amazon reported $4.92 commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items, but attribution is incomplete because one tracking ID is unmapped. The 2026-09-01 through 2026-09-23 AI window reports $756.16 across 4,523 calls and 39 instrumented sites; comparing this 23-day AI cost with one day of revenue would be invalid, and infrastructure, domain, labor, and other direct costs are unavailable. Therefore contribution margin, cost-to-learn, ROI, payback, CAC, and forecasts are not calculable. Retain the attribution-reconciliation control and require site-level revenue, AI cost, infrastructure cost, domain/renewal cost, labor effort, and experiment outcome before financial claims. Treat 13,177 impressions, 126 clicks, 932 sessions, and 13 conversions as activity metrics, not proof of revenue or profitability.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Minimum finance measurement: map the unmatched affiliate tracking ID to a unique managed site; reconcile site/content-level clicks, ordered items, shipped items, commission, and reporting dates; capture AI cost and calls by site and workstream; capture hosting/infrastructure, domain/renewal, and human implementation costs; then calculate contribution margin as attributable commission minus attributable direct costs. Until those inputs exist, retain revenue only as portfolio-level unattributed evidence and do not extrapolate forecasts.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "SearchWoot remains financially blocked and private. No monetization, affiliate, advertising, or public-beta revenue claim is supportable until source rights, measurement, attribution, accuracy, security, privacy, and owner gates are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain revenue-attribution reconciliation as an active control. The supplied $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items remain portfolio-level evidence only until the unmatched tracking ID is mapped and direct-cost inputs are captured. Do not claim ROI, margin, CAC, payback, profitability, or forecasts.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concern: Amazon attribution is incomplete because one tracking ID is unmapped, and direct implementation, infrastructure, domain, renewal, and labor costs are unavailable. Retain the reported $4.92 commission only as portfolio-level evidence; do not assign site revenue or calculate margin, ROI, CAC, payback, or forecasts.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,16 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:45:34.898Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T03:46:50.503Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: keep SearchWoot private. Official Woot documentation confirms API access but not commercial or public redistribution rights; legal, privacy, accuracy, security, attribution, and owner gates remain incomplete.",
+        "summary": "Update: keep SearchWoot private. Official Woot documentation confirms API access but does not establish commercial or public redistribution rights; legal, privacy, accuracy, security, attribution, and owner gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Risk disposition: blocked. Recommendation: keep SearchWoot private; do not approve public beta, full launch, affiliate expansion, advertising, or production changes. Evidence: Woot documentation confirms API access but not commercial/public redistribution, historical derivatives, caching, alerts, attribution, freshness, correction, or takedown rights; public terms point against the proposed use. Compliance baseline is incomplete across 16 failing sites and 6 unknown sites. Portfolio revenue is $4.92 for 2026-09-21 but one tracking ID is unmapped; ROI and margin are unsupported. Launch-readiness tracking remains active: no tasks are closed. Next evidence actions are to obtain owner direction on an unsent Woot permission request, produce the repository-based data-flow and retention table, capture deployed consent and GA4 settings, and inventory logs/vendors/incident procedures. Data-use dispositions: Woot deal and price-history data—blocked pending written rights and field-level terms; user alert rules and sync results—evidence_needed pending inventory, retention, deletion, processor, consent, and unsubscribe evidence; GA4—conditional only after deployed consent, withdrawal, settings, retention, vendor, and jurisdiction evidence; operational logs and Cloudflare data—evidence_needed pending log fields, retention/access, vendor/DPA, incident, and request procedures. Human counsel is required for upstream rights, public display, historical derivatives, alerts, affiliate/advertising use, privacy jurisdictions, and any regulated or age-sensitive use. Missing telemetry is unavailable evidence, not zero performance; it is not independently a launch blocker for ordinary growth work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only existing bounded, reversible evidence, repair, attribution, and measurement work. Do not create duplicate tasks, add monetization, make unsupported claims, or launch private or gated sites without a concrete disposition and completed checklist. Close no launch-readiness task this cycle because no completion evidence is present. Smallest next evidence action: attach the authoritative Woot permission or terms record, then update each data-use item and the applicable technical, security, accuracy, measurement, and owner gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concern: keep SearchWoot private. Public source documentation confirms API access but not commercial or public redistribution rights, historical derivatives, caching, alerts, attribution, freshness, correction, or takedown rights. No launch, affiliate expansion, advertising, or production change is approved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
+        "summary": null,
+        "requested_action": "escalate_owner",
+        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
       }
     ]
   }

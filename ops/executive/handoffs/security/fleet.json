@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:45:34.898Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T03:46:50.504Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
         "summary": "Update: no production launch or security-sensitive change is recommended this cycle. The available security source is a read-only baseline, not certification; SearchWoot remains blocked pending access, secrets, isolation, monitoring, incident, and rollback review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No production launch or security-sensitive change is cleared. The available security source is a read-only baseline, not certification; SearchWoot remains blocked pending access, secrets, isolation, monitoring, incident, and rollback evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Disposition: blocked for go-live or security-sensitive production changes; conditional continuation for existing report-only and reversible work. Evidence: the security baseline is read-only and not certification; fleet-doctor is unavailable, operations deploy/uptime/error sweeps are absent, and no security checks are populated. Authentication and access boundaries, secrets exposure, container isolation, release controls, dependency risk, monitoring, incident handling, rollback, and disclosure readiness therefore remain unverified. Compliance also reports 16 failing and 6 unknown sites. Exact decision: keep SearchWoot private and authorize no production launch, public beta, monetization expansion, credential change, or security-sensitive deployment until the security evidence gate is completed. Optional hardening alone is not a fleet-wide blocker.",
         "requested_action": null,
         "proposal_id": null
       }
