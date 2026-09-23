@@ -297,7 +297,7 @@ for cname in "${CONTAINERS[@]}"; do
 done
 
 if [[ "${#reaped[@]}" -gt 0 ]]; then
-  NOTIFY ":zzz: Reaped ${#reaped[@]} idle domain-developer worker(s): $(printf '`%s` ' "${reaped[@]}"). Containers destroyed, not just stopped — all state is on host binds, so nothing is lost and the next start rebuilds from the current image. Bring one back with \`domain-developer <site>\`." "warning"
+  NOTIFY ":information_source: *INTERNAL · domain-developer housekeeping* — reaped ${#reaped[@]} idle worker(s): $(printf '`%s` ' "${reaped[@]}"). Containers were destroyed, not just stopped; all state is on host binds, so nothing was lost. Bring one back with \`domain-developer <site>\`." "#439FE0"
 fi
 if [[ "${#drifted_active[@]}" -gt 0 ]]; then
   NOTIFY ":warning: ${#drifted_active[@]} domain-developer worker(s) are running an image older than \`$IMAGE\` but still in active use, so they were left alone: $(printf '`%s` ' "${drifted_active[@]}"). Recreate when convenient: \`tools/domain-developer/bin/dd-recreate <site>\`." "warning"
