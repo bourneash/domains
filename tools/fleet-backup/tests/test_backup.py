@@ -69,6 +69,19 @@ def test_collect_missing_path_is_not_an_error(tmp_path, monkeypatch):
     assert fb.collect(["nope"], None, NEVER) == []
 
 
+def test_collect_excludes_disposable_subtrees_before_secret_guard(tmp_path, monkeypatch):
+    monkeypatch.setattr(fb, "ROOT", tmp_path)
+    durable = tmp_path / "data" / "actions.jsonl"
+    secret = tmp_path / "data" / "improvement-worktrees" / "site" / ".env.shared"
+    durable.parent.mkdir(parents=True)
+    secret.parent.mkdir(parents=True)
+    durable.write_text("action\n")
+    secret.write_text("SECRET=1\n")
+    rels = [r for _, r in fb.collect(
+        ["data"], None, NEVER, ["data/improvement-worktrees"])]
+    assert rels == ["data/actions.jsonl"]
+
+
 def test_incremental_skips_files_older_than_the_last_run(tmp_path, monkeypatch):
     monkeypatch.setattr(fb, "ROOT", tmp_path)
     d = tmp_path / "g"
@@ -150,4 +163,3 @@ def test_shipped_manifest_does_not_back_up_rendered_credentials():
         for p in group.get("paths", []):
             assert "env-broker/rendered" not in p
             assert not p.endswith(".env")
-

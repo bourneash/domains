@@ -32,6 +32,10 @@ never:
 groups:
   dashboard-actionlog:
     paths: [tools/fleet-dashboard/data]
+    # Improvement worktrees are disposable checkouts, not dashboard state.
+    # They contain each site's .env.shared and must never be traversed as part
+    # of the action-log backup.
+    exclude: [tools/fleet-dashboard/data/improvement-worktrees]
     why: mutation audit trail — who pushed/restarted what, unreproducible
 
   site-tracker:

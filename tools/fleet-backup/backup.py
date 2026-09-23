@@ -109,7 +109,9 @@ def assert_no_secret(rel: str, never: list[str]) -> None:
                 f"refusing to archive {rel!r}: matches never-backup rule {pattern!r}")
 
 
-def collect(paths: list[str], since: float | None, never: list[str]) -> list[tuple[Path, str]]:
+def collect(paths: list[str], since: float | None, never: list[str],
+            exclude: list[str] | None = None) -> list[tuple[Path, str]]:
+    exclude = exclude or []
     out: list[tuple[Path, str]] = []
     for p in paths:
         src = ROOT / p
@@ -118,6 +120,9 @@ def collect(paths: list[str], since: float | None, never: list[str]) -> list[tup
         files = [src] if src.is_file() else [f for f in src.rglob("*") if f.is_file()]
         for f in files:
             rel = str(f.relative_to(ROOT))
+            if any(rel == rule or rel.startswith(rule.rstrip("/") + "/")
+                   for rule in exclude):
+                continue
             assert_no_secret(rel, never)
             if since is not None and f.stat().st_mtime <= since:
                 continue
@@ -219,7 +224,7 @@ def run_backup(args, manifest) -> int:
         if spec.get("incremental"):
             since = state["groups"].get(name, {}).get("last_mtime")
         try:
-            files = collect(spec["paths"], since, never)
+            files = collect(spec["paths"], since, never, spec.get("exclude"))
         except SecretInArchive as e:
             print(f"ABORT {name}: {e}", file=sys.stderr)
             return 1
