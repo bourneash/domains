@@ -105,6 +105,14 @@ async function main() {
         repaired: true,
         counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
       });
+      if (!runner.actionMandateSatisfied(plan, brief)) {
+        plan = runner.buildActionMandateFallback(plan, brief);
+        audit.push({
+          role: 'action-mandate-fallback',
+          repaired: true,
+          counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, v.length])),
+        });
+      }
       if (!runner.actionMandateSatisfied(plan, brief))
         throw new Error('executive action mandate was not satisfied');
     }

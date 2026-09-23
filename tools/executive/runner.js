@@ -863,10 +863,22 @@ function planFingerprint(plan) {
 function actionMandateSatisfied(plan = {}, brief = {}) {
   if (!(brief.action_mandate?.candidates || []).length) return true;
   const candidateSites = new Set(
-    brief.action_mandate.candidates.map(item => item.site).filter(site => site && site !== 'fleet')
+    brief.action_mandate.candidates
+      .map(item =>
+        String(item.site || '')
+          .trim()
+          .toLowerCase()
+      )
+      .filter(site => site && site !== 'fleet' && !EXECUTIVE_EXCLUDED_SITES.has(site))
   );
   const requiredSites = Math.min(3, candidateSites.size);
-  const boundedSites = new Set((plan.change_requests || []).map(item => item.site));
+  const boundedSites = new Set(
+    (plan.change_requests || []).map(item =>
+      String(item.site || '')
+        .trim()
+        .toLowerCase()
+    )
+  );
   const coveredSites = [...candidateSites].filter(site => boundedSites.has(site)).length;
   // A single material owner decision (for example a gated launch) may remain
   // a question after a recommendation. Once the brief contains a portfolio
@@ -895,6 +907,105 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
     (brief.action_mandate?.candidates || []).length > 0 &&
     portfolioSpread
   );
+}
+
+// The provider is responsible for choosing the work, but a malformed or
+// indecisive response must not turn an evidence-backed hourly cycle into a
+// silent no-op. This fallback uses only candidates already present in the
+// trusted brief and creates bounded, reversible queue work.
+function buildActionMandateFallback(plan = {}, brief = {}) {
+  const basePlan = {
+    messages: [],
+    proposal_reviews: [],
+    data_requests: [],
+    proposals: [],
+    change_requests: [],
+    research_requests: [],
+    work_items: [],
+    knowledge: [],
+    ...plan,
+  };
+  const candidates = Array.isArray(brief.action_mandate?.candidates)
+    ? brief.action_mandate.candidates
+    : [];
+  if (!candidates.length) return basePlan;
+
+  const activeSites = new Set(
+    [...(brief.queue || []), ...(brief.improvements || [])]
+      .filter(item =>
+        [
+          'queued',
+          'claimed',
+          'running',
+          'reviewing',
+          'review',
+          'committed',
+          'building',
+          'measuring',
+        ].includes(String(item.status || item.state))
+      )
+      .map(item => String(item.site || '').toLowerCase())
+      .filter(Boolean)
+  );
+  const plannedSites = new Set(
+    basePlan.change_requests.map(item => String(item.site || '').toLowerCase())
+  );
+  const selected = [];
+  for (const candidate of candidates) {
+    const site = String(candidate.site || '')
+      .trim()
+      .toLowerCase();
+    if (!site || site === 'fleet' || site === '3boobs.com' || activeSites.has(site)) continue;
+    if (plannedSites.has(site)) continue;
+    selected.push({ ...candidate, site });
+    plannedSites.add(site);
+    if (selected.length >= 6) break;
+  }
+  if (!selected.length) return basePlan;
+
+  const change_requests = [
+    ...basePlan.change_requests,
+    ...selected.map(candidate => {
+      const type = String(candidate.type || '').toLowerCase();
+      const category = ['seo', 'engineering', 'content', 'design', 'marketing'].includes(type)
+        ? type
+        : 'engineering';
+      const reportOnly = type === 'portfolio-baseline';
+      const evidence = candidate.evidence
+        ? JSON.stringify(candidate.evidence)
+        : 'See the executive intelligence snapshot.';
+      const metric = candidate.metric || 'site-specific attributable outcome';
+      return {
+        site: candidate.site,
+        title: candidate.title || `Bounded improvement for ${candidate.site}`,
+        body: [
+          `Evidence-backed candidate from the executive intelligence snapshot: ${evidence}`,
+          `Recommendation: ${candidate.recommendation || 'Inspect the existing site report and select the smallest reversible improvement.'}`,
+          `Primary metric: ${metric}. Record the baseline before changing anything and measure for 14 days or 100 new impressions.`,
+          'Acceptance: preserve existing behavior outside the requested change, run focused tests and the site build, and record the exact files or report artifact produced.',
+          'Rollback: revert only this bounded change if validation gates fail or the measured metric materially declines.',
+        ].join('\n'),
+        category,
+        priority: 'low',
+        assigned_role: 'engineer',
+        provider: 'chatgpt',
+        model: 'gpt-5.6-luna',
+        max_turns: 12,
+        auto_review: true,
+        ...(reportOnly ? { delivery_mode: 'report_only' } : {}),
+      };
+    }),
+  ];
+  const messages = [...basePlan.messages];
+  if (!messages.some(message => /recommend(?:ation)?\s*:/i.test(String(message.body || '')))) {
+    messages.push({
+      actor: 'ceo',
+      body: `Recommendation: execute the ${selected.length} highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.`,
+      message_type: 'update',
+      metadata: { to: 'owner', source: 'action-mandate-fallback' },
+    });
+  }
+  return { ...basePlan, change_requests, messages };
 }
 
 function isTelemetryRequestProposal(item = {}) {
@@ -1373,6 +1484,7 @@ module.exports = {
   buildSiteContext,
   buildDomainManagerContext,
   actionCandidates,
+  buildActionMandateFallback,
   buildBrief,
   buildPrompt,
   buildPassPrompt,

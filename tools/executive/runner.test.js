@@ -36,6 +36,45 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   store.close();
 });
 
+test('action-mandate fallback routes trusted candidates instead of producing a no-op', () => {
+  const brief = {
+    queue: [{ site: 'already-active.com', status: 'running' }],
+    improvements: [],
+    action_mandate: {
+      candidates: [
+        {
+          site: 'one.com',
+          type: 'seo',
+          title: 'Improve one.com metadata',
+          recommendation: 'Update the title and description using the observed query gap.',
+          evidence: { impressions: 120 },
+          metric: 'qualified clicks',
+        },
+        {
+          site: 'two.com',
+          type: 'portfolio-baseline',
+          title: 'Baseline two.com',
+          recommendation: 'Produce a read-only revenue-readiness baseline.',
+          metric: 'attributable outbound clicks',
+        },
+        { site: '3boobs.com', type: 'seo', title: 'must never be selected' },
+      ],
+    },
+  };
+  const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
+  assert.equal(plan.change_requests.length, 2);
+  assert.deepEqual(
+    plan.change_requests.map(item => [item.site, item.delivery_mode || 'direct']),
+    [
+      ['one.com', 'direct'],
+      ['two.com', 'report_only'],
+    ]
+  );
+  assert.match(plan.messages[0].body, /^Recommendation:/);
+  runner.validatePlan(plan);
+  assert.equal(runner.actionMandateSatisfied(plan, brief), true);
+});
+
 test('roles can create and update bounded workbench cases through the plan', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

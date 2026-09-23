@@ -78,6 +78,10 @@ const HOST = process.env.FD_HOST || '127.0.0.1';
 const QUALITY_GATES = ['diff', 'tests', 'build', 'preview', 'browser'];
 const MAX_AUTOMATIC_QUEUE_ATTEMPTS = 3;
 const MAX_AUTOMATIC_REVIEW_REPAIRS = 2;
+// A reviewer process updates the durable run row before its close callback
+// finishes the delivery handoff. Do not mistake that short, normal window for
+// an interrupted handoff during the 15-second queue pulse.
+const AUTOMATIC_REVIEW_HANDOFF_GRACE_MS = 2 * 60 * 1000;
 
 function isKnownTarget(root, target) {
   return target === 'fleet' || isKnownSite(root, target);
@@ -1176,6 +1180,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const message = String(error.message || error);
     if (error?.noAutomaticRepair) {
       const failedRun = markImprovementFailed(run, error);
+      const retryable = request.attempts < MAX_AUTOMATIC_QUEUE_ATTEMPTS;
       try {
         changequeue.update(
           events,
@@ -1183,6 +1188,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           {
             status: failedRun?.state === 'failed' ? 'failed' : 'review',
             error: message,
+            next_attempt_at: retryable ? new Date(Date.now() + 15 * 60 * 1000).toISOString() : null,
             lease_owner: null,
             lease_expires_at: null,
             heartbeat_at: null,
@@ -1249,6 +1255,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         continue;
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
       if (!run || run.agent?.phase !== 'reviewer' || run.agent?.status !== 'completed') continue;
+      const finishedAt = Date.parse(run.agent.finished_at || '');
+      if (
+        Number.isFinite(finishedAt) &&
+        Date.now() - finishedAt < AUTOMATIC_REVIEW_HANDOFF_GRACE_MS
+      )
+        continue;
       if (['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
         continue;
       const reason =
