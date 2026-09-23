@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T15:10:52.291Z",
+  "generated_at": "2026-09-23T15:22:44.471Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Approve only the bounded, report-only offshorehookup.com attribution and revenue-readiness assessment; reject production, monetization, financial claims, and failed-queue retries because telemetry is low-volume and site-level revenue is $0. Will you authorize this single evidence-only assessment?",
+        "summary": "Recommendation: approve only the bounded report-only attribution and monetization-readiness assessment for shoppinkflamingo.com; reject production, spending, and financial claims because supplied attribution shows 32 clicks, 0 ordered items, and $0 commission, while site-level traffic and conversion detail are unavailable. May I authorize this evidence-only assessment?",
         "requested_action": null,
         "proposal_id": null
       }
