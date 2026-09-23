@@ -87,6 +87,12 @@ const AUTOMATIC_RETRY_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 // finishes the delivery handoff. Do not mistake that short, normal window for
 // an interrupted handoff during the 15-second queue pulse.
 const AUTOMATIC_REVIEW_HANDOFF_GRACE_MS = 2 * 60 * 1000;
+// A reviewer callback can be lost while deterministic delivery is still
+// running. Do not let the process-local active set suppress recovery forever;
+// after this bound, the durable PASS marker is authoritative and the sweep may
+// reclaim the handoff once.
+const AUTOMATIC_REVIEW_ACTIVE_MAX_MS = 8 * 60 * 1000;
+const AUTOMATIC_DELIVERY_CLAIM_MAX_MS = 15 * 60 * 1000;
 // Bump this when the validation harness changes. A preserved implementation
 // may then receive one bounded revalidation automatically, without reopening
 // the same infrastructure failure on every queue pulse.
@@ -1792,7 +1798,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
-  const activeAutomaticReviews = new Set();
+  const activeAutomaticReviews = new Map();
 
   async function validateImprovementForDelivery(item) {
     if (item.state !== 'building')
@@ -1962,6 +1968,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   async function deliverAutomatically(item) {
     const request = events.getChangeRequest(item.source_id);
+    const claimed = claimAutomaticDelivery(item);
+    if (!claimed) {
+      return { run: events.getImprovement(item.run_id), deduplicated: true };
+    }
+    item = claimed;
+    try {
+      return await deliverClaimedAutomatically(item, request);
+    } catch (error) {
+      // A failed validation, report, routing commit, or deployment must not
+      // hold the durable claim until its safety timeout. The failure remains
+      // fully auditable; only the retry lock is released.
+      releaseAutomaticDeliveryClaim(events.getImprovement(item.run_id));
+      throw error;
+    }
+  }
+
+  async function deliverClaimedAutomatically(item, request) {
     if (String(request?.action_key || '').startsWith('task-routing:'))
       return deliverTaskRoutingAutomatically(item, request);
     if (request?.delivery_mode === 'report_only') {
@@ -2123,6 +2146,52 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed)/i.test(
       text
     );
+  }
+
+  function claimAutomaticDelivery(item) {
+    const current = events.getImprovement(item.run_id);
+    if (!current) throw new Error('improvement run disappeared before delivery claim');
+    const claimedAt = Date.parse(current.outcome?.delivery_claimed_at || '');
+    if (
+      current.outcome?.delivery_claimed === true &&
+      Number.isFinite(claimedAt) &&
+      Date.now() - claimedAt < AUTOMATIC_DELIVERY_CLAIM_MAX_MS
+    )
+      return null;
+    const now = new Date().toISOString();
+    const claimed = events.updateImprovement(item.run_id, {
+      outcome: {
+        ...(current.outcome || {}),
+        delivery_claimed: true,
+        delivery_claimed_at: now,
+        delivery_claimed_by: queueWorkerId,
+      },
+    });
+    events.record({
+      event_type: 'improvement.delivery_claimed',
+      source: 'fleet-dashboard',
+      site_id: `site:${claimed.site}`,
+      entity_type: 'improvement',
+      entity_id: claimed.run_id,
+      correlation_id: claimed.correlation_id,
+      payload: { claimed_at: now, claimed_by: queueWorkerId },
+    });
+    return claimed;
+  }
+
+  function releaseAutomaticDeliveryClaim(run) {
+    if (!run || run.state === 'deployed' || run.state === 'reported') return;
+    try {
+      events.updateImprovement(run.run_id, {
+        outcome: {
+          ...(run.outcome || {}),
+          delivery_claimed: false,
+          delivery_released_at: new Date().toISOString(),
+        },
+      });
+    } catch {
+      /* preserve the original delivery failure */
+    }
   }
 
   function reviewInfrastructureBlock(rootPath, run, error) {
@@ -2436,17 +2505,40 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function recoverAutomaticReviewHandoffs() {
     for (const request of events.listChangeRequests({ limit: 1000 })) {
-      if (
-        !['reviewing', 'review'].includes(request.status) ||
-        activeAutomaticReviews.has(request.request_id)
-      )
-        continue;
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      if (!['reviewing', 'review'].includes(request.status)) continue;
+      const activeSince = activeAutomaticReviews.get(request.request_id);
+      if (activeSince) {
+        const finishedAt = Date.parse(run?.agent?.finished_at || '');
+        const handoffAge = Number.isFinite(finishedAt)
+          ? Date.now() - finishedAt
+          : Date.now() - activeSince;
+        if (
+          run?.agent?.phase !== 'reviewer' ||
+          run?.agent?.status !== 'completed' ||
+          handoffAge < AUTOMATIC_REVIEW_ACTIVE_MAX_MS
+        )
+          continue;
+        activeAutomaticReviews.delete(request.request_id);
+        events.record({
+          event_type: 'improvement.reviewer_handoff_reclaimed',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'improvement',
+          entity_id: run.run_id,
+          correlation_id: run.correlation_id,
+          payload: { request_id: request.request_id, handoff_age_ms: handoffAge },
+        });
+      }
       // Validation-infrastructure blocks are preserved in review, but a
       // versioned harness fix gets one bounded automatic revalidation. This
       // removes the operator bottleneck without retrying the same broken
       // environment forever; the version marker remains in the audit record.
-      if (run?.outcome?.infrastructure_blocked === true) {
+      const completedReviewerHandoff =
+        run?.state === 'building' &&
+        run.agent?.phase === 'reviewer' &&
+        run.agent?.status === 'completed';
+      if (run?.outcome?.infrastructure_blocked === true && !completedReviewerHandoff) {
         if (
           shouldAutoRevalidateInfrastructureReview(request, run) &&
           events.listChangeRequests({ status: 'reviewing', limit: 1000 }).length <
@@ -2486,7 +2578,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const reviewer = improvementAgent.reviewResult(improvementAgent.status(root, run).log_tail);
       if (reviewer.marker) {
         if (activeAutomaticReviews.has(request.request_id)) continue;
-        activeAutomaticReviews.add(request.request_id);
+        activeAutomaticReviews.set(request.request_id, Date.now());
         completeAutomaticReview(request.request_id, run, {
           ...reviewer,
           code: run.agent?.exit_code,
@@ -2527,6 +2619,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const fresh = events.getImprovement(run.run_id);
       await deliverAutomatically(fresh);
     } catch (error) {
+      releaseAutomaticDeliveryClaim(events.getImprovement(run.run_id));
       recordAutoReviewFailure(id, error);
     }
   }
@@ -2541,15 +2634,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       });
     let run = request.run_id ? events.getImprovement(request.run_id) : null;
     if (!run) throw Object.assign(new Error('request has no improvement run'), { httpStatus: 409 });
-    if (run.state === 'review') {
-      await syncImprovementTask(root, run, 'in-progress');
-      run = improvements.transition(events, run.run_id, { state: 'building' });
-    }
-    if (run.state !== 'building')
-      throw Object.assign(new Error(`improvement run is ${run.state}, not reviewable`), {
-        httpStatus: 409,
-      });
     if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
+    // Claim the durable reviewing slot before the first await below. Without
+    // this ordering, a recovery sweep could launch several async reviews in
+    // one turn while every request still looked like `review`, bypassing the
+    // queue's max_concurrent setting and exhausting browser/build resources.
     if (request.status !== 'reviewing')
       changequeue.update(
         events,
@@ -2563,7 +2652,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         },
         site => isKnownTarget(root, site)
       );
-    activeAutomaticReviews.add(id);
+    activeAutomaticReviews.set(id, Date.now());
+    try {
+      if (run.state === 'review') {
+        await syncImprovementTask(root, run, 'in-progress');
+        run = improvements.transition(events, run.run_id, { state: 'building' });
+      }
+      if (run.state !== 'building')
+        throw Object.assign(new Error(`improvement run is ${run.state}, not reviewable`), {
+          httpStatus: 409,
+        });
+    } catch (error) {
+      activeAutomaticReviews.delete(id);
+      recordAutoReviewFailure(id, error);
+      throw error;
+    }
     const task = findImprovementTask(root, run);
     try {
       return improvementAgent.startReview({
