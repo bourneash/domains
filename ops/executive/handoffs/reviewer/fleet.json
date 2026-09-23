@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:35:47.746Z",
+  "generated_at": "2026-09-23T08:41:37.915Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the proposed Alien Council SEO change for now because an existing UAP SEO baseline is already in progress and reports conflicting telemetry. Keep current measurement work unchanged; do not add duplicate production work or make financial or causal claims. Owner decision: should a new isolated change be considered only after the baseline discrepancy is reconciled?",
+        "summary": "Recommendation: Reject the parked-domain opportunity triage proposal as duplicate of existing bounded work and lacking a specific measurable outcome. Continue the existing read-only assessment; authorize no queue work, launch, spend, credential, configuration, schedule, or production changes. Owner decision: keep the domain parked, request a bounded launch proposal with success criteria, or retire it before renewal.",
         "requested_action": null,
         "proposal_id": null
       }

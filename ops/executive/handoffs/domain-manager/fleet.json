@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:35:47.746Z",
+  "generated_at": "2026-09-23T08:41:37.916Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve organic reach for UAP brief page",
-        "summary": "Apply one reversible SEO snippet improvement to /brief/2026-08-14, then measure organic performance without making revenue or causal-lift claims.",
-        "requested_action": "Route an isolated title/meta or equivalent snippet improvement for owner approval; do not deploy directly.",
-        "proposal_id": "3b067cc8-8fc4-4ffe-87a6-e28f51baca41"
+        "title": "Complete parked-domain opportunity triage",
+        "summary": "Continue the existing read-only assessment before deciding whether to keep parked, prepare a bounded launch proposal, or retire the domain.",
+        "requested_action": "Complete the existing bounded triage for reachability, audience fit, monetization potential, build effort, renewal exposure, and opportunity cost. Do not launch, spend, change credentials, configure analytics, or deploy without owner approval.",
+        "proposal_id": null
       }
     ]
   }
