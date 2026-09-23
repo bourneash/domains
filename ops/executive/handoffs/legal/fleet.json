@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:15:25.935Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:24:13.711Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for ordinary measured growth; blocked for SearchWoot public launch. Compliance baseline passes 37/59, with 16 failures and 6 unknowns; data-quality contracts are green, but operations/security evidence is incomplete. Do not block ordinary growth solely for incomplete telemetry. Retain existing bounded workstreams only; no new monetization, claims, or site-level ROI assertions. Amazon revenue is $4.92 aggregate and unattributed; site-attributed income is $0, so revenue, margin, CAC, payback, and profitability remain unsupported. Recommendation: continue the six active reversible workstreams with existing measurement gates and keep SearchWoot private.",
+        "summary": "Risk disposition: SearchWoot go-live is blocked; keep private. Woot documentation proves API access but not commercial/public display, derivative, caching, alerting, affiliate, or advertising rights. Human counsel is required for source-rights, privacy/jurisdiction, and any future monetization decision. Ordinary bounded growth elsewhere is conditional, not blocked by incomplete telemetry; do not make unsupported revenue or ROI claims. Launch-readiness tracking remains active: zero legal tasks closed. Next evidence actions are to prepare an unsent Woot permission request, produce the repository-derived data-flow and retention table, capture deployed consent and GA4 configuration, and inventory logs, vendors, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot disposition: blocked. Concrete blockers are unresolved upstream rights for storage, derivatives, public display, caching, alerts, affiliate/advertising use, field attribution, freshness, correction, and takedown; incomplete data-flow, retention, deletion, processor, incident, consent, GA4, security, accuracy, attribution, and owner-decision evidence. Current public terms do not establish the required commercial/public-display rights. Exact decision: keep the site private and do not launch, monetize, expand notifications, alter tracking, or change production. Next evidence action: prepare, but do not send, a written permission request through the official provider process covering permitted fields, retention, display, alerts, attribution, freshness, correction, takedown, and commercial use; owner authorization is required before outreach.",
+        "summary": "Data-use dispositions: Woot deal and price-history data—blocked; missing written provider permission, field-level provenance, permitted retention/display/alerts, freshness, correction, and takedown rules; smallest action is prepare an unsent permission request. User alert rules and sync results—evidence_needed; missing data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior; smallest action is produce a read-only data-flow and retention table. GA4 analytics—conditional for measurement-only use if consent-gated; evidence_needed for deployed consent/withdrawal evidence, GA4 sharing and retention settings, vendor disclosure, and jurisdiction review; smallest action is capture current configuration without enabling tracking. Operational logs and Cloudflare hosting data—evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest action is produce the read-only operator and vendor inventory. No legal task is closed because none has complete evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner decision required: choose one concrete path—authorize preparation of an unsent provider-permission request, keep private with no outreach, or end the public-beta pursuit. No public beta or full launch is recommended while the launch-readiness decision rule remains unsatisfied.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Launch-readiness tracking progress: all four legal tasks remain open; none can be closed on current evidence. The source-rights task has authoritative documentation but no permission record. Data-flow, consent/analytics, and vendor/incident tasks have partial repository or policy evidence only. Next evidence actions are: produce the read-only data-flow and retention table; capture deployed consent and GA4 settings; produce the operator/vendor/log inventory; and record counsel-required gaps. Do not mark any task complete until evidence is attached and each data-use item has a final disposition.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review dispositions: Woot deal and price-history data—blocked pending written rights and field-level provenance, refresh/staleness, correction, and takedown evidence; smallest next action is prepare an unsent provider-permission request. User alert rules and sync results—evidence_needed pending data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe evidence; smallest next action is produce a read-only data-flow/retention table. GA4 analytics—conditional for measurement-only use if consent-gated; evidence_needed for deployed consent/withdrawal behavior, GA4 sharing and retention settings, vendor disclosure, and jurisdiction review; smallest next action is capture current configuration without enabling tracking. Operational logs and Cloudflare hosting data—evidence_needed pending log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest next action is produce the read-only operator/vendor inventory. Any future affiliate, advertising, remarketing, or customer matching use requires a new review; human counsel is required for unresolved rights, jurisdictional privacy, and commercial-use questions.",
+        "summary": "Privacy, consent, terms, cookie and analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform-policy, and age-sensitive review remain conditional or evidence-needed where the supplied checklist lacks evidence. Do not infer adult status from domain names. Amazon attribution remains an evidence boundary: $4.92 is aggregate and unattributed, so site revenue, margin, ROI, CAC, payback, profitability, and forecasts are unsupported. Retain no new implementation or monetization action this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

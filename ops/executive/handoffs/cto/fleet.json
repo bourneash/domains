@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:15:25.935Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:24:13.711Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve no new queue actions this cycle. Continue the six existing bounded workstreams only, each isolated to its site or report scope, reversible, and subject to existing smoke/reachability checks and measurement at 14 days or 100 new impressions. Do not treat failed requests as completed or create duplicates. SearchWoot remains private; no launch, data-source expansion, telemetry changes, credentials, configuration, spending, or production changes are technically authorized while rights, accuracy, security, privacy, attribution, and owner gates remain incomplete. Existing telemetry is sufficient for the stated measurement gates; no new telemetry proposal is justified.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO decision request: choose whether to authorize preparation of an unsent source-permission request, keep the private gate with no outreach, or end the public-beta pursuit. No external request or production change is authorized without that decision and completion of the existing gates.",
+        "summary": "CTO review: retain both proposals as deferred backlog hypotheses, but decline new queue actions this cycle. Existing work remains isolated, reversible, and measurement-gated; no new telemetry, production changes, credentials, spending, or monetization changes are justified.",
         "requested_action": null,
         "proposal_id": null
       }

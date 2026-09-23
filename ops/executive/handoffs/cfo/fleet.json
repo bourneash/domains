@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:15:25.934Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:24:13.710Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: continue only the six existing bounded workstreams; approve no expansion, spending, monetization changes, or new queue actions this cycle. Revenue claims are unsupported at site level: Amazon reports $4.92 commission, 28 ordered items, and 6 shipped items for 2026-09-21, but all income is in an aggregate unattributed row. Site-attributed income is $0. Contribution margin, ROI, CAC, payback, profitability, and forecasts are not calculable because direct non-AI costs, fixed infrastructure costs, labor allocation, and site-level revenue attribution are unavailable. AI usage is measurable: $759.78 from 2026-09-01 through 2026-09-23 across 4,529 calls, with 207 errors; this is an observability cost, not proof of productive return. The known AI spend is 154.43x the single-day aggregate commission, but that comparison is not a valid period-matched ROI or margin calculation. Budget exposure is also incomplete because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank; Codex Pro is fixed subscription but its dollar cost is not supplied. Cost-to-learn is not calculable because experiment-level incremental spend and measured outcomes are absent. Minimum measurement before any financial expansion: a period-matched ledger of site/content-level revenue, shipped commission, AI/infrastructure/direct costs, and experiment exposures with baseline and post-change outcomes. Treat 13,383 impressions, 129 clicks, 947 sessions, and 15 conversions as activity metrics only; zero outcomes are proven and three improvements await measurement. Keep SearchWoot private and do not claim monetization value while attribution and launch gates remain incomplete.",
+        "summary": "Financial recommendation: freeze new monetization experiments, tooling, and discretionary spend this cycle. Continue only existing bounded workstreams through their measurement gates. Amazon supports only an aggregate $4.92 commission claim for 2026-09-21: 6,219 clicks, 28 ordered items, and 6 shipped items; all $4.92 is unattributed, so site revenue, contribution margin, ROI, CAC, payback, profitability, and forecasts are unsupported. AI usage cost is $759.78 from 2026-09-01 through 2026-09-23 across 4,529 calls and 39 instrumented sites, but infrastructure, domain, labor, and other direct costs are unavailable. No budget limits are supplied: monthly spend, fixed costs, marketing budget, and revenue floor are blank. Maintain SearchWoot private and do not authorize new queue actions or financial commitments.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO decision request: provide or authorize a read-only, period-matched cost ledger covering AI, infrastructure, domains, and other direct operating costs, plus site-level revenue attribution. Without these inputs, contribution margin, cost-to-learn, budget exposure, and forecasts remain non-calculable. No money movement, billing change, banking access, contract, or production monetization change is requested.",
+        "summary": "Attribution quality is insufficient for investment decisions: Amazon reports 18 mapped tracking rows plus one aggregate 'other' row containing all 28 orders, 6 shipped items, and $4.92 commission. Minimum measurement needed for site-level claims is a reconciled export linking each outbound affiliate click, registered tracking ID, order, shipped item, commission, and reporting date to site/content identifiers. Contribution margin additionally requires infrastructure, domain, payment/platform, labor, and incremental experiment costs by site and period. Cost-to-learn requires experiment-level incremental cost and attributable conversion or commission outcomes; neither is calculable from the brief. Treat impressions, clicks, sessions, conversions, AI calls, and CRO opportunity scores as activity or learning signals, not revenue evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Freeze new monetization experiments, tooling, and discretionary spend this cycle. The reported commission remains aggregate and unattributed; site revenue, margin, ROI, CAC, payback, profitability, and forecasts remain unsupported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Freeze new monetization experiments, tooling, and discretionary spend this cycle. Continue only existing bounded workstreams through their measurement gates; aggregate commission remains unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

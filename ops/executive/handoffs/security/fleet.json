@@ -2,36 +2,43 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:15:25.935Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:24:13.712Z",
+  "summary": "security checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: conditional for ordinary bounded growth; blocked for security-sensitive go-live or release decisions where required evidence is absent. The read-only security baseline reports no TLS certificates expiring within 30 days, but fleet-doctor has never run, operations deploy/uptime/error sweeps are unavailable, and there is no evidence for authentication boundaries, secrets exposure, container isolation, release controls, dependency risk, incident monitoring, or disclosure readiness. Do not claim a clean bill of health. Continue existing reversible workstreams; do not add security blocking for optional hardening alone.",
+        "summary": "Security disposition: conditional for ordinary bounded growth; blocked for security-sensitive go-live, release, or production changes. Evidence: TLS expiry check found no certificates expiring within 30 days, but fleet-doctor has never run, deployment/uptime/error sweeps are unavailable, and no evidence supports authentication boundaries, secret handling, container isolation, release controls, dependency or supply-chain review, data-exposure controls, incident monitoring, or disclosure readiness. Missing evidence is not evidence of safety. Continue only existing reversible workstreams; do not block ordinary growth for optional hardening alone.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: blocked. Exact decision: keep the site private and do not launch, expand notifications, change credentials, alter production configuration, or monetize until access boundaries, secret handling, isolation, release controls, dependency and supply-chain review, TLS configuration, data exposure, monitoring, incident response, and disclosure readiness have evidence-backed approval. Fleet-doctor and operations evidence are unavailable, so missing evidence is treated as an unresolved launch gate, not as proof of safety.",
+        "summary": "Exact decision: keep SearchWoot private. Do not authorize public beta, full launch, notification expansion, credential changes, production configuration changes, or monetization changes until access, secrets, isolation, release, dependency, TLS, data-exposure, monitoring, incident-response, and disclosure-readiness evidence is complete and reviewed. Security-sensitive implementation must include implementation.security_review with status approved or needs_owner, reviewed_by security, and an evidence-backed decision_note.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security decision request: keep the private-preview gate unchanged. Authorize no public beta or full launch until the existing legal, accuracy, measurement, and security gates are evidenced. If security-sensitive implementation is later proposed, require implementation.security_review.status=needs_owner or approved, reviewed_by=security, and an evidence-backed decision note before release.",
+        "summary": "Risk severity: high for go-live and security-sensitive production changes because fleet-doctor is unavailable and operational security telemetry is missing; medium for ordinary growth because no active incident, credential exposure, exploit, or expiring certificate is evidenced. Missing security.txt or disclosure evidence remains a readiness gap, not proof of vulnerability.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Evidence severity: high for go-live and production security-sensitive changes because fleet-doctor has ok=false with no last run, operations deployment/uptime/error telemetry is unavailable, and the security baseline contains only limitations and TLS-expiry checks. Medium for ordinary growth because no concrete exploit, credential exposure, active incident, or expiring certificate is evidenced. Missing security.txt or disclosure evidence is a readiness gap, not proof of vulnerability.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Fleet affiliate attribution guardrail prototype",
+        "summary": "Report-only checker concept for validating registered affiliate tracking IDs before publication. Retain as backlog evidence; no implementation this cycle.",
+        "requested_action": "Defer pending measured outcomes and confirmation that the work does not duplicate existing attribution controls. No deployment, credential change, spending, or affiliate-account change.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Great American Lakes contextual commerce CTA experiment",
+        "summary": "Potential isolated CTA experiment for a high-intent fishing page after the existing measurement gate completes. Retain as backlog evidence; no implementation this cycle.",
+        "requested_action": "Defer until active measurement records an outcome. Require approved destinations and disclosures, existing measurement only, isolated reversible scope, quality gates, stop conditions, and rollback criteria.",
         "proposal_id": null
       }
     ]

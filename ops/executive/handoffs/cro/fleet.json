@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:15:25.933Z",
+  "generated_at": "2026-09-23T06:24:13.709Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new CRO proposals retained this cycle. Existing evidence-backed experiments and measurement gates already cover the viable revenue opportunities; creating duplicates would conflict with the active-workstream constraint. Continue measurement for 0xroulette.com, marineactivity.com, aliencouncil.com, fishhooklabs.com, stinkyleftfoot.com, and americastrikes.com. SearchWoot remains private and blocked by unresolved rights, legal, security, accuracy, privacy, and attribution gates.",
+        "summary": "CRO handoff: retain two evidence-backed opportunities for CEO/CTO review. Do not queue implementation this cycle. The affiliate guardrail addresses the observed aggregate Amazon attribution boundary; the Great American Lakes experiment is conditional on completing the existing measurement gate.",
         "requested_action": null,
         "proposal_id": null
       }
