@@ -1566,17 +1566,31 @@ function followThroughKind(proposalType) {
 }
 
 function proposalSite(proposal, root = ROOT) {
+  const sites = executiveSites(root);
   const explicit = [proposal?.site, proposal?.domain, proposal?.implementation?.site]
     .map(value =>
       String(value || '')
         .trim()
         .toLowerCase()
     )
-    .find(site => site && executiveSites(root).includes(site));
+    .find(site => site && sites.includes(site));
   if (explicit) return explicit;
+  // Older approved proposals often contain the site's brand name but not its
+  // hostname (for example, "Arttogogh" or "Great American Lakes"). Infer a
+  // site only when the normalized hostname is a unique token in the proposal;
+  // ambiguous fleet-wide proposals remain unassigned and therefore cannot be
+  // queued as site work.
   const text =
-    `${proposal?.title || ''}\n${proposal?.summary || ''}\n${proposal?.requested_action || ''}`.toLowerCase();
-  const matches = executiveSites(root).filter(site => text.includes(site.toLowerCase()));
+    `${proposal?.title || ''}\n${proposal?.summary || ''}\n${proposal?.requested_action || ''}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '');
+  const matches = sites.filter(site => {
+    const token = String(site)
+      .toLowerCase()
+      .replace(/\.[a-z0-9.-]+$/, '')
+      .replace(/[^a-z0-9]+/g, '');
+    return token.length >= 4 && text.includes(token);
+  });
   return matches.length === 1 ? matches[0] : null;
 }
 
@@ -1630,6 +1644,29 @@ function approvedImplementation(proposal, root = ROOT) {
   if (implementation && typeof implementation === 'object' && Object.keys(implementation).length)
     return implementation;
   return approvedReportOnlyImplementation(proposal, root);
+}
+
+function normalizeApprovedImplementation(proposal, root = ROOT) {
+  const implementation = approvedImplementation(proposal, root);
+  if (!implementation || typeof implementation !== 'object') return {};
+  const normalized = { ...implementation };
+  if (!normalized.site) {
+    const site = proposalSite(proposal, root);
+    if (site) normalized.site = site;
+  }
+  const category = String(normalized.category || '')
+    .trim()
+    .toLowerCase();
+  if (!changequeue.CATEGORIES.includes(category)) normalized.category = 'other';
+  const assignedRole = String(normalized.assigned_role || '')
+    .trim()
+    .toLowerCase();
+  if (!['engineer', 'principal-engineer'].includes(assignedRole))
+    normalized.assigned_role = reportOnlyRole(normalized.category, normalized.site, root);
+  if (normalized.priority === 'normal') normalized.priority = 'medium';
+  if (!normalized.provider) normalized.provider = 'chatgpt';
+  if (normalized.provider === 'chatgpt' && !normalized.model) normalized.model = 'gpt-5.6-luna';
+  return normalized;
 }
 
 function implementationBlockers(proposal, implementation) {
@@ -1768,7 +1805,7 @@ function reconcileApprovedProposalFollowThrough(
         request_id: currentRequest.request_id,
       });
     }
-    const implementation = approvedImplementation(proposal, root);
+    const implementation = normalizeApprovedImplementation(proposal, root);
     const ready = Boolean(implementation.site && implementation.title && implementation.body);
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =
@@ -2939,6 +2976,9 @@ module.exports = {
   actionCandidates,
   buildActionMandateFallback,
   attachKnownActionKeys,
+  proposalSite,
+  approvedImplementation,
+  normalizeApprovedImplementation,
   buildBrief,
   buildPrompt,
   buildPassPrompt,

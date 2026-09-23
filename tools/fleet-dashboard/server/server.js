@@ -2225,7 +2225,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function automaticReviewFeedback(rootPath, run, error) {
     const status = run ? improvementAgent.status(rootPath, run) : null;
     const log = String(status?.log_tail || '').trim();
-    return `${String(error?.message || error || 'automatic review failed')}\n${log}`.slice(-8000);
+    const validation = error?.validation || run?.validation || null;
+    const validationEvidence = validation
+      ? `\nValidation evidence:\n${JSON.stringify(validation).slice(-12000)}`
+      : '';
+    return `${String(error?.message || error || 'automatic review failed')}${validationEvidence}\n${log}`.slice(
+      -20000
+    );
   }
 
   function reviewTaskBodyForRequest(request, task) {
@@ -2251,7 +2257,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function validationInfrastructureBlock(validation) {
     const text = JSON.stringify(validation || {});
-    return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed)/i.test(
+    return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile)/i.test(
       text
     );
   }
@@ -2293,8 +2299,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function reviewInfrastructureBlock(rootPath, run, error) {
     const evidence = automaticReviewFeedback(rootPath, run, error);
-    return /(?:ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|browserType\.launch|executable doesn't exist|playwright install|missing (?:browser|chromium)|cannot find module|network request failed)/i.test(
-      evidence
+    return (
+      validationInfrastructureBlock(error?.validation || run?.validation) ||
+      /(?:ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|browserType\.launch|executable doesn't exist|playwright install|missing (?:browser|chromium)|cannot find module|network request failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile)/i.test(
+        evidence
+      )
     );
   }
 

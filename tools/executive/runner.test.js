@@ -180,6 +180,45 @@ test('does not infer a task-routing key from a near-match', () => {
   assert.equal(plan.change_requests[0].action_key, undefined);
 });
 
+test('infers unique site aliases for approved report-only work', () => {
+  const { root, store } = db();
+  fs.mkdirSync(path.join(root, 'sites', 'arttogogh.com'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'sites', 'greatamericanlakes.com'), { recursive: true });
+  assert.equal(
+    runner.proposalSite({ title: 'Arttogogh search measurement baseline' }, root),
+    'arttogogh.com'
+  );
+  assert.equal(
+    runner.proposalSite({ title: 'Great American Lakes revenue baseline' }, root),
+    'greatamericanlakes.com'
+  );
+  store.close();
+});
+
+test('normalizes approved report-only work to queue-safe fields', () => {
+  const { root, store } = db();
+  const implementation = runner.normalizeApprovedImplementation(
+    {
+      title: 'Finance readiness report',
+      site: 'example.com',
+      implementation: {
+        site: 'example.com',
+        title: 'Finance readiness report',
+        body: 'Capture a read-only baseline.',
+        category: 'finance',
+        assigned_role: 'cfo',
+        provider: 'chatgpt',
+      },
+    },
+    root
+  );
+  assert.equal(implementation.category, 'other');
+  assert.equal(implementation.assigned_role, 'engineer');
+  assert.equal(implementation.provider, 'chatgpt');
+  assert.equal(implementation.model, 'gpt-5.6-luna');
+  store.close();
+});
+
 test('marks SEO-labelled baselines as report-only work', () => {
   const plan = runner.buildActionMandateFallback(
     { messages: [], change_requests: [] },

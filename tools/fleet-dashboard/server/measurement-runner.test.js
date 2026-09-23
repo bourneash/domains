@@ -124,3 +124,26 @@ test('captures site-attributed affiliate data alongside analytics', async () => 
   assert.equal(metrics.revenue.site, 'example.com');
   assert.equal(metrics.revenue.commission_income, 30);
 });
+
+test('does not retry an unavailable but valid telemetry source', async () => {
+  let calls = 0;
+  const result = await measurement.retryTelemetry(async () => {
+    calls += 1;
+    return { has_data: false };
+  });
+  assert.deepEqual(result, { has_data: false });
+  assert.equal(calls, 1);
+});
+
+test('retries a transient telemetry failure and returns the recovered result', async () => {
+  let calls = 0;
+  const result = await measurement.retryTelemetry(
+    async () => {
+      calls += 1;
+      return calls < 2 ? { ok: false, error: 'temporary outage' } : { has_data: true, sessions: 4 };
+    },
+    { attempts: 3, delayMs: 1 }
+  );
+  assert.deepEqual(result, { has_data: true, sessions: 4 });
+  assert.equal(calls, 2);
+});

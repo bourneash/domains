@@ -14,6 +14,28 @@ const revenueDefault = require('./revenue');
 const MEASUREMENT_DAYS = 14;
 const IMPRESSION_THRESHOLD = 100;
 
+// Data-hub calls can briefly fail while the collector/API is restarting. A
+// transient read failure must not become the only observation attached to a
+// live improvement, so retry read-only telemetry a small, bounded number of
+// times. This does not retry writes or alter the measurement gate.
+async function retryTelemetry(read, { attempts = 3, delayMs = 250 } = {}) {
+  let last = null;
+  for (let attempt = 1; attempt <= Math.max(1, attempts); attempt += 1) {
+    try {
+      const result = await read();
+      // `has_data: false` is a valid answer for an unconfigured source, not a
+      // transient transport failure. Retrying it only adds latency and load.
+      const failed = result?.ok === false || result?.error;
+      if (!failed) return result;
+      last = result;
+    } catch (error) {
+      last = { ok: false, error: String(error.message || error) };
+    }
+    if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, delayMs * attempt));
+  }
+  return last || { ok: false, error: 'telemetry read failed' };
+}
+
 function dateOnly(value) {
   return new Date(value).toISOString().slice(0, 10);
 }
@@ -107,7 +129,7 @@ function recordObservation(store, current, metrics, { capturedAt, newImpressions
 async function newImpressionsSince(site, since, now, analytics) {
   if (typeof analytics.gscSeries !== 'function') return null;
   const days = Math.max(1, Math.min(400, Math.ceil(daysSince(since, now)) + 1));
-  const series = await analytics.gscSeries(site, days);
+  const series = await retryTelemetry(() => analytics.gscSeries(site, days));
   if (series?.ok === false || series?.has_data === false || series?.error) return null;
   if (!Array.isArray(series?.records)) return null;
   const cutoff = dateOnly(since);
@@ -118,7 +140,7 @@ async function newImpressionsSince(site, since, now, analytics) {
 
 async function captureMetrics(root, site, analytics = analyticsDefault, revenue = revenueDefault) {
   const [analyticsResult, revenueResult] = await Promise.all([
-    analytics.summary(site, MEASUREMENT_DAYS),
+    retryTelemetry(() => analytics.summary(site, MEASUREMENT_DAYS)),
     Promise.resolve(revenue.amazonSummary(root)),
   ]);
   return {
@@ -238,6 +260,7 @@ module.exports = {
   deploymentAt,
   daysSince,
   compactObservation,
+  retryTelemetry,
   recordObservation,
   newImpressionsSince,
   captureMetrics,
