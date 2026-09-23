@@ -207,6 +207,16 @@ test('permits only successful report-only liveness recovery from a failed run', 
   store.close();
 });
 
+test('requires a complete evidence shape before recovering a report-only worker', () => {
+  assert.equal(
+    improvements.reportOnlyEvidenceReady(
+      '## One reversible recommendation\nread-only report\n## Measurement plan\nRollback: none'
+    ),
+    true
+  );
+  assert.equal(improvements.reportOnlyEvidenceReady('read-only task\nworker interrupted'), false);
+});
+
 test('does not create duplicate manual tasks when queue delivery is retried', () => {
   const { root, store } = fixture();
   const request = {

@@ -887,11 +887,51 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return changed;
   }
 
+  function reportOnlyEvidenceReady(run) {
+    const logFile = run?.agent?.log;
+    if (!logFile) return false;
+    try {
+      const text = fs.readFileSync(logFile, 'utf8').slice(-60000);
+      return improvements.reportOnlyEvidenceReady(text);
+    } catch {
+      return false;
+    }
+  }
+
   async function reconcileFalseFailedReportRuns() {
     let changed = 0;
     for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
       if (request.delivery_mode !== 'report_only' || !request.run_id) continue;
-      const run = events.getImprovement(request.run_id);
+      let run = events.getImprovement(request.run_id);
+      if (
+        run?.state === 'failed' &&
+        ['running', 'interrupted'].includes(run.agent?.status) &&
+        reportOnlyEvidenceReady(run) &&
+        !(await improvementAgent.workerProcessAlive(run))
+      ) {
+        events.updateImprovement(run.run_id, {
+          agent: {
+            status: 'completed',
+            exit_code: 0,
+            finished_at: new Date().toISOString(),
+            recovered_from: run.agent.status,
+            recovery_reason: 'report-only evidence was durable after the liveness false failure',
+          },
+        });
+        run = events.getImprovement(run.run_id);
+        events.record({
+          event_type: 'improvement.agent_recovered',
+          source: 'fleet-dashboard',
+          site_id: `site:${run.site}`,
+          entity_type: 'improvement',
+          entity_id: run.run_id,
+          correlation_id: run.correlation_id,
+          payload: {
+            request_id: request.request_id,
+            reason: 'report-only evidence was durable after the liveness false failure',
+          },
+        });
+      }
       if (
         !improvements.canRecoverReportOnly(run, {
           state: 'reported',

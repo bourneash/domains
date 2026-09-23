@@ -32,6 +32,15 @@ function canRecoverReportOnly(current, input = {}) {
   );
 }
 
+function reportOnlyEvidenceReady(logText = '') {
+  const text = String(logText).slice(-60000);
+  return (
+    /##\s+(?:One reversible recommendation|Measurement plan)/i.test(text) &&
+    /report[- ]only|read[- ]only/i.test(text) &&
+    /rollback/i.test(text)
+  );
+}
+
 function measurementDate(days = 28, now = Date.now()) {
   return new Date(now + days * 86400000).toISOString().slice(0, 10);
 }
@@ -316,6 +325,7 @@ function httpErr(status, message) {
 module.exports = {
   FALSE_LIVENESS_ERROR,
   canRecoverReportOnly,
+  reportOnlyEvidenceReady,
   start,
   startManual,
   transition,
