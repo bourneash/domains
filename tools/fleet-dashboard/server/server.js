@@ -2702,7 +2702,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   async function completeAutomaticReview(id, run, reviewerResult) {
     const cleanExit =
       reviewerResult?.code == null
-        ? run?.agent?.exit_code === 0 && run?.agent?.status === 'completed'
+        ? reviewerResult?.marker === 'PASS' ||
+          (run?.agent?.exit_code === 0 && run?.agent?.status === 'completed')
         : reviewerResult.code === 0 && reviewerResult.timedOut !== true;
     if (!reviewerResult?.approved || !cleanExit) {
       recordAutoReviewFailure(
