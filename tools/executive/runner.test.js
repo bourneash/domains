@@ -415,6 +415,25 @@ test('drops a blank optional proposal review without discarding the rest of the 
   assert.equal(plan.messages.length, 1);
 });
 
+test('maps work-item normal priority to the change queue medium priority', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ actor: 'ceo', body: 'Recommendation: make the bounded update.' }],
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'Bounded update',
+          body: 'Apply the reversible update and report the result.',
+          category: 'content',
+          priority: 'normal',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.change_requests[0].priority, 'medium');
+  runner.validatePlan(plan);
+});
+
 test('normalizes human-readable Legal and Security actor aliases without allowing owner spoofing', () => {
   const plan = runner.parseOutput(
     JSON.stringify({

@@ -974,6 +974,16 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
     // for requests created outside this runner.
     if (!Object.prototype.hasOwnProperty.call(item, 'delivery_mode'))
       item.delivery_mode = changequeue.inferredDeliveryMode(item);
+    // Work items use `normal`; the durable change queue uses `medium` for the
+    // same bounded priority. Normalize that shared human-facing alias before
+    // the queue validator sees it. Keep high/urgent values high so the
+    // executive safety gate can still reject them rather than silently
+    // lowering material work.
+    const priorityAliases = { normal: 'medium', critical: 'high', urgent: 'high' };
+    const priority = String(item.priority || '')
+      .trim()
+      .toLowerCase();
+    if (priorityAliases[priority]) item.priority = priorityAliases[priority];
   }
   for (const item of plan.work_items) {
     // Work items are durable follow-through records, not executable commands.
