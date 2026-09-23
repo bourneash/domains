@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:48:50.306Z",
+  "generated_at": "2026-09-23T08:53:51.541Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "East Coast Rappers audience and monetization baseline",
-        "summary": "Produce a bounded read-only baseline of observable audience positioning, content taxonomy, conversion paths, monetization surfaces, and measurement boundaries before any growth or production proposal.",
-        "requested_action": "Approve report-only inspection and baseline preparation; do not deploy, change credentials or configuration, spend, or make financial claims.",
+        "title": "Run bounded audience and monetization baseline",
+        "summary": "Produce a read-only baseline of observable audience positioning, conversion paths, monetization readiness, and health signals before any production work.",
+        "requested_action": "Approve bounded public inspection and report-only analysis. Do not configure analytics, deploy changes, spend money, change credentials, or make financial claims.",
         "proposal_id": null
       }
     ]

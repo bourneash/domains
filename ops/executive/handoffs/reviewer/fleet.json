@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:48:50.306Z",
+  "generated_at": "2026-09-23T08:53:51.541Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded East Coast Rappers report-only audience and monetization baseline. Reject production, growth, and financial claims because site-level revenue, conversion, attribution, and measured outcomes are unavailable. Do not add queue work; reassess only after the report identifies one reversible opportunity with explicit success and rollback criteria.",
+        "summary": "Recommendation: Approve only three bounded, report-only baselines for findyourlostpets.com, dumbsluts.com, and eastcoastrappers.com. Reject production work, financial claims, credential/configuration changes, spending, and new high-priority queue work because attribution, telemetry, and measured outcomes are unavailable or insufficient. Existing active and measuring work should continue to its stated gates.",
         "requested_action": null,
         "proposal_id": null
       }
