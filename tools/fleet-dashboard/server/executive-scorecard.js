@@ -42,7 +42,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const days = Math.max(1, Math.min(365, Number(windowDays) || 30));
   const cutoff = now.getTime() - days * 86400000;
   const actions = store
-    .listExecutiveActions({ limit: 1000 })
+    .listExecutiveActions({ limit: 5000 })
     .filter(row => inWindow(row.started_at, cutoff));
   const proposals = store
     .listExecutiveProposals({ limit: 1000 })

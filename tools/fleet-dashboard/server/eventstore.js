@@ -746,7 +746,7 @@ function open(root, { file } = {}) {
   }
 
   function listExecutiveMessages({ conversation_id = 'executive', work_id, limit = 200 } = {}) {
-    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    const n = Math.max(1, Math.min(Number(limit) || 200, 200));
     return db
       .prepare(
         `SELECT * FROM executive_messages WHERE conversation_id = ?${work_id ? ' AND work_id = ?' : ''}
@@ -941,7 +941,10 @@ function open(root, { file } = {}) {
       clauses.push('action_type = ?');
       args.push(String(action_type));
     }
-    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    // Executive scorecards need a complete window, not the first page of the
+    // most recent actions. Keep the general API bounded while allowing the
+    // scorecard to read a larger, still-safe audit slice.
+    const n = Math.max(1, Math.min(Number(limit) || 200, 5000));
     return db
       .prepare(
         `SELECT * FROM executive_actions${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''}
