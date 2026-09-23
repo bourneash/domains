@@ -559,6 +559,43 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!request.run_id) return;
     const run = events.getImprovement(request.run_id);
     if (!run || !['proposed', 'building', 'failed'].includes(run.state)) return;
+    // A report-only worker may leave useful but incomplete evidence in a dirty
+    // worktree after an interruption. Preserve that checkout for audit and
+    // detach the request so a retry gets a fresh isolated worktree; otherwise
+    // the retry path is permanently blocked by its own evidence.
+    if (run.state === 'failed' && request.delivery_mode === 'report_only') {
+      let dirty = false;
+      try {
+        dirty = (await git.worktreeSnapshot(run.workspace_path)).dirty;
+      } catch {
+        /* the normal cleanup path below will report a missing worktree */
+      }
+      if (dirty) {
+        if (run.sandbox?.instance) {
+          try {
+            await devsandbox.remove(run.sandbox.instance);
+          } catch {
+            /* the interrupted sandbox may already be gone */
+          }
+        }
+        changequeue.update(events, request.request_id, { run_id: null }, site =>
+          isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.retry_preserved_worktree',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: request.request_id,
+          correlation_id: `change-request:${request.request_id}`,
+          payload: {
+            previous_run_id: run.run_id,
+            reason: 'preserved incomplete report-only evidence before retry',
+          },
+        });
+        return;
+      }
+    }
     const cleanup = await cleanupImprovementResources(root, run);
     if (!cleanup.cleaned) throw Object.assign(new Error(cleanup.error), { httpStatus: 409 });
     const current = events.getImprovement(run.run_id);
