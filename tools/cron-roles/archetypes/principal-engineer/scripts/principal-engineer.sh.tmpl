@@ -530,15 +530,18 @@ case "$PSTATUS" in
     ROLLOUT_NOTE=""
     [[ "$ROLLOUT" == "yes" ]] && ROLLOUT_NOTE="
 _Flagged as a fleet-wide rollout candidate — see ops/tasks/backlog/ (human-triage, not auto-rolled-out)._"
+    # Resolution is the reply half of an alert already shown to the owner.
+    # Force delivery through notify-slack.sh's quiet gate instead of treating
+    # this good-colored message as routine informational chatter.
     if [[ "$PSTATUS" == "resolved-noise" ]]; then
       slack "✅ *{{SITE_SHORT}} principal engineer* — checked fp=${FP}, not a real issue · ${NOW_ET}
-${ROOT_CAUSE}" good
+${ROOT_CAUSE}" good resolved
     else
       slack "✅ *{{SITE_SHORT}} principal engineer* — resolved fp=${FP} · ${NOW_ET}
 *Root cause:* ${ROOT_CAUSE}
 *Fix:* ${FIX}
 *Hardening:* ${HARDENING}
-pushed=${PUSHED}${ROLLOUT_NOTE}" good
+pushed=${PUSHED}${ROLLOUT_NOTE}" good resolved
     fi
     ;;
   *)

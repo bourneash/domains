@@ -49,6 +49,8 @@ grep -q 'classify_pass_result' "$principal_template" \
   || fail "principal-engineer template lacks pass-failure classifier"
 grep -q 'SYNC_ALERT_AFTER' "$principal_template" \
   || fail "principal-engineer template lacks sync defer threshold"
+grep -q 'good resolved' "$principal_template" \
+  || fail "principal-engineer template does not force resolved Slack delivery"
 bma_principal="$ROOT/sites/blackmarketapparel.com/ops/scripts/principal-engineer.sh"
 grep -q 'SYNC_ALERT_AFTER' "$bma_principal" \
   || fail "BMA sync defer threshold missing"
@@ -58,6 +60,11 @@ grep -q 'clear_sync_defer' "$bma_principal" \
   || fail "BMA sync defer state reset missing"
 grep -q 'behind=.*ahead=' "$bma_principal" \
   || fail "BMA sync defer diagnostics missing"
+
+for script in "${principals[@]}"; do
+  grep -q 'good resolved' "$script" \
+    || fail "principal-engineer success notification does not force Slack delivery: $script"
+done
 
 for script in "${deployers[@]}"; do
   bash -n "$script" || fail "syntax error: $script"
