@@ -663,6 +663,131 @@ test('parses structured provider output and applies only explicitly enabled queu
   store.close();
 });
 
+test('routes approved implementation and creates durable follow-through for unfinished proposals', async () => {
+  const { root, store } = db();
+  const ready = store.createExecutiveProposal({
+    created_by: 'ceo',
+    title: 'Ship the approved bounded change',
+    proposal_type: 'growth',
+    summary: 'A reversible implementation with a measurable outcome.',
+    requested_action: 'Approve the implementation.',
+    implementation: {
+      site: 'example.com',
+      title: 'Ship the approved bounded change',
+      body: 'Update the page and record the before/after metric.',
+      category: 'seo',
+      priority: 'low',
+      delivery_mode: 'report_only',
+    },
+  });
+  store.decideExecutiveProposal(ready.proposal_id, { status: 'approved', decided_by: 'owner' });
+  const underspecified = store.createExecutiveProposal({
+    created_by: 'cto',
+    title: 'Define the next technical improvement',
+    proposal_type: 'engineering',
+    summary: 'This approved proposal still needs an executable task.',
+    requested_action: 'Turn the decision into bounded implementation work.',
+  });
+  store.decideExecutiveProposal(underspecified.proposal_id, {
+    status: 'approved',
+    decided_by: 'owner',
+  });
+
+  const result = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      change_requests: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+    },
+    { allowQueue: true, root }
+  );
+  assert.equal(result.follow_through.filter(row => row.type === 'queued').length, 1);
+  assert.equal(store.listChangeRequests({ source_proposal_id: ready.proposal_id }).length, 1);
+  assert.ok(store.getExecutiveProposal(ready.proposal_id).linked_request_id);
+  const followUp = store.getExecutiveWorkItem(`approved-proposal:${underspecified.proposal_id}`);
+  assert.equal(followUp.status, 'open');
+  assert.match(followUp.next_action, /implementation/);
+
+  const second = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      change_requests: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+    },
+    { allowQueue: true, root }
+  );
+  assert.equal(second.follow_through.length, 0);
+  store.close();
+});
+
+test('failed approved execution becomes a blocked follow-through case instead of a blind retry', async () => {
+  const { root, store } = db();
+  const proposal = store.createExecutiveProposal({
+    created_by: 'cto',
+    title: 'Repair the failed technical change',
+    proposal_type: 'engineering',
+    summary: 'Investigate the failed implementation and prepare a bounded replacement.',
+    requested_action: 'Approve the repair investigation.',
+    implementation: {
+      site: 'example.com',
+      title: 'Repair the failed technical change',
+      body: 'Inspect the failure, add a regression test, and document rollback.',
+      category: 'engineering',
+      priority: 'medium',
+    },
+  });
+  store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
+  store.createChangeRequest({
+    site: 'example.com',
+    title: proposal.implementation.title,
+    body: proposal.implementation.body,
+    category: 'engineering',
+    priority: 'medium',
+    source_proposal_id: proposal.proposal_id,
+    status: 'failed',
+  });
+  const result = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      change_requests: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+    },
+    { allowQueue: true, root }
+  );
+  assert.equal(
+    result.follow_through.some(row => row.type === 'queued'),
+    false
+  );
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 1);
+  assert.equal(
+    store.getExecutiveWorkItem(`approved-proposal:${proposal.proposal_id}`).status,
+    'blocked'
+  );
+  assert.match(
+    store.getExecutiveWorkItem(`approved-proposal:${proposal.proposal_id}`).next_action,
+    /automatic retry is disabled/
+  );
+  store.close();
+});
+
 test('binds executive request follow-up to its role and preserves report-only routing', () => {
   const plan = runner.parseOutput(
     JSON.stringify({

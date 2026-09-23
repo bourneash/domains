@@ -71,6 +71,7 @@ function proposalExecutionSummary(proposals, requests) {
         proposal.implementation && Object.keys(proposal.implementation).length
       ),
     }));
+  const terminal = linked.filter(row => ['failed', 'cancelled'].includes(row.request?.status));
   return {
     approved_proposals: approved.length,
     approved_proposals_with_execution: approved.length - unexecuted.length,
@@ -78,6 +79,7 @@ function proposalExecutionSummary(proposals, requests) {
     approved_proposal_execution_rate_percent: approved.length
       ? Math.round(((approved.length - unexecuted.length) / approved.length) * 100)
       : null,
+    approved_proposals_with_terminal_request: terminal.length,
     unexecuted_proposals: unexecuted.slice(0, 12),
     linked_request_statuses: countBy(
       linked.filter(row => row.request).map(row => ({ status: row.request.status })),
@@ -217,6 +219,8 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       approved_proposals: proposalExecution.approved_proposals,
       approved_proposals_with_execution: proposalExecution.approved_proposals_with_execution,
       approved_proposals_unexecuted: proposalExecution.approved_proposals_unexecuted,
+      approved_proposals_with_terminal_request:
+        proposalExecution.approved_proposals_with_terminal_request,
       approved_proposal_execution_rate_percent:
         proposalExecution.approved_proposal_execution_rate_percent,
     },
@@ -244,6 +248,11 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       ...(proposalExecution.approved_proposals_unexecuted
         ? [
             `${proposalExecution.approved_proposals_unexecuted} approved proposal(s) lack an execution request`,
+          ]
+        : []),
+      ...(proposalExecution.approved_proposals_with_terminal_request
+        ? [
+            `${proposalExecution.approved_proposals_with_terminal_request} approved proposal(s) have failed or cancelled execution requests`,
           ]
         : []),
     ],

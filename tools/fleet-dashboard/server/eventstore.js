@@ -857,6 +857,17 @@ function open(root, { file } = {}) {
     return getExecutiveProposal(id);
   }
 
+  function linkExecutiveProposalRequest(id, requestId) {
+    const current = getExecutiveProposal(id);
+    if (!current) throw httpErr(404, 'executive proposal not found');
+    if (current.linked_request_id && current.linked_request_id !== String(requestId))
+      throw httpErr(409, 'executive proposal is already linked to another request');
+    db.prepare(
+      'UPDATE executive_proposals SET linked_request_id=?,updated_at=? WHERE proposal_id=?'
+    ).run(String(requestId), new Date().toISOString(), String(id));
+    return getExecutiveProposal(id);
+  }
+
   // Executive passes may review CRO/research handoffs without granting owner
   // approval. A reviewed handoff is intentionally not eligible for the owner
   // approval queue; a separate owner-facing proposal can still be created when
@@ -1349,6 +1360,7 @@ function open(root, { file } = {}) {
     listExecutiveProposals,
     getExecutiveProposal,
     decideExecutiveProposal,
+    linkExecutiveProposalRequest,
     reviewExecutiveProposal,
     createExecutiveAction,
     listExecutiveActions,

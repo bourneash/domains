@@ -790,6 +790,7 @@ Rules:
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
 - Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
+- Treat approved proposals with failed or cancelled requests as unfinished. Do not blindly retry them; create or update the durable follow-through work item with the failure evidence and the smallest repair/replacement action.
 - Use RevOps stages and lead scores for any lead or partnership opportunity; do not call traffic an opportunity until there is an intent, lead, affiliate, or revenue signal.
 - Use the CFO lens for every material recommendation: contribution margin, attribution confidence, cost to learn, cash/spend exposure, and whether the expected upside is measurable. Never move money, change billing, access banking, sign contracts, or make tax/legal claims.
 - Treat Legal/Compliance as a required launch and risk pass. Use the compliance baseline and history to identify privacy, consent, terms, disclosure, data-rights, claims, copyright/trademark, platform-policy, and age/regulated-content questions when supported by evidence. Legal performs risk triage, not legal advice or certification; escalate material uncertainty to the owner or counsel. Do not let incomplete telemetry block ordinary growth, but do not recommend a go-live proposal without a concrete legal review and launch checklist.
@@ -1399,6 +1400,301 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   );
 }
 
+const FOLLOW_THROUGH_WORK_PREFIX = 'approved-proposal:';
+const FOLLOW_THROUGH_OWNERS = new Set([
+  'ceo',
+  'cto',
+  'cfo',
+  'legal',
+  'security',
+  'cro',
+  'domain-manager',
+  'principal-engineer',
+  'engineer',
+  'owner',
+]);
+
+function followThroughOwner(createdBy) {
+  const role = String(createdBy || '')
+    .trim()
+    .toLowerCase();
+  if (FOLLOW_THROUGH_OWNERS.has(role)) return role;
+  if (role === 'researcher') return 'cro';
+  return 'ceo';
+}
+
+function followThroughKind(proposalType) {
+  return (
+    {
+      engineering: 'implementation',
+      'site-redesign': 'implementation',
+      growth: 'evidence',
+      'report-only': 'research',
+      product: 'decision',
+      business: 'decision',
+      hiring: 'decision',
+      spend: 'decision',
+    }[String(proposalType || '').toLowerCase()] || 'decision'
+  );
+}
+
+function approvedImplementation(proposal) {
+  const implementation = proposal?.implementation;
+  return implementation && typeof implementation === 'object' ? implementation : {};
+}
+
+function implementationBlockers(proposal, implementation) {
+  const blockers = [];
+  const launchGate = String(implementation.launch_gate || '').toLowerCase();
+  const securityGate = String(implementation.security_gate || '').toLowerCase();
+  const legalStatus = String(implementation.legal_review?.status || '').toLowerCase();
+  const securityStatus = String(implementation.security_review?.status || '').toLowerCase();
+  if (launchGate === 'go_live') {
+    if (legalStatus !== 'approved' || implementation.legal_review?.reviewed_by !== 'legal')
+      blockers.push('approved Legal go-live review is missing');
+    if (securityStatus !== 'approved' || implementation.security_review?.reviewed_by !== 'security')
+      blockers.push('approved Security go-live review is missing');
+  }
+  if (securityGate === 'required' && securityStatus !== 'approved')
+    blockers.push('approved Security review is missing');
+  if (['needs_owner', 'blocked', 'counsel_required', 'evidence_needed'].includes(legalStatus))
+    blockers.push(`Legal status is ${legalStatus}`);
+  if (['needs_owner', 'blocked', 'evidence_needed'].includes(securityStatus))
+    blockers.push(`Security status is ${securityStatus}`);
+  return [...new Set(blockers)];
+}
+
+function followThroughWorkPayload(proposal, implementation, { status, nextAction, blockers }) {
+  const source = proposal.proposal_id;
+  const implementationReady = Boolean(
+    implementation.site && implementation.title && implementation.body
+  );
+  const evidence = [
+    {
+      label: 'approved proposal',
+      note: `${source} approved by ${proposal.decided_by || 'owner'} on ${proposal.decided_at || proposal.updated_at || proposal.created_at}`,
+    },
+    {
+      label: 'execution readiness',
+      note: implementationReady
+        ? 'Implementation fields are present; queue routing is gated by current site capacity and review evidence.'
+        : 'Implementation fields are incomplete; no engineer request can be created safely.',
+    },
+  ];
+  if (blockers.length) evidence.push({ label: 'blockers', note: blockers.join('; ') });
+  return {
+    work_id: `${FOLLOW_THROUGH_WORK_PREFIX}${source}`,
+    title: `Follow through: ${proposal.title}`,
+    kind: implementationReady ? 'implementation' : followThroughKind(proposal.proposal_type),
+    status,
+    priority: 'normal',
+    owner: followThroughOwner(proposal.created_by),
+    source_type: 'approved-proposal',
+    source_id: source,
+    site: implementation.site || null,
+    summary: proposal.summary,
+    next_action: nextAction,
+    evidence,
+    created_by: 'system',
+  };
+}
+
+function sameFollowThroughFields(current, next) {
+  return [
+    'title',
+    'kind',
+    'status',
+    'priority',
+    'owner',
+    'source_type',
+    'source_id',
+    'site',
+    'summary',
+    'next_action',
+  ].some(key => String(current?.[key] ?? '') !== String(next?.[key] ?? ''));
+}
+
+function reconcileApprovedProposalFollowThrough(
+  store,
+  { root = ROOT, allowQueue = false, maxQueue = 0 } = {}
+) {
+  const result = [];
+  const proposals = store
+    .listExecutiveProposals({ status: 'approved', limit: 500 })
+    .filter(
+      proposal =>
+        !EXECUTIVE_EXCLUDED_SITES.has(String(proposal.implementation?.site || '').toLowerCase())
+    );
+  const requests = store.listChangeRequests({ limit: 1000 });
+  const requestsById = new Map(requests.map(request => [String(request.request_id), request]));
+  const requestsByProposal = new Map();
+  for (const request of requests) {
+    if (!request.source_proposal_id) continue;
+    const key = String(request.source_proposal_id);
+    if (!requestsByProposal.has(key)) requestsByProposal.set(key, []);
+    requestsByProposal.get(key).push(request);
+  }
+  const activeSites = new Set(
+    requests
+      .filter(row =>
+        ['queued', 'claimed', 'running', 'reviewing', 'review', 'committed'].includes(row.status)
+      )
+      .map(row => String(row.site || '').toLowerCase())
+      .filter(Boolean)
+  );
+  for (const row of store.listImprovements({ limit: 1000 })) {
+    if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(row.state))
+      activeSites.add(String(row.site || '').toLowerCase());
+  }
+  let queued = 0;
+  for (const proposal of proposals) {
+    const sourceRequests = requestsByProposal.get(String(proposal.proposal_id)) || [];
+    const currentRequest =
+      (proposal.linked_request_id && requestsById.get(String(proposal.linked_request_id))) ||
+      sourceRequests[0] ||
+      null;
+    if (currentRequest && !proposal.linked_request_id && store.linkExecutiveProposalRequest) {
+      store.linkExecutiveProposalRequest(proposal.proposal_id, currentRequest.request_id);
+      const audit = executive.action(store, {
+        actor: 'system',
+        action_type: 'other',
+        summary: `Relinked approved proposal to existing request: ${proposal.title}`,
+        target_type: 'executive-proposal',
+        target_id: proposal.proposal_id,
+        request_id: currentRequest.request_id,
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        result: { proposal_id: proposal.proposal_id, request_id: currentRequest.request_id },
+      });
+      result.push({
+        type: 'relinked',
+        proposal_id: proposal.proposal_id,
+        request_id: currentRequest.request_id,
+      });
+    }
+    const implementation = approvedImplementation(proposal);
+    const ready = Boolean(implementation.site && implementation.title && implementation.body);
+    const blockers = implementationBlockers(proposal, implementation);
+    const terminalRequest =
+      currentRequest && ['failed', 'cancelled'].includes(currentRequest.status);
+    if (currentRequest && !terminalRequest) continue;
+    if (terminalRequest)
+      blockers.push(`existing request is ${currentRequest.status}; automatic retry is disabled`);
+
+    if (!currentRequest && ready && !blockers.length && allowQueue && queued < maxQueue) {
+      const site = String(implementation.site || '').toLowerCase();
+      if (!activeSites.has(site)) {
+        try {
+          const request = changequeue.create(
+            store,
+            {
+              ...implementation,
+              source: 'approved-proposal-followthrough',
+              requested_by: proposal.created_by,
+              source_proposal_id: proposal.proposal_id,
+            },
+            candidate => executiveTarget(root, candidate)
+          );
+          store.linkExecutiveProposalRequest(proposal.proposal_id, request.request_id);
+          const audit = executive.action(store, {
+            actor: 'system',
+            action_type: 'queue-work',
+            summary: `Followed through approved proposal: ${proposal.title}`,
+            target_type: 'executive-proposal',
+            target_id: proposal.proposal_id,
+            request_id: request.request_id,
+          });
+          executive.finishAction(store, audit.action_id, {
+            status: 'completed',
+            result: { proposal_id: proposal.proposal_id, request_id: request.request_id },
+          });
+          activeSites.add(site);
+          queued += 1;
+          result.push({
+            type: 'queued',
+            proposal_id: proposal.proposal_id,
+            request_id: request.request_id,
+            site,
+          });
+          continue;
+        } catch (error) {
+          blockers.push(`queue rejected: ${String(error.message || error).slice(0, 240)}`);
+        }
+      } else {
+        blockers.push(`site already has active work: ${site}`);
+      }
+    }
+
+    const workId = `${FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`;
+    const existing = store.getExecutiveWorkItem(workId);
+    if (existing && ['done', 'cancelled'].includes(existing.status)) continue;
+    const site = String(implementation.site || '').toLowerCase();
+    let status = blockers.length ? 'blocked' : ready ? 'waiting' : 'open';
+    let nextAction;
+    if (blockers.length) {
+      nextAction = `Resolve: ${[...new Set(blockers)].join('; ')}.`;
+    } else if (!ready) {
+      nextAction =
+        'CEO/CTO must add a concrete site, task title, implementation body, acceptance criteria, and rollback, or decline this approved proposal.';
+    } else if (!allowQueue) {
+      nextAction =
+        'Queue execution is disabled for this cycle; route the approved implementation on the next enabled cycle.';
+    } else if (site && activeSites.has(site)) {
+      nextAction = `Wait for existing work on ${site} to finish, then route this approved implementation.`;
+    } else {
+      nextAction = 'Route this approved implementation to the engineer queue.';
+    }
+    const payload = followThroughWorkPayload(proposal, implementation, {
+      status,
+      nextAction,
+      blockers: [...new Set(blockers)],
+    });
+    if (!existing) {
+      store.createExecutiveWorkItem(payload);
+      const audit = executive.action(store, {
+        actor: 'system',
+        action_type: 'other',
+        summary: `Created approved-proposal follow-through: ${proposal.title}`,
+        target_type: 'executive-work-item',
+        target_id: workId,
+        proposal_id: proposal.proposal_id,
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        result: { proposal_id: proposal.proposal_id, work_id: workId, status },
+      });
+      result.push({
+        type: 'work-item-created',
+        proposal_id: proposal.proposal_id,
+        work_id: workId,
+        status,
+      });
+    } else if (sameFollowThroughFields(existing, payload)) {
+      store.updateExecutiveWorkItem(workId, payload);
+      const audit = executive.action(store, {
+        actor: 'system',
+        action_type: 'other',
+        summary: `Updated approved-proposal follow-through: ${proposal.title}`,
+        target_type: 'executive-work-item',
+        target_id: workId,
+        proposal_id: proposal.proposal_id,
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        result: { proposal_id: proposal.proposal_id, work_id: workId, status },
+      });
+      result.push({
+        type: 'work-item-updated',
+        proposal_id: proposal.proposal_id,
+        work_id: workId,
+        status,
+      });
+    }
+  }
+  return result;
+}
+
 // The provider is responsible for choosing the work, but a malformed or
 // indecisive response must not turn an evidence-backed hourly cycle into a
 // silent no-op. This fallback uses only candidates already present in the
@@ -1642,6 +1938,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     skipped_proposals: [],
     research: [],
     telemetry_satisfied: [],
+    follow_through: [],
   };
   for (const item of plan.work_items) {
     const existing = item.work_id ? store.getExecutiveWorkItem(item.work_id) : null;
@@ -1830,7 +2127,6 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       throw error;
     }
   }
-  handoff.writePlan(root, plan, created);
   if (allowQueue) {
     const activeSites = new Set(
       store
@@ -1912,6 +2208,18 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       }
     }
   }
+  created.follow_through = reconcileApprovedProposalFollowThrough(store, {
+    root,
+    allowQueue,
+    maxQueue: allowQueue
+      ? Math.max(
+          0,
+          Math.min(6, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 6)) -
+            created.change_requests.length
+        )
+      : 0,
+  });
+  handoff.writePlan(root, plan, created);
   return created;
 }
 
@@ -2071,6 +2379,7 @@ module.exports = {
   validatePlan,
   planFingerprint,
   actionMandateSatisfied,
+  reconcileApprovedProposalFollowThrough,
   applyPlan,
   runProvider,
   tick,
