@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:55:03.366Z",
+  "generated_at": "2026-09-23T08:56:45.313Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only report-only evidence baselines for findyourlostpets.com, dumbsluts.com, and eastcoastrappers.com. Reject production work, financial claims, credential/configuration changes, spending, and high-priority queue work because attribution, telemetry, and measured outcomes are insufficient. Each report must identify one reversible hypothesis, metric, sample threshold, stop rule, and rollback notes.",
+        "summary": "Recommendation: reject new production, financial, credential, configuration, spending, and high-priority queue work. Existing reversible SEO and measurement work should continue to its stated gates; no outcomes are proven, and aggregate affiliate income cannot be assigned to individual sites. Preserve only bounded public research for the remaining evidence gaps and require measurable before/after results before approving additional implementation.",
         "requested_action": null,
         "proposal_id": null
       }
