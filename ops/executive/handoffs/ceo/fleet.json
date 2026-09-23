@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-22T23:39:58.569Z",
+  "generated_at": "2026-09-23T01:42:11.614Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the two deployed Great American Lakes measurements without duplication. Record outcomes only at the existing 14-day or 100-impression thresholds and do not declare success early. Retain searchwoot.com as private pending all applicable legal, security, accuracy, attribution, and owner gates.",
+        "summary": "Recommendation: retain SearchWoot as private and authorize three bounded, reversible SEO changes on marineactivity.com, fishhooklabs.com, and xxxtea.com. The 30-day SEO window shows marineactivity.com with 239 impressions, 2 clicks, position 8.3; fishhooklabs.com with 138 impressions, 2 clicks, position 9.3; and xxxtea.com with 87 impressions split across five competing pages. Site-level revenue and contribution margin are not calculable because affiliate attribution is incomplete and direct costs are unavailable. The main unknown is whether these changes improve qualified clicks or conversions. Smallest next step: queue the three changes and measure at the existing 14-day or 100-impression gate, with rollback if guardrails regress. Owner question: for SearchWoot, choose A) keep private pending all gates (recommended), or B) authorize preparation—but not sending—of a written Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }
