@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:12:50.975Z",
+  "generated_at": "2026-09-23T09:17:42.468Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Approve only the bounded, report-only analytics configuration diagnosis for pervypotion.com, with acceptance limited to documenting GA4/GSC configuration state, unavailable fields, required owner decisions, and a no-change rollback statement. Reject any credential, configuration, production, spending, revenue, or queue-expansion work. Do you approve this single evidence-only diagnosis?",
+        "summary": "Recommendation: Reject the proposed Rod Hat SEO review and all new queue work. The fleet already has active, deferred, failed, or measuring SEO work across the available candidates; adding another report would duplicate work. Preserve existing measurement gates, make no revenue or causal-lift claims, and await recorded outcomes. Will the owner keep the current gates unchanged until measurement completes?",
         "requested_action": null,
         "proposal_id": null
       }
