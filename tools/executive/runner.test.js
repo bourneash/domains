@@ -768,6 +768,26 @@ test('turns an approved site-specific report-only proposal into bounded worker w
   store.close();
 });
 
+test('deterministic approved-work drain routes approved work without a model plan', () => {
+  const { root, store } = db();
+  const proposal = store.createExecutiveProposal({
+    created_by: 'ceo',
+    title: 'Assess example.com monetization readiness',
+    proposal_type: 'report-only',
+    summary: 'Review example.com monetization paths and measurement gaps.',
+    requested_action:
+      'Approve a bounded report-only assessment. Do not deploy, spend money, or change production.',
+  });
+  store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
+
+  const drained = runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
+  assert.equal(drained.filter(row => row.type === 'queued').length, 1);
+  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
+  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(request.status, 'queued');
+  store.close();
+});
+
 test('failed approved execution becomes a blocked follow-through case instead of a blind retry', async () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({

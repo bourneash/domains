@@ -1800,6 +1800,19 @@ function reconcileApprovedProposalFollowThrough(
   return result;
 }
 
+// Approved work must not depend on a successful model pass to enter the
+// worker queue. The scheduler uses this bounded, deterministic drain before
+// invoking the model so already-approved report-only and implementation-ready
+// proposals keep moving while preserving site-capacity and launch gates.
+function drainApprovedProposalQueue(store, { root = ROOT, maxQueue = 6 } = {}) {
+  const limit = Math.max(0, Math.min(12, Number(maxQueue) || 0));
+  return reconcileApprovedProposalFollowThrough(store, {
+    root,
+    allowQueue: true,
+    maxQueue: limit,
+  });
+}
+
 // The provider is responsible for choosing the work, but a malformed or
 // indecisive response must not turn an evidence-backed hourly cycle into a
 // silent no-op. This fallback uses only candidates already present in the
@@ -2485,6 +2498,7 @@ module.exports = {
   planFingerprint,
   actionMandateSatisfied,
   reconcileApprovedProposalFollowThrough,
+  drainApprovedProposalQueue,
   applyPlan,
   runProvider,
   tick,

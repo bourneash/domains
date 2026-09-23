@@ -161,6 +161,13 @@ change queue is enabled. A production tick must be single-flight, bounded by
 timeout and cost, idempotent by plan fingerprint, and must leave a completed
 or failed audit record.
 
+Before each model pass, `run-approved-work.sh` performs a cheap deterministic
+drain of already-approved proposals. It routes concrete implementation work and
+site-specific report-only approvals through the normal worker queue while
+preserving site-capacity, Legal/Security launch gates, and audit events. This
+keeps approved work moving when a model pass is skipped or produces no new plan;
+it never authorizes a new proposal or bypasses the queue/reviewer pipeline.
+
 Every hourly cycle carries an action mandate: when the telemetry bundle has
 evidence-backed, low-risk candidates, the executive pass should route a small
 portfolio batch across distinct sites or explain why all candidates were

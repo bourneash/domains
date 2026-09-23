@@ -22,6 +22,12 @@ if [[ "${EXECUTIVE_FORCE:-0}" != "1" ]]; then
 fi
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-cro,ceo,cfo,cto,legal,security,reviewer}"
 echo "[$(date -Is)] executive scheduled tick start"
+# Approved work is routed deterministically before the model starts. A
+# failure here is audited but must not prevent the leadership pass from
+# running; the normal queue/reviewer path remains authoritative.
+if [[ "$queue_enabled" == "1" ]]; then
+  "$ROOT/tools/executive/run-approved-work.sh" || echo "[$(date -Is)] approved-work drain failed; continuing with executive tick" >&2
+fi
 "$ROOT/tools/executive/run-sandbox.sh"
 "$ROOT/tools/executive/checkin.sh"
 echo "[$(date -Is)] executive scheduled tick complete"
