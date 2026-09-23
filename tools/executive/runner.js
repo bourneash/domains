@@ -476,7 +476,197 @@ async function buildBrief(store, root = ROOT) {
   };
 }
 
+const MODEL_BRIEF_MAX_ARRAY_ITEMS = 12;
+const MODEL_BRIEF_MAX_STRING_LENGTH = 900;
+
+function compactModelValue(value, depth = 0) {
+  if (typeof value === 'string') {
+    if (value.length <= MODEL_BRIEF_MAX_STRING_LENGTH) return value;
+    return `${value.slice(0, MODEL_BRIEF_MAX_STRING_LENGTH)}… [truncated for model context]`;
+  }
+  if (value === null || typeof value !== 'object') return value;
+  if (depth >= 7) {
+    if (Array.isArray(value)) return [`[${value.length} items omitted at context boundary]`];
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(
+          ([, item]) => item === null || ['string', 'number', 'boolean'].includes(typeof item)
+        )
+        .map(([key, item]) => [key, compactModelValue(item, depth + 1)])
+    );
+  }
+  if (Array.isArray(value)) {
+    const items = value
+      .slice(0, MODEL_BRIEF_MAX_ARRAY_ITEMS)
+      .map(item => compactModelValue(item, depth + 1));
+    if (value.length > MODEL_BRIEF_MAX_ARRAY_ITEMS)
+      items.push(
+        `[${value.length - MODEL_BRIEF_MAX_ARRAY_ITEMS} additional items omitted; use the authoritative snapshot]`
+      );
+    return items;
+  }
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [key, compactModelValue(item, depth + 1)])
+  );
+}
+
+function compactQueueRow(row) {
+  return {
+    request_id: row.request_id,
+    site: row.site,
+    title: row.title,
+    category: row.category,
+    priority: row.priority,
+    assigned_role: row.assigned_role,
+    provider: row.provider,
+    model: row.model,
+    status: row.status,
+    delivery_mode: row.delivery_mode,
+    requested_by: row.requested_by,
+    attempts: row.attempts,
+    review_attempts: row.review_attempts,
+    error: row.error ? String(row.error).slice(0, MODEL_BRIEF_MAX_STRING_LENGTH) : null,
+    body: row.body ? String(row.body).slice(0, 700) : null,
+  };
+}
+
+function compactRepoLabRun(run) {
+  const checks = Array.isArray(run.checks) ? run.checks : [];
+  return {
+    schema: run.schema,
+    run_id: run.run_id,
+    generated_at: run.generated_at,
+    candidate: run.candidate,
+    status: run.status,
+    repository: {
+      file_count: run.repository?.file_count ?? null,
+      license: run.repository?.license || null,
+    },
+    use_case: run.use_case,
+    checks: {
+      total: checks.length,
+      passed: checks.filter(check => check.status === 'passed').length,
+      failed: checks.filter(check => check.status === 'failed').length,
+      failures: checks
+        .filter(check => check.status !== 'passed')
+        .slice(0, 3)
+        .map(check => ({ command: check.command, status: check.status, output: check.output })),
+    },
+    safety: run.safety,
+    recommendation: run.recommendation,
+  };
+}
+
+function compactResearchRow(row) {
+  return {
+    request_id: row.request_id || row.research_id || row.id,
+    url: row.url,
+    question: row.question,
+    status: row.status,
+    title: row.title,
+    summary: row.summary,
+    answer: row.answer,
+    error: row.error,
+  };
+}
+
+function compactModelBrief(brief) {
+  const compact = compactModelValue(brief);
+  const inputs = brief?.specialist_inputs || {};
+  compact.tool_contract = {
+    ...compact.tool_contract,
+    // This is a short allowlist, not historical evidence; preserve it whole so
+    // the model cannot forget an available safety/measurement capability.
+    available: brief?.tool_contract?.available || [],
+  };
+  compact.specialist_inputs = {
+    ...compact.specialist_inputs,
+    cro_github_trends: (inputs.cro_github_trends || []).slice(0, 3).map(report => ({
+      date: report.date,
+      generated_at: report.generated_at,
+      periods: report.periods,
+      errors: report.errors,
+      candidates: (report.candidates || []).slice(0, 12).map(candidate => ({
+        full_name: candidate.full_name,
+        html_url: candidate.html_url,
+        period: candidate.period,
+        stars: candidate.stars,
+        language: candidate.language,
+        description: candidate.description,
+        purpose: candidate.purpose,
+        fit_score: candidate.fit_score,
+        license_spdx_id: candidate.license_spdx_id,
+      })),
+    })),
+    cro_repo_lab_runs: (inputs.cro_repo_lab_runs || []).slice(0, 6).map(compactRepoLabRun),
+    cro_contract: inputs.cro_contract,
+  };
+
+  compact.intelligence.research = (brief?.intelligence?.research || [])
+    .slice(0, 10)
+    .map(compactResearchRow);
+  if (compact.intelligence.intelligence) {
+    compact.intelligence.intelligence.research = (brief?.intelligence?.intelligence?.research || [])
+      .slice(0, 10)
+      .map(compactResearchRow);
+  }
+
+  compact.task_queue = Object.fromEntries(
+    Object.entries(brief?.task_queue || {}).map(([role, rows]) => {
+      const list = Array.isArray(rows) ? rows : [];
+      const active = list.filter(
+        row => !['done', 'verified', 'deployed', 'cancelled', 'failed'].includes(row.status)
+      );
+      const recent = list.filter(row => !active.includes(row)).slice(0, 4);
+      return [role, [...active, ...recent].slice(0, 24).map(compactQueueRow)];
+    })
+  );
+  const workItems = brief?.work_items || [];
+  compact.work_items = workItems
+    .filter(item => !['cancelled', 'done', 'complete'].includes(item.status))
+    .slice(0, 30)
+    .map(item => ({
+      work_id: item.work_id,
+      title: item.title,
+      kind: item.kind,
+      status: item.status,
+      priority: item.priority,
+      owner: item.owner,
+      site: item.site,
+      summary: item.summary,
+      next_action: item.next_action,
+      due_at: item.due_at,
+      evidence: (item.evidence || []).slice(0, 3),
+    }));
+  compact.work_item_summary = workItems.reduce((summary, item) => {
+    summary[item.status] = (summary[item.status] || 0) + 1;
+    return summary;
+  }, {});
+  compact.handoffs = (brief?.handoffs || []).slice(0, 12).map(handoff => ({
+    handoff_id: handoff.handoff_id,
+    site: handoff.site,
+    from_role: handoff.from_role,
+    to_role: handoff.to_role,
+    status: handoff.status,
+    title: handoff.title,
+    summary: handoff.summary,
+    next_action: handoff.next_action,
+  }));
+  compact.data_requests = (brief?.data_requests || []).slice(0, 10).map(request => ({
+    request_id: request.request_id,
+    requested_by: request.requested_by,
+    question: request.question,
+    status: request.status,
+    generated_at: request.generated_at,
+    artifact: request.artifact,
+  }));
+  compact.model_context_note =
+    'Large historical arrays, raw repository listings, and duplicate report bodies are compacted here. The control plane retains the authoritative artifacts and source timestamps; do not treat omitted context as zero or proof of absence.';
+  return compact;
+}
+
 function buildPrompt(brief) {
+  const modelBrief = compactModelBrief(brief);
   return `You are the autonomous CEO of a domain portfolio working with a CTO, CRO, CFO, Legal/Compliance lead, and on-demand domain managers. Your mission is attributable revenue growth and durable enterprise value across the fleet. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
 
 Rules:
@@ -527,11 +717,12 @@ Return ONLY valid JSON with this shape:
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
 
 FLEET BRIEF:
-${JSON.stringify(brief)}`;
+${JSON.stringify(modelBrief)}`;
 }
 
 function buildPassPrompt(brief, role, candidate = null) {
   if (role === 'ceo') return buildPrompt(brief);
+  const modelBrief = compactModelBrief(brief);
   const base =
     role === 'cto'
       ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
@@ -542,11 +733,11 @@ function buildPassPrompt(brief, role, candidate = null) {
           : role === 'legal'
             ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
             : role === 'security'
-              ? 'You are the Security review pass for the autonomous domain-fleet executive. Inspect intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
+              ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
               : role === 'domain-manager'
                 ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager.'
                 : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(brief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(candidate || {})}`;
+  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
 
 function parseOutput(text) {
@@ -1488,6 +1679,7 @@ module.exports = {
   buildBrief,
   buildPrompt,
   buildPassPrompt,
+  compactModelBrief,
   parseOutput,
   isTelemetryRequestProposal,
   normalizeProviderProposalTypes,

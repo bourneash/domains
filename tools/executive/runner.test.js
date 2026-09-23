@@ -36,6 +36,46 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   store.close();
 });
 
+test('compacts repeated executive evidence before sending it to model passes', () => {
+  const bulky = {
+    sites: ['example.com'],
+    intelligence: {
+      decision_support: {
+        rows: Array.from({ length: 80 }, () => ({ detail: 'x'.repeat(2000) })),
+      },
+    },
+    specialist_inputs: {
+      cro_repo_lab_runs: [
+        {
+          run_id: 'lab-1',
+          status: 'completed',
+          candidate: { full_name: 'example/tool' },
+          repository: { file_count: 200, files: Array.from({ length: 500 }, () => 'file.py') },
+          checks: Array.from({ length: 100 }, () => ({ status: 'passed', output: 'ok' })),
+        },
+      ],
+    },
+    task_queue: {
+      engineer: Array.from({ length: 50 }, (_, index) => ({
+        request_id: String(index),
+        status: 'cancelled',
+        body: 'x'.repeat(2000),
+      })),
+    },
+    work_items: Array.from({ length: 50 }, () => ({ evidence: [{ note: 'x'.repeat(2000) }] })),
+  };
+  const compact = runner.compactModelBrief(bulky);
+  assert.ok(
+    Buffer.byteLength(JSON.stringify(compact), 'utf8') <
+      Buffer.byteLength(JSON.stringify(bulky), 'utf8') / 4
+  );
+  assert.equal(compact.specialist_inputs.cro_repo_lab_runs[0].repository.file_count, 200);
+  assert.equal(compact.specialist_inputs.cro_repo_lab_runs[0].repository.files, undefined);
+  assert.equal(compact.task_queue.engineer.length, 4);
+  assert.equal(compact.work_items.length, 30);
+  assert.match(compact.model_context_note, /authoritative artifacts/);
+});
+
 test('action-mandate fallback routes trusted candidates instead of producing a no-op', () => {
   const brief = {
     queue: [{ site: 'already-active.com', status: 'running' }],
