@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:22:45.714Z",
+  "generated_at": "2026-09-23T03:25:54.676Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue the active reversible work and queue bounded evidence or routing work for 0daynews.com, 0xroulette.com, complicated.work, and deadlymaracas.com. The 30-day SEO window reports 13,177 impressions, 126 clicks, 932 sessions, and 13 conversions; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is which additional sites can produce attributable revenue without disproportionate build or renewal cost. Smallest next step: complete these bounded reports and routing correction, preserve rollback notes, and measure existing implementations after 14 days or 100 new impressions. Owner question: for SearchWoot choose (A) prepare an unsent Woot permission request, (B) keep private with no outreach, or (C) stop pursuing public beta.",
+        "summary": "Recommendation: continue the active reversible work on fishhooklabs.com, americastrikes.com, aliencouncil.com, and the other already-queued site work; do not create duplicate requests. The 30-day SEO window reports 13,177 impressions, 126 clicks, 932 sessions, and 13 conversions; Amazon reported $4.92 commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. Site-level margin and ROI are not calculable because one tracking ID is unmapped and direct costs are unavailable. The main unknown is which sites can produce attributable contribution margin. The smallest next step is to complete the existing bounded work and measure after 14 days or 100 new impressions. Owner question: for SearchWoot choose (A) prepare an unsent Woot permission request, (B) keep private with no outreach, or (C) end the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       }
