@@ -51,6 +51,26 @@ const TRANSITIONS = {
   cancelled: [],
 };
 
+// A read-only request must never enter the deployment path just because an
+// older producer omitted delivery_mode. Only explicit report/diagnosis/no-op
+// language is inferred; ordinary acceptance criteria remain direct work.
+const REPORT_ONLY_MARKER =
+  /\b(?:report[- ]only|read[- ]only|no production changes?|no code changes?|do not deploy|do not push|no deployment)\b/i;
+
+function inferredDeliveryMode(input = {}) {
+  const explicit = String(input.delivery_mode || '').trim();
+  if (explicit) return explicit;
+  return REPORT_ONLY_MARKER.test(`${input.title || ''}\n${input.body || ''}`)
+    ? 'report_only'
+    : 'direct';
+}
+
+function normalizeInput(input = {}) {
+  if (Object.prototype.hasOwnProperty.call(input, 'delivery_mode')) return input;
+  const delivery_mode = inferredDeliveryMode(input);
+  return delivery_mode === 'direct' ? input : { ...input, delivery_mode };
+}
+
 function validate(input, knownSite) {
   const fleetOperation =
     String(input.site || '') === 'fleet' &&
@@ -89,21 +109,22 @@ function validate(input, knownSite) {
 }
 
 function create(store, input, knownSite) {
-  validate(input, knownSite);
-  const provider = input.provider || process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt';
+  const normalized = normalizeInput(input);
+  validate(normalized, knownSite);
+  const provider = normalized.provider || process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt';
   const model =
-    input.model ||
+    normalized.model ||
     (provider === 'chatgpt'
       ? process.env.FD_CHANGE_QUEUE_MODEL || 'gpt-5.6-luna'
       : provider === 'local'
         ? process.env.FD_CHANGE_QUEUE_LOCAL_MODEL || 'llama3.2'
         : null);
   const request = store.createChangeRequest({
-    ...input,
+    ...normalized,
     provider,
     model,
-    max_turns: Number(input.max_turns || 20),
-    assigned_role: assignedRoleForType(input.category, input.assigned_role),
+    max_turns: Number(normalized.max_turns || 20),
+    assigned_role: assignedRoleForType(normalized.category, normalized.assigned_role),
   });
   store.record({
     event_type: 'change-request.queued',
@@ -147,6 +168,15 @@ function update(store, id, patch, knownSite) {
   const otherEdit = editKeys.some(
     key => key !== 'provider' && key !== 'model' && Object.prototype.hasOwnProperty.call(patch, key)
   );
+  const mergedBase = { ...current, ...patch };
+  const inferredLegacyMode = { ...mergedBase };
+  delete inferredLegacyMode.delivery_mode;
+  const merged =
+    current.delivery_mode === 'direct' &&
+    !Object.prototype.hasOwnProperty.call(patch, 'delivery_mode') &&
+    inferredDeliveryMode(inferredLegacyMode) === 'report_only'
+      ? { ...mergedBase, delivery_mode: 'report_only' }
+      : normalizeInput(mergedBase);
   if (
     (otherEdit && !['queued', 'failed'].includes(current.status)) ||
     (claimedProviderEdit && !['queued', 'failed', 'claimed'].includes(current.status))
@@ -169,10 +199,16 @@ function update(store, id, patch, knownSite) {
     patch.action_key ||
     patch.max_turns
   )
-    validate({ ...current, ...patch }, knownSite);
-  const merged = { ...current, ...patch };
-  const next = store.updateChangeRequest(id, {
+    validate(merged, knownSite);
+  const normalizedPatch = {
     ...patch,
+    ...(merged.delivery_mode !== current.delivery_mode &&
+    !Object.prototype.hasOwnProperty.call(patch, 'delivery_mode')
+      ? { delivery_mode: merged.delivery_mode }
+      : {}),
+  };
+  const next = store.updateChangeRequest(id, {
+    ...normalizedPatch,
     // Repair queued requests created before the routing invariant existed and
     // prevent an edit from putting an SEO request back on the engineer queue.
     ...(String(merged.category || '').toLowerCase() === 'seo'
@@ -277,5 +313,7 @@ module.exports = {
   update,
   reconcileVerified,
   pick,
+  inferredDeliveryMode,
+  normalizeInput,
   transcribe,
 };

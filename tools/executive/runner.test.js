@@ -473,6 +473,26 @@ test('parses structured provider output and applies only explicitly enabled queu
   store.close();
 });
 
+test('binds executive request follow-up to its role and preserves report-only routing', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'Run a read-only diagnosis',
+          body: 'Read-only inspection; do not deploy or change production.',
+          category: 'other',
+          priority: 'low',
+          requested_by: 'cto',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.change_requests[0].requested_by, 'cto');
+  assert.equal(plan.change_requests[0].delivery_mode, 'report_only');
+  runner.validatePlan(plan);
+});
+
 test('caps queue work and prevents two active implementations on one site', async () => {
   const { root, store } = db();
   for (const site of ['other.example', 'third.example', 'fourth.example'])

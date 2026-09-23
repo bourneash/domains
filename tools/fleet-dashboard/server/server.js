@@ -173,6 +173,44 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
 
+  // Repair legacy executive requests whose body clearly declared report-only
+  // work but was persisted as direct delivery. This is deliberately narrow,
+  // idempotent, and auditable; historical failures remain historical events.
+  for (const request of events.listChangeRequests({ limit: 1000 })) {
+    const legacyInferenceInput = { ...request };
+    delete legacyInferenceInput.delivery_mode;
+    if (
+      request.delivery_mode !== 'direct' ||
+      !['queued', 'failed'].includes(request.status) ||
+      changequeue.inferredDeliveryMode(legacyInferenceInput) !== 'report_only'
+    )
+      continue;
+    try {
+      const repaired = changequeue.update(
+        events,
+        request.request_id,
+        { delivery_mode: 'report_only' },
+        site => isKnownTarget(root, site)
+      );
+      events.record({
+        event_type: 'change-request.delivery-mode-repaired',
+        source: 'fleet-dashboard',
+        site_id: `site:${request.site}`,
+        entity_type: 'change-request',
+        entity_id: request.request_id,
+        correlation_id: `change-request:${request.request_id}`,
+        payload: {
+          previous: 'direct',
+          repaired: repaired.delivery_mode,
+          reason: 'request text explicitly declared report-only work',
+        },
+      });
+    } catch {
+      // A concurrent worker or invalid legacy row must not prevent the
+      // dashboard from starting. The original row remains auditable.
+    }
+  }
+
   function emitChangeNotification(event, request, run, details = '') {
     try {
       executiveFollowup.notify(events, { event, request, run, details });

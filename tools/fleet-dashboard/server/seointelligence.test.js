@@ -321,3 +321,18 @@ test('filedActionKeys finds durable task markers', () => {
   fs.writeFileSync(path.join(dir, 'task.md'), 'seo-intelligence-key: abcdef0123456789abcd\n');
   assert.deepEqual([...seo.filedActionKeys(root, ['example.com'])], ['abcdef0123456789abcd']);
 });
+
+test('held infrastructure failures do not permanently suppress SEO opportunities', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-intel-hold-'));
+  const hold = path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'hold');
+  fs.mkdirSync(hold, { recursive: true });
+  fs.writeFileSync(
+    path.join(hold, 'retry.md'),
+    'seo-intelligence-key: abcdef0123456789abcd\nerror: worker process interrupted\n'
+  );
+  fs.writeFileSync(
+    path.join(hold, 'manual.md'),
+    'seo-intelligence-key: 0123456789abcdefabcd\nhold_reason: Requires owner action\n'
+  );
+  assert.deepEqual([...seo.filedActionKeys(root, ['example.com'])], ['0123456789abcdefabcd']);
+});

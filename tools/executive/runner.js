@@ -709,7 +709,7 @@ Return ONLY valid JSON with this shape:
   "data_requests": [{"requested_by":"ceo|cto|cro|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
+  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
   "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|legal|security|cro|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
@@ -898,6 +898,32 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
       .trim()
       .toLowerCase();
     item.created_by = actorAliases[raw] || raw || defaultActor;
+  }
+  const requestors = new Set([
+    'ceo',
+    'cto',
+    'cfo',
+    'cro',
+    'legal',
+    'security',
+    'domain-manager',
+    'researcher',
+  ]);
+  for (const item of plan.change_requests) {
+    const raw = String(item?.requested_by || item?.actor || '')
+      .trim()
+      .toLowerCase();
+    const normalized = actorAliases[raw] || raw;
+    item.requested_by = requestors.has(normalized)
+      ? normalized
+      : requestors.has(defaultActor)
+        ? defaultActor
+        : 'ceo';
+    // A report/diagnosis that omitted delivery_mode must not enter the
+    // deployment path. The queue module owns the same conservative inference
+    // for requests created outside this runner.
+    if (!Object.prototype.hasOwnProperty.call(item, 'delivery_mode'))
+      item.delivery_mode = changequeue.inferredDeliveryMode(item);
   }
   for (const item of plan.work_items) {
     // Work items are durable follow-through records, not executable commands.
@@ -1150,6 +1176,13 @@ function validatePlan(plan) {
       )
         throw new Error('executive fleet work must use the allowlisted fleet report operation');
     }
+    if (
+      item.requested_by !== undefined &&
+      !['ceo', 'cto', 'cfo', 'cro', 'legal', 'security', 'domain-manager', 'researcher'].includes(
+        String(item.requested_by)
+      )
+    )
+      throw new Error('change request has an invalid requested_by role');
   }
   return plan;
 }
@@ -1294,6 +1327,7 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
         category,
         priority: 'low',
         assigned_role: 'engineer',
+        requested_by: 'ceo',
         provider: 'chatgpt',
         model: 'gpt-5.6-luna',
         max_turns: 12,
@@ -1625,8 +1659,14 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         summary: item.title,
       });
       try {
-        const request = changequeue.create(store, { ...item, source: 'executive-ceo' }, site =>
-          executiveTarget(root, site)
+        const request = changequeue.create(
+          store,
+          {
+            ...item,
+            source: 'executive-ceo',
+            requested_by: item.requested_by || 'ceo',
+          },
+          site => executiveTarget(root, site)
         );
         created.change_requests.push(request);
         queuedCount += 1;

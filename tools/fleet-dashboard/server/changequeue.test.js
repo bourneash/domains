@@ -179,6 +179,44 @@ test('report-only requests finish as verified without a deployment state', () =>
   store.close();
 });
 
+test('infers report-only delivery from an explicit read-only request', () => {
+  const { store } = fixture();
+  const request = queue.create(
+    store,
+    {
+      site: 'example.com',
+      title: 'Run a revenue-readiness baseline',
+      body: 'Read-only inspection. Do not deploy or change production.',
+      requested_by: 'ceo',
+    },
+    () => true
+  );
+  assert.equal(request.delivery_mode, 'report_only');
+  store.close();
+});
+
+test('repairs legacy direct requests whose body clearly declares report-only work', () => {
+  const { store } = fixture();
+  const request = queue.create(
+    store,
+    {
+      site: 'example.com',
+      title: 'Legacy report',
+      body: 'Inspect only; ordinary direct request.',
+      delivery_mode: 'direct',
+    },
+    () => true
+  );
+  const repaired = queue.update(
+    store,
+    request.request_id,
+    { body: 'Inspect only; no production changes.' },
+    () => true
+  );
+  assert.equal(repaired.delivery_mode, 'report_only');
+  store.close();
+});
+
 test('reconciles a failed request to verified when a durable report survives', () => {
   const { store } = fixture();
   const request = queue.create(

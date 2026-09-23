@@ -675,6 +675,17 @@ function filedActionKeys(root, siteNames) {
         } catch {
           continue;
         }
+        // A held SEO task is commonly a failed or interrupted execution. It
+        // must be eligible for a fresh bounded attempt. Keep intentional
+        // owner/manual suppressions filed, but do not let an infrastructure
+        // failure hide the same evidence-backed opportunity forever.
+        if (
+          column === 'hold' &&
+          !/(?:suppress[-_ ]recommendation\s*:\s*true|hold_reason\s*:\s*(?:requires owner|manual|do not retry))/i.test(
+            text
+          )
+        )
+          continue;
         for (const match of text.matchAll(pattern)) keys.add(match[1]);
       }
     }
