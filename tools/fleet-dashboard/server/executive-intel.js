@@ -22,6 +22,7 @@ const experiments = require('./experiments');
 const campaigns = require('./campaigns');
 const compliance = require('./compliance');
 const dataquality = require('./dataquality');
+const dataqualityWork = require('./executive-dataquality');
 const executiveSecurity = require('./executive-security');
 
 const EXCLUDED_SITES = new Set(['3boobs.com']);
@@ -425,6 +426,13 @@ async function collect({ root, sites = [] } = {}) {
       aiUsage: aiData,
     })
   );
+  // Persist each currently observed gap as one idempotent work item. This is
+  // deliberately deterministic and happens during the shared snapshot build,
+  // so executives receive actionable evidence without first inventing a
+  // proposal or waiting for another model pass.
+  const qualityWorkStore = eventstore.open(root);
+  const qualityWork = dataqualityWork.sync(qualityWorkStore, qualityData);
+  qualityWorkStore.close();
   const securityData = removeExcluded(executiveSecurity.collect({ sites: managedSites }));
 
   return {
@@ -501,6 +509,11 @@ async function collect({ root, sites = [] } = {}) {
       campaigns: campaignsData,
       compliance: complianceData,
       data_quality: qualityData,
+      data_quality_work: {
+        created: qualityWork.created.length,
+        updated: qualityWork.updated.length,
+        resolved: qualityWork.resolved.length,
+      },
       security: securityData,
     },
   };

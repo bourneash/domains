@@ -1203,6 +1203,52 @@ test('defaults an omitted model proposal type to the safe business category', ()
   assert.equal(plan.proposals[0].proposal_type, 'business');
 });
 
+test('scopes domain-manager proposals to the active managed site', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'domain-manager',
+          proposal_type: 'report-only',
+          title: 'Site evidence review',
+          summary: 'Review the site evidence.',
+          requested_action: 'Return a bounded report.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    }),
+    { defaultActor: 'domain-manager', defaultSite: 'example.com' }
+  );
+  assert.equal(plan.proposals[0].implementation.site, 'example.com');
+});
+
+test('data-quality work drains into idempotent report-only requests', () => {
+  const { root, store } = db();
+  store.createExecutiveWorkItem({
+    work_id: 'data-quality:analytics:example.com',
+    title: 'Restore analytics coverage for example.com',
+    kind: 'evidence',
+    status: 'open',
+    priority: 'normal',
+    owner: 'cto',
+    source_type: 'data-quality',
+    source_id: 'analytics:example.com',
+    site: 'example.com',
+    summary: 'No successful source was observed.',
+    next_action: 'Verify the registry and latest fetch result.',
+    created_by: 'system',
+  });
+  const first = runner.drainDataQualityWork(store, { root, maxQueue: 1 });
+  assert.equal(first.filter(row => row.type === 'queued-data-quality').length, 1);
+  const request = store.listChangeRequests({ limit: 10 })[0];
+  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(request.action_key, 'data-quality:data-quality:analytics:example.com');
+  assert.equal(runner.drainDataQualityWork(store, { root, maxQueue: 1 }).length, 0);
+  store.close();
+});
+
 test('identifies read-only telemetry requests without suppressing implementation work', () => {
   assert.equal(
     runner.isTelemetryRequestProposal({

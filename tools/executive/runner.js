@@ -873,7 +873,7 @@ function buildPassPrompt(brief, role, candidate = null) {
               : role === 'security'
                 ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
                 : role === 'domain-manager'
-                  ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager.'
+                  ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
                   : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
@@ -957,7 +957,7 @@ function parseProviderJson(raw) {
   throw lastError || new Error('provider output is empty');
 }
 
-function parseOutput(text, { defaultActor = '' } = {}) {
+function parseOutput(text, { defaultActor = '', defaultSite = '' } = {}) {
   const raw = String(text || '')
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
@@ -994,13 +994,29 @@ function parseOutput(text, { defaultActor = '' } = {}) {
     work_items: result.work_items || [],
     knowledge: result.knowledge || [],
   };
-  normalizeProviderProposalTypes(plan, { defaultActor });
+  normalizeProviderProposalTypes(plan, { defaultActor, defaultSite });
   validatePlan(plan);
   return plan;
 }
 
-function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
+function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite = '' } = {}) {
   for (const item of plan.proposals) {
+    // Domain-manager passes are already scoped to one managed site. Preserve
+    // that scope when the model omits the repetitive implementation wrapper;
+    // without it an approved report-only proposal cannot safely enter the
+    // worker queue because the control plane cannot infer a target.
+    if (
+      String(defaultActor || '') === 'domain-manager' &&
+      String(defaultSite || '').trim() &&
+      (!item.implementation || typeof item.implementation !== 'object' || !item.implementation.site)
+    ) {
+      item.implementation = {
+        ...(item.implementation && typeof item.implementation === 'object'
+          ? item.implementation
+          : {}),
+        site: String(defaultSite).trim().toLowerCase(),
+      };
+    }
     const raw = String(item?.proposal_type || '')
       .trim()
       .toLowerCase();
@@ -1928,6 +1944,238 @@ function drainApprovedProposalQueue(store, { root = ROOT, maxQueue = 6 } = {}) {
   });
 }
 
+function reportWorkRequestKey(prefix, workId) {
+  return `${prefix}:${String(workId || '').trim()}`;
+}
+
+function activeRequestStatuses() {
+  return new Set(['queued', 'claimed', 'running', 'reviewing', 'review', 'committed']);
+}
+
+function appendWorkEvidence(item, evidence) {
+  return [...(Array.isArray(item?.evidence) ? item.evidence : []), evidence].slice(-20);
+}
+
+function markReportWorkItem(store, item, request, { completed = false, blocked = false } = {}) {
+  if (!item || !request) return item;
+  const status = completed ? 'done' : blocked ? 'blocked' : 'in_progress';
+  return store.updateExecutiveWorkItem(item.work_id, {
+    status,
+    next_action: completed
+      ? `Report request ${request.request_id} completed; use the artifact in the next executive review.`
+      : blocked
+        ? `Report request ${request.request_id} failed; inspect the durable failure evidence before another retry.`
+        : `Monitor report request ${request.request_id}; it is currently ${request.status}.`,
+    evidence: appendWorkEvidence(item, {
+      label: completed ? 'report completed' : blocked ? 'report failed' : 'report request',
+      note: `${request.request_id}; status=${request.status}; action_key=${request.action_key || 'none'}`,
+    }),
+    resolution_note: completed ? `Completed by report request ${request.request_id}.` : null,
+  });
+}
+
+function queueBoundedReportWork(
+  store,
+  item,
+  { root = ROOT, actionKey, title, body, requestedBy = 'cto', assignedRole = 'engineer' } = {}
+) {
+  if (!item?.site || item.site === 'fleet' || EXECUTIVE_EXCLUDED_SITES.has(item.site)) return null;
+  const request = changequeue.create(
+    store,
+    {
+      site: item.site,
+      title,
+      body,
+      category: 'engineering',
+      priority: 'low',
+      assigned_role: assignedRole,
+      requested_by: requestedBy,
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 12,
+      auto_review: true,
+      delivery_mode: 'report_only',
+      action_key: actionKey,
+    },
+    site => executiveTarget(root, site)
+  );
+  markReportWorkItem(store, item, request);
+  return request;
+}
+
+// Data-quality gaps are deterministic evidence, not executive ideas. Route a
+// small bounded batch to the worker queue so a missing GA4/GSC/attribution
+// source gets investigated without waiting for another model proposal. The
+// worker can document public/configuration evidence, but cannot change
+// credentials, external configuration, or production code through this path.
+function drainDataQualityWork(store, { root = ROOT, maxQueue = 3 } = {}) {
+  const limit = Math.max(0, Math.min(6, Number(maxQueue) || 0));
+  const requests = store.listChangeRequests({ limit: 1000 });
+  const activeSites = new Set(
+    requests
+      .filter(request => activeRequestStatuses().has(request.status))
+      .map(request => String(request.site || '').toLowerCase())
+      .filter(Boolean)
+  );
+  const items = store
+    .listExecutiveWorkItems({ limit: 1000 })
+    .filter(
+      item =>
+        item.source_type === 'data-quality' &&
+        ['open', 'in_progress'].includes(item.status) &&
+        item.site &&
+        item.site !== 'fleet'
+    );
+  const result = [];
+  let queued = 0;
+  for (const item of items) {
+    const actionKey = reportWorkRequestKey('data-quality', item.work_id);
+    const existing = requests.find(request => request.action_key === actionKey);
+    if (existing) {
+      if (existing.status === 'verified')
+        markReportWorkItem(store, item, existing, { completed: true });
+      else if (existing.status === 'failed')
+        markReportWorkItem(store, item, existing, { blocked: true });
+      else markReportWorkItem(store, item, existing);
+      continue;
+    }
+    if (queued >= limit || activeSites.has(String(item.site).toLowerCase())) continue;
+    const audit = executive.action(store, {
+      actor: 'cto',
+      action_type: 'queue-work',
+      summary: `Investigate data-quality gap: ${item.title}`,
+      target_type: 'executive-work-item',
+      target_id: item.work_id,
+    });
+    try {
+      const request = queueBoundedReportWork(store, item, {
+        root,
+        actionKey,
+        title: `Evidence report: ${item.title}`,
+        body: [
+          `Investigate the approved data-quality work item: ${item.title}.`,
+          `Observed gap: ${item.summary}`,
+          `Evidence and next action: ${item.next_action}`,
+          'Scope: read-only inspection of the site checkout, public pages, fleet registry, and available dashboard evidence.',
+          'Do not change credentials, external analytics configuration, schedules, spending, DNS, production code, or production data.',
+          'Acceptance: write a timestamped report artifact separating observed facts, unavailable evidence, exact owner dependency, and the smallest reversible remediation. Include validation and rollback notes.',
+        ].join('\n'),
+      });
+      if (!request) {
+        executive.finishAction(store, audit.action_id, {
+          status: 'skipped',
+          result: { reason: 'unsupported scope' },
+        });
+        continue;
+      }
+      activeSites.add(String(item.site).toLowerCase());
+      queued += 1;
+      result.push({
+        type: 'queued-data-quality',
+        work_id: item.work_id,
+        request_id: request.request_id,
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        request_id: request.request_id,
+        result: { work_id: item.work_id, request_id: request.request_id },
+      });
+    } catch (error) {
+      executive.finishAction(store, audit.action_id, { status: 'failed', error: error.message });
+      result.push({ type: 'data-quality-error', work_id: item.work_id, error: error.message });
+    }
+  }
+  return result;
+}
+
+// Failed implementation requests remain terminal audit facts, but their
+// repair cases should produce a bounded diagnosis rather than sit forever in
+// an owner workbench column. This creates report-only work, never retries the
+// unchanged implementation, and closes the repair case only after the report
+// is verified.
+function drainFailureDiagnostics(store, { root = ROOT, maxQueue = 3 } = {}) {
+  const limit = Math.max(0, Math.min(6, Number(maxQueue) || 0));
+  const requests = store.listChangeRequests({ limit: 1000 });
+  const activeSites = new Set(
+    requests
+      .filter(request => activeRequestStatuses().has(request.status))
+      .map(request => String(request.site || '').toLowerCase())
+      .filter(Boolean)
+  );
+  const items = store
+    .listExecutiveWorkItems({ limit: 1000 })
+    .filter(
+      item =>
+        item.source_type === 'failed-change-request' &&
+        ['open', 'in_progress'].includes(item.status) &&
+        item.site &&
+        item.site !== 'fleet'
+    );
+  const result = [];
+  let queued = 0;
+  for (const item of items) {
+    const original = store.getChangeRequest(item.source_id);
+    if (!original || original.status !== 'failed') continue;
+    const actionKey = reportWorkRequestKey('failure-diagnosis', original.request_id);
+    const existing = requests.find(request => request.action_key === actionKey);
+    if (existing) {
+      if (existing.status === 'verified')
+        markReportWorkItem(store, item, existing, { completed: true });
+      else if (existing.status === 'failed')
+        markReportWorkItem(store, item, existing, { blocked: true });
+      else markReportWorkItem(store, item, existing);
+      continue;
+    }
+    if (queued >= limit || activeSites.has(String(item.site).toLowerCase())) continue;
+    const audit = executive.action(store, {
+      actor: 'cto',
+      action_type: 'queue-work',
+      summary: `Diagnose failed implementation: ${original.title}`,
+      target_type: 'change-request',
+      target_id: original.request_id,
+      request_id: original.request_id,
+    });
+    try {
+      const request = queueBoundedReportWork(store, item, {
+        root,
+        actionKey,
+        title: `Failure diagnosis: ${original.title}`,
+        body: [
+          `Diagnose the failed implementation request ${original.request_id}: ${original.title}.`,
+          `Original request: ${String(original.body || '').slice(0, 12000)}`,
+          `Durable failure case: ${item.summary}`,
+          `Required next action: ${item.next_action}`,
+          'Do not retry or modify the original implementation, production checkout, credentials, schedules, or spending.',
+          'Acceptance: produce a timestamped report identifying the failure class, exact evidence, whether the original task remains actionable, the smallest corrected task if applicable, validation gates, and rollback notes.',
+        ].join('\n'),
+      });
+      if (!request) {
+        executive.finishAction(store, audit.action_id, {
+          status: 'skipped',
+          result: { reason: 'unsupported scope' },
+        });
+        continue;
+      }
+      activeSites.add(String(item.site).toLowerCase());
+      queued += 1;
+      result.push({
+        type: 'queued-failure-diagnosis',
+        work_id: item.work_id,
+        request_id: request.request_id,
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'completed',
+        request_id: request.request_id,
+        result: { work_id: item.work_id, request_id: request.request_id },
+      });
+    } catch (error) {
+      executive.finishAction(store, audit.action_id, { status: 'failed', error: error.message });
+      result.push({ type: 'failure-diagnosis-error', work_id: item.work_id, error: error.message });
+    }
+  }
+  return result;
+}
+
 // The provider is responsible for choosing the work, but a malformed or
 // indecisive response must not turn an evidence-backed hourly cycle into a
 // silent no-op. This fallback uses only candidates already present in the
@@ -2649,6 +2897,8 @@ module.exports = {
   actionMandateSatisfied,
   reconcileApprovedProposalFollowThrough,
   drainApprovedProposalQueue,
+  drainDataQualityWork,
+  drainFailureDiagnostics,
   applyPlan,
   runProvider,
   tick,

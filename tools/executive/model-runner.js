@@ -171,7 +171,10 @@ async function main() {
     let output = await runTracked(prompt, usage, role);
     let repaired = false;
     try {
-      const nextPlan = runner.parseOutput(output, { defaultActor: role });
+      const nextPlan = runner.parseOutput(output, {
+        defaultActor: role,
+        defaultSite: brief.domain_manager?.site || '',
+      });
       plan = mergePassPlans(plan, nextPlan);
     } catch (error) {
       // Formatting failures never reach the trusted host application path.
@@ -183,7 +186,10 @@ async function main() {
         role,
         true
       );
-      const nextPlan = runner.parseOutput(output, { defaultActor: role });
+      const nextPlan = runner.parseOutput(output, {
+        defaultActor: role,
+        defaultSite: brief.domain_manager?.site || '',
+      });
       plan = mergePassPlans(plan, nextPlan);
     }
     audit.push({

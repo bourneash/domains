@@ -22,12 +22,39 @@ const audit = executive.action(store, {
   target_type: 'approved-executive-work',
 });
 try {
-  const result = runner.drainApprovedProposalQueue(store, { root, maxQueue });
+  // Reserve half the cheap queue for telemetry/reliability evidence so a
+  // large historical failure backlog cannot starve live analytics and
+  // attribution gaps forever.
+  const failureBudget = Math.max(1, Math.ceil(Number(maxQueue) / 2));
+  const failureDiagnostics = runner.drainFailureDiagnostics(store, {
+    root,
+    maxQueue: failureBudget,
+  });
+  const dataQuality = runner.drainDataQualityWork(store, {
+    root,
+    maxQueue: Math.max(0, Number(maxQueue) - failureDiagnostics.filter(row => row.type === 'queued-failure-diagnosis').length),
+  });
+  const alreadyQueued =
+    failureDiagnostics.filter(row => row.type === 'queued-failure-diagnosis').length +
+    dataQuality.filter(row => row.type === 'queued-data-quality').length;
+  const result = [
+    ...failureDiagnostics,
+    ...dataQuality,
+    ...runner.drainApprovedProposalQueue(store, {
+      root,
+      maxQueue: Math.max(0, Number(maxQueue) - alreadyQueued),
+    }),
+  ];
   executive.finishAction(store, audit.action_id, {
     status: 'completed',
     result: {
       max_queue: maxQueue,
-      queued: result.filter(row => row.type === 'queued').length,
+      queued:
+        result.filter(row =>
+          ['queued', 'queued-failure-diagnosis', 'queued-data-quality'].includes(row.type)
+        ).length,
+      queued_failure_diagnostics: result.filter(row => row.type === 'queued-failure-diagnosis').length,
+      queued_data_quality: result.filter(row => row.type === 'queued-data-quality').length,
       reconciled: result.filter(row => row.type === 'work-item-reconciled').length,
       blocked: result.filter(row => row.type === 'work-item-created' && row.status === 'blocked').length,
     },
