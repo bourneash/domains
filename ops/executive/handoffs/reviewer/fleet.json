@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:18:07.767Z",
+  "generated_at": "2026-09-23T08:35:47.746Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Approve only three bounded, normal-priority SEO changes for saveusfarms.com, aliencouncil.com, and rodhat.com, each measured after 14 days or 100 new impressions. Keep Great American Lakes in its existing measurement gate; make no revenue or causal-lift claims until attributable revenue is available. No high-priority queue work or unsupported production proposal is approved.",
+        "summary": "Recommendation: Reject the proposed Alien Council SEO change for now because an existing UAP SEO baseline is already in progress and reports conflicting telemetry. Keep current measurement work unchanged; do not add duplicate production work or make financial or causal claims. Owner decision: should a new isolated change be considered only after the baseline discrepancy is reconciled?",
         "requested_action": null,
         "proposal_id": null
       }

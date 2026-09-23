@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:18:07.768Z",
+  "generated_at": "2026-09-23T08:35:47.746Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete existing Great American Lakes measurement gate before adding work",
-        "summary": "Do not add new production changes while the two approved improvements remain in measurement. The site has 970 impressions, 3 clicks, 53 sessions, and 2 conversions in the SEO summary; the active 14-day observations show 1,533 impressions, 28 clicks, 29 sessions, and 1 conversion, but no causal lift or site-attributed revenue is established.",
-        "requested_action": "Continue measurement through the existing October 6 gate or until 100 new impressions, then record impressions, clicks, sessions, conversions, and attributable commission. Keep financial and causal claims unsupported until site-level attribution is available.",
-        "proposal_id": null
+        "title": "Improve organic reach for UAP brief page",
+        "summary": "Apply one reversible SEO snippet improvement to /brief/2026-08-14, then measure organic performance without making revenue or causal-lift claims.",
+        "requested_action": "Route an isolated title/meta or equivalent snippet improvement for owner approval; do not deploy directly.",
+        "proposal_id": "3b067cc8-8fc4-4ffe-87a6-e28f51baca41"
       }
     ]
   }
