@@ -10,7 +10,10 @@ cd "$ROOT"
 # fleet-cron has the shared SSH key mounted but not the operator's SSH alias
 # configuration. Resolve the repository's github-bourneash remotes explicitly
 # so a handoff can push without exposing or broadening credentials.
-if [[ -z "${GIT_SSH_COMMAND:-}" && -f "${HOME:-/home/jesse}/.ssh/github-bourneash" ]]; then
+# Handoff runs may inherit a stale SSH command from the scheduler/container.
+# When the repository's scoped deploy identity is mounted, it is the only
+# identity this automation is allowed to use for the configured GitHub alias.
+if [[ -f "${HOME:-/home/jesse}/.ssh/github-bourneash" ]]; then
   export GIT_SSH_COMMAND="ssh -F /dev/null -i ${HOME:-/home/jesse}/.ssh/github-bourneash -o UserKnownHostsFile=${HOME:-/home/jesse}/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
 fi
 
