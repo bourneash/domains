@@ -12,12 +12,14 @@ const intel = require(`${root}/tools/fleet-dashboard/server/executive-intel`);
 const snapshot = require(`${root}/tools/fleet-dashboard/server/executive-snapshot`);
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
+const dataQualityWork = require(`${root}/tools/fleet-dashboard/server/executive-dataquality`);
 
 (async () => {
   const sites = runner.executiveSites(root);
   const value = await intel.collect({ root, sites });
   const saved = snapshot.write(root, value);
   const store = eventstore.open(root);
+  const qualityWork = dataQualityWork.sync(store, value.decision_support?.data_quality);
   const audit = executive.action(store, {
     actor: 'system',
     action_type: 'observe',
@@ -32,6 +34,11 @@ const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
       file: saved.file,
       managed_sites: sites.length,
       source_count: Object.keys(value.sources || {}).length,
+      data_quality_work: {
+        created: qualityWork.created.length,
+        updated: qualityWork.updated.length,
+        resolved: qualityWork.resolved.length,
+      },
     },
   });
   store.close();

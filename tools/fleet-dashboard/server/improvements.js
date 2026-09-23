@@ -5,13 +5,14 @@ const tasks = require('./tasks');
 
 const TRANSITIONS = {
   proposed: ['building', 'cancelled'],
-  building: ['review', 'reported', 'cancelled'],
+  building: ['review', 'reported', 'failed', 'cancelled'],
   review: ['building', 'deployed', 'cancelled'],
   deployed: ['measuring', 'rolled-back'],
   measuring: ['proven', 'regressed', 'inconclusive', 'rolled-back'],
   regressed: ['building', 'rolled-back'],
   proven: [],
   inconclusive: [],
+  failed: [],
   cancelled: [],
   'rolled-back': [],
   reported: [],
@@ -196,7 +197,7 @@ function summary(runs) {
 function expectedTaskColumn(state) {
   if (state === 'proposed') return 'backlog';
   if (['building', 'review'].includes(state)) return 'in-progress';
-  if (state === 'cancelled') return 'hold';
+  if (['cancelled', 'failed'].includes(state)) return 'hold';
   return 'done';
 }
 

@@ -141,6 +141,21 @@ test('reviewing is a valid handoff state before pending review', () => {
   store.close();
 });
 
+test('a blocked review can be explicitly returned to the worker queue', () => {
+  const { store } = fixture();
+  const request = queue.create(store, { site: 'example.com', title: 'Retry me' }, () => true);
+  for (const status of ['claimed', 'running', 'review'])
+    queue.update(store, request.request_id, { status }, () => true);
+  const queued = queue.update(
+    store,
+    request.request_id,
+    { status: 'queued', next_attempt_at: new Date().toISOString(), error: null },
+    () => true
+  );
+  assert.equal(queued.status, 'queued');
+  store.close();
+});
+
 test('report-only requests finish as verified without a deployment state', () => {
   const { store } = fixture();
   const request = queue.create(

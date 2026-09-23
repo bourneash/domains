@@ -11,7 +11,10 @@ function assess({
   aiUsage = {},
 }) {
   const reg = registry.read(root);
-  const live = reg.sites.filter(s => s.lifecycle === 'live');
+  const discovered = new Set(discoveredSites);
+  const live = reg.sites.filter(
+    s => s.lifecycle === 'live' && (!discovered.size || discovered.has(s.domain))
+  );
   const expectedAnalytics = live
     .filter(s => s.capabilities.includes('analytics'))
     .map(s => s.domain);

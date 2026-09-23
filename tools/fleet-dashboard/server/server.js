@@ -539,7 +539,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   async function resetChangeRequestRun(request) {
     if (!request.run_id) return;
     const run = events.getImprovement(request.run_id);
-    if (!run || !['proposed', 'building'].includes(run.state)) return;
+    if (!run || !['proposed', 'building', 'failed'].includes(run.state)) return;
     const cleanup = await cleanupImprovementResources(root, run);
     if (!cleanup.cleaned) throw Object.assign(new Error(cleanup.error), { httpStatus: 409 });
     const current = events.getImprovement(run.run_id);
@@ -658,7 +658,125 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
+  let failedRecoveryRunning = false;
+  function reconcileStalledImprovementRuns() {
+    let changed = 0;
+    for (const request of events.listChangeRequests({ limit: 1000 })) {
+      if (!request.run_id) continue;
+      const run = events.getImprovement(request.run_id);
+      if (!run || run.state !== 'building') continue;
+      const agentFailed = ['failed', 'timed-out'].includes(run.agent?.status);
+      const reviewExhausted =
+        ['review', 'reviewing'].includes(request.status) &&
+        run.agent?.phase === 'reviewer' &&
+        run.agent?.status === 'completed' &&
+        Number(request.review_attempts || 0) >= MAX_AUTOMATIC_REVIEW_REPAIRS;
+      if (!agentFailed && !reviewExhausted) continue;
+      try {
+        improvements.transition(events, run.run_id, {
+          state: 'failed',
+          outcome: {
+            ...(run.outcome || {}),
+            failed_at: new Date().toISOString(),
+            error: agentFailed
+              ? `implementation agent ended ${run.agent.status}`
+              : 'automatic reviewer handoff exhausted its bounded repair attempts',
+          },
+        });
+        changed += 1;
+      } catch {
+        /* keep the existing audit record if a concurrent worker advanced it */
+      }
+    }
+    return changed;
+  }
+
+  async function recoverFailedQueueWork() {
+    if (failedRecoveryRunning) return 0;
+    failedRecoveryRunning = true;
+    try {
+      reconcileStalledImprovementRuns();
+      const now = Date.now();
+      const candidates = events
+        .listChangeRequests({ status: 'failed', limit: 1000 })
+        .filter(request => {
+          const retryAt = Date.parse(request.next_attempt_at || '');
+          return (
+            request.attempts < MAX_AUTOMATIC_QUEUE_ATTEMPTS &&
+            Number.isFinite(retryAt) &&
+            retryAt <= now
+          );
+        });
+      for (const request of candidates) {
+        const run = request.run_id ? events.getImprovement(request.run_id) : null;
+        try {
+          if (run?.workspace_path) {
+            const snapshot = await git.worktreeSnapshot(run.workspace_path);
+            if (snapshot.dirty) {
+              events.record({
+                event_type: 'change-request.retry_blocked',
+                source: 'fleet-dashboard',
+                site_id: `site:${request.site}`,
+                entity_type: 'change-request',
+                entity_id: request.request_id,
+                correlation_id: `change-request:${request.request_id}`,
+                payload: { reason: 'failed worker left a dirty worktree', run_id: request.run_id },
+              });
+              changequeue.update(events, request.request_id, { next_attempt_at: null }, site =>
+                isKnownTarget(root, site)
+              );
+              continue;
+            }
+          }
+          await resetChangeRequestRun(request);
+          const queued = changequeue.update(
+            events,
+            request.request_id,
+            {
+              status: 'queued',
+              error: null,
+              next_attempt_at: new Date().toISOString(),
+              lease_owner: null,
+              lease_expires_at: null,
+              heartbeat_at: null,
+            },
+            site => isKnownTarget(root, site)
+          );
+          events.record({
+            event_type: 'change-request.retry-scheduled',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: request.request_id,
+            correlation_id: `change-request:${request.request_id}`,
+            payload: { attempts: queued.attempts, previous_run_id: request.run_id },
+          });
+        } catch (error) {
+          changequeue.update(
+            events,
+            request.request_id,
+            { next_attempt_at: null, error: `automatic retry blocked: ${error.message}` },
+            site => isKnownTarget(root, site)
+          );
+          events.record({
+            event_type: 'change-request.retry_blocked',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: request.request_id,
+            correlation_id: `change-request:${request.request_id}`,
+            payload: { reason: error.message, run_id: request.run_id },
+          });
+        }
+      }
+      return candidates.length;
+    } finally {
+      failedRecoveryRunning = false;
+    }
+  }
+
   async function pickupChangeRequests(max) {
+    await recoverFailedQueueWork();
     const settings = events.getChangeQueueSettings();
     const running = events
       .listChangeRequests({ limit: 1000 })
@@ -704,6 +822,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (['proven', 'inconclusive'].includes(run.state)) target = 'verified';
       else if (['deployed', 'measuring'].includes(run.state)) target = 'deployed';
       else if (run.state === 'review') target = 'review';
+      else if (run.state === 'failed') target = 'failed';
       else if (run.state === 'reported') target = 'verified';
     }
     if (!target) return request;
@@ -942,6 +1061,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     );
   }
 
+  function markImprovementFailed(run, error) {
+    if (!run || !['proposed', 'building'].includes(run.state)) return run;
+    try {
+      return improvements.transition(events, run.run_id, {
+        state: 'failed',
+        outcome: {
+          failed_at: new Date().toISOString(),
+          phase: run.agent?.phase || 'reviewer',
+          error: String(error?.message || error || 'automatic review failed'),
+        },
+      });
+    } catch {
+      return run;
+    }
+  }
+
   function startAutomaticReviewRepair(request, run, error) {
     const settings = events.getChangeQueueSettings();
     if (!request || !run || request.auto_review === 0 || !settings.auto_review_enabled)
@@ -1026,6 +1161,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return;
     const message = String(error.message || error);
     if (error?.noAutomaticRepair) {
+      markImprovementFailed(run, error);
       try {
         changequeue.update(
           events,
@@ -1055,6 +1191,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return;
     }
     if (startAutomaticReviewRepair(request, run, error)) return;
+    markImprovementFailed(run, error);
     try {
       changequeue.update(
         events,

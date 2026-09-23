@@ -2,6 +2,9 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const improvements = require('./improvements');
+
+const AUTOMATIC_RETRY_ATTEMPTS = 3;
 const { spawn, execFile } = require('node:child_process');
 
 const ACTIVE = new Map();
@@ -253,6 +256,10 @@ function launch({
           store.updateChangeRequest(run.source_id, {
             status: nextStatus,
             error: nextStatus === 'failed' ? `agent exited with code ${code}` : null,
+            next_attempt_at:
+              nextStatus === 'failed' && request.attempts < AUTOMATIC_RETRY_ATTEMPTS
+                ? new Date(Date.now() + 15 * 60 * 1000).toISOString()
+                : null,
             lease_owner: null,
             lease_expires_at: null,
             heartbeat_at: null,
@@ -265,6 +272,21 @@ function launch({
             entity_id: run.source_id,
             correlation_id: `change-request:${run.source_id}`,
             payload: { run_id: run.run_id, exit_code: code },
+          });
+        }
+      }
+      if (timedOut || code !== 0) {
+        const current = store.getImprovement(run.run_id);
+        if (current && ['proposed', 'building'].includes(current.state)) {
+          improvements.transition(store, run.run_id, {
+            state: 'failed',
+            outcome: {
+              failed_at: finishedAt,
+              phase,
+              exit_code: code,
+              timed_out: timedOut,
+              error: `agent exited with code ${code}`,
+            },
           });
         }
       }

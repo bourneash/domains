@@ -131,6 +131,35 @@ test('requires material changes and adequate samples before claiming an outcome'
   );
   assert.equal(improvements.expectedTaskColumn('building'), 'in-progress');
   assert.equal(improvements.expectedTaskColumn('proven'), 'done');
+  assert.equal(improvements.expectedTaskColumn('failed'), 'hold');
+});
+
+test('records failed implementation runs as terminal audit state', () => {
+  const { root, store } = fixture();
+  const { run } = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'request-1',
+      site: 'example.com',
+      title: 'Bounded change',
+      body: 'Do one thing',
+      category: 'engineering',
+      priority: 'low',
+      assigned_role: 'engineer',
+      provider: 'chatgpt',
+      model: 'gpt-5.6-luna',
+      max_turns: 2,
+    },
+  });
+  improvements.transition(store, run.run_id, { state: 'building' });
+  const failed = improvements.transition(store, run.run_id, {
+    state: 'failed',
+    outcome: { failed_at: new Date().toISOString(), error: 'provider exited' },
+  });
+  assert.equal(failed.state, 'failed');
+  assert.equal(failed.outcome.error, 'provider exited');
+  store.close();
 });
 
 test('records attributed affiliate deltas without treating unmapped revenue as site revenue', () => {

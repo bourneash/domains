@@ -51,6 +51,28 @@ test('does not count an analytics row with no successful source as observed', ()
   assert.deepEqual(out.coverage.analytics.missing_sites, ['a.com']);
 });
 
+test('uses the managed-site scope when assessing analytics coverage', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-scope-'));
+  fs.mkdirSync(path.join(root, 'registry'));
+  fs.writeFileSync(
+    path.join(root, 'registry', 'fleet.yaml'),
+    'sites:\n  excluded.example:\n    status: live\n    capabilities: [analytics]\n  managed.example:\n    status: live\n    capabilities: [analytics]\n'
+  );
+  const out = dataquality.assess({
+    root,
+    discoveredSites: ['managed.example'],
+    analyticsHealth: {
+      sites: {
+        'excluded.example': { ga4: null, gsc: null },
+        'managed.example': { ga4: null, gsc: null },
+      },
+    },
+  });
+  const analytics = out.contracts.find(r => r.source === 'analytics');
+  assert.equal(analytics.expected, 1);
+  assert.deepEqual(out.coverage.analytics.missing_sites, ['managed.example']);
+});
+
 test('surfaces unmapped affiliate IDs as an attribution action', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-revenue-'));
   fs.mkdirSync(path.join(root, 'registry'));
