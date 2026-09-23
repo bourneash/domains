@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:13:41.149Z",
+  "generated_at": "2026-09-23T03:15:35.871Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue bounded evidence or implementation work on fishhooklabs.com, allthingsmasonic.com, and americastrikes.com. Do not create duplicate change requests because each site already has active coverage. Require baseline evidence, smoke/link checks, a 14-day or 100-impression measurement gate, and rollback notes. Existing failed routing requests should be repaired only through the current queue controls.",
+        "summary": "Handoff: queue one reversible routing correction for 0daynews.com. Do not duplicate active work on fishhooklabs.com, allthingsmasonic.com, americastrikes.com, saveusfarms.com, deeppenetrations.com, broadwayshowgirls.com, marineactivity.com, aliencouncil.com, or xxxtea.com. Existing work remains gated by baseline capture, quality checks, measurement threshold, and rollback notes.",
         "requested_action": null,
         "proposal_id": null
       }
