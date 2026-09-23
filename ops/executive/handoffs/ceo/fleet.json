@@ -2,16 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:58:10.893Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T08:44:32.349Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains private. Public Woot documentation confirms API access but not rights to retain, derive, publicly display, or monetize the data; current public terms point against those uses. The smallest next step is the owner's disposition on an unsent permission request. No outreach, launch, credentials, configuration, spending, or production work is authorized.",
+        "summary": "Recommendation: approve one bounded Black Market Apparel capsule prototype, subject to owner approval. Evidence: the site is live with GA4/GSC, an active Amazon tag, and existing commerce departments; no traffic or revenue lift is yet proven. Measure outbound affiliate-click rate over 14 days or 100 eligible sessions, with disclosure, link-health, and performance guardrails. Unknown: site-level revenue attribution remains incomplete because Amazon reported $4.92 aggregate income for 2026-09-21. The smallest next step is approval of the isolated prototype. Action-mandate candidates on 0xroulette, allthingsmasonic, americastrikes, and broadwayshowgirls are deferred because those sites already have active work.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep SearchWoot private. Woot documentation confirms API access but not commercial redistribution, public display, derivative data, caching, or alerts; current public terms point against those uses. Legal, security, accuracy, measurement, and attribution gates remain incomplete. The smallest next step is the owner's choice: authorize preparation of an unsent written permission request to Woot, or end the public-beta pursuit. No launch, outreach, credentials, spend, or production change is requested.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "e14a5b72-5bf6-41d6-9d6d-0b4c147e30c8",
+        "summary": "No action yet: Amazon Associates tagging is pending and the proposal requires unresolved accessibility, disclosure, product-claim, and ownership gates.",
+        "requested_action": "declined",
+        "proposal_id": "e14a5b72-5bf6-41d6-9d6d-0b4c147e30c8"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "c0c21b43-2c89-4ee2-8b0a-1b2e2f0b8a77",
+        "summary": "Retain as bounded measurement-spec research; the fleet has 30 affiliate-capable sites, aggregate Amazon attribution, and zero recorded experiments, but no implementation or adoption is approved.",
+        "requested_action": "accepted_research",
+        "proposal_id": "c0c21b43-2c89-4ee2-8b0a-1b2e2f0b8a77"
       }
     ]
   }

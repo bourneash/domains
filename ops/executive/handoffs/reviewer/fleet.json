@@ -2,16 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:43:36.632Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T08:44:32.350Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new queue, production, and revenue proposals this tick. Retain only the existing bounded measurement and report-only work: zero proven outcomes, low-volume site attribution, and $4.92 aggregate income that cannot be assigned to a site do not support financial claims. Do not duplicate active SEO, analytics, parked-domain, or launch-gate work. Decision needed: should the two parked domains remain parked or be retired before renewal?",
+        "summary": "Reject the Black Market Apparel capsule prototype. Site-level revenue attribution, measured experiment outcomes, contribution margin, and cost-to-learn are unsupported; missing or low-volume telemetry blocks production monetization work and financial claims. Retain only the existing report-only reconciliation and reassess after evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the proposed high-priority SearchWoot security queue work. It exceeds the independent-review scope and lacks a measurable production outcome. Maintain the existing private-preview gate and existing read-only evidence work; authorize no launch, deployment, credentials, configuration, spending, outreach, or production mutation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: retain only the existing report-only Black Market Apparel attribution baseline and keep SearchWoot private. Reject the capsule prototype, unsupported financial claims, and high-priority security queue work because site-level attribution, measured outcomes, and required release evidence are incomplete. Existing candidate sites are already covered by active or measuring work, so no additional production queue action is defensible. Owner decision: authorize preparation of an unsent written permission request to Woot, or end the public-beta pursuit?",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "7b7d0f34-9ef0-4aa1-a91d-4e7c7b5dc1b2",
+        "summary": "Reject high-priority queue work. The requested security evidence capture lacks a measurable production outcome and is outside the smallest defensible reviewer plan. Preserve the existing private gate and bounded read-only evidence work.",
+        "requested_action": "declined",
+        "proposal_id": "7b7d0f34-9ef0-4aa1-a91d-4e7c7b5dc1b2"
       }
     ]
   }

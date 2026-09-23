@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:58:10.894Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T08:44:32.349Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: preserve only existing bounded work and authorize no new spend, monetization expansion, or queue actions this cycle. Revenue claims are not supported beyond $4.92 aggregate Amazon commission for 2026-09-21; site-attributed commission is $0 because the 629-click aggregate row cannot be assigned without inventing attribution. Contribution margin, ROI, CAC, payback, and cost-to-learn are not calculable: direct infrastructure, domains, labor, and experiment costs are unavailable, and revenue covers only one day while AI usage covers 2026-09-01 through 2026-09-23. AI usage is $759.78 across 4,529 calls, with 207 errors; this is an observability figure, not a complete infrastructure-cost ledger. The minimum finance measurement is a daily site/content ledger joining registered tracking ID, affiliate clicks/orders/shipped items/commission, GA4 sessions and conversions, AI cost, infrastructure/domain costs, and experiment exposure. Continue existing measurement gates and reject vanity metrics such as impressions, clicks, sessions, and SEO opportunity estimates unless they produce attributable revenue or validated learning.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot must remain private from a finance perspective. No monetization or public-beta forecast is supportable until source rights, affiliate attribution, direct-cost inputs, and contribution-margin measurement are complete. The owner may choose among the existing disposition options; no outreach, spending, billing, credential, contract, or production action is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Existing Great American Lakes measurement may continue through its 14-day or 100-new-impression gate, but the observed 29 sessions, 1 conversion, and 1,533 impressions in the current observation do not establish revenue, margin, or causal lift because affiliate revenue is unavailable. Marineactivity.com and aliencouncil.com report-only baselines should remain report-only. Do not repeat failed or duplicate implementation work.",
+        "summary": "Recommendation: decline the Black Market Apparel capsule prototype for now and require a report-only unit-economics baseline first. AI usage cost was $768.80 for 2026-09-01 through 2026-09-23, including $63.45 for Black Market Apparel; Amazon reported $4.92 aggregate commission for 2026-09-21, but no site-level Black Market Apparel revenue is supplied. Portfolio revenue is therefore unsupported for contribution-margin, payback, or forecast claims. Cost-to-learn is also not calculable because zero experiments have measured outcomes. Minimum evidence before production work: same-period site/content-level affiliate clicks, orders, shipped items, commission, eligible sessions, AI cost, infrastructure allocation, and other direct variable costs. Keep the capsule as a hypothesis only; do not deploy or spend until the baseline supports a positive learning case.",
         "requested_action": null,
         "proposal_id": null
       }

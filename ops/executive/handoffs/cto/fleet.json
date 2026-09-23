@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:58:10.894Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T08:44:32.350Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved with no new queue actions. Preserve only existing isolated, reversible work: continue Great American Lakes measurement at its existing gate; retain marineactivity.com and aliencouncil.com as report-only; do not duplicate fishhooklabs.com after reviewer failure. Do not claim causal lift, revenue, margin, ROI, CAC, payback, or forecasts without supported attribution and cost inputs.",
+        "summary": "Recommendation: keep the Black Market Apparel capsule prototype out of the implementation queue pending the CFO report-only baseline. The proposed prototype is technically isolatable and reversible, but site-level revenue, attribution, contribution margin, and cost-to-learn are not supported by current evidence. Approve only the bounded report-only reconciliation, using existing telemetry and cost records; do not add tracking, alter affiliate configuration, deploy, or spend. Reassess the capsule after the report records eligible sessions, outbound clicks, site-attributed orders, shipped items, commission, AI cost, infrastructure allocation, and other available direct costs, with unavailable fields explicitly labeled.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains private. API access documentation does not establish rights to retain, derive, publicly display, alert on, or monetize source data. No launch, outreach, credential, configuration, telemetry, spending, or production action is authorized until the owner selects an existing disposition and all technical, security, legal, accuracy, and measurement gates pass.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Technical queue decision: reject all new proposals and duplicate requests this cycle. Existing implementation work may continue only with isolated execution, site-boundary preservation, quality and smoke checks, explicit rollback notes, and its existing measurement gate. Failed work must not be retried without a distinct diagnosis and owner-approved scope.",
+        "summary": "Recommendation: keep SearchWoot private. No technical release or public-beta work is safe to queue while source rights, accuracy/freshness, security, privacy, measurement, and attribution gates remain incomplete. The existing owner decision remains limited to authorizing preparation of an unsent permission request or ending the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       }

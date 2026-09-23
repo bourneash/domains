@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:58:10.894Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T08:44:32.350Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary existing fleet growth. Exact decision: keep SearchWoot private, authorize no launch, outreach, monetization expansion, telemetry change, credentials, spending, or production work. Preserve only already-approved bounded work that introduces no new data collection or monetization-sensitive behavior. Evidence: Woot documentation confirms API access mechanics but not redistribution rights; current public terms restrict commercial/public collection, derivatives, display, and pricing use. Compliance baseline reports 37 passes, 16 fails, and 6 unknowns across 59 sites. Telemetry incompleteness alone is not a growth blocker, but site-specific compliance failures block launch or monetization for affected sites until evidenced resolved.",
+        "summary": "Risk disposition: blocked. Keep SearchWoot private; do not approve bounded public beta, full launch, affiliate expansion, advertising, or public data display. Evidence confirms API access but does not establish rights to store, derive, cache, publicly display, or alert on source data; current public terms point against commercial/public data use. Security, accuracy/freshness, measurement, attribution, privacy, and owner gates also remain incomplete. Exact decision: maintain keep_private and authorize only read-only evidence work plus preparation of an unsent written permission request to the source provider, subject to owner approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch-readiness tracking remains active with 0 of 4 legal tasks closed. No task is closed because the required evidence is not present. Current blockers are authoritative source rights, documented data flow and retention, GA4 consent/configuration evidence, and vendor/log/incident handling. The next evidence action is to produce one read-only evidence bundle from the repository and deployed configuration covering source fields, retention, deletion, correction, access, notification delivery, GA4 settings, log fields, vendor terms, and incident/request procedures. Keep the private gate unchanged pending the owner's concrete choice: prepare an unsent permission request, keep private with no outreach, or end the public-beta pursuit.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data is blocked because current terms do not establish rights for storage, derivatives, public display, caching, alerts, affiliate use, or advertising. Smallest next action: obtain a current written provider permission or agreement specifying permitted fields, retention, display, alerts, attribution, freshness, correction, and takedown. User alert rules and sync results are evidence_needed; missing inventory, retention, deletion/correction/access workflow, processor terms, consent, and unsubscribe behavior. Smallest next action: document the deployed alert data flow and retention/deletion controls. GA4 analytics is evidence_needed; missing deployed consent/withdrawal capture, property and data-sharing settings, retention, vendor disclosure, and jurisdiction review. Smallest next action: capture read-only consent and GA4 configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data are evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/data-request procedures. Smallest next action: produce the operator/vendor inventory and identify counsel-required gaps.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Human counsel is required before any public beta involving Woot data, affiliate monetization, advertising, historical price derivatives, public product imagery or trademark use, or jurisdiction-specific personal-data processing. The site terms, privacy page, cookie policy, and technical compliance scan are evidence of implementation posture only; they do not establish upstream data rights or constitute legal certification. Affiliate disclosures, claims about price or savings, copyright/trademark provenance, platform-policy compliance, and any regulated or age-sensitive use require site-specific evidence before expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Ordinary bounded SEO/content work may continue conditionally under existing owners and measurement gates when it preserves site boundaries, uses no new personal-data collection, adds no monetization-sensitive behavior, and passes quality, smoke, rollback, and measurement checks. Do not treat incomplete telemetry as proof of noncompliance or as a reason to block routine growth. Do not make revenue, margin, ROI, CAC, payback, forecast, or causal-lift claims; the supplied Amazon evidence supports only $4.92 aggregate commission for 2026-09-21, with site-level attribution unsupported.",
+        "summary": "Black Market Apparel capsule disposition: conditional for report-only analysis; blocked for production implementation. Existing compliance evidence passes the technical baseline, but no site-attributed revenue or measured experiment outcome supports a monetization or ROI claim. Retain only a read-only reconciliation proposal; do not deploy, spend, alter affiliate configuration, or claim revenue, margin, payback, or lift.",
         "requested_action": null,
         "proposal_id": null
       }

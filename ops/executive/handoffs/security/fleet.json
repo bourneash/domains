@@ -2,37 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T07:58:10.895Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T08:44:32.350Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide security clearance; conditional for ordinary bounded growth; blocked for SearchWoot public beta or any security-sensitive launch. Evidence: the security baseline is read-only and explicitly not a penetration test or certification; fleet doctor has not run, with no deploy, uptime, error, authentication-boundary, secrets, container-isolation, dependency, incident, or disclosure-readiness evidence. TLS has no recorded certificates expiring within 30 days, but this is not proof of complete TLS coverage. Compliance reports 37 passes, 16 fails, and 6 unknowns across 59 sites. Exact decision: preserve only existing isolated, reversible work that adds no data collection, credentials, access surface, deployment scope, or monetization behavior; keep SearchWoot private and authorize no launch, outreach, credential, configuration, telemetry, spending, or production action.",
+        "summary": "Security disposition: blocked for SearchWoot public beta or full launch; evidence_needed for ordinary fleet operations. Evidence: fleet-doctor security baseline has not run, operations deploy/uptime/error sweeps are unavailable, and the security checklist lacks verified authentication boundaries, secret handling, runtime isolation, release controls, dependency review, incident signals, and disclosure readiness. TLS expiry evidence shows no certificates expiring within 30 days, but this is not proof of complete TLS coverage. Exact decision: keep SearchWoot private and authorize only bounded read-only security evidence capture; do not approve public exposure, credential changes, deployment, or production mutation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security review of ordinary fleet work: conditionally retain existing bounded SEO/content work only when execution remains isolated, preserves site boundaries, passes reviewer and smoke checks, records rollback, and introduces no new secrets, permissions, containers, dependencies, personal-data processing, analytics behavior, affiliate expansion, or public access path. Optional hardening alone is not a reason to block ordinary growth. Stop and escalate on any secret exposure, access-control regression, dependency or supply-chain concern, data leakage, incident signal, TLS failure, or disclosure-readiness issue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot security gate remains blocked. Available evidence does not establish authentication and access boundaries, secret handling, runtime isolation, release/deploy controls, dependency inventory or provenance, log and data exposure boundaries, incident response, or security.txt/disclosure readiness. The existing launch checklist correctly keeps the service private. Do not infer safety from absent findings or unavailable telemetry.",
+        "summary": "Security disposition for the Black Market Apparel capsule: conditional for report-only reconciliation; no security blocker is evidenced for ordinary site operation. Compliance records the site as passing, but the available baseline does not verify new release controls, dependency review, secret exposure, incident readiness, or site-level attribution. Exact decision: retain only the read-only unit-economics and attribution baseline; do not deploy or expand monetization until CFO and CTO review it.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "SearchWoot security launch gate disposition",
-        "summary": "Maintain the private-preview gate because required security evidence is incomplete. This is read-only risk triage, not penetration testing or certification.",
-        "requested_action": "Keep SearchWoot private. Before any public beta or security-sensitive release, obtain owner-approved evidence for authentication and access boundaries, secret exposure controls, container or runtime isolation, release and deploy controls, TLS coverage, dependency and supply-chain review, data exposure and log handling, incident signals and response, and disclosure readiness. No credentials, production changes, outreach, spending, or telemetry changes are authorized.",
-        "proposal_id": "625616ec-8255-4fb6-804f-35760d321f21"
+        "title": "SearchWoot security evidence completion",
+        "summary": "Complete the security evidence checklist while preserving the private-preview gate.",
+        "requested_action": "Approve bounded read-only evidence capture only; keep SearchWoot private and make no credential, deployment, configuration, outreach, spending, or production changes.",
+        "proposal_id": "0df19dc7-5bb3-445d-94fc-7960d14c54dd"
       }
     ]
   }
