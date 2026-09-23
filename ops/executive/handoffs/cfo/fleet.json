@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:24:56.310Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:34:56.187Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: Amazon data covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Attribution is incomplete, including one unmapped tracking ID, so no site-level contribution margin or ROI claim is supported.",
+        "summary": "Recommendation: accept the no-new-work plan and reject unsupported revenue, margin, ROI, payback, and forecast claims. Amazon reporting covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. One tracking ID is unmapped, so site-level revenue and contribution margin are not calculable. The minimum measurement is a unique tracking-ID-to-site/content mapping plus shipped-item commission by site and direct site costs for the same period. Cost-to-learn is also not calculable because no experiment has recorded exposure, incremental outcome, or attributable revenue; the minimum is experiment-level exposure, primary conversion, attributable commission, and incremental AI/engineering cost. AI usage recorded $747.8126298 from 2026-09-01 through 2026-09-23 across 4,507 calls; no infrastructure-cost feed or monthly spend limit is supplied, so total contribution margin and budget headroom cannot be assessed. Treat the reported negative site margins as accounting placeholders, not realized losses, because revenue attribution is incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Amazon reporting covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. One tracking ID remains unmapped, so site-level revenue and contribution margin are not calculable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, margin, ROI, payback, and forecast claims. Amazon reporting covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. One tracking ID remains unmapped, so site-level financial attribution is unavailable.",
         "requested_action": null,
         "proposal_id": null
       }

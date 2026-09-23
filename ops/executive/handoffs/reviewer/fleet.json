@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:28:38.214Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T02:34:56.188Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the three proposed SEO queue changes and all new production work this cycle. Attribution is incomplete, telemetry is low-volume, no outcomes are proven, and prior implementation/routing attempts have failed. Retain only the existing Great American Lakes measurement gate and keep SearchWoot private. Decision question: approve waiting for the recorded measurement thresholds and attribution reconciliation before authorizing implementation?",
+        "summary": "Reject new queue and production work this cycle. Preserve existing Great American Lakes and three-site SEO measurement gates, keep the private preview private, and do not retry failed routing. Attribution remains incomplete and low-volume telemetry supports no site-level revenue, margin, ROI, payback, or forecast claims. Reconcile the unmatched tracking ID and wait for the existing measurement thresholds before authorizing additional implementation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: reject all new queue and production work this cycle. No additional candidate is actionable because the three SEO candidates are already covered by existing work, prior routing attempts failed, telemetry is low-volume, and no outcome is proven. Preserve the Great American Lakes and three-site SEO measurement gates, keep the private preview private, and reconcile the unmatched affiliate tracking ID. Owner decision: approve waiting for the existing measurement thresholds and attribution reconciliation before authorizing further implementation?",
         "requested_action": null,
         "proposal_id": null
       }
