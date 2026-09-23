@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:53:51.541Z",
+  "generated_at": "2026-09-23T08:55:03.366Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Approve only three bounded, report-only baselines for findyourlostpets.com, dumbsluts.com, and eastcoastrappers.com. Reject production work, financial claims, credential/configuration changes, spending, and new high-priority queue work because attribution, telemetry, and measured outcomes are unavailable or insufficient. Existing active and measuring work should continue to its stated gates.",
+        "summary": "Recommendation: approve only report-only evidence baselines for findyourlostpets.com, dumbsluts.com, and eastcoastrappers.com. Reject production work, financial claims, credential/configuration changes, spending, and high-priority queue work because attribution, telemetry, and measured outcomes are insufficient. Each report must identify one reversible hypothesis, metric, sample threshold, stop rule, and rollback notes.",
         "requested_action": null,
         "proposal_id": null
       }
