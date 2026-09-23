@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:44:32.350Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-23T10:07:27.800Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Keep SearchWoot private; do not approve bounded public beta, full launch, affiliate expansion, advertising, or public data display. Evidence confirms API access but does not establish rights to store, derive, cache, publicly display, or alert on source data; current public terms point against commercial/public data use. Security, accuracy/freshness, measurement, attribution, privacy, and owner gates also remain incomplete. Exact decision: maintain keep_private and authorize only read-only evidence work plus preparation of an unsent written permission request to the source provider, subject to owner approval.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Official API access and rate limits are evidenced, but commercial/public display, derivatives, caching, alerts, affiliate use, attribution, freshness, correction, and takedown rights are not. Current public terms point against the proposed use. Human counsel is required before any public data product, affiliate expansion, advertising, or interpretation of upstream rights.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Black Market Apparel capsule disposition: conditional for report-only analysis; blocked for production implementation. Existing compliance evidence passes the technical baseline, but no site-attributed revenue or measured experiment outcome supports a monetization or ROI claim. Retain only a read-only reconciliation proposal; do not deploy, spend, alter affiliate configuration, or claim revenue, margin, payback, or lift.",
+        "summary": "Launch-readiness progress: the checklist and authoritative source review are complete, but none of the four legal data-use tasks can close. Source-rights evidence is insufficient because API documentation is not permission; data-flow, GA4 settings, vendor/DPA, retention, deletion, incident, and jurisdiction evidence remain open. Next evidence action: prepare an unsent written permission request identifying fields, storage, derivatives, display, alerts, attribution, freshness, correction, takedown, and commercial use; do not send or change the gate without owner approval.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Fleet compliance disposition: conditional for ordinary measured SEO work and blocked for any launch or monetization change lacking site-specific evidence. The baseline reports 37 passes, 16 fails, and 6 unknown across 59 checked sites; known failures include missing banner, accept, reject, GA4, privacy, or terms checks. Analytics is broadly available but has named GSC permission errors and unconfigured sites. Do not treat missing telemetry as zero or as a legal violation; require site-specific compliance evidence before material data-use changes.",
         "requested_action": null,
         "proposal_id": null
       }

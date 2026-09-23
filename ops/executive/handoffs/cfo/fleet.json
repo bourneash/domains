@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:44:32.349Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T10:07:27.800Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: decline the Black Market Apparel capsule prototype for now and require a report-only unit-economics baseline first. AI usage cost was $768.80 for 2026-09-01 through 2026-09-23, including $63.45 for Black Market Apparel; Amazon reported $4.92 aggregate commission for 2026-09-21, but no site-level Black Market Apparel revenue is supplied. Portfolio revenue is therefore unsupported for contribution-margin, payback, or forecast claims. Cost-to-learn is also not calculable because zero experiments have measured outcomes. Minimum evidence before production work: same-period site/content-level affiliate clicks, orders, shipped items, commission, eligible sessions, AI cost, infrastructure allocation, and other direct variable costs. Keep the capsule as a hypothesis only; do not deploy or spend until the baseline supports a positive learning case.",
+        "summary": "Recommendation: defer the proposed affiliate guide and six SEO changes as financial investments until attribution and contribution-margin measurement are reconciled. The only revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0 because the $4.92 aggregate row cannot be assigned. The portfolio recorded $768.80 of AI cost from 2026-09-01 through 2026-09-23 across 4,560 calls, including 207 errors. Revenue claims, payback, CAC, contribution margin, and forecasts are therefore unsupported. SEO impressions, clicks, sessions, and conversions are leading indicators, not financial outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial decision: do not approve additional monetization or growth work as ROI-positive. All Things Masonic has 61 site-tagged Amazon clicks and 0 ordered items in the supplied window; Great American Lakes has 53 sessions, 2 conversions, and $2.4483832 of recorded AI cost, but no attributable revenue. Cost-to-learn is not calculable because experiment-level AI, infrastructure, labor, exposure, and attributable commission are not reconciled. Minimum measurement: experiment ID, exposed sessions, outbound affiliate clicks, ordered and shipped items, commission by tracking ID, AI cost, incremental infrastructure cost, and a defined measurement window.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Pushback on vanity metrics: the SEO snapshot reports 13,383 impressions, 129 clicks, 947 sessions, and 15 conversions over 30 days, but it does not establish revenue, incremental lift, or contribution margin. With 3 improvements awaiting measurement, 0 proven outcomes, 132 approved proposals lacking execution requests, and 21 failed implementation requests, the financially responsible priority is measurement closure and reconciliation rather than adding more unproven work.",
         "requested_action": null,
         "proposal_id": null
       }

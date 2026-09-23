@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T09:34:39.058Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T10:10:00.165Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Assess Weird Girl Store audience and monetization readiness",
-        "summary": "Produce a bounded, read-only assessment of weirdgirlstore.com’s audience positioning, content structure, affiliate conversion paths, analytics health, SEO opportunities, and operational backlog. GA4 and GSC are configured and currently reporting healthy status; no traffic, revenue, conversion, or causal-lift claims are made from the supplied snapshot.",
-        "requested_action": "Approve a report-only assessment using authoritative site evidence, explicitly labeling unavailable fields and prioritizing reversible validation work. Do not deploy, change credentials or configuration, spend money, or claim unsupported telemetry.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "38702867-053e-4031-aab4-a832b96477fc",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 1,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
