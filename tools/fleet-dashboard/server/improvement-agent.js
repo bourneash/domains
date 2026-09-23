@@ -341,14 +341,22 @@ function workerProcessAlive(run) {
   return new Promise(resolve => {
     execFile(
       'docker',
-      ['top', container, '--format', '{{.Command}}'],
+      // Docker CLI versions in the fleet do not consistently support the
+      // Go-template `docker top --format` flag. The portable ps-compatible
+      // form also gives us a stable command column for the allowlisted worker
+      // executable check below.
+      ['top', container, '-eo', 'pid,ppid,etime,pcpu,args'],
       { timeout: 5000, maxBuffer: 1024 * 1024 },
       (error, stdout) => {
         if (error) return resolve(false);
-        resolve(/\b(?:codex|claude|ollama)(?:\s|$)/i.test(String(stdout || '')));
+        resolve(processListHasWorker(String(stdout || '')));
       }
     );
   });
+}
+
+function processListHasWorker(output) {
+  return /\b(?:codex|claude|ollama)(?:\s|$)/im.test(String(output || ''));
 }
 
 function httpErr(status, message) {
@@ -367,6 +375,7 @@ module.exports = {
   reviewResult,
   appendOutput,
   workerProcessAlive,
+  processListHasWorker,
   defaultProvider,
   defaultModel,
   resolveWorkerProvider,

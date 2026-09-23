@@ -41,6 +41,21 @@ test('queue workers default to the project Codex model and rebind unauthenticate
   }
 });
 
+test('worker liveness accepts the portable docker top command output', () => {
+  assert.equal(
+    agent.processListHasWorker(
+      'PID PPID ELAPSED %CPU COMMAND\n123 1 00:10 2.0 node /usr/bin/codex exec --model gpt-5.6-luna'
+    ),
+    true
+  );
+  assert.equal(
+    agent.processListHasWorker(
+      'PID PPID ELAPSED %CPU COMMAND\n123 1 00:10 0.0 /usr/bin/tini -- /usr/local/bin/dd-entrypoint'
+    ),
+    false
+  );
+});
+
 test('provider preflight rejects missing sandbox and unsafe command values', async () => {
   assert.throws(() => agent.preflight({ run: {}, provider: 'chatgpt' }), /sandbox is required/);
   const previous = process.env.FD_CHANGE_QUEUE_CHATGPT_COMMAND;
