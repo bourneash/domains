@@ -2,65 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:40:57.645Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:15:25.935Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed high-priority SearchWoot security queue work this cycle. The requested evidence is materially relevant, but the current mandate rejects high-priority queue work and the existing launch-readiness record already documents the unresolved security and operations gaps. Keep SearchWoot private; do not launch, spend, change credentials, configuration, access controls, schedules, telemetry, or production.",
+        "summary": "Approve no new queue actions, proposals, production changes, spending, credential/configuration changes, or unsupported financial claims this cycle. Continue only the six existing bounded workstreams with their current measurement gates. Aggregate commission is $4.92 and unattributed; site-level revenue, ROI, margin, CAC, payback, profitability, and forecasts remain unsupported. Keep SearchWoot private pending owner direction and unresolved rights, legal, security, accuracy, privacy, attribution, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the six already-active bounded workstreams: 0xroulette revenue-readiness evidence, marineactivity AIS baseline, aliencouncil UAP baseline, fishhooklabs guide improvement, stinkyleftfoot guide improvement, and Americas Strikes affiliate repair. Do not create duplicate queue work or claim success before the existing measurement gates are met.",
+        "summary": "Material concerns: attribution is incomplete, direct costs are unavailable, zero outcomes are proven, and high-priority queue work is not justified. Choose whether to authorize preparation of an unsent provider-permission request, keep SearchWoot private with no outreach, or end the public-beta pursuit. No outreach, launch, monetization expansion, telemetry change, or production change is approved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported financial claims. The supplied $4.92 commission is aggregate and unattributed to sites, direct costs are unavailable, and no experiment outcomes are proven. Do not claim site-level revenue, ROI, margin, CAC, payback, profitability, forecasts, or production value.",
+        "summary": "Retain only existing bounded workstreams for 0xroulette.com revenue-readiness evidence, marineactivity.com AIS baseline, aliencouncil.com UAP baseline, fishhooklabs.com guide improvement, stinkyleftfoot.com guide improvement, and americastrikes.com affiliate repair. Require isolated scope, existing smoke or reachability checks, rollback notes, and measurement at 14 days or 100 new impressions. Do not create duplicates or treat failed requests as completed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner decision remains required on SearchWoot: prepare an unsent permission request, keep private with no outreach, or end the public-beta pursuit. No outreach, launch, monetization expansion, or production change is authorized without that decision and completion of the existing legal, accuracy, attribution, security, and privacy gates.",
+        "summary": "Reject the proposed high-priority security queue work. Maintain the private gate using the existing launch-readiness record; do not request duplicate telemetry already covered by the shared snapshot. Reconsider only after the owner decision and completion of the existing rights, legal, accuracy, privacy, attribution, security, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue only the six already-approved bounded workstreams and create no duplicate queue actions this cycle. Existing telemetry supports measurement planning, but zero outcomes are proven, attribution is incomplete, direct costs are unavailable, and failed requests remain unresolved. Do not make site-level revenue, ROI, margin, CAC, payback, profitability, or forecast claims.",
+        "summary": "Recommendation: approve only the three bounded engineer changes below. Revenue, ROI, margin, CAC, payback, profitability, and forecasts remain unsupported because the $4.92 commission is aggregate and unattributed, direct costs are unavailable, and no outcomes are proven. Keep the private launch gate unchanged. Decision question: authorize preparation of an unsent provider-permission request?",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize only preparation of an unsent permission request. Public launch, monetization expansion, production changes, credential changes, configuration changes, spending, and high-priority queue work remain rejected because source rights, security, accuracy, privacy, attribution, and owner gates are incomplete. Owner decision: approve preparation of the unsent request?",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement and existing reversible work for 0xroulette.com, marineactivity.com, aliencouncil.com, fishhooklabs.com, stinkyleftfoot.com, and americastrikes.com. Require isolated scope, acceptance criteria, smoke or reachability checks, rollback notes, and measurement at 14 days or 100 new impressions. Do not queue new candidates because available opportunities are already active, filed, blocked by routing, or awaiting measurement.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "security-searchwoot-evidence-gate",
-        "summary": "Reject high-priority queue work this cycle. Existing launch-readiness evidence already records the unresolved security and operations gaps. Keep SearchWoot private and require owner/CTO direction before any future evidence request; no production, credential, configuration, access-control, schedule, spending, or telemetry changes.",
-        "requested_action": "declined",
-        "proposal_id": "security-searchwoot-evidence-gate"
       }
     ]
   }

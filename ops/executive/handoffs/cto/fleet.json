@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:40:57.645Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:15:25.935Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: continue the existing bounded, reversible workstreams and do not create duplicate queue actions. Current telemetry supports measurement planning only; zero measured outcomes, failed isolated workers, unavailable operations sweeps, incomplete attribution, and missing direct-cost inputs do not support success, ROI, or margin claims. Existing work must retain isolated scope, smoke/reachability checks, explicit rollback notes, and measurement at 14 days or 100 new impressions.",
+        "summary": "CTO review: approve no new queue actions this cycle. Continue the six existing bounded workstreams only, each isolated to its site or report scope, reversible, and subject to existing smoke/reachability checks and measurement at 14 days or 100 new impressions. Do not treat failed requests as completed or create duplicates. SearchWoot remains private; no launch, data-source expansion, telemetry changes, credentials, configuration, spending, or production changes are technically authorized while rights, accuracy, security, privacy, attribution, and owner gates remain incomplete. Existing telemetry is sufficient for the stated measurement gates; no new telemetry proposal is justified.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains private. Preparing an unsent permission request is technically feasible and reversible, but it is evidence/documentation work rather than an engineering implementation. It may proceed only after owner approval, with no credentials, access controls, data flow, schedules, production configuration, or launch gate changes. Assign drafting and legal review to the existing legal/owner workflow; principal-engineer execution is unnecessary.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not queue new production or telemetry work this cycle. Existing analytics, SEO, revenue, compliance, and security evidence is already available; missing or failed sources must remain labeled unavailable. The queue has failed isolated requests and pending measurement, so retries must be limited to already-approved work items and must not duplicate active or filed candidates.",
+        "summary": "CTO decision request: choose whether to authorize preparation of an unsent source-permission request, keep the private gate with no outreach, or end the public-beta pursuit. No external request or production change is authorized without that decision and completion of the existing gates.",
         "requested_action": null,
         "proposal_id": null
       }

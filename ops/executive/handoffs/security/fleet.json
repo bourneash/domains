@@ -2,30 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:40:57.645Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:15:25.935Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: blocked for SearchWoot public beta or full launch; conditional for continued private preview. Evidence: the security baseline is read-only and not certification; fleet-doctor, deployment, uptime, and error sweeps are unavailable; authentication boundaries, secrets exposure, container isolation, release controls, dependency risk, monitoring, incident handling, TLS configuration, and disclosure readiness are unverified. Compliance reports 37 of 59 sites passing, 16 failing, and 6 unknown. No breach or secret exposure is evidenced, but missing telemetry is not a pass. Exact decision: keep SearchWoot private; authorize no public launch, monetization expansion, credential change, access-control change, or security-sensitive deployment. Continue only bounded reversible work that does not expand permissions or expose new data.",
+        "summary": "Security disposition: conditional for ordinary bounded growth; blocked for security-sensitive go-live or release decisions where required evidence is absent. The read-only security baseline reports no TLS certificates expiring within 30 days, but fleet-doctor has never run, operations deploy/uptime/error sweeps are unavailable, and there is no evidence for authentication boundaries, secrets exposure, container isolation, release controls, dependency risk, incident monitoring, or disclosure readiness. Do not claim a clean bill of health. Continue existing reversible workstreams; do not add security blocking for optional hardening alone.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet security recommendation: do not block ordinary growth for optional hardening alone, but retain the SearchWoot launch block because required security evidence is absent. TLS evidence shows no certificates expiring within 30 days, but does not establish complete TLS configuration. Missing security.txt or disclosure evidence is a readiness gap, not proof of vulnerability. Reconsider launch only after access, secrets, isolation, release, dependency, monitoring, incident, TLS, data-exposure, and disclosure evidence is recorded.",
+        "summary": "Security disposition: blocked. Exact decision: keep the site private and do not launch, expand notifications, change credentials, alter production configuration, or monetize until access boundaries, secret handling, isolation, release controls, dependency and supply-chain review, TLS configuration, data exposure, monitoring, incident response, and disclosure readiness have evidence-backed approval. Fleet-doctor and operations evidence are unavailable, so missing evidence is treated as an unresolved launch gate, not as proof of safety.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608",
-        "summary": "Keep SearchWoot private. Preparation of an unsent permission request is acceptable only after owner approval and must not change credentials, access controls, data collection, production configuration, or launch status. Public launch remains blocked pending security evidence.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "99052bc7-30d8-4bdf-8b5a-9d7e9349c608"
+        "kind": "message",
+        "title": null,
+        "summary": "Security decision request: keep the private-preview gate unchanged. Authorize no public beta or full launch until the existing legal, accuracy, measurement, and security gates are evidenced. If security-sensitive implementation is later proposed, require implementation.security_review.status=needs_owner or approved, reviewed_by=security, and an evidence-backed decision note before release.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Evidence severity: high for go-live and production security-sensitive changes because fleet-doctor has ok=false with no last run, operations deployment/uptime/error telemetry is unavailable, and the security baseline contains only limitations and TLS-expiry checks. Medium for ordinary growth because no concrete exploit, credential exposure, active incident, or expiring certificate is evidenced. Missing security.txt or disclosure evidence is a readiness gap, not proof of vulnerability.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

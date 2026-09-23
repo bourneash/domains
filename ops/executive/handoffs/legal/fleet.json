@@ -2,58 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T04:40:57.645Z",
-  "summary": "legal checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-23T06:15:25.935Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for continued private preview and owner-approved preparation of an unsent permission request. Public Woot terms do not establish commercial public-display, derivative-use, caching, or alert rights. Privacy, data-flow, security, accuracy, attribution, and owner gates remain incomplete. Next evidence action: obtain owner decision on preparing the unsent request, then attach the draft to the existing work item without sending or changing production.",
+        "summary": "Risk disposition: conditional for ordinary measured growth; blocked for SearchWoot public launch. Compliance baseline passes 37/59, with 16 failures and 6 unknowns; data-quality contracts are green, but operations/security evidence is incomplete. Do not block ordinary growth solely for incomplete telemetry. Retain existing bounded workstreams only; no new monetization, claims, or site-level ROI assertions. Amazon revenue is $4.92 aggregate and unattributed; site-attributed income is $0, so revenue, margin, CAC, payback, and profitability remain unsupported. Recommendation: continue the six active reversible workstreams with existing measurement gates and keep SearchWoot private.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. No tasks are closed: source rights, alert-data retention, GA4 consent/settings, and logs/vendors/incident handling all lack required evidence. Continue existing bounded work only; do not treat incomplete telemetry as a legal blocker for ordinary growth, but make no unsupported revenue, ROI, margin, CAC, payback, copyright, claims, or provenance assertions.",
+        "summary": "SearchWoot disposition: blocked. Concrete blockers are unresolved upstream rights for storage, derivatives, public display, caching, alerts, affiliate/advertising use, field attribution, freshness, correction, and takedown; incomplete data-flow, retention, deletion, processor, incident, consent, GA4, security, accuracy, attribution, and owner-decision evidence. Current public terms do not establish the required commercial/public-display rights. Exact decision: keep the site private and do not launch, monetize, expand notifications, alter tracking, or change production. Next evidence action: prepare, but do not send, a written permission request through the official provider process covering permitted fields, retention, display, alerts, attribution, freshness, correction, takedown, and commercial use; owner authorization is required before outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data—blocked pending written rights and field-level terms; user alert rules and sync results—evidence_needed pending inventory, retention, deletion, processor, consent, and unsubscribe evidence; GA4—evidence_needed pending deployed consent, property/data-sharing, retention, and jurisdiction review; operational logs and Cloudflare data—evidence_needed pending log-field, retention/access, vendor/DPA, incident, and request procedures. Smallest next actions are respectively owner-approved unsent permission-request draft, read-only data-flow table, read-only GA4 configuration capture, and read-only vendor/log inventory.",
+        "summary": "Owner decision required: choose one concrete path—authorize preparation of an unsent provider-permission request, keep private with no outreach, or end the public-beta pursuit. No public beta or full launch is recommended while the launch-readiness decision rule remains unsatisfied.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance remains a technical baseline, not certification: 37 of 59 sites pass, 16 fail, and 6 are unknown; private or unreachable sites require concrete keep-private, bounded-launch, or retirement decisions before exposure. Affiliate revenue is $4.92 aggregate for the supplied period, with no supported site-level commission claim; disclosures, stale-link repairs, claims, provenance, copyright/trademark, platform-policy, and age-sensitive issues must be checked within each site's existing work before publication or monetization expansion.",
+        "summary": "Launch-readiness tracking progress: all four legal tasks remain open; none can be closed on current evidence. The source-rights task has authoritative documentation but no permission record. Data-flow, consent/analytics, and vendor/incident tasks have partial repository or policy evidence only. Next evidence actions are: produce the read-only data-flow and retention table; capture deployed consent and GA4 settings; produce the operator/vendor/log inventory; and record counsel-required gaps. Do not mark any task complete until evidence is attached and each data-use item has a final disposition.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the six existing bounded workstreams with their current evidence and measurement gates. Close only tasks with recorded evidence; next evidence actions are the approved report-only retry for 0xroulette, the marineactivity and aliencouncil baselines, the fishhooklabs and stinkyleftfoot isolated changes, and validation of the Americas Strikes stale-link repair. Do not create duplicate work.",
+        "summary": "Data-use review dispositions: Woot deal and price-history data—blocked pending written rights and field-level provenance, refresh/staleness, correction, and takedown evidence; smallest next action is prepare an unsent provider-permission request. User alert rules and sync results—evidence_needed pending data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe evidence; smallest next action is produce a read-only data-flow/retention table. GA4 analytics—conditional for measurement-only use if consent-gated; evidence_needed for deployed consent/withdrawal behavior, GA4 sharing and retention settings, vendor disclosure, and jurisdiction review; smallest next action is capture current configuration without enabling tracking. Operational logs and Cloudflare hosting data—evidence_needed pending log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest next action is produce the read-only operator/vendor inventory. Any future affiliate, advertising, remarketing, or customer matching use requires a new review; human counsel is required for unresolved rights, jurisdictional privacy, and commercial-use questions.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "6ad4d2a5-adad-4a56-9c68-ec7dcecda79a",
-        "summary": "Retain only the existing report-only retry. It must not make financial claims or modify production.",
-        "requested_action": "accepted_research",
-        "proposal_id": "6ad4d2a5-adad-4a56-9c68-ec7dcecda79a"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "26291a96-9f65-4623-a108-85706e61a1d2",
-        "summary": "Retain bounded read-only triage. Reachability and monetization evidence remain incomplete; no launch, retirement, renewal, spending, or production change is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "26291a96-9f65-4623-a108-85706e61a1d2"
       }
     ]
   }
