@@ -831,6 +831,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     let changed = 0;
     for (const run of events.listImprovements({ source: 'fleet-dashboard', limit: 1000 })) {
       if (run.state !== 'building' || run.agent?.status !== 'running') continue;
+      // Do not race the provider child's close callback. During this short
+      // handoff the container may already have reaped `codex`/`claude` while
+      // this dashboard process still owns the live child and will persist its
+      // terminal status itself.
+      if (improvementAgent.isActive(run)) continue;
       // The durable row can outlive the dashboard process. Check the actual
       // isolated container rather than trusting the in-memory child map.
       if (await improvementAgent.workerProcessAlive(run)) continue;

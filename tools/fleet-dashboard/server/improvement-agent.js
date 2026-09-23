@@ -355,6 +355,16 @@ function workerProcessAlive(run) {
   });
 }
 
+// The dashboard has a short handoff window between the provider process
+// exiting and the child `close` callback persisting its completed state. The
+// durable row may still say `running` during that window, so recovery must not
+// classify an agent owned by this process as an orphan merely because Docker
+// has already reaped the provider child.
+function isActive(runOrId) {
+  const runId = typeof runOrId === 'string' ? runOrId : runOrId?.run_id;
+  return Boolean(runId && ACTIVE.has(runId));
+}
+
 function processListHasWorker(output) {
   return /\b(?:codex|claude|ollama)(?:\s|$)/im.test(String(output || ''));
 }
@@ -375,6 +385,7 @@ module.exports = {
   reviewResult,
   appendOutput,
   workerProcessAlive,
+  isActive,
   processListHasWorker,
   defaultProvider,
   defaultModel,
