@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:42:23.350Z",
+  "generated_at": "2026-09-23T03:43:36.947Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue only the existing bounded, reversible evidence, repair, and measurement work; reject new queue tasks, production changes, launch proposals, and revenue or ROI claims. Attribution is incomplete, direct costs are unavailable, and missing telemetry is not evidence of zero performance. No new actionable sites remain because defensible candidates are already covered by active workstreams. Decision question: authorize continuation until the stated acceptance and measurement thresholds are met?",
+        "summary": "Recommendation: continue only three existing, bounded, reversible SEO measurement workstreams for saveusfarms.com, marineactivity.com, and aliencouncil.com; reject new production, high-priority queue, launch, spending, and unsupported revenue or ROI claims. Attribution remains incomplete and direct costs are unavailable. Measure each after 14 days or 100 new impressions, with no deployment beyond the approved bounded change.",
         "requested_action": null,
         "proposal_id": null
       }
