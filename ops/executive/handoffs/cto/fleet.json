@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:24:56.310Z",
+  "generated_at": "2026-09-23T02:28:38.215Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: implement only the three bounded SEO changes below. Preserve existing Great American Lakes measurement and do not retry failed routing work until its failure cause is diagnosed.",
+        "summary": "Handoff: implement the three bounded SEO changes below using the engineer queue. Capture before-state metrics, run quality checks, preserve existing Great American Lakes measurement, and do not retry failed routing work.",
         "requested_action": null,
         "proposal_id": null
       }

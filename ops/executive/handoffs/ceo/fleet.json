@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:24:56.310Z",
+  "generated_at": "2026-09-23T02:28:38.215Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: queue three reversible SEO improvements on xxxtea.com, marineactivity.com, and fishhooklabs.com, while continuing the existing Great American Lakes measurement and keeping SearchWoot private. Evidence: the 30-day SEO window shows xxxtea.com with 87 impressions split across five pages, marineactivity.com with 239 impressions, 2 clicks, position 8.3, and fishhooklabs.com with 138 impressions, 2 clicks, position 9.3. Portfolio affiliate revenue is $4.92 from 2026-09-21, but site-level revenue, margin, ROI, and experiment impact are not calculable because attribution is incomplete. The main unknown is whether these changes improve qualified clicks or conversions. Smallest next step: enter the three bounded changes into the engineer queue and measure at the existing 14-day or 100-impression gate, with rollback if guardrails regress. Owner question: for SearchWoot, choose A) keep private pending all legal, security, accuracy, and measurement gates (recommended), or B) authorize preparation—but not sending—of a written Woot permission request.",
+        "summary": "Recommendation: queue three reversible SEO improvements on xxxtea.com, marineactivity.com, and fishhooklabs.com, while preserving Great American Lakes measurement and keeping SearchWoot private. Evidence: the 30-day SEO window shows xxxtea.com with 87 impressions split across five pages; marineactivity.com with 239 impressions, 2 clicks, and position 8.3; fishhooklabs.com with 138 impressions, 2 clicks, and position 9.3. Amazon reported $4.92 commission on 2026-09-21, but site-level revenue, margin, and ROI are not calculable because one tracking ID is unmapped and attribution is incomplete. The main unknown is whether the SEO changes increase qualified clicks or conversions. Smallest next step: queue the three bounded changes and measure at 14 days or 100 new impressions, rolling back if guardrails regress. Owner question: for SearchWoot, choose A) keep private pending all legal, security, accuracy, and measurement gates (recommended), or B) authorize preparation only—not sending—of a written Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T02:24:56.309Z",
+  "generated_at": "2026-09-23T02:28:38.214Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject new production and queue work this cycle. The proposed SEO changes lack a recorded measurable outcome plan, attribution is incomplete, and existing Great American Lakes measurements plus failed implementation work must be resolved first. Retain SearchWoot as private. Owner decision: approve waiting for the existing measurement thresholds and attribution reconciliation before authorizing implementation?",
+        "summary": "Recommendation: reject the three proposed SEO queue changes and all new production work this cycle. Attribution is incomplete, telemetry is low-volume, no outcomes are proven, and prior implementation/routing attempts have failed. Retain only the existing Great American Lakes measurement gate and keep SearchWoot private. Decision question: approve waiting for the recorded measurement thresholds and attribution reconciliation before authorizing implementation?",
         "requested_action": null,
         "proposal_id": null
       }
