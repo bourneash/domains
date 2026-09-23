@@ -2534,6 +2534,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
+  // A review may outlive its disposable worker container. Recreate that
+  // project-scoped sandbox before starting a reviewer or deterministic
+  // delivery validation so an explicit retry never fails merely because the
+  // previous container was removed or the worker image was rebuilt.
+  async function ensureImprovementSandbox(run) {
+    if (!run?.workspace_path || !run?.sandbox?.instance)
+      throw Object.assign(new Error('improvement sandbox metadata is missing'), {
+        httpStatus: 409,
+      });
+    const sandbox = await devsandbox.startImprovement(
+      root,
+      run.site,
+      run.run_id,
+      run.workspace_path
+    );
+    return events.updateImprovement(run.run_id, {
+      workspace_path: run.workspace_path,
+      sandbox: { ...(run.sandbox || {}), ...sandbox, workspace_path: run.workspace_path },
+    });
+  }
+
   function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
@@ -2841,6 +2862,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         throw Object.assign(new Error(`improvement run is ${run.state}, not reviewable`), {
           httpStatus: 409,
         });
+      run = await ensureImprovementSandbox(run);
     } catch (error) {
       activeAutomaticReviews.delete(id);
       recordAutoReviewFailure(id, error);
@@ -3487,6 +3509,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const existing = events.getChangeRequest(req.params.id);
       if (!existing) return res.status(404).json({ error: 'change request not found' });
       const existingRun = existing.run_id ? events.getImprovement(existing.run_id) : null;
+      // An infrastructure-blocked review is still the same approved change;
+      // retry it through the reviewer/validation path instead of detaching its
+      // preserved worktree and leaving the queued request blocked by its own
+      // review run. autoReviewRequest recreates a missing worker sandbox from
+      // the current project-scoped image before it starts.
+      if (existingRun?.state === 'review' && existingRun.outcome?.infrastructure_blocked === true) {
+        changequeue.update(
+          events,
+          existing.request_id,
+          {
+            status: 'review',
+            error: null,
+            next_attempt_at: null,
+            lease_owner: null,
+            lease_expires_at: null,
+            heartbeat_at: null,
+          },
+          site => isKnownTarget(root, site)
+        );
+        const started = await autoReviewRequest(existing.request_id);
+        return res.status(202).json({
+          revalidated_in_place: true,
+          request: events.getChangeRequest(existing.request_id),
+          run: events.getImprovement(existingRun.run_id),
+          reviewer: started,
+        });
+      }
       // Preserve a dirty reviewer worktree and repair it in place. The normal
       // retry path intentionally refuses dirty cleanup, but a successful
       // reviewer process that rejected the change is exactly the bounded
