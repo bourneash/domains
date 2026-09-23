@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T08:47:39.556Z",
+  "generated_at": "2026-09-23T08:48:50.306Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Resolve analytics coverage decision",
-        "summary": "Decide whether dumbsluts.com should receive approved analytics configuration before any growth or monetization work is considered.",
-        "requested_action": "Owner decision on whether to authorize analytics configuration and required credentials; do not infer zero traffic, revenue, or conversions.",
+        "title": "East Coast Rappers audience and monetization baseline",
+        "summary": "Produce a bounded read-only baseline of observable audience positioning, content taxonomy, conversion paths, monetization surfaces, and measurement boundaries before any growth or production proposal.",
+        "requested_action": "Approve report-only inspection and baseline preparation; do not deploy, change credentials or configuration, spend, or make financial claims.",
         "proposal_id": null
       }
     ]
