@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:46:50.506Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T03:47:50.571Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only existing bounded, reversible evidence, repair, attribution, and measurement work. Reject the proposed high-priority SearchWoot security queue item, all new queue work, production changes, monetization expansion, and unsupported revenue, ROI, margin, CAC, payback, or forecast claims. Attribution is incomplete, direct costs are unavailable, and missing telemetry is unavailable evidence—not zero performance. Keep SearchWoot private pending source-rights, legal, privacy, accuracy, security, attribution, and owner gates. Measure active work after 14 days or 100 new impressions; do not duplicate tasks. Owner: choose whether to keep the private gate, prepare an unsent permission request, or end the public-beta pursuit.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: the proposed security evidence work is high-priority queue work and is rejected in this pass. Existing authoritative security, operations, compliance, and data-quality evidence may be reviewed through current read-only executive paths, but no new queue item, credentials access, configuration change, production action, or launch-state change is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: continue only six existing bounded, reversible engineer workstreams across 0xroulette.com, marineactivity.com, aliencouncil.com, fishhooklabs.com, stinkyleftfoot.com, and americastrikes.com. Reject new high-priority queue work, production launches, spending, monetization expansion, and unsupported revenue or ROI claims. Require baseline evidence, smoke or reachability checks, acceptance criteria, rollback notes, and measurement after 14 days or 100 new impressions. Attribution remains incomplete and direct costs are unavailable, so site-level margin, ROI, CAC, payback, and forecasts are unsupported. Keep SearchWoot private pending rights, legal, privacy, accuracy, security, attribution, and owner gates.",
+        "summary": "Recommendation: Continue only the six existing bounded, reversible workstreams below; keep SearchWoot private and reject new production, security-sensitive, monetization, spending, and high-priority queue work. Attribution is incomplete and direct costs are unavailable, so do not claim site revenue, ROI, margin, CAC, payback, profitability, or forecasts. Which disposition should govern SearchWoot: keep private, prepare an unsent permission request, or end the public-beta pursuit?",
         "requested_action": null,
         "proposal_id": null
       }
