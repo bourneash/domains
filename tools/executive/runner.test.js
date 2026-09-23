@@ -474,6 +474,34 @@ test('drops a blank optional proposal review without discarding the rest of the 
   assert.equal(plan.messages.length, 1);
 });
 
+test('drops malformed optional proposal reviews and normalizes queue priority casing', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      proposal_reviews: [
+        { reviewed_by: 'reviewer', status: 'declined' },
+        { proposal_id: 'cro-2', reviewed_by: 'domain_manager', status: 'approved' },
+      ],
+      messages: [{ actor: 'ceo', body: 'Recommendation: keep the bounded update.' }],
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'Bounded update',
+          body: 'Apply the reversible update and report the result.',
+          category: 'content',
+          priority: 'Medium',
+        },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.proposal_reviews.map(item => item.proposal_id),
+    ['cro-2']
+  );
+  assert.equal(plan.proposal_reviews[0].reviewed_by, 'domain-manager');
+  assert.equal(plan.change_requests[0].priority, 'medium');
+  runner.validatePlan(plan);
+});
+
 test('maps work-item normal priority to the change queue medium priority', () => {
   const plan = runner.parseOutput(
     JSON.stringify({

@@ -235,82 +235,88 @@ function launch({
     ACTIVE.delete(run.run_id);
     child.stdout.removeListener('data', writeStdout);
     child.stderr.removeListener('data', writeStderr);
-    output.end();
-    const finishedAt = new Date().toISOString();
-    try {
-      let result = null;
+    // The reviewer marker is written through a file stream. Reading it
+    // immediately after output.end() races the stream flush and made a real
+    // `FD_REVIEW_RESULT: FAIL` look like an interrupted handoff. Finalize
+    // only after the stream emits its completion callback so the durable
+    // reviewer result and the queue state agree.
+    output.end(() => {
+      const finishedAt = new Date().toISOString();
       try {
-        result = phase === 'reviewer' ? reviewResult(fs.readFileSync(file, 'utf8')) : null;
+        let result = null;
+        try {
+          result = phase === 'reviewer' ? reviewResult(fs.readFileSync(file, 'utf8')) : null;
+        } catch {
+          result = null;
+        }
+        store.updateImprovement(run.run_id, {
+          agent: {
+            status: timedOut ? 'timed-out' : code === 0 ? 'completed' : 'failed',
+            phase,
+            started_at: startedAt,
+            finished_at: finishedAt,
+            exit_code: code,
+            log: file,
+          },
+        });
+        // Dashboard-submitted requests become reviewable as soon as the agent
+        // exits. The operator still has to inspect the diff and run validation;
+        // this only removes the ambiguous "running" state from the queue.
+        if (run.source === 'fleet-dashboard' && run.source_id) {
+          const nextStatus = timedOut || code !== 0 ? 'failed' : 'review';
+          const request = store.getChangeRequest(run.source_id);
+          if (request && request.status === 'running') {
+            store.updateChangeRequest(run.source_id, {
+              status: nextStatus,
+              error: nextStatus === 'failed' ? `agent exited with code ${code}` : null,
+              next_attempt_at:
+                nextStatus === 'failed' && request.attempts < AUTOMATIC_RETRY_ATTEMPTS
+                  ? new Date(Date.now() + 15 * 60 * 1000).toISOString()
+                  : null,
+              lease_owner: null,
+              lease_expires_at: null,
+              heartbeat_at: null,
+            });
+            store.record({
+              event_type: `change-request.${nextStatus}`,
+              source: 'fleet-dashboard',
+              site_id: `site:${run.site}`,
+              entity_type: 'change-request',
+              entity_id: run.source_id,
+              correlation_id: `change-request:${run.source_id}`,
+              payload: { run_id: run.run_id, exit_code: code },
+            });
+          }
+        }
+        if (timedOut || code !== 0) {
+          const current = store.getImprovement(run.run_id);
+          if (current && ['proposed', 'building'].includes(current.state)) {
+            improvements.transition(store, run.run_id, {
+              state: 'failed',
+              outcome: {
+                failed_at: finishedAt,
+                phase,
+                exit_code: code,
+                timed_out: timedOut,
+                error: `agent exited with code ${code}`,
+              },
+            });
+          }
+        }
+        store.record({
+          event_type: 'improvement.agent_finished',
+          source: 'improvement-workbench',
+          site_id: `site:${run.site}`,
+          entity_type: 'improvement',
+          entity_id: run.run_id,
+          correlation_id: run.correlation_id,
+          payload: { exit_code: code },
+        });
+        if (typeof onFinished === 'function') onFinished({ code, timedOut, result, log: file });
       } catch {
-        result = null;
+        /* server shutdown or store unavailable */
       }
-      store.updateImprovement(run.run_id, {
-        agent: {
-          status: timedOut ? 'timed-out' : code === 0 ? 'completed' : 'failed',
-          phase,
-          started_at: startedAt,
-          finished_at: finishedAt,
-          exit_code: code,
-          log: file,
-        },
-      });
-      // Dashboard-submitted requests become reviewable as soon as the agent
-      // exits. The operator still has to inspect the diff and run validation;
-      // this only removes the ambiguous "running" state from the queue.
-      if (run.source === 'fleet-dashboard' && run.source_id) {
-        const nextStatus = timedOut || code !== 0 ? 'failed' : 'review';
-        const request = store.getChangeRequest(run.source_id);
-        if (request && request.status === 'running') {
-          store.updateChangeRequest(run.source_id, {
-            status: nextStatus,
-            error: nextStatus === 'failed' ? `agent exited with code ${code}` : null,
-            next_attempt_at:
-              nextStatus === 'failed' && request.attempts < AUTOMATIC_RETRY_ATTEMPTS
-                ? new Date(Date.now() + 15 * 60 * 1000).toISOString()
-                : null,
-            lease_owner: null,
-            lease_expires_at: null,
-            heartbeat_at: null,
-          });
-          store.record({
-            event_type: `change-request.${nextStatus}`,
-            source: 'fleet-dashboard',
-            site_id: `site:${run.site}`,
-            entity_type: 'change-request',
-            entity_id: run.source_id,
-            correlation_id: `change-request:${run.source_id}`,
-            payload: { run_id: run.run_id, exit_code: code },
-          });
-        }
-      }
-      if (timedOut || code !== 0) {
-        const current = store.getImprovement(run.run_id);
-        if (current && ['proposed', 'building'].includes(current.state)) {
-          improvements.transition(store, run.run_id, {
-            state: 'failed',
-            outcome: {
-              failed_at: finishedAt,
-              phase,
-              exit_code: code,
-              timed_out: timedOut,
-              error: `agent exited with code ${code}`,
-            },
-          });
-        }
-      }
-      store.record({
-        event_type: 'improvement.agent_finished',
-        source: 'improvement-workbench',
-        site_id: `site:${run.site}`,
-        entity_type: 'improvement',
-        entity_id: run.run_id,
-        correlation_id: run.correlation_id,
-        payload: { exit_code: code },
-      });
-      if (typeof onFinished === 'function') onFinished({ code, timedOut, result, log: file });
-    } catch {
-      /* server shutdown or store unavailable */
-    }
+    });
   });
   child.on('error', error => appendOutput(output, `\n${error.message}\n`));
   return { status: 'running', started_at: startedAt };

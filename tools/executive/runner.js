@@ -269,7 +269,9 @@ async function collectIntel(root, sites) {
   // Host-only import: the isolated model image loads runner.js for prompt and
   // plan validation, but it must not need dashboard telemetry modules.
   const executiveIntel = require('../fleet-dashboard/server/executive-intel');
-  const cached = executiveSnapshot.readLatest(root, { sites });
+  const cached =
+    executiveSnapshot.readLatest(root, { sites }) ||
+    executiveSnapshot.readLatest(root, { sites, allowStale: true });
   const intelligence = cached ? cached.intelligence : await executiveIntel.collect({ root, sites });
   const support = intelligence.decision_support || {};
   const health = support.analytics || {};
@@ -301,7 +303,12 @@ async function collectIntel(root, sites) {
     research: research.recent(root),
     intelligence,
     intelligence_snapshot: cached
-      ? { generated_at: cached.generated_at, source: 'scheduled-cache' }
+      ? {
+          generated_at: cached.generated_at,
+          source: 'scheduled-cache',
+          stale: cached.freshness?.stale === true,
+          age_ms: cached.freshness?.age_ms || null,
+        }
       : { generated_at: intelligence.generated_at || null, source: 'live-collection' },
   };
 }
@@ -368,6 +375,38 @@ async function buildBrief(store, root = ROOT) {
   const sites = executiveSites(root);
   const intel = await collectIntel(root, sites);
   const actionability = executiveScorecard.buildScorecard(store);
+  const allActionCandidates = actionCandidates(
+    intel.intelligence,
+    sites,
+    completedActionIndex(store)
+  );
+  // A candidate is only actionable when its site has capacity. The previous
+  // brief exposed already-queued or measuring sites as fresh candidates, then
+  // required the model to cover them again. That created needless mandate
+  // repair calls and made a correctly conservative cycle look like a failure.
+  const activeSites = new Set(
+    store
+      .listChangeRequests({ limit: 1000 })
+      .filter(row =>
+        ['queued', 'claimed', 'running', 'reviewing', 'review', 'committed'].includes(row.status)
+      )
+      .map(row => String(row.site || '').toLowerCase())
+      .filter(Boolean)
+  );
+  for (const run of store.listImprovements({ limit: 1000 })) {
+    if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(run.state))
+      activeSites.add(String(run.site || '').toLowerCase());
+  }
+  const executableActionCandidates = allActionCandidates.filter(
+    candidate => !activeSites.has(String(candidate.site || '').toLowerCase())
+  );
+  const deferredActionCandidates = allActionCandidates
+    .filter(candidate => activeSites.has(String(candidate.site || '').toLowerCase()))
+    .slice(0, 12)
+    .map(candidate => ({
+      ...candidate,
+      deferred_reason: 'site already has queued, active, deployed, or measuring work',
+    }));
   return {
     generated_at: new Date().toISOString(),
     sites,
@@ -436,7 +475,8 @@ async function buildBrief(store, root = ROOT) {
       minimum_evidence_backed_action: 1,
       maximum_queued_actions: 6,
       rule: 'When an evidence-backed, low-risk and reversible candidate exists, the CEO/CTO pass must either queue it for the engineer or explain why it was rejected. Do not let low-volume affiliate attribution create a no-op.',
-      candidates: actionCandidates(intel.intelligence, sites, completedActionIndex(store)),
+      candidates: executableActionCandidates,
+      deferred_candidates: deferredActionCandidates,
     },
     intelligence: intel,
     launch_readiness: launchReadiness.read(root),
@@ -871,6 +911,7 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
   // blank review while preserving the rest of a useful plan; discard only
   // that malformed optional row instead of failing the entire executive cycle.
   plan.proposal_reviews = plan.proposal_reviews.filter(item => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
     const raw = String(item?.status || '')
       .trim()
       .toLowerCase();
@@ -891,6 +932,35 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
       needs_owner: 'escalate_owner',
     }[raw];
     if (alias) item.status = alias;
+    const reviewActorAliases = {
+      domain_manager: 'domain-manager',
+      domainmanager: 'domain-manager',
+      'domain manager': 'domain-manager',
+      'independent reviewer': 'reviewer',
+    };
+    const reviewers = new Set([
+      'ceo',
+      'cto',
+      'cro',
+      'cfo',
+      'legal',
+      'security',
+      'domain-manager',
+      'reviewer',
+    ]);
+    const validStatuses = new Set(['accepted_research', 'escalate_owner', 'declined']);
+    if (!String(item.proposal_id || '').trim()) return false;
+    const normalizedReviewer =
+      reviewActorAliases[
+        String(item.reviewed_by || '')
+          .trim()
+          .toLowerCase()
+      ] || String(item.reviewed_by || '');
+    item.reviewed_by = normalizedReviewer;
+    if (!reviewers.has(normalizedReviewer)) return false;
+    if (!validStatuses.has(String(item.status || ''))) return false;
+    if (String(item.decision_note || '').length > 2000)
+      item.decision_note = String(item.decision_note).slice(0, 2000);
     return true;
   });
   const actorAliases = {
@@ -1002,7 +1072,10 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '' } = {}) {
     const priority = String(item.priority || '')
       .trim()
       .toLowerCase();
-    if (priorityAliases[priority]) item.priority = priorityAliases[priority];
+    const normalizedPriority = priorityAliases[priority] || priority;
+    item.priority = ['high', 'medium', 'low'].includes(normalizedPriority)
+      ? normalizedPriority
+      : 'medium';
   }
   for (const item of plan.work_items) {
     // Work items are durable follow-through records, not executable commands.

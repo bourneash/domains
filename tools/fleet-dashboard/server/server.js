@@ -2117,11 +2117,55 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         continue;
       if (['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
         continue;
+      // A dashboard restart can happen after the reviewer container exits but
+      // before its in-memory close callback delivers the result. The marker is
+      // durable in the reviewer log; recover it directly instead of creating a
+      // false interrupted-handoff failure or spending a repair call.
+      const reviewer = improvementAgent.reviewResult(improvementAgent.status(root, run).log_tail);
+      if (reviewer.marker) {
+        if (activeAutomaticReviews.has(request.request_id)) continue;
+        activeAutomaticReviews.add(request.request_id);
+        completeAutomaticReview(request.request_id, run, {
+          ...reviewer,
+          code: run.agent?.exit_code,
+          timedOut: run.agent?.status === 'timed-out',
+        }).finally(() => activeAutomaticReviews.delete(request.request_id));
+        continue;
+      }
       const reason =
         run.validation?.passed === false
           ? run.validation.checks?.build?.excerpt || 'quality gates did not pass'
           : 'automatic reviewer handoff was interrupted; retry required';
       recordAutoReviewFailure(request.request_id, new Error(reason));
+    }
+  }
+
+  async function completeAutomaticReview(id, run, reviewerResult) {
+    const cleanExit =
+      reviewerResult?.code == null
+        ? run?.agent?.exit_code === 0 && run?.agent?.status === 'completed'
+        : reviewerResult.code === 0 && reviewerResult.timedOut !== true;
+    if (!reviewerResult?.approved || !cleanExit) {
+      recordAutoReviewFailure(
+        id,
+        new Error(
+          reviewerResult?.marker
+            ? 'automatic reviewer rejected the change'
+            : 'automatic reviewer did not return PASS'
+        )
+      );
+      return;
+    }
+    try {
+      const latest = events.getImprovement(run.run_id);
+      if (!latest) throw new Error('reviewed improvement run disappeared');
+      let snapshot = await git.worktreeSnapshot(latest.workspace_path);
+      if (snapshot.dirty)
+        snapshot = await git.commitWorktree(latest.workspace_path, `feat: ${latest.title}`);
+      const fresh = events.getImprovement(run.run_id);
+      await deliverAutomatically(fresh);
+    } catch (error) {
+      recordAutoReviewFailure(id, error);
     }
   }
 
@@ -2170,31 +2214,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         maxTurns: request.max_turns,
         role: 'reviewer',
         onFinished: result => {
-          (async () => {
-            try {
-              const latest = events.getImprovement(run.run_id);
-              if (!result.result?.approved || result.code !== 0) {
-                recordAutoReviewFailure(
-                  id,
-                  new Error(
-                    result.result?.marker
-                      ? 'automatic reviewer rejected the change'
-                      : 'automatic reviewer did not return PASS'
-                  )
-                );
-                return;
-              }
-              let snapshot = await git.worktreeSnapshot(latest.workspace_path);
-              if (snapshot.dirty)
-                snapshot = await git.commitWorktree(latest.workspace_path, `feat: ${latest.title}`);
-              const fresh = events.getImprovement(run.run_id);
-              await deliverAutomatically(fresh);
-            } catch (error) {
-              recordAutoReviewFailure(id, error);
-            } finally {
-              activeAutomaticReviews.delete(id);
-            }
-          })();
+          completeAutomaticReview(id, run, {
+            ...(result.result || {}),
+            code: result.code,
+            timedOut: result.timedOut,
+          }).finally(() => activeAutomaticReviews.delete(id));
         },
       });
     } catch (error) {

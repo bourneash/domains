@@ -32,6 +32,9 @@ test('rejects stale executive intelligence snapshots', () => {
     { now: new Date(Date.now() - 8 * 60 * 60 * 1000) }
   );
   assert.equal(snapshot.readLatest(root, { sites: ['example.com'] }), null);
+  const stale = snapshot.readLatest(root, { sites: ['example.com'], allowStale: true });
+  assert.equal(stale.freshness.stale, true);
+  assert.ok(stale.freshness.age_ms >= 8 * 60 * 60 * 1000);
 });
 
 test('keeps a degraded analytics snapshot out of the latest usable bundle', () => {

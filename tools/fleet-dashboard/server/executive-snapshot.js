@@ -53,7 +53,15 @@ function write(root, intelligence, { now = new Date() } = {}) {
   return { ...snapshot, file: degraded ? dated : latest, degraded, latest_updated: !degraded };
 }
 
-function readLatest(root, { maxAgeMs = DEFAULT_MAX_AGE_MS, sites = [] } = {}) {
+function readLatest(
+  root,
+  {
+    maxAgeMs = DEFAULT_MAX_AGE_MS,
+    sites = [],
+    allowStale = false,
+    staleMaxAgeMs = 24 * 60 * 60 * 1000,
+  } = {}
+) {
   let snapshot;
   try {
     snapshot = JSON.parse(fs.readFileSync(latestPath(root), 'utf8'));
@@ -63,10 +71,19 @@ function readLatest(root, { maxAgeMs = DEFAULT_MAX_AGE_MS, sites = [] } = {}) {
   if (snapshot?.schema !== SNAPSHOT_SCHEMA || !snapshot.intelligence) return null;
   if (hasUnavailableCriticalSource(snapshot.intelligence)) return null;
   const generatedAt = Date.parse(snapshot.generated_at || '');
-  if (!Number.isFinite(generatedAt) || Date.now() - generatedAt > maxAgeMs) return null;
+  const ageMs = Number.isFinite(generatedAt) ? Math.max(0, Date.now() - generatedAt) : Infinity;
+  if (!Number.isFinite(generatedAt) || (ageMs > maxAgeMs && (!allowStale || ageMs > staleMaxAgeMs)))
+    return null;
   const managed = new Set(snapshot.scope?.managed_sites || []);
   if (sites.some(site => !managed.has(site))) return null;
-  return snapshot;
+  return {
+    ...snapshot,
+    freshness: {
+      stale: ageMs > maxAgeMs,
+      age_ms: ageMs,
+      max_age_ms: maxAgeMs,
+    },
+  };
 }
 
 module.exports = {
