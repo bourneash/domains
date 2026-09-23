@@ -17,7 +17,11 @@ test('distinguishes missing data from zero and reports completeness', () => {
   const out = dataquality.assess({
     root,
     discoveredSites: ['a.com', 'b.com'],
-    analyticsHealth: { sites: { 'a.com': { ga4: { last_fetch_at: '2026-09-15T00:00:00Z' } } } },
+    analyticsHealth: {
+      sites: {
+        'a.com': { ga4: { status: 'ok', last_fetch_at: '2026-09-15T00:00:00Z' } },
+      },
+    },
     seo: { upstream: { ok: true }, sources: { analyticsConfigured: 1 } },
     revenue: { has_data: false, message: 'not connected' },
     aiUsage: { by_site: [{ site: 'a.com' }] },
@@ -28,6 +32,23 @@ test('distinguishes missing data from zero and reports completeness', () => {
   assert.equal(out.contracts.find(r => r.source === 'amazon-revenue').status, 'red');
   assert.deepEqual(out.coverage.analytics.missing_sites, ['b.com']);
   assert.match(out.coverage.analytics.next_action, /Provision or verify/);
+});
+
+test('does not count an analytics row with no successful source as observed', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-null-source-'));
+  fs.mkdirSync(path.join(root, 'registry'));
+  fs.writeFileSync(
+    path.join(root, 'registry', 'fleet.yaml'),
+    'sites:\n  a.com:\n    status: live\n    capabilities: [analytics]\n'
+  );
+  const out = dataquality.assess({
+    root,
+    discoveredSites: ['a.com'],
+    analyticsHealth: { sites: { 'a.com': { ga4: null, gsc: null } } },
+  });
+  const analytics = out.contracts.find(r => r.source === 'analytics');
+  assert.equal(analytics.observed, 0);
+  assert.deepEqual(out.coverage.analytics.missing_sites, ['a.com']);
 });
 
 test('surfaces unmapped affiliate IDs as an attribution action', () => {

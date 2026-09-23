@@ -837,8 +837,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return { run: reported, report: artifact };
     }
     const validated = await validateImprovementForDelivery(item);
-    if (validated.validation.passed !== true)
-      throw Object.assign(new Error('quality gates did not pass'), { httpStatus: 409 });
+    if (validated.validation.passed !== true) {
+      const infrastructureBlock = validationInfrastructureBlock(validated.validation);
+      throw Object.assign(new Error('quality gates did not pass'), {
+        httpStatus: 409,
+        validation: validated.validation,
+        noAutomaticRepair: infrastructureBlock,
+      });
+    }
     const reviewRun = improvements.transition(events, item.run_id, {
       state: 'review',
       validation: validated.validation,
@@ -929,6 +935,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     return `${String(error?.message || error || 'automatic review failed')}\n${log}`.slice(-8000);
   }
 
+  function validationInfrastructureBlock(validation) {
+    const text = JSON.stringify(validation || {});
+    return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial)/i.test(
+      text
+    );
+  }
+
   function startAutomaticReviewRepair(request, run, error) {
     const settings = events.getChangeQueueSettings();
     if (!request || !run || request.auto_review === 0 || !settings.auto_review_enabled)
@@ -1012,6 +1025,35 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
       return;
     const message = String(error.message || error);
+    if (error?.noAutomaticRepair) {
+      try {
+        changequeue.update(
+          events,
+          id,
+          {
+            status: 'review',
+            error: message,
+            lease_owner: null,
+            lease_expires_at: null,
+            heartbeat_at: null,
+          },
+          site => isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.review_blocked',
+          source: 'fleet-dashboard',
+          site_id: `site:${request.site}`,
+          entity_type: 'change-request',
+          entity_id: id,
+          correlation_id: `change-request:${id}`,
+          payload: { error: message, automatic_repair: 'suppressed', reason: 'infrastructure' },
+        });
+        emitChangeNotification('review blocked', events.getChangeRequest(id), null, message);
+      } catch {
+        /* preserve the original infrastructure failure */
+      }
+      return;
+    }
     if (startAutomaticReviewRepair(request, run, error)) return;
     try {
       changequeue.update(

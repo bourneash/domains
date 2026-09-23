@@ -16,7 +16,11 @@ function assess({
     .filter(s => s.capabilities.includes('analytics'))
     .map(s => s.domain);
   const analyticsSites = analyticsHealth.sites || {};
-  const analyticsMissingSites = expectedAnalytics.filter(site => !analyticsSites[site]);
+  const analyticsObserved = site => {
+    const row = analyticsSites[site];
+    return Boolean(row && (row.ga4?.status === 'ok' || row.gsc?.status === 'ok'));
+  };
+  const analyticsMissingSites = expectedAnalytics.filter(site => !analyticsObserved(site));
   const unmappedRevenue = (revenue.attribution || []).filter(row => !row.site);
   const now = Date.now();
   const contracts = [
@@ -31,7 +35,7 @@ function assess({
       'analytics',
       true,
       expectedAnalytics.length,
-      expectedAnalytics.filter(s => analyticsSites[s]).length,
+      expectedAnalytics.filter(analyticsObserved).length,
       newest(
         Object.values(analyticsSites).flatMap(s => [s.ga4?.last_fetch_at, s.gsc?.last_fetch_at])
       )
