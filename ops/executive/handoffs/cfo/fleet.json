@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:00:20.854Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-23T15:45:06.238Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not claim site-level revenue, ROI, margin, CAC, payback, or causal lift. The $4.92 aggregate commission is unattributed; current telemetry supports measurement only, not new monetization production work.",
+        "summary": "Recommendation: pause new production growth and monetization scope until attribution and contribution-margin evidence improves. For 2026-09-01 through 2026-09-23, AI cost is $789.19 across 4,662 calls and 39 instrumented sites; Amazon reported $4.92 commission for 2026-09-21, but all $4.92 is aggregate and unattributed to sites. Site-level revenue, contribution margin, cost-to-learn, infrastructure spend, fixed costs, and budget exposure are therefore not calculable. Continue only existing measurement gates and bounded report-only finance reconciliation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The MarkItDown prototype is not finance-blocked, but it should be deferred until backlog execution exceeds 50% or the owner explicitly prioritizes learning over execution repair. Its expected benefit is unproven, while 124 approved proposals lack execution requests, 27 failed requests have open repairs, and 10 deployed improvements await measurement. If retained, limit it to the existing five-document draft-only prototype with no production adoption.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The Great American Lakes pilot should remain in measurement through 2026-10-06. The supplied 30-day evidence is 53 sessions, 970 impressions, 3 clicks, and 2 conversions, but no site-attributed commission is available; the $4.92 Amazon aggregate cannot support revenue, margin, CAC, payback, or ROI claims. Do not authorize a concurrent affiliate-module experiment until the existing gate is reconciled.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, margin, CAC, payback, ROI, and forecast claims. Amazon commission is aggregate and unattributed; site-level financial conclusions remain unavailable. Continue only bounded report-only reconciliation.",
         "requested_action": null,
         "proposal_id": null
       }

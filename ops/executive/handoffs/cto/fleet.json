@@ -2,58 +2,65 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:00:20.852Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-23T15:45:06.238Z",
+  "summary": "cto checked in 8 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: keep SearchWoot private. Authorize only a report-only draft of the permission request for owner and Legal review; do not send outreach, alter configuration, provision credentials, collect new data, or change the launch gate. Existing rights, security, accuracy, attribution, measurement, and owner gates remain blocking.",
+        "summary": "Recommendation: defer the MarkItDown prototype. The bounded draft-only prototype is technically isolatable, but current execution health is insufficient to justify new research scope: 124 approved proposals lack execution requests, 27 failed requests have open repairs, and 10 deployed improvements await measurement. Reconsider after backlog execution exceeds 50% or with explicit owner prioritization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue new production implementation this cycle. The scored candidates are already active, measuring, failed, or under repair, and the execution backlog is materially saturated. Route repair diagnosis through CTO/Principal Engineer before retrying unchanged requests.",
+        "summary": "Recommendation: keep the Great American Lakes pilot in its existing measurement gate through 2026-10-06. Do not add a concurrent CRO or affiliate variant until the existing runs are reconciled. Unavailable revenue and causal lift must remain unavailable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditionally support the allthingsmasonic.com experiment as a future single-template, reversible test only after existing site work clears and owner approval is recorded. Require Legal/CTO preflight for disclosure, consent, tracking IDs, accessibility, performance, and rollback. Use only existing analytics and affiliate sources; unavailable fields remain unavailable and aggregate commission is not assigned to the site.",
+        "summary": "Recommendation: approve only bounded, single-site queue work with explicit ownership, isolated diffs, focused validation, and rollback. Do not retry failed work unchanged; repair evidence must identify the defect, validation gate, and rollback before requeue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private. Permit only bounded read-only evidence work and draft-only permission-request preparation; do not send outreach, alter configuration, provision credentials, collect new data, spend, deploy, or change the launch gate.",
+        "summary": "Recommendation: retain report-only finance reconciliation. The supplied telemetry supports known-cost and attribution-boundary reporting, but not site-level revenue, margin, CAC, payback, or ROI claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Prioritize repair triage for failed queue work. Requeue only after identifying the smallest defect, validation gate, and rollback. Do not retry failed work unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "723c0024-465d-4418-a5c7-3ee30824cd35",
-        "summary": "Retain as bounded report-only research. No installation, production integration, deployment, or revenue claim is approved.",
-        "requested_action": "accepted_research",
+        "summary": "Defer the MarkItDown prototype while execution and repair backlog remains material. Reconsider only with explicit prioritization or improved backlog execution.",
+        "requested_action": "declined",
         "proposal_id": "723c0024-465d-4418-a5c7-3ee30824cd35"
       },
       {
         "kind": "proposal-review",
-        "title": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9",
-        "summary": "Retain only for isolated static-output research. Require sanitization, accessibility review, bundle/page-weight review, and owner approval before any adoption.",
+        "title": "f36f3531-8140-4277-b64d-f076a3c4b637",
+        "summary": "Accept as report-only reconciliation using existing read-only telemetry. Preserve unavailable fields and distinguish aggregate from site-attributed revenue.",
         "requested_action": "accepted_research",
-        "proposal_id": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9"
+        "proposal_id": "f36f3531-8140-4277-b64d-f076a3c4b637"
       },
       {
         "kind": "proposal-review",
-        "title": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae",
-        "summary": "Do not prioritize platform adoption while implementation failures and repair work remain open.",
-        "requested_action": "declined",
-        "proposal_id": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae"
+        "title": "22e21974-37fa-4ff0-beed-57f69b024dbc",
+        "summary": "Accept as report-only measurement-gap documentation. Do not alter analytics, affiliate settings, billing, budgets, or production.",
+        "requested_action": "accepted_research",
+        "proposal_id": "22e21974-37fa-4ff0-beed-57f69b024dbc"
       }
     ]
   }

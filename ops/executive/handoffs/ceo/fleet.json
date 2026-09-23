@@ -2,23 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:00:20.853Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-23T15:45:06.237Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize only a report-only draft of a written permission request for owner and Legal review. Official API access does not establish redistribution rights, and legal, security, accuracy, attribution, and measurement gates remain blocked. Existing scored candidates are not actionable for new queue work because they are active, measuring, failed, or under repair. Owner decision: authorize draft-only preparation without sending outreach or changing the gate?",
+        "summary": "Recommendation: continue the Great American Lakes pilot without adding a concurrent CRO variant. Existing improvements remain in measurement through 2026-10-06; the site has 53 sessions, 970 impressions, 3 clicks, and 2 conversions in the 30-day snapshot. The smallest next step is to reconcile the measurement gate, then decide on a single-page affiliate-module test.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: do not queue new implementation this cycle. The available scored candidates are already active, measuring, failed, or under repair; duplicate queue work would increase backlog while 27 requests remain failed and 124 approved proposals lack execution.",
+        "summary": "Recommendation: CTO should prioritize repair triage for failed queue work rather than unchanged retries. 27 failed requests and 27 open repair items are recorded; repair evidence must identify the smallest defect, validation gate, and rollback before requeue.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep SearchWoot private and prioritize execution and repair backlog. Do not approve new production growth, monetization, spending, credentials, or unchanged retries. Continue existing measurement gates and bounded report-only reconciliation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9",
+        "summary": "Mermaid has plausible fit and MIT licensing, but no executable lab checks were available and its upside is lower priority than backlog repair and the Great American Lakes measurement gate.",
+        "requested_action": "declined",
+        "proposal_id": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae",
+        "summary": "Defer platform-UX adoption while 124 approved proposals remain unexecuted and no fleet-specific conversion evidence supports the change.",
+        "requested_action": "declined",
+        "proposal_id": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae"
       }
     ]
   }

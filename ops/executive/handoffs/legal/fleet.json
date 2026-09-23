@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-23T14:00:20.853Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-23T15:45:06.238Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Official Woot documentation confirms API access but not redistribution, historical derivatives, public display, alerts, affiliate, or advertising rights. Woot terms restrict commercial/public listing use. Human counsel is required before any public exposure or monetization. Draft-only permission-request preparation may proceed with no outreach or gate change.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary fleet growth. Current evidence shows Woot API access but no redistribution, retention, derivative, public-display, alert, affiliate, or advertising rights; Woot public terms point against the proposed commercial/public data product. Keep SearchWoot private. Ordinary growth may continue only where the compliance baseline passes and claims, disclosures, provenance, and monetization rights are evidenced. Human counsel is required for any upstream-rights exception, jurisdictional privacy decision, regulated or age-sensitive use, or future affiliate/advertising expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 applicable evidence tasks are closed. No task is closed without evidence. Next evidence action is a read-only repository and configuration capture covering data flow, retention, consent, logs, vendors, and incident handling.",
+        "summary": "Launch-readiness tracking progress: 0 of 4 SearchWoot legal tasks are closed. Source-rights evidence is materially advanced but remains blocked because current public terms do not grant the required rights and no written permission is recorded. Data-flow and consent evidence are partial; vendor/log and incident evidence are not complete. Next evidence action: produce the repository/deployed-configuration data-flow, retention, log-field, vendor, and consent evidence tables, then prepare—not send—a written Woot permission request for owner and counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance is not a blanket growth blocker. Evidence shows 36 pass, 17 fail, and 6 unknown compliance results; failed or unreachable sites require site-specific remediation before monetization or launch claims. Analytics has partial source failures and revenue includes $4.92 of unattributed aggregate commission; neither should be treated as zero or assigned to a site.",
+        "summary": "Compliance baseline is technical triage, not certification: 37 sites pass, 16 fail, and 6 are unknown; open findings include banner, accept/reject controls, GA4, privacy, and terms. Do not treat incomplete telemetry as a legal blocker for ordinary growth, but do not approve new monetization, public launch, regulated claims, age-sensitive exposure, or unsupported provenance/copyright/trademark claims where the applicable site evidence fails or is unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The allthingsmasonic.com affiliate experiment is conditional: owner approval, existing-work clearance, disclosure and consent preflight, registered tracking ID, accessibility/performance checks, and rollback evidence are required. No ROI, revenue-lift, margin, or commission claim is supported by current evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot remains blocked for public beta or launch. Current evidence supports only draft preparation for owner and Legal review; human counsel is required before public exposure or monetization.",
+        "summary": "Keep SearchWoot private. Public beta and full launch remain blocked by unresolved source-rights, privacy, accuracy, security, measurement, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       }
