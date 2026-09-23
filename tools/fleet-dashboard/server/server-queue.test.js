@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
+  isInfrastructureEvidence,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
   infrastructureReviewProjectionPatch,
@@ -68,6 +69,22 @@ test('does not retry reviewer rejections or deterministic quality-gate failures'
     true
   );
   assert.equal(shouldRetryQueueFailure('implementation agent ended failed'), true);
+});
+
+test('classifies Docker worker disappearance as infrastructure evidence', () => {
+  assert.equal(
+    isInfrastructureEvidence('Error response from daemon: No such container: dd-imp-abc123'),
+    true
+  );
+  assert.equal(
+    isInfrastructureEvidence('OCI runtime exec failed: Resource temporarily unavailable'),
+    true
+  );
+  assert.equal(isInfrastructureEvidence('reviewer rejected the requested content change'), false);
+  assert.equal(
+    shouldRetryQueueFailure('Error response from daemon: No such container: dd-imp-abc123'),
+    true
+  );
 });
 
 test('versioned validation fixes reopen each preserved infrastructure review at most once', () => {

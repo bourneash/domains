@@ -96,7 +96,7 @@ const AUTOMATIC_DELIVERY_CLAIM_MAX_MS = 15 * 60 * 1000;
 // Bump this when the validation harness changes. A preserved implementation
 // may then receive one bounded revalidation automatically, without reopening
 // the same infrastructure failure on every queue pulse.
-const INFRASTRUCTURE_REVALIDATION_VERSION = 'ipv4-preview-v2';
+const INFRASTRUCTURE_REVALIDATION_VERSION = 'preview-after-build-v3';
 // Recovery inspects historical failed work and may need Docker/Git probes.
 // It must not hold the normal queue pickup path hostage when an old worker or
 // container is slow; the recovery lock keeps the long pass single-flight.
@@ -116,6 +116,17 @@ function interruptedWorkerRecoveryPath(request) {
   return request?.delivery_mode === 'report_only' ? 'report-only' : 'review';
 }
 
+// These failures describe the worker/preview harness, not the site's diff.
+// Keep them in the audit trail, but do not convert a valid implementation or
+// a PASS reviewer result into a substantive code rejection. In particular,
+// Docker can remove an isolated worker between the reviewer and delivery
+// callbacks, which surfaces as "No such container".
+function isInfrastructureEvidence(value) {
+  return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1)/i.test(
+    String(value || '')
+  );
+}
+
 function shouldRetryQueueFailure(text, validation = null) {
   const value = String(text || '');
   // Reviewer rejection is a substantive decision about the diff. Repeating
@@ -127,8 +138,10 @@ function shouldRetryQueueFailure(text, validation = null) {
   // explicitly; blindly retrying the unchanged checkout is not recovery.
   if (validation?.passed === false) return false;
   if (/quality gates? (?:did not pass|failed)/i.test(value)) return false;
-  return /(worker process|implementation agent ended|reviewer handoff|automatic reviewer handoff|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding)/i.test(
-    value
+  return (
+    /(worker process|implementation agent ended|reviewer handoff|automatic reviewer handoff)/i.test(
+      value
+    ) || isInfrastructureEvidence(value)
   );
 }
 
@@ -1922,13 +1935,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         httpStatus: 409,
       });
     await devsandbox.prepareDependencies(item.sandbox.instance);
+    // Build/test work can invalidate Astro/Vite's dev dependency optimizer.
+    // Run those gates first, then start a fresh preview server for the HTTP
+    // and browser gates instead of validating against a server that the build
+    // has already crashed.
+    let validation = await devsandbox.validate(item.sandbox.instance);
     let previewStartError = null;
     try {
       await devsandbox.devStart(item.sandbox.instance);
     } catch (error) {
       previewStartError = String(error.message || error);
     }
-    let validation = await devsandbox.validate(item.sandbox.instance);
     validation.commit = workspace.commit;
     validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
     if (previewStartError) validation.preview.startup_error = previewStartError;
@@ -2256,10 +2273,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   function validationInfrastructureBlock(validation) {
-    const text = JSON.stringify(validation || {});
-    return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile)/i.test(
-      text
-    );
+    return isInfrastructureEvidence(JSON.stringify(validation || {}));
   }
 
   function claimAutomaticDelivery(item) {
@@ -2301,7 +2315,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const evidence = automaticReviewFeedback(rootPath, run, error);
     return (
       validationInfrastructureBlock(error?.validation || run?.validation) ||
-      /(?:ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|browserType\.launch|executable doesn't exist|playwright install|missing (?:browser|chromium)|cannot find module|network request failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile)/i.test(
+      isInfrastructureEvidence(evidence) ||
+      /(?:browserType\.launch|executable doesn't exist|playwright install|missing (?:browser|chromium)|cannot find module|network request failed)/i.test(
         evidence
       )
     );
@@ -4046,13 +4061,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (improvementAgent.status(root, item).running)
         return res.status(409).json({ error: 'wait for the implementation agent to finish' });
       await devsandbox.prepareDependencies(item.sandbox.instance);
+      const validation = await devsandbox.validate(item.sandbox.instance);
       let preview = {};
       try {
         preview = await devsandbox.devStart(item.sandbox.instance);
       } catch (e) {
         preview = { status: 'error', error: e.message };
       }
-      const validation = await devsandbox.validate(item.sandbox.instance);
       validation.commit = workspace.commit;
       validation.preview = await validatePreview(item.sandbox.instance, item.sandbox.devUrl);
       if (preview.error) validation.preview.startup_error = preview.error;
@@ -5944,6 +5959,7 @@ module.exports = {
   createApp,
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
+  isInfrastructureEvidence,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
   infrastructureReviewProjectionPatch,
