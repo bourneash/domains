@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T03:45:34.897Z",
+  "generated_at": "2026-09-23T03:46:42.477Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing bounded, reversible SEO workstreams below. Do not create duplicate tasks, deploy beyond approved changes, or make revenue/ROI claims. Attribution remains incomplete and direct costs are unavailable; measure each after 14 days or 100 new impressions.",
+        "summary": "Recommendation: continue only the existing bounded, reversible SEO workstreams for saveusfarms.com, marineactivity.com, and aliencouncil.com. Attribution remains incomplete and direct costs are unavailable, so reject revenue, ROI, margin, launch, spending, and new high-priority queue claims. Measure each after 14 days or 100 new impressions; do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }
