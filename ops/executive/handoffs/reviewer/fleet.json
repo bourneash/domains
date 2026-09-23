@@ -2,49 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:07:27.801Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-23T10:43:21.124Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the high-priority SearchWoot security queue proposal: the work is appropriate in principle but conflicts with the instruction to reject high-priority queue work. Keep SearchWoot private and require owner-directed read-only evidence outside the queue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Rejected three SEO production changes because they lack quantified success thresholds. Retained only the deeppenetrations.com snippet experiment, which has a defined 14-day or 100-impression measurement gate, rollback conditions, and no new telemetry or financial claim.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Rejected the MarkItDown research request as duplicative: current public research and bounded repository-lab evidence already cover the stated capability question. Revenue, ROI, margin, CAC, payback, and causal-lift claims remain unsupported because site-level attribution and contribution-cost data are incomplete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: reject unsupported revenue, ROI, causal-lift, and production claims. Keep SearchWoot private and do not authorize outreach, launch, credentials, configuration, spending, or high-priority queue work. Route only three bounded, report-only SEO specifications on distinct sites with explicit measurement and rollback criteria. Existing telemetry shows opportunity signals, not financial outcomes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The Amazon window reports $4.92 aggregate commission that cannot be assigned to a site, while 0 improvements are proven, 21 implementation requests failed, and 132 approved proposals lack execution requests. Treat revenue, margin, CAC, payback, forecasts, and causal lift as unsupported; preserve unavailable fields as unavailable.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the proposed GitHub research request as duplicative of existing CRO trend and repo-lab evidence. No additional research request is necessary this cycle.",
+        "summary": "Reject all four SEO queue changes and both security evidence proposals this cycle. Missing attribution, low-volume telemetry, zero proven outcomes, and an already active evidence backlog do not support new production or duplicate queue work. Keep the private-preview gate unchanged, make no financial claims, and preserve existing measurement windows. No qualifying non-duplicate public research request remains.",
         "requested_action": null,
         "proposal_id": null
       }

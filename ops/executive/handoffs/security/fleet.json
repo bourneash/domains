@@ -2,37 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:07:27.801Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-23T10:43:21.124Z",
+  "summary": "security checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary isolated SEO work. Evidence: security baseline is read-only, fleet doctor has not run (ok=false, last_run=null), and no evidence is supplied for authentication boundaries, secret exposure controls, runtime/container isolation, release controls, dependency review, incident monitoring, or disclosure readiness. Compliance also reports 37 passes, 16 fails, and 6 unknown across 59 checked sites. Risk severity: high for public launch because missing evidence affects access, secrets, data exposure, incident response, and release assurance; medium for reversible SEO changes because they introduce no new tracking, credentials, data flow, or deployment boundary. Exact recommendation: keep SearchWoot private, authorize only bounded read-only security evidence capture, and allow the four named SEO changes only under existing reversible, measurement-gated controls.",
+        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for SearchWoot public beta or go-live. The security baseline covers 59 sites but reports no completed fleet-doctor run, no checks, and no operational deploy/uptime/error sweep. Authentication boundaries, secrets exposure, container isolation, release controls, dependency risk, data exposure, incident signals, and disclosure readiness are therefore unverified—not clean. No TLS certificates are reported as expiring within 30 days. Recommend preserving the private gate and authorizing only bounded read-only evidence capture.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security evidence must not be interpreted as a clean bill of health. No credential, exploit, container shell, production mutation, or penetration test was available. Missing evidence is an evidence gap, not proof of compromise or vulnerability. The stale or unavailable operations baseline (fleet doctor not run; deploy and uptime sweeps absent) prevents a stronger fleet-wide disposition.",
+        "summary": "The four reversible SEO changes may proceed conditionally as ordinary low-risk work, subject to existing factual, disclosure, rollback, and measurement controls. Security evidence does not support blocking ordinary growth solely for optional hardening. Do not treat the changes as security-reviewed go-live or deployment approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch gate remains blocked. Current evidence supports API-key access documentation but does not establish least-privilege authentication, authorization boundaries, secret storage/rotation, isolation, TLS coverage, dependency or supply-chain review, log/data exposure controls, incident signals and response, or security.txt/disclosure readiness. Obtain owner-approved evidence before any public beta, monetization expansion, credential change, or production release.",
+        "summary": "SearchWoot remains blocked for public exposure. Existing evidence confirms an API access mechanism but not redistribution rights, while privacy, retention, vendor, incident, accuracy, attribution, measurement, and security-release gates remain incomplete. An unsent permission request is safe to prepare, but must not be sent without owner approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Complete SearchWoot security launch-gate evidence",
-        "summary": "Keep SearchWoot private while completing bounded read-only evidence capture for authentication and access boundaries, secret exposure controls, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, incident readiness, and security disclosure readiness.",
-        "requested_action": "Approve bounded read-only evidence capture only. Keep SearchWoot private and authorize no credentials, outreach, configuration, deployment, spending, or production changes.",
-        "proposal_id": "2836f6bb-0839-48b4-828b-ad9774fcea3c"
+        "title": "Complete fleet security baseline evidence",
+        "summary": "Perform bounded read-only evidence capture for authentication and access boundaries, secrets exposure controls, runtime and container isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness.",
+        "requested_action": "Approve bounded read-only evidence capture only; do not block ordinary growth while optional hardening remains unverified.",
+        "proposal_id": "64fb1fa7-f4fd-4b99-b172-f2d0e168b899"
+      },
+      {
+        "kind": "proposal",
+        "title": "Complete SearchWoot security release-gate evidence",
+        "summary": "Keep SearchWoot private while completing bounded read-only evidence for authentication and access boundaries, secret handling, runtime isolation, release controls, TLS, dependencies, data exposure, incident handling, and disclosure readiness.",
+        "requested_action": "Approve bounded read-only evidence capture and retain the private-preview gate.",
+        "proposal_id": "871505d7-b2ae-4bdd-bd7d-c5aa73ba4032"
       }
     ]
   }

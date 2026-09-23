@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:07:27.800Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-23T10:43:21.123Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: defer the proposed affiliate guide and six SEO changes as financial investments until attribution and contribution-margin measurement are reconciled. The only revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0 because the $4.92 aggregate row cannot be assigned. The portfolio recorded $768.80 of AI cost from 2026-09-01 through 2026-09-23 across 4,560 calls, including 207 errors. Revenue claims, payback, CAC, contribution margin, and forecasts are therefore unsupported. SEO impressions, clicks, sessions, and conversions are leading indicators, not financial outcomes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial decision: do not approve additional monetization or growth work as ROI-positive. All Things Masonic has 61 site-tagged Amazon clicks and 0 ordered items in the supplied window; Great American Lakes has 53 sessions, 2 conversions, and $2.4483832 of recorded AI cost, but no attributable revenue. Cost-to-learn is not calculable because experiment-level AI, infrastructure, labor, exposure, and attributable commission are not reconciled. Minimum measurement: experiment ID, exposed sessions, outbound affiliate clicks, ordered and shipped items, commission by tracking ID, AI cost, incremental infrastructure cost, and a defined measurement window.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Pushback on vanity metrics: the SEO snapshot reports 13,383 impressions, 129 clicks, 947 sessions, and 15 conversions over 30 days, but it does not establish revenue, incremental lift, or contribution margin. With 3 improvements awaiting measurement, 0 proven outcomes, 132 approved proposals lacking execution requests, and 21 failed implementation requests, the financially responsible priority is measurement closure and reconciliation rather than adding more unproven work.",
+        "summary": "Recommendation: do not expand monetization, marketing, or AI-intensive production work this cycle. Retain only bounded report-only measurement and control work. The 2026-09-01 through 2026-09-23 AI usage report shows $775.70 across 4,611 calls and 39 instrumented sites, while Amazon data covers only 2026-09-21 and reports $4.92 commission, all in an unattributed aggregate row. These periods and attribution scopes do not support contribution margin, ROI, payback, CAC, or revenue forecasts. Existing SEO impressions, clicks, sessions, and conversions are leading indicators, not revenue evidence. No budget, infrastructure spend, labor cost, or fixed-cost schedule is supplied, so total margin and budget exposure are uncalculable. Keep the current private launch gate and existing measurement windows unchanged; do not add the proposed CRO experiments until attributable revenue and cost baselines are available.",
         "requested_action": null,
         "proposal_id": null
       }

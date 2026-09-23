@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-23T10:07:27.800Z",
+  "generated_at": "2026-09-23T10:43:21.123Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Marine Activity’s prior AIS opportunity failed reviewer quality gates. Do not retry blindly; first produce a narrower factual content specification with maritime-source QA, stale-content handling, and rollback criteria before any page change.",
+        "summary": "Recommendation: keep the private-preview gate unchanged. Preparing an unsent permission request is technically safe and reversible, but it requires an explicit owner choice before any outreach. No public launch, credential change, data-flow expansion, monetization, or production change is authorized while rights, security, accuracy, attribution, measurement, and privacy gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve the two report-only finance/AI measurement diagnoses. They are read-only, isolated, reversible, technically feasible, and use existing telemetry without inventing allocation. Do not treat results as financial forecasts or savings claims.",
+        "summary": "Approve the four proposed SEO changes for the existing engineer queue. Each is isolated to one page, reversible, low-risk, and supported by supplied Search Console evidence. Require factual edits, pre/post snapshots, indexing and disclosure checks, and measurement only from available telemetry. Do not treat impressions, clicks, sessions, or conversions as revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve four isolated SEO changes for queue entry as measurement-gated experiments, not ROI-positive investments. Defer the remaining two SEO changes until queue capacity or measurement closure improves. Existing GA4/GSC coverage is sufficient for the named sites; preserve unavailable fields as unavailable.",
+        "summary": "Defer CRO tooling, affiliate-module expansion, and additional AI-intensive production work. Existing work is already measuring, execution backlog is materially larger than completed outcomes, and the supplied evidence does not support adoption, revenue, margin, or payback claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain SearchWoot private. Preparing an unsent permission request is safe and reversible, but no outreach, credential, configuration, data-flow, or launch change is authorized.",
+        "summary": "Approve bounded report-only reconciliation of contribution-margin inputs and AI spend exposure. These reports must align source windows, distinguish observed usage from avoidable or billable cost, preserve aggregate revenue as unattributed, and define control requirements without changing schedules, queues, models, credentials, billing, or production configuration.",
         "requested_action": null,
         "proposal_id": null
       }
