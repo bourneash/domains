@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T14:57:38.993Z",
+  "generated_at": "2026-09-24T15:00:44.631Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the fishhooklabs.com report-only backlog memo and all new production or high-priority queue work this cycle. Existing SEO, analytics, revenue-attribution, and operational telemetry already cover the proposed evidence; revenue is only partially attributable, outcomes are inconclusive, and recent execution failures remain open. Continue existing measurement gates and incident repairs only. No owner decision is required.",
+        "summary": "Recommendation: reject the girlpain.com Search Console permission-repair proposal and all new production or high-priority queue work this cycle. Existing telemetry already records the 403 boundary; repairing property access requires authorized owner action and is not a production outcome. Continue existing measurement gates and failed-request incident repairs without duplicate telemetry or unsupported financial claims.",
         "requested_action": null,
         "proposal_id": null
       }
