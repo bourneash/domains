@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:47:11.201Z",
+  "generated_at": "2026-09-24T02:50:55.951Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded drivegm.net readiness report and route three low-risk, reversible, non-production repairs to engineer. Reject revenue or causal claims, duplicate telemetry, production changes, spending, credentials, configuration changes, and high-priority queue work. Existing attribution is partial and low-volume, while 16 improvements await measurement and 31 requests have failed.",
+        "summary": "Recommendation: approve only the bounded elevatorfriends.com readiness report and three low-risk, non-production engineer actions. Reject revenue or causal claims, duplicate telemetry, spending, credential/configuration changes, production deployment, and high-priority queue work. Existing attribution is partial and low-volume; preserve unknowns and require measurable artifacts before further investment.",
         "requested_action": null,
         "proposal_id": null
       }

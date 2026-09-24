@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:47:11.201Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-24T02:50:55.951Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "drivegm.net reviewed for a bounded report-only readiness baseline. Existing evidence indicates analytics configured=false; no traffic, revenue, conversion, or attribution values are inferred.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
         "kind": "proposal",
-        "title": "Run drivegm.net measurement and monetization readiness baseline",
-        "summary": "Produce a bounded read-only assessment of drivegm.net audience positioning, observable content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false; unavailable telemetry remains unknown.",
+        "title": "Run elevatorfriends.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded read-only assessment of elevatorfriends.com audience positioning, observable content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false; unavailable telemetry remains unknown.",
         "requested_action": "Approve a report-only assessment using existing read-only evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "8ebd0548-4d56-483f-b622-9fb999b8676e"
+        "proposal_id": "240bffde-6fdd-423d-9219-6abd0741d818"
       }
     ]
   }
