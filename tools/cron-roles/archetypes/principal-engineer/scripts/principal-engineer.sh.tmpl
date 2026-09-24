@@ -34,7 +34,11 @@ WORK_TIMEOUT=2400
 LOG="ops/logs/principal-engineer-$(date -u +%Y%m%d).log"
 NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 TODAY="$(date -u +%Y-%m-%d)"
-[[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
+if [[ -f "$REPO_ROOT/.env.shared" ]]; then
+  set +u
+  set -a; . "$REPO_ROOT/.env.shared"; set +a
+  set -u
+fi
 NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
 CHANNEL="${{{SLACK_CHANNEL_ENV_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
 
@@ -212,6 +216,7 @@ RUNTIME_PATHSPECS=(
   ':(exclude,glob)ops/social/post-log.jsonl'
   ':(exclude,glob)ops/social/queue.jsonl'
   ':(exclude,glob)ops/board/engineer-log.md'
+  ':(exclude,glob).deploy-needed.audit-blocked'
 )
 PREEXISTING_EDITS="$(git status --porcelain --untracked-files=all -- . "${RUNTIME_PATHSPECS[@]}" 2>/dev/null || true)"
 if [[ -n "$PREEXISTING_EDITS" ]]; then
