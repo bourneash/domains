@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T21:21:56.832Z",
+  "generated_at": "2026-09-24T21:24:48.783Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded rodhat.com report-only assessment using existing evidence. Reject new production work, high-priority queue work, revenue or causal claims, and duplicate telemetry requests because attribution is incomplete, volume is low, and existing work remains unmeasured. Approve this report-only assessment?",
+        "summary": "Recommendation: approve only the bounded shoppinkflamingo.com readiness report and three normal-priority task-ownership repairs. Reject new production work, high-priority queue work, unsupported revenue or causal claims, and duplicate telemetry requests. Existing attribution is low-volume and records clicks without orders or commission; 17 improvements await measurement and failed repair work remains open. No owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

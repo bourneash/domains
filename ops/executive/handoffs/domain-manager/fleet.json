@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T21:21:56.833Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T22:10:00.152Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "message",
-        "title": "Run rodhat.com audience, monetization, and measurement readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of rodhat.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Current evidence records 270 impressions, 4 clicks, 21 sessions, 0 conversions, 6 SEO actions, and $41.06 in AI usage cost; do not infer revenue, attribution, causality, or unavailable telemetry.",
-        "requested_action": "Approve the report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
-        "proposal_id": "b207153e-2249-46ad-8561-1fa7a3e7b1b2"
-      }
-    ]
+    "report_id": "d3d72115-adbd-4314-84a7-48f1b9d28f46",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 7,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
