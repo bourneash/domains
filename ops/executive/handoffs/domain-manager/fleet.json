@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:04:42.062Z",
+  "generated_at": "2026-09-24T09:09:42.890Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Run mynewgm.com readiness and backlog baseline",
-        "summary": "Produce a bounded, read-only assessment of mynewgm.com using only authoritative evidence. The snapshot reports analytics as unconfigured, so traffic, conversions, revenue, attribution, audience behavior, and operational health remain unknown unless separately evidenced.",
-        "requested_action": "Approve a report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer missing telemetry.",
-        "proposal_id": "36e2e295-fe69-498e-a83e-0a34a00f7843"
+        "kind": "message",
+        "title": "Document nsfwpixles.com observability and readiness blocker",
+        "summary": "Record a bounded site-specific readiness assessment using the authoritative snapshot. Analytics is unconfigured, and the completed public inspection returned http_error; traffic, conversions, revenue, attribution, audience behavior, and operational health remain unknown.",
+        "requested_action": "Approve a report-only evidence artifact for fleet leadership. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer missing measurements.",
+        "proposal_id": "59e0fb74-ae08-47a9-a679-b67699f96e83"
       }
     ]
   }
