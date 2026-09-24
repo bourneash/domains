@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:34:24.046Z",
+  "generated_at": "2026-09-24T09:35:55.121Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the weapontester.com readiness proposal as written because the supplied evidence lacks site-specific outcome data and the report would not produce a production or financial decision. Route three bounded metadata-only task repairs to engineer for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Preserve one read-only public inspection for weapontester.com to close the observable positioning and conversion-path evidence gap. No unsupported revenue, causal, production, credential, configuration, spending, schedule, or duplicate-telemetry work is authorized.",
+        "summary": "Recommendation: approve only three normal-priority, metadata-only task-routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the weirdassstuff.com monetization review because existing read-only telemetry already supplies the stated affiliate attribution fields and the review does not create a production or financial decision. Preserve one bounded public inspection for weapontester.com to close the observable positioning and conversion-path evidence gap. Reject unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedule changes, and high-priority queue work.",
         "requested_action": null,
         "proposal_id": null
       }

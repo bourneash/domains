@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:34:24.047Z",
+  "generated_at": "2026-09-24T09:35:55.121Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run weapontester.com audience and monetization readiness baseline",
-        "summary": "weapontester.com is live with site, operations, cron, smoke, task, affiliate, and analytics capabilities. GA4 and GSC are configured and returning successfully, but site-specific traffic, conversion, revenue, content, and operational outcome values are not present in the supplied evidence. Produce a bounded assessment without inventing telemetry.",
-        "requested_action": "Approve a report-only assessment for weapontester.com using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, alter schedules, or spend money.",
-        "proposal_id": "fcc8407a-8a81-4653-8a44-907670b30638"
+        "title": "Run a bounded affiliate monetization readiness review for weirdassstuff.com",
+        "summary": "weirdassstuff.com has live affiliate and analytics capabilities. Existing Amazon attribution records 359 site-linked clicks, 0 ordered items, 0 shipped items, and $0 commission for the available reporting period. Produce a site-specific review of affiliate link coverage, conversion-path integrity, disclosure placement, attribution boundaries, and the smallest reversible improvement; do not infer missing revenue or causal impact.",
+        "requested_action": "Approve the bounded report-only affiliate monetization readiness review for weirdassstuff.com. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, alter schedules, spend money, or make unsupported revenue or causal-lift claims.",
+        "proposal_id": "adaaf5e7-a062-4306-a7ca-6e325826972e"
       }
     ]
   }
