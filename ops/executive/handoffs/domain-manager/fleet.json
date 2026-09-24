@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T14:55:42.766Z",
+  "generated_at": "2026-09-24T14:57:38.994Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Publish findyourlostpets.com audience and monetization readiness assessment",
-        "summary": "Consolidate the completed bounded public inspection with existing read-only intelligence into a site-specific assessment. Document only observable audience positioning, content scope, disclosures, conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Preserve traffic, revenue, conversions, attribution, analytics coverage, SEO, and compliance fields as unknown unless directly evidenced; analytics is currently recorded as not configured.",
-        "requested_action": "Approve a report-only assessment using the already completed research artifact and existing read-only evidence.",
-        "proposal_id": "cf74d9f2-f1e8-452d-9a36-e6917b1c8cbc"
+        "title": "Prioritize fishhooklabs.com SEO backlog from existing evidence",
+        "summary": "Review the two existing fishhooklabs.com SEO actions and rank one reversible content or technical improvement using current telemetry only. Current evidence shows 117 impressions, 0 clicks, 21 sessions, 0 conversions, 57 measured pages, and AI cost of $3.57; no revenue or causal lift is inferred.",
+        "requested_action": "Approve a bounded report-only backlog prioritization using existing SEO, GA4, GSC, registry, and revenue-attribution evidence only.",
+        "proposal_id": "af873e07-2705-4d8b-a2bc-40c5e620ac98"
       }
     ]
   }
