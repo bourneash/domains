@@ -20,6 +20,7 @@
     ".deploy-needed",
     ".deploy-attempts",
     ".deploy-needed.failed",
+    ".deploy-needed.audit-blocked",
     ".wrangler/",
     ".astro/",
     "site/.astro/",
@@ -130,7 +131,8 @@
         "ops/facts.yaml",
         "**/.deploy-needed",
         "**/.deploy-attempts",
-        "**/.deploy-needed.failed"
+        "**/.deploy-needed.failed",
+        "**/.deploy-needed.audit-blocked"
       ],
       "reason": "per-run runtime state, regenerated every cron tick",
       "except": [

@@ -33,11 +33,13 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /CEO, CTO, CRO, CFO/);
   assert.match(app, /fleet AI spend telemetry/);
   assert.match(app, /principalQueue,\s+croLabRuns,/);
+  assert.match(app, /croLabRuns,\s+runStatus,\s*\]/);
   assert.match(app, /croLabRuns\?\.runs \|\| \[\]/);
   assert.match(app, /id="ex-risk" class="cm-input"/);
   assert.match(app, /Low — conservative/);
   assert.match(app, /class="ex-operating-modes"/);
   assert.match(app, /id="ex-notes" class="cm-input" rows="6"/);
+  assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
 });
 
 test('executive workbench is a first-class operator route', () => {

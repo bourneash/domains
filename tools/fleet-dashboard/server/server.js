@@ -3093,6 +3093,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const actions = events.listExecutiveActions({ limit: 300 });
       const manual = actions.filter(row => row.target_type === 'manual-executive-run');
+      const scheduled = actions.filter(row => row.target_type === 'scheduled-executive-run');
       const ticks = actions.filter(row => row.action_type === 'tick');
       // A scheduled tick and an operator run are both real executive runs.
       // Keep them in one stream so the dashboard cannot report "ready" while
@@ -3105,7 +3106,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               row.target_type === 'scheduled-executive-run' ||
               row.action_type === 'tick')
         ) || null;
-      const queue = [...manual, ...ticks]
+      const runs = [...manual, ...scheduled].sort(
+        (a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || '')
+      );
+      const queue = runs
         .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''))
         .slice(0, 24)
         .map(row => ({
@@ -3114,8 +3118,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         }));
       res.json({
         active,
-        latest: manual[0] || null,
-        runs: manual.slice(0, 12),
+        latest: runs[0] || null,
+        runs: runs.slice(0, 12),
         queue,
       });
     } catch (e) {

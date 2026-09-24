@@ -12063,6 +12063,7 @@ async function renderExecutive() {
       managerQueue,
       principalQueue,
       croLabRuns,
+      runStatus,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
       api('GET', '/api/executive/proposals?limit=100'),
@@ -12236,7 +12237,7 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   $('#ex-refresh').onclick = () => softRender();
-  $('#ex-open-setup').onclick = () => go('agent', 'executive', 'setup');
+  $('#ex-open-setup')?.addEventListener('click', () => go('agent', 'executive', 'setup'));
   $('#ex-run-team').onclick = async () => {
     const button = $('#ex-run-team');
     button.disabled = true;

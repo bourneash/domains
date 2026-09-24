@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-24T18:04:00.408Z",
+  "updated_at": "2026-09-24T22:13:00.421Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -228330,13 +228330,14 @@
         "routine_fleet_review"
       ],
       "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
-      "status": "queued",
-      "attempts": 2,
+      "status": "failed",
+      "attempts": 3,
       "requested_at": "2026-09-24T08:50:00.147Z",
       "next_attempt_at": "2026-09-24T20:51:41.765Z",
       "lease_until": null,
-      "last_error": "(node:1730367) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1730693) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T14:51:00.377Z"
+      "last_error": "(node:156922) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:157749) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T20:52:00.347Z",
+      "failed_at": "2026-09-24T20:53:11.350Z"
     },
     {
       "job_id": "a810e09f-fdde-4c06-8e62-6c579e058f61",
@@ -228380,13 +228381,14 @@
         "routine_fleet_review"
       ],
       "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-24T08:57:00.153Z",
       "next_attempt_at": "2026-09-24T20:59:41.105Z",
       "lease_until": null,
-      "last_error": "(node:1734740) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1735062) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T14:59:00.338Z"
+      "last_error": null,
+      "claimed_at": "2026-09-24T21:00:00.353Z",
+      "completed_at": "2026-09-24T21:01:03.333Z"
     },
     {
       "job_id": "9e9cc194-25fd-4eac-8fba-69e1bee040f7",
@@ -228447,13 +228449,14 @@
         "routine_fleet_review"
       ],
       "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-24T09:06:00.224Z",
       "next_attempt_at": "2026-09-24T21:07:44.337Z",
       "lease_until": null,
-      "last_error": "(node:1741404) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1741740) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T15:07:00.376Z"
+      "last_error": null,
+      "claimed_at": "2026-09-24T21:08:00.334Z",
+      "completed_at": "2026-09-24T21:08:48.966Z"
     },
     {
       "job_id": "82163a66-54b8-4e3c-a66b-5c0ed56589ed",
@@ -228497,13 +228500,14 @@
         "routine_fleet_review"
       ],
       "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-24T09:18:00.146Z",
       "next_attempt_at": "2026-09-24T21:20:45.058Z",
       "lease_until": null,
-      "last_error": "(node:1752346) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1752669) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T15:20:00.344Z"
+      "last_error": null,
+      "claimed_at": "2026-09-24T21:21:00.366Z",
+      "completed_at": "2026-09-24T21:21:58.483Z"
     },
     {
       "job_id": "4c69b163-7d39-4391-bbdf-0d44d3325a04",
@@ -228666,13 +228670,14 @@
         "routine_fleet_review"
       ],
       "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
-      "status": "queued",
-      "attempts": 1,
+      "status": "completed",
+      "attempts": 2,
       "requested_at": "2026-09-24T14:42:00.148Z",
       "next_attempt_at": "2026-09-24T20:42:55.871Z",
       "lease_until": null,
-      "last_error": "(node:1724667) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 0 (created_by=independent-reviewer)\n(node:1725079) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T14:42:00.363Z"
+      "last_error": null,
+      "claimed_at": "2026-09-24T20:43:00.380Z",
+      "completed_at": "2026-09-24T20:43:56.824Z"
     },
     {
       "job_id": "cc65bad0-3296-4837-817e-f3aaa06cf9f6",
@@ -228683,12 +228688,12 @@
       ],
       "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
       "status": "queued",
-      "attempts": 1,
+      "attempts": 2,
       "requested_at": "2026-09-24T14:43:00.154Z",
-      "next_attempt_at": "2026-09-24T20:43:48.838Z",
+      "next_attempt_at": "2026-09-25T02:44:57.316Z",
       "lease_until": null,
-      "last_error": "(node:1725211) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 0 (created_by=reviewer)\n(node:1725584) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T14:43:00.347Z"
+      "last_error": "(node:151730) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:152143) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T20:44:00.380Z"
     },
     {
       "job_id": "2e55606c-e3bd-4d46-ad79-7950bf99c684",
@@ -228716,12 +228721,12 @@
       ],
       "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
       "status": "queued",
-      "attempts": 1,
+      "attempts": 2,
       "requested_at": "2026-09-24T15:02:00.138Z",
-      "next_attempt_at": "2026-09-24T21:02:42.623Z",
+      "next_attempt_at": "2026-09-25T03:04:03.342Z",
       "lease_until": null,
-      "last_error": "(node:1739007) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1739340) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T15:02:00.330Z"
+      "last_error": "(node:164030) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 1 (created_by=executive-reviewer)\n(node:164487) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T21:03:00.379Z"
     },
     {
       "job_id": "18fd2805-9db9-4288-acf5-514bebeaa7bf",
@@ -228749,12 +228754,12 @@
       ],
       "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
       "status": "queued",
-      "attempts": 1,
+      "attempts": 2,
       "requested_at": "2026-09-24T15:23:00.237Z",
-      "next_attempt_at": "2026-09-24T21:23:47.030Z",
+      "next_attempt_at": "2026-09-25T03:24:48.829Z",
       "lease_until": null,
-      "last_error": "(node:1754409) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1754770) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
-      "claimed_at": "2026-09-24T15:23:00.429Z"
+      "last_error": "(node:177938) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:178303) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\nfatal: Unable to create '/home/jesse/projects/domains/.git/index.lock': File exists.\n\nAnother git process seems to be running in this repository, or the lock file may be stale\n",
+      "claimed_at": "2026-09-24T21:24:00.361Z"
     },
     {
       "job_id": "ab0fa0b8-d972-4e5f-a01e-81d17e7109df",
@@ -228772,6 +228777,39 @@
       "last_error": null,
       "claimed_at": "2026-09-24T15:31:00.419Z",
       "completed_at": "2026-09-24T15:31:53.932Z"
+    },
+    {
+      "job_id": "742989c5-cc83-49de-89e5-5e2541228652",
+      "fingerprint": "9cd0ef377977877f51b86d2978acef671fdc1161596c85dd6eee5ab03431bbc1",
+      "site": "0xroulette.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "311e11cf-f8f0-4d58-a0d7-5fbbe14f91ce",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T20:40:00.175Z",
+      "next_attempt_at": "2026-09-24T20:40:00.175Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T20:40:00.781Z",
+      "completed_at": "2026-09-24T20:40:45.670Z"
+    },
+    {
+      "job_id": "acc63d12-2a97-4a5e-82eb-2fc69ae06843",
+      "fingerprint": "22c5162bfe0b5de4a73cc5d3cfab8072583a59bec4d0fb1738b4cc3d2b1d67ab",
+      "site": "eastcoastrappers.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "311e11cf-f8f0-4d58-a0d7-5fbbe14f91ce",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-24T20:54:00.159Z",
+      "next_attempt_at": "2026-09-25T02:55:37.052Z",
+      "lease_until": null,
+      "last_error": "(node:158171) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:158837) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T20:54:00.347Z"
     }
   ]
 }
