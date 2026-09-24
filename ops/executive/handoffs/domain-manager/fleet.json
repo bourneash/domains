@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:37:07.660Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T02:47:11.201Z",
+  "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
+        "kind": "message",
+        "title": null,
+        "summary": "drivegm.net reviewed for a bounded report-only readiness baseline. Existing evidence indicates analytics configured=false; no traffic, revenue, conversion, or attribution values are inferred.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
         "kind": "proposal",
-        "title": "Measure the deployed homepage refresh",
-        "summary": "Produce a bounded post-deployment measurement report for allthingsmasonic.com using existing telemetry only. Record available before/after impressions, clicks, sessions, conversions, and site-attributed affiliate outcomes; preserve unavailable fields as unknown and make no causal or revenue claim.",
-        "requested_action": "Approve report-only measurement. Continue observation until 14 days or 100 new impressions, whichever comes first; do not deploy, modify production, alter credentials or configuration, spend money, or request duplicate telemetry.",
-        "proposal_id": "d509e110-219b-4bd3-ab50-1fde8ad131ac"
+        "title": "Run drivegm.net measurement and monetization readiness baseline",
+        "summary": "Produce a bounded read-only assessment of drivegm.net audience positioning, observable content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false; unavailable telemetry remains unknown.",
+        "requested_action": "Approve a report-only assessment using existing read-only evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "8ebd0548-4d56-483f-b622-9fb999b8676e"
       }
     ]
   }
