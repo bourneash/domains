@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:47:46.226Z",
+  "generated_at": "2026-09-24T03:49:47.343Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Measure the deployed Save Us Farms conversion refresh",
-        "summary": "Produce a bounded post-deployment measurement report for saveusfarms.com using existing GA4, GSC, and affiliate telemetry only. Preserve unavailable fields as unknown and make no causal, revenue, or ROI claim.",
-        "requested_action": "Approve report-only measurement at the existing gate. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, or spend money.",
-        "proposal_id": "036c2c03-6c25-4ae2-8ab4-aa85db3e9cf8"
+        "title": "Run totaljerks.com monetization and measurement readiness baseline",
+        "summary": "Use existing read-only evidence to assess totaljerks.com audience positioning, content and conversion paths, affiliate readiness, operational health, backlog priorities, and attribution limits. Do not infer missing traffic, revenue, or causal impact.",
+        "requested_action": "Approve a bounded report-only assessment using existing telemetry and observable site evidence. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "80561f2a-c89e-4af3-a6f0-41575ee42f15"
       }
     ]
   }
