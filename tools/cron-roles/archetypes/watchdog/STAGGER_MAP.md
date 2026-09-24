@@ -54,6 +54,7 @@ of the widest gap in the table, add the row, and use that value for
 | xxxtea.com | 851 |
 | offshorehookup.com | 888 |
 | marineactivity.com | 240 |
+| howfishthink.com | 832 |
 
 2026-08-28: `unsupervisedmedia.com` and `oventoheaven.com` were assigned raw
 sequential offsets (925s, 962s) that overran the 900s cron window itself —

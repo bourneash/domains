@@ -830,6 +830,7 @@ sites:
     - social
   searchwoot.com:
     status: live
+    visibility: private-preview
     repo: bourneash/searchwoot.com
     worker: searchwoot-com
     cf_zone: searchwoot.com
