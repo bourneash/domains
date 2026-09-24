@@ -356,6 +356,21 @@ if [[ "$CLAUDE_EXIT" == "124" ]]; then
   exit 1
 fi
 
+# A non-zero, non-timeout exit (max-turns cap, crash) previously fell through
+# to the success path below: CHANGED/ESCALATE default to "0"/"none" because
+# the capped pass never printed its output contract, so step 5 posted a
+# misleading "🔧 engineer run complete" right after claude-tracked's own
+# "❌ failed" message. The task stayed in backlog with no visible signal that
+# it had actually failed, so the next tick silently retried it at the same
+# cost with no record of the prior attempt. Guard it explicitly (mirrors
+# principal-engineer.sh's non-zero-exit handling).
+if [[ "$CLAUDE_EXIT" != "0" ]]; then
+  log "engineer pass FAILED (exit=${CLAUDE_EXIT}) — task remains in backlog, will retry next tick"
+  slack "🔴 *{{SITE_SHORT}} engineer* pass failed (exit=${CLAUDE_EXIT}, likely max-turns) — task stays queued for retry · ${NOW_ET}" "danger"
+  board_block "⚠️ **Truncated** — pass exited ${CLAUDE_EXIT} (max-turns or crash). Task stays in backlog for retry. ${STATUS_LINE}"
+  exit 1
+fi
+
 # ---- 4. Authoritative build gate (bash, independent of the model's claim) ----
 PUSHED=0
 if [[ "$CHANGED" == "1" ]]; then
