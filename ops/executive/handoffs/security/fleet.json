@@ -2,37 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-23T22:07:51.835Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-24T16:05:19.738Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet and blocked for SearchWoot public launch. Fleet-doctor, operations sweeps, site security checks, access boundaries, secrets handling, container isolation, dependency provenance, release controls, monitoring, incidents, and disclosure readiness are unavailable or unknown. This is a material evidence gap, not proof of compromise. Ordinary reversible growth may continue conditionally; public exposure or security-sensitive release changes require the missing controls to be evidenced.",
+        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for SearchWoot public beta or full launch. Fleet-doctor is unavailable with no checks or site results, operations deploy/uptime/error sweeps are unavailable, and authentication boundaries, secret handling, container isolation, release controls, dependency provenance, data exposure, incident monitoring, and disclosure readiness are therefore unevidenced. No clean bill of health is supported. Compliance records 15 failures and 7 unknowns across 59 sites; TLS has no certificates expiring within 30 days, but this does not establish complete TLS or header coverage. Recent worker failures, including exit 137, reviewer rejection, and a dirty isolated worktree, are operational containment signals but not proof of exploitation. Recommendation: retain production-change pause, continue only bounded read-only security evidence capture and existing incident repair, and keep SearchWoot private until security evidence and the other launch gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot security decision: blocked for public beta or full launch. The launch checklist explicitly records incomplete access, secret, isolation, TLS, dependency, monitoring, incident, disclosure, accuracy, measurement, and upstream-rights evidence. Keep private and permit only bounded read-only evidence work.",
+        "summary": "Security recommendation: do not approve any go-live, public exposure, dependency adoption, credential change, or release expansion this cycle. Exact decision: maintain the private SearchWoot gate and reject new production security-sensitive work until access boundaries, secrets, isolation, release provenance, TLS, dependency review, data handling, monitoring, incident response, and disclosure-readiness evidence are attached and reviewed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Capture fleet security control evidence",
-        "summary": "Produce a read-only, metadata-only security control matrix covering access boundaries, secrets exposure, isolation, provenance, release controls, rollback, TLS, data exposure, monitoring, incidents, and disclosure readiness. Preserve unknowns.",
-        "requested_action": "Run authorized evidence capture only. Do not retrieve credentials, access private shells, exploit targets, or modify production.",
-        "proposal_id": "901ac940-3ffd-44e3-b17f-e2a6c5646588"
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain SearchWoot private security gate",
-        "summary": "Keep the private preview unchanged while source rights, security, accuracy, attribution, measurement, and owner gates remain incomplete.",
-        "requested_action": "Permit only bounded read-only evidence work. Do not expose publicly, change credentials or configuration, expand notifications, deploy, spend, or send outreach.",
-        "proposal_id": "a4560b29-0270-42d9-bdb1-75ca49a14f46"
+        "title": "Capture bounded fleet security baseline evidence",
+        "summary": "Capture read-only evidence for access boundaries, secret handling, isolation, release controls, TLS, dependencies, data exposure, incident signals, and disclosure readiness.",
+        "requested_action": "Complete the evidence matrix and continue existing incident repairs only.",
+        "proposal_id": "c0a6a61a-041d-4aaf-96c2-dbd7ae2096c3"
       }
     ]
   }

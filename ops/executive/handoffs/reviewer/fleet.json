@@ -2,16 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T15:47:38.261Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T16:05:19.739Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new production changes, high-priority queue work, unsupported revenue/ROI/causal-lift claims, and duplicate telemetry requests this cycle. Revenue attribution remains partial, zero improvements are proven, 17 await measurement, and failed-request repairs remain open. Approve only the bounded report-only SEO backlog prioritization for deeppenetrations.com using existing evidence; continue current measurement gates and incident repairs without new queue actions. No owner decision is required.",
+        "summary": "Reject new production changes, high-priority queue work, dependency adoption, spending, unsupported revenue/ROI/margin/causal-lift claims, and duplicate telemetry requests. Revenue attribution is partial: $4.92 remains aggregate and unassigned; no improvements are proven and 17 await measurement. Continue only existing measurement gates, bounded read-only evidence work, and repairs of existing failed requests. Keep the private launch gate unchanged pending rights, legal, security, accuracy, attribution, and owner decisions.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Accept only two bounded report-only artifacts: finance/attribution reconciliation using existing evidence, and fleet security evidence capture. Both must preserve unknowns, state measurable evidence-coverage outcomes, and authorize no production, credential, configuration, dependency, spending, or telemetry changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep production changes, high-priority queue work, new spend, unsupported financial or causal claims, and duplicate telemetry requests paused this cycle. Continue only existing measurement gates, bounded read-only finance/security evidence work, and repairs of existing failed requests. No owner decision is required for the operating plan; SearchWoot remains private pending unresolved rights, legal, security, accuracy, attribution, and owner gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-finance-reconciliation-2026-09-24",
+        "summary": "Accept report-only reconciliation from existing read-only evidence. Preserve period mismatches, aggregate attribution, missing cost fields, and unavailable outcomes. No financial forecast, ROI, margin, payback, revenue, or causal claim is authorized.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-finance-reconciliation-2026-09-24"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "security-fleet-baseline-evidence-2026-09-24",
+        "summary": "Accept bounded read-only security evidence capture. Classify each control as evidenced, failed, or unknown. No credentials, exploits, dependency installation, permission changes, production work, or deployment is authorized.",
+        "requested_action": "accepted_research",
+        "proposal_id": "security-fleet-baseline-evidence-2026-09-24"
       }
     ]
   }

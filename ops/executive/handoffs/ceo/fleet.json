@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:20:05.692Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T16:05:19.737Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 1 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: keep production changes paused this cycle and drain existing execution debt. Evidence: 0 proven improvements, 17 awaiting measurement, 141 approved proposals without execution, 11 failed-request repairs open, and $4.92 aggregate Amazon income unattributed for 2026-09-21. Unknown: causal lift and site-level revenue remain uncalculable. Smallest next steps are existing measurement and repair work. Owner decision: for SearchWoot, choose (A) keep private and prepare a draft Woot permission request, or (B) stop pursuing public beta; rights and legal, security, accuracy, and attribution gates remain blocked.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep production changes paused this cycle and drain existing execution debt. Continue existing measurement and repair work only. SearchWoot remains private pending owner disposition and unresolved rights, legal, security, accuracy, and attribution gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain the private launch gate and drain existing execution debt. Evidence shows zero proven improvements, 17 awaiting measurement, 11 failed-request repairs open, partial revenue attribution with $4.92 aggregate income unassigned, and no support for ROI, margin, forecast, or causal-lift claims. Owner decision: will you choose between keeping the private preview while preparing a draft permission packet or ending the public-beta pursuit?",
         "requested_action": null,
         "proposal_id": null
       }

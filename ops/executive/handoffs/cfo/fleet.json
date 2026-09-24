@@ -2,44 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-23T22:07:51.835Z",
+  "generated_at": "2026-09-24T16:05:19.738Z",
   "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: pause incremental monetization and AI-intensive expansion until attribution and measurement reconcile. Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; $4.92 is aggregate and unattributed, while site-attributed income is $0. AI usage from 2026-09-01 through 2026-09-23 was $793.24 across 4,680 calls, including 207 errors. Revenue, AI cost, infrastructure cost, and measurement windows do not support a contribution-margin or revenue forecast claim.",
+        "summary": "Recommendation: keep production changes and new spend paused this cycle; continue only existing measurement and incident-repair work plus one bounded finance reconciliation report. Evidence: Amazon data for 2026-09-21 shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission income; $0 is site-attributed and $4.92 remains aggregate/unassigned. AI usage from 2026-09-01 through 2026-09-24 totals $829.87 across 4,818 calls, with 212 errors. The periods do not match, so contribution margin, ROI, payback, and cost-to-learn are not calculable. Fleet outcomes show 0 proven improvements and 17 awaiting measurement. Do not treat clicks, impressions, sessions, calls, or SEO opportunity scores as revenue or margin. Minimum finance evidence needed is a same-period ledger joining site/content identifiers to shipped commission, AI cost, infrastructure/domain costs, labor allocation, and experiment exposure/outcome records. Keep SearchWoot private; its measurement and attribution gate remains blocked.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Cost-to-learn is not calculable: experiments report zero completed, zero measured, and zero proven outcomes, and no experiment-level spend allocation or causal revenue is available. Minimum measurement is one registered hypothesis with treatment identifiers, exposure counts, incremental affiliate clicks, orders, shipped items, commission, AI cost, and a fixed measurement window; use 14 days or 100 eligible impressions, whichever comes later.",
+        "summary": "Financial review: no supported revenue forecast is present. Monthly revenue target, revenue floor, fixed costs, marketing budget, and attribution materiality threshold are blank. Site-level contribution margin cannot be calculated because site-attributed commission is $0, $4.92 is aggregate provider income, infrastructure/domain/labor costs are absent, and the revenue period is one day while AI spend covers 24 days. Cost-to-learn is also not calculable: the experiments ledger reports 0 total experiments and 0 completed outcomes, while 17 deployed improvements await measurement. Minimum measurement is one dated baseline and follow-up per change with exposure, incremental AI/infrastructure cost, site-attributed shipped commission, and outcome status.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not treat SEO impressions, sessions, affiliate clicks, ordered items, or AI calls as revenue or margin. The 11 improvements awaiting measurement and zero proven outcomes are a financial stop signal for forecast-based investment. Continue only bounded report-only reconciliation and already-approved measurement gates; do not move money or authorize spend.",
+        "summary": "Recommendation: produce one bounded finance and attribution reconciliation report from existing evidence only. Preserve period mismatches and unavailable cost fields as unknown; do not infer margin, ROI, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae",
-        "summary": "Decline. No measured conversion baseline exists, site-attributed commission is $0, and the fleet has 11 improvements awaiting measurement plus 30 failed implementation requests. A shared component cannot be justified financially until an existing page produces attributable baseline and outcome data.",
-        "requested_action": "declined",
-        "proposal_id": "7ebb2f2d-1a8f-49ea-8629-5a074466e6ae"
+        "kind": "proposal",
+        "title": "Produce bounded finance and attribution reconciliation",
+        "summary": "Reconcile existing Amazon attribution and AI-cost evidence without inventing site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "requested_action": "Complete the report and route it to CEO/CFO review.",
+        "proposal_id": "da5d2bae-fcc1-447a-8ec5-3bc8546d4c5e"
       },
       {
         "kind": "proposal-review",
-        "title": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9",
-        "summary": "Decline pending evidence. The repository has no safe native checks in the supplied lab result, and no measured conversion need or attributable revenue supports adding this research stream.",
-        "requested_action": "declined",
-        "proposal_id": "0664c2dd-a019-4ffa-bd4e-ed3d719ad6e9"
+        "title": "cro-deeppenetrations-seo-prioritization-2026-09-24",
+        "summary": "Retain only as report-only prioritization. The evidence supports ranking the two low-volume SEO opportunities, but not revenue, margin, ROI, or causal-lift claims. Require the artifact to record baseline dates, existing AI cost, attributable affiliate clicks, shipped commission, and unavailable cost fields without inventing values. Do not queue production work this cycle.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-deeppenetrations-seo-prioritization-2026-09-24"
       }
     ]
   }
