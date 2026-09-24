@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:46:13.496Z",
+  "generated_at": "2026-09-24T08:48:59.064Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run driveford.net readiness and backlog baseline",
-        "summary": "Produce a bounded read-only assessment of driveford.net using existing evidence, documenting observable positioning, content and conversion paths, analytics configuration status, monetization readiness, operational-health findings, explicit unknowns, and one reversible next-step recommendation.",
-        "requested_action": "Approve report-only assessment only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal impact.",
-        "proposal_id": "ffa2a7a2-a3c5-4c4c-9597-108170ecde51"
+        "title": "Run dumbsluts.com readiness and backlog baseline",
+        "summary": "Produce a bounded, read-only assessment of dumbsluts.com using only available evidence. Analytics configuration is not present in the snapshot, so traffic, conversions, revenue, attribution, audience behavior, and operational health must remain unknown unless independently evidenced.",
+        "requested_action": "Approve a report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer adult status from the domain name.",
+        "proposal_id": "94be858b-83a8-405e-a57a-b7a84eeb0b79"
       }
     ]
   }

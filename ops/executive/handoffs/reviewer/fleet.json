@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:46:13.495Z",
+  "generated_at": "2026-09-24T08:48:59.064Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Preserve the driveford.net report-only baseline only as an evidence artifact; reject production work, high-priority queue work, unsupported revenue or causal claims, duplicate telemetry, credential/configuration changes, spending, and schedule changes. Require auditable routing artifacts and rollback of only affected metadata if validation fails.",
+        "summary": "Recommendation: reject the dumbsluts.com readiness baseline because the available snapshot and completed public inspection already cover the proposed evidence, while analytics, traffic, revenue, attribution, and operational health remain unknown. Approve only three normal-priority metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. No production, credential, configuration, spending, schedule, duplicate-telemetry, unsupported revenue, or causal-lift work is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
