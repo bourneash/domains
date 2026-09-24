@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:14:48.352Z",
+  "generated_at": "2026-09-24T03:16:49.625Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run pokererotic.com audience and monetization readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of pokererotic.com covering observable audience positioning, content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false, so traffic, revenue, conversions, attribution, and related health fields remain unknown unless directly evidenced.",
+        "title": "Run reviewtattoo.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of reviewtattoo.com covering observable audience positioning, content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Existing telemetry confirms GA4 and GSC are configured and currently healthy; unavailable site-specific traffic, revenue, conversion, attribution, SEO, and health fields must remain unknown.",
         "requested_action": "Approve the report-only assessment using existing read-only evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "d04bc242-afbc-4f26-8c3c-840b75792ba4"
+        "proposal_id": "7532717e-5e29-4f7b-9a5d-034ec7007542"
       }
     ]
   }
