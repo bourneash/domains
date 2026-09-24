@@ -32,6 +32,53 @@ function readReport(root, relative) {
   }
 }
 
+function registryVisibility(root, site) {
+  try {
+    const lines = fs.readFileSync(path.join(root, 'registry', 'fleet.yaml'), 'utf8').split(/\r?\n/);
+    const header = `  ${site}:`;
+    const start = lines.findIndex(line => line.trimEnd() === header);
+    if (start < 0) return null;
+    for (let i = start + 1; i < lines.length; i += 1) {
+      if (/^  [^\s].*:\s*$/.test(lines[i])) break;
+      const match = lines[i].match(/^\s+visibility:\s*([^\s#]+)/);
+      if (match) return match[1].trim().toLowerCase();
+    }
+  } catch {
+    /* registry is optional for isolated dashboard tests */
+  }
+  return null;
+}
+
+// Crawlability recommendations are invalid for an intentionally gated site.
+// Keep this registry-backed, with a source-marker fallback for older registry
+// snapshots so one stale generated registry cannot reopen the same task.
+function privatePreviewSites(root, siteNames = []) {
+  const result = new Set();
+  for (const site of siteNames) {
+    if (registryVisibility(root, site) === 'private-preview') {
+      result.add(site);
+      continue;
+    }
+    const candidates = [
+      path.join(root, 'sites', site, 'site', 'src', 'index.ts'),
+      path.join(root, 'sites', site, 'site', 'src', 'index.js'),
+      path.join(root, 'sites', site, 'site', 'src', 'index.tsx'),
+    ];
+    for (const file of candidates) {
+      try {
+        const text = fs.readFileSync(file, 'utf8');
+        if (/PRIVATE PREVIEW/i.test(text) && /noindex\s*,\s*nofollow/i.test(text)) {
+          result.add(site);
+          break;
+        }
+      } catch {
+        /* older/static sites have no Worker gate entrypoint */
+      }
+    }
+  }
+  return result;
+}
+
 function aggregateQueries(records) {
   const byQuery = new Map();
   for (const row of records || []) {
@@ -551,9 +598,12 @@ function webVitalsActions(report) {
   return actions;
 }
 
-function linkActions(report) {
+function linkActions(report, { privatePreview = new Set() } = {}) {
   const actions = [];
   for (const row of report?.sites || []) {
+    // A password gate commonly makes the sitemap invisible to an unauthenticated
+    // crawler. That is expected preview behavior, not a missing sitemap.
+    if (row.private_preview === true || privatePreview.has(row.site)) continue;
     if (row.error) {
       actions.push({
         id: `${row.site}:crawl-error`,
@@ -718,6 +768,10 @@ async function buildSnapshot({
     upstreamError = String(error.message || error);
   }
   const siteNames = Object.keys(health.sites || {}).sort();
+  const privatePreview = privatePreviewSites(root, [
+    ...siteNames,
+    ...(linkRot?.sites || []).map(row => row.site),
+  ]);
   const since = new Date(now.getTime() - days * 86400000).toISOString().slice(0, 10);
   const pageSince = new Date(now.getTime() - 56 * 86400000).toISOString().slice(0, 10);
   const queryPageSince = new Date(now.getTime() - 28 * 86400000).toISOString().slice(0, 10);
@@ -785,7 +839,7 @@ async function buildSnapshot({
     ...Object.entries(siteData).flatMap(([site, rows]) => trendActions(site, rows)),
     ...siteNames.flatMap(site => pageDecayActions(site, ga4PageData[site], now)),
     ...webVitalsActions(webVitals),
-    ...linkActions(linkRot),
+    ...linkActions(linkRot, { privatePreview }),
   ]
     .map(action => {
       const valueScore = action.valueScore || siteValueScores[action.site] || 0;
@@ -904,6 +958,7 @@ module.exports = {
   queryPageActions,
   pageDecayActions,
   actionPlan,
+  privatePreviewSites,
   webVitalsActions,
   linkActions,
   buildSiteRows,

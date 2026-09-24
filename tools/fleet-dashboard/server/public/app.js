@@ -11,6 +11,7 @@ const esc = s =>
 let STATE = {
   view: 'control',
   agent: null,
+  agentPage: null,
   sites: [],
   agents: [],
   taskSite: null,
@@ -18,6 +19,30 @@ let STATE = {
   gitTab: 'operations',
 };
 let AGENT_HEALTH = null;
+const EXEC_RUN = { poller: null };
+
+function pollExecutiveRun() {
+  if (EXEC_RUN.poller) return;
+  const tick = async () => {
+    EXEC_RUN.poller = null;
+    if (
+      !['executive', 'agent'].includes(STATE.view) ||
+      (STATE.view === 'agent' && STATE.agent !== 'executive')
+    )
+      return;
+    try {
+      const status = await api('GET', '/api/executive/run-status');
+      if (status.active) {
+        EXEC_RUN.poller = setTimeout(tick, 5000);
+      } else {
+        softRender();
+      }
+    } catch {
+      EXEC_RUN.poller = setTimeout(tick, 8000);
+    }
+  };
+  EXEC_RUN.poller = setTimeout(tick, 1500);
+}
 
 function agentLabel(role) {
   return String(role)
@@ -10526,7 +10551,7 @@ const NAV_GROUPS = {
 // Flattened for the router — every view any group knows about.
 const NAV_GROUP_VIEWS = Object.values(NAV_GROUPS).flatMap(g => g.items.map(([v]) => v));
 
-// Hash router. Routes: #control, #cron, #containers, #git[/hygiene], #tasks, #agents/<role>.
+// Hash router. Routes: #control, #cron, #containers, #git[/hygiene], #tasks, #agents/<role>[/<page>].
 // Legacy aliases: #roles → control, #fleet → agents/engineer.
 function parseHash() {
   const raw = (location.hash || '').replace(/^#/, '');
@@ -10536,7 +10561,12 @@ function parseHash() {
   if (!h) return { view: 'control', agent: null };
   const parts = h.split('/');
   const [a, b, c] = parts;
-  if (a === 'agents' && b) return { view: 'agent', agent: decodeURIComponent(b) };
+  if (a === 'agents' && b)
+    return {
+      view: 'agent',
+      agent: decodeURIComponent(b),
+      agentPage: c ? decodeURIComponent(c) : null,
+    };
   if (a === 'fleet') return { view: 'agent', agent: 'engineer' };
   if (a === 'roles') return { view: 'control', agent: null };
   // Legacy bookmark for the former standalone Git Hygiene view.
@@ -10553,8 +10583,10 @@ function parseHash() {
     };
   return { view: 'control', agent: null };
 }
-function hashFor(view, agent) {
-  return view === 'agent' ? `agents/${encodeURIComponent(agent)}` : view;
+function hashFor(view, agent, agentPage) {
+  return view === 'agent'
+    ? `agents/${encodeURIComponent(agent)}${agentPage ? `/${encodeURIComponent(agentPage)}` : ''}`
+    : view;
 }
 
 // FRESH = true → a navigation/first paint: show loading placeholders.
@@ -11062,23 +11094,135 @@ let CHANGE_QUEUE_RECORDER = null;
 let CHANGE_QUEUE_CHUNKS = [];
 let CHANGE_QUEUE_FILTER = { q: '', status: 'all', site: 'all', priority: 'all', provider: 'all' };
 let CHANGE_QUEUE_DETAIL = null;
+let CHANGE_QUEUE_RENDERING = false;
+let CHANGE_QUEUE_PAGE = 1;
+let CHANGE_QUEUE_PAGE_SIZE = 10;
+let CHANGE_QUEUE_SORT = 'created_at';
+let CHANGE_QUEUE_SORT_DIR = 'desc';
+let CHANGE_QUEUE_OWNER = 'all';
 
-async function renderChangeQueue() {
-  if (FRESH) app.innerHTML = '<div class="loading">Loading change queue…</div>';
+function cqAge(value) {
+  const ms = Date.now() - new Date(value || 0).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return '—';
+  const minutes = Math.floor(ms / 60000);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 48) return `${hours}h ${minutes % 60}m`;
+  return `${Math.floor(hours / 24)}d ${hours % 24}h`;
+}
+
+function cqStatusClass(status) {
+  if (['deployed', 'verified', 'committed'].includes(status)) return 'b-green';
+  if (['failed', 'cancelled'].includes(status)) return 'b-red';
+  if (['review', 'reviewing'].includes(status)) return 'b-yellow';
+  return 'b-blue';
+}
+
+function cqNextAction(r, settings) {
+  const age = Date.now() - new Date(r.created_at || 0).getTime();
+  const staleQueue =
+    r.status === 'queued' && age > Math.max(10, Number(settings.interval_minutes || 1) * 2) * 60000;
+  if (r.status === 'queued')
+    return staleQueue ? 'Investigate pickup delay' : 'Dispatch when capacity is available';
+  if (r.status === 'claimed') return 'Confirm worker started';
+  if (r.status === 'running') return 'Monitor implementation and lease';
+  if (r.status === 'reviewing') return 'Wait for quality gates';
+  if (r.status === 'review') return 'Run review and deliver';
+  if (r.status === 'failed') return 'Inspect failure, then retry';
+  if (r.status === 'cancelled') return 'Replace or close request';
+  if (['deployed', 'verified', 'committed'].includes(r.status)) return 'Measure outcome';
+  return 'Open request details';
+}
+
+function cqActionButtons(r) {
+  const id = esc(r.request_id);
+  const manage = `<button class="btn sm cq-detail" data-id="${id}" title="Open inline actions, request details, and timeline">Actions</button>`;
+  if (r.status === 'queued')
+    return `${manage} <button class="btn sm primary cq-pick" data-id="${id}">Dispatch</button>`;
+  if (r.status === 'review')
+    return `${manage} <button class="btn sm primary cq-auto-review" data-id="${id}">Review & deliver</button>`;
+  if (r.status === 'failed')
+    return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
+  if (['queued', 'claimed', 'running', 'reviewing', 'review'].includes(r.status))
+    return `${manage} <button class="btn sm danger cq-cancel" data-id="${id}">Cancel</button>`;
+  return manage;
+}
+
+function cqRequestRow(r, settings, compact = false) {
+  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b><div class="muted">${esc(r.site)} · ${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span><div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')} · ${cqAge(r.updated_at || r.created_at)} old</div></td><td>${compact ? `<button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
+}
+
+function cqExceptionProfile(r) {
+  const text = `${r.error || ''} ${r.title || ''}`;
+  if (/No such container|worker process|agent exited/i.test(text))
+    return {
+      label: 'Worker / infrastructure failure',
+      next: 'Retry once after the worker health check passes.',
+    };
+  if (/quality gates|Playwright|Chromium|thread|WebSocket|missing Astro module/i.test(text))
+    return {
+      label: 'Validation or tooling failure',
+      next: 'Fix the dependency or validation gate, then retry.',
+    };
+  if (/reviewer rejected/i.test(text))
+    return {
+      label: 'Reviewer decision',
+      next: 'Read the reviewer evidence and correct the request or diff.',
+    };
+  return { label: 'Unclassified failure', next: 'Open the run details before retrying.' };
+}
+
+function cqExceptionCard(r) {
+  const profile = cqExceptionProfile(r);
+  return `<article class="cq-exception-card"><div class="cq-exception-head"><span class="badge b-red">failed</span><span class="muted">${esc(cqAge(r.updated_at || r.created_at))} old</span></div><strong>${esc(r.title)}</strong><div class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')} · ${esc(r.provider || '—')}</div><p><b>${esc(profile.label)}</b><br>${esc(r.error || 'The request failed before delivery evidence was recorded.')}</p><div class="muted">Next: ${esc(profile.next)}</div><div class="cq-exception-actions"><button class="btn sm primary cq-retry" data-id="${esc(r.request_id)}">Retry</button><button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Actions</button></div></article>`;
+}
+
+async function renderChangeQueue({ background = false } = {}) {
+  if (CHANGE_QUEUE_RENDERING) return;
+  CHANGE_QUEUE_RENDERING = true;
+  if (FRESH && !background) app.innerHTML = '<div class="loading">Loading change queue…</div>';
   let data;
   try {
     data = await api('GET', '/api/change-requests');
   } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    if (!background) app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    CHANGE_QUEUE_RENDERING = false;
     return;
   }
+  const requests = data.requests || [];
+  const queued = requests.filter(r => r.status === 'queued');
+  const active = requests.filter(r =>
+    ['claimed', 'running', 'reviewing', 'review'].includes(r.status)
+  );
+  // Only surface recoverable exceptions here. Cancelled requests are historical
+  // outcomes, not active interventions; failed requests have a direct retry path.
+  const attention = requests.filter(r => r.status === 'failed');
+  const completed = requests
+    .filter(r => ['deployed', 'verified'].includes(r.status))
+    .sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0))
+    .slice(0, 8);
+  const capacity = Number(data.settings.max_concurrent || 1);
+  const staleQueued = queued.filter(
+    r =>
+      Date.now() - new Date(r.created_at || 0).getTime() >
+      Math.max(10, Number(data.settings.interval_minutes || 1) * 2) * 60000
+  );
+  const health = !data.settings.enabled
+    ? ['Paused', 'warn']
+    : staleQueued.length
+      ? ['Attention', 'warn']
+      : active.length
+        ? ['Operating', 'good']
+        : queued.length
+          ? ['Ready', 'info']
+          : ['Idle', 'good'];
   const siteOptions = (STATE.sites || [])
     .map(
       s =>
         `<option value="${esc(typeof s === 'string' ? s : s.slug)}">${esc(typeof s === 'string' ? s : s.slug)}</option>`
     )
     .join('');
-  const sites = [...new Set((data.requests || []).map(r => r.site))].sort();
+  const sites = [...new Set(requests.map(r => r.site))].sort();
   const matches = r =>
     (!CHANGE_QUEUE_FILTER.q ||
       `${r.title} ${r.body} ${r.site} ${r.assigned_role || ''}`
@@ -11087,31 +11231,48 @@ async function renderChangeQueue() {
     (CHANGE_QUEUE_FILTER.status === 'all' || r.status === CHANGE_QUEUE_FILTER.status) &&
     (CHANGE_QUEUE_FILTER.site === 'all' || r.site === CHANGE_QUEUE_FILTER.site) &&
     (CHANGE_QUEUE_FILTER.priority === 'all' || r.priority === CHANGE_QUEUE_FILTER.priority) &&
-    (CHANGE_QUEUE_FILTER.provider === 'all' || r.provider === CHANGE_QUEUE_FILTER.provider);
-  const filteredRequests = (data.requests || []).filter(matches);
-  const rows = filteredRequests
-    .map(
-      r => `<tr data-fleet-row data-site="${esc(r.site)}">
-    <td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority)}</span></td>
-    <td><b>${esc(r.title)}</b><div class="muted">${esc(r.site)} · ${esc(r.category)} · ${esc(r.assigned_role || 'engineer')}${r.requested_by ? ` · requested by ${esc(r.requested_by)}` : ''}${r.delivery_mode === 'report_only' ? ' · report only' : ''}</div></td>
-    <td>${esc(r.provider)}${r.model ? ` · ${esc(r.model)}` : ''}<div class="muted">${esc(r.max_turns)} turns</div></td>
-    <td><span class="badge b-blue">${esc(r.status)}</span>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td>
-    <td><button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button> ${r.status === 'queued' ? `<button class="btn sm primary cq-pick" data-id="${esc(r.request_id)}">Pick up</button>` : ''}${r.status === 'review' ? `<button class="btn sm primary cq-auto-review" data-id="${esc(r.request_id)}">Auto-review & deliver</button>` : ''}${r.status === 'failed' ? `<button class="btn sm primary cq-retry" data-id="${esc(r.request_id)}">Retry</button>` : ''}${['queued', 'claimed', 'running', 'reviewing', 'review'].includes(r.status) ? ` <button class="btn sm danger cq-cancel" data-id="${esc(r.request_id)}">Cancel</button>` : ''}</td>
-  </tr>`
-    )
-    .join('');
-  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Change Queue</h2><div class="crumbs">Human request → scheduled pickup → isolated agent → diff, visual review, quality gates, deploy</div></div><button class="btn primary" id="cq-new">New change request</button></div>
-    <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${(data.requests || []).filter(r => r.status === 'queued').length}</div><div class="seo-stat-label">Queued</div></div><div class="seo-stat"><div class="seo-stat-value">${(data.requests || []).filter(r => ['claimed', 'running'].includes(r.status)).length}</div><div class="seo-stat-label">Running</div></div><div class="seo-stat"><div class="seo-stat-value">${esc(data.settings.interval_minutes)}m</div><div class="seo-stat-label">Pickup cadence</div></div><div class="seo-stat"><div class="seo-stat-value">${data.settings.enabled ? 'On' : 'Off'}</div><div class="seo-stat-label">Automatic pickup</div></div></section>
-    <section class="card" style="margin-bottom:12px"><div class="task-toolbar"><b>Queue controls</b><label class="muted">Auto pickup <input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}></label><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}" style="width:55px"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}" style="width:45px"></label><button class="btn sm" id="cq-save-settings">Save</button><button class="btn sm" id="cq-pickup-all">Pick up due work</button></div><div class="task-toolbar"><input id="cq-search" class="cm-input" placeholder="Search requests, sites, roles…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input"><option value="all">All statuses</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input"><option value="all">All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>${x}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><span class="muted">${filteredRequests.length} of ${(data.requests || []).length} requests</span></div></section>
-    <section class="card"><div class="table-wrap"><table class="tbl"><thead><tr><th>Priority</th><th>Request</th><th>Agent</th><th>Status</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div></section><div id="cq-detail-panel"></div>`;
-  const cqAutoReviewLabel = document.createElement('label');
-  cqAutoReviewLabel.className = 'muted';
-  cqAutoReviewLabel.innerHTML = `Automatic reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}>`;
-  $('#cq-enabled').parentElement.after(cqAutoReviewLabel);
-  const cqLeaseLabel = document.createElement('label');
-  cqLeaseLabel.className = 'muted';
-  cqLeaseLabel.innerHTML = `Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}" style="width:55px"> min`;
-  cqAutoReviewLabel.after(cqLeaseLabel);
+    (CHANGE_QUEUE_FILTER.provider === 'all' || r.provider === CHANGE_QUEUE_FILTER.provider) &&
+    (CHANGE_QUEUE_OWNER === 'all' || (r.assigned_role || 'engineer') === CHANGE_QUEUE_OWNER);
+  const filteredRequests = requests.filter(matches);
+  const sortValue = r =>
+    CHANGE_QUEUE_SORT === 'priority'
+      ? { high: 3, medium: 2, low: 1 }[r.priority] || 0
+      : CHANGE_QUEUE_SORT === 'status'
+        ? r.status
+        : CHANGE_QUEUE_SORT === 'site'
+          ? r.site
+          : CHANGE_QUEUE_SORT === 'owner'
+            ? r.assigned_role || 'engineer'
+            : CHANGE_QUEUE_SORT === 'provider'
+              ? r.provider || ''
+              : new Date(r.updated_at || r.created_at || 0).getTime();
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    const av = sortValue(a),
+      bv = sortValue(b);
+    const result =
+      typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+    return CHANGE_QUEUE_SORT_DIR === 'asc' ? result : -result;
+  });
+  const pageCount = Math.max(1, Math.ceil(sortedRequests.length / CHANGE_QUEUE_PAGE_SIZE));
+  CHANGE_QUEUE_PAGE = Math.min(CHANGE_QUEUE_PAGE, pageCount);
+  const pageStart = (CHANGE_QUEUE_PAGE - 1) * CHANGE_QUEUE_PAGE_SIZE;
+  const pageRows = sortedRequests.slice(pageStart, pageStart + CHANGE_QUEUE_PAGE_SIZE);
+  const rows = pageRows.map(r => cqRequestRow(r, data.settings)).join('');
+  const list = (items, empty, compact = false) =>
+    items.length
+      ? `<div class="table-wrap"><table class="tbl cq-table"><thead><tr><th>Priority</th><th>Work item</th><th>State / next action</th><th>Owner</th><th></th></tr></thead><tbody>${items.map(r => cqRequestRow(r, data.settings, compact)).join('')}</tbody></table></div>`
+      : `<div class="cq-empty">${empty}</div>`;
+  const owners = [...new Set(requests.map(r => r.assigned_role || 'engineer'))].sort();
+  const pageLabel = sortedRequests.length
+    ? `${pageStart + 1}–${Math.min(pageStart + CHANGE_QUEUE_PAGE_SIZE, sortedRequests.length)} of ${sortedRequests.length}`
+    : '0 of 0';
+  app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">Demand → dispatch → execution → validation → shipped outcome</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><span class="muted">Updated with global refresh</span><button class="btn primary" id="cq-new">New change request</button></div></div>
+    <section class="cq-kpis"><div class="cq-kpi info"><strong>${queued.length}</strong><span>Ready / queued</span><small>${staleQueued.length ? `${staleQueued.length} past pickup SLA` : 'Within pickup SLA'}</small></div><div class="cq-kpi good"><strong>${active.length}</strong><span>In flight</span><small>${active.length}/${capacity} concurrency used</small></div><div class="cq-kpi ${attention.length ? 'warn' : ''}"><strong>${attention.length}</strong><span>Attention</span><small>${attention.length ? 'Failed or cancelled' : 'No blocked items'}</small></div><div class="cq-kpi"><strong>${completed.length}</strong><span>Recently shipped</span><small>Latest completed work</small></div><div class="cq-kpi"><strong>${esc(data.settings.interval_minutes)}m</strong><span>Pickup cadence</span><small>Lease ${esc(data.settings.lease_minutes || 30)}m</small></div><div class="cq-kpi ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"><strong>${data.settings.auto_review_enabled === false ? 'Off' : 'On'}</strong><span>Automatic review</span><small>${data.settings.enabled ? 'Dispatcher enabled' : 'Dispatcher paused'}</small></div></section>
+    <section class="card cq-controls"><div class="cq-section-head"><div><div class="cq-eyebrow">CONTROL SETTINGS</div><h3>Dispatch policy</h3></div><span class="muted">Every item has an accountable next action.</span></div><div class="task-toolbar"><label class="muted">Auto pickup <input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}></label><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}" style="width:55px"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}" style="width:45px"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}" style="width:55px"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button><button class="btn sm" id="cq-pickup-all">Dispatch due work</button></div></section>
+    <section class="card cq-controls"><div class="cq-register-toolbar"><div class="cq-filter-group"><span class="cq-filter-label">Filter work register</span><input id="cq-search" class="cm-input" placeholder="Title, site, role…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input" title="Filter by state"><option value="all">All states</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>State: ${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input" title="Filter by site"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>Site: ${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input" title="Filter by priority"><option value="all">All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>Priority: ${x}</option>`).join('')}</select><select id="cq-owner-filter" class="cm-input" title="Filter by owner"><option value="all">All owners</option>${owners.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_OWNER === x ? 'selected' : ''}>Owner: ${esc(x)}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input" title="Filter by provider"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>Provider: ${esc(x)}</option>`).join('')}</select></div><div class="cq-sort-group"><label class="cq-filter-label" for="cq-sort">Sort</label><select id="cq-sort" class="cm-input"><option value="created_at" ${CHANGE_QUEUE_SORT === 'created_at' ? 'selected' : ''}>Newest activity</option><option value="priority" ${CHANGE_QUEUE_SORT === 'priority' ? 'selected' : ''}>Priority</option><option value="status" ${CHANGE_QUEUE_SORT === 'status' ? 'selected' : ''}>State</option><option value="site" ${CHANGE_QUEUE_SORT === 'site' ? 'selected' : ''}>Site</option><option value="owner" ${CHANGE_QUEUE_SORT === 'owner' ? 'selected' : ''}>Owner</option><option value="provider" ${CHANGE_QUEUE_SORT === 'provider' ? 'selected' : ''}>Provider</option></select><button class="btn sm" id="cq-sort-dir" title="Toggle sort direction">${CHANGE_QUEUE_SORT_DIR === 'asc' ? '↑ Ascending' : '↓ Descending'}</button><span class="muted">${filteredRequests.length} matching</span></div></div></section>
+    <div class="cq-grid"><div class="cq-main"><section class="card cq-section"><div class="cq-section-head"><div><div class="cq-eyebrow">ACTIVE WORKSTREAM</div><h3>What is being worked now</h3></div><span class="muted">${active.length ? `${active.length} active` : 'No active execution'}</span></div>${list(active, 'Nothing is currently claimed, running, or in review. Dispatch work if this is unexpected.')}</section><section class="card cq-section"><div class="cq-section-head"><div><div class="cq-eyebrow">DISPATCH BOARD</div><h3>Ready to move</h3></div><span class="muted">${queued.length ? `${queued.length} waiting for capacity` : 'Queue is clear'}</span></div>${list(queued, 'No queued work. Create a request or inspect recently shipped work.')}</section><section class="card cq-section"><div class="cq-section-head"><div><div class="cq-eyebrow">FILTERED WORK REGISTER</div><h3>All matching requests</h3><span class="muted">${pageLabel}</span></div></div><div class="table-wrap"><table class="tbl cq-table"><thead><tr><th>Priority</th><th>Request</th><th>State / next action</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div><div class="cq-pagination"><label class="muted">Rows <select id="cq-page-size" class="cm-input"><option ${CHANGE_QUEUE_PAGE_SIZE === 10 ? 'selected' : ''}>10</option><option ${CHANGE_QUEUE_PAGE_SIZE === 25 ? 'selected' : ''}>25</option><option ${CHANGE_QUEUE_PAGE_SIZE === 50 ? 'selected' : ''}>50</option></select></label><span class="muted">${pageLabel}</span><button class="btn sm" id="cq-page-prev" ${CHANGE_QUEUE_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="cq-page-next" ${CHANGE_QUEUE_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div></section></div><aside class="cq-side"><section class="card cq-section cq-attention"><div class="cq-section-head"><div><div class="cq-eyebrow">EXCEPTIONS</div><h3>Needs intervention</h3></div><span class="badge ${attention.length ? 'b-red' : 'b-green'}">${attention.length}</span></div>${attention.length ? attention.map(cqExceptionCard).join('') : '<div class="cq-empty">No failed work requires intervention.</div>'}</section><section class="card cq-section"><div class="cq-section-head"><div><div class="cq-eyebrow">RECENT OUTCOMES</div><h3>Shipped / verified</h3></div></div>${list(completed, 'No recently shipped work.', true)}</section><section class="card cq-section cq-runbook"><div class="cq-eyebrow">OPERATING MODEL</div><h3>Queue accountability</h3><p>Every request must have a state, an owner, and a next action. Queued work is dispatchable; active work is observable; exceptions are actionable.</p></section></aside></div><div id="cq-detail-panel"></div>`;
   $('#cq-new').onclick = () => showChangeRequestForm(siteOptions, data);
   $('#cq-save-settings').onclick = async () => {
     try {
@@ -11145,16 +11306,42 @@ async function renderChangeQueue() {
       priority: $('#cq-priority-filter').value,
       provider: $('#cq-provider-filter').value,
     };
+    CHANGE_QUEUE_OWNER = $('#cq-owner-filter').value;
+    CHANGE_QUEUE_PAGE = 1;
     renderChangeQueue();
   };
   $('#cq-search').oninput = e => {
     CHANGE_QUEUE_FILTER.q = e.target.value;
+    CHANGE_QUEUE_PAGE = 1;
     renderChangeQueue();
   };
   $('#cq-status').onchange = updateFilter;
   $('#cq-site-filter').onchange = updateFilter;
   $('#cq-priority-filter').onchange = updateFilter;
   $('#cq-provider-filter').onchange = updateFilter;
+  $('#cq-owner-filter').onchange = updateFilter;
+  $('#cq-sort').onchange = e => {
+    CHANGE_QUEUE_SORT = e.target.value;
+    CHANGE_QUEUE_PAGE = 1;
+    renderChangeQueue();
+  };
+  $('#cq-sort-dir').onclick = () => {
+    CHANGE_QUEUE_SORT_DIR = CHANGE_QUEUE_SORT_DIR === 'asc' ? 'desc' : 'asc';
+    renderChangeQueue();
+  };
+  $('#cq-page-size').onchange = e => {
+    CHANGE_QUEUE_PAGE_SIZE = Number(e.target.value) || 10;
+    CHANGE_QUEUE_PAGE = 1;
+    renderChangeQueue();
+  };
+  $('#cq-page-prev').onclick = () => {
+    CHANGE_QUEUE_PAGE = Math.max(1, CHANGE_QUEUE_PAGE - 1);
+    renderChangeQueue();
+  };
+  $('#cq-page-next').onclick = () => {
+    CHANGE_QUEUE_PAGE += 1;
+    renderChangeQueue();
+  };
   $$('.cq-pick').forEach(
     b =>
       (b.onclick = async () => {
@@ -11216,14 +11403,19 @@ async function renderChangeQueue() {
   applyFleetFilter();
   if (!FRESH) applyUISnap();
   stamp();
+  CHANGE_QUEUE_RENDERING = false;
 }
 
 async function renderChangeQueueDetail(id) {
   CHANGE_QUEUE_DETAIL = id;
   const panel = $('#cq-detail-panel');
-  if (!panel) return;
+  if (!panel) {
+    toast('Queue action panel is not available; refresh the Change Queue view.', 'err');
+    return;
+  }
   panel.innerHTML =
-    '<section class="card"><div class="loading">Loading request details…</div></section>';
+    '<section class="card cq-detail-card"><div class="loading">Loading actions and request details…</div></section>';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   try {
     const data = await api('GET', `/api/change-requests/${encodeURIComponent(id)}`);
     const r = data.request;
@@ -11316,6 +11508,8 @@ async function renderChangeQueueDetail(id) {
     });
   } catch (e) {
     panel.innerHTML = `<section class="card error-box">${esc(e.message)}</section>`;
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast(`Unable to load queue actions: ${e.message}`, 'err');
   }
 }
 
@@ -11702,7 +11896,144 @@ async function renderAutomation() {
   if (!FRESH) applyUISnap();
 }
 
+async function renderExecutiveSetup() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading executive setup…</div>';
+  let settings, revops, experiments, campaigns, reports, proposals, actions, croLabRuns;
+  try {
+    [settings, revops, experiments, campaigns, reports, proposals, actions, croLabRuns] =
+      await Promise.all([
+        api('GET', '/api/executive/settings'),
+        api('GET', '/api/revops/summary'),
+        api('GET', '/api/experiments'),
+        api('GET', '/api/campaigns/summary'),
+        api('GET', '/api/executive/reports?limit=20'),
+        api('GET', '/api/executive/proposals?limit=100'),
+        api('GET', '/api/executive/actions?limit=200'),
+        apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+      ]);
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">Executive setup failed: ${esc(e.message)}</div>`;
+    return;
+  }
+  const s = settings.settings || {};
+  const revopsSummary = revops.summary || {};
+  const experimentRows = experiments.experiments || [];
+  const campaignSummary = campaigns.summary || {};
+  const reportRows = reports.reports || [];
+  const latestReport = reportRows[0];
+  const croRuns = croLabRuns?.runs || [];
+  const stat = (value, label, tone = '') =>
+    `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
+  const croLabRows = croRuns
+    .slice(0, 6)
+    .map(run => {
+      const candidate = run.candidate?.full_name || 'unknown repository';
+      const decision = run.recommendation?.decision || run.status || 'unresolved';
+      const checks = (run.checks || []).filter(check => check.status === 'passed').length;
+      return `<tr><td><b>${esc(candidate)}</b><div class="muted">${esc(run.candidate?.purpose || 'fleet capability')}</div></td><td><span class="badge ${decision === 'research' ? 'b-green' : decision === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(decision)}</span></td><td>${esc(checks)} passed<div class="muted">${esc(run.repository?.file_count || 0)} files inspected</div></td><td><a href="/api/executive/cro-lab/runs/${encodeURIComponent(run.run_id)}" target="_blank" rel="noreferrer">evidence ↗</a><div class="muted">${esc(fmtDate(run.generated_at))}</div></td></tr>`;
+    })
+    .join('');
+  const proposalRows = (proposals.proposals || [])
+    .map(p => {
+      const pending = ['proposed', 'feedback'].includes(p.status);
+      const badge =
+        p.status === 'approved'
+          ? 'b-green'
+          : p.status === 'declined'
+            ? 'b-red'
+            : p.status === 'feedback'
+              ? 'b-yellow'
+              : 'b-blue';
+      const decision = pending
+        ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
+        : esc(p.decision_note || '');
+      return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(p.status)}</span></td><td>${decision}</td></tr>`;
+    })
+    .join('');
+  const actionRows = (actions.actions || [])
+    .map(
+      a =>
+        `<tr><td class="muted">${esc(fmtDate(a.started_at))}</td><td><b>${esc(executiveActorLabel(a.actor))}</b><div class="muted">${esc(a.action_type)}</div></td><td>${esc(a.summary)}</td><td><span class="badge ${a.status === 'completed' ? 'b-green' : a.status === 'failed' ? 'b-red' : 'b-blue'}">${esc(a.status)}</span>${a.error ? `<div class="error-text">${esc(a.error)}</div>` : ''}</td></tr>`
+    )
+    .join('');
+  app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell">
+    <header class="ex-hero"><div><div class="ex-eyebrow">EXECUTIVE OVERVIEW / SETUP</div><h2 class="page-title">Executive setup</h2><p class="muted">Configure the strategy contract, review operating systems, and inspect executive decision history.</p></div><div class="task-toolbar"><button class="btn" id="ex-back-overview">← Executive overview</button></div></header>
+    <section class="ex-kpis">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</section>
+    <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">SETUP</div><h3>Details &amp; configuration</h3><p class="muted">Strategy contract, performance settings, and decision history.</p></div><button class="btn primary" id="ex-open-setup">Open setup →</button></div></section>
+    <details class="ex-disclosure" open><summary><span><b>Strategy contract</b><small>Targets, limits, risk tolerance, and recurring ticks</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><p class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</p><div class="form-grid"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Fixed monthly costs<input id="ex-fixed-costs" class="cm-input" value="${esc(s.fixed_costs_monthly || '')}" placeholder="optional"></label><label>Marketing budget<input id="ex-marketing-budget" class="cm-input" value="${esc(s.marketing_budget_monthly || '')}" placeholder="optional"></label><label>Revenue floor<input id="ex-revenue-floor" class="cm-input" value="${esc(s.revenue_floor_monthly || '')}" placeholder="optional"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="optional"></label><label>Attribution threshold<input id="ex-attribution-threshold" class="cm-input" value="${esc(s.attribution_materiality_threshold || '')}" placeholder="e.g. 100"></label><label>Risk tolerance<select id="ex-risk" class="cm-input"><option value="">Choose risk tolerance</option><option value="low" ${s.risk_tolerance === 'low' ? 'selected' : ''}>Low — conservative</option><option value="medium" ${s.risk_tolerance === 'medium' ? 'selected' : ''}>Medium — balanced</option><option value="high" ${s.risk_tolerance === 'high' ? 'selected' : ''}>High — exploratory</option></select></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label class="ex-operating-modes">Operating modes / notes<textarea id="ex-notes" class="cm-input" rows="6" placeholder="What should the executive optimize for? Describe priorities, guardrails, and when to escalate.">${esc(s.operating_notes || '')}</textarea></label><label class="ex-check"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks</label><div class="ex-disclosure-actions"><span class="muted">No spend or deployment authority is granted here.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></div></details>
+    <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are tested in disposable workspaces before CEO/CTO review.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
+    <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
+  </div>`;
+  $('#ex-back-overview').onclick = () => go('agent', 'executive');
+  $('#ex-save-settings').onclick = async () => {
+    const btn = $('#ex-save-settings');
+    btn.disabled = true;
+    try {
+      await api('PATCH', '/api/executive/settings', {
+        revenue_target_monthly: $('#ex-revenue-target').value.trim(),
+        fixed_costs_monthly: $('#ex-fixed-costs').value.trim(),
+        marketing_budget_monthly: $('#ex-marketing-budget').value.trim(),
+        revenue_floor_monthly: $('#ex-revenue-floor').value.trim(),
+        attribution_materiality_threshold: $('#ex-attribution-threshold').value.trim(),
+        monthly_spend_limit: $('#ex-spend-limit').value.trim(),
+        risk_tolerance: $('#ex-risk').value.trim(),
+        checkin_hours: Number($('#ex-checkin').value || 24),
+        operating_notes: $('#ex-notes').value.trim(),
+        tick_enabled: $('#ex-tick-enabled').checked,
+      });
+      toast('Strategy saved');
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  $('#ex-run-cro-lab').onclick = async () => {
+    const button = $('#ex-run-cro-lab');
+    button.disabled = true;
+    try {
+      await api('POST', '/api/executive/cro-lab/run', {});
+      toast('CRO repo lab completed');
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      button.disabled = false;
+    }
+  };
+  const decide = (button, status) => {
+    const note = window.prompt(
+      status === 'feedback'
+        ? 'Feedback for the executive team:'
+        : `${status === 'approved' ? 'Approval' : 'Decline'} note (optional):`,
+      ''
+    );
+    if (note === null) return;
+    button.disabled = true;
+    api('POST', `/api/executive/proposals/${encodeURIComponent(button.dataset.id)}/decision`, {
+      status,
+      decision_note: note,
+      decided_by: 'owner',
+    })
+      .then(() => {
+        toast(`Proposal ${status}`);
+        softRender();
+      })
+      .catch(e => {
+        button.disabled = false;
+        toast(e.message, 'err');
+      });
+  };
+  $$('.ex-approve').forEach(b => (b.onclick = () => decide(b, 'approved')));
+  $$('.ex-feedback').forEach(b => (b.onclick = () => decide(b, 'feedback')));
+  $$('.ex-decline').forEach(b => (b.onclick = () => decide(b, 'declined')));
+  wireCrumbs();
+  stamp();
+}
+
 async function renderExecutive() {
+  if (STATE.agentPage === 'setup') return renderExecutiveSetup();
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
   let messages,
@@ -11716,7 +12047,8 @@ async function renderExecutive() {
     reports,
     managerQueue,
     principalQueue,
-    croLabRuns;
+    croLabRuns,
+    runStatus;
   try {
     [
       messages,
@@ -11744,6 +12076,7 @@ async function renderExecutive() {
       api('GET', '/api/executive/domain-manager-queue'),
       api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
       apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+      apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
     ]);
   } catch (e) {
     app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
@@ -11775,7 +12108,7 @@ async function renderExecutive() {
         croHandoff && pending
           ? 'Presented to CEO/CTO'
           : pending
-            ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Feedback</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
+            ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
             : esc(p.decision_note || '');
       return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(status)}</span></td><td>${decision}</td></tr>`;
     })
@@ -11789,7 +12122,7 @@ async function renderExecutive() {
         impl.provider || 'chatgpt',
         impl.model || 'provider default',
       ].join(' · ');
-      return `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · proposed by ${esc(p.created_by)} · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-yellow">${esc(p.status === 'feedback' ? 'needs revision' : 'awaiting approval')}</span></div><p>${esc(p.summary)}</p><div class="muted"><b>Implementation route:</b> ${esc(route)}${impl.site ? ` · ${esc(impl.site)}` : ''}</div><div class="task-toolbar"><button class="btn primary ex-approve" data-id="${esc(p.proposal_id)}">Approve request</button><button class="btn ex-feedback" data-id="${esc(p.proposal_id)}">Request feedback</button><button class="btn danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button></div></article>`;
+      return `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · proposed by ${esc(p.created_by)} · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-yellow">${esc(p.status === 'feedback' ? 'needs revision' : 'awaiting approval')}</span></div><p>${esc(p.summary)}</p><div class="muted"><b>Implementation route:</b> ${esc(route)}${impl.site ? ` · ${esc(impl.site)}` : ''}</div><div class="task-toolbar"><button type="button" class="btn primary ex-approve" data-id="${esc(p.proposal_id)}">Approve and response</button><button type="button" class="btn ex-quick-approve" data-id="${esc(p.proposal_id)}">Quick Approve</button><button type="button" class="btn ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button><button type="button" class="btn danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button></div></article>`;
     })
     .join('');
   const croReviewRows = (proposals.proposals || [])
@@ -11821,6 +12154,50 @@ async function renderExecutive() {
   const managerQueueSummary = managerQueue.queue || {};
   const principalQueueSummary = principalQueue.summary || {};
   const croRuns = croLabRuns?.runs || [];
+  const activeRun = runStatus?.active;
+  const latestRun = runStatus?.latest;
+  const runQueue = runStatus?.queue || [];
+  const runResult = latestRun?.result?.tick_result || latestRun?.result || {};
+  const runCounts = runResult?.counts || runResult?.created_counts || {};
+  const activePhase = activeRun?.result?.phase || 'queued';
+  const runStatusLabel = activeRun ? activePhase : latestRun ? latestRun.status : 'ready';
+  const runStatusClass = activeRun
+    ? 'b-blue'
+    : latestRun?.status === 'completed'
+      ? 'b-green'
+      : latestRun?.status === 'failed'
+        ? 'b-red'
+        : 'b-gray';
+  const runDetails = activeRun
+    ? `${activePhase === 'queued' ? 'Queued' : 'Started'} ${fmtDate(activeRun.result?.[activePhase === 'queued' ? 'queued_at' : 'running_at'] || activeRun.started_at)} · run ${activeRun.action_id.slice(0, 8)} · the team is working through its role passes.`
+    : latestRun
+      ? `${latestRun.status === 'completed' ? 'Completed' : 'Last attempt'} ${fmtDate(latestRun.finished_at || latestRun.started_at)}${latestRun.error ? ` · ${latestRun.error}` : ''}`
+      : 'No operator-triggered run yet.';
+  const runOutput =
+    !activeRun && latestRun?.status === 'completed'
+      ? `<div class="ex-run-output"><b>Latest output</b><span>${esc(
+          Object.entries(runCounts)
+            .filter(([, value]) => Number(value) > 0)
+            .map(([key, value]) => `${value} ${key.replaceAll('_', ' ')}`)
+            .join(' · ') || 'No new items recorded'
+        )}</span><span class="muted">Review the proposals, messages, and audit log below for the full result.</span></div>`
+      : '';
+  const runQueueRows = runQueue
+    .map(run => {
+      const isActive = run.status === 'started';
+      const label = run.source === 'manual' ? 'Manual' : 'Scheduled';
+      const statusClass = isActive
+        ? 'b-blue'
+        : run.status === 'completed'
+          ? 'b-green'
+          : run.status === 'failed'
+            ? 'b-red'
+            : 'b-gray';
+      const detail =
+        run.error || run.result?.phase || (run.result?.counts ? 'Plan applied' : 'Recorded run');
+      return `<tr><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}</td><td class="muted">${esc(run.action_id.slice(0, 8))}</td></tr>`;
+    })
+    .join('');
   const croLabRows = croRuns
     .slice(0, 6)
     .map(run => {
@@ -11839,10 +12216,11 @@ async function renderExecutive() {
   const stat = (value, label, tone = '') =>
     `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
-    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><button class="btn" id="ex-refresh">↻ Refresh</button></header>
+    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><button class="btn" id="ex-refresh">↻ Refresh</button></header>
     <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
+        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueue.length} recorded runs</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Status</th><th>Source / started</th><th>Result</th><th>ID</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No scheduled or operator runs recorded yet.</td></tr>'}</tbody></table></div></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">CEO / CTO inbox</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Saved to the executive record.</span><button class="btn primary" id="ex-send">Send message</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
@@ -11858,6 +12236,23 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   $('#ex-refresh').onclick = () => softRender();
+  $('#ex-open-setup').onclick = () => go('agent', 'executive', 'setup');
+  $('#ex-run-team').onclick = async () => {
+    const button = $('#ex-run-team');
+    button.disabled = true;
+    button.textContent = '⏳ Queuing executive team…';
+    try {
+      await api('POST', '/api/executive/run', {});
+      toast('Executive team run started');
+      await softRender();
+      pollExecutiveRun();
+    } catch (e) {
+      toast(e.message, 'err');
+      button.disabled = false;
+      button.textContent = '▶ Run executive team';
+    }
+  };
+  if (activeRun) pollExecutiveRun();
   $('#ex-run-cro-lab').onclick = async () => {
     const button = $('#ex-run-cro-lab');
     button.disabled = true;
@@ -11905,29 +12300,97 @@ async function renderExecutive() {
       btn.disabled = false;
     }
   };
-  const decide = async (button, status) => {
-    const note =
-      status === 'feedback'
-        ? window.prompt('Feedback for the executive team:')
-        : window.prompt(`${status === 'approved' ? 'Approval' : 'Decline'} note (optional):`, '');
-    if (note === null) return;
+  // Setup is rendered as its own route. Remove the legacy inline copy after
+  // wiring the shared handlers so overview remains focused on decisions.
+  const overviewSetup = $('#ex-revenue-target')?.closest('details');
+  if (overviewSetup) {
+    let node = overviewSetup;
+    for (let i = 0; i < 3 && node; i += 1) {
+      const next = node.nextElementSibling;
+      node.remove();
+      node = next;
+    }
+  }
+  const decide = (button, status) => {
+    if (!$('#modal') || !$('#modal-title') || !$('#modal-body')) {
+      toast('Approval dialog is unavailable; refresh the dashboard', 'err');
+      return;
+    }
+    const proposalTitle =
+      button.closest('.ex-approval-card')?.querySelector('h3')?.textContent || 'this proposal';
+    const isFeedback = status === 'feedback';
+    const isDecline = status === 'declined';
+    const intent = isFeedback
+      ? 'Reply to the team with the changes, questions, evidence, or decision criteria they need. This will return the proposal for revision.'
+      : isDecline
+        ? 'Explain why this proposal should not proceed. This note becomes part of the decision record.'
+        : 'Optionally record the approval context, constraints, or implementation guardrails.';
+    $('#modal-title').textContent = isFeedback
+      ? 'Reply / request changes'
+      : isDecline
+        ? 'Decline proposal'
+        : 'Approve proposal';
+    $('#modal-body').innerHTML =
+      `<div class="ex-decision-form"><div class="ex-decision-context"><div class="cq-eyebrow">${isFeedback ? 'TEAM REPLY' : 'DECISION RECORD'}</div><strong>${esc(proposalTitle)}</strong><p>${esc(intent)}</p></div><label class="field"><span>${isFeedback ? 'Reply and requested changes' : isDecline ? 'Reason for declining' : 'Decision note (optional)'}</span><textarea id="ex-decision-note" class="cm-input" rows="8" placeholder="${isFeedback ? 'Be specific: what needs to change, what research is required, what must be true before approval…' : isDecline ? 'What is the concern, risk, or alternative direction?' : 'Capture the rationale, guardrails, owner, or next step…'}"></textarea></label><div class="modal-actions"><button class="btn" id="ex-decision-cancel">Cancel</button><button class="btn ${isDecline ? 'danger' : 'primary'}" id="ex-decision-submit">${isFeedback ? 'Send reply and request changes' : isDecline ? 'Decline proposal' : 'Approve proposal'}</button></div></div>`;
+    $('#modal').classList.remove('hidden');
+    $('#ex-decision-cancel').onclick = closeModal;
+    $('#ex-decision-submit').onclick = async () => {
+      const submit = $('#ex-decision-submit');
+      const note = $('#ex-decision-note').value.trim();
+      if (isFeedback && !note) return toast('Write the requested changes or reply first', 'err');
+      if (isDecline && !note) return toast('Add a reason before declining', 'err');
+      submit.disabled = true;
+      button.disabled = true;
+      try {
+        await api(
+          'POST',
+          `/api/executive/proposals/${encodeURIComponent(button.dataset.id)}/decision`,
+          { status, decision_note: note, decided_by: 'owner' }
+        );
+        closeModal();
+        toast(isFeedback ? 'Reply sent; proposal returned for revision' : `Proposal ${status}`);
+        softRender();
+      } catch (e) {
+        submit.disabled = false;
+        button.disabled = false;
+        toast(e.message, 'err');
+      }
+    };
+    $('#ex-decision-note').focus();
+  };
+  const quickApprove = async button => {
     button.disabled = true;
     try {
       await api(
         'POST',
         `/api/executive/proposals/${encodeURIComponent(button.dataset.id)}/decision`,
-        { status, decision_note: note, decided_by: 'owner' }
+        {
+          status: 'approved',
+          decision_note: '',
+          decided_by: 'owner',
+        }
       );
-      toast(`Proposal ${status}`);
+      toast('Proposal approved');
       softRender();
     } catch (e) {
       button.disabled = false;
       toast(e.message, 'err');
     }
   };
-  $$('.ex-approve').forEach(b => (b.onclick = () => decide(b, 'approved')));
-  $$('.ex-feedback').forEach(b => (b.onclick = () => decide(b, 'feedback')));
-  $$('.ex-decline').forEach(b => (b.onclick = () => decide(b, 'declined')));
+  // Delegate from the stable app root so controls remain live if a background
+  // refresh replaces the approval cards between paint and the user's click.
+  app.onclick = event => {
+    const button = event.target.closest(
+      '.ex-approve, .ex-quick-approve, .ex-feedback, .ex-decline'
+    );
+    if (!button || !app.contains(button)) return;
+    event.preventDefault();
+    if (button.classList.contains('ex-quick-approve')) quickApprove(button);
+    else if (button.classList.contains('ex-feedback')) decide(button, 'feedback');
+    else if (button.classList.contains('ex-decline')) decide(button, 'declined');
+    else decide(button, 'approved');
+  };
+  wireCrumbs();
   stamp();
 }
 
@@ -12309,7 +12772,7 @@ function renderCategoryRoot(id) {
     ? [
         [
           'executive',
-          'Executive Leadership',
+          'Executive Overview',
           'CEO/CTO proposals, approvals, costs, communication, and audit history',
         ],
         ...(STATE.agents || []).map(a => [
@@ -12399,11 +12862,12 @@ function softRender() {
     });
 }
 
-function go(view, agent) {
+function go(view, agent, agentPage) {
   STATE.view = view;
   STATE.agent = agent || null;
+  STATE.agentPage = agentPage || null;
   if (view === 'git') STATE.gitTab = 'operations';
-  const hash = hashFor(view, agent);
+  const hash = hashFor(view, agent, agentPage);
   if (location.hash !== `#${hash}`) location.hash = hash; // shareable + back-button
   FRESH = true;
   render();
@@ -12414,10 +12878,10 @@ function buildAgentsMenu() {
   const menu = $('#agents-menu');
   if (!menu) return;
   menu.innerHTML =
-    [['executive', 'Executive Leadership', ''], ...(STATE.agents || [])]
+    [['executive', 'Executive Overview', ''], ...(STATE.agents || [])]
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Leadership' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a[2] ?? a.sites}</span>`}</a>`
+          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a[2] ?? a.sites}</span>`}</a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>
@@ -12476,7 +12940,8 @@ function closeNavGroupMenus() {
 
 // Breadcrumb shown atop every agent page.
 function breadcrumb(role) {
-  return `<div class="crumbs"><a class="crumb-link" id="crumb-control">Domain Control</a><span class="crumb-sep">›</span><span class="muted">Agents</span><span class="crumb-sep">›</span><span class="crumb-cur">${esc(agentLabel(role))}</span></div>`;
+  const label = role === 'executive' ? 'Executive Overview' : agentLabel(role);
+  return `<div class="crumbs"><a class="crumb-link" id="crumb-control">Domain Control</a><span class="crumb-sep">›</span><span class="muted">Agents</span><span class="crumb-sep">›</span><span class="crumb-cur">${esc(label)}</span></div>`;
 }
 function wireCrumbs() {
   const c = $('#crumb-control');
@@ -12657,6 +13122,7 @@ async function boot() {
   const r = parseHash();
   STATE.view = r.view;
   STATE.agent = r.agent;
+  STATE.agentPage = r.agentPage || null;
   STATE.gitSlug = r.gitSlug || null;
   STATE.gitTab = r.gitTab || 'operations';
   if (r.view === 'socialhub') shApplyRoute(r.socialHub);
@@ -12728,12 +13194,14 @@ async function boot() {
     if (
       n.view !== STATE.view ||
       n.agent !== STATE.agent ||
+      (n.agentPage || null) !== STATE.agentPage ||
       (n.gitSlug || null) !== STATE.gitSlug ||
       (n.gitTab || 'operations') !== STATE.gitTab ||
       socialHubChanged
     ) {
       STATE.view = n.view;
       STATE.agent = n.agent;
+      STATE.agentPage = n.agentPage || null;
       STATE.gitSlug = n.gitSlug || null;
       STATE.gitTab = n.gitTab || 'operations';
       FRESH = true;

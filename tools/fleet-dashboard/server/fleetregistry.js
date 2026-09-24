@@ -12,6 +12,7 @@ function read(root) {
       site_id: `site:${domain}`,
       domain,
       lifecycle: row.status || 'unknown',
+      visibility: row.visibility || 'public',
       repo: row.repo || null,
       worker: row.worker || null,
       capabilities: Array.isArray(row.capabilities) ? row.capabilities : [],

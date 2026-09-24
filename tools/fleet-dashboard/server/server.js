@@ -71,7 +71,11 @@ const campaigns = require('./campaigns');
 const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
-const { assignedRoleForType, assignedRoleForSite } = require('./task-routing');
+const {
+  assignedRoleForType,
+  assignedRoleForSite,
+  isExecutiveReadOnlyRole,
+} = require('./task-routing');
 
 const DEFAULT_ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..', '..'); // tools/fleet-dashboard/server → repo root
 const PORT = parseInt(process.env.FD_PORT || '4754', 10);
@@ -96,7 +100,7 @@ const AUTOMATIC_DELIVERY_CLAIM_MAX_MS = 15 * 60 * 1000;
 // Bump this when the validation harness changes. A preserved implementation
 // may then receive one bounded revalidation automatically, without reopening
 // the same infrastructure failure on every queue pulse.
-const INFRASTRUCTURE_REVALIDATION_VERSION = 'preview-after-build-v3';
+const INFRASTRUCTURE_REVALIDATION_VERSION = 'worker-runtime-preview-v8';
 // Recovery inspects historical failed work and may need Docker/Git probes.
 // It must not hold the normal queue pickup path hostage when an old worker or
 // container is slow; the recovery lock keeps the long pass single-flight.
@@ -125,6 +129,29 @@ function isInfrastructureEvidence(value) {
   return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1)/i.test(
     String(value || '')
   );
+}
+
+function validationInfrastructureBlock(validation) {
+  if (!validation) return false;
+  // A preview can contain tolerated browser-harness warnings alongside a
+  // real deterministic site defect. Do not classify that mixed result as an
+  // infrastructure outage: broken links, metadata, or accessibility checks
+  // must enter the bounded reviewer-repair path automatically.
+  if (validation.preview?.passed === false) {
+    const checks = Object.values(validation.preview.checks || {});
+    const failed = checks.filter(check => check?.status === 'fail');
+    if (failed.length > 0) {
+      const evidence = failed.map(check => check?.evidence || '').join('\n');
+      return (
+        Boolean(
+          validation.preview.startup_error &&
+          isInfrastructureEvidence(validation.preview.startup_error)
+        ) || isInfrastructureEvidence(evidence)
+      );
+    }
+  }
+  if (validation.browser?.passed === true && validation.preview?.passed === false) return false;
+  return isInfrastructureEvidence(JSON.stringify(validation));
 }
 
 function shouldRetryQueueFailure(text, validation = null) {
@@ -162,6 +189,15 @@ function shouldAutoRevalidateInfrastructureReview(
     (run.state === 'review' || completedReviewerHandoff) &&
     run.outcome?.infrastructure_blocked === true &&
     run.outcome?.infrastructure_revalidation_version !== version
+  );
+}
+
+function shouldPreserveCompletedReviewerHandoff(request, run) {
+  return Boolean(
+    ['review', 'reviewing'].includes(request?.status) &&
+    run?.state === 'building' &&
+    run.agent?.phase === 'reviewer' &&
+    run.agent?.status === 'completed'
   );
 }
 
@@ -452,14 +488,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // and some older sites have no SEO analyst at all. Never launch a worker
     // under a role that does not exist in its own site checkout.
     const previousRole = claimed.assigned_role;
+    const executiveReadOnly = isExecutiveReadOnlyRole(claimed.assigned_role, claimed.delivery_mode);
     const availableRoles = installedSiteRoles(root, claimed.site);
-    const routedRole = assignedRoleForSite(
-      claimed.category,
-      claimed.assigned_role,
-      availableRoles,
-      { delivery_mode: claimed.delivery_mode }
-    );
-    if (claimed.site !== 'fleet' && (!routedRole || !availableRoles.includes(routedRole))) {
+    const routingRoles = executiveReadOnly
+      ? [...availableRoles, claimed.assigned_role]
+      : availableRoles;
+    const routedRole = assignedRoleForSite(claimed.category, claimed.assigned_role, routingRoles, {
+      delivery_mode: claimed.delivery_mode,
+    });
+    if (
+      claimed.site !== 'fleet' &&
+      (!routedRole || (!availableRoles.includes(routedRole) && !executiveReadOnly))
+    ) {
       const reason =
         `no installed owner for category=${claimed.category} on ${claimed.site}; ` +
         `requested role=${claimed.assigned_role || 'unassigned'}`;
@@ -950,6 +990,43 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         });
         if (!request) continue;
         const run = request.run_id ? events.getImprovement(request.run_id) : null;
+        const completedReviewerHandoff = shouldPreserveCompletedReviewerHandoff(candidate, run);
+        // Reviewer completion is a durable handoff, not an abandoned worker.
+        // A dashboard restart can expire the queue lease before the callback
+        // finishes; never send this run through resetChangeRequestRun, which
+        // intentionally cancels/cleans ordinary abandoned building work.
+        if (completedReviewerHandoff) {
+          try {
+            changequeue.update(
+              events,
+              request.request_id,
+              {
+                status: 'review',
+                error: null,
+                next_attempt_at: null,
+                lease_owner: null,
+                lease_expires_at: null,
+                heartbeat_at: null,
+              },
+              site => isKnownTarget(root, site)
+            );
+            events.record({
+              event_type: 'change-request.reviewer_handoff_recovered',
+              source: 'fleet-dashboard',
+              site_id: `site:${request.site}`,
+              entity_type: 'change-request',
+              entity_id: request.request_id,
+              correlation_id: `change-request:${request.request_id}`,
+              payload: {
+                run_id: run.run_id,
+                reason: 'expired lease during completed reviewer handoff',
+              },
+            });
+          } catch {
+            /* another recovery pass may already own the handoff */
+          }
+          continue;
+        }
         let recoverable = true;
         let reason = `worker lease expired while ${request.status}; requeued after dashboard recovery`;
         try {
@@ -1080,11 +1157,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
       if (!run || run.state !== 'building') continue;
       const agentFailed = ['failed', 'timed-out'].includes(run.agent?.status);
+      const reviewerMarker =
+        run.agent?.phase === 'reviewer'
+          ? improvementAgent.reviewResult(improvementAgent.status(root, run).log_tail).marker
+          : null;
       const reviewExhausted =
         ['review', 'reviewing'].includes(request.status) &&
         run.agent?.phase === 'reviewer' &&
         run.agent?.status === 'completed' &&
-        Number(request.review_attempts || 0) >= MAX_AUTOMATIC_REVIEW_REPAIRS;
+        Number(request.review_attempts || 0) >= MAX_AUTOMATIC_REVIEW_REPAIRS &&
+        reviewerMarker !== 'PASS';
       if (!agentFailed && !reviewExhausted) continue;
       try {
         const failedRun = improvements.transition(events, run.run_id, {
@@ -1925,6 +2007,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       throw Object.assign(new Error(`cannot validate from ${item.state}`), { httpStatus: 409 });
     if (!item.sandbox?.instance)
       throw Object.assign(new Error('isolated sandbox is not running'), { httpStatus: 409 });
+    // Reviewer completion and deterministic delivery are separate durable
+    // phases. If the dashboard or worker exited between them, recreate a
+    // stopped sandbox from the current worker image before running gates;
+    // otherwise a repaired validator can silently reuse a stale container.
+    item = await ensureImprovementSandbox(item);
     const workspace = await git.worktreeSnapshot(item.workspace_path);
     if (workspace.dirty)
       throw Object.assign(new Error('commit the worktree changes before validation'), {
@@ -1981,20 +2068,26 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!workTask) throw new Error(`routing task ${run.task_file} is missing from worktree`);
     const parsed = tasks.parseTask(fs.readFileSync(workTask.path, 'utf8'));
     const available = installedSiteRoles(root, request.site);
-    const taskType = String(parsed.meta.type || request.category || '').trim().toLowerCase();
-    const requestCategory = String(request.category || '').trim().toLowerCase();
+    const taskType = String(parsed.meta.type || request.category || '')
+      .trim()
+      .toLowerCase();
+    const requestCategory = String(request.category || '')
+      .trim()
+      .toLowerCase();
     if (taskType && requestCategory && taskType !== requestCategory)
       throw new Error(
         `routing category mismatch: task type=${taskType}, request category=${requestCategory}`
       );
     const requestedRole = request.assigned_role || parsed.meta.assigned_role;
-    // Keep routing site-aware and fail closed when no installed owner exists.
-    const effectiveRole = assignedRoleForSite(
-      taskType,
-      requestedRole,
-      available,
-      { delivery_mode: request.delivery_mode }
-    );
+    // This is a site-aware normalization pass, not a second opportunity to
+    // apply fleet-wide defaults.  Falling back to assignedRoleForType here
+    // used to rewrite an unowned SEO task to a role that was not installed on
+    // the site (and, in older callers, could turn it into engineer work).
+    // Fail closed; the dispatch preflight/owner-gap item must handle the
+    // missing owner instead of manufacturing an executable task.
+    const effectiveRole = assignedRoleForSite(taskType, requestedRole, available, {
+      delivery_mode: request.delivery_mode,
+    });
     if (!effectiveRole || effectiveRole === parsed.meta.assigned_role) return false;
 
     const previousRole = parsed.meta.assigned_role || null;
@@ -2052,9 +2145,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (canonicalStatus.files.some(file => file.path === canonicalRel))
       throw new Error(`canonical routing task is already dirty: ${canonicalRel}`);
     const worker = tasks.parseTask(fs.readFileSync(workTask.path, 'utf8'));
-    // Preserve a worker-side park move on the canonical checkout.
+    // A routing worker is allowed to park a misfiled task.  Previously only
+    // frontmatter was merged, so a worker-side `hold/` move disappeared and
+    // the canonical task stayed in-progress, causing the same owner alert on
+    // every subsequent queue/recovery pass.
     if (workTask.column !== canonicalTask.column) {
-      const moved = tasks.move(root, item.site, canonicalTask.column, item.task_file, workTask.column);
+      const moved = tasks.move(
+        root,
+        item.site,
+        canonicalTask.column,
+        item.task_file,
+        workTask.column
+      );
       canonicalRel = `ops/tasks/${workTask.column}/${moved.file}`;
       canonicalPath = path.join(
         root,
@@ -2173,7 +2275,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // idempotent instead of trying to validate a second time from `review`.
     let reviewRun = item;
     if (shouldValidateBeforeDelivery(item)) {
-      const validated = await validateImprovementForDelivery(item);
+      // A recovered reviewer PASS may have durably moved the run to `review`
+      // before delivery resumed. Deterministic validation is a building-phase
+      // operation, so reopen that same run in place rather than converting a
+      // valid handoff into an infrastructure failure.
+      if (reviewRun.state === 'review') {
+        reviewRun = improvements.transition(events, reviewRun.run_id, { state: 'building' });
+      }
+      const validated = await validateImprovementForDelivery(reviewRun);
       if (validated.validation.passed !== true) {
         const infrastructureBlock = validationInfrastructureBlock(validated.validation);
         throw Object.assign(new Error('quality gates did not pass'), {
@@ -2300,10 +2409,6 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     ].join('\n');
   }
 
-  function validationInfrastructureBlock(validation) {
-    return isInfrastructureEvidence(JSON.stringify(validation || {}));
-  }
-
   function claimAutomaticDelivery(item) {
     const now = new Date().toISOString();
     const claimed = events.claimImprovementDelivery(item.run_id, {
@@ -2341,8 +2446,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function reviewInfrastructureBlock(rootPath, run, error) {
     const evidence = automaticReviewFeedback(rootPath, run, error);
+    const validation = error?.validation || run?.validation;
+    // Do not let tolerated browser warnings in the serialized validation or
+    // reviewer log reclassify a deterministic preview defect as infrastructure.
+    // Such defects are exactly what bounded automatic repair is meant to fix.
+    const hasDeterministicPreviewFailure =
+      validation?.preview?.passed === false &&
+      Object.values(validation.preview.checks || {}).some(check => check?.status === 'fail');
+    if (hasDeterministicPreviewFailure && !validationInfrastructureBlock(validation)) return false;
     return (
-      validationInfrastructureBlock(error?.validation || run?.validation) ||
+      validationInfrastructureBlock(validation) ||
       isInfrastructureEvidence(evidence) ||
       /(?:browserType\.launch|executable doesn't exist|playwright install|missing (?:browser|chromium)|cannot find module|network request failed)/i.test(
         evidence
@@ -2502,7 +2615,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           recover_reviewer: true,
         });
       }
-      const recoveryStatus = request.status === 'failed' ? 'review' : 'running';
+      // The reviewer callback may still own the intermediate `reviewing`
+      // projection when validation fails. Re-enter through `review` first;
+      // the queue state machine intentionally does not allow reviewing →
+      // running, while review → running is the bounded repair transition.
+      const recoveryStatus = ['failed', 'reviewing'].includes(request.status)
+        ? 'review'
+        : 'running';
       changequeue.update(
         events,
         request.request_id,
@@ -2963,6 +3082,77 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/settings', (_req, res) => {
     try {
       res.json({ settings: events.getExecutiveSettings() });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  // Operator-triggered executive runs are detached because a full pass can
+  // take several minutes. The action row is created before spawning so the UI
+  // has an immediate, durable run handle and can poll it safely.
+  app.get('/api/executive/run-status', (_req, res) => {
+    try {
+      const actions = events.listExecutiveActions({ limit: 300 });
+      const manual = actions.filter(row => row.target_type === 'manual-executive-run');
+      const ticks = actions.filter(row => row.action_type === 'tick');
+      // A scheduled tick and an operator run are both real executive runs.
+      // Keep them in one stream so the dashboard cannot report "ready" while
+      // the hourly scheduler is still inside the model pass.
+      const active =
+        actions.find(
+          row =>
+            row.status === 'started' &&
+            (row.target_type === 'manual-executive-run' ||
+              row.target_type === 'scheduled-executive-run' ||
+              row.action_type === 'tick')
+        ) || null;
+      const queue = [...manual, ...ticks]
+        .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''))
+        .slice(0, 24)
+        .map(row => ({
+          ...row,
+          source: row.target_type === 'manual-executive-run' ? 'manual' : 'scheduled',
+        }));
+      res.json({
+        active,
+        latest: manual[0] || null,
+        runs: manual.slice(0, 12),
+        queue,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/run', (req, res) => {
+    try {
+      const recent = events
+        .listExecutiveActions({ limit: 100 })
+        .filter(row => row.target_type === 'manual-executive-run');
+      const active = recent.find(row => row.status === 'started');
+      if (active)
+        return res
+          .status(409)
+          .json({ error: 'an executive team run is already in progress', run: active });
+      const action = executive.action(events, {
+        actor: 'owner',
+        action_type: 'other',
+        summary: 'Manual executive team run',
+        target_type: 'manual-executive-run',
+        target_id: 'fleet',
+        result: { phase: 'queued', queued_at: new Date().toISOString() },
+      });
+      const script = path.join(root, 'tools', 'executive', 'manual-run.js');
+      const child = require('node:child_process').spawn(
+        process.execPath,
+        [script, action.action_id],
+        {
+          cwd: root,
+          detached: true,
+          stdio: 'ignore',
+          env: { ...process.env, FD_DOMAINS_ROOT: root },
+        }
+      );
+      child.unref();
+      res.status(202).json({ run: action });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -4312,6 +4502,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (!isKnownSite(root, site)) return res.status(404).json({ error: 'unknown site' });
       if (!/^[a-f0-9]{20}$/.test(String(key || '')))
         return res.status(400).json({ error: 'invalid intelligence action key' });
+      // A cached pre-policy snapshot may still contain a crawlability action
+      // while the private-preview suppression rolls out. Recheck visibility at
+      // mutation time so stale UI state cannot file an invalid sitemap task.
+      if (seoIntelligence.privatePreviewSites(root, [site]).has(site)) {
+        return res.json({
+          ok: true,
+          suppressed: true,
+          reason: 'private-preview site is intentionally not crawlable until launch',
+        });
+      }
       const snapshot = await seoIntelligence.buildSnapshot({ root });
       const action = snapshot.actions.find(row => row.site === site && row.key === key);
       if (!action) return res.status(404).json({ error: 'intelligence action no longer exists' });
@@ -5940,7 +6140,16 @@ async function validatePreview(instance, url) {
         .filter(href => href.startsWith('/'))
         .slice(0, 20);
       const broken = [];
+      const externalRedirects = [];
       for (const href of [...new Set(hrefs)]) {
+        // Affiliate cloaks intentionally redirect off-site. The disposable
+        // preview cannot follow those destinations without production-network
+        // access; their target integrity is covered by each site's affiliate
+        // mapping tests, so they are evidence rather than broken local pages.
+        if (href === '/go' || href.startsWith('/go/')) {
+          externalRedirects.push(href);
+          continue;
+        }
         try {
           const link = await devsandbox.preview(instance, href);
           if (!link.ok) broken.push(`${href} (${link.status || 'error'})`);
@@ -5950,7 +6159,9 @@ async function validatePreview(instance, url) {
       }
       out.checks.internal_links = {
         status: broken.length ? 'fail' : 'pass',
-        evidence: broken.length ? broken.join(', ') : `${hrefs.length} checked`,
+        evidence: broken.length
+          ? broken.join(', ')
+          : `${hrefs.length - externalRedirects.length} local link(s) checked; ${externalRedirects.length} affiliate redirect(s) exempted`,
       };
       out.passed =
         response.ok &&
@@ -6043,8 +6254,10 @@ module.exports = {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
   isInfrastructureEvidence,
+  validationInfrastructureBlock,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
+  shouldPreserveCompletedReviewerHandoff,
   infrastructureReviewProjectionPatch,
   shouldRecoverStaleDeliveryClaim,
   shouldRecoverReviewerDeliveryClaim,

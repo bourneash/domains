@@ -314,6 +314,24 @@ test('linkActions turns a missing sitemap into a crawlability action', () => {
   assert.equal(actions[0].priority, 'high');
 });
 
+test('linkActions suppresses missing-sitemap noise for private-preview sites', () => {
+  const actions = seo.linkActions(
+    { sites: [{ site: 'preview.example', error: 'no sitemap', findings: [] }] },
+    { privatePreview: new Set(['preview.example']) }
+  );
+  assert.deepEqual(actions, []);
+});
+
+test('privatePreviewSites recognizes the registry visibility contract', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-preview-registry-'));
+  fs.mkdirSync(path.join(root, 'registry'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'registry', 'fleet.yaml'),
+    'sites:\n  preview.example:\n    status: live\n    visibility: private-preview\n'
+  );
+  assert.deepEqual([...seo.privatePreviewSites(root, ['preview.example'])], ['preview.example']);
+});
+
 test('filedActionKeys finds durable task markers', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-intel-'));
   const dir = path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog');
