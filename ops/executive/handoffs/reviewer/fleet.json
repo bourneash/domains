@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T21:01:01.584Z",
+  "generated_at": "2026-09-24T21:08:47.197Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded gate03.com report-only readiness assessment. Reject new production work, high-priority queue work, revenue claims, and causal claims this cycle because analytics is not configured and available attribution is insufficient. Continue existing measurement and incident-repair gates; do not request duplicate telemetry or change production.",
+        "summary": "Recommendation: approve the bounded noveltyguns.com readiness report and route only three normal-priority, metadata-only task-ownership repairs. Reject new production work, high-priority queue work, unsupported revenue or causal claims, and duplicate telemetry requests. Existing attribution is aggregate/low-volume, analytics is unavailable for noveltyguns.com, 17 improvements await measurement, and failed repair work remains open. No owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

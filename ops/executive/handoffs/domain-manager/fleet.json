@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T21:01:01.584Z",
+  "generated_at": "2026-09-24T21:08:47.197Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run gate03.com audience and monetization readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of gate03.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. The current snapshot records gate03.com as analytics not configured; unavailable traffic, revenue, conversion, attribution, SEO, and health fields must remain unknown.",
-        "requested_action": "Approve a report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue, ROI, or causal lift.",
-        "proposal_id": "97471cdc-0891-4624-b6c4-c58f98ea2609"
+        "title": "Run noveltyguns.com audience, monetization, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of noveltyguns.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Analytics is recorded as not configured; unavailable traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown.",
+        "requested_action": "Approve the report-only assessment using existing evidence only.",
+        "proposal_id": "a6325d1c-d9de-4659-a375-e676f0ce839a"
       }
     ]
   }
