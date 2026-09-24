@@ -43,6 +43,7 @@ SELF_SIGNATURE = "principal engineer"
 # Convention: test injectors prefix with "TEST " (case-insensitive).
 TEST_PREFIXES = ("test ", "[test]", "test:")
 SYNTHETIC_MARKER = "synthetic failure"
+EXPECTED_CHANNEL = os.environ.get("PRINCIPAL_ENGINEER_CHANNEL", "").strip()
 
 # claude-tracked explicitly delegates these shared-account outages to the
 # fleet auth monitor.  A role can emit two Slack errors for one failed turn:
@@ -125,6 +126,8 @@ def read_slack_lines(since_dt):
                     try:
                         rec = json.loads(line)
                     except Exception:
+                        continue
+                    if EXPECTED_CHANNEL and rec.get("channel", "") != EXPECTED_CHANNEL:
                         continue
                     ts = parse_ts(rec.get("ts", ""))
                     if ts is None or (since_dt and ts <= since_dt):

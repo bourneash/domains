@@ -23,6 +23,7 @@ LOG="ops/logs/principal-engineer-$(date -u +%Y%m%d).log"
 [[ -f "$REPO_ROOT/.env.shared" ]] && { set -a; . "$REPO_ROOT/.env.shared"; set +a; }
 NOTIFY="$REPO_ROOT/ops/scripts/notify-slack.sh"
 CHANNEL_DEFAULT="${{{SLACK_CHANNEL_ENV_VAR}}:-{{SLACK_CHANNEL_DEFAULT}}}"
+export PRINCIPAL_ENGINEER_CHANNEL="$CHANNEL_DEFAULT"
 NOW_ET="$(TZ=America/New_York date +'%H:%M ET')"
 
 log() { echo "[$(date -Iseconds)] run-principal-engineer: $*" | tee -a "$LOG"; }
@@ -56,8 +57,7 @@ ACTION="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.
 if [[ "$ACTION" == "escalate" ]]; then
   FP="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["fp"])')"
   SUMMARY="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("summary", ""))')"
-  CHANNEL="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("channel") or "")')"
-  [[ -z "$CHANNEL" ]] && CHANNEL="$CHANNEL_DEFAULT"
+  CHANNEL="$CHANNEL_DEFAULT"
   TASK="ops/tasks/backlog/principal-incident-${FP}.md"
   MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
   [[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
@@ -98,8 +98,7 @@ FP="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdi
 SUMMARY="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["summary"])')"
 OCC="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["occurrence"])')"
 ATTEMPT="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["attempt"])')"
-CHANNEL="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("channel") or "")')"
-[[ -z "$CHANNEL" ]] && CHANNEL="$CHANNEL_DEFAULT"
+CHANNEL="$CHANNEL_DEFAULT"
 
 log "acting on fingerprint=$FP occurrence=$OCC attempt=$ATTEMPT — dispatching worker"
 
