@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:40:55.640Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T10:10:00.152Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Resolve competing xxxtea.com pages for the branded query",
-        "summary": "Search data shows five xxxtea.com pages sharing 87 impressions for the branded query, including the homepage at position 1, /gallery at 2.9, and other pages between positions 5.8 and 6.9. Route a bounded internal-linking, canonical, and snippet review to consolidate intent without claiming causal or revenue impact.",
-        "requested_action": "Approve an isolated SEO implementation review for xxxtea.com. Do not deploy directly, alter credentials or schedules, request duplicate telemetry, spend money, or claim causal lift.",
-        "proposal_id": "f431df48-f3f1-4ae8-9ac6-73c2154932a0"
-      }
-    ]
+    "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 8,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
