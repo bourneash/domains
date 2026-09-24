@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T11:05:00.151Z",
-  "summary": "daily domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-24T14:36:06.516Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "c06cb95a-f02f-4cfc-9dbf-95d1d194db5e",
-    "cadence": "daily",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 8,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Route 0daynews.com routing-invariant smoke-test task to engineer",
+        "summary": "The action mandate ranks this 0daynews.com task at score 96 because human-triage is unavailable and engineer is the nearest installed owner. Recent 0daynews.com routing-related worker runs also failed, so ownership metadata and routing validation should be repaired before further execution.",
+        "requested_action": "Reassign only the existing task to engineer. Do not change site code, production behavior, credentials, configuration, telemetry, spending, schedules, or deployment.",
+        "proposal_id": "e6ee7b4c-d8f7-45e3-a57e-bfe12de75a1c"
+      }
+    ]
   }
 }

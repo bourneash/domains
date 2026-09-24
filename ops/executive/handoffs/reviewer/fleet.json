@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:40:55.640Z",
+  "generated_at": "2026-09-24T14:36:06.515Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve three normal-priority, metadata-only task-routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the xxxtea.com SEO proposal because it is production-adjacent and lacks sufficient outcome evidence; preserve one bounded public inspection for weapontester.com. Do not authorize unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedule changes, or high-priority queue work.",
+        "summary": "Recommendation: reject the proposed production and high-priority queue work for this cycle. Available revenue is only partially attributable, measured outcomes are inconclusive, and several recent execution paths failed; these conditions do not support financial claims or new production changes. Keep production work closed, continue existing measurement gates, and repair failed requests through their existing incident work without creating duplicate telemetry or queue actions. No decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
