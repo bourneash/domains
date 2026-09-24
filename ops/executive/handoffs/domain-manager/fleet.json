@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:20:05.693Z",
+  "generated_at": "2026-09-24T08:36:49.907Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete the Great American Lakes pilot measurement report",
-        "summary": "Continue the already-deployed Great American Lakes measurement gate using existing telemetry only. The pilot remains pending measurement with no proven causal outcome.",
-        "requested_action": "Approve a bounded report-only checkpoint after 14 days from deployment or 100 new impressions, whichever comes first. Record available metrics, explicit unknowns, attribution boundaries, and reconciliation limits without claiming causal lift, revenue, or ROI.",
-        "proposal_id": "51ad426e-851b-471f-91a5-2ef9a7eb5839"
+        "title": "Run aliencouncil.com audience and monetization readiness baseline",
+        "summary": "aliencouncil.com is live with GA4 and GSC collecting successfully, 24 sessions, 43 search impressions, 0 clicks, 0 conversions, 2 high-priority SEO actions, and $15.08 in AI cost during the available reporting window. Amazon attribution shows 10 site-linked clicks, 0 orders, and $0 commission. Produce a bounded assessment of audience positioning, content coverage, conversion paths, monetization readiness, operational health, and the highest-value reversible backlog item without inventing missing telemetry or claiming causal impact.",
+        "requested_action": "Approve a report-only assessment using existing read-only evidence. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "d53c8690-03b8-49f7-bc14-3f1b99908f7c"
       }
     ]
   }
