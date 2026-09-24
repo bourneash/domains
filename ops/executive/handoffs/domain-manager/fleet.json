@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:48:59.064Z",
+  "generated_at": "2026-09-24T09:04:42.062Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run dumbsluts.com readiness and backlog baseline",
-        "summary": "Produce a bounded, read-only assessment of dumbsluts.com using only available evidence. Analytics configuration is not present in the snapshot, so traffic, conversions, revenue, attribution, audience behavior, and operational health must remain unknown unless independently evidenced.",
-        "requested_action": "Approve a report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer adult status from the domain name.",
-        "proposal_id": "94be858b-83a8-405e-a57a-b7a84eeb0b79"
+        "title": "Run mynewgm.com readiness and backlog baseline",
+        "summary": "Produce a bounded, read-only assessment of mynewgm.com using only authoritative evidence. The snapshot reports analytics as unconfigured, so traffic, conversions, revenue, attribution, audience behavior, and operational health remain unknown unless separately evidenced.",
+        "requested_action": "Approve a report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer missing telemetry.",
+        "proposal_id": "36e2e295-fe69-498e-a83e-0a34a00f7843"
       }
     ]
   }
