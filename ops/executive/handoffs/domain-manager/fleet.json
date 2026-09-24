@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T21:08:47.197Z",
+  "generated_at": "2026-09-24T21:21:56.833Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run noveltyguns.com audience, monetization, and measurement readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of noveltyguns.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Analytics is recorded as not configured; unavailable traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown.",
-        "requested_action": "Approve the report-only assessment using existing evidence only.",
-        "proposal_id": "a6325d1c-d9de-4659-a375-e676f0ce839a"
+        "title": "Run rodhat.com audience, monetization, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of rodhat.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Current evidence records 270 impressions, 4 clicks, 21 sessions, 0 conversions, 6 SEO actions, and $41.06 in AI usage cost; do not infer revenue, attribution, causality, or unavailable telemetry.",
+        "requested_action": "Approve the report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
+        "proposal_id": "b207153e-2249-46ad-8561-1fa7a3e7b1b2"
       }
     ]
   }
