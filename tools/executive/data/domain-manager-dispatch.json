@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-23T13:04:00.386Z",
+  "updated_at": "2026-09-24T17:34:00.401Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -226800,13 +226800,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T14:32:49.926Z",
       "lease_until": null,
-      "last_error": "(node:490273) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n",
-      "claimed_at": "2026-09-23T08:32:00.327Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T14:33:00.347Z",
+      "completed_at": "2026-09-23T14:34:03.287Z"
     },
     {
       "job_id": "cb8482c8-dd92-4b08-9ab1-5da50aea9537",
@@ -226816,13 +226817,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "failed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T14:34:02.318Z",
       "lease_until": null,
-      "last_error": "(node:490812) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n",
-      "claimed_at": "2026-09-23T08:33:00.379Z"
+      "last_error": "(node:752429) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 0 (created_by=independent-reviewer)\n(node:752905) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-23T14:35:00.338Z",
+      "failed_at": "2026-09-23T14:36:07.537Z"
     },
     {
       "job_id": "9c94713d-4e35-4c14-a906-c503deeeb681",
@@ -226883,13 +226885,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T14:39:59.721Z",
       "lease_until": null,
-      "last_error": "building domains-executive-runner:latest from current executive source (5099dad11c0110c73e93a2ba63bd9b6e8c6b304817f220286bdac0c8c50d889a)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\n(node:494297) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
-      "claimed_at": "2026-09-23T08:39:00.418Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T14:40:00.476Z",
+      "completed_at": "2026-09-23T14:41:04.151Z"
     },
     {
       "job_id": "1f1c1e74-591b-47af-ade6-384206889819",
@@ -226899,13 +226902,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T14:40:56.268Z",
       "lease_until": null,
-      "last_error": "(node:495648) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
-      "claimed_at": "2026-09-23T08:40:00.358Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T14:42:00.365Z",
+      "completed_at": "2026-09-23T14:42:43.443Z"
     },
     {
       "job_id": "c8178ed2-0d84-4774-aea2-90dc4e9cea9f",
@@ -227136,13 +227140,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T14:58:44.264Z",
       "lease_until": null,
-      "last_error": "(node:510331) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid work item in provider plan\n",
-      "claimed_at": "2026-09-23T08:58:00.346Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T14:59:00.332Z",
+      "completed_at": "2026-09-23T14:59:31.769Z"
     },
     {
       "job_id": "777a906c-a038-4d3d-99d6-7c46a448d734",
@@ -227152,13 +227157,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "failed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T14:59:52.304Z",
       "lease_until": null,
-      "last_error": "(node:510860) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
-      "claimed_at": "2026-09-23T08:59:00.368Z"
+      "last_error": "(node:769909) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 0 (created_by=independent-reviewer)\n(node:771875) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-23T15:00:00.390Z",
+      "failed_at": "2026-09-23T15:00:50.308Z"
     },
     {
       "job_id": "00c24b39-1381-4540-b5aa-fb15d13958cf",
@@ -227270,13 +227276,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T15:09:44.938Z",
       "lease_until": null,
-      "last_error": "(node:518692) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan\n",
-      "claimed_at": "2026-09-23T09:09:00.352Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T15:10:00.352Z",
+      "completed_at": "2026-09-23T15:11:00.684Z"
     },
     {
       "job_id": "843ed5c1-4bdd-4010-94bb-deb2b4d8c68a",
@@ -227388,13 +227395,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T15:21:58.135Z",
       "lease_until": null,
-      "last_error": "e when supplied\n  ---\n  duration_ms: 2.049689\n  type: 'test'\n  ...\n# Subtest: controller controls and learning reviews stay behind the hub proxy\nok 364 - controller controls and learning reviews stay behind the hub proxy\n  ---\n  duration_ms: 1.072811\n  type: 'test'\n  ...\n# Subtest: task serialization preserves lineage and measurement fields\nok 365 - task serialization preserves lineage and measurement fields\n  ---\n  duration_ms: 6.853974\n  type: 'test'\n  ...\n# Subtest: moving a task records lifecycle timestamps\nok 366 - moving a task records lifecycle timestamps\n  ---\n  duration_ms: 2.997376\n  type: 'test'\n  ...\n# Subtest: SEO tasks always start with the SEO analyst\nok 367 - SEO tasks always start with the SEO analyst\n  ---\n  duration_ms: 2.560692\n  type: 'test'\n  ...\n# Subtest: site-aware routing uses an installed equivalent role\nok 368 - site-aware routing uses an installed equivalent role\n  ---\n  duration_ms: 0.33067\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 369 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 3.36698\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 370 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.230647\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 371 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.007753\n  type: 'test'\n  ...\n1..371\n# tests 371\n# suites 0\n# pass 370\n# fail 0\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 12154.622376\ntools/executive/runner.js 278ms (unchanged)\ntools/fleet-dashboard/server/executive-scorecard.js 37ms (unchanged)\ntools/fleet-dashboard/server/executive-scorecard.test.js 13ms (unchanged)\nfatal: cannot lock ref 'HEAD': is at ff7a05d57bdcf168ebea9e5c22368daf8e2a5659 but expected 0693c11f2406b93fa6ef6627d15582cc8e44c8b7\n",
-      "claimed_at": "2026-09-23T09:21:00.660Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T15:22:01.008Z",
+      "completed_at": "2026-09-23T15:22:46.657Z"
     },
     {
       "job_id": "40c1e08e-7742-4859-9701-1b76e4d6cb9b",
@@ -227472,13 +227480,14 @@
         "routine_fleet_review"
       ],
       "report_id": "ed943c55-d932-452f-b670-3a7da12a2574",
-      "status": "queued",
-      "attempts": 2,
+      "status": "completed",
+      "attempts": 3,
       "requested_at": "2026-09-23T02:15:00.180Z",
       "next_attempt_at": "2026-09-23T15:28:48.054Z",
       "lease_until": null,
-      "last_error": "(node:534017) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n",
-      "claimed_at": "2026-09-23T09:28:00.327Z"
+      "last_error": null,
+      "claimed_at": "2026-09-23T15:29:00.365Z",
+      "completed_at": "2026-09-23T15:30:19.138Z"
     },
     {
       "job_id": "1ded0692-c96a-483e-8e5a-c126eb1d060f",
@@ -227751,6 +227760,1018 @@
       "last_error": null,
       "claimed_at": "2026-09-23T03:48:00.343Z",
       "completed_at": "2026-09-23T03:48:44.783Z"
+    },
+    {
+      "job_id": "e612e1d8-335d-4388-92f1-7197c8de387b",
+      "fingerprint": "9cd0ef377977877f51b86d2978acef671fdc1161596c85dd6eee5ab03431bbc1",
+      "site": "0xroulette.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "38702867-053e-4031-aab4-a832b96477fc",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-23T14:37:00.157Z",
+      "next_attempt_at": "2026-09-23T20:37:51.128Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-23T20:38:00.336Z",
+      "completed_at": "2026-09-23T20:39:09.017Z"
+    },
+    {
+      "job_id": "e81247a1-c15e-45e1-bb08-da3643ffc05d",
+      "fingerprint": "e92fd85245f2b250e60524c511f59fbdea0294ba0dcc4d4ce4437f3c252344df",
+      "site": "infrainnovator.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "38702867-053e-4031-aab4-a832b96477fc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-23T15:01:00.171Z",
+      "next_attempt_at": "2026-09-23T15:01:00.171Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-23T15:01:00.357Z",
+      "completed_at": "2026-09-23T15:01:40.071Z"
+    },
+    {
+      "job_id": "7ed1dab6-9661-4baa-b847-965fb91ad13d",
+      "fingerprint": "107f47bc2a065339c764bbef51061371ddf1948302808f46d66f09330d43a39f",
+      "site": "saltwaternews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T02:25:00.151Z",
+      "next_attempt_at": "2026-09-24T02:25:00.151Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T02:25:00.346Z",
+      "completed_at": "2026-09-24T02:26:31.921Z"
+    },
+    {
+      "job_id": "1f91fc0b-0a05-41ac-ac80-cfb7002db4d4",
+      "fingerprint": "bbd5eb1296267b518d651c13782e52cb76755ed989ebecd2a0dfb382c460f570",
+      "site": "seedstosauce.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T02:29:00.154Z",
+      "next_attempt_at": "2026-09-24T02:29:00.154Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T02:29:00.339Z",
+      "completed_at": "2026-09-24T02:29:54.274Z"
+    },
+    {
+      "job_id": "bb08d35b-77ab-4a33-94c2-18ec60e8a0b9",
+      "fingerprint": "0f779a82f9f37130dda95d170ca93a057665356c015ce9f8c0b477807e4559c8",
+      "site": "allthingsmasonic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T02:36:00.151Z",
+      "next_attempt_at": "2026-09-24T02:36:00.151Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T02:36:00.347Z",
+      "completed_at": "2026-09-24T02:37:09.333Z"
+    },
+    {
+      "job_id": "37df2e9f-dea4-49e3-93df-ea78aba5d6d8",
+      "fingerprint": "ae10f9c7ea63da2f4e49f290f826fad4a662b705b0c529752a87b4f7b7f21b0f",
+      "site": "arttogogh.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 3,
+      "requested_at": "2026-09-24T02:38:00.207Z",
+      "next_attempt_at": "2026-09-24T14:39:54.675Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T14:40:00.359Z",
+      "completed_at": "2026-09-24T14:40:57.176Z"
+    },
+    {
+      "job_id": "4bbd2746-f5cd-4955-9e6e-65e68128f1d2",
+      "fingerprint": "a383f7fdf6960b9a849d9cd8b6a12db8c2df9734fdd09b8a9ae4971e4a697c2c",
+      "site": "drivegm.net",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T02:46:00.151Z",
+      "next_attempt_at": "2026-09-24T02:46:00.151Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T02:46:00.342Z",
+      "completed_at": "2026-09-24T02:47:12.832Z"
+    },
+    {
+      "job_id": "4b2fa99d-15ab-44b8-a676-ef6ec158830b",
+      "fingerprint": "affa58fb5ae0b3f467532f0b772a25980832a0758336ff77f3254da2682ade09",
+      "site": "elevatorfriends.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T02:50:00.151Z",
+      "next_attempt_at": "2026-09-24T02:50:00.151Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T02:50:00.342Z",
+      "completed_at": "2026-09-24T02:50:57.656Z"
+    },
+    {
+      "job_id": "722d2b36-101e-4206-8b2f-5c3c44c4cb52",
+      "fingerprint": "2434c61d96a13d21c03374aeb3711b2f679739db865f7d49c5ed3d35a2b9abf1",
+      "site": "failbunny.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T02:52:00.151Z",
+      "next_attempt_at": "2026-09-24T02:52:00.151Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T02:52:00.357Z",
+      "completed_at": "2026-09-24T02:52:54.033Z"
+    },
+    {
+      "job_id": "e38a15f6-7cc7-4d6e-9bf2-42f947c07b05",
+      "fingerprint": "2d3628089be93ade4bd1303da5197b15c54b6924080e471970e8a09c30ed1dba",
+      "site": "marineactivity.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:02:00.148Z",
+      "next_attempt_at": "2026-09-24T03:02:00.148Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:02:00.335Z",
+      "completed_at": "2026-09-24T03:02:51.578Z"
+    },
+    {
+      "job_id": "1d2341f2-f713-42ce-8213-47816d1efd0d",
+      "fingerprint": "18eb75c8831d820c9a3b0873fd62c02e7bdb543c22d4d41ab062fc0a0617a3b9",
+      "site": "nsfwpixels.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:07:00.143Z",
+      "next_attempt_at": "2026-09-24T03:07:00.143Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:07:00.325Z",
+      "completed_at": "2026-09-24T03:07:53.995Z"
+    },
+    {
+      "job_id": "ef73a7c7-45ee-45c3-a2e7-5357897324e3",
+      "fingerprint": "5283d655ac751f616580a3bd57561fd70fbeaf8528e6964a08cfc374efe4ea5a",
+      "site": "oventoheaven.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:11:00.162Z",
+      "next_attempt_at": "2026-09-24T03:11:00.162Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:11:00.350Z",
+      "completed_at": "2026-09-24T03:11:47.877Z"
+    },
+    {
+      "job_id": "2bc30937-617d-4637-9685-c38e011bc615",
+      "fingerprint": "1cf814944294bcdf9b7a982f06d34515513b8b75f0e2b2d5a50c550a56df0157",
+      "site": "pokererotic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:14:00.146Z",
+      "next_attempt_at": "2026-09-24T03:14:00.146Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:14:00.342Z",
+      "completed_at": "2026-09-24T03:14:50.043Z"
+    },
+    {
+      "job_id": "8b9213b3-4f1e-45e7-b3db-8fe18af37d98",
+      "fingerprint": "3b05a49f04859dfc5f6691bf1808f513ecbef74b48a80cbe19093d2a9e11de4e",
+      "site": "reviewtattoo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:16:00.148Z",
+      "next_attempt_at": "2026-09-24T03:16:00.148Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:16:00.345Z",
+      "completed_at": "2026-09-24T03:16:51.433Z"
+    },
+    {
+      "job_id": "3cdbdf54-98a3-4978-8fe4-c5220e5af35a",
+      "fingerprint": "15f9bd694c8a3e11120df823836de859784aba3f6f2470773ee5462f5c9a40d4",
+      "site": "searchwoot.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 3,
+      "requested_at": "2026-09-24T03:20:00.154Z",
+      "next_attempt_at": "2026-09-24T15:21:58.698Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:22:00.328Z",
+      "completed_at": "2026-09-24T15:22:35.901Z"
+    },
+    {
+      "job_id": "64d856c9-6ec0-4bcd-a9a0-c49bf5687e9e",
+      "fingerprint": "3aa6b30a396b448608b3384e06796c07ce0af31e3e032a7b1c5538e762556c19",
+      "site": "sinderella.org",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:23:00.174Z",
+      "next_attempt_at": "2026-09-24T03:23:00.174Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:23:00.371Z",
+      "completed_at": "2026-09-24T03:24:06.087Z"
+    },
+    {
+      "job_id": "c24b8663-3f7d-4e02-ac1e-9844e8a3429f",
+      "fingerprint": "b9a706ff6dcfb05813998e7b56b46230f7cd67da817321acc1a501ba4cabc34c",
+      "site": "therareunicorn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:26:00.150Z",
+      "next_attempt_at": "2026-09-24T03:26:00.150Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:26:00.340Z",
+      "completed_at": "2026-09-24T03:26:46.523Z"
+    },
+    {
+      "job_id": "69adc9c7-698a-4e57-977f-8e4358bb8636",
+      "fingerprint": "dde7aed3a611957d20baf78e8730b708d153f82c55f9da6c46b8c251656eaad3",
+      "site": "unsupervisedmedia.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:30:00.173Z",
+      "next_attempt_at": "2026-09-24T03:30:00.173Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:30:00.401Z",
+      "completed_at": "2026-09-24T03:30:57.148Z"
+    },
+    {
+      "job_id": "487ad26c-46b2-4985-b792-7b97933054bd",
+      "fingerprint": "f4b2567e5e20ac81c33636cad842f2ed90f479ed94cc6b282de2f1b6741f4f2e",
+      "site": "wetpages.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:36:00.147Z",
+      "next_attempt_at": "2026-09-24T03:36:00.147Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:36:00.341Z",
+      "completed_at": "2026-09-24T03:36:55.513Z"
+    },
+    {
+      "job_id": "bac550b4-b685-4db1-a577-30c64258e0ab",
+      "fingerprint": "c7e2cfb6ffafc66d09e20ecda5874fb9d372c125e59dcd05da9705540e735b14",
+      "site": "americastrikes.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 3,
+      "requested_at": "2026-09-24T03:40:00.153Z",
+      "next_attempt_at": "2026-09-24T15:41:41.372Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:42:00.338Z",
+      "completed_at": "2026-09-24T15:42:39.898Z"
+    },
+    {
+      "job_id": "647fcb31-8fa1-4264-9ccd-0c9d41116a8f",
+      "fingerprint": "fe6baca31bb981a4fdff4f4054d1eaa05aedd7c9405d837675fe6ff52851f0f3",
+      "site": "amputeenews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:41:00.147Z",
+      "next_attempt_at": "2026-09-24T03:41:00.147Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:41:00.352Z",
+      "completed_at": "2026-09-24T03:41:51.974Z"
+    },
+    {
+      "job_id": "ab9d2012-ef9c-4e49-bcd4-f052de5f5245",
+      "fingerprint": "ae00bed90dc2f5cfb3dc0d249a06fdf38a92bb980fb36aadb0c99b41ca520e89",
+      "site": "deeppenetrations.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 3,
+      "requested_at": "2026-09-24T03:43:00.161Z",
+      "next_attempt_at": "2026-09-24T15:45:10.068Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:46:00.339Z",
+      "completed_at": "2026-09-24T15:46:45.158Z"
+    },
+    {
+      "job_id": "e210c962-3474-454e-a600-346a335243ae",
+      "fingerprint": "8837e169668f5d8e986cad2f0fd79447df80c00f34b6175ec0af0f039ac724e4",
+      "site": "newmomshop.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 3,
+      "requested_at": "2026-09-24T03:44:00.142Z",
+      "next_attempt_at": "2026-09-24T15:46:47.708Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:47:00.349Z",
+      "completed_at": "2026-09-24T15:47:40.308Z"
+    },
+    {
+      "job_id": "ac07e3c3-1846-4ee4-9e1a-7c3b760f5870",
+      "fingerprint": "8f643db917d1630f4da5d1e60d69fe1000a694a83c2c3835c8e1afc445fb65dc",
+      "site": "rc-9.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:46:00.159Z",
+      "next_attempt_at": "2026-09-24T03:46:00.159Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:46:00.348Z",
+      "completed_at": "2026-09-24T03:46:55.244Z"
+    },
+    {
+      "job_id": "8dc36679-6c64-4205-a1e7-ff0ccd9adbab",
+      "fingerprint": "71ef498ab24b457b8edcf7fbf226933a57b90adc223715cab1dfdc8ca8943f87",
+      "site": "saveusfarms.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:47:00.154Z",
+      "next_attempt_at": "2026-09-24T03:47:00.154Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:47:00.330Z",
+      "completed_at": "2026-09-24T03:47:47.953Z"
+    },
+    {
+      "job_id": "60dabaf1-4266-47b1-9f32-ffea615683b5",
+      "fingerprint": "b71e392c9eeca76627c5e2f90aa8302fd3200de43906ef62c60aebec9b7e6a18",
+      "site": "shoptopless.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:48:00.153Z",
+      "next_attempt_at": "2026-09-24T03:48:00.153Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:48:00.350Z",
+      "completed_at": "2026-09-24T03:48:40.005Z"
+    },
+    {
+      "job_id": "95233a06-e229-4610-a30c-ed84c6f327ac",
+      "fingerprint": "fd4ffa7074ac495d1ccb0025135cd98c738a0c6d6796f0cfe2c762fbc455beca",
+      "site": "totaljerks.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T03:49:00.162Z",
+      "next_attempt_at": "2026-09-24T03:49:00.162Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T03:49:00.340Z",
+      "completed_at": "2026-09-24T03:49:49.001Z"
+    },
+    {
+      "job_id": "06b70ebd-dd0b-4aa5-aa1a-7957140e0331",
+      "fingerprint": "aae95611bb2b59c7091929b3f29b43ac715b22bb9e873f624af67cfc1791c104",
+      "site": "greatamericanlakes.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T08:19:00.155Z",
+      "next_attempt_at": "2026-09-24T08:19:00.155Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T08:19:00.440Z",
+      "completed_at": "2026-09-24T08:20:07.447Z"
+    },
+    {
+      "job_id": "f3f8339b-b7d3-4c7e-8d23-9de4c11fbd5d",
+      "fingerprint": "a90b0ec4570819d32824d280336fb64213ea7c6aea9600d08d48b6b5df81318e",
+      "site": "aliencouncil.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T08:36:00.161Z",
+      "next_attempt_at": "2026-09-24T08:36:00.161Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T08:36:00.352Z",
+      "completed_at": "2026-09-24T08:36:51.620Z"
+    },
+    {
+      "job_id": "085ed55e-c0ec-4748-a28e-54b7f45b9315",
+      "fingerprint": "64df044c705b74f134adb14c3f0f3e2383c6f15f745eb6af6f22da456b57328c",
+      "site": "complicated.work",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T08:42:00.162Z",
+      "next_attempt_at": "2026-09-24T08:42:00.162Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T08:42:00.366Z",
+      "completed_at": "2026-09-24T08:42:41.809Z"
+    },
+    {
+      "job_id": "54e22e82-d2fe-495d-a1e1-90908416eead",
+      "fingerprint": "cc35647a88907b86211d5e2af9b57d06c84a51a6e4abcd288790df98b281dc4a",
+      "site": "deadlymaracas.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T08:44:00.140Z",
+      "next_attempt_at": "2026-09-24T08:44:00.140Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T08:44:00.339Z",
+      "completed_at": "2026-09-24T08:44:45.281Z"
+    },
+    {
+      "job_id": "59ae28b8-174c-4d22-bee7-84e6f8bcf34e",
+      "fingerprint": "699c2fcec5d54c89f9dd73726a462090a8e2e89ef6bcd7101db572ed8785c8ca",
+      "site": "driveford.net",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T08:45:00.148Z",
+      "next_attempt_at": "2026-09-24T08:45:00.148Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T08:45:00.342Z",
+      "completed_at": "2026-09-24T08:46:15.225Z"
+    },
+    {
+      "job_id": "50b02b34-1ae9-4988-a863-31f08ba112ad",
+      "fingerprint": "cba868b803f4e49f96a86072aa63d1b26460d77916da45f5a7947ff6545eb6df",
+      "site": "dumbsluts.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T08:48:00.145Z",
+      "next_attempt_at": "2026-09-24T08:48:00.145Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T08:48:00.338Z",
+      "completed_at": "2026-09-24T08:49:01.216Z"
+    },
+    {
+      "job_id": "d157fad7-beb9-4cf8-849a-4b2fdfc9d1a0",
+      "fingerprint": "22c5162bfe0b5de4a73cc5d3cfab8072583a59bec4d0fb1738b4cc3d2b1d67ab",
+      "site": "eastcoastrappers.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "queued",
+      "attempts": 2,
+      "requested_at": "2026-09-24T08:50:00.147Z",
+      "next_attempt_at": "2026-09-24T20:51:41.765Z",
+      "lease_until": null,
+      "last_error": "(node:1730367) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1730693) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T14:51:00.377Z"
+    },
+    {
+      "job_id": "a810e09f-fdde-4c06-8e62-6c579e058f61",
+      "fingerprint": "a5fc991ef0bac624682308771cff8a8452e9fb78ea1b1a5d96ffc7cc5b482996",
+      "site": "findyourlostpets.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-24T08:54:00.162Z",
+      "next_attempt_at": "2026-09-24T14:54:38.121Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T14:55:00.365Z",
+      "completed_at": "2026-09-24T14:55:45.302Z"
+    },
+    {
+      "job_id": "b36d4424-5c51-4be0-abfa-3c3661a81c91",
+      "fingerprint": "3a29a3675a8bccbab04e95ad7f3d033cb86f517982606a663beb9354c0128a3a",
+      "site": "fishhooklabs.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-24T08:56:00.149Z",
+      "next_attempt_at": "2026-09-24T14:56:37.445Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T14:57:00.328Z",
+      "completed_at": "2026-09-24T14:57:40.944Z"
+    },
+    {
+      "job_id": "c4626d28-448f-4a62-a840-bc9c41fe16aa",
+      "fingerprint": "8fe13815a028e72d560995c50859147c397937389dd41bba99b88bccd98359b7",
+      "site": "gate03.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "queued",
+      "attempts": 2,
+      "requested_at": "2026-09-24T08:57:00.153Z",
+      "next_attempt_at": "2026-09-24T20:59:41.105Z",
+      "lease_until": null,
+      "last_error": "(node:1734740) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1735062) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T14:59:00.338Z"
+    },
+    {
+      "job_id": "9e9cc194-25fd-4eac-8fba-69e1bee040f7",
+      "fingerprint": "46168121affb94762ed1d0583656d37a6e5d69e2d349d708ad8e562e7f9296a0",
+      "site": "girlpain.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-24T08:59:00.178Z",
+      "next_attempt_at": "2026-09-24T14:59:46.492Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:00:00.413Z",
+      "completed_at": "2026-09-24T15:00:47.813Z"
+    },
+    {
+      "job_id": "5f10dc5d-8930-46fe-b5ed-e711cf7aa66d",
+      "fingerprint": "f1e8f302b224aba9e4ed86e3df3124f52586b095574be5be0582928db7265c10",
+      "site": "mynewgm.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:04:00.144Z",
+      "next_attempt_at": "2026-09-24T09:04:00.144Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:04:00.350Z",
+      "completed_at": "2026-09-24T09:04:43.733Z"
+    },
+    {
+      "job_id": "775b71c7-bc60-4d34-9912-779b8afaf4ae",
+      "fingerprint": "a77618d66abee0cd31ee185bb2e402ca3278d4686f23e4195ccea59b67e6093c",
+      "site": "mynewgm.info",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:05:00.156Z",
+      "next_attempt_at": "2026-09-24T09:05:00.156Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:05:00.343Z",
+      "completed_at": "2026-09-24T09:05:42.223Z"
+    },
+    {
+      "job_id": "6cdc83f1-3ecb-41b6-a0f6-e1569050f79e",
+      "fingerprint": "16faa5d227f8c17a29a482724a47f284aacd94e0dfa60d35270a48e88c5648a5",
+      "site": "noveltyguns.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "queued",
+      "attempts": 2,
+      "requested_at": "2026-09-24T09:06:00.224Z",
+      "next_attempt_at": "2026-09-24T21:07:44.337Z",
+      "lease_until": null,
+      "last_error": "(node:1741404) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1741740) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T15:07:00.376Z"
+    },
+    {
+      "job_id": "82163a66-54b8-4e3c-a66b-5c0ed56589ed",
+      "fingerprint": "681a1e860c63aa72dbc11a7aadbcd707ef4a32d3dc4aed965ab53d82deed9218",
+      "site": "nsfwpixles.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:09:00.152Z",
+      "next_attempt_at": "2026-09-24T09:09:00.152Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:09:00.339Z",
+      "completed_at": "2026-09-24T09:09:44.678Z"
+    },
+    {
+      "job_id": "7fb0a3e8-d7ca-4354-ab67-36668e2f3e7b",
+      "fingerprint": "74bb86cba8a1e9e902165f8d89bcaced1d43dd2d181c5e6ef63b45fdedb3086d",
+      "site": "pervypotion.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:13:00.138Z",
+      "next_attempt_at": "2026-09-24T09:13:00.138Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:13:00.335Z",
+      "completed_at": "2026-09-24T09:14:12.721Z"
+    },
+    {
+      "job_id": "825c5486-8e37-411f-a557-04a5289d5082",
+      "fingerprint": "c43d7a0de5ecbfbf4579e23cd9107f40f107987c22a3984342f3dc69eb7b64c9",
+      "site": "rodhat.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "queued",
+      "attempts": 2,
+      "requested_at": "2026-09-24T09:18:00.146Z",
+      "next_attempt_at": "2026-09-24T21:20:45.058Z",
+      "lease_until": null,
+      "last_error": "(node:1752346) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1752669) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T15:20:00.344Z"
+    },
+    {
+      "job_id": "4c69b163-7d39-4391-bbdf-0d44d3325a04",
+      "fingerprint": "3db36f5578425bdad40d56c638ee34a3851eddaa8e089d0f80a287e645ef3dd1",
+      "site": "stinkyleftfoot.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:25:00.162Z",
+      "next_attempt_at": "2026-09-24T09:25:00.162Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:25:00.351Z",
+      "completed_at": "2026-09-24T09:26:03.982Z"
+    },
+    {
+      "job_id": "19ff50c7-fff0-418e-b5ba-90b9c6c7729a",
+      "fingerprint": "5950c12052a32533c61b3577e6b0e2c0874fd3e3f03614380740dd548fce5935",
+      "site": "trainingsharks.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-24T09:28:00.146Z",
+      "next_attempt_at": "2026-09-24T15:28:45.238Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:29:00.370Z",
+      "completed_at": "2026-09-24T15:29:33.062Z"
+    },
+    {
+      "job_id": "e2610caf-e6e4-4ff0-9c5e-7bab30d0ff94",
+      "fingerprint": "8c79772b6439901fa5ccdc798b023d14af396c4a261b1954f57b3e9c476a0e5e",
+      "site": "vibratorporn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-24T09:32:00.136Z",
+      "next_attempt_at": "2026-09-24T15:32:52.280Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:33:00.393Z",
+      "completed_at": "2026-09-24T15:33:39.564Z"
+    },
+    {
+      "job_id": "8ad2d581-afce-4465-ab11-d825d3fcd042",
+      "fingerprint": "61e09bd8c269e51ba4c3dc603bb198de9dddea0e7f9548de4d5f7b5706aeeda6",
+      "site": "weapontester.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:33:00.158Z",
+      "next_attempt_at": "2026-09-24T09:33:00.158Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:33:00.346Z",
+      "completed_at": "2026-09-24T09:34:26.365Z"
+    },
+    {
+      "job_id": "dba28e28-a0d0-40a8-9f09-2f903302415d",
+      "fingerprint": "c59a162cf48f32fb37041e3b1540a95abd80dbf19e14cc9dea99676cf03569e0",
+      "site": "weirdassstuff.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:35:00.154Z",
+      "next_attempt_at": "2026-09-24T09:35:00.154Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:35:00.364Z",
+      "completed_at": "2026-09-24T09:35:56.843Z"
+    },
+    {
+      "job_id": "b6327dcd-ff6d-421d-af48-2f2b368a0587",
+      "fingerprint": "1189e9f106a6ccd150ea4b65cd700d01270d4782bab892efd6cd1ad34942dcf6",
+      "site": "weirdgirlstore.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:35:00.154Z",
+      "next_attempt_at": "2026-09-24T09:35:00.154Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:36:00.345Z",
+      "completed_at": "2026-09-24T09:37:05.992Z"
+    },
+    {
+      "job_id": "2cf84bfd-3f0d-4277-8e91-f23ef69da358",
+      "fingerprint": "19a6e0bcb1b8fc44660b7bd005cfb17aa4c96a36124c13a08af78b9f03d2b00c",
+      "site": "wetslit.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 2,
+      "requested_at": "2026-09-24T09:38:00.155Z",
+      "next_attempt_at": "2026-09-24T15:39:12.503Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:40:00.413Z",
+      "completed_at": "2026-09-24T15:40:52.556Z"
+    },
+    {
+      "job_id": "93271694-187d-466d-9186-903c09ea21ab",
+      "fingerprint": "5aad390ca3a8d79a62bfc0c505518778182c7e3ba6b77b574db0784c6a0bac06",
+      "site": "xxxtea.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T09:40:00.152Z",
+      "next_attempt_at": "2026-09-24T09:40:00.152Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T09:40:00.350Z",
+      "completed_at": "2026-09-24T09:40:57.536Z"
+    },
+    {
+      "job_id": "04587a23-8b57-4ef5-9bf3-3a810846366d",
+      "fingerprint": "b43a9e85857bb0d97c01cf2523411eda8e18e244885f2b1e8166befb78bf1a99",
+      "site": "0daynews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T14:35:00.134Z",
+      "next_attempt_at": "2026-09-24T14:35:00.134Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T14:35:00.347Z",
+      "completed_at": "2026-09-24T14:36:20.740Z"
+    },
+    {
+      "job_id": "f5fd724b-8d55-4e86-9a41-96ffcde33247",
+      "fingerprint": "f663df5df19524c0fbc060f17bae4bc252124e446c443d947390cda392b458d6",
+      "site": "blackmarketapparel.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-24T14:42:00.148Z",
+      "next_attempt_at": "2026-09-24T20:42:55.871Z",
+      "lease_until": null,
+      "last_error": "(node:1724667) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 0 (created_by=independent-reviewer)\n(node:1725079) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T14:42:00.363Z"
+    },
+    {
+      "job_id": "cc65bad0-3296-4837-817e-f3aaa06cf9f6",
+      "fingerprint": "be94081a5fbc5922ce1a5924f507a5250b7eb29bd01766867dcb68e389640469",
+      "site": "broadwayshowgirls.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-24T14:43:00.154Z",
+      "next_attempt_at": "2026-09-24T20:43:48.838Z",
+      "lease_until": null,
+      "last_error": "(node:1725211) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid executive proposal in provider plan at index 0 (created_by=reviewer)\n(node:1725584) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T14:43:00.347Z"
+    },
+    {
+      "job_id": "2e55606c-e3bd-4d46-ad79-7950bf99c684",
+      "fingerprint": "a9a9b03d6d4a25243dd6dfaec8e344fb5141cbbc555d9eb4cf862afe732d72d0",
+      "site": "howfishthink.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T15:00:00.140Z",
+      "next_attempt_at": "2026-09-24T15:00:00.140Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:01:00.362Z",
+      "completed_at": "2026-09-24T15:01:42.710Z"
+    },
+    {
+      "job_id": "65973428-74d3-4a42-85d8-263af892c202",
+      "fingerprint": "e92fd85245f2b250e60524c511f59fbdea0294ba0dcc4d4ce4437f3c252344df",
+      "site": "infrainnovator.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-24T15:02:00.138Z",
+      "next_attempt_at": "2026-09-24T21:02:42.623Z",
+      "lease_until": null,
+      "last_error": "(node:1739007) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1739340) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T15:02:00.330Z"
+    },
+    {
+      "job_id": "18fd2805-9db9-4288-acf5-514bebeaa7bf",
+      "fingerprint": "2aad7521c877ab29cf1d870d48826b7f531998fe02489398df9ce31228cccc97",
+      "site": "offshorehookup.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T15:12:00.141Z",
+      "next_attempt_at": "2026-09-24T15:12:00.141Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:12:00.352Z",
+      "completed_at": "2026-09-24T15:12:49.132Z"
+    },
+    {
+      "job_id": "6805696e-2552-47ec-b821-728bd8e558c6",
+      "fingerprint": "545086b84b5a6fa1a8b66445b1a6ffcfb5d06245b3d105fd079cc05b52966400",
+      "site": "shoppinkflamingo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-24T15:23:00.237Z",
+      "next_attempt_at": "2026-09-24T21:23:47.030Z",
+      "lease_until": null,
+      "last_error": "(node:1754409) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ninvalid change request in provider plan\n(node:1754770) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-24T15:23:00.429Z"
+    },
+    {
+      "job_id": "ab0fa0b8-d972-4e5f-a01e-81d17e7109df",
+      "fingerprint": "2623a5ea9510f12f2e70e3816591ed27ced947900c1ea8dfe08be8efa6d9b639",
+      "site": "ultrarough.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "0ba8537d-cbe7-4f5b-a9cc-b0f13cb36834",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-24T15:31:00.139Z",
+      "next_attempt_at": "2026-09-24T15:31:00.139Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-24T15:31:00.419Z",
+      "completed_at": "2026-09-24T15:31:53.932Z"
     }
   ]
 }
