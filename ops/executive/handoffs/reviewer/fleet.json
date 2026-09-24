@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T15:22:34.009Z",
+  "generated_at": "2026-09-24T15:29:30.739Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production changes, high-priority queue work, financial/ROI claims, and causal-lift claims this cycle. Revenue is only partially attributable ($4.92 aggregate income is unassigned to sites), outcomes show zero proven improvements with 17 awaiting measurement, and recent implementation failures remain open. Continue existing measurement gates and repair existing failed-request incidents only; do not create duplicate telemetry or new queue actions.",
+        "summary": "Recommendation: reject all new production changes, high-priority queue work, unsupported financial/ROI/causal-lift claims, and duplicate telemetry requests this cycle. Revenue attribution is partial, outcomes show zero proven improvements with 17 awaiting measurement, and recent execution failures remain open. Continue existing measurement gates and repair existing failed-request incidents only. No owner decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
