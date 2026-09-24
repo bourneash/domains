@@ -68,6 +68,10 @@ per_site_vault:
   # derives the site from this token, so it is also the container's identity —
   # which is why it must be per-site and never fleet-wide.
   - CF_BROKER_TOKEN
+  # SearchWoot's private-preview and Woot API credentials live in its own
+  # vault item rather than the shared bootstrap environment.
+  - WOOT_API_KEY
+  - SITE_SHARED_PASSWORD
 
 # Keys with no home in the shared .env — Vaultwarden is their only source.
 # FD_TOKEN gates the Fleet Dashboard, which can push to every repo, redeploy
@@ -88,6 +92,9 @@ vault_only:
   # account-wide Workers + DNS — strictly worse than the fleet token this whole
   # exercise exists to retire. Host provisioning path only; never rendered.
   - CLOUDFLARE_PROVISION_TOKEN
+  # Bing Webmaster is used only by the fleet-cron backlink capture job and
+  # is intentionally absent from the shared bootstrap environment.
+  - BING_WEBMASTER_API_KEY
 
 # Keys no site may ever receive, whatever else says. Belt to the allowlist's
 # braces: these are the fleet-wide credentials whose leak is unrecoverable.
@@ -151,6 +158,9 @@ sites:
     # Read-only account token used solely by engineer-check.sh to verify the
     # Worker list. It cannot deploy or mutate any Cloudflare resource.
     extra_keys: [CLOUDFLARE_API_READ_TOKEN]
+    # deploy.sh prefers the least-privilege builds token when provisioned and
+    # explicitly falls back to CLOUDFLARE_API_TOKEN until then.
+    optional_keys: [CLOUDFLARE_BUILDS_READ_TOKEN]
   weirdassstuff.com:
     deny_keys: [CLOUDFLARE_ACCOUNT_ID]
   searchwoot.com:
