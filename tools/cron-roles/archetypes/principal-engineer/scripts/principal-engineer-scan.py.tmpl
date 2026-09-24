@@ -82,6 +82,11 @@ def overlap(new, vocab):
     return len(new & vocab) / len(new)
 
 
+def auth_owned(text):
+    low = (text or "").lower()
+    return any(marker in low for marker in FLEET_AUTH_MARKERS)
+
+
 def load_cursor():
     try:
         with open(CURSOR_FILE) as f:
@@ -146,7 +151,7 @@ def read_slack_lines(since_dt):
     auth_failures = []
     for rec in lines:
         text = rec.get("text", "").lower()
-        if not any(marker in text for marker in FLEET_AUTH_MARKERS):
+        if not auth_owned(text):
             continue
         role_match = re.search(r"\brole=([a-z0-9_-]+)", text)
         auth_failures.append((
@@ -157,7 +162,7 @@ def read_slack_lines(since_dt):
 
     def owned_by_auth_monitor(rec):
         text = rec.get("text", "").lower()
-        if any(marker in text for marker in FLEET_AUTH_MARKERS):
+        if auth_owned(text):
             return True
         ts = parse_ts(rec.get("ts", ""))
         if ts is None or "failed" not in text or not re.search(r"\bexit\s*[= ]\s*\d+", text):
@@ -252,6 +257,11 @@ def main():
     candidates.extend(fp for fp in incidents if fp not in touched)
     for fp in candidates:
         inc = incidents[fp]
+        if auth_owned(inc.get("last_text", "")):
+            if inc.get("status") in ("open", "investigating", None):
+                inc["status"] = "resolved-noise"
+                inc["last_outcome"] = "owned by fleet auth monitor"
+            continue
         if inc.get("status") not in ("open", None):
             continue
         if int(inc.get("attempts", 0)) >= MAX_ATTEMPTS:
@@ -287,6 +297,11 @@ def main():
         # auto-repair. Emit one explicit escalation action instead of silently
         # leaving an open-but-undispatchable JSON record forever.
         for fp, inc in incidents.items():
+            if auth_owned(inc.get("last_text", "")):
+                if inc.get("status") in ("open", "investigating", None):
+                    inc["status"] = "resolved-noise"
+                    inc["last_outcome"] = "owned by fleet auth monitor"
+                continue
             if inc.get("status") not in ("open", None):
                 continue
             if int(inc.get("attempts", 0)) < MAX_ATTEMPTS or inc.get("cap_notified"):
