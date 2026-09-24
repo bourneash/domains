@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:24:04.341Z",
+  "generated_at": "2026-09-24T03:26:44.750Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Run sinderella.org audience and monetization readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of sinderella.org covering observable audience positioning, content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries using existing evidence only. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and health fields as unknown.",
-        "requested_action": "Approve the report-only assessment for sinderella.org. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "c058df97-cdd1-4dbd-9556-e33871fe277c"
+        "kind": "message",
+        "title": "Run therareunicorn.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of therareunicorn.com while preserving unavailable traffic, revenue, conversion, attribution, SEO, and health fields as unknown.",
+        "requested_action": "Approve the bounded report-only assessment and route the completed artifact to fleet leadership.",
+        "proposal_id": "4aa6927e-7d7e-4643-90c7-56de0f5c097a"
       }
     ]
   }
