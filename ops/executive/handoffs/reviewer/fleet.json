@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:29:52.535Z",
+  "generated_at": "2026-09-24T02:37:07.660Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded SeedstoSauce report and one public read-only positioning/conversion inspection. Reject production, revenue, attribution, telemetry, spending, credential, configuration, and high-priority queue work because site-specific outcomes and attribution are not evidenced, while the queue already contains unresolved failures and pending measurement. Owner decision: should SeedstoSauce remain report-only until site-specific measurement and attribution evidence become available?",
+        "summary": "Recommendation: approve only the bounded allthingsmasonic.com post-deployment measurement report. Reject production changes, high-priority queue work, unsupported revenue or causal-lift claims, and duplicate telemetry because attribution is zero at site level, the available window is low-volume, and 16 improvements await measurement while 31 requests have failed. Preserve unknown fields and continue observation until 14 days or 100 new impressions.",
         "requested_action": null,
         "proposal_id": null
       }

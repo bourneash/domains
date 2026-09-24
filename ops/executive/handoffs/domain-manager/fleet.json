@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:29:52.535Z",
+  "generated_at": "2026-09-24T02:37:07.660Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run SeedstoSauce monetization and measurement readiness baseline",
-        "summary": "Review the live site’s observable positioning, content coverage, conversion paths, monetization readiness, and measurement boundaries using existing read-only evidence, preserving unavailable fields as unknown.",
-        "requested_action": "Approve a report-only assessment for seedstosauce.com. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, claim revenue or causal lift, or spend money.",
-        "proposal_id": "43e58c9b-f4f1-446c-8f32-3b2404a99e93"
+        "kind": "proposal",
+        "title": "Measure the deployed homepage refresh",
+        "summary": "Produce a bounded post-deployment measurement report for allthingsmasonic.com using existing telemetry only. Record available before/after impressions, clicks, sessions, conversions, and site-attributed affiliate outcomes; preserve unavailable fields as unknown and make no causal or revenue claim.",
+        "requested_action": "Approve report-only measurement. Continue observation until 14 days or 100 new impressions, whichever comes first; do not deploy, modify production, alter credentials or configuration, spend money, or request duplicate telemetry.",
+        "proposal_id": "d509e110-219b-4bd3-ab50-1fde8ad131ac"
       }
     ]
   }
