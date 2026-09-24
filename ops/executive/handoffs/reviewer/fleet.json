@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T14:40:53.474Z",
+  "generated_at": "2026-09-24T14:55:42.765Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the arttogogh.com readiness baseline and all high-priority or unsupported production proposals this cycle. Existing telemetry already documents GA4 health, the GSC permission failure, compliance status, and absent attributable revenue; the fleet has zero proven outcomes, 17 changes awaiting measurement, and recent execution failures. Route only three bounded, reversible, measurable engineering candidates: rc-9.com and saltwaternews.com web-vitals repairs, and aliencouncil.com page optimization. No owner decision is required.",
+        "summary": "Recommendation: reject the proposed readiness assessment and all new production or high-priority queue work this cycle. Revenue is only partially attributable ($4.92 aggregate income), outcomes are inconclusive with zero proven improvements, 17 changes await measurement, and recent execution failures remain open. Continue existing measurement and incident-repair work only; do not create duplicate telemetry or make financial, ROI, causal-lift, or production claims. No owner decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
