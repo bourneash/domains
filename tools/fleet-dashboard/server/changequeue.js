@@ -5,7 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFile } = require('node:child_process');
 const crypto = require('node:crypto');
-const { assignedRoleForType } = require('./task-routing');
+const { assignedRoleForType, assignedRoleForSite } = require('./task-routing');
 
 const CATEGORIES = [
   'error',
@@ -71,6 +71,19 @@ function normalizeInput(input = {}) {
   return delivery_mode === 'direct' ? input : { ...input, delivery_mode };
 }
 
+function routedAssignedRole(input, availableRolesForSite) {
+  if (typeof availableRolesForSite === 'function' && input.site !== 'fleet') {
+    const routed = assignedRoleForSite(
+      input.category,
+      input.assigned_role,
+      availableRolesForSite(input.site),
+      { delivery_mode: input.delivery_mode }
+    );
+    if (routed) return routed;
+  }
+  return assignedRoleForType(input.category, input.assigned_role);
+}
+
 function validate(input, knownSite) {
   const fleetOperation =
     String(input.site || '') === 'fleet' &&
@@ -108,7 +121,7 @@ function validate(input, knownSite) {
     throw httpErr(400, 'invalid assigned role');
 }
 
-function create(store, input, knownSite) {
+function create(store, input, knownSite, availableRolesForSite) {
   const normalized = normalizeInput(input);
   validate(normalized, knownSite);
   const provider = normalized.provider || process.env.FD_CHANGE_QUEUE_PROVIDER || 'chatgpt';
@@ -130,7 +143,7 @@ function create(store, input, knownSite) {
     max_turns: Number(normalized.max_turns || 20),
     assigned_role: reportOnlySeoFallback
       ? normalized.assigned_role
-      : assignedRoleForType(normalized.category, normalized.assigned_role),
+      : routedAssignedRole(normalized, availableRolesForSite),
   });
   store.record({
     event_type: 'change-request.queued',
@@ -150,7 +163,7 @@ function create(store, input, knownSite) {
   return request;
 }
 
-function update(store, id, patch, knownSite) {
+function update(store, id, patch, knownSite, availableRolesForSite) {
   const current = store.getChangeRequest(id);
   if (!current) throw httpErr(404, 'change request not found');
   const editKeys = [
@@ -217,13 +230,14 @@ function update(store, id, patch, knownSite) {
     merged.delivery_mode === 'report_only' &&
     merged.category === 'seo' &&
     ['engineer', 'principal-engineer'].includes(String(merged.assigned_role || ''));
+  const routedRole = reportOnlySeoFallback
+    ? undefined
+    : routedAssignedRole(merged, availableRolesForSite);
   const next = store.updateChangeRequest(id, {
     ...normalizedPatch,
     // Repair queued requests created before the routing invariant existed and
     // prevent an edit from putting an SEO request back on the engineer queue.
-    ...(String(merged.category || '').toLowerCase() === 'seo' && !reportOnlySeoFallback
-      ? { assigned_role: assignedRoleForType(merged.category, merged.assigned_role) }
-      : {}),
+    ...(routedRole ? { assigned_role: routedRole } : {}),
   });
   store.record({
     event_type: `change-request.${next.status}`,

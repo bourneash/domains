@@ -1869,7 +1869,8 @@ function reconcileApprovedProposalFollowThrough(
               requested_by: proposal.created_by,
               source_proposal_id: proposal.proposal_id,
             },
-            candidate => executiveTarget(root, candidate)
+            candidate => executiveTarget(root, candidate),
+            candidate => installedSiteRoles(root, candidate)
           );
           store.linkExecutiveProposalRequest(proposal.proposal_id, request.request_id);
           const audit = executive.action(store, {
@@ -2053,7 +2054,8 @@ function queueBoundedReportWork(
       delivery_mode: 'report_only',
       action_key: actionKey,
     },
-    site => executiveTarget(root, site)
+    site => executiveTarget(root, site),
+    site => installedSiteRoles(root, site)
   );
   markReportWorkItem(store, item, request);
   return request;
@@ -2798,7 +2800,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
             source: 'executive-ceo',
             requested_by: item.requested_by || 'ceo',
           },
-          site => executiveTarget(root, site)
+          site => executiveTarget(root, site),
+          site => installedSiteRoles(root, site)
         );
         created.change_requests.push(request);
         queuedCount += 1;

@@ -60,6 +60,23 @@ test('routes SEO requests to the SEO analyst even when engineer is requested', (
   store.close();
 });
 
+test('routes content requests to the installed site equivalent before queueing', () => {
+  const { store } = fixture();
+  const request = queue.create(
+    store,
+    {
+      site: '0daynews.com',
+      title: 'Editorial task',
+      category: 'content',
+      assigned_role: 'content-writer',
+    },
+    site => site === '0daynews.com',
+    () => ['news-writer', 'engineer']
+  );
+  assert.equal(request.assigned_role, 'news-writer');
+  store.close();
+});
+
 test('rejects unsafe provider, turn budget, and unknown site values', () => {
   const { store } = fixture();
   assert.throws(

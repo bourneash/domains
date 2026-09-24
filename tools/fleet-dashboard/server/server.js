@@ -2942,7 +2942,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/change-requests', (req, res) => {
     try {
       res.status(201).json({
-        request: changequeue.create(events, req.body || {}, site => isKnownTarget(root, site)),
+        request: changequeue.create(
+          events,
+          req.body || {},
+          site => isKnownTarget(root, site),
+          site => installedSiteRoles(root, site)
+        ),
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -3320,6 +3325,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({
         proposal: executive.decision(events, req.params.id, req.body || {}, {
           knownSite: site => isKnownTarget(root, site),
+          availableRolesForSite: site => installedSiteRoles(root, site),
         }),
       });
     } catch (e) {

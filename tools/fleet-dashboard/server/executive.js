@@ -61,7 +61,7 @@ function proposal(store, input = {}) {
   return store.createExecutiveProposal({ ...input, created_by: String(input.created_by || 'ceo') });
 }
 
-function decision(store, id, input = {}, { knownSite } = {}) {
+function decision(store, id, input = {}, { knownSite, availableRolesForSite } = {}) {
   if (String(input.decided_by || 'owner') !== 'owner')
     throw httpErr(403, 'only the owner can decide executive proposals');
   const current = store.getExecutiveProposal(id);
@@ -100,7 +100,8 @@ function decision(store, id, input = {}, { knownSite } = {}) {
         requested_by: current.created_by,
         source_proposal_id: current.proposal_id,
       },
-      knownSite
+      knownSite,
+      availableRolesForSite
     );
     linkedRequestId = request.request_id;
   }
