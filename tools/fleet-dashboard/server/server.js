@@ -1981,11 +1981,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!workTask) throw new Error(`routing task ${run.task_file} is missing from worktree`);
     const parsed = tasks.parseTask(fs.readFileSync(workTask.path, 'utf8'));
     const available = installedSiteRoles(root, request.site);
+    const taskType = String(parsed.meta.type || request.category || '').trim().toLowerCase();
+    const requestCategory = String(request.category || '').trim().toLowerCase();
+    if (taskType && requestCategory && taskType !== requestCategory)
+      throw new Error(
+        `routing category mismatch: task type=${taskType}, request category=${requestCategory}`
+      );
     const requestedRole = request.assigned_role || parsed.meta.assigned_role;
-    const effectiveRole =
-      assignedRoleForSite(parsed.meta.type || request.category, requestedRole, available, {
-        delivery_mode: request.delivery_mode,
-      }) || assignedRoleForType(parsed.meta.type || request.category, requestedRole);
+    // Keep routing site-aware and fail closed when no installed owner exists.
+    const effectiveRole = assignedRoleForSite(
+      taskType,
+      requestedRole,
+      available,
+      { delivery_mode: request.delivery_mode }
+    );
     if (!effectiveRole || effectiveRole === parsed.meta.assigned_role) return false;
 
     const previousRole = parsed.meta.assigned_role || null;
@@ -2029,7 +2038,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!workTask) throw new Error(`routing task ${item.task_file} is missing from worktree`);
     const canonicalTask = findImprovementTask(root, item);
     if (!canonicalTask) throw new Error(`routing task ${item.task_file} is missing from site`);
-    const canonicalPath = path.join(
+    let canonicalPath = path.join(
       root,
       'sites',
       item.site,
@@ -2039,10 +2048,24 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       item.task_file
     );
     const canonicalStatus = await git.status(root, item.site);
-    const canonicalRel = `ops/tasks/${canonicalTask.column}/${item.task_file}`;
+    let canonicalRel = `ops/tasks/${canonicalTask.column}/${item.task_file}`;
     if (canonicalStatus.files.some(file => file.path === canonicalRel))
       throw new Error(`canonical routing task is already dirty: ${canonicalRel}`);
     const worker = tasks.parseTask(fs.readFileSync(workTask.path, 'utf8'));
+    // Preserve a worker-side park move on the canonical checkout.
+    if (workTask.column !== canonicalTask.column) {
+      const moved = tasks.move(root, item.site, canonicalTask.column, item.task_file, workTask.column);
+      canonicalRel = `ops/tasks/${workTask.column}/${moved.file}`;
+      canonicalPath = path.join(
+        root,
+        'sites',
+        item.site,
+        'ops',
+        'tasks',
+        workTask.column,
+        moved.file
+      );
+    }
     const current = tasks.parseTask(fs.readFileSync(canonicalPath, 'utf8'));
     if (worker.body !== current.body)
       throw new Error('routing worker changed task body; refusing metadata-only delivery');
@@ -2060,11 +2083,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     for (const [key, value] of lifecycle) {
       if (value !== undefined) mergedMeta[key] = value;
     }
-    fs.writeFileSync(canonicalPath, tasks.serializeTask(mergedMeta, current.body));
+    fs.writeFileSync(canonicalPath, tasks.serializeTask(mergedMeta, worker.body));
     const committed = await git.commit(
       root,
       item.site,
-      [canonicalRel],
+      [
+        canonicalRel,
+        ...(workTask.column !== canonicalTask.column
+          ? [`ops/tasks/${canonicalTask.column}/${item.task_file}`]
+          : []),
+      ],
       `chore: route ${item.title}`
     );
     const pushed = await git.push(root, item.site);
