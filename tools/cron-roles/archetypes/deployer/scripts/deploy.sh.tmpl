@@ -276,7 +276,7 @@ except Exception: pass' 2>/dev/null || true)"
       BUILD_STATUS="" BUILD_OUTCOME="" BUILD_UUID=""
       while [ "$(date +%s)" -lt "$DEADLINE" ]; do
         MATCH="$(curl -fsS --max-time 15 \
-          "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/builds/workers/${SCRIPT_TAG}/builds?per_page=20" \
+          "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/builds/workers/${SCRIPT_TAG}/builds?per_page=20&page=1" \
           -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" 2>/dev/null \
           | PUSHED_SHA="$PUSHED_SHA" python3 -c '
 import json, os, sys
@@ -287,9 +287,14 @@ try:
         # The Builds API may return either the full SHA or a short prefix.
         # A strict equality check silently misses valid builds and eventually
         # reports verification unavailable after the entire polling window.
-        ch = b.get("build_trigger_metadata", {}).get("commit_hash", "")
-        if ch and len(ch) >= 7 and sha.startswith(ch):
-            print(b["status"], b["build_outcome"], b["build_uuid"]); break
+        ch = str(b.get("build_trigger_metadata", {}).get("commit_hash", "")).strip().lower()
+        sha = sha.strip().lower()
+        if ch and len(ch) >= 7 and (ch == sha or sha.startswith(ch) or ch.startswith(sha[:8])):
+            status = b.get("status", "")
+            outcome = b.get("build_outcome", "") or ""
+            uuid = b.get("build_uuid") or b.get("id", "") or ""
+            if status:
+                print(status, outcome, uuid); break
 except Exception:
     pass' 2>/dev/null || true)"
         if [ -n "$MATCH" ]; then

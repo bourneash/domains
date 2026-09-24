@@ -6,8 +6,10 @@ const {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
   isInfrastructureEvidence,
+  validationInfrastructureBlock,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
+  shouldPreserveCompletedReviewerHandoff,
   infrastructureReviewProjectionPatch,
   shouldRecoverStaleDeliveryClaim,
   shouldRecoverReviewerDeliveryClaim,
@@ -87,6 +89,31 @@ test('classifies Docker worker disappearance as infrastructure evidence', () => 
   );
 });
 
+test('keeps deterministic preview defects on the automatic repair path', () => {
+  assert.equal(
+    validationInfrastructureBlock({
+      preview: {
+        passed: false,
+        checks: { internal_links: { status: 'fail', evidence: '/vessels/ (404)' } },
+      },
+      browser: {
+        passed: true,
+        screenshots: { preview: { status: 'warn', evidence: 'screenshot timed out' } },
+      },
+    }),
+    false
+  );
+  assert.equal(
+    validationInfrastructureBlock({
+      preview: {
+        passed: false,
+        checks: { http: { status: 'fail', evidence: 'connection refused' } },
+      },
+    }),
+    true
+  );
+});
+
 test('versioned validation fixes reopen each preserved infrastructure review at most once', () => {
   const request = { status: 'review' };
   const run = {
@@ -139,6 +166,23 @@ test('preserved infrastructure reviews do not re-submit the same lifecycle statu
   assert.equal(
     infrastructureReviewProjectionPatch({ status: 'reviewing' }, 'blocked').status,
     'review'
+  );
+});
+
+test('completed reviewer handoffs survive an expired queue lease', () => {
+  assert.equal(
+    shouldPreserveCompletedReviewerHandoff(
+      { status: 'reviewing' },
+      { state: 'building', agent: { phase: 'reviewer', status: 'completed' } }
+    ),
+    true
+  );
+  assert.equal(
+    shouldPreserveCompletedReviewerHandoff(
+      { status: 'reviewing' },
+      { state: 'building', agent: { phase: 'implementation', status: 'completed' } }
+    ),
+    false
   );
 });
 

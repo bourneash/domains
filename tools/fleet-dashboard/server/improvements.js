@@ -192,12 +192,11 @@ function startManual({ store, root, request, baseline = {} }) {
         source: 'fleet-dashboard',
         source_id: request.request_id,
         correlation_id: correlationId,
-        body:
-          `## Human request\n\n${request.body}\n\n## Agent configuration\n\n` +
-          `- Provider: ${request.provider}\n- Model: ${request.model || 'provider default'}\n` +
-          `- Max turns: ${request.max_turns}\n- Effective installed queue role: ${request.assigned_role || 'engineer'}\n` +
-          `If the human request names a role that is not installed on this site, use the effective installed queue role above and record that substitution in the task.\n\n` +
-          `change-request: ${request.request_id}\n`,
+        // Keep runtime routing in the durable change-request/improvement rows,
+        // not in site task prose. Task bodies are untrusted work instructions;
+        // copying provider/model settings into them makes control-plane data
+        // look like instructions and creates a prompt-injection surface.
+        body: `## Human request\n\n${request.body}\n\n` + `change-request: ${request.request_id}\n`,
       });
   const run = store.createImprovement({
     run_id: runId,

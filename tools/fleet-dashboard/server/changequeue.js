@@ -119,6 +119,11 @@ function validate(input, knownSite) {
     throw httpErr(400, 'auto_review must be boolean');
   if (input.assigned_role && !/^[a-z0-9][a-z0-9-]{0,50}$/.test(String(input.assigned_role)))
     throw httpErr(400, 'invalid assigned role');
+  if (
+    String(input.assigned_role || '') === 'legal' &&
+    String(input.delivery_mode || 'direct') !== 'report_only'
+  )
+    throw httpErr(400, 'the executive legal role is report-only and cannot run deployment work');
 }
 
 function create(store, input, knownSite, availableRolesForSite) {

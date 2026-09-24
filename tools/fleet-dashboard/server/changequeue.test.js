@@ -110,11 +110,11 @@ test('edits queued requests and prevents edits after pickup', () => {
   const rebound = queue.update(
     store,
     request.request_id,
-    { provider: 'chatgpt', model: 'gpt-5.6-luna' },
+    { provider: 'chatgpt', model: 'gpt-5' },
     known
   );
   assert.equal(rebound.provider, 'chatgpt');
-  assert.equal(rebound.model, 'gpt-5.6-luna');
+  assert.equal(rebound.model, 'gpt-5');
   assert.throws(
     () => queue.update(store, request.request_id, { title: 'Too late' }, known),
     /cannot be edited/
@@ -146,6 +146,39 @@ test('automatic review defaults on and can be disabled per request', () => {
   const edited = queue.update(store, automatic.request_id, { auto_review: false }, known);
   assert.equal(edited.auto_review, 0);
   assert.equal(store.getChangeQueueSettings().auto_review_enabled, true);
+  store.close();
+});
+
+test('executive legal requests are report-only', () => {
+  const { store } = fixture();
+  const known = () => true;
+  const request = queue.create(
+    store,
+    {
+      site: 'example.com',
+      title: 'Legal evidence packet',
+      category: 'other',
+      assigned_role: 'legal',
+      delivery_mode: 'report_only',
+    },
+    known
+  );
+  assert.equal(request.assigned_role, 'legal');
+  assert.throws(
+    () =>
+      queue.create(
+        store,
+        {
+          site: 'example.com',
+          title: 'Unsafe legal deploy',
+          category: 'other',
+          assigned_role: 'legal',
+          delivery_mode: 'direct',
+        },
+        known
+      ),
+    /report-only/
+  );
   store.close();
 });
 

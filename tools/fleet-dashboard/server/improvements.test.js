@@ -57,6 +57,34 @@ test('starts one correlated improvement with a task and baseline', () => {
   store.close();
 });
 
+test('keeps queue runtime configuration out of site task instructions', () => {
+  const { root, store } = fixture();
+  const { task_file } = improvements.startManual({
+    store,
+    root,
+    request: {
+      request_id: 'request-with-runtime-config',
+      site: 'example.com',
+      title: 'Bounded task',
+      body: 'Inspect the page and make one reversible improvement.',
+      category: 'engineering',
+      priority: 'low',
+      assigned_role: 'engineer',
+      provider: 'chatgpt',
+      model: 'gpt-5',
+      max_turns: 12,
+    },
+  });
+  const task = fs.readFileSync(
+    path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog', task_file),
+    'utf8'
+  );
+  assert.match(task, /## Human request/);
+  assert.doesNotMatch(task, /Agent configuration|Provider:|Model:|Max turns:/);
+  assert.match(task, /change-request: request-with-runtime-config/);
+  store.close();
+});
+
 test('enforces lifecycle gates and measured outcomes', () => {
   const { root, store } = fixture();
   const { run } = improvements.start({ store, root, site: 'example.com', action });
@@ -115,7 +143,7 @@ test('allows an explicitly infrastructure-blocked implementation into review', (
       priority: 'low',
       assigned_role: 'engineer',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
     },
   });
@@ -216,7 +244,7 @@ test('records failed implementation runs as terminal audit state', () => {
       priority: 'low',
       assigned_role: 'engineer',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
     },
   });
@@ -251,7 +279,7 @@ test('task-routing requests reuse the referenced task instead of creating a dupl
       priority: 'low',
       assigned_role: 'engineer',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
     },
   });
@@ -279,7 +307,7 @@ test('permits only successful report-only liveness recovery from a failed run', 
       priority: 'low',
       assigned_role: 'seo-analyst',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
       delivery_mode: 'report_only',
     },
@@ -324,7 +352,7 @@ test('preserves a completed implementation when validation infrastructure failed
       priority: 'low',
       assigned_role: 'engineer',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
     },
   });
@@ -367,7 +395,7 @@ test('permits report-only recovery when only the redundant reviewer rejected a c
       priority: 'low',
       assigned_role: 'seo-analyst',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
       delivery_mode: 'report_only',
     },
@@ -406,7 +434,7 @@ test('permits bounded repair after a reviewer rejection was persisted as failed'
       priority: 'low',
       assigned_role: 'engineer',
       provider: 'chatgpt',
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5',
       max_turns: 2,
       delivery_mode: 'direct',
     },
@@ -456,7 +484,7 @@ test('does not create duplicate manual tasks when queue delivery is retried', ()
     priority: 'low',
     assigned_role: 'engineer',
     provider: 'chatgpt',
-    model: 'gpt-5.6-luna',
+    model: 'gpt-5',
     max_turns: 2,
   };
   const first = improvements.startManual({ store, root, request });

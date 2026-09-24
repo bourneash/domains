@@ -50,7 +50,7 @@ test('queue workers default to the project Codex model and rebind unauthenticate
 test('worker liveness accepts the portable docker top command output', () => {
   assert.equal(
     agent.processListHasWorker(
-      'PID PPID ELAPSED %CPU COMMAND\n123 1 00:10 2.0 node /usr/bin/codex exec --model gpt-5.6-luna'
+      'PID PPID ELAPSED %CPU COMMAND\n123 1 00:10 2.0 node /usr/bin/codex exec --model gpt-5'
     ),
     true
   );

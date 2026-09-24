@@ -23,6 +23,48 @@ else
   export EXECUTIVE_ALLOW_QUEUE=0
 fi
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-cro,ceo,cfo,cto,legal,security,reviewer}"
+RUN_ACTION_ID="$(node - "$ROOT" <<'NODE'
+const root = process.argv[2];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
+const store = eventstore.open(root);
+try {
+  const action = executive.action(store, {
+    actor: 'system',
+    action_type: 'other',
+    summary: process.env.EXECUTIVE_FORCE === '1' ? 'Manual executive scheduler dispatch' : 'Scheduled executive team run',
+    target_type: 'scheduled-executive-run',
+    target_id: 'fleet',
+    result: { phase: 'running', started_at: new Date().toISOString() },
+  });
+  process.stdout.write(action.action_id);
+} finally {
+  store.close();
+}
+NODE
+)"
+finish_scheduler_action() {
+  local exit_code=$?
+  node - "$ROOT" "$RUN_ACTION_ID" "$exit_code" <<'NODE'
+const root = process.argv[2];
+const actionId = process.argv[3];
+const exitCode = Number(process.argv[4]);
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
+const store = eventstore.open(root);
+try {
+  executive.finishAction(store, actionId, {
+    status: exitCode === 0 ? 'completed' : 'failed',
+    error: exitCode === 0 ? null : `scheduled executive dispatch exited with code ${exitCode}`,
+    result: { exit_code: exitCode, finished_at: new Date().toISOString() },
+  });
+} finally {
+  store.close();
+}
+NODE
+  return "$exit_code"
+}
+trap finish_scheduler_action EXIT
 echo "[$(date -Is)] executive scheduled tick start"
 # Approved work is routed deterministically before the model starts. A
 # failure here is audited but must not prevent the leadership pass from

@@ -222,6 +222,23 @@ def sitemap_urls(base: str, cap: int) -> list[str]:
     return uniq[:cap]
 
 
+def private_preview_gate(base: str) -> bool:
+    """Return true when the unauthenticated root is an intentional preview gate.
+
+    A gated site can make both sitemap paths look absent. Recognize the gate
+    explicitly so the sweep reports an expected visibility state rather than a
+    crawlability failure that downstream task generators will act on.
+    """
+    status, _final, _hops, body, _err = fetch(urllib.parse.urljoin(base, "/"))
+    if status != 200 or not body:
+        return False
+    sample = body[:200_000].decode("utf-8", "ignore")
+    return bool(
+        re.search(r"private\s+preview", sample, re.I)
+        and re.search(r"noindex\s*,\s*nofollow", sample, re.I)
+    )
+
+
 # ---------------------------------------------------------------- classify
 
 
@@ -254,12 +271,23 @@ def sweep_site(domain: str, fleet_hosts: set[str], *, max_pages: int, outbound: 
     t0 = time.time()
     pages = sitemap_urls(base, max_pages)
     if not pages:
+        if private_preview_gate(base):
+            return {
+                "site": domain,
+                "error": None,
+                "private_preview": True,
+                "pages_scanned": 0,
+                "links_checked": 0,
+                "findings": [],
+                "duration_s": round(time.time() - t0, 1),
+            }
         # No sitemap is itself worth saying out loud — it means this sweep is
         # blind here AND that search engines are working harder than they need
         # to. Report it instead of silently scoring the site clean.
         return {
             "site": domain,
             "error": "no sitemap (or it returned no page URLs)",
+            "private_preview": False,
             "pages_scanned": 0,
             "links_checked": 0,
             "findings": [],

@@ -29,6 +29,10 @@ const PREVIEW_READY_TIMEOUT_MS = parseInt(
   process.env.FD_DEVSANDBOX_PREVIEW_READY_TIMEOUT_MS || '90000',
   10
 );
+const PREVIEW_START_ATTEMPTS = parseInt(
+  process.env.FD_DEVSANDBOX_PREVIEW_START_ATTEMPTS || '2',
+  10
+);
 const PUBLIC_HOST = process.env.FD_DEVSANDBOX_PUBLIC_HOST || '127.0.0.1';
 // Astro's Cloudflare adapter starts a local prerender server during builds.
 // Node's default resolver can bind that helper on IPv6 localhost while the
@@ -493,9 +497,16 @@ async function stop(site) {
 }
 
 async function remove(site) {
-  await docker(['stop', containerName(site)]);
+  const name = containerName(site);
+  const stopped = await docker(['stop', name]);
+  if (
+    stopped.code !== 0 &&
+    !/No such container|is not running|not found/i.test(stopped.stderr || '')
+  )
+    throw httpErr(500, stopped.stderr.trim());
   const r = await docker(['rm', containerName(site)]);
-  if (r.code !== 0) throw httpErr(500, r.stderr.trim());
+  if (r.code !== 0 && !/No such container|not found/i.test(r.stderr || ''))
+    throw httpErr(500, r.stderr.trim());
   await removeSandboxNetwork(site);
   return { ok: true };
 }
@@ -587,11 +598,30 @@ async function preflight(site) {
 }
 
 async function devStart(site) {
-  const r = await devExec(site, 'start');
-  if (r.code !== 0) throw httpErr(400, r.stdout || r.stderr || 'dev start failed');
-  const ready = await waitForPreview(site);
-  if (!ready.ready) throw httpErr(400, ready.error);
-  return { ...r.kv, preview: ready };
+  let lastError = 'dev preview did not become ready';
+  for (let attempt = 1; attempt <= Math.max(1, PREVIEW_START_ATTEMPTS); attempt += 1) {
+    // A previous validation can leave a stale PID file or a crashed Astro
+    // child behind. Treat start as an idempotent health check, but recover
+    // once automatically instead of converting that transient state into a
+    // permanent review block.
+    if (attempt > 1) {
+      try {
+        await devStop(site);
+      } catch {
+        /* best effort; the next start will report the real failure */
+      }
+    }
+    const r = await devExec(site, 'start');
+    if (r.code !== 0) {
+      lastError = r.stdout || r.stderr || 'dev start failed';
+      continue;
+    }
+    const ready = await waitForPreview(site);
+    if (ready.ready) return { ...r.kv, preview: ready, attempts: attempt };
+    const logs = await devLogs(site, 80);
+    lastError = `${ready.error}; dev-server log:\n${logs}`.slice(-8000);
+  }
+  throw httpErr(400, lastError);
 }
 async function devStop(site) {
   return (await devExec(site, 'stop')).kv;

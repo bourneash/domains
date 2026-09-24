@@ -27,6 +27,17 @@ const SITE_FALLBACKS_BY_TYPE = Object.freeze({
   social: ['social-media', 'social-poster', 'promoter'],
 });
 
+// Executive review roles are control-plane workers, not site mutation roles.
+// They may run only bounded report-only work and never qualify for direct
+// deployment or production changes.
+const EXECUTIVE_READ_ONLY_ROLES = Object.freeze(['legal']);
+
+function isExecutiveReadOnlyRole(role, deliveryMode) {
+  return (
+    EXECUTIVE_READ_ONLY_ROLES.includes(String(role || '').trim()) && deliveryMode === 'report_only'
+  );
+}
+
 function ownersForType(type) {
   return (
     OWNERS_BY_TYPE[
@@ -91,4 +102,6 @@ module.exports = {
   assignedRoleForSite,
   ownershipMismatch,
   ownersForType,
+  EXECUTIVE_READ_ONLY_ROLES,
+  isExecutiveReadOnlyRole,
 };

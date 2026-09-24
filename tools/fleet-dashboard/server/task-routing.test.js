@@ -2,7 +2,12 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { assignedRoleForType, assignedRoleForSite, ownershipMismatch } = require('./task-routing');
+const {
+  assignedRoleForType,
+  assignedRoleForSite,
+  ownershipMismatch,
+  isExecutiveReadOnlyRole,
+} = require('./task-routing');
 
 test('SEO tasks always start with the SEO analyst', () => {
   assert.equal(assignedRoleForType('seo', 'engineer'), 'seo-analyst');
@@ -43,4 +48,10 @@ test('site-aware routing fails closed for empty inventories and non-owner substi
   assert.equal(assignedRoleForSite('seo', 'seo-analyst', []), undefined);
   assert.equal(assignedRoleForSite('content', 'engineer', ['engineer']), undefined);
   assert.equal(assignedRoleForSite('marketing', 'engineer', ['engineer']), undefined);
+});
+
+test('executive legal is an explicit report-only control-plane role', () => {
+  assert.equal(isExecutiveReadOnlyRole('legal', 'report_only'), true);
+  assert.equal(isExecutiveReadOnlyRole('legal', 'direct'), false);
+  assert.equal(isExecutiveReadOnlyRole('engineer', 'report_only'), false);
 });

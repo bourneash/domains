@@ -168,6 +168,10 @@ function launch({
   output.on('error', () => {});
   const turns = Math.max(1, Math.min(Number(maxTurns) || 20, 200));
   const selectedRole = role || run.agent?.assigned_role || 'engineer';
+  const roleContract =
+    selectedRole === 'legal'
+      ? `You are the Executive Legal review role. This is a bounded, report-only review—not legal advice and not a legal sign-off. Do not edit application code, access controls, credentials, production configuration, deployment settings, notification configuration, or indexing. Inspect available evidence and produce a structured counsel-review artifact only: evidenced facts, legal questions, unavailable evidence, launch blockers, proposed policy/copy changes, owners, and next actions. Never claim that a law, contract, or launch requirement is satisfied without authoritative evidence and counsel review. `
+      : '';
   const prompt =
     phase === 'reviewer'
       ? `You are the automated release reviewer for a site improvement in an isolated git worktree.\n\n` +
@@ -179,7 +183,7 @@ function launch({
         `Treat command exit codes and recorded validation output as authoritative: never describe a failed build, test, preview, or browser check as passing. ` +
         `You must finish with exactly one marker: FD_REVIEW_RESULT: PASS or FD_REVIEW_RESULT: FAIL. ` +
         `If failing, briefly explain the blocking issue before the marker.\n\nRequest:\n${String(taskBody || run.title).slice(0, 30000)}`
-      : `You are implementing one approved site improvement in an isolated git worktree.\n\n` +
+      : `${roleContract}You are implementing one approved site improvement in an isolated git worktree.\n\n` +
         `Read and obey AGENTS.md and CLAUDE.md in the workspace before editing. Work only in the current workspace. ` +
         `Do not deploy, push, or switch branches. Do not modify files outside the workspace. Do not modify ops/tasks unless the request explicitly requires ` +
         `a task, assignment, or queue metadata change; when it does, edit the existing task in place and record rollback metadata. Implement the task, run focused checks, ` +

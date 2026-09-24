@@ -55,21 +55,43 @@ cmd_start() {
     # its generated dev caches before starting the fresh validation server.
     rm -rf node_modules/.vite .astro
 
-    # If node_modules is missing, chain `npm install` before the site's dev
-    # command. Read the command from package.json so the sandbox can normalize
-    # a host address without editing the site's checkout. Several fleet sites
-    # intentionally use the host LAN address for local development; that
-    # address does not exist inside an isolated worker container.
+    # If node_modules is missing, chain `npm install` before the site's preview
+    # command. Prefer the production-shaped preview command (usually build +
+    # Wrangler) over Astro/Vite's long-lived dev optimizer: the latter can
+    # delete an SSR dependency between its first request and reload, killing
+    # an otherwise healthy validation server. Fall back to dev for sites that
+    # do not define preview. Read the command from package.json so the sandbox
+    # can normalize a host address without editing the site's checkout.
     local dev_script
-    if ! dev_script="$(node -e 'const p=require("./package.json"); process.stdout.write(String(p.scripts?.dev || ""))')" || [[ -z "${dev_script}" ]]; then
+    if ! dev_script="$(node -e 'const p=require("./package.json"); process.stdout.write(String(p.scripts?.preview || p.scripts?.dev || ""))')" || [[ -z "${dev_script}" ]]; then
         echo "status=error"
         echo "error=package-json-has-no-dev-script"
         exit 1
     fi
-    dev_script="${dev_script//--host 192.168.4.12/--host 0.0.0.0}"
-    dev_script="${dev_script//--host 127.0.0.1/--host 0.0.0.0}"
-    if [[ "${dev_script}" != *"--host "* ]]; then
-        dev_script="${dev_script} --host 0.0.0.0"
+    # Once the deterministic build has produced a client snapshot, serve that
+    # immutable artifact directly. This avoids Wrangler's worker file watcher
+    # repeatedly reloading large static sites while the browser audit is
+    # reading generated files. Sites without a built client entry continue to
+    # use their production-shaped preview command below.
+    local static_preview=0
+    # Worker-backed Astro sites can have dynamic routes that are intentionally
+    # absent from dist/client. If wrangler assets declares run_worker_first,
+    # keep the production-shaped Worker preview so route and binding checks
+    # exercise the actual runtime instead of a false static 404.
+    local worker_preview=0
+    if [[ -f wrangler.jsonc ]] && grep -Eq '"run_worker_first"[[:space:]]*:' wrangler.jsonc; then
+        worker_preview=1
+    fi
+    if [[ -f dist/client/index.html && "${worker_preview}" == "0" ]]; then
+        dev_script="python3 -m http.server ${DD_DEV_PORT:-4321} --bind 0.0.0.0 --directory dist/client"
+        static_preview=1
+    fi
+    if [[ "${static_preview}" == "0" ]]; then
+        dev_script="${dev_script//--host 192.168.4.12/--host 0.0.0.0}"
+        dev_script="${dev_script//--host 127.0.0.1/--host 0.0.0.0}"
+        if [[ "${dev_script}" != *"--host "* ]]; then
+            dev_script="${dev_script} --host 0.0.0.0"
+        fi
     fi
     # Wrangler refuses local preview when a site's production compatibility
     # date is newer than the CLI bundled in this image. Preview is an
@@ -80,6 +102,12 @@ cmd_start() {
     fi
     if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--port"* ]]; then
         dev_script="${dev_script} --port ${DD_DEV_PORT:-4321}"
+    fi
+    if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--live-reload"* ]]; then
+        # Validation is a fixed snapshot. Wrangler's file watcher can reload
+        # the local worker while the browser is auditing generated artifacts,
+        # leaving the server in a transient 404 state.
+        dev_script="${dev_script} --live-reload=false"
     fi
     if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"SITE_SHARED_PASSWORD"* ]]; then
         # Give private Workers a disposable local gate so preview/browser

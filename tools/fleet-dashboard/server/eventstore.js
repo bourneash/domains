@@ -1035,6 +1035,20 @@ function open(root, { file } = {}) {
     return getExecutiveAction(id);
   }
 
+  function updateExecutiveAction(id, patch = {}) {
+    const current = getExecutiveAction(id);
+    if (!current) throw httpErr(404, 'executive action not found');
+    const result =
+      patch.result && typeof patch.result === 'object'
+        ? { ...current.result, ...patch.result }
+        : current.result;
+    db.prepare('UPDATE executive_actions SET result_json=? WHERE action_id=?').run(
+      JSON.stringify(result),
+      String(id)
+    );
+    return getExecutiveAction(id);
+  }
+
   const WORK_ITEM_KINDS = new Set([
     'decision',
     'research',
@@ -1412,6 +1426,7 @@ function open(root, { file } = {}) {
     listExecutiveActions,
     getExecutiveAction,
     finishExecutiveAction,
+    updateExecutiveAction,
     createExecutiveWorkItem,
     listExecutiveWorkItems,
     getExecutiveWorkItem,
