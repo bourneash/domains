@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:26:02.004Z",
+  "generated_at": "2026-09-24T09:34:24.046Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the Stinky Left Foot report-only repair baseline because it duplicates existing failure-repair work and does not produce a production outcome. Attribution is partial and low-volume; authorize no unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedules, or high-priority queue work.",
+        "summary": "Recommendation: reject the weapontester.com readiness proposal as written because the supplied evidence lacks site-specific outcome data and the report would not produce a production or financial decision. Route three bounded metadata-only task repairs to engineer for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Preserve one read-only public inspection for weapontester.com to close the observable positioning and conversion-path evidence gap. No unsupported revenue, causal, production, credential, configuration, spending, schedule, or duplicate-telemetry work is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
