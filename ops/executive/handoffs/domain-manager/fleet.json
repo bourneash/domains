@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:49:47.343Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T04:10:00.153Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Run totaljerks.com monetization and measurement readiness baseline",
-        "summary": "Use existing read-only evidence to assess totaljerks.com audience positioning, content and conversion paths, affiliate readiness, operational health, backlog priorities, and attribution limits. Do not infer missing traffic, revenue, or causal impact.",
-        "requested_action": "Approve a bounded report-only assessment using existing telemetry and observable site evidence. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "80561f2a-c89e-4af3-a6f0-41575ee42f15"
-      }
-    ]
+    "report_id": "e01db12c-15d5-404a-99e3-e2891b47478d",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 1,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
