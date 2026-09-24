@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:30:55.512Z",
+  "generated_at": "2026-09-24T03:36:53.689Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run unsupervisedmedia.com audience and monetization readiness baseline",
-        "summary": "Produce a bounded read-only assessment using existing evidence only. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and monetization fields as unknown.",
+        "title": "Run wetpages.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of wetpages.com using existing evidence only. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and health fields as unknown.",
         "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "2d0c4c91-04c7-47ad-aa56-d004990d11b5"
+        "proposal_id": "da026c0f-8a8d-4e73-86eb-89532b764c87"
       }
     ]
   }
