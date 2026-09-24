@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:09:42.889Z",
+  "generated_at": "2026-09-24T09:14:10.808Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the nsfwpixles.com memo because the snapshot and failed public inspection already establish the relevant unknowns; do not authorize production, telemetry, credential/configuration, spending, schedule, high-priority queue, unsupported revenue, or causal-lift work. Should these three bounded routing repairs proceed?",
+        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the pervypotion.com baseline as a production-adjacent proposal until its public evidence gap is narrowed; preserve only one bounded public inspection. Attribution is partial and low-volume, so authorize no unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedules, or high-priority queue work. Proceed with these three routing repairs?",
         "requested_action": null,
         "proposal_id": null
       }

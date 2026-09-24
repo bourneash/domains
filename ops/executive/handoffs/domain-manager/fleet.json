@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:09:42.890Z",
+  "generated_at": "2026-09-24T09:14:10.809Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Document nsfwpixles.com observability and readiness blocker",
-        "summary": "Record a bounded site-specific readiness assessment using the authoritative snapshot. Analytics is unconfigured, and the completed public inspection returned http_error; traffic, conversions, revenue, attribution, audience behavior, and operational health remain unknown.",
-        "requested_action": "Approve a report-only evidence artifact for fleet leadership. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer missing measurements.",
-        "proposal_id": "59e0fb74-ae08-47a9-a679-b67699f96e83"
+        "kind": "proposal",
+        "title": "Run pervypotion.com readiness and backlog baseline",
+        "summary": "The authoritative snapshot reports pervypotion.com analytics as unconfigured, so traffic, conversions, revenue attribution, audience behavior, and operational health are unknown. Produce a bounded, site-specific assessment using available registry evidence and bounded public or repository evidence, documenting observable audience positioning, content coverage, conversion paths, monetization readiness, explicit unknowns, and one reversible next-step recommendation without inventing telemetry.",
+        "requested_action": "Approve a report-only assessment for pervypotion.com. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue, attribution, or causal impact.",
+        "proposal_id": "ab90e96a-6057-469e-9438-86b5ed22dfd4"
       }
     ]
   }
