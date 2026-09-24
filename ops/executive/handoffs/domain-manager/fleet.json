@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T20:43:53.742Z",
+  "generated_at": "2026-09-24T21:01:01.584Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Publish blackmarketapparel.com visual-pass measurement boundary report",
-        "summary": "Consolidate existing post-deployment evidence without requesting duplicate telemetry or claiming causality. Affiliate revenue attribution is unavailable and the latest compliance probe timed out.",
-        "requested_action": "Approve a bounded report-only artifact using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer revenue or causality.",
-        "proposal_id": "00db7628-df1f-459e-b226-970b695ed15d"
+        "title": "Run gate03.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of gate03.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. The current snapshot records gate03.com as analytics not configured; unavailable traffic, revenue, conversion, attribution, SEO, and health fields must remain unknown.",
+        "requested_action": "Approve a report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue, ROI, or causal lift.",
+        "proposal_id": "97471cdc-0891-4624-b6c4-c58f98ea2609"
       }
     ]
   }

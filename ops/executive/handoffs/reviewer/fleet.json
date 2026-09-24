@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T20:43:53.742Z",
+  "generated_at": "2026-09-24T21:01:01.584Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve the bounded blackmarketapparel.com measurement report and route only three normal-priority, metadata-only task ownership repairs. Reject new production work, high-priority queue work, and all unsupported revenue or causal claims while attribution and telemetry remain incomplete.",
+        "summary": "Recommendation: approve only the bounded gate03.com report-only readiness assessment. Reject new production work, high-priority queue work, revenue claims, and causal claims this cycle because analytics is not configured and available attribution is insufficient. Continue existing measurement and incident-repair gates; do not request duplicate telemetry or change production.",
         "requested_action": null,
         "proposal_id": null
       }
