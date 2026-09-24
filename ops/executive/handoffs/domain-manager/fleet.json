@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:41:50.226Z",
-  "summary": "domain-manager checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-24T03:46:53.557Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Route amputeenews.com sentinel fallback task to engineer",
-        "summary": "Reassign only the existing browser-fallback sentinel task ownership metadata because human-triage is unavailable and engineer is the nearest installed owner. No site behavior or production state changes are authorized.",
-        "requested_action": "Approve a normal-priority metadata-only routing repair. Do not change production code, credentials, configuration, telemetry, spending, schedules, or deployment.",
-        "proposal_id": "315427bb-8e60-4b3b-bc13-2519e7eb41a0"
-      },
-      {
-        "kind": "proposal",
-        "title": "Route eastcoastrappers.com guide-link task to guide-writer",
-        "summary": "Reassign only the existing guide internal-link task because human-triage is unavailable and guide-writer is the nearest installed owner for content work. No content or production change is authorized in this routing step.",
-        "requested_action": "Approve a normal-priority metadata-only routing repair. Do not edit content, change production, credentials, configuration, telemetry, spending, schedules, or deployment.",
-        "proposal_id": "b9733648-158f-49a5-a3e4-513e7ae62de9"
-      },
-      {
-        "kind": "proposal",
-        "title": "Route americastrikes.com topic-link task to news-writer",
-        "summary": "Reassign only the existing topic-page internal-link task because human-triage is unavailable and news-writer is the nearest installed owner for this content task. No article or production change is authorized in this routing step.",
-        "requested_action": "Approve a normal-priority metadata-only routing repair. Do not edit content, change production, credentials, configuration, telemetry, spending, schedules, or deployment.",
-        "proposal_id": null
+        "title": "Run rc-9.com audience, monetization, and backlog readiness baseline",
+        "summary": "Produce a bounded read-only assessment of rc-9.com using existing evidence. Preserve unavailable audience, SEO, revenue, conversion, and attribution fields as unknown.",
+        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "a0c9e1f0-f11d-405c-887c-03cecbdc358b"
       }
     ]
   }
