@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:37:04.225Z",
+  "generated_at": "2026-09-24T09:40:55.640Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run weirdgirlstore.com audience and monetization readiness baseline",
-        "summary": "The site is managed and analytics sources are configured successfully, but the supplied snapshot does not expose site-specific traffic, conversion, revenue, content, or operational outcome values. Produce a bounded evidence report using existing telemetry and available site evidence without inventing missing measurements.",
-        "requested_action": "Approve a report-only assessment for weirdgirlstore.com using existing read-only evidence. Do not deploy, modify production, change credentials or configuration, alter schedules, spend money, or infer unavailable telemetry.",
-        "proposal_id": "2a5acf4e-f6c7-4fb5-98cb-ecd7303e5534"
+        "kind": "proposal",
+        "title": "Resolve competing xxxtea.com pages for the branded query",
+        "summary": "Search data shows five xxxtea.com pages sharing 87 impressions for the branded query, including the homepage at position 1, /gallery at 2.9, and other pages between positions 5.8 and 6.9. Route a bounded internal-linking, canonical, and snippet review to consolidate intent without claiming causal or revenue impact.",
+        "requested_action": "Approve an isolated SEO implementation review for xxxtea.com. Do not deploy directly, alter credentials or schedules, request duplicate telemetry, spend money, or claim causal lift.",
+        "proposal_id": "f431df48-f3f1-4ae8-9ac6-73c2154932a0"
       }
     ]
   }

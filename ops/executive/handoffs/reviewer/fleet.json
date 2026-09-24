@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:37:04.225Z",
+  "generated_at": "2026-09-24T09:40:55.640Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only three normal-priority, metadata-only task-routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the weirdgirlstore.com readiness baseline because the supplied evidence does not expose site-specific outcomes and the report lacks a measurable production or financial decision. Preserve one bounded public inspection for weapontester.com to close the observable positioning and conversion-path evidence gap. Do not authorize unsupported revenue or causal claims, duplicate telemetry, production changes, credential or configuration changes, spending, schedule changes, or high-priority queue work.",
+        "summary": "Recommendation: approve three normal-priority, metadata-only task-routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the xxxtea.com SEO proposal because it is production-adjacent and lacks sufficient outcome evidence; preserve one bounded public inspection for weapontester.com. Do not authorize unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedule changes, or high-priority queue work.",
         "requested_action": null,
         "proposal_id": null
       }
