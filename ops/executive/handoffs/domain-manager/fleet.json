@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:11:46.205Z",
+  "generated_at": "2026-09-24T03:14:48.352Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run oventoheaven.com audience and monetization readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of oventoheaven.com using existing evidence only. Preserve unavailable traffic, revenue, conversion, attribution, and SEO fields as unknown.",
-        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "6650043c-70e2-44db-9cd2-4df210a722ea"
+        "title": "Run pokererotic.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of pokererotic.com covering observable audience positioning, content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false, so traffic, revenue, conversions, attribution, and related health fields remain unknown unless directly evidenced.",
+        "requested_action": "Approve the report-only assessment using existing read-only evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "d04bc242-afbc-4f26-8c3c-840b75792ba4"
       }
     ]
   }
