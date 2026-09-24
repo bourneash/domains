@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:50:55.951Z",
+  "generated_at": "2026-09-24T02:52:52.290Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run elevatorfriends.com audience and monetization readiness baseline",
-        "summary": "Produce a bounded read-only assessment of elevatorfriends.com audience positioning, observable content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false; unavailable telemetry remains unknown.",
-        "requested_action": "Approve a report-only assessment using existing read-only evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "240bffde-6fdd-423d-9219-6abd0741d818"
+        "title": "Run failbunny.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of failbunny.com audience positioning, observable content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Existing analytics evidence shows configured=false; unavailable traffic, revenue, conversion, attribution, and health fields must remain unknown.",
+        "requested_action": "Approve the report-only assessment using existing read-only evidence. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "e465d303-9239-4211-b82b-2adb4f3d47d2"
       }
     ]
   }
