@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T15:40:45.312Z",
+  "generated_at": "2026-09-24T15:42:37.770Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new production, high-priority queue, financial, ROI, causal-lift, and duplicate-telemetry work this cycle. Revenue attribution remains partial, zero improvements are proven, 17 changes await measurement, and recent execution failures remain open. Continue only existing measurement gates and failed-request repairs. Two low-risk metadata-routing candidates remain actionable after excluding duplicates and production changes. Should the owner authorize a future normal-priority routing-only batch after current incident repairs are closed?",
+        "summary": "Recommendation: Reject all new production changes, high-priority queue work, unsupported financial or causal claims, and duplicate telemetry requests this cycle. Revenue attribution is partial, zero improvements are proven, 17 await measurement, and failed-request repairs remain open. Continue only existing measurement gates and incident repairs; no owner decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
