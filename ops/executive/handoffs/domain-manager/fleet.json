@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:36:49.907Z",
+  "generated_at": "2026-09-24T08:46:13.496Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run aliencouncil.com audience and monetization readiness baseline",
-        "summary": "aliencouncil.com is live with GA4 and GSC collecting successfully, 24 sessions, 43 search impressions, 0 clicks, 0 conversions, 2 high-priority SEO actions, and $15.08 in AI cost during the available reporting window. Amazon attribution shows 10 site-linked clicks, 0 orders, and $0 commission. Produce a bounded assessment of audience positioning, content coverage, conversion paths, monetization readiness, operational health, and the highest-value reversible backlog item without inventing missing telemetry or claiming causal impact.",
-        "requested_action": "Approve a report-only assessment using existing read-only evidence. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "d53c8690-03b8-49f7-bc14-3f1b99908f7c"
+        "title": "Run driveford.net readiness and backlog baseline",
+        "summary": "Produce a bounded read-only assessment of driveford.net using existing evidence, documenting observable positioning, content and conversion paths, analytics configuration status, monetization readiness, operational-health findings, explicit unknowns, and one reversible next-step recommendation.",
+        "requested_action": "Approve report-only assessment only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal impact.",
+        "proposal_id": "ffa2a7a2-a3c5-4c4c-9597-108170ecde51"
       }
     ]
   }
