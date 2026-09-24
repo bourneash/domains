@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:42:39.934Z",
+  "generated_at": "2026-09-24T08:44:43.533Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject unsupported revenue or causal claims, duplicate telemetry requests, production changes, spending, credential/configuration changes, schedules, and high-priority queue work. Attribution is partial and low-volume; require an auditable routing artifact and rollback of only the affected metadata if validation fails.",
+        "summary": "Recommendation: approve three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject production changes, unsupported revenue or causal claims, duplicate telemetry, spending, credential/configuration changes, schedules, and high-priority queue work. Attribution is partial and low-volume; require auditable routing artifacts and rollback of only affected metadata if validation fails.",
         "requested_action": null,
         "proposal_id": null
       }
