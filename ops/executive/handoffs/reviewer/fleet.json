@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:16:49.624Z",
+  "generated_at": "2026-09-24T03:24:04.341Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve the bounded reviewtattoo.com readiness report and route only three normal-priority, metadata-only task-routing repairs for amputeenews.com, eastcoastrappers.com, and americastrikes.com. Reject production changes, unsupported revenue or causal claims, duplicate telemetry, spending, credential/configuration changes, and high-priority queue work. Existing attribution is partial and low-volume; preserve unknowns and require measurable artifacts before further investment.",
+        "summary": "Recommendation: approve the bounded sinderella.org readiness report and three normal-priority, metadata-only task-routing repairs for amputeenews.com, eastcoastrappers.com, and americastrikes.com. Reject unsupported revenue or causal claims, duplicate telemetry, production changes, spending, credential/configuration changes, and high-priority queue work. Existing attribution is partial and low-volume; preserve unknowns and require measurable artifacts before further investment.",
         "requested_action": null,
         "proposal_id": null
       }
