@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T15:00:44.631Z",
+  "generated_at": "2026-09-24T15:46:43.388Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Restore girlpain.com Search Console measurement access",
-        "summary": "Google Analytics is healthy for girlpain.com, but Google Search Console returns a 403 insufficient-permission error. Resolve the existing property-access issue so search impressions, clicks, indexing, and query evidence can be evaluated without treating unavailable data as zero.",
-        "requested_action": "Approve a bounded analytics-permission repair requiring the authorized property owner or administrator. Do not change site code, production behavior, credentials outside the approved property-access workflow, spending, or deployment.",
-        "proposal_id": "d455dc20-f671-463d-91b2-1ee15fb75771"
+        "kind": "message",
+        "title": "Prioritize deeppenetrations.com striking-distance SEO backlog",
+        "summary": "Produce a bounded, read-only prioritization of deeppenetrations.com SEO opportunities using existing evidence. The snapshot records 1,647 impressions, 4 clicks, 7 sessions, 0 conversions, 28 measured pages, and 8 SEO actions, including six high-priority actions. Existing evidence includes “kroil” at position 5 with 60 impressions and 0 clicks, plus a filed “liquid wrench” opportunity at position 2.8 with 84 impressions and 0 clicks. Do not infer revenue, causality, or missing telemetry.",
+        "requested_action": "Approve a report-only backlog-prioritization artifact for deeppenetrations.com using existing SEO, GA4, GSC, registry, and revenue-attribution evidence only.",
+        "proposal_id": "50a69dd1-ef6d-46a7-adfe-86b73c5aa7a5"
       }
     ]
   }
