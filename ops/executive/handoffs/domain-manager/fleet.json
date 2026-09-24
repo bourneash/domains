@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:35:55.121Z",
+  "generated_at": "2026-09-24T09:37:04.225Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run a bounded affiliate monetization readiness review for weirdassstuff.com",
-        "summary": "weirdassstuff.com has live affiliate and analytics capabilities. Existing Amazon attribution records 359 site-linked clicks, 0 ordered items, 0 shipped items, and $0 commission for the available reporting period. Produce a site-specific review of affiliate link coverage, conversion-path integrity, disclosure placement, attribution boundaries, and the smallest reversible improvement; do not infer missing revenue or causal impact.",
-        "requested_action": "Approve the bounded report-only affiliate monetization readiness review for weirdassstuff.com. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, alter schedules, spend money, or make unsupported revenue or causal-lift claims.",
-        "proposal_id": "adaaf5e7-a062-4306-a7ca-6e325826972e"
+        "title": "Run weirdgirlstore.com audience and monetization readiness baseline",
+        "summary": "The site is managed and analytics sources are configured successfully, but the supplied snapshot does not expose site-specific traffic, conversion, revenue, content, or operational outcome values. Produce a bounded evidence report using existing telemetry and available site evidence without inventing missing measurements.",
+        "requested_action": "Approve a report-only assessment for weirdgirlstore.com using existing read-only evidence. Do not deploy, modify production, change credentials or configuration, alter schedules, spend money, or infer unavailable telemetry.",
+        "proposal_id": "2a5acf4e-f6c7-4fb5-98cb-ecd7303e5534"
       }
     ]
   }
