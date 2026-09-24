@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:04:42.062Z",
+  "generated_at": "2026-09-24T09:05:40.455Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the mynewgm.com readiness baseline because the proposed evidence is not supported by current telemetry and no public evidence gap is specified. Do not authorize production changes, high-priority queue work, credential/configuration changes, spending, schedules, duplicate telemetry, or unsupported revenue or causal claims.",
+        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Attribution is partial and low-volume, so reject unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedules, and high-priority queue work. Should these three bounded routing repairs proceed?",
         "requested_action": null,
         "proposal_id": null
       }
