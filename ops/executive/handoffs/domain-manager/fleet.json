@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:46:53.557Z",
+  "generated_at": "2026-09-24T03:47:46.226Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run rc-9.com audience, monetization, and backlog readiness baseline",
-        "summary": "Produce a bounded read-only assessment of rc-9.com using existing evidence. Preserve unavailable audience, SEO, revenue, conversion, and attribution fields as unknown.",
-        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
-        "proposal_id": "a0c9e1f0-f11d-405c-887c-03cecbdc358b"
+        "title": "Measure the deployed Save Us Farms conversion refresh",
+        "summary": "Produce a bounded post-deployment measurement report for saveusfarms.com using existing GA4, GSC, and affiliate telemetry only. Preserve unavailable fields as unknown and make no causal, revenue, or ROI claim.",
+        "requested_action": "Approve report-only measurement at the existing gate. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, or spend money.",
+        "proposal_id": "036c2c03-6c25-4ae2-8ab4-aa85db3e9cf8"
       }
     ]
   }
