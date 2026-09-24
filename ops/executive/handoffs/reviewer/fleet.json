@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T15:46:43.387Z",
+  "generated_at": "2026-09-24T15:47:38.261Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production changes, high-priority queue work, unsupported revenue/ROI/causal claims, and duplicate telemetry requests this cycle. Retain only the bounded report-only SEO backlog prioritization for deeppenetrations.com; it uses existing evidence, defines a dated artifact and measurement boundary, and authorizes no production change. Continue existing measurement gates and failed-request repairs only. No owner decision is required.",
+        "summary": "Recommendation: reject all new production changes, high-priority queue work, unsupported revenue/ROI/causal-lift claims, and duplicate telemetry requests this cycle. Revenue attribution remains partial, zero improvements are proven, 17 await measurement, and failed-request repairs remain open. Approve only the bounded report-only SEO backlog prioritization for deeppenetrations.com using existing evidence; continue current measurement gates and incident repairs without new queue actions. No owner decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
