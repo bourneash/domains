@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T03:07:52.304Z",
+  "generated_at": "2026-09-24T03:11:46.205Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run nsfwpixels.com audience and monetization readiness baseline",
-        "summary": "Produce a bounded read-only assessment of nsfwpixels.com audience positioning, observable content and conversion paths, monetization readiness, operational health, backlog priorities, and measurement boundaries. Analytics is configured=false, so unavailable traffic, revenue, conversion, attribution, and health fields must remain unknown.",
-        "requested_action": "Approve the bounded report-only assessment for nsfwpixels.com and route the completed artifact to fleet leadership.",
-        "proposal_id": "341c10ad-206e-4c42-8c44-485b0cdb0bdb"
+        "kind": "proposal",
+        "title": "Run oventoheaven.com audience and monetization readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of oventoheaven.com using existing evidence only. Preserve unavailable traffic, revenue, conversion, attribution, and SEO fields as unknown.",
+        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or causal lift.",
+        "proposal_id": "6650043c-70e2-44db-9cd2-4df210a722ea"
       }
     ]
   }

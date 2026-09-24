@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-23T22:07:51.834Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-24T03:11:46.205Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private. Woot's public terms do not establish rights for commercial/public display, derivatives, caching, or alerts; legal, accuracy, security, and measurement gates remain incomplete. Unknown: whether Woot will grant written permission. Smallest next step: choose one—A) authorize preparation of an unsent permission request to Woot, B) keep private with no outreach, or C) end the public-beta pursuit.",
+        "summary": "Recommendation: execute the 1 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: drain failure-repair work before adding further portfolio ideas. Twelve failure follow-ups remain open, 11 improvements await measurement, and zero improvements are proven. CTO/Principal Engineer should repair or explicitly close the marineactivity.com and stinkyleftfoot.com failures with evidence and rollback notes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "68a72895-e4f5-487d-8bb2-f05090f7a3bf",
-        "summary": "Accept bounded metadata-only security evidence capture. Fleet-doctor and core control evidence are unavailable; preserve unknowns and do not access credentials, exploit targets, or change production.",
-        "requested_action": "accepted_research",
-        "proposal_id": "68a72895-e4f5-487d-8bb2-f05090f7a3bf"
       }
     ]
   }
