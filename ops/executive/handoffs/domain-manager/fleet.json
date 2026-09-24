@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T16:10:00.152Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-24T20:40:43.647Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "311e11cf-f8f0-4d58-a0d7-5fbbe14f91ce",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 8,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Run 0xroulette.com audience, monetization, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of 0xroulette.com using existing registry, analytics, SEO, revenue-attribution, AI-usage, compliance, and operations evidence. Document observable audience and product positioning, content and conversion paths, monetization readiness, health, backlog priorities, and measurement boundaries. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and operational fields as unknown; do not infer telemetry or causal lift.",
+        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
+        "proposal_id": "a7cca435-f6c9-42e8-8aa2-3e5aac48a29e"
+      }
+    ]
   }
 }
