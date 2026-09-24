@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T08:36:49.907Z",
+  "generated_at": "2026-09-24T08:42:39.934Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the aliencouncil.com baseline because existing telemetry already supplies the stated evidence and low-volume attribution cannot support financial or causal claims. No production, credential, configuration, spending, schedule, or duplicate-telemetry work is authorized.",
+        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject unsupported revenue or causal claims, duplicate telemetry requests, production changes, spending, credential/configuration changes, schedules, and high-priority queue work. Attribution is partial and low-volume; require an auditable routing artifact and rollback of only the affected metadata if validation fails.",
         "requested_action": null,
         "proposal_id": null
       }
