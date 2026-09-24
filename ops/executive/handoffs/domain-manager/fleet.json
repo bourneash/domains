@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:26:30.206Z",
+  "generated_at": "2026-09-24T02:29:52.535Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run saltwaternews.com content and monetization readiness baseline",
-        "summary": "Use existing read-only evidence to document audience positioning, content coverage, conversion paths, monetization readiness, attribution limits, and the highest-value reversible backlog item without inventing missing telemetry.",
-        "requested_action": "Approve a report-only assessment for saltwaternews.com and route the completed artifact to fleet leadership. Do not deploy, modify production, change credentials, request duplicate telemetry, or spend money.",
-        "proposal_id": "b767e525-770e-4865-916b-a2723bc4d304"
+        "title": "Run SeedstoSauce monetization and measurement readiness baseline",
+        "summary": "Review the live site’s observable positioning, content coverage, conversion paths, monetization readiness, and measurement boundaries using existing read-only evidence, preserving unavailable fields as unknown.",
+        "requested_action": "Approve a report-only assessment for seedstosauce.com. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, claim revenue or causal lift, or spend money.",
+        "proposal_id": "43e58c9b-f4f1-446c-8f32-3b2404a99e93"
       }
     ]
   }

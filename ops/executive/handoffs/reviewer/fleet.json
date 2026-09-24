@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T02:26:30.205Z",
+  "generated_at": "2026-09-24T02:29:52.535Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded saltwaternews.com report. Do not authorize production changes, financial claims, high-priority queue work, or duplicate telemetry; the report must document attribution limits and close with a blocker if no measurable opportunity is defensible.",
+        "summary": "Recommendation: approve only the bounded SeedstoSauce report and one public read-only positioning/conversion inspection. Reject production, revenue, attribution, telemetry, spending, credential, configuration, and high-priority queue work because site-specific outcomes and attribution are not evidenced, while the queue already contains unresolved failures and pending measurement. Owner decision: should SeedstoSauce remain report-only until site-specific measurement and attribution evidence become available?",
         "requested_action": null,
         "proposal_id": null
       }
