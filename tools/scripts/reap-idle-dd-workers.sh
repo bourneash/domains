@@ -297,7 +297,25 @@ for cname in "${CONTAINERS[@]}"; do
 done
 
 if [[ "${#reaped[@]}" -gt 0 ]]; then
-  NOTIFY ":information_source: *INTERNAL · domain-developer housekeeping* — reaped ${#reaped[@]} idle worker(s): $(printf '`%s` ' "${reaped[@]}"). Containers were destroyed, not just stopped; all state is on host binds, so nothing was lost. Bring one back with \`domain-developer <site>\`." "#439FE0"
+  reaped_names="$(printf '`%s` ' "${reaped[@]}")"
+  has_improvement=0
+  has_regular=0
+  for reaped_item in "${reaped[@]}"; do
+    reaped_name="${reaped_item%% (*}"
+    if [[ "$reaped_name" == imp-* ]]; then
+      has_improvement=1
+    else
+      has_regular=1
+    fi
+  done
+  recovery=""
+  if (( has_regular )); then
+    recovery=" Bring a regular worker back with \`domain-developer <site>\`."
+  fi
+  if (( has_improvement )); then
+    recovery+=" Improvement sandboxes are recreated by resuming their dashboard run; do not pass an \`imp-*\` name to the standalone CLI."
+  fi
+  NOTIFY ":information_source: *INTERNAL · domain-developer housekeeping* — reaped ${#reaped[@]} idle worker(s): ${reaped_names}. Containers were destroyed, not just stopped; all state is on host binds, so nothing was lost.${recovery}" "#439FE0"
 fi
 if [[ "${#drifted_active[@]}" -gt 0 ]]; then
   NOTIFY ":warning: ${#drifted_active[@]} domain-developer worker(s) are running an image older than \`$IMAGE\` but still in active use, so they were left alone: $(printf '`%s` ' "${drifted_active[@]}"). Recreate when convenient: \`tools/domain-developer/bin/dd-recreate <site>\`." "warning"

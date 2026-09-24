@@ -19,3 +19,9 @@ def test_active_stale_image_remains_a_warning():
     line = _notification_line(':warning: ${#drifted_active[@]}')
     assert ":warning:" in line
     assert '"warning"' in line
+
+
+def test_reaped_improvement_workers_do_not_get_standalone_cli_recovery_guidance():
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert 'Improvement sandboxes are recreated by resuming their dashboard run' in text
+    assert 'do not pass an \\`imp-*\\` name to the standalone CLI' in text
