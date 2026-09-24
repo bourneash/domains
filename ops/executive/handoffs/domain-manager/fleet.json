@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T15:46:43.388Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-24T16:10:00.152Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "message",
-        "title": "Prioritize deeppenetrations.com striking-distance SEO backlog",
-        "summary": "Produce a bounded, read-only prioritization of deeppenetrations.com SEO opportunities using existing evidence. The snapshot records 1,647 impressions, 4 clicks, 7 sessions, 0 conversions, 28 measured pages, and 8 SEO actions, including six high-priority actions. Existing evidence includes “kroil” at position 5 with 60 impressions and 0 clicks, plus a filed “liquid wrench” opportunity at position 2.8 with 84 impressions and 0 clicks. Do not infer revenue, causality, or missing telemetry.",
-        "requested_action": "Approve a report-only backlog-prioritization artifact for deeppenetrations.com using existing SEO, GA4, GSC, registry, and revenue-attribution evidence only.",
-        "proposal_id": "50a69dd1-ef6d-46a7-adfe-86b73c5aa7a5"
-      }
-    ]
+    "report_id": "311e11cf-f8f0-4d58-a0d7-5fbbe14f91ce",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 8,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
