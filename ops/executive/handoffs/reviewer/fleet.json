@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:14:10.808Z",
+  "generated_at": "2026-09-24T09:26:02.004Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the pervypotion.com baseline as a production-adjacent proposal until its public evidence gap is narrowed; preserve only one bounded public inspection. Attribution is partial and low-volume, so authorize no unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedules, or high-priority queue work. Proceed with these three routing repairs?",
+        "summary": "Recommendation: approve only three normal-priority, metadata-only routing repairs for 0daynews.com, amputeenews.com, and eastcoastrappers.com. Reject the Stinky Left Foot report-only repair baseline because it duplicates existing failure-repair work and does not produce a production outcome. Attribution is partial and low-volume; authorize no unsupported revenue or causal claims, duplicate telemetry, production changes, credential/configuration changes, spending, schedules, or high-priority queue work.",
         "requested_action": null,
         "proposal_id": null
       }

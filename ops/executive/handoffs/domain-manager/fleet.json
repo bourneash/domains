@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T09:14:10.809Z",
+  "generated_at": "2026-09-24T09:26:02.004Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run pervypotion.com readiness and backlog baseline",
-        "summary": "The authoritative snapshot reports pervypotion.com analytics as unconfigured, so traffic, conversions, revenue attribution, audience behavior, and operational health are unknown. Produce a bounded, site-specific assessment using available registry evidence and bounded public or repository evidence, documenting observable audience positioning, content coverage, conversion paths, monetization readiness, explicit unknowns, and one reversible next-step recommendation without inventing telemetry.",
-        "requested_action": "Approve a report-only assessment for pervypotion.com. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue, attribution, or causal impact.",
-        "proposal_id": "ab90e96a-6057-469e-9438-86b5ed22dfd4"
+        "title": "Repair and validate the failed Stinky Left Foot SEO change path",
+        "summary": "The existing SEO improvement for /guides/best-camera-settings is deployed but its worker request failed and has an open repair work item. Existing telemetry records 731 impressions, 3 clicks, 9 sessions, and 0 conversions in the current 14-day window; no additional telemetry request is needed.",
+        "requested_action": "Approve a bounded report-only repair assessment for stinkyleftfoot.com. Review the failed request evidence, identify whether the worker failure affected implementation or validation, and document the smallest safe requeue or closure decision. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim causal lift.",
+        "proposal_id": "b6e18f18-6e9e-4c59-a968-363cd0060385"
       }
     ]
   }
