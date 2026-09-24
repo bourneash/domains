@@ -17,18 +17,21 @@ class FakeResponse:
     def __exit__(self, *args):
         return False
 
-    def read(self):
-        return self.body.read()
+    def read(self, size=-1):
+        return self.body.read(size)
 
 
 class ShareNewPostsTests(unittest.TestCase):
     @patch("share_new_posts.urllib.request.urlopen")
-    def test_image_preflight_requires_success_and_image_content_type(self, urlopen):
+    def test_image_preflight_uses_get_and_requires_image_content_type(self, urlopen):
         urlopen.return_value = FakeResponse(headers={
             "Content-Type": "image/jpeg",
             "Content-Length": "123",
         })
         self.assertTrue(share_new_posts.check_image_url("https://example.test/card.jpg"))
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_method(), "GET")
+        self.assertEqual(request.headers.get("User-agent"), share_new_posts.IMAGE_PROBE_UA)
 
         urlopen.return_value = FakeResponse(headers={})
         self.assertFalse(share_new_posts.check_image_url("https://example.test/card.jpg"))

@@ -40,6 +40,7 @@ import urllib.request
 # is reachable but Slack still rejects it, retain a bounded retry before the
 # text-only fallback.
 IMAGE_RETRY_DELAYS = (10, 30, 60)
+IMAGE_PROBE_UA = "AmericaStrikesImageWatchdog/1.0 (+https://americastrikes.com)"
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 
@@ -163,18 +164,22 @@ def log_to_disk(repo_root, channel, severity, text):
 
 
 def check_image_url(url, timeout=5):
-    """Return True when an image URL is ready for Slack's HEAD probe.
+    """Return True when an image URL is ready for Slack to fetch.
 
-    Cloudflare may use chunked transfer encoding and omit Content-Length even
-    for a healthy cached image. Content-Type plus a successful status is the
-    reliable readiness signal here; requiring Content-Length caused valid
-    America Strikes covers to be stripped from Slack cards.
+    Use a bounded GET rather than HEAD. Cloudflare Workers static-assets routes
+    can serve the image correctly to GET while returning an unusable response
+    to HEAD. A normal GET with a small identifying User-Agent is also required
+    by this site's edge guard; Range requests are rejected. Reading one byte
+    keeps this a cheap readiness probe and matches Slack's fetch more closely.
     """
     try:
-        req = urllib.request.Request(url, method="HEAD")
+        req = urllib.request.Request(url, headers={"User-Agent": IMAGE_PROBE_UA})
         with urllib.request.urlopen(req, timeout=timeout) as response:
             content_type = response.headers.get("Content-Type", "").lower()
-            return 200 <= response.status < 400 and content_type.startswith("image/")
+            if not (200 <= response.status < 400 and content_type.startswith("image/")):
+                return False
+            response.read(1)
+            return True
     except Exception:
         return False
 
@@ -309,7 +314,7 @@ def main():
             # not a reason to permanently announce an image-less card.
             print("  ! image preflight failed — deferring share until cover is live")
             log_to_disk(repo_root, channel, "warning",
-                        "post-notify: deferred share for %r after HEAD preflight failed; cover must be live before posting" % slug)
+                        "post-notify: deferred share for %r after image preflight failed; cover must be live before posting" % slug)
             continue
         err = post_to_slack(token, channel, blocks, fallback)
         if err == "invalid_blocks":
