@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T14:36:06.516Z",
+  "generated_at": "2026-09-24T14:40:53.475Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Route 0daynews.com routing-invariant smoke-test task to engineer",
-        "summary": "The action mandate ranks this 0daynews.com task at score 96 because human-triage is unavailable and engineer is the nearest installed owner. Recent 0daynews.com routing-related worker runs also failed, so ownership metadata and routing validation should be repaired before further execution.",
-        "requested_action": "Reassign only the existing task to engineer. Do not change site code, production behavior, credentials, configuration, telemetry, spending, schedules, or deployment.",
-        "proposal_id": "e6ee7b4c-d8f7-45e3-a57e-bfe12de75a1c"
+        "title": "Run arttogogh.com audience, monetization, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of arttogogh.com using existing evidence. Document observable audience and content positioning, conversion and monetization paths, operational/compliance health, backlog priorities, and measurement boundaries. GA4 is healthy; Google Search Console currently returns a 403 permission error, so search performance remains unknown. The site has no recorded affiliate capability or attributable revenue in the snapshot; do not infer revenue or causal lift.",
+        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
+        "proposal_id": "dbc695c7-3001-40a4-a6ad-50c536d173e9"
       }
     ]
   }
