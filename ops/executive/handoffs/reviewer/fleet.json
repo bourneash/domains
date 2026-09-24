@@ -2,37 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-23T22:07:51.836Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-24T02:26:30.205Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed deeppenetrations.com production change: low-volume telemetry, zero attributable commission, incomplete attribution, and zero proven outcomes do not support production work or financial claims. Keep existing measurement gates, repair failures before adding queue work, and keep SearchWoot private pending rights, security, accuracy, and measurement evidence.",
+        "summary": "Recommendation: approve only the bounded saltwaternews.com report. Do not authorize production changes, financial claims, high-priority queue work, or duplicate telemetry; the report must document attribution limits and close with a blocker if no measurable opportunity is defensible.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain only bounded report-only evidence work. Do not add high-priority production queue actions, monetization expansion, spending, credential changes, configuration changes, schedules, or external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "83773ff5-fe3f-4c32-8d71-f4e4dd639c97",
-        "summary": "Reject production work. Supplied evidence shows low volume, zero attributable orders and commission, incomplete attribution, and no proven outcomes. Reconsider only after treatment-level measurement is registered and sufficient evidence is available.",
-        "requested_action": "declined",
-        "proposal_id": "83773ff5-fe3f-4c32-8d71-f4e4dd639c97"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "68a72895-e4f5-487d-8bb5-f05090f7a3bf",
-        "summary": "Retain as metadata-only, read-only security evidence capture. Preserve unknowns; do not access credentials, private shells, production systems, or secret values.",
-        "requested_action": "accepted_research",
-        "proposal_id": "68a72895-e4f5-487d-8bb5-f05090f7a3bf"
       }
     ]
   }

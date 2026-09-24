@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-23T22:10:00.146Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-24T02:26:30.206Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "badb5601-c1ec-4947-9126-56cf8a506011",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 1,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "message",
+        "title": "Run saltwaternews.com content and monetization readiness baseline",
+        "summary": "Use existing read-only evidence to document audience positioning, content coverage, conversion paths, monetization readiness, attribution limits, and the highest-value reversible backlog item without inventing missing telemetry.",
+        "requested_action": "Approve a report-only assessment for saltwaternews.com and route the completed artifact to fleet leadership. Do not deploy, modify production, change credentials, request duplicate telemetry, or spend money.",
+        "proposal_id": "b767e525-770e-4865-916b-a2723bc4d304"
+      }
+    ]
   }
 }
