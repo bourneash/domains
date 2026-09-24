@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T20:40:43.647Z",
+  "generated_at": "2026-09-24T20:43:53.742Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Run 0xroulette.com audience, monetization, and measurement readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of 0xroulette.com using existing registry, analytics, SEO, revenue-attribution, AI-usage, compliance, and operations evidence. Document observable audience and product positioning, content and conversion paths, monetization readiness, health, backlog priorities, and measurement boundaries. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and operational fields as unknown; do not infer telemetry or causal lift.",
-        "requested_action": "Approve the report-only assessment. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
-        "proposal_id": "a7cca435-f6c9-42e8-8aa2-3e5aac48a29e"
+        "kind": "message",
+        "title": "Publish blackmarketapparel.com visual-pass measurement boundary report",
+        "summary": "Consolidate existing post-deployment evidence without requesting duplicate telemetry or claiming causality. Affiliate revenue attribution is unavailable and the latest compliance probe timed out.",
+        "requested_action": "Approve a bounded report-only artifact using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer revenue or causality.",
+        "proposal_id": "00db7628-df1f-459e-b226-970b695ed15d"
       }
     ]
   }

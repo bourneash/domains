@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T20:40:43.646Z",
+  "generated_at": "2026-09-24T20:43:53.742Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded 0xroulette.com readiness report and reject new production or high-priority queue work. Existing telemetry supports research, not revenue or causal claims; no further decision is required this cycle.",
+        "summary": "Recommendation: approve the bounded blackmarketapparel.com measurement report and route only three normal-priority, metadata-only task ownership repairs. Reject new production work, high-priority queue work, and all unsupported revenue or causal claims while attribution and telemetry remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }
