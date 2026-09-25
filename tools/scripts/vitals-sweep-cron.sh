@@ -42,59 +42,26 @@ if (( rc != 0 )) || [[ -z "$report" || "${report:0:1}" != "{" ]]; then
   exit 0
 fi
 
-events="$(python3 - "$report" "$STATE" "$FORM_FACTOR" <<'PY'
-import json, os, sys, tempfile
+events="$(python3 - "$report" "$STATE" "$FORM_FACTOR" "$TOOL_DIR" <<'PY'
+import json, sys
 from pathlib import Path
 
 report = json.loads(sys.argv[1])
 state_path = Path(sys.argv[2])
 factor = sys.argv[3]
+sys.path.insert(0, sys.argv[4])
+from alert_state import transition
 try:
     previous = json.loads(state_path.read_text()) if state_path.exists() else {}
 except Exception:
     previous = {}
 
-active = {}
-for row in report.get('sites', []):
-    site = row.get('site')
-    if not site:
-        continue
-    if row.get('error'):
-        active[site] = 'error:' + str(row['error'])
-        continue
-    warnings = row.get('warnings') or []
-    if warnings:
-        active[site] = 'warning:' + ';'.join(sorted(str(w) for w in warnings))
-        continue
-    if row.get('status') == 'skipped':
-        continue
-    metrics = row.get('metrics') or {}
-    flags = sorted(set(row.get('budget_breaches') or []) | set(row.get('regressions') or []))
-    if flags:
-        active[site] = ','.join(sorted(set(flags)))
-
-old = previous.get('active') or {}
-for site, signature in sorted(active.items()):
-    if old.get(site) == signature:
-        continue
-    row = next((x for x in report.get('sites', []) if x.get('site') == site), {})
-    if row.get('error'):
-        headline = f'{factor} vitals sweep could not measure site'
-        detail = str(row['error'])
-    else:
-        m = row.get('metrics') or {}
-        if str(signature).startswith('warning:'):
-            headline = f'{factor} web-vitals configuration needs attention'
-            detail = str(signature)[len('warning:'):]
-        else:
-            headline = f'{factor} web vitals need attention'
-            detail = f"flags={signature}; performance={m.get('performance')}; LCP={m.get('lcp_ms')}ms; CLS={m.get('cls')}"
-    print(json.dumps({'status':'warn','site':site,'headline':headline,'detail':detail}))
-for site in sorted(set(old) - set(active)):
-        print(json.dumps({'status':'ok','site':site,'headline':f'{factor} web vitals recovered','detail':'The latest sweep has no active budget, regression, or measurement errors.'}))
+events, state = transition(report, previous, factor)
+for event in events:
+    print(json.dumps(event))
 
 tmp = state_path.with_suffix('.tmp')
-tmp.write_text(json.dumps({'at': report.get('at'), 'form_factor': factor, 'active': active}, indent=2))
+tmp.write_text(json.dumps(state, indent=2))
 tmp.replace(state_path)
 PY
 )"
