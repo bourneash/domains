@@ -7,7 +7,10 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 IMAGE="${EXECUTIVE_IMAGE:-domains-executive-runner:latest}"
 MODE="${EXECUTIVE_MODE:---apply}"
 IMAGE_SOURCE_LABEL="com.bourneash.executive.source-sha"
-LOCK_FILE="${EXECUTIVE_LOCK_FILE:-/tmp/domains-executive.lock}"
+# The manual runner lives in fleet-dashboard while scheduled runs live in
+# fleet-cron. A /tmp lock is container-local and cannot serialize those two
+# callers, so the default lock must live on the shared project bind mount.
+LOCK_FILE="${EXECUTIVE_LOCK_FILE:-$ROOT/tools/executive/data/executive.lock}"
 # An explicit name is used by per-site dispatch so its site lock can make the
 # identity easy to audit. The fleet-wide default gets a process-specific
 # suffix so an orphaned Docker object cannot collide with the next tick after a
@@ -93,7 +96,10 @@ fi
 CODEX_AUTH_FILE="${CODEX_AUTH_FILE:-${FD_CODEX_AUTH_FILE_HOST:-${HOME:-/home/jesse}/.codex/auth.json}}"
 CODEX_AUTH_ALLOWED="${FD_CODEX_AUTH_FILE_HOST:-${HOME:-/home/jesse}/.codex/auth.json}"
 [[ "$CODEX_AUTH_FILE" == "$CODEX_AUTH_ALLOWED" ]] || { echo "Codex auth path is restricted" >&2; exit 1; }
-if [[ -f "$CODEX_AUTH_FILE" ]]; then
+# fleet-dashboard sees the credential at FD_CODEX_AUTH_FILE, while the
+# Docker daemon resolves the bind source on the host via CODEX_AUTH_FILE.
+CODEX_AUTH_VISIBLE="${FD_CODEX_AUTH_FILE:-$CODEX_AUTH_FILE}"
+if [[ -f "$CODEX_AUTH_VISIBLE" ]]; then
   container_args+=( -v "$CODEX_AUTH_FILE:/home/dev/.codex/auth.json:rw" )
 fi
 
