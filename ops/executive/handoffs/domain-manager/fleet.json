@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:54:07.569Z",
+  "generated_at": "2026-09-25T03:03:41.939Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run failbunny.com audience, content, monetization, and measurement boundary assessment",
-        "summary": "Produce a bounded site-specific assessment of failbunny.com covering observable audience positioning, content scope, conversion paths, monetization prerequisites, operational health, backlog priorities, and measurement boundaries. The authoritative snapshot records analytics as not configured; traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced. Do not infer telemetry, revenue, ROI, or causal lift.",
-        "requested_action": "Approve a bounded read-only assessment using existing intelligence and one public inspection of failbunny.com only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "14b6b636-4907-4e35-ae36-baab4948092b"
+        "kind": "proposal",
+        "title": "Repair or close the existing marineactivity.com /flags SEO request",
+        "summary": "Inspect the existing failed request for marineactivity.com’s /flags SEO work using retained reviewer and implementation evidence. Current evidence records 597 impressions, 1 click, 8 sessions, 0 conversions, 7 SEO actions, and $17.92 in AI usage cost; no causal lift or revenue is inferred. Do not create new production work or request duplicate telemetry.",
+        "requested_action": "Approve a bounded read-only failure review. Document the failure cause, smallest repair or closure decision, validation requirements, and rollback boundary. Do not requeue or deploy until validation evidence is complete.",
+        "proposal_id": "739868d6-2051-4bd0-9649-e544c46fe2b1"
       }
     ]
   }
