@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T10:04:20.572Z",
+  "generated_at": "2026-09-25T11:57:50.070Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Defer the Mermaid prototype this cycle. The CRO lead is plausible but not yet revenue-qualified: aliencouncil.com has 77 impressions, position 5.5, 0 clicks, 0 sessions, and 0 conversions in the current SEO window; no metric baseline for the proposed component exists. Capacity is committed to 123 approved proposals without execution requests, 24 improvements awaiting measurement, and 10 failed requests. Amazon revenue is $4.92 aggregate and unattributed for 2026-09-21, so upside and margin are not calculable. Smallest next step: drain existing execution and repair backlogs, then reassess with a defined CTR/engaged-session baseline. Owner decision: keep deferred until the backlog is reduced, or authorize one isolated, non-production prototype with a 14-day/100-impression measurement gate?",
+        "summary": "Recommendation: keep SearchWoot private and prioritize draining approved execution and repair backlog. Evidence: 123 approved proposals lack execution, 12 requests failed, 23 repair follow-ups remain open, and SearchWoot source rights, legal, security, accuracy, and measurement gates remain blocked. Unknown: owner disposition on preparing an unsent Woot permission request. Should we (A) prepare the unsent request for owner/counsel review, or (B) stop pursuing public beta and maintain private indefinitely?",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Prioritize execution control over new ideas. Continue existing measurement gates, failed-request repair or closure, bounded security evidence, and SearchWoot's private launch gate. Do not create duplicate proposals or queue new production work while 123 approved proposals remain unexecuted and 21 failed-request follow-ups are open.",
+        "summary": "Recommendation: do not adopt third-party repositories yet. The MarkItDown and shadcn/ui leads are suitable only for bounded prototypes; no production or revenue evidence exists, and runtime/dependency compatibility remains unverified.",
         "requested_action": null,
         "proposal_id": null
       }

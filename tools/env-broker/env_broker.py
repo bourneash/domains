@@ -382,6 +382,9 @@ def _vault_read_sites() -> dict[str, dict[str, str]]:
     """
     v = _vault()
     v._ensure_unlocked()
+    # bw list reads its local cache. The fleet-cron container had not synced
+    # for weeks and reported existing scoped tokens as FLEETWIDE/STALE.
+    v._bw(["sync"])
     items = json.loads(v._bw(["list", "items", "--search", SITE_ITEM_PREFIX]))
     out: dict[str, dict[str, str]] = {}
     for item in items:

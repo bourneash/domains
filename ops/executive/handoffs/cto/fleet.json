@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T10:04:20.573Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T11:57:50.071Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Defer the Mermaid prototype this cycle. It is technically feasible as a disposable, non-production artifact using manually authored static SVG, but no production adoption, dependency installation, credential access, domain changes, or telemetry changes are authorized. Current capacity is constrained by 123 approved proposals without execution requests, 24 improvements awaiting measurement, 10 failed implementation requests, and 21 open repair follow-ups. Continue existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate. Reassess only after backlog reduction with a defined CTR and engaged-session baseline plus documented accessibility, SVG sanitization, page-weight, maintenance, rollback, and measurement gates. No new queue request should be created this cycle.",
+        "summary": "Recommendation: approve only bounded, read-only finance reconciliation and existing backlog repair. Do not adopt third-party repositories or authorize new spend, production prototypes, or monetization changes. Current execution capacity is constrained by 123 approved proposals without execution, 12 failed requests, 23 repair follow-ups, and unavailable fleet-doctor and operations sweeps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical review: The proposed prototype is isolated and reversible in principle, but its implementation effort and risks are not yet bounded by an existing fleet task. Mermaid’s lab result supports research only; it does not establish dependency, security, accessibility, performance, or revenue fitness. No new telemetry should be requested because the available analytics and SEO sources already provide the relevant baseline fields. Keep the proposal deferred and do not enter it into the implementation queue.",
+        "summary": "The reviewtattoo.com task-routing repair is technically feasible, isolated, reversible, and safe to enter the existing engineer queue. Scope must remain limited to ownership metadata and the PYSCORE ENOENT/import-error guard, with focused validation and no site, credential, deployment, or telemetry changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the proposed third-party prototypes this cycle. Repository-lab evidence supports research only; runtime compatibility, dependency maintenance, security posture, performance impact, measurable baseline, and rollback remain unverified. Preserve the leads for a later owner-approved disposable prototype.",
         "requested_action": null,
         "proposal_id": null
       }

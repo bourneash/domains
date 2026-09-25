@@ -2,30 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T10:04:20.573Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T11:57:50.071Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: conditional for ordinary reversible fleet growth; evidence_needed for fleet-wide security assurance; blocked for SearchWoot public beta or full launch. Exact recommendation: continue only reversible work that passes existing preview, build, smoke, compliance, review, and rollback gates; do not claim security clearance or certification. Keep SearchWoot private until access boundaries, secret handling, isolation, release controls, data exposure, incident response, disclosure readiness, and the other launch gates are evidenced and approved.",
+        "summary": "Security disposition: evidence_needed for fleet-wide assurance, conditional for ordinary reversible growth, and blocked for SearchWoot public beta or full launch. Concrete evidence: fleet-doctor is unavailable; operations deploy and uptime sweeps are absent; all 59 security legal-family facts are unknown; no TLS expirations are reported, but certificate coverage is not evidenced; access boundaries, secret handling, container isolation, dependency provenance, data exposure, incident handling, and disclosure readiness are not evidenced. These are evidence gaps, not confirmed vulnerabilities. Severity is medium for fleet-wide assurance and high for public-launch decision impact. Recommendation: continue only reversible work that passes existing preview, build, smoke, compliance, review, and rollback gates; maintain the private launch gate; complete bounded read-only evidence capture without retrieving credentials, exploiting targets, changing production, or treating missing data as a pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Concrete evidence and severity: fleet-doctor is unavailable (ok=false, no run), operations deploy and uptime sweeps are absent, all 59 security site legal-family facts are unknown, and no TLS expirations are reported but certificate coverage is not evidenced. No credentials, private source, container shell, exploit activity, or production mutation was used. These are evidence gaps, not confirmed vulnerabilities; fleet-wide assurance risk is medium, with high decision impact for public launch. Existing signals include 10 failed implementation requests, 21 open repair follow-ups, 65 retained tick failures, and multiple reviewer or quality-gate failures. Do not block ordinary growth solely for optional hardening.",
+        "summary": "Existing operational signals increase review priority but do not prove compromise: 12 failed implementation requests, 23 open repair follow-ups, 65 retained executive tick failures, and unavailable fleet-doctor and operations sweeps. Continue containment and repair of existing failures before requeue; do not block ordinary growth solely for optional hardening where required release and rollback gates pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot decision: blocked for public exposure. The launch checklist explicitly marks security and release blocked, while access boundaries, secret handling, runtime isolation, dependency and supply-chain evidence, monitoring, incident handling, data-flow controls, and disclosure readiness remain incomplete. Maintain the private gate and authorize only bounded read-only evidence work; no credentials, deployment, configuration change, alert expansion, outreach, or public data exposure.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal",
+        "title": "Capture fleet security control evidence and maintain private launch gate",
+        "summary": "Complete a bounded, read-only evidence matrix for access boundaries, secrets exposure, runtime isolation, release controls, TLS coverage, dependencies, data exposure, incident handling, and disclosure readiness. Preserve the private launch gate and record unknowns explicitly.",
+        "requested_action": "Approve bounded read-only evidence closure and maintain the private launch gate. Authorize no public exposure, credentials, configuration changes, deployment, alert expansion, outreach, or external spend.",
+        "proposal_id": "73f96cc3-d99f-4b8b-9d84-6e5b672d23a6"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "security-2026-09-25-fleet-evidence-closure",
+        "summary": "Approve bounded read-only security evidence closure and maintain the private launch gate. Fleet-wide assurance remains unevidenced because fleet-doctor and operations sweeps are unavailable and access, secrets, isolation, release, TLS, dependency, data-exposure, incident, and disclosure controls are not demonstrated. No public launch or security clearance is recommended.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "security-2026-09-25-fleet-evidence-closure"
       }
     ]
   }

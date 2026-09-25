@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T10:04:20.573Z",
+  "generated_at": "2026-09-25T11:57:50.071Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the new Mermaid prototype this cycle and continue only existing measurement gates, failed-request repair or closure, bounded security evidence, and the private launch gate. The fleet generated $4.92 aggregate Amazon commission for 2026-09-21, all unattributed, versus $907.46 of AI usage cost from 2026-09-01 through 2026-09-25. This is not a valid contribution margin because periods and scopes differ, infrastructure and fixed costs are unavailable, and site-level revenue is $0 attributable. Cost-to-learn is also not calculable: 0 improvements are proven, 1 is measured, and 24 await measurement. The proposed candidate has only 77 impressions, 0 clicks, 0 sessions, and 0 conversions, so it is a vanity opportunity without a revenue-qualified baseline. No new finance proposal or owner decision is required this cycle.",
+        "summary": "Recommendation: freeze incremental AI, infrastructure, third-party adoption, and revenue forecasts until finance-grade attribution and cost coverage are available. Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all $4.92 is an aggregate row with no site assignment; named site rows show $0 commission. AI usage cost is $921.96 across 5,093 calls from 2026-09-01 through 2026-09-25, with 0 proven improvements and 2 measured outcomes marked inconclusive. Contribution margin, ROI, cost-to-learn, infrastructure spend, and budget exposure are not calculable because periods do not align, site revenue is unattributed, and infrastructure, domain, labor, and other operating costs are absent. Approve report-only reconciliation work; authorize no new spend or monetization claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance control recommendation: do not claim revenue, ROI, contribution margin, causal lift, or forecasted upside from the current evidence. The minimum future measurement for a finance-qualified test is a common dated window containing page exposure, sessions, affiliate clicks, ordered items, shipped items, commission, AI cost, infrastructure cost, and the exact content/site identifier.",
+        "summary": "Pushback: impressions, clicks, sessions, SEO actions, repository stars, and opportunity scores are not financial outcomes. The fleet has 102 SEO actions, 13,811 impressions, 138 clicks, 984 sessions, and 15 conversions, but no attributable revenue or contribution margin is established. Do not use these metrics to justify forecasts, third-party adoption, or additional AI spend.",
         "requested_action": null,
         "proposal_id": null
       }

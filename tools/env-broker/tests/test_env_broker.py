@@ -584,6 +584,22 @@ PS_POLICY = {
 }
 
 
+def test_vault_site_read_syncs_before_listing(monkeypatch):
+    calls = []
+
+    class Vault:
+        def _ensure_unlocked(self):
+            calls.append("unlock")
+
+        def _bw(self, args):
+            calls.append(args)
+            return '[]'
+
+    monkeypatch.setattr(eb, "_vault", lambda: Vault())
+    assert eb._vault_read_sites() == {}
+    assert calls == ["unlock", ["sync"], ["list", "items", "--search", eb.SITE_ITEM_PREFIX]]
+
+
 def test_site_values_keeps_only_the_declared_per_site_keys(monkeypatch):
     monkeypatch.setattr(eb, "_vault_read_sites", lambda: {
         "a.com": {"CLOUDFLARE_API_TOKEN": "scoped", "GITHUB_TOKEN": "sneaky"}})

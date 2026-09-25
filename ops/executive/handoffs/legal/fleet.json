@@ -2,30 +2,72 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T10:04:20.573Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T11:57:50.071Z",
+  "summary": "legal checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for ordinary reversible fleet growth; blocked for SearchWoot public beta or full launch. Compliance evidence is technical baseline only: 37 pass, 16 fail, and 6 unknown, with open banner, consent, privacy, and terms findings. Do not treat incomplete telemetry as a legal blocker for ordinary growth, but do not claim legal clearance. SearchWoot remains private because current Woot terms do not establish rights for storage, derivatives, public display, caching, alerts, affiliate use, or advertising. Human counsel is required for source-rights interpretation, privacy/jurisdiction treatment, and any future affiliate or advertising use. No launch-readiness task is closed this cycle; all four remain open pending the specified evidence actions.",
+        "summary": "Risk disposition: conditional for ordinary reversible fleet growth; blocked for SearchWoot public beta or full launch. Compliance is a technical baseline, not legal certification: 37 sites pass, 16 fail, and 6 are unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics and revenue gaps do not independently block ordinary growth, but no unsupported legal, revenue, ROI, attribution, or security claims are permitted. SearchWoot must remain private because source rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot data-use dispositions: Woot API deal and price-history data = blocked; missing current written permission or API agreement, field-level rights, attribution, freshness, correction, takedown, and monetization terms. Smallest next action: prepare an unsent permission request and route the rights question to human counsel; do not expose data publicly. User alert rules and sync results = evidence_needed; missing data inventory, retention, deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: complete a read-only data-flow and retention table from repository and deployed configuration. GA4 analytics = evidence_needed; missing deployed consent and withdrawal evidence, GA4 property/data-sharing settings, retention settings, vendor disclosure, and jurisdictional review. Smallest next action: capture consent behavior and read-only GA4 configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data = evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, incident handling, and data-subject request procedures. Smallest next action: produce the read-only operator/vendor inventory and identify counsel-required gaps.",
+        "summary": "Launch-readiness progress: no task is closed. All four SearchWoot tasks remain open because the required evidence is not attached. The next evidence actions are: prepare an unsent Woot permission request and counsel packet; produce a repository/configuration data-flow and retention table; capture deployed consent, withdrawal, and GA4 settings; and inventory logs, vendors, retention, access, incident, and data-request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The Mermaid prototype is not a legal blocker as proposed: its stated MIT license and isolated, non-production scope support conditional research only. Retain the existing deferral. Before any adoption, preserve license evidence, verify any bundled asset rights and trademark usage, and obtain CTO/security evidence for SVG sanitization, accessibility, page weight, dependency maintenance, and rollback. No production deployment, affiliate claim, monetization claim, or new telemetry is approved.",
+        "summary": "Revenue evidence is partial and must remain unattributed where the provider supplies only an aggregate row: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, with all commission in the aggregate tracking row. Do not allocate it by clicks or site share. AI usage is $921.96 for 2026-09-01 through 2026-09-25; cost, margin, and ROI are not calculable because periods and cost coverage do not align.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Site and operations evidence supports only conditional growth: 39 live sites, 19 scaffold sites, 39 analytics-configured sites, 37 GSC-ready sites, and unavailable fleet-doctor and operations sweeps. Private or unreachable sites require a concrete launch decision and checklist before exposure. Missing telemetry is not treated as zero and does not by itself block reversible growth.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-2026-09-25-markitdown-content-prototype",
+        "summary": "No legal blocker to isolated research on the stated MIT evidence, but this is not adoption approval. Preserve license and bundled-asset evidence, avoid trademark or copyright claims, and require CTO security, dependency, performance, accessibility, measurement, and rollback review before any implementation.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "cro-2026-09-25-markitdown-content-prototype"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-2026-09-25-shadcn-component-prototype",
+        "summary": "Conditional research only. The stated MIT evidence supports a fixture-only prototype, not production use. Require license, asset, trademark, dependency, security, accessibility, performance, measurement, and rollback evidence before adoption.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "cro-2026-09-25-shadcn-component-prototype"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-2026-09-25-attribution-reconciliation",
+        "summary": "Report-only reconciliation is permissible using existing evidence, provided aggregate commission remains unattributed, missing costs remain unknown, and no financial, ROI, or causal claim is made.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-2026-09-25-attribution-reconciliation"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-2026-09-25-ai-cost-to-learn-review",
+        "summary": "Report-only review is permissible. Do not treat call volume, token volume, impressions, repository stars, or opportunity scores as financial outcomes or justification for new spend.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-2026-09-25-ai-cost-to-learn-review"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-2026-09-25-infrastructure-cost-coverage-gap",
+        "summary": "Report-only cost-coverage inventory is permissible. Missing cost fields must remain unknown and allocation rules require owner approval before margin reporting.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-2026-09-25-infrastructure-cost-coverage-gap"
       }
     ]
   }
