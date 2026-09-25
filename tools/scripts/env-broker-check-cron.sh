@@ -92,10 +92,16 @@ if [[ -f "$DOMAINS_ROOT/.env" ]]; then
 fi
 [[ -n "${SLACK_BOT_TOKEN:-}" ]] || exit 0
 
+HEADLINE="Site credential policy has drifted"
+GUIDANCE="For STALE/policy drift: fix policy.yaml if needed, then env_broker.py render --all --restart — it only bounces containers whose rendered file actually changed. For MISSING/EXTRA/FORBIDDEN, fix policy.yaml first."
+if [[ "$REPORT" == *VAULT_UNAVAILABLE* ]]; then
+  HEADLINE="Credential policy check unavailable"
+  GUIDANCE="Vault sync/read failed. Check Vaultwarden and the bw CLI, then rerun env_broker.py --check. Existing rendered credentials remain in place."
+fi
 timeout 30 python3 "$DOMAINS_ROOT/tools/role-notify/notify_role.py" \
   --mode structured --site fleet --role env-broker --status warn \
-  --headline "Site credential policy has drifted" \
+  --headline "$HEADLINE" \
   --detail "\`\`\`${REPORT:0:1500}\`\`\`" \
   ${FILE_PROBLEMS:+--detail "\`\`\`${FILE_PROBLEMS:0:800}\`\`\`"} \
-  --detail "For STALE/policy drift: fix policy.yaml if needed, then \`env_broker.py render --all --restart\` — it only bounces containers whose rendered file actually changed. For MISSING/EXTRA/FORBIDDEN, fix policy.yaml first." \
+  --detail "$GUIDANCE" \
   --channel-env FLEET_TEST_CHANNEL --channel-default domain-ops >/dev/null 2>&1 || true

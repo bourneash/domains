@@ -55,8 +55,10 @@ cron role on every site — a vault outage becomes a fleet outage, where today a
 file mount cannot be "down".
 
 Vaultwarden is the source of truth; the shared `.env` stays as bootstrap and
-offline fallback. A vault-sourced render is byte-identical to a file-sourced
-one (that equivalence is the migration's acceptance test).
+offline fallback for fleet keys. Existing rendered files keep sites running if
+Vaultwarden is unavailable, but new renders require a successful read of the
+per-site scoped tokens. A vault-sourced render is byte-identical to a
+file-sourced one (that equivalence is the migration's acceptance test).
 
 ## `per_site_vault` — keys whose value differs per site
 
@@ -75,6 +77,10 @@ account-scoped token.
 
 Sites still on the shared credential print as `FLEETWIDE` in `--check`, so the
 migration has a visible countdown instead of being something you remember.
+The broker syncs Bitwarden before reading those site items. If the sync or read
+fails, `render` leaves existing files untouched and `--check` reports
+`VAULT_UNAVAILABLE` instead of claiming the sites have lost their scoped tokens.
+Existing containers continue using their last rendered files during an outage.
 
 ## `vault_only` — keys with no `.env` fallback
 

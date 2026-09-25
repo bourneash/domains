@@ -614,12 +614,37 @@ def test_site_values_ignores_an_empty_value(monkeypatch):
     assert eb.site_values(PS_POLICY) == {"a.com": {}}
 
 
-def test_site_values_falls_back_to_fleet_wide_when_the_vault_is_down(monkeypatch, capsys):
+def test_site_values_fails_closed_when_the_vault_is_down(monkeypatch):
     def boom():
         raise RuntimeError("bw: locked")
     monkeypatch.setattr(eb, "_vault_read_sites", boom)
-    assert eb.site_values(PS_POLICY) == {}
-    assert "falling back" in capsys.readouterr().err
+    with pytest.raises(eb.SiteVaultUnavailable):
+        eb.site_values(PS_POLICY)
+
+
+def test_vault_outage_preserves_scoped_render_and_avoids_false_drift(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.setattr(eb, "RENDER_DIR", tmp_path / "rendered")
+    monkeypatch.setattr(eb, "ENV_FILE", tmp_path / "fleet.env")
+    eb.RENDER_DIR.mkdir()
+    eb.ENV_FILE.write_text("CLOUDFLARE_API_TOKEN=FLEET\nSLACK_BOT_TOKEN=s\n")
+    out = eb.RENDER_DIR / "a.com.env"
+    out.write_text("CLOUDFLARE_API_TOKEN=SCOPED-A\nSLACK_BOT_TOKEN=s\n")
+
+    def down():
+        raise RuntimeError("bw: locked")
+
+    monkeypatch.setattr(eb, "_vault_read_sites", down)
+    args = type("A", (), {"source": "file", "site": "a.com", "stdout": False})()
+    assert eb.cmd_render(args, PS_POLICY, {}) == 1
+    assert out.read_text() == "CLOUDFLARE_API_TOKEN=SCOPED-A\nSLACK_BOT_TOKEN=s\n"
+    assert "VAULT_UNAVAILABLE" in capsys.readouterr().err
+
+    assert eb.cmd_check(args, PS_POLICY, {}) == 1
+    report = capsys.readouterr().err
+    assert "VAULT_UNAVAILABLE" in report
+    assert "FLEETWIDE" not in report
 
 
 def test_a_sites_own_token_wins_over_the_fleet_one(tmp_path, monkeypatch):

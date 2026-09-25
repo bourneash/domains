@@ -19,7 +19,8 @@ container — trades 60 keys for one vault password that unlocks *more* than the
 a user), and makes Vaultwarden a hard runtime dependency of every cron role.
 
 Vaultwarden is the source of truth; the shared .env remains a bootstrap and
-an offline fallback, so a vault outage cannot stop a render.
+an offline fallback for fleet keys. A vault outage leaves existing site renders
+in place rather than replacing scoped tokens with the shared credential.
 
 USAGE
     env_broker.py --check                 # policy vs. what ops/ really uses
@@ -401,6 +402,10 @@ def per_site_keys(policy: dict) -> list[str]:
     return list(policy.get("per_site_vault") or [])
 
 
+class SiteVaultUnavailable(RuntimeError):
+    """A scoped-token lookup failed; existing renders must stay untouched."""
+
+
 def site_values(policy: dict) -> dict[str, dict[str, str]]:
     """Per-site overrides, restricted to the keys policy says are per-site.
 
@@ -413,25 +418,18 @@ def site_values(policy: dict) -> dict[str, dict[str, str]]:
     try:
         raw = _vault_read_sites()
     except Exception as exc:
-        _fatal_if_missing_binary(exc)
-        print(f"warning: per-site vault read failed ({exc}) — falling back to "
-              f"the fleet-wide values", file=sys.stderr)
-        return {}
+        raise SiteVaultUnavailable(
+            "per-site vault read failed; scoped token status cannot be verified"
+        ) from exc
     return {d: {k: v for k, v in fields.items() if k in wanted and v}
             for d, fields in raw.items()}
 
+
 def _fatal_if_missing_binary(exc: Exception) -> None:
-    """A missing `bw` binary is a container/host build defect, not a vault
-    outage — silently falling back to fleet-wide creds would mask it for as
-    long as nobody happens to read stderr. Every other vault error (locked,
-    unreachable, auth expired) is transient and keeps the existing
-    warn-and-fall-back behavior; this is the one that must stop the run.
-    """
+    """A missing bw CLI is an install defect, not a transient vault outage."""
     if isinstance(exc, FileNotFoundError):
-        print(f"FATAL: bw CLI not found ({exc}) — this is a broken install, "
-              f"not a transient vault outage. Falling back would silently "
-              f"hand out fleet-wide credentials instead of per-site scoped "
-              f"ones. Fix the image/PATH, don't ignore this.", file=sys.stderr)
+        print(f"FATAL: bw CLI not found ({exc}) — fix the image/PATH; "
+              "credential checks cannot run without it.", file=sys.stderr)
         sys.exit(1)
 
 
@@ -585,7 +583,12 @@ def cmd_render(args, policy, slack) -> int:
                   f"{len(file_values)} — filling the gap from .env", file=sys.stderr)
             values = {**file_values, **values}
     values = merge_vault_only(values, policy)
-    per_site = site_values(policy)
+    try:
+        per_site = site_values(policy)
+    except SiteVaultUnavailable as exc:
+        print(f"VAULT_UNAVAILABLE: {exc}; existing rendered files left untouched",
+              file=sys.stderr)
+        return 1
 
     targets = [args.site] if args.site else consumers()
     tool_targets = [] if args.site else tool_consumers()
@@ -745,7 +748,12 @@ def rendered_drift(name: str, keys: list[str], values: dict[str, str],
 def cmd_check(args, policy, slack) -> int:
     values = load_env_vault(policy) if args.source == "vault" else load_env_file()
     values = merge_vault_only(values, policy)
-    per_site = site_values(policy)
+    try:
+        per_site = site_values(policy)
+    except SiteVaultUnavailable as exc:
+        print(f"VAULT_UNAVAILABLE: {exc}; scoped-token drift cannot be assessed",
+              file=sys.stderr)
+        return 1
     never = set(policy.get("never_grant") or [])
     site_domains = consumers()
     # Discovery must include policy-known and per-site-only keys, not just keys
