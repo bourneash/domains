@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T18:24:06.451Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T19:05:48.018Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the bounded trainingsharks.com CLS repair. Reject CRO experiments, unsupported revenue or ROI claims, high-priority queue work, launch changes, spending, credential/configuration changes, duplicate telemetry, and production proposals without measurable outcomes. Keep existing gates unchanged. Current evidence is inconclusive: aggregate commission is not site-attributable, 24 improvements await measurement, 33 requests failed, and none are proven.",
+        "summary": "Reject new queue work, production proposals, discretionary spend, unsupported revenue or ROI claims, duplicate evidence requests, and launch changes. Continue only existing measurement windows, failed-request repair/containment, bounded security evidence, and the private launch gate. Site-attributed revenue is $0; aggregate commission is $4.92 for 2026-09-21 and cannot support site economics. The rc-9.com repair remains blocked pending root cause, isolated validation, and rollback evidence. Owner action is limited to deciding whether to authorize the prepared permission request; until then, read-only evidence and internal drafting only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed security evidence work is bounded and read-only, but remove it from this queue plan because it is high priority and existing security work already covers the same evidence boundary. Preserve unknowns and continue only through the existing commitment; do not create duplicate work.",
+        "summary": "No research request retained this cycle. Existing telemetry and launch evidence cover the available gaps, while additional requests would duplicate shared contracts or fail to produce an actionable production-safe outcome.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, launch, spending, credential, configuration, and duplicate-telemetry claims. Keep the gated product private. Preserve the existing security and measurement commitments; do not duplicate them. Queue only the bounded reversible SEO changes below. rc-9.com remains blocked by its unresolved prior failure; trainingsharks.com CLS repair remains blocked by reviewer rejection. Aggregate commission is not site-attributable, so no financial outcome is claimed.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T18:24:06.450Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T19:05:48.017Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded trainingsharks.com CLS repair and keep existing launch/security gates unchanged. The mobile CLS baseline is 0.232 (performance 85; 2026-09-25 mobile lab), and the prior implementation failed reviewer quality gates, so the smallest next step is a repaired, isolated implementation with validation and rollback. Portfolio evidence remains inconclusive: 24 improvements await measurement, 33 requests failed, and 0 are proven. Amazon revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; no ROI or causal lift is calculable. The CRO’s 0xroulette prototype is deferred because activation baseline and implementation evidence are missing; the allthingsmasonic module is deferred while homepage work measures.",
+        "summary": "Recommendation: drain existing execution and measurement backlog before creating new ideas. Evidence: 24 improvements await measurement, 0 are proven, 35 requests failed, 44 failure follow-ups remain open, and 153 approved proposals lack execution. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 orders, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0, so ROI is not calculable. The only current implementation candidate, rc-9.com performance repair, is blocked by an unresolved prior failure. Continue measurement, repair existing failures, and keep SearchWoot private. Owner decision: authorize sending the prepared Woot permission request; until then, drafting and read-only evidence work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue the approved fleet security evidence commitment and do not duplicate the existing security work. Fleet-doctor and operations sweeps are unavailable, so authentication, isolation, release, secrets, monitoring, and incident controls remain unknown rather than passing. Smallest next step: security records timestamps, owners, affected scope, severity, and exact unknowns from authorized metadata only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain only the bounded trainingsharks.com CLS repair and continuation of the existing fleet security evidence commitment. Keep launch and security gates unchanged. Do not claim revenue, ROI, margin, attribution, or causal lift from incomplete telemetry.",
+        "summary": "Recommendation: preserve the existing safe disposition and do not requeue rc-9.com until the failure artifact has a documented root cause, isolated repair, validation, and rollback. The candidate baseline is mobile performance 48, LCP 4,977ms, and TBT 1,513ms. Smallest next step: principal-engineer completes the existing repair-or-close review.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-25T18:24:06.450Z",
+  "generated_at": "2026-09-25T19:05:48.016Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain two reversible experiments grounded in current SEO, affiliate, analytics, GitHub-trend, and CRO-lab evidence. No deployment, spending, credential, configuration, or domain changes are requested.",
+        "summary": "No new CRO proposal retained this cycle. Existing improvements are still measuring, attribution remains partial, and reviewer guidance rejects duplicate experiments or unsupported revenue claims. Continue current measurement and repair queues; preserve GitHub signals as research evidence only.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T18:24:06.450Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T19:05:48.017Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: retain only the bounded trainingsharks.com CLS repair and reject/defer both CRO experiments. Revenue support is weak: Amazon recorded $4.92 aggregate commission on 2026-09-21, with $0 site-attributed income; 6,219 clicks produced 28 ordered items and 6 shipped items, but the aggregate row cannot be assigned to sites. Portfolio outcomes remain inconclusive: 24 improvements await measurement, 33 requests failed, and 0 are proven. AI spend is measurable at $932.93 for 2026-09-01 through 2026-09-25 across 5,194 calls, but infrastructure, domain, labor, and other fixed costs are absent, so contribution margin, payback, cost-to-learn, and budget exposure are not calculable. The 0xroulette CTA lacks an activation baseline, and the allthingsmasonic experiment has 61 affiliate clicks but 0 orders and $0 commission; neither has sufficient financial evidence to justify additional implementation. Do not treat sessions, impressions, clicks, analytics conversions, opportunity scores, or GitHub popularity as revenue or margin evidence.",
+        "summary": "Recommendation: do not authorize incremental discretionary growth or AI spend until attribution and unit economics are decision-grade. The available revenue window is only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed income is $0 because the $4.92 aggregate row cannot be assigned to a site. AI usage from 2026-09-01 through 2026-09-25 cost $932.93 across 5,194 calls, including 230 errors; this supports AI spend reporting but not cost-to-learn or ROI. Contribution margin is not calculable because site-level revenue is zero/unknown and infrastructure, hosting, registrar, labor, and other direct costs are not supplied. Continue existing measurement and failure-repair work only; reject vanity metrics and unsupported forecasts.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue claims must be limited to the dated provider facts: $4.92 aggregate commission for 2026-09-21, with $0 site-attributed income. Clicks, impressions, sessions, conversions, ordered items, and shipped items are operating metrics, not revenue or margin. The minimum measurement needed for site economics is a period-matched join of site/content identifier, tracking ID, affiliate clicks, orders, shipped items, commission, and reversals; plus site-level AI, infrastructure, hosting, domain, and other direct costs. Until that exists, cost-to-learn, contribution margin, CAC, ROI, and payback are not calculable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The existing rc-9.com performance repair should remain blocked pending root-cause, validation, and rollback evidence. A performance score or TBT improvement is not a financial return and cannot justify additional spend without attributable revenue or a documented cost-saving outcome.",
         "requested_action": null,
         "proposal_id": null
       }

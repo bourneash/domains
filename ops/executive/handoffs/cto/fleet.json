@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T18:24:06.451Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T19:05:48.017Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve only the isolated trainingsharks.com CLS repair for the existing engineer queue. Preserve the recorded mobile CLS baseline of 0.232, require focused validation and rollback, and use only existing analytics/performance telemetry. Do not claim causal lift, revenue, ROI, or conversion improvement. Keep all launch, security, credential, configuration, spending, and domain gates unchanged.",
+        "summary": "CTO review: preserve the CEO disposition. Do not create new implementation work or requeue rc-9.com while the prior failure lacks documented root cause, isolated repair, validation, and rollback evidence. Continue the existing repair-or-close work, existing measurement windows, and failure containment only. The proposed CFO report duplicates the existing open finance-boundary work item and should not create a second request. Keep the gated product private pending owner and required legal, security, accuracy, attribution, and measurement decisions.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the single existing fleet security evidence commitment without creating duplicate requests. Missing fleet-doctor and operations evidence remains unknown; do not treat it as a pass or request duplicate telemetry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve the isolated trainingsharks.com CLS repair through normal review and validation, preserving the recorded CLS baseline, focused scope, rollback, and existing telemetry-only measurement. Do not alter launch, credential, configuration, spending, or domain gates.",
+        "summary": "No safe queue candidate is available this cycle. The only implementation candidate is blocked by an unresolved prior failure; fleet-doctor and operations evidence remain unavailable, and existing improvements are still measuring. Do not invent telemetry, claim ROI, authorize discretionary spend, or create duplicate evidence work.",
         "requested_action": null,
         "proposal_id": null
       }

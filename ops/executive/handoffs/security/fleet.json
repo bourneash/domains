@@ -2,37 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T18:24:06.451Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T19:05:48.018Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue one bounded read-only fleet security evidence matrix. Fleet-doctor and operations sweeps are unavailable, so authentication, isolation, release, secrets, monitoring, and incident controls remain unknown rather than passing. Do not duplicate telemetry requests or modify production.",
+        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for public launch of the gated product. Evidence: fleet_doctor.ok=false with no run, checks, or site results; operations deploy, uptime, and error sweeps unavailable; security sitefacts are unknown for all 59 scoped sites; no TLS certificates are reported expiring within 30 days, but certificate coverage is not evidenced; compliance records 35 pass, 18 fail, and 6 unknown. Authentication, access boundaries, secrets handling, container isolation, release controls, dependency and supply-chain risk, data exposure, monitoring, incident readiness, and disclosure readiness therefore remain unverified. Severity: high for launch decisions, not an automatic block on ordinary low-risk growth. Recommendation: retain the existing bounded read-only security evidence work, preserve unknowns, do not request duplicate telemetry, and keep the gated product private until material security and other launch gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for public launch of the gated product. Evidence shows security and operations sweeps are unavailable: fleet_doctor.ok=false with no run, checks, or site results; deploy, uptime, and error sweeps are unavailable; TLS expiry evidence is empty; security sitefacts are otherwise unknown. Therefore authentication, access boundaries, secrets exposure, container isolation, release controls, dependency risk, monitoring, incident readiness, and disclosure readiness cannot be cleared. Compliance records 35 passes, 18 fails, and 6 unknown, but this is not a security certification. Continue ordinary low-risk growth where independently authorized, but do not treat missing evidence as a pass or expand public exposure. Keep the gated product private.",
+        "summary": "No new security proposal or change request is retained. Existing security work already covers the required evidence boundary. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, or claim certification. Ordinary reversible growth may continue where independently authorized, but no security-sensitive release or public exposure should proceed on missing evidence alone.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Exact recommendation: retain one bounded read-only security evidence commitment and do not create duplicate telemetry requests. Review authorized metadata and retained artifacts only, recording timestamps, owners, affected scope, concrete unknowns, severity, and release implications. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, or contact external parties. Public launch remains blocked until material rights, privacy, accuracy, measurement, and security evidence are complete.",
+        "summary": "SearchWoot remains blocked from public exposure on security grounds because access, secret, isolation, TLS, dependency, monitoring, incident, and disclosure evidence is incomplete. This is compounded by unresolved rights, privacy, accuracy, attribution, measurement, and owner gates. Keep the private gate unchanged and permit only bounded read-only evidence work and internal drafting.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed security disposition for fleet controls",
-        "summary": "Complete one bounded read-only security evidence matrix covering authentication and access boundaries, secret handling, runtime isolation, release and deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, monitoring, and disclosure readiness. Preserve unknowns where fleet-doctor or operations evidence is unavailable.",
-        "requested_action": "Use only authorized metadata and retained artifacts. Record evidence timestamps, owners, affected scope, exact unknowns, severity, and release implications. Do not request duplicate telemetry, retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, or claim certification. Keep the gated product private pending completion of material security and non-security launch gates.",
-        "proposal_id": "b9d1b368-85c2-467b-b05b-88e594ca5c6a"
       }
     ]
   }
