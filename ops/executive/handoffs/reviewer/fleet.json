@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:58:56.701Z",
+  "generated_at": "2026-09-25T15:01:35.757Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded fishhooklabs.com report-only assessment using existing snapshot evidence; reject new production or queue work this tick because attribution is low-volume or unavailable, outcomes are unproven, operations evidence is incomplete, and the available rc-9.com engineering candidate is an existing failed run requiring repair-or-close review before requeue. Will you authorize CTO review and an explicit repair-or-close disposition for that existing failure before any requeue?",
+        "summary": "Recommendation: approve only the bounded girlpain.com read-only assessment and reject new production queue work this tick because attribution is incomplete or low-volume, outcomes are unproven, operations evidence is unavailable, and the only engineering candidate is an existing failed rc-9.com run requiring repair-or-close review before requeue. Will you authorize CTO review and an explicit repair-or-close disposition for that existing failure before any requeue?",
         "requested_action": null,
         "proposal_id": null
       }
