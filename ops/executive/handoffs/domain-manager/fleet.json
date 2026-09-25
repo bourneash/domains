@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T08:21:45.788Z",
+  "generated_at": "2026-09-25T09:05:37.633Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Review greatamericanlakes.com measurement gate and next-step disposition",
-        "summary": "Consolidate retained evidence for the already-deployed greatamericanlakes.com improvement. Current evidence records 55 sessions, 979 impressions, 3 clicks, 2 conversions, and $5.11 in AI usage cost; no proven outcome is recorded, and revenue or causal lift remains unknown.",
-        "requested_action": "Approve the report-only review and continue the existing measurement gate through 14 days or 100 new impressions, whichever applies first.",
-        "proposal_id": "087f6b35-19da-4452-8e6a-7fb5f30433b5"
+        "title": "Run mynewgm.com audience, monetization, health, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of mynewgm.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Analytics is recorded as not configured, so traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced.",
+        "requested_action": "Approve the report-only assessment using existing evidence only. Do not deploy, change credentials or configuration, spend money, or alter production.",
+        "proposal_id": "00a96db5-e985-47c1-a437-37f87268a294"
       }
     ]
   }
