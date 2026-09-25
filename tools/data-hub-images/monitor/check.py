@@ -35,6 +35,8 @@ PROXY_US = os.environ.get("DATAHUB_IMAGES_PROXY_US", "http://vpn-us:8888")
 PROXY_EU = os.environ.get("DATAHUB_IMAGES_PROXY_EU", "http://vpn-eu:8888")
 STATE_PATH = os.environ.get("DATAHUB_IMAGES_MONITOR_STATE", "/data/monitor-state.json")
 FRESH_MIN = int(os.environ.get("DATAHUB_IMAGES_MONITOR_FRESH_MIN", "90"))
+READY_ATTEMPTS = int(os.environ.get("DATAHUB_IMAGES_MONITOR_READY_ATTEMPTS", "3"))
+READY_RETRY_DELAY = float(os.environ.get("DATAHUB_IMAGES_MONITOR_READY_RETRY_DELAY", "2"))
 SLACK_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
 # Fleet infrastructure alerts (VPN exits, collector health) belong in the
 # shared ops channel, not in any one site's channel.
@@ -104,13 +106,26 @@ def run_checks():
 
     # 1. Local API + DB. This endpoint never waits for external VPN IP-echo
     # services, so their failure cannot be mistaken for an API outage.
-    try:
-        ready = _get(f"{BROKER}/ready", timeout=5)
-        if not ready.get("db", False):
-            add(CRITICAL, "DB not reachable (ready.db=false)")
-    except Exception as e:
-        add(CRITICAL, f"API /ready unreachable: {e}")
+    ready = None
+    ready_error = None
+    # Compose updates briefly close the API port while replacing its process.
+    # The collector can remain running when only the API container changes, so
+    # dependency ordering alone cannot protect this monitor. Retry locally to
+    # absorb that expected few-second window without delaying a real outage to
+    # the next five-minute tick.
+    for attempt in range(max(1, READY_ATTEMPTS)):
+        try:
+            ready = _get(f"{BROKER}/ready", timeout=5)
+            break
+        except Exception as e:
+            ready_error = e
+            if attempt + 1 < max(1, READY_ATTEMPTS):
+                time.sleep(max(0, READY_RETRY_DELAY))
+    if ready is None:
+        add(CRITICAL, f"API /ready unreachable after {max(1, READY_ATTEMPTS)} attempts: {ready_error}")
         return findings  # nothing else will work
+    if not ready.get("db", False):
+        add(CRITICAL, "DB not reachable (ready.db=false)")
 
     # /health includes slow external VPN probes. Keep other checks running if
     # those probes time out; the independent egress check below still detects

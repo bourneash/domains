@@ -69,6 +69,38 @@ def test_slow_health_probe_keeps_local_readiness_and_egress_checks(monkeypatch):
     assert not any("API /health unreachable" in m or "no VPN exit is up" in m for _, m in findings)
 
 
+def test_ready_retries_a_transient_compose_restart(monkeypatch):
+    calls = 0
+    sleeps = []
+
+    def fake_get(url, proxy=None, timeout=12, raw=False):
+        nonlocal calls
+        if url.endswith("/ready"):
+            calls += 1
+            if calls < 3:
+                raise ConnectionRefusedError("API container is restarting")
+            return {"db": True, "last_cycle_at": "2026-09-25T00:00:00Z"}
+        if url.endswith("/health"):
+            return {"vpn": {"us": "203.0.113.20", "eu": "203.0.113.21"}}
+        if "/egress?" in url:
+            return {"events": []}
+        if "/images?" in url:
+            return {"images": [{"id": "abc"}]}
+        if url.endswith("/image/abc"):
+            return b"x" * 1001, {"content-type": "image/jpeg"}
+        raise AssertionError(url)
+
+    monkeypatch.setattr(check, "_get", fake_get)
+    monkeypatch.setattr(check, "_echo_ip", lambda proxy=None: "198.51.100.10" if proxy is None else "203.0.113.20")
+    monkeypatch.setattr(check.time, "sleep", sleeps.append)
+
+    findings = check.run_checks()
+
+    assert calls == 3
+    assert sleeps == [check.READY_RETRY_DELAY, check.READY_RETRY_DELAY]
+    assert not any("API /ready unreachable" in message for _, message in findings)
+
+
 def test_warning_requires_two_ticks_but_critical_pages_immediately(tmp_path, monkeypatch):
     monkeypatch.setattr(check, "STATE_PATH", str(tmp_path / "state.json"))
     monkeypatch.setattr(check.sys, "argv", ["check.py"])

@@ -18,6 +18,15 @@ services:
   collector:
     build: .
     container_name: datahub-images-collector
+    # The monitor runs from this container and calls the API every five
+    # minutes.  Keep the dependency explicit so a compose rebuild stops the
+    # monitor before replacing the API and does not start it again until the
+    # API + shared database are ready.  Without this ordering, a rebuild on a
+    # five-minute boundary can emit a false degradation alert while the API
+    # port is briefly closed.
+    depends_on:
+      api:
+        condition: service_healthy
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -42,6 +51,16 @@ services:
   api:
     build: .
     container_name: datahub-images-api
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4770/ready', timeout=3).read()"
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 5s
     security_opt:
       - no-new-privileges:true
     cap_drop:
