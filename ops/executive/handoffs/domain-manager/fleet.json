@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:48:41.257Z",
+  "generated_at": "2026-09-25T02:51:34.531Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run drivegm.net audience, monetization, and measurement readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of drivegm.net using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The authoritative snapshot records drivegm.net analytics as not configured; preserve traffic, revenue, conversion, attribution, SEO, and health fields as unknown unless directly evidenced. Do not infer telemetry, revenue, ROI, or causal lift.",
-        "requested_action": "Approve the report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
-        "proposal_id": "9c61e523-77ca-47b1-a918-53085a349559"
+        "title": "Assess elevatorfriends.com activation and measurement readiness",
+        "summary": "Produce a bounded, read-only readiness assessment for elevatorfriends.com covering observable site positioning, content and conversion paths, monetization prerequisites, operational health, backlog priorities, and measurement boundaries. Analytics is recorded as not configured; traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced.",
+        "requested_action": "Approve the assessment using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence only. Do not request duplicate telemetry, deploy, modify production, change credentials or configuration, spend money, or claim revenue, ROI, or causal lift.",
+        "proposal_id": "274f0184-f5f7-48eb-b0f5-9b969ecfb59d"
       }
     ]
   }
