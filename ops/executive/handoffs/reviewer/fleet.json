@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:45:59.348Z",
+  "generated_at": "2026-09-25T02:48:41.257Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject new production and queue work this cycle. Only one actionable candidate is currently available; other candidates are deferred behind existing work, failures, or measurement gates. Preserve the existing broadwayshowgirls.com improvement for measurement and permit only bounded revalidation of its prior validation failure. Should the owner authorize that read-only revalidation?",
+        "summary": "Recommendation: Reject the drivegm.net readiness proposal this cycle because its analytics gap is already documented and it would add report backlog without resolving telemetry or producing a measurable outcome. Authorize no new production or queue work; continue existing measurement, failure repair, and bounded revalidation only. Should the owner authorize the existing broadwayshowgirls.com revalidation?",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:45:59.348Z",
+  "generated_at": "2026-09-25T02:48:41.257Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Revalidate broadwayshowgirls.com organic click-uplift improvement",
-        "summary": "The existing broadwayshowgirls.com improvement targets “priya raghunathan” and records 60 impressions, 0 clicks, position 1.9, and 0% CTR; its current state is review after a prior validation-infrastructure failure. Revalidate the existing bounded work without creating a duplicate change.",
-        "requested_action": "Assign the existing improvement for isolated revalidation. Preserve current site behavior, run focused validation and the site build, and record the exact validation artifact. Roll back or close only the existing improvement if validation fails; do not create a new production change or claim causal lift.",
-        "proposal_id": "4e6f037b-ca95-44d7-b9cc-000ef5d73a6e"
+        "title": "Run drivegm.net audience, monetization, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of drivegm.net using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The authoritative snapshot records drivegm.net analytics as not configured; preserve traffic, revenue, conversion, attribution, SEO, and health fields as unknown unless directly evidenced. Do not infer telemetry, revenue, ROI, or causal lift.",
+        "requested_action": "Approve the report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue or ROI.",
+        "proposal_id": "9c61e523-77ca-47b1-a918-53085a349559"
       }
     ]
   }
