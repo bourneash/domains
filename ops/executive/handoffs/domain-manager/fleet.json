@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:10:00.147Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-25T08:21:45.788Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "46c838e0-91b0-4e03-8f93-418e2eeaf99d",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 7,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "message",
+        "title": "Review greatamericanlakes.com measurement gate and next-step disposition",
+        "summary": "Consolidate retained evidence for the already-deployed greatamericanlakes.com improvement. Current evidence records 55 sessions, 979 impressions, 3 clicks, 2 conversions, and $5.11 in AI usage cost; no proven outcome is recorded, and revenue or causal lift remains unknown.",
+        "requested_action": "Approve the report-only review and continue the existing measurement gate through 14 days or 100 new impressions, whichever applies first.",
+        "proposal_id": "087f6b35-19da-4452-8e6a-7fb5f30433b5"
+      }
+    ]
   }
 }

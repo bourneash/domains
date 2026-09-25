@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:04:23.487Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T08:21:45.788Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue only existing measurement gates, failed-request repair or closure, private-gate controls, and bounded read-only security or failure revalidation. Aggregate commission is unattributed; site revenue, ROI, causality, contribution margin, and cost allocation remain unknown. Owner: authorize only these bounded existing workstreams.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not create duplicate telemetry requests. Preserve unavailable fields as unknown, require period-aligned evidence, and requeue existing work only after isolated cleanup, documented root cause, focused validation, rollback steps, and correct owner routing.",
+        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue the existing Great American Lakes measurement gate and bounded failure-repair, security-evidence, and private-gate work only. No owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
