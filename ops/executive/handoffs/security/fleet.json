@@ -2,44 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.934Z",
-  "summary": "security checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-25T17:54:33.424Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for the gated product’s public exposure. Risk severity is high due to unavailable fleet-doctor and operations sweeps: authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, incident monitoring, and security.txt/disclosure readiness are unknown. TLS evidence only shows no certificates expiring within 30 days and does not establish complete TLS coverage. Compliance records 35 pass, 18 fail, and 6 unknown. Exact decision: retain ordinary low-risk growth already authorized, but authorize no security-sensitive go-live, public exposure, credential or permission changes, configuration changes, alert expansion, or deployment until required controls are evidenced. Continue bounded read-only evidence capture only; do not treat missing telemetry as a pass or request duplicate telemetry.",
+        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for the gated product’s public exposure. High-severity uncertainty remains because fleet-doctor and operations sweeps are unavailable, leaving authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, incident monitoring, and disclosure readiness unevidenced. TLS evidence only shows no certificates expiring within 30 days and does not establish complete coverage. Compliance records 35 pass, 18 fail, and 6 unknown. Exact decision: retain ordinary low-risk growth, including the bounded trainingsharks.com CLS repair, subject to normal review and rollback; authorize no security-sensitive go-live, public exposure, credential or permission changes, configuration changes, alert expansion, or deployment outside existing controls. Continue only bounded read-only evidence capture and preserve unknowns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security review confirms the two CRO prototypes are not security blockers if they remain disposable, isolated, dependency-install-free, non-sensitive, and non-production. Because CTO and CFO declined them for this cycle, retain no new prototype work. Reconsider only with explicit security review covering dependency provenance, input handling, artifact isolation, and removal of prototype outputs.",
+        "summary": "Security review of the trainingsharks.com CLS repair: conditionally acceptable. Evidence shows a bounded presentation change using existing telemetry, with no new dependencies, credentials, configuration, data collection, or telemetry. Conditions: preserve authentication boundaries, consent and disclosure behavior, run the normal isolated worktree, review, build, validation, and rollback pipeline, and deploy only if gates pass. No security-sensitive launch or readiness claim is implied.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Exact gated-product decision: keep private. Rights, privacy, accuracy, attribution, measurement, owner, and security evidence remain incomplete. Permit only bounded read-only evidence work and internal draft preparation; do not expose publicly, expand alerts, change credentials or configuration, deploy, spend, or send external requests without owner approval and required human review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Capture fleet security control evidence and maintain evidence-needed disposition",
-        "summary": "Complete one bounded read-only evidence matrix for authentication, access boundaries, secrets exposure, runtime isolation, release controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and disclosure readiness. Preserve unknowns where fleet-doctor or operations evidence is unavailable.",
-        "requested_action": "Review authorized metadata and retained artifacts only. Document timestamps, owners, affected scope, exact unknowns, severity, and release implications. Do not retrieve credentials, access private containers, exploit targets, modify permissions, deploy, request duplicate telemetry, or change production.",
-        "proposal_id": "22e17a5e-3803-472a-b107-44231e789e30"
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private security gate for gated product",
-        "summary": "Keep the gated product private while rights, privacy, security, accuracy, attribution, measurement, and owner evidence remain incomplete.",
-        "requested_action": "Permit only bounded read-only evidence work and internal draft preparation. Do not expose publicly, expand alerts, change credentials or configuration, deploy, spend, or send external requests without required owner and human review.",
-        "proposal_id": "9e1495a3-d459-4761-8871-b3acd2280775"
       }
     ]
   }

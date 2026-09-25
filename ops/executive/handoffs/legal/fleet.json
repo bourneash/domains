@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.934Z",
+  "generated_at": "2026-09-25T17:54:33.424Z",
   "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Evidence: Woot API documentation confirms access mechanics only, while current public terms restrict collection, derivative use, and commercial/public reuse of listings, descriptions, and prices. No written permission or API agreement authorizing storage, historical derivation, public display, caching, alerts, affiliate use, or advertising is evidenced. Accuracy/freshness, security, privacy, measurement, attribution, and owner gates also remain incomplete. Exact decision: authorize only bounded read-only evidence work and internal draft preparation; do not expose publicly, expand alerts, send external outreach, change credentials/configuration, deploy, or spend. Human counsel is required before relying on any upstream permission or expanding monetization.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Evidence supports API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize Woot data. Current public terms restrict collection, derivative use, and commercial/public reuse. Security, accuracy/freshness, privacy, measurement, attribution, and owner gates also remain incomplete. Exact decision: authorize only bounded read-only evidence work and internal draft preparation; do not expose publicly, expand alerts, send external outreach, change credentials/configuration, deploy, or spend. Human counsel is required before relying on upstream permission or expanding monetization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: the checklist, official Woot documentation and terms, repository data-flow files, privacy/cookie pages, and draft terms are evidenced. No open launch task is closed because required permission, retention/deletion, consent configuration, vendor/DPA, incident handling, security, accuracy, attribution, measurement, and owner evidence is incomplete. Next evidence actions: attach a field-level rights matrix to a draft Woot permission request; produce the alert-data retention/deletion/access table from repository and deployed configuration; capture deployed consent and GA4 settings; and inventory logs, vendors, and incident/request procedures.",
+        "summary": "Launch-readiness tracking remains active. No task is closed. Evidence progress: official Woot documentation and terms, repository data-flow files, privacy/cookie pages, and draft terms are recorded. Remaining open tasks require authoritative source permission, retention/deletion/access workflows, deployed consent and GA4 settings, vendor/DPA coverage, log inventory, incident/request procedures, security evidence, accuracy/freshness controls, attribution/measurement reconciliation, and owner disposition. Next evidence actions: create the field-level rights matrix and draft permission request without sending it; produce the alert-data retention/deletion/access table; capture existing consent and GA4 configuration without enabling tracking; inventory logs, vendors, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review dispositions: Woot API deal and price-history data—blocked; missing current written permission/API agreement, field-level rights, permitted caching/display/alerts, attribution, freshness, correction, and takedown rules. Smallest next action: draft the permission request and rights matrix without sending it. User alert rules and sync results—evidence_needed; missing data inventory, retention/deletion/access/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only data-flow and retention table. GA4 analytics—evidence_needed; missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdiction-specific review. Smallest next action: capture the existing consent and GA4 configuration without enabling tracking. Operational logs and Cloudflare hosting data—evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA coverage, and incident/data-request procedures. Smallest next action: produce the operator/vendor inventory from authorized metadata.",
+        "summary": "Data-use review: Woot API deal and price-history data = blocked. Missing current written permission/API agreement, field-level rights, caching/display/alert terms, attribution, freshness, correction, and takedown rules. Smallest action: attach a field-level rights matrix to a draft permission request. User alert rules and sync results = evidence_needed. Missing data inventory, retention, deletion, access/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest action: produce a read-only data-flow and retention table. GA4 analytics = evidence_needed. Missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdiction-specific review. Smallest action: capture existing consent and GA4 configuration without enabling tracking. Operational logs and Cloudflare hosting data = evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest action: produce a read-only operator/vendor inventory and flag counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance is a technical baseline, not certification: 35 sites pass, 18 fail, and 6 are unknown; open findings include banner, accept/reject consent, GA4, privacy, and terms gaps. These findings require site-specific remediation or evidence before relying on affected sites for a gated launch. Incomplete analytics or revenue telemetry does not by itself block ordinary low-risk growth, but no unsupported revenue, ROI, margin, or causal-lift claims are cleared. Revenue evidence remains partial aggregate: $4.92 is unattributed, while site-attributed income is $0.",
+        "summary": "Fleet compliance remains a technical baseline, not certification: 35 sites pass, 18 fail, and 6 are unknown, with open banner, consent accept/reject, GA4, privacy, and terms findings. Repair or evidence is required before relying on affected sites for gated launch. Incomplete telemetry does not by itself block ordinary low-risk growth. Revenue evidence remains partial aggregate: $4.92 is unattributed and site-attributed income is $0; do not claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Concrete private-site decision: keep SearchWoot private. The launch rule is unmet because every applicable legal data-use item lacks a final disposition, upstream rights are blocked, and technical, security, accuracy, measurement, and owner gates remain blocked. Do not close any launch-readiness task or authorize go-live. No implementation.launch_gate=\"go_live\" or legal_review.status=\"approved\" is supported by the evidence.",
+        "summary": "The trainingsharks.com CLS repair has no identified legal blocker because it is a bounded presentation change using existing telemetry, with no new tracking, credentials, configuration, data collection, or monetization. Retain conditionally through the normal review/build/validation pipeline. Legal conditions: preserve consent and disclosure behavior, make no unsupported performance or commercial claims, and roll back if validation fails or CLS materially worsens.",
         "requested_action": null,
         "proposal_id": null
       }

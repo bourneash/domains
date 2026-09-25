@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.933Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T17:54:33.424Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Review outcome: no new production, queue, spending, telemetry, credential, configuration, or deployment work this cycle. Existing measurement and failure-repair work may continue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject both CRO prototype proposals this cycle. Revenue attribution is partial aggregate, the revenue window is one day, budgets and contribution costs are missing, operations evidence is unavailable, and zero outcomes are proven. Continue existing measurement, failure repair, and bounded security evidence only. Retain one read-only fleet security evidence matrix; authorize no new production, queue, spending, telemetry, credential, configuration, schedule, or deployment work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner decision: keep the gated product private. Rights, privacy, security, accuracy, attribution, measurement, and owner evidence remain incomplete. Permit only bounded read-only evidence work and internal draft preparation.",
+        "summary": "Approve only the bounded trainingsharks.com CLS repair and continuation of the single existing fleet security evidence commitment. Reject unsupported revenue, ROI, margin, causal-lift, launch, spending, telemetry, credential, configuration, schedule, and high-priority queue claims. Keep the gated product private. Do not duplicate security work, drain unexecuted proposals, or requeue rc-9.com while its repair item remains active. The CLS change is retained because it has a recorded baseline, existing-telemetry measurement window, isolated scope, validation gate, and rollback condition.",
         "requested_action": null,
         "proposal_id": null
       }

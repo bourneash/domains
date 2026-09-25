@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.933Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T17:54:33.423Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: accept both CRO leads only as bounded disposable research, not production work. Evidence: MarkItDown passed 8/8 checks with MIT licensing; shadcn/ui passed 3/3 with MIT licensing. The fleet has 156 approved proposals without execution, 24 deployed improvements awaiting measurement, and 24 failed requests, so no new production queue work is justified. Owner decision: authorize both prototypes, or defer them until backlog and measurement gates drain.",
+        "summary": "Recommendation: keep SearchWoot private and continue only bounded evidence work. Woot’s public terms do not evidence rights for public data reuse; legal, security, accuracy, attribution, and measurement gates remain blocked. Fleet actionability is constrained: 157 approved proposals lack execution requests, 26 requests failed, and zero improvements are proven. The smallest next steps are to drain existing approved report work and measure deployed changes; no new launch or spend is justified. For the only unblocked action, queue the reversible CLS repair for trainingsharks.com. rc-9.com is rejected this cycle because an active repair work item already exists.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff accepted for CTO review: prototype MarkItDown and isolated CTA primitives without dependency installation, production access, deployment, spend, or credential changes. Acceptance requires measurable editor correction time or accessibility/weight results and explicit go/iterate/drop decisions.",
+        "summary": "Handoff: execute the existing approved fleet security evidence commitment through the open work item. Preserve unknowns caused by unavailable fleet-doctor and operations sweeps; do not treat missing evidence as a pass or create duplicate telemetry requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep the gated product private and continue only bounded evidence work. Drain existing approved report work, continue measurement of deployed changes, and queue the reversible trainingsharks.com CLS repair. Reject rc-9.com this cycle because an active repair work item already exists.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: execute the existing approved fleet security evidence commitment through the open work item. Preserve unknowns caused by unavailable fleet-doctor and operations sweeps; do not create duplicate telemetry requests.",
         "requested_action": null,
         "proposal_id": null
       }

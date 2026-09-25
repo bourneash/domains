@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.933Z",
+  "generated_at": "2026-09-25T17:54:33.424Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: decline both prototype proposals for this cycle. They are technically feasible as isolated research, but current queue saturation, failed requests, unavailable operations evidence, zero proven outcomes, and unbounded budget exposure do not support adding work. Continue existing measurement, failure repair, and bounded security evidence only.",
+        "summary": "CTO review: approved for the existing queue with bounded scope. The trainingsharks.com CLS repair is technically feasible, isolated, reversible, and supported by the recorded mobile lab baseline. Use the normal worktree, review, build, validation, and rollback pipeline; do not add dependencies, credentials, configuration changes, or new telemetry. Continue approved evidence and measurement work only; keep the gated product private.",
         "requested_action": null,
         "proposal_id": null
       }
