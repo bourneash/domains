@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:38:50.949Z",
+  "generated_at": "2026-09-25T02:45:59.348Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run a bounded affiliate conversion-path improvement for allthingsmasonic.com",
-        "summary": "allthingsmasonic.com recorded 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 revenue window. Recommend reviewing existing commercial pages and shipping one reversible improvement to affiliate CTA clarity, product relevance, or disclosure placement without inventing page-level performance.",
-        "requested_action": "Approve one bounded implementation using existing site content and affiliate configuration only. Preserve current tracking IDs, do not request duplicate telemetry, change credentials, spend money, or make unsupported revenue or causal-lift claims.",
-        "proposal_id": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9d"
+        "title": "Revalidate broadwayshowgirls.com organic click-uplift improvement",
+        "summary": "The existing broadwayshowgirls.com improvement targets “priya raghunathan” and records 60 impressions, 0 clicks, position 1.9, and 0% CTR; its current state is review after a prior validation-infrastructure failure. Revalidate the existing bounded work without creating a duplicate change.",
+        "requested_action": "Assign the existing improvement for isolated revalidation. Preserve current site behavior, run focused validation and the site build, and record the exact validation artifact. Roll back or close only the existing improvement if validation fails; do not create a new production change or claim causal lift.",
+        "proposal_id": "4e6f037b-ca95-44d7-b9cc-000ef5d73a6e"
       }
     ]
   }
