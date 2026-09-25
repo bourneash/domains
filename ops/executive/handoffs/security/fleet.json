@@ -2,44 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:08:22.410Z",
-  "summary": "security checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-25T16:04:37.845Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the fleet and blocked for security-sensitive public launch. Fleet-doctor and operations sweeps are unavailable, so authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident response, and disclosure readiness are unverified. Compliance records 37 pass, 16 fail, and 6 unknown sites; TLS has no certificates expiring within 30 days, but this is not proof of complete TLS coverage. Ordinary reversible growth may continue conditionally where site-specific compliance and release evidence exist. Do not claim certification or a clean bill of health.",
+        "summary": "Security disposition: evidence_needed for the managed fleet and blocked for the gated product’s public exposure. Evidence: fleet-doctor and operations sweeps are unavailable; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, incident monitoring, and disclosure readiness are therefore unknown. TLS has no certificates expiring within 30 days, but this is not proof of complete TLS coverage. Compliance records 37 passes, 16 fails, and 6 unknowns. Exact decision: retain ordinary low-risk growth where separately authorized, but authorize no security-sensitive go-live, public exposure, credential or permission changes, configuration changes, alert expansion, or deployment until the missing controls are evidenced. Continue bounded read-only evidence capture only; do not treat missing data as a pass or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot security decision: blocked for public beta and full launch. Evidence confirms incomplete access-boundary, secret-handling, data-flow, logging, vendor, incident, release, TLS, dependency, and disclosure controls, alongside unresolved source-rights and privacy gates. Authorize only bounded read-only evidence capture and internal draft work; do not expose publicly, expand alerts, change credentials, deploy, or send external permission requests.",
+        "summary": "Security recommendation: maintain the gated product’s private launch gate. Rights, privacy, accuracy, attribution, measurement, and security evidence remain incomplete. No evidence supports a go-live approval or clean security assessment. Exact decision: permit only bounded read-only evidence work and internal draft preparation; do not expose publicly, expand alerts, change credentials or configuration, deploy, spend, or send external requests without owner approval and the required human reviews.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Existing failed implementation work must remain contained. The snapshot records 18 failed requests, 29 repair work items, unavailable operations sweeps, and 0 proven outcomes. Security recommends artifact review and explicit repair-or-close decisions before requeue; no new production queue expansion is justified by the current evidence.",
+        "summary": "Risk triage: high severity evidence gap, not a confirmed exploit. The unavailable fleet-doctor and operations data prevent verification of authentication and access boundaries, secrets exposure, container isolation, release and deploy controls, dependency and supply-chain controls, incident signals, and security.txt or disclosure readiness. Continue existing failure repairs, but do not infer containment or safe release from failed-run records alone.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Capture fleet security control evidence and maintain evidence-needed disposition",
-        "summary": "Complete bounded read-only evidence capture for authentication, access boundaries, secrets exposure, runtime isolation, release controls, TLS, dependencies, data exposure, incident signals, and disclosure readiness. Preserve unknowns where fleet-doctor or operations evidence is unavailable.",
-        "requested_action": "Review authorized metadata and retained artifacts only. Document timestamps, owners, affected sites, release implications, and exact unknowns. Do not retrieve credentials, access private containers, exploit targets, modify permissions, deploy, or request duplicate telemetry.",
-        "proposal_id": "cc535d71-cefc-4a84-96c9-e859292101bb"
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private security gate for the gated product",
-        "summary": "Keep the product private while rights, privacy, security, accuracy, attribution, measurement, and owner evidence remain incomplete.",
-        "requested_action": "Permit only bounded read-only evidence work and internal draft preparation. Do not expose publicly, expand alerts, change credentials or configuration, deploy, spend money, or send external permission requests without owner approval.",
-        "proposal_id": "2f1e1058-3a90-49ee-987e-cfe681f38ced"
+        "summary": "Produce one timestamped evidence matrix from authorized metadata and retained artifacts covering access boundaries, secrets handling, runtime isolation, release controls, TLS, dependencies, data exposure, incident readiness, and disclosure readiness. Preserve every unavailable control as unknown, blocked, or evidence_needed.",
+        "requested_action": "Run bounded read-only evidence capture only. Record scope, timestamps, owners, exact unknowns, severity, release implications, and the smallest next action. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, or request duplicate telemetry.",
+        "proposal_id": null
       }
     ]
   }

@@ -2,37 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:08:22.410Z",
+  "generated_at": "2026-09-25T16:04:37.845Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only bounded read-only artifact review for the existing rc-9.com performance failure. Do not requeue or deploy until root cause, smallest isolated repair, focused validation, rollback, and owner disposition are documented. Existing mobile performance 48, LCP 4,977ms, and TBT 1,513ms are technical signals only; no revenue or causal benefit is established.",
+        "summary": "Recommendation: approve only the bounded finance contribution-margin and budget-exposure report using existing evidence. It is technically feasible, isolated, reversible, and requires no telemetry, credentials, configuration, spend, or production change. Preserve the one-day revenue window, aggregate attribution, date misalignment, and missing operating costs as explicit unknowns; do not make ROI, margin, forecast, or causal claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the private product gate unchanged. Rights, security, accuracy, attribution, measurement, and owner gates remain incomplete; authorize only bounded read-only evidence capture and internal draft work.",
+        "summary": "Recommendation: keep the gated product private. Permit only existing bounded read-only evidence work and draft preparation. Do not authorize public exposure, external outreach, alert expansion, credentials, configuration, deployment, or spending while rights, accuracy, security, attribution, measurement, and owner gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Pause new discretionary production queue expansion. The fleet has 18 failed requests, 29 repair work items, 24 improvements awaiting measurement, 140 approved proposals without execution requests, unavailable operations sweeps, and 0 proven outcomes. Existing measurement and failure-repair work should drain before additional implementation.",
+        "summary": "Recommendation: do not create new production queue work this cycle. The rc-9.com performance item has an open repair work item, multiple implementation failures remain unresolved, operations sweeps are unavailable, and no outcomes are proven. Continue existing measurement, failure repair, and bounded security evidence work; requeue only after documented root cause and focused validation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "The proposed finance reports are technically feasible as read-only analyses using existing snapshots. Approve them without new telemetry requests, configuration changes, credentials, spending, or revenue inference. Preserve aggregate commission and unavailable cost fields as unknown.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cto-finance-baseline-2026-09-25",
+        "summary": "Approve as report-only. Generate from the current authoritative snapshot and retained artifacts in an isolated evidence workspace. Acceptance requires explicit source timestamps, revenue and cost periods, attribution boundaries, unknown fields, and no unsupported economic or causal claims. No production mutation or new telemetry is authorized.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cto-finance-baseline-2026-09-25"
       }
     ]
   }

@@ -2,72 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:08:22.410Z",
-  "summary": "legal checked in 9 executive handoff item(s)",
+  "generated_at": "2026-09-25T16:04:37.845Z",
+  "summary": "legal checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for ordinary operation and evidence-only work; blocked for SearchWoot public beta or full launch; counsel_required for upstream data rights, public redistribution, affiliate/advertising use, and jurisdiction-specific privacy decisions. Evidence: compliance baseline has 37 pass, 16 fail, and 6 unknown sites; analytics is configured for 39 sites but has source-permission errors; revenue includes 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission; operations and fleet-doctor sweeps are unavailable. Recommendation: continue compliant live-site operation and reversible growth where disclosures and rights are evidenced, do not treat incomplete telemetry as zero, keep SearchWoot private, and require human counsel plus owner decision before any public data exposure or monetization expansion.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Evidence shows Woot’s public terms do not establish rights to collect, derive, store, cache, publicly display, or alert on deal data, and no written permission is evidenced. Accuracy/freshness, security, measurement, attribution, privacy, and owner gates also remain incomplete. Ordinary fleet growth is not blocked solely by incomplete telemetry, but no unsupported revenue, ROI, margin, or causal claims are cleared. Exact decision: authorize only bounded read-only evidence work and internal draft preparation; do not expose publicly, expand alerts, send external outreach, change credentials/configuration, deploy, or spend. Next evidence action: prepare a draft Woot permission request and attach a field-level rights matrix; do not send it without owner approval and human counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch decision: blocked and counsel_required. Woot documentation confirms API access but does not confirm storage, historical derivatives, public display, caching, alerts, affiliate use, or advertising rights; current public terms restrict commercial/public collection and derivative use. Keep private. Next evidence action: attach the authoritative API terms or written permission, then have human counsel determine permitted fields, retention, display, alerts, attribution, freshness, correction, and takedown rules. Do not send outreach or change the gate without owner approval.",
+        "summary": "Launch-readiness tracking remains active. Progress: the checklist, public Woot documentation, public terms, repository data-flow files, privacy/cookie pages, and draft terms are evidenced; no legal or technical launch task is closed because required permission, retention/deletion, consent configuration, vendor, security, accuracy, attribution, measurement, and owner evidence is incomplete. Next evidence actions are task-specific: obtain a current Woot permission record; produce the alert-data retention/deletion table; capture deployed consent and GA4 settings; and inventory logs, vendors, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. No checklist task is closed because no task has complete evidence. Progress: source-rights evidence is documented as blocked; data-flow evidence is partial from backend/api/main.py, backend/services/fetcher.py, and config.yml; privacy/cookie documents exist; GA4 settings, retention, vendor/DPA, deletion, correction, incident, and jurisdiction evidence remain open. Next evidence actions are a read-only data-flow/retention table, consent/configuration capture, and vendor/log inventory.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data is blocked because public terms conflict with the proposed public/commercial use and no written permission or field-level rights are evidenced. User alert rules and sync results are evidence_needed because retention, deletion, access, correction, processor, consent, and unsubscribe evidence is missing. GA4 is evidence_needed because deployed consent behavior, GA4 property/data-sharing settings, retention, and jurisdiction-specific review are not evidenced. Operational logs and Cloudflare hosting data are evidence_needed because log fields, retention/access controls, vendor terms or DPA coverage, and incident/request procedures are not evidenced. Human counsel is required before relying on any permission, affiliate/advertising use, sensitive-data processing, or jurisdictional conclusion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance decision: do not block ordinary growth solely because telemetry is incomplete. However, the 16 compliance failures and 6 unknown results require site-specific remediation or a concrete keep-private decision before public launch, affiliate expansion, or advertising. Unknown reachability for parked/scaffolded sites is not a pass. No legal certification is issued.",
+        "summary": "Compliance evidence is a technical baseline, not certification: 37 sites pass, 16 fail, and 6 are unknown; open findings include banner, consent accept/reject, GA4, privacy, and terms gaps. SearchWoot’s private gate is therefore concrete and remains unchanged. Affiliate attribution evidence is partial aggregate: $4.92 is unattributed, site-attributed income is $0, and no revenue, ROI, margin, or causal-lift claim is cleared.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No go-live proposal is retained. No evidence supports implementation.launch_gate=\"go_live\" or legal_review.status=\"approved\". Human counsel is required for upstream data rights, public redistribution, affiliate or advertising expansion, privacy jurisdiction treatment, and any regulated or age-sensitive use that is not specifically evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "cfo-attribution-reconciliation-2026-09-25",
-        "summary": "Approve bounded reconciliation using existing evidence. Preserve the $4.92 aggregate commission as unattributed and make no ROI, revenue, or causal claims.",
+        "title": "legal-searchwoot-evidence-matrix-2026-09-25",
+        "summary": "Retain only as bounded report-only evidence work. It may document source rights, data flows, consent, vendors, retention, correction, takedown, security, attribution, and launch blockers from existing artifacts. It must not send permission requests, expose the product, expand alerts, change configuration, deploy, spend, or make legal-certification claims.",
         "requested_action": "accepted_research",
-        "proposal_id": "cfo-attribution-reconciliation-2026-09-25"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-ai-cost-to-learn-review-2026-09-25",
-        "summary": "Approve report-only analysis. Cost per proven outcome remains unavailable because the scorecard records zero proven outcomes.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cfo-ai-cost-to-learn-review-2026-09-25"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-budget-exposure-baseline-2026-09-25",
-        "summary": "Approve inventory of known and unknown costs only. Do not infer margin, payback, or budget authorization.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cfo-budget-exposure-baseline-2026-09-25"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9d",
-        "summary": "Do not queue until affiliate disclosure placement, tracking-ID provenance, product claims, and applicable platform terms are evidenced. Existing clicks do not establish revenue or compliance.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9d"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cto-rc9-repair-or-close-2026-09-25",
-        "summary": "Read-only artifact review is clear. Do not requeue or deploy until root cause, validation, rollback, and owner disposition are evidenced; no revenue or causal claim is permitted.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cto-rc9-repair-or-close-2026-09-25"
+        "proposal_id": "legal-searchwoot-evidence-matrix-2026-09-25"
       }
     ]
   }

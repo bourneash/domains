@@ -2,51 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:08:22.409Z",
-  "summary": "ceo checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-25T16:04:37.844Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize CTO review and an explicit repair-or-close disposition for the existing rc-9.com performance failure before any requeue. Evidence: mobile performance 48, LCP 4,977ms, and TBT 1,513ms; prior implementation and reviewer attempts failed. The portfolio has 18 failed requests, 29 repair work items, 140 approved proposals without execution, and 0 proven outcomes in the 2026-09-25 scorecard. Unknown: the retained failure artifacts do not yet establish the smallest safe repair. Next step: inspect the existing artifacts, document root cause, validation, rollback, and either requeue or close. Owner decision: choose repair-and-revalidate or close-and-defer.",
+        "summary": "Recommendation: keep SearchWoot private and continue only bounded evidence work. Woot’s public terms do not establish rights to collect, derive, store, display, or alert on deal data; legal, security, accuracy, attribution, and measurement gates remain blocked. Unknown: whether Woot would grant written permission. Smallest next step: owner chooses one option—(A) keep private while Legal prepares a draft permission request (recommended), or (B) authorize sending the request to Woot. I am not requeuing rc-9.com performance work because its existing repair item is open and the action mandate prohibits duplicate work before root-cause validation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains private under its active launch-readiness checklist. Woot rights, legal, security, accuracy, measurement, and owner gates remain incomplete; no public beta or external permission request is recommended this cycle.",
+        "summary": "Recommendation: defer the CRO repository prototypes this cycle. MarkItDown, shadcn/ui, and Mermaid have plausible use cases, but current execution backlog is materially constrained: 140 approved proposals lack execution requests, 20 implementation requests failed, and zero outcomes are proven. Revisit after measurement and failure-repair queues drain; no production adoption is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "771b2870-d85b-4838-83f9-e187c3fe39ba",
-        "summary": "Accept as bounded research only: MIT evidence and plausible content-discovery fit support an isolated static-SVG prototype, but the lab had no safe native checks and there is no revenue evidence. Require accessibility, sanitization, page-weight, indexing, and engagement measurement before any adoption.",
-        "requested_action": "accepted_research",
-        "proposal_id": "771b2870-d85b-4838-83f9-e187c3fe39ba"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "afdcb696-8d0e-47f1-9a52-78a88340095d",
-        "summary": "Accept as bounded research only: the MIT repository passed three lab checks and may inform a copied, dependency-free CTA pattern. Require framework compatibility, accessibility, performance, security, and measured affiliate-click impact before adoption.",
-        "requested_action": "accepted_research",
-        "proposal_id": "afdcb696-8d0e-47f1-9a52-78a88340095d"
-      },
-      {
-        "kind": "proposal-review",
         "title": "44bcca47-71a1-4f1d-bf41-8706d991cfcf",
-        "summary": "Accept as disposable read-only research only: MIT license and eight passed lab checks support testing on ten owner-approved local fixtures. No production publishing, automatic claims, or external source ingestion is authorized.",
-        "requested_action": "accepted_research",
+        "summary": "Useful MIT-licensed lead with 8/8 bounded checks passed, but defer the disposable prototype while approved execution, measurement, and failure-repair backlogs are high; no production adoption is justified now.",
+        "requested_action": "declined",
         "proposal_id": "44bcca47-71a1-4f1d-bf41-8706d991cfcf"
       },
       {
         "kind": "proposal-review",
-        "title": "cro-affiliate-2026-09-25-allthingsmasonic",
-        "summary": "Decline this duplicate CRO handoff for now. The existing approved allthingsmasonic.com affiliate proposal and active site work already cover the same surface; drain and measure that commitment before creating another experiment. Evidence: 61 clicks, 0 ordered items, and $0 named commission for the 2026-09-21 revenue window.",
+        "title": "771b2870-d85b-4838-83f9-e187c3fe39ba",
+        "summary": "No safe native lab checks were available, and the current portfolio backlog does not justify additional exploratory work this cycle.",
         "requested_action": "declined",
-        "proposal_id": "cro-affiliate-2026-09-25-allthingsmasonic"
+        "proposal_id": "771b2870-d85b-4838-83f9-e187c3fe39ba"
       }
     ]
   }

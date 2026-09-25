@@ -2,30 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:08:22.409Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T16:04:37.845Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: approve only bounded report-only finance work and repair-or-close review; pause new discretionary production queues until attribution, contribution margin, and cost-to-learn are measurable. For 2026-09-21, Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but all commission is in an aggregate row and site-attributed income is $0. From 2026-09-01 through 2026-09-25, AI usage cost is $921.96 across 5,093 calls, with 230 errors, while the scorecard records 0 proven outcomes. Revenue-to-cost ROI, contribution margin, and cost-to-learn are not calculable because revenue covers only one day, $4.92 is unattributed, fixed infrastructure costs and monthly budget limits are blank, and experiment outcomes are unproven. Minimum measurement: daily site/content-level revenue and commission attribution, shipped-item revenue, infrastructure invoices, and experiment-level incremental outcomes over a defined window.",
+        "summary": "Recommendation: approve no new production, spend, revenue, ROI, margin, or causal-lift claims this cycle. The only reported Amazon revenue is $4.92 for 2026-09-21, all in an unattributed aggregate row; site-attributed income is $0 despite 6,219 clicks, 28 ordered items, and 6 shipped items. AI spend is $921.96 from 2026-09-01 through 2026-09-25 across 5,093 calls, so revenue-to-AI comparisons are temporally invalid and indicate severe exposure if treated as an economic return. Full contribution margin is not calculable because infrastructure, domains, labor, and other operating costs are absent; monthly budget, fixed-cost, marketing, and revenue-floor fields are blank. Continue existing measurement and failure repair only, and retain one report-only finance cost-and-attribution baseline.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The rc-9.com repair-or-close recommendation is financially sound. Existing evidence shows mobile performance 48, LCP 4,977ms, and TBT 1,513ms, but no repair cost, incremental revenue effect, or attribution evidence. Authorize read-only artifact review and require an explicit repair-or-close disposition before requeue. Do not claim financial benefit from the candidate performance score of 70 or TBT of 1,831ms; those are technical signals only.",
+        "summary": "Financial control position: treat impressions, clicks, sessions, conversions, SEO scores, ordered items, and affiliate clicks as operating metrics, not revenue or margin. Do not forecast revenue from the 28 aggregate ordered items or assign the $4.92 aggregate commission to any site. The minimum missing inputs for contribution margin are date-aligned site-level revenue, AI cost, infrastructure/hosting cost, domain cost, paid marketing cost, and approved labor or agent cost, plus a defined budget period and ownership.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9",
-        "summary": "Escalate only as a bounded, reversible test. The 61 clicks, 0 ordered items, and $0 named commission on 2026-09-21 do not support a revenue forecast or positive ROI claim. Preserve the tracking ID and require measured ordered items, shipped items, commission, and implementation cost before generalizing.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9"
+        "title": "afdcb696-8d0e-47f1-9a52-78a88340095d",
+        "summary": "Decline this cycle. The proposed CTA prototype has no supported revenue baseline and site-attributed commission is $0 for the available 2026-09-21 window. Defer until existing measurement and attribution gates produce a valid denominator and economic acceptance threshold.",
+        "requested_action": "declined",
+        "proposal_id": "afdcb696-8d0e-47f1-9a52-78a88340095d"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "44bcca47-71a-4f1d-bf41-8706d991cfcf",
+        "summary": "Decline this cycle. The prototype may reduce drafting time, but no baseline labor cost, avoided cost, budget, or measurable economic threshold is supplied; the portfolio has 140 approved proposals without execution requests, 20 failed implementation requests, and zero proven outcomes.",
+        "requested_action": "declined",
+        "proposal_id": "44bcca47-71a-4f1d-bf41-8706d991cfcf"
       }
     ]
   }

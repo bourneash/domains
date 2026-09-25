@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:48:32.265Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T16:04:37.846Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production, queue, revenue, ROI, margin, and causal-lift work this cycle. Attribution is aggregate or low-volume, the revenue window is one day, budgets and fixed costs are unspecified, operations evidence is unavailable, and no outcomes are proven. Continue only existing measurement, failure-repair, and bounded read-only security-gate work; do not create duplicate telemetry requests or change credentials, configuration, spending, schedules, or production.",
+        "summary": "Reject all new production, queue, spending, revenue, ROI, margin, and causal-lift work this cycle. Attribution is partial aggregate, the revenue window is one day, operating costs and budgets are missing, operations sweeps are unavailable, and zero outcomes are proven. Continue existing measurement, failure repair, and bounded security-gate work only. Retain one read-only security evidence matrix; no telemetry, credentials, configuration, schedules, spending, or production changes.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "security-fleet-evidence-matrix-2026-09-25",
+        "summary": "Retain only as bounded read-only evidence capture. Preserve unknowns, timestamps, owners, limitations, and release implications. No credentials, private-container access, exploits, permission changes, deployment, production work, or certification claims.",
+        "requested_action": "accepted_research",
+        "proposal_id": "security-fleet-evidence-matrix-2026-09-25"
       }
     ]
   }
