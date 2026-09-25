@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:05:27.903Z",
+  "generated_at": "2026-09-25T03:08:40.919Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new production, queue, financial, attribution, and causal-lift work this cycle. Telemetry is low-volume, aggregate revenue is unattributed, zero improvements are proven, and existing failures and measurement gates remain open. Continue only existing measurement, failure repair, private-gate, and bounded read-only revalidation work. Will you authorize the existing bounded read-only failure review for the marineactivity.com /flags request?",
+        "summary": "Recommendation: reject the nsfwpixels.com readiness report and authorize no new production or queue work this cycle. Existing telemetry already covers the requested evidence classes, while analytics is not configured and attribution is insufficient for financial or causal claims. Continue only existing measurement gates, failed-request repairs, private-gate controls, and bounded revalidation work. Decision question: should this cycle remain limited to those existing workstreams?",
         "requested_action": null,
         "proposal_id": null
       }

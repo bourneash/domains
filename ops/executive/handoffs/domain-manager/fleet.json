@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:03:41.939Z",
+  "generated_at": "2026-09-25T03:08:40.920Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Repair or close the existing marineactivity.com /flags SEO request",
-        "summary": "Inspect the existing failed request for marineactivity.com’s /flags SEO work using retained reviewer and implementation evidence. Current evidence records 597 impressions, 1 click, 8 sessions, 0 conversions, 7 SEO actions, and $17.92 in AI usage cost; no causal lift or revenue is inferred. Do not create new production work or request duplicate telemetry.",
-        "requested_action": "Approve a bounded read-only failure review. Document the failure cause, smallest repair or closure decision, validation requirements, and rollback boundary. Do not requeue or deploy until validation evidence is complete.",
-        "proposal_id": "739868d6-2051-4bd0-9649-e544c46fe2b1"
+        "kind": "message",
+        "title": "Run nsfwpixels.com measurement and activation readiness baseline",
+        "summary": "Produce a bounded, read-only site assessment using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The authoritative snapshot records nsfwpixels.com analytics as not configured; traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced.",
+        "requested_action": "Approve only the bounded report-only assessment using existing evidence; preserve unavailable fields as unknown.",
+        "proposal_id": "963648b7-7425-4a67-bbd4-433d26287a3f"
       }
     ]
   }
