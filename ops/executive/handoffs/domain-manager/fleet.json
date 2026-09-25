@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T11:05:00.147Z",
-  "summary": "daily domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-25T14:37:52.188Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "96b07bed-59f9-4b1b-9bd1-784d902d3ecf",
-    "cadence": "daily",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 6,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "message",
+        "title": "Run 0daynews.com audience, monetization, health, and backlog readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of 0daynews.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, data-hub, and AI-usage evidence. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and operational fields as unknown.",
+        "requested_action": "Approve the bounded report-only assessment using existing evidence only.",
+        "proposal_id": "caa02111-18f4-4cc8-aebe-862e38aa0083"
+      }
+    ]
   }
 }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T11:57:50.072Z",
+  "generated_at": "2026-09-25T14:37:52.187Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only bounded read-only security evidence capture, existing failed-run repair or closure, and continuation of deployed measurement gates. Reject third-party prototypes, revenue or ROI claims, new spend, monetization changes, public launch, and the proposed queue change because attribution is aggregate/unavailable, telemetry is low-volume or incomplete, outcomes are unproven, and the change lacks a measurable production outcome. Keep SearchWoot private; no research request is necessary because the relevant evidence gaps are already covered by existing internal workstreams.",
+        "summary": "Recommendation: approve only the bounded 0daynews.com read-only assessment using existing snapshot evidence; reject new production queue work this tick because attribution is aggregate or low-volume, outcomes are unproven, operations evidence is unavailable, and the only non-deferred candidate is an existing failed rc-9.com run that must be repaired or closed before requeue. Decision question: Should the owner authorize CTO review and explicit repair-or-close disposition for that existing rc-9.com failure before any requeue?",
         "requested_action": null,
         "proposal_id": null
       }
