@@ -44,3 +44,9 @@ than re-deriving the process from scratch.
 - `.env.shared` is gitignored and chmod 400 — unlock before edits, relock after.
 - Worker containers that mount the repo read-write run as uid 1000 (`ops`), never root.
 - See `domains-skills`' own skills for anything role/audit/launch-shaped before improvising.
+
+## Cloudflare deployment guardrail
+
+- Never publish a site directly with Wrangler (`wrangler deploy`, `npm run deploy`, or an equivalent direct Cloudflare upload).
+- Production publishing must go through the connected GitHub → Cloudflare Workers Builds path.
+- If that connector or build path fails, stop and alert the human with the diagnosed evidence. Do not bypass it with a direct Wrangler deployment.
