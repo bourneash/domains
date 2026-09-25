@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T21:09:41.304Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T22:10:00.164Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Run noveltyguns.com measurement and monetization readiness baseline",
-        "summary": "Produce a bounded read-only assessment of noveltyguns.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The authoritative snapshot records analytics as not configured; preserve audience, traffic, conversion, revenue, attribution, SEO, health, and cost fields as unknown unless directly evidenced.",
-        "requested_action": "Create a timestamped assessment covering observable audience and content positioning, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Acceptance requires the completed artifact and exactly one evidence-backed next action or blocker. Follow-up is limited to documenting that action or blocker; do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes. Rollback boundary: none beyond withdrawing this report-only work item; no production changes are authorized.",
-        "proposal_id": "77bf1c28-729f-4b37-bb66-074d6986177b"
-      }
-    ]
+    "report_id": "90185e55-b5ec-4bc3-8928-a56ccdc172d2",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 6,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
