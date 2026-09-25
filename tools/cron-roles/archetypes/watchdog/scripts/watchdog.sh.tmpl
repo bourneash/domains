@@ -351,6 +351,8 @@ if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthrop
 fi
 
 # ================= 5. Repair pass =================
+# Preserve the prior cooldown when a later lock defers the real repair pass.
+PREVIOUS_LAST_ATTEMPT="$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('last_attempt') or '')" "$TARGET")"
 NEW_ATTEMPTS=$(( ATTEMPTS + 1 ))
 set_field attempts "$NEW_ATTEMPTS"
 set_field last_attempt "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -386,9 +388,24 @@ MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.s
 . "$MUTATION_LOCK_HELPER"
 if ! repo_mutation_lock_acquire "$REPO_ROOT" watchdog 300; then
   set_field attempts "$ATTEMPTS"
+  set_field last_attempt "$PREVIOUS_LAST_ATTEMPT"
   set_field status open
   set_field last_outcome "deferred: repository mutation lock busy"
   log "repair deferred — repository mutation lock stayed busy for 300s"
+  exit 0
+fi
+# The model may build while repairing. Hold the deployer's build lock through
+# the model pass and authoritative gate; a busy lock defers without an attempt.
+_BUILD_LOCK="$REPO_ROOT/ops/.locks/deploy-build.lock"
+mkdir -p "$(dirname "$_BUILD_LOCK")" 2>/dev/null || true
+exec 8>"$_BUILD_LOCK"
+if ! flock -w 900 8; then
+  set_field attempts "$ATTEMPTS"
+  set_field last_attempt "$PREVIOUS_LAST_ATTEMPT"
+  set_field status open
+  set_field last_outcome "deferred: deploy/build lock busy"
+  log "repair deferred — deploy/build lock stayed busy for 900s (no attempt spent)"
+  repo_mutation_lock_release
   exit 0
 fi
 INCIDENT_JSON="$(cat "$TARGET")"
@@ -475,6 +492,7 @@ fi
 
 # ---- Authoritative gate (bash, independent of the model's claim) ----
 log "model reports a fix — running authoritative audit+build gate..."
+# The deploy/build lock remains held from before the model pass.
 if ! ( cd site && rm -rf dist && {{BUILD_GATE}} ) >>"$LOG" 2>&1; then
   log "FAIL: authoritative gate failed — not pushing; reverting model edits"
   git checkout -- . 2>>"$LOG" || true

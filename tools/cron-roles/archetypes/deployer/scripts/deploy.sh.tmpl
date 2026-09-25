@@ -96,6 +96,16 @@ fi
 # Exit cleanly when nothing to do — cron fires regardless.
 [ -f .deploy-needed ] || { log "no .deploy-needed flag — exiting"; exit 0; }
 
+# Serialize builds and uploads with this site's repair roles. A busy lock means
+# another pass owns dist; leave .deploy-needed for the next scheduled tick.
+BUILD_LOCK="$REPO_ROOT/ops/.locks/deploy-build.lock"
+mkdir -p "$(dirname "$BUILD_LOCK")"
+exec 8>"$BUILD_LOCK"
+if ! flock -n 8; then
+  log "deploy deferred — deploy/build lock busy; .deploy-needed remains set"
+  exit 0
+fi
+
 main() {
   log "=== deploy started ==="
   log "repo=$REPO_ROOT"

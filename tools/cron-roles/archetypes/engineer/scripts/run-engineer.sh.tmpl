@@ -237,6 +237,17 @@ if ! curl -sS --connect-timeout 3 --max-time 5 -o /dev/null "https://api.anthrop
   exit 0
 fi
 
+# The model may build before the wrapper's gate. Hold the deployer's build lock
+# across both so a concurrent deploy cannot read a partially rebuilt dist.
+BUILD_LOCK="$REPO_ROOT/ops/.locks/deploy-build.lock"
+mkdir -p "$(dirname "$BUILD_LOCK")" 2>/dev/null || true
+exec 8>"$BUILD_LOCK"
+if ! flock -w 900 8; then
+  log "work pass DEFERRED — deploy/build lock stayed busy for 900s"
+  board_block "⏳ **Deferred** — deploy/build lock stayed busy. ${STATUS_LINE}"
+  exit 0
+fi
+
 # ---- 3b. Work pass ({{MODEL}}) ----
 ISSUES_TEXT="(none)"; [[ -s "${ISSUES_FILE:-/dev/null}" ]] && ISSUES_TEXT="$(cat "$ISSUES_FILE")"
 QUEUE_LIST="${QUEUE_TASKS:-}"
