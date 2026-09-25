@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:47:34.295Z",
+  "generated_at": "2026-09-25T03:50:53.232Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Review the failed rc-9.com performance improvement before requeue",
-        "summary": "Inspect the existing failed rc-9.com performance run. The retained baseline records mobile performance 48, LCP 4,977ms, and TBT 1,513ms, while implementation and reviewer attempts failed. Do not create new production work or claim performance lift.",
-        "requested_action": "Approve bounded read-only review of the existing failed rc-9.com performance work item only. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim causal improvement.",
-        "proposal_id": "4935f4bd-c881-499a-8a50-970638d6672d"
+        "kind": "proposal",
+        "title": "Review totaljerks.com monetization and measurement backlog",
+        "summary": "totaljerks.com is live with 53 sessions, 1 conversion, 453 Amazon clicks, 0 ordered items, $0 site-attributed commission, and $29.22 in AI usage cost for the available evidence windows. Produce a bounded read-only review of existing monetization and measurement evidence, identify one reversible backlog priority, and preserve unavailable revenue or causal-lift conclusions as unknown.",
+        "requested_action": "Approve a report-only review using existing registry, analytics, SEO, revenue-attribution, operations, compliance, and AI-usage evidence only. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim revenue, ROI, or causal lift.",
+        "proposal_id": "939334fb-b63b-4bfb-beed-700a9ddad647"
       }
     ]
   }
