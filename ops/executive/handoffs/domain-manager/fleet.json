@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T20:42:09.173Z",
+  "generated_at": "2026-09-25T21:09:41.304Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run 0xroulette audience, monetization, health, and backlog baseline",
-        "summary": "Produce a bounded read-only assessment of 0xroulette.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Preserve unavailable audience, traffic, conversion, revenue, attribution, health, and cost fields as unknown; do not infer telemetry or causal lift.",
-        "requested_action": "Review existing evidence only and document one evidence-backed next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "7bd6bae5-b75e-474b-a059-a51d15b0569a"
+        "title": "Run noveltyguns.com measurement and monetization readiness baseline",
+        "summary": "Produce a bounded read-only assessment of noveltyguns.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The authoritative snapshot records analytics as not configured; preserve audience, traffic, conversion, revenue, attribution, SEO, health, and cost fields as unknown unless directly evidenced.",
+        "requested_action": "Create a timestamped assessment covering observable audience and content positioning, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Acceptance requires the completed artifact and exactly one evidence-backed next action or blocker. Follow-up is limited to documenting that action or blocker; do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes. Rollback boundary: none beyond withdrawing this report-only work item; no production changes are authorized.",
+        "proposal_id": "77bf1c28-729f-4b37-bb66-074d6986177b"
       }
     ]
   }
