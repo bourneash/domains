@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T08:21:45.788Z",
+  "generated_at": "2026-09-25T08:37:38.726Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue the existing Great American Lakes measurement gate and bounded failure-repair, security-evidence, and private-gate work only. No owner decision is required this cycle.",
+        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue only existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate. Aggregate commission remains unattributed; site revenue, ROI, causality, and cost allocation are unknown. No new candidate meets the reviewer’s confidence and capacity bar.",
         "requested_action": null,
         "proposal_id": null
       }
