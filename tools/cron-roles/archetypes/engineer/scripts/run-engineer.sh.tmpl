@@ -241,10 +241,13 @@ fi
 ISSUES_TEXT="(none)"; [[ -s "${ISSUES_FILE:-/dev/null}" ]] && ISSUES_TEXT="$(cat "$ISSUES_FILE")"
 QUEUE_LIST="${QUEUE_TASKS:-}"
 
-# Honor the task author's estimated_turns instead of always burning the
-# fleet-wide ceiling. Multiple selected tasks share one pass; cap their sum at
-# the normal ceiling. Issue-only passes retain the default budget.
+# Honor the task author's estimated_turns without treating estimates as exact:
+# reserve a ten-turn implementation/recovery buffer plus the cap-reporting
+# margin. Multiple selected tasks share one pass; cap their sum at the normal
+# ceiling. Issue-only passes retain the default budget.
 if [[ -n "$QUEUE_LIST" ]]; then
+  TASK_BUDGET_BUFFER=10
+  TASK_BUDGET_FLOOR=10
   TASK_TURNS=0
   IFS=',' read -r -a _queued_tasks <<< "$QUEUE_LIST"
   for _task in "${_queued_tasks[@]}"; do
@@ -254,12 +257,26 @@ if [[ -n "$QUEUE_LIST" ]]; then
     fi
   done
   if (( TASK_TURNS > 0 )); then
-    MAX_TURNS="$TASK_TURNS"
+    MAX_TURNS=$((TASK_TURNS + TASK_BUDGET_BUFFER + 1))
+    (( MAX_TURNS < TASK_BUDGET_FLOOR )) && MAX_TURNS="$TASK_BUDGET_FLOOR"
     (( MAX_TURNS > DEFAULT_MAX_TURNS )) && MAX_TURNS="$DEFAULT_MAX_TURNS"
   fi
 fi
 log "engineer turn budget: max=${MAX_TURNS} default=${DEFAULT_MAX_TURNS} queued_tasks=${QUEUE_LIST:-none}"
 RESULT_FILE="$(mktemp)"
+
+# A capped/failed pass must not strand source edits: principal-engineer has a
+# deliberate clean-checkout guard, so leaving a partial tree here deadlocks the
+# incident queue. Archive the evidence, then restore only when this pass began
+# from a clean shippable tree. If a human/other role already had edits, preserve
+# them and let the existing dirty-tree guard protect them.
+ENGINEER_FAILURE_DIR="$REPO_ROOT/ops/health/engineer-failures"
+PREPASS_SHIPPABLE_DIRTY="$(git status --porcelain --untracked-files=all -- site ops/scripts ops/roles 2>/dev/null || true)"
+LATEST_ENGINEER_PARTIAL="$(find "$ENGINEER_FAILURE_DIR" -type f -name '*.partial.txt' -print 2>/dev/null | sort | tail -1 || true)"
+RESUME_CONTEXT=""
+if [[ -n "$LATEST_ENGINEER_PARTIAL" ]]; then
+  RESUME_CONTEXT="A previous engineer pass was interrupted. Resume from its archived evidence at ${LATEST_ENGINEER_PARTIAL%.partial.txt}.*; inspect the partial output and patch before repeating investigation."
+fi
 
 # A documented credential blocker is still visible in CREDENTIALS_NEEDED.md,
 # but it is not a new engineer incident. Keep this decision in the wrapper,
@@ -284,6 +301,9 @@ Deploy flag: pending=${DEPLOY_PENDING} stale=${DEPLOY_STALE}
 Issues (severity-tagged — [warn]=you fix it, [block]=needs the owner):
 ${ISSUES_TEXT}
 Queued engineer tasks (in ops/tasks/backlog/, up to 3): ${QUEUE_LIST:-none}
+
+## Recovery context
+${RESUME_CONTEXT:-No prior interrupted-pass artifact was found.}
 
 ## Your job this run
 1. Fix every [warn] issue you can safely fix, at the source.
@@ -316,6 +336,28 @@ timeout "$WORK_TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" --model "$MODEL" \
 CLAUDE_EXIT=$?
 set -e
 tee -a "$LOG" < "$RESULT_FILE" > /dev/null
+
+archive_failed_pass() {
+  local reason="$1" stamp artifact_base
+  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  artifact_base="$ENGINEER_FAILURE_DIR/${stamp}"
+  mkdir -p "$ENGINEER_FAILURE_DIR"
+  cp "$RESULT_FILE" "${artifact_base}.partial.txt" 2>/dev/null || true
+  git diff --binary HEAD -- site ops/scripts ops/roles ops/tasks ops/board/engineer-log.md \
+    > "${artifact_base}.patch" 2>/dev/null || true
+  git ls-files --others --exclude-standard -z -- site ops/scripts ops/roles ops/tasks \
+    | tar --null -czf "${artifact_base}.untracked.tgz" -T - 2>/dev/null \
+    || rm -f "${artifact_base}.untracked.tgz"
+  printf 'reason=%s\nprepass_shippable_dirty=%s\n' "$reason" "$([[ -n "$PREPASS_SHIPPABLE_DIRTY" ]] && echo 1 || echo 0)" \
+    > "${artifact_base}.meta"
+  if [[ -z "$PREPASS_SHIPPABLE_DIRTY" ]]; then
+    git restore --staged --worktree --source=HEAD -- site ops/scripts ops/roles ops/tasks ops/board/engineer-log.md 2>>"$LOG" || true
+    git clean -fd -- site ops/scripts ops/roles ops/tasks 2>>"$LOG" || true
+    log "archived failed pass at ${artifact_base}.* and restored clean shippable tree"
+  else
+    log "archived failed pass at ${artifact_base}.*; preserved pre-existing shippable edits"
+  fi
+}
 
 CHANGED=$(grep '^ENGINEER_CHANGED=' "$RESULT_FILE" | tail -1 | cut -d= -f2 | tr -d ' \r\n'); CHANGED="${CHANGED:-0}"
 SUMMARY=$(grep '^ENGINEER_SUMMARY=' "$RESULT_FILE" | tail -1 | cut -d= -f2-); SUMMARY="${SUMMARY:-engineer run complete}"
@@ -350,6 +392,7 @@ if [[ "$CF_CREDENTIAL_PENDING" == "1" ]] && [[ "$ESCALATE" != "none" ]] \
 fi
 
 if [[ "$CLAUDE_EXIT" == "124" ]]; then
+  archive_failed_pass "timeout after ${WORK_TIMEOUT}s"
   log "engineer pass TIMED OUT after ${WORK_TIMEOUT}s"
   slack "🔴 *{{SITE_SHORT}} engineer* timed out after ${WORK_TIMEOUT}s · ${NOW_ET}" "danger"
   board_block "🔴 **Timeout** — {{MODEL}} pass exceeded ${WORK_TIMEOUT}s. ${STATUS_LINE}"
@@ -365,6 +408,7 @@ fi
 # cost with no record of the prior attempt. Guard it explicitly (mirrors
 # principal-engineer.sh's non-zero-exit handling).
 if [[ "$CLAUDE_EXIT" != "0" ]]; then
+  archive_failed_pass "claude exit ${CLAUDE_EXIT}"
   log "engineer pass FAILED (exit=${CLAUDE_EXIT}) — task remains in backlog, will retry next tick"
   slack "🔴 *{{SITE_SHORT}} engineer* pass failed (exit=${CLAUDE_EXIT}, likely max-turns) — task stays queued for retry · ${NOW_ET}" "danger"
   board_block "⚠️ **Truncated** — pass exited ${CLAUDE_EXIT} (max-turns or crash). Task stays in backlog for retry. ${STATUS_LINE}"

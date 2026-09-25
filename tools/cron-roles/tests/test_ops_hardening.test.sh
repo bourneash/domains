@@ -99,6 +99,18 @@ grep -q 'validate_result_contract' "$allthings_principal" \
 grep -q 'classify_pass_result' "$allthings_principal" \
   || fail "allthingsmasonic principal wrapper lacks pass-failure classifier"
 
+engineer_template="$ROOT/tools/cron-roles/archetypes/engineer/scripts/run-engineer.sh.tmpl"
+bash -n <(sed 's/{{[^}]*}}/placeholder/g' "$engineer_template") \
+  || fail "engineer template syntax error"
+grep -q 'archive_failed_pass' "$engineer_template" \
+  || fail "engineer template does not archive truncated passes"
+grep -q 'PREPASS_SHIPPABLE_DIRTY' "$engineer_template" \
+  || fail "engineer template lacks pre-existing-edit safety guard"
+grep -q 'RESUME_CONTEXT' "$engineer_template" \
+  || fail "engineer template does not tell retries where to resume"
+grep -q 'TASK_BUDGET_BUFFER=10' "$engineer_template" \
+  || fail "engineer template uses unbuffered task estimates"
+
 # Any wrapper using the stderr-preserving implementation must carry the same
 # result gate. This catches partial template stamps without forcing legacy
 # wrappers onto a fleet-wide rollout in the same change.
