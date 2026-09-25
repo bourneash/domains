@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T08:45:30.935Z",
+  "generated_at": "2026-09-25T08:47:28.266Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue only existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate. Aggregate commission remains unattributed; site revenue, ROI, causality, and cost allocation are unknown. No new candidate meets the reviewer confidence and capacity bar.",
+        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue only existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate. Aggregate commission remains unattributed; site revenue, ROI, causality, and cost allocation are unknown. No new candidate meets the confidence and capacity bar.",
         "requested_action": null,
         "proposal_id": null
       }
