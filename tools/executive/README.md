@@ -183,6 +183,13 @@ For a supervised long-running process, use `run-loop.sh` with
 `EXECUTIVE_INTERVAL_SECONDS`; it handles cadence and termination while the
 one-shot wrapper remains the only execution path.
 
+`run-sandbox.sh` also performs a non-billing `codex login status` preflight from
+inside the exact isolated image and credential mount used for the model. A
+missing ChatGPT OAuth login fails before model work starts. If the provider
+returns an authentication error before the first pass, the wrapper retries once
+to tolerate a transient bearer-discovery race; it never retries a partial
+leadership run.
+
 The CRO entrypoint is `run-cro-scheduled.sh`. Disable it with
 `touch tools/executive/.cro-disabled`; remove that file to resume the next
 daily run.

@@ -56,7 +56,7 @@ trap 'rm -rf "$RUN_DIR"' EXIT
 # Brief generation and plan application happen in the trusted control plane.
 node "$ROOT/tools/executive/runner.js" --brief-only > "$RUN_DIR/input/brief.json"
 
-args=(run --rm --name "$CONTAINER_NAME" --entrypoint /usr/bin/env \
+container_args=(run --rm --name "$CONTAINER_NAME" --entrypoint /usr/bin/env \
   --read-only --cap-drop=ALL --security-opt=no-new-privileges \
   --pids-limit=256 --memory=2g --cpus=2 \
   --tmpfs /tmp:rw,noexec,nosuid,size=256m \
@@ -75,10 +75,10 @@ CLAUDE_CONFIG_FILE="${CLAUDE_CONFIG_FILE:-${HOME:-/home/jesse}/.claude.json}"
 [[ "$CLAUDE_CREDENTIALS_FILE" == "${HOME:-/home/jesse}/.claude/.credentials.json" ]] || { echo "credential path is restricted" >&2; exit 1; }
 [[ "$CLAUDE_CONFIG_FILE" == "${HOME:-/home/jesse}/.claude.json" ]] || { echo "config path is restricted" >&2; exit 1; }
 if [[ -f "$CLAUDE_CREDENTIALS_FILE" ]]; then
-  args+=( -v "$CLAUDE_CREDENTIALS_FILE:/home/dev/.claude/.credentials.json:ro" )
+  container_args+=( -v "$CLAUDE_CREDENTIALS_FILE:/home/dev/.claude/.credentials.json:ro" )
 fi
 if [[ -f "$CLAUDE_CONFIG_FILE" ]]; then
-  args+=( -v "$CLAUDE_CONFIG_FILE:/home/dev/.claude.json:ro" )
+  container_args+=( -v "$CLAUDE_CONFIG_FILE:/home/dev/.claude.json:ro" )
 fi
 
 # Codex Pro authentication is the only Codex host material mounted. Do not
@@ -87,17 +87,81 @@ fi
 CODEX_AUTH_FILE="${CODEX_AUTH_FILE:-${HOME:-/home/jesse}/.codex/auth.json}"
 [[ "$CODEX_AUTH_FILE" == "${HOME:-/home/jesse}/.codex/auth.json" ]] || { echo "Codex auth path is restricted" >&2; exit 1; }
 if [[ -f "$CODEX_AUTH_FILE" ]]; then
-  args+=( -v "$CODEX_AUTH_FILE:/home/dev/.codex/auth.json:ro" )
+  container_args+=( -v "$CODEX_AUTH_FILE:/home/dev/.codex/auth.json:ro" )
 fi
 
-args+=( "$IMAGE" node /app/tools/executive/model-runner.js )
-# Use the BusyBox-compatible timeout flags available in fleet-cron as well as
-# GNU coreutils. The long GNU spellings make the dispatcher fail before the
-# isolated model container starts on the production scheduler image.
-set +e
-timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker "${args[@]}"
-MODEL_STATUS=$?
-set -e
+container_args+=( "$IMAGE" )
+
+write_provider_failure() {
+  local message="$1"
+  node - "$RUN_DIR/output/failure.json" "$message" <<'NODE'
+const fs = require('node:fs');
+const file = process.argv[2];
+const error = process.argv[3];
+fs.writeFileSync(
+  file,
+  JSON.stringify({ error, passes_completed: [], usage: { calls: 0, estimated_total_tokens: 0 } }, null, 2),
+  { mode: 0o600 }
+);
+NODE
+}
+
+# Validate the same OAuth credential from inside the same image/mount boundary
+# used for the real model run. `codex login status` is local and non-billing: it
+# confirms that the isolated process can discover the ChatGPT login without
+# exposing or modifying the host credential.
+if [[ "$EXECUTIVE_PROVIDER" == "chatgpt" ]]; then
+  set +e
+  PREFLIGHT_OUTPUT=$(timeout -s TERM -k 5 30s docker "${container_args[@]}" codex login status 2>&1)
+  PREFLIGHT_STATUS=$?
+  set -e
+  if [[ "$PREFLIGHT_STATUS" -ne 0 || ! "$PREFLIGHT_OUTPUT" =~ Logged[[:space:]]in[[:space:]]using[[:space:]]ChatGPT ]]; then
+    write_provider_failure "executive_auth_preflight_failed: Codex ChatGPT login was not available inside the isolated runner (status ${PREFLIGHT_STATUS})"
+    MODEL_STATUS=78
+  fi
+fi
+
+run_model() {
+  local log_file="$RUN_DIR/model.log"
+  : > "$log_file"
+  timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker \
+    "${container_args[@]}" node /app/tools/executive/model-runner.js >"$log_file" 2>&1
+  local status=$?
+  cat "$log_file"
+  return "$status"
+}
+
+if [[ "${MODEL_STATUS:-0}" -eq 0 ]]; then
+  # Use the same bounded command for the actual run. A single retry is allowed
+  # only for a provider-auth failure before any executive pass completed; this
+  # handles transient bearer discovery races without duplicating a partial,
+  # potentially expensive leadership run.
+  set +e
+  run_model
+  MODEL_STATUS=$?
+  set -e
+  if [[ "$MODEL_STATUS" -ne 0 && -s "$RUN_DIR/output/failure.json" ]] && \
+    grep -Eiq '401[[:space:]]+Unauthorized|Missing bearer|authentication' "$RUN_DIR/model.log"; then
+    PASSES_COMPLETED="$(node - "$RUN_DIR/output/failure.json" <<'NODE'
+const fs = require('node:fs');
+try {
+  const value = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+  process.stdout.write(String(Array.isArray(value.passes_completed) ? value.passes_completed.length : 1));
+} catch {
+  process.stdout.write('1');
+}
+NODE
+)"
+    if [[ "$PASSES_COMPLETED" == "0" ]]; then
+      echo "executive provider authentication failed before the first pass; retrying once" >&2
+      sleep 2
+      set +e
+      run_model
+      MODEL_STATUS=$?
+      set -e
+    fi
+  fi
+fi
 
 # Preserve the model's bounded, non-secret usage estimate outside the transient
 # exchange directory. This gives the dashboard/auditor a per-cycle record even
