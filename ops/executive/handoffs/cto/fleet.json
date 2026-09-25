@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:04:23.486Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T10:04:20.573Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: authorize only bounded read-only inspection of existing failure artifacts, continuation of deployed-work measurement, private-gate evidence work, and repair or closure of existing failed requests. Do not create new proposals, telemetry requests, production changes, spend, or queue entries. Requeue only an existing approved request after confirming isolated worktree cleanup, root cause, smallest reversible repair, focused validation, rollback steps, and owner-role routing. Preserve unknown attribution, causality, ROI, and unavailable cost fields.",
+        "summary": "Recommendation: Defer the Mermaid prototype this cycle. It is technically feasible as a disposable, non-production artifact using manually authored static SVG, but no production adoption, dependency installation, credential access, domain changes, or telemetry changes are authorized. Current capacity is constrained by 123 approved proposals without execution requests, 24 improvements awaiting measurement, 10 failed implementation requests, and 21 open repair follow-ups. Continue existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate. Reassess only after backlog reduction with a defined CTR and engaged-session baseline plus documented accessibility, SVG sanitization, page-weight, maintenance, rollback, and measurement gates. No new queue request should be created this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Queue disposition: existing approved work may enter the queue only after its retained failure is repaired or explicitly closed and validation evidence is complete. No new discretionary growth, production expansion, or financial work is queue-eligible this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Measurement disposition: continue existing gates using only period-aligned impressions, clicks, sessions, conversions, site-attributed commission, and directly evidenced incremental costs. Do not infer revenue, ROI, contribution margin, causal lift, or cost allocation from aggregate or mismatched periods.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Authorize only bounded read-only inspection of retained failure artifacts, continuation of deployed-work measurement, private-gate evidence work, and repair or closure of existing failed requests. Requeue only an existing approved request after isolated worktree cleanup, root-cause evidence, smallest reversible repair, focused validation, rollback steps, and correct owner routing are documented.",
+        "summary": "Technical review: The proposed prototype is isolated and reversible in principle, but its implementation effort and risks are not yet bounded by an existing fleet task. Mermaid’s lab result supports research only; it does not establish dependency, security, accessibility, performance, or revenue fitness. No new telemetry should be requested because the available analytics and SEO sources already provide the relevant baseline fields. Keep the proposal deferred and do not enter it into the implementation queue.",
         "requested_action": null,
         "proposal_id": null
       }

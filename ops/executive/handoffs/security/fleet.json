@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:04:23.487Z",
+  "generated_at": "2026-09-25T10:04:20.573Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for SearchWoot public beta or full launch; conditional for continued private-preview evidence work and ordinary reversible growth. Concrete evidence: fleet-doctor is unavailable, operations deploy/uptime/error sweeps have no results, security site checks are absent, and authentication boundaries, secret handling, container isolation, release provenance, dependency exposure, data exposure, incident telemetry, and disclosure readiness are unevidenced. Compliance records 35 pass, 13 fail, and 11 unknown across 59 sites; this is not a security certification. Existing failed implementation signals include 8 failed requests and 19 repair items, but they do not prove exploitation or a security defect. Exact decision: continue only bounded read-only evidence capture, existing measurement gates, failed-request repair or closure, and the private launch gate. Do not authorize public launch, credential changes, production security configuration changes, new data collection, or external disclosure outreach. Do not block ordinary reversible growth solely for optional hardening when normal preview, build, smoke, compliance, and rollback gates pass.",
+        "summary": "Security disposition: conditional for ordinary reversible fleet growth; evidence_needed for fleet-wide security assurance; blocked for SearchWoot public beta or full launch. Exact recommendation: continue only reversible work that passes existing preview, build, smoke, compliance, review, and rollback gates; do not claim security clearance or certification. Keep SearchWoot private until access boundaries, secret handling, isolation, release controls, data exposure, incident response, disclosure readiness, and the other launch gates are evidenced and approved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot security decision: blocked for public beta and full launch. API access is documented, but redistribution rights, data-flow and retention controls, consent/configuration evidence, logging/vendor controls, incident handling, accuracy/freshness, attribution, and owner approval remain incomplete. Maintain private access and permit only bounded read-only evidence work or draft internal preparation.",
+        "summary": "Concrete evidence and severity: fleet-doctor is unavailable (ok=false, no run), operations deploy and uptime sweeps are absent, all 59 security site legal-family facts are unknown, and no TLS expirations are reported but certificate coverage is not evidenced. No credentials, private source, container shell, exploit activity, or production mutation was used. These are evidence gaps, not confirmed vulnerabilities; fleet-wide assurance risk is medium, with high decision impact for public launch. Existing signals include 10 failed implementation requests, 21 open repair follow-ups, 65 retained tick failures, and multiple reviewer or quality-gate failures. Do not block ordinary growth solely for optional hardening.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Control interpretation: no clean bill of health is supported. TLS has no recorded certificates expiring within 30 days, but certificate validity and configuration are otherwise unevidenced. The bounded repository-lab checks did not install dependencies, access production, or establish fleet-wide supply-chain safety. Missing security.txt or disclosure evidence is a readiness gap, not proof of vulnerability.",
+        "summary": "SearchWoot decision: blocked for public exposure. The launch checklist explicitly marks security and release blocked, while access boundaries, secret handling, runtime isolation, dependency and supply-chain evidence, monitoring, incident handling, data-flow controls, and disclosure readiness remain incomplete. Maintain the private gate and authorize only bounded read-only evidence work; no credentials, deployment, configuration change, alert expansion, outreach, or public data exposure.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:04:23.486Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T10:04:20.572Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize only existing bounded workstreams this cycle: measure deployed work, repair or close failed requests, maintain SearchWoot’s private gate, and continue read-only revalidation. Evidence: 0 proven improvements, 24 awaiting measurement, 8 failed requests, 19 repair items, and 127 approved proposals without execution. Revenue evidence for 2026-09-21 shows $4.92 aggregate commission that cannot be attributed to a site; site-attributed income is $0. AI usage cost was $887.67 for 2026-09-01–2026-09-24. Causality, ROI, and per-site allocation remain unknown. Smallest next step: CTO inspects existing failure artifacts and drains only repair-ready approved work. Will the owner authorize this disposition for the cycle?",
+        "summary": "Recommendation: Defer the Mermaid prototype this cycle. The CRO lead is plausible but not yet revenue-qualified: aliencouncil.com has 77 impressions, position 5.5, 0 clicks, 0 sessions, and 0 conversions in the current SEO window; no metric baseline for the proposed component exists. Capacity is committed to 123 approved proposals without execution requests, 24 improvements awaiting measurement, and 10 failed requests. Amazon revenue is $4.92 aggregate and unattributed for 2026-09-21, so upside and margin are not calculable. Smallest next step: drain existing execution and repair backlogs, then reassess with a defined CTR/engaged-session baseline. Owner decision: keep deferred until the backlog is reduced, or authorize one isolated, non-production prototype with a 14-day/100-impression measurement gate?",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: prioritize existing repair and measurement backlog before new ideas. Inspect failed implementation artifacts, document root cause, validation, and rollback, then requeue only repair-ready approved work; do not create duplicate proposals or production changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Update: keep SearchWoot private. Woot’s public terms do not establish rights for public commercial display, derivatives, caching, or alerts; legal, security, accuracy, attribution, measurement, and owner gates remain incomplete. Continue only bounded read-only evidence work and draft preparation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for continued private-preview evidence work. Evidence: Woot documentation confirms API access but not redistribution rights, while current public terms restrict commercial/public collection, derivatives, display, caching, and alerts. Security, accuracy/freshness, measurement, attribution, privacy, and owner gates remain incomplete. Recommendation: keep private and authorize only bounded read-only evidence work, failed-request repair or closure, and existing measurement gates.",
+        "summary": "Recommendation: Prioritize execution control over new ideas. Continue existing measurement gates, failed-request repair or closure, bounded security evidence, and SearchWoot's private launch gate. Do not create duplicate proposals or queue new production work while 123 approved proposals remain unexecuted and 21 failed-request follow-ups are open.",
         "requested_action": null,
         "proposal_id": null
       }

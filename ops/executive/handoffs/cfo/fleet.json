@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:04:23.486Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T10:04:20.573Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: freeze new discretionary spend, production expansion, and queue creation this cycle. Continue only existing measurement gates, failed-request repair or closure, private-gate controls, and bounded read-only revalidation. Financial evidence is insufficient for investment approval: Amazon reported $4.92 commission for 2026-09-21, but all income is in an unattributed aggregate row; site-attributed income is $0. AI usage cost was $887.6686767 for 2026-09-01–2026-09-24 across 4,968 calls, while infrastructure, labor, domain, hosting, and other operating costs are unavailable. No contribution margin, ROI, payback, or reliable cost-to-learn can be calculated. The $4.92 and $887.67 periods also do not match, so subtracting them would be invalid. The portfolio has no configured monthly spend limit, fixed-cost budget, marketing budget, revenue floor, or attribution materiality threshold. Minimum controls needed before additional spend: period-aligned site-level revenue, direct-cost ledger including infrastructure, experiment exposure/outcome linkage, and approved budget limits. Vanity metrics such as 13,599 impressions, 135 clicks, 963 sessions, 15 conversions, 28 ordered items, or 6 shipped items do not support revenue or causal-lift claims.",
+        "summary": "Recommendation: Reject the new Mermaid prototype this cycle and continue only existing measurement gates, failed-request repair or closure, bounded security evidence, and the private launch gate. The fleet generated $4.92 aggregate Amazon commission for 2026-09-21, all unattributed, versus $907.46 of AI usage cost from 2026-09-01 through 2026-09-25. This is not a valid contribution margin because periods and scopes differ, infrastructure and fixed costs are unavailable, and site-level revenue is $0 attributable. Cost-to-learn is also not calculable: 0 improvements are proven, 1 is measured, and 24 await measurement. The proposed candidate has only 77 impressions, 0 clicks, 0 sessions, and 0 conversions, so it is a vanity opportunity without a revenue-qualified baseline. No new finance proposal or owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the CEO disposition and require finance review before any new discretionary production or growth work. Do not treat the $4.92 aggregate commission as site revenue, and do not claim that AI spend generated returns. Existing measurement must report only period-aligned impressions, clicks, sessions, conversions, attributable commission, and directly evidenced costs.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Update: the current financial gate remains blocked for investment decisions. AI usage is measurable, but infrastructure and other operating spend are not supplied; contribution margin and budget exposure therefore remain unknown. Continue failed-request repair or closure without adding finance-related telemetry requests because the available snapshot already identifies the missing measurement boundaries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial disposition remains blocked for new discretionary investment. The available 2026-09-21 Amazon evidence reports $4.92 in an unattributed aggregate row and $0 site-attributed income; AI usage cost is $887.6686767 for 2026-09-01 through 2026-09-24, with other operating costs unavailable. Continue measurement using only period-aligned impressions, clicks, sessions, conversions, site-attributed commission, and directly evidenced incremental costs. Do not claim ROI, contribution margin, payback, or causality.",
+        "summary": "Finance control recommendation: do not claim revenue, ROI, contribution margin, causal lift, or forecasted upside from the current evidence. The minimum future measurement for a finance-qualified test is a common dated window containing page exposure, sessions, affiliate clicks, ordered items, shipped items, commission, AI cost, infrastructure cost, and the exact content/site identifier.",
         "requested_action": null,
         "proposal_id": null
       }

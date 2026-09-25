@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T04:04:23.487Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T10:04:20.573Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal triage: Woot API deal and price-history data = blocked pending authoritative written permission or agreement; smallest next action is attach current field-level permission, retention, display, alert, attribution, freshness, correction, and takedown terms. User alert rules and sync results = evidence_needed; next action is produce the read-only data inventory, retention, deletion/correction, processor, consent, and unsubscribe table. GA4 = evidence_needed; next action is capture deployed consent and withdrawal behavior, GA4 data-sharing and retention settings, cookie disclosure, and jurisdiction review; no remarketing. Operational logs and Cloudflare data = evidence_needed; next action is capture log fields, retention/access controls, vendor terms or DPA coverage, and incident/request procedures. Human counsel is required for interpretation of upstream rights, privacy/jurisdiction treatment, and any future affiliate or advertising use. No go-live approval is supported.",
+        "summary": "Risk disposition: conditional for ordinary reversible fleet growth; blocked for SearchWoot public beta or full launch. Compliance evidence is technical baseline only: 37 pass, 16 fail, and 6 unknown, with open banner, consent, privacy, and terms findings. Do not treat incomplete telemetry as a legal blocker for ordinary growth, but do not claim legal clearance. SearchWoot remains private because current Woot terms do not establish rights for storage, derivatives, public display, caching, alerts, affiliate use, or advertising. Human counsel is required for source-rights interpretation, privacy/jurisdiction treatment, and any future affiliate or advertising use. No launch-readiness task is closed this cycle; all four remain open pending the specified evidence actions.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Open tasks are not closed: source-rights verification, alert-data flow and retention, GA4 consent evidence, and logs/vendors/incident handling. The next evidence action is to produce the read-only data-flow, retention, consent/configuration, and vendor-control artifacts and attach them to the checklist; do not contact Woot, expand alerts, enable advertising, or change the private gate without owner approval.",
+        "summary": "SearchWoot data-use dispositions: Woot API deal and price-history data = blocked; missing current written permission or API agreement, field-level rights, attribution, freshness, correction, takedown, and monetization terms. Smallest next action: prepare an unsent permission request and route the rights question to human counsel; do not expose data publicly. User alert rules and sync results = evidence_needed; missing data inventory, retention, deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: complete a read-only data-flow and retention table from repository and deployed configuration. GA4 analytics = evidence_needed; missing deployed consent and withdrawal evidence, GA4 property/data-sharing settings, retention settings, vendor disclosure, and jurisdictional review. Smallest next action: capture consent behavior and read-only GA4 configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data = evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, incident handling, and data-subject request procedures. Smallest next action: produce the read-only operator/vendor inventory and identify counsel-required gaps.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The Mermaid prototype is not a legal blocker as proposed: its stated MIT license and isolated, non-production scope support conditional research only. Retain the existing deferral. Before any adoption, preserve license evidence, verify any bundled asset rights and trademark usage, and obtain CTO/security evidence for SVG sanitization, accessibility, page weight, dependency maintenance, and rollback. No production deployment, affiliate claim, monetization claim, or new telemetry is approved.",
         "requested_action": null,
         "proposal_id": null
       }

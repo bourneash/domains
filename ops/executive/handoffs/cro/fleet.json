@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-23T06:24:13.709Z",
+  "generated_at": "2026-09-25T10:04:20.574Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: retain two evidence-backed opportunities for CEO/CTO review. Do not queue implementation this cycle. The affiliate guardrail addresses the observed aggregate Amazon attribution boundary; the Great American Lakes experiment is conditional on completing the existing measurement gate.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Prototype structured visual explainers for high-intent editorial pages",
+        "summary": "Test a reversible content component using Mermaid on one eligible editorial page, such as aliencouncil.com, to clarify timelines, evidence chains, or process flows. Evidence includes 77 impressions at position 5.5 for one page opportunity and Mermaid’s MIT license, supported documentation, and completed bounded lab review. This is research only: no production deployment or adoption decision. Risks include SVG sanitization, added page weight, accessibility gaps, Mermaid dependency maintenance, and no proven conversion lift. Smallest prototype is one isolated static SVG generated from manually authored data, reviewed for accessibility and sanitization. Expected metric is page CTR and engaged sessions; time-to-learn is 14 days or 100 new impressions, whichever comes first.",
+        "requested_action": "CTO/reviewer: create an isolated disposable prototype and report security, accessibility, page-weight, maintenance, and measurement findings. Do not deploy, spend, change credentials, or add domains.",
         "proposal_id": null
       }
     ]
