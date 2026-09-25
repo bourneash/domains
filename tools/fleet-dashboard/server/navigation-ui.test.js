@@ -78,6 +78,27 @@ test('sidebar category navigation and disclosure use separate controls', () => {
   assert.doesNotMatch(shell, /an active item inside a collapsed section/);
 });
 
+test('fleet health pulse exposes an actionable explanation', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /id="fleet-health-trigger"/);
+  assert.match(shell, /id="fleet-health-details"/);
+  assert.match(shell, /active scheduled roles are fresh/);
+  assert.match(shell, /Open Health view/);
+  assert.match(shell, /aria-expanded/);
+});
+
+test('fleet vitals cards provide destinations and role-health context', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(shell, /data-vt-action="control\?filter=attention"/);
+  assert.match(shell, /data-vt-action="containers"/);
+  assert.match(shell, /scheduled-role freshness/);
+  assert.match(shell, /openVitalView/);
+  assert.match(app, /controlFilter/);
+  assert.match(app, /CONTROL\.filter === 'fresh'/);
+  assert.match(app, /Fresh roles/);
+});
+
 test('category cards share the sidebar icon system', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');

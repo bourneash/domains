@@ -27,12 +27,12 @@
 
   /* ---------------------------------------------------------- 1. VITALS -- */
   const railHTML = `
-    <div class="vt" data-vt="sites"      style="--vt-c:var(--a1)"><div class="vt-k">Fleet</div><div class="vt-v">—</div><div class="vt-sub">sites discovered</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="fresh"      style="--vt-c:var(--green)"><div class="vt-k">Roles fresh</div><div class="vt-v">—</div><div class="vt-sub">ran within window</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="attention"  style="--vt-c:var(--yellow)"><div class="vt-k">Needs attention</div><div class="vt-v">—</div><div class="vt-sub">stale or overdue</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="paused"     style="--vt-c:var(--purple)"><div class="vt-k">Paused</div><div class="vt-v">—</div><div class="vt-sub">disabled by flag</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="containers" style="--vt-c:var(--a3)"><div class="vt-k">Containers</div><div class="vt-v">—</div><div class="vt-sub">running</div><div class="vt-bars"></div></div>
-    <div class="vt" data-vt="health"     style="--vt-c:var(--green)"><div class="vt-k">Fleet health</div><div class="vt-v">—</div><div class="vt-sub">weighted uptime</div><div class="vt-meter"><i></i></div></div>`;
+    <div class="vt" data-vt="sites" data-vt-action="control" role="button" tabindex="0" aria-label="Open all fleet sites" style="--vt-c:var(--a1)"><div class="vt-k">Fleet</div><div class="vt-v">—</div><div class="vt-sub">sites discovered</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="fresh" data-vt-action="control?filter=fresh" role="button" tabindex="0" aria-label="Show sites with fresh roles" style="--vt-c:var(--green)"><div class="vt-k">Roles fresh</div><div class="vt-v">—</div><div class="vt-sub">ran within window</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="attention" data-vt-action="control?filter=attention" role="button" tabindex="0" aria-label="Show sites needing role attention" style="--vt-c:var(--yellow)"><div class="vt-k">Needs attention</div><div class="vt-v">—</div><div class="vt-sub">stale or overdue roles</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="paused" data-vt-action="control?filter=paused" role="button" tabindex="0" aria-label="Show sites with paused roles" style="--vt-c:var(--purple)"><div class="vt-k">Paused</div><div class="vt-v">—</div><div class="vt-sub">disabled by flag</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="containers" data-vt-action="containers" role="button" tabindex="0" aria-label="Open container status" style="--vt-c:var(--a3)"><div class="vt-k">Containers</div><div class="vt-v">—</div><div class="vt-sub">running</div><div class="vt-bars"></div></div>
+    <div class="vt" data-vt="health" data-vt-action="control?sort=health" role="button" tabindex="0" aria-label="Show worst role health first" style="--vt-c:var(--green)"><div class="vt-k">Fleet role health</div><div class="vt-v">—</div><div class="vt-sub">scheduled-role freshness</div><div class="vt-meter"><i></i></div></div>`;
 
   const rail = document.createElement('section');
   rail.id = 'vitals';
@@ -70,6 +70,80 @@
   };
 
   let vitalsTimer = null;
+  function openVitalView(card) {
+    const target = card?.dataset.vtAction;
+    if (target) location.hash = `#${target}`;
+  }
+  rail.addEventListener('click', e => {
+    const card = e.target.closest('.vt');
+    if (card) openVitalView(card);
+  });
+  rail.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.vt')) {
+      e.preventDefault();
+      openVitalView(e.target.closest('.vt'));
+    }
+  });
+  function closeHealthDetails() {
+    const details = document.querySelector('#fleet-health-details');
+    const trigger = document.querySelector('#fleet-health-trigger');
+    if (details) details.hidden = true;
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderHealthPulse({
+    fresh,
+    live,
+    stale,
+    overdue,
+    healthPct,
+    runningAll,
+    containerTotal,
+    unhealthyAll,
+  }) {
+    const foot = document.querySelector('#rail .rl-foot');
+    if (!foot) return;
+    const tone = healthPct >= 90 ? 'ok' : healthPct >= 70 ? 'warn' : 'bad';
+    const containerSummary = unhealthyAll
+      ? `${unhealthyAll} unhealthy container${unhealthyAll === 1 ? '' : 's'}`
+      : `${runningAll}/${containerTotal} containers healthy`;
+    foot.innerHTML = `
+      <div class="rl-health-wrap">
+        <button id="fleet-health-trigger" class="rl-pulse ${tone}" type="button" aria-expanded="false" aria-controls="fleet-health-details" title="Show why fleet health is ${healthPct}%">
+          <span class="rl-pulse-dot" aria-hidden="true"></span>
+          <span class="rl-pulse-t">Fleet health</span>
+          <span class="rl-pulse-v">${healthPct}%</span>
+        </button>
+        <div id="fleet-health-details" class="rl-health-details" role="status" hidden>
+          <strong>Why ${healthPct}%?</strong>
+          <span>${fresh}/${live} active scheduled roles are fresh.</span>
+          <span>${overdue} overdue · ${stale} stale role${overdue + stale === 1 ? '' : 's'}.</span>
+          <span>${containerSummary}.</span>
+          <small>Warning begins below 90%.</small>
+          <a href="#health" data-health-details-link>Open Health view →</a>
+        </div>
+      </div>`;
+  }
+
+  document.addEventListener('click', e => {
+    const trigger = e.target.closest('#fleet-health-trigger');
+    if (trigger) {
+      const details = document.querySelector('#fleet-health-details');
+      const open = details && details.hidden;
+      if (details) details.hidden = !open;
+      trigger.setAttribute('aria-expanded', String(Boolean(open)));
+      return;
+    }
+    if (e.target.closest('[data-health-details-link]')) {
+      closeHealthDetails();
+      return;
+    }
+    if (!e.target.closest('.rl-health-wrap')) closeHealthDetails();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeHealthDetails();
+  });
+
   async function loadVitals() {
     try {
       const [rRes, cRes] = await Promise.all([
@@ -193,16 +267,16 @@
 
       // compact mirror in the nav rail's foot, so health is on screen even
       // when you've scrolled the vitals off the top — always fleet-wide.
-      const foot = document.querySelector('#rail .rl-foot');
-      if (foot) {
-        const tone = healthPct >= 90 ? 'ok' : healthPct >= 70 ? 'warn' : 'bad';
-        foot.innerHTML = `
-          <div class="rl-pulse ${tone}" title="${esc(`${fresh}/${live} roles fresh · ${runningAll}/${allCts.length} containers running`)}">
-            <span class="rl-pulse-dot"></span>
-            <span class="rl-pulse-t">Fleet health</span>
-            <span class="rl-pulse-v">${healthPct}%</span>
-          </div>`;
-      }
+      renderHealthPulse({
+        fresh,
+        live,
+        stale,
+        overdue,
+        healthPct,
+        runningAll,
+        containerTotal: allCts.length,
+        unhealthyAll,
+      });
     } catch {
       rail.classList.add('hidden');
     }

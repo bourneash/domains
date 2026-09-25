@@ -671,8 +671,10 @@ body[data-view="socialhub"] #vitals { max-width: none; }
   backdrop-filter: blur(8px);
   animation: vt-in .5s var(--ease-out) backwards;
   transition: transform .2s var(--ease-out), border-color .2s var(--ease), box-shadow .2s var(--ease);
+  cursor: pointer;
 }
 .vt:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.13); box-shadow: var(--sh-3); }
+.vt:focus-visible { outline: 2px solid var(--a1); outline-offset: 3px; }
 .vt:nth-child(1) { animation-delay: .02s; }
 .vt:nth-child(2) { animation-delay: .06s; }
 .vt:nth-child(3) { animation-delay: .1s; }
@@ -1043,8 +1045,24 @@ body.has-rail .actions { margin-left: 0; }
   display: flex; align-items: center; gap: 9px;
   padding: 7px 10px; border-radius: 10px;
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
-  font-size: 11.5px; color: var(--muted); cursor: default;
+  width: 100%; font: inherit; font-size: 11.5px; color: var(--muted); cursor: pointer;
+  text-align: left;
 }
+.rl-pulse:hover, .rl-pulse:focus-visible { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); color: var(--text); }
+.rl-pulse:focus-visible { outline: 2px solid var(--a1); outline-offset: 2px; }
+.rl-health-wrap { position: relative; }
+.rl-health-details {
+  position: absolute; z-index: 20; right: 0; bottom: calc(100% + 8px); width: 230px;
+  display: flex; flex-direction: column; gap: 6px; padding: 12px;
+  border: 1px solid rgba(255,255,255,.14); border-radius: 10px;
+  background: var(--panel, #171b24); box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  color: var(--muted); font-size: 11px; line-height: 1.4;
+}
+.rl-health-details strong { color: var(--text-hi); font-size: 12px; }
+.rl-health-details small { color: var(--faint); }
+.rl-health-details a { color: var(--a1); text-decoration: none; margin-top: 2px; }
+.rl-health-details a:hover { text-decoration: underline; }
+.rl-health-details[hidden] { display: none; }
 .rl-pulse-dot {
   width: 8px; height: 8px; border-radius: 50%; flex: none;
   background: var(--green); box-shadow: 0 0 10px var(--green);
