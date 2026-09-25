@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T20:42:09.172Z",
+  "generated_at": "2026-09-25T20:44:37.296Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the unsupported 0xroulette report-only proposal and all production/growth work lacking a measurable outcome. Revenue remains site-unattributed ($0 site-attributed commission; $4.92 aggregate cannot support site economics). Only one safe candidate remains actionable: reversible task-routing metadata work for saltwaternews.com. rc-9.com is blocked by unresolved prior failure; trainingsharks.com is blocked by reviewer rejection; other candidates duplicate active measurement or queued work. Existing measurement, failed-request repair, bounded security evidence, and private launch gates continue unchanged.",
+        "summary": "Queued one bounded, reversible task-routing metadata change for saltwaternews.com. Other candidates were rejected: rc-9.com remains blocked by unresolved prior failure evidence; trainingsharks.com remains blocked by reviewer rejection. No revenue, ROI, causal-lift, production, spend, credential, configuration, or launch claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
