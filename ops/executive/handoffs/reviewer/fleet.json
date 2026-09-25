@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:54:33.424Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T18:24:06.451Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the bounded trainingsharks.com CLS repair and continuation of the single existing fleet security evidence commitment. Reject unsupported revenue, ROI, margin, causal-lift, launch, spending, telemetry, credential, configuration, schedule, and high-priority queue claims. Keep the gated product private. Do not duplicate security work, drain unexecuted proposals, or requeue rc-9.com while its repair item remains active. The CLS change is retained because it has a recorded baseline, existing-telemetry measurement window, isolated scope, validation gate, and rollback condition.",
+        "summary": "Approve only the bounded trainingsharks.com CLS repair. Reject CRO experiments, unsupported revenue or ROI claims, high-priority queue work, launch changes, spending, credential/configuration changes, duplicate telemetry, and production proposals without measurable outcomes. Keep existing gates unchanged. Current evidence is inconclusive: aggregate commission is not site-attributable, 24 improvements await measurement, 33 requests failed, and none are proven.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The proposed security evidence work is bounded and read-only, but remove it from this queue plan because it is high priority and existing security work already covers the same evidence boundary. Preserve unknowns and continue only through the existing commitment; do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }

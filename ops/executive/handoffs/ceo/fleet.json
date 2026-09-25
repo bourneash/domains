@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:54:33.423Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T18:24:06.450Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and continue only bounded evidence work. Woot’s public terms do not evidence rights for public data reuse; legal, security, accuracy, attribution, and measurement gates remain blocked. Fleet actionability is constrained: 157 approved proposals lack execution requests, 26 requests failed, and zero improvements are proven. The smallest next steps are to drain existing approved report work and measure deployed changes; no new launch or spend is justified. For the only unblocked action, queue the reversible CLS repair for trainingsharks.com. rc-9.com is rejected this cycle because an active repair work item already exists.",
+        "summary": "Recommendation: approve only the bounded trainingsharks.com CLS repair and keep existing launch/security gates unchanged. The mobile CLS baseline is 0.232 (performance 85; 2026-09-25 mobile lab), and the prior implementation failed reviewer quality gates, so the smallest next step is a repaired, isolated implementation with validation and rollback. Portfolio evidence remains inconclusive: 24 improvements await measurement, 33 requests failed, and 0 are proven. Amazon revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; no ROI or causal lift is calculable. The CRO’s 0xroulette prototype is deferred because activation baseline and implementation evidence are missing; the allthingsmasonic module is deferred while homepage work measures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: execute the existing approved fleet security evidence commitment through the open work item. Preserve unknowns caused by unavailable fleet-doctor and operations sweeps; do not treat missing evidence as a pass or create duplicate telemetry requests.",
+        "summary": "Recommendation: continue the approved fleet security evidence commitment and do not duplicate the existing security work. Fleet-doctor and operations sweeps are unavailable, so authentication, isolation, release, secrets, monitoring, and incident controls remain unknown rather than passing. Smallest next step: security records timestamps, owners, affected scope, severity, and exact unknowns from authorized metadata only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep the gated product private and continue only bounded evidence work. Drain existing approved report work, continue measurement of deployed changes, and queue the reversible trainingsharks.com CLS repair. Reject rc-9.com this cycle because an active repair work item already exists.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: execute the existing approved fleet security evidence commitment through the open work item. Preserve unknowns caused by unavailable fleet-doctor and operations sweeps; do not create duplicate telemetry requests.",
+        "summary": "Retain only the bounded trainingsharks.com CLS repair and continuation of the existing fleet security evidence commitment. Keep launch and security gates unchanged. Do not claim revenue, ROI, margin, attribution, or causal lift from incomplete telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

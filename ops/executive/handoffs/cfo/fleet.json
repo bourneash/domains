@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.933Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T18:24:06.450Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: decline both CRO prototype proposals for this cycle and authorize no new discretionary work. The fleet has $4.92 total Amazon commission for 2026-09-21, all $4.92 in an unattributed aggregate row; site-attributed income is $0. AI spend is $932.93 from 2026-09-01 through 2026-09-25 across 5,194 calls, with 230 errors. Contribution margin and cost-to-learn are not calculable because the revenue and AI-cost windows do not align and infrastructure, labor, fixed, and marketing costs are absent. With 24 improvements awaiting measurement, 24 failed requests, 156 approved proposals lacking execution, and zero proven outcomes, additional prototype work has no demonstrated financial case. Continue existing measurement and failure repair only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial attribution assessment: revenue claims are not supported beyond the recorded provider total of $4.92 commission income, 28 ordered items, and 6 shipped items for 2026-09-21. The provider supplied 629 clicks and all commission in tracking_id 'other'; assigning it to any site would invent attribution. Named site rows total 5,590 clicks with zero ordered items and zero commission. Do not claim site revenue, ROI, margin, payback, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI and infrastructure exposure: recorded AI usage cost is $932.9281238 for 2026-09-01 through 2026-09-25, including 5,194 calls and 230 errors. Infrastructure spend is unknown because no infrastructure-cost source or period is supplied. The owner strategy has blank monthly spend, fixed-cost, marketing-budget, revenue-target, and revenue-floor fields. Budget exposure therefore cannot be bounded from the brief; no new spend should be authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial review: decline both prototypes. Revenue attribution, contribution margin, cost-to-learn, and budget exposure are not sufficiently bounded for discretionary work.",
+        "summary": "Financial recommendation: retain only the bounded trainingsharks.com CLS repair and reject/defer both CRO experiments. Revenue support is weak: Amazon recorded $4.92 aggregate commission on 2026-09-21, with $0 site-attributed income; 6,219 clicks produced 28 ordered items and 6 shipped items, but the aggregate row cannot be assigned to sites. Portfolio outcomes remain inconclusive: 24 improvements await measurement, 33 requests failed, and 0 are proven. AI spend is measurable at $932.93 for 2026-09-01 through 2026-09-25 across 5,194 calls, but infrastructure, domain, labor, and other fixed costs are absent, so contribution margin, payback, cost-to-learn, and budget exposure are not calculable. The 0xroulette CTA lacks an activation baseline, and the allthingsmasonic experiment has 61 affiliate clicks but 0 orders and $0 commission; neither has sufficient financial evidence to justify additional implementation. Do not treat sessions, impressions, clicks, analytics conversions, opportunity scores, or GitHub popularity as revenue or margin evidence.",
         "requested_action": null,
         "proposal_id": null
       }

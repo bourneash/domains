@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:54:33.424Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-25T18:24:06.451Z",
+  "summary": "legal checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Evidence supports API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize Woot data. Current public terms restrict collection, derivative use, and commercial/public reuse. Security, accuracy/freshness, privacy, measurement, attribution, and owner gates also remain incomplete. Exact decision: authorize only bounded read-only evidence work and internal draft preparation; do not expose publicly, expand alerts, send external outreach, change credentials/configuration, deploy, or spend. Human counsel is required before relying on upstream permission or expanding monetization.",
+        "summary": "Legal disposition: blocked for public beta or full launch; keep searchwoot.com private. Woot API access is evidenced, but public terms do not establish rights to store, derive, display, cache, alert on, or monetize returned data. All four data-use items remain evidence_needed: source rights, alert-data retention and user workflows, GA4 consent/configuration, and operational log/vendor handling. Human counsel is required for upstream rights, privacy/jurisdiction, and any affiliate or advertising use. The next evidence actions are to attach a written-permission request draft, produce the repository/configuration data-flow and retention table, capture deployed consent behavior and GA4 settings, and inventory logs/vendors and incident procedures. Do not close launch-readiness tasks without those artifacts and the non-legal gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. No task is closed. Evidence progress: official Woot documentation and terms, repository data-flow files, privacy/cookie pages, and draft terms are recorded. Remaining open tasks require authoritative source permission, retention/deletion/access workflows, deployed consent and GA4 settings, vendor/DPA coverage, log inventory, incident/request procedures, security evidence, accuracy/freshness controls, attribution/measurement reconciliation, and owner disposition. Next evidence actions: create the field-level rights matrix and draft permission request without sending it; produce the alert-data retention/deletion/access table; capture existing consent and GA4 configuration without enabling tracking; inventory logs, vendors, and incident/request procedures.",
+        "summary": "Launch-readiness tracking remains active. No task is closed because the current evidence only confirms partial data-flow and consent artifacts; it does not establish retention, deletion, correction, access, vendor, incident, or rights controls. Next evidence action: attach the authoritative Woot permission or terms record and record permitted fields, caching, display, alerts, attribution, freshness, correction, and takedown rules.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data = blocked. Missing current written permission/API agreement, field-level rights, caching/display/alert terms, attribution, freshness, correction, and takedown rules. Smallest action: attach a field-level rights matrix to a draft permission request. User alert rules and sync results = evidence_needed. Missing data inventory, retention, deletion, access/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest action: produce a read-only data-flow and retention table. GA4 analytics = evidence_needed. Missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdiction-specific review. Smallest action: capture existing consent and GA4 configuration without enabling tracking. Operational logs and Cloudflare hosting data = evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest action: produce a read-only operator/vendor inventory and flag counsel-required gaps.",
+        "summary": "Data-use review: Woot API deal and price-history data is blocked. Missing evidence: written redistribution/commercial permission, field-level provenance, stale-data behavior, and correction/takedown process. Smallest next action: prepare and attach a draft request for SearchWoot-specific permission; do not send it or expose data.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance remains a technical baseline, not certification: 35 sites pass, 18 fail, and 6 are unknown, with open banner, consent accept/reject, GA4, privacy, and terms findings. Repair or evidence is required before relying on affected sites for gated launch. Incomplete telemetry does not by itself block ordinary low-risk growth. Revenue evidence remains partial aggregate: $4.92 is unattributed and site-attributed income is $0; do not claim revenue, ROI, margin, or causal lift.",
+        "summary": "Data-use review: user alert rules and sync results are evidence_needed. Missing evidence: data inventory, retention, deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only data-flow and retention table from the repository and deployed configuration.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The trainingsharks.com CLS repair has no identified legal blocker because it is a bounded presentation change using existing telemetry, with no new tracking, credentials, configuration, data collection, or monetization. Retain conditionally through the normal review/build/validation pipeline. Legal conditions: preserve consent and disclosure behavior, make no unsupported performance or commercial claims, and roll back if validation fails or CLS materially worsens.",
+        "summary": "Data-use review: GA4 analytics is evidence_needed. Missing evidence: deployed consent and withdrawal behavior, GA4 property and data-sharing settings, retention settings, vendor disclosure, and jurisdiction-specific review. Smallest next action: capture current consent and GA4 configuration without enabling tracking or advertising.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Data-use review: operational logs and Cloudflare hosting data is evidence_needed. Missing evidence: log-field inventory, retention and access controls, vendor terms or DPA review, and incident and data-request procedures. Smallest next action: produce a read-only operator and vendor inventory and identify counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       }

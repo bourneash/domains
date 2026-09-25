@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-25T17:48:10.932Z",
+  "generated_at": "2026-09-25T18:24:06.450Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain two bounded research proposals. Both use disposable prototypes only; no deployment, spend, credential changes, domain changes, or production queue work is requested.",
+        "summary": "CRO handoff: retain two reversible experiments grounded in current SEO, affiliate, analytics, GitHub-trend, and CRO-lab evidence. No deployment, spending, credential, configuration, or domain changes are requested.",
         "requested_action": null,
         "proposal_id": null
       }
