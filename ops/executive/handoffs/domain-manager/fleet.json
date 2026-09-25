@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:42:40.913Z",
+  "generated_at": "2026-09-25T03:47:34.295Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Resolve amputeenews.com Amazon Associates tag prerequisite",
-        "summary": "amputeenews.com is live with analytics and affiliate capabilities, but the authoritative site context records Amazon Associates as pending a real tag. Resolve the owner-controlled tag prerequisite before relying on site-level affiliate monetization evidence. Do not infer revenue, conversion, or ROI.",
-        "requested_action": "Approve a bounded owner-assisted implementation to confirm the authorized Amazon Associates tracking tag, update only the site’s affiliate configuration, and validate existing links. Do not retrieve credentials, spend money, alter unrelated content, or claim monetization lift.",
-        "proposal_id": "2ab8e655-981a-4ab0-a2ee-86290d648356"
+        "kind": "message",
+        "title": "Review the failed rc-9.com performance improvement before requeue",
+        "summary": "Inspect the existing failed rc-9.com performance run. The retained baseline records mobile performance 48, LCP 4,977ms, and TBT 1,513ms, while implementation and reviewer attempts failed. Do not create new production work or claim performance lift.",
+        "requested_action": "Approve bounded read-only review of the existing failed rc-9.com performance work item only. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim causal improvement.",
+        "proposal_id": "4935f4bd-c881-499a-8a50-970638d6672d"
       }
     ]
   }

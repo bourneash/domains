@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:42:40.912Z",
+  "generated_at": "2026-09-25T03:47:34.294Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the amputeenews.com Amazon Associates configuration proposal and authorize no new production or queue work this cycle. The required tracking tag is owner-controlled and absent, while available telemetry does not establish monetization lift, revenue, ROI, or causal impact; existing measurement gates and failed-request repairs remain open. Continue only existing bounded measurement, failure-repair, private-gate, and read-only revalidation work. Will the owner provide an authorized Amazon Associates tag for a separately reviewed implementation?",
+        "summary": "Recommendation: reject all new production, queue, financial, attribution, and causal-lift work this cycle. Approve only the bounded read-only review of the existing failed rc-9.com performance work item, alongside existing measurement gates, failure repair or closure, and private-gate controls. The available evidence shows zero proven improvements, 24 improvements awaiting measurement, 8 failed implementation requests, and low-volume or unattributed financial telemetry. Decision: authorize only these existing bounded workstreams this cycle?",
         "requested_action": null,
         "proposal_id": null
       }
