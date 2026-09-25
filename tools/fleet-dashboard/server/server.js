@@ -2129,6 +2129,29 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   async function deliverTaskRoutingAutomatically(item, request) {
     const workTask = findWorktreeTask(item.workspace_path, item.task_file);
     if (!workTask) throw new Error(`routing task ${item.task_file} is missing from worktree`);
+
+    // A routing request is metadata-only and names exactly one existing board
+    // item. The reviewer is a backstop, not the path-safety boundary: a model
+    // can accidentally edit a second task and still produce a plausible diff.
+    // Reject the delivery before touching the canonical checkout when any
+    // committed or untracked path falls outside the named task's board lanes.
+    const workspace = await git.worktreeSnapshot(item.workspace_path);
+    const diff = await git.worktreeDiff(item.workspace_path);
+    const committedPaths = [...diff.text.matchAll(/^diff --git a\/(.+?) b\/(.+)$/gm)].flatMap(
+      match => [match[1], match[2]]
+    );
+    const changedPaths = [
+      ...new Set([...workspace.files.map(file => file.path), ...committedPaths]),
+    ];
+    const allowedTaskPath = path =>
+      path.startsWith('ops/tasks/') && path.endsWith(`/${item.task_file}`);
+    const unrelatedPaths = changedPaths.filter(file => !allowedTaskPath(file));
+    if (unrelatedPaths.length) {
+      throw new Error(
+        `routing worker changed unrelated paths: ${unrelatedPaths.slice(0, 12).join(', ')}`
+      );
+    }
+
     const canonicalTask = findImprovementTask(root, item);
     if (!canonicalTask) throw new Error(`routing task ${item.task_file} is missing from site`);
     let canonicalPath = path.join(
