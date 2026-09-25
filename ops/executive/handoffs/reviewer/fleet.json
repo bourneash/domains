@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T20:44:37.296Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T21:06:41.861Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Queued one bounded, reversible task-routing metadata change for saltwaternews.com. Other candidates were rejected: rc-9.com remains blocked by unresolved prior failure evidence; trainingsharks.com remains blocked by reviewer rejection. No revenue, ROI, causal-lift, production, spend, credential, configuration, or launch claims are supported.",
+        "summary": "Reject additional queue work, unsupported revenue or readiness claims, discretionary spend, duplicate evidence requests, and launch changes. Continue only existing measurement, failed-request repair, bounded security evidence, and the private launch gate.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject public launch, discretionary spend, unsupported revenue or ROI claims, duplicate telemetry, and new production work. Keep the gated product private; the prepared permission request requires explicit owner authorization and human legal review. Revenue is $0 site-attributed and $4.92 aggregate for the available window, so site economics remain unsupported. Continue only existing measurement, failure repair, bounded security evidence, and the reversible task-routing change.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain one bounded task-routing metadata change because it is reversible, isolated, and has a measurable routing-success outcome with zero duplicate tasks. Reject all other new queue or production work this cycle; 24 improvements await measurement, 38 requests failed, and 46 repair follow-ups remain open.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No research request retained. Existing telemetry and launch evidence cover the available gaps; additional research would duplicate shared contracts or cannot produce an authorized production-safe outcome.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only one new implementation request: the reversible Saltwater News task-routing metadata change. Fewer than three unblocked candidates are available: rc-9.com is blocked by unresolved failure evidence; trainingsharks.com is blocked by reviewer rejection; remaining candidates duplicate active, queued, deployed, or measuring work. Reject unsupported revenue, ROI, production, spend, launch, credential, configuration, and duplicate-telemetry claims. Continue existing measurement, failure repair, bounded security evidence, and the private launch gate.",
         "requested_action": null,
         "proposal_id": null
       }

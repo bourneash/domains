@@ -2,16 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T20:44:37.296Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T21:06:41.860Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 2 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: keep SearchWoot private and await owner authorization before sending the prepared Woot permission request. Current terms do not establish public or commercial redistribution rights; security, accuracy, measurement, privacy, and owner gates remain blocked. Site-attributed commission is $0; $4.92 aggregate commission is not assignable to site economics.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: prioritize existing measurement, failure repair, bounded security evidence, and the private launch gate. Do not add discretionary production proposals or unsupported revenue, ROI, margin, causal-lift, or readiness claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "7bd6bae5-b75e-474b-a059-a51d15b0569a",
+        "summary": "Declined as report-only backlog generation because existing intelligence does not support a distinct actionable outcome.",
+        "requested_action": "declined",
+        "proposal_id": "7bd6bae5-b75e-474b-a059-a51d15b0569a"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "22e17a5e-3803-472b-a107-44231e789e30",
+        "summary": "Duplicate of the active fleet security evidence workstream; preserve the existing work item.",
+        "requested_action": "declined",
+        "proposal_id": "22e17a5e-3803-472b-a107-44231e789e30"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cc535d71-cefc-4a84-96c9-e859292101bb",
+        "summary": "Duplicate of the active fleet security evidence workstream; preserve the existing work item.",
+        "requested_action": "declined",
+        "proposal_id": "cc535d71-cefc-4a84-96c9-e859292101bb"
       }
     ]
   }

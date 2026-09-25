@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T19:05:48.017Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T21:06:41.859Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: do not authorize incremental discretionary growth or AI spend until attribution and unit economics are decision-grade. The available revenue window is only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed income is $0 because the $4.92 aggregate row cannot be assigned to a site. AI usage from 2026-09-01 through 2026-09-25 cost $932.93 across 5,194 calls, including 230 errors; this supports AI spend reporting but not cost-to-learn or ROI. Contribution margin is not calculable because site-level revenue is zero/unknown and infrastructure, hosting, registrar, labor, and other direct costs are not supplied. Continue existing measurement and failure-repair work only; reject vanity metrics and unsupported forecasts.",
+        "summary": "Financial review: retain the prepared reversible task-routing metadata change for Saltwater News. It changes assignment metadata only, has no stated spend or billing impact, preserves task history, and includes validation and rollback. It is not a revenue, margin, ROI, or learning claim; the measurable outcome is routing success with zero duplicate tasks.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue claims must be limited to the dated provider facts: $4.92 aggregate commission for 2026-09-21, with $0 site-attributed income. Clicks, impressions, sessions, conversions, ordered items, and shipped items are operating metrics, not revenue or margin. The minimum measurement needed for site economics is a period-matched join of site/content identifier, tracking ID, affiliate clicks, orders, shipped items, commission, and reversals; plus site-level AI, infrastructure, hosting, domain, and other direct costs. Until that exists, cost-to-learn, contribution margin, CAC, ROI, and payback are not calculable.",
+        "summary": "Budget exposure remains unknown, not zero. The brief provides no monthly spend limit, fixed-cost baseline, infrastructure billing, marketing budget, labor rate, or domain/hosting cost ledger. AI usage is the only quantified cost source: $932.93 for 2026-09-01 through 2026-09-25. Report contribution margin only where both attributable revenue and all relevant variable costs are present; otherwise label it not calculable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The existing rc-9.com performance repair should remain blocked pending root-cause, validation, and rollback evidence. A performance score or TBT improvement is not a financial return and cannot justify additional spend without attributable revenue or a documented cost-saving outcome.",
+        "summary": "Financial review: retain only the reversible task-routing metadata change. The available 2026-09-21 revenue window records 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, with $0 site-attributed commission. Aggregate commission cannot support site economics or forecasts. AI usage cost is $932.93 for 2026-09-01 through 2026-09-25; infrastructure, labor, marketing, fixed costs, and budgets remain unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only the reversible task-routing metadata change. The available 2026-09-21 revenue window records $0 site-attributed commission and $4.92 aggregate commission that cannot support site economics. AI usage cost is $932.93 for 2026-09-01 through 2026-09-25; infrastructure, labor, marketing, fixed costs, and budgets remain unavailable.",
         "requested_action": null,
         "proposal_id": null
       }

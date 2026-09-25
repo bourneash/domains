@@ -2,21 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T19:05:48.017Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T21:06:41.859Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: preserve the CEO disposition. Do not create new implementation work or requeue rc-9.com while the prior failure lacks documented root cause, isolated repair, validation, and rollback evidence. Continue the existing repair-or-close work, existing measurement windows, and failure containment only. The proposed CFO report duplicates the existing open finance-boundary work item and should not create a second request. Keep the gated product private pending owner and required legal, security, accuracy, attribution, and measurement decisions.",
+        "summary": "Approve the bounded Saltwater News task-routing metadata change for the existing queue. It is technically feasible, isolated from site code, credentials, feeds, schedules, billing, and production configuration; it preserves task history and is reversible. Acceptance must verify assignee, task-key uniqueness, unchanged payload, routing validation, and zero duplicate tasks. Continue existing measurement, failure-repair, and security evidence work; do not add discretionary production work or duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No safe queue candidate is available this cycle. The only implementation candidate is blocked by an unresolved prior failure; fleet-doctor and operations evidence remain unavailable, and existing improvements are still measuring. Do not invent telemetry, claim ROI, authorize discretionary spend, or create duplicate evidence work.",
+        "summary": "Keep SearchWoot private. The prepared permission request remains an owner decision and must not be sent by this pass. No public exposure, alert expansion, credential change, configuration change, deployment, or spend is authorized until rights, privacy, security, accuracy, attribution, measurement, and owner gates are satisfied.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject additional queue work this cycle. Existing failures, pending measurement, and unavailable operations evidence materially constrain safe expansion. Preserve unknowns; do not claim revenue, ROI, margin, causal lift, or operational readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve the bounded Saltwater News task-routing metadata change only. Acceptance must verify assignee, task-key uniqueness, unchanged payload, routing validation, and zero duplicate tasks. Continue existing measurement, failure-repair, and security evidence work; do not add discretionary production work or duplicate telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep SearchWoot private. No public exposure, alert expansion, credential change, configuration change, deployment, or spend is authorized until rights, privacy, security, accuracy, attribution, measurement, and owner gates are satisfied.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve the bounded Saltwater News task-routing metadata change. Update only the assignee, preserve task history and payload, verify routing and task-key uniqueness, confirm zero duplicate tasks, and restore the prior assignee if validation fails.",
         "requested_action": null,
         "proposal_id": null
       }

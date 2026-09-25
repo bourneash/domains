@@ -2,36 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T19:05:48.018Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T21:06:41.860Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Keep the gated product private. Official upstream documentation confirms an API access mechanism but does not establish rights to store, derive, publicly display, cache, alert on, affiliate-link, or advertise the returned data; published terms indicate contrary restrictions. Human counsel is required for any interpretation of permission, commercial/public use, historical derivatives, trademarks, images, prices, alerts, or future monetization. No launch-readiness task is evidenced complete this cycle; none are closed. Ordinary low-risk fleet growth is not blocked solely by incomplete telemetry, but this gated product remains blocked by rights, privacy, security, accuracy, attribution, measurement, and owner gates.",
+        "summary": "Legal disposition: blocked for public beta or full launch. The Woot API data-use item is blocked because official API access does not establish rights to store, derive, display, cache, alert on, or monetize deal data, and current terms point against the proposed use. User alert rules and sync results: evidence_needed; next action is a read-only data inventory covering identifiers, retention, deletion, correction, access, delivery, consent, and unsubscribe behavior. GA4: evidence_needed; next action is capture deployed consent and withdrawal behavior plus GA4 property, data-sharing, retention, vendor, and jurisdiction evidence. Operational logs and Cloudflare data: evidence_needed; next action is a read-only log-field, retention, access, vendor/DPA, incident, and request-procedure inventory. Human counsel is required for upstream rights, jurisdiction-specific privacy treatment, and any future affiliate or advertising use. No legal checklist item is closed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Four listed tasks remain open: source rights, data-flow and retention, GA4 consent/settings, and logs/vendors/incident handling. No task is closed because the checklist contains no completed evidence for the required deliverables. The next evidence actions are: attach an authoritative permission record or current terms; produce the repository/deployed data-flow and retention table; capture deployed consent and GA4 configuration; and produce the operator/vendor/log inventory with counsel-required gaps.",
+        "summary": "Legal disposition: blocked for public beta or full launch. Official API access does not establish rights to store, derive, display, cache, alert on, or monetize deal data, and current terms point against the proposed use. Alert-data, GA4, and operational-log evidence remain needed. Human counsel is required for upstream rights and jurisdiction-specific privacy treatment.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Fleet compliance baseline is technical triage only: 35 sites pass, 18 fail, and 6 are unknown, with open banner, consent, GA4, privacy, and terms findings. These results do not certify compliance. Analytics and revenue attribution contain known gaps, but incomplete telemetry alone does not block ordinary growth; do not claim revenue, ROI, or attribution beyond the dated evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private launch gate pending rights, privacy, and control evidence",
-        "summary": "Keep the gated product private. Public upstream terms do not establish permission for the proposed public/commercial data product, and the checklist lacks evidence for data retention, deletion, correction, notification consent, GA4 settings, vendor coverage, incident handling, accuracy/freshness, security, measurement, and owner disposition.",
-        "requested_action": "Authorize only bounded read-only evidence work and internal draft preparation. Do not expose publicly, expand alerts, send the permission request, change credentials or configuration, deploy, spend, or activate affiliate/advertising use until the owner authorizes the next gate and human counsel resolves material rights and privacy uncertainty.",
         "proposal_id": null
       }
     ]
