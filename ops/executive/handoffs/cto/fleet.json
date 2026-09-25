@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-24T16:05:19.738Z",
+  "generated_at": "2026-09-25T02:24:20.750Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: repair the failed rc-9.com performance run before any requeue. Evidence: mobile performance 48, LCP 4,977ms, TBT 1,513ms; recent attempts failed in implementation and reviewer phases. Unknown: root cause and safe fix are not established. Smallest next step: inspect failure artifacts, document the smallest bounded patch, tests, and rollback, then explicitly requeue or close.",
+        "summary": "Recommendation: accept no new production or prototype work this cycle. Continue isolated measurement and failure-repair work, preserve rollback boundaries, and require build, smoke, review, and release evidence before any requeue. The current queue is safe to continue only within existing approved workstreams.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: accept only bounded read-only reconciliation and existing incident-repair work. Reject new production changes, high-priority queue work, dependency adoption, new spend, duplicate telemetry requests, and unsupported revenue, ROI, margin, or causal-lift claims. Repair the failed rc-9.com run in its existing isolated work item before any requeue; document root cause, smallest patch, validation, and rollback.",
+        "summary": "Reject new production, prototype, and high-priority queue work this cycle. Continue only already-approved isolated measurement and failure-repair work with build, smoke, review, release, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       }

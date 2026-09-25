@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-24T21:24:48.783Z",
+  "generated_at": "2026-09-25T02:24:20.750Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: approve only the bounded shoppinkflamingo.com readiness report and three normal-priority task-ownership repairs. Reject new production work, high-priority queue work, unsupported revenue or causal claims, and duplicate telemetry requests. Existing attribution is low-volume and records clicks without orders or commission; 17 improvements await measurement and failed repair work remains open. No owner decision is required this cycle.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "3d776699-7724-4bbb-ba21-ea16760a8470",
+        "summary": "Reject prototype authorization this cycle because existing work is unmeasured, attribution is incomplete, AI spend materially exceeds attributable commission, and no measurable production outcome is established.",
+        "requested_action": "declined",
+        "proposal_id": "3d776699-7724-4bbb-ba21-ea16760a8470"
       }
     ]
   }

@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-24T16:05:19.737Z",
+  "generated_at": "2026-09-25T02:24:20.749Z",
   "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep production changes paused this cycle and drain existing execution debt. Evidence: 0 proven improvements, 17 awaiting measurement, 141 approved proposals without execution, 11 failed-request repairs open, and $4.92 aggregate Amazon income unattributed for 2026-09-21. Unknown: causal lift and site-level revenue remain uncalculable. Smallest next steps are existing measurement and repair work. Owner decision: for SearchWoot, choose (A) keep private and prepare a draft Woot permission request, or (B) stop pursuing public beta; rights and legal, security, accuracy, and attribution gates remain blocked.",
+        "summary": "Recommendation: drain the existing execution and measurement backlog before adding site work. Evidence: 132 approved proposals lack execution requests, 23 deployed improvements await measurement, 13 failed-request repairs remain open, and 0 improvements are proven in the 30-day scorecard. I am preserving current queued/deployed work and not duplicating site tasks this cycle. Separately, SearchWoot remains private because Woot redistribution rights and legal, security, accuracy, and attribution gates are unresolved. Owner decision: choose (A) approve preparation of an unsent written Woot permission request, (B) keep private with no outreach, or (C) end the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep production changes paused this cycle and drain existing execution debt. Continue existing measurement and repair work only. SearchWoot remains private pending owner disposition and unresolved rights, legal, security, accuracy, and attribution gates.",
+        "summary": "Recommendation: drain the existing execution and measurement backlog before adding site work. Preserve current queued and deployed work without duplicating site tasks this cycle. SearchWoot remains private because source rights and legal, security, accuracy, and attribution gates are unresolved. Owner decision: approve an unsent permission request, keep private with no outreach, or end the public-beta pursuit.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain the private launch gate and drain existing execution debt. Evidence shows zero proven improvements, 17 awaiting measurement, 11 failed-request repairs open, partial revenue attribution with $4.92 aggregate income unassigned, and no support for ROI, margin, forecast, or causal-lift claims. Owner decision: will you choose between keeping the private preview while preparing a draft permission packet or ending the public-beta pursuit?",
+        "summary": "Drain existing execution, measurement, and failure-repair work before adding site work. Do not authorize unsupported revenue, ROI, causal-lift, or margin claims. Keep the gated product private while rights, legal, security, accuracy, attribution, measurement, and owner decisions remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       }

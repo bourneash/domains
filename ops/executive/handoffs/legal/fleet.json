@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-24T16:05:19.738Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T02:24:20.750Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta and full launch; keep private. Evidence shows the upstream public terms prohibit collection, use, derivative use, and public/commercial display of product listings, descriptions, and prices absent express written consent. API documentation proves access mechanics only, not redistribution rights. Security, accuracy/freshness, measurement, attribution, owner, and privacy evidence also remain incomplete. Recommendation: do not approve go-live, affiliate expansion, advertising, public display, or alert expansion. Prepare a draft permission request and counsel packet; obtain human counsel review before any external request or launch change. Launch-readiness tracking remains active: 0 of 4 tasks closed; all four remain open because required evidence is not attached.",
+        "summary": "Risk disposition: BLOCKED for SearchWoot public beta or full launch; CONDITIONAL for ordinary reversible fleet growth outside that gated product. The authoritative checklist shows Woot's public terms do not establish rights to store, derive, publicly display, cache, alert on, affiliate-monetize, or advertise returned data. Accuracy/freshness, security, measurement/attribution, owner, privacy, and vendor evidence also remain incomplete. Keep SearchWoot private. Next evidence action: complete a read-only data-flow, retention, consent/configuration, vendor, and incident evidence matrix, then obtain owner direction on whether to prepare an unsent written permission request to Woot. This is risk triage, not legal advice or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data—blocked because current terms conflict with proposed storage, derivatives, public display, caching, alerts, and monetization; missing written permission, field-level rights, attribution, freshness, correction, and takedown rules. User alert rules and sync results—evidence_needed; repository evidence is insufficient for retention, deletion, access, correction, processor, notification consent, and unsubscribe controls. GA4 analytics—evidence_needed; privacy and cookie pages exist, but deployed consent behavior, withdrawal, GA4 property/data-sharing settings, retention, vendor disclosure, and jurisdiction review are not evidenced. Operational logs and Cloudflare data—evidence_needed; log fields, retention/access controls, vendor terms or DPA coverage, incident handling, and data-subject request procedures are not evidenced. No item supports go-live approval.",
+        "summary": "Launch-readiness progress: 0 of 4 open checklist tasks are closed because no task has complete supporting evidence. Source-rights task remains blocked by contrary public terms and missing written permission. Data-flow, GA4-consent, and logs/vendors tasks remain open with partial repository or policy evidence only. No task is closed based on telemetry absence, and no unsupported legal or revenue conclusion is recorded.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Fleet compliance disposition: do not block ordinary reversible growth solely for incomplete telemetry. The compliance baseline records 35 passes, 13 fails, and 11 unknowns across 59 sites, with open banner, consent, GA4, privacy, and terms findings. Private or gated properties require an explicit launch decision and checklist; SearchWoot remains private. DNS-unreachable scaffold sites and timeout results remain unknown, not passes or legal violations.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private. Public exposure, outreach, credential changes, configuration changes, spending, and alert expansion remain unauthorized while source rights and launch evidence are incomplete.",
         "requested_action": null,
         "proposal_id": null
       }
