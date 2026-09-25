@@ -2,23 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T11:57:50.071Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T15:08:22.409Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: freeze incremental AI, infrastructure, third-party adoption, and revenue forecasts until finance-grade attribution and cost coverage are available. Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all $4.92 is an aggregate row with no site assignment; named site rows show $0 commission. AI usage cost is $921.96 across 5,093 calls from 2026-09-01 through 2026-09-25, with 0 proven improvements and 2 measured outcomes marked inconclusive. Contribution margin, ROI, cost-to-learn, infrastructure spend, and budget exposure are not calculable because periods do not align, site revenue is unattributed, and infrastructure, domain, labor, and other operating costs are absent. Approve report-only reconciliation work; authorize no new spend or monetization claims.",
+        "summary": "Financial recommendation: approve only bounded report-only finance work and repair-or-close review; pause new discretionary production queues until attribution, contribution margin, and cost-to-learn are measurable. For 2026-09-21, Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but all commission is in an aggregate row and site-attributed income is $0. From 2026-09-01 through 2026-09-25, AI usage cost is $921.96 across 5,093 calls, with 230 errors, while the scorecard records 0 proven outcomes. Revenue-to-cost ROI, contribution margin, and cost-to-learn are not calculable because revenue covers only one day, $4.92 is unattributed, fixed infrastructure costs and monthly budget limits are blank, and experiment outcomes are unproven. Minimum measurement: daily site/content-level revenue and commission attribution, shipped-item revenue, infrastructure invoices, and experiment-level incremental outcomes over a defined window.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Pushback: impressions, clicks, sessions, SEO actions, repository stars, and opportunity scores are not financial outcomes. The fleet has 102 SEO actions, 13,811 impressions, 138 clicks, 984 sessions, and 15 conversions, but no attributable revenue or contribution margin is established. Do not use these metrics to justify forecasts, third-party adoption, or additional AI spend.",
+        "summary": "The rc-9.com repair-or-close recommendation is financially sound. Existing evidence shows mobile performance 48, LCP 4,977ms, and TBT 1,513ms, but no repair cost, incremental revenue effect, or attribution evidence. Authorize read-only artifact review and require an explicit repair-or-close disposition before requeue. Do not claim financial benefit from the candidate performance score of 70 or TBT of 1,831ms; those are technical signals only.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9",
+        "summary": "Escalate only as a bounded, reversible test. The 61 clicks, 0 ordered items, and $0 named commission on 2026-09-21 do not support a revenue forecast or positive ROI claim. Preserve the tracking ID and require measured ordered items, shipped items, commission, and implementation cost before generalizing.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9"
       }
     ]
   }

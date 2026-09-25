@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T11:57:50.071Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T15:08:22.410Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only bounded, read-only finance reconciliation and existing backlog repair. Do not adopt third-party repositories or authorize new spend, production prototypes, or monetization changes. Current execution capacity is constrained by 123 approved proposals without execution, 12 failed requests, 23 repair follow-ups, and unavailable fleet-doctor and operations sweeps.",
+        "summary": "Approve only bounded read-only artifact review for the existing rc-9.com performance failure. Do not requeue or deploy until root cause, smallest isolated repair, focused validation, rollback, and owner disposition are documented. Existing mobile performance 48, LCP 4,977ms, and TBT 1,513ms are technical signals only; no revenue or causal benefit is established.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The reviewtattoo.com task-routing repair is technically feasible, isolated, reversible, and safe to enter the existing engineer queue. Scope must remain limited to ownership metadata and the PYSCORE ENOENT/import-error guard, with focused validation and no site, credential, deployment, or telemetry changes.",
+        "summary": "Keep the private product gate unchanged. Rights, security, accuracy, attribution, measurement, and owner gates remain incomplete; authorize only bounded read-only evidence capture and internal draft work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed third-party prototypes this cycle. Repository-lab evidence supports research only; runtime compatibility, dependency maintenance, security posture, performance impact, measurable baseline, and rollback remain unverified. Preserve the leads for a later owner-approved disposable prototype.",
+        "summary": "Pause new discretionary production queue expansion. The fleet has 18 failed requests, 29 repair work items, 24 improvements awaiting measurement, 140 approved proposals without execution requests, unavailable operations sweeps, and 0 proven outcomes. Existing measurement and failure-repair work should drain before additional implementation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The proposed finance reports are technically feasible as read-only analyses using existing snapshots. Approve them without new telemetry requests, configuration changes, credentials, spending, or revenue inference. Preserve aggregate commission and unavailable cost fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

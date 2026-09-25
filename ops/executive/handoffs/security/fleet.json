@@ -2,37 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T11:57:50.071Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T15:08:22.410Z",
+  "summary": "security checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide assurance, conditional for ordinary reversible growth, and blocked for SearchWoot public beta or full launch. Concrete evidence: fleet-doctor is unavailable; operations deploy and uptime sweeps are absent; all 59 security legal-family facts are unknown; no TLS expirations are reported, but certificate coverage is not evidenced; access boundaries, secret handling, container isolation, dependency provenance, data exposure, incident handling, and disclosure readiness are not evidenced. These are evidence gaps, not confirmed vulnerabilities. Severity is medium for fleet-wide assurance and high for public-launch decision impact. Recommendation: continue only reversible work that passes existing preview, build, smoke, compliance, review, and rollback gates; maintain the private launch gate; complete bounded read-only evidence capture without retrieving credentials, exploiting targets, changing production, or treating missing data as a pass.",
+        "summary": "Security disposition: evidence_needed for the fleet and blocked for security-sensitive public launch. Fleet-doctor and operations sweeps are unavailable, so authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident response, and disclosure readiness are unverified. Compliance records 37 pass, 16 fail, and 6 unknown sites; TLS has no certificates expiring within 30 days, but this is not proof of complete TLS coverage. Ordinary reversible growth may continue conditionally where site-specific compliance and release evidence exist. Do not claim certification or a clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Existing operational signals increase review priority but do not prove compromise: 12 failed implementation requests, 23 open repair follow-ups, 65 retained executive tick failures, and unavailable fleet-doctor and operations sweeps. Continue containment and repair of existing failures before requeue; do not block ordinary growth solely for optional hardening where required release and rollback gates pass.",
+        "summary": "SearchWoot security decision: blocked for public beta and full launch. Evidence confirms incomplete access-boundary, secret-handling, data-flow, logging, vendor, incident, release, TLS, dependency, and disclosure controls, alongside unresolved source-rights and privacy gates. Authorize only bounded read-only evidence capture and internal draft work; do not expose publicly, expand alerts, change credentials, deploy, or send external permission requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Existing failed implementation work must remain contained. The snapshot records 18 failed requests, 29 repair work items, unavailable operations sweeps, and 0 proven outcomes. Security recommends artifact review and explicit repair-or-close decisions before requeue; no new production queue expansion is justified by the current evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Capture fleet security control evidence and maintain private launch gate",
-        "summary": "Complete a bounded, read-only evidence matrix for access boundaries, secrets exposure, runtime isolation, release controls, TLS coverage, dependencies, data exposure, incident handling, and disclosure readiness. Preserve the private launch gate and record unknowns explicitly.",
-        "requested_action": "Approve bounded read-only evidence closure and maintain the private launch gate. Authorize no public exposure, credentials, configuration changes, deployment, alert expansion, outreach, or external spend.",
-        "proposal_id": "73f96cc3-d99f-4b8b-9d84-6e5b672d23a6"
+        "title": "Capture fleet security control evidence and maintain evidence-needed disposition",
+        "summary": "Complete bounded read-only evidence capture for authentication, access boundaries, secrets exposure, runtime isolation, release controls, TLS, dependencies, data exposure, incident signals, and disclosure readiness. Preserve unknowns where fleet-doctor or operations evidence is unavailable.",
+        "requested_action": "Review authorized metadata and retained artifacts only. Document timestamps, owners, affected sites, release implications, and exact unknowns. Do not retrieve credentials, access private containers, exploit targets, modify permissions, deploy, or request duplicate telemetry.",
+        "proposal_id": "cc535d71-cefc-4a84-96c9-e859292101bb"
       },
       {
-        "kind": "proposal-review",
-        "title": "security-2026-09-25-fleet-evidence-closure",
-        "summary": "Approve bounded read-only security evidence closure and maintain the private launch gate. Fleet-wide assurance remains unevidenced because fleet-doctor and operations sweeps are unavailable and access, secrets, isolation, release, TLS, dependency, data-exposure, incident, and disclosure controls are not demonstrated. No public launch or security clearance is recommended.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "security-2026-09-25-fleet-evidence-closure"
+        "kind": "proposal",
+        "title": "Maintain private security gate for the gated product",
+        "summary": "Keep the product private while rights, privacy, security, accuracy, attribution, measurement, and owner evidence remain incomplete.",
+        "requested_action": "Permit only bounded read-only evidence work and internal draft preparation. Do not expose publicly, expand alerts, change credentials or configuration, deploy, spend money, or send external permission requests without owner approval.",
+        "proposal_id": "2f1e1058-3a90-49ee-987e-cfe681f38ced"
       }
     ]
   }

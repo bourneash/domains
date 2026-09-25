@@ -2,72 +2,72 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T11:57:50.071Z",
+  "generated_at": "2026-09-25T15:08:22.410Z",
   "summary": "legal checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for ordinary reversible fleet growth; blocked for SearchWoot public beta or full launch. Compliance is a technical baseline, not legal certification: 37 sites pass, 16 fail, and 6 are unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics and revenue gaps do not independently block ordinary growth, but no unsupported legal, revenue, ROI, attribution, or security claims are permitted. SearchWoot must remain private because source rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete.",
+        "summary": "Risk disposition: conditional for ordinary operation and evidence-only work; blocked for SearchWoot public beta or full launch; counsel_required for upstream data rights, public redistribution, affiliate/advertising use, and jurisdiction-specific privacy decisions. Evidence: compliance baseline has 37 pass, 16 fail, and 6 unknown sites; analytics is configured for 39 sites but has source-permission errors; revenue includes 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission; operations and fleet-doctor sweeps are unavailable. Recommendation: continue compliant live-site operation and reversible growth where disclosures and rights are evidenced, do not treat incomplete telemetry as zero, keep SearchWoot private, and require human counsel plus owner decision before any public data exposure or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: no task is closed. All four SearchWoot tasks remain open because the required evidence is not attached. The next evidence actions are: prepare an unsent Woot permission request and counsel packet; produce a repository/configuration data-flow and retention table; capture deployed consent, withdrawal, and GA4 settings; and inventory logs, vendors, retention, access, incident, and data-request procedures.",
+        "summary": "SearchWoot launch decision: blocked and counsel_required. Woot documentation confirms API access but does not confirm storage, historical derivatives, public display, caching, alerts, affiliate use, or advertising rights; current public terms restrict commercial/public collection and derivative use. Keep private. Next evidence action: attach the authoritative API terms or written permission, then have human counsel determine permitted fields, retention, display, alerts, attribution, freshness, correction, and takedown rules. Do not send outreach or change the gate without owner approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue evidence is partial and must remain unattributed where the provider supplies only an aggregate row: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, with all commission in the aggregate tracking row. Do not allocate it by clicks or site share. AI usage is $921.96 for 2026-09-01 through 2026-09-25; cost, margin, and ROI are not calculable because periods and cost coverage do not align.",
+        "summary": "Launch-readiness tracking remains active. No checklist task is closed because no task has complete evidence. Progress: source-rights evidence is documented as blocked; data-flow evidence is partial from backend/api/main.py, backend/services/fetcher.py, and config.yml; privacy/cookie documents exist; GA4 settings, retention, vendor/DPA, deletion, correction, incident, and jurisdiction evidence remain open. Next evidence actions are a read-only data-flow/retention table, consent/configuration capture, and vendor/log inventory.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Site and operations evidence supports only conditional growth: 39 live sites, 19 scaffold sites, 39 analytics-configured sites, 37 GSC-ready sites, and unavailable fleet-doctor and operations sweeps. Private or unreachable sites require a concrete launch decision and checklist before exposure. Missing telemetry is not treated as zero and does not by itself block reversible growth.",
+        "summary": "Fleet compliance decision: do not block ordinary growth solely because telemetry is incomplete. However, the 16 compliance failures and 6 unknown results require site-specific remediation or a concrete keep-private decision before public launch, affiliate expansion, or advertising. Unknown reachability for parked/scaffolded sites is not a pass. No legal certification is issued.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "cro-2026-09-25-markitdown-content-prototype",
-        "summary": "No legal blocker to isolated research on the stated MIT evidence, but this is not adoption approval. Preserve license and bundled-asset evidence, avoid trademark or copyright claims, and require CTO security, dependency, performance, accessibility, measurement, and rollback review before any implementation.",
+        "title": "cfo-attribution-reconciliation-2026-09-25",
+        "summary": "Approve bounded reconciliation using existing evidence. Preserve the $4.92 aggregate commission as unattributed and make no ROI, revenue, or causal claims.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-attribution-reconciliation-2026-09-25"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-ai-cost-to-learn-review-2026-09-25",
+        "summary": "Approve report-only analysis. Cost per proven outcome remains unavailable because the scorecard records zero proven outcomes.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-ai-cost-to-learn-review-2026-09-25"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-budget-exposure-baseline-2026-09-25",
+        "summary": "Approve inventory of known and unknown costs only. Do not infer margin, payback, or budget authorization.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-budget-exposure-baseline-2026-09-25"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9d",
+        "summary": "Do not queue until affiliate disclosure placement, tracking-ID provenance, product claims, and applicable platform terms are evidenced. Existing clicks do not establish revenue or compliance.",
         "requested_action": "escalate_owner",
-        "proposal_id": "cro-2026-09-25-markitdown-content-prototype"
+        "proposal_id": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9d"
       },
       {
         "kind": "proposal-review",
-        "title": "cro-2026-09-25-shadcn-component-prototype",
-        "summary": "Conditional research only. The stated MIT evidence supports a fixture-only prototype, not production use. Require license, asset, trademark, dependency, security, accessibility, performance, measurement, and rollback evidence before adoption.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "cro-2026-09-25-shadcn-component-prototype"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-2026-09-25-attribution-reconciliation",
-        "summary": "Report-only reconciliation is permissible using existing evidence, provided aggregate commission remains unattributed, missing costs remain unknown, and no financial, ROI, or causal claim is made.",
+        "title": "cto-rc9-repair-or-close-2026-09-25",
+        "summary": "Read-only artifact review is clear. Do not requeue or deploy until root cause, validation, rollback, and owner disposition are evidenced; no revenue or causal claim is permitted.",
         "requested_action": "accepted_research",
-        "proposal_id": "cfo-2026-09-25-attribution-reconciliation"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-2026-09-25-ai-cost-to-learn-review",
-        "summary": "Report-only review is permissible. Do not treat call volume, token volume, impressions, repository stars, or opportunity scores as financial outcomes or justification for new spend.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cfo-2026-09-25-ai-cost-to-learn-review"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-2026-09-25-infrastructure-cost-coverage-gap",
-        "summary": "Report-only cost-coverage inventory is permissible. Missing cost fields must remain unknown and allocation rules require owner approval before margin reporting.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cfo-2026-09-25-infrastructure-cost-coverage-gap"
+        "proposal_id": "cto-rc9-repair-or-close-2026-09-25"
       }
     ]
   }
