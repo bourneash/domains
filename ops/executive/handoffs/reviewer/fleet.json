@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:54:07.569Z",
+  "generated_at": "2026-09-25T02:56:25.173Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the failbunny.com assessment and authorize no new production or queue work this cycle. Existing telemetry already covers the requested evidence classes, while missing analytics and attribution prevent financial or causal claims. Continue only existing measurement, failure repair, and bounded revalidation work. Should this cycle remain limited to those existing workstreams?",
+        "summary": "Recommendation: reject all new production, queue, financial, and readiness proposals this cycle. Continue only existing measurement gates, failed-request repairs, the private launch gate, and bounded revalidation of the existing broadwayshowgirls.com improvement; do not claim revenue, ROI, attribution, or causal lift. The snapshot records zero proven outcomes, 24 improvements awaiting measurement, and 8 failed implementation requests. Owner decision: authorize the existing bounded revalidation only?",
         "requested_action": null,
         "proposal_id": null
       }
