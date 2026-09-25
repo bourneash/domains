@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:41:48.534Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T16:10:00.145Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Review wetslit.com measurement and monetization readiness",
-        "summary": "Produce a bounded, read-only assessment of wetslit.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Analytics is configured with healthy GA4 and GSC status in the authoritative snapshot; preserve unavailable audience, traffic, revenue, conversion, attribution, SEO, health, and cost fields as unknown. Do not infer telemetry, ROI, or causal lift.",
-        "requested_action": "Approve one report-only assessment using existing evidence only. Acceptance requires a timestamped artifact covering observable audience and content positioning, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Follow-up is limited to documenting one evidence-backed next action or blocker; do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "bc9c583c-4518-472b-993f-dab02821580c"
-      }
-    ]
+    "report_id": "7b843159-220d-4b3a-bf68-baef3ed09a79",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 6,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
