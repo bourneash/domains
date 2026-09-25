@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T09:05:37.633Z",
+  "generated_at": "2026-09-25T09:10:34.943Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run mynewgm.com audience, monetization, health, and measurement readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of mynewgm.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Analytics is recorded as not configured, so traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced.",
-        "requested_action": "Approve the report-only assessment using existing evidence only. Do not deploy, change credentials or configuration, spend money, or alter production.",
-        "proposal_id": "00a96db5-e985-47c1-a437-37f87268a294"
+        "title": "Run nsfwpixles.com measurement and health boundary assessment",
+        "summary": "Produce a bounded, read-only assessment of nsfwpixles.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, and AI-usage evidence. Analytics is not configured and public research returned an HTTP error; traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced.",
+        "requested_action": "Approve only the bounded report-only assessment using existing evidence. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim revenue, ROI, or causal lift.",
+        "proposal_id": "1b4ce1cd-e7cf-4360-a9c5-af21ccd12120"
       }
     ]
   }
