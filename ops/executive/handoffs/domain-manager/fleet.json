@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:08:40.920Z",
+  "generated_at": "2026-09-25T03:38:01.839Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run nsfwpixels.com measurement and activation readiness baseline",
-        "summary": "Produce a bounded, read-only site assessment using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The authoritative snapshot records nsfwpixels.com analytics as not configured; traffic, revenue, conversions, attribution, SEO, and health fields must remain unknown unless directly evidenced.",
-        "requested_action": "Approve only the bounded report-only assessment using existing evidence; preserve unavailable fields as unknown.",
-        "proposal_id": "963648b7-7425-4a67-bbd4-433d26287a3f"
+        "title": "Run wetpages.com audience, monetization, health, and backlog readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of wetpages.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Document observable audience and content positioning, conversion paths, monetization readiness, health, backlog priorities, and measurement boundaries. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and cost fields as unknown; do not infer telemetry, ROI, or causal lift.",
+        "requested_action": "Approve the bounded report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "ce68bddf-6448-4848-a306-d5d93c92edd9"
       }
     ]
   }

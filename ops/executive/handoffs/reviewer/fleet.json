@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:31:43.917Z",
+  "generated_at": "2026-09-25T03:38:01.839Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new production, queue, financial, revenue, attribution, and causal-lift work this cycle. Continue only existing measurement gates, failed-request repair or closure, the private launch gate, and bounded read-only review or revalidation of existing work. Evidence: zero proven outcomes, 24 improvements awaiting measurement, 8 failed implementation requests, 19 repair items, and the only fresh candidate has 77 impressions, 0 clicks, 0 sessions, and 0 conversions. The reported $4.92 commission is aggregate and unattributed; do not infer site revenue, ROI, or causal lift. Owner decision: authorize only these existing bounded workstreams this cycle?",
+        "summary": "Recommendation: reject the proposed wetpages.com readiness report and authorize no new production, queue, financial, attribution, or causal-lift work this cycle. Existing telemetry is low-volume, aggregate commission is unattributed, zero improvements are proven, and measurement plus failed-request repair work remains open. Continue only existing measurement gates, failed-request repair or closure, private-gate controls, and bounded read-only revalidation. Decision: authorize only those existing bounded workstreams this cycle?",
         "requested_action": null,
         "proposal_id": null
       }
