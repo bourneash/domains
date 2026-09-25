@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:41:54.272Z",
-  "summary": "domain-manager checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T14:44:36.632Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "arttogogh.com is live with GA4 available, but Google Search Console access is failing with HTTP 403; affiliate capability is not recorded, and site-level revenue is unavailable. Recommend a bounded evidence-only readiness assessment using existing snapshot data.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
         "kind": "proposal",
-        "title": "Run arttogogh.com audience, monetization, health, and measurement readiness baseline",
-        "summary": "Assess arttogogh.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Preserve unavailable traffic, revenue, conversion, attribution, SEO, affiliate, and operational fields as unknown; record the observed Google Search Console permission error without treating it as zero telemetry.",
-        "requested_action": "Approve a bounded read-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue, ROI, or causal lift.",
-        "proposal_id": "ae1ea6d3-cb09-4730-b703-af0cd0e55490"
+        "title": "Run complicated.work parked-domain disposition and readiness assessment",
+        "summary": "Produce a bounded, read-only assessment of complicated.work using existing registry, analytics, compliance, and lifecycle evidence. The site is scaffolded, parked for 123 days, has analytics not configured, and its latest compliance check is unreachable; preserve all unavailable audience, revenue, conversion, SEO, and operational fields as unknown.",
+        "requested_action": "Approve an evidence-only report to document whether complicated.work should remain parked or receive an owner-approved activation plan. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer audience, revenue, ROI, or readiness.",
+        "proposal_id": "70a03287-beb0-4627-bd9c-dc99c226f5bb"
       }
     ]
   }
