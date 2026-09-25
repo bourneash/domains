@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T19:05:48.018Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-25T20:42:09.172Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue work, production proposals, discretionary spend, unsupported revenue or ROI claims, duplicate evidence requests, and launch changes. Continue only existing measurement windows, failed-request repair/containment, bounded security evidence, and the private launch gate. Site-attributed revenue is $0; aggregate commission is $4.92 for 2026-09-21 and cannot support site economics. The rc-9.com repair remains blocked pending root cause, isolated validation, and rollback evidence. Owner action is limited to deciding whether to authorize the prepared permission request; until then, read-only evidence and internal drafting only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No research request retained this cycle. Existing telemetry and launch evidence cover the available gaps, while additional requests would duplicate shared contracts or fail to produce an actionable production-safe outcome.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, launch, spending, credential, configuration, and duplicate-telemetry claims. Keep the gated product private. Preserve the existing security and measurement commitments; do not duplicate them. Queue only the bounded reversible SEO changes below. rc-9.com remains blocked by its unresolved prior failure; trainingsharks.com CLS repair remains blocked by reviewer rejection. Aggregate commission is not site-attributable, so no financial outcome is claimed.",
+        "summary": "Rejected the unsupported 0xroulette report-only proposal and all production/growth work lacking a measurable outcome. Revenue remains site-unattributed ($0 site-attributed commission; $4.92 aggregate cannot support site economics). Only one safe candidate remains actionable: reversible task-routing metadata work for saltwaternews.com. rc-9.com is blocked by unresolved prior failure; trainingsharks.com is blocked by reviewer rejection; other candidates duplicate active measurement or queued work. Existing measurement, failed-request repair, bounded security evidence, and private launch gates continue unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

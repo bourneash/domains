@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T19:05:48.017Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T20:42:09.173Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: drain existing execution and measurement backlog before creating new ideas. Evidence: 24 improvements await measurement, 0 are proven, 35 requests failed, 44 failure follow-ups remain open, and 153 approved proposals lack execution. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 orders, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0, so ROI is not calculable. The only current implementation candidate, rc-9.com performance repair, is blocked by an unresolved prior failure. Continue measurement, repair existing failures, and keep SearchWoot private. Owner decision: authorize sending the prepared Woot permission request; until then, drafting and read-only evidence work only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve the existing safe disposition and do not requeue rc-9.com until the failure artifact has a documented root cause, isolated repair, validation, and rollback. The candidate baseline is mobile performance 48, LCP 4,977ms, and TBT 1,513ms. Smallest next step: principal-engineer completes the existing repair-or-close review.",
+        "summary": "Recommendation: execute the 2 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       }
