@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-24T22:10:00.152Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-25T02:30:38.746Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "d3d72115-adbd-4314-84a7-48f1b9d28f46",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 7,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "message",
+        "title": "Run seedstosauce.com audience, monetization, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of seedstosauce.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Document observable audience and content positioning, conversion paths, monetization readiness, health, backlog priorities, and measurement boundaries. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and operational fields as unknown; do not infer telemetry, revenue, ROI, or causal lift.",
+        "requested_action": "Approve the bounded report-only assessment using existing evidence only.",
+        "proposal_id": "4cedf2eb-ba32-4036-b002-4e2a75b1fbb5"
+      }
+    ]
   }
 }
