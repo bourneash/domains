@@ -6,7 +6,7 @@ datahub-images-api:4770 + vpn-us/vpn-eu:8888 on the vpn-proxy_default network).
 Stdlib only. Posts to Slack ONLY on a status change (bit-flip), like fleet-smoke.
 
 Checks (severity):
-  1. API /health reachable + db:true .......................... CRITICAL
+  1. API /ready reachable + db:true ........................... CRITICAL
   2. >=1 VPN exit reported by /health ......................... CRITICAL (both) / WARNING (one)
   3. VPN INTEGRITY — the load-bearing one:
        DIRECT_IP  = our real public egress (no proxy)
@@ -102,32 +102,34 @@ def run_checks():
     def add(sev, msg):
         findings.append((sev, msg))
 
-    # 1. API + DB
-    # /health now probes each VPN exit across a fallback chain of IP-echo
-    # services (see vpn.probe_exit_ip) run concurrently per exit, so a fully
-    # dead exit can take longer than the old single-URL probe did. Give it
-    # more headroom than the default 12s so that worst case doesn't get
-    # mistaken for "API /health unreachable" instead of the more useful
-    # per-exit finding.
-    health = None
+    # 1. Local API + DB. This endpoint never waits for external VPN IP-echo
+    # services, so their failure cannot be mistaken for an API outage.
     try:
-        health = _get(f"{BROKER}/health", timeout=30)
-        if not health.get("db", False):
-            add(CRITICAL, "DB not reachable (health.db=false)")
+        ready = _get(f"{BROKER}/ready", timeout=5)
+        if not ready.get("db", False):
+            add(CRITICAL, "DB not reachable (ready.db=false)")
     except Exception as e:
-        add(CRITICAL, f"API /health unreachable: {e}")
+        add(CRITICAL, f"API /ready unreachable: {e}")
         return findings  # nothing else will work
 
-    # 2. VPN exits per the broker's own probe
-    vpn = health.get("vpn")
-    if not isinstance(vpn, dict):  # tolerate a malformed/absent vpn field, never crash
-        vpn = {}
-    up = [k for k, v in vpn.items() if v]
-    if not up:
-        add(CRITICAL, "no VPN exit is up (health.vpn all null) — sourcing is dead")
-    elif len(up) < len([k for k in vpn]):
-        down = [k for k, v in vpn.items() if not v]
-        add(WARNING, f"VPN exit(s) down: {', '.join(down)} (still have {', '.join(up)})")
+    # /health includes slow external VPN probes. Keep other checks running if
+    # those probes time out; the independent egress check below still detects
+    # dead exits and leaks.
+    health = ready
+    vpn = {}
+    try:
+        health = _get(f"{BROKER}/health", timeout=30)
+        vpn = health.get("vpn")
+        if not isinstance(vpn, dict):
+            vpn = {}
+        up = [k for k, v in vpn.items() if v]
+        if not up:
+            add(CRITICAL, "no VPN exit is up (health.vpn all null) — sourcing is dead")
+        elif len(up) < len(vpn):
+            down = [k for k, v in vpn.items() if not v]
+            add(WARNING, f"VPN exit(s) down: {', '.join(down)} (still have {', '.join(up)})")
+    except Exception as e:
+        add(WARNING, f"broker VPN status probe unavailable while API is ready: {e}")
 
     # 3. VPN INTEGRITY — dynamic leak check independent of the broker. Probe
     # every exit so a healthy EU fallback does not get escalated to CRITICAL
@@ -153,7 +155,7 @@ def run_checks():
     # rows at all, which used to false-page this check every ~90-120min on a
     # perfectly healthy collector. /health.last_cycle_at is a heartbeat the
     # collector writes at the end of every cycle regardless of fetch activity.
-    last_cycle_at = health.get("last_cycle_at")
+    last_cycle_at = ready.get("last_cycle_at")
     if last_cycle_at:
         try:
             from datetime import datetime, timezone
@@ -234,13 +236,18 @@ def load_state():
         return {"status": OK}
 
 
-def save_state(status, findings):
+def save_state(status, findings, pending_status=None):
     try:
         with open(STATE_PATH, "w") as f:
-            json.dump({"status": status, "at": time.time(),
-                       "findings": [f"{s}:{m}" for s, m in findings]}, f, indent=2)
+            state = {"status": status, "at": time.time(),
+                     "findings": [f"{s}:{m}" for s, m in findings]}
+            if pending_status:
+                state["pending_status"] = pending_status
+            json.dump(state, f, indent=2)
+        return True
     except Exception as e:
         print("[monitor] could not write state:", e)
+        return False
 
 
 def main():
@@ -259,7 +266,15 @@ def main():
         print(msg)
         return 0 if status == OK else 1
 
-    prev = load_state().get("status", OK)
+    state = load_state()
+    prev = state.get("status", OK)
+    # A single warning sample often reflects a brief echo-service or VPN blip.
+    # Confirm on the next tick before paging. Critical findings, including VPN
+    # bypass/leak and loss of every exit, still page immediately.
+    if prev == OK and status == WARNING and state.get("pending_status") != WARNING:
+        if save_state(OK, findings, pending_status=WARNING):
+            print("[monitor] warning pending confirmation on next tick")
+            return 1
     # Bit-flip: post when we leave OK (problem) or return to OK (recovery).
     if status != prev:
         delivered = post_slack(format_msg(OK, []) if status == OK else msg)

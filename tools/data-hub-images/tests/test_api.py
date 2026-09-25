@@ -50,6 +50,18 @@ def test_health_shape(tmp_path):
     assert body["last_cycle_at"] is None
 
 
+def test_ready_does_not_probe_vpn(tmp_path, monkeypatch):
+    st = _seeded(tmp_path)
+    st.proxy_us = "http://vpn-us:8888"
+    monkeypatch.setattr(api.vpn, "probe_exit_ip", lambda *a, **k: (_ for _ in ()).throw(AssertionError("VPN probed")))
+    app = api.create_app(st, sources=[])
+    ready = next(route.endpoint for route in app.routes if route.path == "/ready")
+    body = ready()
+    assert body["ok"] is True
+    assert body["db"] is True
+    assert body["last_cycle_at"] is None
+
+
 def test_health_reports_collector_heartbeat(tmp_path):
     st = _seeded(tmp_path)
     conn = store.connect(st.db_path)

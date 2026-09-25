@@ -5,6 +5,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
+python3 "$ROOT/tools/cron-roles/tests/test_build_lock_contract.py" \
+  || fail "fleet build-lock contract failed"
+
 principals=("$ROOT"/sites/*/ops/scripts/principal-engineer.sh)
 deployers=("$ROOT"/sites/*/ops/scripts/run-deployer.sh)
 watchdogs=("$ROOT"/sites/*/ops/scripts/watchdog.sh)

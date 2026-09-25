@@ -226,6 +226,21 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
         except Exception:
             return None
 
+    @app.get("/ready")
+    def ready():
+        """Local API and database readiness, independent of external VPN probes."""
+        try:
+            conn.execute("SELECT 1")
+            db_ok = True
+        except Exception:
+            db_ok = False
+        try:
+            last_cycle_at = store.get_heartbeat(conn)
+        except Exception:
+            last_cycle_at = None
+        return {"ok": db_ok, "db": db_ok, "last_cycle_at": last_cycle_at,
+                "generated_at": _now()}
+
     @app.get("/health")
     def health():
         # us/eu probes now fall back across multiple IP-echo services (see
@@ -237,15 +252,9 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
             eu_fut = pool.submit(_probe, settings.proxy_eu)
             us = us_fut.result()
             eu = eu_fut.result()
-        try:
-            conn.execute("SELECT 1")
-            db_ok = True
-        except Exception:
-            db_ok = False
-        try:
-            last_cycle_at = store.get_heartbeat(conn)
-        except Exception:
-            last_cycle_at = None
+        local = ready()
+        db_ok = local["db"]
+        last_cycle_at = local["last_cycle_at"]
         return {
             "ok": db_ok and bool(us or eu),
             "vpn": {"us": us, "eu": eu},
