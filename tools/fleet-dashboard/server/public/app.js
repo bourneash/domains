@@ -11107,9 +11107,10 @@ let CHANGE_QUEUE_DETAIL = null;
 let CHANGE_QUEUE_RENDERING = false;
 let CHANGE_QUEUE_PAGE = 1;
 let CHANGE_QUEUE_PAGE_SIZE = 10;
-let CHANGE_QUEUE_SORT = 'created_at';
+let CHANGE_QUEUE_SORT = 'urgency';
 let CHANGE_QUEUE_SORT_DIR = 'desc';
 let CHANGE_QUEUE_OWNER = 'all';
+let CHANGE_QUEUE_VIEW = 'attention';
 let CHANGE_QUEUE_NEXT_PICKUP_AT = 0;
 let CHANGE_QUEUE_CLOCK = null;
 
@@ -11219,6 +11220,21 @@ async function renderChangeQueue({ background = false } = {}) {
       Date.now() - new Date(r.created_at || 0).getTime() >
       Math.max(10, Number(data.settings.interval_minutes || 1) * 2) * 60000
   );
+  const isStale = r =>
+    r.status === 'queued' &&
+    Date.now() - new Date(r.created_at || 0).getTime() >
+      Math.max(10, Number(data.settings.interval_minutes || 1) * 2) * 60000;
+  const isOpen = r => !['deployed', 'verified', 'committed', 'cancelled'].includes(r.status);
+  const viewMatches = r => {
+    if (CHANGE_QUEUE_VIEW === 'all') return true;
+    if (CHANGE_QUEUE_VIEW === 'queued') return r.status === 'queued';
+    if (CHANGE_QUEUE_VIEW === 'active')
+      return ['claimed', 'running', 'reviewing', 'review'].includes(r.status);
+    if (CHANGE_QUEUE_VIEW === 'failed') return r.status === 'failed';
+    if (CHANGE_QUEUE_VIEW === 'shipped')
+      return ['deployed', 'verified', 'committed'].includes(r.status);
+    return r.status === 'failed' || isStale(r) || (r.priority === 'high' && isOpen(r));
+  };
   const health = !data.settings.enabled
     ? ['Paused', 'warn']
     : staleQueued.length
@@ -11236,6 +11252,7 @@ async function renderChangeQueue({ background = false } = {}) {
     .join('');
   const sites = [...new Set(requests.map(r => r.site))].sort();
   const matches = r =>
+    viewMatches(r) &&
     (!CHANGE_QUEUE_FILTER.q ||
       `${r.title} ${r.body} ${r.site} ${r.assigned_role || ''}`
         .toLowerCase()
@@ -11246,18 +11263,32 @@ async function renderChangeQueue({ background = false } = {}) {
     (CHANGE_QUEUE_FILTER.provider === 'all' || r.provider === CHANGE_QUEUE_FILTER.provider) &&
     (CHANGE_QUEUE_OWNER === 'all' || (r.assigned_role || 'engineer') === CHANGE_QUEUE_OWNER);
   const filteredRequests = requests.filter(matches);
+  const urgencyValue = r =>
+    r.status === 'failed'
+      ? 5
+      : isStale(r)
+        ? 4
+        : r.priority === 'high'
+          ? 3
+          : ['review', 'reviewing'].includes(r.status)
+            ? 2
+            : r.status === 'queued'
+              ? 1
+              : 0;
   const sortValue = r =>
-    CHANGE_QUEUE_SORT === 'priority'
-      ? { high: 3, medium: 2, low: 1 }[r.priority] || 0
-      : CHANGE_QUEUE_SORT === 'status'
-        ? r.status
-        : CHANGE_QUEUE_SORT === 'site'
-          ? r.site
-          : CHANGE_QUEUE_SORT === 'owner'
-            ? r.assigned_role || 'engineer'
-            : CHANGE_QUEUE_SORT === 'provider'
-              ? r.provider || ''
-              : new Date(r.updated_at || r.created_at || 0).getTime();
+    CHANGE_QUEUE_SORT === 'urgency'
+      ? urgencyValue(r)
+      : CHANGE_QUEUE_SORT === 'priority'
+        ? { high: 3, medium: 2, low: 1 }[r.priority] || 0
+        : CHANGE_QUEUE_SORT === 'status'
+          ? r.status
+          : CHANGE_QUEUE_SORT === 'site'
+            ? r.site
+            : CHANGE_QUEUE_SORT === 'owner'
+              ? r.assigned_role || 'engineer'
+              : CHANGE_QUEUE_SORT === 'provider'
+                ? r.provider || ''
+                : new Date(r.updated_at || r.created_at || 0).getTime();
   const sortedRequests = [...filteredRequests].sort((a, b) => {
     const av = sortValue(a),
       bv = sortValue(b);
@@ -11265,6 +11296,11 @@ async function renderChangeQueue({ background = false } = {}) {
       typeof av === 'number' && typeof bv === 'number'
         ? av - bv
         : String(av).localeCompare(String(bv));
+    if (CHANGE_QUEUE_SORT === 'urgency' && result === 0) {
+      const ageA = new Date(a.updated_at || a.created_at || 0).getTime();
+      const ageB = new Date(b.updated_at || b.created_at || 0).getTime();
+      return ageA - ageB;
+    }
     return CHANGE_QUEUE_SORT_DIR === 'asc' ? result : -result;
   });
   const pageCount = Math.max(1, Math.ceil(sortedRequests.length / CHANGE_QUEUE_PAGE_SIZE));
@@ -11276,17 +11312,10 @@ async function renderChangeQueue({ background = false } = {}) {
   const pageLabel = sortedRequests.length
     ? `${pageStart + 1}–${Math.min(pageStart + CHANGE_QUEUE_PAGE_SIZE, sortedRequests.length)} of ${sortedRequests.length}`
     : '0 of 0';
-  const priorityItems = [...attention, ...staleQueued, ...queued.filter(r => r.priority === 'high')]
-    .filter((r, i, all) => all.findIndex(x => x.request_id === r.request_id) === i)
-    .slice(0, 5);
-  const priorityLane = priorityItems.length
-    ? priorityItems
-        .map(
-          r =>
-            `<article class="cq-focus-card ${r.status === 'failed' ? 'is-error' : ''}"><div class="cq-focus-top"><span class="badge ${r.status === 'failed' ? 'b-red' : r.priority === 'high' ? 'b-yellow' : 'b-blue'}">${r.status === 'failed' ? 'intervention' : r.priority === 'high' ? 'high priority' : 'waiting'}</span><span class="muted">${esc(cqAge(r.updated_at || r.created_at))} old</span></div><strong>${esc(r.title)}</strong><span class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')}</span><p>${esc(r.error || cqNextAction(r, data.settings))}</p><div class="cq-focus-actions">${cqActionButtons(r)}</div></article>`
-        )
-        .join('')
-    : '<div class="cq-empty">No intervention is required. The queue is operating within policy.</div>';
+  // The former focus lane is visually suppressed in favor of the table views;
+  // keep these placeholders so the existing template remains backwards-safe.
+  const priorityItems = [];
+  const priorityLane = '';
   const pipeline = [
     ['queued', 'Ready', queued.length, 'var(--a1)'],
     ['active', 'In flight', active.length, 'var(--a3)'],
@@ -11319,6 +11348,38 @@ async function renderChangeQueue({ background = false } = {}) {
   };
   updatePickupClock();
   CHANGE_QUEUE_CLOCK = setInterval(updatePickupClock, 1000);
+  // The decision lane is now a saved table view. Remove the duplicate visual
+  // panel while keeping the queue pulse as a compact operational summary.
+  $('.cq-focus-panel')?.remove();
+  $('.cq-overview-grid')?.classList.add('cq-overview-grid--single');
+  const registerHead = $('.cq-register-head');
+  if (registerHead) {
+    const viewBar = document.createElement('div');
+    viewBar.className = 'cq-views';
+    viewBar.setAttribute('role', 'group');
+    viewBar.setAttribute('aria-label', 'Queue views');
+    for (const [value, label] of [
+      ['attention', 'Needs attention'],
+      ['all', 'All work'],
+      ['queued', 'Queued'],
+      ['active', 'In flight'],
+      ['failed', 'Failed'],
+      ['shipped', 'Shipped'],
+    ]) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `cq-view${CHANGE_QUEUE_VIEW === value ? ' is-active' : ''}`;
+      button.dataset.cqView = value;
+      button.textContent = label;
+      viewBar.append(button);
+    }
+    registerHead.after(viewBar);
+  }
+  const sortSelect = $('#cq-sort');
+  if (sortSelect && !Array.from(sortSelect.options).some(option => option.value === 'urgency')) {
+    sortSelect.insertBefore(new Option('Urgency', 'urgency'), sortSelect.options[0]);
+    sortSelect.value = CHANGE_QUEUE_SORT;
+  }
   $('#cq-new').onclick = () => showChangeRequestForm(siteOptions, data);
   $('#cq-save-settings').onclick = async () => {
     try {
@@ -11338,6 +11399,13 @@ async function renderChangeQueue({ background = false } = {}) {
   // The primary automation switch is safe to operate directly; the detailed
   // cadence controls remain explicitly saved inside the policy disclosure.
   $('#cq-enabled').onchange = () => $('#cq-save-settings').click();
+  $$('.cq-view').forEach(button => {
+    button.onclick = () => {
+      CHANGE_QUEUE_VIEW = button.dataset.cqView || 'attention';
+      CHANGE_QUEUE_PAGE = 1;
+      renderChangeQueue();
+    };
+  });
   $('#cq-pickup-all').onclick = async () => {
     try {
       const r = await api('POST', '/api/change-requests/pickup', {});
