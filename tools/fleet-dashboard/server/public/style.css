@@ -366,7 +366,10 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .auto-enroll-callout { display: flex; gap: 10px; align-items: baseline; margin: 0 0 14px; padding: 10px 12px; border: 1px solid var(--border-hi); border-radius: 8px; background: rgba(94,169,255,.06); }
 .ag-health { margin: 0 0 16px; padding: 0; }
 .ag-health > summary { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; list-style-position: inside; }
-.ag-health > summary .muted { margin-left: auto; }
+.ag-health-summaryline { display: flex; align-items: center; gap: 12px; margin-left: auto; font-size: 12px; }
+.health-now { color: var(--green); font-weight: 650; }
+.health-attention { color: var(--yellow); font-weight: 650; }
+.ag-health-history, .agent-health-history { color: var(--muted); }
 .ag-health-toolbar { padding: 0 16px; margin: 4px 0 8px; }
 .ag-health-toolbar button:first-of-type { margin-left: auto; }
 .ag-health-note { padding: 0 16px; font-size: 11px; }
@@ -378,6 +381,7 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .agent-table th { white-space: nowrap; }
 .agent-health-7d { margin-top: 4px; }
 .agent-health-summary { display: inline-block; line-height: 1.35; white-space: nowrap; }
+.agent-health-history { font-size: 11px; }
 .auto-site-toolbar { gap: 6px; }
 .auto-site-toolbar .cm-input { min-width: 220px; }
 .auto-site-nav { min-width: 32px; padding-left: 7px; padding-right: 7px; font-size: 16px; line-height: 1; }

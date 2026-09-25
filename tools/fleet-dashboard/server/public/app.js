@@ -327,8 +327,20 @@ function healthCell(h) {
 }
 function agentHealthCell(h) {
   if (!h) return '<span class="muted">—</span>';
-  const detail = `${h.expected} expected · ${h.observed} observed · ${h.failed} failed · ${h.missed} missed · ${fmtUSD(h.costUsd)} AI cost${h.drift ? ' · prompt/runner drift' : ''}`;
-  return `<span class="agent-health-summary" title="${esc(detail)}"><b>${h.observed}/${h.expected}</b> seen · ${h.failed ? `<span class="flag">${h.failed} fail</span>` : '0 fail'} · ${h.missed ? `<span class="flag">${h.missed} miss</span>` : '0 miss'}<br><span class="muted">${fmtUSD(h.costUsd)}${h.drift ? ' · drift' : ''}</span></span>`;
+  const current =
+    !h.enabled || h.state === 'paused'
+      ? '<span class="muted">paused</span>'
+      : h.state === 'fresh'
+        ? '<span class="health-now">healthy now</span>'
+        : h.state === 'never'
+          ? '<span class="health-attention">needs first run</span>'
+          : `<span class="health-attention">${esc(STATE_LABEL[h.state] || h.state || 'needs attention')}</span>`;
+  const history = [];
+  if (h.failed) history.push(`${h.failed} failed`);
+  if (h.missed) history.push(`${h.missed} missed`);
+  const historyLabel = history.length ? `7d history: ${history.join(' · ')}` : '7d history: clear';
+  const detail = `Current: ${h.state || 'unknown'} · ${historyLabel} · ${h.expected} expected · ${h.observed} observed · ${fmtUSD(h.costUsd)} AI cost${h.drift ? ' · prompt/runner drift' : ''}`;
+  return `<span class="agent-health-summary" title="${esc(detail)}">${current}<br><span class="agent-health-history">${esc(historyLabel)}</span><br><span class="muted">${fmtUSD(h.costUsd)}${h.drift ? ' · drift' : ''}</span></span>`;
 }
 
 async function renderEngineers() {
@@ -581,11 +593,37 @@ function openSiteTasks(site) {
   go('tasks');
 }
 
-function engineerHealthPanel(data) {
+function agentHealthOverview(data, currentRows = []) {
+  const summary = data.summary || {};
+  const rows = Array.isArray(currentRows) ? currentRows : [];
+  const enrolled = summary.enrolled ?? rows.length;
+  const fresh = rows.filter(row => row.enabled !== false && row.state === 'fresh').length;
+  const attention = rows.filter(
+    row => row.enabled !== false && ['stale', 'overdue', 'never'].includes(row.state)
+  ).length;
+  const paused = rows.filter(row => row.enabled === false || row.state === 'paused').length;
+  const current = attention ? `${attention} need attention` : `${fresh}/${enrolled} healthy now`;
+  const history = [];
+  if (summary.failed) history.push(`${summary.failed} historical failures`);
+  if (summary.missed) history.push(`${summary.missed} missed slots`);
+  if (summary.drifted) history.push(`${summary.drifted} prompt/runner drifted`);
+  return {
+    current,
+    currentDetail: `${fresh} healthy · ${attention} need attention${paused ? ` · ${paused} paused` : ''}`,
+    history: history.length ? history.join(' · ') : 'no issues recorded',
+  };
+}
+
+function agentHealthPanel(data, currentRows = []) {
   if (!data) return '';
-  return `<details class="card ag-health" open><summary><strong>Agent health · last ${data.windowDays} days</strong><span class="muted">${data.summary.expected} expected · ${data.summary.missed} missed · ${data.summary.failed} failures · ${fmtUSD(data.summary.costUsd)} AI cost</span></summary>
-    <div class="task-toolbar ag-health-toolbar"><span>${data.summary.fresh} fresh · ${data.summary.stale} stale · ${data.summary.overdue} overdue · ${data.summary.paused} paused</span><span>${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
-    <p class="muted ag-health-note">The table below combines current enrollment, live status, and seven-day run health. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p></details>`;
+  const overview = agentHealthOverview(data, currentRows);
+  return `<details class="card ag-health"><summary><strong>Current health</strong><span class="ag-health-summaryline"><span class="health-now">${esc(overview.current)}</span><span class="ag-health-history">7d history: ${esc(overview.history)}</span></span></summary>
+    <div class="task-toolbar ag-health-toolbar"><span><b>Now</b> ${esc(overview.currentDetail)}</span><span><b>7d history</b> ${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.failed} failed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause current issues</button><button class="btn sm ag-health-rerun" type="button">Rerun historical failures</button></div>
+    <p class="muted ag-health-note">Current status is shown first. The seven-day counts are historical context and do not mean a site is failing now. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p></details>`;
+}
+
+function engineerHealthPanel(data) {
+  return agentHealthPanel(data, data?.rows || []);
 }
 
 function healthDetailRow(row, colspan = 10) {
@@ -661,18 +699,17 @@ async function bulkAgentHealthAction(role, action) {
     row =>
       row.worker &&
       row.enabled &&
-      (action === 'pause'
-        ? ['stale', 'overdue'].includes(row.state) || row.failed > 0
-        : row.failed > 0)
+      (action === 'pause' ? ['stale', 'overdue'].includes(row.state) : row.failed > 0)
   );
   if (!rows.length)
     return toast(
-      action === 'pause' ? 'No unhealthy worker sites to pause' : 'No failed worker sites to rerun'
+      action === 'pause' ? 'No current issues to pause' : 'No historical failures to rerun'
     );
   const verb = action === 'pause' ? 'Pause' : 'Rerun';
+  const scope = action === 'pause' ? 'current issues' : 'historical failures';
   if (
     !confirm(
-      `${verb} ${role} on ${rows.length} site(s)?\n\n${rows.map(row => row.site).join(', ')}`
+      `${verb} ${scope} for ${role} on ${rows.length} site(s)?\n\n${rows.map(row => row.site).join(', ')}`
     )
   )
     return;
@@ -4108,13 +4145,7 @@ async function renderGenericAgent(role) {
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
   const suggestedSchedule = rows[0]?.schedule || '0 */2 * * *';
-  const healthPanel = healthData
-    ? `<details class="card ag-health" open>
-    <summary><strong>Agent health · last ${healthData.windowDays} days</strong><span class="muted">${healthData.summary.expected} expected · ${healthData.summary.missed} missed · ${healthData.summary.failed} failures · ${fmtUSD(healthData.summary.costUsd)} AI cost</span></summary>
-    <div class="task-toolbar ag-health-toolbar"><span>${healthData.summary.fresh} fresh · ${healthData.summary.stale} stale · ${healthData.summary.overdue} overdue · ${healthData.summary.paused} paused</span><span>${healthData.summary.expected} expected · ${healthData.summary.observed} observed · ${healthData.summary.missed} missed</span><span>${healthData.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause unhealthy</button><button class="btn sm ag-health-rerun" type="button">Rerun failed</button></div>
-    <p class="muted ag-health-note">The table below combines current enrollment, live status, and seven-day run health. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p>
-  </details>`
-    : '';
+  const healthPanel = healthData ? agentHealthPanel(healthData, rows) : '';
 
   const body = rows
     .map(r => {
