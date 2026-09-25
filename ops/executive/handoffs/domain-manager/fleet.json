@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:50:53.232Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T04:10:00.147Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Review totaljerks.com monetization and measurement backlog",
-        "summary": "totaljerks.com is live with 53 sessions, 1 conversion, 453 Amazon clicks, 0 ordered items, $0 site-attributed commission, and $29.22 in AI usage cost for the available evidence windows. Produce a bounded read-only review of existing monetization and measurement evidence, identify one reversible backlog priority, and preserve unavailable revenue or causal-lift conclusions as unknown.",
-        "requested_action": "Approve a report-only review using existing registry, analytics, SEO, revenue-attribution, operations, compliance, and AI-usage evidence only. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim revenue, ROI, or causal lift.",
-        "proposal_id": "939334fb-b63b-4bfb-beed-700a9ddad647"
-      }
-    ]
+    "report_id": "46c838e0-91b0-4e03-8f93-418e2eeaf99d",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 7,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
