@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:30:57.980Z",
+  "generated_at": "2026-09-25T15:32:43.770Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: decline the proposed trainingsharks.com readiness baseline and authorize no new production or queue work this cycle. Existing telemetry and completed public research already cover the requested evidence, while attribution is low-volume/aggregate, the revenue window is one day, operations sweeps are unavailable, and zero outcomes are proven. Continue existing measurement and failure-repair work only; no owner decision is required.",
+        "summary": "Recommendation: decline the proposed ultrarough.com readiness memo and authorize no new production or queue work this cycle. Existing telemetry already covers the requested evidence; attribution is low-volume, the revenue window is one day, operations sweeps are unavailable, and zero outcomes are proven. Continue existing measurement and failure-repair work only.",
         "requested_action": null,
         "proposal_id": null
       }

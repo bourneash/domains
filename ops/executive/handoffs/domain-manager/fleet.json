@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:30:57.981Z",
+  "generated_at": "2026-09-25T15:32:43.771Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run trainingsharks.com audience, monetization, health, and backlog readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of trainingsharks.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Analytics is configured and GA4/GSC are recorded as healthy; preserve unavailable traffic, revenue, conversions, attribution, SEO, health, and cost fields as unknown. Do not infer telemetry, ROI, or causal lift.",
-        "requested_action": "Approve the bounded assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "f20d2ac3-131b-4945-ac33-c6c1cc305c5e"
+        "title": "Assess ultrarough.com monetization gap and prioritize one reversible backlog action",
+        "summary": "ultrarough.com is live with healthy GA4 and GSC collection. Existing evidence records 2,128 SEO impressions, 2 clicks, 32 sessions, 1 conversion, 667 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available revenue window. The site is allocated to repair-monetization, with recorded AI usage cost of $12.42. Produce a bounded decision memo using existing evidence only; preserve unavailable page-level, operational, and causal fields as unknown.",
+        "requested_action": "Approve a read-only review of ultrarough.com’s existing commercial paths, SEO backlog, affiliate attribution, compliance evidence, and available measurement boundaries. Recommend exactly one reversible next action or document why no action is justified. Do not request duplicate telemetry, deploy, modify production, change credentials or configuration, spend money, or claim revenue, ROI, margin, or causal lift.",
+        "proposal_id": "ae78ef31-5b97-479e-9c52-dd6e001850a0"
       }
     ]
   }
