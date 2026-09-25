@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:30:38.746Z",
+  "generated_at": "2026-09-25T02:38:50.949Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run seedstosauce.com audience, monetization, and measurement readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of seedstosauce.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Document observable audience and content positioning, conversion paths, monetization readiness, health, backlog priorities, and measurement boundaries. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and operational fields as unknown; do not infer telemetry, revenue, ROI, or causal lift.",
-        "requested_action": "Approve the bounded report-only assessment using existing evidence only.",
-        "proposal_id": "4cedf2eb-ba32-4036-b002-4e2a75b1fbb5"
+        "kind": "proposal",
+        "title": "Run a bounded affiliate conversion-path improvement for allthingsmasonic.com",
+        "summary": "allthingsmasonic.com recorded 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 revenue window. Recommend reviewing existing commercial pages and shipping one reversible improvement to affiliate CTA clarity, product relevance, or disclosure placement without inventing page-level performance.",
+        "requested_action": "Approve one bounded implementation using existing site content and affiliate configuration only. Preserve current tracking IDs, do not request duplicate telemetry, change credentials, spend money, or make unsupported revenue or causal-lift claims.",
+        "proposal_id": "aa6a090b-8dee-4f54-9a6c-e2b4aeeddd9d"
       }
     ]
   }

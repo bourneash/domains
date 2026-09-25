@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:30:38.746Z",
+  "generated_at": "2026-09-25T02:38:50.948Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the proposed seedstosauce.com report-only work this cycle. Existing authoritative telemetry already covers the requested evidence classes, while attribution is partial and site-level attributable commission is $0; no unsupported revenue, ROI, or causal claims are permitted. Continue only already-approved measurement and failure-repair work. Owner decision: should this cycle remain limited to existing measurement and repair work?",
+        "summary": "Recommendation: Reject the proposed allthingsmasonic.com production change this cycle. The available evidence shows 61 clicks, 0 ordered items, and $0 site-attributed commission in a single low-volume window; attribution and outcome confidence are insufficient for production work. Preserve a bounded public review of affiliate CTA, disclosure, and product-relevance gaps only. Decision question: should the owner authorize that read-only review?",
         "requested_action": null,
         "proposal_id": null
       }
