@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:34:56.810Z",
+  "generated_at": "2026-09-25T15:41:48.534Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject the proposed report-only baseline and authorize no new production or queue work this cycle. Existing telemetry already covers the requested evidence, while vibratorporn.com analytics is unconfigured, attribution is low-volume or aggregate, the revenue window is one day, operations sweeps are unavailable, and zero outcomes are proven. Preserve only one bounded public inspection of observable positioning and conversion paths; continue existing measurement, failure-repair, and security-gate work. No owner decision is required.",
+        "summary": "Recommendation: Reject the proposed wetslit.com readiness assessment and authorize no new production or queue work this cycle. Existing telemetry already covers the requested evidence; attribution is low-volume or aggregate, the revenue window is one day, operations sweeps are unavailable, and zero outcomes are proven. Continue existing measurement, failure-repair, and bounded security-gate work only. No owner decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
