@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:01:35.758Z",
+  "generated_at": "2026-09-25T15:02:40.704Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run girlpain.com audience, monetization, health, and measurement-boundary assessment",
-        "summary": "Produce a bounded, read-only assessment of girlpain.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. GA4 is recorded as healthy, while Google Search Console returns HTTP 403; preserve unavailable traffic, revenue, conversions, attribution, SEO, and operational fields as unknown unless directly evidenced.",
-        "requested_action": "Approve the bounded report-only assessment using existing evidence only.",
-        "proposal_id": "2f954a96-db24-440c-b8ba-fc97e204f247"
+        "kind": "proposal",
+        "title": "Run howfishthink.com audience, monetization, health, and measurement readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of howfishthink.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, data-hub, and AI-usage evidence. GA4 and Google Search Console are recorded as healthy; preserve any unavailable audience, traffic, conversion, revenue, attribution, SEO, health, and cost fields as unknown. Do not infer telemetry, ROI, or causal lift.",
+        "requested_action": "Approve the bounded report-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "401a0359-0bc9-4b4d-9bec-f298e8641417"
       }
     ]
   }
