@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:24:20.750Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T04:04:23.486Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: accept no new production or prototype work this cycle. Continue isolated measurement and failure-repair work, preserve rollback boundaries, and require build, smoke, review, and release evidence before any requeue. The current queue is safe to continue only within existing approved workstreams.",
+        "summary": "CTO review: authorize only bounded read-only inspection of existing failure artifacts, continuation of deployed-work measurement, private-gate evidence work, and repair or closure of existing failed requests. Do not create new proposals, telemetry requests, production changes, spend, or queue entries. Requeue only an existing approved request after confirming isolated worktree cleanup, root cause, smallest reversible repair, focused validation, rollback steps, and owner-role routing. Preserve unknown attribution, causality, ROI, and unavailable cost fields.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, prototype, and high-priority queue work this cycle. Continue only already-approved isolated measurement and failure-repair work with build, smoke, review, release, and rollback evidence.",
+        "summary": "Queue disposition: existing approved work may enter the queue only after its retained failure is repaired or explicitly closed and validation evidence is complete. No new discretionary growth, production expansion, or financial work is queue-eligible this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Measurement disposition: continue existing gates using only period-aligned impressions, clicks, sessions, conversions, site-attributed commission, and directly evidenced incremental costs. Do not infer revenue, ROI, contribution margin, causal lift, or cost allocation from aggregate or mismatched periods.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Authorize only bounded read-only inspection of retained failure artifacts, continuation of deployed-work measurement, private-gate evidence work, and repair or closure of existing failed requests. Requeue only an existing approved request after isolated worktree cleanup, root-cause evidence, smallest reversible repair, focused validation, rollback steps, and correct owner routing are documented.",
         "requested_action": null,
         "proposal_id": null
       }

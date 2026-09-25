@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:24:20.750Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T04:04:23.487Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: BLOCKED for SearchWoot public beta or full launch; CONDITIONAL for ordinary reversible fleet growth outside that gated product. The authoritative checklist shows Woot's public terms do not establish rights to store, derive, publicly display, cache, alert on, affiliate-monetize, or advertise returned data. Accuracy/freshness, security, measurement/attribution, owner, privacy, and vendor evidence also remain incomplete. Keep SearchWoot private. Next evidence action: complete a read-only data-flow, retention, consent/configuration, vendor, and incident evidence matrix, then obtain owner direction on whether to prepare an unsent written permission request to Woot. This is risk triage, not legal advice or certification.",
+        "summary": "Legal triage: Woot API deal and price-history data = blocked pending authoritative written permission or agreement; smallest next action is attach current field-level permission, retention, display, alert, attribution, freshness, correction, and takedown terms. User alert rules and sync results = evidence_needed; next action is produce the read-only data inventory, retention, deletion/correction, processor, consent, and unsubscribe table. GA4 = evidence_needed; next action is capture deployed consent and withdrawal behavior, GA4 data-sharing and retention settings, cookie disclosure, and jurisdiction review; no remarketing. Operational logs and Cloudflare data = evidence_needed; next action is capture log fields, retention/access controls, vendor terms or DPA coverage, and incident/request procedures. Human counsel is required for interpretation of upstream rights, privacy/jurisdiction treatment, and any future affiliate or advertising use. No go-live approval is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: 0 of 4 open checklist tasks are closed because no task has complete supporting evidence. Source-rights task remains blocked by contrary public terms and missing written permission. Data-flow, GA4-consent, and logs/vendors tasks remain open with partial repository or policy evidence only. No task is closed based on telemetry absence, and no unsupported legal or revenue conclusion is recorded.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Fleet compliance disposition: do not block ordinary reversible growth solely for incomplete telemetry. The compliance baseline records 35 passes, 13 fails, and 11 unknowns across 59 sites, with open banner, consent, GA4, privacy, and terms findings. Private or gated properties require an explicit launch decision and checklist; SearchWoot remains private. DNS-unreachable scaffold sites and timeout results remain unknown, not passes or legal violations.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private. Public exposure, outreach, credential changes, configuration changes, spending, and alert expansion remain unauthorized while source rights and launch evidence are incomplete.",
+        "summary": "Launch-readiness tracking remains active. Open tasks are not closed: source-rights verification, alert-data flow and retention, GA4 consent evidence, and logs/vendors/incident handling. The next evidence action is to produce the read-only data-flow, retention, consent/configuration, and vendor-control artifacts and attach them to the checklist; do not contact Woot, expand alerts, enable advertising, or change the private gate without owner approval.",
         "requested_action": null,
         "proposal_id": null
       }

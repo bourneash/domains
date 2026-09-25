@@ -2,44 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T02:24:20.750Z",
-  "summary": "security checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-25T04:04:23.487Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet and blocked for SearchWoot public exposure. The security baseline reports fleet-doctor unavailable with no site checks, while authentication boundaries, secret handling, container isolation, release controls, dependency provenance, data exposure, incident signals, and disclosure readiness are unevidenced. Compliance reports 35 passes, 13 fails, and 11 unknowns across 59 sites; unavailable checks remain unknown. Continue ordinary reversible growth only where existing build, smoke, review, rollback, and compliance gates pass. Keep SearchWoot private until security, legal, accuracy, measurement, attribution, and owner gates are complete.",
+        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for SearchWoot public beta or full launch; conditional for continued private-preview evidence work and ordinary reversible growth. Concrete evidence: fleet-doctor is unavailable, operations deploy/uptime/error sweeps have no results, security site checks are absent, and authentication boundaries, secret handling, container isolation, release provenance, dependency exposure, data exposure, incident telemetry, and disclosure readiness are unevidenced. Compliance records 35 pass, 13 fail, and 11 unknown across 59 sites; this is not a security certification. Existing failed implementation signals include 8 failed requests and 19 repair items, but they do not prove exploitation or a security defect. Exact decision: continue only bounded read-only evidence capture, existing measurement gates, failed-request repair or closure, and the private launch gate. Do not authorize public launch, credential changes, production security configuration changes, new data collection, or external disclosure outreach. Do not block ordinary reversible growth solely for optional hardening when normal preview, build, smoke, compliance, and rollback gates pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Exact recommendation: approve only bounded read-only security evidence capture for the fleet; do not retrieve credentials, exploit targets, modify permissions, deploy, expose private products, or treat missing evidence as a pass. Maintain SearchWoot's private gate with no public exposure or alert expansion. Optional hardening alone does not block ordinary reversible growth.",
+        "summary": "SearchWoot security decision: blocked for public beta and full launch. API access is documented, but redistribution rights, data-flow and retention controls, consent/configuration evidence, logging/vendor controls, incident handling, accuracy/freshness, attribution, and owner approval remain incomplete. Maintain private access and permit only bounded read-only evidence work or draft internal preparation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not treat missing telemetry as a pass. No new security queue work is authorized; preserve existing bounded read-only evidence work only if already active, without credential access, exploitation, permission changes, deployment, or production mutation.",
+        "summary": "Control interpretation: no clean bill of health is supported. TLS has no recorded certificates expiring within 30 days, but certificate validity and configuration are otherwise unevidenced. The bounded repository-lab checks did not install dependencies, access production, or establish fleet-wide supply-chain safety. Missing security.txt or disclosure evidence is a readiness gap, not proof of vulnerability.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Capture fleet security control evidence and maintain evidence-needed disposition",
-        "summary": "Complete a bounded read-only evidence matrix for authentication and access boundaries, secrets exposure, container isolation, release and deploy controls, TLS, dependencies and supply chain, data exposure, incident signals, and security.txt or disclosure readiness. Preserve unknowns where fleet-doctor or operations evidence is unavailable.",
-        "requested_action": "Run only bounded read-only evidence capture, document scope, timestamps, owners, affected sites, release implications, and exact unknowns, and continue existing incident repairs without duplicate telemetry requests.",
-        "proposal_id": "c26f50f3-990e-422e-abdf-e671b119a005"
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain SearchWoot private security gate",
-        "summary": "Keep SearchWoot private while access boundaries, secret handling, data flow, logging, vendor, incident, release, and disclosure evidence remains incomplete. Authorize only bounded read-only evidence work and internal draft preparation.",
-        "requested_action": "Maintain the private gate unchanged. Complete only read-only access-boundary, secret-handling, data-flow, logging, vendor, incident, release, TLS, dependency, and disclosure evidence capture; obtain owner direction separately before preparing or sending any external permission request.",
-        "proposal_id": "ba1cbcf2-0729-44f9-a745-5d3a490af3d5"
       }
     ]
   }
