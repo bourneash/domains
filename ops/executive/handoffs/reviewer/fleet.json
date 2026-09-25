@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T09:36:31.890Z",
+  "generated_at": "2026-09-25T09:38:44.236Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. The only currently unblocked candidate has 77 impressions, 0 clicks, 0 sessions, 0 conversions, and no defined metric, so it does not support production work. Continue existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate only. No owner decision is required this cycle.",
+        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. The only unblocked candidate has 77 impressions, 0 clicks, 0 sessions, 0 conversions, and no defined metric, so it does not support production work. Continue existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate only. No owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
