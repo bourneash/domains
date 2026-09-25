@@ -2,58 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:08:22.410Z",
-  "summary": "reviewer checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-25T15:14:05.189Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only bounded read-only security evidence capture and maintenance of the private launch gate. Reject new production or queue work this cycle: attribution is aggregate or low-volume, 0 outcomes are proven, operations sweeps are unavailable, and failed work requires repair-or-close review first.",
+        "summary": "Recommendation: Decline production, revenue, ROI, and causal-lift claims this cycle. The available affiliate evidence is one day old, shows 320 clicks, 0 ordered items, and $0 site-attributed commission, while aggregate earnings remain unattributed and no outcomes are proven. Keep only the bounded read-only offshorehookup.com readiness assessment. Owner decision: authorize that timestamped assessment, with no production, credential, configuration, spending, or telemetry changes?",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Authorize CTO read-only review of the existing rc-9.com performance failure. No requeue or deployment is approved until root cause, smallest repair, focused validation, rollback, and owner disposition are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial claims remain unsupported: the only reported commission is aggregate and unattributed, the revenue window is one day, fixed costs and budgets are blank, and outcomes are unproven. Do not claim revenue, ROI, margin, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The private product gate remains unchanged. Rights, legal, security, accuracy, attribution, measurement, and owner gates are incomplete; authorize only bounded read-only evidence work and internal draft preparation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "c26f50f3-990e-422e-abdf-e671b119a005",
-        "summary": "Accept bounded read-only security evidence capture. Preserve unavailable operations and fleet-doctor evidence as unknown; do not retrieve credentials, access private containers, modify permissions, deploy, or request duplicate telemetry.",
-        "requested_action": "accepted_research",
-        "proposal_id": "c26f50f3-990e-422e-abdf-e671b119a005"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "ba1cbcf2-0729-44f9-a745-5d3a490af3d5",
-        "summary": "Maintain the private gate. No public exposure, credential or configuration changes, deployment, alert expansion, spending, or external outreach is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "ba1cbcf2-0729-44f9-a745-5d3a490af3d5"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "security-conditional-ordinary-growth-2026-09-25",
-        "summary": "Reject as an overly broad production authorization without a site-specific measurable outcome, sufficient attribution, or available operational validation evidence. Existing measurement and failure-repair work must drain first.",
-        "requested_action": "declined",
-        "proposal_id": "security-conditional-ordinary-growth-2026-09-25"
       }
     ]
   }
