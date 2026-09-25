@@ -86,8 +86,13 @@ fi
 # Codex Pro authentication is the only Codex host material mounted. Do not
 # mount the host ~/.codex directory: it contains unrelated sessions, MCP
 # configuration, and project trust entries.
-CODEX_AUTH_FILE="${CODEX_AUTH_FILE:-${HOME:-/home/jesse}/.codex/auth.json}"
-[[ "$CODEX_AUTH_FILE" == "${HOME:-/home/jesse}/.codex/auth.json" ]] || { echo "Codex auth path is restricted" >&2; exit 1; }
+# When this script is launched from fleet-dashboard, HOME points at the
+# dashboard container while the nested Docker daemon needs the host path.
+# The compose file supplies that path explicitly; using it avoids silently
+# starting a manual run without the mounted ChatGPT credential.
+CODEX_AUTH_FILE="${CODEX_AUTH_FILE:-${FD_CODEX_AUTH_FILE_HOST:-${HOME:-/home/jesse}/.codex/auth.json}}"
+CODEX_AUTH_ALLOWED="${FD_CODEX_AUTH_FILE_HOST:-${HOME:-/home/jesse}/.codex/auth.json}"
+[[ "$CODEX_AUTH_FILE" == "$CODEX_AUTH_ALLOWED" ]] || { echo "Codex auth path is restricted" >&2; exit 1; }
 if [[ -f "$CODEX_AUTH_FILE" ]]; then
   container_args+=( -v "$CODEX_AUTH_FILE:/home/dev/.codex/auth.json:rw" )
 fi
@@ -117,8 +122,12 @@ if [[ "$EXECUTIVE_PROVIDER" == "chatgpt" ]]; then
   PREFLIGHT_OUTPUT=$(timeout -s TERM -k 5 30s docker "${container_args[@]}" codex login status 2>&1)
   PREFLIGHT_STATUS=$?
   set -e
-  if [[ "$PREFLIGHT_STATUS" -ne 0 || ! "$PREFLIGHT_OUTPUT" =~ Logged[[:space:]]in[[:space:]]using[[:space:]]ChatGPT ]]; then
-    write_provider_failure "executive_auth_preflight_failed: Codex ChatGPT login was not available inside the isolated runner (status ${PREFLIGHT_STATUS})"
+  # The command's exit status is authoritative. The human-readable success
+  # line varies between Codex releases and may include terminal color codes,
+  # so matching that text made valid logins fail with exit 78.
+  if [[ "$PREFLIGHT_STATUS" -ne 0 ]]; then
+    PREFLIGHT_DETAIL="${PREFLIGHT_OUTPUT//$'\n'/ }"
+    write_provider_failure "executive_auth_preflight_failed: Codex ChatGPT login was not available inside the isolated runner (status ${PREFLIGHT_STATUS}${PREFLIGHT_DETAIL:+; ${PREFLIGHT_DETAIL:0:240}})"
     MODEL_STATUS=78
   fi
 fi

@@ -22,6 +22,7 @@ let STATE = {
 };
 let AGENT_HEALTH = null;
 const EXEC_RUN = { poller: null };
+const EXEC_RUN_UI = { q: '', status: 'all', sort: 'started_at', dir: -1, page: 1, pageSize: 25 };
 
 function pollExecutiveRun() {
   if (EXEC_RUN.poller) return;
@@ -12331,7 +12332,35 @@ async function renderExecutive() {
             .join(' · ') || 'No new items recorded'
         )}</span><span class="muted">Review the proposals, messages, and audit log below for the full result.</span></div>`
       : '';
-  const runQueueRows = runQueue
+  const runQueueFiltered = runQueue
+    .filter(run => {
+      const status = run.status === 'started' ? 'running' : run.status;
+      const haystack = [status, run.source, run.error, run.result?.phase, run.action_id]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return (
+        (EXEC_RUN_UI.status === 'all' || status === EXEC_RUN_UI.status) &&
+        (!EXEC_RUN_UI.q || haystack.includes(EXEC_RUN_UI.q.toLowerCase()))
+      );
+    })
+    .sort((a, b) => {
+      const value = run => {
+        if (EXEC_RUN_UI.sort === 'status') return run.status === 'started' ? 'running' : run.status;
+        if (EXEC_RUN_UI.sort === 'source') return run.source || '';
+        if (EXEC_RUN_UI.sort === 'result') return run.error || run.result?.phase || '';
+        if (EXEC_RUN_UI.sort === 'id') return run.action_id || '';
+        return Date.parse(run.started_at || '') || 0;
+      };
+      const av = value(a),
+        bv = value(b);
+      return (av < bv ? -1 : av > bv ? 1 : 0) * EXEC_RUN_UI.dir;
+    });
+  const runPageCount = Math.max(1, Math.ceil(runQueueFiltered.length / EXEC_RUN_UI.pageSize));
+  EXEC_RUN_UI.page = Math.min(EXEC_RUN_UI.page, runPageCount);
+  const runPageStart = (EXEC_RUN_UI.page - 1) * EXEC_RUN_UI.pageSize;
+  const runPage = runQueueFiltered.slice(runPageStart, runPageStart + EXEC_RUN_UI.pageSize);
+  const runQueueRows = runPage
     .map(run => {
       const isActive = run.status === 'started';
       const label = run.source === 'manual' ? 'Manual' : 'Scheduled';
@@ -12344,9 +12373,20 @@ async function renderExecutive() {
             : 'b-gray';
       const detail =
         run.error || run.result?.phase || (run.result?.counts ? 'Plan applied' : 'Recorded run');
-      return `<tr><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}</td><td class="muted">${esc(run.action_id.slice(0, 8))}</td></tr>`;
+      const clear =
+        run.status === 'failed'
+          ? ` <button class="btn sm ex-run-clear" data-id="${esc(run.action_id)}" type="button">Clear</button>`
+          : '';
+      return `<tr><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}${clear}</td><td class="muted">${esc(run.action_id.slice(0, 8))}</td></tr>`;
     })
     .join('');
+  const runSortButton = (key, label) => {
+    const active = EXEC_RUN_UI.sort === key;
+    const arrow = active ? (EXEC_RUN_UI.dir < 0 ? '↓' : '↑') : '↕';
+    return `<button class="ex-run-sort${active ? ' active' : ''}" data-ex-run-sort="${key}" type="button">${label} <span>${arrow}</span></button>`;
+  };
+  const failedRunCount = runQueue.filter(run => run.status === 'failed').length;
+  const runQueueToolbar = `<div class="ex-run-queue-toolbar"><input id="ex-run-filter" class="cm-input" placeholder="Filter runs…" value="${esc(EXEC_RUN_UI.q)}"><select id="ex-run-status" class="cm-input"><option value="all" ${EXEC_RUN_UI.status === 'all' ? 'selected' : ''}>All statuses</option><option value="running" ${EXEC_RUN_UI.status === 'running' ? 'selected' : ''}>Running</option><option value="completed" ${EXEC_RUN_UI.status === 'completed' ? 'selected' : ''}>Completed</option><option value="failed" ${EXEC_RUN_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select><label class="muted">Rows <select id="ex-run-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${EXEC_RUN_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>${failedRunCount ? '<button class="btn sm danger" id="ex-run-clear-failed" type="button">Clear failed</button>' : ''}</div>`;
   const croLabRows = croRuns
     .slice(0, 6)
     .map(run => {
@@ -12369,7 +12409,7 @@ async function renderExecutive() {
     <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
-        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueue.length} recorded runs</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Status</th><th>Source / started</th><th>Result</th><th>ID</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No scheduled or operator runs recorded yet.</td></tr>'}</tbody></table></div></div></section>
+        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">CEO / CTO inbox</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Saved to the executive record.</span><button class="btn primary" id="ex-send">Send message</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
@@ -12385,6 +12425,72 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   $('#ex-refresh').onclick = () => softRender();
+  $('#ex-run-filter').onchange = e => {
+    EXEC_RUN_UI.q = e.target.value.trim();
+    EXEC_RUN_UI.page = 1;
+    softRender();
+  };
+  $('#ex-run-status').onchange = e => {
+    EXEC_RUN_UI.status = e.target.value;
+    EXEC_RUN_UI.page = 1;
+    softRender();
+  };
+  $('#ex-run-page-size').onchange = e => {
+    EXEC_RUN_UI.pageSize = Number(e.target.value) || 25;
+    EXEC_RUN_UI.page = 1;
+    softRender();
+  };
+  $('#ex-run-prev').onclick = () => {
+    EXEC_RUN_UI.page -= 1;
+    softRender();
+  };
+  $('#ex-run-next').onclick = () => {
+    EXEC_RUN_UI.page += 1;
+    softRender();
+  };
+  $$('.ex-run-sort').forEach(
+    button =>
+      (button.onclick = () => {
+        const key = button.dataset.exRunSort;
+        if (EXEC_RUN_UI.sort === key) EXEC_RUN_UI.dir *= -1;
+        else {
+          EXEC_RUN_UI.sort = key;
+          EXEC_RUN_UI.dir = key === 'started_at' ? -1 : 1;
+        }
+        EXEC_RUN_UI.page = 1;
+        softRender();
+      })
+  );
+  $('#ex-run-clear-failed')?.addEventListener('click', async () => {
+    const button = $('#ex-run-clear-failed');
+    button.disabled = true;
+    try {
+      await api('POST', '/api/executive/run/clear-failed', {});
+      toast('Failed runs cleared');
+      softRender();
+    } catch (e) {
+      button.disabled = false;
+      toast(e.message, 'err');
+    }
+  });
+  $$('.ex-run-clear').forEach(
+    button =>
+      (button.onclick = async () => {
+        button.disabled = true;
+        try {
+          await api(
+            'POST',
+            `/api/executive/run/${encodeURIComponent(button.dataset.id)}/clear`,
+            {}
+          );
+          toast('Failed run cleared');
+          softRender();
+        } catch (e) {
+          button.disabled = false;
+          toast(e.message, 'err');
+        }
+      })
+  );
   $('#ex-open-setup')?.addEventListener('click', () => go('agent', 'executive', 'setup'));
   $('#ex-run-team').onclick = async () => {
     const button = $('#ex-run-team');

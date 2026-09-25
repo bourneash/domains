@@ -396,6 +396,13 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .activity-sort span { color: var(--accent); font-size: 11px; }
 .activity-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 12px; }
 .activity-page-count { color: var(--muted); font-size: 12px; min-width: 78px; text-align: center; }
+.ex-run-queue-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.ex-run-queue-toolbar label { display: flex; align-items: center; gap: 6px; }
+.ex-run-queue-toolbar input { min-width: 210px; }
+.ex-run-sort { appearance: none; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; font-weight: 650; cursor: pointer; white-space: nowrap; }
+.ex-run-sort span { color: var(--accent); }
+.ex-run-sort:hover, .ex-run-sort.active { color: var(--text); }
+.ex-run-clear { margin-left: 8px; }
 .errors-toolbar { align-items: end; }
 .errors-toolbar label { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 11.5px; }
 .errors-toolbar label:first-child .cm-input { min-width: 230px; }

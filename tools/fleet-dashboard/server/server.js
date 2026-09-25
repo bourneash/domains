@@ -3129,9 +3129,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               row.target_type === 'scheduled-executive-run' ||
               row.action_type === 'tick')
         ) || null;
-      const runs = [...manual, ...scheduled].sort(
-        (a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || '')
-      );
+      const runs = [...manual, ...scheduled]
+        .filter(row => !row.result?.cleared_at)
+        .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''));
       const queue = runs
         .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''))
         .slice(0, 24)
@@ -3180,6 +3180,42 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       );
       child.unref();
       res.status(202).json({ run: action });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/run/clear-failed', (_req, res) => {
+    try {
+      const failed = events
+        .listExecutiveActions({ limit: 500 })
+        .filter(
+          row =>
+            ['manual-executive-run', 'scheduled-executive-run'].includes(row.target_type) &&
+            row.status === 'failed' &&
+            !row.result?.cleared_at
+        );
+      const clearedAt = new Date().toISOString();
+      failed.forEach(row =>
+        events.updateExecutiveAction(row.action_id, {
+          result: { cleared_at: clearedAt, cleared_by: 'owner' },
+        })
+      );
+      res.json({ cleared: failed.length });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/run/:id/clear', (req, res) => {
+    try {
+      const run = events.getExecutiveAction(req.params.id);
+      if (!run || !['manual-executive-run', 'scheduled-executive-run'].includes(run.target_type))
+        return res.status(404).json({ error: 'executive run not found' });
+      if (run.status !== 'failed')
+        return res.status(400).json({ error: 'only failed executive runs can be cleared' });
+      const cleared = events.updateExecutiveAction(run.action_id, {
+        result: { cleared_at: new Date().toISOString(), cleared_by: 'owner' },
+      });
+      res.json({ run: cleared });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
