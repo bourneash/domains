@@ -23,21 +23,28 @@ else
   export EXECUTIVE_ALLOW_QUEUE=0
 fi
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-cro,ceo,cfo,cto,legal,security,reviewer}"
-RUN_ACTION_ID="$(node - "$ROOT" <<'NODE'
+RUN_ACTION_ID="$(node - "$ROOT" "${EXECUTIVE_ACTION_ID:-}" <<'NODE'
 const root = process.argv[2];
+const existingActionId = process.argv[3];
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
 const store = eventstore.open(root);
 try {
-  const action = executive.action(store, {
-    actor: 'system',
-    action_type: 'other',
-    summary: process.env.EXECUTIVE_FORCE === '1' ? 'Manual executive scheduler dispatch' : 'Scheduled executive team run',
-    target_type: 'scheduled-executive-run',
-    target_id: 'fleet',
-    result: { phase: 'running', started_at: new Date().toISOString() },
-  });
-  process.stdout.write(action.action_id);
+  if (existingActionId) {
+    const existing = store.getExecutiveAction(existingActionId);
+    if (!existing) throw new Error(`executive action not found: ${existingActionId}`);
+    process.stdout.write(existing.action_id);
+  } else {
+    const action = executive.action(store, {
+      actor: 'system',
+      action_type: 'other',
+      summary: process.env.EXECUTIVE_FORCE === '1' ? 'Manual executive scheduler dispatch' : 'Scheduled executive team run',
+      target_type: 'scheduled-executive-run',
+      target_id: 'fleet',
+      result: { phase: 'running', started_at: new Date().toISOString() },
+    });
+    process.stdout.write(action.action_id);
+  }
 } finally {
   store.close();
 }

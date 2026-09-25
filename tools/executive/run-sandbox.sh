@@ -69,7 +69,9 @@ container_args=(run --rm --name "$CONTAINER_NAME" --entrypoint /usr/bin/env \
 )
 
 # Authentication is the only host material allowed besides the project mount.
-# It is read-only and can be omitted when the provider uses an API-key env var.
+# ChatGPT OAuth tokens may need to refresh during a long-lived cron container,
+# so the isolated runner must be able to update this one auth file. No other
+# host configuration or credential path is mounted writable.
 CLAUDE_CREDENTIALS_FILE="${CLAUDE_CREDENTIALS_FILE:-${HOME:-/home/jesse}/.claude/.credentials.json}"
 CLAUDE_CONFIG_FILE="${CLAUDE_CONFIG_FILE:-${HOME:-/home/jesse}/.claude.json}"
 [[ "$CLAUDE_CREDENTIALS_FILE" == "${HOME:-/home/jesse}/.claude/.credentials.json" ]] || { echo "credential path is restricted" >&2; exit 1; }
@@ -87,7 +89,7 @@ fi
 CODEX_AUTH_FILE="${CODEX_AUTH_FILE:-${HOME:-/home/jesse}/.codex/auth.json}"
 [[ "$CODEX_AUTH_FILE" == "${HOME:-/home/jesse}/.codex/auth.json" ]] || { echo "Codex auth path is restricted" >&2; exit 1; }
 if [[ -f "$CODEX_AUTH_FILE" ]]; then
-  container_args+=( -v "$CODEX_AUTH_FILE:/home/dev/.codex/auth.json:ro" )
+  container_args+=( -v "$CODEX_AUTH_FILE:/home/dev/.codex/auth.json:rw" )
 fi
 
 container_args+=( "$IMAGE" )

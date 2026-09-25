@@ -19,7 +19,10 @@ const logPath = path.join(logDir, `manual-${actionId}.log`);
 const log = fs.createWriteStream(logPath, { flags: 'a', mode: 0o600 });
 const child = spawn('bash', [path.join(root, 'tools', 'executive', 'run-scheduled.sh')], {
   cwd: root,
-  env: { ...process.env, EXECUTIVE_FORCE: '1' },
+  // The manual action is the run's durable handle. Pass it through so the
+  // scheduler wrapper updates this row instead of creating a second,
+  // indistinguishable scheduled row for the same invocation.
+  env: { ...process.env, EXECUTIVE_FORCE: '1', EXECUTIVE_ACTION_ID: actionId },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 {

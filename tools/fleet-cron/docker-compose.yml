@@ -78,8 +78,10 @@ services:
       - ${HOME:-/home/jesse}/.docker:${HOME:-/home/jesse}/.docker
       # Executive runner authentication only. The runner receives a generated
       # brief and output directory; it never receives the repository or host
-      # credentials beyond this single read-only Codex Pro auth file.
-      - ${HOME:-/home/jesse}/.codex/auth.json:${HOME:-/home/jesse}/.codex/auth.json:ro
+      # credentials beyond this single Codex Pro auth file. The isolated
+      # runner may refresh its OAuth token in place; no other Codex config is
+      # writable.
+      - ${HOME:-/home/jesse}/.codex/auth.json:${HOME:-/home/jesse}/.codex/auth.json:rw
       # SSH identity for job 6's `git submodule add` / push (github-bourneash
       # alias) — mounted at the same absolute path as HOME below, not at
       # /home/ops, so it resolves whether a script reads it via `~` (which
