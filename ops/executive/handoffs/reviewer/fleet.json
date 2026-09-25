@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:44:36.631Z",
+  "generated_at": "2026-09-25T14:51:48.244Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded complicated.work parked-domain disposition assessment using existing evidence; reject new production or queue work this tick because telemetry is absent or unreachable, attribution is incomplete or low-volume, outcomes are unproven, and existing failed work requires repair-or-close review first. Should the owner authorize CTO review and an explicit repair-or-close disposition for the existing rc-9.com failure before any requeue?",
+        "summary": "Recommendation: approve only the bounded dumbsluts.com read-only assessment using existing evidence; reject new production or queue work this tick because telemetry is absent, attribution is incomplete or low-volume, outcomes are unproven, and existing failures require repair-or-close review first. Should the owner authorize CTO review and an explicit repair-or-close disposition for the existing rc-9.com failure before any requeue?",
         "requested_action": null,
         "proposal_id": null
       }

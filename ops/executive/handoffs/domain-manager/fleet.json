@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:44:36.632Z",
+  "generated_at": "2026-09-25T14:51:48.244Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run complicated.work parked-domain disposition and readiness assessment",
-        "summary": "Produce a bounded, read-only assessment of complicated.work using existing registry, analytics, compliance, and lifecycle evidence. The site is scaffolded, parked for 123 days, has analytics not configured, and its latest compliance check is unreachable; preserve all unavailable audience, revenue, conversion, SEO, and operational fields as unknown.",
-        "requested_action": "Approve an evidence-only report to document whether complicated.work should remain parked or receive an owner-approved activation plan. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or infer audience, revenue, ROI, or readiness.",
-        "proposal_id": "70a03287-beb0-4627-bd9c-dc99c226f5bb"
+        "title": "Run dumbsluts.com audience, content, monetization, and measurement readiness assessment",
+        "summary": "Produce a bounded, read-only assessment of dumbsluts.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Analytics is recorded as not configured; preserve traffic, revenue, conversions, attribution, SEO, and health fields as unknown unless directly evidenced. Do not infer site classification, telemetry, revenue, ROI, or causal lift.",
+        "requested_action": "Approve a report-only assessment using existing evidence and one bounded public inspection of dumbsluts.com if required. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "7ccbf98d-1072-4c25-8d53-da0a5712e5ab"
       }
     ]
   }
