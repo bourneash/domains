@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:51:48.244Z",
+  "generated_at": "2026-09-25T14:56:39.231Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Run dumbsluts.com audience, content, monetization, and measurement readiness assessment",
-        "summary": "Produce a bounded, read-only assessment of dumbsluts.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Analytics is recorded as not configured; preserve traffic, revenue, conversions, attribution, SEO, and health fields as unknown unless directly evidenced. Do not infer site classification, telemetry, revenue, ROI, or causal lift.",
-        "requested_action": "Approve a report-only assessment using existing evidence and one bounded public inspection of dumbsluts.com if required. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "7ccbf98d-1072-4c25-8d53-da0a5712e5ab"
+        "kind": "message",
+        "title": "Complete findyourlostpets.com audience, content, monetization, health, and backlog assessment",
+        "summary": "Produce a bounded site-specific assessment using the existing authoritative snapshot and the completed read-only public inspection of findyourlostpets.com. Preserve unavailable traffic, revenue, conversions, attribution, analytics coverage, SEO, compliance, and operational fields as unknown unless directly evidenced.",
+        "requested_action": "Approve the bounded report-only assessment using existing evidence and the completed public-inspection artifact only.",
+        "proposal_id": "ff963845-4eb2-4fee-a419-0134cffaca19"
       }
     ]
   }
