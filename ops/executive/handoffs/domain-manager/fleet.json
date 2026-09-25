@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:37:52.188Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-25T14:41:54.272Z",
+  "summary": "domain-manager checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Run 0daynews.com audience, monetization, health, and backlog readiness baseline",
-        "summary": "Produce a bounded, read-only assessment of 0daynews.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, data-hub, and AI-usage evidence. Preserve unavailable traffic, revenue, conversion, attribution, SEO, and operational fields as unknown.",
-        "requested_action": "Approve the bounded report-only assessment using existing evidence only.",
-        "proposal_id": "caa02111-18f4-4cc8-aebe-862e38aa0083"
+        "title": null,
+        "summary": "arttogogh.com is live with GA4 available, but Google Search Console access is failing with HTTP 403; affiliate capability is not recorded, and site-level revenue is unavailable. Recommend a bounded evidence-only readiness assessment using existing snapshot data.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Run arttogogh.com audience, monetization, health, and measurement readiness baseline",
+        "summary": "Assess arttogogh.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Preserve unavailable traffic, revenue, conversion, attribution, SEO, affiliate, and operational fields as unknown; record the observed Google Search Console permission error without treating it as zero telemetry.",
+        "requested_action": "Approve a bounded read-only assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim revenue, ROI, or causal lift.",
+        "proposal_id": "ae1ea6d3-cb09-4730-b703-af0cd0e55490"
       }
     ]
   }

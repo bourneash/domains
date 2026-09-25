@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T14:37:52.187Z",
+  "generated_at": "2026-09-25T14:41:54.272Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the bounded 0daynews.com read-only assessment using existing snapshot evidence; reject new production queue work this tick because attribution is aggregate or low-volume, outcomes are unproven, operations evidence is unavailable, and the only non-deferred candidate is an existing failed rc-9.com run that must be repaired or closed before requeue. Decision question: Should the owner authorize CTO review and explicit repair-or-close disposition for that existing rc-9.com failure before any requeue?",
+        "summary": "Recommendation: approve only the bounded arttogogh.com read-only readiness assessment using existing snapshot evidence; reject new production queue work this tick because attribution is incomplete or low-volume, outcomes are unproven, operations evidence is unavailable, and the only actionable engineering candidate is an existing failed rc-9.com run requiring repair-or-close review before requeue. Should the owner authorize CTO review and an explicit repair-or-close disposition for that existing rc-9.com failure before any requeue?",
         "requested_action": null,
         "proposal_id": null
       }
