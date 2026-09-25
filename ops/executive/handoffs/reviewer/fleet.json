@@ -2,23 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T16:04:37.846Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-25T17:48:10.933Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, queue, spending, revenue, ROI, margin, and causal-lift work this cycle. Attribution is partial aggregate, the revenue window is one day, operating costs and budgets are missing, operations sweeps are unavailable, and zero outcomes are proven. Continue existing measurement, failure repair, and bounded security-gate work only. Retain one read-only security evidence matrix; no telemetry, credentials, configuration, schedules, spending, or production changes.",
+        "summary": "Review outcome: no new production, queue, spending, telemetry, credential, configuration, or deployment work this cycle. Existing measurement and failure-repair work may continue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "security-fleet-evidence-matrix-2026-09-25",
-        "summary": "Retain only as bounded read-only evidence capture. Preserve unknowns, timestamps, owners, limitations, and release implications. No credentials, private-container access, exploits, permission changes, deployment, production work, or certification claims.",
-        "requested_action": "accepted_research",
-        "proposal_id": "security-fleet-evidence-matrix-2026-09-25"
+        "kind": "message",
+        "title": null,
+        "summary": "Reject both CRO prototype proposals this cycle. Revenue attribution is partial aggregate, the revenue window is one day, budgets and contribution costs are missing, operations evidence is unavailable, and zero outcomes are proven. Continue existing measurement, failure repair, and bounded security evidence only. Retain one read-only fleet security evidence matrix; authorize no new production, queue, spending, telemetry, credential, configuration, schedule, or deployment work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner decision: keep the gated product private. Rights, privacy, security, accuracy, attribution, measurement, and owner evidence remain incomplete. Permit only bounded read-only evidence work and internal draft preparation.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

@@ -2,37 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T16:04:37.844Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-25T17:48:10.933Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and continue only bounded evidence work. Woot’s public terms do not establish rights to collect, derive, store, display, or alert on deal data; legal, security, accuracy, attribution, and measurement gates remain blocked. Unknown: whether Woot would grant written permission. Smallest next step: owner chooses one option—(A) keep private while Legal prepares a draft permission request (recommended), or (B) authorize sending the request to Woot. I am not requeuing rc-9.com performance work because its existing repair item is open and the action mandate prohibits duplicate work before root-cause validation.",
+        "summary": "Recommendation: accept both CRO leads only as bounded disposable research, not production work. Evidence: MarkItDown passed 8/8 checks with MIT licensing; shadcn/ui passed 3/3 with MIT licensing. The fleet has 156 approved proposals without execution, 24 deployed improvements awaiting measurement, and 24 failed requests, so no new production queue work is justified. Owner decision: authorize both prototypes, or defer them until backlog and measurement gates drain.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: defer the CRO repository prototypes this cycle. MarkItDown, shadcn/ui, and Mermaid have plausible use cases, but current execution backlog is materially constrained: 140 approved proposals lack execution requests, 20 implementation requests failed, and zero outcomes are proven. Revisit after measurement and failure-repair queues drain; no production adoption is authorized.",
+        "summary": "CRO handoff accepted for CTO review: prototype MarkItDown and isolated CTA primitives without dependency installation, production access, deployment, spend, or credential changes. Acceptance requires measurable editor correction time or accessibility/weight results and explicit go/iterate/drop decisions.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "44bcca47-71a1-4f1d-bf41-8706d991cfcf",
-        "summary": "Useful MIT-licensed lead with 8/8 bounded checks passed, but defer the disposable prototype while approved execution, measurement, and failure-repair backlogs are high; no production adoption is justified now.",
-        "requested_action": "declined",
-        "proposal_id": "44bcca47-71a1-4f1d-bf41-8706d991cfcf"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "771b2870-d85b-4838-83f9-e187c3fe39ba",
-        "summary": "No safe native lab checks were available, and the current portfolio backlog does not justify additional exploratory work this cycle.",
-        "requested_action": "declined",
-        "proposal_id": "771b2870-d85b-4838-83f9-e187c3fe39ba"
       }
     ]
   }
