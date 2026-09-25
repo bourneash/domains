@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T09:28:29.634Z",
+  "generated_at": "2026-09-25T09:35:36.169Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. Continue existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate only. Aggregate commission remains unattributed, and site-level revenue, ROI, and causality are not defensible. No owner decision is required this cycle.",
+        "summary": "Recommendation: Reject all new production, queue, spending, financial, attribution, and causal-lift work this cycle. The only unblocked candidate, aliencouncil.com, has 77 impressions, 0 clicks, 0 sessions, 0 conversions, and no defined metric, so it does not meet the evidence or outcome bar. Continue existing measurement gates, failed-request repair or closure, bounded read-only security evidence, and the private launch gate. Aggregate commission remains unattributed; site revenue, ROI, and causality are not defensible. No owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
