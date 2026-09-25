@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:14:05.190Z",
+  "generated_at": "2026-09-25T15:30:57.981Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run offshorehookup.com monetization and measurement readiness baseline",
-        "summary": "Assess offshorehookup.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The available revenue window records 320 affiliate clicks, 0 ordered items, and $0 site-attributed commission; aggregate earnings are not attributable to this site. No revenue, ROI, or causal lift should be inferred.",
-        "requested_action": "Produce a timestamped, bounded read-only assessment covering observable audience and content positioning, conversion paths, affiliate readiness, health evidence, backlog priorities, unknowns, and measurement boundaries. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim causal improvement.",
-        "proposal_id": "f4a1de36-41fa-46cf-968b-aa43a1b8cd07"
+        "title": "Run trainingsharks.com audience, monetization, health, and backlog readiness baseline",
+        "summary": "Produce a bounded, read-only assessment of trainingsharks.com using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Analytics is configured and GA4/GSC are recorded as healthy; preserve unavailable traffic, revenue, conversions, attribution, SEO, health, and cost fields as unknown. Do not infer telemetry, ROI, or causal lift.",
+        "requested_action": "Approve the bounded assessment using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "f20d2ac3-131b-4945-ac33-c6c1cc305c5e"
       }
     ]
   }

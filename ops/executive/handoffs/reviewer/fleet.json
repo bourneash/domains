@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:23:33.553Z",
+  "generated_at": "2026-09-25T15:30:57.980Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all production, queue, revenue, ROI, margin, and causal-lift work this cycle. Attribution is aggregate or low-volume, the revenue window is one day, budgets and fixed costs are unspecified, operations sweeps are unavailable, and zero outcomes are proven. Preserve only one bounded public readiness assessment for offshorehookup.com, with no telemetry, credentials, configuration, spending, schedules, or production changes. Authorize that assessment?",
+        "summary": "Recommendation: decline the proposed trainingsharks.com readiness baseline and authorize no new production or queue work this cycle. Existing telemetry and completed public research already cover the requested evidence, while attribution is low-volume/aggregate, the revenue window is one day, operations sweeps are unavailable, and zero outcomes are proven. Continue existing measurement and failure-repair work only; no owner decision is required.",
         "requested_action": null,
         "proposal_id": null
       }
