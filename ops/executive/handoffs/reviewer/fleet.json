@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T03:38:01.839Z",
+  "generated_at": "2026-09-25T03:42:40.912Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the proposed wetpages.com readiness report and authorize no new production, queue, financial, attribution, or causal-lift work this cycle. Existing telemetry is low-volume, aggregate commission is unattributed, zero improvements are proven, and measurement plus failed-request repair work remains open. Continue only existing measurement gates, failed-request repair or closure, private-gate controls, and bounded read-only revalidation. Decision: authorize only those existing bounded workstreams this cycle?",
+        "summary": "Recommendation: reject the amputeenews.com Amazon Associates configuration proposal and authorize no new production or queue work this cycle. The required tracking tag is owner-controlled and absent, while available telemetry does not establish monetization lift, revenue, ROI, or causal impact; existing measurement gates and failed-request repairs remain open. Continue only existing bounded measurement, failure-repair, private-gate, and read-only revalidation work. Will the owner provide an authorized Amazon Associates tag for a separately reviewed implementation?",
         "requested_action": null,
         "proposal_id": null
       }
