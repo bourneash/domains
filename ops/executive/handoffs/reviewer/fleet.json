@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T15:47:39.789Z",
+  "generated_at": "2026-09-25T15:48:32.265Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: Reject all new production, queue, revenue, ROI, margin, and causal-lift work this cycle. Attribution is aggregate or low-volume, the revenue window is one day, budgets and fixed costs are unspecified, operations evidence is unavailable, and no outcomes are proven. Preserve only one bounded public readiness assessment for offshorehookup.com; no telemetry, credentials, configuration, spending, schedules, or production changes. Authorize that assessment?",
+        "summary": "Recommendation: Reject all new production, queue, revenue, ROI, margin, and causal-lift work this cycle. Attribution is aggregate or low-volume, the revenue window is one day, budgets and fixed costs are unspecified, operations evidence is unavailable, and no outcomes are proven. Continue only existing measurement, failure-repair, and bounded read-only security-gate work; do not create duplicate telemetry requests or change credentials, configuration, spending, schedules, or production.",
         "requested_action": null,
         "proposal_id": null
       }
