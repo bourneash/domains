@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:49:09.560Z",
+  "generated_at": "2026-09-26T21:02:23.711Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution. Continue existing measurement, reconciliation, failure repair-or-close review, and bounded legal/security evidence work using existing telemetry only. Create no new production requests, requeues, experiments, telemetry, dependencies, spend, monetization expansion, or external outreach.",
+        "summary": "Recommendation: preserve containment-only execution. Existing evidence supports continued measurement, attribution reconciliation, failed-work repair-or-close review, and bounded accessibility, performance, UX, SEO, and security evidence work only. No new site proposals, change requests, experiments, telemetry, spend, monetization expansion, or requeues are justified this cycle: the authoritative candidate list is empty and capacity is occupied. Preserve unknown revenue, ROI, causal lift, margin, and operational outcomes. Continue existing work through the approval and engineer queue.",
         "requested_action": null,
         "proposal_id": null
       }
