@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T02:39:28.943Z",
+  "generated_at": "2026-09-26T02:47:29.364Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No production change is defensible this cycle. Aliencouncil.com is blocked by low-volume telemetry (77 impressions, 0 clicks), rc-9.com is blocked by an unresolved failed request, and all other candidates are active, measuring, deferred, or high-priority queue work. I rejected unsupported revenue, ROI, attribution, causal, and production claims. Continue existing measurement and repair work; no new implementation request is queued.",
+        "summary": "Independent review rejects all new production candidates this cycle. Aliencouncil.com is low-volume (77 impressions, 0 clicks); rc-9.com is blocked by an unresolved failed request; remaining candidates are already active/measuring, deferred, or high-priority queue work. Do not make unsupported revenue, ROI, attribution, incrementality, or causal claims. Continue existing measurement and failed-request repair; no new implementation request is defensible.",
         "requested_action": null,
         "proposal_id": null
       }
