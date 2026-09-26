@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:02:23.711Z",
+  "generated_at": "2026-09-26T21:18:09.774Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Existing evidence supports continued measurement, attribution reconciliation, failed-work repair-or-close review, and bounded evidence work only. No new revenue experiment, product opportunity, change request, telemetry request, spend, monetization expansion, or requeue is justified this cycle because the authoritative candidate list is empty and capacity is occupied. Preserve unknown revenue, ROI, causal lift, margin, cost-to-learn, and operational outcomes. Continue existing work through the approval and engineer queues.",
+        "summary": "CRO disposition: retain no new proposals, experiments, change requests, research requests, or queue work this cycle. Existing CEO/CTO/reviewer containment instructions supersede new CRO execution. Future evidence-backed opportunities remain backlog themes only: (1) affiliate conversion clarity on already-qualified sites; metric: affiliate outbound CTR and attributable orders; learn in 14 days or 100 new impressions; prototype: one reversible CTA/disclosure placement variant; risk: aggregate revenue cannot be assigned to sites. (2) Search-intent and above-fold clarity for pages with impressions but zero clicks; metric: organic CTR and sessions; learn in 14 days or 100 new impressions; prototype: one title/meta and heading variant; risk: avoid overlap with active measurement and preserve rollback. (3) Fleet measurement-state product capability distinguishing deployed, measurable, measured, proven, and unknown; metric: reduction in unmeasured deployed work and improved attribution completeness; learn after existing backlog reconciliation; prototype: read-only state mapping over current records; risk: no new telemetry or instrumentation. GitHub signals support research only: shadcn-ui/ui is MIT and passed bounded checks for accessible CTA primitives; microsoft/markitdown is MIT and passed bounded checks for document-to-markdown workflows; mermaid-js/mermaid is MIT but had no safe native checks. None has validated fleet security, maintenance, bundle, or revenue impact; prototype, security review, and owner-approved implementation remain required. Continue existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work only. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

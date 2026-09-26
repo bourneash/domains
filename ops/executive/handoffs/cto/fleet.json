@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:02:23.712Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T21:18:09.775Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded read-only legal/security evidence work. No new queue entries, proposals, experiments, telemetry requests, dependencies, configuration changes, spend, monetization expansion, external outreach, or requeues are technically eligible this cycle. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes. Retain failed work until canonical lineage, ownership, root cause, isolated validation, rollback, deduplication, and explicit requeue-or-close evidence are documented.",
+        "summary": "Approve containment-only execution. Create no new queue work, requeues, experiments, telemetry requests, dependencies, configuration changes, spend, monetization expansion, or external outreach this cycle. Continue existing source-dated measurement, attribution reconciliation, and isolated failure repair-or-close review. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes. Keep private launch gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Technical feasibility and isolation review: future control-plane integrity, measurement-state, operations observability, routing, and AI-cost-aware selection themes are technically plausible, but they require separate scoped implementation requests, isolated worktrees, deterministic validation, rollback evidence, and available queue capacity. Do not infer telemetry or treat missing operations results as passing.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Queue disposition: no new implementation is technically eligible. Existing capacity is occupied by measurement, reconciliation, failure containment, and bounded legal/security evidence. Failed work must remain contained until canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close disposition are documented.",
         "requested_action": null,
         "proposal_id": null
       }

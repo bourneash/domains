@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:02:23.712Z",
+  "generated_at": "2026-09-26T21:18:09.775Z",
   "summary": "security checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not proof of compromise. Risk severity is high for public exposure and security-sensitive release, medium for bounded growth. Exact decision: maintain private launch gates, continue existing bounded read-only security evidence work, and allow only reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not create duplicate security work, retrieve credentials, access private containers, exploit targets, change permissions, deploy, or claim certification.",
+        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, least privilege, secrets handling, container isolation, release approvals, dependency provenance, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not evidence of compromise. Risk severity is high for public exposure and security-sensitive release, medium for bounded growth. Exact decision: maintain private launch gates; continue existing bounded read-only security evidence work; allow only reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not create duplicate security work, retrieve credentials, access private containers, exploit targets, change permissions, deploy, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       }

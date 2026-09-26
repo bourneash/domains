@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:02:23.712Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T21:18:09.775Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, telemetry requests, spend, monetization expansion, and external outreach. Revenue is $4.92 aggregate for one day with $0 site-attributed commission; ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes remain unknown. Keep the gated product private and leave permission outreach unsent pending human-counsel review and explicit owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve containment-only execution. The authoritative candidate list is empty and existing capacity is occupied. Continue only existing measurement, reconciliation, failure repair-or-close, and bounded read-only legal/security evidence work. No new proposals, change requests, experiments, telemetry requests, spend, dependencies, configuration changes, requeues, monetization expansion, or external outreach.",
+        "summary": "Approve containment-only execution: continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, spend, monetization expansion, and external outreach. Revenue is limited to $4.92 aggregate commission for 2026-09-21 with $0 site-attributed commission; ROI, margin, causal lift, budget exposure, and operational health remain unknown. Keep the gated product private and permission outreach unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

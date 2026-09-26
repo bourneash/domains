@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-26T14:58:24.615Z",
+  "generated_at": "2026-09-26T21:18:09.774Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Standardize fleet social-link placement as a reusable, evidence-gated product capability",
-        "summary": "Create one reusable specification for accessible social-link banners or footer links, while preserving site-specific URLs and readiness as unknown until verified from authorized registry data.",
-        "requested_action": "Extend the existing site-specific social-link briefs into a reusable implementation contract covering verified account URLs, safe placement surfaces, disclosure-safe copy, accessibility, rollback, and approval prerequisites. Do not deploy, add tracking, or claim lift. Route implementation only after site evidence and existing queue capacity are confirmed.",
-        "proposal_id": "402d2c46-7bae-4b4f-a5d0-147bde75384b"
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain containment-only execution and create no new queue work this cycle. Highest-leverage product opportunities, to retain as future backlog themes, are: (1) control-plane execution integrity—canonical lineage, deduplication, ownership, retry gates, and repair-or-close states; current evidence shows 197 approved proposals without execution and 46 open failure follow-ups; (2) measurement readiness—automatically distinguish deployed, measurable, measured, proven, and unknown states; 27 deployed improvements await measurement, with only 5 measured and 1 proven; (3) restore existing operations/fleet-doctor result availability so reliability is observable without inventing telemetry; (4) operator-facing capability and routing matrix to reduce blocked handoffs caused by unavailable roles; and (5) AI-cost-aware work selection using existing usage records, preserving unknown ROI and margin. Prioritize by operator time saved, reliability, adoption, reversibility, and measurable outcome. Continue existing measurement, attribution reconciliation, security evidence, and failed-work repair-or-close review; do not create duplicate telemetry, requeue failures, add spend, change schedules, or deploy.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }
