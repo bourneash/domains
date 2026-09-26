@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:33:51.812Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T19:49:09.559Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the CRO and product-manager recommendations as containment-only. No new queue entry is eligible because candidates are empty and existing capacity is occupied by measurement, reconciliation, failure containment, and security evidence. Continue only existing isolated repair-or-close work with lineage, ownership, validation, rollback, deduplication, and explicit requeue-or-close evidence.",
+        "summary": "No new queue entry is technically eligible. The authoritative candidate list is empty, existing capacity is occupied, and retained failures lack complete lineage, ownership, root cause, isolated validation, rollback, deduplication, and repair-or-close evidence. Continue existing work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new production requests, requeues, experiments, telemetry, dependencies, configuration changes, spend, monetization expansion, or external outreach are technically eligible this cycle. Continue existing source-dated measurement, attribution reconciliation, isolated failure repair-or-close review, and bounded legal/security evidence work. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget, and operational fields. Keep private launch gates unchanged and require lineage, ownership, deduplication, validation, rollback, and explicit requeue-or-close evidence before resuming failed work.",
+        "summary": "Continue scheduled measurement using existing source-dated telemetry only. Do not add instrumentation, request duplicate telemetry, or treat aggregate commission as site-attributed revenue. Preserve unknown financial and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution. No new queue entry is eligible because candidates are empty and existing capacity is occupied by measurement, reconciliation, failure containment, and security evidence. Continue only existing isolated repair-or-close work with lineage, ownership, validation, rollback, deduplication, and explicit requeue-or-close evidence.",
+        "summary": "Keep the gated product private. Continue bounded read-only rights, data-flow, retention, consent, vendor, incident, accuracy, attribution, and security evidence work. Keep external permission outreach unsent pending owner and human-counsel authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial disposition remains unknown: available revenue is aggregate and period-limited, site attribution is zero, AI cost is available for its stated window, and broader cost and budget boundaries are absent. Do not authorize discretionary spend or claim ROI, margin, cost-to-learn, or forecasted upside.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failure repair-or-close review, and bounded security/legal evidence work. Preserve unavailable revenue, ROI, margin, causal lift, budget, and operational fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
