@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:40:25.902Z",
+  "generated_at": "2026-09-26T16:19:09.174Z",
   "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: containment is financially appropriate. AI usage cost was $948.88 for 2026-09-01 through 2026-09-26; Amazon revenue evidence covers only 2026-09-21, with $4.92 in an unattributed aggregate row. Contribution margin, ROI, cost-to-learn, and budget exposure are not calculable. Reject unsupported financial conclusions and any new spend or monetization change.",
+        "summary": "AI spend is measurable for 2026-09-01 through 2026-09-26: $948.88 across 5,327 calls, including 230 errors and 5 transient errors. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent, while revenue is only one day and site-attributed commission is $0. Cost-to-learn is also not calculable because experiment-level cost and incremental attributable outcomes are unavailable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment only. Authorize no new production, experiment, monetization, spending, launch, or telemetry work this cycle. AI usage cost was $948.8788343 for 2026-09-01 through 2026-09-26 across 5,327 calls, including 230 errors and 5 transient errors. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in an unattributed aggregate row; named site rows show $0 commission. Revenue claims, contribution margin, ROI, cost-to-learn, budget exposure, payback, and forecasts are unsupported. The periods do not align, site revenue is not attributable, infrastructure and other direct costs are unavailable, and monthly, fixed, and marketing budgets are blank. Continue only existing execution reconciliation, failed-run containment, deployed-work measurement, and bounded read-only security evidence capture. Minimum finance gate for future investment decisions: same-period site/experiment ledger containing tracking ID, outbound clicks, orders, shipped items, commission, AI cost, attributable infrastructure cost, labor or contractor cost, incremental experiment cost, exposures, hypothesis, and measurable learning outcome. Do not treat impressions, clicks, sessions, conversions, social coverage, performance scores, or missing costs as financial return.",
+        "summary": "Budget exposure cannot be bounded: monthly spend limit, fixed monthly costs, marketing budget, revenue floor, and attribution materiality threshold are blank in the brief. Minimum finance measurement is a period-aligned site ledger covering attributable revenue, AI cost, infrastructure cost, domains, labor, marketing, and experiment-level incremental outcomes. Use existing evidence only; do not request duplicate telemetry or treat missing values as zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the private launch gate and authorize no rights-dependent monetization or external spend. Internal preparation and read-only evidence work may continue, but no revenue forecast or launch economics are supported by the current evidence.",
+        "summary": "CFO handoff: retain the existing reconciliation, measurement, failed-run containment, and security-evidence workstreams. Update measurement records with source dates and separately label revenue, attribution, contribution margin, cost-to-learn, infrastructure spend, budget exposure, and causal lift as unknown where unsupported. Requeue or fund no work without documented attributable upside or cost saving.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported financial conclusions. The 30-day scorecard reports 5 measured improvements and only 1 proven outcome, with deltas of 2 sessions, 10 clicks, 714 impressions, and 0 commission income. These metrics do not establish causal lift, contribution margin, ROI, or cost-to-learn.",
+        "summary": "Retain private launch gates and authorize only bounded read-only evidence work. Rights-dependent monetization and external spend remain blocked. Technical metrics such as impressions, clicks, sessions, conversions, performance scores, or AI calls are not financial returns and must not be presented as such.",
         "requested_action": null,
         "proposal_id": null
       }
