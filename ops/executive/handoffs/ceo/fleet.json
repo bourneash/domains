@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T18:19:36.136Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T19:03:58.807Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and keep the gated product private. Continue existing reconciliation, repair-or-close review, measurement, and security evidence work. Owner decision: authorize the prepared permission request after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Continue existing measurement, reconciliation, failure repair-or-close review, and bounded security/legal evidence work; create no new production requests, requeues, spend, telemetry, or monetization expansion. Evidence: 27 deployed improvements await measurement, 7 requests failed, 46 repair follow-ups remain open, and the actionability candidate list is empty. Revenue covers one day with $4.92 aggregate commission and $0 site-attributed commission, so ROI and margin are unknown. Owner decision: authorize the prepared SearchWoot permission request after human-counsel review, or keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution. Continue existing measurement, reconciliation, failure repair-or-close review, and bounded security/legal evidence work; create no new production requests, requeues, spend, telemetry, or monetization expansion. The actionability candidate list is empty, 27 deployed improvements await measurement, 7 implementation requests failed, and 46 repair follow-ups remain open. Revenue covers one day with $4.92 aggregate commission and $0 site-attributed commission, so ROI and margin are unknown.",
         "requested_action": null,
         "proposal_id": null
       }
