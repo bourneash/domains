@@ -55,12 +55,15 @@ const finish = (code, signal) => {
     const tick = store
       .listExecutiveActions({ action_type: 'tick', limit: 20 })
       .find(row => Date.parse(row.started_at || '') >= Date.now() - 2 * 60 * 60 * 1000);
+    const tickError = tick?.error || null;
     executive.finishAction(store, actionId, {
       status: code === 0 ? 'completed' : 'failed',
       error:
         code === 0
           ? null
-          : `executive runner exited with code ${code}${signal ? ` (${signal})` : ''}`,
+          : tickError
+            ? `executive tick failed: ${tickError}`
+            : `executive runner exited with code ${code}${signal ? ` (${signal})` : ''}`,
       result: {
         exit_code: code,
         signal: signal || null,
@@ -68,6 +71,9 @@ const finish = (code, signal) => {
         tick_action_id: tick?.action_id || null,
         tick_status: tick?.status || null,
         tick_result: tick?.result || null,
+        failed_stage:
+          code === 0 ? null : tickError ? 'executive tick / plan application' : 'runner process',
+        failure_reason: tickError || (code === 0 ? null : `runner exited with code ${code}`),
       },
     });
   } catch (error) {

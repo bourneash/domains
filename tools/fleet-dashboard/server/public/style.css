@@ -177,6 +177,8 @@ body[data-view="agent"] main:has(.ex-shell) { max-width: 1380px; }
 .ex-run-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 4px; }
 .ex-run-output { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-top: 14px; padding: 11px 13px; border: 1px solid rgba(63,185,80,.35); border-radius: 8px; background: rgba(63,185,80,.08); font-size: 12px; }
 .ex-run-output b { color: var(--green); }
+.ex-run-output.ex-run-failure { border-color: rgba(248,81,73,.55); background: rgba(248,81,73,.10); }
+.ex-run-output.ex-run-failure b { color: var(--red); }
 .ex-attention .ex-approval-card { margin: 0 0 9px; padding: 13px 14px; background: var(--panel-2); border-radius: 8px; border: 1px solid var(--border); }
 .ex-attention .ex-approval-card:last-child { margin-bottom: 0; }
 .ex-attention .ex-approval-card p { margin: 8px 0; color: var(--text); font-size: 13px; line-height: 1.45; }

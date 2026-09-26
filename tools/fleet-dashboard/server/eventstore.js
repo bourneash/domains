@@ -366,34 +366,92 @@ function open(root, { file } = {}) {
     return false;
   }
   function createWorkflowLink(input = {}) {
-    const row = { link_id: input.link_id || crypto.randomUUID(), from_type: String(input.from_type || ''), from_id: String(input.from_id || ''), to_type: String(input.to_type || ''), to_id: String(input.to_id || ''), relation: String(input.relation || 'related_to'), created_by: String(input.created_by || 'owner'), created_at: input.created_at || new Date().toISOString() };
+    const row = {
+      link_id: input.link_id || crypto.randomUUID(),
+      from_type: String(input.from_type || ''),
+      from_id: String(input.from_id || ''),
+      to_type: String(input.to_type || ''),
+      to_id: String(input.to_id || ''),
+      relation: String(input.relation || 'related_to'),
+      created_by: String(input.created_by || 'owner'),
+      created_at: input.created_at || new Date().toISOString(),
+    };
     if (row.relation === 'blocked_by') {
       [row.from_type, row.to_type] = [row.to_type, row.from_type];
       [row.from_id, row.to_id] = [row.to_id, row.from_id];
       row.relation = 'blocks';
     }
-    if (!WORKFLOW_ENTITY_TYPES.has(row.from_type) || !WORKFLOW_ENTITY_TYPES.has(row.to_type)) throw httpErr(400, 'invalid workflow entity type');
+    if (!WORKFLOW_ENTITY_TYPES.has(row.from_type) || !WORKFLOW_ENTITY_TYPES.has(row.to_type))
+      throw httpErr(400, 'invalid workflow entity type');
     if (!WORKFLOW_RELATIONS.has(row.relation)) throw httpErr(400, 'invalid workflow relation');
-    if (!row.from_id || !row.to_id || row.from_id === row.to_id) throw httpErr(400, 'workflow links require two different entities');
-    if (!workflowEntityExists(row.from_type, row.from_id) || !workflowEntityExists(row.to_type, row.to_id)) throw httpErr(404, 'workflow entity not found');
+    if (!row.from_id || !row.to_id || row.from_id === row.to_id)
+      throw httpErr(400, 'workflow links require two different entities');
+    if (
+      !workflowEntityExists(row.from_type, row.from_id) ||
+      !workflowEntityExists(row.to_type, row.to_id)
+    )
+      throw httpErr(404, 'workflow entity not found');
     if (row.relation !== 'related_to') {
       const items = [
-        ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({ ...item, source: 'work-item', id: item.work_id })),
-        ...listChangeRequests({ limit: 1000 }).map(item => ({ ...item, source: 'request', id: item.request_id })),
-        ...listExecutiveProposals({ limit: 1000 }).map(item => ({ ...item, source: 'proposal', id: item.proposal_id })),
+        ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({
+          ...item,
+          source: 'work-item',
+          id: item.work_id,
+        })),
+        ...listChangeRequests({ limit: 1000 }).map(item => ({
+          ...item,
+          source: 'request',
+          id: item.request_id,
+        })),
+        ...listExecutiveProposals({ limit: 1000 }).map(item => ({
+          ...item,
+          source: 'proposal',
+          id: item.proposal_id,
+        })),
       ];
-      const check = workflowEngine.evaluate({ items, links: [...listWorkflowLinks({ limit: 2000 }), row] });
-      if (check.cycles.length) throw httpErr(409, 'workflow link would create a circular dependency');
+      const check = workflowEngine.evaluate({
+        items,
+        links: [...listWorkflowLinks({ limit: 2000 }), row],
+      });
+      if (check.cycles.length)
+        throw httpErr(409, 'workflow link would create a circular dependency');
     }
-    db.prepare('INSERT INTO workflow_links (link_id,from_type,from_id,to_type,to_id,relation,created_by,created_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(from_type,from_id,to_type,to_id,relation) DO NOTHING').run(row.link_id, row.from_type, row.from_id, row.to_type, row.to_id, row.relation, row.created_by, row.created_at);
-    return db.prepare('SELECT * FROM workflow_links WHERE from_type=? AND from_id=? AND to_type=? AND to_id=? AND relation=?').get(row.from_type, row.from_id, row.to_type, row.to_id, row.relation);
+    db.prepare(
+      'INSERT INTO workflow_links (link_id,from_type,from_id,to_type,to_id,relation,created_by,created_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(from_type,from_id,to_type,to_id,relation) DO NOTHING'
+    ).run(
+      row.link_id,
+      row.from_type,
+      row.from_id,
+      row.to_type,
+      row.to_id,
+      row.relation,
+      row.created_by,
+      row.created_at
+    );
+    return db
+      .prepare(
+        'SELECT * FROM workflow_links WHERE from_type=? AND from_id=? AND to_type=? AND to_id=? AND relation=?'
+      )
+      .get(row.from_type, row.from_id, row.to_type, row.to_id, row.relation);
   }
   function listWorkflowLinks({ entity_type, entity_id, limit = 500 } = {}) {
-    const where = entity_type && entity_id ? ' WHERE (from_type=? AND from_id=?) OR (to_type=? AND to_id=?)' : '';
-    const args = entity_type && entity_id ? [String(entity_type), String(entity_id), String(entity_type), String(entity_id)] : [];
-    return db.prepare(`SELECT * FROM workflow_links${where} ORDER BY created_at DESC LIMIT ?`).all(...args, Math.min(Number(limit) || 500, 2000));
+    const where =
+      entity_type && entity_id
+        ? ' WHERE (from_type=? AND from_id=?) OR (to_type=? AND to_id=?)'
+        : '';
+    const args =
+      entity_type && entity_id
+        ? [String(entity_type), String(entity_id), String(entity_type), String(entity_id)]
+        : [];
+    return db
+      .prepare(`SELECT * FROM workflow_links${where} ORDER BY created_at DESC LIMIT ?`)
+      .all(...args, Math.min(Number(limit) || 500, 2000));
   }
-  function deleteWorkflowLink(id) { const result = db.prepare('DELETE FROM workflow_links WHERE link_id=?').run(String(id)); if (!result.changes) throw httpErr(404, 'workflow link not found'); return { link_id: String(id) }; }
+  function deleteWorkflowLink(id) {
+    const result = db.prepare('DELETE FROM workflow_links WHERE link_id=?').run(String(id));
+    if (!result.changes) throw httpErr(404, 'workflow link not found');
+    return { link_id: String(id) };
+  }
 
   function createImprovement(input) {
     const now = input.created_at || new Date().toISOString();
@@ -873,7 +931,7 @@ function open(root, { file } = {}) {
   }
 
   function listExecutiveMessages({ conversation_id = 'executive', work_id, limit = 200 } = {}) {
-    const n = Math.max(1, Math.min(Number(limit) || 200, 200));
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     return db
       .prepare(
         `SELECT * FROM executive_messages WHERE conversation_id = ?${work_id ? ' AND work_id = ?' : ''}
@@ -885,15 +943,33 @@ function open(root, { file } = {}) {
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined }));
   }
 
+  function purgeExecutiveTranscriptBefore(cutoff) {
+    const iso = new Date(cutoff).toISOString();
+    const result = db
+      .prepare(
+        `DELETE FROM executive_messages
+         WHERE created_at < ? AND message_type IN
+         ('model-prompt','model-response','background','tool-call','tool-result')`
+      )
+      .run(iso);
+    return { deleted: result.changes, cutoff: iso };
+  }
+
   function updateExecutiveMessage(id, patch = {}) {
-    const current = db.prepare('SELECT * FROM executive_messages WHERE message_id = ?').get(String(id));
+    const current = db
+      .prepare('SELECT * FROM executive_messages WHERE message_id = ?')
+      .get(String(id));
     if (!current) throw httpErr(404, 'executive message not found');
     const next = { ...current, ...patch };
-    db.prepare('UPDATE executive_messages SET work_id=?, reply_to=?, message_type=?, metadata_json=? WHERE message_id=?').run(
+    db.prepare(
+      'UPDATE executive_messages SET work_id=?, reply_to=?, message_type=?, metadata_json=? WHERE message_id=?'
+    ).run(
       next.work_id || null,
       next.reply_to || null,
       next.message_type || 'update',
-      typeof next.metadata_json === 'string' ? next.metadata_json : JSON.stringify(next.metadata || safeJson(current.metadata_json)),
+      typeof next.metadata_json === 'string'
+        ? next.metadata_json
+        : JSON.stringify(next.metadata || safeJson(current.metadata_json)),
       String(id)
     );
     return db.prepare('SELECT * FROM executive_messages WHERE message_id = ?').get(String(id));
@@ -919,17 +995,33 @@ function open(root, { file } = {}) {
     };
     if (!row.title || !row.body) throw httpErr(400, 'notification title and body are required');
     try {
-      db.prepare(`INSERT INTO executive_notifications
+      db.prepare(
+        `INSERT INTO executive_notifications
         (notification_id,recipient,notification_type,title,body,work_id,message_id,dedupe_key,created_at,read_at,delivery_status,delivery_attempts,last_error,next_attempt_at,delivered_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
-        row.notification_id, row.recipient, row.notification_type, row.title, row.body,
-        row.work_id, row.message_id, row.dedupe_key, row.created_at, row.read_at,
-        row.delivery_status, row.delivery_attempts, row.last_error, row.next_attempt_at, row.delivered_at
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        row.notification_id,
+        row.recipient,
+        row.notification_type,
+        row.title,
+        row.body,
+        row.work_id,
+        row.message_id,
+        row.dedupe_key,
+        row.created_at,
+        row.read_at,
+        row.delivery_status,
+        row.delivery_attempts,
+        row.last_error,
+        row.next_attempt_at,
+        row.delivered_at
       );
       return row;
     } catch (error) {
       if (row.dedupe_key && String(error.message).includes('UNIQUE constraint failed'))
-        return db.prepare('SELECT * FROM executive_notifications WHERE dedupe_key = ?').get(row.dedupe_key);
+        return db
+          .prepare('SELECT * FROM executive_notifications WHERE dedupe_key = ?')
+          .get(row.dedupe_key);
       throw error;
     }
   }
@@ -939,34 +1031,63 @@ function open(root, { file } = {}) {
     const args = [String(recipient)];
     if (unread === true || unread === 'true' || unread === '1') clauses.push('read_at IS NULL');
     const n = Math.max(1, Math.min(Number(limit) || 100, 500));
-    return db.prepare(`SELECT * FROM executive_notifications WHERE ${clauses.join(' AND ')} ORDER BY created_at DESC LIMIT ?`).all(...args, n);
+    return db
+      .prepare(
+        `SELECT * FROM executive_notifications WHERE ${clauses.join(' AND ')} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n);
   }
 
   function markExecutiveNotificationRead(id) {
     const readAt = new Date().toISOString();
-    db.prepare('UPDATE executive_notifications SET read_at = ? WHERE notification_id = ?').run(readAt, String(id));
-    return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id)) || null;
+    db.prepare('UPDATE executive_notifications SET read_at = ? WHERE notification_id = ?').run(
+      readAt,
+      String(id)
+    );
+    return (
+      db
+        .prepare('SELECT * FROM executive_notifications WHERE notification_id = ?')
+        .get(String(id)) || null
+    );
   }
 
   function getExecutiveNotification(id) {
-    return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id)) || null;
+    return (
+      db
+        .prepare('SELECT * FROM executive_notifications WHERE notification_id = ?')
+        .get(String(id)) || null
+    );
   }
 
   function markAllExecutiveNotificationsRead(recipient = 'owner') {
     const readAt = new Date().toISOString();
-    const result = db.prepare('UPDATE executive_notifications SET read_at = ? WHERE recipient = ? AND read_at IS NULL').run(readAt, String(recipient));
+    const result = db
+      .prepare(
+        'UPDATE executive_notifications SET read_at = ? WHERE recipient = ? AND read_at IS NULL'
+      )
+      .run(readAt, String(recipient));
     return { updated: result.changes, read_at: readAt };
   }
 
   function updateExecutiveNotificationDelivery(id, patch = {}) {
-    const current = db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id));
+    const current = db
+      .prepare('SELECT * FROM executive_notifications WHERE notification_id = ?')
+      .get(String(id));
     if (!current) throw httpErr(404, 'notification not found');
     const next = { ...current, ...patch };
-    db.prepare(`UPDATE executive_notifications SET delivery_status=?,delivery_attempts=?,last_error=?,next_attempt_at=?,delivered_at=? WHERE notification_id=?`).run(
-      String(next.delivery_status || 'pending'), Number(next.delivery_attempts || 0), next.last_error || null,
-      next.next_attempt_at || null, next.delivered_at || null, String(id)
+    db.prepare(
+      `UPDATE executive_notifications SET delivery_status=?,delivery_attempts=?,last_error=?,next_attempt_at=?,delivered_at=? WHERE notification_id=?`
+    ).run(
+      String(next.delivery_status || 'pending'),
+      Number(next.delivery_attempts || 0),
+      next.last_error || null,
+      next.next_attempt_at || null,
+      next.delivered_at || null,
+      String(id)
     );
-    return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id));
+    return db
+      .prepare('SELECT * FROM executive_notifications WHERE notification_id = ?')
+      .get(String(id));
   }
 
   function createExecutiveProposal(input) {
@@ -1100,9 +1221,7 @@ function open(root, { file } = {}) {
         'product-manager-sites',
         'domain-manager',
         'reviewer',
-      ].includes(
-        String(reviewed_by)
-      )
+      ].includes(String(reviewed_by))
     )
       throw httpErr(403, 'invalid executive reviewer');
     const current = getExecutiveProposal(id);
@@ -1252,6 +1371,8 @@ function open(root, { file } = {}) {
     'legal',
     'security',
     'cro',
+    'product-manager-fleet',
+    'product-manager-sites',
     'domain-manager',
     'project-manager',
     'principal-engineer',
@@ -1329,8 +1450,8 @@ function open(root, { file } = {}) {
       row.created_at,
       row.updated_at,
       row.resolved_at,
-      row.resolution_note
-      ,row.lifecycle_state,
+      row.resolution_note,
+      row.lifecycle_state,
       row.acknowledged_at,
       row.answered_at,
       row.closed_at,
@@ -1406,13 +1527,17 @@ function open(root, { file } = {}) {
   function updateExecutiveWorkItem(id, patch = {}) {
     const current = getExecutiveWorkItem(id);
     if (!current) throw httpErr(404, 'executive work item not found');
-    if (patch.expected_updated_at && String(patch.expected_updated_at) !== String(current.updated_at)) throw httpErr(409, 'work item changed; refresh before updating it');
+    if (
+      patch.expected_updated_at &&
+      String(patch.expected_updated_at) !== String(current.updated_at)
+    )
+      throw httpErr(409, 'work item changed; refresh before updating it');
     const next = { ...current, ...patch };
     next.title = String(next.title || '').trim();
     next.kind = String(next.kind || '').trim();
     next.status = String(next.status || '').trim();
     next.priority = String(next.priority || '').trim();
-      next.owner = String(next.owner || '').trim();
+    next.owner = String(next.owner || '').trim();
     next.lifecycle_state = String(next.lifecycle_state || 'open').trim();
     if (!next.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(next.kind)) throw httpErr(400, 'invalid work item kind');
@@ -1420,55 +1545,81 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_PRIORITIES.has(next.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(next.owner)) throw httpErr(400, 'invalid work item owner');
     if (next.status === 'done' && current.status !== 'done') {
-      const hasEvidence = Array.isArray(next.evidence) && next.evidence.some(entry => entry && (entry.note || entry.url || entry.label));
-      if (!hasEvidence && !String(next.outcome || '').trim() && !String(next.resolution_note || '').trim()) throw httpErr(409, 'completion requires outcome, resolution note, or evidence');
+      const hasEvidence =
+        Array.isArray(next.evidence) &&
+        next.evidence.some(entry => entry && (entry.note || entry.url || entry.label));
+      if (
+        !hasEvidence &&
+        !String(next.outcome || '').trim() &&
+        !String(next.resolution_note || '').trim()
+      )
+        throw httpErr(409, 'completion requires outcome, resolution note, or evidence');
     }
     if (next.status === 'in_progress' && current.status !== 'in_progress') {
       const boardItems = [
-        ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({ ...item, source: 'work-item', id: item.work_id })),
-        ...listChangeRequests({ limit: 1000 }).map(item => ({ ...item, source: 'request', id: item.request_id })),
-        ...listExecutiveProposals({ limit: 1000 }).map(item => ({ ...item, source: 'proposal', id: item.proposal_id })),
+        ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({
+          ...item,
+          source: 'work-item',
+          id: item.work_id,
+        })),
+        ...listChangeRequests({ limit: 1000 }).map(item => ({
+          ...item,
+          source: 'request',
+          id: item.request_id,
+        })),
+        ...listExecutiveProposals({ limit: 1000 }).map(item => ({
+          ...item,
+          source: 'proposal',
+          id: item.proposal_id,
+        })),
       ];
-      const workflow = workflowEngine.evaluate({ items: boardItems, links: listWorkflowLinks({ limit: 2000 }) });
+      const workflow = workflowEngine.evaluate({
+        items: boardItems,
+        links: listWorkflowLinks({ limit: 2000 }),
+      });
       const node = workflow.nodes[`work-item:${id}`];
-      if (node?.blockers?.length) throw httpErr(409, `work item is blocked by ${node.blockers.join(', ')}`);
-      if (workflow.cycles.some(cycle => cycle.includes(`work-item:${id}`))) throw httpErr(409, 'work item is part of a circular dependency');
+      if (node?.blockers?.length)
+        throw httpErr(409, `work item is blocked by ${node.blockers.join(', ')}`);
+      if (workflow.cycles.some(cycle => cycle.includes(`work-item:${id}`)))
+        throw httpErr(409, 'work item is part of a circular dependency');
     }
     const now = new Date().toISOString();
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
-    const result = db.prepare(
-      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
-    ).run(
-      next.title,
-      next.kind,
-      next.status,
-      next.priority,
-      next.owner,
-      next.source_type || null,
-      next.source_id || null,
-      next.site || null,
-      String(next.summary || ''),
-      String(next.next_action || ''),
-      next.waiting_on || null,
-      next.due_at || null,
-      JSON.stringify(Array.isArray(next.evidence) ? next.evidence.slice(0, 20) : []),
-      now,
-      resolved,
-      next.resolution_note || null,
-      next.lifecycle_state,
-      next.acknowledged_at || null,
-      next.answered_at || null,
-      next.closed_at || null,
-      next.outcome || null,
-      Number(next.attempts || 0),
-      next.lease_owner || null,
-      next.lease_expires_at || null,
-      next.heartbeat_at || null,
-      next.retry_at || null,
-      next.last_error || null,
-      String(current.work_id),
-      String(current.updated_at)
-    );
+    const result = db
+      .prepare(
+        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
+      )
+      .run(
+        next.title,
+        next.kind,
+        next.status,
+        next.priority,
+        next.owner,
+        next.source_type || null,
+        next.source_id || null,
+        next.site || null,
+        String(next.summary || ''),
+        String(next.next_action || ''),
+        next.waiting_on || null,
+        next.due_at || null,
+        JSON.stringify(Array.isArray(next.evidence) ? next.evidence.slice(0, 20) : []),
+        now,
+        resolved,
+        next.resolution_note || null,
+        next.lifecycle_state,
+        next.acknowledged_at || null,
+        next.answered_at || null,
+        next.closed_at || null,
+        next.outcome || null,
+        Number(next.attempts || 0),
+        next.lease_owner || null,
+        next.lease_expires_at || null,
+        next.heartbeat_at || null,
+        next.retry_at || null,
+        next.last_error || null,
+        String(current.work_id),
+        String(current.updated_at)
+      );
     if (!result.changes) throw httpErr(409, 'work item changed; refresh before updating it');
     return getExecutiveWorkItem(current.work_id);
   }
@@ -1479,12 +1630,16 @@ function open(root, { file } = {}) {
     const workId = String(id);
     const now = new Date();
     const nowIso = now.toISOString();
-    const expires = new Date(now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000).toISOString();
-    const result = db.prepare(
-      `UPDATE executive_work_items SET lease_owner=?,lease_expires_at=?,heartbeat_at=?,attempts=attempts+1,updated_at=?
+    const expires = new Date(
+      now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000
+    ).toISOString();
+    const result = db
+      .prepare(
+        `UPDATE executive_work_items SET lease_owner=?,lease_expires_at=?,heartbeat_at=?,attempts=attempts+1,updated_at=?
        WHERE work_id=? AND status IN ('open','ready','waiting','blocked')
        AND (lease_expires_at IS NULL OR lease_expires_at <= ? OR lease_owner=?)`
-    ).run(owner, expires, nowIso, nowIso, workId, nowIso, owner);
+      )
+      .run(owner, expires, nowIso, nowIso, workId, nowIso, owner);
     return result.changes ? getExecutiveWorkItem(workId) : null;
   }
 
@@ -1492,10 +1647,14 @@ function open(root, { file } = {}) {
     const owner = String(leaseOwner || '').trim();
     const now = new Date();
     const nowIso = now.toISOString();
-    const expires = new Date(now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000).toISOString();
-    const result = db.prepare(
-      `UPDATE executive_work_items SET lease_expires_at=?,heartbeat_at=?,updated_at=? WHERE work_id=? AND lease_owner=?`
-    ).run(expires, nowIso, nowIso, String(id), owner);
+    const expires = new Date(
+      now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000
+    ).toISOString();
+    const result = db
+      .prepare(
+        `UPDATE executive_work_items SET lease_expires_at=?,heartbeat_at=?,updated_at=? WHERE work_id=? AND lease_owner=?`
+      )
+      .run(expires, nowIso, nowIso, String(id), owner);
     return result.changes ? getExecutiveWorkItem(id) : null;
   }
 
@@ -1696,6 +1855,7 @@ function open(root, { file } = {}) {
     updateExecutiveSettings,
     createExecutiveMessage,
     listExecutiveMessages,
+    purgeExecutiveTranscriptBefore,
     updateExecutiveMessage,
     createExecutiveNotification,
     listExecutiveNotifications,

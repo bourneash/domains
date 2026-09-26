@@ -3326,17 +3326,47 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const runs = [...manual, ...scheduled]
         .filter(row => !row.result?.cleared_at)
         .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''));
-      const queue = runs
-        .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''))
-        .slice(0, 24)
-        .map(row => ({
+      const enrichedRuns = runs.map(row => {
+        if (row.status !== 'failed') return row;
+        const linkedTick = row.result?.tick_action_id
+          ? actions.find(action => action.action_id === row.result.tick_action_id)
+          : actions
+              .filter(action => action.action_type === 'tick')
+              .filter(
+                action =>
+                  (Date.parse(action.started_at || '') || 0) >=
+                  (Date.parse(row.started_at || '') || 0) - 1000
+              )
+              .sort((a, b) => Date.parse(b.started_at || '') - Date.parse(a.started_at || ''))[0];
+        const reason =
+          row.result?.failure_reason ||
+          row.result?.tick_error ||
+          linkedTick?.error ||
+          row.error ||
+          null;
+        if (!reason) return row;
+        return {
           ...row,
-          source: row.target_type === 'manual-executive-run' ? 'manual' : 'scheduled',
-        }));
+          failure_reason: reason,
+          result: {
+            ...(row.result || {}),
+            failure_reason: reason,
+            failed_stage:
+              row.result?.failed_stage ||
+              (linkedTick ? 'executive tick / plan application' : 'runner process'),
+            tick_action_id: row.result?.tick_action_id || linkedTick?.action_id || null,
+            tick_error: row.result?.tick_error || linkedTick?.error || null,
+          },
+        };
+      });
+      const queue = enrichedRuns.slice(0, 24).map(row => ({
+        ...row,
+        source: row.target_type === 'manual-executive-run' ? 'manual' : 'scheduled',
+      }));
       res.json({
         active,
-        latest: runs[0] || null,
-        runs: runs.slice(0, 12),
+        latest: enrichedRuns[0] || null,
+        runs: enrichedRuns.slice(0, 12),
         queue,
       });
     } catch (e) {
@@ -3942,11 +3972,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const request = events.getChangeRequest(req.params.id);
       if (!request) return res.status(404).json({ error: 'change request not found' });
       if (request.status !== 'queued')
-        return res
-          .status(409)
-          .json({
-            error: `only queued requests can be re-evaluated; current status is ${request.status}`,
-          });
+        return res.status(409).json({
+          error: `only queued requests can be re-evaluated; current status is ${request.status}`,
+        });
       const result = await pickupChangeRequests(req.body?.max);
       const refreshed = events.getChangeRequest(req.params.id);
       const enriched = changequeueView.enrichChangeRequests(

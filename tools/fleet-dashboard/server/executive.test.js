@@ -49,7 +49,10 @@ test('backfills legacy owner messages into tracked requests', () => {
   const legacy = db.createExecutiveMessage({ actor: 'owner', body: 'Where is the launch plan?' });
   const created = executive.ensureOwnerRequests(db);
   assert.equal(created.length, 1);
-  assert.equal(db.listExecutiveMessages({ work_id: created[0].work_id })[0].message_id, legacy.message_id);
+  assert.equal(
+    db.listExecutiveMessages({ work_id: created[0].work_id })[0].message_id,
+    legacy.message_id
+  );
   assert.equal(db.listExecutiveWorkItems({ source_type: 'owner-request' })[0].summary, legacy.body);
   assert.deepEqual(executive.ensureOwnerRequests(db), []);
   db.close();
@@ -57,7 +60,10 @@ test('backfills legacy owner messages into tracked requests', () => {
 
 test('links replies by reply_to, advances the request, and creates an unread notification', () => {
   const db = store();
-  const request = executive.ownerRequest(db, { actor: 'owner', body: 'Please bring back the launch decision.' });
+  const request = executive.ownerRequest(db, {
+    actor: 'owner',
+    body: 'Please bring back the launch decision.',
+  });
   const reply = executive.message(db, {
     actor: 'ceo',
     body: 'Recommendation: keep the launch gated until the legal checklist is complete.',
@@ -105,14 +111,23 @@ test('acknowledges owner requests when downstream work is handed off', () => {
 
 test('enforces owner-request lifecycle transitions and requires a close outcome', () => {
   const db = store();
-  const request = executive.ownerRequest(db, { actor: 'owner', body: 'Track the release decision.' });
+  const request = executive.ownerRequest(db, {
+    actor: 'owner',
+    body: 'Track the release decision.',
+  });
   assert.throws(
     () => executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed'),
     /requires an outcome/
   );
-  const acknowledged = executive.transitionOwnerRequest(db, request.work_item.work_id, 'acknowledged');
+  const acknowledged = executive.transitionOwnerRequest(
+    db,
+    request.work_item.work_id,
+    'acknowledged'
+  );
   assert.equal(acknowledged.lifecycle_state, 'acknowledged');
-  const closed = executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed', { outcome: 'Decision recorded in the release plan.' });
+  const closed = executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed', {
+    outcome: 'Decision recorded in the release plan.',
+  });
   assert.equal(closed.lifecycle_state, 'closed');
   assert.equal(closed.status, 'done');
   assert.equal(closed.outcome, 'Decision recorded in the release plan.');
@@ -139,7 +154,9 @@ test('persists notification delivery attempts for retryable external delivery', 
   assert.equal(retry.delivery_attempts, 2);
   assert.equal(retry.last_error, 'webhook unavailable');
   const duplicate = db.createExecutiveNotification({
-    title: 'Duplicate', body: 'ignored', dedupe_key: 'test-notification-1',
+    title: 'Duplicate',
+    body: 'ignored',
+    dedupe_key: 'test-notification-1',
   });
   assert.equal(duplicate.notification_id, notification.notification_id);
   db.close();
@@ -147,7 +164,12 @@ test('persists notification delivery attempts for retryable external delivery', 
 
 test('leases executive work atomically and reports scheduler health', () => {
   const db = store();
-  const item = db.createExecutiveWorkItem({ title: 'Lease me', kind: 'research', status: 'ready', owner: 'project-manager' });
+  const item = db.createExecutiveWorkItem({
+    title: 'Lease me',
+    kind: 'research',
+    status: 'ready',
+    owner: 'project-manager',
+  });
   const claimed = db.claimExecutiveWorkItem(item.work_id, 'project-manager', 60);
   assert.equal(claimed.lease_owner, 'project-manager');
   assert.equal(claimed.attempts, 1);
@@ -164,8 +186,12 @@ test('leases executive work atomically and reports scheduler health', () => {
 test('escalates overdue work once per SLA level', () => {
   const db = store();
   const item = db.createExecutiveWorkItem({
-    title: 'Overdue evidence', kind: 'research', owner: 'security', created_by: 'owner',
-    status: 'waiting', due_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    title: 'Overdue evidence',
+    kind: 'research',
+    owner: 'security',
+    created_by: 'owner',
+    status: 'waiting',
+    due_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
   });
   assert.equal(executive.escalateOverdueWorkItems(db).length, 1);
   assert.equal(executive.escalateOverdueWorkItems(db).length, 0);
@@ -237,6 +263,10 @@ test('persists and updates assistive executive workbench cases', () => {
   });
   assert.equal(updated.status, 'blocked');
   assert.equal(updated.evidence[0].label, 'site facts');
+  const productManaged = db.updateExecutiveWorkItem(item.work_id, {
+    owner: 'product-manager-fleet',
+  });
+  assert.equal(productManaged.owner, 'product-manager-fleet');
   assert.throws(
     () => db.updateExecutiveWorkItem(item.work_id, { owner: 'not-a-role' }),
     /invalid work item owner/

@@ -811,6 +811,23 @@ test('normalizes sparse work-item aliases without widening ownership', () => {
   });
 });
 
+test('preserves every scheduler-supported work-item owner through normalization', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      work_items: [
+        { title: 'Fleet tooling follow-up', owner: 'product-manager-fleet' },
+        { title: 'Site product follow-up', owner: 'product-manager-sites' },
+        { title: 'Queue follow-up', owner: 'project-manager' },
+      ],
+    }),
+    { defaultActor: 'ceo' }
+  );
+  assert.deepEqual(
+    plan.work_items.map(item => item.owner),
+    ['product-manager-fleet', 'product-manager-sites', 'project-manager']
+  );
+});
+
 test('parses structured provider output and applies only explicitly enabled queue work', async () => {
   const plan = runner.parseOutput(
     '```json\n{"messages":[{"actor":"ceo","body":"Run a conversion test."}],"proposals":[],"change_requests":[{"site":"example.com","title":"Fix title","body":"Update the title","category":"seo","priority":"low"}]}\n```'

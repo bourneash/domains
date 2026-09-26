@@ -891,18 +891,18 @@ function buildPassPrompt(brief, role, candidate = null) {
         : role === 'product-manager-sites'
           ? 'You are the Product Manager for the managed websites portfolio. Treat the published domains as products: inspect audience fit, information architecture, user journeys, content/product opportunities, accessibility, performance, monetization surfaces, experimentation, and cross-site capabilities in the read-only brief. Identify evidence-backed improvements that help visitors and produce durable portfolio value. Prioritize by expected user benefit, attributable outcome, confidence, time-to-learn, and reversibility. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not edit sites, deploy, add domains, spend money, or make unsupported revenue claims; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-sites.'
           : role === 'cto'
-        ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
-        : role === 'cfo'
-          ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
-          : role === 'principal-engineer'
-            ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
-            : role === 'legal'
-              ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
-              : role === 'security'
-                ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
-                : role === 'domain-manager'
-                  ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
-                  : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+            ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
+            : role === 'cfo'
+              ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
+              : role === 'principal-engineer'
+                ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
+                : role === 'legal'
+                  ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
+                  : role === 'security'
+                    ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
+                    : role === 'domain-manager'
+                      ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
+                      : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
 
@@ -1101,7 +1101,7 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'domain manager': 'domain-manager',
       'independent reviewer': 'reviewer',
     };
-  const reviewers = new Set([
+    const reviewers = new Set([
       'ceo',
       'cto',
       'cro',
@@ -1306,6 +1306,7 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'cro',
       'product-manager-fleet',
       'product-manager-sites',
+      'project-manager',
       'domain-manager',
       'principal-engineer',
       'engineer',
@@ -1345,9 +1346,7 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'researcher',
-      ].includes(
-        String(item.requested_by || '')
-      )
+      ].includes(String(item.requested_by || ''))
     )
       throw new Error('invalid data request actor');
   }
@@ -1374,9 +1373,7 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'reviewer',
-      ].includes(
-        String(item.reviewed_by || '')
-      ) ||
+      ].includes(String(item.reviewed_by || '')) ||
       !['accepted_research', 'escalate_owner', 'declined'].includes(String(item.status || '')) ||
       String(item.decision_note || '').length > 2000
     )
@@ -1399,9 +1396,7 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'reviewer',
-      ].includes(
-        String(item.actor)
-      ) ||
+      ].includes(String(item.actor)) ||
       !String(item.body || '').trim() ||
       String(item.body).length > 10000 ||
       (item.message_type &&
@@ -1432,9 +1427,7 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'researcher',
-      ].includes(
-        String(item?.created_by || 'ceo')
-      )
+      ].includes(String(item?.created_by || 'ceo'))
     )
       invalid.push(`created_by=${String(item?.created_by || '')}`);
     if (!String(item?.title || '').trim()) invalid.push('title=missing');
@@ -1469,19 +1462,57 @@ function validatePlan(plan) {
     const status = String(item?.status || 'open');
     const priority = String(item?.priority || 'normal');
     const owner = String(item?.owner || 'ceo');
-    if (!item || (!item.work_id && !String(item.title || '').trim())) invalid.push('title/work_id missing');
+    if (!item || (!item.work_id && !String(item.title || '').trim()))
+      invalid.push('title/work_id missing');
     if (String(item?.title || '').length > 300) invalid.push('title too long');
     if (String(item?.summary || '').length > 4000) invalid.push('summary too long');
     if (String(item?.takeaway || '').length > 2000) invalid.push('takeaway too long');
     if (String(item?.applied_to || '').length > 1000) invalid.push('applied_to too long');
     if (String(item?.next_action || '').length > 1000) invalid.push('next_action too long');
-    if (!['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'].includes(kind)) invalid.push(`kind=${kind}`);
-    if (!['open', 'ready', 'in_progress', 'blocked', 'waiting'].includes(status)) invalid.push(`status=${status}`);
-    if (!['urgent', 'high', 'normal', 'low'].includes(priority)) invalid.push(`priority=${priority}`);
-    if (!['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'product-manager-fleet', 'product-manager-sites', 'project-manager', 'domain-manager', 'principal-engineer', 'engineer', 'owner'].includes(owner)) invalid.push(`owner=${owner}`);
-    if (item?.evidence !== undefined && (!Array.isArray(item.evidence) || item.evidence.length > 20)) invalid.push('evidence invalid');
+    if (
+      ![
+        'decision',
+        'research',
+        'incident',
+        'legal',
+        'security',
+        'education',
+        'evidence',
+        'implementation',
+      ].includes(kind)
+    )
+      invalid.push(`kind=${kind}`);
+    if (!['open', 'ready', 'in_progress', 'blocked', 'waiting'].includes(status))
+      invalid.push(`status=${status}`);
+    if (!['urgent', 'high', 'normal', 'low'].includes(priority))
+      invalid.push(`priority=${priority}`);
+    if (
+      ![
+        'ceo',
+        'cto',
+        'cfo',
+        'legal',
+        'security',
+        'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'project-manager',
+        'domain-manager',
+        'principal-engineer',
+        'engineer',
+        'owner',
+      ].includes(owner)
+    )
+      invalid.push(`owner=${owner}`);
+    if (
+      item?.evidence !== undefined &&
+      (!Array.isArray(item.evidence) || item.evidence.length > 20)
+    )
+      invalid.push('evidence invalid');
     if (invalid.length)
-      throw new Error(`invalid work item in provider plan at index ${index} (${invalid.join(', ')})`);
+      throw new Error(
+        `invalid work item in provider plan at index ${index} (${invalid.join(', ')})`
+      );
     if (item.site && EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))
       throw new Error('executive plan targets an excluded site');
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
@@ -1550,9 +1581,7 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'researcher',
-      ].includes(
-        String(item.requested_by)
-      )
+      ].includes(String(item.requested_by))
     )
       throw new Error('change request has an invalid requested_by role');
   }
@@ -1866,7 +1895,9 @@ function reconcileApprovedProposalFollowThrough(
   for (const proposal of proposals) {
     const workId = `${FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`;
     let existing = store.getExecutiveWorkItem(workId);
-    const legacy = store.getExecutiveWorkItem(`${LEGACY_FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`);
+    const legacy = store.getExecutiveWorkItem(
+      `${LEGACY_FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`
+    );
     if (!existing && legacy) {
       existing = store.createExecutiveWorkItem({
         ...legacy,
@@ -1883,9 +1914,12 @@ function reconcileApprovedProposalFollowThrough(
       });
       if (store.createWorkflowLink) {
         store.createWorkflowLink({
-          from_type: 'work-item', from_id: legacy.work_id,
-          to_type: 'work-item', to_id: workId,
-          relation: 'related_to', created_by: 'system',
+          from_type: 'work-item',
+          from_id: legacy.work_id,
+          to_type: 'work-item',
+          to_id: workId,
+          relation: 'related_to',
+          created_by: 'system',
         });
       }
     }
@@ -1895,12 +1929,16 @@ function reconcileApprovedProposalFollowThrough(
       sourceRequests[0] ||
       null;
     if (currentRequest && !proposal.linked_request_id && store.linkExecutiveProposalRequest) {
-          store.linkExecutiveProposalRequest(proposal.proposal_id, currentRequest.request_id);
-          if (store.createWorkflowLink && store.getExecutiveWorkItem(workId)) store.createWorkflowLink({
-            from_type: 'work-item', from_id: workId,
-            to_type: 'request', to_id: currentRequest.request_id,
-            relation: 'related_to', created_by: 'system',
-          });
+      store.linkExecutiveProposalRequest(proposal.proposal_id, currentRequest.request_id);
+      if (store.createWorkflowLink && store.getExecutiveWorkItem(workId))
+        store.createWorkflowLink({
+          from_type: 'work-item',
+          from_id: workId,
+          to_type: 'request',
+          to_id: currentRequest.request_id,
+          relation: 'related_to',
+          created_by: 'system',
+        });
       const audit = executive.action(store, {
         actor: 'system',
         action_type: 'other',
@@ -2755,7 +2793,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           store.updateExecutiveWorkItem(workItem.work_id, {
             status: 'in_progress',
             waiting_on: 'owner',
-            next_action: 'Creator acknowledged the owner feedback; owner decision or follow-up is now required in this thread.',
+            next_action:
+              'Creator acknowledged the owner feedback; owner decision or follow-up is now required in this thread.',
           });
         }
       }

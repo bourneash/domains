@@ -61,20 +61,44 @@ try {
 }
 NODE
 )"
+APPROVED_WORK_STATUS=0
 finish_scheduler_action() {
   local exit_code=$?
-  node - "$ROOT" "$RUN_ACTION_ID" "$exit_code" <<'NODE'
+  node - "$ROOT" "$RUN_ACTION_ID" "$exit_code" "$APPROVED_WORK_STATUS" <<'NODE'
 const root = process.argv[2];
 const actionId = process.argv[3];
 const exitCode = Number(process.argv[4]);
+const approvedWorkStatus = Number(process.argv[5]);
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
 const store = eventstore.open(root);
 try {
+  const scheduled = store.getExecutiveAction(actionId);
+  const scheduledStarted = Date.parse(scheduled?.started_at || '') || 0;
+  const tick = store
+    .listExecutiveActions({ action_type: 'tick', limit: 20 })
+    .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
+  const tickError = tick?.error || null;
   executive.finishAction(store, actionId, {
     status: exitCode === 0 ? 'completed' : 'failed',
-    error: exitCode === 0 ? null : `scheduled executive dispatch exited with code ${exitCode}`,
-    result: { exit_code: exitCode, finished_at: new Date().toISOString() },
+    error:
+      exitCode === 0
+        ? null
+        : tickError
+          ? `executive tick failed: ${tickError}`
+          : `scheduled executive dispatch exited with code ${exitCode}`,
+    result: {
+      exit_code: exitCode,
+      finished_at: new Date().toISOString(),
+      tick_action_id: tick?.action_id || null,
+      tick_status: tick?.status || null,
+      tick_error: tickError,
+      approved_work_status: approvedWorkStatus,
+      approved_work_warning:
+        approvedWorkStatus === 0 ? null : 'approved-work drain failed; executive tick continued',
+      failed_stage: exitCode === 0 ? null : tickError ? 'executive tick / plan application' : 'scheduler wrapper',
+      failure_reason: tickError || (exitCode === 0 ? null : `dispatch exited with code ${exitCode}`),
+    },
   });
 } finally {
   store.close();
@@ -88,7 +112,12 @@ echo "[$(date -Is)] executive scheduled tick start"
 # failure here is audited but must not prevent the leadership pass from
 # running; the normal queue/reviewer path remains authoritative.
 if [[ "$queue_enabled" == "1" ]]; then
-  "$ROOT/tools/executive/run-approved-work.sh" || echo "[$(date -Is)] approved-work drain failed; continuing with executive tick" >&2
+  if "$ROOT/tools/executive/run-approved-work.sh"; then
+    :
+  else
+    APPROVED_WORK_STATUS=$?
+    echo "[$(date -Is)] approved-work drain failed; continuing with executive tick" >&2
+  fi
 fi
 "$ROOT/tools/executive/run-sandbox.sh"
 "$ROOT/tools/executive/checkin.sh"

@@ -12857,6 +12857,174 @@ async function renderAutomation() {
   if (!FRESH) applyUISnap();
 }
 
+function mountExecutiveWorkspaceNav(active) {
+  const shell = document.querySelector('.ex-shell');
+  if (!shell || document.querySelector('.ex-workspace-nav')) return;
+  const copy =
+    {
+      overview: [
+        'Command center',
+        'A calm starting point for decisions, alerts, and the next most important action.',
+      ],
+      conversation: [
+        'Conversation',
+        'Read the team’s messages, requests, responses, and operator-visible background work in one threaded workspace.',
+      ],
+      runs: [
+        'Runs',
+        'Monitor scheduled and operator-triggered executive runs with clear status and failure context.',
+      ],
+      work: [
+        'Work',
+        'Track owner requests, active queues, and work that needs acknowledgement or follow-through.',
+      ],
+      decisions: [
+        'Decisions',
+        'Review proposals, approval gates, CRO handoffs, and the durable decision record.',
+      ],
+      signals: [
+        'Signals',
+        'Inspect the fleet telemetry that informs executive priorities without mixing it into the work queue.',
+      ],
+      setup: [
+        'Executive settings',
+        'Manage the strategy contract, recurring cadence, and transcript retention policy.',
+      ],
+    }[active] || null;
+  if (copy) {
+    const title = shell.querySelector('.page-title');
+    const description = shell.querySelector('.ex-hero p.muted');
+    if (title) title.textContent = copy[0];
+    if (description) description.textContent = copy[1];
+  }
+  const items = [
+    ['overview', 'Command center', 'Decisions at a glance'],
+    ['conversation', 'Conversation', 'Messages & transcript'],
+    ['runs', 'Runs', 'Live execution history'],
+    ['work', 'Work', 'Requests & queues'],
+    ['decisions', 'Decisions', 'Approvals & history'],
+    ['signals', 'Signals', 'Fleet telemetry'],
+    ['setup', 'Settings', 'Strategy & retention'],
+  ];
+  const nav = document.createElement('nav');
+  nav.className = 'ex-workspace-nav';
+  nav.setAttribute('aria-label', 'Executive workspace');
+  nav.innerHTML = items
+    .map(
+      ([key, label, description]) =>
+        `<button type="button" class="ex-workspace-tab ${active === key ? 'active' : ''}" data-ex-workspace="${key}"><span>${esc(label)}</span><small>${esc(description)}</small></button>`
+    )
+    .join('');
+  shell.insertBefore(nav, shell.firstElementChild?.nextElementSibling || shell.firstChild);
+  nav.querySelectorAll('[data-ex-workspace]').forEach(button => {
+    button.onclick = () =>
+      go(
+        'agent',
+        'executive',
+        button.dataset.exWorkspace === 'overview' ? null : button.dataset.exWorkspace
+      );
+  });
+}
+
+function applyExecutiveWorkspace(page) {
+  const shell = document.querySelector('.ex-shell');
+  if (!shell || page === 'setup') return;
+  const primary = shell.querySelector('.ex-primary');
+  const secondary = shell.querySelector('.ex-secondary');
+  const layout = shell.querySelector('.ex-layout');
+  const run = shell.querySelector('.ex-run-panel');
+  const attention = shell.querySelector('.ex-attention');
+  const compose = shell.querySelector('.ex-compose');
+  const requests = shell.querySelector('.ex-requests');
+  const transcript = shell.querySelector('.ex-transcript-panel');
+  const recent = [...shell.querySelectorAll('.ex-disclosure')].find(el =>
+    el.textContent.includes('Recent conversation')
+  );
+  const details = [...shell.querySelectorAll('.ex-disclosure')];
+  const strategy = details.find(el => el.textContent.includes('Strategy contract'));
+  const performance = details.find(el => el.textContent.includes('Performance & revenue'));
+  const decisions = details.find(el => el.textContent.includes('Decision history'));
+  const hide = element => {
+    if (element) element.classList.add('ex-workspace-hidden');
+  };
+  const show = element => {
+    if (element) element.classList.remove('ex-workspace-hidden');
+  };
+  [
+    run,
+    attention,
+    compose,
+    requests,
+    transcript,
+    recent,
+    secondary,
+    strategy,
+    performance,
+    decisions,
+  ].forEach(show);
+  show(layout);
+  if (page === 'overview') {
+    hide(compose);
+    hide(requests);
+    hide(transcript);
+    hide(recent);
+    hide(strategy);
+    hide(performance);
+    hide(decisions);
+  } else if (page === 'conversation') {
+    hide(run);
+    hide(attention);
+    hide(secondary);
+    hide(transcript);
+    hide(recent);
+    hide(strategy);
+    hide(performance);
+    hide(decisions);
+    const detailPane = requests?.querySelector('.ex-request-detail-pane');
+    if (detailPane && compose) {
+      detailPane.appendChild(compose);
+      compose.classList.remove('ex-workspace-hidden');
+      const heading = compose.querySelector('h3');
+      const note = compose.querySelector('.muted');
+      const button = compose.querySelector('#ex-send');
+      if (heading) heading.textContent = 'Continue this thread';
+      if (note)
+        note.textContent =
+          'Reply in the selected request, or start a new request when no thread is selected.';
+      if (button) button.textContent = 'Reply in thread';
+    }
+  } else if (page === 'runs') {
+    hide(attention);
+    hide(compose);
+    hide(requests);
+    hide(transcript);
+    hide(recent);
+    hide(secondary);
+    hide(strategy);
+    hide(performance);
+    hide(decisions);
+  } else if (page === 'work') {
+    hide(run);
+    hide(compose);
+    hide(transcript);
+    hide(recent);
+    hide(strategy);
+    hide(performance);
+    hide(decisions);
+  } else if (page === 'decisions') {
+    hide(layout);
+    hide(strategy);
+    hide(performance);
+    show(decisions);
+  } else if (page === 'signals') {
+    hide(primary);
+    hide(strategy);
+    hide(decisions);
+    show(performance);
+    show(secondary);
+  }
+}
+
 async function renderExecutiveSetup() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive setup…</div>';
@@ -12926,6 +13094,7 @@ async function renderExecutiveSetup() {
     <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are tested in disposable workspaces before CEO/CTO review.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
+  mountExecutiveWorkspaceNav('setup');
   $('#ex-save-settings')
     ?.closest('.ex-disclosure-body')
     ?.querySelector('.form-grid')
@@ -13062,6 +13231,7 @@ async function renderExecutive() {
     return;
   }
   const allOwnerRequests = inbox.requests || requests.work_items || [];
+  const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   const requestMatches = request => {
     const haystack = [request.title, request.summary, request.lifecycle_state, request.status]
       .filter(Boolean)
@@ -13088,7 +13258,6 @@ async function renderExecutive() {
     (EXEC_INBOX_UI.page - 1) * EXEC_INBOX_UI.pageSize,
     EXEC_INBOX_UI.page * EXEC_INBOX_UI.pageSize
   );
-  const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   notifyExecutiveBrowser(unreadNotifications);
   const notificationRows = unreadNotifications
     .slice(0, 5)
@@ -13128,49 +13297,72 @@ async function renderExecutive() {
       return `<article class="ex-transcript-event ex-transcript-${kind}"><div class="ex-transcript-meta"><span class="ex-transcript-dot"></span><b>${esc(label)}</b><span class="muted">${esc(executiveActorLabel(item.actor))} · ${esc(fmtDate(item.created_at))}${esc(run)}</span></div>${body}</article>`;
     })
     .join('');
-  const ownerRequestRows = ownerRequests
+  const backgroundRows = transcriptMessages
+    .filter(item => item.message_type === 'background')
+    .slice(-20)
+    .map(
+      item =>
+        `<div class="ex-thread-activity-row"><b>${esc(item.metadata?.label || 'Background work')}</b><span>${esc(item.body)}</span><small>${esc(fmtDate(item.created_at))}</small></div>`
+    )
+    .join('');
+  const selectedRequestId = ownerRequests.some(
+    request => request.work_id === EXEC_INBOX_UI.selected
+  )
+    ? EXEC_INBOX_UI.selected
+    : ownerRequests[0]?.work_id || null;
+  EXEC_INBOX_UI.selected = selectedRequestId;
+  const requestThread = request =>
+    (
+      request.messages ||
+      (messages.messages || []).filter(message => message.work_id === request.work_id)
+    )
+      .filter(message => message.work_id === request.work_id)
+      .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
+  const requestStatus = (request, thread) =>
+    thread.some(message => message.actor !== 'owner')
+      ? ['response received', 'b-green']
+      : request.status === 'blocked'
+        ? ['blocked', 'b-red']
+        : [request.status || 'open', 'b-yellow'];
+  const ownerRequestList = ownerRequests
     .map(request => {
-      const thread = (
-        request.messages ||
-        (messages.messages || []).filter(message => message.work_id === request.work_id)
-      )
-        .filter(message => message.work_id === request.work_id)
-        .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
-      const response = thread.find(message => message.actor !== 'owner');
-      const timeline = thread
-        .map(
-          message =>
-            `<div class="muted">${esc(fmtDate(message.created_at))} · <b>${esc(executiveActorLabel(message.actor))}</b>: ${esc(message.body)}</div>`
-        )
-        .join('');
-      const linked = (request.links || [])
-        .map(
-          link =>
-            `<span class="badge b-blue">linked ${esc(link.to_type)} ${esc(String(link.to_id).slice(0, 8))}</span>`
-        )
-        .join(' ');
-      const status = response
-        ? 'response received'
-        : request.status === 'waiting'
-          ? 'awaiting executive response'
-          : request.status;
-      const statusClass = response
-        ? 'b-green'
-        : request.status === 'blocked'
-          ? 'b-red'
-          : 'b-yellow';
-      const due = request.overdue
-        ? '<span class="badge b-red">SLA overdue</span>'
-        : request.due_at
-          ? `<span class="muted">Due ${esc(fmtDate(request.due_at))}</span>`
-          : '';
-      const actions =
-        request.lifecycle_state === 'closed'
-          ? ''
-          : `<div class="task-toolbar"><button class="btn sm ex-request-ack" data-id="${esc(request.work_id)}" ${request.lifecycle_state !== 'submitted' ? 'disabled' : ''}>Acknowledge</button><button class="btn sm ex-request-close" data-id="${esc(request.work_id)}">Close request</button></div>`;
-      return `<article class="ex-request-card"><div class="page-head"><div><b>${esc(request.title)}</b><div class="muted">Submitted ${esc(fmtDate(request.created_at))} · request ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</div></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><p>${esc(request.summary)}</p>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">This request is saved and will stay here until the executive team responds.</p>'}${linked ? `<div class="task-toolbar">${linked}</div>` : ''}<details class="ex-request-timeline"><summary>Timeline (${thread.length} events)</summary><div>${timeline || '<span class="muted">No thread events yet.</span>'}</div>${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}</details>${actions}</article>`;
+      const thread = requestThread(request);
+      const [status, tone] = requestStatus(request, thread);
+      const unread = unreadNotifications.some(n => n.work_id === request.work_id);
+      return `<button type="button" class="ex-request-list-item ${request.work_id === selectedRequestId ? 'selected' : ''}" data-request-id="${esc(request.work_id)}"><span class="ex-request-list-top"><b>${esc(request.title)}</b>${unread ? '<span class="ex-unread-dot" title="Unread reply"></span>' : ''}</span><span class="ex-request-list-meta">${esc(fmtDate(request.created_at))} · ${thread.length} event${thread.length === 1 ? '' : 's'} <span class="badge ${tone}">${esc(status)}</span></span><span class="ex-request-list-summary">${esc(request.summary)}</span></button>`;
     })
     .join('');
+  const selectedRequest = ownerRequests.find(request => request.work_id === selectedRequestId);
+  const ownerRequestDetail = selectedRequest
+    ? (() => {
+        const request = selectedRequest;
+        const thread = requestThread(request);
+        const response = thread.find(message => message.actor !== 'owner');
+        const timeline = thread
+          .map(
+            message =>
+              `<div class="ex-thread-message ${message.actor === 'owner' ? 'owner' : 'agent'}"><div class="ex-thread-message-head"><b>${esc(executiveActorLabel(message.actor))}</b><span>${esc(fmtDate(message.created_at))}</span></div><div>${esc(message.body)}</div></div>`
+          )
+          .join('');
+        const linked = (request.links || [])
+          .map(
+            link =>
+              `<span class="badge b-blue">linked ${esc(link.to_type)} ${esc(String(link.to_id).slice(0, 8))}</span>`
+          )
+          .join(' ');
+        const [status, statusClass] = requestStatus(request, thread);
+        const due = request.overdue
+          ? '<span class="badge b-red">SLA overdue</span>'
+          : request.due_at
+            ? `<span class="muted">Due ${esc(fmtDate(request.due_at))}</span>`
+            : '';
+        const actions =
+          request.lifecycle_state === 'closed'
+            ? '<span class="muted">Closed request</span>'
+            : `<button class="btn sm ex-request-ack" data-id="${esc(request.work_id)}" ${request.lifecycle_state !== 'submitted' ? 'disabled' : ''}>Acknowledge</button><button class="btn sm ex-request-close" data-id="${esc(request.work_id)}">Close request</button>`;
+        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">No response yet. The request remains in the executive queue.</p>'}<div class="ex-thread-heading"><b>Thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div><details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
+      })()
+    : '<div class="ex-request-detail ex-empty">Select a request to inspect its full thread.</div>';
   const isCROHandoff = p => ['researcher', 'cro'].includes(String(p.created_by));
   const proposalRows = (proposals.proposals || [])
     .map(p => {
@@ -13240,6 +13432,16 @@ async function renderExecutive() {
   const runQueue = runStatus?.queue || [];
   const runResult = latestRun?.result?.tick_result || latestRun?.result || {};
   const runCounts = runResult?.counts || runResult?.created_counts || {};
+  const runFailureReason =
+    latestRun?.failure_reason ||
+    latestRun?.result?.failure_reason ||
+    latestRun?.result?.tick_error ||
+    latestRun?.result?.tick_result?.failure_reason ||
+    latestRun?.result?.tick_result?.error ||
+    latestRun?.error ||
+    null;
+  const runFailureStage =
+    latestRun?.result?.failed_stage || latestRun?.result?.tick_result?.failed_stage || null;
   const activePhase = activeRun?.result?.phase || 'queued';
   const runStatusLabel = activeRun ? activePhase : latestRun ? latestRun.status : 'ready';
   const runStatusClass = activeRun
@@ -13252,17 +13454,19 @@ async function renderExecutive() {
   const runDetails = activeRun
     ? `${activePhase === 'queued' ? 'Queued' : 'Started'} ${fmtDate(activeRun.result?.[activePhase === 'queued' ? 'queued_at' : 'running_at'] || activeRun.started_at)} · run ${activeRun.action_id.slice(0, 8)} · the team is working through its role passes.`
     : latestRun
-      ? `${latestRun.status === 'completed' ? 'Completed' : 'Last attempt'} ${fmtDate(latestRun.finished_at || latestRun.started_at)}${latestRun.error ? ` · ${latestRun.error}` : ''}`
+      ? `${latestRun.status === 'completed' ? 'Completed' : 'Last attempt'} ${fmtDate(latestRun.finished_at || latestRun.started_at)}${runFailureReason ? ` · ${runFailureReason}` : ''}`
       : 'No operator-triggered run yet.';
   const runOutput =
-    !activeRun && latestRun?.status === 'completed'
-      ? `<div class="ex-run-output"><b>Latest output</b><span>${esc(
-          Object.entries(runCounts)
-            .filter(([, value]) => Number(value) > 0)
-            .map(([key, value]) => `${value} ${key.replaceAll('_', ' ')}`)
-            .join(' · ') || 'No new items recorded'
-        )}</span><span class="muted">Review the proposals, messages, and audit log below for the full result.</span></div>`
-      : '';
+    !activeRun && latestRun?.status === 'failed'
+      ? `<div class="ex-run-output ex-run-failure"><b>Failure reason</b><span>${esc(runFailureReason || 'No failure reason was recorded.')}</span>${runFailureStage ? `<span class="muted">Stage: ${esc(runFailureStage)}</span>` : ''}${latestRun.result?.approved_work_warning ? `<span class="muted">Warning: ${esc(latestRun.result.approved_work_warning)}</span>` : ''}<span class="muted">The linked tick and audit record remain available below.</span></div>`
+      : !activeRun && latestRun?.status === 'completed'
+        ? `<div class="ex-run-output"><b>Latest output</b><span>${esc(
+            Object.entries(runCounts)
+              .filter(([, value]) => Number(value) > 0)
+              .map(([key, value]) => `${value} ${key.replaceAll('_', ' ')}`)
+              .join(' · ') || 'No new items recorded'
+          )}</span><span class="muted">Review the proposals, messages, and audit log below for the full result.</span></div>`
+        : '';
   const runQueueFiltered = runQueue
     .filter(run => {
       const status = run.status === 'started' ? 'running' : run.status;
@@ -13303,7 +13507,14 @@ async function renderExecutive() {
             ? 'b-red'
             : 'b-gray';
       const detail =
-        run.error || run.result?.phase || (run.result?.counts ? 'Plan applied' : 'Recorded run');
+        run.failure_reason ||
+        run.result?.failure_reason ||
+        run.result?.tick_error ||
+        run.result?.tick_result?.failure_reason ||
+        run.result?.tick_result?.error ||
+        run.error ||
+        run.result?.phase ||
+        (run.result?.counts ? 'Plan applied' : 'Recorded run');
       const clear =
         run.status === 'failed'
           ? ` <button class="btn sm ex-run-clear" data-id="${esc(run.action_id)}" type="button">Clear</button>`
@@ -13343,7 +13554,7 @@ async function renderExecutive() {
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
-        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests match this view.</div>'}<div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
+        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3><p class="muted">Select a request to open its full conversation and next actions.</p></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}<div class="ex-request-split"><div class="ex-request-list">${ownerRequestList || '<div class="ex-empty">No Owner requests match this view.</div>'}</div><div class="ex-request-detail-pane">${ownerRequestDetail}</div></div><div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
         <section class="ex-panel ex-transcript-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN TRANSCRIPT</div><h3>Conversation &amp; background work</h3><p class="muted">Operator-visible requests, structured responses, and pass milestones across the executive team. Private chain-of-thought is never collected.</p></div><span class="badge b-blue">${transcriptMessages.length} events</span></div><div class="ex-transcript-legend"><span class="ex-legend-prompt">Model request</span><span class="ex-legend-response">Model response</span><span class="ex-legend-background">Background work</span><span class="muted">Retained ${esc(String(transcript.retention_days || 90))} days</span></div><div class="ex-transcript-list">${transcriptRows || '<div class="ex-empty">No run transcript yet. Start an executive team run to populate it.</div>'}</div></section>
       </div>
@@ -13357,6 +13568,8 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are now tested in disposable workspaces before CEO/CTO review. No dependencies are installed and no project files are mounted.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
+  mountExecutiveWorkspaceNav(STATE.agentPage || 'overview');
+  applyExecutiveWorkspace(STATE.agentPage || 'overview');
   $('#ex-save-settings')
     ?.closest('.ex-disclosure-body')
     ?.querySelector('.form-grid')
@@ -13375,6 +13588,12 @@ async function renderExecutive() {
     EXEC_INBOX_UI.page = 1;
     softRender();
   };
+  $$('.ex-request-list-item').forEach(button => {
+    button.onclick = () => {
+      EXEC_INBOX_UI.selected = button.dataset.requestId;
+      softRender();
+    };
+  });
   $('#ex-inbox-prev').onclick = () => {
     EXEC_INBOX_UI.page -= 1;
     softRender();
@@ -13546,8 +13765,21 @@ async function renderExecutive() {
     const body = $('#ex-message').value.trim();
     if (!body) return toast('Write a message first', 'err');
     try {
-      await api('POST', '/api/executive/requests', { actor: 'owner', body });
-      toast('Request saved and sent to the executive queue');
+      const isThreadReply = STATE.agentPage === 'conversation' && selectedRequest;
+      if (isThreadReply) {
+        const thread = requestThread(selectedRequest);
+        await api('POST', '/api/executive/messages', {
+          actor: 'owner',
+          body,
+          work_id: selectedRequest.work_id,
+          reply_to: thread.at(-1)?.message_id || null,
+          message_type: 'update',
+        });
+        toast('Reply added to the selected thread');
+      } else {
+        await api('POST', '/api/executive/requests', { actor: 'owner', body });
+        toast('Request saved and sent to the executive queue');
+      }
       softRender();
     } catch (e) {
       toast(e.message, 'err');
@@ -13580,7 +13812,7 @@ async function renderExecutive() {
   // Setup is rendered as its own route. Remove the legacy inline copy after
   // wiring the shared handlers so overview remains focused on decisions.
   const overviewSetup = $('#ex-revenue-target')?.closest('details');
-  if (overviewSetup) {
+  if (overviewSetup && !STATE.agentPage) {
     let node = overviewSetup;
     for (let i = 0; i < 3 && node; i += 1) {
       const next = node.nextElementSibling;
@@ -14448,7 +14680,7 @@ function openStream() {
     } catch {
       /* ignore */
     }
-    if (v && BOOT_VERSION && v !== BOOT_VERSION) return checkVersion(); // a new build shipped → reload
+    if (v && BOOT_VERSION && v !== BOOT_VERSION) return checkVersion(); // a new build shipped → show the deliberate-update control
     const now = Date.now();
     if (now - lastRefresh < autoCfg().interval) return; // respect the interval
     lastRefresh = now;
@@ -14478,7 +14710,7 @@ async function checkDeps() {
   el.classList.remove('hidden');
 }
 
-/* ---- self-update: detect a new front-end build and reload cleanly ---- */
+/* ---- self-update: detect a new front-end build without interrupting the UI ---- */
 let BOOT_VERSION = null;
 async function checkVersion() {
   let v;
@@ -14492,13 +14724,12 @@ async function checkVersion() {
     return;
   } // first call: record baseline
   if (v === BOOT_VERSION) return;
-  // A new build is being served. Reload when it won't interrupt anything;
-  // otherwise surface a pill so the user reloads when ready.
-  const ae = document.activeElement;
-  const busy =
-    !$('#modal').classList.contains('hidden') || (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName));
-  if (document.hidden || !busy) location.reload();
-  else $('#update-pill').classList.remove('hidden');
+  // A new build is being served. Never reload automatically: the fleet
+  // manager is a live workspace and a document reload discards the current
+  // queue/thread position, expanded rows, focus, and viewport. Data polling
+  // continues in place; the operator can use the update pill when it is safe
+  // to restart the document deliberately.
+  $('#update-pill')?.classList.remove('hidden');
 }
 
 async function boot() {
