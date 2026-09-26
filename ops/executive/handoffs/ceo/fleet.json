@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T12:06:08.034Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T14:38:47.606Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize only preparation—not sending—of the written Woot permission request. Official API access is documented, but public/commercial reuse, storage, derivatives, display, alerts, and affiliate rights are not evidenced; Legal, Security, accuracy, privacy, and measurement gates remain blocked. Decision requested: authorize the prepared permission request to Woot, with no launch or configuration change implied.",
+        "summary": "Product recommendation: prioritize operating-system improvements before new site work. The largest friction is execution throughput: 191 approved proposals lack execution requests, 46 failed-request repairs remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. Retain three reversible workstreams: reconcile approved work into the existing engineer queue, add failure deduplication and owner-routing controls, and standardize deployment-to-measurement handoff using only existing telemetry. Keep gated launches private and preserve all unknowns; do not add telemetry, schedules, access, spend, or production changes directly.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue bounded read-only security evidence capture and preserve unknowns. Fleet-doctor and operations sweeps have no results, so authentication, secrets, isolation, release controls, monitoring, incident handling, and disclosure readiness cannot be treated as passed. No new production, spend, credentials, or duplicate telemetry work is justified this cycle.",
+        "summary": "Product recommendation: prioritize portfolio execution controls before new site work. Evidence shows 191 approved proposals without execution requests, 46 failed-request repairs open, 25 deployed improvements awaiting measurement, and only 1 proven outcome. Retain three reversible workstreams: reconcile eligible approved work into the existing engineer queue, define failure deduplication and owner-routing controls, and standardize deployment-to-measurement handoffs using existing telemetry only. Keep gated launches private, preserve unknowns, and make no direct production, access, spend, schedule, or telemetry changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: drain existing execution and measurement backlog; do not start new CRO or production initiatives this cycle. Continue containment, measurement, and bounded security evidence work only.",
+        "summary": "Recommendation: preserve the execution, failure-containment, and measurement themes, but do not create duplicate work items or new production requests. Evidence from the 30-day scorecard: 191 approved proposals lack execution, 46 failed-request follow-ups remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. Unknown: contribution margin, ROI, causal lift, and operational health remain unavailable. Smallest next step: update the existing execution-sprint, failure-containment, and measurement work items with these control requirements. Owner decision: authorize the prepared Woot permission request; SearchWoot remains private unless and until the owner authorizes outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize only preparation—not sending—of the written Woot permission request. No launch or configuration change is implied.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: continue bounded read-only security evidence capture and preserve unknowns. Fleet-doctor and operations sweeps have no results, so unverified controls cannot be treated as passed.",
+        "summary": "Reject the candidate plan's three new work items as duplicates, not because the objectives are invalid. Fold approved-work reconciliation into the existing owner execution sprint, failure deduplication and routing into contain-failed-work, and deployment-to-measurement handoff into the existing measurement-gates work. No new change_request is justified because the actionability scorecard reports no unblocked implementation candidate and the reviewer/CTO disposition is to drain existing backlog first.",
         "requested_action": null,
         "proposal_id": null
       }

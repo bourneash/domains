@@ -2,65 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T12:06:08.034Z",
-  "summary": "cto checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-26T14:38:47.606Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment posture. Existing measurement, failed-run containment, and bounded read-only security evidence work are technically feasible and reversible. Do not start new production, CRO, dependency, spending, credential, telemetry, or public-launch work this cycle. Preserve unknown revenue, ROI, margin, incrementality, infrastructure cost, and causal lift.",
+        "summary": "Approve the three execution-control themes only as updates to existing work items. They are technically feasible, isolated from site production, reversible, and measurable with existing telemetry. Do not create duplicate work items, change_requests, telemetry, schedules, permissions, credentials, spend, or production behavior. Reconcile approved work only after checking queued, active, deployed, cancelled, and failed records; document deduplication and routing controls before implementation; preserve unknown revenue, cost, margin, incrementality, causal lift, and operational-health fields. Keep gated launches private and continue existing containment and measurement work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The current plan is safe to continue in the existing queue, but no new change request is justified: actionable candidates are empty, multiple deployed improvements await measurement, failed requests require root-cause review before requeue, and operational/security sweeps are unavailable. Continue only already-authorized work with isolated scope and existing rollback boundaries.",
+        "summary": "The proposed plan is safe to enter the existing queue as bounded work-item updates. Implementation effort is limited to record reconciliation, control specification, and—only after isolated review—a small deduplication or routing change with focused validation and rollback. No new production implementation is justified while the scorecard reports no unblocked candidate and existing failures and measurement backlog remain active.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the gated product as private. Preparation of the permission request may continue internally, but sending outreach, changing launch status, modifying configuration, expanding alerts, or deploying remains blocked pending Legal, Security, accuracy, privacy, measurement, and owner decisions.",
+        "summary": "Deployment-to-measurement handoff standardization is approved as read-only evidence work using only available impressions, clicks, sessions, conversions, and site-attributed commission. Do not infer revenue, ROI, margin, incrementality, causal lift, or unavailable cost data. Keep launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded security evidence capture using authorized metadata and retained artifacts only. Missing fleet-doctor, deployment, uptime, error, isolation, release-control, monitoring, and incident evidence remains unknown rather than passed. Do not request duplicate telemetry or make certification claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO review: approve containment posture. Continue existing measurement, failed-run containment, and bounded read-only security evidence work only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the gated product as private. Preparation of the permission request may continue internally, but sending outreach, changing launch status, modifying configuration, expanding alerts, or deploying remains blocked.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded security evidence capture using authorized metadata and retained artifacts only. Missing evidence remains unknown rather than passed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-finance-reconciliation-2026-09-26",
-        "summary": "Approved as bounded read-only evidence work. Use existing snapshots only, keep revenue and AI-cost periods separate, preserve missing infrastructure and fixed-cost fields as unknown, and do not request duplicate telemetry or claim margin, ROI, payback, or causal lift.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cfo-finance-reconciliation-2026-09-26"
       }
     ]
   }
