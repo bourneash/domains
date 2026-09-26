@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:47:50.884Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T22:03:35.694Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the current queue boundary. Continue existing source-dated measurement, attribution reconciliation, and isolated failure repair-or-close review. Do not create new queue entries, requeue failed work, add telemetry, dependencies, configuration changes, or production work until lineage, ownership, root cause, validation, rollback, deduplication, and explicit disposition are documented.",
+        "summary": "Recommendation: maintain containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work without new production requests, requeues, experiments, duplicate telemetry, spend, or monetization expansion. No new queue work is technically eligible this cycle because the candidate list is empty and existing capacity is occupied. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, bounded read-only legal/security evidence work, and isolated failure repair-or-close review. Do not create new queue entries, requeue failed work, add telemetry, dependencies, configuration changes, spend, monetization expansion, external outreach, or production work. Resume failed implementation only after canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close evidence are documented.",
+        "summary": "Keep SearchWoot private. Continue the existing consolidated read-only evidence bundle and field-level rights matrix. External outreach, public exposure, alert expansion, configuration changes, deployment, dependencies, and spend remain blocked pending human-counsel review, owner authorization, and completion of legal, security, accuracy, attribution, and measurement gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve failed-work containment without requeue. Resume implementation only after canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close disposition are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue scheduled source-dated measurement and attribution reconciliation using existing telemetry only. Do not add instrumentation, request duplicate telemetry, or assign aggregate provider commission to any site. Preserve unknown financial and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

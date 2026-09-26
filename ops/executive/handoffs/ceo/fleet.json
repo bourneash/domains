@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:47:50.883Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T22:03:35.694Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. The authoritative candidate list is empty; 27 deployed improvements await measurement, 7 requests failed, 46 repair follow-ups remain open, and only 1 outcome is proven. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission; AI cost was $963.57 from 2026-09-01 through 2026-09-26. ROI, margin, causal lift, and cost-to-learn remain unknown. Smallest next step: complete existing measurement, attribution reconciliation, and failure repair-or-close work without requeue or new production changes. Owner decision: authorize the prepared Woot permission request after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: maintain containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Evidence: 27 deployed improvements await measurement, 7 requests failed, 46 failure follow-ups remain open, and only 1 outcome is proven; revenue is $4.92 aggregate for 2026-09-21 with $0 site-attributed commission, while AI cost is $963.57 for 2026-09-01–2026-09-26. ROI, margin, causal lift, and cost-to-learn remain unknown. No new change request is justified because the authoritative candidate list is empty and existing capacity is occupied. Owner decision: authorize the prepared Woot permission request after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Complete existing measurement, attribution reconciliation, and failure repair-or-close work without requeue or new production changes. Revenue evidence covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission; AI cost was $963.57 from 2026-09-01 through 2026-09-26. ROI, margin, causal lift, and cost-to-learn remain unknown. Owner decision: authorize the prepared permission request after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: keep SearchWoot private. Woot API access is documented, but public/commercial reuse rights and legal, privacy, security, accuracy, attribution, and measurement gates remain incomplete; all four legal checklist tasks are open. Smallest next step: complete the existing consolidated read-only evidence bundle and field-level rights matrix. External outreach remains unsent pending human-counsel review and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve failed-work containment without requeue. Existing failures must first have canonical lineage, ownership, root cause, isolated validation, rollback, deduplication, and explicit requeue-or-close disposition. No new production work is accepted this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: continue source-dated measurement and attribution reconciliation only. Do not add instrumentation, request duplicate telemetry, or assign the $4.92 aggregate provider commission to any site. The smallest next step is to complete the existing measurement windows and reconcile attributable outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:47:50.883Z",
-  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T22:03:35.693Z",
+  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Existing evidence supports continued measurement, attribution reconciliation, failed-work repair-or-close review, and bounded accessibility, performance, UX, SEO, and security evidence work only. The authoritative candidate list is empty, 27 deployed improvements await measurement, 7 requests failed, and 46 repair follow-ups remain open. Create no new site proposals, change requests, experiments, telemetry requests, requeues, spend, or monetization expansion this cycle. Preserve unknown revenue, ROI, causal lift, margin, and operational outcomes; continue existing work through the approval and engineer queues.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded accessibility, performance, UX, SEO, and security evidence work only. Create no new site proposals, change requests, experiments, telemetry requests, requeues, spend, or monetization expansion. Preserve unknown revenue, ROI, causal lift, margin, and operational outcomes.",
+        "summary": "Recommendation: maintain containment-only execution. Existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work should continue without new production requests, requeues, experiments, duplicate telemetry, spend, or monetization expansion. Current evidence supports 39 configured analytics sites, 103 SEO actions, 27 deployed improvements awaiting measurement, 7 failed requests, and only 1 proven outcome; revenue is limited to $4.92 aggregate commission for 2026-09-21 with $0 site-attributed commission. No new site proposal is warranted this cycle; revisit the highest-value reversible opportunity after queue capacity and measurement evidence improve.",
         "requested_action": null,
         "proposal_id": null
       }
