@@ -390,6 +390,27 @@ function agentHealthCell(h) {
   return `<span class="agent-health-summary" title="${esc(detail)}">${current}<br><span class="agent-health-history">${esc(historyLabel)}</span><br><span class="muted">${fmtUSD(h.costUsd)}${h.drift ? ' · drift' : ''}</span></span>`;
 }
 
+function editorialCadenceLabel(cadence) {
+  return { frequent: 'Frequent', daily: 'Daily', weekly: 'Weekly' }[cadence] || 'Scheduled';
+}
+
+function editorialTelemetryCell(e) {
+  if (!e) return '<span class="muted">—</span>';
+  const publication = e.publication
+    ? `published ${fmtAge((Date.now() - e.publication.at) / 1000)} ago`
+    : 'no publication recorded';
+  const deploy = e.deploy?.failedMarker
+    ? '<span class="flag">deploy failed</span>'
+    : e.deploy?.pending
+      ? '<span class="flag">deploy pending</span>'
+      : e.deploy?.state === 'success'
+        ? '<span class="health-now">deployed</span>'
+        : '<span class="muted">deploy unknown</span>';
+  const outcome = e.noOp ? 'no-op' : e.outcome;
+  const title = `${publication}; latest run ${outcome}; ${e.publication?.slug || 'no article slug'}`;
+  return `<span class="editorial-telemetry" title="${esc(title)}"><span>${esc(publication)}</span><br><span>${deploy} · ${esc(outcome)}</span></span>`;
+}
+
 async function renderEngineers() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading fleet audit…</div>';
@@ -4269,7 +4290,9 @@ async function renderGenericAgent(role) {
       .filter(profile => s.cells[profile])
       .map(profile => ({ site: s.site, profileRole: profile, ...s.cells[profile] }))
   );
-  const healthBy = Object.fromEntries((healthData?.rows || []).map(h => [h.site, h]));
+  const healthBy = Object.fromEntries(
+    (healthData?.rows || []).map(h => [`${h.site}:${h.role || role}`, h])
+  );
   const enrolled = new Set(rows.map(r => r.site));
   const notEnrolled = (
     Array.isArray(data.allSites) ? data.allSites : data.sites.map(s => s.site)
@@ -4307,11 +4330,12 @@ async function renderGenericAgent(role) {
       <td class="site">${siteLink(r.site)}${toolLinks(r.site)}</td>
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
-      <td class="mono muted">${esc(r.schedule)}</td>
+      <td class="mono muted" title="${esc(r.schedule)}"><span class="badge b-blue">${esc(editorialCadenceLabel(r.cadence))}</span><br>${esc(r.schedule)}</td>
+      <td>${editorialTelemetryCell(r.editorial)}</td>
       <td>${agentHealthCell(h)}</td>
       <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Remove</button></td>
-    </tr>${h ? healthDetailRow(h, 6) : ''}
-    <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="6"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
+    </tr>${h ? healthDetailRow(h, 7) : ''}
+    <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="7"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
     })
     .join('');
 
@@ -4335,8 +4359,8 @@ async function renderGenericAgent(role) {
     </div>
     ${healthPanel}
     <div class="card agent-table-wrap"><table class="agent-table">
-      <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Schedule</th><th>Health · 7d</th><th>Actions</th></tr></thead>
-      <tbody>${body || '<tr><td colspan="6" class="empty">No sites currently run this agent.</td></tr>'}</tbody>
+      <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Cadence</th><th>Publishing</th><th>Health · 7d</th><th>Actions</th></tr></thead>
+      <tbody>${body || '<tr><td colspan="7" class="empty">No sites currently run this agent.</td></tr>'}</tbody>
     </table></div>
     <p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site. ← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
 
@@ -4376,8 +4400,12 @@ async function renderGenericAgent(role) {
     b.addEventListener('click', () => runAgent(b.dataset.site, role, b))
   );
   $$('.ag-health-details').forEach(b => b.addEventListener('click', () => toggleHealthDetail(b)));
-  $('.ag-health-pause')?.addEventListener('click', () => bulkAgentHealthAction(role, 'pause'));
-  $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
+  // Family pages intentionally have no bulk pause/run controls. Every action
+  // must carry the site's exact installed profile role.
+  if (!familyPage) {
+    $('.ag-health-pause')?.addEventListener('click', () => bulkAgentHealthAction(role, 'pause'));
+    $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
+  }
   $$('.ag-run').forEach(b =>
     b.addEventListener('click', () => runAgent(b.dataset.site, b.dataset.role || role, b))
   );

@@ -3,11 +3,13 @@
 // Editorial/marketing ownership is distinct from implementation ownership.
 // Technical follow-on work should use type=engineering after the owning role
 // has made the editorial or marketing decision.
+const { ROLE_FAMILIES } = require('./roles');
+const EDITORIAL_ROLES = ROLE_FAMILIES.update.roles;
 const OWNERS_BY_TYPE = Object.freeze({
   engineering: ['engineer'],
   seo: ['seo-analyst'],
-  content: ['content-writer'],
-  refresh: ['content-writer'],
+  content: [EDITORIAL_ROLES[1]],
+  refresh: [EDITORIAL_ROLES[1]],
   marketing: ['social-media'],
   social: ['social-media'],
 });
@@ -21,8 +23,8 @@ const OWNERS_BY_TYPE = Object.freeze({
 const SITE_FALLBACKS_BY_TYPE = Object.freeze({
   engineering: ['engineer', 'principal-engineer'],
   seo: ['seo-analyst'],
-  content: ['content-writer', 'news-writer', 'guide-writer', 'weekly-editorial', 'breaking-news'],
-  refresh: ['content-writer', 'news-writer', 'guide-writer', 'weekly-editorial', 'breaking-news'],
+  content: [...EDITORIAL_ROLES.slice(1), 'guide-writer', 'weekly-editorial', 'breaking-news'],
+  refresh: [...EDITORIAL_ROLES.slice(1), 'guide-writer', 'weekly-editorial', 'breaking-news'],
   marketing: ['social-media', 'social-poster', 'promoter'],
   social: ['social-media', 'social-poster', 'promoter'],
 });
