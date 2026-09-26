@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:43:20.931Z",
+  "generated_at": "2026-09-26T03:48:19.869Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Resolve amputeenews.com affiliate activation blocker",
-        "summary": "Review the existing monetization and launch evidence for amputeenews.com. The site is live with healthy GA4 and GSC status, while Amazon Associates remains pending a real tracking tag. Preserve unavailable revenue, conversion, attribution, compliance, and page-level performance fields as unknown; do not infer monetization readiness or causal lift.",
-        "requested_action": "Produce a timestamped decision artifact identifying the exact owner decision or prerequisite needed to activate site-specific affiliate attribution, while confirming current disclosures, conversion paths, and backlog boundaries using existing evidence only. Do not change credentials, configuration, production, or spending.",
-        "proposal_id": "b6b790fe-0b9b-4d85-9b5e-6f135d477766"
+        "title": "Repair rc-9.com mobile performance failure before requeue",
+        "summary": "The existing rc-9.com improvement is blocked by a retained implementation failure. Recorded baseline is mobile performance 48, LCP 4,977 ms, and TBT 1,513 ms. Repair the smallest isolated defect, validate it, and either requeue or close the existing work item.",
+        "requested_action": "Inspect the retained failure artifact and existing change, document root cause, implement only the smallest reversible repair, run focused validation and the site build, and record an explicit requeue-or-close disposition. Do not change credentials, domains, unrelated routes, or production behavior outside this bounded repair.",
+        "proposal_id": "a3634cb3-140d-408a-a89b-4a613395234d"
       }
     ]
   }
