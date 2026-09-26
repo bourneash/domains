@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:18:09.774Z",
-  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T21:47:50.883Z",
+  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and create no new queue work this cycle. Existing evidence supports prioritizing, within the current queue, reversible improvements to search-intent clarity, performance, accessible navigation/CTA presentation, and affiliate disclosure clarity on already-qualified sites. Portfolio SEO reports 103 actions across 39 sites, including 55 high-priority items; current measurement shows 27 deployed improvements awaiting measurement and only 1 proven. Compliance is a technical baseline of 37 pass, 16 fail, and 6 unknown, while operations and fleet-doctor results are unavailable. Preserve unknown revenue, ROI, causal lift, and operational outcomes. Continue existing measurement, attribution reconciliation, and failure repair-or-close work without new telemetry, requeues, spend, deployments, or monetization expansion.",
+        "summary": "Recommendation: maintain containment-only execution. Existing evidence supports continued measurement, attribution reconciliation, failed-work repair-or-close review, and bounded accessibility, performance, UX, SEO, and security evidence work only. The authoritative candidate list is empty, 27 deployed improvements await measurement, 7 requests failed, and 46 repair follow-ups remain open. Create no new site proposals, change requests, experiments, telemetry requests, requeues, spend, or monetization expansion this cycle. Preserve unknown revenue, ROI, causal lift, margin, and operational outcomes; continue existing work through the approval and engineer queues.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded accessibility, performance, UX, SEO, and security evidence work only. Create no new site proposals, change requests, experiments, telemetry requests, requeues, spend, or monetization expansion. Preserve unknown revenue, ROI, causal lift, margin, and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

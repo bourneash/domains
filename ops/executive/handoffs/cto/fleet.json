@@ -2,49 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:33:11.664Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-26T21:47:50.884Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Do not create new production work, requeue failed work, add telemetry, spend, add dependencies, expand monetization, or conduct external outreach. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes.",
+        "summary": "Preserve the current queue boundary. Continue existing source-dated measurement, attribution reconciliation, and isolated failure repair-or-close review. Do not create new queue entries, requeue failed work, add telemetry, dependencies, configuration changes, or production work until lineage, ownership, root cause, validation, rollback, deduplication, and explicit disposition are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the current queue boundary. The authoritative candidate list is empty and existing capacity is occupied. Failed work remains contained until canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close disposition are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue scheduled measurement using existing source-dated telemetry only. Do not add instrumentation, request duplicate telemetry, or assign aggregate provider commission to any site.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain private launch gates and evidence-needed security disposition. Continue bounded read-only legal, accuracy, attribution, privacy, and security evidence work only; keep external outreach, public exposure, credentials, configuration, dependencies, deployment, and spend blocked pending required authorization and evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue scheduled measurement using existing telemetry only. Do not add instrumentation, request duplicate telemetry, assign aggregate commission to any site, or create new production work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue failure containment and repair-or-close review without requeue. Require lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition before resuming failed implementation.",
+        "summary": "CTO review: approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, bounded read-only legal/security evidence work, and isolated failure repair-or-close review. Do not create new queue entries, requeue failed work, add telemetry, dependencies, configuration changes, spend, monetization expansion, external outreach, or production work. Resume failed implementation only after canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       }

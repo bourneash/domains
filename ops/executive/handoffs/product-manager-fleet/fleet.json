@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:18:09.774Z",
-  "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T21:47:50.883Z",
+  "summary": "product-manager-fleet checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and create no new queue work this cycle. Highest-leverage product opportunities, to retain as future backlog themes, are: (1) control-plane execution integrity—canonical lineage, deduplication, ownership, retry gates, and repair-or-close states; current evidence shows 197 approved proposals without execution and 46 open failure follow-ups; (2) measurement readiness—automatically distinguish deployed, measurable, measured, proven, and unknown states; 27 deployed improvements await measurement, with only 5 measured and 1 proven; (3) restore existing operations/fleet-doctor result availability so reliability is observable without inventing telemetry; (4) operator-facing capability and routing matrix to reduce blocked handoffs caused by unavailable roles; and (5) AI-cost-aware work selection using existing usage records, preserving unknown ROI and margin. Prioritize by operator time saved, reliability, adoption, reversibility, and measurable outcome. Continue existing measurement, attribution reconciliation, security evidence, and failed-work repair-or-close review; do not create duplicate telemetry, requeue failures, add spend, change schedules, or deploy.",
+        "summary": "Recommendation: maintain containment-only execution. Fleet control-plane throughput is the dominant friction: 197 approved proposals lack execution requests, 46 failed-request repairs remain open, 27 deployed improvements await measurement, and only 1 outcome is proven. Retain the backlog themes of canonical lineage/deduplication, capability-aware routing, measurement-readiness gates, and unified repair-or-close workflows, but create no new proposals, work items, change requests, telemetry, requeues, or production work while capacity is occupied. Continue existing source-dated measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Keep the gated product private.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain containment-only execution. Retain canonical lineage/deduplication, capability-aware routing, measurement-readiness gates, and unified repair-or-close workflows as backlog themes only. Create no new proposals, work items, change requests, telemetry, requeues, or production work while capacity is occupied. Continue existing source-dated measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Keep the gated product private.",
         "requested_action": null,
         "proposal_id": null
       }
