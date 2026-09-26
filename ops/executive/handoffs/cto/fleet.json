@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T22:03:35.694Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T22:18:52.464Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work without new production requests, requeues, experiments, duplicate telemetry, spend, or monetization expansion. No new queue work is technically eligible this cycle because the candidate list is empty and existing capacity is occupied. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes.",
+        "summary": "Preserve the current queue boundary. Continue existing source-dated measurement and failed-work repair-or-close review without requeue. Resume implementation only after lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private. Continue the existing consolidated read-only evidence bundle and field-level rights matrix. External outreach, public exposure, alert expansion, configuration changes, deployment, dependencies, and spend remain blocked pending human-counsel review, owner authorization, and completion of legal, security, accuracy, attribution, and measurement gates.",
+        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, bounded read-only legal and security evidence work, and isolated failure repair-or-close review. Do not create new proposals, change requests, experiments, telemetry, requeues, dependencies, configuration changes, spend, monetization expansion, external outreach, or production work. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, and operational outcomes. Keep the gated product private.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing measurement and attribution reconciliation using available telemetry only. Do not add instrumentation, request duplicate telemetry, or assign aggregate commission to any site.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -30,7 +37,14 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue scheduled source-dated measurement and attribution reconciliation using existing telemetry only. Do not add instrumentation, request duplicate telemetry, or assign aggregate provider commission to any site. Preserve unknown financial and operational outcomes.",
+        "summary": "Keep the gated product private. Continue the existing consolidated read-only evidence bundle and field-level rights matrix; external outreach, public exposure, alert expansion, configuration changes, deployment, dependencies, and spend remain blocked pending human-counsel review, owner authorization, and completion of the required gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the evidence-needed security disposition and private launch gates. Continue bounded read-only evidence capture only; missing access-boundary, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence remains unknown and does not authorize security-sensitive public exposure or production mutation.",
         "requested_action": null,
         "proposal_id": null
       }
