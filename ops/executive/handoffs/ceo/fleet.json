@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:40:25.901Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T15:58:16.903Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve the containment plan and create no new production, experiment, telemetry, spend, or launch work this cycle. Evidence from the 30-day scorecard: 191 approved proposals lack execution, 46 failed-request follow-ups remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. Amazon data covers 2026-09-21 only: $4.92 aggregate commission is unattributed to sites; ROI, margin, and causal lift remain unknown. Keep SearchWoot private. Decision requested: authorize or decline sending the prepared Woot permission request.",
+        "summary": "Recommendation: preserve existing execution, measurement, failure-containment, and security-evidence work; create no new proposals or production changes this cycle. Evidence: 191 approved proposals lack execution, 46 failed-request follow-ups remain open, 25 deployed improvements await measurement, and only 1 outcome is proven in the 30-day window. Revenue is limited to 2026-09-21: $4.92 aggregate commission, $0 site-attributed; ROI, margin, causal lift, and operational health remain unknown. SearchWoot stays private. Owner decision: authorize or decline sending the prepared Woot permission request.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: retain the current safe disposition for SearchWoot and the fleet. The scorecard has no unblocked implementation candidates, so no change_request is warranted. Smallest next step: update existing workstreams with measurement observations, failure dispositions, and security evidence as they become available.",
         "requested_action": null,
         "proposal_id": null
       }

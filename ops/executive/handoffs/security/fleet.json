@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:40:25.902Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T15:58:16.904Z",
+  "summary": "security checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue bounded read-only security evidence capture and keep private launch gates unchanged. Fleet-doctor and operations sweeps are unavailable; compliance is only a technical baseline of 37 pass, 16 fail, and 6 unknown sites. Missing evidence is not a pass. No credentials, permissions, deployment, external outreach, or configuration changes are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Concrete evidence: fleet-doctor has no run, checks, or site results; operations deploy, uptime, and error sweeps are unavailable; authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, data exposure, monitoring, incident response, and security.txt/disclosure readiness are unverified. TLS evidence shows no certificates expiring within 30 days only and does not establish complete TLS posture. Compliance is a technical baseline, not certification: 37 pass, 16 fail, and 6 unknown sites. Risk severity is high for public gated-product exposure and medium for bounded changes that add no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: keep gated products private; continue only bounded read-only evidence capture and existing containment, measurement, and execution-reconciliation work. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, expand alerts, send external requests, or request duplicate telemetry. Missing evidence must remain unknown, not pass.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve containment-only updates to existing work items. No new security proposal, change request, deployment, credential or permission change, dependency addition, configuration change, external outreach, or launch activity is justified this cycle. Retain existing private launch gates and continue evidence capture from authorized metadata and retained artifacts only.",
+        "summary": "Security disposition: evidence_needed for fleet-wide security clearance; blocked for security-sensitive public launch; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, and security.txt/disclosure readiness remain unverified. TLS evidence shows no certificates expiring within 30 days only and does not establish complete TLS posture. Compliance is a technical baseline, not certification: 37 pass, 16 fail, and 6 unknown. Risk severity is high for public launch and medium for bounded changes that add no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: retain private launch gates; continue only bounded read-only security evidence capture and existing containment/measurement work. Do not create proposals, change requests, requeues, deployments, credential or permission changes, configuration changes, dependency additions, external outreach, or duplicate telemetry requests. Missing evidence remains unknown rather than passed.",
         "requested_action": null,
         "proposal_id": null
       }
