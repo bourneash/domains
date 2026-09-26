@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T10:04:04.820Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T11:03:44.053Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Update: SearchWoot remains blocked for public beta. Official API access is evidenced, but public/commercial reuse rights, retention, display, alerts, privacy, and vendor controls remain unconfirmed. Await owner authorization before any external permission request.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth. Official API access is evidenced, but public/commercial reuse, storage, derivatives, display, alerts, affiliate, and advertising rights are not. Keep SearchWoot private. Human counsel is required for upstream rights, privacy jurisdiction treatment, notification data, vendor/DPA terms, and monetization expansion. No legal launch-readiness task is closed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth. Evidence supports API access but not public or commercial reuse, storage, derivatives, display, alerts, affiliate use, or advertising rights. Keep SearchWoot private. Human counsel is required for upstream rights, privacy jurisdiction treatment, notification data, vendor/DPA terms, and monetization expansion.",
+        "summary": "Compliance baseline is technical only: 37 sites pass, 16 fail, and 6 are unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics is broadly available but has permission errors; this does not block ordinary growth where disclosures, consent, provenance, rights, claims, and platform boundaries are preserved. Revenue covers one day only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-level income remains unavailable for the aggregate row. Do not infer ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: no legal task is closed. Source-rights, data-flow/retention, analytics-consent, and logs/vendor/incident tasks remain open. The compliance baseline is technical only: 36 sites pass, 17 fail, and 6 are unknown. Missing telemetry is not a general growth blocker where disclosures, consent, claims, provenance, rights, and platform boundaries are preserved.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Next evidence action: obtain owner authorization to send the prepared written request to Woot, or attach a current agreement or permission record. Until then, do not send external requests, expand alerts, enable tracking, monetize, or change the private gate.",
+        "summary": "Exact decision: maintain the private gate, authorize only owner consideration of the prepared written permission request, and do not send outreach, change launch status, expand alerts, enable tracking, monetize, or deploy until the open legal, security, accuracy, privacy, measurement, and owner gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

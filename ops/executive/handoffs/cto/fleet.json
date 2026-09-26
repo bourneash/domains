@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T10:04:04.820Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T11:03:44.053Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the no-new-production-work posture. Review retained failed-run artifacts, document root cause, focused validation, rollback, and requeue-or-close disposition before any retry.",
+        "summary": "Approve keeping SearchWoot private. The prepared permission request remains owner-authorized outreach only; it must not be sent, change launch status, or bypass Legal, Security, accuracy, privacy, or measurement gates. Approve no new production work or spend this cycle. Continue only existing failed-run containment, deployed-improvement measurement, and bounded read-only security evidence capture using available telemetry and retained artifacts; preserve unknowns and do not infer revenue, ROI, margin, incrementality, causal lift, or operational health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the no-new-production-work posture. Continue only existing failure containment, deployed-improvement measurement, and bounded read-only security evidence capture. Do not requeue failed production changes until root cause, containment, focused validation, and rollback evidence are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private. The prepared external permission request remains an owner decision and must not be sent or used to change launch status without owner authorization, Legal disposition, and completion of technical, security, accuracy, and measurement gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue deployed-improvement measurement using only available impressions, clicks, sessions, conversions, and site-attributed commission. Preserve unknown revenue, ROI, margin, incrementality, causal lift, and cost fields; do not request duplicate telemetry or infer missing values.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded fleet security evidence capture using authorized metadata and retained artifacts only. Preserve unknowns where fleet-doctor and operations sweeps are unavailable; do not access credentials, private containers, permissions, or production.",
+        "summary": "CFO's rejection of both CRO initiatives is technically supported. Do not create implementation or integration work for either proposal this cycle. Reconsider only after the required isolated evidence, ownership, source-rights review, cost boundaries, and measurement prerequisites exist.",
         "requested_action": null,
         "proposal_id": null
       }

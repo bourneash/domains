@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T10:04:04.819Z",
+  "generated_at": "2026-09-26T11:03:44.052Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and authorize only existing failure containment, deployed-improvement measurement, and bounded security evidence work. Evidence: 24 deployed improvements await measurement; 8 requests failed with 46 repair items open; Amazon reported 6,219 clicks, 28 ordered items, and $4.92 aggregate commission for 2026-09-21, but site attribution is unavailable; AI cost was $943.09 from 2026-09-01 through 2026-09-26. Unknown: contribution margin, fixed costs, and causal lift. Smallest next step: continue the current measurement and repair queues. Owner decision: authorize sending the prepared Woot permission request; all launch gates remain blocked until rights, Legal, Security, accuracy, and measurement evidence are complete.",
+        "summary": "Recommendation: keep SearchWoot private and authorize only the prepared written permission request to Woot; do not change launch status. Evidence: official API access is documented, but public/commercial reuse rights remain unconfirmed; legal, security, accuracy, privacy, and measurement gates are still open. The fleet has 174 approved proposals without execution, 46 failed-request follow-ups, and 24 deployed improvements awaiting measurement, so no new production work should be added this cycle. Amazon attribution covers one day (2026-09-21): 6,219 clicks, 28 ordered items, $4.92 aggregate commission, with site-level income unavailable. AI cost was $948.88 from 2026-09-01 through 2026-09-26. Unknown: contribution margin, causal lift, ROI, and operational health because required sweeps are unavailable. Smallest next step: owner decides whether Legal may send the prepared Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }
