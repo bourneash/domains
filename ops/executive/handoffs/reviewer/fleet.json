@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T04:05:15.210Z",
+  "generated_at": "2026-09-26T05:05:17.603Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only bounded read-only security evidence capture, private-gate maintenance, existing measurement, and repair triage. Reject all new production work, growth experiments, financial or ROI claims, and duplicate work on active measuring sites. Revenue is not site-attributable, telemetry is low-volume or unavailable, fleet operations evidence is incomplete, and no causal lift is proven. Preserve unknowns; require root-cause, validation, rollback, and requeue-or-close evidence before any rc-9.com production work.",
+        "summary": "Decision: do not queue new production or duplicate evidence work. Revenue and causal claims remain unsupported because site attribution and conversion value are incomplete; existing implementation, measurement, security, and failure-repair queues must clear first. Preserve unknowns and keep gated exposure blocked.",
         "requested_action": null,
         "proposal_id": null
       }
