@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T02:57:36.271Z",
+  "generated_at": "2026-09-26T03:03:58.392Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation request is defensible this cycle. Aliencouncil.com is blocked by low-volume telemetry (77 impressions, 0 clicks); rc-9.com is blocked by an unresolved failed request; remaining candidates are active/measuring, deferred behind active work, or high-priority queue work. Operational sweeps are unavailable and aggregate revenue is not site-attributable. Continue existing measurement gates and failed-request repair; preserve unknowns and make no unsupported revenue, ROI, attribution, causal, or production claims.",
+        "summary": "Rejecting the gate03.com report-only proposal: existing fleet telemetry already supports portfolio review, while low-volume attribution, unavailable operational sweeps, failed implementations, and active measurement gates prevent a defensible new production action. No new implementation request is queued. Continue existing measurement and failed-request repair; preserve unknowns and make no unsupported revenue, ROI, attribution, causal, or production claims.",
         "requested_action": null,
         "proposal_id": null
       }
