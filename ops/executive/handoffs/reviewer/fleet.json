@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:34:00.354Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:48:46.139Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent reviewer disposition: approve containment-only updates to existing reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch work. Reject new proposals, production changes, queue expansion, requeues, experiments, telemetry requests, spending, external outreach, and monetization changes. Preserve unknown revenue, attribution, ROI, margin, causal lift, cost-to-learn, and operational health. Keep gated launches private.",
+        "summary": "Approved containment-only updates to existing reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch workstreams. Reject new proposals, production changes, queue expansion, requeues, telemetry requests, spending, monetization, and external outreach. Revenue is limited to one day with $0 site-attributed commission; ROI, margin, causal lift, cost-to-learn, and operational health remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concerns: revenue evidence is limited to one day, with $4.92 aggregate commission and $0 site-attributed commission; financial and causal claims are unsupported. Existing failures and measurement backlog require reconciliation before new production work. Authorize or decline the prepared permission request separately; until then, keep it unsent and the gated product private.",
+        "summary": "Owner message: keep the gated product private. The prepared permission request must remain unsent unless the owner authorizes it after human legal review. Rights, privacy, security, accuracy, attribution, and measurement gates remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement only with existing source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost. Do not treat missing values as zero or claim financial or causal outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue failure containment without requeue. Require deduplication, ownership, root cause, isolated validation, rollback, and explicit requeue-or-close evidence before any implementation resumes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security evidence capture from authorized metadata and retained artifacts. Preserve unknown controls as unknown; do not access credentials, change permissions or configuration, deploy, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:34:00.353Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:48:46.138Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: approve containment-only work and authorize no new discretionary spend, production requests, monetization expansion, or external outreach this cycle. The evidence does not support revenue forecasts or investment approval: Amazon data covers only 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0 because the $4.92 is in an aggregate “other” row. Contribution margin, ROI, cost-to-learn, infrastructure cost, labor cost, incremental cost, and budget exposure are not calculable because required cost and attributable revenue data are absent. AI usage is measurable: $948.8788343 from 2026-09-01 through 2026-09-26 across 5,327 calls, including 230 errors and 5 transient errors, but AI-only margin is not a complete contribution margin. Continue existing reconciliation, failed-run containment, measurement, security evidence, and private launch-gate work. Do not treat impressions, clicks, sessions, conversions, SEO scores, or performance metrics as financial return.",
+        "summary": "CFO recommendation: retain containment-only execution and authorize no new discretionary spend, queue expansion, requeues, monetization, or launch activity. AI spend is $948.88 for 2026-09-01 through 2026-09-26 across 5,327 calls, including 230 errors and 5 transient errors. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0. Do not claim revenue, ROI, contribution margin, or causal lift. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent. Cost-to-learn is not calculable because experiment-level cost and incremental attributable outcomes are unavailable. Budget exposure is unbounded because monthly spend limit, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank. Minimum finance measurement is a period-aligned site ledger containing attributable revenue, AI cost, infrastructure cost, domains, labor, marketing, and experiment-level incremental outcomes. Continue only existing reconciliation, failure containment, measurement, and bounded security-evidence work; preserve unknowns and do not treat missing values as zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO finance-control requirements for existing measurement work: report source dates and preserve unknowns; show site-level attributable commission separately from aggregate provider earnings; calculate AI cost per site only where available; do not calculate margin or payback without revenue and all-in incremental cost. Minimum measurement needed for contribution margin and cost-to-learn is a period-aligned ledger keyed by site and change: attributable revenue/commission, AI cost, infrastructure cost, labor or effort cost, incremental marketing/spend, exposure date, and outcome event. No duplicate telemetry request is justified because the available snapshot already identifies the missing fields.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO launch recommendation: keep the gated product private and approve only internal read-only evidence preparation. No revenue forecast, ROI claim, monetization change, or spend is supported while source rights, attribution reconciliation, security, accuracy, privacy, and owner gates remain incomplete. The minimum finance gate is a reconciled site/content identifier linking clicks, orders, shipped items, commission, and direct costs; without it, economics remain unknown rather than zero.",
+        "summary": "CFO attribution review: Amazon attribution is partial-aggregate despite complete tracking-ID mapping. The $4.92 commission is in an aggregate row that cannot be assigned to a site; named site rows show $0 commission. SEO totals of 14,033 impressions, 141 clicks, 977 sessions, and 15 conversions are operating metrics, not revenue proof. AI cost must not be presented as investment return without site-level attributable revenue and experiment-level incremental outcomes. Continue scheduled measurement using only source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost.",
         "requested_action": null,
         "proposal_id": null
       }
