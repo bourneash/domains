@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:10:40.089Z",
+  "generated_at": "2026-09-26T21:36:15.854Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Run noveltyguns.com audience, monetization, health, and backlog baseline",
-        "summary": "Analytics is recorded as not configured for noveltyguns.com. Audience, traffic, conversion, revenue, attribution, SEO, compliance, operational health, and AI cost remain unknown unless directly evidenced.",
-        "requested_action": "Produce a timestamped read-only assessment of noveltyguns.com covering observable positioning, content scope, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Identify exactly one evidence-backed next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "83e14984-f210-4ec7-b163-614b68aebe69"
+        "kind": "message",
+        "title": null,
+        "summary": "No new proposal is retained for vibratorporn.com this cycle. The site is live with analytics configured as false; audience, traffic, conversion, revenue, attribution, SEO outcomes, compliance, operational health, and AI cost are not evidenced and remain unknown. The authoritative candidate list is empty, existing capacity is occupied, and fleet leadership has directed containment-only execution. Continue existing measurement and repair-or-close work without new telemetry, deployment, monetization expansion, or requeue.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }
