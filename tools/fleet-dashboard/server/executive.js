@@ -214,6 +214,10 @@ function escalateOverdueOwnerRequests(store, now = Date.now()) {
     const due = Date.parse(item.due_at);
     if (!Number.isFinite(due) || due > now) continue;
     const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;
+    const dedupeKey = `executive-sla:${item.work_id}:${level}`;
+    const alreadyExists = store.listExecutiveNotifications?.({ recipient: item.created_by || 'owner', limit: 500 })
+      ?.some(notification => notification.dedupe_key === dedupeKey);
+    if (alreadyExists) continue;
     const notification = store.createExecutiveNotification?.({
       recipient: 'owner',
       notification_type: 'executive-sla-escalation',
@@ -234,13 +238,17 @@ function escalateOverdueWorkItems(store, now = Date.now()) {
     const due = Date.parse(item.due_at);
     if (!Number.isFinite(due) || due > now) continue;
     const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;
+    const dedupeKey = `executive-work-sla:${item.work_id}:${level}`;
+    const alreadyExists = store.listExecutiveNotifications?.({ recipient: item.created_by || 'owner', limit: 500 })
+      ?.some(notification => notification.dedupe_key === dedupeKey);
+    if (alreadyExists) continue;
     const notification = store.createExecutiveNotification?.({
       recipient: item.created_by || 'owner',
       notification_type: 'executive-work-sla-escalation',
       title: level === 2 ? 'Executive work needs escalation' : 'Executive work is overdue',
       body: `${item.title} is ${item.status} and waiting on ${item.waiting_on || item.owner || 'its owner'} since ${item.due_at}.`,
       work_id: item.work_id,
-      dedupe_key: `executive-work-sla:${item.work_id}:${level}`,
+      dedupe_key: dedupeKey,
     });
     if (notification) created.push(notification);
   }
