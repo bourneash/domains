@@ -2,44 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-25T21:06:41.861Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T01:06:28.630Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject additional queue work, unsupported revenue or readiness claims, discretionary spend, duplicate evidence requests, and launch changes. Continue only existing measurement, failed-request repair, bounded security evidence, and the private launch gate.",
+        "summary": "Reject the proposed aliencouncil.com production SEO/CTA change. The page has only 77 impressions, 0 clicks, 0 sessions, and 0 conversions; site-attributed revenue is $0 from 10 affiliate clicks. This low-volume telemetry and incomplete attribution do not support production work or financial claims. Keep affiliate expansion and revenue conclusions blocked. Preserve only bounded public research to verify the page’s observable content, source attribution, disclosures, accessibility, and CTA eligibility; make no production, configuration, tracking, credential, spending, or schedule changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject public launch, discretionary spend, unsupported revenue or ROI claims, duplicate telemetry, and new production work. Keep the gated product private; the prepared permission request requires explicit owner authorization and human legal review. Revenue is $0 site-attributed and $4.92 aggregate for the available window, so site economics remain unsupported. Continue only existing measurement, failure repair, bounded security evidence, and the reversible task-routing change.",
+        "summary": "Reject the duplicate fleet security disposition proposal because equivalent bounded evidence work is already in progress. Continue the existing work item only; do not create duplicate telemetry or evidence requests. Keep gated-product public exposure blocked until the documented rights, privacy, security, accuracy, measurement, and owner gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain one bounded task-routing metadata change because it is reversible, isolated, and has a measurable routing-success outcome with zero duplicate tasks. Reject all other new queue or production work this cycle; 24 improvements await measurement, 38 requests failed, and 46 repair follow-ups remain open.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "security-20260926-fleet-evidence-disposition",
+        "summary": "Duplicate of existing bounded fleet security evidence work. Continue the existing work item and preserve unknowns; do not create duplicate telemetry or evidence work.",
+        "requested_action": "declined",
+        "proposal_id": "security-20260926-fleet-evidence-disposition"
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "No research request retained. Existing telemetry and launch evidence cover the available gaps; additional research would duplicate shared contracts or cannot produce an authorized production-safe outcome.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain only one new implementation request: the reversible Saltwater News task-routing metadata change. Fewer than three unblocked candidates are available: rc-9.com is blocked by unresolved failure evidence; trainingsharks.com is blocked by reviewer rejection; remaining candidates duplicate active, queued, deployed, or measuring work. Reject unsupported revenue, ROI, production, spend, launch, credential, configuration, and duplicate-telemetry claims. Continue existing measurement, failure repair, bounded security evidence, and the private launch gate.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "aliencouncil-20260926-seo-cta-test",
+        "summary": "Low-volume search and affiliate telemetry blocks production work. No measurable outcome can be defensibly established at 77 impressions, 0 clicks, 0 sessions, 0 conversions, and $0 site-attributed commission. Research may proceed without changing production.",
+        "requested_action": "declined",
+        "proposal_id": "aliencouncil-20260926-seo-cta-test"
       }
     ]
   }

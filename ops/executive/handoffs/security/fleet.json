@@ -2,16 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-25T21:06:41.860Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T01:06:28.630Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for the fleet; blocked for SearchWoot public launch. Fleet-doctor is unavailable (ok=false, no run or checks), and operations deploy, uptime, and error sweeps are unavailable, so authentication, access boundaries, secrets, runtime isolation, release controls, dependency risk, monitoring, and incident readiness cannot be confirmed. TLS evidence shows no certificates expiring within 30 days, but this is not a complete TLS review. Compliance reports 35 pass, 18 fail, and 6 unknown; this is not certification. Security.txt, disclosure readiness, secret exposure, container isolation, dependency provenance, and data-exposure evidence are unknown. Recommend bounded read-only evidence capture only, preserve the private launch gate, and do not claim clean security or authorize public exposure.",
+        "summary": "Disposition: evidence_needed for the fleet; conditional for the isolated aliencouncil.com SEO/CTA test; blocked for gated-product public launch. Evidence: security baseline generated 2026-09-25T22:50:04.575Z reports fleet_doctor.ok=false with no run, checks, or site results; operations deploy, uptime, and error sweeps are unavailable; TLS expiry inventory is empty but does not prove TLS configuration; legal-family evidence is unknown for all 59 sites; secrets, authentication boundaries, container isolation, dependency provenance, release approvals, monitoring, incident response, and disclosure readiness are not evidenced. Compliance records 37 pass, 16 fail, and 6 unknown. These are material unknowns, not clean results. The aliencouncil.com test may proceed only as a one-page, reversible, zero-spend change with no new tracking, credentials, dependencies, affiliate links, advertising, data collection, or cross-site effects. Keep public exposure of the gated product blocked until security and the other launch gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Risk severity: high for fleet-wide or gated-product release decisions because authentication/access boundaries, secret handling, runtime isolation, release controls, dependency and supply-chain controls, data exposure, incident signals, and monitoring are unevidenced. Medium for the isolated aliencouncil.com SEO/CTA test because the proposed scope is reversible and preserves existing consent, analytics, disclosures, and attribution; residual risk remains because fleet-doctor and operations evidence are unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Exact decision: approve queue entry only for the existing one-page aliencouncil.com test, subject to isolated worktree/review, focused metadata/render/build validation, unchanged consent and disclosures, no new data collection or monetization behavior, and page-only rollback. Do not approve fleet-wide CTA rollout, dependency adoption, credential/configuration changes, public gated-product launch, or any claim of certification or clean bill of health.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain evidence-needed security disposition for fleet controls",
+        "summary": "Record the current read-only security disposition and preserve unknowns where fleet-doctor, operations, and retained control evidence are unavailable.",
+        "requested_action": "Keep gated-product public exposure blocked. Permit only bounded read-only evidence work using authorized metadata and retained artifacts. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, or request duplicate telemetry. Reassess only when concrete evidence exists for authentication and access boundaries, secrets, runtime isolation, release and deployment controls, TLS, dependencies and supply chain, data exposure, incident and monitoring signals, and disclosure readiness.",
+        "proposal_id": "b4410aa5-00d4-4e52-93b3-e98b17471c94"
       }
     ]
   }

@@ -2,37 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-25T21:06:41.859Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T01:06:28.629Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial review: retain the prepared reversible task-routing metadata change for Saltwater News. It changes assignment metadata only, has no stated spend or billing impact, preserves task history, and includes validation and rollback. It is not a revenue, margin, ROI, or learning claim; the measurable outcome is routing success with zero duplicate tasks.",
+        "summary": "Recommendation: approve only the reversible, zero-external-spend SEO test on aliencouncil.com and keep broader affiliate expansion bounded. The 30-day baseline is 77 impressions, position 5.5, 0 clicks, 0 sessions, and 0 conversions; the 2026-09-21 revenue window records 10 site clicks and $0 attributed commission. Revenue impact, contribution margin, and ROI are therefore unproven. AI spend was $940.70 across the 2026-09-01 to 2026-09-25 window, while no monthly budget or fixed-cost baseline is provided. Do not scale work from impressions, clicks, or aggregate $4.92 commission.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Budget exposure remains unknown, not zero. The brief provides no monthly spend limit, fixed-cost baseline, infrastructure billing, marketing budget, labor rate, or domain/hosting cost ledger. AI usage is the only quantified cost source: $932.93 for 2026-09-01 through 2026-09-25. Report contribution margin only where both attributable revenue and all relevant variable costs are present; otherwise label it not calculable.",
+        "summary": "The minimum finance measurement before any monetization expansion is page/site-level linkage of eligible sessions, affiliate clicks, ordered items, shipped items, commission, AI cost, and directly attributable infrastructure cost over the same dated window. Aggregate provider revenue must remain unassigned. Contribution margin and cost-to-learn are not calculable until those cost fields and experiment exposure are available.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial review: retain only the reversible task-routing metadata change. The available 2026-09-21 revenue window records 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, with $0 site-attributed commission. Aggregate commission cannot support site economics or forecasts. AI usage cost is $932.93 for 2026-09-01 through 2026-09-25; infrastructure, labor, marketing, fixed costs, and budgets remain unavailable.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain only the reversible task-routing metadata change. The available 2026-09-21 revenue window records $0 site-attributed commission and $4.92 aggregate commission that cannot support site economics. AI usage cost is $932.93 for 2026-09-01 through 2026-09-25; infrastructure, labor, marketing, fixed costs, and budgets remain unavailable.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cro-20260926-aliencouncil-seo-cta",
+        "summary": "Accept as a bounded, reportable test with no external spend. Finance requires before/after impressions, clicks, CTR, sessions, conversions, affiliate activity, AI cost, and any directly attributable infrastructure cost; do not claim revenue, margin, ROI, or causal lift.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-20260926-aliencouncil-seo-cta"
       }
     ]
   }

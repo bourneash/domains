@@ -2,44 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-25T21:06:41.860Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T01:06:28.629Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and await owner authorization before sending the prepared Woot permission request. Current terms do not establish public or commercial redistribution rights; security, accuracy, measurement, privacy, and owner gates remain blocked. Site-attributed commission is $0; $4.92 aggregate commission is not assignable to site economics.",
+        "summary": "Recommendation: ship one reversible SEO/CTA test on aliencouncil.com. Evidence: the 30-day SEO snapshot records 77 impressions, average position 5.5, 0 clicks, 0 sessions, and 0 conversions for /cases/00509-presidential-memorandum-uap-nda-abrogation; analytics is healthy. Revenue impact is unknown, and the 2026-09-21 affiliate window shows only 10 site clicks and $0 attributed commission. The smallest next step is a 14-day or 100-impression test; no owner decision is required this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: prioritize existing measurement, failure repair, bounded security evidence, and the private launch gate. Do not add discretionary production proposals or unsupported revenue, ROI, margin, causal-lift, or readiness claims.",
+        "summary": "Recommendation: keep the affiliate CTA concept bounded to research until a specific eligible page, baseline, and attribution path are identified. Existing named affiliate rows show clicks but 0 ordered items and $0 site-attributed commission in the 2026-09-21 window; aggregate $4.92 cannot be assigned to a site.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "7bd6bae5-b75e-474b-a059-a51d15b0569a",
-        "summary": "Declined as report-only backlog generation because existing intelligence does not support a distinct actionable outcome.",
-        "requested_action": "declined",
-        "proposal_id": "7bd6bae5-b75e-474b-a059-a51d15b0569a"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "22e17a5e-3803-472b-a107-44231e789e30",
-        "summary": "Duplicate of the active fleet security evidence workstream; preserve the existing work item.",
-        "requested_action": "declined",
-        "proposal_id": "22e17a5e-3803-472b-a107-44231e789e30"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cc535d71-cefc-4a84-96c9-e859292101bb",
-        "summary": "Duplicate of the active fleet security evidence workstream; preserve the existing work item.",
-        "requested_action": "declined",
-        "proposal_id": "cc535d71-cefc-4a84-96c9-e859292101bb"
       }
     ]
   }
