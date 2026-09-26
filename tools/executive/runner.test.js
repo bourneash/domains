@@ -8,6 +8,7 @@ const path = require('node:path');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const runner = require('./runner');
 const research = require('./research');
+const executive = require('../fleet-dashboard/server/executive');
 
 function db() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'executive-runner-'));
@@ -392,7 +393,10 @@ test('provides distinct fleet-tooling and managed-site product manager prompts',
     action_mandate: { candidates: [] },
   };
   assert.match(runner.buildPassPrompt(brief, 'product-manager-fleet'), /Fleet tooling/);
-  assert.match(runner.buildPassPrompt(brief, 'product-manager-sites'), /managed websites portfolio/);
+  assert.match(
+    runner.buildPassPrompt(brief, 'product-manager-sites'),
+    /managed websites portfolio/
+  );
   const plan = runner.parseOutput(
     JSON.stringify({
       messages: [
@@ -818,6 +822,64 @@ test('parses structured provider output and applies only explicitly enabled queu
   assert.equal(store.listChangeRequests().length, 0);
   const queued = await runner.applyPlan(store, plan, { allowQueue: true, root });
   assert.equal(queued.change_requests.length, 1);
+  store.close();
+});
+
+test('end-to-end owner request handoff creates a linked request and threaded acknowledgement', async () => {
+  const { root, store } = db();
+  const ownerRequest = executive.ownerRequest(store, {
+    actor: 'owner',
+    body: 'Add our Bluesky profile links to the sites and surface them clearly.',
+  });
+  const created = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+      change_requests: [
+        {
+          site: 'example.com',
+          source_work_id: ownerRequest.work_item.work_id,
+          title: 'Add social profile links',
+          body: 'Add the approved social profile links to the site footer and verify the rendered links.',
+          category: 'marketing',
+          priority: 'low',
+          assigned_role: 'engineer',
+          provider: 'local',
+          delivery_mode: 'direct',
+          max_turns: 1,
+          auto_review: true,
+        },
+      ],
+    },
+    { allowQueue: true, root }
+  );
+  assert.equal(created.change_requests.length, 1);
+  const request = created.change_requests[0];
+  const messages = store.listExecutiveMessages({ work_id: ownerRequest.work_item.work_id });
+  const acknowledgement = messages.find(
+    message => message.metadata?.downstream_id === request.request_id
+  );
+  assert.ok(acknowledgement);
+  assert.match(acknowledgement.body, /queued agents/);
+  assert.equal(acknowledgement.reply_to, ownerRequest.message.message_id);
+  const updated = store.getExecutiveWorkItem(ownerRequest.work_item.work_id);
+  assert.equal(updated.lifecycle_state, 'actioned');
+  assert.equal(updated.waiting_on, 'worker');
+  assert.ok(
+    store
+      .listWorkflowLinks({ from_type: 'work-item', from_id: ownerRequest.work_item.work_id })
+      .some(link => link.to_type === 'request' && link.to_id === request.request_id)
+  );
+  const notification = store
+    .listExecutiveNotifications({ unread: true })
+    .find(item => item.message_id === acknowledgement.message_id);
+  assert.ok(notification);
   store.close();
 });
 
