@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-26T15:39:00.898Z",
+  "updated_at": "2026-09-26T15:51:00.503Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -230591,6 +230591,70 @@
       "lease_until": null,
       "last_error": "ration_ms: 0.237686\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 11.73945\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.306735\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.138976\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 4.336901\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.126408\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.567075\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.323827\n  type: 'test'\n  ...\n# (node:1080238) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1395.965106\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 26045.710111\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
       "claimed_at": "2026-09-26T15:35:00.417Z"
+    },
+    {
+      "job_id": "ba0a3275-1608-4cbc-844e-7f3b2deeef05",
+      "fingerprint": "19a6e0bcb1b8fc44660b7bd005cfb17aa4c96a36124c13a08af78b9f03d2b00c",
+      "site": "wetslit.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:42:00.144Z",
+      "next_attempt_at": "2026-09-26T21:42:10.370Z",
+      "lease_until": null,
+      "last_error": "building domains-executive-runner:latest from current executive source (74dbe451a1e35ef9d5d4f78c6fcd4a1129b895c80cdcd7ff69cf0fae6906e33a)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\n(node:1085275) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:1085401) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-26T15:42:00.432Z"
+    },
+    {
+      "job_id": "fb9f1a65-d0de-46ec-a2a2-1aff7dd478bb",
+      "fingerprint": "de48ea5ba79197a085c6cf05bf74efcb8f1bc052e4a084cb2a81b81fd2969f07",
+      "site": "americastrikes.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:44:00.160Z",
+      "next_attempt_at": "2026-09-26T21:44:08.236Z",
+      "lease_until": null,
+      "last_error": "building domains-executive-runner:latest from current executive source (ba5d14863454fcbd415a97f6a403360c658e76bd593eb85b1c29530505174852)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\n(node:209) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:320) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-26T15:44:00.456Z"
+    },
+    {
+      "job_id": "b2123397-c3ee-419d-b078-98ff71d86e6e",
+      "fingerprint": "c1cc053926fe42aa8c0d4ce2604b2cc3c97e5f08abe76aec3ed84b5362ef75c9",
+      "site": "deeppenetrations.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:48:00.152Z",
+      "next_attempt_at": "2026-09-26T21:48:04.290Z",
+      "lease_until": null,
+      "last_error": "(node:2603) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:2711) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-26T15:48:00.793Z"
+    },
+    {
+      "job_id": "a6f2317b-daeb-407c-ad10-efc685704ba9",
+      "fingerprint": "8837e169668f5d8e986cad2f0fd79447df80c00f34b6175ec0af0f039ac724e4",
+      "site": "newmomshop.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:49:00.154Z",
+      "next_attempt_at": "2026-09-26T21:49:04.010Z",
+      "lease_until": null,
+      "last_error": "(node:3206) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:3319) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-26T15:49:00.417Z"
     }
   ]
 }

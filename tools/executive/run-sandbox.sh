@@ -21,8 +21,10 @@ export EXECUTIVE_MODEL="${EXECUTIVE_MODEL:-gpt-5.6-luna}"
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-adaptive}"
 [[ "${EXECUTIVE_ALLOW_QUEUE:-0}" == "1" ]] && MODE="$MODE --allow-queue"
 
-exec 9>"$LOCK_FILE"
-flock -n 9 || { echo "executive tick already running" >&2; exit 75; }
+if [[ "${EXECUTIVE_LOCK_HELD:-0}" != "1" ]]; then
+  exec 9>"$LOCK_FILE"
+  flock -n 9 || { echo "executive tick already running" >&2; exit 75; }
+fi
 
 # The model image is intentionally isolated from the checkout, so it must be
 # rebuilt when its copied source changes. A plain "image exists" check leaves
@@ -71,6 +73,18 @@ container_args=(run --rm --name "$CONTAINER_NAME" --entrypoint /usr/bin/env \
   -e EXECUTIVE_PROVIDER -e EXECUTIVE_MODEL \
   -e EXECUTIVE_TIMEOUT_MS -e EXECUTIVE_PASS_TIMEOUT_MS -e EXECUTIVE_PASSES -e DISABLE_AUTOUPDATER=1 \
 )
+
+# If the attached Docker client is killed by timeout, clean up the named
+# container explicitly. This is scoped to the unique container owned by this
+# tick and prevents a runaway model process from surviving its supervisor.
+cleanup_container() {
+  docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+}
+cleanup_run() {
+  cleanup_container
+  rm -rf "$RUN_DIR"
+}
+trap cleanup_run EXIT
 
 # Authentication is the only host material allowed besides the project mount.
 # ChatGPT OAuth tokens may need to refresh during a long-lived cron container,
@@ -142,7 +156,7 @@ fi
 run_model() {
   local log_file="$RUN_DIR/model.log"
   : > "$log_file"
-  timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-20m}" docker \
+  timeout -s TERM -k 30 "${EXECUTIVE_CONTAINER_TIMEOUT:-14m}" docker \
     "${container_args[@]}" node /app/tools/executive/model-runner.js >"$log_file" 2>&1
   local status=$?
   cat "$log_file"

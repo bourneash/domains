@@ -75,7 +75,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #
 # @bitwarden/cli is how tools/social-lib's vault_store.py reads platform
 # credentials out of Vaultwarden for the social-poster role.
-ARG CLAUDE_CODE_VERSION=2.1.140
+ARG CLAUDE_CODE_VERSION=2.1.283
 ARG PLAYWRIGHT_CORE_VERSION=1.49.1
 ARG BITWARDEN_CLI_VERSION=2026.6.0
 RUN npm install -g \

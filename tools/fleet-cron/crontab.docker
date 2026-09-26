@@ -121,9 +121,11 @@
 10 3 * * 0 /home/jesse/projects/domains/tools/scripts/gc-docker.sh --cache-all
 
 # --- Job 10b: autonomous executive leadership tick ---
-# Hourly, single-flight, bounded by run-sandbox.sh. Queue execution is
-# separately gated by the dashboard's reviewed change-queue settings.
-0 * * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
+# Every 15 minutes, single-flight, and hard-bounded by run-sandbox.sh. The
+# shared lock means a long tick is skipped rather than overlapped by the next
+# cron fire. Queue execution is separately gated by the dashboard's reviewed
+# change-queue settings.
+*/15 * * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
 # Cheap hourly progress heartbeat. It does not invoke a model; it records the
 # delivery state and measured outcomes so activity cannot masquerade as impact.
 0 * * * * /home/jesse/projects/domains/tools/executive/run-heartbeat.sh

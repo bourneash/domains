@@ -7,6 +7,13 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT/tools/executive/logs"
 mkdir -p "$LOG_DIR"
 exec >>"$LOG_DIR/scheduled.log" 2>&1
+# Serialize the entire scheduled transaction, including approved-work draining
+# and check-in. This is the same lock used by manual dashboard runs and the
+# sandbox; a second cron fire exits cleanly instead of overlapping work.
+LOCK_FILE="${EXECUTIVE_LOCK_FILE:-$ROOT/tools/executive/data/executive.lock}"
+exec 8>"$LOCK_FILE"
+flock -n 8 || { echo "[$(date -Is)] executive scheduled tick already running"; exit 75; }
+export EXECUTIVE_LOCK_HELD=1
 settings="$(node -e "const s=require('$ROOT/tools/fleet-dashboard/server/eventstore').open('$ROOT'); const x=s.getExecutiveSettings(); const q=s.getChangeQueueSettings(); const enabled=x.queue_execution_enabled === undefined ? q.enabled === true : x.queue_execution_enabled === true; process.stdout.write([x.tick_enabled === true ? '1' : '0', enabled ? '1' : '0'].join('|')); s.close()" 2>/dev/null || printf '0|0')"
 IFS='|' read -r enabled queue_enabled <<<"$settings"
 # EXECUTIVE_FORCE bypasses the recurring tick_enabled switch for an operator
@@ -22,7 +29,11 @@ if [[ "$queue_enabled" == "1" ]]; then
 else
   export EXECUTIVE_ALLOW_QUEUE=0
 fi
+# Keep the leadership sequence hungry and deterministic. Each pass is still
+# bounded, and run-sandbox.sh applies the hard wall-clock/container cap.
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,cro,ceo,cfo,cto,legal,security,reviewer}"
+export EXECUTIVE_PASS_TIMEOUT_MS="${EXECUTIVE_PASS_TIMEOUT_MS:-120000}"
+export EXECUTIVE_CONTAINER_TIMEOUT="${EXECUTIVE_CONTAINER_TIMEOUT:-14m}"
 RUN_ACTION_ID="$(node - "$ROOT" "${EXECUTIVE_ACTION_ID:-}" <<'NODE'
 const root = process.argv[2];
 const existingActionId = process.argv[3];
