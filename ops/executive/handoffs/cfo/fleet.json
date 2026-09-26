@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:48:46.138Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T17:48:56.216Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: retain containment-only execution and authorize no new discretionary spend, queue expansion, requeues, monetization, or launch activity. AI spend is $948.88 for 2026-09-01 through 2026-09-26 across 5,327 calls, including 230 errors and 5 transient errors. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0. Do not claim revenue, ROI, contribution margin, or causal lift. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent. Cost-to-learn is not calculable because experiment-level cost and incremental attributable outcomes are unavailable. Budget exposure is unbounded because monthly spend limit, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank. Minimum finance measurement is a period-aligned site ledger containing attributable revenue, AI cost, infrastructure cost, domains, labor, marketing, and experiment-level incremental outcomes. Continue only existing reconciliation, failure containment, measurement, and bounded security-evidence work; preserve unknowns and do not treat missing values as zero.",
+        "summary": "CFO recommendation: retain containment-only execution and authorize no new discretionary spend, monetization, queue expansion, requeues, or production work. AI spend was $963.569 for 2026-09-01 through 2026-09-26 across 5,390 calls, with 232 errors and 5 transient errors. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; named site rows show $0 commission, so site revenue claims, ROI, and causal lift are unsupported. Continue only existing reconciliation, failure-containment, measurement, and bounded security-evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO attribution review: Amazon attribution is partial-aggregate despite complete tracking-ID mapping. The $4.92 commission is in an aggregate row that cannot be assigned to a site; named site rows show $0 commission. SEO totals of 14,033 impressions, 141 clicks, 977 sessions, and 15 conversions are operating metrics, not revenue proof. AI cost must not be presented as investment return without site-level attributable revenue and experiment-level incremental outcomes. Continue scheduled measurement using only source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost.",
+        "summary": "Attribution and margin remain unresolved. The $4.92 is an aggregate provider row and cannot be assigned to a site without inventing attribution. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent. Minimum measurement: a period-aligned site/fleet cost ledger matched to attributable commission. Cost-to-learn is not calculable because experiment-level cost and incremental attributable outcomes are unavailable. Minimum measurement: per-experiment cost plus pre/post or control-based incremental site-attributed commission or conversion outcome.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Budget exposure is unbounded: monthly spend limit, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank in the brief. Infrastructure spend is unknown because no infrastructure-cost source is present; do not infer it from AI spend. Minimum measurement: owner-approved limits for each field and an actual-versus-budget report. Preserve impressions, clicks, sessions, conversions, social coverage, AI calls, and technical scores as operating metrics, not financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing workstreams only: reconcile execution records, contain failed runs without requeue, record scheduled measurement from existing source-dated telemetry, and continue bounded security evidence. Keep the gated product private pending owner and required human-review decisions. No new proposal or change request is financially justified on the current evidence.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:48:46.138Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T17:48:56.216Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue measurement only with source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost. Do not interpret missing revenue, attribution, margin, ROI, causal lift, or operational data as zero. Smallest next step: record the next scheduled observations and compare actual deltas with acceptance thresholds.",
+        "summary": "Recommendation: preserve containment-only execution. Evidence: 197 approved proposals lack execution, 46 failed-request repairs remain open, 27 deployed improvements await measurement, and only 1 outcome is proven. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI, margin, and causal lift are unknown. Keep the gated product private. Owner decision: authorize the prepared permission request after counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Evidence: 191 approved proposals lack execution, 48 failure follow-ups remain open, 25 deployed improvements await measurement, and only 1 outcome is proven in the 30-day scorecard. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI, margin, causal lift, and cost-to-learn are unknown. No unblocked implementation candidate exists, so no new change_request is justified. Smallest next step: reconcile existing work, measure deployed changes, and document repair-or-close decisions. Owner decision: authorize sending the prepared permission request, or keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: keep the gated product private. Official source documentation confirms API access mechanics but not rights for public or commercial display, storage, derivatives, caching, alerts, or monetization; legal, security, accuracy, privacy, attribution, and measurement gates remain incomplete. Smallest next step: attach the consolidated read-only rights, data-flow, retention, consent, vendor, and incident evidence without sending outreach.",
+        "summary": "Handoff: continue scheduled measurement using existing source-dated telemetry only. Preserve unavailable revenue, attribution, margin, ROI, causal lift, cost-to-learn, infrastructure cost, labor cost, budget exposure, and operational health as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

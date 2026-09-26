@@ -2,42 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:48:46.139Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T17:48:56.216Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only updates to existing reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch workstreams. No new proposal, experiment, change request, telemetry request, dependency, requeue, deployment, spend, permission change, configuration change, or outreach is queue-eligible this cycle. The actionability snapshot has no unblocked implementation candidates; existing work already covers the relevant sites. Preserve unknown revenue, attribution, ROI, margin, causal lift, cost-to-learn, infrastructure cost, labor cost, and operational health. Requeue failed work only after documented deduplication, ownership, root cause, isolated validation, rollback, and explicit requeue-or-close disposition. Keep private launch gates unchanged. Owner decision remains whether to authorize sending the prepared permission request; this pass does not send it.",
+        "summary": "Approve containment-only execution. Update existing reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch workstreams only. Create no new proposals, change requests, telemetry requests, spend, requeues, deployments, permission or configuration changes, or external outreach. Preserve unavailable revenue, attribution, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational health as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the existing execution-reconciliation and failure-containment gates; do not requeue failed work or expand production scope. The smallest technically safe next step is to reconcile retained records and document deduplication, ownership, root cause, isolated validation, rollback, queue eligibility, and explicit requeue-or-close disposition for each failure.",
+        "summary": "Reconcile existing execution records only. Document canonical lineage, deduplication, ownership, validation gates, rollback paths, queue eligibility, and terminal dispositions before any requeue or new production work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue measurement only with source-dated impressions, clicks, sessions, conversions, site-attributed commission, and already-available AI cost. Do not treat missing revenue, attribution, margin, ROI, causal lift, cost-to-learn, infrastructure cost, labor cost, or operational health as zero. Record scheduled observations against existing acceptance thresholds; do not add instrumentation or request duplicate telemetry.",
+        "summary": "Continue repair-or-close review for existing failures without requeue. Require root cause, smallest isolated repair, focused validation, rollback, ownership, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep the gated product private. Continue only bounded read-only rights, data-flow, retention, consent, vendor, incident, and security evidence work, plus unsent permission-request preparation. No public exposure, alert expansion, monetization, deployment, credential or configuration change, dependency addition, or external outreach is authorized without owner and required specialist decisions.",
+        "summary": "Continue scheduled measurement using existing source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost only. Do not add instrumentation or request duplicate telemetry; preserve missing financial and operational fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed work is technically feasible only as updates to existing isolated work items. It is reversible because it changes records, evidence, and dispositions rather than production behavior. Implementation effort is limited to reconciliation and artifact review; any code or routing repair requires a separate isolated worktree, focused tests, validation evidence, rollback notes, and explicit requeue approval. No new queue action is justified while 191 approved proposals lack execution, 48 repair follow-ups remain open, 25 deployed improvements await measurement, and only one outcome is proven.",
+        "summary": "Continue bounded read-only security evidence capture from authorized metadata and retained artifacts. Keep missing access, secrets, isolation, release, monitoring, incident, TLS, dependency, and disclosure evidence unknown; retain private launch gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private. Continue existing read-only rights, data-flow, retention, consent, vendor, incident, accuracy, and measurement evidence work; keep the permission request unsent pending owner and counsel authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new queue item is justified: the actionability snapshot has no unblocked candidate, 27 deployed improvements await measurement, and existing failure repairs remain open. Technical metrics and AI usage are operating evidence, not financial return.",
         "requested_action": null,
         "proposal_id": null
       }
