@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T22:48:33.299Z",
+  "generated_at": "2026-09-26T23:05:39.972Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution and authorize no discretionary spend, budget commitments, monetization expansion, forecasts, requeues, or new production work. Revenue evidence supports only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; $0 is site-attributed because the aggregate row cannot be assigned without inventing attribution. AI spend was $963.569 across 5,390 calls from 2026-09-01 through 2026-09-26. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Minimum measurement is a dated cost ledger reconciled to site/content identifiers and the revenue window, plus experiment-level incremental outcomes and owner-approved spending limits. Continue only existing source-dated measurement, attribution reconciliation, and repair-or-close work; reject vanity metrics as financial proof.",
+        "summary": "Recommendation: approve containment-only execution. Authorize no discretionary spend, budget commitments, monetization expansion, forecasts, requeues, or new production work. Revenue evidence supports only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. The current brief records AI cost of $966.83 across 5,417 calls from 2026-09-01 through 2026-09-26, while the candidate cites $963.57 and 5,390 calls; reconcile this discrepancy before reporting a final AI-spend figure. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Minimum measurement: reconcile a dated cost ledger to site/content identifiers and the revenue window, preserve aggregate revenue as unattributed, measure incremental results within existing experiment windows, and record owner-approved spending limits. Continue only existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the candidate plan’s containment-only disposition. The 197 approved proposals without execution, 46 open failure follow-ups, 27 deployed improvements awaiting measurement, and only 1 proven outcome are execution and measurement controls, not evidence of financial return. Continue existing measurement and reconciliation without duplicate telemetry or new finance requests. Do not claim revenue, margin, ROI, payback, cost-to-learn, budget headroom, or causal lift until the required period-aligned ledger and attributable incremental results exist.",
+        "summary": "Approve containment-only execution. Revenue evidence is limited to 2026-09-21: $4.92 aggregate commission and $0 site-attributed commission. AI usage is currently recorded as $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26; reconcile conflicting prior records before final reporting. ROI, margin, payback, cost-to-learn, infrastructure spend, and budget exposure remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }

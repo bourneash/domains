@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T22:48:33.298Z",
+  "generated_at": "2026-09-26T23:05:39.973Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Continue existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Evidence: 197 approved proposals lack execution, 46 failure follow-ups remain open, 27 deployed improvements await measurement, and only 1 outcome is proven. Revenue is limited to $4.92 aggregate commission for 2026-09-21 with $0 site-attributed commission; AI cost is $963.57 for 2026-09-01–2026-09-26. ROI, margin, causal lift, and cost-to-learn remain unknown. No new change request is justified because the authoritative candidate list is empty and capacity is occupied. Owner decision: authorize the prepared Woot permission request after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: maintain containment-only execution. Continue source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Evidence: 27 deployed improvements await measurement, 46 failure follow-ups remain open, only 1 outcome is proven, and the authoritative candidate list is empty. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; AI cost is recorded in the current brief as $966.83 for 2026-09-01–2026-09-26. ROI, margin, causal lift, and cost-to-learn remain unknown. Reject new production work, requeues, experiments, duplicate telemetry, spend, monetization expansion, external outreach, and GitHub adoption this cycle. Owner decision: authorize the prepared Woot permission request after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }

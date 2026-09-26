@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-26T22:48:33.298Z",
+  "generated_at": "2026-09-26T23:05:39.972Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain CRO opportunities as deferred handoffs under containment-only execution; create no new proposals, experiments, GitHub adoptions, telemetry, requeues, spend, or production work this cycle. Evidence: 197 approved proposals lack execution, 46 failure follow-ups remain open, 27 deployed improvements await measurement, and only 1 outcome is proven. Revenue evidence is limited to $4.92 aggregate commission for 2026-09-21 with $0 site-attributed commission; ROI, margin, causal lift, and cost-to-learn remain unknown. Deferred opportunities: (1) a reusable accessible CTA/component pattern informed by shadcn/ui, whose MIT license and bounded lab checks support prototyping, but dependency, supply-chain, bundle, accessibility, and maintenance review remain required; smallest prototype is one manually copied CTA in an isolated worktree, measured by CTR after existing measurement capacity clears; (2) a source-to-markdown content workflow informed by Microsoft MarkItDown, whose MIT license and 8/8 bounded lab checks support research, but parser accuracy, prompt-injection handling, document privacy, dependency maintenance, and editorial quality remain unverified; smallest prototype is one offline conversion of a non-sensitive fixture with human review; (3) structured visual/SEO explainers informed by Mermaid, whose MIT license and static-SVG potential are promising, but sanitization, accessibility, page weight, rendering, and maintenance risks remain; smallest prototype is one manually authored isolated SVG artifact. None is ready for queueing because current CTO, CEO, CFO, Legal, Security, and Reviewer dispositions require containment-only execution and existing queue capacity is occupied.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. No new revenue experiment, product opportunity, GitHub adoption, prototype, change request, telemetry request, spend, monetization expansion, or requeue is retained. Evidence: the authoritative candidate list is empty; 27 deployed improvements await measurement; 46 failure follow-ups remain open; only 1 outcome is proven; site-attributed commission is $0; aggregate revenue cannot be assigned; and CEO/CTO/reviewer guidance rejects new production work. Retain deferred CRO opportunities for later review only after existing measurement, failure repair-or-close, legal/security evidence, capacity, validation, rollback, and owner gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
