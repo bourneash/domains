@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T22:33:38.298Z",
+  "generated_at": "2026-09-26T22:48:33.299Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for security-sensitive public exposure or release; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release provenance, dependency controls, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not proof of compromise. Exact decision: keep private launch gates, continue bounded read-only security evidence work, and permit only reversible growth that preserves existing consent, disclosures, data boundaries, and claims.",
+        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for security-sensitive public exposure or release; conditional for ordinary reversible growth. Concrete evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, least privilege, secrets handling, runtime isolation, release approvals, dependency provenance, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this is not complete TLS evidence. Compliance is a technical baseline only: 37 pass, 16 fail, 6 unknown. Retained worker/reviewer failures are containment signals, not evidence of compromise. Risk severity is high for public exposure and security-sensitive release, medium for bounded growth. Exact decision: maintain private launch gates; continue existing bounded read-only security evidence work; permit only reversible growth that preserves consent, disclosures, data boundaries, and existing release controls; do not retrieve credentials, access private containers, change permissions, add dependencies, deploy, requeue failures, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing bounded read-only evidence capture for authentication and access boundaries, secrets, runtime isolation, build and deployment provenance, dependency and supply-chain controls, TLS, data flows, monitoring, incidents, and disclosure readiness. Record timestamps, owners, affected scope, explicit unknowns, severity, and release implications. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Continue the existing bounded read-only security evidence matrix only. Record dated evidence, owners, affected scope, explicit unknowns, severity, and release implications for access boundaries, secret handling, runtime isolation, build and deployment provenance, dependency and supply-chain controls, TLS, data flows, monitoring, incidents, and disclosure readiness. Do not create duplicate telemetry requests or new production work.",
         "requested_action": null,
         "proposal_id": null
       }
