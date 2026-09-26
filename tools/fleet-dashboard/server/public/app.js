@@ -56,6 +56,8 @@ function agentLabel(role) {
 
 function executiveActorLabel(actor) {
   if (String(actor) === 'researcher') return 'CRO';
+  if (String(actor) === 'product-manager-fleet') return 'PM · Fleet tooling';
+  if (String(actor) === 'product-manager-sites') return 'PM · Managed sites';
   return ['CEO', 'CTO', 'CFO'].includes(String(actor || '').toUpperCase())
     ? String(actor).toUpperCase()
     : agentLabel(actor);

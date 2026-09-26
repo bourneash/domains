@@ -22,7 +22,7 @@ if [[ "$queue_enabled" == "1" ]]; then
 else
   export EXECUTIVE_ALLOW_QUEUE=0
 fi
-export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-cro,ceo,cfo,cto,legal,security,reviewer}"
+export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,cro,ceo,cfo,cto,legal,security,reviewer}"
 RUN_ACTION_ID="$(node - "$ROOT" "${EXECUTIVE_ACTION_ID:-}" <<'NODE'
 const root = process.argv[2];
 const existingActionId = process.argv[3];

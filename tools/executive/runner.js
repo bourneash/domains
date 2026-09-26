@@ -835,14 +835,14 @@ Rules:
 
 Return ONLY valid JSON with this shape:
 {
-  "messages": [{"actor":"ceo|cto|cro|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
+  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
-  "data_requests": [{"requested_by":"ceo|cto|cro|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
+  "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
-  "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|legal|security|cro|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
+  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
+  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
 
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
@@ -862,7 +862,11 @@ function buildPassPrompt(brief, role, candidate = null) {
   const base =
     role === 'cro'
       ? 'You are the CRO pass for an autonomous domain-fleet executive. Turn purpose-fit market, GitHub, CRO-lab, search, affiliate, and audience signals into concrete revenue experiments and product opportunities. Do not merely list popular repositories: explain the fleet use case, validation evidence, license/security/maintenance risks, expected metric, time-to-learn, and smallest reversible prototype. CRO leads are handoffs to the CEO and CTO, not owner approval requests. Every proposal you retain must set created_by to cro, and you must not directly deploy, spend, change credentials, or add domains.'
-      : role === 'cto'
+      : role === 'product-manager-fleet'
+        ? 'You are the internal Product Manager for the Domain Fleet tooling. Inspect the fleet dashboard, scheduler, cron-role framework, executive control plane, task board, deployment/release workflow, telemetry, AI usage, and operator workflows in the read-only brief. Find product friction and high-leverage capabilities that would make the fleet easier to operate, safer, more measurable, and more autonomous. Prioritize opportunities by operator time saved, reliability, adoption, reversibility, and measurable outcome. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not write code, deploy, change schedules, grant access, or invent telemetry; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-fleet.'
+        : role === 'product-manager-sites'
+          ? 'You are the Product Manager for the managed websites portfolio. Treat the published domains as products: inspect audience fit, information architecture, user journeys, content/product opportunities, accessibility, performance, monetization surfaces, experimentation, and cross-site capabilities in the read-only brief. Identify evidence-backed improvements that help visitors and produce durable portfolio value. Prioritize by expected user benefit, attributable outcome, confidence, time-to-learn, and reversibility. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not edit sites, deploy, add domains, spend money, or make unsupported revenue claims; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-sites.'
+          : role === 'cto'
         ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
         : role === 'cfo'
           ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
@@ -1067,10 +1071,12 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'domain manager': 'domain-manager',
       'independent reviewer': 'reviewer',
     };
-    const reviewers = new Set([
+  const reviewers = new Set([
       'ceo',
       'cto',
       'cro',
+      'product-manager-fleet',
+      'product-manager-sites',
       'cfo',
       'legal',
       'security',
@@ -1093,6 +1099,10 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     return true;
   });
   const actorAliases = {
+    'fleet product manager': 'product-manager-fleet',
+    'sites product manager': 'product-manager-sites',
+    'product manager fleet': 'product-manager-fleet',
+    'product manager sites': 'product-manager-sites',
     'chief executive officer': 'ceo',
     'chief technology officer': 'cto',
     'chief financial officer': 'cfo',
@@ -1172,6 +1182,8 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     'cto',
     'cfo',
     'cro',
+    'product-manager-fleet',
+    'product-manager-sites',
     'legal',
     'security',
     'domain-manager',
@@ -1262,6 +1274,8 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'legal',
       'security',
       'cro',
+      'product-manager-fleet',
+      'product-manager-sites',
       'domain-manager',
       'principal-engineer',
       'engineer',
@@ -1290,7 +1304,18 @@ function validatePlan(plan) {
     if (!String(item.question || '').trim() || String(item.question).length > 500)
       throw new Error('invalid data request in provider plan');
     if (
-      !['ceo', 'cto', 'cfo', 'cro', 'legal', 'security', 'domain-manager', 'researcher'].includes(
+      ![
+        'ceo',
+        'cto',
+        'cfo',
+        'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'legal',
+        'security',
+        'domain-manager',
+        'researcher',
+      ].includes(
         String(item.requested_by || '')
       )
     )
@@ -1308,7 +1333,18 @@ function validatePlan(plan) {
   for (const [index, item] of plan.proposal_reviews.entries()) {
     if (
       !String(item.proposal_id || '').trim() ||
-      !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'reviewer'].includes(
+      ![
+        'ceo',
+        'cto',
+        'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'cfo',
+        'legal',
+        'security',
+        'domain-manager',
+        'reviewer',
+      ].includes(
         String(item.reviewed_by || '')
       ) ||
       !['accepted_research', 'escalate_owner', 'declined'].includes(String(item.status || '')) ||
@@ -1322,7 +1358,18 @@ function validatePlan(plan) {
   }
   for (const [index, item] of plan.messages.entries()) {
     if (
-      !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'reviewer'].includes(
+      ![
+        'ceo',
+        'cto',
+        'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'cfo',
+        'legal',
+        'security',
+        'domain-manager',
+        'reviewer',
+      ].includes(
         String(item.actor)
       ) ||
       !String(item.body || '').trim() ||
@@ -1344,7 +1391,18 @@ function validatePlan(plan) {
     const invalid = [];
     if (
       !item ||
-      !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'researcher'].includes(
+      ![
+        'ceo',
+        'cto',
+        'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'cfo',
+        'legal',
+        'security',
+        'domain-manager',
+        'researcher',
+      ].includes(
         String(item?.created_by || 'ceo')
       )
     )
@@ -1402,6 +1460,8 @@ function validatePlan(plan) {
         'legal',
         'security',
         'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
         'domain-manager',
         'principal-engineer',
         'engineer',
@@ -1432,6 +1492,8 @@ function validatePlan(plan) {
         'legal',
         'security',
         'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
         'domain-manager',
         'engineer',
       ].includes(String(item.audience || 'all')) ||
@@ -1465,7 +1527,18 @@ function validatePlan(plan) {
     }
     if (
       item.requested_by !== undefined &&
-      !['ceo', 'cto', 'cfo', 'cro', 'legal', 'security', 'domain-manager', 'researcher'].includes(
+      ![
+        'ceo',
+        'cto',
+        'cfo',
+        'cro',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'legal',
+        'security',
+        'domain-manager',
+        'researcher',
+      ].includes(
         String(item.requested_by)
       )
     )
@@ -1535,6 +1608,8 @@ const FOLLOW_THROUGH_OWNERS = new Set([
   'legal',
   'security',
   'cro',
+  'product-manager-fleet',
+  'product-manager-sites',
   'domain-manager',
   'principal-engineer',
   'engineer',

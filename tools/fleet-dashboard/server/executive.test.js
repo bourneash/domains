@@ -185,6 +185,24 @@ test('allows CFO and domain-manager messages and proposals', () => {
   db.close();
 });
 
+test('allows both product managers to present executive work', () => {
+  const db = store();
+  executive.message(db, {
+    actor: 'product-manager-fleet',
+    body: 'Fleet tooling recommendation.',
+  });
+  const proposal = executive.proposal(db, {
+    title: 'Fleet product improvement',
+    proposal_type: 'product',
+    created_by: 'product-manager-sites',
+    summary: 'Improve a measurable site product outcome.',
+    requested_action: 'CEO and CTO review the bounded recommendation.',
+  });
+  assert.equal(proposal.created_by, 'product-manager-sites');
+  assert.equal(db.listExecutiveMessages()[0].actor, 'product-manager-fleet');
+  db.close();
+});
+
 test('allows Legal messages and proposals', () => {
   const db = store();
   executive.message(db, {

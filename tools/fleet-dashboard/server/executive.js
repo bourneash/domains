@@ -10,6 +10,8 @@ const ACTORS = new Set([
   'ceo',
   'cto',
   'cro',
+  'product-manager-fleet',
+  'product-manager-sites',
   'cfo',
   'legal',
   'security',
@@ -53,7 +55,18 @@ function proposal(store, input = {}) {
   if (!PROPOSAL_TYPES.has(String(input.proposal_type || 'business')))
     throw httpErr(400, 'invalid proposal_type');
   if (
-    !['ceo', 'cto', 'cro', 'cfo', 'legal', 'security', 'domain-manager', 'researcher'].includes(
+    ![
+      'ceo',
+      'cto',
+      'cro',
+      'product-manager-fleet',
+      'product-manager-sites',
+      'cfo',
+      'legal',
+      'security',
+      'domain-manager',
+      'researcher',
+    ].includes(
       String(input.created_by || 'ceo')
     )
   )

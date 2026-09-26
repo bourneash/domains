@@ -103,6 +103,8 @@ async function main() {
       x =>
         ![
           'adaptive',
+          'product-manager-fleet',
+          'product-manager-sites',
           'ceo',
           'cro',
           'cto',

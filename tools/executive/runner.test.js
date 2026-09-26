@@ -362,6 +362,41 @@ test('provides a dedicated CRO review prompt and lets CEO review its plan', () =
   );
 });
 
+test('provides distinct fleet-tooling and managed-site product manager prompts', () => {
+  const brief = {
+    sites: ['example.com'],
+    tool_contract: {},
+    specialist_inputs: {},
+    intelligence: { research: [] },
+    task_queue: {},
+    work_items: [],
+    action_mandate: { candidates: [] },
+  };
+  assert.match(runner.buildPassPrompt(brief, 'product-manager-fleet'), /Fleet tooling/);
+  assert.match(runner.buildPassPrompt(brief, 'product-manager-sites'), /managed websites portfolio/);
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'product-manager-fleet',
+          body: 'Recommendation: improve operator workflow.',
+        },
+      ],
+      proposals: [
+        {
+          created_by: 'product-manager-sites',
+          title: 'Improve site product journey',
+          summary: 'A bounded product opportunity.',
+          requested_action: 'CEO review the recommendation.',
+        },
+      ],
+    }),
+    { defaultActor: 'product-manager-fleet' }
+  );
+  assert.equal(plan.messages[0].actor, 'product-manager-fleet');
+  assert.equal(plan.proposals[0].created_by, 'product-manager-sites');
+});
+
 test('roles can create and update bounded workbench cases through the plan', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

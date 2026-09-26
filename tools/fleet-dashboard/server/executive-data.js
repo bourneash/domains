@@ -11,7 +11,17 @@ const crypto = require('node:crypto');
 const executive = require('./executive');
 const executiveSnapshot = require('./executive-snapshot');
 
-const ACTORS = new Set(['owner', 'ceo', 'cto', 'cfo', 'cro', 'domain-manager', 'researcher']);
+const ACTORS = new Set([
+  'owner',
+  'ceo',
+  'cto',
+  'cfo',
+  'cro',
+  'product-manager-fleet',
+  'product-manager-sites',
+  'domain-manager',
+  'researcher',
+]);
 const SOURCES = new Set([
   'registry',
   'analytics',

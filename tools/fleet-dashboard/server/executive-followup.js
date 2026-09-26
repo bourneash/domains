@@ -6,7 +6,16 @@
 
 const executive = require('./executive');
 
-const REQUESTORS = new Set(['ceo', 'cto', 'cfo', 'cro', 'domain-manager', 'researcher']);
+const REQUESTORS = new Set([
+  'ceo',
+  'cto',
+  'cfo',
+  'cro',
+  'product-manager-fleet',
+  'product-manager-sites',
+  'domain-manager',
+  'researcher',
+]);
 
 function notify(store, { event, request, run = null, details = '' } = {}) {
   const requestedBy = String(request?.requested_by || '').trim();

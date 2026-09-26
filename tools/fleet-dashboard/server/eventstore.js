@@ -924,7 +924,17 @@ function open(root, { file } = {}) {
     if (!['reviewed', 'declined', 'feedback'].includes(String(status)))
       throw httpErr(400, 'status must be reviewed, declined or feedback');
     if (
-      !['ceo', 'cto', 'cfo', 'legal', 'security', 'domain-manager', 'reviewer'].includes(
+      ![
+        'ceo',
+        'cto',
+        'cfo',
+        'legal',
+        'security',
+        'product-manager-fleet',
+        'product-manager-sites',
+        'domain-manager',
+        'reviewer',
+      ].includes(
         String(reviewed_by)
       )
     )
@@ -1248,6 +1258,8 @@ function open(root, { file } = {}) {
     'legal',
     'security',
     'cro',
+    'product-manager-fleet',
+    'product-manager-sites',
     'domain-manager',
     'engineer',
   ]);
