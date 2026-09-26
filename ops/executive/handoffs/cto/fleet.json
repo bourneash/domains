@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T20:18:29.383Z",
+  "generated_at": "2026-09-26T20:33:14.919Z",
   "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new queue entry, proposal, requeue, experiment, telemetry request, production change, dependency, spend, monetization expansion, or external outreach is technically eligible this cycle. Continue existing source-dated measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Preserve unknown revenue, ROI, margin, causal lift, budget exposure, and operational health. Retain failed work until canonical lineage, ownership, root cause, isolated validation, rollback, deduplication, and explicit requeue-or-close evidence are documented.",
+        "summary": "Approve containment-only execution. No new change request, requeue, experiment, telemetry request, dependency, configuration change, spend, monetization expansion, or external outreach is technically eligible this cycle. Continue existing source-dated measurement, attribution reconciliation, isolated failure repair-or-close review, and bounded legal/security evidence work. Preserve unknown revenue, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failure repair-or-close review without requeue. Existing capacity is occupied and the authoritative candidate list is empty. Resume failed implementation only after lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are recorded.",
+        "summary": "Retain the current queue boundary. The authoritative candidate list is empty and existing capacity is occupied. Do not requeue failed work until canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close disposition are documented.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -37,7 +37,7 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the evidence-needed security disposition. Continue authorized read-only evidence capture only; missing access, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence remains unknown and does not authorize security-sensitive public exposure or production mutation.",
+        "summary": "Maintain the evidence-needed security disposition and private launch gates. Continue authorized read-only evidence capture only. Missing access-boundary, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence remains unknown and does not authorize security-sensitive public exposure or production mutation.",
         "requested_action": null,
         "proposal_id": null
       }
