@@ -1,5 +1,22 @@
 'use strict';
 const workflowEngine = require('./workflow-engine');
+
+function syncWorkflowNotifications(store, workflow) {
+  if (!store.createExecutiveNotification) return [];
+  return (workflow.alerts || []).map(alert =>
+    store.createExecutiveNotification({
+      recipient: 'owner',
+      notification_type: `workflow-${alert.kind}`,
+      title:
+        alert.kind === 'cycle'
+          ? 'Workflow dependency cycle'
+          : `${alert.kind === 'overdue' ? 'Overdue work' : 'Blocked work'}: ${alert.title}`,
+      body: alert.message,
+      work_id: alert.node?.startsWith('work-item:') ? alert.node.slice('work-item:'.length) : null,
+      dedupe_key: alert.dedupe_key,
+    })
+  );
+}
 function snapshot(store, { limit = 500 } = {}) {
   const requests = store.listChangeRequests({ limit });
   const workItems = store.listExecutiveWorkItems({ limit });
@@ -12,7 +29,11 @@ function snapshot(store, { limit = 500 } = {}) {
   ];
   const workflow = workflowEngine.evaluate({ items: boardItems, links });
   const diagnostics = [
-    ...workflow.alerts.map(alert => ({ ...alert, waiting_on: alert.node || null, next_action: alert.message })),
+    ...workflow.alerts.map(alert => ({
+      ...alert,
+      waiting_on: alert.node || null,
+      next_action: alert.message,
+    })),
     ...workItems
       .filter(item => ['blocked', 'waiting'].includes(item.status) || item.waiting_on)
       .map(item => ({
@@ -49,7 +70,10 @@ function snapshot(store, { limit = 500 } = {}) {
     links,
     workflow,
     diagnostics,
-    settings: { change_queue: store.getChangeQueueSettings(), executive: store.getExecutiveSettings() },
+    settings: {
+      change_queue: store.getChangeQueueSettings(),
+      executive: store.getExecutiveSettings(),
+    },
   };
 }
-module.exports = { snapshot };
+module.exports = { snapshot, syncWorkflowNotifications };

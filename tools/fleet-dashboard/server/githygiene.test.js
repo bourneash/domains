@@ -64,7 +64,15 @@ test('board() exposes every field the Git Hygiene view renders', () => {
 
 test('board() never leaks the policy file path or raw rule internals', () => {
   const b = gh.board();
-  const s = JSON.stringify(b);
-  assert.equal(s.includes('_match'), false, 'compiled regexes are not serialised to the browser');
-  assert.equal(s.includes('_scope'), false);
+  const hasKey = (value, target) => {
+    if (!value || typeof value !== 'object') return false;
+    if (Array.isArray(value)) return value.some(item => hasKey(item, target));
+    return Object.entries(value).some(([key, child]) => key === target || hasKey(child, target));
+  };
+  assert.equal(hasKey(b, '_match'), false, 'compiled regexes are not serialised to the browser');
+  assert.equal(
+    hasKey(b, '_scope'),
+    false,
+    'raw rule scope internals are not serialised to the browser'
+  );
 });

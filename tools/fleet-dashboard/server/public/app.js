@@ -15,12 +15,14 @@ let STATE = {
   sites: [],
   agents: [],
   taskSite: null,
+  siteSlug: null,
   gitSlug: null,
   gitTab: 'operations',
   controlFilter: null,
   controlSort: null,
 };
 let AGENT_HEALTH = null;
+let ACCESS_LEVEL = 'operator';
 const EXEC_RUN = { poller: null };
 const EXEC_RUN_UI = { q: '', status: 'all', sort: 'started_at', dir: -1, page: 1, pageSize: 25 };
 const EXEC_INBOX = { browserNotified: false };
@@ -29,12 +31,21 @@ const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
 function notifyExecutiveBrowser(notifications = []) {
   if (EXEC_INBOX.browserNotified || !notifications.length || !('Notification' in window)) return;
   EXEC_INBOX.browserNotified = true;
-  const unseen = notifications.filter(item => !localStorage.getItem(`fd-executive-notification:${item.notification_id}`));
+  const unseen = notifications.filter(
+    item => !localStorage.getItem(`fd-executive-notification:${item.notification_id}`)
+  );
   if (!unseen.length) return;
-  unseen.slice(0, 3).forEach(item => localStorage.setItem(`fd-executive-notification:${item.notification_id}`, '1'));
+  unseen
+    .slice(0, 3)
+    .forEach(item =>
+      localStorage.setItem(`fd-executive-notification:${item.notification_id}`, '1')
+    );
   if (Notification.permission === 'granted') {
     new Notification(unseen.length === 1 ? unseen[0].title : `${unseen.length} executive updates`, {
-      body: unseen.length === 1 ? unseen[0].body : 'Open the Executive page to review the latest responses.',
+      body:
+        unseen.length === 1
+          ? unseen[0].body
+          : 'Open the Executive page to review the latest responses.',
     });
   }
 }
@@ -83,7 +94,7 @@ function executiveActorLabel(actor) {
 
 // The site dir name is the live domain — link straight to it (new tab).
 function siteLink(site) {
-  return `<a class="site-link" href="https://${esc(site)}" target="_blank" rel="noopener noreferrer" title="Open https://${esc(site)}">${esc(site)}<span class="ext">↗</span></a>`;
+  return `<span class="site-link-wrap"><a class="site-link" href="https://${esc(site)}" target="_blank" rel="noopener noreferrer" title="Open https://${esc(site)}">${esc(site)}<span class="ext">↗</span></a><a class="site-console-link" href="#site/${encodeURIComponent(site)}" title="Open ${esc(site)} command center" aria-label="Open ${esc(site)} command center">⌘</a></span>`;
 }
 
 // F5: quick-links to the other portfolio tools that operate on this same site —
@@ -199,6 +210,21 @@ function toast(msg, kind = 'ok') {
   toast._t = setTimeout(() => {
     t.className = 'toast';
   }, 3200);
+}
+
+function applyAccessLevel(level) {
+  ACCESS_LEVEL = level === 'viewer' ? 'viewer' : 'operator';
+  document.body.dataset.access = ACCESS_LEVEL;
+  const actions = $('.actions');
+  if (!actions || $('.access-badge', actions)) return;
+  const badge = document.createElement('span');
+  badge.className = `access-badge ${ACCESS_LEVEL === 'viewer' ? 'is-viewer' : 'is-operator'}`;
+  badge.textContent = ACCESS_LEVEL === 'viewer' ? 'Read-only' : 'Operator';
+  badge.title =
+    ACCESS_LEVEL === 'viewer'
+      ? 'Viewer credential: mutations are disabled'
+      : 'Operator credential: mutations enabled';
+  actions.insertBefore(badge, actions.firstChild);
 }
 
 function stamp() {
@@ -674,7 +700,9 @@ function healthDetailRow(row, colspan = 10) {
 }
 
 function toggleHealthDetail(button) {
-  const row = $(`tr.ag-health-detail[data-health-detail="${CSS.escape(`${button.dataset.site}:${button.dataset.role || ''}`)}"]`);
+  const row = $(
+    `tr.ag-health-detail[data-health-detail="${CSS.escape(`${button.dataset.site}:${button.dataset.role || ''}`)}"]`
+  );
   if (!row) return;
   const open = row.classList.toggle('hidden') === false;
   button.textContent = open ? 'Collapse' : 'Expand';
@@ -4161,9 +4189,7 @@ async function renderProductManager(role) {
     return;
   }
   const allMessages = messages.messages || [];
-  const roleMessages = allMessages.filter(
-    m => m.actor === role || m.metadata?.to === role
-  );
+  const roleMessages = allMessages.filter(m => m.actor === role || m.metadata?.to === role);
   const roleProposals = (proposals.proposals || []).filter(p => p.created_by === role);
   const roleWork = workItems.work_items || [];
   const roleRequests = taskQueue.requests || [];
@@ -4200,7 +4226,8 @@ async function renderProductManager(role) {
         `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
     )
     .join('');
-  const stat = (value, text) => `<div class="ex-kpi"><b>${esc(value)}</b><span>${esc(text)}</span></div>`;
+  const stat = (value, text) =>
+    `<div class="ex-kpi"><b>${esc(value)}</b><span>${esc(text)}</span></div>`;
   app.innerHTML = `${breadcrumb(role)}<div class="ex-shell">
     <header class="ex-hero"><div><div class="ex-eyebrow">PRODUCT MANAGEMENT / ${esc(role === 'product-manager-fleet' ? 'FLEET' : 'MANAGED SITES')}</div><h2 class="page-title">${esc(label)}</h2><p class="muted">Recurring product strategy, evidence, proposals, and implementation handoffs for the executive team.</p></div><div class="task-toolbar"><button class="btn" id="pm-open-executive">Executive overview →</button><button class="btn primary" id="pm-open-board">Open work queue →</button></div></header>
     <section class="ex-kpis">${stat(openWork.length, 'open work items')}${stat(pendingProposals.length, 'pending proposals')}${stat(roleRequests.filter(r => ['queued', 'claimed', 'running', 'reviewing'].includes(r.status)).length, 'queued handoffs')}${stat(roleMessages.length, 'presentations / updates')}</section>
@@ -4303,7 +4330,7 @@ async function renderGenericAgent(role) {
           ? `<ul class="ag-missing-list">${notEnrolled.map(site => `<li><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="${esc(role)}" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul>`
           : familyPage
             ? '<p class="muted ag-missing-empty">Enrollment is managed through the site-specific editorial profile.</p>'
-          : '<p class="muted ag-missing-empty">Every discovered site is enrolled in this agent.</p>'
+            : '<p class="muted ag-missing-empty">Every discovered site is enrolled in this agent.</p>'
       }
     </div>
     ${healthPanel}
@@ -4338,7 +4365,9 @@ async function renderGenericAgent(role) {
     b.addEventListener('click', () => toggleAgentLog(b.dataset.site, b.dataset.role || role))
   );
   $$('.ag-toggle').forEach(b =>
-    b.addEventListener('click', () => toggleRole(b.dataset.site, b.dataset.role || role, b.dataset.enabled === '1'))
+    b.addEventListener('click', () =>
+      toggleRole(b.dataset.site, b.dataset.role || role, b.dataset.enabled === '1')
+    )
   );
   $$('.ag-health-toggle').forEach(b =>
     b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1'))
@@ -4349,7 +4378,9 @@ async function renderGenericAgent(role) {
   $$('.ag-health-details').forEach(b => b.addEventListener('click', () => toggleHealthDetail(b)));
   $('.ag-health-pause')?.addEventListener('click', () => bulkAgentHealthAction(role, 'pause'));
   $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
-  $$('.ag-run').forEach(b => b.addEventListener('click', () => runAgent(b.dataset.site, b.dataset.role || role, b)));
+  $$('.ag-run').forEach(b =>
+    b.addEventListener('click', () => runAgent(b.dataset.site, b.dataset.role || role, b))
+  );
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -10713,6 +10744,7 @@ function parseHash() {
   if (!h) return { view: 'control', agent: null };
   const parts = h.split('/');
   const [a, b, c] = parts;
+  if (a === 'site' && b) return { view: 'site', siteSlug: decodeURIComponent(b) };
   if (a === 'agents' && b)
     return {
       view: 'agent',
@@ -10738,6 +10770,7 @@ function parseHash() {
   return { view: 'control', agent: null };
 }
 function hashFor(view, agent, agentPage) {
+  if (view === 'site') return `site/${encodeURIComponent(STATE.siteSlug || '')}`;
   return view === 'agent'
     ? `agents/${encodeURIComponent(agent)}${agentPage ? `/${encodeURIComponent(agentPage)}` : ''}`
     : view;
@@ -11300,9 +11333,14 @@ function cqSiteContext(r) {
 
 function cqBlocker(r) {
   if (!r.queue_block?.blocked) return '';
-  const reasons = (r.queue_block.reasons || []).slice(1).map(reason => reason.label).join(' · ');
+  const reasons = (r.queue_block.reasons || [])
+    .slice(1)
+    .map(reason => reason.label)
+    .join(' · ');
   const escalation = r.queue_block.escalated ? ' · Escalation threshold reached' : '';
-  const next = r.queue_block.next_check_at ? ` · Recheck ${fmtDate(r.queue_block.next_check_at)}` : '';
+  const next = r.queue_block.next_check_at
+    ? ` · Recheck ${fmtDate(r.queue_block.next_check_at)}`
+    : '';
   return `<div class="cq-blocker"><span class="badge ${r.queue_block.escalated ? 'b-red' : 'b-yellow'}">blocked</span><span><b>${esc(r.queue_block.primary.label)}</b><small>${esc(r.queue_block.primary.detail)}${reasons ? ` · Also: ${esc(reasons)}` : ''}${escalation}${next}</small></span></div>`;
 }
 
@@ -11638,7 +11676,11 @@ async function renderChangeQueue({ background = false } = {}) {
       (b.onclick = async () => {
         b.disabled = true;
         try {
-          await api('POST', `/api/change-requests/${encodeURIComponent(b.dataset.id)}/re-evaluate`, {});
+          await api(
+            'POST',
+            `/api/change-requests/${encodeURIComponent(b.dataset.id)}/re-evaluate`,
+            {}
+          );
           toast('Queue locks re-evaluated');
           softRender();
         } catch (e) {
@@ -11771,7 +11813,11 @@ async function renderChangeQueueDetail(id) {
     $('.cq-detail-reevaluate', panel)?.addEventListener('click', async button => {
       button.currentTarget.disabled = true;
       try {
-        await api('POST', `/api/change-requests/${encodeURIComponent(r.request_id)}/re-evaluate`, {});
+        await api(
+          'POST',
+          `/api/change-requests/${encodeURIComponent(r.request_id)}/re-evaluate`,
+          {}
+        );
         toast('Queue locks re-evaluated');
         softRender();
       } catch (e) {
@@ -11933,52 +11979,322 @@ function showChangeRequestForm(siteOptions, data) {
 }
 
 /* ===================== FLEET WORK BOARD ===================== */
-const WORK_BOARD_COLUMNS = [['backlog', 'Backlog'], ['ready', 'Ready'], ['active', 'In progress'], ['approval', 'Approval / review'], ['blocked', 'Blocked'], ['done', 'Done']];
-const WORK_BOARD_INCLUDE = new Set(), WORK_BOARD_EXCLUDE = new Set();
+const WORK_BOARD_COLUMNS = [
+  ['backlog', 'Backlog'],
+  ['ready', 'Ready'],
+  ['active', 'In progress'],
+  ['approval', 'Approval / review'],
+  ['blocked', 'Blocked'],
+  ['done', 'Done'],
+];
+const WORK_BOARD_INCLUDE = new Set(),
+  WORK_BOARD_EXCLUDE = new Set();
 function wbCol(item) {
-  if (item.source === 'work-item') return item.status === 'open' ? 'backlog' : item.status === 'ready' ? 'ready' : item.status === 'in_progress' ? 'active' : ['blocked', 'waiting'].includes(item.status) ? 'blocked' : 'done';
-  if (item.source === 'proposal') return ['proposed', 'feedback'].includes(item.status) ? 'approval' : item.status === 'declined' ? 'done' : 'ready';
-  return ['review', 'reviewing'].includes(item.status) ? 'approval' : item.status === 'failed' ? 'blocked' : ['queued', 'claimed'].includes(item.status) ? 'ready' : item.status === 'running' ? 'active' : 'done';
+  if (item.source === 'work-item')
+    return item.status === 'open'
+      ? 'backlog'
+      : item.status === 'ready'
+        ? 'ready'
+        : item.status === 'in_progress'
+          ? 'active'
+          : ['blocked', 'waiting'].includes(item.status)
+            ? 'blocked'
+            : 'done';
+  if (item.source === 'proposal')
+    return ['proposed', 'feedback'].includes(item.status)
+      ? 'approval'
+      : item.status === 'declined'
+        ? 'done'
+        : 'ready';
+  return ['review', 'reviewing'].includes(item.status)
+    ? 'approval'
+    : item.status === 'failed'
+      ? 'blocked'
+      : ['queued', 'claimed'].includes(item.status)
+        ? 'ready'
+        : item.status === 'running'
+          ? 'active'
+          : 'done';
 }
-function wbVisible(item) { const col = wbCol(item); return !WORK_BOARD_EXCLUDE.has(col) && (!WORK_BOARD_INCLUDE.size || WORK_BOARD_INCLUDE.has(col)); }
+function wbVisible(item) {
+  const col = wbCol(item);
+  return !WORK_BOARD_EXCLUDE.has(col) && (!WORK_BOARD_INCLUDE.size || WORK_BOARD_INCLUDE.has(col));
+}
 function wbItems(data) {
-  return [...(data.work_items || []).map(x => ({ ...x, id: x.work_id, source: 'work-item', source_label: 'backlog', owner: x.owner })), ...(data.requests || []).map(x => ({ ...x, id: x.request_id, source: 'request', source_label: 'change queue', owner: x.assigned_role })), ...(data.proposals || []).map(x => ({ ...x, id: x.proposal_id, source: 'proposal', source_label: 'executive gate', owner: x.created_by }))];
+  return [
+    ...(data.work_items || []).map(x => ({
+      ...x,
+      id: x.work_id,
+      source: 'work-item',
+      source_label: 'backlog',
+      owner: x.owner,
+    })),
+    ...(data.requests || []).map(x => ({
+      ...x,
+      id: x.request_id,
+      source: 'request',
+      source_label: 'change queue',
+      owner: x.assigned_role,
+    })),
+    ...(data.proposals || []).map(x => ({
+      ...x,
+      id: x.proposal_id,
+      source: 'proposal',
+      source_label: 'executive gate',
+      owner: x.created_by,
+    })),
+  ];
 }
-function wbGate(item) { const waiting = item.waiting_on ? `waiting on ${item.waiting_on} · ` : ''; return item.source === 'request' ? `${item.auto_review === false ? 'manual' : 'automatic'} review · ${item.delivery_mode || 'direct'}` : item.source === 'proposal' ? `${waiting}owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}` : `${waiting}${item.next_action || 'PM triage pending'}`; }
-function wbCard(item) { return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span></div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded.')}</p><div class="wb-gate">◆ ${esc(wbGate(item))}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`; }
+function wbGate(item) {
+  const waiting = item.waiting_on ? `waiting on ${item.waiting_on} · ` : '';
+  return item.source === 'request'
+    ? `${item.auto_review === false ? 'manual' : 'automatic'} review · ${item.delivery_mode || 'direct'}`
+    : item.source === 'proposal'
+      ? `${waiting}owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}`
+      : `${waiting}${item.next_action || 'PM triage pending'}`;
+}
+function wbCard(item) {
+  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span></div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded.')}</p><div class="wb-gate">◆ ${esc(wbGate(item))}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`;
+}
 async function renderWorkflowBoard() {
   if (FRESH) app.innerHTML = '<div class="loading">Loading fleet workflow…</div>';
   try {
-    const data = await api('GET', '/api/workflow-board'), all = wbItems(data), items = all.filter(wbVisible), counts = WORK_BOARD_COLUMNS.map(([key]) => items.filter(x => wbCol(x) === key).length);
-    const filters = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`).join('');
-    const hidden = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`).join('');
-    const activity = (data.actions || []).slice(0, 10).map(x => `<div class="wb-activity"><span class="badge ${x.status === 'failed' ? 'b-red' : 'b-green'}">${esc(x.status)}</span><div><strong>${esc(x.summary)}</strong><small>${esc(x.actor)} · ${esc(fmtDate(x.started_at))}</small></div></div>`).join('');
-    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Connected backlog, agents, approval gates, dependencies, and delivery evidence.</div></div><button class="btn primary" id="wb-new">＋ Add backlog work</button></div><section class="wb-summary">${[['visible work', items.length], ['in progress', counts[2]], ['approval gates', counts[3]], ['blocked', counts[4]]].map(x => `<div><strong>${x[1]}</strong><span>${x[0]}</span></div>`).join('')}</section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filters}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${hidden}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes. Open a card to inspect its lifecycle and dependencies.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(([key, label], i) => `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[i]} item${counts[i] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${items.filter(x => wbCol(x) === key).map(wbCard).join('') || '<div class="wb-empty">No matching work</div>'}</div></div>`).join('')}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div></div>${activity || '<div class="muted">No recent actions.</div>'}</aside></div>`;
+    const data = await api('GET', '/api/workflow-board'),
+      all = wbItems(data),
+      items = all.filter(wbVisible),
+      counts = WORK_BOARD_COLUMNS.map(([key]) => items.filter(x => wbCol(x) === key).length);
+    const filters = WORK_BOARD_COLUMNS.map(
+      ([key, label]) =>
+        `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`
+    ).join('');
+    const hidden = WORK_BOARD_COLUMNS.map(
+      ([key, label]) =>
+        `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`
+    ).join('');
+    const activity = (data.actions || [])
+      .slice(0, 10)
+      .map(
+        x =>
+          `<div class="wb-activity"><span class="badge ${x.status === 'failed' ? 'b-red' : 'b-green'}">${esc(x.status)}</span><div><strong>${esc(x.summary)}</strong><small>${esc(x.actor)} · ${esc(fmtDate(x.started_at))}</small></div></div>`
+      )
+      .join('');
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Connected backlog, agents, approval gates, dependencies, and delivery evidence.</div></div><button class="btn primary" id="wb-new">＋ Add backlog work</button></div><section class="wb-summary">${[
+      ['visible work', items.length],
+      ['in progress', counts[2]],
+      ['approval gates', counts[3]],
+      ['blocked', counts[4]],
+    ]
+      .map(x => `<div><strong>${x[1]}</strong><span>${x[0]}</span></div>`)
+      .join(
+        ''
+      )}</section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filters}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${hidden}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes. Open a card to inspect its lifecycle and dependencies.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
+      ([key, label], i) =>
+        `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[i]} item${counts[i] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${
+          items
+            .filter(x => wbCol(x) === key)
+            .map(wbCard)
+            .join('') || '<div class="wb-empty">No matching work</div>'
+        }</div></div>`
+    ).join(
+      ''
+    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div></div>${activity || '<div class="muted">No recent actions.</div>'}</aside></div>`;
+    const graphRows = (data.workflow?.edges || [])
+      .slice(0, 40)
+      .map(edge => {
+        const from = data.workflow.nodes?.[edge.from]?.title || edge.from;
+        const to = data.workflow.nodes?.[edge.to]?.title || edge.to;
+        return `<div class="wb-graph-row"><span>${esc(from)}</span><b>blocks</b><span>${esc(to)}</span></div>`;
+      })
+      .join('');
+    const graph = document.createElement('details');
+    graph.className = 'wb-gates wb-graph';
+    graph.innerHTML = `<summary>Dependency graph (${(data.workflow?.edges || []).length})</summary>${graphRows || '<p>No dependency edges recorded.</p>'}<p class="muted">Critical path: ${(data.workflow?.critical_path || []).map(key => esc(data.workflow.nodes?.[key]?.title || key)).join(' → ') || 'none'}</p>`;
+    app.querySelector('.wb-activity-panel')?.appendChild(graph);
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
-    $$('[data-wb-include]').forEach(b => b.onclick = () => { const k = b.dataset.wbInclude; WORK_BOARD_INCLUDE.has(k) ? WORK_BOARD_INCLUDE.delete(k) : WORK_BOARD_INCLUDE.add(k); renderWorkflowBoard(); });
-    $$('[data-wb-exclude]').forEach(b => b.onclick = () => { const k = b.dataset.wbExclude; WORK_BOARD_EXCLUDE.has(k) ? WORK_BOARD_EXCLUDE.delete(k) : WORK_BOARD_EXCLUDE.add(k); renderWorkflowBoard(); });
-    $$('[data-wb-clear]').forEach(b => b.onclick = () => { (b.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear(); renderWorkflowBoard(); });
-    $$('.wb-open').forEach(b => b.onclick = () => openWorkflowItem(b.dataset.wbSource, b.dataset.wbId, data));
-    $$('.wb-card').forEach(card => card.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId }))));
-    $$('.wb-column').forEach(col => { col.addEventListener('dragover', e => e.preventDefault()); col.addEventListener('drop', async e => { e.preventDefault(); const x = JSON.parse(e.dataTransfer.getData('text/plain') || '{}'); try { await wbMove(x, col.dataset.wbDrop, data); renderWorkflowBoard(); } catch (err) { toast(err.message, 'err'); } }); });
-    if (!FRESH) applyUISnap(); stamp();
-  } catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; }
+    $$('[data-wb-include]').forEach(
+      b =>
+        (b.onclick = () => {
+          const k = b.dataset.wbInclude;
+          WORK_BOARD_INCLUDE.has(k) ? WORK_BOARD_INCLUDE.delete(k) : WORK_BOARD_INCLUDE.add(k);
+          renderWorkflowBoard();
+        })
+    );
+    $$('[data-wb-exclude]').forEach(
+      b =>
+        (b.onclick = () => {
+          const k = b.dataset.wbExclude;
+          WORK_BOARD_EXCLUDE.has(k) ? WORK_BOARD_EXCLUDE.delete(k) : WORK_BOARD_EXCLUDE.add(k);
+          renderWorkflowBoard();
+        })
+    );
+    $$('[data-wb-clear]').forEach(
+      b =>
+        (b.onclick = () => {
+          (b.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear();
+          renderWorkflowBoard();
+        })
+    );
+    $$('.wb-open').forEach(
+      b => (b.onclick = () => openWorkflowItem(b.dataset.wbSource, b.dataset.wbId, data))
+    );
+    $$('.wb-card').forEach(card =>
+      card.addEventListener('dragstart', e =>
+        e.dataTransfer.setData(
+          'text/plain',
+          JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId })
+        )
+      )
+    );
+    $$('.wb-column').forEach(col => {
+      col.addEventListener('dragover', e => e.preventDefault());
+      col.addEventListener('drop', async e => {
+        e.preventDefault();
+        const x = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
+        try {
+          await wbMove(x, col.dataset.wbDrop, data);
+          renderWorkflowBoard();
+        } catch (err) {
+          toast(err.message, 'err');
+        }
+      });
+    });
+    if (!FRESH) applyUISnap();
+    stamp();
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+  }
 }
-async function wbMove(item, column, data) { if (item.source === 'work-item') return api('PATCH', `/api/executive/work-items/${encodeURIComponent(item.id)}`, { status: { backlog: 'open', ready: 'open', active: 'in_progress', approval: 'waiting', blocked: 'blocked', done: 'done' }[column] }); const r = (data.requests || []).find(x => x.request_id === item.id); if (item.source === 'request' && column === 'active' && r.status === 'queued') return api('POST', `/api/change-requests/${encodeURIComponent(item.id)}/pickup`, {}); throw new Error('Use the source queue to move this gated item'); }
-function showWorkflowBacklogForm() { const modal = $('#modal'); $('#modal-title').textContent = 'Add backlog work'; $('#modal-body').innerHTML = `<div class="field"><label>Title</label><input id="wb-title"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site</label><input id="wb-site" placeholder="optional"></div><div class="field"><label>Brief</label><textarea id="wb-summary" rows="4"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`; modal.classList.remove('hidden'); $('#wb-cancel').onclick = closeModal; $('#wb-save').onclick = async () => { try { await api('POST', '/api/executive/work-items', { title: $('#wb-title').value, kind: $('#wb-kind').value, priority: $('#wb-priority').value, owner: $('#wb-owner').value, site: $('#wb-site').value || null, summary: $('#wb-summary').value, next_action: $('#wb-next').value, created_by: 'owner' }); closeModal(); renderWorkflowBoard(); } catch (e) { toast(e.message, 'err'); } }; }
+async function wbMove(item, column, data) {
+  if (item.source === 'work-item')
+    return api('PATCH', `/api/executive/work-items/${encodeURIComponent(item.id)}`, {
+      status: {
+        backlog: 'open',
+        ready: 'open',
+        active: 'in_progress',
+        approval: 'waiting',
+        blocked: 'blocked',
+        done: 'done',
+      }[column],
+    });
+  const r = (data.requests || []).find(x => x.request_id === item.id);
+  if (item.source === 'request' && column === 'active' && r.status === 'queued')
+    return api('POST', `/api/change-requests/${encodeURIComponent(item.id)}/pickup`, {});
+  throw new Error('Use the source queue to move this gated item');
+}
+function showWorkflowBacklogForm() {
+  const modal = $('#modal');
+  $('#modal-title').textContent = 'Add backlog work';
+  $('#modal-body').innerHTML =
+    `<div class="field"><label>Title</label><input id="wb-title"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site</label><input id="wb-site" placeholder="optional"></div><div class="field"><label>Brief</label><textarea id="wb-summary" rows="4"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`;
+  modal.classList.remove('hidden');
+  $('#wb-cancel').onclick = closeModal;
+  $('#wb-save').onclick = async () => {
+    try {
+      await api('POST', '/api/executive/work-items', {
+        title: $('#wb-title').value,
+        kind: $('#wb-kind').value,
+        priority: $('#wb-priority').value,
+        owner: $('#wb-owner').value,
+        site: $('#wb-site').value || null,
+        summary: $('#wb-summary').value,
+        next_action: $('#wb-next').value,
+        created_by: 'owner',
+      });
+      closeModal();
+      renderWorkflowBoard();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+}
 async function openWorkflowItem(source, id, data) {
-  const item = wbItems(data).find(x => x.source === source && x.id === id); if (!item) return;
+  const item = wbItems(data).find(x => x.source === source && x.id === id);
+  if (!item) return;
   const typeLabels = { 'work-item': 'backlog', request: 'change request', proposal: 'proposal' };
-  const links = (data.links || []).filter(x => (x.from_type === source && x.from_id === id) || (x.to_type === source && x.to_id === id));
-  const entity = (type, entityId) => wbItems(data).find(x => x.source === type && x.id === entityId);
-  const linkRows = links.map(link => { const outgoing = link.from_type === source && link.from_id === id; const other = entity(outgoing ? link.to_type : link.from_type, outgoing ? link.to_id : link.from_id); return `<div class="wb-link-row"><span class="badge ${link.relation === 'blocks' || link.relation === 'blocked_by' ? 'b-yellow' : 'b-blue'}">${esc(outgoing ? link.relation : link.relation === 'blocks' ? 'blocked by' : link.relation)}</span><strong>${esc(other?.title || `${link.to_type}:${link.to_id}`)}</strong><button class="btn sm" data-wb-delete-link="${esc(link.link_id)}">Remove</button></div>`; }).join('');
-  const options = wbItems(data).filter(x => !(x.source === source && x.id === id)).map(x => `<option value="${esc(x.source + '|' + x.id)}">${esc(x.title)} · ${esc(typeLabels[x.source])}</option>`).join('');
-  const events = (data.events || []).filter(x => x.entity_id === id || x.correlation_id === `${source}:${id}`).slice(0, 20).map(x => `<tr><td class="muted">${esc(fmtDate(x.occurred_at))}</td><td>${esc(x.event_type)}</td><td class="muted">${esc(x.payload?.error || x.source || '')}</td></tr>`).join('');
+  const links = (data.links || []).filter(
+    x => (x.from_type === source && x.from_id === id) || (x.to_type === source && x.to_id === id)
+  );
+  const entity = (type, entityId) =>
+    wbItems(data).find(x => x.source === type && x.id === entityId);
+  const linkRows = links
+    .map(link => {
+      const outgoing = link.from_type === source && link.from_id === id;
+      const other = entity(
+        outgoing ? link.to_type : link.from_type,
+        outgoing ? link.to_id : link.from_id
+      );
+      return `<div class="wb-link-row"><span class="badge ${link.relation === 'blocks' || link.relation === 'blocked_by' ? 'b-yellow' : 'b-blue'}">${esc(outgoing ? link.relation : link.relation === 'blocks' ? 'blocked by' : link.relation)}</span><strong>${esc(other?.title || `${link.to_type}:${link.to_id}`)}</strong><button class="btn sm" data-wb-delete-link="${esc(link.link_id)}">Remove</button></div>`;
+    })
+    .join('');
+  const options = wbItems(data)
+    .filter(x => !(x.source === source && x.id === id))
+    .map(
+      x =>
+        `<option value="${esc(x.source + '|' + x.id)}">${esc(x.title)} · ${esc(typeLabels[x.source])}</option>`
+    )
+    .join('');
+  const events = (data.events || [])
+    .filter(x => x.entity_id === id || x.correlation_id === `${source}:${id}`)
+    .slice(0, 20)
+    .map(
+      x =>
+        `<tr><td class="muted">${esc(fmtDate(x.occurred_at))}</td><td>${esc(x.event_type)}</td><td class="muted">${esc(x.payload?.error || x.source || '')}</td></tr>`
+    )
+    .join('');
   $('#modal-title').textContent = item.title;
-  $('#modal-body').innerHTML = `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(typeLabels[source])}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Lifecycle and gate</h4><pre>${esc(wbGate(item))}\nUpdated: ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}${item.run_id ? `\nRun: ${item.run_id}` : ''}${item.next_attempt_at ? `\nNext attempt: ${fmtDate(item.next_attempt_at)}` : ''}${item.due_at ? `\nDue: ${fmtDate(item.due_at)}` : ''}</pre><h4>Dependencies and related work</h4><div class="wb-link-list">${linkRows || '<span class="muted">No links yet.</span>'}</div><div class="wb-link-form"><select id="wb-link-relation"><option value="blocks">Blocks</option><option value="blocked_by">Blocked by</option><option value="related_to">Related to</option></select><select id="wb-link-target">${options}</select><button class="btn sm primary" id="wb-add-link">Link</button></div><h4>Timeline</h4><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${events || '<tr><td colspan="3" class="muted">No recorded events for this item.</td></tr>'}</tbody></table></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
-  $('#modal').classList.remove('hidden'); $('#wb-detail-close').onclick = closeModal;
-  $('#wb-add-link').onclick = async () => { try { const [to_type, to_id] = $('#wb-link-target').value.split('|'); await api('POST', '/api/workflow-links', { from_type: source, from_id: id, to_type, to_id, relation: $('#wb-link-relation').value, created_by: 'owner' }); toast('Dependency linked'); await openWorkflowItem(source, id, { ...data, links: [...(data.links || []), { from_type: source, from_id: id, to_type, to_id, relation: $('#wb-link-relation').value, link_id: `new-${Date.now()}` }] }); } catch (e) { toast(e.message, 'err'); } };
-  $$('[data-wb-delete-link]').forEach(button => button.onclick = async () => { try { await api('DELETE', `/api/workflow-links/${encodeURIComponent(button.dataset.wbDeleteLink)}`); toast('Link removed'); const next = { ...data, links: (data.links || []).filter(x => x.link_id !== button.dataset.wbDeleteLink) }; await openWorkflowItem(source, id, next); } catch (e) { toast(e.message, 'err'); } });
+  $('#modal-body').innerHTML =
+    `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(typeLabels[source])}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Lifecycle and gate</h4><pre>${esc(wbGate(item))}\nUpdated: ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}${item.run_id ? `\nRun: ${item.run_id}` : ''}${item.next_attempt_at ? `\nNext attempt: ${fmtDate(item.next_attempt_at)}` : ''}${item.due_at ? `\nDue: ${fmtDate(item.due_at)}` : ''}</pre><h4>Dependencies and related work</h4><div class="wb-link-list">${linkRows || '<span class="muted">No links yet.</span>'}</div><div class="wb-link-form"><select id="wb-link-relation"><option value="blocks">Blocks</option><option value="blocked_by">Blocked by</option><option value="related_to">Related to</option></select><select id="wb-link-target">${options}</select><button class="btn sm primary" id="wb-add-link">Link</button></div><h4>Timeline</h4><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${events || '<tr><td colspan="3" class="muted">No recorded events for this item.</td></tr>'}</tbody></table></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
+  $('#modal').classList.remove('hidden');
+  $('#wb-detail-close').onclick = closeModal;
+  $('#wb-add-link').onclick = async () => {
+    try {
+      const [to_type, to_id] = $('#wb-link-target').value.split('|');
+      await api('POST', '/api/workflow-links', {
+        from_type: source,
+        from_id: id,
+        to_type,
+        to_id,
+        relation: $('#wb-link-relation').value,
+        created_by: 'owner',
+      });
+      toast('Dependency linked');
+      await openWorkflowItem(source, id, {
+        ...data,
+        links: [
+          ...(data.links || []),
+          {
+            from_type: source,
+            from_id: id,
+            to_type,
+            to_id,
+            relation: $('#wb-link-relation').value,
+            link_id: `new-${Date.now()}`,
+          },
+        ],
+      });
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  $$('[data-wb-delete-link]').forEach(
+    button =>
+      (button.onclick = async () => {
+        try {
+          await api(
+            'DELETE',
+            `/api/workflow-links/${encodeURIComponent(button.dataset.wbDeleteLink)}`
+          );
+          toast('Link removed');
+          const next = {
+            ...data,
+            links: (data.links || []).filter(x => x.link_id !== button.dataset.wbDeleteLink),
+          };
+          await openWorkflowItem(source, id, next);
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      })
+  );
 }
 
 /* ===================== FLEET WORK BOARD ===================== */
@@ -11996,7 +12312,12 @@ function workBoardColumn(item) {
     if (['blocked', 'waiting'].includes(item.status)) return 'blocked';
     return 'done';
   }
-  if (item.source === 'proposal') return ['proposed', 'feedback'].includes(item.status) ? 'approval' : item.status === 'declined' ? 'done' : 'ready';
+  if (item.source === 'proposal')
+    return ['proposed', 'feedback'].includes(item.status)
+      ? 'approval'
+      : item.status === 'declined'
+        ? 'done'
+        : 'ready';
   if (['review', 'reviewing'].includes(item.status)) return 'approval';
   if (item.status === 'failed') return 'blocked';
   if (['queued', 'claimed'].includes(item.status)) return 'ready';
@@ -12006,7 +12327,12 @@ function workBoardColumn(item) {
 
 function workBoardCard(item) {
   const column = workBoardColumn(item);
-  const gate = item.source === 'request' ? `${item.auto_review === false ? 'manual review' : 'auto review'} · ${item.delivery_mode || 'direct'}` : item.source === 'proposal' ? `owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}` : item.next_action || 'PM triage pending';
+  const gate =
+    item.source === 'request'
+      ? `${item.auto_review === false ? 'manual review' : 'auto review'} · ${item.delivery_mode || 'direct'}`
+      : item.source === 'proposal'
+        ? `owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}`
+        : item.next_action || 'PM triage pending';
   return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : item.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span>${item.critical ? '<span class="badge b-yellow">critical path</span>' : ''}</div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || item.assigned_role || item.created_by || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded yet.')}</p><div class="wb-gate"><span>◆</span>${esc(gate)}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`;
 }
 
@@ -12014,11 +12340,32 @@ function workBoardItems(data) {
   const items = [];
   const decorate = (row, source, id) => {
     const workflow = data.workflow?.nodes?.[`${source}:${id}`] || {};
-    return { ...row, ...workflow, waiting_on: workflow.blockers?.join(', ') || row.waiting_on || null, id, source };
+    return {
+      ...row,
+      ...workflow,
+      waiting_on: workflow.blockers?.join(', ') || row.waiting_on || null,
+      id,
+      source,
+    };
   };
-  (data.work_items || []).forEach(row => items.push({ ...decorate(row, 'work-item', row.work_id), source_label: 'backlog' }));
-  (data.requests || []).forEach(row => items.push({ ...decorate(row, 'request', row.request_id), source_label: 'change queue', owner: row.assigned_role }));
-  (data.proposals || []).forEach(row => items.push({ ...decorate(row, 'proposal', row.proposal_id), source_label: 'executive gate', owner: row.created_by, summary: row.summary }));
+  (data.work_items || []).forEach(row =>
+    items.push({ ...decorate(row, 'work-item', row.work_id), source_label: 'backlog' })
+  );
+  (data.requests || []).forEach(row =>
+    items.push({
+      ...decorate(row, 'request', row.request_id),
+      source_label: 'change queue',
+      owner: row.assigned_role,
+    })
+  );
+  (data.proposals || []).forEach(row =>
+    items.push({
+      ...decorate(row, 'proposal', row.proposal_id),
+      source_label: 'executive gate',
+      owner: row.created_by,
+      summary: row.summary,
+    })
+  );
   return items;
 }
 
@@ -12027,40 +12374,174 @@ async function renderWorkflowBoard() {
   try {
     const data = await api('GET', '/api/workflow-board');
     const items = workBoardItems(data).filter(workBoardVisible);
-    const counts = WORK_BOARD_COLUMNS.map(([key]) => items.filter(item => workBoardColumn(item) === key).length);
-    const activity = (data.actions || []).slice(0, 12).map(action => `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`).join('');
-    const diagnostics = (data.diagnostics || []).slice(0, 8).map(item => `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`).join('');
-    const filterButtons = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`).join('');
-    const excludeButtons = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`).join('');
-    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[2]}</strong><span>in progress</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${(data.settings?.change_queue?.max_concurrent || 1)}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Hidden lanes are excluded from the board; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(([key, label], index) => `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[index]} item${counts[index] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${items.filter(item => workBoardColumn(item) === key).map(workBoardCard).join('') || '<div class="wb-empty">Drop work here</div>'}</div></div>`).join('')}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
+    const counts = WORK_BOARD_COLUMNS.map(
+      ([key]) => items.filter(item => workBoardColumn(item) === key).length
+    );
+    const activity = (data.actions || [])
+      .slice(0, 12)
+      .map(
+        action =>
+          `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`
+      )
+      .join('');
+    const diagnostics = (data.diagnostics || [])
+      .slice(0, 8)
+      .map(
+        item =>
+          `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`
+      )
+      .join('');
+    const filterButtons = WORK_BOARD_COLUMNS.map(
+      ([key, label]) =>
+        `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`
+    ).join('');
+    const excludeButtons = WORK_BOARD_COLUMNS.map(
+      ([key, label]) =>
+        `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`
+    ).join('');
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[2]}</strong><span>in progress</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Hidden lanes are excluded from the board; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
+      ([key, label], index) =>
+        `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[index]} item${counts[index] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${
+          items
+            .filter(item => workBoardColumn(item) === key)
+            .map(workBoardCard)
+            .join('') || '<div class="wb-empty">Drop work here</div>'
+        }</div></div>`
+    ).join(
+      ''
+    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
-    $$('[data-wb-include]').forEach(button => button.onclick = () => { const key = button.dataset.wbInclude; WORK_BOARD_INCLUDE.has(key) ? WORK_BOARD_INCLUDE.delete(key) : WORK_BOARD_INCLUDE.add(key); renderWorkflowBoard(); });
-    $$('[data-wb-exclude]').forEach(button => button.onclick = () => { const key = button.dataset.wbExclude; WORK_BOARD_EXCLUDE.has(key) ? WORK_BOARD_EXCLUDE.delete(key) : WORK_BOARD_EXCLUDE.add(key); renderWorkflowBoard(); });
-    $$('[data-wb-clear]').forEach(button => button.onclick = () => { (button.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear(); renderWorkflowBoard(); });
-    $$('.wb-open').forEach(button => button.onclick = () => openWorkflowItem(button.dataset.wbSource, button.dataset.wbId, data));
-    $$('.wb-card').forEach(card => card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId }))));
+    $$('[data-wb-include]').forEach(
+      button =>
+        (button.onclick = () => {
+          const key = button.dataset.wbInclude;
+          WORK_BOARD_INCLUDE.has(key)
+            ? WORK_BOARD_INCLUDE.delete(key)
+            : WORK_BOARD_INCLUDE.add(key);
+          renderWorkflowBoard();
+        })
+    );
+    $$('[data-wb-exclude]').forEach(
+      button =>
+        (button.onclick = () => {
+          const key = button.dataset.wbExclude;
+          WORK_BOARD_EXCLUDE.has(key)
+            ? WORK_BOARD_EXCLUDE.delete(key)
+            : WORK_BOARD_EXCLUDE.add(key);
+          renderWorkflowBoard();
+        })
+    );
+    $$('[data-wb-clear]').forEach(
+      button =>
+        (button.onclick = () => {
+          (button.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear();
+          renderWorkflowBoard();
+        })
+    );
+    $$('.wb-open').forEach(
+      button =>
+        (button.onclick = () =>
+          openWorkflowItem(button.dataset.wbSource, button.dataset.wbId, data))
+    );
+    $$('.wb-card').forEach(card =>
+      card.addEventListener('dragstart', event =>
+        event.dataTransfer.setData(
+          'text/plain',
+          JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId })
+        )
+      )
+    );
     $$('.wb-column').forEach(column => {
-      column.addEventListener('dragover', event => { event.preventDefault(); column.classList.add('is-over'); });
+      column.addEventListener('dragover', event => {
+        event.preventDefault();
+        column.classList.add('is-over');
+      });
       column.addEventListener('dragleave', () => column.classList.remove('is-over'));
-      column.addEventListener('drop', async event => { event.preventDefault(); column.classList.remove('is-over'); const item = JSON.parse(event.dataTransfer.getData('text/plain') || '{}'); try { await moveWorkflowItem(item.source, item.id, column.dataset.wbDrop, data); toast('Work moved'); renderWorkflowBoard(); } catch (e) { toast(e.message, 'err'); } });
+      column.addEventListener('drop', async event => {
+        event.preventDefault();
+        column.classList.remove('is-over');
+        const item = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
+        try {
+          await moveWorkflowItem(item.source, item.id, column.dataset.wbDrop, data);
+          toast('Work moved');
+          renderWorkflowBoard();
+        } catch (e) {
+          toast(e.message, 'err');
+        }
+      });
     });
     if (!FRESH) applyUISnap();
     stamp();
-  } catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; }
+  } catch (e) {
+    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+  }
 }
 
 function showWorkflowBacklogForm() {
   const modal = $('#modal');
   $('#modal-title').textContent = 'Add backlog work';
-  $('#modal-body').innerHTML = `<div class="field"><label>Title</label><input id="wb-title" placeholder="A clear outcome, not a vague task"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option><option>evidence</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site (optional)</label><input id="wb-site" placeholder="example.com or fleet"></div><div class="field"><label>Brief / context</label><textarea id="wb-summary" rows="4" placeholder="What outcome should this work produce?"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4" placeholder="The smallest next step and how we know it is done"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`;
+  $('#modal-body').innerHTML =
+    `<div class="field"><label>Title</label><input id="wb-title" placeholder="A clear outcome, not a vague task"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option><option>evidence</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site (optional)</label><input id="wb-site" placeholder="example.com or fleet"></div><div class="field"><label>Brief / context</label><textarea id="wb-summary" rows="4" placeholder="What outcome should this work produce?"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4" placeholder="The smallest next step and how we know it is done"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`;
   modal.classList.remove('hidden');
   $('#wb-cancel').onclick = closeModal;
-  $('#wb-save').onclick = async () => { const button = $('#wb-save'); button.disabled = true; try { await api('POST', '/api/executive/work-items', { title: $('#wb-title').value, kind: $('#wb-kind').value, priority: $('#wb-priority').value, owner: $('#wb-owner').value, site: $('#wb-site').value || null, summary: $('#wb-summary').value, next_action: $('#wb-next').value, created_by: 'owner' }); closeModal(); toast('Added to backlog'); renderWorkflowBoard(); } catch (e) { button.disabled = false; toast(e.message, 'err'); } };
+  $('#wb-save').onclick = async () => {
+    const button = $('#wb-save');
+    button.disabled = true;
+    try {
+      await api('POST', '/api/executive/work-items', {
+        title: $('#wb-title').value,
+        kind: $('#wb-kind').value,
+        priority: $('#wb-priority').value,
+        owner: $('#wb-owner').value,
+        site: $('#wb-site').value || null,
+        summary: $('#wb-summary').value,
+        next_action: $('#wb-next').value,
+        created_by: 'owner',
+      });
+      closeModal();
+      toast('Added to backlog');
+      renderWorkflowBoard();
+    } catch (e) {
+      button.disabled = false;
+      toast(e.message, 'err');
+    }
+  };
 }
 
 async function moveWorkflowItem(source, id, column, data) {
-  if (source === 'work-item') { const node = data.workflow?.nodes?.[`work-item:${id}`]; if (column === 'active' && node?.ready === false) throw new Error(`Blocked by ${node.blockers.join(', ')}`); const status = { backlog: 'open', active: 'in_progress', blocked: 'blocked', done: 'done', ready: 'ready', approval: 'waiting' }[column]; return api('PATCH', `/api/executive/work-items/${encodeURIComponent(id)}`, { status }); }
-  if (source === 'request') { const request = (data.requests || []).find(row => row.request_id === id); if (column === 'ready' && request.status === 'failed') return api('POST', `/api/change-requests/${encodeURIComponent(id)}/retry`, {}); if (column === 'active' && request.status === 'queued') return api('POST', `/api/change-requests/${encodeURIComponent(id)}/pickup`, {}); if (column === 'approval' && request.status === 'review') return api('POST', `/api/change-requests/${encodeURIComponent(id)}/auto-review`, {}); }
+  if (source === 'work-item') {
+    const node = data.workflow?.nodes?.[`work-item:${id}`];
+    if (column === 'active' && node?.ready === false)
+      throw new Error(`Blocked by ${node.blockers.join(', ')}`);
+    const status = {
+      backlog: 'open',
+      active: 'in_progress',
+      blocked: 'blocked',
+      done: 'done',
+      ready: 'ready',
+      approval: 'waiting',
+    }[column];
+    const patch = {
+      status,
+      expected_updated_at: (data.work_items || []).find(row => row.work_id === id)?.updated_at,
+    };
+    if (status === 'done') {
+      const outcome = window.prompt('Record the outcome or evidence for this completed work:');
+      if (!outcome || !outcome.trim())
+        throw new Error('Completion cancelled: outcome or evidence is required');
+      patch.outcome = outcome.trim();
+    }
+    return api('PATCH', `/api/executive/work-items/${encodeURIComponent(id)}`, patch);
+  }
+  if (source === 'request') {
+    const request = (data.requests || []).find(row => row.request_id === id);
+    if (column === 'ready' && request.status === 'failed')
+      return api('POST', `/api/change-requests/${encodeURIComponent(id)}/retry`, {});
+    if (column === 'active' && request.status === 'queued')
+      return api('POST', `/api/change-requests/${encodeURIComponent(id)}/pickup`, {});
+    if (column === 'approval' && request.status === 'review')
+      return api('POST', `/api/change-requests/${encodeURIComponent(id)}/auto-review`, {});
+  }
   throw new Error('This transition must use its approval-aware action');
 }
 
@@ -12068,7 +12549,8 @@ function openWorkflowItemLegacy(source, id, data) {
   const item = workBoardItems(data).find(row => row.source === source && row.id === id);
   if (!item) return;
   $('#modal-title').textContent = item.title;
-  $('#modal-body').innerHTML = `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(item.source_label)}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || item.assigned_role || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Next action / gate</h4><pre>${esc(item.next_action || item.requested_action || item.body || 'No next action recorded')}</pre><p class="muted">Updated ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</p></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
+  $('#modal-body').innerHTML =
+    `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(item.source_label)}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || item.assigned_role || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Next action / gate</h4><pre>${esc(item.next_action || item.requested_action || item.body || 'No next action recorded')}</pre><p class="muted">Updated ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</p></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
   $('#modal').classList.remove('hidden');
   $('#wb-detail-close').onclick = closeModal;
 }
@@ -12536,19 +13018,40 @@ async function renderExecutive() {
   }
   const allOwnerRequests = inbox.requests || requests.work_items || [];
   const requestMatches = request => {
-    const haystack = [request.title, request.summary, request.lifecycle_state, request.status].filter(Boolean).join(' ').toLowerCase();
-    return (!EXEC_INBOX_UI.q || haystack.includes(EXEC_INBOX_UI.q.toLowerCase())) &&
-      (EXEC_INBOX_UI.status === 'all' || (EXEC_INBOX_UI.status === 'unread' ? request.response_count > 0 && unreadNotifications.some(n => n.work_id === request.work_id) : EXEC_INBOX_UI.status === 'overdue' ? request.overdue : request.lifecycle_state === EXEC_INBOX_UI.status));
+    const haystack = [request.title, request.summary, request.lifecycle_state, request.status]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return (
+      (!EXEC_INBOX_UI.q || haystack.includes(EXEC_INBOX_UI.q.toLowerCase())) &&
+      (EXEC_INBOX_UI.status === 'all' ||
+        (EXEC_INBOX_UI.status === 'unread'
+          ? request.response_count > 0 &&
+            unreadNotifications.some(n => n.work_id === request.work_id)
+          : EXEC_INBOX_UI.status === 'overdue'
+            ? request.overdue
+            : request.lifecycle_state === EXEC_INBOX_UI.status))
+    );
   };
   const filteredOwnerRequests = allOwnerRequests.filter(requestMatches);
-  const inboxPageCount = Math.max(1, Math.ceil(filteredOwnerRequests.length / EXEC_INBOX_UI.pageSize));
+  const inboxPageCount = Math.max(
+    1,
+    Math.ceil(filteredOwnerRequests.length / EXEC_INBOX_UI.pageSize)
+  );
   EXEC_INBOX_UI.page = Math.min(EXEC_INBOX_UI.page, inboxPageCount);
-  const ownerRequests = filteredOwnerRequests.slice((EXEC_INBOX_UI.page - 1) * EXEC_INBOX_UI.pageSize, EXEC_INBOX_UI.page * EXEC_INBOX_UI.pageSize);
+  const ownerRequests = filteredOwnerRequests.slice(
+    (EXEC_INBOX_UI.page - 1) * EXEC_INBOX_UI.pageSize,
+    EXEC_INBOX_UI.page * EXEC_INBOX_UI.pageSize
+  );
   const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   notifyExecutiveBrowser(unreadNotifications);
-  const notificationRows = unreadNotifications.slice(0, 5).map(notification =>
-    `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><div><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="btn sm ex-notification-read" type="button">Mark read</button></article>`
-  ).join('');
+  const notificationRows = unreadNotifications
+    .slice(0, 5)
+    .map(
+      notification =>
+        `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><div><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="btn sm ex-notification-read" type="button">Mark read</button></article>`
+    )
+    .join('');
   const messageRows = (messages.messages || [])
     .slice()
     .reverse()
@@ -12557,23 +13060,49 @@ async function renderExecutive() {
         `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
     )
     .join('');
-  const ownerRequestRows = ownerRequests.map(request => {
-    const thread = (request.messages || (messages.messages || []).filter(message => message.work_id === request.work_id))
-      .filter(message => message.work_id === request.work_id)
-      .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
-    const response = thread.find(message => message.actor !== 'owner');
-    const timeline = thread.map(message => `<div class="muted">${esc(fmtDate(message.created_at))} · <b>${esc(executiveActorLabel(message.actor))}</b>: ${esc(message.body)}</div>`).join('');
-    const linked = (request.links || []).map(link => `<span class="badge b-blue">linked ${esc(link.to_type)} ${esc(String(link.to_id).slice(0, 8))}</span>`).join(' ');
-    const status = response
-      ? 'response received'
-      : request.status === 'waiting'
-        ? 'awaiting executive response'
-        : request.status;
-    const statusClass = response ? 'b-green' : request.status === 'blocked' ? 'b-red' : 'b-yellow';
-    const due = request.overdue ? '<span class="badge b-red">SLA overdue</span>' : request.due_at ? `<span class="muted">Due ${esc(fmtDate(request.due_at))}</span>` : '';
-    const actions = request.lifecycle_state === 'closed' ? '' : `<div class="task-toolbar"><button class="btn sm ex-request-ack" data-id="${esc(request.work_id)}" ${request.lifecycle_state !== 'submitted' ? 'disabled' : ''}>Acknowledge</button><button class="btn sm ex-request-close" data-id="${esc(request.work_id)}">Close request</button></div>`;
-    return `<article class="ex-request-card"><div class="page-head"><div><b>${esc(request.title)}</b><div class="muted">Submitted ${esc(fmtDate(request.created_at))} · request ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</div></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><p>${esc(request.summary)}</p>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">This request is saved and will stay here until the executive team responds.</p>'}${linked ? `<div class="task-toolbar">${linked}</div>` : ''}<details class="ex-request-timeline"><summary>Timeline (${thread.length} events)</summary><div>${timeline || '<span class="muted">No thread events yet.</span>'}</div>${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}</details>${actions}</article>`;
-  }).join('');
+  const ownerRequestRows = ownerRequests
+    .map(request => {
+      const thread = (
+        request.messages ||
+        (messages.messages || []).filter(message => message.work_id === request.work_id)
+      )
+        .filter(message => message.work_id === request.work_id)
+        .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
+      const response = thread.find(message => message.actor !== 'owner');
+      const timeline = thread
+        .map(
+          message =>
+            `<div class="muted">${esc(fmtDate(message.created_at))} · <b>${esc(executiveActorLabel(message.actor))}</b>: ${esc(message.body)}</div>`
+        )
+        .join('');
+      const linked = (request.links || [])
+        .map(
+          link =>
+            `<span class="badge b-blue">linked ${esc(link.to_type)} ${esc(String(link.to_id).slice(0, 8))}</span>`
+        )
+        .join(' ');
+      const status = response
+        ? 'response received'
+        : request.status === 'waiting'
+          ? 'awaiting executive response'
+          : request.status;
+      const statusClass = response
+        ? 'b-green'
+        : request.status === 'blocked'
+          ? 'b-red'
+          : 'b-yellow';
+      const due = request.overdue
+        ? '<span class="badge b-red">SLA overdue</span>'
+        : request.due_at
+          ? `<span class="muted">Due ${esc(fmtDate(request.due_at))}</span>`
+          : '';
+      const actions =
+        request.lifecycle_state === 'closed'
+          ? ''
+          : `<div class="task-toolbar"><button class="btn sm ex-request-ack" data-id="${esc(request.work_id)}" ${request.lifecycle_state !== 'submitted' ? 'disabled' : ''}>Acknowledge</button><button class="btn sm ex-request-close" data-id="${esc(request.work_id)}">Close request</button></div>`;
+      return `<article class="ex-request-card"><div class="page-head"><div><b>${esc(request.title)}</b><div class="muted">Submitted ${esc(fmtDate(request.created_at))} · request ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</div></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><p>${esc(request.summary)}</p>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">This request is saved and will stay here until the executive team responds.</p>'}${linked ? `<div class="task-toolbar">${linked}</div>` : ''}<details class="ex-request-timeline"><summary>Timeline (${thread.length} events)</summary><div>${timeline || '<span class="muted">No thread events yet.</span>'}</div>${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}</details>${actions}</article>`;
+    })
+    .join('');
   const isCROHandoff = p => ['researcher', 'cro'].includes(String(p.created_by));
   const proposalRows = (proposals.proposals || [])
     .map(p => {
@@ -12746,7 +13275,7 @@ async function renderExecutive() {
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
-        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted','acknowledged','answered','actioned','measured','snoozed','closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests match this view.</div>'}<div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
+        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests match this view.</div>'}<div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
       </div>
       <aside class="ex-secondary">
@@ -12760,14 +13289,32 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   $('#ex-refresh').onclick = () => softRender();
-  $('#ex-inbox-search').oninput = event => { EXEC_INBOX_UI.q = event.target.value.trim(); EXEC_INBOX_UI.page = 1; softRender(); };
-  $('#ex-inbox-filter').onchange = event => { EXEC_INBOX_UI.status = event.target.value; EXEC_INBOX_UI.page = 1; softRender(); };
-  $('#ex-inbox-prev').onclick = () => { EXEC_INBOX_UI.page -= 1; softRender(); };
-  $('#ex-inbox-next').onclick = () => { EXEC_INBOX_UI.page += 1; softRender(); };
+  $('#ex-inbox-search').oninput = event => {
+    EXEC_INBOX_UI.q = event.target.value.trim();
+    EXEC_INBOX_UI.page = 1;
+    softRender();
+  };
+  $('#ex-inbox-filter').onchange = event => {
+    EXEC_INBOX_UI.status = event.target.value;
+    EXEC_INBOX_UI.page = 1;
+    softRender();
+  };
+  $('#ex-inbox-prev').onclick = () => {
+    EXEC_INBOX_UI.page -= 1;
+    softRender();
+  };
+  $('#ex-inbox-next').onclick = () => {
+    EXEC_INBOX_UI.page += 1;
+    softRender();
+  };
   $('#ex-notify-enable').onclick = async () => {
-    if (!('Notification' in window)) return toast('Browser notifications are not supported here', 'err');
+    if (!('Notification' in window))
+      return toast('Browser notifications are not supported here', 'err');
     const permission = await Notification.requestPermission();
-    toast(permission === 'granted' ? 'Executive alerts enabled' : 'Executive alerts remain disabled', permission === 'granted' ? 'ok' : 'err');
+    toast(
+      permission === 'granted' ? 'Executive alerts enabled' : 'Executive alerts remain disabled',
+      permission === 'granted' ? 'ok' : 'err'
+    );
   };
   $('#ex-notify-read').onclick = async () => {
     try {
@@ -12780,7 +13327,11 @@ async function renderExecutive() {
   $$('.ex-notification-read').forEach(button => {
     button.onclick = async () => {
       try {
-        await api('POST', `/api/executive/notifications/${encodeURIComponent(button.closest('[data-notification-id]').dataset.notificationId)}/read`, {});
+        await api(
+          'POST',
+          `/api/executive/notifications/${encodeURIComponent(button.closest('[data-notification-id]').dataset.notificationId)}/read`,
+          {}
+        );
         softRender();
       } catch (e) {
         toast(e.message, 'err');
@@ -12790,10 +13341,16 @@ async function renderExecutive() {
   $$('.ex-request-ack').forEach(button => {
     button.onclick = async () => {
       try {
-        await api('POST', `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`, { lifecycle_state: 'acknowledged' });
+        await api(
+          'POST',
+          `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`,
+          { lifecycle_state: 'acknowledged' }
+        );
         toast('Request acknowledged');
         softRender();
-      } catch (e) { toast(e.message, 'err'); }
+      } catch (e) {
+        toast(e.message, 'err');
+      }
     };
   });
   $$('.ex-request-close').forEach(button => {
@@ -12801,10 +13358,16 @@ async function renderExecutive() {
       const outcome = window.prompt('Outcome / resolution note required to close this request:');
       if (!outcome?.trim()) return;
       try {
-        await api('POST', `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`, { lifecycle_state: 'closed', outcome: outcome.trim() });
+        await api(
+          'POST',
+          `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`,
+          { lifecycle_state: 'closed', outcome: outcome.trim() }
+        );
         toast('Request closed');
         softRender();
-      } catch (e) { toast(e.message, 'err'); }
+      } catch (e) {
+        toast(e.message, 'err');
+      }
     };
   });
   $('#ex-run-filter').onchange = e => {
@@ -13309,6 +13872,128 @@ function renderKnowledge() {
     });
 }
 
+/* --------------------------------------------------------- site command center */
+function siteStatusBadge(ok, good = 'Healthy', bad = 'Needs attention') {
+  return ok === true
+    ? `<span class="badge b-green">${good}</span>`
+    : ok === false
+      ? `<span class="badge b-red">${bad}</span>`
+      : '<span class="badge b-gray">Unknown</span>';
+}
+
+function siteTaskCount(data) {
+  if (!data || typeof data !== 'object') return 0;
+  if (Array.isArray(data)) return data.length;
+  return Object.entries(data).reduce((n, [key, value]) => {
+    if (['summary', 'site', 'ok'].includes(key)) return n;
+    return (
+      n +
+      (Array.isArray(value) ? value.length : typeof value === 'object' ? siteTaskCount(value) : 0)
+    );
+  }, 0);
+}
+
+async function renderSiteDetail() {
+  const app = $('#app');
+  const site = STATE.siteSlug;
+  if (!site) return go('control');
+  if (FRESH) app.innerHTML = `<div class="loading">Opening ${esc(site)} command center…</div>`;
+
+  const [fleet, roles, deploy, gatus, errors, tasks, git, actions] = await Promise.all([
+    apiOptional('GET', '/api/fleet', { rows: [] }),
+    apiOptional('GET', '/api/roles', { sites: [] }),
+    apiOptional('GET', '/api/deploy-health', { sites: {} }),
+    apiOptional('GET', '/api/gatus', { sites: {} }),
+    apiOptional('GET', '/api/errors', { containers: [] }),
+    apiOptional('GET', `/api/tasks/${encodeURIComponent(site)}`, {}),
+    apiOptional('GET', `/api/git/${encodeURIComponent(site)}`, {}),
+    apiOptional('GET', '/api/actions?limit=300', { actions: [] }),
+  ]);
+
+  const fleetRow = (fleet.rows || []).find(row => row.site === site) || {};
+  const roleSite = (roles.sites || []).find(row => row.site === site) || {};
+  const deploySite = deploy.sites?.[site] || {};
+  const gatusSite = gatus.sites?.[site] || {};
+  const siteErrors = (errors.containers || []).filter(row => row.slug === site);
+  const activeErrors = siteErrors.filter(row => Number(row.count24h) > 0);
+  const runtimeOk =
+    gatusSite.failing == null && !siteErrors.length
+      ? null
+      : gatusSite.failing === 0 && activeErrors.length === 0;
+  const taskCount = siteTaskCount(tasks);
+  const roleCells = Object.entries(roleSite.cells || {}).filter(
+    ([, cell]) => cell && cell.installed !== false
+  );
+  const healthyRoles = roleCells.filter(
+    ([, cell]) => cell.state === 'fresh' || cell.status === 'fresh'
+  ).length;
+  const rolePct = roleCells.length ? Math.round((healthyRoles / roleCells.length) * 100) : null;
+  const recentActions = (actions.actions || [])
+    .filter(action => activitySiteFromPath(action.path) === site)
+    .slice(0, 6);
+  const actionRows = recentActions.length
+    ? recentActions
+        .map(
+          action =>
+            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - Date.parse(action.ts || action.at || 0)) / 1000))} ago</td><td>${esc(action.method || '—')}</td><td class="mono">${esc(action.path || '—')}</td><td>${action.status >= 400 ? '<span class="badge b-red">failed</span>' : '<span class="badge b-green">ok</span>'}</td></tr>`
+        )
+        .join('')
+    : '<tr><td colspan="4" class="muted">No recent mutating actions recorded for this site.</td></tr>';
+  const roleRows = roleCells.length
+    ? roleCells
+        .map(
+          ([role, cell]) =>
+            `<tr><td class="mono">${esc(role)}</td><td>${siteStatusBadge(cell.state === 'fresh' || cell.status === 'fresh', 'Fresh', cell.state || cell.status || 'Attention')}</td><td class="mono muted">${esc(cell.last_run || cell.last || '—')}</td><td>${cell.enabled === false ? '<span class="badge b-gray">Paused</span>' : '<span class="badge b-blue">Enabled</span>'}</td></tr>`
+        )
+        .join('')
+    : '<tr><td colspan="4" class="muted">No installed roles were reported.</td></tr>';
+
+  app.innerHTML = `
+    <div class="page-head site-command-head">
+      <div><div class="crumbs"><a class="crumb-link" id="site-back-control">Domain Control</a><span class="crumb-sep">›</span><span class="crumb-cur">${esc(site)}</span></div><h2 class="page-title">${esc(site)}</h2><span class="muted">Site command center · one operational view for health, delivery, work, and audit evidence.</span></div>
+      <div class="site-command-actions"><button class="btn" id="site-open-control" type="button">Filter fleet</button><button class="btn primary" id="site-run-engineer" type="button">▶ Run Engineer</button></div>
+    </div>
+    <section class="site-kpis" aria-label="${esc(site)} summary">
+      <div class="site-kpi"><span>Role health</span><strong>${rolePct == null ? '—' : `${rolePct}%`}</strong><small>${healthyRoles}/${roleCells.length || 0} installed roles fresh</small></div>
+      <div class="site-kpi"><span>Deploy</span><strong>${deploySite.live === true ? 'Live' : deploySite.live === false ? 'Behind' : '—'}</strong><small>${esc(deploySite.deployedAt ? new Date(deploySite.deployedAt * 1000).toLocaleString() : 'No deploy evidence')}</small></div>
+      <div class="site-kpi"><span>Open work</span><strong>${taskCount}</strong><small>tasks across this site queue</small></div>
+      <div class="site-kpi${activeErrors.length ? ' is-risk' : ''}"><span>Errors · 24h</span><strong>${activeErrors.length}</strong><small>${activeErrors.length ? 'Requires investigation' : 'No active container errors'}</small></div>
+    </section>
+    <section class="site-command-grid">
+      <article class="card site-panel"><div class="site-panel-head"><div><h3>Runtime posture</h3><p class="muted">Current evidence from role liveness, deploy health, and synthetic monitoring.</p></div>${siteStatusBadge(runtimeOk, 'Operational', 'Degraded')}</div><dl class="site-facts"><div><dt>Engineer pulse</dt><dd>${esc(fleetRow.pulse || fleetRow.status || 'Unknown')}</dd></div><div><dt>Live check</dt><dd>${gatusSite.failing == null ? 'Unknown' : gatusSite.failing === 0 ? 'Passing' : `${gatusSite.failing} failing`}</dd></div><div><dt>Cloudflare</dt><dd>${siteStatusBadge(deploySite.live, 'In sync', 'Behind')}</dd></div><div><dt>Git</dt><dd>${esc(git.branch || git.currentBranch || 'Branch unknown')} · ${git.dirty ? 'uncommitted changes' : 'clean'}</dd></div></dl></article>
+      <article class="card site-panel"><div class="site-panel-head"><div><h3>Immediate actions</h3><p class="muted">Safe shortcuts into the existing operational surfaces.</p></div></div><div class="site-action-list"><button class="btn" id="site-open-tasks" type="button">Open task board <span>→</span></button><button class="btn" id="site-open-git" type="button">Inspect Git status <span>→</span></button><button class="btn" id="site-open-errors" type="button">Review errors${activeErrors.length ? ` <span class="badge b-red">${activeErrors.length}</span>` : ''} <span>→</span></button></div></article>
+    </section>
+    <section class="card site-panel site-wide-panel"><div class="site-panel-head"><div><h3>Installed roles</h3><p class="muted">The role matrix is the source of truth for scheduled ownership on this site.</p></div><span class="muted">${roleCells.length} roles</span></div><table><thead><tr><th>Role</th><th>Status</th><th>Last run</th><th>Control</th></tr></thead><tbody>${roleRows}</tbody></table></section>
+    <section class="card site-panel site-wide-panel"><div class="site-panel-head"><div><h3>Recent operator activity</h3><p class="muted">Mutating actions associated with this site.</p></div><a class="btn sm" href="#activity">Open full activity</a></div><table><thead><tr><th>When</th><th>Method</th><th>Path</th><th>Result</th></tr></thead><tbody>${actionRows}</tbody></table></section>`;
+
+  $('#site-back-control').onclick = () => go('control');
+  $('#site-open-control').onclick = () => {
+    const filter = $('#fleet-filter');
+    if (filter) {
+      filter.value = site;
+      filter.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    go('control');
+  };
+  $('#site-run-engineer').onclick = async button => {
+    button.disabled = true;
+    try {
+      await api('POST', `/api/fleet/${encodeURIComponent(site)}/run`);
+      toast(`Engineer triggered on ${site}`);
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      button.disabled = false;
+    }
+  };
+  $('#site-open-tasks').onclick = () => go('tasks');
+  $('#site-open-git').onclick = () => go('git');
+  $('#site-open-errors').onclick = () => go('errors');
+  if (!FRESH) applyUISnap();
+  applyFleetFilter();
+  stamp();
+}
+
 function render() {
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -13321,6 +14006,7 @@ function render() {
   else if (STATE.view === 'improvements') return renderImprovements();
   else if (STATE.view === 'workbench') return renderWorkbench();
   else if (STATE.view === 'knowledge') return renderKnowledge();
+  else if (STATE.view === 'site') return renderSiteDetail();
   else if (STATE.view === 'executive') return renderExecutive();
   else if (STATE.view === 'agents') return renderCategoryRoot('agents');
   else if (NAV_GROUPS[STATE.view]) return renderCategoryRoot(STATE.view);
@@ -13392,7 +14078,8 @@ const NAV_ITEM_DESCRIPTIONS = {
   taskbudget: 'Review task volume and automation budgets.',
   'change-queue':
     'Queue human site changes with explicit AI, budget, priority, and review controls.',
-  'workflow-board': 'Operate the combined fleet backlog, agent queue, approval gates, and delivery flow.',
+  'workflow-board':
+    'Operate the combined fleet backlog, agent queue, approval gates, and delivery flow.',
   compliance: 'Check the live technical privacy baseline.',
   lint: 'Run fleet-wide parse and formatting checks.',
   health: 'Monitor uptime and service health.',
@@ -13525,7 +14212,7 @@ function buildAgentsMenu() {
     [['executive', 'Executive Overview', ''], ...(STATE.agents || [])]
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : a.label || agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a.scope === 'fleet' ? 'fleet queue' : a[2] ?? a.sites}</span>`}</a>`
+          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : a.label || agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a.scope === 'fleet' ? 'fleet queue' : (a[2] ?? a.sites)}</span>`}</a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>
@@ -13745,6 +14432,7 @@ async function boot() {
   if (loginForm) loginForm.addEventListener('submit', submitLogin);
   try {
     const a = await api('GET', '/api/auth');
+    applyAccessLevel(a?.access);
     if (a && a.authRequired && !a.authed) {
       showLogin();
       return;
@@ -13767,6 +14455,7 @@ async function boot() {
   STATE.view = r.view;
   STATE.agent = r.agent;
   STATE.agentPage = r.agentPage || null;
+  STATE.siteSlug = r.siteSlug || null;
   STATE.gitSlug = r.gitSlug || null;
   STATE.gitTab = r.gitTab || 'operations';
   STATE.controlFilter = r.controlFilter || null;
@@ -13841,6 +14530,7 @@ async function boot() {
       n.view !== STATE.view ||
       n.agent !== STATE.agent ||
       (n.agentPage || null) !== STATE.agentPage ||
+      (n.siteSlug || null) !== STATE.siteSlug ||
       (n.gitSlug || null) !== STATE.gitSlug ||
       (n.gitTab || 'operations') !== STATE.gitTab ||
       (n.controlFilter || null) !== STATE.controlFilter ||
@@ -13850,6 +14540,7 @@ async function boot() {
       STATE.view = n.view;
       STATE.agent = n.agent;
       STATE.agentPage = n.agentPage || null;
+      STATE.siteSlug = n.siteSlug || null;
       STATE.gitSlug = n.gitSlug || null;
       STATE.gitTab = n.gitTab || 'operations';
       STATE.controlFilter = n.controlFilter || null;
