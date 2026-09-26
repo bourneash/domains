@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T09:03:23.013Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T10:04:04.820Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve evidence_needed for fleet security and blocked status for gated-product exposure. Fleet-doctor and operations sweeps have no results, and authentication, secrets, isolation, release, dependency, monitoring, incident, and disclosure controls remain unverified. Continue read-only evidence capture only.",
+        "summary": "Update: fleet security remains evidence_needed because fleet-doctor and operations sweeps are unavailable; gated-product exposure remains blocked. Continue read-only evidence capture and preserve unknowns; do not access credentials, private containers, or production.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide controls; blocked for gated-product public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident response, and disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days; it does not establish complete TLS posture. Compliance reports 36 pass, 17 fail, and 6 unknown and is not certification. Risk severity: high for public gated-product launch because material controls are unknown; medium for bounded reversible fleet changes that add no credentials, dependencies, permissions, data collection, or cross-site behavior. Exact decision: do not authorize public exposure, credential or permission changes, deployment, alert expansion, or external outreach; continue existing read-only security evidence capture and permit only reversible growth preserving current consent, disclosures, data handling, claims, and affiliate boundaries. Reassess when concrete evidence exists for each listed control area. No new security proposal or duplicate telemetry request is warranted this cycle.",
+        "summary": "Disposition: evidence_needed for fleet-wide security controls, blocked for gated-product public exposure, and conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication, access boundaries, secrets, runtime isolation, release controls, dependency provenance, monitoring, incident response, data exposure, and disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days and does not establish complete TLS posture. Compliance reports 36 pass, 17 fail, and 6 unknown and is not certification. Risk severity: high for public gated-product exposure; medium for bounded reversible changes that add no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: continue only bounded read-only evidence capture and existing reversible work; do not authorize public exposure, credential or configuration changes, deployment, permission changes, or exploit activity.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gate",
+        "summary": "Maintain evidence_needed for fleet-wide security controls and block gated-product public exposure because material controls are not evidenced. Permit only bounded read-only evidence work and ordinary reversible growth that preserves existing data handling and disclosures.",
+        "requested_action": "Document timestamps, owners, affected scope, severity, exact unknowns, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, add dependencies, expand data collection, or claim certification. Reassess public exposure only when concrete evidence is available for the material controls.",
         "proposal_id": null
       }
     ]

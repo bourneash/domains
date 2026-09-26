@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T09:03:23.012Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T10:04:04.820Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the no-new-production-work posture. Continue isolated failure repair, approved noveltyguns.com baseline work, and existing measurement windows with focused validation and rollback evidence. Operations and fleet-doctor sweeps remain unavailable, so no new implementation candidate is safely queueable.",
+        "summary": "Handoff: preserve the no-new-production-work posture. Review retained failed-run artifacts, document root cause, focused validation, rollback, and requeue-or-close disposition before any retry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the no-new-production-work posture. Continue only existing isolated failure repair, the approved noveltyguns.com report-only baseline, and deployed-improvement measurement with focused validation, rollback evidence, and available telemetry only. Do not create new implementation, duplicate telemetry, add dependencies, change credentials or configuration, spend money, or claim revenue, ROI, margin, incrementality, or causal lift.",
+        "summary": "Approve the no-new-production-work posture. Continue only existing failure containment, deployed-improvement measurement, and bounded read-only security evidence capture. Do not requeue failed production changes until root cause, containment, focused validation, and rollback evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Operations and fleet-doctor sweeps remain unavailable; security controls remain evidence_needed. Preserve site isolation and reversibility for all existing work, and do not requeue failed production changes until root cause, containment, validation, and rollback evidence are documented.",
+        "summary": "Keep the gated product private. The prepared external permission request remains an owner decision and must not be sent or used to change launch status without owner authorization, Legal disposition, and completion of technical, security, accuracy, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private. The prepared permissions request remains an owner decision and must not be sent or used to change launch status without owner authorization, Legal disposition, and completion of technical, security, accuracy, and measurement gates.",
+        "summary": "Continue deployed-improvement measurement using only available impressions, clicks, sessions, conversions, and site-attributed commission. Preserve unknown revenue, ROI, margin, incrementality, causal lift, and cost fields; do not request duplicate telemetry or infer missing values.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded fleet security evidence capture using authorized metadata and retained artifacts only. Preserve unknowns where fleet-doctor and operations sweeps are unavailable; do not access credentials, private containers, permissions, or production.",
         "requested_action": null,
         "proposal_id": null
       }

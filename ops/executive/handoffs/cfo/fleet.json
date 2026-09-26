@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T09:03:23.012Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T10:04:04.820Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no new spend or affiliate experimentation. Amazon data for 2026-09-21 shows $4.92 aggregate commission with site attribution unavailable; AI usage from 2026-09-01 through 2026-09-26 costs $943.09 fleet-wide. Infrastructure, labor, fixed costs, budgets, and ROI remain unknown.",
+        "summary": "Recommendation: maintain the no-new-production-work posture and do not authorize spend or monetization expansion. Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, but $0 is site-attributed because the commission is in an unassignable aggregate row. AI usage cost was $943.09 for 2026-09-01 through 2026-09-26; contribution margin is not calculable because infrastructure, labor, fixed costs, and site-attributed revenue are unavailable. AI spend alone exceeds the observed aggregate commission by $938.17. Cost-to-learn is also not calculable because experiment-level spend and attributable outcome deltas are missing. Revenue forecasts and ROI claims are unsupported. Continue only existing measurement, failed-run containment, and bounded security evidence work. Minimum finance measurement: align a common reporting window and reconcile site/content identifiers across commission, ordered and shipped items, AI cost, infrastructure cost, and experiment exposure before calculating contribution margin, CAC, cost-to-learn, or causal lift. Keep the gated product private; do not send external permission requests without owner authorization and required legal and technical gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve no new spend, affiliate experimentation, or production work; continue backlog reconciliation and existing measurement only. Revenue support is weak: Amazon reports for 2026-09-21 show 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, but site-level attributed commission is $0 because the $4.92 aggregate row cannot be assigned without inventing attribution. AI usage from 2026-09-01 through 2026-09-26 totals $943.09 across 5,249 calls; comparing this to one revenue day would be invalid, and the periods do not support ROI or cost-to-learn. Contribution margin is not calculable because infrastructure, labor, fixed costs, budgets, and complete site-attributed revenue are unavailable. Minimum measurement needed: date-aligned revenue and attribution by site/content, infrastructure billing allocation, labor-cost basis, fixed-cost allocation, and approved budget ceilings. Treat impressions, clicks, sessions, conversions, SEO opportunity scores, and the single proven improvement as operating signals—not revenue or margin evidence. Keep the gated product private until its existing rights, security, accuracy, and measurement gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Finance disposition: preserve the current no-new-implementation posture. The fleet has 174 approved proposals without execution, 46 open failure follow-ups, and 24 deployed improvements awaiting measurement; these are execution-control issues, not evidence of financial return. Do not forecast revenue from 13,811 impressions, 138 clicks, 966 sessions, or 15 conversions because the brief provides no linked commission or cost basis. Continue recording only available site-attributed commission and explicitly mark contribution margin, ROI, incrementality, and cost-to-learn as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Minimum finance evidence gap: AI spend is instrumented, but infrastructure, labor, fixed costs, budget limits, and date-aligned revenue are not. No duplicate telemetry request is warranted. Until those sources exist, use AI cost as a disclosed operating expense signal only; do not label revenue-minus-AI-cost as contribution margin or claim that zero attributed site revenue proves zero economic revenue.",
+        "summary": "Finance disposition: reject unsupported revenue, margin, ROI, incrementality, and causal-lift claims. The 30-day SEO totals of 13,811 impressions, 138 clicks, 966 sessions, and 15 conversions are activity metrics, not financial outcomes. The 24 deployed improvements awaiting measurement and 8 failed implementation requests should remain report-only measurement or containment work; no additional budget is justified from current evidence. Record unknowns explicitly rather than treating missing revenue or cost data as zero.",
         "requested_action": null,
         "proposal_id": null
       }

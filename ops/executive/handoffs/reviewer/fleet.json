@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T09:03:23.013Z",
+  "generated_at": "2026-09-26T10:04:04.821Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only backlog reconciliation, existing failure containment, deployed-improvement measurement, bounded security evidence capture, and the approved read-only noveltyguns.com baseline. Reject new production work, spend, affiliate experimentation, duplicate telemetry, unsupported revenue/ROI/margin/causal-lift claims, and gated-product public exposure. Amazon commission is aggregate and not site-attributable; AI-cost and revenue windows are misaligned; infrastructure, labor, fixed costs, budgets, and operational sweeps remain unknown. Owner decision remains limited to the prepared permissions request, which must not be sent without authorization and required legal/technical gates.",
+        "summary": "Approved only bounded read-only security evidence capture, existing deployed-improvement measurement, and failed-run containment. Reject new production work, high-priority queue expansion, spend, monetization changes, duplicate telemetry, and unsupported revenue, ROI, margin, incrementality, or causal-lift claims. Site attribution, contribution margin, infrastructure cost, labor cost, and operational sweeps remain incomplete. Keep the gated product private pending rights, legal, security, accuracy, measurement, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concerns: no defensible new implementation candidate has a measurable outcome this cycle. Preserve unknown telemetry and attribution fields; do not treat missing data as zero. Continue existing reversible work only with focused validation, rollback evidence, and available measurements.",
+        "summary": "Owner action is limited to deciding whether to authorize the prepared external permission request. Authorization must not change launch status or bypass Legal, Security, accuracy, measurement, or privacy gates.",
         "requested_action": null,
         "proposal_id": null
       }
