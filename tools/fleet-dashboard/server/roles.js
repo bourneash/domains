@@ -24,6 +24,20 @@ const LOG_PREFIX = { deployer: ['deployer', 'deploy'] };
 // Staleness thresholds (seconds) by inferred cadence — a cell goes amber past
 // the threshold and red past 2×.
 const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
+const FLEET_EXECUTIVE_ROLES = [
+  {
+    role: 'product-manager-fleet',
+    scope: 'fleet',
+    kind: 'executive',
+    description: 'Product manager for Domain Fleet tooling and operator workflows',
+  },
+  {
+    role: 'product-manager-sites',
+    scope: 'fleet',
+    kind: 'executive',
+    description: 'Product manager for the managed websites portfolio',
+  },
+];
 
 // Regex matching a role's `<prefix>-<date>…` log files. Accepts any of the
 // role's configured prefixes (default: the role name itself).
@@ -433,7 +447,7 @@ function agents(root, slugs) {
       }
     }
   }
-  return Object.keys(freq)
+  const scheduled = Object.keys(freq)
     .filter(r => freq[r] >= 2)
     .sort(
       (a, b) =>
@@ -441,7 +455,8 @@ function agents(root, slugs) {
         freq[b] - freq[a] ||
         a.localeCompare(b)
     )
-    .map(r => ({ role: r, sites: freq[r] }));
+    .map(r => ({ role: r, sites: freq[r], scope: 'sites', kind: 'scheduled' }));
+  return [...FLEET_EXECUTIVE_ROLES, ...scheduled];
 }
 
 module.exports = {
@@ -453,4 +468,5 @@ module.exports = {
   roleEntry,
   parseRoles,
   cadenceClass,
+  FLEET_EXECUTIVE_ROLES,
 };

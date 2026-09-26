@@ -5,6 +5,11 @@ LAN access uses the host's LAN name or IP on port 4754).
 
 ## Change Queue
 
+Owner executive replies are also written to the durable Executive Inbox. Set
+`FD_EXECUTIVE_WEBHOOK_URL` to an optional Slack-compatible incoming webhook to
+receive external alerts; dashboard/browser inbox tracking does not depend on
+the webhook being configured.
+
 The **Change Queue** view is the operator entry point for site work that would otherwise be
 started manually from a CLI session. Requests are stored durably in the dashboard event database
 and can be categorized as errors, design, navigation, content, marketing, sales, SEO, engineering,
@@ -61,6 +66,10 @@ Key views include:
   owner interaction is reserved for decisions and approvals.
 
 - **Knowledge Shelf** — curated, attributable sources with role-specific learning queues.
+- **Fleet Work Board** — the `#workflow-board` Kanban view joins executive backlog items,
+  change requests, proposals, approval/review gates, worker capacity, and the recent audit
+  stream. It writes through to the existing durable queues rather than creating a parallel task
+  system.
 - Workbench cases also expose compact threaded handoffs, keeping role communication attached to the next action instead of flooding the executive page.
 
 - **Priorities** — a cross-fleet decision queue that joins canonical lifecycle

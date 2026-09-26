@@ -23,6 +23,20 @@ let STATE = {
 let AGENT_HEALTH = null;
 const EXEC_RUN = { poller: null };
 const EXEC_RUN_UI = { q: '', status: 'all', sort: 'started_at', dir: -1, page: 1, pageSize: 25 };
+const EXEC_INBOX = { browserNotified: false };
+
+function notifyExecutiveBrowser(notifications = []) {
+  if (EXEC_INBOX.browserNotified || !notifications.length || !('Notification' in window)) return;
+  EXEC_INBOX.browserNotified = true;
+  const unseen = notifications.filter(item => !localStorage.getItem(`fd-executive-notification:${item.notification_id}`));
+  if (!unseen.length) return;
+  unseen.slice(0, 3).forEach(item => localStorage.setItem(`fd-executive-notification:${item.notification_id}`, '1'));
+  if (Notification.permission === 'granted') {
+    new Notification(unseen.length === 1 ? unseen[0].title : `${unseen.length} executive updates`, {
+      body: unseen.length === 1 ? unseen[0].body : 'Open the Executive page to review the latest responses.',
+    });
+  }
+}
 
 function pollExecutiveRun() {
   if (EXEC_RUN.poller) return;
@@ -48,6 +62,8 @@ function pollExecutiveRun() {
 }
 
 function agentLabel(role) {
+  if (String(role) === 'product-manager-fleet') return 'PM · Fleet tooling';
+  if (String(role) === 'product-manager-sites') return 'PM · Managed sites';
   return String(role)
     .split('-')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -4115,6 +4131,82 @@ async function toggleRole(site, role, currentlyEnabled) {
     toast(`${action} failed: ${e.message}`, 'err');
     gdBusy(btn, false);
   }
+}
+
+/* ===================== PRODUCT MANAGER PAGE ===================== */
+async function renderProductManager(role) {
+  const app = $('#app');
+  const label = agentLabel(role);
+  if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(label)} queue…</div>`;
+  let messages, proposals, actions, workItems, taskQueue, runStatus;
+  try {
+    [messages, proposals, actions, workItems, taskQueue, runStatus] = await Promise.all([
+      api('GET', '/api/executive/messages?limit=200'),
+      api('GET', '/api/executive/proposals?limit=200'),
+      api('GET', `/api/executive/actions?actor=${encodeURIComponent(role)}&limit=100`),
+      api('GET', `/api/executive/work-items?owner=${encodeURIComponent(role)}&limit=200`),
+      api('GET', `/api/executive/task-queue?role=${encodeURIComponent(role)}&limit=100`),
+      apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
+    ]);
+  } catch (e) {
+    app.innerHTML = `${breadcrumb(role)}<div class="error-box">${esc(e.message)}</div>`;
+    wireCrumbs();
+    return;
+  }
+  const allMessages = messages.messages || [];
+  const roleMessages = allMessages.filter(
+    m => m.actor === role || m.metadata?.to === role
+  );
+  const roleProposals = (proposals.proposals || []).filter(p => p.created_by === role);
+  const roleWork = workItems.work_items || [];
+  const roleRequests = taskQueue.requests || [];
+  const openWork = roleWork.filter(w => !['done', 'resolved', 'cancelled'].includes(w.status));
+  const pendingProposals = roleProposals.filter(p => ['proposed', 'feedback'].includes(p.status));
+  const runLabel = runStatus?.active ? 'executive pass in progress' : 'scheduled executive pass';
+  const badge = status =>
+    `<span class="badge ${status === 'done' || status === 'approved' ? 'b-green' : status === 'blocked' || status === 'failed' ? 'b-red' : status === 'feedback' ? 'b-yellow' : 'b-blue'}">${esc(status)}</span>`;
+  const workRows = openWork
+    .slice(0, 20)
+    .map(
+      w =>
+        `<tr><td><b>${esc(w.title)}</b><div class="muted">${esc(w.kind)} · ${esc(w.priority)}</div></td><td>${esc(w.summary || '—')}</td><td>${badge(w.status)}</td><td class="muted">${esc(fmtDate(w.updated_at || w.created_at))}</td></tr>`
+    )
+    .join('');
+  const proposalRows = roleProposals
+    .slice(0, 20)
+    .map(
+      p =>
+        `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)}</div></td><td>${esc(p.summary)}</td><td>${badge(p.status)}</td><td class="muted">${esc(fmtDate(p.updated_at || p.created_at))}</td></tr>`
+    )
+    .join('');
+  const requestRows = roleRequests
+    .slice(0, 12)
+    .map(
+      r =>
+        `<tr><td><b>${esc(r.title || r.action_key || r.request_id)}</b><div class="muted">${esc(r.site || 'fleet')}</div></td><td>${esc(r.assigned_role || role)}</td><td>${badge(r.status)}</td><td class="muted">${esc(fmtDate(r.updated_at || r.created_at))}</td></tr>`
+    )
+    .join('');
+  const messageRows = roleMessages
+    .slice(0, 8)
+    .map(
+      m =>
+        `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
+    )
+    .join('');
+  const stat = (value, text) => `<div class="ex-kpi"><b>${esc(value)}</b><span>${esc(text)}</span></div>`;
+  app.innerHTML = `${breadcrumb(role)}<div class="ex-shell">
+    <header class="ex-hero"><div><div class="ex-eyebrow">PRODUCT MANAGEMENT / ${esc(role === 'product-manager-fleet' ? 'FLEET' : 'MANAGED SITES')}</div><h2 class="page-title">${esc(label)}</h2><p class="muted">Recurring product strategy, evidence, proposals, and implementation handoffs for the executive team.</p></div><div class="task-toolbar"><button class="btn" id="pm-open-executive">Executive overview →</button><button class="btn primary" id="pm-open-board">Open work queue →</button></div></header>
+    <section class="ex-kpis">${stat(openWork.length, 'open work items')}${stat(pendingProposals.length, 'pending proposals')}${stat(roleRequests.filter(r => ['queued', 'claimed', 'running', 'reviewing'].includes(r.status)).length, 'queued handoffs')}${stat(roleMessages.length, 'presentations / updates')}</section>
+    <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">OPERATING RHYTHM</div><h3>Executive cadence</h3><p class="muted">${esc(runLabel)}. This page is the role’s durable inbox and outbox; proposals and updates are presented through the executive control plane.</p></div><span class="badge ${runStatus?.active ? 'b-blue' : 'b-green'}">${runStatus?.active ? 'working now' : 'scheduled'}</span></div></section>
+    <details class="ex-disclosure" open><summary><span><b>Work queue</b><small>${openWork.length} active product decisions and discovery items</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th>Context</th><th>Status</th><th>Updated</th></tr></thead><tbody>${workRows || '<tr><td colspan="4" class="muted">No active work items assigned to this role yet.</td></tr>'}</tbody></table></div></div></details>
+    <details class="ex-disclosure" open><summary><span><b>Product proposals</b><small>${roleProposals.length} proposals presented by this PM</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Updated</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals presented yet.</td></tr>'}</tbody></table></div></div></details>
+    <details class="ex-disclosure"><summary><span><b>Implementation handoffs</b><small>${roleRequests.length} change requests assigned to this role</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Request</th><th>Owner</th><th>Status</th><th>Updated</th></tr></thead><tbody>${requestRows || '<tr><td colspan="4" class="muted">No implementation handoffs assigned to this role.</td></tr>'}</tbody></table></div></div></details>
+    <details class="ex-disclosure"><summary><span><b>Executive presentations</b><small>${roleMessages.length} messages addressed to or sent by this PM</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive presentations yet.</div>'}</div></details>
+  </div>`;
+  $('#pm-open-executive').onclick = () => go('agent', 'executive');
+  $('#pm-open-board').onclick = () => go('workflow-board');
+  wireCrumbs();
+  stamp();
 }
 
 /* ===================== AGENT PAGE (generic) ===================== */
@@ -10541,6 +10633,7 @@ const NAV_GROUPS = {
       ['git', 'Git'],
       ['tasks', 'Tasks'],
       ['change-queue', 'Change Queue'],
+      ['workflow-board', 'Work Board'],
       ['deploys', 'Deploys'],
       ['builds', 'Build Usage'],
       ['domains', 'Domains'],
@@ -11379,7 +11472,7 @@ async function renderChangeQueue({ background = false } = {}) {
     CHANGE_QUEUE_NEXT_PICKUP_AT = Date.now() + Number(data.settings.interval_minutes || 30) * 60000;
   app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">One place to decide what needs attention, what is moving, and what is safe to leave alone.</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><button class="btn primary" id="cq-new">New change request</button></div></div>
     <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><button class="btn sm" id="cq-pickup-all">Dispatch due work</button></section>
-    <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div><div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section>
+    <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked</strong><small>Open a queued row to see whether capacity, another run, or a measurement window is holding it.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section>
     <section class="card cq-register"><div class="cq-register-head"><div><div class="cq-eyebrow">WORK REGISTER</div><h3>All change requests</h3><p>Search the full history when you need context. The focus lane above is reserved for decisions.</p></div><span class="muted">${filteredRequests.length} matching · ${pageLabel}</span></div><div class="cq-register-toolbar"><div class="cq-filter-group"><input id="cq-search" class="cm-input" placeholder="Search title, site, role…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input" title="Filter by state"><option value="all">All states</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input" title="Filter by site"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input" title="Filter by priority"><option value="all" ${CHANGE_QUEUE_FILTER.priority === 'all' ? 'selected' : ''}>All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>${x}</option>`).join('')}</select><select id="cq-owner-filter" class="cm-input" title="Filter by owner"><option value="all">All owners</option>${owners.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_OWNER === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input" title="Filter by provider"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div><div class="cq-sort-group"><label class="cq-filter-label" for="cq-sort">Sort</label><select id="cq-sort" class="cm-input"><option value="created_at" ${CHANGE_QUEUE_SORT === 'created_at' ? 'selected' : ''}>Recent activity</option><option value="priority" ${CHANGE_QUEUE_SORT === 'priority' ? 'selected' : ''}>Priority</option><option value="status" ${CHANGE_QUEUE_SORT === 'status' ? 'selected' : ''}>State</option><option value="site" ${CHANGE_QUEUE_SORT === 'site' ? 'selected' : ''}>Site</option><option value="owner" ${CHANGE_QUEUE_SORT === 'owner' ? 'selected' : ''}>Owner</option><option value="provider" ${CHANGE_QUEUE_SORT === 'provider' ? 'selected' : ''}>Provider</option></select><button class="btn sm" id="cq-sort-dir" title="Toggle sort direction">${CHANGE_QUEUE_SORT_DIR === 'asc' ? '↑ Ascending' : '↓ Descending'}</button></div></div><div class="table-wrap"><table class="tbl cq-table"><thead><tr><th>Priority</th><th>Request</th><th>State / next action</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div><div class="cq-pagination"><label class="muted">Rows <select id="cq-page-size" class="cm-input"><option ${CHANGE_QUEUE_PAGE_SIZE === 10 ? 'selected' : ''}>10</option><option ${CHANGE_QUEUE_PAGE_SIZE === 25 ? 'selected' : ''}>25</option><option ${CHANGE_QUEUE_PAGE_SIZE === 50 ? 'selected' : ''}>50</option></select></label><span class="muted">${pageLabel}</span><button class="btn sm" id="cq-page-prev" ${CHANGE_QUEUE_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="cq-page-next" ${CHANGE_QUEUE_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div></section><div id="cq-detail-panel"></div>`;
   if (CHANGE_QUEUE_CLOCK) clearInterval(CHANGE_QUEUE_CLOCK);
   const updatePickupClock = () => {
@@ -11793,6 +11886,147 @@ function showChangeRequestForm(siteOptions, data) {
   };
 }
 
+/* ===================== FLEET WORK BOARD ===================== */
+const WORK_BOARD_COLUMNS = [['backlog', 'Backlog'], ['ready', 'Ready'], ['active', 'In progress'], ['approval', 'Approval / review'], ['blocked', 'Blocked'], ['done', 'Done']];
+const WORK_BOARD_INCLUDE = new Set(), WORK_BOARD_EXCLUDE = new Set();
+function wbCol(item) {
+  if (item.source === 'work-item') return item.status === 'open' ? 'backlog' : item.status === 'ready' ? 'ready' : item.status === 'in_progress' ? 'active' : ['blocked', 'waiting'].includes(item.status) ? 'blocked' : 'done';
+  if (item.source === 'proposal') return ['proposed', 'feedback'].includes(item.status) ? 'approval' : item.status === 'declined' ? 'done' : 'ready';
+  return ['review', 'reviewing'].includes(item.status) ? 'approval' : item.status === 'failed' ? 'blocked' : ['queued', 'claimed'].includes(item.status) ? 'ready' : item.status === 'running' ? 'active' : 'done';
+}
+function wbVisible(item) { const col = wbCol(item); return !WORK_BOARD_EXCLUDE.has(col) && (!WORK_BOARD_INCLUDE.size || WORK_BOARD_INCLUDE.has(col)); }
+function wbItems(data) {
+  return [...(data.work_items || []).map(x => ({ ...x, id: x.work_id, source: 'work-item', source_label: 'backlog', owner: x.owner })), ...(data.requests || []).map(x => ({ ...x, id: x.request_id, source: 'request', source_label: 'change queue', owner: x.assigned_role })), ...(data.proposals || []).map(x => ({ ...x, id: x.proposal_id, source: 'proposal', source_label: 'executive gate', owner: x.created_by }))];
+}
+function wbGate(item) { const waiting = item.waiting_on ? `waiting on ${item.waiting_on} · ` : ''; return item.source === 'request' ? `${item.auto_review === false ? 'manual' : 'automatic'} review · ${item.delivery_mode || 'direct'}` : item.source === 'proposal' ? `${waiting}owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}` : `${waiting}${item.next_action || 'PM triage pending'}`; }
+function wbCard(item) { return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span></div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded.')}</p><div class="wb-gate">◆ ${esc(wbGate(item))}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`; }
+async function renderWorkflowBoard() {
+  if (FRESH) app.innerHTML = '<div class="loading">Loading fleet workflow…</div>';
+  try {
+    const data = await api('GET', '/api/workflow-board'), all = wbItems(data), items = all.filter(wbVisible), counts = WORK_BOARD_COLUMNS.map(([key]) => items.filter(x => wbCol(x) === key).length);
+    const filters = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`).join('');
+    const hidden = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`).join('');
+    const activity = (data.actions || []).slice(0, 10).map(x => `<div class="wb-activity"><span class="badge ${x.status === 'failed' ? 'b-red' : 'b-green'}">${esc(x.status)}</span><div><strong>${esc(x.summary)}</strong><small>${esc(x.actor)} · ${esc(fmtDate(x.started_at))}</small></div></div>`).join('');
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Connected backlog, agents, approval gates, dependencies, and delivery evidence.</div></div><button class="btn primary" id="wb-new">＋ Add backlog work</button></div><section class="wb-summary">${[['visible work', items.length], ['in progress', counts[2]], ['approval gates', counts[3]], ['blocked', counts[4]]].map(x => `<div><strong>${x[1]}</strong><span>${x[0]}</span></div>`).join('')}</section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filters}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${hidden}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes. Open a card to inspect its lifecycle and dependencies.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(([key, label], i) => `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[i]} item${counts[i] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${items.filter(x => wbCol(x) === key).map(wbCard).join('') || '<div class="wb-empty">No matching work</div>'}</div></div>`).join('')}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div></div>${activity || '<div class="muted">No recent actions.</div>'}</aside></div>`;
+    $('#wb-new').onclick = () => showWorkflowBacklogForm();
+    $$('[data-wb-include]').forEach(b => b.onclick = () => { const k = b.dataset.wbInclude; WORK_BOARD_INCLUDE.has(k) ? WORK_BOARD_INCLUDE.delete(k) : WORK_BOARD_INCLUDE.add(k); renderWorkflowBoard(); });
+    $$('[data-wb-exclude]').forEach(b => b.onclick = () => { const k = b.dataset.wbExclude; WORK_BOARD_EXCLUDE.has(k) ? WORK_BOARD_EXCLUDE.delete(k) : WORK_BOARD_EXCLUDE.add(k); renderWorkflowBoard(); });
+    $$('[data-wb-clear]').forEach(b => b.onclick = () => { (b.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear(); renderWorkflowBoard(); });
+    $$('.wb-open').forEach(b => b.onclick = () => openWorkflowItem(b.dataset.wbSource, b.dataset.wbId, data));
+    $$('.wb-card').forEach(card => card.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId }))));
+    $$('.wb-column').forEach(col => { col.addEventListener('dragover', e => e.preventDefault()); col.addEventListener('drop', async e => { e.preventDefault(); const x = JSON.parse(e.dataTransfer.getData('text/plain') || '{}'); try { await wbMove(x, col.dataset.wbDrop, data); renderWorkflowBoard(); } catch (err) { toast(err.message, 'err'); } }); });
+    if (!FRESH) applyUISnap(); stamp();
+  } catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; }
+}
+async function wbMove(item, column, data) { if (item.source === 'work-item') return api('PATCH', `/api/executive/work-items/${encodeURIComponent(item.id)}`, { status: { backlog: 'open', ready: 'open', active: 'in_progress', approval: 'waiting', blocked: 'blocked', done: 'done' }[column] }); const r = (data.requests || []).find(x => x.request_id === item.id); if (item.source === 'request' && column === 'active' && r.status === 'queued') return api('POST', `/api/change-requests/${encodeURIComponent(item.id)}/pickup`, {}); throw new Error('Use the source queue to move this gated item'); }
+function showWorkflowBacklogForm() { const modal = $('#modal'); $('#modal-title').textContent = 'Add backlog work'; $('#modal-body').innerHTML = `<div class="field"><label>Title</label><input id="wb-title"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site</label><input id="wb-site" placeholder="optional"></div><div class="field"><label>Brief</label><textarea id="wb-summary" rows="4"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`; modal.classList.remove('hidden'); $('#wb-cancel').onclick = closeModal; $('#wb-save').onclick = async () => { try { await api('POST', '/api/executive/work-items', { title: $('#wb-title').value, kind: $('#wb-kind').value, priority: $('#wb-priority').value, owner: $('#wb-owner').value, site: $('#wb-site').value || null, summary: $('#wb-summary').value, next_action: $('#wb-next').value, created_by: 'owner' }); closeModal(); renderWorkflowBoard(); } catch (e) { toast(e.message, 'err'); } }; }
+async function openWorkflowItem(source, id, data) {
+  const item = wbItems(data).find(x => x.source === source && x.id === id); if (!item) return;
+  const typeLabels = { 'work-item': 'backlog', request: 'change request', proposal: 'proposal' };
+  const links = (data.links || []).filter(x => (x.from_type === source && x.from_id === id) || (x.to_type === source && x.to_id === id));
+  const entity = (type, entityId) => wbItems(data).find(x => x.source === type && x.id === entityId);
+  const linkRows = links.map(link => { const outgoing = link.from_type === source && link.from_id === id; const other = entity(outgoing ? link.to_type : link.from_type, outgoing ? link.to_id : link.from_id); return `<div class="wb-link-row"><span class="badge ${link.relation === 'blocks' || link.relation === 'blocked_by' ? 'b-yellow' : 'b-blue'}">${esc(outgoing ? link.relation : link.relation === 'blocks' ? 'blocked by' : link.relation)}</span><strong>${esc(other?.title || `${link.to_type}:${link.to_id}`)}</strong><button class="btn sm" data-wb-delete-link="${esc(link.link_id)}">Remove</button></div>`; }).join('');
+  const options = wbItems(data).filter(x => !(x.source === source && x.id === id)).map(x => `<option value="${esc(x.source + '|' + x.id)}">${esc(x.title)} · ${esc(typeLabels[x.source])}</option>`).join('');
+  const events = (data.events || []).filter(x => x.entity_id === id || x.correlation_id === `${source}:${id}`).slice(0, 20).map(x => `<tr><td class="muted">${esc(fmtDate(x.occurred_at))}</td><td>${esc(x.event_type)}</td><td class="muted">${esc(x.payload?.error || x.source || '')}</td></tr>`).join('');
+  $('#modal-title').textContent = item.title;
+  $('#modal-body').innerHTML = `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(typeLabels[source])}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Lifecycle and gate</h4><pre>${esc(wbGate(item))}\nUpdated: ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}${item.run_id ? `\nRun: ${item.run_id}` : ''}${item.next_attempt_at ? `\nNext attempt: ${fmtDate(item.next_attempt_at)}` : ''}${item.due_at ? `\nDue: ${fmtDate(item.due_at)}` : ''}</pre><h4>Dependencies and related work</h4><div class="wb-link-list">${linkRows || '<span class="muted">No links yet.</span>'}</div><div class="wb-link-form"><select id="wb-link-relation"><option value="blocks">Blocks</option><option value="blocked_by">Blocked by</option><option value="related_to">Related to</option></select><select id="wb-link-target">${options}</select><button class="btn sm primary" id="wb-add-link">Link</button></div><h4>Timeline</h4><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${events || '<tr><td colspan="3" class="muted">No recorded events for this item.</td></tr>'}</tbody></table></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
+  $('#modal').classList.remove('hidden'); $('#wb-detail-close').onclick = closeModal;
+  $('#wb-add-link').onclick = async () => { try { const [to_type, to_id] = $('#wb-link-target').value.split('|'); await api('POST', '/api/workflow-links', { from_type: source, from_id: id, to_type, to_id, relation: $('#wb-link-relation').value, created_by: 'owner' }); toast('Dependency linked'); await openWorkflowItem(source, id, { ...data, links: [...(data.links || []), { from_type: source, from_id: id, to_type, to_id, relation: $('#wb-link-relation').value, link_id: `new-${Date.now()}` }] }); } catch (e) { toast(e.message, 'err'); } };
+  $$('[data-wb-delete-link]').forEach(button => button.onclick = async () => { try { await api('DELETE', `/api/workflow-links/${encodeURIComponent(button.dataset.wbDeleteLink)}`); toast('Link removed'); const next = { ...data, links: (data.links || []).filter(x => x.link_id !== button.dataset.wbDeleteLink) }; await openWorkflowItem(source, id, next); } catch (e) { toast(e.message, 'err'); } });
+}
+
+/* ===================== FLEET WORK BOARD ===================== */
+function workBoardVisible(item) {
+  const column = workBoardColumn(item);
+  if (WORK_BOARD_EXCLUDE.has(column)) return false;
+  return !WORK_BOARD_INCLUDE.size || WORK_BOARD_INCLUDE.has(column);
+}
+
+function workBoardColumn(item) {
+  if (item.source === 'work-item') {
+    if (item.status === 'open') return 'backlog';
+    if (item.status === 'ready') return 'ready';
+    if (item.status === 'in_progress') return 'active';
+    if (['blocked', 'waiting'].includes(item.status)) return 'blocked';
+    return 'done';
+  }
+  if (item.source === 'proposal') return ['proposed', 'feedback'].includes(item.status) ? 'approval' : item.status === 'declined' ? 'done' : 'ready';
+  if (['review', 'reviewing'].includes(item.status)) return 'approval';
+  if (item.status === 'failed') return 'blocked';
+  if (['queued', 'claimed'].includes(item.status)) return 'ready';
+  if (item.status === 'running') return 'active';
+  return 'done';
+}
+
+function workBoardCard(item) {
+  const column = workBoardColumn(item);
+  const gate = item.source === 'request' ? `${item.auto_review === false ? 'manual review' : 'auto review'} · ${item.delivery_mode || 'direct'}` : item.source === 'proposal' ? `owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}` : item.next_action || 'PM triage pending';
+  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : item.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span>${item.critical ? '<span class="badge b-yellow">critical path</span>' : ''}</div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || item.assigned_role || item.created_by || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded yet.')}</p><div class="wb-gate"><span>◆</span>${esc(gate)}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`;
+}
+
+function workBoardItems(data) {
+  const items = [];
+  const decorate = (row, source, id) => {
+    const workflow = data.workflow?.nodes?.[`${source}:${id}`] || {};
+    return { ...row, ...workflow, waiting_on: workflow.blockers?.join(', ') || row.waiting_on || null, id, source };
+  };
+  (data.work_items || []).forEach(row => items.push({ ...decorate(row, 'work-item', row.work_id), source_label: 'backlog' }));
+  (data.requests || []).forEach(row => items.push({ ...decorate(row, 'request', row.request_id), source_label: 'change queue', owner: row.assigned_role }));
+  (data.proposals || []).forEach(row => items.push({ ...decorate(row, 'proposal', row.proposal_id), source_label: 'executive gate', owner: row.created_by, summary: row.summary }));
+  return items;
+}
+
+async function renderWorkflowBoard() {
+  if (FRESH) app.innerHTML = '<div class="loading">Loading fleet workflow…</div>';
+  try {
+    const data = await api('GET', '/api/workflow-board');
+    const items = workBoardItems(data).filter(workBoardVisible);
+    const counts = WORK_BOARD_COLUMNS.map(([key]) => items.filter(item => workBoardColumn(item) === key).length);
+    const activity = (data.actions || []).slice(0, 12).map(action => `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`).join('');
+    const diagnostics = (data.diagnostics || []).slice(0, 8).map(item => `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`).join('');
+    const filterButtons = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`).join('');
+    const excludeButtons = WORK_BOARD_COLUMNS.map(([key, label]) => `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`).join('');
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[2]}</strong><span>in progress</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${(data.settings?.change_queue?.max_concurrent || 1)}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Hidden lanes are excluded from the board; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(([key, label], index) => `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[index]} item${counts[index] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${items.filter(item => workBoardColumn(item) === key).map(workBoardCard).join('') || '<div class="wb-empty">Drop work here</div>'}</div></div>`).join('')}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
+    $('#wb-new').onclick = () => showWorkflowBacklogForm();
+    $$('[data-wb-include]').forEach(button => button.onclick = () => { const key = button.dataset.wbInclude; WORK_BOARD_INCLUDE.has(key) ? WORK_BOARD_INCLUDE.delete(key) : WORK_BOARD_INCLUDE.add(key); renderWorkflowBoard(); });
+    $$('[data-wb-exclude]').forEach(button => button.onclick = () => { const key = button.dataset.wbExclude; WORK_BOARD_EXCLUDE.has(key) ? WORK_BOARD_EXCLUDE.delete(key) : WORK_BOARD_EXCLUDE.add(key); renderWorkflowBoard(); });
+    $$('[data-wb-clear]').forEach(button => button.onclick = () => { (button.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear(); renderWorkflowBoard(); });
+    $$('.wb-open').forEach(button => button.onclick = () => openWorkflowItem(button.dataset.wbSource, button.dataset.wbId, data));
+    $$('.wb-card').forEach(card => card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId }))));
+    $$('.wb-column').forEach(column => {
+      column.addEventListener('dragover', event => { event.preventDefault(); column.classList.add('is-over'); });
+      column.addEventListener('dragleave', () => column.classList.remove('is-over'));
+      column.addEventListener('drop', async event => { event.preventDefault(); column.classList.remove('is-over'); const item = JSON.parse(event.dataTransfer.getData('text/plain') || '{}'); try { await moveWorkflowItem(item.source, item.id, column.dataset.wbDrop, data); toast('Work moved'); renderWorkflowBoard(); } catch (e) { toast(e.message, 'err'); } });
+    });
+    if (!FRESH) applyUISnap();
+    stamp();
+  } catch (e) { app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`; }
+}
+
+function showWorkflowBacklogForm() {
+  const modal = $('#modal');
+  $('#modal-title').textContent = 'Add backlog work';
+  $('#modal-body').innerHTML = `<div class="field"><label>Title</label><input id="wb-title" placeholder="A clear outcome, not a vague task"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option><option>evidence</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site (optional)</label><input id="wb-site" placeholder="example.com or fleet"></div><div class="field"><label>Brief / context</label><textarea id="wb-summary" rows="4" placeholder="What outcome should this work produce?"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4" placeholder="The smallest next step and how we know it is done"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`;
+  modal.classList.remove('hidden');
+  $('#wb-cancel').onclick = closeModal;
+  $('#wb-save').onclick = async () => { const button = $('#wb-save'); button.disabled = true; try { await api('POST', '/api/executive/work-items', { title: $('#wb-title').value, kind: $('#wb-kind').value, priority: $('#wb-priority').value, owner: $('#wb-owner').value, site: $('#wb-site').value || null, summary: $('#wb-summary').value, next_action: $('#wb-next').value, created_by: 'owner' }); closeModal(); toast('Added to backlog'); renderWorkflowBoard(); } catch (e) { button.disabled = false; toast(e.message, 'err'); } };
+}
+
+async function moveWorkflowItem(source, id, column, data) {
+  if (source === 'work-item') { const node = data.workflow?.nodes?.[`work-item:${id}`]; if (column === 'active' && node?.ready === false) throw new Error(`Blocked by ${node.blockers.join(', ')}`); const status = { backlog: 'open', active: 'in_progress', blocked: 'blocked', done: 'done', ready: 'ready', approval: 'waiting' }[column]; return api('PATCH', `/api/executive/work-items/${encodeURIComponent(id)}`, { status }); }
+  if (source === 'request') { const request = (data.requests || []).find(row => row.request_id === id); if (column === 'ready' && request.status === 'failed') return api('POST', `/api/change-requests/${encodeURIComponent(id)}/retry`, {}); if (column === 'active' && request.status === 'queued') return api('POST', `/api/change-requests/${encodeURIComponent(id)}/pickup`, {}); if (column === 'approval' && request.status === 'review') return api('POST', `/api/change-requests/${encodeURIComponent(id)}/auto-review`, {}); }
+  throw new Error('This transition must use its approval-aware action');
+}
+
+function openWorkflowItemLegacy(source, id, data) {
+  const item = workBoardItems(data).find(row => row.source === source && row.id === id);
+  if (!item) return;
+  $('#modal-title').textContent = item.title;
+  $('#modal-body').innerHTML = `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(item.source_label)}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || item.assigned_role || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Next action / gate</h4><pre>${esc(item.next_action || item.requested_action || item.body || 'No next action recorded')}</pre><p class="muted">Updated ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</p></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
+  $('#modal').classList.remove('hidden');
+  $('#wb-detail-close').onclick = closeModal;
+}
+
 async function renderDataQuality() {
   if (FRESH) app.innerHTML = '<div class="loading">Checking data contracts…</div>';
   let data;
@@ -12202,6 +12436,8 @@ async function renderExecutive() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
   let messages,
+    requests,
+    inbox,
     proposals,
     actions,
     settings,
@@ -12217,6 +12453,8 @@ async function renderExecutive() {
   try {
     [
       messages,
+      requests,
+      inbox,
       proposals,
       actions,
       settings,
@@ -12231,6 +12469,8 @@ async function renderExecutive() {
       runStatus,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
+      api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
+      api('GET', '/api/executive/inbox?limit=50'),
       api('GET', '/api/executive/proposals?limit=100'),
       api('GET', '/api/executive/actions?limit=200'),
       api('GET', '/api/executive/settings'),
@@ -12248,6 +12488,12 @@ async function renderExecutive() {
     app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
     return;
   }
+  const ownerRequests = inbox.requests || requests.work_items || [];
+  const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
+  notifyExecutiveBrowser(unreadNotifications);
+  const notificationRows = unreadNotifications.slice(0, 5).map(notification =>
+    `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><div><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="btn sm ex-notification-read" type="button">Mark read</button></article>`
+  ).join('');
   const messageRows = (messages.messages || [])
     .slice()
     .reverse()
@@ -12256,6 +12502,20 @@ async function renderExecutive() {
         `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
     )
     .join('');
+  const ownerRequestRows = ownerRequests.map(request => {
+    const thread = (request.messages || (messages.messages || []).filter(message => message.work_id === request.work_id))
+      .filter(message => message.work_id === request.work_id)
+      .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
+    const response = thread.find(message => message.actor !== 'owner');
+    const status = response
+      ? 'response received'
+      : request.status === 'waiting'
+        ? 'awaiting executive response'
+        : request.status;
+    const statusClass = response ? 'b-green' : request.status === 'blocked' ? 'b-red' : 'b-yellow';
+    const due = request.overdue ? '<span class="badge b-red">SLA overdue</span>' : request.due_at ? `<span class="muted">Due ${esc(fmtDate(request.due_at))}</span>` : '';
+    return `<article class="ex-request-card"><div class="page-head"><div><b>${esc(request.title)}</b><div class="muted">Submitted ${esc(fmtDate(request.created_at))} · request ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</div></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><p>${esc(request.summary)}</p>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">This request is saved and will stay here until the executive team responds.</p>'}</article>`;
+  }).join('');
   const isCROHandoff = p => ['researcher', 'cro'].includes(String(p.created_by));
   const proposalRows = (proposals.proposals || [])
     .map(p => {
@@ -12276,7 +12536,7 @@ async function renderExecutive() {
           : pending
             ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
             : esc(p.decision_note || '');
-      return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(status)}</span></td><td>${decision}</td></tr>`;
+      return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(status)}</span></td><td>${decision} <button class="btn sm ex-open-thread" type="button">Work thread →</button></td></tr>`;
     })
     .join('');
   const pendingApprovalRows = (proposals.proposals || [])
@@ -12288,7 +12548,7 @@ async function renderExecutive() {
         impl.provider || 'chatgpt',
         impl.model || 'provider default',
       ].join(' · ');
-      return `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · proposed by ${esc(p.created_by)} · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-yellow">${esc(p.status === 'feedback' ? 'needs revision' : 'awaiting approval')}</span></div><p>${esc(p.summary)}</p><div class="muted"><b>Implementation route:</b> ${esc(route)}${impl.site ? ` · ${esc(impl.site)}` : ''}</div><div class="task-toolbar"><button type="button" class="btn primary ex-approve" data-id="${esc(p.proposal_id)}">Approve and response</button><button type="button" class="btn ex-quick-approve" data-id="${esc(p.proposal_id)}">Quick Approve</button><button type="button" class="btn ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button><button type="button" class="btn danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button></div></article>`;
+      return `<article class="card ex-approval-card"><div class="page-head"><div><h3>${esc(p.title)}</h3><div class="muted">${esc(p.proposal_type)} · proposed by ${esc(p.created_by)} · ${esc(fmtDate(p.created_at))}</div></div><span class="badge b-yellow">${esc(p.status === 'feedback' ? 'needs revision' : 'awaiting approval')}</span></div><p>${esc(p.summary)}</p><div class="muted"><b>Implementation route:</b> ${esc(route)}${impl.site ? ` · ${esc(impl.site)}` : ''}</div><div class="task-toolbar"><button type="button" class="btn primary ex-approve" data-id="${esc(p.proposal_id)}">Approve and respond</button><button type="button" class="btn ex-quick-approve" data-id="${esc(p.proposal_id)}">Quick Approve</button><button type="button" class="btn ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button><button type="button" class="btn danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button></div></article>`;
     })
     .join('');
   const croReviewRows = (proposals.proposals || [])
@@ -12421,13 +12681,14 @@ async function renderExecutive() {
   const stat = (value, label, tone = '') =>
     `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
-    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><button class="btn" id="ex-refresh">↻ Refresh</button></header>
+    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button><button class="btn" id="ex-refresh">↻ Refresh</button></div></header>
     <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
-        <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">CEO / CTO inbox</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Saved to the executive record.</span><button class="btn primary" id="ex-send">Send message</button></div></section>
+        <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
+        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${ownerRequests.length} total</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests yet.</div>'}</section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
       </div>
       <aside class="ex-secondary">
@@ -12441,6 +12702,29 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   $('#ex-refresh').onclick = () => softRender();
+  $('#ex-notify-enable').onclick = async () => {
+    if (!('Notification' in window)) return toast('Browser notifications are not supported here', 'err');
+    const permission = await Notification.requestPermission();
+    toast(permission === 'granted' ? 'Executive alerts enabled' : 'Executive alerts remain disabled', permission === 'granted' ? 'ok' : 'err');
+  };
+  $('#ex-notify-read').onclick = async () => {
+    try {
+      await api('POST', '/api/executive/notifications/read-all', {});
+      softRender();
+    } catch (e) {
+      toast(e.message, 'err');
+    }
+  };
+  $$('.ex-notification-read').forEach(button => {
+    button.onclick = async () => {
+      try {
+        await api('POST', `/api/executive/notifications/${encodeURIComponent(button.closest('[data-notification-id]').dataset.notificationId)}/read`, {});
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    };
+  });
   $('#ex-run-filter').onchange = e => {
     EXEC_RUN_UI.q = e.target.value.trim();
     EXEC_RUN_UI.page = 1;
@@ -12541,8 +12825,8 @@ async function renderExecutive() {
     const body = $('#ex-message').value.trim();
     if (!body) return toast('Write a message first', 'err');
     try {
-      await api('POST', '/api/executive/messages', { actor: 'owner', body });
-      toast('Message sent');
+      await api('POST', '/api/executive/requests', { actor: 'owner', body });
+      toast('Request saved and sent to the executive queue');
       softRender();
     } catch (e) {
       toast(e.message, 'err');
@@ -12652,11 +12936,12 @@ async function renderExecutive() {
   // refresh replaces the approval cards between paint and the user's click.
   app.onclick = event => {
     const button = event.target.closest(
-      '.ex-approve, .ex-quick-approve, .ex-feedback, .ex-decline'
+      '.ex-approve, .ex-quick-approve, .ex-feedback, .ex-decline, .ex-open-thread'
     );
     if (!button || !app.contains(button)) return;
     event.preventDefault();
-    if (button.classList.contains('ex-quick-approve')) quickApprove(button);
+    if (button.classList.contains('ex-open-thread')) go('workbench');
+    else if (button.classList.contains('ex-quick-approve')) quickApprove(button);
     else if (button.classList.contains('ex-feedback')) decide(button, 'feedback');
     else if (button.classList.contains('ex-decline')) decide(button, 'declined');
     else decide(button, 'approved');
@@ -12709,7 +12994,7 @@ async function renderWorkbench() {
     .map(
       item => `<article class="wb-item" data-work-id="${esc(item.work_id)}">
     <div class="wb-item-head"><div><div class="wb-item-title">${esc(item.title)}</div><div class="muted">${esc(item.site || 'fleet')} · ${esc(item.owner)}${item.source_type ? ` · ${esc(item.source_type)}` : ''}</div></div><div class="wb-badges">${workItemBadge(item.priority, 'priority')}${workItemBadge(item.status)}</div></div>
-    <p class="wb-summary">${esc(item.summary || 'No context recorded.')}</p>
+    <p class="wb-summary">${esc(item.summary || 'No context recorded.')}</p>${item.waiting_on ? `<div class="wb-next"><span class="wb-label">WAITING ON</span>${esc(item.waiting_on)}</div>` : ''}
     <div class="wb-next"><span class="wb-label">NEXT</span>${esc(item.next_action || 'No next action recorded.')}</div>
     <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><button class="btn sm wb-thread-toggle" data-id="${esc(item.work_id)}">Thread</button><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div><div class="wb-thread hidden" data-thread="${esc(item.work_id)}"></div>
   </article>`
@@ -12966,6 +13251,7 @@ function render() {
   else if (STATE.view === 'gitstashes') return renderGitStashes(STATE.gitSlug);
   else if (STATE.view === 'tasks') return renderTasks();
   else if (STATE.view === 'change-queue') return renderChangeQueue();
+  else if (STATE.view === 'workflow-board') return renderWorkflowBoard();
   else if (STATE.view === 'taskbudget') return renderTaskBudget();
   else if (STATE.view === 'aiinventory') return renderAIInventory();
   else if (STATE.view === 'aiusage') return renderAIUsage();
@@ -13024,6 +13310,7 @@ const NAV_ITEM_DESCRIPTIONS = {
   taskbudget: 'Review task volume and automation budgets.',
   'change-queue':
     'Queue human site changes with explicit AI, budget, priority, and review controls.',
+  'workflow-board': 'Operate the combined fleet backlog, agent queue, approval gates, and delivery flow.',
   compliance: 'Check the live technical privacy baseline.',
   lint: 'Run fleet-wide parse and formatting checks.',
   health: 'Monitor uptime and service health.',
@@ -13044,12 +13331,14 @@ function renderCategoryRoot(id) {
         [
           'executive',
           'Executive Overview',
-          'CEO/CTO proposals, approvals, costs, communication, and audit history',
+          'CEO/CTO/CRO/CFO leadership plus product strategy, approvals, costs, and audit history',
         ],
         ...(STATE.agents || []).map(a => [
           a.role,
           agentLabel(a.role),
-          `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
+          a.scope === 'fleet'
+            ? a.description || 'Recurring fleet executive role with an operator work queue'
+            : `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
         ]),
       ]
     : group.items.map(([view, label]) => [
@@ -13090,6 +13379,8 @@ function renderCategoryRoot(id) {
 function renderAgent(role) {
   if (role === 'executive') return renderExecutive();
   if (role === 'engineer') return renderEngineers();
+  if (role === 'product-manager-fleet' || role === 'product-manager-sites')
+    return renderProductManager(role);
   return renderGenericAgent(role);
 }
 
@@ -13152,7 +13443,7 @@ function buildAgentsMenu() {
     [['executive', 'Executive Overview', ''], ...(STATE.agents || [])]
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a[2] ?? a.sites}</span>`}</a>`
+          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a.scope === 'fleet' ? 'fleet queue' : a[2] ?? a.sites}</span>`}</a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>

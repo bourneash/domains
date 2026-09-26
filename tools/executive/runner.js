@@ -339,6 +339,7 @@ async function collectIntel(root, sites) {
 }
 
 async function buildBrief(store, root = ROOT) {
+  executive.ensureOwnerRequests(store);
   const queued = store.listChangeRequests({ limit: 50 });
   const improvements = store.listImprovements({ limit: 50 });
   // The model only receives a compact slice below, but the deterministic
@@ -352,8 +353,18 @@ async function buildBrief(store, root = ROOT) {
     .filter(item => ['researcher', 'cro'].includes(item.created_by))
     .filter(item => ['proposed', 'feedback'].includes(item.status))
     .slice(0, 10);
-  const messages = store.listExecutiveMessages({ limit: 10 });
+  const messages = store.listExecutiveMessages({ limit: 50 });
   const work_items = store.listExecutiveWorkItems({ limit: 100 });
+  const work_threads = work_items
+    .filter(item => !['done', 'cancelled'].includes(item.status))
+    .slice(0, 50)
+    .map(item => ({
+      work_id: item.work_id,
+      title: item.title,
+      owner: item.owner,
+      messages: store.listExecutiveMessages({ work_id: item.work_id, limit: 20 }),
+    }))
+    .filter(thread => thread.messages.length);
   const knowledgeCatalog = store.listExecutiveKnowledge({ limit: 1000 });
   const knowledge = knowledgeCatalog
     .filter(item => ['queued', 'in_progress'].includes(item.status))
@@ -492,7 +503,7 @@ async function buildBrief(store, root = ROOT) {
           'A lab result is not an adoption approval. Prototype, security review, measurement plan, and owner-approved implementation remain required.',
       },
       execution:
-        'Messages and proposals may be applied automatically; queued site work requires explicit queue enablement or owner approval. The only autonomous fleet write is the allowlisted operating-baseline report, which writes a factual audit artifact and never edits site code. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
+        'This cycle has queue execution enabled. For evidence-backed, reversible SEO, content, design, or engineering candidates, create an engineer-routable change_request with acceptance criteria, tests, metric, and rollback. Use proposals only for consequential owner decisions; use report-only work only for a genuine blocker or baseline/evidence task. Deployments, spending, credentials, domains, and destructive operations are never direct model actions.',
       delegation:
         'CEO, CFO, CTO, Legal/Compliance, Security, and independent reviewer passes run sequentially; domain managers review every managed site on a staggered queue and report back to fleet leadership. Approved implementation work enters the site task/change queue. Use engineer for normal work and principal-engineer for urgent senior technical work. Later passes may reduce, reject, or escalate the earlier plan.',
       telemetry_policy:
@@ -505,7 +516,7 @@ async function buildBrief(store, root = ROOT) {
       cadence: 'hourly',
       minimum_evidence_backed_action: 1,
       maximum_queued_actions: 6,
-      rule: 'When an evidence-backed, low-risk and reversible candidate exists, the CEO/CTO pass must either queue it for the engineer or explain why it was rejected. Do not let low-volume affiliate attribution create a no-op.',
+      rule: 'When an evidence-backed, low-risk and reversible implementation candidate exists, the CEO/CTO pass must queue it for the engineer. A recommendation, proposal, research request, or report-only request does not satisfy this rule; explain rejection only when the candidate is genuinely blocked or lacks an implementable next step.',
       candidates: executableActionCandidates,
       deferred_candidates: deferredActionCandidates,
     },
@@ -598,7 +609,16 @@ async function buildBrief(store, root = ROOT) {
     conversation: messages
       .slice()
       .reverse()
-      .map(({ actor, body, created_at }) => ({ actor, body, created_at })),
+      .map(({ actor, body, work_id, reply_to, message_type, metadata, created_at }) => ({
+        actor,
+        body,
+        work_id,
+        reply_to,
+        message_type,
+        metadata,
+        created_at,
+      })),
+    work_threads,
     handoffs: handoff.recent(root, 30),
     data_requests: executiveData.recent(store),
   };
@@ -760,6 +780,8 @@ function compactModelBrief(brief) {
       status: item.status,
       priority: item.priority,
       owner: item.owner,
+      source_type: item.source_type,
+      source_id: item.source_id,
       site: item.site,
       summary: item.summary,
       next_action: item.next_action,
@@ -801,10 +823,10 @@ Rules:
 - Use only evidence present in the brief; label uncertainty and propose research when evidence is missing.
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
 - Challenge blockers instead of treating them as terminal. If a managed site is private, password protected, preview-only, parked, noindex/nofollow, or otherwise unable to earn, ask why, who owns the launch decision, whether it can monetize while gated, what must be true to go live, and what opportunity cost comes from remaining private. Create an owner-facing launch-readiness/go-live or monetization proposal, or a bounded research request, unless evidence supports keeping it parked. A blocked site is an unresolved business question, not a completed decision.
-- Every cycle with an unblocked candidate, parked/scaffold opportunity, CRO lead, launch blocker, or material revenue question must contain either (a) one direct owner-facing question with concrete answer options and the evidence behind it, or (b) one measurable growth action/proposal with an owner, metric, baseline, time-to-learn, and rollback. A maintenance summary alone is not an acceptable CEO result.
+- Every cycle with an unblocked implementation candidate must contain at least one engineer-routable change_request, with a concrete site, files/scope, acceptance criteria, tests, metric, baseline, time-to-learn, and rollback. A message, proposal, research request, or report-only request does not count as execution. Use an owner-facing question only for a genuinely consequential decision or a candidate blocked by an explicit launch, legal, security, credential, spend, or missing-evidence gate.
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
-- Follow action_mandate every hourly cycle: when candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as change_requests for the engineer across distinct sites, or explain in a message why every candidate was rejected. When three or more distinct candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes.
+- Follow action_mandate every hourly cycle: when actionable candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
@@ -831,6 +853,8 @@ Rules:
 - Do not deploy, spend money, change credentials, add domains, or make irreversible infrastructure changes. The one fleet write available to you is an allowlisted factual operating-baseline report; it never edits site code.
 - Use the workbench for durable follow-through. Create or update a work_item when an evidence gap, legal/security review, decision, incident, or education need has a concrete next action. Do not create duplicate work when an existing item covers the same issue; update it with the latest status, owner, evidence, and next action.
 - Use threaded messages for bounded handoffs: put the work_id on a message, name the receiving role in metadata, and make the message an update, question, decision_request, or handoff. Keep the durable case as the source of truth; messages should point to the next action rather than repeat the whole brief.
+- Owner requests are durable workbench cases with source_type owner-request. When replying to one, use its work_id and source_id as reply_to so the owner can see the response on the tracked request thread.
+- When an owner request leads to a proposal or queued implementation, include its work_id as source_work_id so the control plane links the request to the downstream outcome automatically.
 - Use knowledge as a bounded learning queue, not a link dump. Prefer primary, official, open-licensed, or clearly attributed sources; record publisher, jurisdiction, date, license, and why the source is relevant. Create an education work_item when a role needs to apply the material, and never treat a book or course as legal advice or a substitute for counsel. When completing a source, record a concise takeaway and where it was applied so future roles can reuse the learning.
 
 Return ONLY valid JSON with this shape:
@@ -839,8 +863,8 @@ Return ONLY valid JSON with this shape:
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
-  "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
+  "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
+  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
   "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
@@ -1004,6 +1028,12 @@ function parseOutput(text, { defaultActor = '', defaultSite = '' } = {}) {
 }
 
 function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite = '' } = {}) {
+  // The reviewer is a gate, not a proposal author. Some provider responses
+  // echo retained proposals with `created_by: reviewer`, which is neither a
+  // valid durable owner nor a new decision. Drop that replacement list so
+  // mergePassPlans preserves the earlier CEO/CTO/CRO proposals while the
+  // reviewer contributes messages and proposal_reviews.
+  if (String(defaultActor || '') === 'reviewer') plan.proposals = [];
   for (const item of plan.proposals) {
     // Domain-manager passes are already scoped to one managed site. Preserve
     // that scope when the model omits the repetitive implementation wrapper;
@@ -1552,9 +1582,19 @@ function planFingerprint(plan) {
 }
 
 function actionMandateSatisfied(plan = {}, brief = {}) {
-  if (!(brief.action_mandate?.candidates || []).length) return true;
+  const candidates = brief.action_mandate?.candidates || [];
+  if (!candidates.length) return true;
+  const actionableCandidates = candidates.filter(
+    item =>
+      String(item.type || '').toLowerCase() !== 'portfolio-baseline' &&
+      !isPrivateLaunchGate(item.site, brief.launch_readiness)
+  );
+  // Baseline-only or explicitly gated cohorts can remain report/research
+  // work. Concrete SEO/content/design/engineering candidates must create
+  // actual work for the engineer, not merely a recommendation.
+  if (!actionableCandidates.length) return true;
   const candidateSites = new Set(
-    brief.action_mandate.candidates
+    actionableCandidates
       .map(item =>
         String(item.site || '')
           .trim()
@@ -1564,11 +1604,13 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   );
   const requiredSites = Math.min(3, candidateSites.size);
   const boundedSites = new Set(
-    (plan.change_requests || []).map(item =>
-      String(item.site || '')
-        .trim()
-        .toLowerCase()
-    )
+    (plan.change_requests || [])
+      .filter(item => String(item.delivery_mode || '').toLowerCase() !== 'report_only')
+      .map(item =>
+        String(item.site || '')
+          .trim()
+          .toLowerCase()
+      )
   );
   const coveredSites = [...candidateSites].filter(site => boundedSites.has(site)).length;
   // A single material owner decision (for example a gated launch) may remain
@@ -1576,31 +1618,16 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   // of three or more site candidates, however, a question alone is not enough
   // and the plan must cover at least three sites.
   const portfolioSpread = candidateSites.size < 3 || coveredSites >= requiredSites;
-  const hasBoundedWork =
-    (plan.change_requests || []).length > 0 ||
-    (candidateSites.size < 3 &&
-      (plan.proposals || []).some(
-        item => item.implementation && Object.keys(item.implementation).length
-      ));
-  const hasRecommendation = (plan.messages || []).some(message =>
-    /recommend(?:ation)?\s*:/i.test(String(message.body || ''))
+  const hasImplementationRequest = (plan.change_requests || []).some(
+    item => String(item.delivery_mode || '').toLowerCase() !== 'report_only'
   );
-  if (hasBoundedWork && hasRecommendation && portfolioSpread) return true;
-  return (
-    (plan.messages || []).some(
-      message =>
-        /\?/.test(String(message.body || '')) &&
-        /owner|choose|approve|decision|should|can we|which|whether/i.test(
-          String(message.body || '')
-        ) &&
-        /recommend(?:ation)?\s*:/i.test(String(message.body || ''))
-    ) &&
-    (brief.action_mandate?.candidates || []).length > 0 &&
-    portfolioSpread
-  );
+  return hasImplementationRequest && portfolioSpread;
 }
 
-const FOLLOW_THROUGH_WORK_PREFIX = 'approved-proposal:';
+// A proposal owns exactly one case for its entire lifecycle. Older runs used
+// approved-proposal:<id>; the reconciler migrates those records to this key.
+const FOLLOW_THROUGH_WORK_PREFIX = 'executive-proposal:';
+const LEGACY_FOLLOW_THROUGH_WORK_PREFIX = 'approved-proposal:';
 const FOLLOW_THROUGH_OWNERS = new Set([
   'ceo',
   'cto',
@@ -1795,6 +1822,7 @@ function followThroughWorkPayload(proposal, implementation, { status, nextAction
     site: implementation.site || null,
     summary: proposal.summary,
     next_action: nextAction,
+    waiting_on: blockers.length ? 'owner' : status === 'waiting' ? 'project-manager' : null,
     evidence,
     created_by: 'system',
   };
@@ -1812,6 +1840,7 @@ function sameFollowThroughFields(current, next) {
     'site',
     'summary',
     'next_action',
+    'waiting_on',
   ].some(key => String(current?.[key] ?? '') !== String(next?.[key] ?? ''));
 }
 
@@ -1854,14 +1883,42 @@ function reconcileApprovedProposalFollowThrough(
   let queued = 0;
   for (const proposal of proposals) {
     const workId = `${FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`;
-    const existing = store.getExecutiveWorkItem(workId);
+    let existing = store.getExecutiveWorkItem(workId);
+    const legacy = store.getExecutiveWorkItem(`${LEGACY_FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`);
+    if (!existing && legacy) {
+      existing = store.createExecutiveWorkItem({
+        ...legacy,
+        work_id: workId,
+        source_type: 'executive-proposal',
+        source_id: proposal.proposal_id,
+      });
+    }
+    if (legacy && legacy.work_id !== workId && legacy.status !== 'cancelled') {
+      store.updateExecutiveWorkItem(legacy.work_id, {
+        status: 'cancelled',
+        waiting_on: null,
+        resolution_note: `Migrated to canonical proposal case ${workId}; audit history retained.`,
+      });
+      if (store.createWorkflowLink) {
+        store.createWorkflowLink({
+          from_type: 'work-item', from_id: legacy.work_id,
+          to_type: 'work-item', to_id: workId,
+          relation: 'related_to', created_by: 'system',
+        });
+      }
+    }
     const sourceRequests = requestsByProposal.get(String(proposal.proposal_id)) || [];
     const currentRequest =
       (proposal.linked_request_id && requestsById.get(String(proposal.linked_request_id))) ||
       sourceRequests[0] ||
       null;
     if (currentRequest && !proposal.linked_request_id && store.linkExecutiveProposalRequest) {
-      store.linkExecutiveProposalRequest(proposal.proposal_id, currentRequest.request_id);
+          store.linkExecutiveProposalRequest(proposal.proposal_id, currentRequest.request_id);
+          if (store.createWorkflowLink && store.getExecutiveWorkItem(workId)) store.createWorkflowLink({
+            from_type: 'work-item', from_id: workId,
+            to_type: 'request', to_id: currentRequest.request_id,
+            relation: 'related_to', created_by: 'system',
+          });
       const audit = executive.action(store, {
         actor: 'system',
         action_type: 'other',
@@ -1948,6 +2005,23 @@ function reconcileApprovedProposalFollowThrough(
             candidate => installedSiteRoles(root, candidate)
           );
           store.linkExecutiveProposalRequest(proposal.proposal_id, request.request_id);
+          const queuedPayload = followThroughWorkPayload(proposal, implementation, {
+            status: 'waiting',
+            nextAction: `Monitor linked request ${request.request_id} while it is queued.`,
+            blockers: [],
+          });
+          existing = existing
+            ? store.updateExecutiveWorkItem(workId, queuedPayload)
+            : store.createExecutiveWorkItem(queuedPayload);
+          if (store.createWorkflowLink)
+            store.createWorkflowLink({
+              from_type: 'work-item',
+              from_id: workId,
+              to_type: 'request',
+              to_id: request.request_id,
+              relation: 'related_to',
+              created_by: 'system',
+            });
           const audit = executive.action(store, {
             actor: 'system',
             action_type: 'queue-work',
@@ -2378,16 +2452,12 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
       )
         ? inferredCategory
         : 'engineering';
-      // A baseline/evidence candidate must never enter the deployment path
-      // just because intelligence classified its source as SEO or engineering.
-      // The delivery mode is a safety boundary, so preserve the explicit
-      // report-only intent from either the candidate type or its wording.
+      // Baseline/evidence candidates stay report-only. Concrete SEO actions
+      // should become engineer work instead of defaulting to reports.
       const reportOnly =
         type === 'portfolio-baseline' ||
         isPrivateLaunchGate(candidate.site, brief.launch_readiness) ||
-        /\b(?:baseline|read[- ]only|report[- ]only|no production changes?)\b/i.test(
-          `${candidate.title || ''} ${candidate.recommendation || ''}`
-        );
+        candidate.delivery_mode === 'report_only';
       const evidence = candidate.evidence
         ? JSON.stringify(candidate.evidence)
         : 'See the executive intelligence snapshot.';
@@ -2691,6 +2761,22 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     try {
       const message = executive.message(store, item);
       created.messages.push(message);
+      if (message.work_id && message.actor !== 'owner') {
+        const workItem = store.getExecutiveWorkItem(message.work_id);
+        if (workItem && workItem.source_type === 'owner-request' && workItem.status === 'waiting') {
+          store.updateExecutiveWorkItem(workItem.work_id, {
+            status: 'in_progress',
+            next_action: 'Owner review or follow-up is available in the linked thread.',
+          });
+        }
+        if (workItem && workItem.source_type === 'executive-proposal') {
+          store.updateExecutiveWorkItem(workItem.work_id, {
+            status: 'in_progress',
+            waiting_on: 'owner',
+            next_action: 'Creator acknowledged the owner feedback; owner decision or follow-up is now required in this thread.',
+          });
+        }
+      }
       executive.finishAction(store, audit.action_id, {
         status: 'completed',
         result: { message_id: message.message_id },
@@ -2800,6 +2886,16 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         created_at: undefined,
       });
       created.proposals.push(proposal);
+      if (item.source_work_id && store.createWorkflowLink) {
+        store.createWorkflowLink({
+          from_type: 'work-item',
+          from_id: item.source_work_id,
+          to_type: 'proposal',
+          to_id: proposal.proposal_id,
+          relation: 'related_to',
+          created_by: 'executive',
+        });
+      }
       createdProposalCount += 1;
       executive.finishAction(store, audit.action_id, {
         status: 'completed',
@@ -2879,6 +2975,16 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           site => installedSiteRoles(root, site)
         );
         created.change_requests.push(request);
+        if (item.source_work_id && store.createWorkflowLink) {
+          store.createWorkflowLink({
+            from_type: 'work-item',
+            from_id: item.source_work_id,
+            to_type: 'request',
+            to_id: request.request_id,
+            relation: 'related_to',
+            created_by: 'executive',
+          });
+        }
         queuedCount += 1;
         activeSites.add(item.site);
         executive.finishAction(store, audit.action_id, {

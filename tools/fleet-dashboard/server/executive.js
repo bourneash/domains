@@ -19,6 +19,7 @@ const ACTORS = new Set([
   'researcher',
   'reviewer',
   'system',
+  'project-manager',
 ]);
 const PROPOSAL_TYPES = new Set([
   'business',
@@ -48,7 +49,99 @@ const changequeue = require('./changequeue');
 function message(store, input = {}) {
   if (!ACTORS.has(String(input.actor)))
     throw httpErr(400, `unknown executive actor: ${input.actor}`);
-  return store.createExecutiveMessage({ ...input, actor: String(input.actor) });
+  let workId = input.work_id || null;
+  if (!workId && input.reply_to && store.listExecutiveMessages) {
+    const parent = store
+      .listExecutiveMessages({ conversation_id: input.conversation_id || 'executive', limit: 1000 })
+      .find(item => item.message_id === String(input.reply_to));
+    workId = parent?.work_id || null;
+  }
+  const created = store.createExecutiveMessage({ ...input, actor: String(input.actor), work_id: workId });
+  if (created.work_id && created.actor !== 'owner' && store.getExecutiveWorkItem) {
+    const workItem = store.getExecutiveWorkItem(created.work_id);
+    if (workItem?.source_type === 'owner-request') {
+      if (workItem.status === 'waiting') {
+        store.updateExecutiveWorkItem(workItem.work_id, {
+          status: 'in_progress',
+          waiting_on: 'owner',
+          next_action: 'Owner review or follow-up is available in the linked thread.',
+        });
+      }
+      const notification = store.createExecutiveNotification?.({
+        recipient: 'owner',
+        notification_type: 'executive-response',
+        title: 'Executive team replied',
+        body: created.body,
+        work_id: workItem.work_id,
+        message_id: created.message_id,
+        dedupe_key: `executive-response:${created.message_id}`,
+      });
+      if (notification) {
+        try {
+          void require('./executive-notify').notify({ notification, workItem });
+        } catch {
+          // External notification is optional and must never block the reply.
+        }
+      }
+    }
+  }
+  return created;
+}
+
+function ownerRequest(store, input = {}) {
+  const body = String(input.body || '').trim();
+  if (!body) throw httpErr(400, 'owner request body is required');
+  const messageId = input.message_id || require('node:crypto').randomUUID();
+  const workItem = store.createExecutiveWorkItem({
+    title: `Owner request: ${body.slice(0, 80)}${body.length > 80 ? '…' : ''}`,
+    kind: 'decision',
+    status: 'waiting',
+    priority: input.priority || 'normal',
+    owner: 'ceo',
+    source_type: 'owner-request',
+    source_id: messageId,
+    summary: body,
+    next_action: 'Executive team to review the request and reply in the linked thread.',
+    waiting_on: 'executive-team',
+    due_at: input.due_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    created_by: 'owner',
+  });
+  const ownerMessage = message(store, {
+    ...input,
+    message_id: messageId,
+    actor: 'owner',
+    work_id: workItem.work_id,
+    message_type: 'decision_request',
+  });
+  return { message: ownerMessage, work_item: workItem };
+}
+
+function ensureOwnerRequests(store) {
+  const legacy = store
+    .listExecutiveMessages({ conversation_id: 'executive', limit: 1000 })
+    .filter(item => item.actor === 'owner' && !item.work_id);
+  return legacy.map(item => {
+    const workItem = store.createExecutiveWorkItem({
+      title: `Owner request: ${item.body.slice(0, 80)}${item.body.length > 80 ? '…' : ''}`,
+      kind: 'decision',
+      status: 'waiting',
+      priority: 'normal',
+      owner: 'ceo',
+      source_type: 'owner-request',
+      source_id: item.message_id,
+      summary: item.body,
+      next_action: 'Executive team to review the request and reply in the linked thread.',
+      waiting_on: 'executive-team',
+      due_at: new Date(Date.parse(item.created_at) + 24 * 60 * 60 * 1000).toISOString(),
+      created_at: item.created_at,
+      created_by: 'owner',
+    });
+    store.updateExecutiveMessage(item.message_id, {
+      work_id: workItem.work_id,
+      message_type: item.message_type === 'update' ? 'decision_request' : item.message_type,
+    });
+    return workItem;
+  });
 }
 
 function proposal(store, input = {}) {
@@ -71,7 +164,28 @@ function proposal(store, input = {}) {
     )
   )
     throw httpErr(400, 'proposals must be created by an executive role or researcher');
-  return store.createExecutiveProposal({ ...input, created_by: String(input.created_by || 'ceo') });
+  const created = store.createExecutiveProposal({ ...input, created_by: String(input.created_by || 'ceo') });
+  // Give every proposal a durable conversation anchor immediately. The PM
+  // migration also backfills older proposals created before this behavior.
+  const workId = `executive-proposal:${created.proposal_id}`;
+  if (store.getExecutiveWorkItem && !store.getExecutiveWorkItem(workId)) {
+    store.createExecutiveWorkItem({
+      work_id: workId,
+      title: `Proposal thread: ${created.title}`,
+      kind: created.proposal_type === 'report-only' ? 'research' : created.created_by === 'security' ? 'security' : 'decision',
+      status: 'waiting',
+      priority: 'normal',
+      owner: 'project-manager',
+      source_type: 'executive-proposal',
+      source_id: created.proposal_id,
+      site: created.implementation?.site || null,
+      summary: created.summary,
+      next_action: 'Owner decision required: approve, request changes, or decline. Continue discussion in this thread.',
+      waiting_on: 'owner',
+      created_by: created.created_by,
+    });
+  }
+  return created;
 }
 
 function decision(store, id, input = {}, { knownSite, availableRolesForSite } = {}) {
@@ -122,6 +236,28 @@ function decision(store, id, input = {}, { knownSite, availableRolesForSite } = 
     ...input,
     linked_request_id: linkedRequestId,
   });
+  const workId = `executive-proposal:${proposal.proposal_id}`;
+  if (store.getExecutiveWorkItem?.(workId)) {
+    store.updateExecutiveWorkItem(workId, {
+      status: proposal.status === 'approved' ? 'in_progress' : 'waiting',
+      waiting_on: proposal.status === 'approved' ? 'project-manager' : proposal.created_by,
+      next_action:
+        proposal.status === 'approved'
+          ? 'Project manager will route the approved work through the existing queue and report progress in this thread.'
+          : proposal.status === 'feedback'
+            ? 'The proposing role must review the owner reply, revise the proposal, and return it for approval.'
+            : 'Proposal declined; preserve the thread as the decision record.',
+    });
+  }
+  if (store.createExecutiveMessage) {
+    store.createExecutiveMessage({
+      actor: 'owner',
+      body: input.decision_note || `Owner marked this proposal ${proposal.status}.`,
+      work_id: workId,
+      message_type: proposal.status === 'feedback' ? 'question' : 'decision_request',
+      metadata: { proposal_id: proposal.proposal_id, status: proposal.status, to: proposal.created_by },
+    });
+  }
   if (linkedRequestId) {
     store.record({
       event_type: 'executive.proposal.task-routed',
@@ -203,6 +339,8 @@ module.exports = {
   PROPOSAL_TYPES: [...PROPOSAL_TYPES],
   ACTION_TYPES: [...ACTION_TYPES],
   message,
+  ownerRequest,
+  ensureOwnerRequests,
   proposal,
   decision,
   review,

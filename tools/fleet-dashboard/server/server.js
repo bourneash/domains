@@ -72,6 +72,7 @@ const campaigns = require('./campaigns');
 const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
+const workflowBoard = require('./workflow-board');
 const {
   assignedRoleForType,
   assignedRoleForSite,
@@ -3098,6 +3099,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/workflow-board', (_req, res) => {
+    try {
+      res.json(workflowBoard.snapshot(events));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/workflow-links', (req, res) => {
+    try { res.status(201).json({ link: events.createWorkflowLink(req.body || {}) }); }
+    catch (e) { res.status(e.httpStatus || 400).json({ error: e.message }); }
+  });
+  app.delete('/api/workflow-links/:id', (req, res) => {
+    try { res.json(events.deleteWorkflowLink(req.params.id)); }
+    catch (e) { res.status(e.httpStatus || 400).json({ error: e.message }); }
+  });
   app.post('/api/change-requests', (req, res) => {
     try {
       res.status(201).json({
@@ -3115,6 +3131,61 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/messages', (req, res) => {
     try {
       res.json({ messages: events.listExecutiveMessages(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/inbox', (req, res) => {
+    try {
+      executive.ensureOwnerRequests(events);
+      const requests = events.listExecutiveWorkItems({ source_type: 'owner-request', limit: req.query.limit || 100 });
+      const now = Date.now();
+      const tracked = requests.map(request => {
+        const overdue = !['done', 'cancelled'].includes(request.status) && request.due_at && Date.parse(request.due_at) < now;
+        if (overdue) {
+          events.createExecutiveNotification({
+            recipient: 'owner',
+            notification_type: 'executive-sla-overdue',
+            title: 'Executive request is overdue',
+            body: request.title,
+            work_id: request.work_id,
+            dedupe_key: `executive-sla-overdue:${request.work_id}`,
+          });
+        }
+        const messages = events.listExecutiveMessages({ work_id: request.work_id, limit: 100 }).reverse();
+        const responses = messages.filter(message => message.actor !== 'owner');
+        return {
+          ...request,
+          messages,
+          response_count: responses.length,
+          latest_response: responses[responses.length - 1] || null,
+          overdue,
+        };
+      });
+      res.json({ requests: tracked, notifications: events.listExecutiveNotifications({ recipient: 'owner', limit: req.query.limit || 100 }) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/notifications', (req, res) => {
+    try {
+      res.json({ notifications: events.listExecutiveNotifications(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/notifications/:id/read', (req, res) => {
+    try {
+      const notification = events.markExecutiveNotificationRead(req.params.id);
+      if (!notification) return res.status(404).json({ error: 'notification not found' });
+      res.json({ notification });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/notifications/read-all', (req, res) => {
+    try {
+      res.json(events.markAllExecutiveNotificationsRead('owner'));
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -3602,6 +3673,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.post('/api/executive/requests', (req, res) => {
+    try {
+      res.status(201).json({ request: executive.ownerRequest(events, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.get('/api/executive/proposals', (req, res) => {
     try {
       res.json({
@@ -3636,6 +3714,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.get('/api/executive/work-items', (req, res) => {
     try {
+      if (req.query.source_type === 'owner-request') executive.ensureOwnerRequests(events);
       res.json({ work_items: events.listExecutiveWorkItems(req.query) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });

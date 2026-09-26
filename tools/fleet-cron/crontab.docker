@@ -136,6 +136,8 @@
 # One new manager every minute, with a two-manager concurrency cap.
 # This keeps the queue moving without creating an AI request burst.
 * * * * * /home/jesse/projects/domains/tools/executive/run-domain-manager-dispatch.sh
+# Fleet project manager: triage executive backlog into scoped, approval-aware work.
+*/15 * * * * /home/jesse/projects/domains/tools/executive/run-project-manager.sh
 5 7 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence daily
 20 7 * * 1 /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence weekly
 

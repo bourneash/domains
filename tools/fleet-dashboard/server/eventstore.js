@@ -8,6 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
+const workflowEngine = require('./workflow-engine');
 
 const TYPES = /^[a-z][a-z0-9_.-]{1,79}$/;
 
@@ -103,6 +104,19 @@ function open(root, { file } = {}) {
       metadata_json TEXT NOT NULL DEFAULT '{}'
     );
     CREATE INDEX IF NOT EXISTS executive_messages_conversation ON executive_messages(conversation_id, created_at);
+    CREATE TABLE IF NOT EXISTS executive_notifications (
+      notification_id TEXT PRIMARY KEY,
+      recipient TEXT NOT NULL,
+      notification_type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      body TEXT NOT NULL,
+      work_id TEXT,
+      message_id TEXT,
+      dedupe_key TEXT UNIQUE,
+      created_at TEXT NOT NULL,
+      read_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS executive_notifications_recipient ON executive_notifications(recipient, read_at, created_at);
     CREATE TABLE IF NOT EXISTS executive_proposals (
       proposal_id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -185,6 +199,19 @@ function open(root, { file } = {}) {
       reviewed_at TEXT
     );
     CREATE INDEX IF NOT EXISTS executive_knowledge_queue ON executive_knowledge_items(status, audience, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS workflow_links (
+      link_id TEXT PRIMARY KEY,
+      from_type TEXT NOT NULL,
+      from_id TEXT NOT NULL,
+      to_type TEXT NOT NULL,
+      to_id TEXT NOT NULL,
+      relation TEXT NOT NULL,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(from_type, from_id, to_type, to_id, relation)
+    );
+    CREATE INDEX IF NOT EXISTS workflow_links_from ON workflow_links(from_type, from_id);
+    CREATE INDEX IF NOT EXISTS workflow_links_to ON workflow_links(to_type, to_id);
     CREATE TABLE IF NOT EXISTS change_queue_settings (
       id INTEGER PRIMARY KEY CHECK (id = 1),
       enabled INTEGER NOT NULL DEFAULT 0,
@@ -223,6 +250,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_messages', 'work_id', 'TEXT');
   ensureColumn(db, 'executive_messages', 'reply_to', 'TEXT');
   ensureColumn(db, 'executive_messages', 'message_type', "TEXT NOT NULL DEFAULT 'update'");
+  ensureColumn(db, 'executive_work_items', 'waiting_on', 'TEXT');
   ensureColumn(db, 'executive_knowledge_items', 'takeaway', "TEXT NOT NULL DEFAULT ''");
   ensureColumn(db, 'executive_knowledge_items', 'applied_to', "TEXT NOT NULL DEFAULT ''");
   ensureColumn(db, 'executive_knowledge_items', 'reviewed_by', 'TEXT');
@@ -312,6 +340,39 @@ function open(root, { file } = {}) {
   function close() {
     db.close();
   }
+
+  const WORKFLOW_ENTITY_TYPES = new Set(['work-item', 'request', 'proposal']);
+  const WORKFLOW_RELATIONS = new Set(['blocks', 'blocked_by', 'related_to']);
+  function workflowEntityExists(type, id) {
+    if (type === 'work-item') return Boolean(getExecutiveWorkItem(id));
+    if (type === 'request') return Boolean(getChangeRequest(id));
+    if (type === 'proposal') return Boolean(getExecutiveProposal(id));
+    return false;
+  }
+  function createWorkflowLink(input = {}) {
+    const row = { link_id: input.link_id || crypto.randomUUID(), from_type: String(input.from_type || ''), from_id: String(input.from_id || ''), to_type: String(input.to_type || ''), to_id: String(input.to_id || ''), relation: String(input.relation || 'related_to'), created_by: String(input.created_by || 'owner'), created_at: input.created_at || new Date().toISOString() };
+    if (!WORKFLOW_ENTITY_TYPES.has(row.from_type) || !WORKFLOW_ENTITY_TYPES.has(row.to_type)) throw httpErr(400, 'invalid workflow entity type');
+    if (!WORKFLOW_RELATIONS.has(row.relation)) throw httpErr(400, 'invalid workflow relation');
+    if (!row.from_id || !row.to_id || row.from_id === row.to_id) throw httpErr(400, 'workflow links require two different entities');
+    if (!workflowEntityExists(row.from_type, row.from_id) || !workflowEntityExists(row.to_type, row.to_id)) throw httpErr(404, 'workflow entity not found');
+    if (row.relation !== 'related_to') {
+      const items = [
+        ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({ ...item, source: 'work-item', id: item.work_id })),
+        ...listChangeRequests({ limit: 1000 }).map(item => ({ ...item, source: 'request', id: item.request_id })),
+        ...listExecutiveProposals({ limit: 1000 }).map(item => ({ ...item, source: 'proposal', id: item.proposal_id })),
+      ];
+      const check = workflowEngine.evaluate({ items, links: [...listWorkflowLinks({ limit: 2000 }), row] });
+      if (check.cycles.length) throw httpErr(409, 'workflow link would create a circular dependency');
+    }
+    db.prepare('INSERT INTO workflow_links (link_id,from_type,from_id,to_type,to_id,relation,created_by,created_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(from_type,from_id,to_type,to_id,relation) DO NOTHING').run(row.link_id, row.from_type, row.from_id, row.to_type, row.to_id, row.relation, row.created_by, row.created_at);
+    return db.prepare('SELECT * FROM workflow_links WHERE from_type=? AND from_id=? AND to_type=? AND to_id=? AND relation=?').get(row.from_type, row.from_id, row.to_type, row.to_id, row.relation);
+  }
+  function listWorkflowLinks({ entity_type, entity_id, limit = 500 } = {}) {
+    const where = entity_type && entity_id ? ' WHERE (from_type=? AND from_id=?) OR (to_type=? AND to_id=?)' : '';
+    const args = entity_type && entity_id ? [String(entity_type), String(entity_id), String(entity_type), String(entity_id)] : [];
+    return db.prepare(`SELECT * FROM workflow_links${where} ORDER BY created_at DESC LIMIT ?`).all(...args, Math.min(Number(limit) || 500, 2000));
+  }
+  function deleteWorkflowLink(id) { const result = db.prepare('DELETE FROM workflow_links WHERE link_id=?').run(String(id)); if (!result.changes) throw httpErr(404, 'workflow link not found'); return { link_id: String(id) }; }
 
   function createImprovement(input) {
     const now = input.created_at || new Date().toISOString();
@@ -803,6 +864,69 @@ function open(root, { file } = {}) {
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined }));
   }
 
+  function updateExecutiveMessage(id, patch = {}) {
+    const current = db.prepare('SELECT * FROM executive_messages WHERE message_id = ?').get(String(id));
+    if (!current) throw httpErr(404, 'executive message not found');
+    const next = { ...current, ...patch };
+    db.prepare('UPDATE executive_messages SET work_id=?, reply_to=?, message_type=?, metadata_json=? WHERE message_id=?').run(
+      next.work_id || null,
+      next.reply_to || null,
+      next.message_type || 'update',
+      typeof next.metadata_json === 'string' ? next.metadata_json : JSON.stringify(next.metadata || safeJson(current.metadata_json)),
+      String(id)
+    );
+    return db.prepare('SELECT * FROM executive_messages WHERE message_id = ?').get(String(id));
+  }
+
+  function createExecutiveNotification(input = {}) {
+    const row = {
+      notification_id: input.notification_id || crypto.randomUUID(),
+      recipient: String(input.recipient || 'owner').trim(),
+      notification_type: String(input.notification_type || 'executive-response').trim(),
+      title: String(input.title || '').trim(),
+      body: String(input.body || '').trim(),
+      work_id: input.work_id ? String(input.work_id).trim() : null,
+      message_id: input.message_id ? String(input.message_id).trim() : null,
+      dedupe_key: input.dedupe_key ? String(input.dedupe_key).trim() : null,
+      created_at: input.created_at || new Date().toISOString(),
+      read_at: null,
+    };
+    if (!row.title || !row.body) throw httpErr(400, 'notification title and body are required');
+    try {
+      db.prepare(`INSERT INTO executive_notifications
+        (notification_id,recipient,notification_type,title,body,work_id,message_id,dedupe_key,created_at,read_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?)`).run(
+        row.notification_id, row.recipient, row.notification_type, row.title, row.body,
+        row.work_id, row.message_id, row.dedupe_key, row.created_at, row.read_at
+      );
+      return row;
+    } catch (error) {
+      if (row.dedupe_key && String(error.message).includes('UNIQUE constraint failed'))
+        return db.prepare('SELECT * FROM executive_notifications WHERE dedupe_key = ?').get(row.dedupe_key);
+      throw error;
+    }
+  }
+
+  function listExecutiveNotifications({ recipient = 'owner', unread, limit = 100 } = {}) {
+    const clauses = ['recipient = ?'];
+    const args = [String(recipient)];
+    if (unread === true || unread === 'true' || unread === '1') clauses.push('read_at IS NULL');
+    const n = Math.max(1, Math.min(Number(limit) || 100, 500));
+    return db.prepare(`SELECT * FROM executive_notifications WHERE ${clauses.join(' AND ')} ORDER BY created_at DESC LIMIT ?`).all(...args, n);
+  }
+
+  function markExecutiveNotificationRead(id) {
+    const readAt = new Date().toISOString();
+    db.prepare('UPDATE executive_notifications SET read_at = ? WHERE notification_id = ?').run(readAt, String(id));
+    return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id)) || null;
+  }
+
+  function markAllExecutiveNotificationsRead(recipient = 'owner') {
+    const readAt = new Date().toISOString();
+    const result = db.prepare('UPDATE executive_notifications SET read_at = ? WHERE recipient = ? AND read_at IS NULL').run(readAt, String(recipient));
+    return { updated: result.changes, read_at: readAt };
+  }
+
   function createExecutiveProposal(input) {
     const now = input.created_at || new Date().toISOString();
     const row = {
@@ -1071,6 +1195,7 @@ function open(root, { file } = {}) {
   ]);
   const WORK_ITEM_STATUSES = new Set([
     'open',
+    'ready',
     'in_progress',
     'blocked',
     'waiting',
@@ -1086,6 +1211,7 @@ function open(root, { file } = {}) {
     'security',
     'cro',
     'domain-manager',
+    'project-manager',
     'principal-engineer',
     'engineer',
     'owner',
@@ -1113,6 +1239,7 @@ function open(root, { file } = {}) {
       site: input.site ? String(input.site).trim() : null,
       summary: String(input.summary || '').trim(),
       next_action: String(input.next_action || '').trim(),
+      waiting_on: input.waiting_on ? String(input.waiting_on).trim() : null,
       due_at: input.due_at ? String(input.due_at).trim() : null,
       evidence: Array.isArray(input.evidence) ? input.evidence.slice(0, 20) : [],
       created_by: String(input.created_by || 'system').trim(),
@@ -1128,8 +1255,8 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid work item owner');
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,summary,next_action,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.work_id,
       row.title,
@@ -1142,6 +1269,7 @@ function open(root, { file } = {}) {
       row.site,
       row.summary,
       row.next_action,
+      row.waiting_on,
       row.due_at,
       JSON.stringify(row.evidence),
       row.created_by,
@@ -1199,7 +1327,15 @@ function open(root, { file } = {}) {
   }
 
   function getExecutiveWorkItem(id) {
-    const row = db.prepare('SELECT * FROM executive_work_items WHERE work_id = ?').get(String(id));
+    let row = db.prepare('SELECT * FROM executive_work_items WHERE work_id = ?').get(String(id));
+    // Compatibility for callers that still hold the pre-canonical approved
+    // proposal key. The old row is preserved when it exists, but once it has
+    // been migrated this lookup follows the canonical case.
+    if (!row && String(id).startsWith('approved-proposal:')) {
+      row = db
+        .prepare('SELECT * FROM executive_work_items WHERE work_id = ?')
+        .get(`executive-proposal:${String(id).slice('approved-proposal:'.length)}`);
+    }
     return row ? decodeExecutiveWorkItem(row) : null;
   }
 
@@ -1211,16 +1347,27 @@ function open(root, { file } = {}) {
     next.kind = String(next.kind || '').trim();
     next.status = String(next.status || '').trim();
     next.priority = String(next.priority || '').trim();
-    next.owner = String(next.owner || '').trim();
+      next.owner = String(next.owner || '').trim();
     if (!next.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(next.kind)) throw httpErr(400, 'invalid work item kind');
     if (!WORK_ITEM_STATUSES.has(next.status)) throw httpErr(400, 'invalid work item status');
     if (!WORK_ITEM_PRIORITIES.has(next.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(next.owner)) throw httpErr(400, 'invalid work item owner');
+    if (next.status === 'in_progress' && current.status !== 'in_progress') {
+      const boardItems = [
+        ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({ ...item, source: 'work-item', id: item.work_id })),
+        ...listChangeRequests({ limit: 1000 }).map(item => ({ ...item, source: 'request', id: item.request_id })),
+        ...listExecutiveProposals({ limit: 1000 }).map(item => ({ ...item, source: 'proposal', id: item.proposal_id })),
+      ];
+      const workflow = workflowEngine.evaluate({ items: boardItems, links: listWorkflowLinks({ limit: 2000 }) });
+      const node = workflow.nodes[`work-item:${id}`];
+      if (node?.blockers?.length) throw httpErr(409, `work item is blocked by ${node.blockers.join(', ')}`);
+      if (workflow.cycles.some(cycle => cycle.includes(`work-item:${id}`))) throw httpErr(409, 'work item is part of a circular dependency');
+    }
     const now = new Date().toISOString();
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
     db.prepare(
-      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=? WHERE work_id=?`
+      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=? WHERE work_id=?`
     ).run(
       next.title,
       next.kind,
@@ -1232,14 +1379,15 @@ function open(root, { file } = {}) {
       next.site || null,
       String(next.summary || ''),
       String(next.next_action || ''),
+      next.waiting_on || null,
       next.due_at || null,
       JSON.stringify(Array.isArray(next.evidence) ? next.evidence.slice(0, 20) : []),
       now,
       resolved,
       next.resolution_note || null,
-      String(id)
+      String(current.work_id)
     );
-    return getExecutiveWorkItem(id);
+    return getExecutiveWorkItem(current.work_id);
   }
 
   const KNOWLEDGE_TYPES = new Set([
@@ -1428,6 +1576,11 @@ function open(root, { file } = {}) {
     updateExecutiveSettings,
     createExecutiveMessage,
     listExecutiveMessages,
+    updateExecutiveMessage,
+    createExecutiveNotification,
+    listExecutiveNotifications,
+    markExecutiveNotificationRead,
+    markAllExecutiveNotificationsRead,
     createExecutiveProposal,
     listExecutiveProposals,
     getExecutiveProposal,
@@ -1443,6 +1596,9 @@ function open(root, { file } = {}) {
     listExecutiveWorkItems,
     getExecutiveWorkItem,
     updateExecutiveWorkItem,
+    createWorkflowLink,
+    listWorkflowLinks,
+    deleteWorkflowLink,
     createExecutiveKnowledge,
     listExecutiveKnowledge,
     updateExecutiveKnowledge,

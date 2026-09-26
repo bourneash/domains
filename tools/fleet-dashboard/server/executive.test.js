@@ -30,6 +30,50 @@ test('persists owner/CEO conversation messages', () => {
   db.close();
 });
 
+test('turns an owner request into a tracked executive work item and thread', () => {
+  const db = store();
+  const tracked = executive.ownerRequest(db, {
+    actor: 'owner',
+    body: 'Please investigate the decline and report back with a recommendation.',
+  });
+  assert.equal(tracked.message.work_id, tracked.work_item.work_id);
+  assert.equal(tracked.message.message_type, 'decision_request');
+  assert.equal(tracked.work_item.source_type, 'owner-request');
+  assert.equal(tracked.work_item.status, 'waiting');
+  assert.equal(db.listExecutiveMessages({ work_id: tracked.work_item.work_id }).length, 1);
+  db.close();
+});
+
+test('backfills legacy owner messages into tracked requests', () => {
+  const db = store();
+  const legacy = db.createExecutiveMessage({ actor: 'owner', body: 'Where is the launch plan?' });
+  const created = executive.ensureOwnerRequests(db);
+  assert.equal(created.length, 1);
+  assert.equal(db.listExecutiveMessages({ work_id: created[0].work_id })[0].message_id, legacy.message_id);
+  assert.equal(db.listExecutiveWorkItems({ source_type: 'owner-request' })[0].summary, legacy.body);
+  assert.deepEqual(executive.ensureOwnerRequests(db), []);
+  db.close();
+});
+
+test('links replies by reply_to, advances the request, and creates an unread notification', () => {
+  const db = store();
+  const request = executive.ownerRequest(db, { actor: 'owner', body: 'Please bring back the launch decision.' });
+  const reply = executive.message(db, {
+    actor: 'ceo',
+    body: 'Recommendation: keep the launch gated until the legal checklist is complete.',
+    reply_to: request.message.message_id,
+    message_type: 'decision_request',
+  });
+  assert.equal(reply.work_id, request.work_item.work_id);
+  assert.equal(db.getExecutiveWorkItem(request.work_item.work_id).status, 'in_progress');
+  const notification = db.listExecutiveNotifications({ unread: true })[0];
+  assert.equal(notification.work_id, request.work_item.work_id);
+  assert.equal(notification.message_id, reply.message_id);
+  db.markExecutiveNotificationRead(notification.notification_id);
+  assert.equal(db.listExecutiveNotifications({ unread: true }).length, 0);
+  db.close();
+});
+
 test('requires owner decision and preserves feedback loop', () => {
   const db = store();
   const proposal = executive.proposal(db, {
@@ -47,6 +91,9 @@ test('requires owner decision and preserves feedback loop', () => {
     decision_note: 'Bring a lower-cost test first.',
   });
   assert.equal(feedback.status, 'feedback');
+  const workId = `executive-proposal:${proposal.proposal_id}`;
+  assert.equal(db.getExecutiveWorkItem(workId).status, 'waiting');
+  assert.equal(db.listExecutiveMessages({ work_id: workId })[0].actor, 'owner');
   const approved = executive.decision(db, proposal.proposal_id, {
     status: 'approved',
     decision_note: 'Proceed with the test.',

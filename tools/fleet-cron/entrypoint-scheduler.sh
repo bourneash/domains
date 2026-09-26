@@ -16,8 +16,9 @@ fi
 [ -s "${FS_TOKEN_FILE:?}" ] || { echo "FATAL: ${FS_TOKEN_FILE} missing/empty — run tools/fleet-cron/ensure-up.sh" >&2; exit 1; }
 mkdir -p "${FS_DATA:?}"
 
-# Pick up any line added to crontab.docker since last start. Idempotent; never overwrites
-# schedules edited in the scheduler (that needs an explicit `import --update`).
-python3 -m fleetsched import --crontab /etc/crontab.docker --group "${FS_GROUP:-fleet}"
+# crontab.docker is the source of truth for this fleet-tools group. Import with
+# --update so a restart cannot resurrect a stale schedule from the scheduler
+# database. API edits are write-through mirrored back into this same file.
+python3 -m fleetsched import --crontab /etc/crontab.docker --group "${FS_GROUP:-fleet}" --update
 
 exec python3 -m fleetsched serve

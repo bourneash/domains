@@ -52,8 +52,10 @@ still needs the normal security, measurement, and owner approval gates.
 Run the autonomous tick only through `run-sandbox.sh`; it launches the model in
 a constrained container with only a generated brief and an output plan mounted.
 The model never receives the project checkout. The wrapper does not mount the
-Docker socket, SSH keys, the host home directory, or sibling projects. It defaults to applying only messages and proposals; set
-`EXECUTIVE_ALLOW_QUEUE=1` only after the queue policy has been reviewed.
+Docker socket, SSH keys, the host home directory, or sibling projects. Scheduled
+runs enable the reviewed queue policy and route bounded SEO/content/design/
+engineering work to the isolated engineer pipeline. The model still cannot
+deploy directly; consequential work remains proposal- and approval-gated.
 
 The brief includes the shared read-only executive intelligence contract. It
 normalizes the Fleet Manager registry, GA4/GSC analytics, SEO intelligence,
@@ -68,6 +70,12 @@ The executive agent is expected to be proactive: inspect fleet telemetry,
 identify revenue opportunities, run research, recruit specialist agents, and
 bring forward concrete proposals with evidence, upside, cost, risks, and a
 measurement plan. It does not wait for a human prompt to do routine discovery.
+
+The fleet project manager is the deterministic follow-through role. Its
+15-minute scheduler pass reads open executive work items, assigns an appropriate
+owner, adds a concise brief and acceptance criteria, and routes eligible,
+site-scoped implementation work into the normal change queue. It cannot approve
+proposals, bypass review, deploy, or push code.
 
 The executive scope is all discovered fleet sites except `3boobs.com`, which is
 explicitly excluded and must not be analyzed, mentioned in an executive plan,
@@ -168,10 +176,13 @@ preserving site-capacity, Legal/Security launch gates, and audit events. This
 keeps approved work moving when a model pass is skipped or produces no new plan;
 it never authorizes a new proposal or bypasses the queue/reviewer pipeline.
 
-Every hourly cycle carries an action mandate: when the telemetry bundle has
-evidence-backed, low-risk candidates, the executive pass should route a small
-portfolio batch across distinct sites or explain why all candidates were
-rejected. The trusted control plane caps a cycle at six queued actions and one
+Every hourly cycle carries an action mandate: when the telemetry bundle has an
+evidence-backed, low-risk implementation candidate, the executive pass must
+route a concrete change request to the engineer, including scope, acceptance
+criteria, tests, metric, and rollback. A message, proposal, research request,
+or report-only request does not satisfy that mandate. Only explicit launch,
+legal, security, credential, spend, or missing-evidence blockers may defer the
+request. The trusted control plane caps a cycle at six queued actions and one
 queued/active implementation per site. Sparse source-specific findings are
 supplemented by a rotating cohort of bounded site-baseline checks; missing
 telemetry is reported as unavailable, never treated as zero.

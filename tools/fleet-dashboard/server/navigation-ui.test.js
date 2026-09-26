@@ -42,6 +42,19 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
 });
 
+test('product managers are first-class Agents pages with durable queues', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  for (const role of ['product-manager-fleet', 'product-manager-sites']) {
+    assert.equal(routeFor(`#agents/${role}`).view, 'agent');
+    assert.equal(routeFor(`#agents/${role}`).agent, role);
+  }
+  assert.match(app, /PRODUCT MANAGEMENT \/ \$\{esc\(role === 'product-manager-fleet'/);
+  assert.match(app, /api\/executive\/work-items\?owner=/);
+  assert.match(app, /api\/executive\/task-queue\?role=/);
+  assert.match(app, /Executive presentations/);
+  assert.match(app, /Open work queue/);
+});
+
 test('executive workbench is a first-class operator route', () => {
   assert.equal(routeFor('#workbench').view, 'workbench');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
