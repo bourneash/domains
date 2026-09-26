@@ -118,3 +118,15 @@ test('filters the change queue by implementation role', () => {
   );
   store.close();
 });
+
+test('requires completion evidence and rejects stale work-item writes', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-work-item-gates-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  const created = store.createExecutiveWorkItem({ title: 'Evidence-gated work' });
+  assert.throws(() => store.updateExecutiveWorkItem(created.work_id, { status: 'done' }), /completion requires/);
+  const updated = store.updateExecutiveWorkItem(created.work_id, { status: 'in_progress' });
+  assert.throws(() => store.updateExecutiveWorkItem(created.work_id, { status: 'done', expected_updated_at: created.updated_at }), /changed/);
+  const done = store.updateExecutiveWorkItem(updated.work_id, { status: 'done', outcome: 'Verified in production.', expected_updated_at: updated.updated_at });
+  assert.equal(done.status, 'done');
+  store.close();
+});

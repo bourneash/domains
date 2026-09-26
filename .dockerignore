@@ -20,3 +20,4 @@ tools/fleet-dashboard/server/*
 !tools/fleet-dashboard/server/executive-scorecard.js
 !tools/fleet-dashboard/server/executive-snapshot.js
 !tools/fleet-dashboard/server/executive-data.js
+!tools/fleet-dashboard/server/workflow-engine.js

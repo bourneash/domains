@@ -865,7 +865,7 @@ Return ONLY valid JSON with this shape:
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|project-manager|domain-manager|principal-engineer|engineer|owner","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
 
@@ -1463,43 +1463,25 @@ function validatePlan(plan) {
         throw new Error('security-sensitive proposal requires approved security review');
     }
   }
-  for (const item of plan.work_items) {
-    if (
-      (!item.work_id && !String(item.title || '').trim()) ||
-      String(item.title || '').length > 300 ||
-      String(item.summary || '').length > 4000 ||
-      String(item.takeaway || '').length > 2000 ||
-      String(item.applied_to || '').length > 1000 ||
-      String(item.next_action || '').length > 1000 ||
-      ![
-        'decision',
-        'research',
-        'incident',
-        'legal',
-        'security',
-        'education',
-        'evidence',
-        'implementation',
-      ].includes(String(item.kind || 'decision')) ||
-      !['open', 'in_progress', 'blocked', 'waiting'].includes(String(item.status || 'open')) ||
-      !['urgent', 'high', 'normal', 'low'].includes(String(item.priority || 'normal')) ||
-      ![
-        'ceo',
-        'cto',
-        'cfo',
-        'legal',
-        'security',
-        'cro',
-        'product-manager-fleet',
-        'product-manager-sites',
-        'domain-manager',
-        'principal-engineer',
-        'engineer',
-        'owner',
-      ].includes(String(item.owner || 'ceo')) ||
-      (item.evidence !== undefined && (!Array.isArray(item.evidence) || item.evidence.length > 20))
-    )
-      throw new Error('invalid work item in provider plan');
+  for (const [index, item] of plan.work_items.entries()) {
+    const invalid = [];
+    const kind = String(item?.kind || 'decision');
+    const status = String(item?.status || 'open');
+    const priority = String(item?.priority || 'normal');
+    const owner = String(item?.owner || 'ceo');
+    if (!item || (!item.work_id && !String(item.title || '').trim())) invalid.push('title/work_id missing');
+    if (String(item?.title || '').length > 300) invalid.push('title too long');
+    if (String(item?.summary || '').length > 4000) invalid.push('summary too long');
+    if (String(item?.takeaway || '').length > 2000) invalid.push('takeaway too long');
+    if (String(item?.applied_to || '').length > 1000) invalid.push('applied_to too long');
+    if (String(item?.next_action || '').length > 1000) invalid.push('next_action too long');
+    if (!['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'].includes(kind)) invalid.push(`kind=${kind}`);
+    if (!['open', 'ready', 'in_progress', 'blocked', 'waiting'].includes(status)) invalid.push(`status=${status}`);
+    if (!['urgent', 'high', 'normal', 'low'].includes(priority)) invalid.push(`priority=${priority}`);
+    if (!['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'product-manager-fleet', 'product-manager-sites', 'project-manager', 'domain-manager', 'principal-engineer', 'engineer', 'owner'].includes(owner)) invalid.push(`owner=${owner}`);
+    if (item?.evidence !== undefined && (!Array.isArray(item.evidence) || item.evidence.length > 20)) invalid.push('evidence invalid');
+    if (invalid.length)
+      throw new Error(`invalid work item in provider plan at index ${index} (${invalid.join(', ')})`);
     if (item.site && EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))
       throw new Error('executive plan targets an excluded site');
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
@@ -2896,6 +2878,14 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           created_by: 'executive',
         });
       }
+      if (item.source_work_id) {
+        executive.acknowledgeOwnerRequestHandoff(store, item.source_work_id, {
+          downstream_type: 'proposal',
+          downstream_id: proposal.proposal_id,
+          title: proposal.title,
+          site: proposal.implementation?.site || null,
+        });
+      }
       createdProposalCount += 1;
       executive.finishAction(store, audit.action_id, {
         status: 'completed',
@@ -2983,6 +2973,14 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
             to_id: request.request_id,
             relation: 'related_to',
             created_by: 'executive',
+          });
+        }
+        if (item.source_work_id) {
+          executive.acknowledgeOwnerRequestHandoff(store, item.source_work_id, {
+            downstream_type: 'change-request',
+            downstream_id: request.request_id,
+            title: request.title,
+            site: request.site,
           });
         }
         queuedCount += 1;

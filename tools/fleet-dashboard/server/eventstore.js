@@ -367,6 +367,11 @@ function open(root, { file } = {}) {
   }
   function createWorkflowLink(input = {}) {
     const row = { link_id: input.link_id || crypto.randomUUID(), from_type: String(input.from_type || ''), from_id: String(input.from_id || ''), to_type: String(input.to_type || ''), to_id: String(input.to_id || ''), relation: String(input.relation || 'related_to'), created_by: String(input.created_by || 'owner'), created_at: input.created_at || new Date().toISOString() };
+    if (row.relation === 'blocked_by') {
+      [row.from_type, row.to_type] = [row.to_type, row.from_type];
+      [row.from_id, row.to_id] = [row.to_id, row.from_id];
+      row.relation = 'blocks';
+    }
     if (!WORKFLOW_ENTITY_TYPES.has(row.from_type) || !WORKFLOW_ENTITY_TYPES.has(row.to_type)) throw httpErr(400, 'invalid workflow entity type');
     if (!WORKFLOW_RELATIONS.has(row.relation)) throw httpErr(400, 'invalid workflow relation');
     if (!row.from_id || !row.to_id || row.from_id === row.to_id) throw httpErr(400, 'workflow links require two different entities');
@@ -1401,6 +1406,7 @@ function open(root, { file } = {}) {
   function updateExecutiveWorkItem(id, patch = {}) {
     const current = getExecutiveWorkItem(id);
     if (!current) throw httpErr(404, 'executive work item not found');
+    if (patch.expected_updated_at && String(patch.expected_updated_at) !== String(current.updated_at)) throw httpErr(409, 'work item changed; refresh before updating it');
     const next = { ...current, ...patch };
     next.title = String(next.title || '').trim();
     next.kind = String(next.kind || '').trim();
@@ -1413,6 +1419,10 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_STATUSES.has(next.status)) throw httpErr(400, 'invalid work item status');
     if (!WORK_ITEM_PRIORITIES.has(next.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(next.owner)) throw httpErr(400, 'invalid work item owner');
+    if (next.status === 'done' && current.status !== 'done') {
+      const hasEvidence = Array.isArray(next.evidence) && next.evidence.some(entry => entry && (entry.note || entry.url || entry.label));
+      if (!hasEvidence && !String(next.outcome || '').trim() && !String(next.resolution_note || '').trim()) throw httpErr(409, 'completion requires outcome, resolution note, or evidence');
+    }
     if (next.status === 'in_progress' && current.status !== 'in_progress') {
       const boardItems = [
         ...listExecutiveWorkItems({ limit: 1000 }).map(item => ({ ...item, source: 'work-item', id: item.work_id })),
@@ -1426,8 +1436,8 @@ function open(root, { file } = {}) {
     }
     const now = new Date().toISOString();
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
-    db.prepare(
-      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=?`
+    const result = db.prepare(
+      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
     ).run(
       next.title,
       next.kind,
@@ -1456,8 +1466,10 @@ function open(root, { file } = {}) {
       next.heartbeat_at || null,
       next.retry_at || null,
       next.last_error || null,
-      String(current.work_id)
+      String(current.work_id),
+      String(current.updated_at)
     );
+    if (!result.changes) throw httpErr(409, 'work item changed; refresh before updating it');
     return getExecutiveWorkItem(current.work_id);
   }
 

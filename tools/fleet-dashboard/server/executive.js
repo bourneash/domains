@@ -207,6 +207,68 @@ function transitionOwnerRequest(store, id, lifecycleState, patch = {}) {
   return updated;
 }
 
+/**
+ * Record the executive team's acknowledgement when an Owner request turns
+ * into downstream work. This is deliberately owned by the control plane so
+ * every producer (scheduled executive runs, approvals, and future dispatch
+ * paths) gives the Owner the same durable, threaded response.
+ */
+function acknowledgeOwnerRequestHandoff(store, sourceWorkId, input = {}) {
+  const source = store.getExecutiveWorkItem?.(sourceWorkId);
+  if (!source || source.source_type !== 'owner-request') return null;
+
+  const downstreamType = String(input.downstream_type || 'work').trim();
+  const downstreamId = String(input.downstream_id || '').trim();
+  if (!downstreamId) throw httpErr(400, 'owner handoff requires downstream_id');
+  const handoffKey = `owner-handoff:${source.work_id}:${downstreamType}:${downstreamId}`;
+  const existing = store
+    .listExecutiveMessages({ work_id: source.work_id, limit: 1000 })
+    .find(item => item.metadata?.handoff_key === handoffKey);
+  if (existing) return existing;
+
+  const title = String(input.title || 'the requested work').trim();
+  const target = input.site ? ` for ${input.site}` : '';
+  const body = downstreamType === 'change-request'
+    ? `Acknowledged. We have queued agents to work on “${title}”${target}. I’ll report back in this thread as the work progresses.`
+    : `Acknowledged. We’re moving this into the executive ${downstreamType} track: “${title}”${target}. I’ll report back in this thread when there is a concrete outcome.`;
+  const response = message(store, {
+    actor: 'ceo',
+    body,
+    work_id: source.work_id,
+    reply_to: source.source_id,
+    message_type: 'update',
+    metadata: {
+      handoff_key: handoffKey,
+      downstream_type: downstreamType,
+      downstream_id: downstreamId,
+      downstream_title: title,
+      ...(input.site ? { site: input.site } : {}),
+    },
+  });
+
+  const current = store.getExecutiveWorkItem(source.work_id);
+  if (current && !['closed', 'done', 'cancelled'].includes(current.lifecycle_state)) {
+    const targetState = downstreamType === 'change-request' ? 'actioned' : 'answered';
+    const patch = downstreamType === 'change-request'
+      ? {
+          waiting_on: 'worker',
+          next_action: 'Worker execution is queued; progress and results will be posted to this thread.',
+        }
+      : {
+          waiting_on: 'executive-team',
+          next_action: 'Executive follow-through is linked below; review the thread for the resulting decision or implementation handoff.',
+        };
+    try {
+      transitionOwnerRequest(store, source.work_id, targetState, patch);
+    } catch (error) {
+      // A concurrent executive pass may have advanced the request already.
+      // The durable reply is still valuable; only rethrow unexpected errors.
+      if (!/cannot move owner request/.test(error.message)) throw error;
+    }
+  }
+  return response;
+}
+
 function escalateOverdueOwnerRequests(store, now = Date.now()) {
   const created = [];
   for (const item of store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })) {
@@ -492,6 +554,7 @@ module.exports = {
   message,
   ownerRequest,
   transitionOwnerRequest,
+  acknowledgeOwnerRequestHandoff,
   escalateOverdueOwnerRequests,
   escalateOverdueWorkItems,
   health,

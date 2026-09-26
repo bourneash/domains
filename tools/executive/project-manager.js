@@ -2,6 +2,7 @@
 
 const changequeue = require('../fleet-dashboard/server/changequeue');
 const workflowEngine = require('../fleet-dashboard/server/workflow-engine');
+const workflowBoard = require('../fleet-dashboard/server/workflow-board');
 
 const IMPLEMENTATION_ROLES = ['engineer', 'principal-engineer'];
 const PROPOSAL_WORK_PREFIX = 'executive-proposal:';
@@ -161,6 +162,7 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
   const workItems = store.listExecutiveWorkItems({ limit: 1000 });
   const boardItems = workItems.map(item => ({ ...item, source: 'work-item', id: item.work_id }));
   const workflow = workflowEngine.evaluate({ items: boardItems, links: store.listWorkflowLinks({ limit: 2000 }) });
+  const notifications = workflowBoard.syncWorkflowNotifications(store, workflow);
   const dependencyChanges = [];
   for (const item of workItems.filter(row => ['open', 'blocked'].includes(row.status))) {
     const node = workflow.nodes[`work-item:${item.work_id}`];
@@ -221,7 +223,7 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
     }
     changed.push({ work_item: updated, request });
   }
-  return { inspected: candidates.length, proposal_cases: proposalCases, dependency_changes: dependencyChanges, alerts: workflow.alerts, critical_path: workflow.critical_path, changed };
+  return { inspected: candidates.length, proposal_cases: proposalCases, dependency_changes: dependencyChanges, alerts: workflow.alerts, notifications: notifications.length, critical_path: workflow.critical_path, changed };
 }
 
 module.exports = { acceptanceCriteria, ownerFor, proposalWorkId, syncProposalCases, run };

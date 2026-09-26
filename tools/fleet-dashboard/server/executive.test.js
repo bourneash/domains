@@ -74,6 +74,35 @@ test('links replies by reply_to, advances the request, and creates an unread not
   db.close();
 });
 
+test('acknowledges owner requests when downstream work is handed off', () => {
+  const db = store();
+  const request = executive.ownerRequest(db, {
+    actor: 'owner',
+    body: 'Please add our Bluesky links to the sites.',
+  });
+  const first = executive.acknowledgeOwnerRequestHandoff(db, request.work_item.work_id, {
+    downstream_type: 'change-request',
+    downstream_id: 'change-123',
+    title: 'Add social profile links',
+    site: 'example.com',
+  });
+  assert.match(first.body, /queued agents/);
+  assert.equal(first.work_id, request.work_item.work_id);
+  assert.equal(first.reply_to, request.message.message_id);
+  assert.equal(db.getExecutiveWorkItem(request.work_item.work_id).lifecycle_state, 'actioned');
+  assert.equal(db.getExecutiveWorkItem(request.work_item.work_id).waiting_on, 'worker');
+  assert.equal(db.listExecutiveMessages({ work_id: request.work_item.work_id }).length, 2);
+  const retry = executive.acknowledgeOwnerRequestHandoff(db, request.work_item.work_id, {
+    downstream_type: 'change-request',
+    downstream_id: 'change-123',
+    title: 'Add social profile links',
+    site: 'example.com',
+  });
+  assert.equal(retry.message_id, first.message_id);
+  assert.equal(db.listExecutiveMessages({ work_id: request.work_item.work_id }).length, 2);
+  db.close();
+});
+
 test('enforces owner-request lifecycle transitions and requires a close outcome', () => {
   const db = store();
   const request = executive.ownerRequest(db, { actor: 'owner', body: 'Track the release decision.' });
