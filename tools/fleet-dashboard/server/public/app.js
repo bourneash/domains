@@ -11169,8 +11169,10 @@ function cqNextAction(r, settings) {
   const age = Date.now() - new Date(r.created_at || 0).getTime();
   const staleQueue =
     r.status === 'queued' && age > Math.max(10, Number(settings.interval_minutes || 1) * 2) * 60000;
-  if (r.status === 'queued')
+  if (r.status === 'queued') {
+    if (r.queue_block?.blocked) return r.queue_block.primary.label;
     return staleQueue ? 'Investigate pickup delay' : 'Dispatch when capacity is available';
+  }
   if (r.status === 'claimed') return 'Confirm worker started';
   if (r.status === 'running') return 'Monitor implementation and lease';
   if (r.status === 'reviewing') return 'Wait for quality gates';
@@ -11179,6 +11181,17 @@ function cqNextAction(r, settings) {
   if (r.status === 'cancelled') return 'Replace or close request';
   if (['deployed', 'verified', 'committed'].includes(r.status)) return 'Measure outcome';
   return 'Open request details';
+}
+
+function cqSiteContext(r) {
+  const context = r.site_context || {};
+  return `<div class="cq-site-context"><span class="cq-domain">${siteLink(r.site || context.domain)}</span><span class="cq-site-purpose">${esc(context.description || 'Site purpose not recorded')}</span></div>`;
+}
+
+function cqBlocker(r) {
+  if (!r.queue_block?.blocked) return '';
+  const reasons = (r.queue_block.reasons || []).slice(1).map(reason => reason.label).join(' · ');
+  return `<div class="cq-blocker"><span class="badge b-yellow">blocked</span><span><b>${esc(r.queue_block.primary.label)}</b><small>${esc(r.queue_block.primary.detail)}${reasons ? ` · Also: ${esc(reasons)}` : ''}</small></span></div>`;
 }
 
 function cqActionButtons(r) {
@@ -11196,7 +11209,7 @@ function cqActionButtons(r) {
 }
 
 function cqRequestRow(r, settings, compact = false) {
-  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b><div class="muted">${esc(r.site)} · ${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span><div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')} · ${cqAge(r.updated_at || r.created_at)} old</div></td><td>${compact ? `<button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
+  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b>${cqSiteContext(r)}<div class="muted">${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span>${cqBlocker(r)}<div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')} · ${cqAge(r.updated_at || r.created_at)} old</div></td><td>${compact ? `<button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
 }
 
 function cqExceptionProfile(r) {
@@ -11238,6 +11251,7 @@ async function renderChangeQueue({ background = false } = {}) {
   }
   const requests = data.requests || [];
   const queued = requests.filter(r => r.status === 'queued');
+  const blocked = queued.filter(r => r.queue_block?.blocked).length;
   const active = requests.filter(r =>
     ['claimed', 'running', 'reviewing', 'review'].includes(r.status)
   );

@@ -54,6 +54,7 @@ const improvements = require('./improvements');
 const measurementRunner = require('./measurement-runner');
 const improvementAgent = require('./improvement-agent');
 const changequeue = require('./changequeue');
+const changequeueView = require('./changequeue-view');
 const changequeueNotify = require('./changequeue-notify');
 const executiveFollowup = require('./executive-followup');
 const executiveFailureFollowup = require('./executive-failure-followup');
@@ -3079,8 +3080,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       for (const request of events.listChangeRequests({ limit: 1000 })) {
         if (request.run_id) syncChangeRequestFromRun(events.getImprovement(request.run_id));
       }
+      const enriched = changequeueView.enrichChangeRequests(
+        root,
+        events.listChangeRequests(req.query),
+        events.getChangeQueueSettings(),
+        events.listImprovements({ limit: 1000 })
+      );
       res.json({
-        requests: events.listChangeRequests(req.query),
+        requests: enriched,
         settings: events.getChangeQueueSettings(),
         categories: changequeue.CATEGORIES,
         providers: changequeue.PROVIDERS,
@@ -3722,8 +3729,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const request = events.getChangeRequest(req.params.id);
       if (!request) return res.status(404).json({ error: 'change request not found' });
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
+      const enrichedRequest = changequeueView.enrichChangeRequests(
+        root,
+        [request],
+        events.getChangeQueueSettings(),
+        events.listImprovements({ limit: 1000 })
+      )[0];
       res.json({
-        request,
+        request: enrichedRequest,
         run,
         events: events.list({ correlation_id: `change-request:${request.request_id}`, limit: 100 }),
       });
