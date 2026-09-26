@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:19:09.174Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:34:00.353Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "AI spend is measurable for 2026-09-01 through 2026-09-26: $948.88 across 5,327 calls, including 230 errors and 5 transient errors. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent, while revenue is only one day and site-attributed commission is $0. Cost-to-learn is also not calculable because experiment-level cost and incremental attributable outcomes are unavailable.",
+        "summary": "CFO recommendation: approve containment-only work and authorize no new discretionary spend, production requests, monetization expansion, or external outreach this cycle. The evidence does not support revenue forecasts or investment approval: Amazon data covers only 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0 because the $4.92 is in an aggregate “other” row. Contribution margin, ROI, cost-to-learn, infrastructure cost, labor cost, incremental cost, and budget exposure are not calculable because required cost and attributable revenue data are absent. AI usage is measurable: $948.8788343 from 2026-09-01 through 2026-09-26 across 5,327 calls, including 230 errors and 5 transient errors, but AI-only margin is not a complete contribution margin. Continue existing reconciliation, failed-run containment, measurement, security evidence, and private launch-gate work. Do not treat impressions, clicks, sessions, conversions, SEO scores, or performance metrics as financial return.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Budget exposure cannot be bounded: monthly spend limit, fixed monthly costs, marketing budget, revenue floor, and attribution materiality threshold are blank in the brief. Minimum finance measurement is a period-aligned site ledger covering attributable revenue, AI cost, infrastructure cost, domains, labor, marketing, and experiment-level incremental outcomes. Use existing evidence only; do not request duplicate telemetry or treat missing values as zero.",
+        "summary": "CFO finance-control requirements for existing measurement work: report source dates and preserve unknowns; show site-level attributable commission separately from aggregate provider earnings; calculate AI cost per site only where available; do not calculate margin or payback without revenue and all-in incremental cost. Minimum measurement needed for contribution margin and cost-to-learn is a period-aligned ledger keyed by site and change: attributable revenue/commission, AI cost, infrastructure cost, labor or effort cost, incremental marketing/spend, exposure date, and outcome event. No duplicate telemetry request is justified because the available snapshot already identifies the missing fields.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO handoff: retain the existing reconciliation, measurement, failed-run containment, and security-evidence workstreams. Update measurement records with source dates and separately label revenue, attribution, contribution margin, cost-to-learn, infrastructure spend, budget exposure, and causal lift as unknown where unsupported. Requeue or fund no work without documented attributable upside or cost saving.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain private launch gates and authorize only bounded read-only evidence work. Rights-dependent monetization and external spend remain blocked. Technical metrics such as impressions, clicks, sessions, conversions, performance scores, or AI calls are not financial returns and must not be presented as such.",
+        "summary": "CFO launch recommendation: keep the gated product private and approve only internal read-only evidence preparation. No revenue forecast, ROI claim, monetization change, or spend is supported while source rights, attribution reconciliation, security, accuracy, privacy, and owner gates remain incomplete. The minimum finance gate is a reconciled site/content identifier linking clicks, orders, shipped items, commission, and direct costs; without it, economics remain unknown rather than zero.",
         "requested_action": null,
         "proposal_id": null
       }

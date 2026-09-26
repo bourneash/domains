@@ -2,49 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:19:09.175Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:34:00.353Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution this cycle. Create no new proposals, experiments, research requests, change requests, telemetry requests, dependencies, spend, permissions, schedules, deployments, or launch activity. Continue only existing reconciliation, measurement, failed-run containment, and bounded security-evidence work.",
+        "summary": "CTO approval: create no new proposals, production requests, experiments, telemetry requests, dependencies, spend, or external outreach this cycle. Continue only existing reconciliation, failed-run containment, measurement, bounded security evidence, and private launch-readiness work. Requeue is blocked until deduplication, ownership, root cause, isolated validation, rollback, and queue eligibility are documented. Preserve unavailable revenue, attribution, ROI, margin, causal lift, cost-to-learn, and operational health as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reconcile approved work against queued, deployed, cancelled, and failed records. Record deduplication, ownership, validation gates, rollback paths, and queue eligibility. Do not requeue or expand production work until these controls are evidenced.",
+        "summary": "CTO review: the proposed containment-only plan is technically feasible, isolated, reversible, and safe to remain in the existing queue as work-item updates. Use only already-available source-dated impressions, clicks, sessions, conversions, site-attributed commission, and AI cost. Do not request duplicate telemetry or treat missing fields as zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement using only available, source-dated impressions, clicks, sessions, conversions, site-attributed commission, and already-available AI cost. Preserve revenue, attribution, ROI, margin, causal lift, cost-to-learn, infrastructure cost, labor cost, incremental cost, budget exposure, and operational health as unknown where unavailable.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue failed-run containment without requeue. Require documented deduplication, owner assignment, root cause, smallest isolated repair, focused validation, rollback, and explicit requeue-or-close disposition before any implementation resumes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Missing access, secrets, isolation, release, monitoring, incident, and disclosure evidence remains unknown rather than passed; keep private launch gates unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private. Internal evidence and unsent permission-request preparation may continue, but external outreach, public exposure, monetization, alert expansion, configuration changes, credential changes, dependencies, and deployment remain unauthorized pending owner and required specialist decisions.",
+        "summary": "Keep the gated product private. Continue internal rights, data-flow, consent, vendor, retention, accuracy, security, and measurement evidence preparation only. The permission-request draft remains unsent pending owner authorization and human counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

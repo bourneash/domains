@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T16:19:09.210Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:34:00.354Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only updates. Revenue, attribution, ROI, margin, causal lift, budget exposure, and operational health remain unsupported; do not fund, launch, requeue, or expand production work. Continue existing measurement, failure containment, reconciliation, and bounded security evidence only.",
+        "summary": "Independent reviewer disposition: approve containment-only updates to existing reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch work. Reject new proposals, production changes, queue expansion, requeues, experiments, telemetry requests, spending, external outreach, and monetization changes. Preserve unknown revenue, attribution, ROI, margin, causal lift, cost-to-learn, and operational health. Keep gated launches private.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue failed-run containment without requeue. Require deduplication, ownership, root cause, smallest isolated repair, focused validation, rollback, and explicit requeue-or-close evidence first.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain private launch gates and continue bounded read-only security evidence capture. Missing controls remain unknown, not passed; do not modify production, credentials, permissions, configuration, or deployment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing measurement and reconciliation using only source-dated available telemetry. Do not request duplicate telemetry or infer financial or causal outcomes.",
+        "summary": "Material concerns: revenue evidence is limited to one day, with $4.92 aggregate commission and $0 site-attributed commission; financial and causal claims are unsupported. Existing failures and measurement backlog require reconciliation before new production work. Authorize or decline the prepared permission request separately; until then, keep it unsent and the gated product private.",
         "requested_action": null,
         "proposal_id": null
       }
