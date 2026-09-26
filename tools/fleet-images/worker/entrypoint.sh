@@ -73,7 +73,7 @@ ensure_playwright_browsers
 # OffshoreHookup runner performs a second, worktree-scoped check; this shared
 # guard gives the rest of the fleet the same fail-closed runtime boundary while
 # their site-specific transaction wrappers are migrated.
-if [[ "${1:-}" == "content-writer" ]]; then
+if [[ "${1:-}" == "content-writer" && "${CONTENT_WRITER_CONTAINER_SANDBOX:-0}" != "1" ]]; then
     PREFLIGHT="${ROOT}/.monorepo-tools/cron-roles/content-writer-runtime-preflight.sh"
     [[ -x "$PREFLIGHT" ]] || PREFLIGHT="/work/.monorepo-tools/cron-roles/content-writer-runtime-preflight.sh"
     if [[ ! -x "$PREFLIGHT" ]] || ! "$PREFLIGHT" "$ROOT"; then
