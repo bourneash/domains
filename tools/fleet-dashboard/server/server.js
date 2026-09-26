@@ -276,6 +276,15 @@ function installedSiteRoles(root, site) {
   }
 }
 
+// Report-only requests produce evidence in the isolated worktree and never
+// deliver site code. They can safely run for a newly scaffolded site before
+// its per-site cron role files have been installed. Direct implementation
+// requests still require an installed owner so an absent role cannot become
+// an executable mutation path.
+function requiresInstalledSiteOwner(request) {
+  return request?.delivery_mode !== 'report_only';
+}
+
 function reportArtifactPath(root, requestId) {
   return path.join(
     root,
@@ -498,6 +507,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     });
     if (
       claimed.site !== 'fleet' &&
+      requiresInstalledSiteOwner(claimed) &&
       (!routedRole || (!availableRoles.includes(routedRole) && !executiveReadOnly))
     ) {
       const reason =
@@ -3155,7 +3165,29 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         .listExecutiveActions({ limit: 100 })
         .filter(row => row.target_type === 'manual-executive-run');
       const active = recent.find(row => row.status === 'started');
-      if (active)
+      if (active && active.result?.pid) {
+        let running = true;
+        try {
+          process.kill(Number(active.result.pid), 0);
+        } catch {
+          running = false;
+        }
+        if (!running) {
+          executive.finishAction(events, active.action_id, {
+            status: 'failed',
+            error: 'manual executive run was orphaned after its worker process exited',
+            result: {
+              ...active.result,
+              orphaned_at: new Date().toISOString(),
+              orphaned_pid: active.result.pid,
+            },
+          });
+        }
+      }
+      const stillActive =
+        recent.find(row => row.status === 'started' && row.action_id === active?.action_id) &&
+        events.getExecutiveAction(active.action_id)?.status === 'started';
+      if (stillActive)
         return res
           .status(409)
           .json({ error: 'an executive team run is already in progress', run: active });
@@ -6325,5 +6357,6 @@ module.exports = {
   shouldRecoverStaleDeliveryClaim,
   shouldRecoverReviewerDeliveryClaim,
   shouldValidateBeforeDelivery,
+  requiresInstalledSiteOwner,
   applyQualityPolicy,
 };

@@ -14,8 +14,14 @@ const {
   shouldRecoverStaleDeliveryClaim,
   shouldRecoverReviewerDeliveryClaim,
   shouldValidateBeforeDelivery,
+  requiresInstalledSiteOwner,
   applyQualityPolicy,
 } = require('./server');
+
+test('report-only requests do not require a site cron role', () => {
+  assert.equal(requiresInstalledSiteOwner({ delivery_mode: 'report_only' }), false);
+  assert.equal(requiresInstalledSiteOwner({ delivery_mode: 'direct' }), true);
+});
 
 test('successful report-only workers finalize evidence without a second model reviewer', () => {
   assert.equal(
