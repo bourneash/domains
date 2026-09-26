@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T20:03:59.441Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T20:18:29.383Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution and authorize no new discretionary spend, monetization expansion, or budget commitment. AI spend was $963.569 for 2026-09-01 through 2026-09-26 across 5,390 calls. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the $4.92 is in an aggregate provider row that cannot be assigned without inventing attribution. Contribution margin, ROI, cost-to-learn, causal lift, and budget exposure are not calculable because infrastructure, domain, labor, marketing, other operating costs, experiment-level costs, incremental outcomes, and owner-approved financial limits are absent. Minimum measurement: a period-aligned cost ledger matched to site-attributed commission, experiment-level cost and incremental outcomes, and approved monthly revenue, fixed-cost, marketing, and spend limits. Continue existing source-dated measurement and reconciliation only; reject unsupported forecasts or financial upside claims.",
+        "summary": "CFO recommendation: approve containment-only execution and authorize no new discretionary spend, monetization expansion, budget commitment, requeue, or forecast. AI spend was $963.569 across 5,390 calls from 2026-09-01 through 2026-09-26. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate provider row cannot be assigned without inventing attribution. Contribution margin, ROI, cost-to-learn, causal lift, and budget exposure are not calculable: infrastructure, domain, labor, marketing, other operating costs, experiment-level costs, incremental outcomes, and approved financial limits are absent. Minimum measurement is a period-aligned cost ledger matched to site-attributed commission, experiment-level cost and incremental outcomes, and owner-approved monthly limits. Continue existing measurement, attribution reconciliation, failure repair-or-close review, and bounded security evidence work only; reject vanity metrics and unsupported revenue claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CFO rejects any claim that impressions, clicks, sessions, conversions, performance scores, or deployed changes establish financial return. Preserve unknown contribution margin, ROI, cost-to-learn, causal lift, budget exposure, infrastructure spend, and operating health until the minimum measurement is available.",
         "requested_action": null,
         "proposal_id": null
       }
