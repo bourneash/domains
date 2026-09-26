@@ -11284,14 +11284,16 @@ function cqSiteContext(r) {
 function cqBlocker(r) {
   if (!r.queue_block?.blocked) return '';
   const reasons = (r.queue_block.reasons || []).slice(1).map(reason => reason.label).join(' · ');
-  return `<div class="cq-blocker"><span class="badge b-yellow">blocked</span><span><b>${esc(r.queue_block.primary.label)}</b><small>${esc(r.queue_block.primary.detail)}${reasons ? ` · Also: ${esc(reasons)}` : ''}</small></span></div>`;
+  const escalation = r.queue_block.escalated ? ' · Escalation threshold reached' : '';
+  const next = r.queue_block.next_check_at ? ` · Recheck ${fmtDate(r.queue_block.next_check_at)}` : '';
+  return `<div class="cq-blocker"><span class="badge ${r.queue_block.escalated ? 'b-red' : 'b-yellow'}">blocked</span><span><b>${esc(r.queue_block.primary.label)}</b><small>${esc(r.queue_block.primary.detail)}${reasons ? ` · Also: ${esc(reasons)}` : ''}${escalation}${next}</small></span></div>`;
 }
 
 function cqActionButtons(r) {
   const id = esc(r.request_id);
   const manage = `<button class="btn sm cq-detail" data-id="${id}" title="Open inline actions, request details, and timeline">Actions</button>`;
   if (r.status === 'queued')
-    return `${manage} <button class="btn sm primary cq-pick" data-id="${id}">Dispatch</button>`;
+    return `${manage} <button class="btn sm primary cq-pick" data-id="${id}">Dispatch</button> <button class="btn sm cq-reevaluate" data-id="${id}" title="Re-check capacity and site locks without bypassing safety rules">Re-evaluate</button>`;
   if (r.status === 'review')
     return `${manage} <button class="btn sm primary cq-auto-review" data-id="${id}">Review & deliver</button>`;
   if (r.status === 'failed')
@@ -11471,7 +11473,7 @@ async function renderChangeQueue({ background = false } = {}) {
   if (!CHANGE_QUEUE_NEXT_PICKUP_AT || CHANGE_QUEUE_NEXT_PICKUP_AT < Date.now())
     CHANGE_QUEUE_NEXT_PICKUP_AT = Date.now() + Number(data.settings.interval_minutes || 30) * 60000;
   app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">One place to decide what needs attention, what is moving, and what is safe to leave alone.</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><button class="btn primary" id="cq-new">New change request</button></div></div>
-    <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><button class="btn sm" id="cq-pickup-all">Dispatch due work</button></section>
+    <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><div class="cq-command-stat"><span>Blocked</span><strong>${blocked}</strong><small>${data.queue_metrics?.oldest_blocked_at ? `oldest ${cqAge(data.queue_metrics.oldest_blocked_at)}` : 'none'}</small></div><button class="btn sm" id="cq-pickup-all">Dispatch due work</button></section>
     <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked</strong><small>Open a queued row to see whether capacity, another run, or a measurement window is holding it.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section>
     <section class="card cq-register"><div class="cq-register-head"><div><div class="cq-eyebrow">WORK REGISTER</div><h3>All change requests</h3><p>Search the full history when you need context. The focus lane above is reserved for decisions.</p></div><span class="muted">${filteredRequests.length} matching · ${pageLabel}</span></div><div class="cq-register-toolbar"><div class="cq-filter-group"><input id="cq-search" class="cm-input" placeholder="Search title, site, role…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input" title="Filter by state"><option value="all">All states</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input" title="Filter by site"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input" title="Filter by priority"><option value="all" ${CHANGE_QUEUE_FILTER.priority === 'all' ? 'selected' : ''}>All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>${x}</option>`).join('')}</select><select id="cq-owner-filter" class="cm-input" title="Filter by owner"><option value="all">All owners</option>${owners.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_OWNER === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input" title="Filter by provider"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div><div class="cq-sort-group"><label class="cq-filter-label" for="cq-sort">Sort</label><select id="cq-sort" class="cm-input"><option value="created_at" ${CHANGE_QUEUE_SORT === 'created_at' ? 'selected' : ''}>Recent activity</option><option value="priority" ${CHANGE_QUEUE_SORT === 'priority' ? 'selected' : ''}>Priority</option><option value="status" ${CHANGE_QUEUE_SORT === 'status' ? 'selected' : ''}>State</option><option value="site" ${CHANGE_QUEUE_SORT === 'site' ? 'selected' : ''}>Site</option><option value="owner" ${CHANGE_QUEUE_SORT === 'owner' ? 'selected' : ''}>Owner</option><option value="provider" ${CHANGE_QUEUE_SORT === 'provider' ? 'selected' : ''}>Provider</option></select><button class="btn sm" id="cq-sort-dir" title="Toggle sort direction">${CHANGE_QUEUE_SORT_DIR === 'asc' ? '↑ Ascending' : '↓ Descending'}</button></div></div><div class="table-wrap"><table class="tbl cq-table"><thead><tr><th>Priority</th><th>Request</th><th>State / next action</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div><div class="cq-pagination"><label class="muted">Rows <select id="cq-page-size" class="cm-input"><option ${CHANGE_QUEUE_PAGE_SIZE === 10 ? 'selected' : ''}>10</option><option ${CHANGE_QUEUE_PAGE_SIZE === 25 ? 'selected' : ''}>25</option><option ${CHANGE_QUEUE_PAGE_SIZE === 50 ? 'selected' : ''}>50</option></select></label><span class="muted">${pageLabel}</span><button class="btn sm" id="cq-page-prev" ${CHANGE_QUEUE_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="cq-page-next" ${CHANGE_QUEUE_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div></section><div id="cq-detail-panel"></div>`;
   if (CHANGE_QUEUE_CLOCK) clearInterval(CHANGE_QUEUE_CLOCK);
@@ -11614,6 +11616,20 @@ async function renderChangeQueue({ background = false } = {}) {
         }
       })
   );
+  $$('.cq-reevaluate').forEach(
+    b =>
+      (b.onclick = async () => {
+        b.disabled = true;
+        try {
+          await api('POST', `/api/change-requests/${encodeURIComponent(b.dataset.id)}/re-evaluate`, {});
+          toast('Queue locks re-evaluated');
+          softRender();
+        } catch (e) {
+          b.disabled = false;
+          toast(e.message, 'err');
+        }
+      })
+  );
   $$('.cq-auto-review').forEach(
     b =>
       (b.onclick = async () => {
@@ -11694,7 +11710,7 @@ async function renderChangeQueueDetail(id) {
       .join('');
     const actions =
       r.status === 'queued'
-        ? `<button class="btn sm primary cq-detail-pick">Pick up now</button><button class="btn sm danger cq-detail-cancel">Cancel</button>`
+        ? `<button class="btn sm primary cq-detail-pick">Pick up now</button><button class="btn sm cq-detail-reevaluate">Re-evaluate</button><button class="btn sm danger cq-detail-cancel">Cancel</button>`
         : r.status === 'failed'
           ? `<button class="btn sm primary cq-detail-retry">Retry</button>`
           : r.status === 'review'
@@ -11710,6 +11726,8 @@ async function renderChangeQueueDetail(id) {
     const preflightText =
       preflight.passed === true ? 'passed' : preflight.passed === false ? 'blocked' : 'not run';
     panel.innerHTML = `<section class="card cq-detail-card"><div class="page-head"><div><h3>${esc(r.title)}</h3><div class="muted">${esc(r.site)} · ${esc(r.category)} · request ${esc(r.request_id.slice(0, 8))}${r.requested_by ? ` · requested by ${esc(r.requested_by)}` : ''}</div></div><div><button class="btn sm cq-detail-edit">Edit request</button> ${run ? '<button class="btn sm cq-detail-preflight">Run preflight</button>' : ''}${actions}<button class="btn sm" id="cq-detail-close">Close</button></div></div><div class="seo-stats"><div class="seo-stat"><div class="seo-stat-label">Status</div><div class="seo-stat-value" style="font-size:16px">${esc(r.status)}</div><div class="seo-stat-sub">${esc(r.attempts)} attempt(s)</div></div><div class="seo-stat"><div class="seo-stat-label">Agent</div><div class="seo-stat-value" style="font-size:16px">${esc(r.provider)}</div><div class="seo-stat-sub">${esc(r.model || 'provider default')} · ${esc(r.max_turns)} turns</div></div><div class="seo-stat"><div class="seo-stat-label">Role</div><div class="seo-stat-value" style="font-size:16px">${esc(r.assigned_role || 'engineer')}</div><div class="seo-stat-sub">priority ${esc(r.priority)}</div></div><div class="seo-stat"><div class="seo-stat-label">Delivery</div><div class="seo-stat-value" style="font-size:16px">${esc(r.delivery_mode || 'direct')}</div><div class="seo-stat-sub">${r.source_proposal_id ? `proposal ${esc(r.source_proposal_id.slice(0, 8))}` : 'no linked proposal'}</div></div><div class="seo-stat"><div class="seo-stat-label">Preflight</div><div class="seo-stat-value" style="font-size:16px">${esc(preflightText)}</div><div class="seo-stat-sub">${esc(preflight.recorded_at || 'environment not checked')}</div></div><div class="seo-stat"><div class="seo-stat-label">Linked run</div><div class="seo-stat-value" style="font-size:16px">${run ? esc(run.state) : 'not started'}</div><div class="seo-stat-sub">${run ? esc(run.run_id.slice(0, 8)) : 'waiting for pickup'}</div></div></div><h4>Request</h4><pre class="cn-logs-box cq-request-body">${esc(r.body || '(no additional details)')}</pre>${r.error ? `<div class="error-box">${esc(r.error)}</div>` : ''}${reportLink}${run && improvement ? `<h4>Delivery evidence</h4><pre class="cn-logs-box">${esc(improvement.workspace?.diff_stat || '')}\n${esc(improvement.diff?.text || '(no uncommitted diff)')}\n\nAgent status: ${esc(improvement.agent?.status || 'not started')}\n\n${esc(improvement.agent?.log_tail || '(no agent output yet)')}</pre><p><a class="btn sm" href="#improvements">Open full improvement review</a></p>` : ''}<h4>Timeline</h4><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${eventRows || '<tr><td colspan="3" class="muted">No events yet.</td></tr>'}</tbody></table></section>`;
+    const detailHeader = $('.cq-detail-card .page-head > div');
+    if (detailHeader) detailHeader.insertAdjacentHTML('beforeend', cqSiteContext(r) + cqBlocker(r));
     $('#cq-detail-close').onclick = () => {
       CHANGE_QUEUE_DETAIL = null;
       panel.innerHTML = '';
@@ -11730,6 +11748,17 @@ async function renderChangeQueueDetail(id) {
         toast('Request pickup started');
         softRender();
       } catch (e) {
+        toast(e.message, 'err');
+      }
+    });
+    $('.cq-detail-reevaluate', panel)?.addEventListener('click', async button => {
+      button.currentTarget.disabled = true;
+      try {
+        await api('POST', `/api/change-requests/${encodeURIComponent(r.request_id)}/re-evaluate`, {});
+        toast('Queue locks re-evaluated');
+        softRender();
+      } catch (e) {
+        button.currentTarget.disabled = false;
         toast(e.message, 'err');
       }
     });

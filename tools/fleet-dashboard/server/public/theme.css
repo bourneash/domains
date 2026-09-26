@@ -217,6 +217,7 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 .cq-blocker > span:last-child { min-width: 0; }
 .cq-blocker b, .cq-blocker small { display: block; }
 .cq-blocker small { margin-top: 2px; color: var(--muted); }
+.cq-blocker .b-red { border-color: rgba(255,107,107,.55); background: rgba(255,107,107,.13); color: #ff9b9b; }
 
 @media (max-width: 980px) { .cq-command-strip { grid-template-columns: minmax(0, 1fr) 130px 125px; } .cq-command-strip > .btn { grid-column: 1 / -1; justify-self: start; } .cq-overview-grid { grid-template-columns: 1fr; } }
 @media (max-width: 650px) { .cq-command-strip { grid-template-columns: 1fr 1fr; gap: 13px; } .cq-command-main { grid-column: 1 / -1; } .cq-command-stat { padding-left: 0; border-left: 0; } .cq-command-strip > .btn { grid-column: auto; } .cq-register-head { flex-direction: column; } .cq-register-toolbar .cq-filter-group, .cq-register-toolbar .cq-sort-group { align-items: stretch; width: 100%; } .cq-register-toolbar #cq-search { min-width: 0; width: 100%; } .cq-register-toolbar .cm-input { flex: 1; min-width: 0; } .cq-policy .task-toolbar { grid-template-columns: 1fr; } }

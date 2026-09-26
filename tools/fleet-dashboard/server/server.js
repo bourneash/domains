@@ -1787,7 +1787,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     // measurement window does not hide a later report-only request that can
     // safely run on the same site. `pick` only reads queued rows; claiming
     // still happens inside dispatchChangeRequest.
-    const candidates = changequeue.pick(events, { max: Math.min(100, Math.max(slots, 1) * 25) });
+    const candidates = changequeue
+      .pick(events, { max: Math.min(100, Math.max(slots, 1) * 25) })
+      // Once work has waited beyond the fairness window, age wins over the
+      // normal priority ordering. This prevents a continuously replenished
+      // high-priority stream from starving an older eligible request.
+      .sort((a, b) => {
+        const ageA = Date.now() - Date.parse(a.created_at || 0);
+        const ageB = Date.now() - Date.parse(b.created_at || 0);
+        const escalatedA = ageA >= changequeueView.FAIRNESS_ESCALATION_MS;
+        const escalatedB = ageB >= changequeueView.FAIRNESS_ESCALATION_MS;
+        if (escalatedA !== escalatedB) return escalatedA ? -1 : 1;
+        return 0;
+      });
     const picked = candidates
       .filter(request => {
         if (busySites.has(request.site)) return false;
@@ -3081,14 +3093,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       for (const request of events.listChangeRequests({ limit: 1000 })) {
         if (request.run_id) syncChangeRequestFromRun(events.getImprovement(request.run_id));
       }
-      const enriched = changequeueView.enrichChangeRequests(
+      const queueSnapshot = changequeueView.buildQueueSnapshot(
         root,
         events.listChangeRequests(req.query),
         events.getChangeQueueSettings(),
         events.listImprovements({ limit: 1000 })
       );
       res.json({
-        requests: enriched,
+        ...queueSnapshot,
         settings: events.getChangeQueueSettings(),
         categories: changequeue.CATEGORIES,
         providers: changequeue.PROVIDERS,
@@ -3799,6 +3811,25 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/change-requests/pickup', async (req, res) => {
     try {
       res.json(await pickupChangeRequests(req.body?.max));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/re-evaluate', async (req, res) => {
+    try {
+      const request = events.getChangeRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: 'change request not found' });
+      if (request.status !== 'queued')
+        return res.status(409).json({ error: `only queued requests can be re-evaluated; current status is ${request.status}` });
+      const result = await pickupChangeRequests(req.body?.max);
+      const refreshed = events.getChangeRequest(req.params.id);
+      const enriched = changequeueView.enrichChangeRequests(
+        root,
+        [refreshed],
+        events.getChangeQueueSettings(),
+        events.listImprovements({ limit: 1000 })
+      )[0];
+      res.json({ request: enriched, pickup: result });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
