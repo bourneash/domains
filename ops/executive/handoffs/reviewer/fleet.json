@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T23:05:39.973Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T23:19:36.911Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims. Revenue is limited to one aggregate day with $0 site-attributed commission; ROI, margin, payback, causal lift, and cost-to-learn remain unknown. Reconcile existing AI-usage records before final spend reporting.",
+        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims. Preserve aggregate commission as unattributed; ROI, margin, payback, causal lift, cost-to-learn, and budget exposure remain unknown. Keep the gated product private.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing measurement using available telemetry only. Do not add instrumentation, request duplicate telemetry, assign aggregate commission to any site, or claim financial or causal outcomes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve failed-work containment without requeue. Continue repair-or-close review; require canonical lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition before implementation resumes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private. Continue the existing consolidated read-only evidence bundle and field-level rights matrix; keep external outreach, deployment, configuration changes, and monetization blocked pending required legal, security, accuracy, attribution, measurement, and owner gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence capture only. Keep security-sensitive public exposure and releases blocked while access, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence remains incomplete.",
+        "summary": "Owner message: Material concerns are incomplete attribution, conflicting AI-cost records, open failure follow-ups, measurement backlog, and incomplete legal/security gates. The available revenue evidence is one aggregate day with $4.92 commission and $0 site-attributed commission. Authorize the prepared permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }

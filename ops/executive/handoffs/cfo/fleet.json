@@ -2,21 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T23:05:39.972Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T23:19:36.911Z",
+  "summary": "cfo checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Authorize no discretionary spend, budget commitments, monetization expansion, forecasts, requeues, or new production work. Revenue evidence supports only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. The current brief records AI cost of $966.83 across 5,417 calls from 2026-09-01 through 2026-09-26, while the candidate cites $963.57 and 5,390 calls; reconcile this discrepancy before reporting a final AI-spend figure. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Minimum measurement: reconcile a dated cost ledger to site/content identifiers and the revenue window, preserve aggregate revenue as unattributed, measure incremental results within existing experiment windows, and record owner-approved spending limits. Continue only existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work.",
+        "summary": "Recommendation: maintain financial containment. The available revenue window is one day with $4.92 aggregate commission and $0 site-attributed commission; period-aligned costs, margin, ROI, payback, and budget exposure are not calculable. Reconcile the conflicting AI-cost records before final reporting; authorize no discretionary spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Revenue evidence is limited to 2026-09-21: $4.92 aggregate commission and $0 site-attributed commission. AI usage is currently recorded as $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26; reconcile conflicting prior records before final reporting. ROI, margin, payback, cost-to-learn, infrastructure spend, and budget exposure remain unknown.",
+        "summary": "Recommendation: maintain financial containment. Authorize no discretionary spend, budget commitments, monetization expansion, forecasts, requeues, or new production work. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is recorded as $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26, conflicting with prior records of $963.5690377 and 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Minimum measurement: reconcile the AI ledger, create a dated period-aligned cost ledger mapped to site/content identifiers, preserve provider aggregate revenue as unattributed, and document owner-approved spending limits before any financial forecast or expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing source-dated measurement and attribution reconciliation only. Do not treat clicks, impressions, sessions, conversions, technical scores, ordered items, or shipped items as financial return without attributable commission and aligned costs. Do not assign the $4.92 aggregate commission to any site or claim margin, ROI, payback, causal lift, cost-to-learn, infrastructure efficiency, or budget headroom.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain containment-only execution across the existing portfolio. The 197 approved proposals without execution, 46 open failure follow-ups, 27 deployed improvements awaiting measurement, and 1 proven outcome are control signals, not evidence of financial return. Existing legal, security, and failed-work evidence activities may continue within scope; no new spend or monetization expansion is justified.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the private launch gate for the gated product. No rights-dependent monetization, public exposure, alert expansion, external outreach, or financial forecast is supported while attribution, measurement, source-rights, privacy, accuracy, and security evidence remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the evidence-needed security disposition. Security-sensitive releases and public exposure remain financially unapproved because infrastructure, operational, and control evidence is incomplete. Continue bounded read-only evidence work without creating spend or commitments.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain failed-work containment without requeue. A technical improvement or repair cannot be treated as value creation unless its incremental outcome and period-aligned cost are evidenced. Require lineage, root cause, validation, rollback, deduplication, and explicit disposition before implementation resumes.",
         "requested_action": null,
         "proposal_id": null
       }
