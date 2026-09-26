@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:26:37.273Z",
+  "generated_at": "2026-09-26T03:27:23.663Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run shoppinkflamingo.com audience, monetization, health, and backlog baseline",
-        "summary": "Produce a bounded read-only assessment of shoppinkflamingo.com using existing authoritative registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Preserve unavailable audience, traffic, conversion, revenue, attribution, health, and cost fields as unknown; do not infer telemetry, ROI, or causal lift.",
-        "requested_action": "Review existing evidence only and document exactly one evidence-backed next action or blocker. Acceptance artifact: a timestamped assessment covering observable audience and content positioning, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Rollback/follow-up boundary: no production rollback is required because no changes are authorized; follow-up is limited to documenting that single next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "84fcbd92-dfbb-4e66-8102-6d04e75889df"
+        "title": "Review sinderella.org affiliate conversion path after 50 clicks and zero attributed orders",
+        "summary": "Produce a bounded read-only assessment of sinderella.org using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. The available revenue window records 50 site-attributed affiliate clicks, 0 ordered items, and $0 commission; do not infer causality, ROI, or unavailable telemetry.",
+        "requested_action": "Review existing evidence only and document exactly one evidence-backed next action or blocker. Acceptance artifact: a timestamped assessment covering observable audience and content positioning, conversion paths, affiliate readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Rollback/follow-up boundary: no production rollback is required because no changes are authorized; follow-up is limited to documenting that single next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "9c9381b7-d9bb-4677-8e55-a8a4173acf3a"
       }
     ]
   }
