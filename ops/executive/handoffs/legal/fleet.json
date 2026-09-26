@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T08:03:06.635Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T09:03:23.012Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch of SearchWoot; conditional for ordinary reversible fleet growth that preserves existing consent, disclosures, data handling, claims, copyright and trademark boundaries, platform rules, and affiliate disclosures. Woot API access is evidenced, but permission to store, derive, cache, publicly display, alert on, or monetize returned data is not. Human counsel is required for upstream rights, privacy jurisdiction treatment, and any affiliate or advertising expansion. Launch-readiness tracking remains active: no legal task is closed. Next evidence action is to attach the authoritative permission or terms record and obtain owner authorization before sending the prepared Woot request.",
+        "summary": "Recommendation: keep SearchWoot private. Woot API access is documented, but commercial/public display, storage, derivatives, alerts, and monetization rights are unconfirmed; counsel review and owner authorization remain required before outreach. Ordinary reversible growth may continue within existing consent, disclosure, claims, and affiliate boundaries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth. The API access mechanism is evidenced, but public/commercial storage, derivatives, display, alerts, affiliate use, and advertising rights are not. Human counsel is required for upstream rights, privacy jurisdiction treatment, notification data, vendor/DPA terms, and any monetization expansion. Fleet compliance is a technical baseline, not certification: 36 sites pass, 17 fail, and 6 are unknown. Do not treat incomplete telemetry as a growth blocker where existing consent, disclosures, data handling, claims, copyright/trademark, platform-policy, and affiliate boundaries are preserved. No legal launch task is closed. Next evidence action: attach the authoritative permission/terms record or obtain owner authorization to send the prepared written request to the upstream provider; keep the site private until all legal and non-legal gates are satisfied.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Launch-readiness progress: source-rights, data-flow/retention, analytics-consent, and logs/vendor/incident tasks remain open because required evidence is incomplete. Existing evidence confirms official API documentation, but not redistribution rights; repository/configuration evidence is partial; privacy and GA4 evidence is incomplete; security, accuracy/freshness, measurement, and owner gates remain blocked. The exact decision is keep_private. Do not send external requests, expand alerts, enable new tracking, monetize, or change launch status without owner authorization and human counsel where identified.",
         "requested_action": null,
         "proposal_id": null
       }

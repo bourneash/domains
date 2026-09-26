@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T08:03:06.636Z",
+  "generated_at": "2026-09-26T09:03:23.013Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved only the existing report-only noveltyguns.com baseline. Reject all new production work, spend, affiliate experimentation, duplicate telemetry, unsupported revenue/ROI/margin/causal-lift claims, and any public launch while attribution, security, legal, accuracy, and measurement evidence remain incomplete. Preserve unknown fields. Continue existing repair, measurement, and bounded security evidence work; keep the gated product private. Owner decision remains limited to the prepared permissions request.",
+        "summary": "Approve only backlog reconciliation, existing failure containment, deployed-improvement measurement, bounded security evidence capture, and the approved read-only noveltyguns.com baseline. Reject new production work, spend, affiliate experimentation, duplicate telemetry, unsupported revenue/ROI/margin/causal-lift claims, and gated-product public exposure. Amazon commission is aggregate and not site-attributable; AI-cost and revenue windows are misaligned; infrastructure, labor, fixed costs, budgets, and operational sweeps remain unknown. Owner decision remains limited to the prepared permissions request, which must not be sent without authorization and required legal/technical gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concerns: aggregate commission is not site-attributable; revenue and AI-cost periods do not support ROI; infrastructure, labor, fixed costs, and budgets are unavailable; operations and fleet-doctor evidence is unavailable; compliance is not certification. No new implementation candidate has a defensible measurable outcome this cycle.",
+        "summary": "Material concerns: no defensible new implementation candidate has a measurable outcome this cycle. Preserve unknown telemetry and attribution fields; do not treat missing data as zero. Continue existing reversible work only with focused validation, rollback evidence, and available measurements.",
         "requested_action": null,
         "proposal_id": null
       }

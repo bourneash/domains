@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T08:03:06.636Z",
+  "generated_at": "2026-09-26T09:03:23.013Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide security controls; blocked for gated-product public exposure; conditional for ordinary reversible growth that preserves existing consent, disclosures, data handling, claims, and affiliate boundaries. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; security sitefacts provide no authentication, access-boundary, secrets, isolation, release-control, dependency, monitoring, incident, or disclosure findings; TLS has no certificates expiring within 30 days but broader TLS posture is unverified; compliance reports 36 pass, 17 fail, and 6 unknown and is not certification. Risk severity: high for gated-product launch because material controls are unknown; medium for bounded reversible fleet changes when no new credentials, dependencies, data collection, permissions, or cross-site behavior are introduced. Exact decision: keep the gated product private, authorize only bounded read-only security evidence capture and already-approved measurement/backlog work, do not create new production security work this cycle, and reassess only when concrete evidence covers authentication/access, secrets, runtime isolation, release/deploy controls, TLS, dependencies/supply chain, data exposure, monitoring/incidents, and security.txt/disclosure readiness. Missing evidence is not a clean bill of health.",
+        "summary": "Recommendation: preserve evidence_needed for fleet security and blocked status for gated-product exposure. Fleet-doctor and operations sweeps have no results, and authentication, secrets, isolation, release, dependency, monitoring, incident, and disclosure controls remain unverified. Continue read-only evidence capture only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security review accepts the candidate plan's no-new-implementation posture. It does not add a proposal or duplicate active evidence work. Continue existing security evidence capture using authorized metadata and retained artifacts only; do not access credentials or private containers, exploit targets, change permissions, deploy, request duplicate telemetry, or claim certification. The prepared external permissions request remains an owner decision and public launch remains blocked pending all required gates.",
+        "summary": "Security disposition: evidence_needed for fleet-wide controls; blocked for gated-product public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident response, and disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days; it does not establish complete TLS posture. Compliance reports 36 pass, 17 fail, and 6 unknown and is not certification. Risk severity: high for public gated-product launch because material controls are unknown; medium for bounded reversible fleet changes that add no credentials, dependencies, permissions, data collection, or cross-site behavior. Exact decision: do not authorize public exposure, credential or permission changes, deployment, alert expansion, or external outreach; continue existing read-only security evidence capture and permit only reversible growth preserving current consent, disclosures, data handling, claims, and affiliate boundaries. Reassess when concrete evidence exists for each listed control area. No new security proposal or duplicate telemetry request is warranted this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
