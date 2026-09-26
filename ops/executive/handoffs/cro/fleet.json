@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:04:48.071Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T06:05:27.890Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new production change is recommended this cycle. Existing evidence supports a bounded CRO research handoff for a dependency-free CTA prototype informed by shadcn/ui patterns, subject to CTO validation and the existing measurement gates.",
+        "summary": "CRO handoff: prioritize one reversible affiliate-conversion prototype on aliencouncil.com, using existing site analytics and affiliate instrumentation only. Do not adopt a GitHub dependency yet. The site has 28 sessions, 10 affiliate clicks, and zero attributed orders in the available revenue window; this supports testing clearer intent-led recommendation modules but does not establish revenue lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: prioritize one reversible affiliate-conversion prototype on aliencouncil.com, using existing site analytics and affiliate instrumentation only. Do not adopt a GitHub dependency yet. Evidence supports testing clearer intent-led recommendation modules but does not establish revenue lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Prioritize no new affiliate prototype this cycle. Aliencouncil.com has 28 sessions, 10 affiliate clicks, and 0 attributed orders in the available window. Reconsider only a native page-local test using existing instrumentation after backlog clearance.",
         "requested_action": null,
         "proposal_id": null
       }

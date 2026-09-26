@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T05:05:17.602Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T06:05:27.891Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the CRO’s allthingsmasonic.com comparison-block hypothesis, but do not queue duplicate work while the site already has active/deployed implementation. Evidence: 61 Amazon clicks and 0 site-attributed orders in the 2026-09-21 revenue snapshot; 41 sessions and 3 conversions in the available scorecard. Attribution is partial, and causal lift, ROI, and commission are unknown. Smallest next step: CTO routes this prototype after current allthingsmasonic.com work clears, with a 14-day or 100-impression measurement window.",
+        "summary": "Recommendation: hold the CRO’s aliencouncil.com prototype this cycle. Evidence supports a test hypothesis—28 sessions and 10 affiliate clicks with 0 attributed orders, plus /brief/2026-08-14 at 190 impressions, position 4.3, and 0 clicks—but does not establish lift or identify a queue-safe implementation candidate. Current execution constraints are material: 174 approved proposals lack execution, 46 failed-request repairs remain open, and 26 deployed improvements await measurement. Unknowns are page files, active-work conflicts, and attributable margin. Smallest next step: finish the existing execution/measurement backlog, then re-evaluate a page-local native HTML/CSS test with a 14-day or 100-impression measurement gate. No owner decision is required now.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Hold the aliencouncil.com prototype this cycle. Evidence supports a test hypothesis but not lift or a queue-safe implementation. Re-evaluate after execution and measurement backlog clearance using a page-local native HTML/CSS test with a 14-day or 100-impression gate.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Hold the aliencouncil.com prototype this cycle. Re-evaluate after execution and measurement backlog clearance using a page-local native HTML/CSS test with a 14-day or 100-impression gate.",
         "requested_action": null,
         "proposal_id": null
       }

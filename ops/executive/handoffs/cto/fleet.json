@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T05:05:17.602Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T06:05:27.891Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved conditional hold. Do not queue duplicate allthingsmasonic.com comparison-block work while existing implementation is active or deployed. The hypothesis is technically feasible as a page-local reversible change, but it must wait for current work to clear and for the CFO’s bounded attribution/cost baseline. Preserve unknowns: causal lift, ROI, contribution margin, cost-to-learn, conversion value, and site-level commission are not established. After clearance, route only an isolated worktree change with focused tests, build, accessibility validation, page-only rollback, and a 14-day or 100-impression measurement window using available telemetry only.",
+        "summary": "CTO review: hold the aliencouncil.com affiliate prototype this cycle. The hypothesis is technically feasible as a native, page-local HTML/CSS change with existing links and instrumentation, but the current evidence does not establish lift, attributable revenue, margin, or causal impact. Active measurement and repair backlog, unavailable operations/fleet-doctor evidence, and unknown page-level conflicts make safe queue entry premature. Preserve the proposal for re-evaluation after backlog clearance; no dependency, telemetry, credential, DNS, schedule, spend, or cross-site change is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The CFO report-only reconciliation is safe to enter the existing queue. It is read-only, isolated from production, reversible by withdrawing the work item, and does not request duplicate telemetry or invent attribution. Acceptance must explicitly identify known, unavailable, and conflicting fields and whether the retained experiment’s measurement contract is complete.",
+        "summary": "Technical disposition: if reconsidered, route only a single-page native HTML/CSS prototype through an isolated worktree. Require focused build/tests, rendered mobile accessibility validation, affiliate-link and disclosure checks, deployment verification, and page-only rollback. Use only existing available measurements; record unknowns rather than infer revenue, ROI, incrementality, or infrastructure cost. Measure for 14 days or 100 new impressions, whichever comes later, subject to the existing measurement queue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Hold the prototype. If reconsidered, use one isolated page-local native HTML/CSS change with existing links and instrumentation. Require build, accessibility, disclosure, deployment, rollback, and measurement evidence. No new dependencies, telemetry, credentials, DNS, schedule, spend, or cross-site changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "If reconsidered, use one isolated page-local native HTML/CSS change with existing links and instrumentation. Require build, accessibility, disclosure, deployment, rollback, and measurement evidence. Add no dependencies, telemetry, credentials, DNS, schedules, spending, or cross-site changes.",
         "requested_action": null,
         "proposal_id": null
       }
