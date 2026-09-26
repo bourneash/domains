@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:51:25.496Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T04:10:00.154Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Reduce totaljerks.com mobile LCP before further growth work",
-        "summary": "SEO evidence records totaljerks.com mobile performance at 78 with LCP of 5642ms. Implement the smallest reversible performance improvement on the affected landing surface, preserving routes, content, disclosures, affiliate configuration, and analytics behavior. Revenue evidence records 453 affiliate clicks, 0 ordered items, and $0 site-attributed commission; no ROI or causal lift is claimed.",
-        "requested_action": "Route to engineer for a bounded performance repair. Establish the recorded LCP baseline, inspect the affected page and assets, reduce render-blocking or oversized resources without adding dependencies, run focused tests and the site build, and record before/after performance evidence. Measure search impressions, clicks, sessions, conversions, and site-attributed commission for 14 days or 100 new impressions.",
-        "proposal_id": "015583bc-edda-47f0-955d-206d31198371"
-      }
-    ]
+    "report_id": "07dcf9a3-c39d-4c26-8fd3-fc72dbeea2e0",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 6,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
