@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T04:10:00.154Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-26T08:46:38.285Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "07dcf9a3-c39d-4c26-8fd3-fc72dbeea2e0",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 6,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Run deadlymaracas.com launch-readiness and monetization baseline",
+        "summary": "Produce a bounded read-only assessment for deadlymaracas.com. The registry records a scaffold lifecycle, parked status for 123 days, active auto-renewal, site and ops capabilities only, and analytics not configured. Preserve audience, traffic, conversion, revenue, attribution, SEO, health, and cost fields as unknown unless directly evidenced.",
+        "requested_action": "Create a timestamped assessment covering observable site status, audience and content positioning, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Acceptance artifact: the completed assessment plus exactly one evidence-backed next action or blocker. Rollback/follow-up boundary: no production rollback is required because no changes are authorized; follow-up is limited to documenting that single next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "df1c9290-60bf-4ef6-8f46-6a835eb8c5a1"
+      }
+    ]
   }
 }
