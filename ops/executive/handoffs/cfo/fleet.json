@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T11:03:44.052Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T12:06:08.034Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep the gated product private, authorize no new production work or spend this cycle, and reject both proposed CRO initiatives pending financial measurement. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-level income is unavailable because the aggregate row is not assignable. AI spend is $948.8788343 from 2026-09-01 through 2026-09-26 across 39 instrumented sites. The apparent 192.86x AI-cost-to-commission ratio is not a valid return or margin measure because the periods differ and revenue is incomplete. Contribution margin, infrastructure cost, labor cost, cost-to-learn, ROI, incrementality, and causal lift are not calculable. Minimum measurement: a date-aligned site/content cost ledger covering AI, attributable infrastructure, and approved labor costs, reconciled to site-level shipped commission and experiment exposure. Continue only existing measurement and failure containment; preserve unknowns rather than treating missing revenue or operational sweeps as zero.",
+        "summary": "Recommendation: approve containment. Do not start new CRO, production, or spending initiatives this cycle. Revenue support is limited to Amazon aggregate data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Because the $4.92 is unattributed and covers one day while AI spend is $948.878834 from 2026-09-01 through 2026-09-26, portfolio contribution margin, ROI, and cost-to-learn are not calculable. Continue existing measurement, failed-run containment, and bounded security evidence work only. The minimum finance evidence needed is a same-period ledger mapping revenue, AI cost, attributable infrastructure cost, and any other direct cost by site and experiment; do not treat missing values as zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Attribution quality is insufficient for site-level revenue claims. Amazon reports 18 named tracking rows plus one aggregate row containing all 28 ordered items, 6 shipped items, and $4.92 commission. Named site rows show $0 commission, so no site or experiment can claim revenue, margin, ROI, or causal lift. The reported 6219-click aggregate conversion rate is 28/6219 (0.45% ordered items) and 6/6219 (0.10% shipped items), but it is not attributable to any site.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: approve containment. Revenue evidence covers one day and includes unattributed aggregate commission; AI usage covers a different period. Do not claim ROI, margin, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

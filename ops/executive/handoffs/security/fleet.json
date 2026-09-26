@@ -2,23 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T11:03:44.053Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T12:06:08.035Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide security controls; blocked for gated-product public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication, access boundaries, secrets, runtime isolation, release controls, dependency provenance, monitoring, incident response, data exposure, and disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days and does not establish complete TLS posture. Compliance is technical baseline only: 37 pass, 16 fail, and 6 unknown. Risk severity is high for public gated-product exposure and medium for bounded changes that add no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: keep the gated product private; permit only bounded read-only security evidence capture and existing approved measurement or failure containment; do not deploy, change permissions, retrieve credentials, access private containers, expand alerts, or request duplicate telemetry.",
+        "summary": "Disposition: evidence_needed for fleet-wide security controls; blocked for gated-product public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency provenance, monitoring, incident handling, data exposure, and security.txt/disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days and does not establish complete TLS posture. Compliance is a technical baseline only, with 37 pass, 16 fail, and 6 unknown. Risk severity is high for public gated-product exposure and medium for bounded changes that add no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: keep the gated product private; permit only bounded read-only evidence capture and existing reversible work that preserves current disclosures and data boundaries. Do not deploy, change credentials or permissions, access private containers, expand public exposure, add dependencies or telemetry, or claim certification. Reassess when concrete evidence exists for the unresolved controls.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing containment posture. Continue failed-run review, deployed-improvement measurement, and bounded read-only security evidence capture only. The actionable candidate set is empty, and missing operational/security telemetry must remain unknown rather than treated as passed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and private launch gate",
-        "summary": "Record the current read-only security disposition while preserving unknowns caused by unavailable fleet-doctor, operations, and retained control evidence. Public gated-product exposure remains blocked; ordinary reversible growth remains conditional.",
-        "requested_action": "Document evidence timestamps, owners, affected scope, severity, exact unknowns, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependencies and supply chain, data exposure, incident and monitoring signals, and security.txt or disclosure readiness. Continue only authorized metadata and retained-artifact review. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, request duplicate telemetry, or claim certification.",
-        "proposal_id": null
+        "title": "Continue bounded fleet security evidence capture",
+        "summary": "Maintain an evidence-needed fleet security disposition while documenting concrete control evidence and preserving unknowns from unavailable fleet-doctor and operations results.",
+        "requested_action": "Use only authorized metadata and retained artifacts to record timestamps, owners, affected scope, severity, exact unknowns, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependencies and supply chain, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, add dependencies, request duplicate telemetry, or claim certification. Keep gated-product public exposure blocked; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "proposal_id": "3aceba01-c26e-495d-ab2e-19154de2ba38"
       }
     ]
   }

@@ -2,23 +2,65 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T11:03:44.053Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T12:06:08.034Z",
+  "summary": "cto checked in 8 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve keeping SearchWoot private. The prepared permission request remains owner-authorized outreach only; it must not be sent, change launch status, or bypass Legal, Security, accuracy, privacy, or measurement gates. Approve no new production work or spend this cycle. Continue only existing failed-run containment, deployed-improvement measurement, and bounded read-only security evidence capture using available telemetry and retained artifacts; preserve unknowns and do not infer revenue, ROI, margin, incrementality, causal lift, or operational health.",
+        "summary": "CTO review: approve containment posture. Existing measurement, failed-run containment, and bounded read-only security evidence work are technically feasible and reversible. Do not start new production, CRO, dependency, spending, credential, telemetry, or public-launch work this cycle. Preserve unknown revenue, ROI, margin, incrementality, infrastructure cost, and causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO's rejection of both CRO initiatives is technically supported. Do not create implementation or integration work for either proposal this cycle. Reconsider only after the required isolated evidence, ownership, source-rights review, cost boundaries, and measurement prerequisites exist.",
+        "summary": "The current plan is safe to continue in the existing queue, but no new change request is justified: actionable candidates are empty, multiple deployed improvements await measurement, failed requests require root-cause review before requeue, and operational/security sweeps are unavailable. Continue only already-authorized work with isolated scope and existing rollback boundaries.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the gated product as private. Preparation of the permission request may continue internally, but sending outreach, changing launch status, modifying configuration, expanding alerts, or deploying remains blocked pending Legal, Security, accuracy, privacy, measurement, and owner decisions.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded security evidence capture using authorized metadata and retained artifacts only. Missing fleet-doctor, deployment, uptime, error, isolation, release-control, monitoring, and incident evidence remains unknown rather than passed. Do not request duplicate telemetry or make certification claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO review: approve containment posture. Continue existing measurement, failed-run containment, and bounded read-only security evidence work only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the gated product as private. Preparation of the permission request may continue internally, but sending outreach, changing launch status, modifying configuration, expanding alerts, or deploying remains blocked.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded security evidence capture using authorized metadata and retained artifacts only. Missing evidence remains unknown rather than passed.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cfo-finance-reconciliation-2026-09-26",
+        "summary": "Approved as bounded read-only evidence work. Use existing snapshots only, keep revenue and AI-cost periods separate, preserve missing infrastructure and fixed-cost fields as unknown, and do not request duplicate telemetry or claim margin, ROI, payback, or causal lift.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cfo-finance-reconciliation-2026-09-26"
       }
     ]
   }

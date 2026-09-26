@@ -2,51 +2,58 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T11:03:44.053Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-26T12:06:08.035Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production work, high-priority queue expansion, CRO initiatives, spending, duplicate telemetry, and unsupported revenue, ROI, margin, incrementality, or causal-lift claims. Site-level attribution, cost reconciliation, and operational sweeps remain incomplete.",
+        "summary": "Reject all new production work, high-priority queue expansion, CRO adoption, spending, duplicate telemetry, and unsupported revenue, ROI, margin, incrementality, or causal-lift claims. Continue only existing measurement and failed-run containment with unknowns preserved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the gated product privately. Owner may decide whether to authorize the prepared permission request, but authorization must not send outreach, change launch status, or bypass Legal, Security, accuracy, privacy, measurement, or owner gates.",
+        "summary": "Keep the gated product private. Internal preparation may continue, but no outreach, launch change, configuration change, credential change, alert expansion, or deployment is authorized until rights, privacy, security, accuracy, measurement, and owner gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only existing deployed-improvement measurement, failed-run containment, and bounded read-only security evidence capture. Preserve unknowns and do not requeue failed production work until root cause, containment, focused validation, and rollback evidence exist.",
+        "summary": "The reported aggregate commission is unattributed and covers one day; site-level revenue, ROI, margin, infrastructure cost, and causal lift remain unknown. Do not use aggregate provider rows or low-volume telemetry for financial claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "cro-2026-09-26-shadcn-cta-prototype",
-        "summary": "No new production work this cycle; insufficient measurement and attribution evidence.",
+        "title": "e8c96550-b44e-496b-a71a-d2f81f4b7a01",
+        "summary": "No fleet-specific measured outcome, execution capacity, or adoption case.",
         "requested_action": "declined",
-        "proposal_id": "cro-2026-09-26-shadcn-cta-prototype"
+        "proposal_id": "e8c96550-b44e-496b-a71a-d2f81f4b7a01"
       },
       {
         "kind": "proposal-review",
-        "title": "cro-2026-09-26-markitdown-content-pipeline-pilot",
-        "summary": "No new production or content-pipeline work this cycle; rights, provenance, review controls, and measurable outcome evidence are insufficient.",
+        "title": "de98676a-29f2-4db6-8879-44bc4a859e95",
+        "summary": "Third-party adoption is unsupported while failed-run containment and measurement backlog remain open.",
         "requested_action": "declined",
-        "proposal_id": "cro-2026-09-26-markitdown-content-pipeline-pilot"
+        "proposal_id": "de98676a-29f2-4db6-8879-44bc4a859e95"
       },
       {
         "kind": "proposal-review",
-        "title": "security-2026-09-26-fleet-evidence-needed",
-        "summary": "Duplicate of existing bounded security evidence work; no new report-only proposal is needed. Continue the existing work item using authorized metadata and retained artifacts only.",
+        "title": "f11a17fc-43f4-43c2-bfa2-d14f50c303ff",
+        "summary": "Bounded repository evidence does not establish a measurable production outcome or implementation justification.",
         "requested_action": "declined",
-        "proposal_id": "security-2026-09-26-fleet-evidence-needed"
+        "proposal_id": "f11a17fc-43f4-43c2-bfa2-d14f50c303ff"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "security-fleet-evidence-matrix-2026-09-26",
+        "summary": "Declined as new high-priority queue work. Existing bounded security evidence capture may continue only as already-authorized read-only work, without requeueing, production changes, duplicate telemetry, or certification claims.",
+        "requested_action": "declined",
+        "proposal_id": "security-fleet-evidence-matrix-2026-09-26"
       }
     ]
   }
