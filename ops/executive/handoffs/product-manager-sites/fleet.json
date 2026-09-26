@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:18:28.958Z",
+  "generated_at": "2026-09-26T19:33:51.813Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. No new product proposals or implementation requests are warranted this cycle: the actionability candidate list is empty, existing measurement and failure-repair work is active, and 27 deployed improvements await measurement. Continue scheduled source-dated measurement, reconciliation, failure repair-or-close review, and bounded security/legal evidence work. Preserve unknown revenue, ROI, margin, causal lift, budget, and operational outcomes; do not add telemetry, spend, dependencies, monetization, or production changes.",
+        "summary": "Recommend containment-only execution this cycle. Continue existing measurement, reconciliation, failed-run repair-or-close review, and bounded security/legal evidence work. Create no new production requests, requeues, experiments, telemetry requests, spend, or monetization expansion. The actionability candidate list is empty, 27 deployed improvements await measurement, 7 requests failed, and 46 repair follow-ups remain open. Available revenue evidence covers one day: $4.92 aggregate commission and $0 site-attributed commission; ROI, margin, causal lift, and cost-to-learn remain unknown. Preserve current private launch gates and use existing approval and engineer queues only when capacity and evidence clear.",
         "requested_action": null,
         "proposal_id": null
       }

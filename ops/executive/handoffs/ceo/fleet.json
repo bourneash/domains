@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:18:28.958Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T19:33:51.812Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and keep SearchWoot private. Continue existing measurement, reconciliation, failed-run repair-or-close review, and bounded legal/security evidence work; create no new production requests, requeues, spend, telemetry, or monetization expansion. Evidence: actionability candidates are empty; 27 deployed improvements await measurement; 7 requests failed; 46 repair follow-ups remain open. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission; AI cost was $963.57 from 2026-09-01 through 2026-09-26. ROI, margin, cost-to-learn, budget exposure, and causal lift are unknown. Smallest next step: complete existing evidence and repair reviews. Owner decision: authorize the prepared Woot permission request after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Continue existing measurement, attribution reconciliation, failed-run repair-or-close review, and bounded legal/security evidence work; reject new production requests, requeues, experiments, telemetry, spend, dependencies, monetization expansion, and outreach this cycle. Evidence from the 30-day scorecard: the actionability candidate list is empty, 27 deployed improvements await measurement, 7 requests failed, and 46 repair follow-ups remain open. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission; AI cost was $963.57 from 2026-09-01 through 2026-09-26. ROI, margin, causal lift, and cost-to-learn are unknown. Smallest next step: complete existing measurement and repair reviews. Owner decision: authorize the prepared SearchWoot permission request after human-counsel review, or keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution. Continue existing measurement, attribution reconciliation, failed-run repair-or-close review, and bounded legal/security evidence work; reject new production requests, requeues, experiments, telemetry, spend, dependencies, monetization expansion, and outreach this cycle. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission; AI cost was $963.57 from 2026-09-01 through 2026-09-26. ROI, margin, causal lift, and cost-to-learn are unknown. Smallest next step: complete existing measurement and repair reviews. Owner decision: authorize the prepared permission request after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }
