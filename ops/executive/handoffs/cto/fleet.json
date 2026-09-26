@@ -2,56 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T18:04:17.618Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-26T18:19:36.136Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only updates to existing reconciliation, measurement, failure-containment, bounded security-evidence, and private-launch workstreams. No new production work, telemetry requests, dependencies, spend, requeues, deployments, permission changes, configuration changes, monetization expansion, or external outreach are queue-eligible. Require canonical lineage, deduplication, ownership, isolated validation, rollback, and explicit repair-or-close dispositions before requeue. Preserve unavailable revenue, attribution, ROI, margin, causal lift, cost-to-learn, budget exposure, and operational health as unknown.",
+        "summary": "Approve containment-only execution. Continue existing reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch workstreams. Do not create proposals, change requests, experiments, telemetry requests, spend, requeues, deployments, permission changes, credential changes, configuration changes, or external outreach. Preserve unavailable revenue, attribution, ROI, margin, causal lift, cost-to-learn, budget, and operational fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The existing work is technically feasible as isolated, reversible record and evidence updates. Continue source-dated measurement using available telemetry only; do not invent or add instrumentation. Retain private launch gates while rights, privacy, security, accuracy, attribution, measurement, and owner evidence remain incomplete.",
+        "summary": "Continue failure containment without requeue. For each retained failure, document canonical lineage, deduplication identity, owner, root cause, smallest isolated repair, focused validation, rollback, queue eligibility, and explicit requeue-or-close disposition.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failure containment without requeue. For each retained failure, document canonical lineage, deduplication identity, owner, root cause, smallest isolated repair, focused validation, rollback, queue eligibility, and explicit requeue-or-close disposition.",
+        "summary": "Keep the gated product private. Continue the existing read-only rights, data-flow, retention, consent, vendor, incident, accuracy, and measurement evidence work; keep the permission request unsent pending owner and human-counsel authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue scheduled measurement with existing source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost. Compare observations with existing thresholds and preserve unavailable financial and operational fields as unknown.",
+        "summary": "Continue bounded read-only security evidence capture from authorized metadata and retained artifacts. Keep access, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure controls unknown where unevidenced; retain private launch gates and make no production or permission changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue bounded read-only security evidence capture from authorized metadata and retained artifacts. Keep missing access, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence unknown; retain private launch gates.",
+        "summary": "Continue scheduled measurement using existing source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI cost only. Do not add instrumentation or request duplicate telemetry; preserve missing financial and operational fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private. Continue existing read-only rights, data-flow, retention, consent, vendor, incident, accuracy, and measurement evidence work; keep the permission request unsent pending owner and human-counsel authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No new change request is justified: the actionability scorecard has no unblocked candidate, active work covers the relevant sites, and the existing queue contains substantial measurement and repair backlog. The proposed work may safely remain in the existing queue only as bounded work-item updates and evidence capture.",
+        "summary": "No new queue work is technically ready. Existing queue capacity is consumed by active, measuring, failed-repair, reconciliation, and evidence work; proposed platform capabilities and research opportunities lack an approved implementation specification, isolated validation environment, owner, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       }
