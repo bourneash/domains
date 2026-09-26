@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T06:05:27.891Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T07:03:26.971Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: decline the aliencouncil.com affiliate prototype this cycle and prioritize measurement and execution backlog clearance. The available evidence shows 28 sessions, 10 affiliate clicks, and 0 attributed orders; the available Amazon window is only 2026-09-21, with $0 site-attributed commission and $4.92 aggregate commission that cannot be assigned to a site. The site incurred $16.92 of AI cost during 2026-09-01 through 2026-09-26, implying an AI-only proxy margin of -$16.92, not a contribution margin because infrastructure, domain, labor, and other costs are unavailable and the periods do not align. Fleet AI spend was $943.09 for 2026-09-01 through 2026-09-26 against only $4.92 of aggregate commission reported for 2026-09-21; this is not a valid ROI or margin calculation. The 190 impressions and position 4.3 for /brief/2026-08-14 are reach metrics, not revenue evidence. Do not claim revenue lift, ROI, incrementality, or a supported forecast. Minimum measurement before reconsideration: a matched 14-day or 100-new-impression test window with site/page-level affiliate clicks, ordered items, shipped items, commission, AI cost, attributable infrastructure cost, and aligned timestamps; retain unknowns where unavailable. Existing backlog remains material: 174 approved proposals lack execution requests, 46 failed-request repairs are open, 26 deployed improvements await measurement, and 0 improvements are proven.",
+        "summary": "Recommendation: retain the CEO’s no-new-implementation posture and drain execution, repair, and measurement backlog before approving additional work. Financial evidence does not support incremental spend or revenue forecasts. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; $0 is site-attributed and $4.92 cannot be assigned to a site. AI usage covers 2026-09-01 through 2026-09-26: 5,249 calls and $943.09 cost. The resulting $0.52% revenue-to-AI-cost comparison is not a valid ROI or margin measure because the periods and attribution scopes differ. Infrastructure spend, fixed costs, labor cost, and approved budgets are unavailable, so contribution margin, total budget exposure, and cost-to-learn are not calculable. Minimum finance evidence is a common-period ledger reconciling site/content identifiers, affiliate clicks, orders, shipped items, commission, AI cost, attributable infrastructure cost, and approved budget limits. Do not treat sessions, impressions, clicks, SEO conversions, ordered items, or AI calls as revenue or profit.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Decline the aliencouncil.com prototype this cycle. Available evidence shows 28 sessions, 10 affiliate clicks, and 0 attributed orders. Amazon reports $0 site-attributed commission and $4.92 aggregate commission that cannot be assigned. Do not infer ROI, margin, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Decline the affiliate prototype this cycle. Available evidence shows 0 site-attributed commission; aggregate commission cannot be assigned to a site. Do not infer ROI, margin, or causal lift.",
+        "summary": "CFO review: approve backlog reconciliation and existing measurement only; reject new implementation or affiliate experimentation this cycle. Continue SearchWoot private because the measurement gate is blocked and no revenue, margin, or ROI claim is supportable. The prepared permissions request is an owner/external-rights decision, not a finance approval; no spend or launch should occur before attribution and cost evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       }

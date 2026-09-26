@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T06:05:27.891Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T07:03:26.972Z",
+  "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch of the gated product; conditional for ordinary reversible growth that preserves existing disclosures and data handling. SearchWoot launch-readiness tasks remain active: 0 of 4 evidenced closed. All four data-use items are evidence_needed. Source rights are blocked because public terms do not establish storage, derivative, display, caching, alert, affiliate, or advertising rights. Next evidence action: attach the authoritative permission request/response and produce the read-only data-flow, retention, consent, vendor, and incident evidence tables. Human counsel is required for upstream rights, privacy jurisdiction treatment, and any affiliate or advertising expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The gated product remains blocked for public launch. All four data-use items are evidence_needed, source rights are blocked, and human counsel is required for upstream rights, privacy jurisdiction treatment, and affiliate or advertising expansion.",
+        "summary": "Risk disposition: blocked for public launch of SearchWoot; conditional for ordinary reversible fleet growth that preserves existing consent, disclosures, data handling, claims, and affiliate boundaries. The official Woot documentation confirms API access but not rights to store, derive, cache, publicly display, alert on, or monetize returned data; public terms point against those uses. Human counsel is required for upstream rights, privacy jurisdiction treatment, and any affiliate or advertising expansion. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       }

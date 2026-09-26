@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T06:05:27.891Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T07:03:26.971Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: hold the CRO’s aliencouncil.com prototype this cycle. Evidence supports a test hypothesis—28 sessions and 10 affiliate clicks with 0 attributed orders, plus /brief/2026-08-14 at 190 impressions, position 4.3, and 0 clicks—but does not establish lift or identify a queue-safe implementation candidate. Current execution constraints are material: 174 approved proposals lack execution, 46 failed-request repairs remain open, and 26 deployed improvements await measurement. Unknowns are page files, active-work conflicts, and attributable margin. Smallest next step: finish the existing execution/measurement backlog, then re-evaluate a page-local native HTML/CSS test with a 14-day or 100-impression measurement gate. No owner decision is required now.",
+        "summary": "Recommendation: drain existing execution, repair, and measurement backlog before creating new implementation work. The 30-day scorecard shows 174 approved proposals without execution, 8 failed requests, 46 open failure follow-ups, and 24 deployed improvements awaiting measurement; the action mandate currently reports no eligible candidate. Revenue evidence is one day only (2026-09-21): $4.92 aggregate commission, not site-attributable. Unknown: incremental revenue, ROI, margin, and causal lift. Smallest next step: CTO/principal-engineer triage the approved backlog and failed requests, while CEO continues measurement. One owner decision remains: authorize or decline sending the prepared Woot permissions request for SearchWoot; public launch remains blocked.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Hold the aliencouncil.com prototype this cycle. Evidence supports a test hypothesis but not lift or a queue-safe implementation. Re-evaluate after execution and measurement backlog clearance using a page-local native HTML/CSS test with a 14-day or 100-impression gate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Hold the aliencouncil.com prototype this cycle. Re-evaluate after execution and measurement backlog clearance using a page-local native HTML/CSS test with a 14-day or 100-impression gate.",
+        "summary": "Recommendation: keep SearchWoot private. Official Woot documentation confirms API access but not commercial redistribution, public display, caching, historical derivatives, or alerts; public terms point against those uses. Legal, security, accuracy, privacy, and measurement gates remain incomplete. Smallest next step is owner approval to send the already-prepared permission request; no production or external action is otherwise authorized.",
         "requested_action": null,
         "proposal_id": null
       }
