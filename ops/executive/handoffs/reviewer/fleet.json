@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T02:32:01.612Z",
+  "generated_at": "2026-09-26T02:39:28.943Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed seedstosauce.com report-only work: existing telemetry already supports this baseline, while the fleet has 155 approved proposals without execution, 41 failed requests, and 25 improvements awaiting measurement. No new production candidate is defensible this cycle: aliencouncil.com is low-volume (77 impressions, 0 clicks), rc-9.com is blocked by an unresolved failed request, and remaining candidates are active, measuring, deferred, or high-priority queue work. No revenue, ROI, incrementality, or causal claims are approved.",
+        "summary": "No production change is defensible this cycle. Aliencouncil.com is blocked by low-volume telemetry (77 impressions, 0 clicks), rc-9.com is blocked by an unresolved failed request, and all other candidates are active, measuring, deferred, or high-priority queue work. I rejected unsupported revenue, ROI, attribution, causal, and production claims. Continue existing measurement and repair work; no new implementation request is queued.",
         "requested_action": null,
         "proposal_id": null
       }
