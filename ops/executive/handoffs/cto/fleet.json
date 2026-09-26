@@ -2,49 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T18:33:12.422Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-26T18:49:15.122Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the CRO/product-manager recommendation. Continue reconciliation, failure repair-or-close review, scheduled measurement, and bounded security evidence only. Reject new production work, requeues, duplicate telemetry, dependencies, configuration changes, and external outreach because the queue has no unblocked candidate and existing work is active or blocked.",
+        "summary": "CTO review: approve containment-only execution. No new queue entry, proposal, experiment, telemetry request, dependency, configuration change, spend, requeue, deployment, or monetization expansion is technically ready. Continue only existing isolated workstreams: scheduled measurement from available telemetry, failure repair-or-close review, execution reconciliation, and bounded security/legal evidence capture. Preserve unknown revenue, attribution, ROI, margin, cost-to-learn, budget, and operational fields. Keep the private launch gate unchanged and keep external outreach unsent pending owner and human-counsel authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing reconciliation, failure repair-or-close review, scheduled measurement, bounded security evidence capture, and private launch gates. Do not create new production work, requeues, duplicate telemetry, dependencies, configuration changes, spend, monetization expansion, or external outreach. Preserve unsupported revenue, attribution, ROI, margin, cost-to-learn, budget, and operational fields as unknown.",
+        "summary": "Existing work is feasible as reversible record and evidence updates with low implementation effort and no production mutation. Require canonical lineage, deduplication, ownership, isolated validation, rollback evidence, and explicit requeue-or-close disposition before any failed work resumes. Use only already available source-dated telemetry; do not invent or add instrumentation. Research and repository signals remain non-adopted until prototype, security review, measurable hypothesis, owner approval, and rollback evidence exist.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The candidate plan is technically feasible only as updates to existing isolated workstreams. No new queue entry is justified: no unblocked actionability candidate exists, active and failed-repair work consumes capacity, and rollback or validation evidence for new work is absent.",
+        "summary": "Queue eligibility: none. The authoritative actionability candidate list is empty; deferred items are already active, measuring, or blocked. Existing queue capacity is occupied by measurement, reconciliation, failure containment, and evidence work. New product, SEO, UX, or platform work should be reconsidered only after validation evidence clears capacity and isolation gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue source-dated measurement using already available impressions, clicks, sessions, conversions, site-attributed commission, and AI cost. Do not invent telemetry, add instrumentation, or treat aggregate commission as site-attributed revenue.",
+        "summary": "Measurement disposition: continue scheduled observations using existing impressions, clicks, sessions, conversions, site-attributed commission, and available AI-cost records. Aggregate commission remains unassigned; missing financial and operational fields remain unknown. Do not treat operating metrics as financial returns or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue failed-run containment and repair-or-close review without requeue. Require canonical lineage, deduplication identity, ownership, root cause, smallest isolated repair, focused validation, rollback, and explicit requeue-or-close disposition before implementation resumes.",
+        "summary": "Security and launch disposition: retain private launch gates. Continue bounded read-only evidence capture for access boundaries, secrets, isolation, release controls, dependencies, monitoring, incidents, TLS, disclosure, rights, privacy, accuracy, and attribution. Missing evidence is unknown, not passed; no public exposure or external permission request is authorized by this pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private launch gates unchanged. Continue bounded read-only rights, data-flow, retention, consent, vendor, incident, accuracy, and security evidence work; preserve unknown controls as unknown and keep external permission requests unsent pending owner and human-counsel authorization.",
+        "summary": "Failure disposition: contain existing failed runs without requeue. For each retained failure, document root cause, smallest isolated repair, focused validation, rollback, owner, deduplication identity, and explicit requeue-or-close decision before implementation resumes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new queue entry is eligible. Continue scheduled measurement using existing source-dated telemetry only, execution reconciliation, and failure repair-or-close review. Require lineage, deduplication, ownership, validation, rollback, and explicit requeue-or-close evidence before resuming failed work.",
         "requested_action": null,
         "proposal_id": null
       }
