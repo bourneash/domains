@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T18:19:36.135Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T18:33:12.422Z",
+  "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: retain containment-only execution and authorize no new discretionary spend, monetization, queue expansion, requeues, or production work. AI spend was $963.569 for 2026-09-01 through 2026-09-26 across 5,390 calls, with 232 errors and 5 transient errors. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; named site rows show $0 commission. Site revenue claims, ROI, contribution margin, causal lift, and cost-to-learn are unsupported.",
+        "summary": "Recommendation: authorize no new spend or monetization expansion. AI cost was $963.569 from 2026-09-01 through 2026-09-26; revenue evidence is one day with $4.92 aggregate and $0 site-attributed commission. Contribution margin, ROI, cost-to-learn, and budget exposure are not calculable. Continue source-dated measurement only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Attribution remains partial: the $4.92 commission is in an aggregate provider row and cannot be assigned to any site without inventing attribution. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent. Minimum measurement: a period-aligned site/fleet cost ledger matched to attributable commission. Cost-to-learn is not calculable because experiment-level cost and incremental attributable outcomes are unavailable. Minimum measurement: per-experiment cost plus pre/post or control-based incremental site-attributed commission or conversion outcome.",
+        "summary": "Recommendation: retain containment-only execution. Authorize no new discretionary spend, monetization expansion, queue expansion, requeues, or production work. AI spend was $963.569 from 2026-09-01 through 2026-09-26 across 5,390 calls, with 232 errors and 5 transient errors. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; named site-attributed commission is $0. Do not claim revenue, ROI, contribution margin, causal lift, or forecasted upside.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Budget exposure is unbounded: monthly spend limit, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank. Infrastructure spend is unknown because no infrastructure-cost source is present; do not infer it from AI spend. Minimum measurement: owner-approved limits for each field and an actual-versus-budget report. Treat impressions, clicks, sessions, conversions, social coverage, AI calls, and technical scores as operating metrics, not financial returns.",
+        "summary": "Attribution quality is insufficient for site economics: the $4.92 commission is in Amazon's aggregate tracking row and cannot be assigned to a site without inventing attribution. Contribution margin is not calculable because infrastructure, domains, labor, marketing, and other operating costs are absent. Minimum measurement: a period-aligned site/fleet cost ledger matched to attributable commission, including AI, infrastructure, domains, labor, marketing, and other direct costs.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Cost-to-learn is not calculable because experiment-level cost and incremental attributable outcomes are unavailable. Minimum measurement: per-experiment cost plus pre/post or control-based incremental site-attributed commission or conversion outcome. Impressions, clicks, sessions, conversions, social coverage, AI calls, SEO scores, and technical scores remain operating metrics rather than financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Budget exposure is unbounded because the monthly spend limit, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank. Infrastructure spend is unknown because no infrastructure-cost source is present; do not infer it from AI spend. Minimum measurement: owner-approved limits for each field and an actual-versus-budget report. Continue only source-dated measurement already scheduled; do not request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

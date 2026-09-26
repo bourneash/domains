@@ -23,11 +23,24 @@ function createUsageLedger() {
   };
 }
 
-async function runTracked(prompt, usage, role, repair = false) {
+async function runTracked(prompt, usage, role, repair = false, transcript = []) {
   const started = Date.now();
   const inputTokens = estimateTokens(prompt);
+  transcript.push({
+    actor: role,
+    message_type: 'model-prompt',
+    body: prompt,
+    metadata: { repair, label: repair ? 'Repair request' : 'Model request' },
+    created_at: new Date(started).toISOString(),
+  });
   try {
     const output = await runner.runProvider(prompt);
+    transcript.push({
+      actor: role,
+      message_type: 'model-response',
+      body: output,
+      metadata: { repair, label: 'Model response' },
+    });
     const outputTokens = estimateTokens(output);
     usage.calls.push({
       role,
@@ -55,6 +68,12 @@ async function runTracked(prompt, usage, role, repair = false) {
     });
     usage.estimated_input_tokens += inputTokens;
     usage.estimated_total_tokens += inputTokens;
+    transcript.push({
+      actor: role,
+      message_type: 'background',
+      body: `Provider call failed: ${String(error.message || error)}`,
+      metadata: { repair, label: 'Provider failure', status: 'failed' },
+    });
     throw error;
   }
 }
@@ -127,11 +146,12 @@ async function main() {
   let plan = null;
   const audit = [];
   const usage = createUsageLedger();
+  const transcript = [];
   let finalized = false;
   // Preserve partial cost/pass evidence when a provider response fails
   // validation. The sandbox may not produce a plan, but it must still export
   // the calls already made so failures cannot disappear from the audit ledger.
-  activeRun = { audit, usage, failure: null };
+  activeRun = { audit, usage, transcript, failure: null };
   process.on('exit', () => {
     if (finalized) return;
     try {
@@ -145,6 +165,9 @@ async function main() {
         { mode: 0o600 }
       );
       fs.writeFileSync('/output/usage.json', JSON.stringify(usage, null, 2), { mode: 0o600 });
+      fs.writeFileSync('/output/transcript.json', JSON.stringify(transcript, null, 2), {
+        mode: 0o600,
+      });
       if (activeRun?.failure) {
         fs.writeFileSync(
           '/output/failure.json',
@@ -170,7 +193,7 @@ async function main() {
   const proposalReviews = new Map();
   for (const role of passes) {
     const prompt = runner.buildPassPrompt(brief, role, plan);
-    let output = await runTracked(prompt, usage, role);
+    let output = await runTracked(prompt, usage, role, false, transcript);
     let repaired = false;
     try {
       const nextPlan = runner.parseOutput(output, {
@@ -186,7 +209,8 @@ async function main() {
         `${prompt}\n\nYour previous response failed validation (${error.message}). Correct that exact validation error and return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|security|domain-manager|reviewer, and status accepted_research|escalate_owner|declined. Proposals must include created_by, title, summary, and requested_action; created_by must be ceo|cto|cro|cfo|legal|security|domain-manager|researcher.`,
         usage,
         role,
-        true
+        true,
+        transcript
       );
       const nextPlan = runner.parseOutput(output, {
         defaultActor: role,
@@ -214,7 +238,13 @@ async function main() {
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
     const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, or report-only request does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state that blocker in the owner update.`;
-    const repairedOutput = await runTracked(repairPrompt, usage, 'action-mandate-repair', true);
+    const repairedOutput = await runTracked(
+      repairPrompt,
+      usage,
+      'action-mandate-repair',
+      true,
+      transcript
+    );
     plan = mergePassPlans(plan, runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
@@ -241,7 +271,8 @@ async function main() {
         finalRepairPrompt,
         usage,
         'decision-memo-repair',
-        true
+        true,
+        transcript
       );
       plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo' }));
       audit.push({
@@ -267,6 +298,21 @@ async function main() {
   // Later review passes are allowed to revise an earlier conclusion, but a
   // pass that simply omits a CRO handoff must not reopen it for the owner.
   plan.proposal_reviews = [...proposalReviews.values()];
+  for (const pass of audit)
+    transcript.push({
+      actor: pass.role,
+      message_type: 'background',
+      body: `Pass completed: ${pass.role}. ${
+        Object.entries(pass.counts || {})
+          .map(([key, value]) => `${value} ${key.replaceAll('_', ' ')}`)
+          .join(' · ') || 'No structured items recorded.'
+      }`,
+      metadata: {
+        label: 'Background work',
+        counts: pass.counts || {},
+        repaired: Boolean(pass.repaired),
+      },
+    });
   fs.writeFileSync('/output/plan.json', JSON.stringify(plan, null, 2), { mode: 0o600 });
   fs.writeFileSync('/output/passes.json', JSON.stringify(audit, null, 2), { mode: 0o600 });
   fs.writeFileSync('/output/usage.json', JSON.stringify(usage, null, 2), { mode: 0o600 });

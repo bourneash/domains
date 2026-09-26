@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T18:19:36.136Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T18:33:12.423Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, and security.txt/disclosure readiness remain unverified. TLS evidence shows only that no certificates expire within 30 days and does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not proof of compromise. Risk severity is high for public exposure and medium for bounded changes that add no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: continue existing bounded read-only security evidence work, preserve unknowns, retain private launch gates, and create no new proposal, change request, requeue, deployment, permission change, credential change, configuration change, dependency addition, telemetry request, or external outreach.",
+        "summary": "Recommendation: retain private launch gates and continue bounded read-only evidence capture. Fleet-doctor and operations sweeps are unavailable; access, secrets, isolation, release, dependency, monitoring, incident, and disclosure controls remain unknown. Ordinary reversible growth is conditional only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, and security.txt/disclosure readiness remain unverified. TLS evidence shows only that no certificates expire within 30 days. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not proof of compromise. Exact decision: retain private launch gates, continue bounded read-only security evidence capture, and permit only reversible growth adding no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not create new security-sensitive production work, requeue, deploy, change permissions or credentials, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
