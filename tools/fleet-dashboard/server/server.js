@@ -3121,12 +3121,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
   app.post('/api/workflow-links', (req, res) => {
-    try { res.status(201).json({ link: events.createWorkflowLink(req.body || {}) }); }
-    catch (e) { res.status(e.httpStatus || 400).json({ error: e.message }); }
+    try {
+      res.status(201).json({ link: events.createWorkflowLink(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
   });
   app.delete('/api/workflow-links/:id', (req, res) => {
-    try { res.json(events.deleteWorkflowLink(req.params.id)); }
-    catch (e) { res.status(e.httpStatus || 400).json({ error: e.message }); }
+    try {
+      res.json(events.deleteWorkflowLink(req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
   });
   app.post('/api/change-requests', (req, res) => {
     try {
@@ -3153,10 +3159,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       void executiveNotify.drain(events).catch(() => {});
       executive.ensureOwnerRequests(events);
-      const requests = events.listExecutiveWorkItems({ source_type: 'owner-request', limit: req.query.limit || 100 });
+      const requests = events.listExecutiveWorkItems({
+        source_type: 'owner-request',
+        limit: req.query.limit || 100,
+      });
       const now = Date.now();
       const tracked = requests.map(request => {
-        const overdue = !['done', 'cancelled'].includes(request.status) && request.due_at && Date.parse(request.due_at) < now;
+        const overdue =
+          !['done', 'cancelled'].includes(request.status) &&
+          request.due_at &&
+          Date.parse(request.due_at) < now;
         if (overdue) {
           events.createExecutiveNotification({
             recipient: 'owner',
@@ -3167,25 +3179,39 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             dedupe_key: `executive-sla-overdue:${request.work_id}`,
           });
         }
-        const messages = events.listExecutiveMessages({ work_id: request.work_id, limit: 100 }).reverse();
+        const messages = events
+          .listExecutiveMessages({ work_id: request.work_id, limit: 100 })
+          .reverse();
         const responses = messages.filter(message => message.actor !== 'owner');
         return {
           ...request,
           messages,
-          links: events.listWorkflowLinks({ entity_type: 'work-item', entity_id: request.work_id, limit: 100 }),
+          links: events.listWorkflowLinks({
+            entity_type: 'work-item',
+            entity_id: request.work_id,
+            limit: 100,
+          }),
           response_count: responses.length,
           latest_response: responses[responses.length - 1] || null,
           overdue,
         };
       });
-      res.json({ requests: tracked, notifications: events.listExecutiveNotifications({ recipient: 'owner', limit: req.query.limit || 100 }) });
+      res.json({
+        requests: tracked,
+        notifications: events.listExecutiveNotifications({
+          recipient: 'owner',
+          limit: req.query.limit || 100,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
   app.get('/api/executive/notifications', (req, res) => {
     try {
-      res.json({ notifications: events.listExecutiveNotifications({ ...req.query, recipient: 'owner' }) });
+      res.json({
+        notifications: events.listExecutiveNotifications({ ...req.query, recipient: 'owner' }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -3193,7 +3219,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/executive/notifications/:id/read', (req, res) => {
     try {
       const existing = events.getExecutiveNotification(req.params.id);
-      if (!existing || existing.recipient !== 'owner') return res.status(404).json({ error: 'notification not found' });
+      if (!existing || existing.recipient !== 'owner')
+        return res.status(404).json({ error: 'notification not found' });
       const notification = events.markExecutiveNotificationRead(req.params.id);
       if (!notification) return res.status(404).json({ error: 'notification not found' });
       res.json({ notification });
@@ -3210,7 +3237,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.get('/api/executive/settings', (_req, res) => {
     try {
-      res.json({ settings: events.getExecutiveSettings() });
+      const settings = events.getExecutiveSettings();
+      if (!Number.isInteger(Number(settings.conversation_retention_days)))
+        settings.conversation_retention_days = 90;
+      res.json({ settings });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/transcript', (_req, res) => {
+    try {
+      const settings = events.getExecutiveSettings();
+      const days = Math.max(1, Math.min(3650, Number(settings.conversation_retention_days) || 90));
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+      const retentionResult = events.purgeExecutiveTranscriptBefore(new Date(cutoff));
+      const messages = events
+        .listExecutiveMessages({ conversation_id: 'executive', limit: 1000 })
+        .filter(message =>
+          ['model-prompt', 'model-response', 'background', 'tool-call', 'tool-result'].includes(
+            message.message_type
+          )
+        );
+      res.json({
+        messages,
+        retention_days: days,
+        cutoff: new Date(cutoff).toISOString(),
+        retention: retentionResult,
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -3228,7 +3281,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // has an immediate, durable run handle and can poll it safely.
   app.get('/api/executive/run-status', (_req, res) => {
     try {
-      const actions = events.listExecutiveActions({ limit: 300 });
+      let actions = events.listExecutiveActions({ limit: 300 });
+      // A detached manual worker can disappear during a dashboard/container
+      // restart. Reconcile that durable row here as well as when starting a
+      // new run; otherwise the UI can report a run as active forever.
+      const orphaned = actions.filter(
+        row =>
+          row.status === 'started' && row.target_type === 'manual-executive-run' && row.result?.pid
+      );
+      for (const run of orphaned) {
+        let running = true;
+        try {
+          process.kill(Number(run.result.pid), 0);
+        } catch {
+          running = false;
+        }
+        if (!running) {
+          executive.finishAction(events, run.action_id, {
+            status: 'failed',
+            error: 'manual executive run was orphaned after its worker process exited',
+            result: {
+              ...run.result,
+              orphaned_at: new Date().toISOString(),
+              orphaned_pid: run.result.pid,
+            },
+          });
+        }
+      }
+      if (orphaned.length) actions = events.listExecutiveActions({ limit: 300 });
       const manual = actions.filter(row => row.target_type === 'manual-executive-run');
       const scheduled = actions.filter(row => row.target_type === 'scheduled-executive-run');
       const ticks = actions.filter(row => row.action_type === 'tick');
@@ -3670,10 +3750,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         'operating_notes',
         'checkin_hours',
         'tick_enabled',
+        'conversation_retention_days',
       ];
       const patch = Object.fromEntries(
         allowed.filter(k => Object.prototype.hasOwnProperty.call(body, k)).map(k => [k, body[k]])
       );
+      if (Object.prototype.hasOwnProperty.call(patch, 'conversation_retention_days')) {
+        const days = Number(patch.conversation_retention_days);
+        if (!Number.isInteger(days) || days < 1 || days > 3650)
+          throw Object.assign(
+            new Error('conversation_retention_days must be an integer between 1 and 3650'),
+            { httpStatus: 400 }
+          );
+        patch.conversation_retention_days = days;
+      }
       const settings = events.updateExecutiveSettings(patch);
       events.record({
         event_type: 'executive.settings.updated',
@@ -3708,12 +3798,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/executive/requests/:id/transition', (req, res) => {
     try {
-      const request = executive.transitionOwnerRequest(events, req.params.id, req.body?.lifecycle_state, {
-        outcome: req.body?.outcome,
-        next_action: req.body?.next_action,
-        waiting_on: req.body?.waiting_on,
-        due_at: req.body?.due_at,
-      });
+      const request = executive.transitionOwnerRequest(
+        events,
+        req.params.id,
+        req.body?.lifecycle_state,
+        {
+          outcome: req.body?.outcome,
+          next_action: req.body?.next_action,
+          waiting_on: req.body?.waiting_on,
+          due_at: req.body?.due_at,
+        }
+      );
       res.json({ request });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -3847,7 +3942,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const request = events.getChangeRequest(req.params.id);
       if (!request) return res.status(404).json({ error: 'change request not found' });
       if (request.status !== 'queued')
-        return res.status(409).json({ error: `only queued requests can be re-evaluated; current status is ${request.status}` });
+        return res
+          .status(409)
+          .json({
+            error: `only queued requests can be re-evaluated; current status is ${request.status}`,
+          });
       const result = await pickupChangeRequests(req.body?.max);
       const refreshed = events.getChangeRequest(req.params.id);
       const enriched = changequeueView.enrichChangeRequests(

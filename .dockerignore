@@ -21,3 +21,10 @@ tools/fleet-dashboard/server/*
 !tools/fleet-dashboard/server/executive-snapshot.js
 !tools/fleet-dashboard/server/executive-data.js
 !tools/fleet-dashboard/server/workflow-engine.js
+!tools/fleet-dashboard/server/roles.js
+!tools/fleet-dashboard/server/sites.js
+!tools/fleet-dashboard/server/git.js
+!tools/fleet-dashboard/server/deployhealth.js
+!tools/fleet-dashboard/server/execution.js
+!tools/fleet-dashboard/server/cron/parse.js
+!tools/fleet-dashboard/server/cron/runinfo.js

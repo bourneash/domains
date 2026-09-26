@@ -39,7 +39,14 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/executive-scorecard.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-snapshot.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-data.js" \
-    "$ROOT/tools/fleet-dashboard/server/workflow-engine.js"; do
+    "$ROOT/tools/fleet-dashboard/server/workflow-engine.js" \
+    "$ROOT/tools/fleet-dashboard/server/roles.js" \
+    "$ROOT/tools/fleet-dashboard/server/sites.js" \
+    "$ROOT/tools/fleet-dashboard/server/git.js" \
+    "$ROOT/tools/fleet-dashboard/server/deployhealth.js" \
+    "$ROOT/tools/fleet-dashboard/server/execution.js" \
+    "$ROOT/tools/fleet-dashboard/server/cron/parse.js" \
+    "$ROOT/tools/fleet-dashboard/server/cron/runinfo.js"; do
     sha256sum "$file"
   done
 } | sha256sum | awk '{print $1}')"
@@ -202,6 +209,39 @@ if [[ -s "$RUN_DIR/output/usage.json" ]]; then
   USAGE_DIR="$ROOT/tools/executive/data/usage"
   mkdir -m 700 -p "$USAGE_DIR"
   cp "$RUN_DIR/output/usage.json" "$USAGE_DIR/usage-$(date -u +%Y%m%dT%H%M%SZ)-$$.json"
+fi
+
+# Promote the isolated run's operator-safe transcript into the durable event
+# store before the transient exchange directory is removed. Prompts and JSON
+# responses are retained for audit; hidden provider chain-of-thought is not
+# requested or persisted.
+if [[ -s "$RUN_DIR/output/transcript.json" ]]; then
+  node - "$ROOT" "$RUN_ACTION_ID" "$RUN_DIR/output/transcript.json" <<'NODE'
+const fs = require('node:fs');
+const root = process.argv[2];
+const runId = process.argv[3];
+const file = process.argv[4];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const store = eventstore.open(root);
+try {
+  const days = Math.max(1, Math.min(3650, Number(store.getExecutiveSettings().conversation_retention_days) || 90));
+  store.purgeExecutiveTranscriptBefore(new Date(Date.now() - days * 24 * 60 * 60 * 1000));
+  const rows = JSON.parse(fs.readFileSync(file, 'utf8'));
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row || !row.body || !['model-prompt', 'model-response', 'background', 'tool-call', 'tool-result'].includes(row.message_type)) continue;
+    store.createExecutiveMessage({
+      conversation_id: 'executive',
+      actor: row.actor || 'system',
+      body: String(row.body),
+      message_type: row.message_type,
+      created_at: row.created_at || new Date().toISOString(),
+      metadata: { ...(row.metadata || {}), run_id: runId, transcript: true },
+    });
+  }
+} finally {
+  store.close();
+}
+NODE
 fi
 
 if [[ "$MODEL_STATUS" -ne 0 ]]; then
