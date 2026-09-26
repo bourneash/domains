@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:03:03.530Z",
+  "generated_at": "2026-09-26T15:35:27.621Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run girlpain.com audience, monetization, health, and backlog baseline",
-        "summary": "Create a bounded read-only assessment of girlpain.com using existing authoritative evidence. GA4 is configured and healthy; GSC is configured but currently returns a 403 permission error. Site-specific traffic, revenue attribution, SEO outcomes, compliance status, operational health, and AI cost remain unknown unless directly evidenced.",
-        "requested_action": "Produce the timestamped assessment and exactly one evidence-backed next action or blocker using existing evidence only. Do not deploy, modify production, request duplicate telemetry, spend money, or claim traffic, conversion, revenue, attribution, compliance, health, cost, or causal lift that is not directly evidenced.",
-        "proposal_id": "85dad713-bfd7-436a-98f1-55e8f1374334"
+        "kind": "proposal",
+        "title": "Run vibratorporn.com audience, monetization, health, and backlog baseline",
+        "summary": "Create a bounded read-only assessment of vibratorporn.com using existing authoritative evidence. Analytics is not configured in the snapshot; audience, traffic, conversion, revenue, attribution, SEO, compliance, operational health, and AI cost remain unknown unless directly evidenced. Do not infer site category from the domain name.",
+        "requested_action": "Produce a timestamped assessment covering observable positioning, content scope, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Identify exactly one evidence-backed next action or blocker using existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "df7a7553-24be-4c67-9d31-a5cce39d8f07"
       }
     ]
   }

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-26T14:27:00.823Z",
+  "updated_at": "2026-09-26T15:37:00.461Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -230378,6 +230378,219 @@
       "last_error": null,
       "claimed_at": "2026-09-26T09:42:00.362Z",
       "completed_at": "2026-09-26T09:42:26.903Z"
+    },
+    {
+      "job_id": "a532fb42-76c6-4773-a3a2-680d49d85081",
+      "fingerprint": "b43a9e85857bb0d97c01cf2523411eda8e18e244885f2b1e8166befb78bf1a99",
+      "site": "0daynews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-26T14:38:00.149Z",
+      "next_attempt_at": "2026-09-26T14:38:00.149Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-26T14:38:00.359Z",
+      "completed_at": "2026-09-26T14:38:16.582Z"
+    },
+    {
+      "job_id": "d0efe65a-0c5b-483e-a2b6-abd529756cc5",
+      "fingerprint": "ae10f9c7ea63da2f4e49f290f826fad4a662b705b0c529752a87b4f7b7f21b0f",
+      "site": "arttogogh.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-26T14:42:00.150Z",
+      "next_attempt_at": "2026-09-26T14:42:00.150Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-26T14:42:00.394Z",
+      "completed_at": "2026-09-26T14:42:35.904Z"
+    },
+    {
+      "job_id": "8a680093-425d-41af-b037-48a01425d775",
+      "fingerprint": "64df044c705b74f134adb14c3f0f3e2383c6f15f745eb6af6f22da456b57328c",
+      "site": "complicated.work",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T14:45:00.153Z",
+      "next_attempt_at": "2026-09-26T20:45:59.919Z",
+      "lease_until": null,
+      "last_error": "uration_ms: 0.180547\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 12.047066\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.42704\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.609746\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 5.69309\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.335593\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.435117\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.361523\n  type: 'test'\n  ...\n# (node:1039556) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1503.650425\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 25955.600231\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T14:45:00.365Z"
+    },
+    {
+      "job_id": "575ff36d-16b5-4b76-bbb1-1799c550836f",
+      "fingerprint": "cba868b803f4e49f96a86072aa63d1b26460d77916da45f5a7947ff6545eb6df",
+      "site": "dumbsluts.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T14:52:00.211Z",
+      "next_attempt_at": "2026-09-26T20:52:45.603Z",
+      "lease_until": null,
+      "last_error": "duration_ms: 0.18672\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 5.527332\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.308835\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.091687\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 4.108887\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.397478\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.423086\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.34193\n  type: 'test'\n  ...\n# (node:1045053) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1323.719038\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 25409.499453\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T14:52:00.455Z"
+    },
+    {
+      "job_id": "3cb2a113-2617-4f6a-9422-5669aa8f06b1",
+      "fingerprint": "a5fc991ef0bac624682308771cff8a8452e9fb78ea1b1a5d96ffc7cc5b482996",
+      "site": "findyourlostpets.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T14:57:00.153Z",
+      "next_attempt_at": "2026-09-26T20:57:46.292Z",
+      "lease_until": null,
+      "last_error": "uration_ms: 0.184297\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 3.62979\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.338726\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.802895\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 4.204735\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.391365\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.446836\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.340749\n  type: 'test'\n  ...\n# (node:1048304) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1516.785577\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 26492.812143\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T14:57:00.418Z"
+    },
+    {
+      "job_id": "ad0e895e-f74a-4e1b-a1e5-4eeebb676e93",
+      "fingerprint": "3a29a3675a8bccbab04e95ad7f3d033cb86f517982606a663beb9354c0128a3a",
+      "site": "fishhooklabs.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T14:59:00.138Z",
+      "next_attempt_at": "2026-09-26T20:59:47.927Z",
+      "lease_until": null,
+      "last_error": "ation_ms: 0.185677\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 14.458375\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.318456\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.055545\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 4.029192\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 4.350427\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.613239\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.345686\n  type: 'test'\n  ...\n# (node:1050075) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1407.033825\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 27283.440717\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T14:59:00.404Z"
+    },
+    {
+      "job_id": "adfbb846-69c2-4ab3-89f5-c410f656faad",
+      "fingerprint": "46168121affb94762ed1d0583656d37a6e5d69e2d349d708ad8e562e7f9296a0",
+      "site": "girlpain.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:02:01.263Z",
+      "next_attempt_at": "2026-09-26T21:05:35.754Z",
+      "lease_until": null,
+      "last_error": "uration_ms: 0.289303\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 4.1297\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.939906\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.900015\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 6.140118\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 4.356825\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.691371\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.486446\n  type: 'test'\n  ...\n# (node:1055083) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 6647.999241\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 151292.285458\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T15:02:01.519Z"
+    },
+    {
+      "job_id": "2ca648c4-7ba6-4ffb-97d1-9430a10bd311",
+      "fingerprint": "a9a9b03d6d4a25243dd6dfaec8e344fb5141cbbc555d9eb4cf862afe732d72d0",
+      "site": "howfishthink.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:06:01.168Z",
+      "next_attempt_at": "2026-09-26T21:07:36.341Z",
+      "lease_until": null,
+      "last_error": "ration_ms: 0.182297\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 3.530289\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.290611\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.239997\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 4.003364\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.351819\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.435077\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.331938\n  type: 'test'\n  ...\n# (node:1057358) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1873.804828\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 65222.475294\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T15:06:01.428Z"
+    },
+    {
+      "job_id": "1bbc0017-659e-4088-858e-d1870855f973",
+      "fingerprint": "2aad7521c877ab29cf1d870d48826b7f531998fe02489398df9ce31228cccc97",
+      "site": "offshorehookup.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:15:00.135Z",
+      "next_attempt_at": "2026-09-26T21:15:44.944Z",
+      "lease_until": null,
+      "last_error": "duration_ms: 0.237134\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 12.228842\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.290882\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.22855\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 3.9845\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.180176\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.425263\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.333111\n  type: 'test'\n  ...\n# (node:1064421) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1430.007863\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 26046.515191\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T15:15:00.396Z"
+    },
+    {
+      "job_id": "08def83c-df98-415f-b2b9-ade935a858b7",
+      "fingerprint": "be72a27b31a547e66e3499e8d1473a73805a52b9ea0cb38050c3d4d69a32978c",
+      "site": "searchwoot.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:24:00.145Z",
+      "next_attempt_at": "2026-09-26T15:24:00.145Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-26T15:24:00.395Z",
+      "completed_at": "2026-09-26T15:24:14.208Z"
+    },
+    {
+      "job_id": "6b697208-c974-4804-a4f7-6323f48fc27f",
+      "fingerprint": "0e90af4ef9e7a88115322bfddbbc35acd4e4559c0766dda20b2195556d37f0c2",
+      "site": "trainingsharks.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:31:00.137Z",
+      "next_attempt_at": "2026-09-26T15:31:00.137Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-26T15:31:00.432Z",
+      "completed_at": "2026-09-26T15:31:17.421Z"
+    },
+    {
+      "job_id": "ae7d56f3-b855-4858-b00a-d9ccede1a060",
+      "fingerprint": "2623a5ea9510f12f2e70e3816591ed27ced947900c1ea8dfe08be8efa6d9b639",
+      "site": "ultrarough.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:33:00.155Z",
+      "next_attempt_at": "2026-09-26T15:33:00.155Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-26T15:33:00.464Z",
+      "completed_at": "2026-09-26T15:33:22.041Z"
+    },
+    {
+      "job_id": "44b81235-c182-4f80-92df-9a890744240d",
+      "fingerprint": "8c79772b6439901fa5ccdc798b023d14af396c4a261b1954f57b3e9c476a0e5e",
+      "site": "vibratorporn.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "b8cc6b18-cb82-4461-81ad-a0aacae53c8d",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-26T15:35:00.145Z",
+      "next_attempt_at": "2026-09-26T21:35:54.346Z",
+      "lease_until": null,
+      "last_error": "ration_ms: 0.237686\n  type: 'test'\n  ...\n# Subtest: snapshot keeps mobile and desktop baselines separate and includes trend data\nok 428 - snapshot keeps mobile and desktop baselines separate and includes trend data\n  ---\n  duration_ms: 11.73945\n  type: 'test'\n  ...\n# Subtest: snapshot preserves explicit skipped-site rows\nok 429 - snapshot preserves explicit skipped-site rows\n  ---\n  duration_ms: 1.306735\n  type: 'test'\n  ...\n# Subtest: run queues the matching fleet scheduler job without launching a local process\nok 430 - run queues the matching fleet scheduler job without launching a local process\n  ---\n  duration_ms: 2.138976\n  type: 'test'\n  ...\n# Subtest: workflow board joins all durable fleet work sources without changing them\nok 431 - workflow board joins all durable fleet work sources without changing them\n  ---\n  duration_ms: 4.336901\n  type: 'test'\n  ...\n# Subtest: computes blockers, readiness, and critical downstream work\nok 432 - computes blockers, readiness, and critical downstream work\n  ---\n  duration_ms: 3.126408\n  type: 'test'\n  ...\n# Subtest: detects circular dependencies and overdue work\nok 433 - detects circular dependencies and overdue work\n  ---\n  duration_ms: 0.567075\n  type: 'test'\n  ...\n# Subtest: returns effort-weighted graph edges and stable alert keys\nok 434 - returns effort-weighted graph edges and stable alert keys\n  ---\n  duration_ms: 0.323827\n  type: 'test'\n  ...\n# (node:1080238) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: workflow links reject cycles and persist valid dependencies\nok 435 - workflow links reject cycles and persist valid dependencies\n  ---\n  duration_ms: 1395.965106\n  type: 'test'\n  ...\n1..435\n# tests 435\n# suites 0\n# pass 433\n# fail 1\n# cancelled 0\n# skipped 1\n# todo 0\n# duration_ms 26045.710111\ntests failed in tools/fleet-dashboard — commit blocked. Fix the tests or amend what you're committing.\n",
+      "claimed_at": "2026-09-26T15:35:00.417Z"
     }
   ]
 }

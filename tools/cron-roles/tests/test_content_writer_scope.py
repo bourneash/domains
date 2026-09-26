@@ -16,6 +16,8 @@ def test_offshorehookup_content_writer_scope_allows_hero_prompt_only():
     assert "push origin HEAD:main" in text
     assert "writer_sandbox_exec" in text
     assert "bwrap" in text
+    assert "--proc /proc" not in text
+    assert "--dev /dev" not in text
     assert "git add -A -- site/ ops/tasks/" not in text
     assert "git clean -fd -- ." not in text
 

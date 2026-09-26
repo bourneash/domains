@@ -54,6 +54,11 @@ function roleFamily(role) {
   return Object.entries(ROLE_FAMILIES).find(([, family]) => family.roles.includes(r))?.[0] || null;
 }
 
+function familyForRole(role) {
+  const key = roleFamily(role);
+  return key ? { key, ...ROLE_FAMILIES[key] } : null;
+}
+
 // Regex matching a role's `<prefix>-<date>…` log files. Accepts any of the
 // role's configured prefixes (default: the role name itself).
 function logRe(role) {
@@ -162,6 +167,80 @@ function lastRun(cwd, role) {
   return newest || null;
 }
 
+// Publishing evidence is deliberately derived from the site's existing logs
+// and deploy markers. It gives operators a useful editorial signal without
+// inventing a second state store that could drift from the site runner.
+function editorialTelemetry(cwd, role) {
+  if (!familyForRole(role)) return null;
+  const dir = path.join(cwd, 'ops', 'logs');
+  const log = logRe(role);
+  let latest = null;
+  let publication = null;
+  try {
+    for (const name of fs.readdirSync(dir)) {
+      if (!log.test(name)) continue;
+      const file = path.join(dir, name);
+      const stat = fs.statSync(file);
+      if (!latest || stat.mtimeMs > latest.mtime) {
+        const text = fs.readFileSync(file, 'utf8');
+        latest = { file: name, mtime: stat.mtimeMs, text };
+      }
+      const text = fs.readFileSync(file, 'utf8');
+      const matches = [
+        ...text.matchAll(/Published\s+[`']?\/(?:news|articles)\/([a-z0-9-]+)/gi),
+        ...text.matchAll(/claude wrote:\s*article=([a-z0-9-]+)/gi),
+      ];
+      if (matches.length && (!publication || stat.mtimeMs > publication.at)) {
+        publication = { slug: matches.at(-1)[1], at: stat.mtimeMs, file: name };
+      }
+    }
+  } catch {
+    /* site may not have logs yet */
+  }
+  const deployDir = path.join(cwd, 'ops', 'logs');
+  let deploy = null;
+  try {
+    for (const name of fs.readdirSync(deployDir)) {
+      if (!/^deployer-/.test(name)) continue;
+      const file = path.join(deployDir, name);
+      const stat = fs.statSync(file);
+      if (!deploy || stat.mtimeMs > deploy.at) {
+        const text = fs.readFileSync(file, 'utf8');
+        deploy = {
+          at: stat.mtimeMs,
+          file: name,
+          state: /deploy SUCCESS/.test(text)
+            ? 'success'
+            : /deploy (?:FAIL|ERROR)|exit=[1-9]/i.test(text)
+              ? 'failed'
+              : 'unknown',
+        };
+      }
+    }
+  } catch {
+    /* deploy logs are optional */
+  }
+  const deployNeeded = fs.existsSync(path.join(cwd, '.deploy-needed'));
+  const deployFailed = fs.existsSync(path.join(cwd, '.deploy-needed.failed'));
+  const latestText = latest?.text || '';
+  return {
+    attemptedAt: latest?.mtime || null,
+    attemptedFile: latest?.file || null,
+    outcome: latest
+      ? /exit=0/.test(latestText)
+        ? 'success'
+        : /exit=[1-9]/.test(latestText)
+          ? 'failed'
+          : 'unknown'
+      : 'never',
+    noOp: /NO-OP|no content change|nothing published|near-duplicate|no-op/i.test(latestText),
+    publication,
+    deploy: deploy
+      ? { ...deploy, pending: deployNeeded, failedMarker: deployFailed }
+      : { pending: deployNeeded, failedMarker: deployFailed },
+  };
+}
+
 function cellState(enabled, last, schedule, now) {
   if (!enabled) return { state: 'paused' };
   if (!last) return { state: 'never' };
@@ -245,6 +324,8 @@ async function matrix(root, slugs) {
           worker,
           commented,
           deploy,
+          cadence: cadenceClass(schedule),
+          editorial: editorialTelemetry(cwd, role),
         };
         freq[role] = (freq[role] || 0) + 1;
       }
@@ -407,6 +488,7 @@ async function health(root, role, slugs, usage = {}, skipFamily = false) {
       failed: stats.failed,
       unknown: stats.unknown,
       failures: stats.failures.slice(0, 3),
+      editorial: editorialTelemetry(siteDir(root, site.site), role),
       costUsd: spend.get(site.site)?.total_cost_usd || 0,
       calls: spend.get(site.site)?.calls || 0,
       promptHash: prompt,

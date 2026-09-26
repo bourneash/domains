@@ -393,9 +393,10 @@
     if (it) setTimeout(it.run, 10);
   }
   function open() {
-    restoreFocus = document.activeElement && typeof document.activeElement.focus === 'function'
-      ? document.activeElement
-      : null;
+    restoreFocus =
+      document.activeElement && typeof document.activeElement.focus === 'function'
+        ? document.activeElement
+        : null;
     palette.classList.remove('hidden');
     pInput.value = '';
     draw();
@@ -849,6 +850,101 @@
     app.insertBefore(h, app.firstChild);
   }
 
+  /* --------------------------------------------------------- saved views --- */
+  // A saved view is a client-side navigation snapshot: it stores the current
+  // route and fleet filter without duplicating fleet data or server policy.
+  const SAVED_VIEWS_KEY = 'fd.saved-views.v1';
+  function readSavedViews() {
+    try {
+      const value = JSON.parse(localStorage.getItem(SAVED_VIEWS_KEY) || '[]');
+      return Array.isArray(value) ? value.filter(v => v && v.name && v.hash).slice(0, 12) : [];
+    } catch {
+      return [];
+    }
+  }
+  function writeSavedViews(views) {
+    try {
+      localStorage.setItem(SAVED_VIEWS_KEY, JSON.stringify(views.slice(0, 12)));
+    } catch {}
+  }
+  function renderSavedViews(menu) {
+    const views = readSavedViews();
+    const rows = views
+      .map(
+        (view, i) =>
+          `<div class="view-save-row" role="menuitem">
+            <button class="view-save-open" type="button" data-view-save="${i}" title="Open ${esc(view.name)}">
+              <span>${esc(view.name)}</span><small>${esc(view.hash)}</small>
+            </button>
+            <button class="view-save-delete" type="button" data-view-delete="${i}" aria-label="Delete ${esc(view.name)}" title="Delete saved view">×</button>
+          </div>`
+      )
+      .join('');
+    menu.innerHTML =
+      '<button class="view-save-new" type="button">＋ Save current view</button>' +
+      '<div class="view-save-divider"></div>' +
+      (rows || '<div class="view-save-empty">No saved views yet.</div>');
+  }
+  function setupSavedViews(actions) {
+    if (!actions || $('.view-saves', actions)) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'view-saves';
+    wrap.innerHTML = `
+      <button class="btn sm view-saves-toggle" type="button" aria-expanded="false" aria-haspopup="menu">Saved views</button>
+      <div class="view-saves-menu hidden" role="menu"></div>`;
+    actions.insertBefore(wrap, actions.firstChild);
+    const toggle = $('.view-saves-toggle', wrap);
+    const menu = $('.view-saves-menu', wrap);
+    const close = () => {
+      menu.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    toggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = menu.classList.contains('hidden');
+      if (open) renderSavedViews(menu);
+      menu.classList.toggle('hidden', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    menu.addEventListener('click', e => {
+      const save = e.target.closest('.view-save-new');
+      if (save) {
+        const name = window.prompt('Name this saved view');
+        if (!name?.trim()) return;
+        const filter = $('#fleet-filter')?.value?.trim() || '';
+        writeSavedViews([
+          { name: name.trim(), hash: location.hash || '#control', filter },
+          ...readSavedViews(),
+        ]);
+        renderSavedViews(menu);
+        return;
+      }
+      const open = e.target.closest('[data-view-save]');
+      if (open) {
+        const view = readSavedViews()[Number(open.dataset.viewSave)];
+        if (!view) return;
+        const filter = $('#fleet-filter');
+        if (filter) {
+          filter.value = view.filter || '';
+          filter.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        close();
+        location.hash = view.hash;
+        return;
+      }
+      const del = e.target.closest('[data-view-delete]');
+      if (del) {
+        const views = readSavedViews();
+        views.splice(Number(del.dataset.viewDelete), 1);
+        writeSavedViews(views);
+        renderSavedViews(menu);
+      }
+    });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.view-saves')) close();
+    });
+  }
+
   function fold(on) {
     document.body.classList.toggle('rail-folded', on);
     prefs.folded = on;
@@ -876,6 +972,8 @@
       ctx.id = 'ctx';
       bar.insertBefore(ctx, bar.firstChild);
     }
+
+    setupSavedViews($('.actions'));
 
     build();
     // app.js fills the agents/group menus asynchronously and re-toggles .active

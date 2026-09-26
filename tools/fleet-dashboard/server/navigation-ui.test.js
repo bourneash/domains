@@ -24,6 +24,16 @@ test('navigation category roots are first-class routes', () => {
   }
 });
 
+test('site command centers are shareable first-class routes', () => {
+  const route = routeFor('#site/example.test');
+  assert.equal(route.view, 'site');
+  assert.equal(route.siteSlug, 'example.test');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /function renderSiteDetail\(\)/);
+  assert.match(app, /site command center/);
+  assert.match(app, /site-console-link/);
+});
+
 test('executive leadership is a first-class Agents page', () => {
   assert.equal(routeFor('#agents/executive').view, 'agent');
   assert.equal(routeFor('#agents/executive').agent, 'executive');
@@ -90,10 +100,7 @@ test('sidebar category navigation and disclosure use separate controls', () => {
     /location\.hash = h\.dataset\.root;\s+toggleSection\(h\.closest\('\.rl-sec'\)\)/
   );
   assert.doesNotMatch(shell, /an active item inside a collapsed section/);
-  assert.match(
-    theme,
-    /\.rail-folded \.rl-fold\s*\{[^}]*position:\s*absolute;[^}]*z-index:\s*3;/s
-  );
+  assert.match(theme, /\.rail-folded \.rl-fold\s*\{[^}]*position:\s*absolute;[^}]*z-index:\s*3;/s);
 });
 
 test('fleet health pulse exposes an actionable explanation', () => {
@@ -137,6 +144,24 @@ test('command palette exposes a keyboard and screen-reader friendly listbox', ()
   assert.match(shell, /restoreFocus/);
   assert.match(index, /id="updated"[^>]*aria-live="polite"/);
   assert.match(index, /id="toast"[^>]*aria-live="polite"/);
+});
+
+test('saved views provide a client-side operator snapshot menu', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(shell, /SAVED_VIEWS_KEY = 'fd\.saved-views\.v1'/);
+  assert.match(shell, /Save current view/);
+  assert.match(shell, /data-view-save/);
+  assert.match(shell, /location\.hash = view\.hash/);
+  assert.match(theme, /\.view-saves-menu/);
+});
+
+test('the shell exposes the authenticated access level', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /applyAccessLevel\(a\?\.access\)/);
+  assert.match(app, /Read-only/);
+  assert.match(theme, /\.access-badge\.is-viewer/);
 });
 
 test('agent pages expose enrollment actions that open the automation editor', () => {
