@@ -13,17 +13,28 @@ const ROOT = path.resolve(__dirname, '../../..');
 test('editorial family exposes exact profiles and preserves site-level health rows', async () => {
   const slugs = ['amputeenews.com', '0daynews.com', 'americastrikes.com'];
   const family = roles.agents(ROOT, slugs).find(agent => agent.role === 'update');
-  assert.deepEqual(family.profiles, ['update', 'content-writer', 'news-writer']);
+  assert.deepEqual(family.profiles, [
+    'update',
+    'content-writer',
+    'news-writer',
+    'news-writer-local',
+    'breaking-news',
+    'weekly-editorial',
+  ]);
   assert.equal(family.sites, 3);
 
   const health = await roles.health(ROOT, 'update', slugs, { by_site_role: [] });
   assert.equal(health.family.role, 'update');
   assert.deepEqual(health.rows.map(row => `${row.site}:${row.role}`).sort(), [
     '0daynews.com:news-writer',
+    'americastrikes.com:breaking-news',
+    'americastrikes.com:news-writer-local',
     'americastrikes.com:update',
+    'americastrikes.com:weekly-editorial',
     'amputeenews.com:content-writer',
   ]);
   assert.ok(health.rows.every(row => row.editorial && row.editorial.deploy));
+  assert.ok(Array.isArray(health.alerts));
 });
 
 test('task routing uses the shared editorial family candidates', () => {
@@ -38,6 +49,7 @@ test('generic agent UI exposes cadence, publishing telemetry, and exact-role con
   const source = fs.readFileSync(path.join(__dirname, 'public', 'app.js'), 'utf8');
   assert.match(source, /editorialCadenceLabel/);
   assert.match(source, /editorialTelemetryCell/);
+  assert.match(source, /publishing alert/);
   assert.match(source, /data-role="\$\{esc\(actualRole\)\}"/);
   assert.match(source, /if \(!familyPage\)/);
 });

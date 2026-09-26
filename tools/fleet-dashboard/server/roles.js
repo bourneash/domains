@@ -45,7 +45,16 @@ const ROLE_FAMILIES = {
   update: {
     label: 'Editorial updates',
     description: 'Content freshness, reporting, and source-backed publishing across the fleet',
-    roles: ['update', 'content-writer', 'news-writer'],
+    roles: [
+      'update',
+      'content-writer',
+      'news-writer',
+      'news-writer-local',
+      'breaking-news',
+      'weekly-editorial',
+    ],
+    primaryRoles: ['update', 'content-writer', 'news-writer'],
+    secondaryRoles: ['news-writer-local', 'breaking-news', 'weekly-editorial'],
   },
 };
 
@@ -223,6 +232,34 @@ function editorialTelemetry(cwd, role) {
   const deployNeeded = fs.existsSync(path.join(cwd, '.deploy-needed'));
   const deployFailed = fs.existsSync(path.join(cwd, '.deploy-needed.failed'));
   const latestText = latest?.text || '';
+  const source = /cache:\s*OK|source[s]?\s+(?:ok|ready|fresh)/i.test(latestText)
+    ? { state: 'ok', detail: 'source/cache reported healthy' }
+    : /cache|source/i.test(latestText) && /(?:MISS|STALE|FAIL|ERROR|UNAVAILABLE)/i.test(latestText)
+      ? { state: 'degraded', detail: 'source/cache reported an issue' }
+      : { state: 'unknown', detail: 'no source/cache verdict in latest log' };
+  const cadence = cadenceClass(
+    (
+      parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true }).find(
+        entry => entry.role === role
+      ) || {}
+    ).schedule || '* * * * *'
+  );
+  const publicationAge = publication ? (Date.now() - publication.at) / 1000 : Infinity;
+  const publicationLimit = THRESH[cadence] || THRESH.daily;
+  const alerts = [];
+  if (outcomeIsFailure(latestText))
+    alerts.push({ type: 'run-failed', message: 'latest editorial run failed' });
+  if (source.state === 'degraded') alerts.push({ type: 'source-degraded', message: source.detail });
+  if (deployNeeded || deployFailed)
+    alerts.push({
+      type: 'deploy-pending',
+      message: deployFailed ? 'deployment is parked after failure' : 'deployment is waiting',
+    });
+  if (publicationAge > publicationLimit)
+    alerts.push({
+      type: 'publication-overdue',
+      message: `no publication within the ${cadence} cadence window`,
+    });
   return {
     attemptedAt: latest?.mtime || null,
     attemptedFile: latest?.file || null,
@@ -234,11 +271,18 @@ function editorialTelemetry(cwd, role) {
           : 'unknown'
       : 'never',
     noOp: /NO-OP|no content change|nothing published|near-duplicate|no-op/i.test(latestText),
+    cadence,
+    source,
+    alerts,
     publication,
     deploy: deploy
       ? { ...deploy, pending: deployNeeded, failedMarker: deployFailed }
       : { pending: deployNeeded, failedMarker: deployFailed },
   };
+}
+
+function outcomeIsFailure(text) {
+  return /exit=[1-9]|\b(?:FAIL|FAILED|ERROR|timed out)\b/i.test(text || '');
 }
 
 function cellState(enabled, last, schedule, now) {
@@ -453,6 +497,9 @@ async function health(root, role, slugs, usage = {}, skipFamily = false) {
         costUsd: rows.reduce((n, row) => n + row.costUsd, 0),
         drifted: rows.filter(row => row.drift).length,
       },
+      alerts: rows.flatMap(row =>
+        (row.editorial?.alerts || []).map(alert => ({ site: row.site, role: row.role, ...alert }))
+      ),
       rows,
     };
   }
@@ -518,7 +565,15 @@ async function health(root, role, slugs, usage = {}, skipFamily = false) {
     costUsd: rows.reduce((n, row) => n + row.costUsd, 0),
     drifted: rows.filter(row => row.drift).length,
   };
-  return { role, windowDays: 7, summary, rows };
+  return {
+    role,
+    windowDays: 7,
+    summary,
+    alerts: rows.flatMap(row =>
+      (row.editorial?.alerts || []).map(alert => ({ site: row.site, role, ...alert }))
+    ),
+    rows,
+  };
 }
 
 // The parsed crontab entry for a role on a site (or null), for validation.

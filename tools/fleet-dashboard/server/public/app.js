@@ -394,7 +394,7 @@ function editorialCadenceLabel(cadence) {
   return { frequent: 'Frequent', daily: 'Daily', weekly: 'Weekly' }[cadence] || 'Scheduled';
 }
 
-function editorialTelemetryCell(e) {
+function editorialTelemetryCell(e, role = '', secondary = false) {
   if (!e) return '<span class="muted">—</span>';
   const publication = e.publication
     ? `published ${fmtAge((Date.now() - e.publication.at) / 1000)} ago`
@@ -407,8 +407,12 @@ function editorialTelemetryCell(e) {
         ? '<span class="health-now">deployed</span>'
         : '<span class="muted">deploy unknown</span>';
   const outcome = e.noOp ? 'no-op' : e.outcome;
-  const title = `${publication}; latest run ${outcome}; ${e.publication?.slug || 'no article slug'}`;
-  return `<span class="editorial-telemetry" title="${esc(title)}"><span>${esc(publication)}</span><br><span>${deploy} · ${esc(outcome)}</span></span>`;
+  const alert = e.alerts?.length
+    ? `<span class="flag"> · ${e.alerts.length} alert${e.alerts.length === 1 ? '' : 's'}</span>`
+    : '';
+  const title = `${role ? `${role}; ` : ''}${publication}; latest run ${outcome}; source ${e.source?.state || 'unknown'}; ${e.publication?.slug || 'no article slug'}`;
+  const roleLabel = role ? `${secondary ? 'secondary · ' : ''}${role}` : '';
+  return `<span class="editorial-telemetry" title="${esc(title)}"><span>${role ? `<span class="badge b-gray">${esc(roleLabel)}</span> ` : ''}${esc(publication)}</span><br><span>${deploy} · ${esc(outcome)} · source ${esc(e.source?.state || 'unknown')}${alert}</span></span>`;
 }
 
 async function renderEngineers() {
@@ -4300,6 +4304,7 @@ async function renderGenericAgent(role) {
   const enabled = rows.filter(r => r.enabled).length;
   const paused = rows.length - enabled;
   const familyPage = profiles.length > 1;
+  const editorialAlerts = rows.flatMap(row => row.editorial?.alerts || []);
   const issues = rows.filter(
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
@@ -4309,6 +4314,7 @@ async function renderGenericAgent(role) {
   const body = rows
     .map(r => {
       const actualRole = r.profileRole || role;
+      const secondary = agentDef?.secondaryRoles?.includes(actualRole) || false;
       const h = healthBy[`${r.site}:${actualRole}`];
       const runBtn = r.worker
         ? `<button class="btn sm ag-run" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">▶ Run</button>`
@@ -4331,7 +4337,7 @@ async function renderGenericAgent(role) {
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted" title="${esc(r.schedule)}"><span class="badge b-blue">${esc(editorialCadenceLabel(r.cadence))}</span><br>${esc(r.schedule)}</td>
-      <td>${editorialTelemetryCell(r.editorial)}</td>
+      <td>${editorialTelemetryCell(r.editorial, actualRole, secondary)}</td>
       <td>${agentHealthCell(h)}</td>
       <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Remove</button></td>
     </tr>${h ? healthDetailRow(h, 7) : ''}
@@ -4344,7 +4350,7 @@ async function renderGenericAgent(role) {
     <div class="page-head"><h2 class="page-title">${esc(agentLabel(role))}</h2><span class="muted">${rows.length} sites run this agent</span></div>
     <div class="task-toolbar">
       <strong>${rows.length} sites</strong>
-      <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}</span>
+      <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${editorialAlerts.length ? ` · <span class="flag">${editorialAlerts.length} publishing alert${editorialAlerts.length === 1 ? '' : 's'}</span>` : ''}</span>
       <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
     </div>
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
@@ -12920,6 +12926,13 @@ async function renderExecutiveSetup() {
     <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are tested in disposable workspaces before CEO/CTO review.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
+  $('#ex-save-settings')
+    ?.closest('.ex-disclosure-body')
+    ?.querySelector('.form-grid')
+    ?.insertAdjacentHTML(
+      'beforeend',
+      `<label>Transcript retention (days)<input id="ex-transcript-retention" class="cm-input" value="${esc(s.conversation_retention_days || '90')}" type="number" min="1" max="3650"><small class="muted">Operator-visible run transcript only.</small></label>`
+    );
   $('#ex-back-overview').onclick = () => go('agent', 'executive');
   $('#ex-save-settings').onclick = async () => {
     const btn = $('#ex-save-settings');
@@ -12934,6 +12947,7 @@ async function renderExecutiveSetup() {
         monthly_spend_limit: $('#ex-spend-limit').value.trim(),
         risk_tolerance: $('#ex-risk').value.trim(),
         checkin_hours: Number($('#ex-checkin').value || 24),
+        conversation_retention_days: Number($('#ex-transcript-retention').value || 90),
         operating_notes: $('#ex-notes').value.trim(),
         tick_enabled: $('#ex-tick-enabled').checked,
       });
@@ -12992,6 +13006,7 @@ async function renderExecutive() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
   let messages,
+    transcript,
     requests,
     inbox,
     proposals,
@@ -13009,6 +13024,7 @@ async function renderExecutive() {
   try {
     [
       messages,
+      transcript,
       requests,
       inbox,
       proposals,
@@ -13025,6 +13041,7 @@ async function renderExecutive() {
       runStatus,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
+      apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
       api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
       api('GET', '/api/executive/inbox?limit=50'),
       api('GET', '/api/executive/proposals?limit=100'),
@@ -13087,6 +13104,29 @@ async function renderExecutive() {
       m =>
         `<article class="card" style="margin-bottom:8px"><div class="muted"><b>${esc(executiveActorLabel(m.actor))}</b> · ${esc(fmtDate(m.created_at))}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.body)}</div></article>`
     )
+    .join('');
+  const transcriptMessages = (transcript.messages || []).slice().reverse();
+  const transcriptRows = transcriptMessages
+    .map(item => {
+      const kind =
+        item.message_type === 'background'
+          ? 'background'
+          : item.message_type === 'model-prompt'
+            ? 'prompt'
+            : 'response';
+      const label =
+        kind === 'background'
+          ? item.metadata?.label || 'Background work'
+          : kind === 'prompt'
+            ? item.metadata?.label || 'Model request'
+            : 'Model response';
+      const run = item.metadata?.run_id ? ` · run ${String(item.metadata.run_id).slice(0, 8)}` : '';
+      const body =
+        kind === 'background'
+          ? `<div class="ex-transcript-summary">${esc(item.body)}</div>`
+          : `<details><summary>View ${kind === 'prompt' ? 'request context' : 'structured response'}</summary><pre>${esc(item.body)}</pre></details>`;
+      return `<article class="ex-transcript-event ex-transcript-${kind}"><div class="ex-transcript-meta"><span class="ex-transcript-dot"></span><b>${esc(label)}</b><span class="muted">${esc(executiveActorLabel(item.actor))} · ${esc(fmtDate(item.created_at))}${esc(run)}</span></div>${body}</article>`;
+    })
     .join('');
   const ownerRequestRows = ownerRequests
     .map(request => {
@@ -13305,6 +13345,7 @@ async function renderExecutive() {
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
         <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests match this view.</div>'}<div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
+        <section class="ex-panel ex-transcript-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN TRANSCRIPT</div><h3>Conversation &amp; background work</h3><p class="muted">Operator-visible requests, structured responses, and pass milestones across the executive team. Private chain-of-thought is never collected.</p></div><span class="badge b-blue">${transcriptMessages.length} events</span></div><div class="ex-transcript-legend"><span class="ex-legend-prompt">Model request</span><span class="ex-legend-response">Model response</span><span class="ex-legend-background">Background work</span><span class="muted">Retained ${esc(String(transcript.retention_days || 90))} days</span></div><div class="ex-transcript-list">${transcriptRows || '<div class="ex-empty">No run transcript yet. Start an executive team run to populate it.</div>'}</div></section>
       </div>
       <aside class="ex-secondary">
         <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">FLEET SIGNALS</div><h3>At a glance</h3></div><span class="muted">${esc(fmtDate(brief.brief?.generated_at))}</span></div><div class="ex-mini-grid">${stat(intel.analytics?.configured_sites ?? '—', 'analytics sites')}${stat(intel.revenue?.commission_income ?? '—', 'commission income')}${stat(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—', 'AI tokens')}${stat(fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`, 'telemetry cost')}</div><p class="muted ex-footnote">Telemetry only; no per-run executive cost is inferred.</p></section>
@@ -13316,6 +13357,13 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are now tested in disposable workspaces before CEO/CTO review. No dependencies are installed and no project files are mounted.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
+  $('#ex-save-settings')
+    ?.closest('.ex-disclosure-body')
+    ?.querySelector('.form-grid')
+    ?.insertAdjacentHTML(
+      'beforeend',
+      `<label>Transcript retention (days)<input id="ex-transcript-retention" class="cm-input" value="${esc(s.conversation_retention_days || '90')}" type="number" min="1" max="3650"><small class="muted">Operator-visible run transcript only.</small></label>`
+    );
   $('#ex-refresh').onclick = () => softRender();
   $('#ex-inbox-search').oninput = event => {
     EXEC_INBOX_UI.q = event.target.value.trim();
@@ -13518,6 +13566,7 @@ async function renderExecutive() {
         monthly_spend_limit: $('#ex-spend-limit').value.trim(),
         risk_tolerance: $('#ex-risk').value.trim(),
         checkin_hours: Number($('#ex-checkin').value || 24),
+        conversation_retention_days: Number($('#ex-transcript-retention').value || 90),
         operating_notes: $('#ex-notes').value.trim(),
         tick_enabled: $('#ex-tick-enabled').checked,
       });
