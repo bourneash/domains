@@ -2,42 +2,63 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:58:16.904Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:05:04.944Z",
+  "summary": "legal checked in 8 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for ordinary reversible fleet growth; blocked for SearchWoot public beta or full launch; counsel_required for upstream data rights, jurisdiction-specific privacy treatment, and future affiliate or advertising use. Evidence: compliance is a technical baseline only (37 pass, 16 fail, 6 unknown) with open banner, consent, GA4, privacy, and terms findings; analytics has permission/configuration gaps; revenue covers one day with $4.92 aggregate unattributed commission and cannot support ROI, margin, or causal claims. Do not block ordinary growth solely for incomplete telemetry. Keep SearchWoot private. No go-live proposal is supported.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth; counsel_required for upstream data rights, jurisdiction-specific privacy treatment, vendor/DPA obligations, and any affiliate or advertising expansion. Recommendation: keep SearchWoot private. Evidence: Woot API access is documented, but rights to store, derive, cache, publicly display, alert on, or monetize returned data are not established; current public terms point against those uses. Fleet compliance is only a technical baseline: 37 pass, 16 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics has permission gaps; revenue covers 2026-09-21 only, with $4.92 aggregate commission not assignable to a site and $0 site-attributed commission. Fleet-doctor and operations sweeps are unavailable. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed; all four remain open because complete evidence is absent. Data-use dispositions: Woot API deal and price-history data = blocked; user alert rules and sync results = evidence_needed; GA4 analytics = evidence_needed; operational logs and Cloudflare hosting data = evidence_needed. Next evidence action: attach one consolidated read-only artifact covering field-level rights, alert and operational data flows, log fields, retention, access, deletion, correction, notification consent/unsubscribe, vendors, and incident/request procedures, plus an unsent permission-request draft for owner and human-counsel review. Do not change the private gate or send outreach.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed. Existing evidence is partial: official API documentation and terms, backend/api/main.py, backend/services/fetcher.py, config.yml, privacy/cookie pages, and draft terms. No task is closed because complete evidence is absent. Concrete next evidence action: attach one read-only bundle covering alert fields and identifiers, retention, deletion, correction, access, notification consent and unsubscribe behavior, GA4 consent/settings/retention, log fields, vendor/DPA coverage, and incident/request procedures; separately maintain a field-level rights matrix and unsent permission-request package for owner and human-counsel review. Do not send outreach or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review detail: Woot source/purpose/processing/display and monetization use are blocked because API access is evidenced but storage, derivatives, caching, public display, alerts, trademark/image/price use, affiliate use, attribution, freshness, correction, and takedown rights are not. Smallest action: create a field-level rights matrix and attach it to the unsent permission-request draft; human counsel must review before any rights-dependent launch or monetization. User alerts are evidence_needed because inventory, retention, deletion/correction/access, processor terms, notification consent, and unsubscribe behavior are missing; next action is a repository/deployed-configuration data-flow and retention table. GA4 is evidence_needed because deployed consent/withdrawal behavior, property/data-sharing settings, retention, vendor disclosure, and jurisdiction review are missing; next action is read-only configuration capture without enabling tracking. Operational logs are evidence_needed because log fields, retention/access, vendor/DPA, incident, and request procedures are missing; next action is a read-only operator/vendor inventory.",
+        "summary": "Data-use review decisions: 1) Woot API deal and price-history data: blocked. Missing current written permission/API agreement, field-level provenance and rights, caching/display/alert terms, attribution, freshness, correction, takedown, trademark/image/price-use limits, and affiliate/advertising permission. Smallest action: complete the field-level rights matrix and route the unsent permission package to human counsel and the owner. 2) User alert rules and sync results: evidence_needed. Missing data inventory, retention, deletion/correction/access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest action: produce the repository/deployed data-flow and retention table. 3) GA4 analytics: evidence_needed. Missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdiction-specific review. Smallest action: capture existing consent and GA4 configuration without enabling new tracking. 4) Operational logs and Cloudflare hosting data: evidence_needed. Missing log-field inventory, retention/access controls, vendor terms/DPA review, and incident/data-subject-request procedures. Smallest action: produce a read-only operator/vendor inventory. Human counsel is required for unresolved rights and jurisdictional questions.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only updates to existing execution-reconciliation, measurement, failed-run containment, security-evidence, and private-launch workstreams. No new proposal, production change, telemetry request, monetization expansion, external outreach, or launch change is justified this cycle. Ordinary reversible growth remains conditional on site-specific consent, cookie/analytics disclosure, affiliate disclosure, claims support, data provenance and rights, copyright/trademark, platform-policy, and any age-sensitive or regulated-content review supported by the affected site.",
+        "summary": "Private-site launch decision: keep_private is the concrete decision. Checklist before reconsideration: authoritative source permission; field-level rights matrix; freshness, correction, and takedown controls; alert-data retention/deletion/access controls; deployed consent and GA4 configuration evidence; log/vendor/DPA and incident procedures; accuracy/freshness gate; measurement/attribution gate; security/release gate; and owner disposition. Until complete, permit only bounded read-only evidence work and internal draft preparation. Do not expose publicly, expand alerts, monetize, enable new tracking, deploy, or send external requests.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Private or gated launch decision: keep SearchWoot private. Concrete blockers are missing upstream redistribution permission, incomplete privacy/data-flow evidence, blocked security and release acceptance, blocked accuracy/freshness controls, blocked attribution/measurement reconciliation, and absent owner disposition. The next evidence action is the consolidated read-only evidence artifact and unsent rights-request packet; no checklist task should be closed until its stated evidence is attached and unresolved issues are escalated to human counsel.",
+        "summary": "Retain only existing execution-reconciliation, failure-containment, measurement, security-evidence, and private-launch workstreams. Ordinary reversible growth remains conditional when existing consent, disclosures, affiliate disclosures, claims, provenance, rights, and platform-policy boundaries are preserved. Incomplete telemetry alone is not a blocker; do not invent telemetry or financial outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing failure containment only. No requeue or new production request until root cause, smallest isolated repair, focused validation, rollback, ownership, deduplication, and explicit requeue-or-close disposition are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain private launch gates and continue bounded read-only evidence capture. Fleet-doctor and operations results are unavailable; access, secrets, isolation, release, monitoring, incident, and disclosure controls remain evidence_needed rather than passed. Ordinary reversible growth is conditional only where no new credentials, permissions, dependencies, data collection, or cross-site behavior is introduced.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing measurement using available source-dated impressions, clicks, sessions, conversions, site-attributed commission, and AI cost. Preserve unknown revenue, attribution, ROI, margin, cost-to-learn, causal lift, infrastructure cost, labor cost, and operational health. Do not request duplicate telemetry or treat missing values as zero.",
         "requested_action": null,
         "proposal_id": null
       }

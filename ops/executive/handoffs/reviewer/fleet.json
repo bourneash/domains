@@ -2,21 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:58:16.904Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T16:05:04.944Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only updates to existing reconciliation, failure-containment, measurement, security-evidence, and private-launch work. Reject new proposals, production changes, queue expansion, requeues, experiments, telemetry requests, spending, external outreach, and monetization changes. Revenue, ROI, margin, causal lift, and operational health remain unknown; the available $4.92 commission is aggregate and not site-attributable. Keep the private launch gate unchanged.",
+        "summary": "Reject new proposals, experiments, production requests, queue expansion, requeues, telemetry requests, spending, monetization, launch changes, and unsupported revenue or ROI claims. Preserve only existing execution-reconciliation, failure-containment, measurement, bounded security-evidence, and private-launch work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concern: the prepared permission request requires explicit owner authorization and human counsel review. Until authorized, allow only internal draft preparation and read-only evidence work; do not send outreach or change launch status.",
+        "summary": "Update existing workstreams only. Do not create or requeue work until deduplication, ownership, root cause, focused validation, rollback, and queue eligibility are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement with available impressions, clicks, sessions, conversions, site-attributed commission, and AI cost only. Preserve unknown revenue, attribution, ROI, margin, incrementality, causal lift, cost-to-learn, infrastructure cost, labor cost, and operational health.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue containment of existing failures. Record root cause, isolated repair, validation, rollback, ownership, deduplication, and explicit requeue-or-close disposition before any requeue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security evidence capture from authorized metadata and retained artifacts. Keep missing controls unknown; do not access credentials, change permissions or configuration, deploy, or claim certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private. Continue internal evidence and unsent permission-request preparation only; no outreach, public exposure, monetization, alert expansion, configuration change, or deployment without owner and counsel decisions.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner message: the plan is containment-only because 191 approved proposals lack execution, 46 failure repairs remain open, 25 deployed improvements await measurement, and only one outcome is proven. Available revenue covers one day, with $4.92 aggregate commission unassigned to sites and no site-attributed commission; financial, causal, and operational conclusions remain unsupported. Drain existing work and keep private gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
