@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-26T02:32:01.613Z",
+  "generated_at": "2026-09-26T02:49:44.325Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": "Run seedstosauce.com audience, monetization, health, and backlog baseline",
-        "summary": "Establish an evidence-backed site baseline and identify exactly one next action or blocker for seedstosauce.com.",
-        "requested_action": "Review existing evidence only. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "468eefef-0259-4221-8051-93b9dfd9e821"
+        "kind": "proposal",
+        "title": "Run drivegm.net audience, monetization, health, and backlog baseline",
+        "summary": "Produce a bounded read-only assessment of drivegm.net using existing registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Preserve unavailable audience, traffic, conversion, revenue, attribution, health, and cost fields as unknown; do not infer telemetry or causal lift.",
+        "requested_action": "Review existing evidence only and document one evidence-backed next action or blocker. Acceptance artifact: timestamped assessment covering observable audience and content positioning, conversion paths, monetization readiness, health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Rollback/follow-up boundary: no production rollback is required because no changes are authorized; follow-up is limited to documenting the single next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "6506b69c-bd7e-4946-bb70-21549fdf4dc9"
       }
     ]
   }
