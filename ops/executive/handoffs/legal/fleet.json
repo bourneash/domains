@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T07:03:26.972Z",
+  "generated_at": "2026-09-26T08:03:06.635Z",
   "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch of SearchWoot; conditional for ordinary reversible fleet growth that preserves existing consent, disclosures, data handling, claims, and affiliate boundaries. The official Woot documentation confirms API access but not rights to store, derive, cache, publicly display, alert on, or monetize returned data; public terms point against those uses. Human counsel is required for upstream rights, privacy jurisdiction treatment, and any affiliate or advertising expansion. No go-live proposal is supported.",
+        "summary": "Risk disposition: blocked for public launch of SearchWoot; conditional for ordinary reversible fleet growth that preserves existing consent, disclosures, data handling, claims, copyright and trademark boundaries, platform rules, and affiliate disclosures. Woot API access is evidenced, but permission to store, derive, cache, publicly display, alert on, or monetize returned data is not. Human counsel is required for upstream rights, privacy jurisdiction treatment, and any affiliate or advertising expansion. Launch-readiness tracking remains active: no legal task is closed. Next evidence action is to attach the authoritative permission or terms record and obtain owner authorization before sending the prepared Woot request.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T07:03:26.971Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T08:03:06.635Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the CEO’s no-new-implementation posture and drain execution, repair, and measurement backlog before approving additional work. Financial evidence does not support incremental spend or revenue forecasts. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; $0 is site-attributed and $4.92 cannot be assigned to a site. AI usage covers 2026-09-01 through 2026-09-26: 5,249 calls and $943.09 cost. The resulting $0.52% revenue-to-AI-cost comparison is not a valid ROI or margin measure because the periods and attribution scopes differ. Infrastructure spend, fixed costs, labor cost, and approved budgets are unavailable, so contribution margin, total budget exposure, and cost-to-learn are not calculable. Minimum finance evidence is a common-period ledger reconciling site/content identifiers, affiliate clicks, orders, shipped items, commission, AI cost, attributable infrastructure cost, and approved budget limits. Do not treat sessions, impressions, clicks, SEO conversions, ordered items, or AI calls as revenue or profit.",
+        "summary": "Recommendation: approve backlog reconciliation only and authorize no new spend or affiliate experimentation. The available revenue window reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site attribution is $0. Infrastructure, labor, fixed costs, and budgets are unavailable, so contribution margin and cost-to-learn remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO review: approve backlog reconciliation and existing measurement only; reject new implementation or affiliate experimentation this cycle. Continue SearchWoot private because the measurement gate is blocked and no revenue, margin, or ROI claim is supportable. The prepared permissions request is an owner/external-rights decision, not a finance approval; no spend or launch should occur before attribution and cost evidence is complete.",
+        "summary": "Recommendation: approve backlog reconciliation and existing measurement only; authorize no new spend, affiliate experimentation, or implementation this cycle. Revenue evidence is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; $0 is site-attributed and $4.92 cannot support site revenue, ROI, or forecast claims. AI usage cost is $943.09 for 2026-09-01 through 2026-09-26. Infrastructure, labor, fixed costs, budgets, and common-period revenue/cost reconciliation are unavailable, so contribution margin, budget exposure, and cost-to-learn are not calculable. Minimum finance evidence is a common-period ledger mapping revenue, AI, infrastructure, labor, and experiment costs to site/content identifiers. Execute the already-approved noveltyguns.com report-only baseline and preserve all unavailable fields as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: approve backlog reconciliation only and authorize no new spend or affiliate experimentation. Available revenue evidence reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site attribution is $0. Infrastructure, labor, fixed costs, and budgets are unavailable, so contribution margin and cost-to-learn remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
