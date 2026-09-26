@@ -2,30 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T01:06:28.629Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T02:04:32.772Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the reversible, zero-external-spend SEO test on aliencouncil.com and keep broader affiliate expansion bounded. The 30-day baseline is 77 impressions, position 5.5, 0 clicks, 0 sessions, and 0 conversions; the 2026-09-21 revenue window records 10 site clicks and $0 attributed commission. Revenue impact, contribution margin, and ROI are therefore unproven. AI spend was $940.70 across the 2026-09-01 to 2026-09-25 window, while no monthly budget or fixed-cost baseline is provided. Do not scale work from impressions, clicks, or aggregate $4.92 commission.",
+        "summary": "Recommendation: retain the bounded ultrarough.com prototype only with a finance measurement gate; do not treat it as revenue validation or approve broader rollout. The available revenue window is 2026-09-21: 667 site-tracked affiliate clicks, 1 conversion, 0 ordered items, and $0 site-attributed commission. AI usage cost is $12.4237 for 2026-09-01 through 2026-09-25, so matched-period contribution margin and cost-to-learn are not calculable because the cost and revenue windows differ, infrastructure/labor costs are absent, and the recorded conversion is not shown to be incremental or revenue-producing. The only defensible current claim is $0 attributable commission against known AI cost, with full margin unknown. Minimum measurement: a matched experiment window containing page-level exposures, affiliate clicks, orders, shipped items, commission, AI cost, and attributable infrastructure cost; report observed results only after 14 days or 100 new impressions. No forecast, ROI, payback, or causal-lift claim is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The minimum finance measurement before any monetization expansion is page/site-level linkage of eligible sessions, affiliate clicks, ordered items, shipped items, commission, AI cost, and directly attributable infrastructure cost over the same dated window. Aggregate provider revenue must remain unassigned. Contribution margin and cost-to-learn are not calculable until those cost fields and experiment exposure are available.",
+        "summary": "Recommendation: retain the bounded ultrarough.com prototype only with a finance measurement gate; do not treat it as revenue validation or approve broader rollout. The available revenue window is 2026-09-21: 667 site-tracked affiliate clicks, 1 conversion, 0 ordered items, and $0 site-attributed commission. AI usage cost is $12.4237 for 2026-09-01 through 2026-09-25, so matched-period contribution margin and cost-to-learn are not calculable because the cost and revenue windows differ, infrastructure/labor costs are absent, and the recorded conversion is not shown to be incremental or revenue-producing. Report unknowns explicitly.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-20260926-aliencouncil-seo-cta",
-        "summary": "Accept as a bounded, reportable test with no external spend. Finance requires before/after impressions, clicks, CTR, sessions, conversions, affiliate activity, AI cost, and any directly attributable infrastructure cost; do not claim revenue, margin, ROI, or causal lift.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-20260926-aliencouncil-seo-cta"
       }
     ]
   }

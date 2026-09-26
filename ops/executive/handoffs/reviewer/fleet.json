@@ -2,37 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T01:06:28.630Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T02:04:32.773Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed aliencouncil.com production SEO/CTA change. The page has only 77 impressions, 0 clicks, 0 sessions, and 0 conversions; site-attributed revenue is $0 from 10 affiliate clicks. This low-volume telemetry and incomplete attribution do not support production work or financial claims. Keep affiliate expansion and revenue conclusions blocked. Preserve only bounded public research to verify the page’s observable content, source attribution, disclosures, accessibility, and CTA eligibility; make no production, configuration, tracking, credential, spending, or schedule changes.",
+        "summary": "Reject the ultrarough.com production prototype. Low-volume telemetry and unavailable page-level attribution do not support production work, revenue validation, ROI, incrementality, or causal claims. Preserve only bounded public research to inspect the existing page for observable comparison content, disclosures, accessibility, and CTA eligibility; make no production, configuration, tracking, credential, spending, schedule, dependency, or cross-site changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the duplicate fleet security disposition proposal because equivalent bounded evidence work is already in progress. Continue the existing work item only; do not create duplicate telemetry or evidence requests. Keep gated-product public exposure blocked until the documented rights, privacy, security, accuracy, measurement, and owner gates are complete.",
+        "summary": "Continue the existing fleet security evidence work and keep the gated product private. Do not create duplicate evidence requests or treat unavailable fleet-doctor, operations, attribution, or compliance evidence as a pass.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "security-20260926-fleet-evidence-disposition",
-        "summary": "Duplicate of existing bounded fleet security evidence work. Continue the existing work item and preserve unknowns; do not create duplicate telemetry or evidence work.",
-        "requested_action": "declined",
-        "proposal_id": "security-20260926-fleet-evidence-disposition"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "aliencouncil-20260926-seo-cta-test",
-        "summary": "Low-volume search and affiliate telemetry blocks production work. No measurable outcome can be defensibly established at 77 impressions, 0 clicks, 0 sessions, 0 conversions, and $0 site-attributed commission. Research may proceed without changing production.",
-        "requested_action": "declined",
-        "proposal_id": "aliencouncil-20260926-seo-cta-test"
       }
     ]
   }

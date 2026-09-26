@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T01:06:28.630Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T02:04:32.772Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for the aliencouncil.com SEO/CTA test; blocked for SearchWoot public beta or full launch. The SEO test is ordinary, reversible growth work on a live site with healthy analytics and no new data collection, affiliate expansion, or external spend. Proceed only if source attribution, consent behavior, disclosures, accessibility, and existing analytics remain unchanged; do not make unsupported UAP, savings, affiliate, or authority claims. SearchWoot remains private because upstream redistribution rights, data-flow, privacy, security, accuracy, measurement, and owner gates are incomplete.",
+        "summary": "Risk disposition: conditional for the isolated ultrarough.com comparison-block prototype; blocked for broader rollout or monetization claims. Evidence supports ordinary reversible growth work: 2,128 impressions, 2 clicks, 32 sessions, 1 conversion, 667 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available windows. Analytics is configured with healthy GA4/GSC evidence. Do not infer revenue, ROI, incrementality, or causal lift. Proceed only with existing links, disclosures, consent behavior, and instrumentation unchanged; require accessibility, copyright/trademark, affiliate-disclosure, claims, and rendered-page validation. No new tracking, affiliate program, data collection, dependencies, credentials, spending, or cross-site changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance evidence is a technical baseline, not certification: 37 sites pass, 16 fail, and 6 are unknown; open findings include banner, consent, GA4, privacy, and terms issues. Analytics is healthy for aliencouncil.com. Telemetry gaps and aggregate revenue do not block this bounded SEO test, but no revenue, ROI, causal lift, or site-attributed commission should be claimed. The 2026-09-21 affiliate evidence shows 10 clicks and $0 attributed commission for aliencouncil.com.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Launch-readiness progress: 0 of 4 SearchWoot checklist tasks are evidenced as complete; none may be closed. The current disposition remains keep_private. The next evidence actions are: attach authoritative source-rights evidence or a counsel-reviewed permission request; produce the read-only alert data-flow and retention table; capture deployed GA4 consent and property settings; and inventory logs, vendors, incident handling, deletion, correction, and access procedures.",
+        "summary": "Launch-readiness tracking remains active for searchwoot.com: 0 of 4 tasks are evidenced complete, so none are closed. Current disposition remains keep_private; public beta and full launch remain blocked. Next evidence actions are concrete: attach authoritative source-rights permission, produce the read-only alert data-flow and retention table, capture deployed GA4 consent/property settings, and inventory logs, vendors, incident handling, deletion, correction, and access procedures. Do not send external requests or change the private gate without owner authorization and human counsel where rights or jurisdictional uncertainty remains.",
         "requested_action": null,
         "proposal_id": null
       }

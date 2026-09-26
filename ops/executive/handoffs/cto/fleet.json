@@ -2,37 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T01:06:28.630Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T02:04:32.772Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve queue entry for one isolated, reversible SEO/content test on aliencouncil.com. The change is technically feasible and bounded to one page. Require isolated worktree/review, focused metadata/render/build tests, preservation of consent, disclosures, source attribution, accessibility, and analytics, plus rollback of only the page diff. Do not expand affiliate CTA patterns fleet-wide or infer revenue, ROI, or causal lift. Measure only available Search Console, analytics, affiliate, AI-cost, and directly attributable infrastructure fields; preserve unavailable values as unknown.",
+        "summary": "Approve queue entry for one isolated, page-local prototype only. Use the existing worktree, components, links, disclosures, consent behavior, and instrumentation; add no dependencies, credentials, tracking, affiliate programs, spending, DNS, or cross-site changes. Preserve unavailable page-level exposure and causal fields as unknown. Require build/render/accessibility validation, reviewer approval, deployment verification, and page-only rollback. Do not expand or claim revenue, ROI, incrementality, or causal lift.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The existing fleet has 40 failed implementation requests, 46 open failure follow-ups, and 24 deployed improvements awaiting measurement. This candidate may enter the queue because it is independently scoped, reversible, zero-external-spend, and has an explicit acceptance test. It must not depend on unavailable fleet-doctor or operations telemetry, and it must not introduce credentials, DNS, billing, dependencies, or cross-site changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-20260926-affiliate-cta-pattern",
-        "summary": "Keep bounded to research. No fleet-wide component or rollout is authorized until an eligible page, registered tracking identifier, dated baseline, attribution path, and compliance review exist.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-20260926-affiliate-cta-pattern"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-20260926-markitdown-content-pipeline",
-        "summary": "No production adoption. Any evaluation must remain isolated, dependency-free for production, and limited to the approved 10-document test with retained failure, quality, and incremental-cost evidence.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-20260926-markitdown-content-pipeline"
       }
     ]
   }
