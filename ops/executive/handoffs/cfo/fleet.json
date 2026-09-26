@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T23:33:03.367Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T23:48:17.505Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Authorize no discretionary spend, budget commitments, monetization expansion, forecasts, requeues, or new production work. Revenue evidence supports only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is currently recorded as $966.82985915 across 5,417 calls from 2026-09-01 through 2026-09-26, conflicting with prior records of $963.5690377 and 5,390 calls; reconcile before final reporting. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Clicks, impressions, sessions, conversions, ordered items, shipped items, technical scores, and proposal counts are not financial return. Minimum measurement: reconcile the AI ledger, produce a dated period-aligned cost ledger by site/content/work item, preserve provider aggregate revenue as unattributed, measure incremental attributable commission against controls or pre-change baselines, and record owner-approved spending limits. Continue only existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded evidence work.",
+        "summary": "CFO recommendation: maintain financial containment. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is recorded at $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26, conflicting with a prior record of $963.5690377 and 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing costs and owner-approved limits are absent, and incremental outcomes are not isolated. Authorize no discretionary spend, budget commitments, monetization expansion, forecasts, requeues, or new production work. Continue existing source-dated measurement, attribution reconciliation, and repair-or-close review only. Minimum measurement: reconcile AI records; maintain a period-aligned cost ledger by site/content/work item; preserve provider aggregate revenue as unattributed; and record experiment-level incremental outcomes against attributable commission.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the current attribution boundary. The 2026-09-21 Amazon result is aggregate provider revenue, not site revenue: $4.92 commission cannot be allocated to any property, while named site rows show $0 commission. Do not claim revenue, margin, ROI, payback, causal lift, cost-to-learn, infrastructure efficiency, or budget headroom from the available telemetry. Existing AI spend is an expense signal only; it cannot be compared with the one-day revenue window. Continue source-dated reconciliation using existing telemetry without duplicate instrumentation or new spend.",
+        "summary": "Retain containment-only execution as the financially supported disposition. The authoritative candidate list is empty; 29 deployed improvements await measurement, 46 failure follow-ups remain open, and only 1 outcome is proven. Clicks, impressions, sessions, conversions, technical scores, ordered items, and shipped items are not financial return without attributable commission and aligned costs. Continue existing evidence work without duplicate telemetry, new spend, monetization expansion, or unsupported revenue and forecast claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain containment without requeue. The 197 approved proposals lacking execution, 46 open failure follow-ups, 29 deployed improvements awaiting measurement, and only 1 proven outcome are control and throughput signals, not evidence of financial return. Existing work may continue only within its documented scope and without discretionary spend or monetization expansion. Security-sensitive releases and rights-dependent monetization remain financially unapproved while infrastructure, attribution, source-rights, privacy, accuracy, and measurement evidence are incomplete.",
+        "summary": "Infrastructure and budget exposure remain unknown, not zero: the brief provides no period-aligned hosting, domain, labor, marketing, experiment, or other operating-cost ledger, and monthly spend, marketing, revenue-floor, and revenue-target limits are blank. The minimum finance artifact is a dated ledger reconciled to the 2026-09-21 revenue window and 2026-09-01 through 2026-09-26 AI window, with owner-approved limits before any discretionary spend or forecast is considered.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial containment remains supported. Available revenue is limited to one aggregate reporting day with $4.92 commission and $0 site-attributed commission; period-aligned costs, margin, ROI, payback, and budget exposure remain unknown. Reconcile conflicting AI-usage records before final financial reporting.",
         "requested_action": null,
         "proposal_id": null
       }

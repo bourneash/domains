@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-26T23:33:03.368Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T23:48:17.506Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims. Preserve $4.92 aggregate commission as unattributed and site-attributed commission as $0; ROI, margin, causal lift, cost-to-learn, and budget exposure remain unknown. Keep the gated product private pending existing rights, privacy, security, accuracy, attribution, measurement, and owner gates. Authorize any external permission request only after human-counsel review and explicit owner approval.",
+        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, bounded legal/security evidence work, and failed-work repair-or-close review. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The candidate plan is reduced to existing scoped work. No new proposals, change requests, experiments, dependencies, telemetry, spend, monetization expansion, or external outreach are justified. Preserve deferred product and CRO concepts without queue entry. Continue source-dated measurement, attribution reconciliation, failure repair-or-close review, and existing legal/security evidence work; do not treat missing telemetry as zero or as financial evidence. Material concerns are incomplete attribution, conflicting AI-cost records, open failure follow-ups, measurement backlog, unavailable operational/security sweeps, and incomplete launch gates.",
+        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: revenue is limited to one aggregate day with $0 site-attributed commission; AI-cost records conflict; period-aligned costs, ROI, margin, causal lift, and budget exposure are unknown; failures, measurement backlog, and legal/security gates remain open. Keep the prepared permission request unsent unless human counsel reviews it and the owner authorizes outreach.",
         "requested_action": null,
         "proposal_id": null
       }

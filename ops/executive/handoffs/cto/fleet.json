@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T23:33:03.368Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T23:48:17.505Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the CEO recommendation. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work only. Do not create or queue new production work, requeue failures, add telemetry or dependencies, change configuration, spend, expand monetization, conduct external outreach, or adopt external components. Preserve failed-work isolation until canonical lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are documented. Keep the gated product private pending rights, privacy, security, accuracy, attribution, measurement, and owner gates. Preserve unknown financial, causal, and operational outcomes.",
+        "summary": "CTO review: approve containment-only execution. The authoritative candidate list is empty; 29 deployed improvements await measurement, 46 failure follow-ups remain open, and only 1 outcome is proven. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new production work, experiments, telemetry, dependencies, requeues, deployments, spend, monetization expansion, or external outreach. Preserve isolation, rollback boundaries, and unknown revenue, ROI, causal lift, cost-to-learn, and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain control-plane lineage, lifecycle and measurement visibility, queue-capacity reporting, accessible CTA patterns, and repository prototypes as deferred concepts only. They are technically feasible in principle but lack queue capacity and require isolated implementation, deterministic validation, rollback evidence, and applicable owner, security, and measurement gates before queue entry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and continue the existing consolidated read-only evidence bundle and field-level rights matrix. External outreach, public exposure, alert expansion, deployment, configuration or credential changes, dependency additions, monetization, and spend remain blocked pending human-counsel review, owner authorization, and completion of legal, security, accuracy, attribution, and measurement gates. Use existing telemetry only; do not invent or request duplicate telemetry.",
+        "summary": "CTO disposition: retain the current queue boundary. Failed work may resume only after canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close evidence are documented. Existing measurement and evidence work may continue within scope using available telemetry only.",
         "requested_action": null,
         "proposal_id": null
       }
