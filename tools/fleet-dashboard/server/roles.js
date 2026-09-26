@@ -39,6 +39,21 @@ const FLEET_EXECUTIVE_ROLES = [
   },
 ];
 
+// Keep exact cron role names for execution, but expose the shared editorial
+// runner family as /agents/update in the dashboard.
+const ROLE_FAMILIES = {
+  update: {
+    label: 'Editorial updates',
+    description: 'Content freshness, reporting, and source-backed publishing across the fleet',
+    roles: ['update', 'content-writer', 'news-writer'],
+  },
+};
+
+function roleFamily(role) {
+  const r = String(role || '').toLowerCase();
+  return Object.entries(ROLE_FAMILIES).find(([, family]) => family.roles.includes(r))?.[0] || null;
+}
+
 // Regex matching a role's `<prefix>-<date>…` log files. Accepts any of the
 // role's configured prefixes (default: the role name itself).
 function logRe(role) {
@@ -331,8 +346,35 @@ function recentRunStats(cwd, role, since) {
   return out;
 }
 
-async function health(root, role, slugs, usage = {}) {
+async function health(root, role, slugs, usage = {}, skipFamily = false) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(String(role || ''))) throw httpErr(400, 'invalid role');
+  const family = ROLE_FAMILIES[role];
+  if (family && !skipFamily) {
+    const parts = await Promise.all(
+      family.roles.map(profile => health(root, profile, slugs, usage, true))
+    );
+    const rows = parts.flatMap(part => part.rows);
+    return {
+      role,
+      family: { role, ...family, profiles: family.roles },
+      windowDays: 7,
+      summary: {
+        enrolled: rows.length,
+        expected: rows.reduce((n, row) => n + row.expected, 0),
+        paused: rows.filter(row => !row.enabled).length,
+        fresh: rows.filter(row => row.state === 'fresh').length,
+        stale: rows.filter(row => row.state === 'stale').length,
+        overdue: rows.filter(row => row.state === 'overdue').length,
+        observed: rows.reduce((n, row) => n + row.observed, 0),
+        succeeded: rows.reduce((n, row) => n + row.succeeded, 0),
+        failed: rows.reduce((n, row) => n + row.failed, 0),
+        missed: rows.reduce((n, row) => n + row.missed, 0),
+        costUsd: rows.reduce((n, row) => n + row.costUsd, 0),
+        drifted: rows.filter(row => row.drift).length,
+      },
+      rows,
+    };
+  }
   const data = await matrix(root, slugs);
   const cutoff = Date.now() - 7 * 86400 * 1000;
   const spend = new Map(
@@ -354,6 +396,7 @@ async function health(root, role, slugs, usage = {}) {
     promptCounts[key] = (promptCounts[key] || 0) + 1;
     rows.push({
       site: site.site,
+      role,
       state: cell.state,
       enabled: cell.enabled,
       worker: cell.worker,
@@ -447,7 +490,18 @@ function agents(root, slugs) {
       }
     }
   }
+  const editorialProfiles = ROLE_FAMILIES.update.roles.filter(role => freq[role]);
+  const editorialSites = new Set();
+  for (const slug of slugs) {
+    const siteRoles = new Set(
+      parseRoles(readFirst(siteDir(root, slug), CRONTABS), { includeCommented: true }).map(
+        entry => entry.role
+      )
+    );
+    if (editorialProfiles.some(role => siteRoles.has(role))) editorialSites.add(slug);
+  }
   const scheduled = Object.keys(freq)
+    .filter(r => !ROLE_FAMILIES.update.roles.includes(r))
     .filter(r => freq[r] >= 2)
     .sort(
       (a, b) =>
@@ -456,7 +510,23 @@ function agents(root, slugs) {
         a.localeCompare(b)
     )
     .map(r => ({ role: r, sites: freq[r], scope: 'sites', kind: 'scheduled' }));
-  return [...FLEET_EXECUTIVE_ROLES, ...scheduled];
+  return [
+    ...FLEET_EXECUTIVE_ROLES,
+    ...(editorialSites.size
+      ? [
+          {
+            role: 'update',
+            sites: editorialSites.size,
+            scope: 'sites',
+            kind: 'family',
+            profiles: editorialProfiles,
+            label: ROLE_FAMILIES.update.label,
+            description: ROLE_FAMILIES.update.description,
+          },
+        ]
+      : []),
+    ...scheduled,
+  ];
 }
 
 module.exports = {
@@ -469,4 +539,6 @@ module.exports = {
   parseRoles,
   cadenceClass,
   FLEET_EXECUTIVE_ROLES,
+  ROLE_FAMILIES,
+  roleFamily,
 };

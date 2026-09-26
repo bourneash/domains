@@ -179,6 +179,20 @@ pass, archive the partial diff under ignored `ops/health/`, restore the clean
 baseline, and leave the task where it started. The model must never own git or
 task-board transaction boundaries.
 
+Content-writer wrappers must source the fleet-wide
+`tools/cron-roles/content-writer-policy.sh` capability policy instead of
+embedding per-site path regexes. They must execute the model and authoritative
+build inside a disposable sandbox/worktree, and run
+`tools/cron-roles/content-writer-quality.py` after path validation but before
+staging. The deterministic gate covers frontmatter, hero assets, internal
+links, affiliate IDs, banned copy, and duplicate titles.
+
+The worker runtime must permit bubblewrap's unprivileged user and mount namespaces. The wrapper
+probes this before invoking the model and exits 75 (deferred, with no paid call and no source-
+checkout mutation) when the host/container kernel does not provide them. Do not solve this by
+adding broad capabilities or `privileged: true`; enable the host's user-namespace policy or use
+a worker runtime that supports the existing least-privilege container profile.
+
 ### Rule 0 (takes precedence) — bash-driven roles ALWAYS get an explicit branch
 
 If the archetype is **bash-driven** — `meta.model == none` AND it ships its own runner

@@ -45,6 +45,16 @@ const ACTION_TYPES = new Set([
   'other',
 ]);
 const changequeue = require('./changequeue');
+const OWNER_REQUEST_LIFECYCLE = new Set(['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'closed', 'snoozed']);
+const OWNER_REQUEST_TRANSITIONS = {
+  submitted: new Set(['acknowledged', 'answered', 'snoozed', 'closed']),
+  acknowledged: new Set(['answered', 'actioned', 'snoozed', 'closed']),
+  answered: new Set(['actioned', 'measured', 'snoozed', 'closed']),
+  actioned: new Set(['measured', 'closed', 'snoozed']),
+  measured: new Set(['closed', 'actioned']),
+  snoozed: new Set(['acknowledged', 'answered', 'actioned', 'closed']),
+  closed: new Set(),
+};
 
 function message(store, input = {}) {
   if (!ACTORS.has(String(input.actor)))
@@ -56,13 +66,17 @@ function message(store, input = {}) {
       .find(item => item.message_id === String(input.reply_to));
     workId = parent?.work_id || null;
   }
+  if (workId && store.getExecutiveWorkItem && !store.getExecutiveWorkItem(workId))
+    throw httpErr(400, 'message references an unknown work item');
   const created = store.createExecutiveMessage({ ...input, actor: String(input.actor), work_id: workId });
   if (created.work_id && created.actor !== 'owner' && store.getExecutiveWorkItem) {
     const workItem = store.getExecutiveWorkItem(created.work_id);
     if (workItem?.source_type === 'owner-request') {
-      if (workItem.status === 'waiting') {
+      if (!['closed', 'done', 'cancelled'].includes(workItem.lifecycle_state) && workItem.lifecycle_state !== 'answered') {
         store.updateExecutiveWorkItem(workItem.work_id, {
           status: 'in_progress',
+          lifecycle_state: 'answered',
+          answered_at: new Date().toISOString(),
           waiting_on: 'owner',
           next_action: 'Owner review or follow-up is available in the linked thread.',
         });
@@ -78,7 +92,7 @@ function message(store, input = {}) {
       });
       if (notification) {
         try {
-          void require('./executive-notify').notify({ notification, workItem });
+          void require('./executive-notify').drain(store).catch(() => {});
         } catch {
           // External notification is optional and must never block the reply.
         }
@@ -96,6 +110,7 @@ function ownerRequest(store, input = {}) {
     title: `Owner request: ${body.slice(0, 80)}${body.length > 80 ? '…' : ''}`,
     kind: 'decision',
     status: 'waiting',
+    lifecycle_state: 'submitted',
     priority: input.priority || 'normal',
     owner: 'ceo',
     source_type: 'owner-request',
@@ -117,6 +132,16 @@ function ownerRequest(store, input = {}) {
 }
 
 function ensureOwnerRequests(store) {
+  for (const item of store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })) {
+    if (!OWNER_REQUEST_LIFECYCLE.has(item.lifecycle_state) || item.lifecycle_state === 'open') {
+      const hasResponse = store.listExecutiveMessages({ work_id: item.work_id, limit: 100 }).some(message => message.actor !== 'owner');
+      store.updateExecutiveWorkItem(item.work_id, {
+        lifecycle_state: hasResponse ? 'answered' : 'submitted',
+        answered_at: hasResponse ? item.answered_at || new Date().toISOString() : item.answered_at,
+        status: hasResponse ? 'in_progress' : item.status,
+      });
+    }
+  }
   const legacy = store
     .listExecutiveMessages({ conversation_id: 'executive', limit: 1000 })
     .filter(item => item.actor === 'owner' && !item.work_id);
@@ -125,6 +150,7 @@ function ensureOwnerRequests(store) {
       title: `Owner request: ${item.body.slice(0, 80)}${item.body.length > 80 ? '…' : ''}`,
       kind: 'decision',
       status: 'waiting',
+      lifecycle_state: 'submitted',
       priority: 'normal',
       owner: 'ceo',
       source_type: 'owner-request',
@@ -142,6 +168,112 @@ function ensureOwnerRequests(store) {
     });
     return workItem;
   });
+}
+
+function transitionOwnerRequest(store, id, lifecycleState, patch = {}) {
+  const item = store.getExecutiveWorkItem(id);
+  if (!item || item.source_type !== 'owner-request') throw httpErr(404, 'owner request not found');
+  const nextState = String(lifecycleState || '').trim();
+  if (!OWNER_REQUEST_LIFECYCLE.has(nextState)) throw httpErr(400, 'invalid owner request lifecycle state');
+  const currentState = OWNER_REQUEST_LIFECYCLE.has(item.lifecycle_state) ? item.lifecycle_state : 'submitted';
+  if (currentState !== nextState && !OWNER_REQUEST_TRANSITIONS[currentState]?.has(nextState)) {
+    throw httpErr(409, `cannot move owner request from ${currentState} to ${nextState}`);
+  }
+  if (nextState === 'closed' && !String(patch.outcome || item.outcome || '').trim()) {
+    throw httpErr(400, 'closing an owner request requires an outcome');
+  }
+  const now = new Date().toISOString();
+  const updated = store.updateExecutiveWorkItem(id, {
+    ...patch,
+    lifecycle_state: nextState,
+    acknowledged_at: ['acknowledged', 'answered', 'actioned', 'measured', 'closed'].includes(nextState) ? item.acknowledged_at || now : item.acknowledged_at,
+    answered_at: ['answered', 'actioned', 'measured', 'closed'].includes(nextState) ? item.answered_at || now : item.answered_at,
+    closed_at: nextState === 'closed' ? item.closed_at || now : null,
+    status: nextState === 'closed' ? 'done' : nextState === 'snoozed' ? 'waiting' : item.status === 'done' ? 'in_progress' : item.status,
+    waiting_on: nextState === 'closed' ? null : patch.waiting_on || item.waiting_on,
+    resolution_note: nextState === 'closed' ? String(patch.outcome || item.outcome || '').trim() : item.resolution_note,
+    outcome: String(patch.outcome || item.outcome || '').trim() || null,
+  });
+  if (store.record && currentState !== nextState) {
+    store.record({
+      event_type: `executive.owner-request.${nextState}`,
+      source: 'executive-control-plane',
+      entity_type: 'executive-work-item',
+      entity_id: item.work_id,
+      correlation_id: `executive-work-item:${item.work_id}`,
+      payload: { from: currentState, to: nextState, outcome: updated.outcome || null },
+    });
+  }
+  return updated;
+}
+
+function escalateOverdueOwnerRequests(store, now = Date.now()) {
+  const created = [];
+  for (const item of store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })) {
+    if (['closed', 'done', 'cancelled'].includes(item.lifecycle_state) || !item.due_at) continue;
+    const due = Date.parse(item.due_at);
+    if (!Number.isFinite(due) || due > now) continue;
+    const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;
+    const notification = store.createExecutiveNotification?.({
+      recipient: 'owner',
+      notification_type: 'executive-sla-escalation',
+      title: level === 2 ? 'Executive request needs escalation' : 'Executive request is overdue',
+      body: `${item.title} has been waiting on ${item.waiting_on || 'the executive team'} since ${item.due_at}.`,
+      work_id: item.work_id,
+      dedupe_key: `executive-sla:${item.work_id}:${level}`,
+    });
+    if (notification) created.push(notification);
+  }
+  return created;
+}
+
+function escalateOverdueWorkItems(store, now = Date.now()) {
+  const created = [];
+  for (const item of store.listExecutiveWorkItems({ limit: 1000 })) {
+    if (['done', 'cancelled'].includes(item.status) || !item.due_at) continue;
+    const due = Date.parse(item.due_at);
+    if (!Number.isFinite(due) || due > now) continue;
+    const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;
+    const notification = store.createExecutiveNotification?.({
+      recipient: item.created_by || 'owner',
+      notification_type: 'executive-work-sla-escalation',
+      title: level === 2 ? 'Executive work needs escalation' : 'Executive work is overdue',
+      body: `${item.title} is ${item.status} and waiting on ${item.waiting_on || item.owner || 'its owner'} since ${item.due_at}.`,
+      work_id: item.work_id,
+      dedupe_key: `executive-work-sla:${item.work_id}:${level}`,
+    });
+    if (notification) created.push(notification);
+  }
+  return created;
+}
+
+function health(store, now = Date.now()) {
+  const actions = store.listExecutiveActions({ limit: 200 });
+  const scheduled = actions.find(item => item.target_type === 'scheduled-executive-run');
+  const heartbeat = store.list({ event_type: 'executive.heartbeat', limit: 1 })[0] || null;
+  const age = scheduled?.started_at ? Math.max(0, now - Date.parse(scheduled.started_at)) : null;
+  const stale = age === null || age > 2 * 60 * 60 * 1000;
+  const work = store.listExecutiveWorkItems({ limit: 1000 });
+  return {
+    ok: !stale && scheduled.status !== 'failed',
+    scheduler: {
+      status: scheduled?.status || 'never-run',
+      action_id: scheduled?.action_id || null,
+      started_at: scheduled?.started_at || null,
+      finished_at: scheduled?.finished_at || null,
+      error: scheduled?.error || null,
+      stale,
+    },
+    heartbeat: heartbeat
+      ? { occurred_at: heartbeat.occurred_at, payload: heartbeat.payload || {} }
+      : null,
+    work: {
+      total: work.length,
+      overdue: work.filter(item => item.due_at && Date.parse(item.due_at) <= now && !['done', 'cancelled'].includes(item.status)).length,
+      blocked: work.filter(item => item.status === 'blocked').length,
+      leased: work.filter(item => item.lease_owner && item.lease_expires_at && Date.parse(item.lease_expires_at) > now).length,
+    },
+  };
 }
 
 function proposal(store, input = {}) {
@@ -250,13 +382,24 @@ function decision(store, id, input = {}, { knownSite, availableRolesForSite } = 
     });
   }
   if (store.createExecutiveMessage) {
-    store.createExecutiveMessage({
+    const decisionMessage = store.createExecutiveMessage({
       actor: 'owner',
       body: input.decision_note || `Owner marked this proposal ${proposal.status}.`,
       work_id: workId,
       message_type: proposal.status === 'feedback' ? 'question' : 'decision_request',
       metadata: { proposal_id: proposal.proposal_id, status: proposal.status, to: proposal.created_by },
     });
+    if (proposal.status === 'feedback' || proposal.status === 'approved') {
+      store.createExecutiveNotification?.({
+        recipient: proposal.created_by,
+        notification_type: `executive-proposal-${proposal.status}`,
+        title: proposal.status === 'feedback' ? 'Executive proposal needs revision' : 'Executive proposal approved',
+        body: input.decision_note || `The owner marked “${proposal.title}” ${proposal.status}.`,
+        work_id: workId,
+        message_id: decisionMessage.message_id,
+        dedupe_key: `executive-proposal-decision:${proposal.proposal_id}:${proposal.status}:${proposal.updated_at}`,
+      });
+    }
   }
   if (linkedRequestId) {
     store.record({
@@ -340,6 +483,10 @@ module.exports = {
   ACTION_TYPES: [...ACTION_TYPES],
   message,
   ownerRequest,
+  transitionOwnerRequest,
+  escalateOverdueOwnerRequests,
+  escalateOverdueWorkItems,
+  health,
   ensureOwnerRequests,
   proposal,
   decision,

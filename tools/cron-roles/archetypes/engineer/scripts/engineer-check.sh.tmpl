@@ -157,7 +157,11 @@ _fm_status_is_done() {
   awk '/^---[[:space:]]*$/{c++; next} c==1' "$1" 2>/dev/null \
     | grep -qiE '^[[:space:]]*status:[[:space:]]*"?'\''?done'\''?"?[[:space:]]*$'
 }
-MAX_TASKS="${ENGINEER_MAX_TASKS:-3}"
+# Keep one implementation task per Claude pass. A task's estimated_turns is
+# budgeted with a recovery buffer by run-engineer.sh; batching several tasks
+# can exhaust the global cap before the completion contract is printed.
+# Operators can deliberately batch via ENGINEER_MAX_TASKS when needed.
+MAX_TASKS="${ENGINEER_MAX_TASKS:-1}"
 _ENG_ALL=$(grep -rli 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null | sort || true)
 ENG_ELIGIBLE=""
 ENG_DONE_STUCK=""

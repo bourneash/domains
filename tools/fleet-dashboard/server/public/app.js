@@ -24,6 +24,7 @@ let AGENT_HEALTH = null;
 const EXEC_RUN = { poller: null };
 const EXEC_RUN_UI = { q: '', status: 'all', sort: 'started_at', dir: -1, page: 1, pageSize: 25 };
 const EXEC_INBOX = { browserNotified: false };
+const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
 
 function notifyExecutiveBrowser(notifications = []) {
   if (EXEC_INBOX.browserNotified || !notifications.length || !('Notification' in window)) return;
@@ -62,6 +63,7 @@ function pollExecutiveRun() {
 }
 
 function agentLabel(role) {
+  if (String(role) === 'update') return 'Editorial updates';
   if (String(role) === 'product-manager-fleet') return 'PM · Fleet tooling';
   if (String(role) === 'product-manager-sites') return 'PM · Managed sites';
   return String(role)
@@ -381,7 +383,9 @@ async function renderEngineers() {
     return;
   }
   const histBy = Object.fromEntries(hist.map(h => [h.site, h]));
-  const healthBy = Object.fromEntries((healthData?.rows || []).map(h => [h.site, h]));
+  const healthBy = Object.fromEntries(
+    (healthData?.rows || []).map(h => [`${h.site}:${h.role || role}`, h])
+  );
 
   const eng = rows.filter(r => r.engineer);
   const tiers = {};
@@ -430,7 +434,7 @@ async function renderEngineers() {
           pauseBtn +
           tasksBtn +
           (ah
-            ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>`
+            ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}" data-role="${esc(role)}">Expand</button>`
             : '') +
           ` <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
         : tasksBtn;
@@ -636,8 +640,11 @@ function agentHealthOverview(data, currentRows = []) {
 function agentHealthPanel(data, currentRows = []) {
   if (!data) return '';
   const overview = agentHealthOverview(data, currentRows);
+  const familyControls = data.family
+    ? '<span class="muted">Controls remain on each site\'s exact editorial profile.</span>'
+    : '<button class="btn sm ag-health-pause" type="button">Pause current issues</button><button class="btn sm ag-health-rerun" type="button">Rerun historical failures</button>';
   return `<details class="card ag-health"><summary><strong>Current health</strong><span class="ag-health-summaryline"><span class="health-now">${esc(overview.current)}</span><span class="ag-health-history">7d history: ${esc(overview.history)}</span></span></summary>
-    <div class="task-toolbar ag-health-toolbar"><span><b>Now</b> ${esc(overview.currentDetail)}</span><span><b>7d history</b> ${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.failed} failed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span><button class="btn sm ag-health-pause" type="button">Pause current issues</button><button class="btn sm ag-health-rerun" type="button">Rerun historical failures</button></div>
+    <div class="task-toolbar ag-health-toolbar"><span><b>Now</b> ${esc(overview.currentDetail)}</span><span><b>7d history</b> ${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.failed} failed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span>${familyControls}</div>
     <p class="muted ag-health-note">Current status is shown first. The seven-day counts are historical context and do not mean a site is failing now. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p></details>`;
 }
 
@@ -663,11 +670,11 @@ function healthDetailRow(row, colspan = 10) {
         )
         .join('')
     : '<li class="muted">No expected run slots in this window.</li>';
-  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}"><td colspan="${colspan}"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
+  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}:${esc(row.role || '')}"><td colspan="${colspan}"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
 }
 
 function toggleHealthDetail(button) {
-  const row = $(`tr.ag-health-detail[data-health-detail="${CSS.escape(button.dataset.site)}"]`);
+  const row = $(`tr.ag-health-detail[data-health-detail="${CSS.escape(`${button.dataset.site}:${button.dataset.role || ''}`)}"]`);
   if (!row) return;
   const open = row.classList.toggle('hidden') === false;
   button.textContent = open ? 'Collapse' : 'Expand';
@@ -4228,7 +4235,13 @@ async function renderGenericAgent(role) {
   }
   ROLEMATRIX = data;
   AGENT_HEALTH = healthData;
-  const rows = data.sites.filter(s => s.cells[role]).map(s => ({ site: s.site, ...s.cells[role] }));
+  const agentDef = (STATE.agents || []).find(a => a.role === role);
+  const profiles = agentDef?.profiles || [role];
+  const rows = data.sites.flatMap(s =>
+    profiles
+      .filter(profile => s.cells[profile])
+      .map(profile => ({ site: s.site, profileRole: profile, ...s.cells[profile] }))
+  );
   const healthBy = Object.fromEntries((healthData?.rows || []).map(h => [h.site, h]));
   const enrolled = new Set(rows.map(r => r.site));
   const notEnrolled = (
@@ -4236,6 +4249,7 @@ async function renderGenericAgent(role) {
   ).filter(site => !enrolled.has(site));
   const enabled = rows.filter(r => r.enabled).length;
   const paused = rows.length - enabled;
+  const familyPage = profiles.length > 1;
   const issues = rows.filter(
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
@@ -4244,15 +4258,16 @@ async function renderGenericAgent(role) {
 
   const body = rows
     .map(r => {
-      const h = healthBy[r.site];
+      const actualRole = r.profileRole || role;
+      const h = healthBy[`${r.site}:${actualRole}`];
       const runBtn = r.worker
-        ? `<button class="btn sm ag-run" data-site="${esc(r.site)}">▶ Run</button>`
+        ? `<button class="btn sm ag-run" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">▶ Run</button>`
         : '';
       const ctrl = r.worker
-        ? `${runBtn} <button class="btn sm ${r.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>`
+        ? `${runBtn} <button class="btn sm ${r.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-role="${esc(actualRole)}" data-enabled="${r.enabled ? 1 : 0}">${r.enabled ? '⏸ Pause' : '▶ Resume'}</button>`
         : '<span class="muted" style="font-size:11px">not controllable</span>';
       const healthDetails = h
-        ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}">Expand</button>`
+        ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Expand</button>`
         : '';
       const badge = !r.enabled
         ? '<span class="badge b-gray">paused</span>'
@@ -4267,7 +4282,7 @@ async function renderGenericAgent(role) {
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted">${esc(r.schedule)}</td>
       <td>${agentHealthCell(h)}</td>
-      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(role)}">Remove</button></td>
+      <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Remove</button></td>
     </tr>${h ? healthDetailRow(h, 6) : ''}
     <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="6"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
     })
@@ -4284,8 +4299,10 @@ async function renderGenericAgent(role) {
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
       <div class="ag-missing-head"><strong>Sites not enrolled in ${esc(agentLabel(role))}</strong><span class="muted">${notEnrolled.length} sites</span></div>
       ${
-        notEnrolled.length
+        notEnrolled.length && !familyPage
           ? `<ul class="ag-missing-list">${notEnrolled.map(site => `<li><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="${esc(role)}" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul>`
+          : familyPage
+            ? '<p class="muted ag-missing-empty">Enrollment is managed through the site-specific editorial profile.</p>'
           : '<p class="muted ag-missing-empty">Every discovered site is enrolled in this agent.</p>'
       }
     </div>
@@ -4318,10 +4335,10 @@ async function renderGenericAgent(role) {
     )
   );
   $$('.ag-logs').forEach(b =>
-    b.addEventListener('click', () => toggleAgentLog(b.dataset.site, role))
+    b.addEventListener('click', () => toggleAgentLog(b.dataset.site, b.dataset.role || role))
   );
   $$('.ag-toggle').forEach(b =>
-    b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1'))
+    b.addEventListener('click', () => toggleRole(b.dataset.site, b.dataset.role || role, b.dataset.enabled === '1'))
   );
   $$('.ag-health-toggle').forEach(b =>
     b.addEventListener('click', () => toggleRole(b.dataset.site, role, b.dataset.enabled === '1'))
@@ -4332,7 +4349,7 @@ async function renderGenericAgent(role) {
   $$('.ag-health-details').forEach(b => b.addEventListener('click', () => toggleHealthDetail(b)));
   $('.ag-health-pause')?.addEventListener('click', () => bulkAgentHealthAction(role, 'pause'));
   $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
-  $$('.ag-run').forEach(b => b.addEventListener('click', () => runAgent(b.dataset.site, role, b)));
+  $$('.ag-run').forEach(b => b.addEventListener('click', () => runAgent(b.dataset.site, b.dataset.role || role, b)));
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -12517,7 +12534,16 @@ async function renderExecutive() {
     app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
     return;
   }
-  const ownerRequests = inbox.requests || requests.work_items || [];
+  const allOwnerRequests = inbox.requests || requests.work_items || [];
+  const requestMatches = request => {
+    const haystack = [request.title, request.summary, request.lifecycle_state, request.status].filter(Boolean).join(' ').toLowerCase();
+    return (!EXEC_INBOX_UI.q || haystack.includes(EXEC_INBOX_UI.q.toLowerCase())) &&
+      (EXEC_INBOX_UI.status === 'all' || (EXEC_INBOX_UI.status === 'unread' ? request.response_count > 0 && unreadNotifications.some(n => n.work_id === request.work_id) : EXEC_INBOX_UI.status === 'overdue' ? request.overdue : request.lifecycle_state === EXEC_INBOX_UI.status));
+  };
+  const filteredOwnerRequests = allOwnerRequests.filter(requestMatches);
+  const inboxPageCount = Math.max(1, Math.ceil(filteredOwnerRequests.length / EXEC_INBOX_UI.pageSize));
+  EXEC_INBOX_UI.page = Math.min(EXEC_INBOX_UI.page, inboxPageCount);
+  const ownerRequests = filteredOwnerRequests.slice((EXEC_INBOX_UI.page - 1) * EXEC_INBOX_UI.pageSize, EXEC_INBOX_UI.page * EXEC_INBOX_UI.pageSize);
   const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   notifyExecutiveBrowser(unreadNotifications);
   const notificationRows = unreadNotifications.slice(0, 5).map(notification =>
@@ -12536,6 +12562,8 @@ async function renderExecutive() {
       .filter(message => message.work_id === request.work_id)
       .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
     const response = thread.find(message => message.actor !== 'owner');
+    const timeline = thread.map(message => `<div class="muted">${esc(fmtDate(message.created_at))} · <b>${esc(executiveActorLabel(message.actor))}</b>: ${esc(message.body)}</div>`).join('');
+    const linked = (request.links || []).map(link => `<span class="badge b-blue">linked ${esc(link.to_type)} ${esc(String(link.to_id).slice(0, 8))}</span>`).join(' ');
     const status = response
       ? 'response received'
       : request.status === 'waiting'
@@ -12543,7 +12571,8 @@ async function renderExecutive() {
         : request.status;
     const statusClass = response ? 'b-green' : request.status === 'blocked' ? 'b-red' : 'b-yellow';
     const due = request.overdue ? '<span class="badge b-red">SLA overdue</span>' : request.due_at ? `<span class="muted">Due ${esc(fmtDate(request.due_at))}</span>` : '';
-    return `<article class="ex-request-card"><div class="page-head"><div><b>${esc(request.title)}</b><div class="muted">Submitted ${esc(fmtDate(request.created_at))} · request ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</div></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><p>${esc(request.summary)}</p>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">This request is saved and will stay here until the executive team responds.</p>'}</article>`;
+    const actions = request.lifecycle_state === 'closed' ? '' : `<div class="task-toolbar"><button class="btn sm ex-request-ack" data-id="${esc(request.work_id)}" ${request.lifecycle_state !== 'submitted' ? 'disabled' : ''}>Acknowledge</button><button class="btn sm ex-request-close" data-id="${esc(request.work_id)}">Close request</button></div>`;
+    return `<article class="ex-request-card"><div class="page-head"><div><b>${esc(request.title)}</b><div class="muted">Submitted ${esc(fmtDate(request.created_at))} · request ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</div></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><p>${esc(request.summary)}</p>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">This request is saved and will stay here until the executive team responds.</p>'}${linked ? `<div class="task-toolbar">${linked}</div>` : ''}<details class="ex-request-timeline"><summary>Timeline (${thread.length} events)</summary><div>${timeline || '<span class="muted">No thread events yet.</span>'}</div>${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}</details>${actions}</article>`;
   }).join('');
   const isCROHandoff = p => ['researcher', 'cro'].includes(String(p.created_by));
   const proposalRows = (proposals.proposals || [])
@@ -12717,7 +12746,7 @@ async function renderExecutive() {
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
-        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${ownerRequests.length} total</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests yet.</div>'}</section>
+        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted','acknowledged','answered','actioned','measured','snoozed','closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}${ownerRequestRows || '<div class="ex-empty">No Owner requests match this view.</div>'}<div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
       </div>
       <aside class="ex-secondary">
@@ -12731,6 +12760,10 @@ async function renderExecutive() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   $('#ex-refresh').onclick = () => softRender();
+  $('#ex-inbox-search').oninput = event => { EXEC_INBOX_UI.q = event.target.value.trim(); EXEC_INBOX_UI.page = 1; softRender(); };
+  $('#ex-inbox-filter').onchange = event => { EXEC_INBOX_UI.status = event.target.value; EXEC_INBOX_UI.page = 1; softRender(); };
+  $('#ex-inbox-prev').onclick = () => { EXEC_INBOX_UI.page -= 1; softRender(); };
+  $('#ex-inbox-next').onclick = () => { EXEC_INBOX_UI.page += 1; softRender(); };
   $('#ex-notify-enable').onclick = async () => {
     if (!('Notification' in window)) return toast('Browser notifications are not supported here', 'err');
     const permission = await Notification.requestPermission();
@@ -12752,6 +12785,26 @@ async function renderExecutive() {
       } catch (e) {
         toast(e.message, 'err');
       }
+    };
+  });
+  $$('.ex-request-ack').forEach(button => {
+    button.onclick = async () => {
+      try {
+        await api('POST', `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`, { lifecycle_state: 'acknowledged' });
+        toast('Request acknowledged');
+        softRender();
+      } catch (e) { toast(e.message, 'err'); }
+    };
+  });
+  $$('.ex-request-close').forEach(button => {
+    button.onclick = async () => {
+      const outcome = window.prompt('Outcome / resolution note required to close this request:');
+      if (!outcome?.trim()) return;
+      try {
+        await api('POST', `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`, { lifecycle_state: 'closed', outcome: outcome.trim() });
+        toast('Request closed');
+        softRender();
+      } catch (e) { toast(e.message, 'err'); }
     };
   });
   $('#ex-run-filter').onchange = e => {
@@ -13364,10 +13417,10 @@ function renderCategoryRoot(id) {
         ],
         ...(STATE.agents || []).map(a => [
           a.role,
-          agentLabel(a.role),
+          a.label || agentLabel(a.role),
           a.scope === 'fleet'
             ? a.description || 'Recurring fleet executive role with an operator work queue'
-            : `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
+            : a.description || `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
         ]),
       ]
     : group.items.map(([view, label]) => [
@@ -13472,7 +13525,7 @@ function buildAgentsMenu() {
     [['executive', 'Executive Overview', ''], ...(STATE.agents || [])]
       .map(
         a =>
-          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a.scope === 'fleet' ? 'fleet queue' : a[2] ?? a.sites}</span>`}</a>`
+          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : a.label || agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a.scope === 'fleet' ? 'fleet queue' : a[2] ?? a.sites}</span>`}</a>`
       )
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>

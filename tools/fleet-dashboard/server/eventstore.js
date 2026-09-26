@@ -251,6 +251,22 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_messages', 'reply_to', 'TEXT');
   ensureColumn(db, 'executive_messages', 'message_type', "TEXT NOT NULL DEFAULT 'update'");
   ensureColumn(db, 'executive_work_items', 'waiting_on', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'lifecycle_state', "TEXT NOT NULL DEFAULT 'open'");
+  ensureColumn(db, 'executive_work_items', 'acknowledged_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'answered_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'closed_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'outcome', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'attempts', 'INTEGER NOT NULL DEFAULT 0');
+  ensureColumn(db, 'executive_work_items', 'lease_owner', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'lease_expires_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'heartbeat_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'retry_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'last_error', 'TEXT');
+  ensureColumn(db, 'executive_notifications', 'delivery_status', "TEXT NOT NULL DEFAULT 'pending'");
+  ensureColumn(db, 'executive_notifications', 'delivery_attempts', 'INTEGER NOT NULL DEFAULT 0');
+  ensureColumn(db, 'executive_notifications', 'last_error', 'TEXT');
+  ensureColumn(db, 'executive_notifications', 'next_attempt_at', 'TEXT');
+  ensureColumn(db, 'executive_notifications', 'delivered_at', 'TEXT');
   ensureColumn(db, 'executive_knowledge_items', 'takeaway', "TEXT NOT NULL DEFAULT ''");
   ensureColumn(db, 'executive_knowledge_items', 'applied_to', "TEXT NOT NULL DEFAULT ''");
   ensureColumn(db, 'executive_knowledge_items', 'reviewed_by', 'TEXT');
@@ -890,14 +906,20 @@ function open(root, { file } = {}) {
       dedupe_key: input.dedupe_key ? String(input.dedupe_key).trim() : null,
       created_at: input.created_at || new Date().toISOString(),
       read_at: null,
+      delivery_status: String(input.delivery_status || 'pending'),
+      delivery_attempts: Number(input.delivery_attempts || 0),
+      last_error: input.last_error || null,
+      next_attempt_at: input.next_attempt_at || new Date().toISOString(),
+      delivered_at: input.delivered_at || null,
     };
     if (!row.title || !row.body) throw httpErr(400, 'notification title and body are required');
     try {
       db.prepare(`INSERT INTO executive_notifications
-        (notification_id,recipient,notification_type,title,body,work_id,message_id,dedupe_key,created_at,read_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?)`).run(
+        (notification_id,recipient,notification_type,title,body,work_id,message_id,dedupe_key,created_at,read_at,delivery_status,delivery_attempts,last_error,next_attempt_at,delivered_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
         row.notification_id, row.recipient, row.notification_type, row.title, row.body,
-        row.work_id, row.message_id, row.dedupe_key, row.created_at, row.read_at
+        row.work_id, row.message_id, row.dedupe_key, row.created_at, row.read_at,
+        row.delivery_status, row.delivery_attempts, row.last_error, row.next_attempt_at, row.delivered_at
       );
       return row;
     } catch (error) {
@@ -921,10 +943,25 @@ function open(root, { file } = {}) {
     return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id)) || null;
   }
 
+  function getExecutiveNotification(id) {
+    return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id)) || null;
+  }
+
   function markAllExecutiveNotificationsRead(recipient = 'owner') {
     const readAt = new Date().toISOString();
     const result = db.prepare('UPDATE executive_notifications SET read_at = ? WHERE recipient = ? AND read_at IS NULL').run(readAt, String(recipient));
     return { updated: result.changes, read_at: readAt };
+  }
+
+  function updateExecutiveNotificationDelivery(id, patch = {}) {
+    const current = db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id));
+    if (!current) throw httpErr(404, 'notification not found');
+    const next = { ...current, ...patch };
+    db.prepare(`UPDATE executive_notifications SET delivery_status=?,delivery_attempts=?,last_error=?,next_attempt_at=?,delivered_at=? WHERE notification_id=?`).run(
+      String(next.delivery_status || 'pending'), Number(next.delivery_attempts || 0), next.last_error || null,
+      next.next_attempt_at || null, next.delivered_at || null, String(id)
+    );
+    return db.prepare('SELECT * FROM executive_notifications WHERE notification_id = ?').get(String(id));
   }
 
   function createExecutiveProposal(input) {
@@ -1247,6 +1284,17 @@ function open(root, { file } = {}) {
       updated_at: now,
       resolved_at: null,
       resolution_note: null,
+      lifecycle_state: String(input.lifecycle_state || 'open').trim(),
+      acknowledged_at: input.acknowledged_at || null,
+      answered_at: input.answered_at || null,
+      closed_at: input.closed_at || null,
+      outcome: input.outcome ? String(input.outcome).trim() : null,
+      attempts: Number(input.attempts || 0),
+      lease_owner: input.lease_owner ? String(input.lease_owner).trim() : null,
+      lease_expires_at: input.lease_expires_at || null,
+      heartbeat_at: input.heartbeat_at || null,
+      retry_at: input.retry_at || null,
+      last_error: input.last_error ? String(input.last_error).trim() : null,
     };
     if (!row.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(row.kind)) throw httpErr(400, 'invalid work item kind');
@@ -1255,8 +1303,8 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid work item owner');
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.work_id,
       row.title,
@@ -1277,6 +1325,17 @@ function open(root, { file } = {}) {
       row.updated_at,
       row.resolved_at,
       row.resolution_note
+      ,row.lifecycle_state,
+      row.acknowledged_at,
+      row.answered_at,
+      row.closed_at,
+      row.outcome,
+      row.attempts,
+      row.lease_owner,
+      row.lease_expires_at,
+      row.heartbeat_at,
+      row.retry_at,
+      row.last_error
     );
     return row;
   }
@@ -1348,6 +1407,7 @@ function open(root, { file } = {}) {
     next.status = String(next.status || '').trim();
     next.priority = String(next.priority || '').trim();
       next.owner = String(next.owner || '').trim();
+    next.lifecycle_state = String(next.lifecycle_state || 'open').trim();
     if (!next.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(next.kind)) throw httpErr(400, 'invalid work item kind');
     if (!WORK_ITEM_STATUSES.has(next.status)) throw httpErr(400, 'invalid work item status');
@@ -1367,7 +1427,7 @@ function open(root, { file } = {}) {
     const now = new Date().toISOString();
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
     db.prepare(
-      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=? WHERE work_id=?`
+      `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=?`
     ).run(
       next.title,
       next.kind,
@@ -1385,9 +1445,57 @@ function open(root, { file } = {}) {
       now,
       resolved,
       next.resolution_note || null,
+      next.lifecycle_state,
+      next.acknowledged_at || null,
+      next.answered_at || null,
+      next.closed_at || null,
+      next.outcome || null,
+      Number(next.attempts || 0),
+      next.lease_owner || null,
+      next.lease_expires_at || null,
+      next.heartbeat_at || null,
+      next.retry_at || null,
+      next.last_error || null,
       String(current.work_id)
     );
     return getExecutiveWorkItem(current.work_id);
+  }
+
+  function claimExecutiveWorkItem(id, leaseOwner, leaseSeconds = 900) {
+    const owner = String(leaseOwner || '').trim();
+    if (!owner) throw httpErr(400, 'lease owner is required');
+    const workId = String(id);
+    const now = new Date();
+    const nowIso = now.toISOString();
+    const expires = new Date(now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000).toISOString();
+    const result = db.prepare(
+      `UPDATE executive_work_items SET lease_owner=?,lease_expires_at=?,heartbeat_at=?,attempts=attempts+1,updated_at=?
+       WHERE work_id=? AND status IN ('open','ready','waiting','blocked')
+       AND (lease_expires_at IS NULL OR lease_expires_at <= ? OR lease_owner=?)`
+    ).run(owner, expires, nowIso, nowIso, workId, nowIso, owner);
+    return result.changes ? getExecutiveWorkItem(workId) : null;
+  }
+
+  function heartbeatExecutiveWorkItem(id, leaseOwner, leaseSeconds = 900) {
+    const owner = String(leaseOwner || '').trim();
+    const now = new Date();
+    const nowIso = now.toISOString();
+    const expires = new Date(now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000).toISOString();
+    const result = db.prepare(
+      `UPDATE executive_work_items SET lease_expires_at=?,heartbeat_at=?,updated_at=? WHERE work_id=? AND lease_owner=?`
+    ).run(expires, nowIso, nowIso, String(id), owner);
+    return result.changes ? getExecutiveWorkItem(id) : null;
+  }
+
+  function releaseExecutiveWorkItem(id, leaseOwner, patch = {}) {
+    const current = getExecutiveWorkItem(id);
+    if (!current || current.lease_owner !== String(leaseOwner || '')) return null;
+    return updateExecutiveWorkItem(id, {
+      ...patch,
+      lease_owner: null,
+      lease_expires_at: null,
+      heartbeat_at: null,
+    });
   }
 
   const KNOWLEDGE_TYPES = new Set([
@@ -1580,7 +1688,9 @@ function open(root, { file } = {}) {
     createExecutiveNotification,
     listExecutiveNotifications,
     markExecutiveNotificationRead,
+    getExecutiveNotification,
     markAllExecutiveNotificationsRead,
+    updateExecutiveNotificationDelivery,
     createExecutiveProposal,
     listExecutiveProposals,
     getExecutiveProposal,
@@ -1596,6 +1706,9 @@ function open(root, { file } = {}) {
     listExecutiveWorkItems,
     getExecutiveWorkItem,
     updateExecutiveWorkItem,
+    claimExecutiveWorkItem,
+    heartbeatExecutiveWorkItem,
+    releaseExecutiveWorkItem,
     createWorkflowLink,
     listWorkflowLinks,
     deleteWorkflowLink,

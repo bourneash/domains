@@ -15,6 +15,7 @@ const aiOptimizer = require('./aioptimizer');
 const run = require('./run');
 const containers = require('./containers');
 const roles = require('./roles');
+const contentwriterhealth = require('./contentwriterhealth');
 const taskbudget = require('./taskbudget');
 const aiinventory = require('./aiinventory');
 const aiusage = require('./aiusage');
@@ -57,6 +58,7 @@ const changequeue = require('./changequeue');
 const changequeueView = require('./changequeue-view');
 const changequeueNotify = require('./changequeue-notify');
 const executiveFollowup = require('./executive-followup');
+const executiveNotify = require('./executive-notify');
 const executiveFailureFollowup = require('./executive-failure-followup');
 const executiveData = require('./executive-data');
 const executive = require('./executive');
@@ -3149,6 +3151,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.get('/api/executive/inbox', (req, res) => {
     try {
+      void executiveNotify.drain(events).catch(() => {});
       executive.ensureOwnerRequests(events);
       const requests = events.listExecutiveWorkItems({ source_type: 'owner-request', limit: req.query.limit || 100 });
       const now = Date.now();
@@ -3169,6 +3172,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         return {
           ...request,
           messages,
+          links: events.listWorkflowLinks({ entity_type: 'work-item', entity_id: request.work_id, limit: 100 }),
           response_count: responses.length,
           latest_response: responses[responses.length - 1] || null,
           overdue,
@@ -3181,13 +3185,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.get('/api/executive/notifications', (req, res) => {
     try {
-      res.json({ notifications: events.listExecutiveNotifications(req.query) });
+      res.json({ notifications: events.listExecutiveNotifications({ ...req.query, recipient: 'owner' }) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
   app.post('/api/executive/notifications/:id/read', (req, res) => {
     try {
+      const existing = events.getExecutiveNotification(req.params.id);
+      if (!existing || existing.recipient !== 'owner') return res.status(404).json({ error: 'notification not found' });
       const notification = events.markExecutiveNotificationRead(req.params.id);
       if (!notification) return res.status(404).json({ error: 'notification not found' });
       res.json({ notification });
@@ -3207,6 +3213,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({ settings: events.getExecutiveSettings() });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/health', (_req, res) => {
+    try {
+      const status = executive.health(events);
+      res.status(status.ok ? 200 : 503).json({ health: status });
+    } catch (e) {
+      res.status(500).json({ error: e.message || String(e) });
     }
   });
   // Operator-triggered executive runs are detached because a full pass can
@@ -3692,6 +3706,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.post('/api/executive/requests/:id/transition', (req, res) => {
+    try {
+      const request = executive.transitionOwnerRequest(events, req.params.id, req.body?.lifecycle_state, {
+        outcome: req.body?.outcome,
+        next_action: req.body?.next_action,
+        waiting_on: req.body?.waiting_on,
+        due_at: req.body?.due_at,
+      });
+      res.json({ request });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.get('/api/executive/proposals', (req, res) => {
     try {
       res.json({
@@ -4080,6 +4107,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
   const queuePulse = setInterval(() => {
+    executive.escalateOverdueOwnerRequests(events);
+    executive.escalateOverdueWorkItems(events);
+    void executiveNotify.drain(events).catch(() => {});
     renewQueueLeases();
     recoverAutomaticReviewHandoffs();
     reconcileInterruptedWorkers().catch(() => {});
@@ -5086,6 +5116,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/roles', async (_req, res) => {
     try {
       res.json(await roles.matrix(root, discoverSites(root)));
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Repeated content-writer sandbox, quality-gate, and build failures. This
+  // is read-only and derives its 24-hour window from site-owned logs.
+  app.get('/api/content-writer/health', (_req, res) => {
+    try {
+      res.json(contentwriterhealth.health(root, discoverSites(root)));
     } catch (e) {
       res.status(500).json({ error: e.message });
     }

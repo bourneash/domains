@@ -5,6 +5,14 @@
 // executive workbench case with a clear owner and a bounded repair action.
 
 const FOLLOWUP_PREFIX = 'failed-change-request:';
+const FAILURE_DIAGNOSIS_ACTION_PREFIX = 'failure-diagnosis:';
+
+function isAutomaticFailureDiagnosis(request) {
+  return (
+    request?.delivery_mode === 'report_only' &&
+    String(request?.action_key || '').startsWith(FAILURE_DIAGNOSIS_ACTION_PREFIX)
+  );
+}
 
 function failureText(request, run) {
   return [request?.error, run?.outcome?.error, run?.validation?.policy?.summary, run?.agent?.error]
@@ -15,6 +23,17 @@ function failureText(request, run) {
 
 function classifyFailure(request, run) {
   const text = failureText(request, run);
+  if (isAutomaticFailureDiagnosis(request)) {
+    return {
+      kind: 'evidence',
+      owner: 'cto',
+      priority: 'normal',
+      summary:
+        'An automatic failure-diagnosis report did not complete; creating another diagnosis would recurse.',
+      next_action:
+        'Inspect the report worker failure and resolve its owner or infrastructure blocker before manually requeuing one report. Do not create another automatic diagnosis or retry the unchanged request.',
+    };
+  }
   if (request?.delivery_mode === 'report_only' || request?.delivery_mode === 'fleet_report') {
     return {
       kind: 'evidence',
@@ -99,7 +118,7 @@ function buildFollowup(request, run) {
     work_id: `${FOLLOWUP_PREFIX}${request.request_id}`,
     title: `Repair failed request: ${request.title}`,
     kind: classification.kind,
-    status: 'open',
+    status: isAutomaticFailureDiagnosis(request) ? 'blocked' : 'open',
     priority: classification.priority,
     owner: classification.owner,
     source_type: 'failed-change-request',
@@ -121,8 +140,9 @@ function upsert(store, request, run) {
   // A completed/cancelled repair case is an intentional operator disposition;
   // do not reopen it on every recovery pulse. The original failed request is
   // still visible in the audit trail and can be explicitly requeued.
-  if (['done', 'cancelled'].includes(existing.status)) return { changed: false, item: existing };
-  const changed = ['summary', 'next_action', 'priority', 'owner', 'kind', 'site'].some(
+  if (['done', 'cancelled', 'blocked'].includes(existing.status))
+    return { changed: false, item: existing };
+  const changed = ['status', 'summary', 'next_action', 'priority', 'owner', 'kind', 'site'].some(
     key => String(existing[key] ?? '') !== String(payload[key] ?? '')
   );
   return changed
@@ -136,6 +156,7 @@ function upsert(store, request, run) {
 
 module.exports = {
   FOLLOWUP_PREFIX,
+  FAILURE_DIAGNOSIS_ACTION_PREFIX,
   classifyFailure,
   buildFollowup,
   upsert,

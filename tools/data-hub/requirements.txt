@@ -8,5 +8,6 @@ pytest==8.3.3
 ephem==4.2.1
 trafilatura==2.2.0
 googlenewsdecoder==0.1.7
+scrapling[fetchers]==0.4.15
 google-api-python-client
 google-auth

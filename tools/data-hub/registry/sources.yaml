@@ -7,6 +7,42 @@
 
 sources:
 
+  # Public-community Scrapling probes. Keep disabled until the source returns
+  # public report cards rather than Meta's login/block page. The collector uses
+  # Scrapling's explicit stealth browser mode without credentials or cookies;
+  # enabling still requires a source-specific selector review.
+  - id: saltwaternews-meta-community-a
+    type: scrapling
+    url: "https://www.facebook.com/groups/345624385513401/"
+    tags: [community-fishing, fishing, saltwaternews]
+    policy: direct
+    enabled: false
+    fetch:
+      fetch_mode: stealth
+      source_name: "Saltwater News community group A"
+      item_selector: "article"
+      title_selector: "h2, h3, [role='heading']"
+      url_selector: "a[href]"
+      summary_selector: "p"
+      published_selector: "time"
+      robots_txt_obey: true
+
+  - id: saltwaternews-meta-community-b
+    type: scrapling
+    url: "https://www.facebook.com/groups/313366405701229/"
+    tags: [community-fishing, fishing, saltwaternews]
+    policy: direct
+    enabled: false
+    fetch:
+      fetch_mode: stealth
+      source_name: "Saltwater News community group B"
+      item_selector: "article"
+      title_selector: "h2, h3, [role='heading']"
+      url_selector: "a[href]"
+      summary_selector: "p"
+      published_selector: "time"
+      robots_txt_obey: true
+
   # ── amputeenews.com ─────────────────────────────────────────────────────────
   # Broad media queries intentionally accompany the first-party and trade feeds:
   # the desk needs to see policy/access stories that do not use O&P vocabulary.

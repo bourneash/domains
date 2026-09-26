@@ -18,6 +18,8 @@ const audit = executive.action(store, {
   target_id: 'fleet',
 });
 try {
+  executive.ensureOwnerRequests(store);
+  const sla_notifications = executive.escalateOverdueWorkItems(store);
   const result = manager.run(store, {
     knownSite: site => site === 'fleet' || sites.isKnownSite(root, site),
     availableRolesForSite: site => {
@@ -29,6 +31,7 @@ try {
   // pass is skipped or fails. This uses the same bounded queue/review path as
   // the executive scheduler and never approves a proposal.
   result.approved_follow_through = runner.drainApprovedProposalQueue(store, { root, maxQueue: 2 });
+  result.sla_notifications = sla_notifications.length;
   executive.finishAction(store, audit.action_id, { status: 'completed', result });
   process.stdout.write(`${JSON.stringify(result)}\n`);
 } catch (error) {

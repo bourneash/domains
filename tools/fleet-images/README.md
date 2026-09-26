@@ -108,6 +108,14 @@ can silently regress.
 | `mem_limit` | 1g cron / 8g worker | one runaway build cannot starve the other 25 sites. Generous on purpose: the heaviest measured build peaks around 30 MB |
 | no baked secrets | image | credentials arrive as runtime mounts, never in a layer |
 
+Content-writer sandbox prerequisite: the worker host must allow unprivileged user and mount
+namespaces for `bubblewrap`. The role wrapper probes this before making a model call and fails
+closed with exit 75 if unavailable. Keep the worker's `cap_drop: [ALL]` and
+`no-new-privileges:true`; do not enable this by granting `privileged: true` or broad capabilities.
+The shared worker entrypoint now applies this preflight to every `content-writer` invocation,
+including legacy site-specific runners. Run `tools/fleet-images/bin/fleet-sandbox-doctor` on the
+worker host before enabling those schedules.
+
 Every value above was verified **not to break the fleet before being applied** —
 that testing is the reason `cap_drop: ALL` is safe to state rather than hope.
 

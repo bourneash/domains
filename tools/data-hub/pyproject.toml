@@ -8,6 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "google-auth-fleet @ file:///app/vendor/google-auth-fleet",
+    "scrapling[fetchers]==0.4.15",
 ]
 
 [tool.setuptools.packages.find]

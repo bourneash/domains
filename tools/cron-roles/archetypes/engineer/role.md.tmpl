@@ -94,7 +94,7 @@ actionable engineering work belongs in `backlog/`.
 ## Controls (operator)
 - **Pause task pickup (monitor-only):** `touch ops/.engineer-paused` — still
   health-checks + heartbeats, works no backlog tasks. Resume: `rm ops/.engineer-paused`.
-- **Throttle tasks/run:** `ENGINEER_MAX_TASKS` (default 3).
+- **Throttle tasks/run:** `ENGINEER_MAX_TASKS` (default 1; operators may deliberately batch).
 - **Hold a single task:** prefix its filename with `HOLD-` (or `HOLD_`) — stays visible
   in backlog but skipped and not counted. Drop the prefix to re-activate. (Or move it to
   `ops/tasks/hold/`; the engineer only scans `backlog/`.)

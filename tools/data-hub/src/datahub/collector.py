@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 from . import store
 from . import fetch_rss as fr
+from . import fetch_scrapling as fs
 from . import extract
 from . import datasets as ds_pkg
 from .vpn import plan_fetch
@@ -67,7 +68,10 @@ def run_cycle(conn, sources: list[Source], settings: Settings, *,
                 summary["new_datasets"] += new
                 continue
 
-            items = fr.fetch_rss(source, proxy=plan.proxy, client=rss_client)
+            if source.type == "scrapling":
+                items = fs.fetch_html(source, proxy=plan.proxy)
+            else:
+                items = fr.fetch_rss(source, proxy=plan.proxy, client=rss_client)
             if source.fetch.get("full_text") and items:
                 # Only for items not already stored -- fetch_rss re-returns the
                 # live feed's last ~20 entries every cycle regardless of what's

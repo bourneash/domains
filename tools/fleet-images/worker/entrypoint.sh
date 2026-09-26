@@ -68,6 +68,20 @@ ensure_playwright_browsers() {
 }
 ensure_playwright_browsers
 
+# Every content-writer, including legacy site-specific runners, must pass the
+# same cheap sandbox preflight before it can make a model call. The hardened
+# OffshoreHookup runner performs a second, worktree-scoped check; this shared
+# guard gives the rest of the fleet the same fail-closed runtime boundary while
+# their site-specific transaction wrappers are migrated.
+if [[ "${1:-}" == "content-writer" ]]; then
+    PREFLIGHT="${ROOT}/.monorepo-tools/cron-roles/content-writer-runtime-preflight.sh"
+    [[ -x "$PREFLIGHT" ]] || PREFLIGHT="/work/.monorepo-tools/cron-roles/content-writer-runtime-preflight.sh"
+    if [[ ! -x "$PREFLIGHT" ]] || ! "$PREFLIGHT" "$ROOT"; then
+        STAMP "content-writer deferred: sandbox preflight failed"
+        exit 75
+    fi
+fi
+
 for target in "${candidates[@]}"; do
     [[ -n "$target" && -f "$target" ]] || continue
     STAMP "fleet-site-worker ${FLEET_IMAGE_VERSION:-unknown} · uid=$(id -u) · dispatching to ${target}"

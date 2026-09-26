@@ -288,15 +288,16 @@
   palette.className = 'hidden';
   palette.innerHTML = `
     <div class="cmdk-card" role="dialog" aria-modal="true" aria-label="Command palette">
-      <input type="text" placeholder="Jump to a view, an agent, a site…" spellcheck="false" autocomplete="off" />
-      <div class="cmdk-list"></div>
+      <input id="cmdk-input" type="text" placeholder="Jump to a view, an agent, a site…" aria-label="Search commands" aria-controls="cmdk-list" aria-autocomplete="list" spellcheck="false" autocomplete="off" />
+      <div id="cmdk-list" class="cmdk-list" role="listbox" aria-label="Commands"></div>
       <div class="cmdk-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
     </div>`;
 
   const pInput = $('input', palette),
     pList = $('.cmdk-list', palette);
   let items = [],
-    sel = 0;
+    sel = 0,
+    restoreFocus = null;
 
   /* Commands are harvested from the live nav, so the palette never drifts out
      of sync with whatever tabs/agents the server advertises. */
@@ -366,7 +367,7 @@
       ? items
           .map(
             (i, n) =>
-              `<div class="cmdk-row${n === 0 ? ' sel' : ''}" data-n="${n}"><span class="cmdk-ico">${esc(i.ico)}</span><span></span><span class="cmdk-grp">${esc(i.group)}</span></div>`
+              `<div class="cmdk-row${n === 0 ? ' sel' : ''}" data-n="${n}" role="option" aria-selected="${n === 0 ? 'true' : 'false'}" id="cmdk-option-${n}"><span class="cmdk-ico">${esc(i.ico)}</span><span></span><span class="cmdk-grp">${esc(i.group)}</span></div>`
           )
           .join('')
       : '<div class="cmdk-empty">Nothing matches that.</div>';
@@ -378,7 +379,12 @@
   }
   function mark(n) {
     sel = (n + items.length) % items.length;
-    $$('.cmdk-row', pList).forEach((r, i) => r.classList.toggle('sel', i === sel));
+    $$('.cmdk-row', pList).forEach((r, i) => {
+      const selected = i === sel;
+      r.classList.toggle('sel', selected);
+      r.setAttribute('aria-selected', String(selected));
+    });
+    pInput.setAttribute('aria-activedescendant', `cmdk-option-${sel}`);
     $$('.cmdk-row', pList)[sel]?.scrollIntoView({ block: 'nearest' });
   }
   function fire(n) {
@@ -387,16 +393,28 @@
     if (it) setTimeout(it.run, 10);
   }
   function open() {
+    restoreFocus = document.activeElement && typeof document.activeElement.focus === 'function'
+      ? document.activeElement
+      : null;
     palette.classList.remove('hidden');
     pInput.value = '';
     draw();
+    pInput.removeAttribute('aria-activedescendant');
     pInput.focus();
   }
   function close() {
     palette.classList.add('hidden');
+    restoreFocus?.focus?.();
+    restoreFocus = null;
   }
 
   pInput.addEventListener('input', draw);
+  palette.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    }
+  });
   palette.addEventListener('mousedown', e => {
     if (e.target === palette) close();
   });
@@ -587,6 +605,8 @@
   // and provide keyword fallbacks for new/custom roles.
   const ROLE_EMOJI = {
     executive: '🧠',
+    'product-manager-fleet': '🧰',
+    'product-manager-sites': '🗂️',
     engineer: '🛠️',
     'principal-engineer': '🧭',
     'content-writer': '✍️',

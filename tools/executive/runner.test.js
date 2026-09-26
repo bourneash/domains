@@ -76,6 +76,25 @@ test('compacts repeated executive evidence before sending it to model passes', (
   assert.match(compact.model_context_note, /authoritative artifacts/);
 });
 
+test('reviewer cannot author or replace executive proposals', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [{ actor: 'reviewer', body: 'Recommendation: keep the bounded repair.' }],
+      proposals: [
+        {
+          created_by: 'reviewer',
+          title: 'Reviewer proposal that must not become durable',
+          summary: 'This is review output, not a new proposal.',
+          requested_action: 'Do not create this proposal.',
+        },
+      ],
+      change_requests: [],
+    }),
+    { defaultActor: 'reviewer' }
+  );
+  assert.deepEqual(plan.proposals, []);
+});
+
 test('action-mandate fallback routes trusted candidates instead of producing a no-op', () => {
   const brief = {
     queue: [{ site: 'already-active.com', status: 'running' }],
@@ -219,7 +238,7 @@ test('normalizes approved report-only work to queue-safe fields', () => {
   store.close();
 });
 
-test('marks SEO-labelled baselines as report-only work', () => {
+test('routes concrete SEO candidates as implementation work', () => {
   const plan = runner.buildActionMandateFallback(
     { messages: [], change_requests: [] },
     {
@@ -231,14 +250,14 @@ test('marks SEO-labelled baselines as report-only work', () => {
             site: 'example.com',
             type: 'seo',
             title: 'Baseline example.com search opportunity',
-            recommendation: 'Capture a read-only baseline before changing production.',
+            recommendation: 'Update the title and description using the observed query gap.',
             metric: 'qualified clicks',
           },
         ],
       },
     }
   );
-  assert.equal(plan.change_requests[0].delivery_mode, 'report_only');
+  assert.notEqual(plan.change_requests[0].delivery_mode, 'report_only');
 });
 
 test('keeps a site behind a blocked private launch gate out of direct delivery', () => {
@@ -1435,7 +1454,7 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
       },
       brief
     ),
-    true
+    false
   );
   assert.equal(
     runner.actionMandateSatisfied(

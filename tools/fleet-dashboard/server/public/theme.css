@@ -923,7 +923,12 @@ body.has-rail .tabs { display: none; }
 .rail-folded .rl-fold svg { transform: rotate(180deg); }
 .rail-folded .rl-word { opacity: 0; width: 0; }
 .rail-folded .rl-top { padding: 0 0 0 19px; }
-.rail-folded .rl-fold { position: absolute; left: 19px; top: 66px; margin: 0; }
+.rail-folded .rl-fold {
+  position: absolute; left: 19px; top: 66px; margin: 0;
+  /* The folded button overlaps the nav's padded start; keep it above the
+     nav so the rail can always be expanded again. */
+  z-index: 3;
+}
 .rail-folded .rl-nav { padding-top: 40px; }
 
 /* ------------------------------------------------------------------ nav -- */

@@ -36,7 +36,8 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/task-routing.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-scorecard.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-snapshot.js" \
-    "$ROOT/tools/fleet-dashboard/server/executive-data.js"; do
+    "$ROOT/tools/fleet-dashboard/server/executive-data.js" \
+    "$ROOT/tools/fleet-dashboard/server/workflow-engine.js"; do
     sha256sum "$file"
   done
 } | sha256sum | awk '{print $1}')"

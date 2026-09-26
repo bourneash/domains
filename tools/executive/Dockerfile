@@ -10,6 +10,7 @@ COPY --chown=dev:dev tools/fleet-dashboard/server/task-routing.js /app/tools/fle
 COPY --chown=dev:dev tools/fleet-dashboard/server/executive-scorecard.js /app/tools/fleet-dashboard/server/executive-scorecard.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/executive-snapshot.js /app/tools/fleet-dashboard/server/executive-snapshot.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/executive-data.js /app/tools/fleet-dashboard/server/executive-data.js
+COPY --chown=dev:dev tools/fleet-dashboard/server/workflow-engine.js /app/tools/fleet-dashboard/server/workflow-engine.js
 USER root
 RUN mkdir -p /input /output && chown -R dev:dev /input /output
 USER dev

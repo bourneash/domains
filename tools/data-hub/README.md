@@ -152,11 +152,11 @@ curl -s "http://127.0.0.1:4760/pulls?site=americastrikes.com"
 
 ### `registry/sources.yaml`
 
-71 distinct RSS sources. 1 shared across sites (`breaking-defense`, merged
+71 distinct RSS sources plus two disabled Scrapling probes. 1 shared across sites (`breaking-defense`, merged
 tags from americastrikes + aliencouncil). Fields:
 
 - `id` — stable kebab-case slug
-- `type` — `rss` (dataset type reserved for future plan)
+- `type` — `rss`, `scrapling` (public HTML), or `dataset`
 - `url` — feed URL
 - `tags` — topic tags (controlled vocabulary; subscriptions match against these)
 - `policy` — `vpn` for all sources
@@ -176,6 +176,12 @@ tags from americastrikes + aliencouncil). Fields:
   `/health` report `fulltext_attempts`/`fulltext_hits` per source — a source
   stuck at 0 hits after many attempts is paywalled/broken and worth turning
   back off.
+- Scrapling sources support `fetch_mode: http|stealth`, CSS selectors for
+  `item_selector`, `title_selector`, `url_selector`, `summary_selector`, and
+  `published_selector`. `stealth` is opt-in browser rendering for public pages;
+  the adapter supplies no credentials, cookies, or session state, obeys
+  `robots.txt`, rejects proxy egress, and stays disabled until its selectors
+  have been validated against real public cards.
 
 ### `registry/subscriptions.yaml`
 
@@ -213,8 +219,9 @@ The document must contain one `source` object (including `source_id`, `name`,
 `homepage_url`, and a plain-language `provenance`) plus a non-empty `reports`
 array. Input is strictly validated; unknown fields, invalid coordinates,
 confidence outside 0–1, missing species, and reversed size ranges are rejected.
-Network adapters must be implemented and reviewed explicitly before use. There
-is intentionally no generic charter-site HTML scraper.
+Network adapters must be implemented and reviewed explicitly before use. The
+Scrapling adapter is for explicitly configured public HTML sources and does not
+replace the human review/provenance requirements for fishing reports.
 
 ### Enabling / disabling a source
 

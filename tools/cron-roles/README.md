@@ -11,6 +11,17 @@ pointer that runs `WIRING.md` against a target site, using the archetype's
   overrides and verifies the worker has an explicit `deployer` dispatch.
 - `repo-mutation-lock.sh` — shared host/container lock for any role that can
   edit, build, commit, push, or deploy a site checkout.
+- `content-writer-policy.sh` — centralized task capability policy for writer
+  path permissions.
+- `content-writer-quality.py` — deterministic pre-staging content quality gate.
+- `content-writer-runtime-preflight.sh` — shared fail-closed bubblewrap check for every content-writer worker.
+- `content-writer-fleet-check.py` — audit legacy content-writer runners for hardening coverage.
+- `content-writer-recovery.sh` — inspect, branch, and re-queue retained writer commits safely.
+
+For a no-publish validation pass on OffshoreHookup, run the normal worker with
+`CONTENT_WRITER_OBSERVED=1`. It still runs the model, deterministic quality gate, and build in
+the disposable worktree, but archives the result without moving the task, committing, pushing,
+or signaling deployment.
 - `archetypes/<name>/` — `role.md.tmpl` (canonical body), `meta.yml` (knobs), `scripts/`.
 
 Model: **stamp-once**. The installer scaffolds a complete, working role and walks

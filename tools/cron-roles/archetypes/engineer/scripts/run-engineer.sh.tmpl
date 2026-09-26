@@ -311,7 +311,7 @@ CF API status: ${CF_API_STATUS}$( [[ "$CF_CREDENTIAL_PENDING" == "1" ]] && echo 
 Deploy flag: pending=${DEPLOY_PENDING} stale=${DEPLOY_STALE}
 Issues (severity-tagged — [warn]=you fix it, [block]=needs the owner):
 ${ISSUES_TEXT}
-Queued engineer tasks (in ops/tasks/backlog/, up to 3): ${QUEUE_LIST:-none}
+Queued engineer tasks (in ops/tasks/backlog/, up to 1 by default): ${QUEUE_LIST:-none}
 
 ## Recovery context
 ${RESUME_CONTEXT:-No prior interrupted-pass artifact was found.}

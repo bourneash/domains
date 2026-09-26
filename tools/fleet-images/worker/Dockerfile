@@ -42,6 +42,7 @@ FROM node:22-bookworm-slim@sha256:d649c27dae7ba0137b3cef5dd75baa422c08dc3d9e3fc0
 # libvips-dev: sharp. libnss3/libfreetype6/libharfbuzz0b: headless chromium.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
+      bubblewrap \
       ca-certificates \
       chromium \
       curl \

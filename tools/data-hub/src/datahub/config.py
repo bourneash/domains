@@ -8,7 +8,7 @@ DEFAULT_HOME_IPS = {"24.55.143.75", "158.173.25.169"}
 
 class Source(BaseModel):
     id: str
-    type: Literal["rss", "dataset"]
+    type: Literal["rss", "scrapling", "dataset"]
     url: str | None = None
     dataset_key: str | None = None
     fetcher: str | None = None

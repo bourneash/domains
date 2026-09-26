@@ -193,6 +193,11 @@ body[data-view="agent"] main:has(.ex-shell) { max-width: 1380px; }
 .ex-notification { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 10px 11px; border: 1px solid rgba(210,153,34,.45); border-radius: 7px; background: rgba(210,153,34,.08); font-size: 12px; line-height: 1.4; }
 .ex-notification b { display: block; margin-bottom: 2px; }
 .ex-notification small { display: block; margin-top: 4px; }
+.ex-inbox-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: -3px 0 12px; }
+.ex-inbox-toolbar input { min-width: 210px; flex: 1 1 210px; }
+.ex-request-timeline { margin-top: 10px; font-size: 12px; }
+.ex-request-timeline summary { cursor: pointer; color: var(--muted); }
+.ex-request-timeline > div { display: grid; gap: 5px; margin-top: 8px; padding: 9px; border-left: 2px solid var(--border); }
 .ex-decision-form { display: grid; gap: 16px; }
 .ex-decision-context { padding: 13px 14px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; background: var(--panel-2); }
 .ex-decision-context strong { display: block; margin-top: 4px; color: #fff; font-size: 15px; line-height: 1.35; }

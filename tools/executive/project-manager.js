@@ -20,7 +20,7 @@ function proposalWorkKind(proposal) {
 function sameCaseFields(current, next) {
   return [
     'title', 'kind', 'status', 'priority', 'owner', 'source_type', 'source_id',
-    'site', 'summary', 'next_action', 'waiting_on',
+    'site', 'summary', 'next_action', 'waiting_on', 'due_at',
   ].every(key => String(current?.[key] ?? '') === String(next?.[key] ?? ''));
 }
 
@@ -58,7 +58,9 @@ function syncProposalCases(store, { limit = 200 } = {}) {
         });
       }
     }
-    const status = proposal.status === 'approved' ? 'in_progress' : 'waiting';
+    // Approval is a handoff, not execution. Keep the case visibly waiting
+    // until deterministic follow-through creates or links the actual work.
+    const status = 'waiting';
     const waitingOn =
       proposal.status === 'approved'
         ? 'project-manager'
@@ -84,6 +86,9 @@ function syncProposalCases(store, { limit = 200 } = {}) {
       summary: proposal.summary,
       next_action: nextAction,
       waiting_on: waitingOn,
+      due_at: proposal.updated_at
+        ? new Date(Date.parse(proposal.updated_at) + (proposal.status === 'approved' ? 24 : 48) * 60 * 60 * 1000).toISOString()
+        : new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
       evidence: [
         {
           label: 'executive proposal',

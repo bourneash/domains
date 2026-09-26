@@ -117,7 +117,7 @@ async function main() {
     )
   )
     throw new Error(
-      'EXECUTIVE_PASSES must contain adaptive or ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
+      'EXECUTIVE_PASSES must contain adaptive, product-manager-fleet, product-manager-sites, ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
     );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);
@@ -213,7 +213,7 @@ async function main() {
   // select or explicitly reject a candidate, fail closed before the trusted
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
-    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and either (a) route a small batch of up to six highest-confidence, low-risk, reversible candidates to engineer across distinct sites, covering at least three sites when three or more candidates are available, with acceptance and rollback criteria, or (b) include one owner-facing message beginning with Recommendation: that gives a clear evidence-backed disposition and asks at most one concrete decision question when the brief has fewer than three actionable sites. Do not return an observation-only plan or a question without a recommendation.`;
+    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, or report-only request does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state that blocker in the owner update.`;
     const repairedOutput = await runTracked(repairPrompt, usage, 'action-mandate-repair', true);
     plan = mergePassPlans(plan, runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
     for (const review of plan.proposal_reviews || [])
@@ -236,7 +236,7 @@ async function main() {
       });
     }
     if (!runner.actionMandateSatisfied(plan, brief)) {
-      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL PORTFOLIO DECISION-MEMO REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve the useful existing work, and include a concise CEO message whose body starts with Recommendation: and gives: (1) the action you recommend now, (2) at least one known number/date or an explicit statement that the number is not calculable and why, (3) the main unknown, (4) the smallest next step, and (5) at most one direct owner question with concrete options. When the brief has three or more actionable sites, also include bounded, reversible implementation or evidence work covering at least three distinct sites. Do not return a maintenance-only update or a question without a recommendation.`;
+      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve useful existing work, but include engineer-routable change_requests for the highest-confidence actionable candidates, with concrete site/scope, acceptance criteria, tests, metric, and rollback. Cover at least three distinct sites when three or more actionable sites exist. Do not substitute a maintenance update, proposal, question, research request, or report-only request for routine reversible implementation.`;
       const finalRepairOutput = await runTracked(
         finalRepairPrompt,
         usage,

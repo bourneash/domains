@@ -74,6 +74,76 @@ test('links replies by reply_to, advances the request, and creates an unread not
   db.close();
 });
 
+test('enforces owner-request lifecycle transitions and requires a close outcome', () => {
+  const db = store();
+  const request = executive.ownerRequest(db, { actor: 'owner', body: 'Track the release decision.' });
+  assert.throws(
+    () => executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed'),
+    /requires an outcome/
+  );
+  const acknowledged = executive.transitionOwnerRequest(db, request.work_item.work_id, 'acknowledged');
+  assert.equal(acknowledged.lifecycle_state, 'acknowledged');
+  const closed = executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed', { outcome: 'Decision recorded in the release plan.' });
+  assert.equal(closed.lifecycle_state, 'closed');
+  assert.equal(closed.status, 'done');
+  assert.equal(closed.outcome, 'Decision recorded in the release plan.');
+  assert.throws(
+    () => executive.transitionOwnerRequest(db, request.work_item.work_id, 'answered'),
+    /cannot move owner request from closed/
+  );
+  db.close();
+});
+
+test('persists notification delivery attempts for retryable external delivery', () => {
+  const db = store();
+  const notification = db.createExecutiveNotification({
+    title: 'Executive reply',
+    body: 'A response is ready.',
+    dedupe_key: 'test-notification-1',
+  });
+  assert.equal(notification.delivery_status, 'pending');
+  const retry = db.updateExecutiveNotificationDelivery(notification.notification_id, {
+    delivery_status: 'pending',
+    delivery_attempts: 2,
+    last_error: 'webhook unavailable',
+  });
+  assert.equal(retry.delivery_attempts, 2);
+  assert.equal(retry.last_error, 'webhook unavailable');
+  const duplicate = db.createExecutiveNotification({
+    title: 'Duplicate', body: 'ignored', dedupe_key: 'test-notification-1',
+  });
+  assert.equal(duplicate.notification_id, notification.notification_id);
+  db.close();
+});
+
+test('leases executive work atomically and reports scheduler health', () => {
+  const db = store();
+  const item = db.createExecutiveWorkItem({ title: 'Lease me', kind: 'research', status: 'ready', owner: 'project-manager' });
+  const claimed = db.claimExecutiveWorkItem(item.work_id, 'project-manager', 60);
+  assert.equal(claimed.lease_owner, 'project-manager');
+  assert.equal(claimed.attempts, 1);
+  assert.equal(db.claimExecutiveWorkItem(item.work_id, 'another-worker', 60), null);
+  assert.ok(db.heartbeatExecutiveWorkItem(item.work_id, 'project-manager', 60));
+  assert.equal(db.releaseExecutiveWorkItem(item.work_id, 'another-worker'), null);
+  assert.equal(db.releaseExecutiveWorkItem(item.work_id, 'project-manager').lease_owner, null);
+  const status = executive.health(db);
+  assert.equal(status.scheduler.status, 'never-run');
+  assert.equal(status.ok, false);
+  db.close();
+});
+
+test('escalates overdue work once per SLA level', () => {
+  const db = store();
+  const item = db.createExecutiveWorkItem({
+    title: 'Overdue evidence', kind: 'research', owner: 'security', created_by: 'owner',
+    status: 'waiting', due_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+  });
+  assert.equal(executive.escalateOverdueWorkItems(db).length, 1);
+  assert.equal(executive.escalateOverdueWorkItems(db).length, 0);
+  assert.equal(db.listExecutiveNotifications({ work_id: item.work_id }).length, 1);
+  db.close();
+});
+
 test('requires owner decision and preserves feedback loop', () => {
   const db = store();
   const proposal = executive.proposal(db, {

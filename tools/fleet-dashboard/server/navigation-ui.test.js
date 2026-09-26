@@ -82,6 +82,7 @@ test('Git operations and Git Hygiene share one page with distinct tabs', () => {
 
 test('sidebar category navigation and disclosure use separate controls', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(shell, /class="rl-h-main"/);
   assert.match(shell, /class="rl-toggle"/);
   assert.match(
@@ -89,6 +90,10 @@ test('sidebar category navigation and disclosure use separate controls', () => {
     /location\.hash = h\.dataset\.root;\s+toggleSection\(h\.closest\('\.rl-sec'\)\)/
   );
   assert.doesNotMatch(shell, /an active item inside a collapsed section/);
+  assert.match(
+    theme,
+    /\.rail-folded \.rl-fold\s*\{[^}]*position:\s*absolute;[^}]*z-index:\s*3;/s
+  );
 });
 
 test('fleet health pulse exposes an actionable explanation', () => {
@@ -120,6 +125,18 @@ test('category cards share the sidebar icon system', () => {
   assert.match(shell, /globalThis\.fleetAgentIcon = agentIcon/);
   assert.match(app, /globalThis\.fleetAgentIcon\(key\)/);
   assert.match(shell, /engineer: '🛠️'/);
+});
+
+test('command palette exposes a keyboard and screen-reader friendly listbox', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+  assert.match(shell, /aria-controls="cmdk-list"/);
+  assert.match(shell, /role="listbox"/);
+  assert.match(shell, /role="option" aria-selected=/);
+  assert.match(shell, /aria-activedescendant/);
+  assert.match(shell, /restoreFocus/);
+  assert.match(index, /id="updated"[^>]*aria-live="polite"/);
+  assert.match(index, /id="toast"[^>]*aria-live="polite"/);
 });
 
 test('agent pages expose enrollment actions that open the automation editor', () => {
