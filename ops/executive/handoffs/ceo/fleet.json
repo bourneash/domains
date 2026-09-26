@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:03:58.392Z",
+  "generated_at": "2026-09-26T03:04:48.074Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 2 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: decline the generic CRO CTA proposal as a fleet-wide/business commitment and use its dependency-free design insight only for one measured page. Queue a reversible SEO improvement for aliencouncil.com. Evidence: the 30-day SEO snapshot shows /cases/00509-presidential-memorandum-uap-nda-abrogation-pursue-designee at position 5.5 with 77 impressions, 0 clicks, 0 sessions, and 0 conversions. Unknown: causal lift, page-level conversion value, and attributable revenue are not calculable; revenue data covers only 2026-09-21 and contains $4.92 aggregate unattributed income. Smallest next step: implement the page-local metadata/internal-link improvement and measure for 14 days or 100 new impressions.",
         "requested_action": null,
         "proposal_id": null
       }
