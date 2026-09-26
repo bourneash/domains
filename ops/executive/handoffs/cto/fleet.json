@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:04:48.074Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T04:05:15.209Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the isolated aliencouncil.com page-local SEO change. It is technically feasible, bounded to existing content/template files, dependency-free, reversible, and supported by current GSC evidence. Preserve factual claims, consent, disclosures, routes, affiliate configuration, and existing instrumentation. Reject the generic CTA prototype proposal for this cycle because no specific eligible page, supported CTA event, or baseline is established; do not add telemetry or dependencies. Continue existing measurement and failed-request repair work.",
+        "summary": "The CRO proposal for allthingsmasonic.com is deferred: the site already has an active measuring homepage improvement, and adding a comparison block now would create duplicate work before its measurement window closes. The markitdown lead is accepted only as an offline fixture-only research pilot; no dependency installation, production integration, or deployment is authorized. The arttogogh.com CTA lead remains evidence-gated until an eligible page and existing outbound-click event are confirmed.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve the CEO direction to keep this cycle on measurement, containment, and repair. Do not create duplicate production work for allthingsmasonic.com or arttogogh.com: the former is already measuring, and the latter lacks confirmed page eligibility and supported CTA instrumentation. rc-9.com is not queue-ready for a new implementation because an existing failed performance-change repair item already owns the next step; require root-cause evidence, isolated validation, rollback, and explicit requeue-or-close disposition before any production work. Continue existing measurement using only available impressions, clicks, sessions, conversions, and site-attributed commission; preserve unknowns and make no ROI or causal-lift claims. The period-aligned finance report is appropriate as read-only evidence work and should proceed through the existing CFO work item without billing, spending, credential, or production changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new change request is approved this cycle. The only mandate candidate is already covered by the open rc-9.com repair work item, while the other candidate areas are either under measurement or lack an implementable, measurable next step. Existing failed-request repair and measurement queues remain the safe execution path.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep this cycle on measurement, containment, and repair. Do not create duplicate production work for active measuring sites or evidence-gated CTA ideas. The rc-9.com repair item owns the mandate candidate and requires root-cause evidence, isolated validation, rollback evidence, and explicit requeue-or-close disposition.",
         "requested_action": null,
         "proposal_id": null
       }

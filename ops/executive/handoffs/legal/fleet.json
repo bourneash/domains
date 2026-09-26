@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:04:48.075Z",
+  "generated_at": "2026-09-26T04:05:15.209Z",
   "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Official API access is evidenced, but current public terms do not establish rights to store, derive, cache, publicly display, alert on, or monetize returned data. Technical, security, accuracy/freshness, measurement, and owner gates also remain blocked. Human counsel is required before proceeding on any disputed commercial/public-display interpretation or affiliate/advertising use. Ordinary reversible SEO work on already-public sites is not blocked by incomplete telemetry when it adds no new data use.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; keep private. Official API access is evidenced, but current public terms do not establish rights to store, derive, cache, publicly display, alert on, or monetize returned data. Technical, security, accuracy/freshness, measurement, and owner gates also remain blocked. Human counsel is required for disputed commercial/public-display interpretation or affiliate/advertising use. Ordinary reversible growth is conditionally clear when it adds no new data use and preserves disclosures, consent, rights, claims, and existing instrumentation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: 0 of 4 tasks closed; no task is closeable because required deliverables are incomplete. Source-rights evidence is partially established but remains blocked by missing written permission. Next evidence actions: obtain owner authorization and request SearchWoot-specific permission from Woot; produce the read-only data-flow/retention table; capture deployed GA4 consent and property settings; and complete the operator/vendor/log inventory with incident and request-process gaps. Do not change the private gate or send external outreach without owner authorization and required human review.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed. No task is closeable because required deliverables remain incomplete. Next evidence actions are owner authorization for a written Woot permission request; a read-only data-flow and retention table; deployed GA4 consent and property-settings capture; and an operator/vendor/log inventory covering incident and data-request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review dispositions: Woot API deal and price-history data — blocked. Missing written rights for storage, historical derivatives, public display, caching, alerts, field use, attribution, freshness, correction, and takedown; smallest next action is an owner-authorized request for those exact permissions, followed by human counsel review if any commercial use is proposed. User alert rules and sync results — evidence_needed. Missing data inventory, retention, deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior; smallest next action is a read-only data-flow and retention table. GA4 analytics — evidence_needed. Missing deployed consent/withdrawal proof, GA4 property and data-sharing settings, retention settings, and jurisdiction-specific review; smallest next action is a read-only configuration capture without enabling new tracking. Operational logs and Cloudflare hosting data — evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest next action is a read-only operator/vendor inventory.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data — blocked; missing written rights for storage, derivatives, public display, caching, alerts, field use, attribution, freshness, correction, and takedown. User alert rules and sync results — evidence_needed; missing data inventory, retention, deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior. GA4 analytics — evidence_needed; missing deployed consent and withdrawal proof, GA4 property/data-sharing settings, retention settings, and jurisdiction-specific review. Operational logs and Cloudflare hosting data — evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest next actions are the corresponding read-only evidence captures; obtain human counsel before any disputed commercial use or public launch.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance and data-quality review: do not treat incomplete telemetry as a legal blocker for ordinary reversible growth. Analytics is broadly configured, but permissions/errors and stale windows remain measurement limitations; aggregate affiliate revenue is not site-attributable and must not support ROI or causal claims. Compliance failures and unknowns require site-specific review before monetization or materially new processing. The proposed aliencouncil.com page-local SEO change is conditionally clear from a legal scope perspective, provided factual claims, copyright/trademark boundaries, affiliate disclosures, privacy/cookie controls, consent behavior, routes, and existing instrumentation remain unchanged and the implementation is independently validated.",
+        "summary": "Compliance and data-quality disposition: do not block ordinary growth solely for incomplete telemetry. Compliance records 37 pass, 16 fail, and 6 unknown; site-specific failures or unknowns require review before monetization or materially new processing. Analytics permissions/errors and stale windows limit measurement, while the aggregate $4.92 affiliate commission is not site-attributable and cannot support ROI or causal claims. No legal go-live approval is supported for the gated product.",
         "requested_action": null,
         "proposal_id": null
       }

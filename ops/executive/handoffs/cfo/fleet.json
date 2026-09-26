@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T03:04:48.074Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T04:05:15.209Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: proceed only with the already-scoped page-local SEO change; decline the generic CTA business proposal. Revenue support is insufficient for ROI or contribution-margin claims: Amazon data covers only 2026-09-21, shows $4.92 aggregate commission that is not site-attributable, and site-attributed income is $0. The target page has 77 impressions, 0 clicks, 0 sessions, and 0 conversions. AI spend is $940.70 fleet-wide for 2026-09-01 through 2026-09-25, while infrastructure and fixed operating costs are unavailable; contribution margin, payback, and cost-to-learn beyond recorded AI spend are therefore not calculable. Minimum measurement: retain page-level impressions, clicks, sessions, conversions, site-attributed commission, AI cost, and attributable infrastructure cost through the 14-day or 100-impression window. Do not claim revenue, ROI, incrementality, or causal lift.",
+        "summary": "Recommendation: freeze new growth spend and production experiments until finance measurement is decision-grade. AI spend is $940.70 for 2026-09-01 through 2026-09-25 across 39 instrumented sites, while Amazon revenue covers only 2026-09-21: $4.92 aggregate commission, $0 site-attributed income, 6,219 clicks, 28 ordered items, and 6 shipped items. The periods do not align, and the aggregate $4.92 cannot be assigned to any site; therefore no site revenue, ROI, contribution margin, payback, or causal lift is supported. The $940.70 is a known AI cost, but total contribution margin is not calculable because infrastructure, hosting, domain, labor, and other fixed costs are absent. Minimum finance evidence needed is a period-aligned daily ledger by site and shared fleet cost center covering AI, infrastructure, domains, labor allocation, affiliate commission, and attributable revenue. Until then, treat SEO impressions, clicks, sessions, conversions, affiliate clicks, and opportunity scores as operating signals—not financial performance—and prioritize repair/measurement work over new monetization experiments.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Freeze new growth spend and production monetization experiments until finance evidence is decision-grade. AI cost is $940.7040014 for 2026-09-01 through 2026-09-25; Amazon evidence covers 2026-09-21 only with $4.92 aggregate commission and $0 site-attributed income. ROI, margin, payback, and causal lift are not calculable.",
         "requested_action": null,
         "proposal_id": null
       }
