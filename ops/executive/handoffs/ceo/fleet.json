@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:04:08.742Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T15:40:25.901Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only updates to the three existing control workstreams and defer acquiring new domains. Evidence: 191 approved proposals lack execution, 46 failure repairs remain open, 25 deployed improvements await measurement, and only 1 outcome is proven in the 30-day scorecard. Revenue, margin, ROI, domain pricing, renewal cost, and audience fit for the proposed domains are unknown; no spend limit is set. Smallest next step: drain and measure current work, then run a bounded acquisition analysis. Owner decision: confirm deferral of new-domain acquisition for now.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: preserve the existing execution, failure-containment, and measurement workstreams. Do not create duplicate proposals, production requests, dependencies, telemetry, spend, or launch changes this cycle.",
+        "summary": "Recommendation: approve the containment plan and create no new production, experiment, telemetry, spend, or launch work this cycle. Evidence from the 30-day scorecard: 191 approved proposals lack execution, 46 failed-request follow-ups remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. Amazon data covers 2026-09-21 only: $4.92 aggregate commission is unattributed to sites; ROI, margin, and causal lift remain unknown. Keep SearchWoot private. Decision requested: authorize or decline sending the prepared Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }

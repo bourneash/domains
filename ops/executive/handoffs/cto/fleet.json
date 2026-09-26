@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T15:04:08.743Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T15:40:25.902Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve only bounded updates to the three existing execution, failure-containment, and measurement work items. Do not create new proposals, change_requests, telemetry, dependencies, spend, schedules, permissions, credentials, launch changes, or production work. Preserve unknown revenue, cost, margin, attribution, incrementality, causal lift, and operational-health fields. Keep existing work-item ownership unchanged.",
+        "summary": "Handoff: preserve existing execution reconciliation, failed-run containment, measurement, and security evidence work. Reject new queue expansion because the actionability scorecard has no unblocked candidates and active work already covers the relevant sites. Do not requeue failed work until root cause, validation, rollback, and deduplication evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Update the existing execution sprint only: reconcile approved work against queued, active, deployed, cancelled, and failed records using existing records. Do not requeue or create implementation requests unless deduplication, ownership, validation, rollback, and queue eligibility are documented.",
+        "summary": "Approve containment-only updates to the existing execution-reconciliation, failed-run containment, measurement, security-evidence, and private-launch work items. No new proposals, experiments, change requests, telemetry, spend, dependencies, permissions, schedules, deployments, or launch activity are queue-eligible this cycle. Requeue only after documented deduplication, root cause, isolated validation, rollback, ownership, and queue eligibility.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Update the existing failure-containment work only: review retained failure artifacts, deduplicate repairs, document root cause, isolated validation, rollback, and explicit requeue-or-close disposition. No new production implementation or requeue is authorized before those controls are evidenced.",
+        "summary": "Continue existing measurement with available telemetry only. Preserve unknown revenue, attribution, ROI, margin, cost-to-learn, causal lift, infrastructure cost, labor cost, incremental cost, and operational health. Do not treat missing data as zero or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Update the existing measurement-gates work only: use available impressions, clicks, sessions, conversions, site-attributed commission, and already-available AI cost. Do not request duplicate telemetry or infer infrastructure cost, labor cost, conversion value, contribution margin, ROI, incrementality, causal lift, or cost-to-learn. Keep gated launches private and preserve existing measurement windows.",
+        "summary": "Maintain bounded read-only security evidence capture and keep the private launch gate unchanged. Missing fleet-doctor, operations, isolation, release-control, monitoring, and incident evidence remains unknown rather than passed. No credentials, permissions, configuration changes, deployment, external outreach, or spending are authorized by this pass.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the existing gated-product legal readiness work active. Internal preparation may continue, but sending the prepared permission request remains an owner decision and is not authorized by this pass. No public exposure, monetization, alert expansion, configuration change, or deployment is approved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue failed-run containment only. Review retained artifacts and document root cause, smallest isolated repair, focused validation, rollback, ownership, deduplication, and explicit requeue-or-close disposition before any requeue. Technical metrics must not be presented as financial benefit.",
         "requested_action": null,
         "proposal_id": null
       }

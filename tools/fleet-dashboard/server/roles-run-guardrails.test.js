@@ -143,3 +143,16 @@ test('runRole rejects a scheduled non-worker role (deployer) with 400, without s
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('family alias update cannot control a content-writer-only site', () => {
+  const root = tmpdir('fd-roles-family-');
+  try {
+    makeSite(root, 'x.com', '0 7 * * 6 bash ops/scripts/run-worker.sh content-writer');
+    assert.throws(
+      () => roles.setEnabled(root, 'x.com', 'update', false),
+      e => e.httpStatus === 404
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
