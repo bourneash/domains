@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T21:18:09.775Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-26T21:33:11.664Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: approve containment-only execution. Authorize no new discretionary spend, monetization expansion, budget commitment, forecast, requeue, or production work. AI spend was $963.569 across 5,390 calls from 2026-09-01 through 2026-09-26. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. Contribution margin, ROI, cost-to-learn, causal lift, infrastructure spend, and budget exposure are not calculable because period-aligned infrastructure, domain, labor, marketing, experiment costs, incremental outcomes, and approved financial limits are absent. Continue existing source-dated measurement, attribution reconciliation, and repair-or-close review only. Minimum measurement is a period-aligned cost ledger matched to site-attributed commission, experiment-level cost and incremental outcomes, and owner-approved financial limits. Treat impressions, clicks, sessions, conversions, performance scores, and AI call counts as operational or vanity metrics—not financial returns—until attributable incremental contribution is evidenced.",
+        "summary": "Recommendation: approve containment-only execution. Authorize no new discretionary spend, monetization expansion, budget commitment, forecast, requeue, or production work. AI spend was $963.569 across 5,390 calls from 2026-09-01 through 2026-09-26. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. Contribution margin, ROI, cost-to-learn, causal lift, infrastructure spend, and budget exposure are not calculable because period-aligned infrastructure, domain, labor, marketing, experiment costs, incremental outcomes, and owner-approved limits are absent. Minimum measurement: a period-aligned cost ledger matched to site-attributed commission, experiment-level cost and incremental outcomes, and approved monthly limits. Continue existing source-dated measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work only; do not treat impressions, clicks, sessions, conversions, technical scores, or aggregate commission as financial return.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain existing measurement and reconciliation work without creating duplicate finance requests. Revenue claims remain unsupported beyond the stated one-day aggregate provider result; no forecast, margin claim, or payback claim is justified. Infrastructure and other operating costs are unknown because no period-aligned ledger is present; the minimum required evidence is dated provider, domain, labor, marketing, and experiment-cost records reconciled to the same revenue window and site/content identifiers.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain private launch gates and existing containment. No financial approval is supported for monetization expansion or external commitments while attribution, rights, security, and measurement evidence remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }
