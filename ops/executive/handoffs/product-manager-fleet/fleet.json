@@ -1,0 +1,18 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "product-manager-fleet",
+  "site": "fleet",
+  "generated_at": "2026-09-26T14:58:24.615Z",
+  "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Standardize fleet social-link placement as a reusable, evidence-gated product capability",
+        "summary": "Create one reusable specification for accessible social-link banners or footer links, while preserving site-specific URLs and readiness as unknown until verified from authorized registry data.",
+        "requested_action": "Extend the existing site-specific social-link briefs into a reusable implementation contract covering verified account URLs, safe placement surfaces, disclosure-safe copy, accessibility, rollback, and approval prerequisites. Do not deploy, add tracking, or claim lift. Route implementation only after site evidence and existing queue capacity are confirmed.",
+        "proposal_id": "402d2c46-7bae-4b4f-a5d0-147bde75384b"
+      }
+    ]
+  }
+}

@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-26T14:38:47.606Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-26T15:04:08.742Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: prioritize operating-system improvements before new site work. The largest friction is execution throughput: 191 approved proposals lack execution requests, 46 failed-request repairs remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. Retain three reversible workstreams: reconcile approved work into the existing engineer queue, add failure deduplication and owner-routing controls, and standardize deployment-to-measurement handoff using only existing telemetry. Keep gated launches private and preserve all unknowns; do not add telemetry, schedules, access, spend, or production changes directly.",
+        "summary": "Recommendation: approve only updates to the three existing control workstreams and defer acquiring new domains. Evidence: 191 approved proposals lack execution, 46 failure repairs remain open, 25 deployed improvements await measurement, and only 1 outcome is proven in the 30-day scorecard. Revenue, margin, ROI, domain pricing, renewal cost, and audience fit for the proposed domains are unknown; no spend limit is set. Smallest next step: drain and measure current work, then run a bounded acquisition analysis. Owner decision: confirm deferral of new-domain acquisition for now.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: prioritize portfolio execution controls before new site work. Evidence shows 191 approved proposals without execution requests, 46 failed-request repairs open, 25 deployed improvements awaiting measurement, and only 1 proven outcome. Retain three reversible workstreams: reconcile eligible approved work into the existing engineer queue, define failure deduplication and owner-routing controls, and standardize deployment-to-measurement handoffs using existing telemetry only. Keep gated launches private, preserve unknowns, and make no direct production, access, spend, schedule, or telemetry changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve the execution, failure-containment, and measurement themes, but do not create duplicate work items or new production requests. Evidence from the 30-day scorecard: 191 approved proposals lack execution, 46 failed-request follow-ups remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. Unknown: contribution margin, ROI, causal lift, and operational health remain unavailable. Smallest next step: update the existing execution-sprint, failure-containment, and measurement work items with these control requirements. Owner decision: authorize the prepared Woot permission request; SearchWoot remains private unless and until the owner authorizes outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the candidate plan's three new work items as duplicates, not because the objectives are invalid. Fold approved-work reconciliation into the existing owner execution sprint, failure deduplication and routing into contain-failed-work, and deployment-to-measurement handoff into the existing measurement-gates work. No new change_request is justified because the actionability scorecard reports no unblocked implementation candidate and the reviewer/CTO disposition is to drain existing backlog first.",
+        "summary": "Handoff: preserve the existing execution, failure-containment, and measurement workstreams. Do not create duplicate proposals, production requests, dependencies, telemetry, spend, or launch changes this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

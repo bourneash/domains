@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T12:06:08.034Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T15:04:08.742Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment. Do not start new CRO, production, or spending initiatives this cycle. Revenue support is limited to Amazon aggregate data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Because the $4.92 is unattributed and covers one day while AI spend is $948.878834 from 2026-09-01 through 2026-09-26, portfolio contribution margin, ROI, and cost-to-learn are not calculable. Continue existing measurement, failed-run containment, and bounded security evidence work only. The minimum finance evidence needed is a same-period ledger mapping revenue, AI cost, attributable infrastructure cost, and any other direct cost by site and experiment; do not treat missing values as zero.",
+        "summary": "CFO recommendation: approve only updates to the three existing control workstreams; do not approve new domains, discretionary spend, monetization changes, or production work. The 2026-09-26 snapshot records AI spend of $948.88 from 2026-09-01 through 2026-09-26 across 5,327 calls, while Amazon revenue covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the $4.92 aggregate row cannot be assigned to a site. Contribution margin, ROI, budget exposure, revenue forecast, and cost-to-learn are not calculable: infrastructure, labor, other operating costs, monthly budgets, incremental experiment cost, conversion value, and causal lift are unavailable. Minimum measurement is a period-aligned ledger by site and work item containing AI, infrastructure, labor, other direct cost, attributable clicks/orders/shipped items/commission, conversion value, and experiment exposure. Continue existing measurement using available telemetry only; do not treat sessions, impressions, clicks, SEO conversions, social coverage, or technical scores as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Attribution quality is insufficient for site-level revenue claims. Amazon reports 18 named tracking rows plus one aggregate row containing all 28 ordered items, 6 shipped items, and $4.92 commission. Named site rows show $0 commission, so no site or experiment can claim revenue, margin, ROI, or causal lift. The reported 6219-click aggregate conversion rate is 28/6219 (0.45% ordered items) and 6/6219 (0.10% shipped items), but it is not attributable to any site.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: approve containment. Revenue evidence covers one day and includes unattributed aggregate commission; AI usage covers a different period. Do not claim ROI, margin, payback, or causal lift.",
+        "summary": "CFO review: retain the existing execution-reconciliation, failure-containment, and measurement work-item updates. Financially, the portfolio is in an investment hold: 191 approved proposals lack execution, 46 failed-request repairs remain open, 25 deployed improvements await measurement, and only 1 outcome is proven. No new acquisition or spend recommendation is supported because domain pricing, renewal cost, audience fit, infrastructure cost, and budget limits are not supplied.",
         "requested_action": null,
         "proposal_id": null
       }
