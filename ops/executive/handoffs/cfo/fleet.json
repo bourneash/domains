@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:03:58.808Z",
+  "generated_at": "2026-09-26T19:18:28.959Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no new spend or monetization expansion. AI cost was $963.569 for 2026-09-01 through 2026-09-26; revenue evidence covers 2026-09-21 only, with $4.92 aggregate commission and $0 site-attributed commission. Contribution margin, ROI, cost-to-learn, and budget exposure remain unknown.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no new discretionary spend, monetization expansion, budget commitment, or production work. AI spend was $963.569 from 2026-09-01 through 2026-09-26 across 5,390 calls, while revenue evidence covers only 2026-09-21: $4.92 aggregate commission, 6,219 clicks, 28 ordered items, and 6 shipped items. Site-attributed commission is $0 because the $4.92 aggregate row cannot be assigned to a site. Contribution margin, ROI, cost-to-learn, infrastructure spend, and budget exposure are not calculable: infrastructure, domains, labor, marketing, other operating costs, experiment-level cost, incremental outcomes, and owner-approved budget limits are absent. Continue only existing source-dated measurement, reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Minimum future measurement is a period-aligned cost ledger matched to site-attributed commission, experiment-level cost with incremental outcomes, and approved monthly limits with actual-versus-budget reporting. Do not treat impressions, clicks, sessions, conversions, AI calls, SEO scores, or technical scores as financial returns; do not support revenue forecasts from this evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution and authorize no new discretionary spend, monetization expansion, or budget commitment. AI spend was $963.569 from 2026-09-01 through 2026-09-26 across 5,390 calls; infrastructure, domain, labor, marketing, and other operating costs are not reported. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the $4.92 is in Amazon's aggregate tracking row and cannot be assigned to a site without inventing attribution. Contribution margin, ROI, cost-to-learn, and budget exposure are therefore not calculable. Minimum measurement is a period-aligned cost ledger matched to site-attributed commission, experiment-level cost and incremental outcomes, and owner-approved monthly spend, fixed-cost, marketing, revenue-floor, and attribution-materiality limits with actual-versus-budget reporting. Continue only source-dated measurement already scheduled; treat impressions, clicks, sessions, conversions, AI calls, and technical scores as operating metrics, not financial returns.",
+        "summary": "Attribution disposition: retain aggregate provider revenue as explicitly unassigned. The available one-day revenue window and partial aggregate attribution do not support site economics or claims of financial upside. Preserve unknowns and do not infer infrastructure cost from AI spend.",
         "requested_action": null,
         "proposal_id": null
       }

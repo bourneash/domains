@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:03:58.808Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-26T19:18:28.959Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Concrete evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, and security.txt/disclosure readiness remain unverified. TLS evidence shows no certificates expiring within 30 days only and does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not evidence of compromise. Exact decision: keep private launch gates unchanged, continue bounded read-only security evidence capture, and permit only reversible growth adding no credentials, permissions, dependencies, data collection, or cross-site behavior. Risk severity is high for public exposure and security-sensitive release, medium for bounded growth.",
+        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for security-sensitive public exposure; conditional for ordinary reversible growth. Concrete evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, and security.txt/disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days and does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not evidence of compromise. Risk severity is high for public exposure and security-sensitive release, medium for bounded growth. Exact decision: keep private launch gates unchanged; continue bounded read-only evidence capture; permit only reversible growth adding no credentials, permissions, dependencies, data collection, or cross-site behavior; create no new security proposal, deployment, permission change, credential change, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing security evidence work only. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, add dependencies, request duplicate telemetry, or conduct external outreach. Record dated evidence, owners, affected scope, explicit unknowns, severity, and release implications for authentication, secrets, isolation, release controls, dependencies, data exposure, monitoring, incidents, TLS, and disclosure readiness.",
+        "summary": "Continue the existing bounded fleet security evidence work only. Record dated evidence or explicit unknowns for authentication and access boundaries, secret storage and exposure, runtime isolation, build and deployment provenance, dependency and supply-chain controls, TLS coverage, data flows, monitoring, incident handling, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, or request duplicate telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "For the gated product, retain the private security gate. Public exposure, alert expansion, deployment, configuration or credential changes, dependency additions, and external outreach remain blocked until security evidence and the outstanding rights, privacy, accuracy, attribution, measurement, and owner gates are complete.",
         "requested_action": null,
         "proposal_id": null
       }

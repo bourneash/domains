@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-26T18:19:36.135Z",
+  "generated_at": "2026-09-26T19:18:28.958Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO review: retain no new revenue experiments, product opportunities, GitHub adoptions, or CRO change requests this cycle. Existing measurement, failure-containment, reconciliation, and security-evidence work must complete before new opportunities are considered. No incremental revenue or conversion outcome is evidenced.",
+        "summary": "CRO recommendation: retain containment-only execution. No new revenue experiment or product opportunity is sufficiently unblocked this cycle: the actionability candidate list is empty, active measurement and failure-repair capacity is occupied, attribution is partial, and financial outcomes remain unknown. Continue existing source-dated measurement, reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Reconsider reversible CRO experiments only after capacity, validation, rollback, and attribution gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

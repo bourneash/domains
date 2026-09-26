@@ -2,49 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T19:03:58.808Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-26T19:18:28.959Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the current queue boundary. No new change request is safe because existing capacity is occupied by measurement, reconciliation, failed-run containment, and security evidence. Continue only isolated repair-or-close review with documented lineage, ownership, validation, rollback, and explicit requeue-or-close disposition.",
+        "summary": "CTO recommendation: approve containment-only execution. No new proposals, change requests, requeues, telemetry, dependencies, spend, monetization expansion, or production changes are technically eligible this cycle. Continue only existing measurement, reconciliation, failed-run repair-or-close review, and bounded legal/security evidence work. Preserve all unsupported revenue, ROI, margin, causal-lift, budget, and operational fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Create no new production requests, requeues, experiments, telemetry requests, dependencies, configuration changes, spend, or monetization expansion. Continue existing measurement, reconciliation, failure repair-or-close review, bounded security evidence, and private launch-readiness work. Preserve unavailable revenue, ROI, attribution, margin, causal-lift, budget, and operational fields as unknown.",
+        "summary": "Queue disposition: no new queue entry. Existing capacity is occupied by scheduled measurement, reconciliation, failure containment, and evidence work; the authoritative actionability candidate list is empty. Failed work must remain contained until canonical lineage, deduplication, ownership, root cause, isolated validation, rollback, and explicit requeue-or-close evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No new queue entry is technically eligible. The actionability candidate list is empty, and existing capacity is occupied by measurement, reconciliation, failure containment, and security evidence. Retained failures require canonical lineage, ownership, root cause, isolated validation, rollback, deduplication, and explicit repair-or-close disposition before requeue.",
+        "summary": "Maintain the gated product's private launch gate. Continue bounded read-only rights, data-flow, retention, consent, vendor, accuracy, attribution, and security evidence capture. Keep external permission outreach unsent pending owner and human-counsel authorization; do not expose publicly, expand alerts, deploy, change credentials or configuration, or add dependencies.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue scheduled measurement using existing source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI-cost records only. Do not add instrumentation or request duplicate telemetry; aggregate commission remains unassigned and financial outcomes remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the private launch gate. Continue bounded read-only rights, data-flow, retention, consent, vendor, incident, accuracy, attribution, and security evidence work. Keep external permission outreach unsent pending owner and human-counsel authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence capture. Treat missing access, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence as unknown rather than passed. Permit no security-sensitive public exposure or production mutation on the current evidence.",
+        "summary": "Measurement disposition: continue scheduled observations using existing source-dated impressions, clicks, sessions, conversions, site-attributed commission, and available AI-cost records only. Do not add instrumentation or request duplicate telemetry. Aggregate commission remains explicitly unassigned, and financial outcomes remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
