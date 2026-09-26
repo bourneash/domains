@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-26T22:18:52.465Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-26T22:33:38.298Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue bounded read-only security evidence capture. Public exposure and security-sensitive release remain blocked because authentication, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure evidence is incomplete. Ordinary reversible growth remains conditional on preserving existing consent, disclosures, and data boundaries.",
+        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for security-sensitive public exposure or release; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release provenance, dependency controls, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this does not establish complete TLS posture. Compliance is a technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not proof of compromise. Exact decision: keep private launch gates, continue bounded read-only security evidence work, and permit only reversible growth that preserves existing consent, disclosures, data boundaries, and claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for security-sensitive public exposure and release; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this does not establish complete TLS posture. Compliance is technical baseline only: 37 pass, 16 fail, and 6 unknown. Retained worker and reviewer failures are containment signals, not proof of compromise. Exact decision: maintain private launch gates, continue bounded read-only security evidence capture, and permit only reversible growth that preserves consent, disclosures, data boundaries, and existing behavior; no credentials, permissions, dependencies, data collection, deployment, or external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence work only. Record dated evidence, owners, affected scope, explicit unknowns, severity, and release implications for access boundaries, secrets, isolation, release provenance, dependencies, TLS, data flows, monitoring, incidents, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Continue existing bounded read-only evidence capture for authentication and access boundaries, secrets, runtime isolation, build and deployment provenance, dependency and supply-chain controls, TLS, data flows, monitoring, incidents, and disclosure readiness. Record timestamps, owners, affected scope, explicit unknowns, severity, and release implications. Do not retrieve credentials, access private containers, exploit targets, change permissions, modify production, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
