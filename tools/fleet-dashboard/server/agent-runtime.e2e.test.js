@@ -39,10 +39,16 @@ function request(server, method, pathname, body) {
 }
 
 test('agent runtime APIs support registry, runs, artifacts, and enforced budgets', async t => {
+  const previousSecretKey = process.env.FD_SECRET_KEY;
+  process.env.FD_SECRET_KEY = 'agent-runtime-e2e-key';
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-runtime-e2e-'));
   const server = createApp({ root }).listen(0, '127.0.0.1');
   await once(server, 'listening');
-  t.after(() => new Promise(resolve => server.close(resolve)));
+  t.after(() => {
+    if (previousSecretKey === undefined) delete process.env.FD_SECRET_KEY;
+    else process.env.FD_SECRET_KEY = previousSecretKey;
+    return new Promise(resolve => server.close(resolve));
+  });
 
   const created = await request(server, 'POST', '/api/agents', {
     slug: 'runtime-ceo',
@@ -216,4 +222,133 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
     200
   );
   assert.equal((await request(server, 'POST', '/api/agent-heartbeat/tick', {})).status, 200);
+
+  const skill = await request(server, 'POST', '/api/agent-skills', {
+    slug: 'e2e-skill',
+    name: 'E2E skill',
+  });
+  assert.equal(skill.status, 201);
+  assert.equal(
+    (
+      await request(server, 'POST', `/api/agent-skills/${skill.body.skill.skill_id}/versions`, {
+        instructions: 'Run the E2E check.',
+      })
+    ).status,
+    201
+  );
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/agent-skill-assignments', {
+        agent_id: agent.agent_id,
+        skill_id: skill.body.skill.skill_id,
+        version: 1,
+      })
+    ).status,
+    201
+  );
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/agent-memories', {
+        agent_id: agent.agent_id,
+        memory_key: 'e2e',
+        content: 'persisted context',
+      })
+    ).status,
+    201
+  );
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/runtime-plugins', {
+        slug: 'e2e-plugin',
+        manifest: { name: 'E2E plugin' },
+      })
+    ).status,
+    201
+  );
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/runtime-connectors', {
+        slug: 'e2e-linear',
+        kind: 'ticket-system',
+        capabilities: ['issues.read'],
+      })
+    ).status,
+    201
+  );
+  const provider = await request(server, 'POST', '/api/runtime-providers', {
+    slug: 'e2e-provider',
+    kind: 'local',
+    status: 'active',
+  });
+  assert.equal(provider.status, 201);
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/agent-secrets', {
+        name: 'e2e-secret',
+        value: 'never-list-me',
+        scope: { agent_id: agent.agent_id },
+      })
+    ).status,
+    201
+  );
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/agent-tools', {
+        agent_id: agent.agent_id,
+        tool_name: 'secret:e2e-secret',
+        approval_required: false,
+      })
+    ).status,
+    201
+  );
+  const resolvedSecret = await request(server, 'POST', '/api/agent-secrets/resolve', {
+    agent_id: agent.agent_id,
+    name: 'e2e-secret',
+  });
+  assert.equal(resolvedSecret.body.value, 'never-list-me');
+  assert.equal(
+    (
+      await request(server, 'POST', '/api/agent-delegations', {
+        from_agent_id: agent.agent_id,
+        to_agent_id: agent.agent_id,
+      })
+    ).status,
+    400
+  );
+  const organization = await request(server, 'POST', '/api/organizations', {
+    slug: 'e2e-org',
+    name: 'E2E org',
+  });
+  assert.equal(organization.status, 201);
+  const plan = await request(server, 'POST', '/api/executive/plans', { title: 'E2E plan' });
+  assert.equal(plan.status, 201);
+  assert.equal(
+    (
+      await request(server, 'POST', `/api/executive/plans/${plan.body.plan.plan_id}/versions`, {
+        body: { check: true },
+      })
+    ).status,
+    201
+  );
+  assert.equal(
+    (
+      await request(server, 'POST', `/api/executive/plans/${plan.body.plan.plan_id}/approve`, {
+        version: 1,
+        decided_by: 'owner',
+      })
+    ).body.plan.status,
+    'approved'
+  );
+  assert.equal(
+    (
+      await request(
+        server,
+        'GET',
+        `/api/organizations/${organization.body.organization.organization_id}/export`
+      )
+    ).body.schema,
+    'executive-organization/v1'
+  );
+  assert.equal((await request(server, 'GET', '/api/agent-dispatches?limit=10')).status, 200);
+  assert.equal((await request(server, 'GET', '/api/agent-runs?limit=10')).status, 200);
 });
