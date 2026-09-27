@@ -211,7 +211,7 @@ function interruptedWorkerRecoveryPath(request) {
 // Docker can remove an isolated worker between the reviewer and delivery
 // callbacks, which surfaces as "No such container".
 function isInfrastructureEvidence(value) {
-  return /(EAGAIN|spawn\s+[^\n]*node|failed to spawn|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1)/i.test(
+  return /(EAGAIN|spawn\s+[^\n]*node|failed to spawn|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1|unexpected branch|production checkout must be|worktree has uncommitted|rebase|merge --ff-only|branch push failed|merged locally but push failed)/i.test(
     String(value || '')
   );
 }
@@ -3114,6 +3114,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     for (const request of events.listChangeRequests({ limit: 1000 })) {
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
       if (!['reviewing', 'review'].includes(request.status)) continue;
+      // A reviewer PASS whose delivery hit a repository-state problem is
+      // intentionally parked for an operator. Do not rediscover the PASS and
+      // repeat the same deployment attempt on every recovery sweep.
+      if (run?.outcome?.delivery_blocked === true) continue;
       const activeSince = activeAutomaticReviews.get(request.request_id);
       if (activeSince) {
         const finishedAt = Date.parse(run?.agent?.finished_at || '');
@@ -3290,6 +3294,46 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       await deliverAutomatically(fresh);
     } catch (error) {
       releaseAutomaticDeliveryClaim(events.getImprovement(run.run_id));
+      // A reviewer PASS is not a deployment PASS. If the delivery handoff
+      // fails because the repository is dirty, on the wrong branch, or cannot
+      // rebase/merge, park it as an infrastructure block. Without this durable
+      // marker the recovery sweep sees the old PASS marker and retries the
+      // same deployment indefinitely.
+      if (isInfrastructureEvidence(error?.message || error)) {
+        const latest = events.getImprovement(run.run_id);
+        const message = String(error?.message || error);
+        if (latest) {
+          events.updateImprovement(latest.run_id, {
+            outcome: {
+              ...(latest.outcome || {}),
+              infrastructure_blocked: true,
+              delivery_blocked: true,
+              infrastructure_error: message,
+              delivery_blocked_at: new Date().toISOString(),
+            },
+          });
+        }
+        const request = events.getChangeRequest(id);
+        if (request) {
+          const updated = changequeue.update(
+            events,
+            id,
+            infrastructureReviewProjectionPatch(request, message),
+            site => isKnownTarget(root, site)
+          );
+          events.record({
+            event_type: 'change-request.delivery_blocked',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: id,
+            correlation_id: `change-request:${id}`,
+            payload: { error: message, reason: 'delivery-infrastructure' },
+          });
+          emitChangeNotification('delivery blocked', updated, latest, message);
+        }
+        return;
+      }
       recordAutoReviewFailure(id, error);
     }
   }
@@ -3304,6 +3348,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       });
     let run = request.run_id ? events.getImprovement(request.run_id) : null;
     if (!run) throw Object.assign(new Error('request has no improvement run'), { httpStatus: 409 });
+    if (run.outcome?.delivery_blocked) {
+      run = events.updateImprovement(run.run_id, {
+        outcome: {
+          ...(run.outcome || {}),
+          delivery_blocked: false,
+          infrastructure_blocked: false,
+          delivery_retry_requested_at: new Date().toISOString(),
+        },
+      });
+    }
     if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
     // Claim the durable reviewing slot before the first await below. Without
     // this ordering, a recovery sweep could launch several async reviews in

@@ -95,6 +95,12 @@ test('classifies Docker worker disappearance as infrastructure evidence', () => 
   );
 });
 
+test('classifies delivery checkout conflicts as infrastructure evidence', () => {
+  assert.equal(isInfrastructureEvidence('improvement worktree is on an unexpected branch'), true);
+  assert.equal(isInfrastructureEvidence('Could not apply abc123 during rebase'), true);
+  assert.equal(isInfrastructureEvidence('quality gates did not pass'), false);
+});
+
 test('classifies process exhaustion during validation as infrastructure evidence', () => {
   const validation = {
     passed: false,
