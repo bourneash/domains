@@ -54,6 +54,19 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /UNIFIED CASE/);
 });
 
+test('executive decisions workspace opens its decision history', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf("} else if (page === 'decisions') {");
+  const end = app.indexOf("} else if (page === 'signals')", start);
+  assert.ok(start >= 0 && end > start);
+  const decisionsWorkspace = app.slice(start, end);
+  assert.match(decisionsWorkspace, /hide\(layout\)/);
+  assert.match(decisionsWorkspace, /show\(decisions\)/);
+  assert.match(decisionsWorkspace, /decisions\.open\s*=\s*true/);
+  assert.match(app, /api\('GET', '\/api\/executive\/proposals\?limit=100'\)/);
+  assert.match(app, /api\('GET', '\/api\/executive\/actions\?limit=200'\)/);
+});
+
 test('product managers are first-class Agents pages with durable queues', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   for (const role of ['product-manager-fleet', 'product-manager-sites']) {
