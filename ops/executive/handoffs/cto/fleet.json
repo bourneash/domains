@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:18:03.836Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T12:34:29.762Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the CRO and product-manager backlog as deferred, evidence-backed work only. Reject new change requests, requeues, experiments, telemetry, dependencies, deployments, spend, and monetization changes until failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue existing repair and read-only legal/security work.",
+        "summary": "Handoff: the CRO metadata-only SEO proposals are technically reversible but remain deferred. Do not queue or requeue them until existing failure repair, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue existing repair-or-close work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: approve containment-only execution. Retain the three evidence-backed SEO and performance opportunities as deferred backlog; they are feasible and reversible in isolation but are not queue-eligible while failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates remain unresolved. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Keep private launch gates unchanged.",
+        "summary": "Technical disposition: approve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only; they are technically feasible and reversible in isolation but are not queue-eligible while failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates remain unresolved. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Preserve explicit unknowns and keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned measurement and attribution reconciliation only. Preserve aggregate provider commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift. Do not treat impressions, clicks, rankings, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
+        "summary": "The CRO opportunities remain deferred backlog only: liquid-wrench result refinement, Priya Raghunathan result refinement, and America Strikes mobile-performance diagnosis. Their search and performance signals support prioritization, not revenue, ROI, margin, cost-to-learn, or causal-lift claims. Reconsider queue entry only after site-specific ownership, isolated validation, rollback, deduplication, and measurement readiness are evidenced.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate provider commission as unattributed and retain unknown ROI, margin, payback, budget capacity, cost-to-learn, and causal lift. Do not treat impressions, clicks, rankings, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
