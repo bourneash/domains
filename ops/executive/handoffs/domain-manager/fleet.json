@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:54:38.981Z",
+  "generated_at": "2026-09-27T09:11:18.569Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Run elevatorfriends.com audience, monetization, health, and backlog baseline",
-        "summary": "Analytics is recorded as not configured for elevatorfriends.com. Audience, traffic, conversion, revenue, attribution, SEO, compliance, operational health, and AI cost remain unknown unless directly evidenced.",
-        "requested_action": "Produce a timestamped read-only assessment of elevatorfriends.com covering observable positioning, content scope, conversion paths, monetization readiness, available health evidence, backlog priorities, and explicit unknowns. Identify exactly one evidence-backed next action or blocker. Acceptance artifact: a dated assessment naming all sources, evidence boundaries, unknowns, recommended next action, and validation criteria. Rollback/follow-up boundary: no production, credential, configuration, telemetry, spending, or deployment changes; follow-up ends after the assessment and recommendation are recorded.",
-        "proposal_id": "cfed168b-db0e-44fe-9ee3-68ab4ffb35c7"
+        "title": "Run nsfwpixels.com audience, monetization, health, and backlog baseline",
+        "summary": "Analytics is recorded as not configured for nsfwpixels.com. Audience, traffic, conversion, revenue, attribution, SEO, compliance, operational health, and AI cost remain unknown unless directly evidenced.",
+        "requested_action": "Produce a timestamped read-only assessment of nsfwpixels.com covering observable positioning, content scope, conversion paths, monetization readiness, available health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Identify exactly one evidence-backed next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
+        "proposal_id": "ec02ce6e-0440-49e4-a6fc-53f7778ff484"
       }
     ]
   }
