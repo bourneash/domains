@@ -31,7 +31,7 @@ else
 fi
 # Keep the leadership sequence hungry and deterministic. Each pass is still
 # bounded, and run-sandbox.sh applies the hard wall-clock/container cap.
-export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,cro,ceo,cfo,cto,legal,security,reviewer}"
+export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,delivery-lead,design-director,growth-director,revenue-ops,site-factory,cro,ceo,cfo,cto,legal,security,reviewer}"
 export EXECUTIVE_PASS_TIMEOUT_MS="${EXECUTIVE_PASS_TIMEOUT_MS:-120000}"
 export EXECUTIVE_CONTAINER_TIMEOUT="${EXECUTIVE_CONTAINER_TIMEOUT:-14m}"
 RUN_ACTION_ID="$(node - "$ROOT" "${EXECUTIVE_ACTION_ID:-}" <<'NODE'

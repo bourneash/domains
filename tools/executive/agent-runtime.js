@@ -29,6 +29,46 @@ const DEFAULT_AGENTS = [
     'chatgpt',
     'codex',
   ],
+  [
+    'fleet-delivery-lead',
+    'Fleet Delivery Lead',
+    'Head of Portfolio Delivery',
+    'delivery-lead',
+    'chatgpt',
+    'codex',
+  ],
+  [
+    'fleet-design-director',
+    'Fleet Design Director',
+    'Design and Conversion Lead',
+    'design-director',
+    'chatgpt',
+    'codex',
+  ],
+  [
+    'fleet-growth-director',
+    'Fleet Growth Director',
+    'SEO and Growth Lead',
+    'growth-director',
+    'chatgpt',
+    'codex',
+  ],
+  [
+    'fleet-revenue-ops',
+    'Fleet Revenue Operations',
+    'Affiliate and Attribution Lead',
+    'revenue-ops',
+    'chatgpt',
+    'codex',
+  ],
+  [
+    'fleet-site-factory',
+    'Fleet Site Factory',
+    'New Site Launch Lead',
+    'site-factory',
+    'chatgpt',
+    'codex',
+  ],
 ];
 
 function ensureRegistry(store, { model = process.env.EXECUTIVE_MODEL || null } = {}) {
@@ -49,8 +89,13 @@ function ensureRegistry(store, { model = process.env.EXECUTIVE_MODEL || null } =
           role === 'reviewer'
             ? ['read:intelligence', 'review:proposals']
             : ['read:intelligence', 'create:work'],
-        heartbeat: { enabled: true, interval_minutes: role === 'project-manager' ? 15 : 60 },
-        workspace: { mode: role === 'project-manager' ? 'control-plane' : 'isolated' },
+        heartbeat: {
+          enabled: true,
+          interval_minutes: ['project-manager', 'delivery-lead'].includes(role) ? 15 : 60,
+        },
+        workspace: {
+          mode: ['project-manager', 'delivery-lead'].includes(role) ? 'control-plane' : 'isolated',
+        },
       })
     );
   }

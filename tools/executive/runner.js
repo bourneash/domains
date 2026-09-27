@@ -14,6 +14,7 @@ const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot'
 const executiveData = require('../fleet-dashboard/server/executive-data');
 const executiveScorecard = require('../fleet-dashboard/server/executive-scorecard');
 const launchReadiness = require('./launch-readiness');
+const productivityProgram = require('../fleet-dashboard/server/productivity-program');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -416,6 +417,20 @@ async function buildBrief(store, root = ROOT) {
   const sites = executiveSites(root);
   const intel = await collectIntel(root, sites);
   const actionability = executiveScorecard.buildScorecard(store);
+  const productivityPilots = store.listProductivityPilots
+    ? store.listProductivityPilots({ limit: 10 }).map(pilot => ({
+        pilot_id: pilot.pilot_id,
+        name: pilot.name,
+        status: pilot.status,
+        lanes: pilot.lanes,
+        treatment_sites: pilot.treatment_sites,
+        control_sites: pilot.control_sites,
+        start_at: pilot.start_at,
+        end_at: pilot.end_at,
+        baseline: pilot.baseline,
+        evaluation: pilot.evaluation,
+      }))
+    : [];
   const allActionCandidates = actionCandidates(
     intel.intelligence,
     sites,
@@ -511,6 +526,12 @@ async function buildBrief(store, root = ROOT) {
     },
     owner_strategy: store.getExecutiveSettings(),
     actionability,
+    productivity: {
+      pilots: productivityPilots,
+      operating_rule:
+        'Measure verified/deployed work, cycle time, design/SEO/affiliate output, and treatment-versus-control lift. Proposals and messages are not productivity outcomes.',
+      lanes: productivityProgram.LANES,
+    },
     proposal_execution: proposalExecution,
     action_mandate: {
       cadence: 'hourly',
@@ -836,6 +857,8 @@ Rules:
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
+- The CEO is accountable for throughput, not just risk disposition. Every cycle must either (a) commit a small batch of safe, reversible, measurable implementation work across the finish-sites, growth-revenue, and site-factory lanes, or (b) create/update one named delivery-lead work item with a dated unblock action, owner, and escalation deadline. “The fleet has enough to manage” is not an acceptable terminal disposition while ready work, unfinished sites, measurable SEO/design/affiliate work, or validated new-site candidates exist.
+- Use the productivity pilot cohorts when present. Prefer treatment-site work that can ship within 72 hours, keep a comparable control cohort untouched for measurement, and record the lane, acceptance test, before/after metric, rollback, and completion evidence on every selected item. Do not add a new site to production until the site-factory launch checklist is complete; do not let that gate suppress unrelated reversible work on existing sites.
 - Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, convert a clearly site-specific and explicitly report-only proposal into a bounded report request, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
 - When the approved-execution backlog is high, prioritize draining it over generating new proposals. The trusted control plane applies a small proposal budget and records any suppressed ideas for audit; use messages, work items, and execution requests to move existing commitments instead.
 - Treat approved proposals with failed or cancelled requests as unfinished. Do not blindly retry them; create or update the durable follow-through work item with the failure evidence and the smallest repair/replacement action.
@@ -859,13 +882,13 @@ Rules:
 
 Return ONLY valid JSON with this shape:
 {
-  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
+  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|project-manager|domain-manager|principal-engineer|engineer|owner","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
+  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
 
@@ -890,19 +913,29 @@ function buildPassPrompt(brief, role, candidate = null) {
         ? 'You are the internal Product Manager for the Domain Fleet tooling. Inspect the fleet dashboard, scheduler, cron-role framework, executive control plane, task board, deployment/release workflow, telemetry, AI usage, and operator workflows in the read-only brief. Find product friction and high-leverage capabilities that would make the fleet easier to operate, safer, more measurable, and more autonomous. Prioritize opportunities by operator time saved, reliability, adoption, reversibility, and measurable outcome. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not write code, deploy, change schedules, grant access, or invent telemetry; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-fleet.'
         : role === 'product-manager-sites'
           ? 'You are the Product Manager for the managed websites portfolio. Treat the published domains as products: inspect audience fit, information architecture, user journeys, content/product opportunities, accessibility, performance, monetization surfaces, experimentation, and cross-site capabilities in the read-only brief. Identify evidence-backed improvements that help visitors and produce durable portfolio value. Prioritize by expected user benefit, attributable outcome, confidence, time-to-learn, and reversibility. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not edit sites, deploy, add domains, spend money, or make unsupported revenue claims; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-sites.'
-          : role === 'cto'
-            ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
-            : role === 'cfo'
-              ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
-              : role === 'principal-engineer'
-                ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
-                : role === 'legal'
-                  ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
-                  : role === 'security'
-                    ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
-                    : role === 'domain-manager'
-                      ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
-                      : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+          : role === 'delivery-lead'
+            ? 'You are the Head of Portfolio Delivery. Convert approved intent into shipped work across three lanes: finish existing sites, grow SEO/design/affiliate revenue, and validate new-site launches. Inspect queue, failures, stranded work, site coverage, and measurements. Select a small batch of concrete reversible change requests across distinct sites; assign owners, due dates, acceptance tests, before/after metrics, and rollback notes. Do not create another proposal when an executable task can be made. Escalate blockers with an owner, SLA, and next action. Your success metric is verified/deployed work, not messages.'
+            : role === 'design-director'
+              ? 'You are the Fleet Design Director. Find the highest-value reversible design, UX, accessibility, imagery, layout, and conversion improvements across unfinished sites. Create concrete design or implementation work with exact site scope, preview/acceptance criteria, test, metric, and rollback. Prefer shipping one visible improvement over producing a design brief. Do not claim conversion lift without measurement.'
+              : role === 'growth-director'
+                ? 'You are the Fleet Growth Director. Own evidence-backed SEO and growth execution: technical SEO, information architecture, internal linking, content opportunities, search intent, and measurable traffic/conversion improvements. Create bounded implementation work with a target page/site, baseline, metric, sample window, acceptance test, and rollback. Do not use spam, fake engagement, unsupported claims, or reports as substitutes for action.'
+                : role === 'revenue-ops'
+                  ? 'You are the Fleet Revenue Operations and Affiliate Lead. Find broken affiliate links, missing tracking IDs, disclosure gaps, attribution mismatches, conversion leaks, and monetization readiness work. Create concrete repair tasks with the affected site, evidence, expected metric, validation, and rollback. Preserve unknown revenue and do not infer ROI from unattributed totals.'
+                  : role === 'site-factory'
+                    ? 'You are the New Site Factory Lead. Turn validated fleet opportunities into repeatable, bounded launch work: site brief, template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, and launch gate. Maintain a small pipeline and identify exactly one next step for the strongest candidate. Do not add domains, spend money, deploy, or launch without the required owner, legal, security, measurement, and rollback gates.'
+                    : role === 'cto'
+                      ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
+                      : role === 'cfo'
+                        ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
+                        : role === 'principal-engineer'
+                          ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
+                          : role === 'legal'
+                            ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
+                            : role === 'security'
+                              ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
+                              : role === 'domain-manager'
+                                ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
+                                : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
 }
 
@@ -1112,6 +1145,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'security',
       'domain-manager',
       'reviewer',
+      'delivery-lead',
+      'design-director',
+      'growth-director',
+      'revenue-ops',
+      'site-factory',
     ]);
     const validStatuses = new Set(['accepted_research', 'escalate_owner', 'declined']);
     if (!String(item.proposal_id || '').trim()) return false;
@@ -1148,6 +1186,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     'security review': 'security',
     'security officer': 'security',
     'security/compliance': 'security',
+    'head of portfolio delivery': 'delivery-lead',
+    'design director': 'design-director',
+    'growth director': 'growth-director',
+    'revenue operations': 'revenue-ops',
+    'site factory': 'site-factory',
   };
   for (const item of plan.messages) {
     // Providers occasionally use the prompt's natural-language field names
@@ -1218,6 +1261,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     'security',
     'domain-manager',
     'researcher',
+    'delivery-lead',
+    'design-director',
+    'growth-director',
+    'revenue-ops',
+    'site-factory',
   ]);
   for (const item of plan.change_requests) {
     const raw = String(item?.requested_by || item?.actor || '')
@@ -1311,6 +1359,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'principal-engineer',
       'engineer',
       'owner',
+      'delivery-lead',
+      'design-director',
+      'growth-director',
+      'revenue-ops',
+      'site-factory',
     ]);
     const fallbackOwner = defaultActor && validOwners.has(defaultActor) ? defaultActor : 'ceo';
     item.owner = validOwners.has(normalizedOwner) ? normalizedOwner : fallbackOwner;
@@ -1373,6 +1426,11 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'reviewer',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
       ].includes(String(item.reviewed_by || '')) ||
       !['accepted_research', 'escalate_owner', 'declined'].includes(String(item.status || '')) ||
       String(item.decision_note || '').length > 2000
@@ -1501,6 +1559,11 @@ function validatePlan(plan) {
         'principal-engineer',
         'engineer',
         'owner',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
       ].includes(owner)
     )
       invalid.push(`owner=${owner}`);
@@ -1581,6 +1644,11 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'researcher',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
       ].includes(String(item.requested_by))
     )
       throw new Error('change request has an invalid requested_by role');

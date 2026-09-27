@@ -132,11 +132,16 @@ async function main() {
           'security',
           'domain-manager',
           'reviewer',
+          'delivery-lead',
+          'design-director',
+          'growth-director',
+          'revenue-ops',
+          'site-factory',
         ].includes(x)
     )
   )
     throw new Error(
-      'EXECUTIVE_PASSES must contain adaptive, product-manager-fleet, product-manager-sites, ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
+      'EXECUTIVE_PASSES must contain adaptive, product-manager-fleet, product-manager-sites, delivery-lead, design-director, growth-director, revenue-ops, site-factory, ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
     );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);

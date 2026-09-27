@@ -37,6 +37,37 @@ const FLEET_EXECUTIVE_ROLES = [
     kind: 'executive',
     description: 'Product manager for the managed websites portfolio',
   },
+  {
+    role: 'delivery-lead',
+    scope: 'fleet',
+    kind: 'executive',
+    description:
+      'Head of Portfolio Delivery responsible for turning approved intent into shipped work',
+  },
+  {
+    role: 'design-director',
+    scope: 'fleet',
+    kind: 'executive',
+    description: 'Design and conversion quality owner for the website portfolio',
+  },
+  {
+    role: 'growth-director',
+    scope: 'fleet',
+    kind: 'executive',
+    description: 'SEO and measurable growth owner for the website portfolio',
+  },
+  {
+    role: 'revenue-ops',
+    scope: 'fleet',
+    kind: 'executive',
+    description: 'Affiliate, attribution, and revenue operations owner',
+  },
+  {
+    role: 'site-factory',
+    scope: 'fleet',
+    kind: 'executive',
+    description: 'Repeatable new-site validation and launch readiness owner',
+  },
 ];
 
 // Keep exact cron role names for execution, but expose the shared editorial

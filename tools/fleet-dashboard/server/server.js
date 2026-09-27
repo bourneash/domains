@@ -87,6 +87,7 @@ const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
 const workflowBoard = require('./workflow-board');
 const executiveLiveness = require('./executive-liveness');
+const productivityProgram = require('./productivity-program');
 const {
   assignedRoleForType,
   assignedRoleForSite,
@@ -3547,6 +3548,65 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(status.ok ? 200 : 503).json({ health: status });
     } catch (e) {
       res.status(500).json({ error: e.message || String(e) });
+    }
+  });
+  app.get('/api/productivity/pilots', (req, res) =>
+    res.json({ pilots: events.listProductivityPilots(req.query) })
+  );
+  app.post('/api/productivity/pilots', (req, res) => {
+    try {
+      const pilot = events.createProductivityPilot({
+        ...(req.body || {}),
+        created_by: req.platformActor?.actor_id || 'owner',
+      });
+      const baseline = productivityProgram.snapshot(events, {
+        from: new Date(Date.parse(pilot.start_at) - 14 * 86400000).toISOString(),
+        to: pilot.start_at,
+        treatment_sites: pilot.treatment_sites,
+        control_sites: pilot.control_sites,
+      });
+      events.createProductivitySnapshot({
+        pilot_id: pilot.pilot_id,
+        phase: 'baseline',
+        snapshot: baseline,
+      });
+      const active = events.updateProductivityPilot(pilot.pilot_id, {
+        status: 'active',
+        baseline,
+      });
+      res.status(201).json({ pilot: active, baseline });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/productivity/pilots/:id', (req, res) => {
+    const pilot = events.getProductivityPilot(req.params.id);
+    if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
+    res.json({ pilot, snapshots: events.listProductivitySnapshots(pilot.pilot_id) });
+  });
+  app.post('/api/productivity/pilots/:id/evaluate', (req, res) => {
+    try {
+      const pilot = events.getProductivityPilot(req.params.id);
+      if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
+      const current = productivityProgram.snapshot(events, {
+        from: pilot.start_at,
+        to: (req.body || {}).to || new Date().toISOString(),
+        treatment_sites: pilot.treatment_sites,
+        control_sites: pilot.control_sites,
+      });
+      const evaluation = productivityProgram.evaluate(pilot.baseline, current);
+      events.createProductivitySnapshot({
+        pilot_id: pilot.pilot_id,
+        phase: 'evaluation',
+        snapshot: current,
+      });
+      const updated = events.updateProductivityPilot(pilot.pilot_id, {
+        status: evaluation.passed ? 'passed' : 'needs-adjustment',
+        evaluation,
+      });
+      res.json({ pilot: updated, current, evaluation });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
   // Operator-triggered executive runs are detached because a full pass can

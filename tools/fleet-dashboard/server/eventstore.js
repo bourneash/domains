@@ -264,6 +264,29 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_work_items_queue ON executive_work_items(status, priority, updated_at DESC);
     CREATE INDEX IF NOT EXISTS executive_work_items_owner ON executive_work_items(owner, status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS productivity_pilots (
+      pilot_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'baseline',
+      treatment_sites_json TEXT NOT NULL DEFAULT '[]',
+      control_sites_json TEXT NOT NULL DEFAULT '[]',
+      lanes_json TEXT NOT NULL DEFAULT '[]',
+      start_at TEXT NOT NULL,
+      end_at TEXT NOT NULL,
+      baseline_json TEXT NOT NULL DEFAULT '{}',
+      evaluation_json TEXT NOT NULL DEFAULT '{}',
+      created_by TEXT NOT NULL DEFAULT 'system',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS productivity_snapshots (
+      snapshot_id TEXT PRIMARY KEY,
+      pilot_id TEXT NOT NULL,
+      phase TEXT NOT NULL,
+      snapshot_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS productivity_snapshots_pilot ON productivity_snapshots(pilot_id, created_at DESC);
     CREATE TABLE IF NOT EXISTS executive_knowledge_items (
       knowledge_id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -1915,6 +1938,125 @@ function open(root, { file } = {}) {
       .map(decodeExecutiveAction);
   }
 
+  function decodeProductivityPilot(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      treatment_sites: safeJson(row.treatment_sites_json),
+      control_sites: safeJson(row.control_sites_json),
+      lanes: safeJson(row.lanes_json),
+      baseline: safeJson(row.baseline_json),
+      evaluation: safeJson(row.evaluation_json),
+    };
+  }
+
+  function createProductivityPilot(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const pilotId = input.pilot_id || crypto.randomUUID();
+    const treatment = [
+      ...new Set(
+        (input.treatment_sites || []).map(site => String(site).trim().toLowerCase()).filter(Boolean)
+      ),
+    ];
+    const control = [
+      ...new Set(
+        (input.control_sites || []).map(site => String(site).trim().toLowerCase()).filter(Boolean)
+      ),
+    ];
+    if (!String(input.name || '').trim()) throw httpErr(400, 'pilot name is required');
+    if (!treatment.length || !control.length)
+      throw httpErr(400, 'pilot requires treatment and control sites');
+    if (treatment.some(site => control.includes(site)))
+      throw httpErr(400, 'pilot cohorts must not overlap');
+    const startAt = input.start_at || now;
+    const endAt = input.end_at || new Date(Date.parse(startAt) + 14 * 86400000).toISOString();
+    db.prepare(
+      `INSERT INTO productivity_pilots
+      (pilot_id,name,status,treatment_sites_json,control_sites_json,lanes_json,start_at,end_at,baseline_json,evaluation_json,created_by,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      pilotId,
+      String(input.name).trim(),
+      String(input.status || 'baseline'),
+      JSON.stringify(treatment),
+      JSON.stringify(control),
+      JSON.stringify(input.lanes || ['finish-sites', 'growth-revenue', 'site-factory']),
+      startAt,
+      endAt,
+      JSON.stringify(input.baseline || {}),
+      JSON.stringify(input.evaluation || {}),
+      String(input.created_by || 'system'),
+      now,
+      now
+    );
+    return getProductivityPilot(pilotId);
+  }
+
+  function getProductivityPilot(id) {
+    return decodeProductivityPilot(
+      db.prepare('SELECT * FROM productivity_pilots WHERE pilot_id=?').get(String(id))
+    );
+  }
+
+  function listProductivityPilots({ status, limit = 50 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 50, 200));
+    const rows = status
+      ? db
+          .prepare(
+            'SELECT * FROM productivity_pilots WHERE status=? ORDER BY created_at DESC LIMIT ?'
+          )
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM productivity_pilots ORDER BY created_at DESC LIMIT ?').all(n);
+    return rows.map(decodeProductivityPilot);
+  }
+
+  function updateProductivityPilot(id, patch = {}) {
+    const current = getProductivityPilot(id);
+    if (!current) throw httpErr(404, 'productivity pilot not found');
+    const next = {
+      ...current,
+      ...patch,
+      pilot_id: current.pilot_id,
+      updated_at: new Date().toISOString(),
+    };
+    db.prepare(
+      `UPDATE productivity_pilots SET status=?,baseline_json=?,evaluation_json=?,updated_at=? WHERE pilot_id=?`
+    ).run(
+      String(next.status || current.status),
+      JSON.stringify(next.baseline || {}),
+      JSON.stringify(next.evaluation || {}),
+      next.updated_at,
+      current.pilot_id
+    );
+    return getProductivityPilot(current.pilot_id);
+  }
+
+  function createProductivitySnapshot(input = {}) {
+    const pilot = getProductivityPilot(input.pilot_id);
+    if (!pilot) throw httpErr(404, 'productivity pilot not found');
+    const row = {
+      snapshot_id: input.snapshot_id || crypto.randomUUID(),
+      pilot_id: pilot.pilot_id,
+      phase: String(input.phase || 'current'),
+      snapshot: input.snapshot && typeof input.snapshot === 'object' ? input.snapshot : {},
+      created_at: input.created_at || new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO productivity_snapshots (snapshot_id,pilot_id,phase,snapshot_json,created_at) VALUES (?,?,?,?,?)'
+    ).run(row.snapshot_id, row.pilot_id, row.phase, JSON.stringify(row.snapshot), row.created_at);
+    return row;
+  }
+
+  function listProductivitySnapshots(pilotId, { limit = 20 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 20, 100));
+    return db
+      .prepare(
+        'SELECT * FROM productivity_snapshots WHERE pilot_id=? ORDER BY created_at DESC LIMIT ?'
+      )
+      .all(String(pilotId), n)
+      .map(row => ({ ...row, snapshot: safeJson(row.snapshot_json) }));
+  }
+
   function getExecutiveAction(id) {
     const row = db.prepare('SELECT * FROM executive_actions WHERE action_id = ?').get(String(id));
     return row ? decodeExecutiveAction(row) : null;
@@ -1992,6 +2134,11 @@ function open(root, { file } = {}) {
     'principal-engineer',
     'engineer',
     'owner',
+    'delivery-lead',
+    'design-director',
+    'growth-director',
+    'revenue-ops',
+    'site-factory',
   ]);
 
   function createOrganization(input = {}) {
@@ -5763,6 +5910,12 @@ function open(root, { file } = {}) {
     createExecutiveAction,
     listExecutiveActions,
     getExecutiveAction,
+    createProductivityPilot,
+    getProductivityPilot,
+    listProductivityPilots,
+    updateProductivityPilot,
+    createProductivitySnapshot,
+    listProductivitySnapshots,
     finishExecutiveAction,
     updateExecutiveAction,
     createExecutiveGoal,

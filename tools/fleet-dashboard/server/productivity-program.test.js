@@ -1,0 +1,80 @@
+'use strict';
+
+process.env.NODE_ENV = 'test';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const store = require('./eventstore');
+const productivity = require('./productivity-program');
+
+function fixture() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-productivity-'));
+  return store.open(root, { file: path.join(root, 'events.sqlite') });
+}
+
+test('productivity snapshots separate treatment and control output by lane', () => {
+  const db = fixture();
+  const now = new Date().toISOString();
+  db.createChangeRequest({
+    site: 'treatment.example',
+    title: 'Refresh conversion layout',
+    body: 'Ship the approved design CTA improvement with a preview and rollback.',
+    category: 'design',
+    assigned_role: 'engineer',
+    status: 'verified',
+    created_at: now,
+  });
+  db.createChangeRequest({
+    site: 'control.example',
+    title: 'SEO notes',
+    body: 'Existing baseline only',
+    category: 'seo',
+    assigned_role: 'seo-analyst',
+    status: 'queued',
+    created_at: now,
+  });
+  const result = productivity.snapshot(db, {
+    from: new Date(Date.now() - 60_000).toISOString(),
+    to: new Date(Date.now() + 60_000).toISOString(),
+    treatment_sites: ['treatment.example'],
+    control_sites: ['control.example'],
+  });
+  assert.equal(result.treatment.requests_completed, 1);
+  assert.equal(result.treatment.design_items, 1);
+  assert.equal(result.control.requests_completed, 0);
+  db.close();
+});
+
+test('pilot evaluation requires measurable treatment lift and guardrails', () => {
+  const baseline = {
+    treatment: { shipped_output: 0, requests_failed: 0 },
+    control: { shipped_output: 0 },
+  };
+  const passing = productivity.evaluate(baseline, {
+    treatment: {
+      shipped_output: 4,
+      output_per_site: 2,
+      requests_created: 4,
+      requests_completed: 4,
+      requests_failed: 0,
+    },
+    control: { shipped_output: 1, output_per_site: 0.5 },
+  });
+  assert.equal(passing.passed, true);
+  assert.equal(passing.guardrails.measurement_required, true);
+  const failing = productivity.evaluate(baseline, {
+    treatment: {
+      shipped_output: 1,
+      output_per_site: 0.5,
+      requests_created: 2,
+      requests_completed: 1,
+      requests_failed: 0,
+    },
+    control: { shipped_output: 2, output_per_site: 1 },
+  });
+  assert.equal(failing.passed, false);
+  assert.ok(failing.reasons.length >= 2);
+});
