@@ -4588,7 +4588,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.get('/api/agent-tools/check', (req, res) => {
     try {
-      res.json(events.canAgentUseTool(req.query.agent_id, req.query.tool_name));
+      res.json(
+        events.canAgentUseTool(req.query.agent_id, req.query.tool_name, {
+          site: req.query.site,
+          approved: req.query.approved === 'true',
+        })
+      );
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }

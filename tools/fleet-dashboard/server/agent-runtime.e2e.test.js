@@ -148,7 +148,17 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
       await request(
         server,
         'GET',
-        `/api/agent-tools/check?agent_id=${agent.agent_id}&tool_name=read%3Aintelligence`
+        `/api/agent-tools/check?agent_id=${agent.agent_id}&tool_name=read%3Aintelligence&site=example.com`
+      )
+    ).body.allowed,
+    false
+  );
+  assert.equal(
+    (
+      await request(
+        server,
+        'GET',
+        `/api/agent-tools/check?agent_id=${agent.agent_id}&tool_name=read%3Aintelligence&site=example.com&approved=true`
       )
     ).body.allowed,
     true

@@ -302,7 +302,20 @@ test('evaluations, tool grants, and workspaces are scoped and auditable', () => 
     tool_name: 'read:gsc',
     scope: { sites: ['example.com'] },
   });
-  assert.equal(store.canAgentUseTool(agent.agent_id, 'read:gsc').allowed, true);
+  assert.equal(
+    store.canAgentUseTool(agent.agent_id, 'read:gsc', { site: 'example.com' }).allowed,
+    false
+  );
+  assert.equal(
+    store.canAgentUseTool(agent.agent_id, 'read:gsc', { site: 'example.com', approved: true })
+      .allowed,
+    true
+  );
+  assert.equal(
+    store.canAgentUseTool(agent.agent_id, 'read:gsc', { site: 'other.example', approved: true })
+      .allowed,
+    false
+  );
   assert.equal(store.canAgentUseTool(agent.agent_id, 'write:deploy').allowed, false);
   const workspace = store.createAgentWorkspace({
     agent_id: agent.agent_id,

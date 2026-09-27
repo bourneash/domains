@@ -2802,11 +2802,24 @@ function open(root, { file } = {}) {
         approval_required: Boolean(row.approval_required),
       }));
   }
-  function canAgentUseTool(agentId, toolName) {
-    const agent = getAgent(agentId),
-      grant = getAgentToolGrant(agentId, toolName);
+  function canAgentUseTool(agentId, toolName, context = {}) {
+    const agent = getAgent(agentId);
+    const grant = getAgentToolGrant(agentId, toolName);
+    const scope = grant?.scope || {};
+    const sites = Array.isArray(scope.sites) ? scope.sites.map(String) : null;
+    const scopeAllowed = !sites || (context.site && sites.includes(String(context.site)));
+    const approvalAllowed = !grant?.approval_required || context.approved === true;
     return {
-      allowed: Boolean(agent && agent.status === 'active' && grant && grant.status === 'active'),
+      allowed: Boolean(
+        agent &&
+        agent.status === 'active' &&
+        grant &&
+        grant.status === 'active' &&
+        scopeAllowed &&
+        approvalAllowed
+      ),
+      requires_approval: Boolean(grant?.approval_required && context.approved !== true),
+      scope_allowed: Boolean(scopeAllowed),
       agent_status: agent?.status || 'missing',
       grant: grant || null,
     };
