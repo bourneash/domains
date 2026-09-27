@@ -73,6 +73,9 @@ const agentRuntime = require('../../executive/agent-runtime');
 const agentHeartbeat = require('../../executive/agent-heartbeat');
 const agentToolGateway = require('../../executive/agent-tool-gateway');
 const agentDispatcher = require('../../executive/agent-dispatcher');
+const runtimeProvider = require('../../executive/runtime-provider');
+const runtimePlugin = require('../../executive/runtime-plugin');
+const evalRunner = require('../../executive/eval-runner');
 const organizationPortability = require('../../executive/organization-portability');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
@@ -4577,14 +4580,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/platform/credentials', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          credential: events.createApiCredential({
-            ...(req.body || {}),
-            user_id: req.body?.user_id || req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        credential: events.createApiCredential({
+          ...(req.body || {}),
+          user_id: req.body?.user_id || req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4598,14 +4599,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/platform/invites', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          invite: events.createOrganizationInvite({
-            ...(req.body || {}),
-            invited_by: req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        invite: events.createOrganizationInvite({
+          ...(req.body || {}),
+          invited_by: req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4642,14 +4641,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   );
   app.post('/api/agent-issues', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          issue: events.createAgentIssue({
-            ...(req.body || {}),
-            created_by: req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        issue: events.createAgentIssue({
+          ...(req.body || {}),
+          created_by: req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4676,14 +4673,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/agent-issues/:id/dependencies', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          dependency: events.addAgentIssueDependency({
-            ...(req.body || {}),
-            issue_id: req.params.id,
-          }),
-        });
+      res.status(201).json({
+        dependency: events.addAgentIssueDependency({
+          ...(req.body || {}),
+          issue_id: req.params.id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4693,14 +4688,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   );
   app.post('/api/execution-policies', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          policy: events.upsertExecutionPolicy({
-            ...(req.body || {}),
-            created_by: req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        policy: events.upsertExecutionPolicy({
+          ...(req.body || {}),
+          created_by: req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4710,14 +4703,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   );
   app.post('/api/governance-decisions', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          decision: events.createGovernanceDecision({
-            ...(req.body || {}),
-            actor_id: req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        decision: events.createGovernanceDecision({
+          ...(req.body || {}),
+          actor_id: req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4725,14 +4716,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/eval-suites', (req, res) => res.json({ suites: events.listEvalSuites(req.query) }));
   app.post('/api/eval-suites', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          suite: events.createEvalSuite({
-            ...(req.body || {}),
-            created_by: req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        suite: events.createEvalSuite({
+          ...(req.body || {}),
+          created_by: req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4745,12 +4734,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.post('/api/eval-runs/execute', async (req, res) => {
+    try {
+      res.status(201).json({ run: await evalRunner.run(events, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/object-blobs', (req, res) =>
     res.json({ blobs: events.listObjectBlobs(req.query) })
   );
   app.post('/api/object-blobs', (req, res) => {
     try {
       res.status(201).json({ blob: events.createObjectBlob(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/object-blobs/:id/content', (req, res) => {
+    try {
+      const blob = events.getObjectBlob(req.params.id);
+      if (!blob || !blob.storage_uri.startsWith('file://'))
+        return res.status(404).json({ error: 'local object content not found' });
+      const file = new URL(blob.storage_uri).pathname;
+      if (!fs.existsSync(file)) return res.status(404).json({ error: 'object content missing' });
+      res
+        .type(blob.content_type)
+        .set('Content-Length', String(blob.byte_size))
+        .send(fs.readFileSync(file));
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4769,15 +4780,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   );
   app.post('/api/agent-issues/:id/comments', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          comment: events.createAgentIssueComment({
-            ...(req.body || {}),
-            issue_id: req.params.id,
-            actor_id: req.platformActor.actor_id,
-          }),
-        });
+      res.status(201).json({
+        comment: events.createAgentIssueComment({
+          ...(req.body || {}),
+          issue_id: req.params.id,
+          actor_id: req.platformActor.actor_id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4792,14 +4801,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   );
   app.post('/api/agent-issues/:id/attachments', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          attachment: events.createAgentIssueAttachment({
-            ...(req.body || {}),
-            issue_id: req.params.id,
-          }),
-        });
+      res.status(201).json({
+        attachment: events.createAgentIssueAttachment({
+          ...(req.body || {}),
+          issue_id: req.params.id,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -5252,21 +5259,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           },
         });
       }
-      return res
-        .status(400)
-        .json({
-          jsonrpc: '2.0',
-          id: message.id ?? null,
-          error: { code: -32601, message: 'method not found' },
-        });
+      return res.status(400).json({
+        jsonrpc: '2.0',
+        id: message.id ?? null,
+        error: { code: -32601, message: 'method not found' },
+      });
     } catch (e) {
-      res
-        .status(e.httpStatus || 400)
-        .json({
-          jsonrpc: '2.0',
-          id: req.body?.id ?? null,
-          error: { code: -32000, message: e.message },
-        });
+      res.status(e.httpStatus || 400).json({
+        jsonrpc: '2.0',
+        id: req.body?.id ?? null,
+        error: { code: -32000, message: e.message },
+      });
     }
   });
   app.get('/api/runtime-plugins', (req, res) => {
@@ -5301,6 +5304,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const job = events.claimRuntimePluginJob(req.body?.worker_id);
       res.status(job ? 200 : 204).json(job ? { job } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs/process', async (req, res) => {
+    try {
+      res.json(await runtimePlugin.processOne(events, { workerId: req.body?.worker_id }));
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -5387,9 +5397,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
-  app.post('/api/agent-workspaces/:id/close', (req, res) => {
+  app.post('/api/agent-workspaces/provision', async (req, res) => {
     try {
-      const workspace = events.closeAgentWorkspace(req.params.id);
+      res.status(201).json({ workspace: await runtimeProvider.provision(events, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-workspaces/:id/close', async (req, res) => {
+    try {
+      const workspace = await runtimeProvider.close(events, req.params.id);
       if (!workspace) return res.status(404).json({ error: 'active workspace not found' });
       res.json({ workspace });
     } catch (e) {
