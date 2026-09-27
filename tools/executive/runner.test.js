@@ -369,6 +369,31 @@ test('does not reissue a delivered candidate with the same action key or title',
   );
 });
 
+test('supports over-sampling candidates before capacity filtering', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-09-23T07:00:00.000Z',
+      decision_support: {
+        priorities: {
+          scorecards: Array.from({ length: 4 }, (_, index) => ({
+            site: `site-${index}.example.com`,
+            lifecycle: 'live',
+            opportunity_score: 100 - index,
+          })),
+        },
+      },
+    },
+    Array.from({ length: 4 }, (_, index) => `site-${index}.example.com`),
+    { keys: new Set(), titles: new Set() },
+    4
+  );
+  assert.equal(candidates.length, 4);
+  assert.deepEqual(
+    candidates.map(row => row.site),
+    ['site-0.example.com', 'site-1.example.com', 'site-2.example.com', 'site-3.example.com']
+  );
+});
+
 test('does not create a duplicate candidate while the failed request is retryable', () => {
   const candidates = runner.actionCandidates(
     {

@@ -133,7 +133,12 @@ function completedActionIndex(store) {
   return { keys, titles, failed };
 }
 
-function actionCandidates(intelligence, sites, completed = { keys: new Set(), titles: new Set() }) {
+function actionCandidates(
+  intelligence,
+  sites,
+  completed = { keys: new Set(), titles: new Set() },
+  limit = 12
+) {
   const allowed = new Set(sites);
   const now = Date.parse(intelligence?.generated_at || '') || Date.now();
   const seoActions = Array.isArray(intelligence?.decision_support?.seo?.actions)
@@ -216,7 +221,7 @@ function actionCandidates(intelligence, sites, completed = { keys: new Set(), ti
       (a, b) =>
         Number(b.score || 0) - Number(a.score || 0) || String(a.site).localeCompare(String(b.site))
     )
-    .slice(0, 12);
+    .slice(0, Math.max(1, Number(limit) || 12));
 }
 
 function readSiteDescriptions(root = ROOT) {
@@ -436,7 +441,8 @@ async function buildBrief(store, root = ROOT) {
   const allActionCandidates = actionCandidates(
     intel.intelligence,
     sites,
-    completedActionIndex(store)
+    completedActionIndex(store),
+    100
   );
   // A candidate is only actionable when its site has capacity. The previous
   // brief exposed already-queued or measuring sites as fresh candidates, then
