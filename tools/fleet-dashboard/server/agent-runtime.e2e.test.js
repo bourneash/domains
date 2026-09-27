@@ -108,6 +108,12 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
     ).body.run.status,
     'succeeded'
   );
+  assert.equal(
+    (
+      await request(server, 'GET', `/api/agent-evals?run_id=${run.body.run.run_id}`)
+    ).body.evaluations.some(row => row.dimension === 'completion'),
+    true
+  );
 
   const artifact = await request(server, 'POST', '/api/agent-artifacts', {
     run_id: run.body.run.run_id,
@@ -163,6 +169,19 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
     ).body.allowed,
     true
   );
+  const safeGrant = await request(server, 'POST', '/api/agent-tools', {
+    agent_id: agent.agent_id,
+    tool_name: 'agents.list',
+    approval_required: false,
+  });
+  assert.equal(safeGrant.status, 201);
+  const invoked = await request(server, 'POST', '/api/agent-tools/invoke', {
+    agent_id: agent.agent_id,
+    tool_name: 'agents.list',
+    args: { limit: 10 },
+  });
+  assert.equal(invoked.status, 200);
+  assert.ok(Array.isArray(invoked.body.result.agents));
   const workspace = await request(server, 'POST', '/api/agent-workspaces', {
     agent_id: agent.agent_id,
     path: '/tmp/runtime-e2e-workspace',

@@ -21,11 +21,36 @@ function tick(store, { now = new Date(), dueLimit = 100 } = {}) {
   for (const routine of due) {
     const agent = store.getAgent(routine.agent_id);
     if (!agent || agent.status !== 'active') continue;
+    const scheduledAt = now.toISOString();
+    const idempotencyKey = `routine:${routine.routine_id}:${scheduledAt}`;
+    const started = runtime.beginRun(store, {
+      agent_id: agent.agent_id,
+      goal_id: routine.routine_id,
+      idempotency_key: idempotencyKey,
+      result: { trigger: 'heartbeat', routine_id: routine.routine_id, routine: routine.name },
+    });
+    // A routine run is not allowed to disappear silently. The watchdog is
+    // armed before dispatch is reported to the caller.
+    if (!started.reused) {
+      store.createAgentWatchdog({
+        run_id: started.run.run_id,
+        expected_outcome: `routine ${routine.name} reaches a terminal state`,
+        timeout_seconds: 900,
+        recovery_action: 'escalate',
+      });
+    }
     store.touchAgentRoutine(routine.routine_id, {
-      last_run_at: now.toISOString(),
+      last_run_at: scheduledAt,
       next_due_at: nextDue(routine, now),
     });
-    dispatches.push({ routine, agent, trigger: 'heartbeat', scheduled_at: now.toISOString() });
+    dispatches.push({
+      routine,
+      agent,
+      run: started.run,
+      reused: started.reused,
+      trigger: 'heartbeat',
+      scheduled_at: scheduledAt,
+    });
   }
   store.record({
     event_type: 'agent.heartbeat.tick',

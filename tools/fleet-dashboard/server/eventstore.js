@@ -2876,7 +2876,14 @@ function open(root, { file } = {}) {
   function createAgentWorkspace(input = {}) {
     if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
     const workspacePath = String(input.path || '').trim();
-    if (!workspacePath || workspacePath.includes('..'))
+    if (
+      !workspacePath ||
+      workspacePath.includes('..') ||
+      /[\u0000-\u001f\u007f]/.test(workspacePath) ||
+      !/^(\/tmp|\/workspace|\/home\/jesse\/projects\/domains\/tools\/executive\/data\/workspaces)(\/|$)/.test(
+        workspacePath
+      )
+    )
       throw httpErr(400, 'invalid workspace path');
     const now = new Date().toISOString();
     const row = {

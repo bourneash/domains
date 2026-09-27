@@ -13425,6 +13425,10 @@ function mountExecutiveWorkspaceNav(active) {
         'Executive settings',
         'Manage the strategy contract, recurring cadence, and transcript retention policy.',
       ],
+      runtime: [
+        'Agent runtime',
+        'Operate agent identity, runs, budgets, watchdogs, evaluations, grants, and workspaces.',
+      ],
     }[active] || null;
   if (copy) {
     const title = shell.querySelector('.page-title');
@@ -13440,6 +13444,7 @@ function mountExecutiveWorkspaceNav(active) {
     ['work', 'Work', 'Requests & queues'],
     ['decisions', 'Decisions', 'Approvals & history'],
     ['signals', 'Signals', 'Fleet telemetry'],
+    ['runtime', 'Agent runtime', 'Agents, budgets & safeguards'],
     ['setup', 'Settings', 'Strategy & retention'],
   ];
   const nav = document.createElement('nav');
@@ -13585,6 +13590,119 @@ function applyExecutiveWorkspace(page) {
     hide(decisions);
     show(performance);
     show(secondary);
+  }
+}
+
+async function renderAgentRuntime() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading agent runtime…</div>';
+  try {
+    const [agents, runs, budgets, routines, watchdogs, evals, grants, workspaces] =
+      await Promise.all([
+        api('GET', '/api/agents?limit=100'),
+        api('GET', '/api/agent-runs?limit=100'),
+        api('GET', '/api/budgets?limit=100'),
+        api('GET', '/api/agent-routines?limit=100'),
+        api('GET', '/api/agent-watchdogs?limit=100'),
+        api('GET', '/api/agent-evals?limit=100'),
+        api('GET', '/api/agent-tools?limit=100'),
+        api('GET', '/api/agent-workspaces?limit=100'),
+      ]);
+    const agentRows = agents.agents || [];
+    const runRows = runs.runs || [];
+    const budgetRows = budgets.budgets || [];
+    const routineRows = routines.routines || [];
+    const watchdogRows = watchdogs.watchdogs || [];
+    const evalRows = evals.evaluations || [];
+    const grantRows = grants.grants || [];
+    const workspaceRows = workspaces.workspaces || [];
+    const activeRuns = runRows.filter(row => ['queued', 'running'].includes(row.status)).length;
+    const fired = watchdogRows.filter(row => row.status === 'fired').length;
+    const spent = budgetRows.reduce((sum, row) => sum + Number(row.spent_usd || 0), 0);
+    const limits = budgetRows.reduce((sum, row) => sum + Number(row.limit_usd || 0), 0);
+    const stat = (value, label, tone = '') =>
+      `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
+    const agentName = id => agentRows.find(row => row.agent_id === id)?.name || id || '—';
+    const statusBadge = status =>
+      `<span class="badge ${status === 'active' || status === 'succeeded' || status === 'satisfied' ? 'b-green' : status === 'failed' || status === 'fired' || status === 'paused' ? 'b-red' : 'b-yellow'}">${esc(status || '—')}</span>`;
+    const rows = agentRows
+      .map(agent => {
+        const agentRuns = runRows.filter(run => run.agent_id === agent.agent_id);
+        const agentEvals = evalRows.filter(row => row.agent_id === agent.agent_id);
+        const average = agentEvals.length
+          ? Math.round(
+              agentEvals.reduce((sum, row) => sum + Number(row.score || 0), 0) / agentEvals.length
+            )
+          : '—';
+        return `<tr><td><b>${esc(agent.name)}</b><div class="muted">${esc(agent.role)} · ${esc(agent.adapter || 'adapter')}</div></td><td>${statusBadge(agent.status)}</td><td>${agentRuns.length} runs<div class="muted">${agentEvals.length ? `${average}/100 eval` : 'not evaluated'}</div></td><td><button class="btn sm agent-runtime-toggle" data-agent-id="${esc(agent.agent_id)}" data-status="${esc(agent.status)}">${agent.status === 'paused' ? 'Resume' : 'Pause'}</button></td></tr>`;
+      })
+      .join('');
+    const runTable = runRows
+      .slice(0, 30)
+      .map(
+        run =>
+          `<tr><td><b>${esc(agentName(run.agent_id))}</b><div class="muted">${esc(run.run_id.slice(0, 12))} · ${esc(fmtDate(run.started_at))}</div></td><td>${statusBadge(run.status)}</td><td>${esc(run.total_tokens || 0)} tokens<div class="muted">$${Number(run.cost_usd || 0).toFixed(4)}</div></td><td>${esc(run.error || run.result?.routine || '—')}</td></tr>`
+      )
+      .join('');
+    const budgetTable = budgetRows
+      .map(
+        row =>
+          `<tr><td>${esc(row.scope_type)}<div class="muted">${esc(row.scope_id)}</div></td><td>$${Number(row.spent_usd || 0).toFixed(2)} / $${Number(row.limit_usd || 0).toFixed(2)}</td><td>${statusBadge(row.status)} ${row.hard_stop ? '<span class="muted">hard stop</span>' : ''}</td></tr>`
+      )
+      .join('');
+    const routineTable = routineRows
+      .map(
+        row =>
+          `<tr><td><b>${esc(row.name)}</b><div class="muted">${esc(agentName(row.agent_id))} · ${esc(row.trigger_type)}</div></td><td>${statusBadge(row.status)}</td><td>${esc(fmtDate(row.next_due_at))}</td></tr>`
+      )
+      .join('');
+    app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell"><header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE / RUNTIME</div><h2 class="page-title">Agent runtime</h2><p class="muted">One operator surface for identity, resumable runs, atomic budgets, heartbeats, watchdogs, evaluations, grants, and isolated workspaces.</p></div><div class="task-toolbar"><button class="btn" id="agent-runtime-refresh">↻ Refresh</button><button class="btn primary" id="agent-runtime-heartbeat">Run heartbeat</button><button class="btn" id="agent-runtime-audit">Audit watchdogs</button></div></header><section class="ex-kpis">${stat(agentRows.filter(row => row.status === 'active').length, 'active agents', 'good')}${stat(activeRuns, 'active runs', activeRuns ? 'warn' : '')}${stat(`$${spent.toFixed(2)} / $${limits.toFixed(2)}`, 'reserved / limits')}${stat(fired, 'fired watchdogs', fired ? 'warn' : 'good')}${stat(`${grantRows.length} / ${workspaceRows.length}`, 'grants / workspaces')}</section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">AGENT REGISTRY</div><h3>Identity and operating state</h3></div><span class="muted">${agentRows.length} registered agents</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent</th><th>Status</th><th>Runs / evaluation</th><th>Operator action</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No agents registered.</td></tr>'}</tbody></table></div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RESUMABLE RUNS</div><h3>Execution history</h3></div><span class="muted">${runRows.length} recorded</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent / run</th><th>Status</th><th>Usage</th><th>Result</th></tr></thead><tbody>${runTable || '<tr><td colspan="4" class="muted">No agent runs recorded.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HEARTBEAT QUEUE</div><h3>Routines</h3></div><span class="muted">${routineRows.length} configured</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Status</th><th>Next due</th></tr></thead><tbody>${routineTable || '<tr><td colspan="3" class="muted">No routines configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HARD STOPS</div><h3>Budget policies</h3></div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Scope</th><th>Spend / limit</th><th>Policy</th></tr></thead><tbody>${budgetTable || '<tr><td colspan="3" class="muted">No budgets configured.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RECOVERY</div><h3>Watchdogs</h3></div><span class="badge ${fired ? 'b-red' : 'b-green'}">${fired ? `${fired} fired` : 'clear'}</span></div><p class="muted">${watchdogRows.length} watchdogs are persisted against active and completed runs. Fired watchdogs require operator review.</p></section></aside></section></div>`;
+    wireCrumbs();
+    $('#agent-runtime-refresh').onclick = () => softRender();
+    $('#agent-runtime-heartbeat').onclick = async event => {
+      event.currentTarget.disabled = true;
+      try {
+        await api('POST', '/api/agent-heartbeat/tick', {});
+        toast('Heartbeat dispatched');
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        event.currentTarget.disabled = false;
+      }
+    };
+    $('#agent-runtime-audit').onclick = async event => {
+      event.currentTarget.disabled = true;
+      try {
+        const result = await api('POST', '/api/agent-watchdogs/audit', {});
+        toast(`${result.fired?.length || 0} watchdogs fired`);
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        event.currentTarget.disabled = false;
+      }
+    };
+    $$('.agent-runtime-toggle').forEach(button => {
+      button.onclick = async () => {
+        button.disabled = true;
+        const paused = button.dataset.status !== 'paused';
+        try {
+          await api('PATCH', `/api/agents/${encodeURIComponent(button.dataset.agentId)}`, {
+            status: paused ? 'paused' : 'active',
+            pause_reason: paused ? 'operator pause from runtime console' : null,
+          });
+          toast(paused ? 'Agent paused' : 'Agent resumed');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        } finally {
+          button.disabled = false;
+        }
+      };
+    });
+  } catch (e) {
+    renderViewError(app, `Agent runtime failed: ${e.message}`);
   }
 }
 
@@ -13748,6 +13866,7 @@ async function renderExecutiveSetup() {
 }
 
 async function renderExecutive() {
+  if (STATE.agentPage === 'runtime') return renderAgentRuntime();
   if (STATE.agentPage === 'setup') return renderExecutiveSetup();
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';

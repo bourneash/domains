@@ -121,7 +121,9 @@ function finish(
 ) {
   if (!['succeeded', 'failed', 'cancelled'].includes(status))
     throw new Error('finish status must be terminal');
-  return store.updateAgentRun(runId, {
+  const current = store.getAgentRun(runId);
+  if (!current) throw new Error('agent run not found');
+  const finished = store.updateAgentRun(runId, {
     status,
     result,
     error,
@@ -130,6 +132,24 @@ function finish(
     output_tokens,
     total_tokens: Number(input_tokens) + Number(output_tokens),
   });
+  // Every completed run gets a small, machine-generated outcome signal. Human
+  // or model-quality evaluations can be added separately without making the
+  // runtime depend on an evaluator being online.
+  if (!store.listAgentEvals({ run_id: runId, dimension: 'completion', limit: 1 }).length) {
+    store.createAgentEval({
+      agent_id: current.agent_id,
+      run_id: runId,
+      evaluator: 'system',
+      dimension: 'completion',
+      score: status === 'succeeded' ? 100 : 0,
+      feedback:
+        status === 'succeeded'
+          ? 'Run reached a terminal success state.'
+          : error || `Run ${status}.`,
+      evidence: { status, cost_usd: Number(cost_usd) || 0 },
+    });
+  }
+  return finished;
 }
 
 function attachArtifact(store, run, artifact) {

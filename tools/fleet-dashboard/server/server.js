@@ -71,6 +71,7 @@ const executiveScorecard = require('./executive-scorecard');
 const executiveCalendar = require('./executive-calendar');
 const agentRuntime = require('../../executive/agent-runtime');
 const agentHeartbeat = require('../../executive/agent-heartbeat');
+const agentToolGateway = require('../../executive/agent-tool-gateway');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
 const revops = require('./revops');
@@ -4461,7 +4462,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.patch('/api/agent-runs/:id', (req, res) => {
     try {
-      res.json({ run: events.updateAgentRun(req.params.id, req.body || {}) });
+      const body = req.body || {};
+      if (['succeeded', 'failed', 'cancelled'].includes(body.status)) {
+        const current = events.getAgentRun(req.params.id);
+        if (!current) return res.status(404).json({ error: 'agent run not found' });
+        return res.json({
+          run: agentRuntime.finish(events, req.params.id, {
+            ...body,
+            cost_usd: body.cost_usd ?? current.cost_usd,
+            input_tokens: body.input_tokens ?? current.input_tokens,
+            output_tokens: body.output_tokens ?? current.output_tokens,
+          }),
+        });
+      }
+      res.json({ run: events.updateAgentRun(req.params.id, body) });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4596,6 +4610,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       );
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-tools/invoke', (req, res) => {
+    try {
+      res.json(agentToolGateway.invoke(events, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 403).json({ error: e.message });
     }
   });
   app.get('/api/agent-workspaces', (req, res) => {

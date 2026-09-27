@@ -258,6 +258,15 @@ the non-secret usage ledger as an artifact. Runtime APIs are exposed under
 `/api/agent-routines`, `/api/agent-watchdogs`, `/api/agent-evals`,
 `/api/agent-tools`, and `/api/agent-workspaces`.
 
+The runtime console also exposes the allowlisted tool gateway at
+`POST /api/agent-tools/invoke`. Grants are checked before dispatch, operator
+approval remains required by default, arguments are bounded, and each call is
+recorded as an `agent.tool.invoke` event. The heartbeat converts due routines
+into idempotent agent runs and arms a watchdog before reporting dispatch; it
+does not execute arbitrary commands. Runtime workspaces are metadata-only
+records constrained to approved workspace roots, and must still use the
+existing isolated development/release pipeline for file changes or deploys.
+
 These runtime records do not bypass the fleet proposal, Legal/Security, change
 queue, GitHub → Cloudflare Builds, or measurement gates. They provide identity,
 execution, recovery, cost, and evidence contracts underneath those gates.
