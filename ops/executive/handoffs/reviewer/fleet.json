@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T14:48:33.766Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T15:03:39.472Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved containment-only execution. Reject all new production work, requeues, experiments, telemetry, dependencies, deployments, spending, monetization expansion, external outreach, and unsupported financial claims. Continue only existing failure repair-or-close, validation, rollback, deduplication, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Preserve deferred SEO/performance opportunities and private launch gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner message: Revenue evidence covers one period only and is not site-attributable; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Material concerns are 47 open failure follow-ups, 28 improvements awaiting measurement, incomplete operations/security evidence, and conflicting cost records. Keep launch gates and parked-site dispositions unchanged pending evidence and required human review.",
+        "summary": "Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence. Keep private launch gates and external outreach unchanged. Owner: authorize outreach only after human-counsel review; otherwise keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }
