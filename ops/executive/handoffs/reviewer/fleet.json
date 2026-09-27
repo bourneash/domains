@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:03:31.439Z",
+  "generated_at": "2026-09-27T00:18:57.615Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims. Keep the gated product private.",
+        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, dependencies, monetization expansion, and unsupported financial or causal claims. Keep the gated product private; keep external outreach unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner message: Material concerns are incomplete site attribution, conflicting AI-cost records, open failure follow-ups, measurement backlog, and incomplete legal/security gates. Available revenue is one aggregate day with $4.92 commission and $0 site-attributed commission; ROI, margin, causal lift, and budget exposure remain unknown. Keep external permission outreach unsent unless human counsel reviews it and the owner authorizes it.",
+        "summary": "Material concerns: revenue evidence is one aggregate day with $4.92 unattributed commission and $0 site-attributed commission; costs and telemetry are misaligned or conflicting, so ROI, margin, causal lift, and budget exposure remain unknown. Open failure follow-ups, measurement backlog, and legal/security gates block new production work. Keep the prepared permission request unsent unless human counsel reviews it and you explicitly authorize outreach.",
         "requested_action": null,
         "proposal_id": null
       }

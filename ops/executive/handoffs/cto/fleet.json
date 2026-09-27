@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:03:31.438Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T00:18:57.615Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create or queue new production work, requeue failures, add telemetry or dependencies, change configuration, spend, expand monetization, conduct external outreach, or adopt external components. Preserve failed-work isolation until lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are documented. Keep the gated product private pending rights, privacy, security, accuracy, attribution, measurement, and owner gates. Preserve unknown financial, causal, and operational outcomes.",
+        "summary": "CTO review: approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create or queue new production work, requeue failures, add telemetry, change configuration, add dependencies, spend, expand monetization, conduct external outreach, or adopt external components. Preserve deferred opportunities until queue capacity, isolation, validation, rollback, security, and owner gates are clear. Keep unsupported revenue, causal, performance, and operational outcomes unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the accessible CTA, content-transformation, editorial-diagram, attribution, and performance concepts as deferred backlog only. They are not implementation-ready because the authoritative candidate list is empty, existing repair and measurement capacity is occupied, and required isolation, validation, rollback, security, license, and owner gates are incomplete. Do not create proposals, experiments, research requests, dependencies, or change requests for them this cycle.",
+        "summary": "Continue existing financial evidence reconciliation using available telemetry only. Do not assign aggregate commission to any site or claim ROI, margin, payback, cost-to-learn, budget headroom, or causal lift. Reconcile conflicting AI-usage records and record only already-available period-aligned costs; unavailable costs and limits remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing financial evidence reconciliation using available telemetry only. Do not assign aggregate commission to any site, invent telemetry, or claim ROI, margin, payback, cost-to-learn, budget headroom, or causal lift. Reconcile conflicting AI-usage records and assemble the existing period-aligned cost ledger before final financial reporting.",
+        "summary": "Keep the gated product private. Continue the existing consolidated read-only evidence bundle and field-level rights matrix; keep external outreach, public exposure, alert expansion, deployment, configuration or credential changes, rights-dependent monetization, and spend blocked pending human-counsel review, owner authorization, and completion of legal, security, accuracy, attribution, and measurement gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve failed-work isolation. Continue repair-or-close review without requeueing failures or creating replacement work. Any future resumption requires canonical lineage, ownership, root cause, smallest isolated repair, focused deterministic validation, rollback evidence, deduplication, and explicit requeue-or-close disposition.",
         "requested_action": null,
         "proposal_id": null
       }

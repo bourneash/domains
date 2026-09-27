@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:03:31.437Z",
+  "generated_at": "2026-09-27T00:18:57.614Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and create no new site proposals or change requests this cycle. Evidence: 197 approved proposals lack execution requests, 46 failure follow-ups remain open, 29 deployed improvements await measurement, only 1 outcome is proven, and the authoritative candidate list is empty. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded compliance/security evidence work. Retain deferred site-product opportunities only where existing evidence supports them, including accessible CTA and information-hierarchy improvements, evidenced performance remediation, and clearer affiliate attribution; do not claim revenue or causal lift. Keep implementation within the existing approval and engineer queue.",
+        "summary": "Recommendation: retain containment-only execution for managed sites. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new proposals, experiments, change requests, telemetry, spend, dependencies, or monetization expansion this cycle. Preserve deferred site opportunities until queue capacity, validation, rollback, security, and owner gates are clear. Keep all unsupported revenue, causal, and performance claims as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

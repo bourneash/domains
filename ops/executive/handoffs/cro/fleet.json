@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:03:31.438Z",
+  "generated_at": "2026-09-27T00:18:57.614Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and retain no new proposals, experiments, change requests, research requests, or GitHub adoptions this cycle. Evidence: the authoritative candidate list is empty; 197 approved proposals lack execution requests; 46 failure follow-ups remain open; 29 deployed improvements await measurement; only 1 outcome is proven; and available revenue is $4.92 aggregate with $0 site-attributed commission. Deferred CEO/CTO opportunities remain: a manually authored accessible CTA prototype informed by shadcn/ui; a bounded MarkItDown-assisted content transformation prototype; and Mermaid-based static editorial diagrams. Each requires isolated validation, license/security review, existing telemetry only, a reversible rollback, and owner-approved implementation after containment clears. No revenue, causal lift, cost-to-learn, or adoption benefit is established.",
+        "summary": "Recommendation: retain containment-only execution for managed sites. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new proposals, experiments, change requests, telemetry, spend, dependencies, or monetization expansion this cycle. Preserve deferred site opportunities until queue capacity, validation, rollback, security, and owner gates are clear. Keep unsupported revenue, causal, and performance claims unknown.",
         "requested_action": null,
         "proposal_id": null
       }
