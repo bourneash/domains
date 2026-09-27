@@ -88,6 +88,22 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /wb-thread-toggle/);
 });
 
+test('executive conversation workspace keeps owner messaging visible without an inbox thread', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf("} else if (page === 'conversation') {");
+  const end = app.indexOf("} else if (page === 'runs')", start);
+  assert.ok(start >= 0 && end > start);
+  const workspace = app.slice(start, end);
+  assert.match(app, /id="ex-compose"/);
+  assert.match(app, /id="ex-message" class="cm-input" rows="5"/);
+  assert.match(app, /Start a durable request here/);
+  assert.match(workspace, /const split = requests\?\.querySelector\('\.ex-request-split'\)/);
+  assert.match(workspace, /requests\.insertBefore\(compose, split\)/);
+  assert.match(app, /api\('POST', '\/api\/executive\/requests', \{ actor: 'owner', body \}\)/);
+  assert.match(app, /class="btn sm primary ex-work-reply-send"/);
+  assert.match(app, /Reply added; the executive team will see it on its next run/);
+});
+
 test('knowledge shelf is a first-class operator route', () => {
   assert.equal(routeFor('#knowledge').view, 'knowledge');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');

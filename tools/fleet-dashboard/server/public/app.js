@@ -13533,18 +13533,22 @@ function applyExecutiveWorkspace(page) {
     hide(strategy);
     hide(performance);
     hide(decisions);
-    const detailPane = requests?.querySelector('.ex-request-detail-pane');
-    if (detailPane && compose) {
-      detailPane.appendChild(compose);
+    const split = requests?.querySelector('.ex-request-split');
+    if (split && compose) {
+      // Keep the new-conversation composer above the split view. Appending it
+      // to the selected detail pane made it disappear when the inbox was
+      // empty (or when no thread was selected), which made this tab look
+      // read-only.
+      requests.insertBefore(compose, split);
       compose.classList.remove('ex-workspace-hidden');
       const heading = compose.querySelector('h3');
       const note = compose.querySelector('.muted');
       const button = compose.querySelector('#ex-send');
-      if (heading) heading.textContent = 'Continue this thread';
+      if (heading) heading.textContent = 'Message the executive team';
       if (note)
         note.textContent =
-          'Reply in the selected request, or start a new request when no thread is selected.';
-      if (button) button.textContent = 'Reply in thread';
+          'Start a durable request here, then use the selected thread below to continue the conversation.';
+      if (button) button.textContent = 'Start conversation';
     }
   } else if (page === 'runs') {
     hide(attention);
@@ -14222,7 +14226,7 @@ async function renderExecutive() {
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div>${runDetailPanel}</section>
         <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
-        <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
+        <section class="ex-panel ex-compose" id="ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEW CONVERSATION</div><h3>Message the executive team</h3></div><span class="muted">A durable thread the team can answer</span></div><p class="muted ex-compose-help">Start a new conversation here. Your message becomes a tracked request, appears in the inbox below, and is included in the executive team’s next run.</p><textarea id="ex-message" class="cm-input" rows="5" placeholder="What would you like the executive team to research, decide, or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Tip: include the question, context, links, and what a useful answer should contain.</span><button class="btn primary" id="ex-send">Start conversation</button></div></section>
         ${casePanel}
         <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3><p class="muted">Select a request to open its full conversation and next actions.</p></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationGroup}<div class="ex-request-split"><div class="ex-request-list">${ownerRequestList || '<div class="ex-empty">No Owner requests match this view.</div>'}</div><div class="ex-request-detail-pane">${ownerRequestDetail}</div></div><div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
@@ -14571,25 +14575,16 @@ async function renderExecutive() {
   $('#ex-send').onclick = async () => {
     const body = $('#ex-message').value.trim();
     if (!body) return toast('Write a message first', 'err');
+    const button = $('#ex-send');
+    button.disabled = true;
     try {
-      const isThreadReply = STATE.agentPage === 'conversation' && selectedRequest;
-      if (isThreadReply) {
-        const thread = requestThread(selectedRequest);
-        await api('POST', '/api/executive/messages', {
-          actor: 'owner',
-          body,
-          work_id: selectedRequest.work_id,
-          reply_to: thread.at(-1)?.message_id || null,
-          message_type: 'update',
-        });
-        toast('Reply added to the selected thread');
-      } else {
-        await api('POST', '/api/executive/requests', { actor: 'owner', body });
-        toast('Request saved and sent to the executive queue');
-      }
+      await api('POST', '/api/executive/requests', { actor: 'owner', body });
+      toast('Conversation started; the executive team will see it on its next run');
       softRender();
     } catch (e) {
       toast(e.message, 'err');
+    } finally {
+      button.disabled = false;
     }
   };
   $('#ex-save-settings').onclick = async () => {
