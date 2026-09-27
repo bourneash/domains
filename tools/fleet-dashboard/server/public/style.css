@@ -227,6 +227,12 @@ body[data-view="agent"] main:has(.ex-shell[data-workspace="conversation"]) { max
 .ex-workspace-tab:hover { background: rgba(255,255,255,.06); border-color: var(--border); }
 .ex-workspace-tab.active { background: linear-gradient(135deg, rgba(77,163,255,.2), rgba(168,120,255,.12)); border-color: rgba(77,163,255,.5); box-shadow: 0 4px 18px rgba(0,0,0,.16); }
 .ex-workspace-tab.active small { color: #a9d2ff; }
+.ex-inventory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.ex-inventory-card { padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.025); }
+.ex-inventory-card b, .ex-inventory-card span, .ex-inventory-card small { display: block; }
+.ex-inventory-card b { font-size: 20px; color: var(--text); }
+.ex-inventory-card span { margin-top: 3px; color: var(--muted); font-size: 11px; }
+.ex-inventory-card small { margin-top: 5px; color: var(--muted); font-size: 10px; }
 .ex-workspace-hidden { display: none !important; }
 .ex-shell > .ex-details-label { margin-top: 22px; }
 .ex-shell > .ex-layout:has(.ex-primary.ex-workspace-hidden) { display: block; }

@@ -449,6 +449,7 @@ function applyQualityPolicy(root, site, validation) {
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
   const events = eventstore.open(root);
+  auth.configureExternalAuthenticator(token => Boolean(events.authenticateApiCredential(token)));
   agentRuntime.ensureRegistry(events);
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
@@ -547,6 +548,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // read its body, and before routes. Static assets + /healthz stay open so the
   // login shell always loads.
   app.use(auth.apiGuard);
+  // Resolve the durable actor after the network credential gate. Mutating
+  // platform routes use this identity instead of trusting a caller-supplied
+  // actor field, while legacy fleet routes continue to operate unchanged.
+  app.use((req, res, next) => {
+    req.platformActor = events.authenticateActor(req);
+    if (req.platformActor.access === 'agent' && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      const path = req.path;
+      const required =
+        path.startsWith('/api/platform/credentials') || path.startsWith('/api/platform/invites')
+          ? 'platform:admin'
+          : path.startsWith('/api/agent-issues')
+            ? 'work:write'
+            : path.startsWith('/api/governance') || path.startsWith('/api/execution-policies')
+              ? 'governance:write'
+              : path.startsWith('/api/eval-')
+                ? 'eval:write'
+                : path.startsWith('/api/object-blobs')
+                  ? 'storage:write'
+                  : path.startsWith('/api/mcp/')
+                    ? 'mcp:call'
+                    : path.startsWith('/api/runtime-adapters')
+                      ? 'adapter:heartbeat'
+                      : 'agent:run';
+      if (!req.platformActor.scopes.includes('*') && !req.platformActor.scopes.includes(required))
+        return res.status(403).json({ error: `credential lacks ${required} scope` });
+    }
+    next();
+  });
 
   // Prevent browsers from retaining an older SPA after a restart. Without this,
   // new controls can be present on disk but invisible in an already-open tab.
@@ -4534,11 +4563,245 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  // Executive platform identity and work APIs. These endpoints expose the
+  // durable primitives used by external agents and the runtime console.
+  app.get('/api/platform/users', (req, res) =>
+    res.json({ users: events.listHumanUsers(req.query) })
+  );
+  app.post('/api/platform/users', (req, res) => {
+    try {
+      res.status(201).json({ user: events.createHumanUser(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/credentials', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          credential: events.createApiCredential({
+            ...(req.body || {}),
+            user_id: req.body?.user_id || req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/credentials/:id/revoke', (req, res) => {
+    try {
+      res.json({ credential: events.revokeApiCredential(req.params.id) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/invites', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          invite: events.createOrganizationInvite({
+            ...(req.body || {}),
+            invited_by: req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/invites/accept', (req, res) => {
+    try {
+      res.json({
+        membership: events.acceptOrganizationInvite(
+          req.body?.token,
+          req.body?.user_id || req.platformActor.actor_id
+        ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/platform/actor', (req, res) => res.json({ actor: req.platformActor }));
+  app.post('/api/agent-sessions', (req, res) => {
+    try {
+      res.status(201).json({ session: events.createAgentSession(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-sessions/:id/heartbeat', (req, res) => {
+    try {
+      res.json({ session: events.heartbeatAgentSession(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-issues', (req, res) =>
+    res.json({ issues: events.listAgentIssues(req.query) })
+  );
+  app.post('/api/agent-issues', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          issue: events.createAgentIssue({
+            ...(req.body || {}),
+            created_by: req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agent-issues/:id', (req, res) => {
+    try {
+      res.json({ issue: events.updateAgentIssue(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-issues/:id/checkout', (req, res) => {
+    try {
+      const issue = events.checkoutAgentIssue(
+        req.params.id,
+        req.body?.owner || req.platformActor.actor_id,
+        req.body?.lease_seconds
+      );
+      if (!issue) return res.status(409).json({ error: 'issue is already checked out or closed' });
+      res.json({ issue });
+    } catch (e) {
+      res.status(e.httpStatus || 409).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-issues/:id/dependencies', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          dependency: events.addAgentIssueDependency({
+            ...(req.body || {}),
+            issue_id: req.params.id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/execution-policies', (req, res) =>
+    res.json({ policies: events.listExecutionPolicies(req.query) })
+  );
+  app.post('/api/execution-policies', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          policy: events.upsertExecutionPolicy({
+            ...(req.body || {}),
+            created_by: req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/governance-decisions', (req, res) =>
+    res.json({ decisions: events.listGovernanceDecisions(req.query) })
+  );
+  app.post('/api/governance-decisions', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          decision: events.createGovernanceDecision({
+            ...(req.body || {}),
+            actor_id: req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/eval-suites', (req, res) => res.json({ suites: events.listEvalSuites(req.query) }));
+  app.post('/api/eval-suites', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          suite: events.createEvalSuite({
+            ...(req.body || {}),
+            created_by: req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/eval-runs', (req, res) => res.json({ runs: events.listEvalRuns(req.query) }));
+  app.post('/api/eval-runs', (req, res) => {
+    try {
+      res.status(201).json({ run: events.createEvalRun(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/object-blobs', (req, res) =>
+    res.json({ blobs: events.listObjectBlobs(req.query) })
+  );
+  app.post('/api/object-blobs', (req, res) => {
+    try {
+      res.status(201).json({ blob: events.createObjectBlob(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/agents', (req, res) => {
     try {
       res.json({ agents: events.listAgents(req.query) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-issues/:id/comments', (req, res) =>
+    res.json({
+      comments: events.listAgentIssueComments({ issue_id: req.params.id, limit: req.query.limit }),
+    })
+  );
+  app.post('/api/agent-issues/:id/comments', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          comment: events.createAgentIssueComment({
+            ...(req.body || {}),
+            issue_id: req.params.id,
+            actor_id: req.platformActor.actor_id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-issues/:id/attachments', (req, res) =>
+    res.json({
+      attachments: events.listAgentIssueAttachments({
+        issue_id: req.params.id,
+        limit: req.query.limit,
+      }),
+    })
+  );
+  app.post('/api/agent-issues/:id/attachments', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          attachment: events.createAgentIssueAttachment({
+            ...(req.body || {}),
+            issue_id: req.params.id,
+          }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
   app.get('/api/organizations', (req, res) => {
@@ -4695,6 +4958,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const result = events.reserveBudget(req.body || {});
       res.status(result.allowed ? 200 : 409).json(result);
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/budgets/enforce', (req, res) => {
+    try {
+      res.json({ stopped: events.enforceBudgetStops() });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4907,6 +5177,96 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(201).json({ memory: events.upsertAgentMemory(req.body || {}) });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-adapters', (req, res) =>
+    res.json({ adapters: events.listRuntimeAdapters(req.query) })
+  );
+  app.post('/api/runtime-adapters', (req, res) => {
+    try {
+      res.status(201).json({ adapter: events.upsertRuntimeAdapter(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-adapters/:id/heartbeat', (req, res) => {
+    try {
+      res.json({ adapter: events.heartbeatRuntimeAdapter(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  // Minimal MCP JSON-RPC gateway. Tool calls remain queued through the
+  // governed connector worker, so an HTTP client cannot execute host actions
+  // directly from this route.
+  app.post('/api/mcp/:connectorId', (req, res) => {
+    try {
+      const message = req.body || {};
+      const connector = events.getRuntimeConnector(req.params.connectorId);
+      if (!connector || connector.status !== 'active')
+        return res.status(404).json({ error: 'active connector not found' });
+      if (message.method === 'initialize') {
+        const session = events.createMcpSession({
+          connector_id: connector.connector_id,
+          protocol_version: message.params?.protocolVersion,
+          client_info: message.params?.clientInfo,
+        });
+        return res.json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          result: {
+            protocolVersion: session.protocol_version,
+            capabilities: { tools: { listChanged: false } },
+            serverInfo: { name: connector.slug, version: '1.0.0' },
+            sessionId: session.session_id,
+          },
+        });
+      }
+      if (message.method === 'tools/list')
+        return res.json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          result: {
+            tools: connector.capabilities.map(name => ({
+              name,
+              description: `Governed ${name} connector operation`,
+              inputSchema: { type: 'object' },
+            })),
+          },
+        });
+      if (message.method === 'tools/call') {
+        const name = String(message.params?.name || '');
+        const call = events.enqueueRuntimeConnectorCall({
+          connector_id: connector.connector_id,
+          operation: name,
+          payload: message.params?.arguments || {},
+          idempotency_key: message.params?.idempotencyKey,
+        });
+        return res.json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          result: {
+            content: [{ type: 'text', text: `queued connector call ${call.call_id}` }],
+            isError: false,
+            callId: call.call_id,
+          },
+        });
+      }
+      return res
+        .status(400)
+        .json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          error: { code: -32601, message: 'method not found' },
+        });
+    } catch (e) {
+      res
+        .status(e.httpStatus || 400)
+        .json({
+          jsonrpc: '2.0',
+          id: req.body?.id ?? null,
+          error: { code: -32000, message: e.message },
+        });
     }
   });
   app.get('/api/runtime-plugins', (req, res) => {

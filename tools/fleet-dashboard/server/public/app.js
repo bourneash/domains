@@ -13597,17 +13597,59 @@ async function renderAgentRuntime() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading agent runtime…</div>';
   try {
-    const [agents, runs, budgets, routines, watchdogs, evals, grants, workspaces] =
-      await Promise.all([
-        api('GET', '/api/agents?limit=100'),
-        api('GET', '/api/agent-runs?limit=100'),
-        api('GET', '/api/budgets?limit=100'),
-        api('GET', '/api/agent-routines?limit=100'),
-        api('GET', '/api/agent-watchdogs?limit=100'),
-        api('GET', '/api/agent-evals?limit=100'),
-        api('GET', '/api/agent-tools?limit=100'),
-        api('GET', '/api/agent-workspaces?limit=100'),
-      ]);
+    const [
+      agents,
+      runs,
+      budgets,
+      routines,
+      watchdogs,
+      evals,
+      grants,
+      workspaces,
+      actor,
+      users,
+      issues,
+      policies,
+      decisions,
+      suites,
+      evalRuns,
+      blobs,
+      plugins,
+      connectors,
+      providers,
+      adapters,
+      delegations,
+      dispatches,
+      artifacts,
+      skills,
+      memories,
+    ] = await Promise.all([
+      api('GET', '/api/agents?limit=100'),
+      api('GET', '/api/agent-runs?limit=100'),
+      api('GET', '/api/budgets?limit=100'),
+      api('GET', '/api/agent-routines?limit=100'),
+      api('GET', '/api/agent-watchdogs?limit=100'),
+      api('GET', '/api/agent-evals?limit=100'),
+      api('GET', '/api/agent-tools?limit=100'),
+      api('GET', '/api/agent-workspaces?limit=100'),
+      api('GET', '/api/platform/actor'),
+      api('GET', '/api/platform/users?limit=100'),
+      api('GET', '/api/agent-issues?limit=100'),
+      api('GET', '/api/execution-policies?limit=100'),
+      api('GET', '/api/governance-decisions?limit=100'),
+      api('GET', '/api/eval-suites?limit=100'),
+      api('GET', '/api/eval-runs?limit=100'),
+      api('GET', '/api/object-blobs?limit=100'),
+      api('GET', '/api/runtime-plugins?limit=100'),
+      api('GET', '/api/runtime-connectors?limit=100'),
+      api('GET', '/api/runtime-providers?limit=100'),
+      api('GET', '/api/runtime-adapters?limit=100'),
+      api('GET', '/api/agent-delegations?limit=100'),
+      api('GET', '/api/agent-dispatches?limit=100'),
+      api('GET', '/api/agent-artifacts?limit=100'),
+      api('GET', '/api/agent-skills?limit=100'),
+      api('GET', '/api/agent-memories?limit=100'),
+    ]);
     const agentRows = agents.agents || [];
     const runRows = runs.runs || [];
     const budgetRows = budgets.budgets || [];
@@ -13616,6 +13658,21 @@ async function renderAgentRuntime() {
     const evalRows = evals.evaluations || [];
     const grantRows = grants.grants || [];
     const workspaceRows = workspaces.workspaces || [];
+    const issueRows = issues.issues || [];
+    const policyRows = policies.policies || [];
+    const decisionRows = decisions.decisions || [];
+    const suiteRows = suites.suites || [];
+    const evalRunRows = evalRuns.runs || [];
+    const blobRows = blobs.blobs || [];
+    const pluginRows = plugins.plugins || [];
+    const connectorRows = connectors.connectors || [];
+    const providerRows = providers.providers || [];
+    const adapterRows = adapters.adapters || [];
+    const delegationRows = delegations.delegations || [];
+    const dispatchRows = dispatches.dispatches || [];
+    const artifactRows = artifacts.artifacts || [];
+    const skillRows = skills.skills || [];
+    const memoryRows = memories.memories || [];
     const activeRuns = runRows.filter(row => ['queued', 'running'].includes(row.status)).length;
     const fired = watchdogRows.filter(row => row.status === 'fired').length;
     const spent = budgetRows.reduce((sum, row) => sum + Number(row.spent_usd || 0), 0);
@@ -13656,7 +13713,24 @@ async function renderAgentRuntime() {
           `<tr><td><b>${esc(row.name)}</b><div class="muted">${esc(agentName(row.agent_id))} · ${esc(row.trigger_type)}</div></td><td>${statusBadge(row.status)}</td><td>${esc(fmtDate(row.next_due_at))}</td></tr>`
       )
       .join('');
-    app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell"><header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE / RUNTIME</div><h2 class="page-title">Agent runtime</h2><p class="muted">One operator surface for identity, resumable runs, atomic budgets, heartbeats, watchdogs, evaluations, grants, and isolated workspaces.</p></div><div class="task-toolbar"><button class="btn" id="agent-runtime-refresh">↻ Refresh</button><button class="btn primary" id="agent-runtime-heartbeat">Run heartbeat</button><button class="btn" id="agent-runtime-audit">Audit watchdogs</button></div></header><section class="ex-kpis">${stat(agentRows.filter(row => row.status === 'active').length, 'active agents', 'good')}${stat(activeRuns, 'active runs', activeRuns ? 'warn' : '')}${stat(`$${spent.toFixed(2)} / $${limits.toFixed(2)}`, 'reserved / limits')}${stat(fired, 'fired watchdogs', fired ? 'warn' : 'good')}${stat(`${grantRows.length} / ${workspaceRows.length}`, 'grants / workspaces')}</section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">AGENT REGISTRY</div><h3>Identity and operating state</h3></div><span class="muted">${agentRows.length} registered agents</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent</th><th>Status</th><th>Runs / evaluation</th><th>Operator action</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No agents registered.</td></tr>'}</tbody></table></div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RESUMABLE RUNS</div><h3>Execution history</h3></div><span class="muted">${runRows.length} recorded</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent / run</th><th>Status</th><th>Usage</th><th>Result</th></tr></thead><tbody>${runTable || '<tr><td colspan="4" class="muted">No agent runs recorded.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HEARTBEAT QUEUE</div><h3>Routines</h3></div><span class="muted">${routineRows.length} configured</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Status</th><th>Next due</th></tr></thead><tbody>${routineTable || '<tr><td colspan="3" class="muted">No routines configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HARD STOPS</div><h3>Budget policies</h3></div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Scope</th><th>Spend / limit</th><th>Policy</th></tr></thead><tbody>${budgetTable || '<tr><td colspan="3" class="muted">No budgets configured.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RECOVERY</div><h3>Watchdogs</h3></div><span class="badge ${fired ? 'b-red' : 'b-green'}">${fired ? `${fired} fired` : 'clear'}</span></div><p class="muted">${watchdogRows.length} watchdogs are persisted against active and completed runs. Fired watchdogs require operator review.</p></section></aside></section></div>`;
+    const inventory = (label, value, detail = '') =>
+      `<div class="ex-inventory-card"><b>${esc(value)}</b><span>${esc(label)}</span>${detail ? `<small>${esc(detail)}</small>` : ''}</div>`;
+    const issueTable = issueRows
+      .slice(0, 20)
+      .map(
+        row =>
+          `<tr><td><b>${esc(row.title)}</b><div class="muted">${esc(row.issue_id.slice(0, 10))}</div></td><td>${statusBadge(row.status)}</td><td>${esc(row.checkout_owner || 'unclaimed')}</td><td><button class="btn sm agent-issue-checkout" data-issue-id="${esc(row.issue_id)}">Checkout</button></td></tr>`
+      )
+      .join('');
+    const governanceTable = decisionRows
+      .slice(0, 12)
+      .map(
+        row =>
+          `<tr><td>${esc(row.entity_type)}<div class="muted">${esc(row.entity_id)}</div></td><td>${statusBadge(row.decision)}</td><td>${esc(row.actor_id)}</td></tr>`
+      )
+      .join('');
+    const platformInventory = `<section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">PLATFORM COVERAGE</div><h3>Paperclip-compatible control plane</h3></div><span class="muted">actor: ${esc(actor.actor?.actor_id || 'operator')}</span></div><div class="ex-inventory-grid">${inventory('human users', (users.users || []).length)}${inventory('issues', issueRows.length, `${issueRows.filter(x => x.status === 'in_progress').length} checked out`)}${inventory('execution policies', policyRows.length)}${inventory('governance decisions', decisionRows.length)}${inventory('evaluation suites', suiteRows.length, `${evalRunRows.length} runs`)}${inventory('object blobs', blobRows.length)}${inventory('plugins', pluginRows.length, `${pluginRows.filter(x => x.status === 'active').length} active`)}${inventory('connectors / MCP', connectorRows.length)}${inventory('runtime providers', providerRows.length)}${inventory('adapters', adapterRows.length, `${adapterRows.filter(x => x.status === 'online').length} online`)}${inventory('delegations', delegationRows.length)}${inventory('dispatches', dispatchRows.length)}${inventory('artifacts', artifactRows.length)}${inventory('skills', skillRows.length)}${inventory('memories', memoryRows.length)}</div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">ISSUE QUEUE</div><h3>Atomic task checkout and dependencies</h3></div><span class="muted">${issueRows.length} issues</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Issue</th><th>Status</th><th>Owner</th><th></th></tr></thead><tbody>${issueTable || '<tr><td colspan="4" class="muted">No issues configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">GOVERNANCE</div><h3>Decisions and approval trail</h3></div><span class="muted">${policyRows.length} policies</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Entity</th><th>Decision</th><th>Actor</th></tr></thead><tbody>${governanceTable || '<tr><td colspan="3" class="muted">No governance decisions.</td></tr>'}</tbody></table></div></section></aside></section>`;
+    app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell"><header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE / RUNTIME</div><h2 class="page-title">Agent runtime</h2><p class="muted">One operator surface for identity, resumable runs, atomic budgets, heartbeats, watchdogs, evaluations, grants, isolated workspaces, issues, governance, plugins, connectors, providers, artifacts, skills, and memory.</p></div><div class="task-toolbar"><button class="btn" id="agent-runtime-refresh">↻ Refresh</button><button class="btn primary" id="agent-runtime-heartbeat">Run heartbeat</button><button class="btn" id="agent-runtime-audit">Audit watchdogs</button></div></header><section class="ex-kpis">${stat(agentRows.filter(row => row.status === 'active').length, 'active agents', 'good')}${stat(activeRuns, 'active runs', activeRuns ? 'warn' : '')}${stat(`$${spent.toFixed(2)} / $${limits.toFixed(2)}`, 'reserved / limits')}${stat(fired, 'fired watchdogs', fired ? 'warn' : 'good')}${stat(`${grantRows.length} / ${workspaceRows.length}`, 'grants / workspaces')}</section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">AGENT REGISTRY</div><h3>Identity and operating state</h3></div><span class="muted">${agentRows.length} registered agents</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent</th><th>Status</th><th>Runs / evaluation</th><th>Operator action</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No agents registered.</td></tr>'}</tbody></table></div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RESUMABLE RUNS</div><h3>Execution history</h3></div><span class="muted">${runRows.length} recorded</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent / run</th><th>Status</th><th>Usage</th><th>Result</th></tr></thead><tbody>${runTable || '<tr><td colspan="4" class="muted">No agent runs recorded.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HEARTBEAT QUEUE</div><h3>Routines</h3></div><span class="muted">${routineRows.length} configured</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Status</th><th>Next due</th></tr></thead><tbody>${routineTable || '<tr><td colspan="3" class="muted">No routines configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HARD STOPS</div><h3>Budget policies</h3></div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Scope</th><th>Spend / limit</th><th>Policy</th></tr></thead><tbody>${budgetTable || '<tr><td colspan="3" class="muted">No budgets configured.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RECOVERY</div><h3>Watchdogs</h3></div><span class="badge ${fired ? 'b-red' : 'b-green'}">${fired ? `${fired} fired` : 'clear'}</span></div><p class="muted">${watchdogRows.length} watchdogs are persisted against active and completed runs. Fired watchdogs require operator review.</p></section></aside></section>${platformInventory}</div>`;
     wireCrumbs();
     $('#agent-runtime-refresh').onclick = () => softRender();
     $('#agent-runtime-heartbeat').onclick = async event => {
@@ -13697,6 +13771,23 @@ async function renderAgentRuntime() {
         } catch (e) {
           toast(e.message, 'err');
         } finally {
+          button.disabled = false;
+        }
+      };
+    });
+    $$('.agent-issue-checkout').forEach(button => {
+      button.onclick = async () => {
+        button.disabled = true;
+        try {
+          await api(
+            'POST',
+            `/api/agent-issues/${encodeURIComponent(button.dataset.issueId)}/checkout`,
+            { owner: 'operator-console' }
+          );
+          toast('Issue checked out');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
           button.disabled = false;
         }
       };
