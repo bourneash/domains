@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:50:02.151Z",
+  "generated_at": "2026-09-27T17:03:22.513Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject both deferred CRO proposals from this cycle because no queue entry is safe while 47 failure follow-ups remain open, 28 improvements await measurement, operations/security evidence is unavailable, and financial attribution is incomplete. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; do not claim site revenue, ROI, margin, payback, or causal lift. Keep private launch gates, parked dispositions, and external outreach unchanged. Owner concern: any permission request requires human-counsel review before authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; financial outcomes remain unknown. Continue only existing repair-or-close, attribution reconciliation, and bounded legal/security evidence work. Keep SearchWoot private, parked-site dispositions unchanged, and external outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only existing repair-or-close, deterministic validation, rollback, deduplication, measurement and attribution reconciliation, and bounded read-only legal/security evidence work. Reconsider deferred control-plane prototypes only after ownership, root cause, validation, rollback, deduplication, and measurement readiness are documented.",
+        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, CTA, ingestion, and control-plane opportunities as deferred backlog only. Do not create or requeue implementation work until ownership, root cause, deterministic validation, rollback, deduplication, release readiness, and measurable outcome criteria are documented.",
         "requested_action": null,
         "proposal_id": null
       }

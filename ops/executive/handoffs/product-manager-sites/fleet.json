@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:50:02.150Z",
+  "generated_at": "2026-09-27T17:03:22.511Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. No new site proposal or work item is warranted because the authoritative candidate list is empty, 47 failure follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven. Retain the evidence-backed site backlog for later sequencing: performance remediation on totaljerks.com, americastrikes.com, and saveusfarms.com; SEO/CTR opportunities on saveusfarms.com, deeppenetrations.com, broadwayshowgirls.com, greatamericanlakes.com, and marineactivity.com; and content/internal-linking work on americastrikes.com. Prioritize by user benefit, attributable outcome, confidence, time-to-learn, and reversibility after ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Do not deploy, requeue, add telemetry, spend, expand monetization, or claim revenue impact.",
+        "summary": "Recommendation: preserve containment-only execution. The fleet has 47 open failure follow-ups, 28 improvements awaiting measurement, no queue-eligible candidates, incomplete operations/security evidence, and only 2 proven outcomes. Available revenue is limited to 2026-09-21: $4.92 aggregate commission that is not site-attributable; ROI, margin, payback, and causal lift remain unknown. Retain the identified SEO, UX, accessibility, performance, content, affiliate, and cross-site capability opportunities as deferred backlog. Continue only existing repair-or-close, deterministic validation, rollback, measurement/attribution reconciliation, and bounded legal/security evidence work. Do not create new implementation work, telemetry, experiments, dependencies, deployments, spending, monetization changes, or unsupported revenue claims.",
         "requested_action": null,
         "proposal_id": null
       }
