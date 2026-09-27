@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:03:25.045Z",
+  "generated_at": "2026-09-27T20:19:22.709Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Defer all new CRO proposals, experiments, research requests, change requests, and queue work. Preserve SEO, UX, accessibility, performance, content, affiliate, audience, search, GitHub, and CRO-lab opportunities as deferred backlog. Continue existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, measurement, and bounded legal/security evidence work using existing telemetry only. Do not infer revenue, ROI, margin, payback, cost-to-learn, or causal lift.",
+        "summary": "Recommendation: preserve containment-only execution. Retain CRO opportunities as deferred backlog because 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations and security sweeps are unavailable, and only 2 outcomes are proven. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Do not create new proposals, experiments, telemetry, change requests, deployments, dependencies, spending, monetization changes, or unsupported revenue claims this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

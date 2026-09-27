@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:03:25.046Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T20:19:22.710Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create proposals, change requests, research requests, experiments, telemetry, dependencies, deployments, spending, monetization changes, requeues, or external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Technical disposition: preserve isolation and reversibility. Existing failures require documented ownership, root cause, smallest isolated repair, deterministic validation, rollback evidence, and deduplication before requeue or release. Existing telemetry is sufficient for current measurement work; do not invent or request duplicate instrumentation. Operations and security evidence gaps block security-sensitive releases, not bounded evidence-preserving review work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Queue decision: no new work enters the implementation queue this cycle. Preserve deferred SEO, UX, accessibility, performance, content, affiliate, and monetization opportunities as backlog only. Keep financial and causal outcomes unknown where attribution or periods are incomplete, and keep rights-dependent public exposure and external outreach blocked pending required human review.",
+        "summary": "CTO review: approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Preserve private launch gates, parked dispositions, existing measurement boundaries, and unknown financial or causal outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:03:25.051Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T20:19:22.711Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new proposals, queue work, requeues, experiments, telemetry, deployments, spending, monetization changes, and external outreach this cycle. Continue only existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep financial, causal, and rights-dependent claims unknown or blocked.",
+        "summary": "Maintain containment-only execution. Reject new proposals, queue work, requeues, experiments, telemetry, deployments, dependencies, spending, monetization changes, and unsupported financial or causal claims. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Preserve $4.92 aggregate commission as unattributed; keep private and parked dispositions unchanged. Any external permission request requires human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue evidence covers one day only. The $4.92 aggregate commission is not site-attributable; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Preserve financial containment and use existing recorded telemetry only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and retain parked-site dispositions. Four legal evidence tasks remain open, security and operations sweeps are unavailable, and public or rights-dependent exposure is unsupported. Continue existing bounded read-only evidence work; keep external outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No new implementation work enters the queue. Preserve SEO, UX, accessibility, performance, content, affiliate, and monetization opportunities as deferred backlog while 47 failure follow-ups remain open, 28 improvements await measurement, and the actionable candidate list is empty.",
+        "summary": "Retain SEO, UX, content, monetization, and CRO opportunities as deferred backlog only. Existing evidence shows 47 failure follow-ups, 28 improvements awaiting measurement, no queue-eligible candidates, unavailable operations/security sweeps, and only 2 proven outcomes. Do not create or requeue production work this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
