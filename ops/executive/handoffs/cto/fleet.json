@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:30:40.743Z",
+  "generated_at": "2026-09-27T20:48:16.313Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Continue existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Defer all new proposals, change requests, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and external outreach. Deferred opportunities remain technically feasible but are not queue-ready. Preserve private launch gates, parked dispositions, existing measurement boundaries, and unknown financial or causal outcomes.",
+        "summary": "CTO review: approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work using existing recorded telemetry. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Preserve private launch gates, parked dispositions, and unknown financial or causal outcomes.",
         "requested_action": null,
         "proposal_id": null
       },

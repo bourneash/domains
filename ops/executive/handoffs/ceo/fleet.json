@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:30:40.742Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T20:48:16.313Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the containment-only plan and reject all new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, and external outreach this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations/security sweeps are unavailable, and only 2 outcomes are proven. Revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; ROI, margin, payback, and causal lift remain unknown. Smallest next step: complete existing repair-or-close, measurement reconciliation, and legal/security evidence work. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations/security sweeps are unavailable, and only 2 outcomes are proven. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; ROI, margin, payback, and causal lift remain unknown. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. No new production work, requeues, experiments, telemetry, dependencies, deployments, spend, or monetization changes are safe this cycle. Smallest next step: complete existing repair and evidence records. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO plan preserved as deferred backlog. The earlier no-change-request disposition is correct for this cycle because the authoritative actionability scorecard reports zero queue-eligible candidates and existing failure, measurement, operations, security, and attribution gaps remain unresolved. Do not convert deferred SEO, UX, content, monetization, experiment, or repository ideas into execution until the containment gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
