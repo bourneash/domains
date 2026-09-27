@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:18:17.394Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T13:33:50.403Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry, dependencies, deployments, spending, monetization expansion, and unsupported financial claims. Retain the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence. Keep private launch gates unchanged and external outreach unsent. Material concerns: 47 failure follow-ups, 28 improvements awaiting measurement, incomplete operational/security evidence, conflicting cost records, and revenue limited to one unattributed aggregate period. ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry requests, dependencies, deployments, spending, monetization expansion, and unsupported financial claims. Preserve the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence. Keep private launch gates unchanged and external outreach unsent. Owner message: revenue is limited to a single unattributed aggregate period; ROI, margin, payback, budget capacity, and causal lift remain unknown. Existing failures, pending measurements, conflicting cost records, and incomplete operational/security evidence make new production work unsupported this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner message: No approval is supported for new production, spend, monetization, or external outreach this cycle. The available revenue is a single unattributed aggregate period, cost records conflict, and material repair, measurement, operational, legal, and security gates remain open. Continue only the existing bounded evidence and repair work; preserve all other opportunities as deferred backlog.",
+        "summary": "Continue only the existing period-aligned attribution and cost reconciliation. Preserve aggregate commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate and keep external outreach unsent. Continue the existing consolidated read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work only.",
         "requested_action": null,
         "proposal_id": null
       }

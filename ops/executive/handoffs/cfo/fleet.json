@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:18:17.393Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T13:33:50.402Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Reject new spend, forecasts, commitments, monetization expansion, and unsupported revenue claims. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable, so site-attributed commission is $0 without proving zero site performance. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align; AI-cost records conflict ($881.36 across 4,832 calls for 2026-09-01 through 2026-09-27 versus retained $973.35 across 5,439 calls); infrastructure, domain, labor, marketing, and approved-budget records are absent or incomplete; and experiments lack defined incremental costs and learning outcomes. The 2026-09-27 scorecard reports 47 failure follow-ups open, 28 deployed improvements awaiting measurement, and only 2 proven outcomes. Retain the three SEO/performance opportunities as deferred backlog only. Continue existing repair-or-close and reconciliation work. Minimum measurement required: one period-aligned ledger containing site/content-level revenue and attribution, AI, infrastructure, domain, labor, marketing, approved-budget, and experiment-cost records, plus a defined learning outcome and measurement window for each experiment. Do not treat impressions, rankings, CTR targets, sessions, conversions, ordered items, performance scores, or AI usage as financial returns.",
+        "summary": "Recommendation: maintain financial containment. Preserve $4.92 aggregate commission as unattributed for 2026-09-21; do not infer site revenue, ROI, margin, payback, or budget capacity. Continue period-aligned attribution and cost reconciliation only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain financial containment. Reject new spend, forecasts, commitments, monetization expansion, and unsupported revenue claims. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align; AI-cost records conflict ($881.36 across 4,832 calls for 2026-09-01 through 2026-09-27 versus retained $973.35 across 5,439 calls); infrastructure, domain, labor, marketing, approved-budget, experiment-cost, and learning-outcome records are absent or incomplete. Continue only existing period-aligned attribution and cost reconciliation. Retain the three SEO/performance opportunities as deferred backlog; do not treat impressions, rankings, clicks, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:18:17.394Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T13:33:50.402Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Retain the three evidence-backed SEO and performance opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. They are technically feasible and reversible in isolation, but are not queue-eligible until existing failure repair-or-close, isolated validation, rollback, deduplication, ownership, and measurement gates are evidenced. Continue only existing repair, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Preserve unknown ROI, margin, cost-to-learn, causal lift, and operational-security status; keep private launch gates unchanged.",
+        "summary": "Recommendation: continue existing failure repair-or-close, validation, rollback, deduplication, isolation, ownership, and measurement work only. The candidate list is empty for safe queue entry this cycle; do not requeue deferred SEO or performance work until the required evidence is documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failure repair-or-close, validation, rollback, deduplication, isolation, ownership, and measurement work. The authoritative candidate list is empty, so no new implementation request is justified this cycle. Existing aggregate commission remains unattributed; do not treat traffic, rankings, clicks, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
+        "summary": "Approve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only; they are technically feasible and reversible in isolation but are not queue-eligible while failure repair, validation, rollback, deduplication, isolation, ownership, and measurement gates remain unresolved. Continue only existing repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged and external outreach unsent. Reject new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, and unsupported financial claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift. Do not treat traffic, rankings, clicks, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain private launch gates and keep external outreach unsent. Continue only the existing consolidated read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }
