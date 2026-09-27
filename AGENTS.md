@@ -34,6 +34,10 @@ than re-deriving the process from scratch.
 
 - Site repos are git submodules — commit inside the submodule first, then stage the pointer bump
   in this repo. Don't `git add -A` at the top level; other sessions may have unrelated work staged.
+- Codex must commit and push completed requested changes after implementation and verification;
+  the user should not need to ask separately. Scope staging to the task, preserve unrelated
+  working-tree changes, and for submodule work push the submodule commit before pushing the parent
+  pointer update.
 - **Mandatory exception to scoped staging:** every top-level monorepo commit intentionally refreshes
   and includes the tracked Vaultwarden recovery snapshot. Changes to
   `tools/credential-vault-backup/data/db.sqlite3`, `docker-compose.yml`, and `last-backup.txt` are
