@@ -1345,7 +1345,11 @@ function open(root, { file } = {}) {
     const current = getExecutiveAction(id);
     if (!current) throw httpErr(404, 'executive action not found');
     const status = String(patch.status || 'completed');
-    if (!['started', 'completed', 'failed', 'blocked', 'skipped'].includes(status))
+    if (
+      !['started', 'completed', 'completed_with_warning', 'failed', 'blocked', 'skipped'].includes(
+        status
+      )
+    )
       throw httpErr(400, 'invalid executive action status');
     db.prepare(
       `UPDATE executive_actions SET status=?,finished_at=?,result_json=?,error=? WHERE action_id=?`

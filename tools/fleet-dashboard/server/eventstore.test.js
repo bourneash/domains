@@ -47,6 +47,25 @@ test('rejects unbounded event vocabulary', () => {
   store.close();
 });
 
+test('preserves a completed executive tick when handoff check-in needs retry', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-actions-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  const action = store.createExecutiveAction({
+    actor: 'system',
+    action_type: 'other',
+    summary: 'Scheduled executive team run',
+    target_type: 'scheduled-executive-run',
+  });
+  const finished = store.finishExecutiveAction(action.action_id, {
+    status: 'completed_with_warning',
+    error: 'executive handoff check-in exited with code 75',
+    result: { checkin_status: 75, checkin_warning: 'retry is required' },
+  });
+  assert.equal(finished.status, 'completed_with_warning');
+  assert.equal(finished.result.checkin_status, 75);
+  store.close();
+});
+
 test('persists and updates improvement runs', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-improvements-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
@@ -123,10 +142,24 @@ test('requires completion evidence and rejects stale work-item writes', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-work-item-gates-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
   const created = store.createExecutiveWorkItem({ title: 'Evidence-gated work' });
-  assert.throws(() => store.updateExecutiveWorkItem(created.work_id, { status: 'done' }), /completion requires/);
+  assert.throws(
+    () => store.updateExecutiveWorkItem(created.work_id, { status: 'done' }),
+    /completion requires/
+  );
   const updated = store.updateExecutiveWorkItem(created.work_id, { status: 'in_progress' });
-  assert.throws(() => store.updateExecutiveWorkItem(created.work_id, { status: 'done', expected_updated_at: created.updated_at }), /changed/);
-  const done = store.updateExecutiveWorkItem(updated.work_id, { status: 'done', outcome: 'Verified in production.', expected_updated_at: updated.updated_at });
+  assert.throws(
+    () =>
+      store.updateExecutiveWorkItem(created.work_id, {
+        status: 'done',
+        expected_updated_at: created.updated_at,
+      }),
+    /changed/
+  );
+  const done = store.updateExecutiveWorkItem(updated.work_id, {
+    status: 'done',
+    outcome: 'Verified in production.',
+    expected_updated_at: updated.updated_at,
+  });
   assert.equal(done.status, 'done');
   store.close();
 });

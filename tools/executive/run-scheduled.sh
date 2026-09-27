@@ -63,13 +63,15 @@ NODE
 )"
 export RUN_ACTION_ID
 APPROVED_WORK_STATUS=0
+CHECKIN_STATUS=0
 finish_scheduler_action() {
   local exit_code=$?
-  node - "$ROOT" "$RUN_ACTION_ID" "$exit_code" "$APPROVED_WORK_STATUS" <<'NODE'
+  node - "$ROOT" "$RUN_ACTION_ID" "$exit_code" "$APPROVED_WORK_STATUS" "$CHECKIN_STATUS" <<'NODE'
 const root = process.argv[2];
 const actionId = process.argv[3];
 const exitCode = Number(process.argv[4]);
 const approvedWorkStatus = Number(process.argv[5]);
+const checkinStatus = Number(process.argv[6]);
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
 const store = eventstore.open(root);
@@ -80,11 +82,14 @@ try {
     .listExecutiveActions({ action_type: 'tick', limit: 20 })
     .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
   const tickError = tick?.error || null;
+  const status = exitCode !== 0 ? 'failed' : checkinStatus !== 0 ? 'completed_with_warning' : 'completed';
   executive.finishAction(store, actionId, {
-    status: exitCode === 0 ? 'completed' : 'failed',
+    status,
     error:
       exitCode === 0
-        ? null
+        ? checkinStatus !== 0
+          ? `executive handoff check-in exited with code ${checkinStatus}`
+          : null
         : tickError
           ? `executive tick failed: ${tickError}`
           : `scheduled executive dispatch exited with code ${exitCode}`,
@@ -97,8 +102,24 @@ try {
       approved_work_status: approvedWorkStatus,
       approved_work_warning:
         approvedWorkStatus === 0 ? null : 'approved-work drain failed; executive tick continued',
-      failed_stage: exitCode === 0 ? null : tickError ? 'executive tick / plan application' : 'scheduler wrapper',
-      failure_reason: tickError || (exitCode === 0 ? null : `dispatch exited with code ${exitCode}`),
+      checkin_status: checkinStatus,
+      checkin_warning:
+        checkinStatus === 0 ? null : 'executive handoff check-in failed; retry is required',
+      failed_stage:
+        exitCode === 0
+          ? checkinStatus === 0
+            ? null
+            : 'executive handoff check-in'
+          : tickError
+            ? 'executive tick / plan application'
+            : 'scheduler wrapper',
+      failure_reason:
+        tickError ||
+        (exitCode !== 0
+          ? `dispatch exited with code ${exitCode}`
+          : checkinStatus !== 0
+            ? `handoff check-in exited with code ${checkinStatus}`
+            : null),
     },
   });
 } finally {
@@ -115,10 +136,16 @@ try {
   cal.completeClaim(root, id, process.env.CALENDAR_CLAIM_ID, { exit_code: code });
 } catch (e) { if (e.status !== 404) throw e; }
 NODE
-    git -C "$ROOT" add -- ops/executive/calendar.json
-    if ! git -C "$ROOT" diff --cached --quiet -- ops/executive/calendar.json; then
-      git -C "$ROOT" commit -m "chore(executive): record calendar run" -- ops/executive/calendar.json || true
-      git -C "$ROOT" push origin main || echo "calendar completion push failed" >&2
+    calendar_lock="${FLEET_GIT_MUTATION_LOCK_FILE:-$ROOT/tools/.git-mutation.lock}"
+    exec 7>"$calendar_lock"
+    if flock -w "${FLEET_GIT_MUTATION_LOCK_WAIT_SECONDS:-90}" 7; then
+      git -C "$ROOT" add -- ops/executive/calendar.json
+      if ! git -C "$ROOT" diff --cached --quiet -- ops/executive/calendar.json; then
+        git -C "$ROOT" commit -m "chore(executive): record calendar run" -- ops/executive/calendar.json || true
+        git -C "$ROOT" push origin main || echo "calendar completion push failed" >&2
+      fi
+    else
+      echo "calendar completion check-in deferred: top-level Git mutation lock is busy" >&2
     fi
   fi
   return "$exit_code"
@@ -137,5 +164,10 @@ if [[ "$queue_enabled" == "1" ]]; then
   fi
 fi
 "$ROOT/tools/executive/run-sandbox.sh"
-"$ROOT/tools/executive/checkin.sh"
+if "$ROOT/tools/executive/checkin.sh"; then
+  :
+else
+  CHECKIN_STATUS=$?
+  echo "[$(date -Is)] executive handoff check-in failed; executive tick remains successful" >&2
+fi
 echo "[$(date -Is)] executive scheduled tick complete"

@@ -30,6 +30,14 @@ for (const event of claims) {
 }
 NODE
 
+GIT_MUTATION_LOCK_FILE="${FLEET_GIT_MUTATION_LOCK_FILE:-$ROOT/tools/.git-mutation.lock}"
+GIT_MUTATION_LOCK_WAIT_SECONDS="${FLEET_GIT_MUTATION_LOCK_WAIT_SECONDS:-90}"
+exec 7>"$GIT_MUTATION_LOCK_FILE"
+if ! flock -w "$GIT_MUTATION_LOCK_WAIT_SECONDS" 7; then
+  echo "calendar check-in deferred: top-level Git mutation lock is busy" >&2
+  exit 75
+fi
+
 git -C "$ROOT" add -- ops/executive/calendar.json
 if ! git -C "$ROOT" diff --cached --quiet -- ops/executive/calendar.json; then
   git -C "$ROOT" commit -m "chore(executive): persist calendar dispatch" -- ops/executive/calendar.json || exit 1
