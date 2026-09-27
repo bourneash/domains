@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T06:34:14.735Z",
+  "generated_at": "2026-09-27T07:03:57.913Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and defer the CRO backlog. The only current candidate, stinkyleftfoot.com /guides/air-dribble-fundamentals, has 114 impressions, position 8.2, 0 clicks, and 0 sessions in the current SEO window, but the site already has active failed-work follow-up and the CTO/reviewer gate rejects new production work. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI and margin remain unknown. Continue measurement, failure repair-or-close, and legal/security evidence. Smallest next step: resolve the existing stinkyleftfoot.com failure before reconsidering a new SEO change.",
+        "summary": "Handoff: continue the existing stinkyleftfoot.com repair-or-close review; do not requeue the deferred SEO candidate until root cause, isolated validation, rollback, ownership, and deduplication evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve CRO SEO, affiliate, UX, repository, and monetization leads as deferred backlog only. Do not adopt repositories or create new proposals, experiments, telemetry, dependencies, spend, or production work until failure, measurement, security, and financial gates clear.",
+        "summary": "Recommendation: keep SearchWoot private. Rights, privacy, security, accuracy, attribution, and measurement gates remain incomplete; the prepared permission request stays unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }
