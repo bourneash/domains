@@ -211,7 +211,7 @@ function interruptedWorkerRecoveryPath(request) {
 // Docker can remove an isolated worker between the reviewer and delivery
 // callbacks, which surfaces as "No such container".
 function isInfrastructureEvidence(value) {
-  return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1)/i.test(
+  return /(EAGAIN|spawn\s+[^\n]*node|failed to spawn|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1)/i.test(
     String(value || '')
   );
 }

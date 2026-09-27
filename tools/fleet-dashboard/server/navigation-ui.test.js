@@ -125,11 +125,11 @@ test('executive conversation route skips unrelated control-plane requests', () =
   );
   assert.match(
     app,
-    /conversationOnly \? Promise\.resolve\(\{ proposals: \[\] \}\) : api\('GET', '\/api\/executive\/proposals\?limit=100'\)/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*proposals:\s*\[\]\s*\}\)\s*:\s*api\('GET', '\/api\/executive\/proposals\?limit=100'\)/
   );
   assert.match(
     app,
-    /conversationOnly \? Promise\.resolve\(\{ cases: \[\] \}\) : apiOptional\('GET', '\/api\/cases\?limit=300'/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*apiOptional\('GET', '\/api\/cases\?limit=300'/
   );
 });
 
