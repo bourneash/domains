@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:48:46.791Z",
+  "generated_at": "2026-09-27T12:03:49.571Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: preserve containment-only execution. The fleet has 47 open failure follow-ups, 28 deployed improvements awaiting measurement, and only 2 proven outcomes in the 30-day scorecard. Retain three evidence-backed opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Do not create new production work, experiments, telemetry, dependencies, spend, monetization changes, or unsupported revenue claims. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep the gated product private and external outreach unsent pending counsel and owner authorization.",
+        "summary": "Product recommendation: preserve containment-only execution. Retain three evidence-backed opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement (95 impressions, position 2.8, 0 clicks), broadwayshowgirls.com Priya Raghunathan CTR refinement (64 impressions, position 2, 0 clicks), and americastrikes.com mobile-performance diagnosis (performance 65, LCP 4861ms, TBT 492ms). These support prioritization only; revenue, ROI, margin, causal lift, and implementation authorization are unsupported. Do not create duplicate proposals, work items, change requests, experiments, telemetry, dependencies, deployments, spend, or monetization changes. Continue existing failure repair-or-close, measurement reconciliation, and bounded legal/security evidence work; preserve private launch gates and external outreach restrictions.",
         "requested_action": null,
         "proposal_id": null
       }

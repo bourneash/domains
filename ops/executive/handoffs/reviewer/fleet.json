@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:48:46.793Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T12:03:49.573Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry, dependencies, spending, monetization expansion, public launch, and unsupported financial claims. Preserve the three SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent pending counsel and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: revenue evidence covers one date and includes $4.92 aggregate commission that is not site-attributable; ROI, margin, payback, budget exposure, and causal lift remain unknown. Low-volume and permission-limited telemetry also blocks new production claims. The smallest defensible plan is to finish existing repair-or-close, reconciliation, and read-only legal/security evidence while preserving the three bounded opportunities as deferred backlog. Keep the gated product private and outreach unsent until counsel and owner gates clear.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, production, requeue, experiment, telemetry, dependency, spend, monetization, and public-launch claims. Retain the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep private launch gates and external outreach restrictions unchanged; no new research request is justified.",
         "requested_action": null,
         "proposal_id": null
       }

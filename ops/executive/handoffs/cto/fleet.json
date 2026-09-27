@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:48:46.793Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T12:03:49.572Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: approve containment-only execution. The three SEO/performance opportunities are technically feasible and reversible in isolation, but remain deferred because failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are unresolved. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Keep the gated product private pending counsel and owner authorization.",
+        "summary": "CTO disposition: approve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan CTR refinement, and americastrikes.com mobile-performance diagnosis. They are technically feasible and reversible in isolation, but cannot enter the queue until existing failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the three CRO opportunities as deferred backlog only: deeppenetrations.com liquid-wrench result refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Their evidence supports prioritization, not revenue, ROI, margin, or causal-lift claims. Reconsider queue entry only after existing containment controls and site-specific measurement readiness are evidenced.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate provider commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget exposure, and causal lift. Do not treat operating metrics or conflicting AI-cost records as financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
+        "summary": "Continue existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only security and legal evidence. Preserve explicit unknowns; do not treat missing operational sweeps, aggregate revenue, traffic, rankings, conversions, technical scores, or AI usage as financial or security clearance evidence.",
         "requested_action": null,
         "proposal_id": null
       }
