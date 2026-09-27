@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T04:03:43.344Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T04:33:01.055Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, experiments, requeues, duplicate telemetry, spend, dependencies, monetization expansion, external outreach, and unsupported financial or readiness claims. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Revenue, ROI, margin, causal lift, and operational readiness remain unsupported. Owner concern: keep the prepared permission request unsent unless human counsel reviews it and the owner explicitly authorizes outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing workstreams only; do not create duplicate requests or queue new implementation work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep aggregate commission unattributed and continue reconciliation of conflicting cost records before any financial claim or spend decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and continue the existing read-only launch checklist. No public exposure, deployment, configuration change, credential change, alert expansion, monetization expansion, or external outreach is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence capture and failed-work containment. Do not requeue, deploy, add dependencies, retrieve credentials, change permissions, or expand public exposure.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, duplicate telemetry, spend, dependencies, monetization expansion, external outreach, and unsupported revenue or causal-lift claims. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Owner concern: keep the prepared permission request unsent unless human counsel reviews it and the owner explicitly authorizes outreach.",
         "requested_action": null,
         "proposal_id": null
       }
