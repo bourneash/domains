@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:04:19.376Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T16:19:18.151Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, only 2 outcomes are proven, and no queue-eligible candidate exists. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; ROI, margin, payback, and causal lift remain unknown. Continue existing repair-or-close, measurement reconciliation, and legal/security evidence work; keep private gates and parked dispositions unchanged. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO opportunities are retained as deferred backlog, not rejected: SEO, performance, UX, content depth, internal linking, affiliate repair, and repository leads remain evidence-backed but are not queue-eligible until failure ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not create duplicate requests, requeue failures, access credentials, add dependencies, deploy, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve the $4.92 aggregate commission as unattributed and retain margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown.",
+        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; ROI, margin, and causal lift remain unknown. Preserve CRO opportunities as deferred backlog and continue existing repair, measurement, legal, and security work. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }
