@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T18:03:18.164Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T18:18:35.589Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, attribution and cost reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed, keep private launch gates and parked dispositions unchanged, and keep external outreach unsent. Owner concern: any permission request requires human-counsel review before authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, attribution and cost reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed; keep private launch gates, parked dispositions, and external outreach unchanged. Owner concern: any permission request requires human-counsel review before authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog only. Existing failures, pending measurements, unavailable operations/security sweeps, and incomplete attribution do not support new queue work this cycle.",
+        "summary": "Maintain financial containment. Available revenue is limited to a single period and includes aggregate commission that is not site-attributable. Do not infer revenue, ROI, margin, payback, budget capacity, cost-to-learn, or causal lift. Continue existing reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private and retain parked-site dispositions. Continue existing read-only legal, accuracy, attribution, measurement, and security evidence work; do not authorize public exposure, rights-dependent monetization, credential or configuration changes, deployment, dependency additions, spending, or external outreach.",
+        "summary": "Keep the gated product private and retain parked-site dispositions. Continue existing consolidated legal, accuracy, attribution, measurement, and security evidence work only. Do not authorize public exposure, rights-dependent monetization, alert expansion, credential or configuration changes, dependencies, deployment, spending, or external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog. No new proposals, change requests, research requests, experiments, telemetry, dependencies, deployments, spending, or requeues are justified this cycle because failure follow-ups, pending measurements, unavailable operational/security sweeps, and incomplete attribution remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       }

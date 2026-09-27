@@ -2,44 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T18:03:18.163Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T18:18:35.588Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and reject new proposals, change requests, requeues, experiments, telemetry, spend, deployments, and monetization changes this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, the candidate list is empty, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; margin, ROI, payback, and causal lift are unknown. Preserve the CRO/site opportunities as deferred backlog and continue existing repair-or-close, attribution reconciliation, and legal/security evidence work. Owner decision: authorize the prepared Woot permission request after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: preserve containment-only execution and the CRO/product-manager plan as deferred backlog. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, the actionability candidate list is empty, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; margin, ROI, payback, and causal lift are unknown. Continue existing repair-or-close, measurement reconciliation, and bounded legal/security evidence work. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the CRO and product-manager-sites plan as deferred backlog only. Do not create duplicate work. Continue existing failure repair, deterministic validation, rollback, deduplication, measurement reconciliation, and bounded legal/security evidence work; reassess only after the containment gates are satisfied.",
+        "summary": "Handoff: retain all useful SEO, UX, accessibility, performance, content, affiliate, monetization, audience, search, GitHub, and CRO-lab opportunities as deferred backlog only. Do not create duplicate proposals, change requests, experiments, telemetry, dependencies, deployments, spend, or requeues until failure ownership, root cause, validation, rollback, deduplication, attribution, and measurement readiness are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6",
-        "summary": "Retain as deferred CRO backlog; current containment gate, incomplete measurement, and open failure follow-ups do not support a prototype or execution request.",
-        "requested_action": "declined",
-        "proposal_id": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bedd1b83-2563-4f17-b193-c1250fcd9935",
-        "summary": "Retain as deferred CRO backlog; do not adopt or install dependencies while execution, validation, security, and measurement controls remain incomplete.",
-        "requested_action": "declined",
-        "proposal_id": "bedd1b83-2563-4f17-b193-c1250fcd9935"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8",
-        "summary": "Retain as deferred CRO backlog; no new content or implementation work is queue-eligible during containment.",
-        "requested_action": "declined",
-        "proposal_id": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8"
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep SearchWoot private and retain the parked dispositions for complicated.work and deadlymaracas.com. Current evidence supports neither public launch nor monetization: four legal launch tasks remain open, security and operations sweeps are unavailable, and parked-site reachability and monetization evidence are incomplete. Smallest next step is the existing consolidated read-only evidence work; external outreach remains unsent.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

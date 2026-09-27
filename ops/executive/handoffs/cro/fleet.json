@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T18:03:18.162Z",
+  "generated_at": "2026-09-27T18:18:35.588Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog only. Current evidence does not support new proposals or queue work: 47 failure follow-ups remain open, 28 improvements await measurement, the candidate list is empty, operations/security sweeps are unavailable, and only 2 outcomes are proven. Continue existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Do not infer revenue or ROI from the $4.92 aggregate, unattributed commission record.",
+        "summary": "Recommendation: retain all SEO, UX, accessibility, performance, content, affiliate, monetization, audience, search, GitHub, and CRO-lab opportunities as deferred backlog only. Do not create proposals, change requests, research requests, experiments, telemetry, dependencies, deployments, spend, or monetization changes this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, the queue candidate list is empty, operations and security sweeps are unavailable, attribution is incomplete, and only 2 outcomes are proven. Continue existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Preserve unknown financial outcomes and do not infer revenue, ROI, margin, payback, or causal lift from the available aggregate commission record.",
         "requested_action": null,
         "proposal_id": null
       }
