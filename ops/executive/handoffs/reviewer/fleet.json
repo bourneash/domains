@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:03:55.096Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T05:19:05.446Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, duplicate telemetry, spend, dependencies, monetization expansion, external outreach, and unsupported revenue or causal-lift claims. Keep aggregate commission unattributed and the gated product private. Continue only existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work. No new research requests are justified because the authoritative telemetry and evidence workstreams already cover the stated gaps.",
+        "summary": "Reject new production work, requeues, experiments, duplicate telemetry, spend, dependencies, monetization expansion, unsupported revenue claims, and external outreach. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence. Keep the gated product private; the prepared permission request remains unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only the existing measurement/attribution reconciliation and private launch-gate evidence work. Preserve other opportunities as deferred backlog; do not duplicate requests or create new proposals, research, experiments, queue work, or production changes.",
+        "summary": "Continue existing finance reconciliation only. Keep the $4.92 aggregate commission unattributed and reconcile conflicting AI-cost records before any ROI, margin, forecast, or spend decision.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate and existing read-only checklist. Attach the consolidated evidence bundle and rights matrix; do not send outreach or change production, credentials, configuration, or monetization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Review existing failures and measurements without requeueing, deploying, adding telemetry or dependencies, or creating new production work.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:03:55.095Z",
+  "generated_at": "2026-09-27T05:19:05.444Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. The authoritative candidate list is empty; 46 failure follow-ups remain open, 32 deployed improvements await measurement, and only 1 outcome is proven. Preserve SEO, performance, accessibility, conversion, attribution, and validated repository opportunities as deferred backlog. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new proposals, experiments, telemetry, dependencies, requeues, deployments, monetization changes, spend, or unsupported revenue claims.",
+        "summary": "CRO recommendation: preserve containment-only execution. Do not retain new CRO proposals, experiments, research requests, dependencies, telemetry, spend, monetization changes, requeues, or deployments this cycle. Continue existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Evidence: 187 approved proposals lack execution requests, 47 failure follow-ups remain open, 32 deployed improvements await measurement, only 1 outcome is proven, operations and fleet-doctor results are unavailable, and financial attribution remains incomplete. Preserve SEO, accessibility, performance, conversion, attribution, and validated repository concepts as deferred backlog only.",
         "requested_action": null,
         "proposal_id": null
       }

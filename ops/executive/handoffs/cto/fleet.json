@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:03:55.096Z",
+  "generated_at": "2026-09-27T05:19:05.445Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new queue item is safe to enter this cycle because the authoritative candidate list is empty, failure repair and measurement capacity are occupied, and isolation, validation, rollback, security, attribution, and financial evidence remain incomplete. Continue only existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded read-only legal/security evidence. Preserve private launch gates and keep external outreach, new dependencies, telemetry, spend, requeues, deployments, and monetization changes blocked.",
+        "summary": "CTO review: approve containment-only execution. No new queue item is technically safe this cycle. The authoritative candidate list is empty; existing failure repair, measurement, validation, and review capacity is occupied. Operations and fleet-doctor evidence are unavailable, 47 failure follow-ups remain open, 32 deployed improvements await measurement, and only 1 outcome is proven. Continue only existing source-dated measurement and attribution reconciliation, failed-work repair-or-close review, and bounded read-only legal/security evidence. Preserve deferred SEO, performance, accessibility, conversion, routing, cost-visibility, and operational-readiness concepts without creating proposals, change requests, experiments, telemetry, dependencies, requeues, deployments, spend, monetization changes, or unsupported revenue claims. Maintain isolation until lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are documented. Keep the gated product private and external outreach unsent pending required rights, counsel, security, accuracy, attribution, measurement, and owner decisions.",
         "requested_action": null,
         "proposal_id": null
       }

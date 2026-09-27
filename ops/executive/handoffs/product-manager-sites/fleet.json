@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:03:55.094Z",
+  "generated_at": "2026-09-27T05:19:05.444Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. The authoritative candidate list is empty; 46 failure follow-ups remain open, 32 deployed improvements await measurement, and only 1 outcome is proven. Preserve SEO, performance, accessibility, conversion, attribution, and cross-site capability opportunities as deferred backlog. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new proposals, experiments, telemetry, dependencies, requeues, deployments, monetization changes, spend, or unsupported revenue claims.",
+        "summary": "Recommendation: preserve containment-only execution and defer new site work. Continue existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work only.",
         "requested_action": null,
         "proposal_id": null
       }
