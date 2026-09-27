@@ -4500,6 +4500,71 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/agent-evals', (req, res) => {
+    try {
+      res.json({ evaluations: events.listAgentEvals(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-evals', (req, res) => {
+    try {
+      res.status(201).json({ evaluation: events.createAgentEval(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agents/:id/evals/summary', (req, res) => {
+    try {
+      res.json({ summary: events.agentEvalSummary(req.params.id) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-tools', (req, res) => {
+    try {
+      res.json({ grants: events.listAgentToolGrants(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-tools', (req, res) => {
+    try {
+      res.status(201).json({ grant: events.upsertAgentToolGrant(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-tools/check', (req, res) => {
+    try {
+      res.json(events.canAgentUseTool(req.query.agent_id, req.query.tool_name));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-workspaces', (req, res) => {
+    try {
+      res.json({ workspaces: events.listAgentWorkspaces(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-workspaces', (req, res) => {
+    try {
+      res.status(201).json({ workspace: events.createAgentWorkspace(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-workspaces/:id/close', (req, res) => {
+    try {
+      const workspace = events.closeAgentWorkspace(req.params.id);
+      if (!workspace) return res.status(404).json({ error: 'active workspace not found' });
+      res.json({ workspace });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/change-requests/transcribe', async (req, res) => {
     try {
       res.json(await changequeue.transcribe(req.body || {}));

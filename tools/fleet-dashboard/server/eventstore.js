@@ -2675,6 +2675,210 @@ function open(root, { file } = {}) {
     return { checked: armed.length, fired };
   }
 
+  function createAgentEval(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const score = Number(input.score);
+    if (!Number.isFinite(score) || score < 0 || score > 100)
+      throw httpErr(400, 'eval score must be 0-100');
+    const row = {
+      eval_id: input.eval_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      run_id: input.run_id || null,
+      evaluator: String(input.evaluator || 'system'),
+      dimension: String(input.dimension || 'quality'),
+      score,
+      feedback: String(input.feedback || ''),
+      evidence: input.evidence && typeof input.evidence === 'object' ? input.evidence : {},
+      created_at: input.created_at || new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO agent_evals (eval_id,agent_id,run_id,evaluator,dimension,score,feedback,evidence_json,created_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.eval_id,
+      row.agent_id,
+      row.run_id,
+      row.evaluator,
+      row.dimension,
+      row.score,
+      row.feedback,
+      JSON.stringify(row.evidence),
+      row.created_at
+    );
+    return row;
+  }
+  function listAgentEvals({ agent_id, run_id, dimension, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['run_id', run_id],
+      ['dimension', dimension],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_evals${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(row => ({ ...row, evidence: safeJson(row.evidence_json) }));
+  }
+  function agentEvalSummary(agentId) {
+    const rows = listAgentEvals({ agent_id: agentId, limit: 1000 });
+    const byDimension = {};
+    for (const row of rows) {
+      const bucket =
+        byDimension[row.dimension] || (byDimension[row.dimension] = { count: 0, total: 0 });
+      bucket.count++;
+      bucket.total += Number(row.score) || 0;
+    }
+    for (const bucket of Object.values(byDimension))
+      bucket.average = Number((bucket.total / bucket.count).toFixed(2));
+    return { agent_id: String(agentId), evaluations: rows.length, by_dimension: byDimension };
+  }
+
+  function upsertAgentToolGrant(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const row = {
+      grant_id: input.grant_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      tool_name: String(input.tool_name || '').trim(),
+      scope: input.scope && typeof input.scope === 'object' ? input.scope : {},
+      approval_required: input.approval_required === false ? 0 : 1,
+      status: String(input.status || 'active'),
+      created_at: input.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    if (!row.tool_name) throw httpErr(400, 'tool name is required');
+    db.prepare(
+      'INSERT INTO agent_tool_grants (grant_id,agent_id,tool_name,scope_json,approval_required,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(agent_id,tool_name) DO UPDATE SET scope_json=excluded.scope_json,approval_required=excluded.approval_required,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      row.grant_id,
+      row.agent_id,
+      row.tool_name,
+      JSON.stringify(row.scope),
+      row.approval_required,
+      row.status,
+      row.created_at,
+      row.updated_at
+    );
+    return getAgentToolGrant(row.agent_id, row.tool_name);
+  }
+  function getAgentToolGrant(agentId, toolName) {
+    const row = db
+      .prepare('SELECT * FROM agent_tool_grants WHERE agent_id=? AND tool_name=?')
+      .get(String(agentId), String(toolName));
+    return row
+      ? {
+          ...row,
+          scope: safeJson(row.scope_json),
+          approval_required: Boolean(row.approval_required),
+        }
+      : null;
+  }
+  function listAgentToolGrants({ agent_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_tool_grants${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY agent_id,tool_name LIMIT ?`
+      )
+      .all(...args, n)
+      .map(row => ({
+        ...row,
+        scope: safeJson(row.scope_json),
+        approval_required: Boolean(row.approval_required),
+      }));
+  }
+  function canAgentUseTool(agentId, toolName) {
+    const agent = getAgent(agentId),
+      grant = getAgentToolGrant(agentId, toolName);
+    return {
+      allowed: Boolean(agent && agent.status === 'active' && grant && grant.status === 'active'),
+      agent_status: agent?.status || 'missing',
+      grant: grant || null,
+    };
+  }
+
+  function createAgentWorkspace(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const workspacePath = String(input.path || '').trim();
+    if (!workspacePath || workspacePath.includes('..'))
+      throw httpErr(400, 'invalid workspace path');
+    const now = new Date().toISOString();
+    const row = {
+      workspace_id: input.workspace_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      run_id: input.run_id || null,
+      site: input.site || null,
+      path: workspacePath,
+      mode: String(input.mode || 'isolated'),
+      status: String(input.status || 'active'),
+      preview_url: input.preview_url || null,
+      created_at: now,
+      updated_at: now,
+      closed_at: null,
+    };
+    db.prepare(
+      'INSERT INTO agent_workspaces (workspace_id,agent_id,run_id,site,path,mode,status,preview_url,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.workspace_id,
+      row.agent_id,
+      row.run_id,
+      row.site,
+      row.path,
+      row.mode,
+      row.status,
+      row.preview_url,
+      row.created_at,
+      row.updated_at,
+      row.closed_at
+    );
+    return row;
+  }
+  function listAgentWorkspaces({ agent_id, run_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['run_id', run_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_workspaces${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+  function closeAgentWorkspace(id) {
+    const now = new Date().toISOString();
+    const result = db
+      .prepare(
+        "UPDATE agent_workspaces SET status='closed',closed_at=?,updated_at=? WHERE workspace_id=? AND status='active'"
+      )
+      .run(now, now, String(id));
+    return result.changes
+      ? db.prepare('SELECT * FROM agent_workspaces WHERE workspace_id=?').get(String(id))
+      : null;
+  }
+
   const KNOWLEDGE_TYPES = new Set([
     'official',
     'book',
@@ -2918,6 +3122,16 @@ function open(root, { file } = {}) {
     createAgentWatchdog,
     listAgentWatchdogs,
     auditAgentWatchdogs,
+    createAgentEval,
+    listAgentEvals,
+    agentEvalSummary,
+    upsertAgentToolGrant,
+    getAgentToolGrant,
+    listAgentToolGrants,
+    canAgentUseTool,
+    createAgentWorkspace,
+    listAgentWorkspaces,
+    closeAgentWorkspace,
     close,
     file: dbFile,
   };

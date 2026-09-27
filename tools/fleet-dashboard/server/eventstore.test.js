@@ -278,3 +278,40 @@ test('routines and watchdogs provide durable scheduling and stalled-run detectio
   assert.equal(store.listAgentWatchdogs({ status: 'fired' }).length, 1);
   store.close();
 });
+
+test('evaluations, tool grants, and workspaces are scoped and auditable', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-governance-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const agent = store.createAgent({
+    slug: 'governed-agent',
+    name: 'Governed',
+    title: 'Worker',
+    role: 'engineer',
+    adapter: 'codex',
+  });
+  const evaluation = store.createAgentEval({
+    agent_id: agent.agent_id,
+    dimension: 'quality',
+    score: 92,
+    feedback: 'verified output',
+  });
+  assert.equal(store.agentEvalSummary(agent.agent_id).by_dimension.quality.average, 92);
+  assert.equal(evaluation.agent_id, agent.agent_id);
+  store.upsertAgentToolGrant({
+    agent_id: agent.agent_id,
+    tool_name: 'read:gsc',
+    scope: { sites: ['example.com'] },
+  });
+  assert.equal(store.canAgentUseTool(agent.agent_id, 'read:gsc').allowed, true);
+  assert.equal(store.canAgentUseTool(agent.agent_id, 'write:deploy').allowed, false);
+  const workspace = store.createAgentWorkspace({
+    agent_id: agent.agent_id,
+    path: '/tmp/agent-workspace',
+  });
+  assert.equal(store.closeAgentWorkspace(workspace.workspace_id).status, 'closed');
+  assert.throws(
+    () => store.createAgentWorkspace({ agent_id: agent.agent_id, path: '../escape' }),
+    /invalid workspace path/
+  );
+  store.close();
+});
