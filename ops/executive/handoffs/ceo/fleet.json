@@ -2,49 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T04:03:43.342Z",
-  "summary": "ceo checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-27T04:19:32.849Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing finance reconciliation. Keep $4.92 aggregate commission unattributed and reconcile the conflicting AI-cost records before any ROI, margin, payback, forecast, or spend decision.",
+        "summary": "Handoff: continue existing source-dated measurement and attribution reconciliation. Keep the $4.92 aggregate commission unattributed and reconcile conflicting AI-cost records before any ROI, margin, forecast, or spend decision.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: keep SearchWoot private and continue the existing read-only launch checklist. Source rights, privacy, accuracy, security, attribution, measurement, and owner gates remain incomplete; the prepared permission request stays unsent pending counsel review and authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue bounded read-only security evidence capture and failed-work containment. Do not requeue, deploy, add dependencies, retrieve credentials, change permissions, or expand public exposure until the existing evidence and repair-or-close gates are complete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue existing finance reconciliation. Keep aggregate commission unattributed and reconcile conflicting AI-cost records before any ROI, margin, payback, forecast, or spend decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: keep the gated product private and continue the existing read-only launch checklist. Source rights, privacy, accuracy, security, attribution, measurement, and owner gates remain incomplete; the prepared permission request stays unsent pending counsel review and authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue bounded read-only security evidence capture and failed-work containment. Do not requeue, deploy, add dependencies, retrieve credentials, change permissions, or expand public exposure until existing evidence and repair-or-close gates are complete.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, causal-lift, readiness, and telemetry claims; new production work, requeues, experiments, spend, dependencies, duplicate telemetry, monetization expansion, and external outreach. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Keep the prepared permission request unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

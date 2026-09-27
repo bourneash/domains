@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T04:03:43.343Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T04:19:32.849Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Revenue is supported only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26, conflicting with a prior record of $963.5690377 and 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing costs are absent, incremental outcomes are not isolated, and monthly spend, marketing, revenue-target, and revenue-floor limits are blank. Do not authorize discretionary spend, commitments, forecasts, monetization expansion, requeues, or new production work. Continue existing reconciliation and evidence work only. Minimum finance measurement: reconcile the AI-cost records, produce a period-aligned ledger for hosting, domains, labor, marketing, experiments, and other operating costs, define owner-approved monthly limits, and map attributable commission to site/content identifiers before reporting margin, ROI, payback, or cost-to-learn.",
+        "summary": "Recommendation: approve containment-only execution. Reject discretionary spend, commitments, forecasts, monetization expansion, requeues, and new production work. Supported revenue covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI cost for 2026-09-01 through 2026-09-26 is $966.82985915 across 5,417 calls, conflicting with a prior record of $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned; period-aligned hosting, domains, labor, marketing, experiment, and other operating costs are absent; incremental outcomes are not isolated; and monthly spend, marketing, revenue-target, and revenue-floor limits are blank. Use the existing reconciliation workstream only. Minimum finance measurement is one reconciled ledger covering the revenue and AI windows, resolved AI-cost lineage, attributable site/content identifiers, incremental outcome deltas, and owner-approved monthly limits. Do not treat clicks, sessions, impressions, conversions, technical scores, or forecasted CTR as financial returns. Preserve aggregate commission as unattributed and keep unsupported financial claims unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing measurement and attribution reconciliation without duplicate telemetry or new requests. Reconcile the conflicting AI-cost records and assemble period-aligned operating costs before reporting margin, ROI, payback, cost-to-learn, budget headroom, or forecasts. No money movement, billing change, banking access, contracts, or external financial commitment is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Use existing telemetry only. Keep aggregate commission unattributed and reconcile conflicting AI-cost records before any ROI, margin, payback, forecast, spend, or causal claim. Do not request duplicate telemetry or authorize new spend.",
         "requested_action": null,
         "proposal_id": null
       }
