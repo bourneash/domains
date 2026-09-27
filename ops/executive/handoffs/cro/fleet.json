@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:48:55.421Z",
+  "generated_at": "2026-09-27T06:02:42.166Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. The authoritative candidate list is empty; 47 failure follow-ups remain open, 32 deployed improvements await measurement, and only 1 outcome is proven. Preserve SEO, performance, accessibility, conversion, affiliate, audience, and validated repository opportunities as deferred backlog. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new proposals, experiments, change requests, research requests, telemetry, dependencies, requeues, deployments, spend, monetization expansion, or unsupported revenue or causal-lift claims.",
+        "summary": "Maintain containment-only execution. Retain no new CRO proposals, experiments, change requests, research requests, dependencies, telemetry, spend, requeues, deployments, or monetization changes this cycle. Preserve as deferred backlog: validated MIT repository concepts (shadcn/ui for accessible CTA components; MarkItDown for bounded content-ingestion prototypes; Mermaid for static diagrams), SEO opportunities already evidenced in the snapshot, and affiliate/conversion concepts pending measurement capacity. Existing evidence remains insufficient for causal revenue claims: 32 improvements await measurement, only 1 outcome is proven, revenue attribution is partial aggregate, and financial/security gates remain constrained. Revisit only after existing measurement, attribution reconciliation, failure repair-or-close review, and bounded legal/security evidence work clear capacity and release gates.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:48:55.422Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T06:02:42.167Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, external outreach, and unsupported revenue or causal-lift claims. Keep the gated product private. Owner concern: the prepared permission request remains unsent unless human counsel reviews it and the owner explicitly authorizes outreach.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, unsafe tactics, and unsupported revenue or causal-lift claims. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: revenue evidence covers one dated window only; the $4.92 aggregate commission is not site-attributable, and conflicting AI-cost records plus missing cost windows prevent ROI, margin, forecast, payback, or spend claims. Authorize the prepared permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }
