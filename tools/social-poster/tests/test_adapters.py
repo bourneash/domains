@@ -100,6 +100,32 @@ def test_bluesky_adapter_posts(monkeypatch):
     assert result  # non-empty
 
 
+def test_bluesky_adapter_uploads_product_image():
+    adapter = BlueskyAdapter()
+    creds = {"BLUESKY_HANDLE": "test.bsky.social", "BLUESKY_APP_PASSWORD": "xxx"}
+    article = Article(
+        slug="pink-skull",
+        title="Pink Skull Desk Sign",
+        url="https://weirdgirlstore.com/finds/pink-skull/",
+        summary="A glossy pink skull with a motivational message.",
+        image_url="https://weirdgirlstore.com/images/curios/pink-skull.webp",
+    )
+    with patch("social_poster.adapters.bluesky.Client") as MockClient, patch(
+        "social_poster.adapters.bluesky.httpx.get"
+    ) as mock_get:
+        mock_get.return_value.content = b"product-image"
+        mock_get.return_value.raise_for_status.return_value = None
+        MockClient.return_value.send_image.return_value = MagicMock(uri="at://did/post/image")
+        result = adapter.post(article, creds)
+
+    assert result
+    MockClient.return_value.send_image.assert_called_once()
+    kwargs = MockClient.return_value.send_image.call_args.kwargs
+    assert kwargs["image"] == b"product-image"
+    assert kwargs["image_alt"] == "Pink Skull Desk Sign"
+    assert "weirdgirlstore.com/finds/pink-skull/" in MockClient.return_value.send_image.call_args.args[0].build_text()
+
+
 def test_bluesky_adapter_posts_contain_url():
     adapter = BlueskyAdapter()
     creds = {"BLUESKY_HANDLE": "test.bsky.social", "BLUESKY_APP_PASSWORD": "xxx"}
