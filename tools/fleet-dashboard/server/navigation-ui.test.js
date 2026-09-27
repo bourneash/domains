@@ -100,7 +100,7 @@ test('executive conversation workspace behaves like an email inbox', () => {
   assert.match(workspace, /const split = requests\?\.querySelector\('\.ex-request-split'\)/);
   assert.match(workspace, /requests\.insertBefore\(compose, split\)/);
   assert.match(app, /: null;\n  EXEC_INBOX_UI\.selected = selectedRequestId/);
-  assert.match(app, /new Map\(\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
+  assert.match(app, /new Map\(\s*\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
   assert.match(app, /class="ex-request-list-summary"/);
   assert.match(app, /<b>Full thread<\/b>/);
   assert.doesNotMatch(app, /ex-request-response/);

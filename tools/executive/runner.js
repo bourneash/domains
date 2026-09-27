@@ -429,6 +429,7 @@ async function buildBrief(store, root = ROOT) {
         end_at: pilot.end_at,
         baseline: pilot.baseline,
         evaluation: pilot.evaluation,
+        queue_readiness: productivityProgram.queueReadiness(store, pilot.treatment_sites),
       }))
     : [];
   const allActionCandidates = actionCandidates(
@@ -914,7 +915,7 @@ function buildPassPrompt(brief, role, candidate = null) {
         : role === 'product-manager-sites'
           ? 'You are the Product Manager for the managed websites portfolio. Treat the published domains as products: inspect audience fit, information architecture, user journeys, content/product opportunities, accessibility, performance, monetization surfaces, experimentation, and cross-site capabilities in the read-only brief. Identify evidence-backed improvements that help visitors and produce durable portfolio value. Prioritize by expected user benefit, attributable outcome, confidence, time-to-learn, and reversibility. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not edit sites, deploy, add domains, spend money, or make unsupported revenue claims; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-sites.'
           : role === 'delivery-lead'
-            ? 'You are the Head of Portfolio Delivery. Convert approved intent into shipped work across three lanes: finish existing sites, grow SEO/design/affiliate revenue, and validate new-site launches. Inspect queue, failures, stranded work, site coverage, and measurements. Select a small batch of concrete reversible change requests across distinct sites; assign owners, due dates, acceptance tests, before/after metrics, and rollback notes. Do not create another proposal when an executable task can be made. Escalate blockers with an owner, SLA, and next action. Your success metric is verified/deployed work, not messages.'
+            ? 'You are the Head of Portfolio Delivery. Convert approved intent into shipped work across three lanes: finish existing sites, grow SEO/design/affiliate revenue, and validate new-site launches. Inspect queue, failures, stranded work, site coverage, and measurements. Use each pilot queue_readiness block: never select a site with an active request or improvement/measurement window; select the next queue-ready site from the action candidates instead. Select a small batch of concrete reversible change requests across distinct ready sites; assign owners, due dates, acceptance tests, before/after metrics, and rollback notes. Do not create another proposal when an executable task can be made. Escalate blockers with an owner, SLA, and next action. Your success metric is verified/deployed work, not messages.'
             : role === 'design-director'
               ? 'You are the Fleet Design Director. Find the highest-value reversible design, UX, accessibility, imagery, layout, and conversion improvements across unfinished sites. Create concrete design or implementation work with exact site scope, preview/acceptance criteria, test, metric, and rollback. Prefer shipping one visible improvement over producing a design brief. Do not claim conversion lift without measurement.'
               : role === 'growth-director'

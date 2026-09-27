@@ -58,6 +58,36 @@ function treatmentBatch(pilot) {
   ]);
 }
 
+function queueReadiness(store, sites) {
+  const normalized = normalizeSites(sites);
+  const activeRequests = store
+    .listChangeRequests({ limit: 1000 })
+    .filter(row =>
+      ['queued', 'claimed', 'running', 'reviewing', 'review', 'committed'].includes(
+        String(row.status || '').toLowerCase()
+      )
+    );
+  const activeRuns = store
+    .listImprovements({ limit: 1000 })
+    .filter(row => ['proposed', 'building', 'review', 'deployed', 'measuring'].includes(row.state));
+  const blocked = [];
+  const ready = [];
+  for (const site of normalized) {
+    const request = activeRequests.find(row => String(row.site || '').toLowerCase() === site);
+    const run = activeRuns.find(row => String(row.site || '').toLowerCase() === site);
+    if (request || run) {
+      blocked.push({
+        site,
+        reason: request
+          ? `active change request: ${request.status}`
+          : `active improvement: ${run.state}`,
+        measurement_due: run?.measurement_due || null,
+      });
+    } else ready.push(site);
+  }
+  return { sites: normalized, ready_sites: ready, blocked_sites: blocked };
+}
+
 function emptyGroup() {
   return {
     sites: 0,
@@ -180,4 +210,12 @@ function evaluate(baseline, current) {
   };
 }
 
-module.exports = { LANES, normalizeSites, snapshot, evaluate, laneFor, treatmentBatch };
+module.exports = {
+  LANES,
+  normalizeSites,
+  snapshot,
+  evaluate,
+  laneFor,
+  treatmentBatch,
+  queueReadiness,
+};

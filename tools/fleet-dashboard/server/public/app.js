@@ -14053,11 +14053,10 @@ async function renderExecutive() {
   // The inbox endpoint is the canonical source for owner requests. Older
   // responses can still contain the same work item in both the inbox payload
   // and the work-items fallback, so keep the UI keyed to one row per thread.
-  const allOwnerRequests = Array.from(
-    new Map(
-      (inbox.requests || requests.work_items || []).map(request => [request.work_id, request])
-    ).values()
+  const ownerRequestMap = new Map(
+    (inbox.requests || requests.work_items || []).map(request => [request.work_id, request])
   );
+  const allOwnerRequests = Array.from(ownerRequestMap.values());
   const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   const requestMatches = request => {
     const haystack = [request.title, request.summary, request.lifecycle_state, request.status]

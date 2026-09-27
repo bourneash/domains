@@ -97,3 +97,45 @@ test('treatment batch creates one idempotent design and growth action per treatm
   assert.equal(batch.filter(row => row.lane === 'finish-sites').length, 2);
   assert.equal(batch.filter(row => row.lane === 'growth-revenue').length, 2);
 });
+
+test('queue readiness excludes sites with active requests or improvement windows', () => {
+  const db = fixture();
+  db.createChangeRequest({
+    site: 'busy-request.example',
+    title: 'Queued work',
+    body: 'bounded',
+    status: 'queued',
+    created_at: new Date().toISOString(),
+  });
+  db.createImprovement({
+    site: 'busy-measurement.example',
+    source: 'test',
+    title: 'Measured work',
+    state: 'measuring',
+    measurement_due: '2026-10-08',
+  });
+  assert.deepEqual(
+    productivity.queueReadiness(db, [
+      'busy-request.example',
+      'busy-measurement.example',
+      'ready.example',
+    ]),
+    {
+      sites: ['busy-request.example', 'busy-measurement.example', 'ready.example'],
+      ready_sites: ['ready.example'],
+      blocked_sites: [
+        {
+          site: 'busy-request.example',
+          reason: 'active change request: queued',
+          measurement_due: null,
+        },
+        {
+          site: 'busy-measurement.example',
+          reason: 'active improvement: measuring',
+          measurement_due: '2026-10-08',
+        },
+      ],
+    }
+  );
+  db.close();
+});
