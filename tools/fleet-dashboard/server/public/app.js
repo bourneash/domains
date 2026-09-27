@@ -14050,7 +14050,14 @@ async function renderExecutive() {
     renderViewError(app, `Executive control plane failed: ${e.message}`);
     return;
   }
-  const allOwnerRequests = inbox.requests || requests.work_items || [];
+  // The inbox endpoint is the canonical source for owner requests. Older
+  // responses can still contain the same work item in both the inbox payload
+  // and the work-items fallback, so keep the UI keyed to one row per thread.
+  const allOwnerRequests = Array.from(
+    new Map(
+      (inbox.requests || requests.work_items || []).map(request => [request.work_id, request])
+    ).values()
+  );
   const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   const requestMatches = request => {
     const haystack = [request.title, request.summary, request.lifecycle_state, request.status]
@@ -14128,11 +14135,13 @@ async function renderExecutive() {
         `<div class="ex-thread-activity-row"><b>${esc(item.metadata?.label || 'Background work')}</b><span>${esc(item.body)}</span><small>${esc(fmtDate(item.created_at))}</small></div>`
     )
     .join('');
+  // Behave like an email client: show previews until the operator chooses a
+  // message. Preserve an explicitly selected thread across soft refreshes.
   const selectedRequestId = ownerRequests.some(
     request => request.work_id === EXEC_INBOX_UI.selected
   )
     ? EXEC_INBOX_UI.selected
-    : ownerRequests[0]?.work_id || null;
+    : null;
   EXEC_INBOX_UI.selected = selectedRequestId;
   const requestThread = request =>
     (
@@ -14152,7 +14161,12 @@ async function renderExecutive() {
       const thread = requestThread(request);
       const [status, tone] = requestStatus(request, thread);
       const unread = unreadNotifications.some(n => n.work_id === request.work_id);
-      return `<button type="button" class="ex-request-list-item ${request.work_id === selectedRequestId ? 'selected' : ''}" data-request-id="${esc(request.work_id)}"><span class="ex-request-list-top"><b>${esc(request.title)}</b>${unread ? '<span class="ex-unread-dot" title="Unread reply"></span>' : ''}</span><span class="ex-request-list-meta">${esc(fmtDate(request.created_at))} · ${thread.length} event${thread.length === 1 ? '' : 's'} <span class="badge ${tone}">${esc(status)}</span></span><span class="ex-request-list-summary">${esc(request.summary)}</span></button>`;
+      const latest = thread.at(-1);
+      const sender = latest
+        ? executiveActorLabel(latest.actor)
+        : executiveActorLabel(request.owner || 'owner');
+      const preview = latest?.body || request.summary || 'No message preview available.';
+      return `<button type="button" class="ex-request-list-item ${request.work_id === selectedRequestId ? 'selected' : ''}" data-request-id="${esc(request.work_id)}"><span class="ex-request-list-top"><b>${esc(request.title)}</b><time datetime="${esc(request.created_at || '')}">${esc(fmtDate(request.created_at))}</time></span><span class="ex-request-list-meta"><span class="ex-request-list-sender">${esc(sender)}</span>${unread ? '<span class="ex-unread-dot" title="Unread reply"></span>' : ''}<span class="badge ${tone}">${esc(status)}</span></span><span class="ex-request-list-summary">${esc(preview)}</span></button>`;
     })
     .join('');
   const selectedRequest = ownerRequests.find(request => request.work_id === selectedRequestId);
@@ -14160,7 +14174,6 @@ async function renderExecutive() {
     ? (() => {
         const request = selectedRequest;
         const thread = requestThread(request);
-        const response = thread.find(message => message.actor !== 'owner');
         const timeline = thread
           .map(
             message =>
@@ -14187,7 +14200,7 @@ async function renderExecutive() {
           request.lifecycle_state === 'closed'
             ? ''
             : `<div class="ex-work-reply"><div class="ex-thread-heading"><b>Continue this thread</b><span class="muted">The executive team will see this on its next run.</span></div><textarea class="cm-input ex-work-reply-body" data-id="${esc(request.work_id)}" rows="4" placeholder="Reply with clarification, a decision, or the next direction…"></textarea><div class="task-toolbar"><span class="muted">Your reply stays attached to this work item.</span><button class="btn sm primary ex-work-reply-send" data-id="${esc(request.work_id)}" type="button">Send reply</button></div></div>`;
-        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">No response yet. The request remains in the executive queue.</p>'}<div class="ex-thread-heading"><b>Thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div>${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
+        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div><div class="ex-thread-heading"><b>Full thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div>${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
       })()
     : '<div class="ex-request-detail ex-empty">Select a request to inspect its full thread.</div>';
   const allCases = cases?.cases || [];

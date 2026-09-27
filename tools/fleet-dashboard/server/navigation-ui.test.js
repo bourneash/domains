@@ -88,7 +88,7 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /wb-thread-toggle/);
 });
 
-test('executive conversation workspace keeps owner messaging visible without an inbox thread', () => {
+test('executive conversation workspace behaves like an email inbox', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf("} else if (page === 'conversation') {");
   const end = app.indexOf("} else if (page === 'runs')", start);
@@ -99,6 +99,11 @@ test('executive conversation workspace keeps owner messaging visible without an 
   assert.match(app, /Start a durable request here/);
   assert.match(workspace, /const split = requests\?\.querySelector\('\.ex-request-split'\)/);
   assert.match(workspace, /requests\.insertBefore\(compose, split\)/);
+  assert.match(app, /: null;\n  EXEC_INBOX_UI\.selected = selectedRequestId/);
+  assert.match(app, /new Map\(\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
+  assert.match(app, /class="ex-request-list-summary"/);
+  assert.match(app, /<b>Full thread<\/b>/);
+  assert.doesNotMatch(app, /ex-request-response/);
   assert.match(app, /api\('POST', '\/api\/executive\/requests', \{ actor: 'owner', body \}\)/);
   assert.match(app, /class="btn sm primary ex-work-reply-send"/);
   assert.match(app, /Reply added; the executive team will see it on its next run/);
