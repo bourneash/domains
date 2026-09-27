@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:03:53.947Z",
+  "generated_at": "2026-09-27T09:18:06.561Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve deferred SEO, UX, performance, content, attribution, and repository opportunities as backlog only. Continue existing failure repair-or-close and measurement work. Explicitly reject new deployments, requeues, experiments, dependencies, telemetry, and production changes until ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are documented.",
+        "summary": "Handoff: preserve the deferred SEO, UX, performance, content, attribution, and repository backlog. Continue only existing failure repair-or-close, measurement reconciliation, and bounded read-only security evidence. The CRO plan’s proposed new capabilities and execution are rejected this cycle because queue eligibility is false and existing controls remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Preserve the deferred SEO, UX, accessibility, performance, content, attribution, and repository backlog. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, deployments, and unsupported claims. Existing failures, limited measurement capacity, unevidenced security controls, partial attribution, and unreconciled costs prevent safe queue entry.",
+        "summary": "CTO review: approve containment-only execution. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Preserve SEO, UX, accessibility, performance, content, monetization, attribution, and repository opportunities as deferred backlog. Reject new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, deployments, and unsupported outcome claims until ownership, root cause, isolation, deterministic validation, rollback, deduplication, measurement capacity, security, attribution, and financial gates are satisfied.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile retained AI-cost records with period-aligned evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity from incomplete records.",
+        "summary": "Keep the gated product private and external outreach unsent. Continue the existing rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement evidence work. No public exposure, alert expansion, credential or configuration changes, dependency additions, deployment, spending, or external outreach is authorized without the required human-counsel and owner decisions.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue the existing read-only rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement evidence work pending human-counsel review and owner authorization.",
+        "summary": "Maintain financial containment. Revenue is supported only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable. AI-cost records are conflicting and period-misaligned. Do not infer revenue, ROI, margin, payback, cost-to-learn, forecasts, or spend capacity. Continue the existing reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       }

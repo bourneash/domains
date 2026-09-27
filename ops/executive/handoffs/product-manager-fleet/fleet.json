@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:48:53.598Z",
+  "generated_at": "2026-09-27T09:18:06.560Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Continue existing measurement reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Defer new product proposals, work items, requeues, telemetry, dependencies, spend, monetization expansion, and unsupported claims until the existing gates clear.",
+        "summary": "Recommendation: preserve containment-only execution. Highest-leverage product friction is control-plane throughput: 187 approved proposals lack execution, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Prioritize completing existing repair-or-close, measurement/attribution reconciliation, and read-only security evidence before new work. Defer new capabilities—including unified fleet health gates, failure deduplication, proposal-to-queue automation, and AI-cost guardrails—until ownership, validation, rollback, measurement capacity, and security evidence are documented. Keep the gated product private and external outreach unsent. Do not create duplicate proposals, telemetry, work items, requeues, deployments, spend, or unsupported outcome claims.",
         "requested_action": null,
         "proposal_id": null
       }

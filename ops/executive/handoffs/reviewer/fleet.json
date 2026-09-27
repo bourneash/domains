@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:03:53.948Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T09:18:06.561Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, unsupported financial claims, and public exposure. Revenue remains limited to one dated aggregate window with unattributed commission; ROI, margin, causal lift, and budget exposure are unknown. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing reconciliation and evidence work. Preserve unknowns as unknowns; do not infer revenue, ROI, margin, payback, forecasts, or causal lift from incomplete attribution, low-volume telemetry, technical metrics, or unreconciled costs.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry, dependencies, spending, monetization expansion, and unsupported financial or causal claims. Continue only existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent pending counsel and owner authorization. Revenue remains limited to the dated aggregate record; site attribution, ROI, margin, payback, and budget exposure are unknown.",
         "requested_action": null,
         "proposal_id": null
       }
