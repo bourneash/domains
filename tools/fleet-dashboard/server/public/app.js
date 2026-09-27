@@ -102,6 +102,15 @@ function agentLabel(role) {
     .join(' ');
 }
 
+// The agents endpoint has returned both a bare array and an envelope
+// ({ agents: [...] }) across dashboard versions. Keep the shared navigation
+// state iterable so a response-shape change cannot interrupt the whole SPA.
+function normalizeAgentList(value) {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.agents)) return value.agents;
+  return [];
+}
+
 function executiveActorLabel(actor) {
   if (String(actor) === 'researcher') return 'CRO';
   if (String(actor) === 'product-manager-fleet') return 'PM · Fleet tooling';
@@ -15868,7 +15877,7 @@ async function boot() {
     STATE.sites = [];
   }
   try {
-    STATE.agents = await api('GET', '/api/agents');
+    STATE.agents = normalizeAgentList(await api('GET', '/api/agents'));
   } catch {
     STATE.agents = [];
   }

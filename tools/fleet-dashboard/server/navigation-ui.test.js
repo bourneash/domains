@@ -24,6 +24,13 @@ test('navigation category roots are first-class routes', () => {
   }
 });
 
+test('agent navigation tolerates both bare-list and enveloped API responses', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /function normalizeAgentList\(value\)/);
+  assert.match(app, /if \(Array\.isArray\(value\?\.agents\)\) return value\.agents/);
+  assert.match(app, /STATE\.agents = normalizeAgentList\(await api\('GET', '\/api\/agents'\)\)/);
+});
+
 test('site command centers are shareable first-class routes', () => {
   const route = routeFor('#site/example.test');
   assert.equal(route.view, 'site');
