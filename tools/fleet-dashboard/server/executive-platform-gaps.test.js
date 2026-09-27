@@ -117,12 +117,38 @@ test('durable adapters, secrets, organizations, project work, and plan approvals
     store.upsertRuntimePlugin({
       slug: 'audit-plugin',
       manifest: { name: 'Audit plugin', capabilities: ['read'] },
+      status: 'active',
     });
-    store.upsertRuntimeConnector({
+    const pluginJob = store.enqueueRuntimePluginJob({
+      plugin_id: 'audit-plugin',
+      idempotency_key: 'audit-job-1',
+      payload: { run_id: started.run.run_id },
+    });
+    assert.equal(store.claimRuntimePluginJob('plugin-worker').job_id, pluginJob.job_id);
+    assert.equal(
+      store.completeRuntimePluginJob(pluginJob.job_id, { result: { ok: true } }).status,
+      'succeeded'
+    );
+    const connector = store.upsertRuntimeConnector({
       slug: 'linear',
       kind: 'ticket-system',
       capabilities: ['issues.read'],
+      status: 'active',
     });
+    const connectorCall = store.enqueueRuntimeConnectorCall({
+      connector_id: connector.connector_id,
+      operation: 'issues.read',
+      idempotency_key: 'linear-call-1',
+      payload: { project: 'fleet' },
+    });
+    assert.equal(
+      store.claimRuntimeConnectorCall('connector-worker').call_id,
+      connectorCall.call_id
+    );
+    assert.equal(
+      store.completeRuntimeConnectorCall(connectorCall.call_id, { result: { issues: [] } }).status,
+      'succeeded'
+    );
     store.appendAgentRunLog({
       run_id: started.run.run_id,
       level: 'info',

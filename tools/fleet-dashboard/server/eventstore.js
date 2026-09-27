@@ -606,6 +606,35 @@ function open(root, { file } = {}) {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS runtime_plugin_jobs (
+      job_id TEXT PRIMARY KEY,
+      plugin_id TEXT NOT NULL,
+      idempotency_key TEXT UNIQUE,
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'queued',
+      lease_owner TEXT,
+      lease_expires_at TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      result_json TEXT NOT NULL DEFAULT '{}',
+      error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS runtime_connector_calls (
+      call_id TEXT PRIMARY KEY,
+      connector_id TEXT NOT NULL,
+      idempotency_key TEXT UNIQUE,
+      operation TEXT NOT NULL,
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'queued',
+      lease_owner TEXT,
+      lease_expires_at TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      result_json TEXT NOT NULL DEFAULT '{}',
+      error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
   ensureColumn(db, 'improvement_runs', 'workspace_path', 'TEXT');
   ensureColumn(db, 'improvement_runs', 'production_before', 'TEXT');
@@ -4173,6 +4202,220 @@ function open(root, { file } = {}) {
           .all(n);
     return rows.map(row => ({ ...row, capabilities: safeJsonArray(row.capabilities_json) }));
   }
+  function enqueueRuntimePluginJob(input = {}) {
+    const plugin = getRuntimePlugin(input.plugin_id);
+    if (!plugin) throw httpErr(404, 'plugin not found');
+    if (plugin.status !== 'active') throw httpErr(409, 'plugin is not active');
+    const payload = input.payload && typeof input.payload === 'object' ? input.payload : {};
+    const now = new Date().toISOString();
+    const row = {
+      job_id: input.job_id || crypto.randomUUID(),
+      plugin_id: plugin.plugin_id,
+      idempotency_key: input.idempotency_key || null,
+      payload,
+      status: 'queued',
+      created_at: now,
+      updated_at: now,
+    };
+    try {
+      db.prepare(
+        'INSERT INTO runtime_plugin_jobs (job_id,plugin_id,idempotency_key,payload_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?)'
+      ).run(
+        row.job_id,
+        row.plugin_id,
+        row.idempotency_key,
+        JSON.stringify(payload),
+        row.status,
+        row.created_at,
+        row.updated_at
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)) && row.idempotency_key)
+        return getRuntimePluginJob(row.idempotency_key);
+      throw error;
+    }
+    return getRuntimePluginJob(row.job_id);
+  }
+  function getRuntimePluginJob(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_plugin_jobs WHERE job_id=? OR idempotency_key=?')
+      .get(String(id), String(id));
+    return row
+      ? { ...row, payload: safeJson(row.payload_json), result: safeJson(row.result_json) }
+      : null;
+  }
+  function listRuntimePluginJobs({ plugin_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (plugin_id) {
+      clauses.push('plugin_id=?');
+      args.push(String(getRuntimePlugin(plugin_id)?.plugin_id || plugin_id));
+    }
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM runtime_plugin_jobs${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)))
+      .map(row => ({
+        ...row,
+        payload: safeJson(row.payload_json),
+        result: safeJson(row.result_json),
+      }));
+  }
+  function claimRuntimePluginJob(workerId) {
+    const owner = String(workerId || '').trim();
+    if (!owner) throw httpErr(400, 'plugin worker id is required');
+    const now = new Date(),
+      iso = now.toISOString(),
+      expires = new Date(now.getTime() + 900000).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = db
+        .prepare(
+          "SELECT * FROM runtime_plugin_jobs WHERE status='queued' OR (status='leased' AND lease_expires_at<=?) ORDER BY created_at LIMIT 1"
+        )
+        .get(iso);
+      if (!row) {
+        db.exec('COMMIT');
+        return null;
+      }
+      db.prepare(
+        "UPDATE runtime_plugin_jobs SET status='leased',lease_owner=?,lease_expires_at=?,attempts=attempts+1,updated_at=? WHERE job_id=?"
+      ).run(owner, expires, iso, row.job_id);
+      db.exec('COMMIT');
+      return getRuntimePluginJob(row.job_id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+  function completeRuntimePluginJob(id, input = {}) {
+    const row = getRuntimePluginJob(id);
+    if (!row) throw httpErr(404, 'plugin job not found');
+    const status = String(input.status || 'succeeded');
+    if (!['succeeded', 'failed', 'cancelled', 'queued'].includes(status))
+      throw httpErr(400, 'invalid plugin job status');
+    db.prepare(
+      'UPDATE runtime_plugin_jobs SET status=?,result_json=?,error=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE job_id=?'
+    ).run(
+      status,
+      JSON.stringify(input.result && typeof input.result === 'object' ? input.result : {}),
+      input.error || null,
+      new Date().toISOString(),
+      row.job_id
+    );
+    return getRuntimePluginJob(row.job_id);
+  }
+  function enqueueRuntimeConnectorCall(input = {}) {
+    const connector = getRuntimeConnector(input.connector_id);
+    if (!connector) throw httpErr(404, 'connector not found');
+    if (connector.status !== 'active') throw httpErr(409, 'connector is not active');
+    if (!connector.capabilities.includes(String(input.operation || '')))
+      throw httpErr(403, 'connector operation is not granted');
+    const now = new Date().toISOString(),
+      payload = input.payload && typeof input.payload === 'object' ? input.payload : {};
+    try {
+      db.prepare(
+        'INSERT INTO runtime_connector_calls (call_id,connector_id,idempotency_key,operation,payload_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)'
+      ).run(
+        input.call_id || crypto.randomUUID(),
+        connector.connector_id,
+        input.idempotency_key || null,
+        String(input.operation),
+        JSON.stringify(payload),
+        'queued',
+        now,
+        now
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)) && input.idempotency_key)
+        return getRuntimeConnectorCall(input.idempotency_key);
+      throw error;
+    }
+    return getRuntimeConnectorCall(input.call_id || input.idempotency_key);
+  }
+  function getRuntimeConnectorCall(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_connector_calls WHERE call_id=? OR idempotency_key=?')
+      .get(String(id), String(id));
+    return row
+      ? { ...row, payload: safeJson(row.payload_json), result: safeJson(row.result_json) }
+      : null;
+  }
+  function listRuntimeConnectorCalls({ connector_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (connector_id) {
+      clauses.push('connector_id=?');
+      args.push(String(getRuntimeConnector(connector_id)?.connector_id || connector_id));
+    }
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM runtime_connector_calls${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)))
+      .map(row => ({
+        ...row,
+        payload: safeJson(row.payload_json),
+        result: safeJson(row.result_json),
+      }));
+  }
+  function claimRuntimeConnectorCall(workerId) {
+    const owner = String(workerId || '').trim();
+    if (!owner) throw httpErr(400, 'connector worker id is required');
+    const now = new Date(),
+      iso = now.toISOString(),
+      expires = new Date(now.getTime() + 900000).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = db
+        .prepare(
+          "SELECT * FROM runtime_connector_calls WHERE status='queued' OR (status='leased' AND lease_expires_at<=?) ORDER BY created_at LIMIT 1"
+        )
+        .get(iso);
+      if (!row) {
+        db.exec('COMMIT');
+        return null;
+      }
+      db.prepare(
+        "UPDATE runtime_connector_calls SET status='leased',lease_owner=?,lease_expires_at=?,attempts=attempts+1,updated_at=? WHERE call_id=?"
+      ).run(owner, expires, iso, row.call_id);
+      db.exec('COMMIT');
+      return getRuntimeConnectorCall(row.call_id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+  function completeRuntimeConnectorCall(id, input = {}) {
+    const row = getRuntimeConnectorCall(id);
+    if (!row) throw httpErr(404, 'connector call not found');
+    const status = String(input.status || 'succeeded');
+    if (!['succeeded', 'failed', 'cancelled', 'queued'].includes(status))
+      throw httpErr(400, 'invalid connector call status');
+    db.prepare(
+      'UPDATE runtime_connector_calls SET status=?,result_json=?,error=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE call_id=?'
+    ).run(
+      status,
+      JSON.stringify(input.result && typeof input.result === 'object' ? input.result : {}),
+      input.error || null,
+      new Date().toISOString(),
+      row.call_id
+    );
+    return getRuntimeConnectorCall(row.call_id);
+  }
 
   const KNOWLEDGE_TYPES = new Set([
     'official',
@@ -4477,6 +4720,16 @@ function open(root, { file } = {}) {
     upsertRuntimeProvider,
     getRuntimeProvider,
     listRuntimeProviders,
+    enqueueRuntimePluginJob,
+    getRuntimePluginJob,
+    listRuntimePluginJobs,
+    claimRuntimePluginJob,
+    completeRuntimePluginJob,
+    enqueueRuntimeConnectorCall,
+    getRuntimeConnectorCall,
+    listRuntimeConnectorCalls,
+    claimRuntimeConnectorCall,
+    completeRuntimeConnectorCall,
     createOrganization,
     listOrganizations,
     getOrganization,

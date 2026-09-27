@@ -4923,6 +4923,35 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/runtime-plugin-jobs', (req, res) => {
+    try {
+      res.json({ jobs: events.listRuntimePluginJobs(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs', (req, res) => {
+    try {
+      res.status(201).json({ job: events.enqueueRuntimePluginJob(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs/claim', (req, res) => {
+    try {
+      const job = events.claimRuntimePluginJob(req.body?.worker_id);
+      res.status(job ? 200 : 204).json(job ? { job } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs/:id/complete', (req, res) => {
+    try {
+      res.json({ job: events.completeRuntimePluginJob(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/runtime-connectors', (req, res) => {
     try {
       res.json({ connectors: events.listRuntimeConnectors(req.query) });
@@ -4933,6 +4962,35 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/runtime-connectors', (req, res) => {
     try {
       res.status(201).json({ connector: events.upsertRuntimeConnector(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-connector-calls', (req, res) => {
+    try {
+      res.json({ calls: events.listRuntimeConnectorCalls(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connector-calls', (req, res) => {
+    try {
+      res.status(201).json({ call: events.enqueueRuntimeConnectorCall(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connector-calls/claim', (req, res) => {
+    try {
+      const call = events.claimRuntimeConnectorCall(req.body?.worker_id);
+      res.status(call ? 200 : 204).json(call ? { call } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connector-calls/:id/complete', (req, res) => {
+    try {
+      res.json({ call: events.completeRuntimeConnectorCall(req.params.id, req.body || {}) });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
