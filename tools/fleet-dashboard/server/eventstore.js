@@ -254,6 +254,83 @@ function open(root, { file } = {}) {
       updated_at TEXT NOT NULL
     );
     INSERT OR IGNORE INTO executive_settings (id, updated_at) VALUES (1, datetime('now'));
+    CREATE TABLE IF NOT EXISTS agent_registry (
+      agent_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      role TEXT NOT NULL,
+      manager_id TEXT,
+      provider TEXT NOT NULL,
+      model TEXT,
+      adapter TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      permissions_json TEXT NOT NULL DEFAULT '[]',
+      budget_json TEXT NOT NULL DEFAULT '{}',
+      heartbeat_json TEXT NOT NULL DEFAULT '{}',
+      workspace_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      paused_at TEXT,
+      pause_reason TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_registry_role ON agent_registry(role, status);
+    CREATE INDEX IF NOT EXISTS agent_registry_manager ON agent_registry(manager_id, status);
+    CREATE TABLE IF NOT EXISTS agent_runs (
+      run_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      work_id TEXT,
+      goal_id TEXT,
+      session_id TEXT,
+      idempotency_key TEXT UNIQUE,
+      status TEXT NOT NULL,
+      attempt INTEGER NOT NULL DEFAULT 1,
+      provider TEXT NOT NULL,
+      model TEXT,
+      started_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      finished_at TEXT,
+      heartbeat_at TEXT,
+      workspace_path TEXT,
+      input_tokens INTEGER NOT NULL DEFAULT 0,
+      output_tokens INTEGER NOT NULL DEFAULT 0,
+      total_tokens INTEGER NOT NULL DEFAULT 0,
+      cost_usd REAL NOT NULL DEFAULT 0,
+      result_json TEXT NOT NULL DEFAULT '{}',
+      error TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_runs_agent_time ON agent_runs(agent_id, started_at DESC);
+    CREATE INDEX IF NOT EXISTS agent_runs_work_time ON agent_runs(work_id, started_at DESC);
+    CREATE INDEX IF NOT EXISTS agent_runs_status ON agent_runs(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS agent_artifacts (
+      artifact_id TEXT PRIMARY KEY,
+      run_id TEXT,
+      work_id TEXT,
+      agent_id TEXT,
+      kind TEXT NOT NULL,
+      label TEXT NOT NULL,
+      uri TEXT,
+      sha256 TEXT,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_artifacts_run ON agent_artifacts(run_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS agent_artifacts_work ON agent_artifacts(work_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS budget_policies (
+      policy_id TEXT PRIMARY KEY,
+      scope_type TEXT NOT NULL,
+      scope_id TEXT NOT NULL,
+      period TEXT NOT NULL,
+      limit_usd REAL NOT NULL,
+      warning_pct REAL NOT NULL DEFAULT 0.8,
+      hard_stop INTEGER NOT NULL DEFAULT 1,
+      spent_usd REAL NOT NULL DEFAULT 0,
+      window_start TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      updated_at TEXT NOT NULL,
+      UNIQUE(scope_type, scope_id, period)
+    );
+    CREATE INDEX IF NOT EXISTS budget_policies_scope ON budget_policies(scope_type, scope_id, status);
   `);
   ensureColumn(db, 'improvement_runs', 'workspace_path', 'TEXT');
   ensureColumn(db, 'improvement_runs', 'production_before', 'TEXT');
@@ -1915,6 +1992,458 @@ function open(root, { file } = {}) {
     });
   }
 
+  const AGENT_STATUSES = new Set(['active', 'paused', 'disabled']);
+  const AGENT_RUN_STATUSES = new Set([
+    'queued',
+    'running',
+    'paused',
+    'succeeded',
+    'failed',
+    'cancelled',
+  ]);
+  const AGENT_ARTIFACT_KINDS = new Set([
+    'report',
+    'diff',
+    'preview',
+    'test',
+    'screenshot',
+    'deployment',
+    'other',
+  ]);
+  const BUDGET_PERIODS = new Set(['run', 'hour', 'day', 'month']);
+
+  function decodeAgent(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      permissions: safeJsonArray(row.permissions_json),
+      budget: safeJson(row.budget_json),
+      heartbeat: safeJson(row.heartbeat_json),
+      workspace: safeJson(row.workspace_json),
+    };
+  }
+
+  function decodeAgentRun(row) {
+    if (!row) return null;
+    return { ...row, result: safeJson(row.result_json) };
+  }
+
+  function decodeAgentArtifact(row) {
+    if (!row) return null;
+    return { ...row, metadata: safeJson(row.metadata_json) };
+  }
+
+  function decodeBudget(row) {
+    return row ? { ...row, hard_stop: Boolean(row.hard_stop) } : null;
+  }
+
+  function createAgent(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const row = {
+      agent_id: String(input.agent_id || crypto.randomUUID()),
+      slug: String(input.slug || '').trim(),
+      name: String(input.name || '').trim(),
+      title: String(input.title || '').trim(),
+      role: String(input.role || '').trim(),
+      manager_id: input.manager_id ? String(input.manager_id).trim() : null,
+      provider: String(input.provider || 'chatgpt').trim(),
+      model: input.model ? String(input.model).trim() : null,
+      adapter: String(input.adapter || 'codex').trim(),
+      status: String(input.status || 'active').trim(),
+      permissions: Array.isArray(input.permissions) ? input.permissions : [],
+      budget: input.budget && typeof input.budget === 'object' ? input.budget : {},
+      heartbeat: input.heartbeat && typeof input.heartbeat === 'object' ? input.heartbeat : {},
+      workspace: input.workspace && typeof input.workspace === 'object' ? input.workspace : {},
+      created_at: now,
+      updated_at: now,
+      paused_at: input.paused_at || null,
+      pause_reason: input.pause_reason ? String(input.pause_reason).trim() : null,
+    };
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(row.slug)) throw httpErr(400, 'invalid agent slug');
+    if (!row.name || !row.title || !row.role)
+      throw httpErr(400, 'agent name, title, and role are required');
+    if (!AGENT_STATUSES.has(row.status)) throw httpErr(400, 'invalid agent status');
+    if (!row.provider || !row.adapter)
+      throw httpErr(400, 'agent provider and adapter are required');
+    if (row.manager_id && !getAgent(row.manager_id)) throw httpErr(404, 'agent manager not found');
+    try {
+      db.prepare(
+        `INSERT INTO agent_registry
+        (agent_id,slug,name,title,role,manager_id,provider,model,adapter,status,permissions_json,budget_json,heartbeat_json,workspace_json,created_at,updated_at,paused_at,pause_reason)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        row.agent_id,
+        row.slug,
+        row.name,
+        row.title,
+        row.role,
+        row.manager_id,
+        row.provider,
+        row.model,
+        row.adapter,
+        row.status,
+        JSON.stringify(row.permissions),
+        JSON.stringify(row.budget),
+        JSON.stringify(row.heartbeat),
+        JSON.stringify(row.workspace),
+        row.created_at,
+        row.updated_at,
+        row.paused_at,
+        row.pause_reason
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message))) throw httpErr(409, 'agent slug already exists');
+      throw error;
+    }
+    return decodeAgent(
+      db.prepare('SELECT * FROM agent_registry WHERE agent_id = ?').get(row.agent_id)
+    );
+  }
+
+  function getAgent(id) {
+    const row = db
+      .prepare('SELECT * FROM agent_registry WHERE agent_id = ? OR slug = ?')
+      .get(String(id), String(id));
+    return decodeAgent(row);
+  }
+
+  function listAgents({ role, status, manager_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (role) {
+      clauses.push('role = ?');
+      args.push(String(role));
+    }
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (manager_id) {
+      clauses.push('manager_id = ?');
+      args.push(String(manager_id));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_registry${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY role, slug LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgent);
+  }
+
+  function updateAgent(id, patch = {}) {
+    const current = getAgent(id);
+    if (!current) throw httpErr(404, 'agent not found');
+    const next = {
+      ...current,
+      ...patch,
+      agent_id: current.agent_id,
+      updated_at: new Date().toISOString(),
+    };
+    next.slug = String(next.slug || '').trim();
+    next.name = String(next.name || '').trim();
+    next.title = String(next.title || '').trim();
+    next.role = String(next.role || '').trim();
+    next.status = String(next.status || '').trim();
+    if (!AGENT_STATUSES.has(next.status)) throw httpErr(400, 'invalid agent status');
+    if (next.manager_id && !getAgent(next.manager_id))
+      throw httpErr(404, 'agent manager not found');
+    if (next.status === 'paused' && !next.paused_at) next.paused_at = next.updated_at;
+    if (next.status !== 'paused') {
+      next.paused_at = null;
+      next.pause_reason = null;
+    }
+    db.prepare(
+      `UPDATE agent_registry SET slug=?,name=?,title=?,role=?,manager_id=?,provider=?,model=?,adapter=?,status=?,permissions_json=?,budget_json=?,heartbeat_json=?,workspace_json=?,updated_at=?,paused_at=?,pause_reason=? WHERE agent_id=?`
+    ).run(
+      next.slug,
+      next.name,
+      next.title,
+      next.role,
+      next.manager_id || null,
+      next.provider,
+      next.model || null,
+      next.adapter,
+      next.status,
+      JSON.stringify(next.permissions || []),
+      JSON.stringify(next.budget || {}),
+      JSON.stringify(next.heartbeat || {}),
+      JSON.stringify(next.workspace || {}),
+      next.updated_at,
+      next.paused_at || null,
+      next.pause_reason || null,
+      current.agent_id
+    );
+    return getAgent(current.agent_id);
+  }
+
+  function createAgentRun(input = {}) {
+    const agent = getAgent(input.agent_id);
+    if (!agent) throw httpErr(404, 'agent not found');
+    const status = String(input.status || 'queued');
+    if (!AGENT_RUN_STATUSES.has(status)) throw httpErr(400, 'invalid agent run status');
+    const now = input.started_at || new Date().toISOString();
+    const run = {
+      run_id: String(input.run_id || crypto.randomUUID()),
+      agent_id: agent.agent_id,
+      work_id: input.work_id ? String(input.work_id) : null,
+      goal_id: input.goal_id ? String(input.goal_id) : null,
+      session_id: input.session_id ? String(input.session_id) : crypto.randomUUID(),
+      idempotency_key: input.idempotency_key ? String(input.idempotency_key) : null,
+      status,
+      attempt: Math.max(1, Number(input.attempt) || 1),
+      provider: String(input.provider || agent.provider),
+      model: input.model || agent.model || null,
+      started_at: now,
+      updated_at: now,
+      finished_at: input.finished_at || null,
+      heartbeat_at: input.heartbeat_at || now,
+      workspace_path: input.workspace_path || null,
+      input_tokens: Number(input.input_tokens) || 0,
+      output_tokens: Number(input.output_tokens) || 0,
+      total_tokens: Number(input.total_tokens) || 0,
+      cost_usd: Number(input.cost_usd) || 0,
+      result: input.result && typeof input.result === 'object' ? input.result : {},
+      error: input.error || null,
+    };
+    if (run.cost_usd < 0 || run.input_tokens < 0 || run.output_tokens < 0)
+      throw httpErr(400, 'usage values cannot be negative');
+    try {
+      db.prepare(
+        `INSERT INTO agent_runs
+        (run_id,agent_id,work_id,goal_id,session_id,idempotency_key,status,attempt,provider,model,started_at,updated_at,finished_at,heartbeat_at,workspace_path,input_tokens,output_tokens,total_tokens,cost_usd,result_json,error)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        run.run_id,
+        run.agent_id,
+        run.work_id,
+        run.goal_id,
+        run.session_id,
+        run.idempotency_key,
+        run.status,
+        run.attempt,
+        run.provider,
+        run.model,
+        run.started_at,
+        run.updated_at,
+        run.finished_at,
+        run.heartbeat_at,
+        run.workspace_path,
+        run.input_tokens,
+        run.output_tokens,
+        run.total_tokens || run.input_tokens + run.output_tokens,
+        run.cost_usd,
+        JSON.stringify(run.result),
+        run.error
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)) && run.idempotency_key)
+        return getAgentRunByIdempotency(run.idempotency_key);
+      throw error;
+    }
+    return getAgentRun(run.run_id);
+  }
+
+  function getAgentRun(id) {
+    return decodeAgentRun(db.prepare('SELECT * FROM agent_runs WHERE run_id = ?').get(String(id)));
+  }
+
+  function getAgentRunByIdempotency(key) {
+    return decodeAgentRun(
+      db.prepare('SELECT * FROM agent_runs WHERE idempotency_key = ?').get(String(key))
+    );
+  }
+
+  function listAgentRuns({ agent_id, work_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (agent_id) {
+      clauses.push('agent_id = ?');
+      args.push(String(agent_id));
+    }
+    if (work_id) {
+      clauses.push('work_id = ?');
+      args.push(String(work_id));
+    }
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_runs${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY started_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgentRun);
+  }
+
+  function updateAgentRun(id, patch = {}) {
+    const current = getAgentRun(id);
+    if (!current) throw httpErr(404, 'agent run not found');
+    const status = patch.status ? String(patch.status) : current.status;
+    if (!AGENT_RUN_STATUSES.has(status)) throw httpErr(400, 'invalid agent run status');
+    const now = new Date().toISOString();
+    const terminal = ['succeeded', 'failed', 'cancelled'].includes(status);
+    db.prepare(
+      `UPDATE agent_runs SET status=?,updated_at=?,finished_at=?,heartbeat_at=?,workspace_path=?,input_tokens=?,output_tokens=?,total_tokens=?,cost_usd=?,result_json=?,error=? WHERE run_id=?`
+    ).run(
+      status,
+      now,
+      terminal ? patch.finished_at || current.finished_at || now : null,
+      patch.heartbeat_at || (terminal ? current.heartbeat_at : now),
+      patch.workspace_path ?? current.workspace_path,
+      Number(patch.input_tokens ?? current.input_tokens) || 0,
+      Number(patch.output_tokens ?? current.output_tokens) || 0,
+      Number(patch.total_tokens ?? current.total_tokens) || 0,
+      Number(patch.cost_usd ?? current.cost_usd) || 0,
+      JSON.stringify(patch.result ?? current.result ?? {}),
+      patch.error ?? current.error ?? null,
+      current.run_id
+    );
+    return getAgentRun(current.run_id);
+  }
+
+  function createAgentArtifact(input = {}) {
+    const kind = String(input.kind || 'other');
+    const label = String(input.label || '').trim();
+    if (!AGENT_ARTIFACT_KINDS.has(kind)) throw httpErr(400, 'invalid artifact kind');
+    if (!label) throw httpErr(400, 'artifact label is required');
+    if (input.run_id && !getAgentRun(input.run_id)) throw httpErr(404, 'agent run not found');
+    const row = {
+      artifact_id: String(input.artifact_id || crypto.randomUUID()),
+      run_id: input.run_id || null,
+      work_id: input.work_id || null,
+      agent_id: input.agent_id || null,
+      kind,
+      label,
+      uri: input.uri || null,
+      sha256: input.sha256 || null,
+      metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
+      created_at: input.created_at || new Date().toISOString(),
+    };
+    db.prepare(
+      `INSERT INTO agent_artifacts (artifact_id,run_id,work_id,agent_id,kind,label,uri,sha256,metadata_json,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      row.artifact_id,
+      row.run_id,
+      row.work_id,
+      row.agent_id,
+      row.kind,
+      row.label,
+      row.uri,
+      row.sha256,
+      JSON.stringify(row.metadata),
+      row.created_at
+    );
+    return decodeAgentArtifact(
+      db.prepare('SELECT * FROM agent_artifacts WHERE artifact_id = ?').get(row.artifact_id)
+    );
+  }
+
+  function listAgentArtifacts({ run_id, work_id, agent_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['run_id', run_id],
+      ['work_id', work_id],
+      ['agent_id', agent_id],
+    ])
+      if (value) {
+        clauses.push(`${field} = ?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_artifacts${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgentArtifact);
+  }
+
+  function upsertBudgetPolicy(input = {}) {
+    const scopeType = String(input.scope_type || '').trim();
+    const scopeId = String(input.scope_id || '').trim();
+    const period = String(input.period || 'month').trim();
+    const limit = Number(input.limit_usd);
+    if (
+      !scopeType ||
+      !scopeId ||
+      !BUDGET_PERIODS.has(period) ||
+      !Number.isFinite(limit) ||
+      limit < 0
+    )
+      throw httpErr(400, 'invalid budget policy');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO budget_policies (policy_id,scope_type,scope_id,period,limit_usd,warning_pct,hard_stop,spent_usd,window_start,status,updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(scope_type,scope_id,period) DO UPDATE SET limit_usd=excluded.limit_usd,warning_pct=excluded.warning_pct,hard_stop=excluded.hard_stop,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.policy_id || crypto.randomUUID(),
+      scopeType,
+      scopeId,
+      period,
+      limit,
+      Number(input.warning_pct ?? 0.8),
+      input.hard_stop === false ? 0 : 1,
+      Number(input.spent_usd) || 0,
+      input.window_start || now,
+      String(input.status || 'active'),
+      now
+    );
+    return getBudgetPolicy({ scope_type: scopeType, scope_id: scopeId, period });
+  }
+
+  function getBudgetPolicy({ scope_type, scope_id, period }) {
+    return decodeBudget(
+      db
+        .prepare('SELECT * FROM budget_policies WHERE scope_type=? AND scope_id=? AND period=?')
+        .get(String(scope_type), String(scope_id), String(period))
+    );
+  }
+
+  function listBudgetPolicies({ scope_type, scope_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['scope_type', scope_type],
+      ['scope_id', scope_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field} = ?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM budget_policies${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY scope_type, scope_id, period LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeBudget);
+  }
+
+  function reserveBudget({ scope_type, scope_id, period = 'month', amount_usd = 0 }) {
+    const amount = Number(amount_usd);
+    if (!Number.isFinite(amount) || amount < 0) throw httpErr(400, 'invalid budget amount');
+    const policy = getBudgetPolicy({ scope_type, scope_id, period });
+    if (!policy || policy.status !== 'active')
+      return { allowed: true, policy: policy || null, reason: 'no_active_policy' };
+    const result = db
+      .prepare(
+        `UPDATE budget_policies SET spent_usd=spent_usd+?,updated_at=? WHERE policy_id=? AND status='active' AND (hard_stop=0 OR spent_usd+? <= limit_usd)`
+      )
+      .run(amount, new Date().toISOString(), policy.policy_id, amount);
+    const updated = getBudgetPolicy({ scope_type, scope_id, period });
+    if (!result.changes) return { allowed: false, policy: updated, reason: 'budget_exceeded' };
+    return {
+      allowed: true,
+      policy: updated,
+      warning: updated.spent_usd >= updated.limit_usd * updated.warning_pct,
+    };
+  }
+
   const KNOWLEDGE_TYPES = new Set([
     'official',
     'book',
@@ -2137,6 +2666,21 @@ function open(root, { file } = {}) {
     createExecutiveKnowledge,
     listExecutiveKnowledge,
     updateExecutiveKnowledge,
+    createAgent,
+    getAgent,
+    listAgents,
+    updateAgent,
+    createAgentRun,
+    getAgentRun,
+    getAgentRunByIdempotency,
+    listAgentRuns,
+    updateAgentRun,
+    createAgentArtifact,
+    listAgentArtifacts,
+    upsertBudgetPolicy,
+    getBudgetPolicy,
+    listBudgetPolicies,
+    reserveBudget,
     close,
     file: dbFile,
   };
@@ -2148,6 +2692,10 @@ function safeJson(value) {
   } catch {
     return {};
   }
+}
+function safeJsonArray(value) {
+  const parsed = safeJson(value);
+  return Array.isArray(parsed) ? parsed : [];
 }
 function decodeImprovement(row) {
   return {

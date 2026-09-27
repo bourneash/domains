@@ -4369,6 +4369,93 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/agents', (req, res) => {
+    try {
+      res.json({ agents: events.listAgents(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agents', (req, res) => {
+    try {
+      res.status(201).json({ agent: events.createAgent(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agents/:id', (req, res) => {
+    try {
+      const agent = events.getAgent(req.params.id);
+      if (!agent) return res.status(404).json({ error: 'agent not found' });
+      res.json({ agent });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agents/:id', (req, res) => {
+    try {
+      res.json({ agent: events.updateAgent(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-runs', (req, res) => {
+    try {
+      res.json({ runs: events.listAgentRuns(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-runs', (req, res) => {
+    try {
+      res.status(201).json({ run: events.createAgentRun(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agent-runs/:id', (req, res) => {
+    try {
+      res.json({ run: events.updateAgentRun(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-artifacts', (req, res) => {
+    try {
+      res.json({ artifacts: events.listAgentArtifacts(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-artifacts', (req, res) => {
+    try {
+      res.status(201).json({ artifact: events.createAgentArtifact(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/budgets', (req, res) => {
+    try {
+      res.json({ budgets: events.listBudgetPolicies(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/budgets', (req, res) => {
+    try {
+      res.status(201).json({ budget: events.upsertBudgetPolicy(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/budgets/reserve', (req, res) => {
+    try {
+      const result = events.reserveBudget(req.body || {});
+      res.status(result.allowed ? 200 : 409).json(result);
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/change-requests/transcribe', async (req, res) => {
     try {
       res.json(await changequeue.transcribe(req.body || {}));

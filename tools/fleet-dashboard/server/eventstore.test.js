@@ -163,3 +163,86 @@ test('requires completion evidence and rejects stale work-item writes', () => {
   assert.equal(done.status, 'done');
   store.close();
 });
+
+test('agent registry, resumable runs, artifacts, and hard-stop budgets are durable', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-runtime-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const ceo = store.createAgent({
+    slug: 'fleet-ceo',
+    name: 'Fleet CEO',
+    title: 'Chief Executive Officer',
+    role: 'ceo',
+    provider: 'chatgpt',
+    model: 'gpt-5',
+    adapter: 'codex',
+    permissions: ['read:intelligence'],
+  });
+  assert.equal(store.getAgent('fleet-ceo').agent_id, ceo.agent_id);
+  assert.throws(
+    () =>
+      store.createAgent({
+        slug: 'fleet-ceo',
+        name: 'Duplicate',
+        title: 'CEO',
+        role: 'ceo',
+        adapter: 'codex',
+      }),
+    /agent slug already exists/
+  );
+
+  store.upsertBudgetPolicy({
+    scope_type: 'agent',
+    scope_id: ceo.agent_id,
+    period: 'run',
+    limit_usd: 1,
+  });
+  assert.equal(
+    store.reserveBudget({
+      scope_type: 'agent',
+      scope_id: ceo.agent_id,
+      period: 'run',
+      amount_usd: 0.75,
+    }).allowed,
+    true
+  );
+  assert.equal(
+    store.reserveBudget({
+      scope_type: 'agent',
+      scope_id: ceo.agent_id,
+      period: 'run',
+      amount_usd: 0.3,
+    }).allowed,
+    false
+  );
+  assert.equal(
+    store.getBudgetPolicy({ scope_type: 'agent', scope_id: ceo.agent_id, period: 'run' }).spent_usd,
+    0.75
+  );
+
+  const run = store.createAgentRun({
+    agent_id: ceo.agent_id,
+    work_id: 'work-1',
+    idempotency_key: 'tick-1',
+  });
+  assert.equal(
+    store.createAgentRun({ agent_id: ceo.agent_id, idempotency_key: 'tick-1' }).run_id,
+    run.run_id
+  );
+  const resumed = store.updateAgentRun(run.run_id, {
+    status: 'running',
+    session_id: run.session_id,
+  });
+  assert.equal(resumed.status, 'running');
+  const artifact = store.createAgentArtifact({
+    run_id: run.run_id,
+    agent_id: ceo.agent_id,
+    kind: 'report',
+    label: 'tick report',
+    uri: '/reports/tick.json',
+  });
+  assert.equal(
+    store.listAgentArtifacts({ run_id: run.run_id })[0].artifact_id,
+    artifact.artifact_id
+  );
+  store.close();
+});
