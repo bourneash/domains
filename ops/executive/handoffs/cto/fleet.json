@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:48:45.532Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:04:40.335Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Preserve the deferred SEO, UX, accessibility, performance, content, attribution, affiliate, and repository backlog. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, deployments, and unsupported claims. Existing failures, limited measurement capacity, unevidenced security controls, partial attribution, and unreconciled costs prevent safe queue entry.",
+        "summary": "Recommendation: preserve the CRO proposals as deferred backlog, but reject new implementation and requeue activity until failure ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are documented. The CRO evidence remains useful: search-position and impression opportunities, affiliate comparison validation, and the shadcn/ui component concept. No change_request is safe this cycle because queue eligibility is false and existing repair work is open.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile retained AI-cost records with period-aligned evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity.",
+        "summary": "Approve containment-only execution. Preserve the evidence-backed SEO, UX, accessibility, performance, content, attribution, affiliate, and repository opportunities as deferred backlog. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, deployments, and unsupported claims until ownership, root cause, isolation, deterministic validation, rollback, deduplication, and measurement capacity are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work pending human-counsel review and owner authorization.",
+        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate provider commission as unattributed, reconcile retained period-aligned cost records, and do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve private launch gates and continue bounded read-only security evidence only. Missing fleet-doctor and operations results do not establish clearance; do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, or requeue work.",
+        "summary": "Continue bounded read-only security and legal evidence work. Keep private launch gates unchanged and external outreach unsent. Public exposure, security-sensitive releases, credentials, permissions, configuration, dependencies, deployments, alert expansion, and rights-dependent monetization remain blocked pending the required evidence, counsel review, and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The candidate plan is technically safe only as a containment plan. No new change_request or requeue is supported this cycle because the authoritative candidate list is empty, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Reconsider queue entry after existing repair-or-close, validation, rollback, deduplication, measurement, and security gates are complete.",
         "requested_action": null,
         "proposal_id": null
       }

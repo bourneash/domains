@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:48:45.531Z",
+  "generated_at": "2026-09-27T10:04:40.335Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and continue only the existing period-aligned measurement and attribution reconciliation. Supported revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate commission is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. AI usage reports $973.3548129 across 5,439 calls from 2026-09-01 through 2026-09-27, but retained cost records conflict. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, AI costs are unreconciled, infrastructure/domain/labor/marketing costs and approved budgets are absent or incomplete, and no incremental learning outcome is defined. Authorize no spend, billing changes, monetization expansion, contracts, or forecasts. Preserve the aggregate commission as unattributed and reject revenue claims based on clicks, impressions, sessions, conversions, technical scores, or AI call counts alone.",
+        "summary": "Recommendation: maintain financial containment and continue only the existing period-aligned measurement and attribution reconciliation. Supported revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. AI usage reports $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, but retained cost records conflict. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable. Do not authorize spend, billing changes, monetization expansion, forecasts, or unsupported revenue claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum measurements required before any financial expansion recommendation: reconcile one identical reporting window for provider revenue, site/content tracking IDs, AI costs, infrastructure, domain, labor, marketing, and approved budget; preserve aggregate provider rows separately from site-attributed rows; define one measurable learning outcome per experiment with baseline, incremental cost, and result; and produce site-level contribution margin as attributable revenue minus directly assigned variable costs. Until those records exist, margin, ROI, payback, cost-to-learn, and budget exposure must remain unknown. Continue the existing reconciliation only; do not create duplicate telemetry requests.",
+        "summary": "Minimum measurement for any future financial recommendation: reconcile one identical reporting window for provider revenue, tracking IDs, AI costs, infrastructure, domains, labor, marketing, and approved budgets; preserve aggregate provider rows separately from site-attributed rows; define one learning outcome per experiment with baseline, incremental cost, and result; and calculate site contribution margin as attributable revenue minus directly assigned variable costs. Until this exists, treat traffic, impressions, clicks, conversions, technical scores, and ordered items without attributable commission as operating or vanity metrics—not financial returns.",
         "requested_action": null,
         "proposal_id": null
       }

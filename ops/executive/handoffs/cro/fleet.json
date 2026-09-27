@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:18:06.560Z",
+  "generated_at": "2026-09-27T10:04:40.334Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain evidence-backed SEO, UX, accessibility, performance, content, affiliate, attribution, audience, monetization, and validated repository opportunities as deferred CRO backlog. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent. Do not create new proposals, work items, change requests, experiments, telemetry, dependencies, requeues, deployments, spend, monetization expansion, or unsupported outcome claims.",
+        "summary": "Handoff: preserve the CRO opportunity backlog without new queue entry. Candidate experiments remain deferred under containment-only execution. Retain: (1) SEO CTR/internal-linking prototypes for saveusfarms.com, aliencouncil.com, broadwayshowgirls.com, deeppenetrations.com, marineactivity.com, and greatamericanlakes.com; evidence is search impressions and position signals, with learning measured by clicks, sessions, and conversions. Smallest reversible prototype: one metadata or contextual-link change on one eligible page, with rollback. (2) Affiliate comparison-block validation on eligible sites, informed by the ultrarough.com prototype; measure affiliate clicks and attributable orders, while preserving aggregate revenue as unattributed where applicable. (3) Accessible CTA/component prototype informed by shadcn-ui/ui; MIT license and bounded lab checks support research, but dependency, security, bundle, and maintenance review remain required. (4) Document-to-markdown content workflow informed by microsoft/markitdown; MIT license and 8/8 lab checks support research, but source-rights, content-quality, prompt-injection, dependency, and maintenance risks remain. (5) Mermaid-based editorial diagrams; MIT license and purpose fit are supported, but the lab had no safe native checks and SVG sanitization, accessibility, bundle, and maintenance review remain required. Time-to-learn for each is 7–14 days or the existing measurement threshold, not a revenue forecast. Do not deploy, add dependencies, request telemetry, spend, alter credentials, expand monetization, or create duplicate work while 47 failure follow-ups remain open, 28 improvements await measurement, queue eligibility is false, and legal/security gates remain incomplete. Revisit only after existing repair-or-close, attribution reconciliation, and evidence gates clear. This is a CEO/CTO handoff, not an owner approval request.",
         "requested_action": null,
         "proposal_id": null
       }
