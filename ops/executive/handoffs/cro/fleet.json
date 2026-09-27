@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:19:18.325Z",
+  "generated_at": "2026-09-27T17:48:32.195Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. No new queue-eligible CRO candidate is supported this cycle. Continue existing failure repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog. Do not create proposals, experiments, telemetry, dependencies, deployments, requeues, spend, monetization changes, or unsupported financial claims. Existing evidence includes 47 open failure follow-ups, 28 improvements awaiting measurement, 2 proven outcomes, incomplete operational/security evidence, and aggregate commission that is not site-attributable. Reassess the smallest reversible prototypes only after ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented.",
+        "summary": "Recommendation: preserve containment-only execution. No queue-eligible CRO candidate is supported this cycle. Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog. Continue existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Create no new proposals, work items, change requests, experiments, telemetry, dependencies, deployments, requeues, spend, or monetization changes. Reassess only after ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented.",
         "requested_action": null,
         "proposal_id": null
       }

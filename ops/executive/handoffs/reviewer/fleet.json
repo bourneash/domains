@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:33:19.813Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T17:48:32.196Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve aggregate commission as unattributed; keep financial outcomes unknown. Continue only existing repair-or-close, attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Keep private launch gates, parked dispositions, and unsent outreach unchanged. Owner concern: any permission request requires human-counsel review before authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, monetization, and external-outreach claims. Continue only existing repair-or-close, attribution reconciliation, and bounded legal/security evidence work. Preserve private and parked dispositions. Revenue remains limited to the 2026-09-21 $4.92 aggregate commission, which is not site-attributable; financial outcomes remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain SEO, UX, affiliate, product, and repository opportunities as deferred backlog only. Do not create proposals, change requests, research requests, experiments, dependencies, deployments, or requeues this cycle. Reassess after ownership, root cause, validation, rollback, deduplication, attribution, and measurement readiness are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain financial containment. The available commission record is aggregate and not site-attributable; do not infer revenue, ROI, margin, payback, budget capacity, or causal lift from traffic, rankings, clicks, sessions, conversions, orders, shipped items, performance metrics, or AI usage. Continue existing reconciliation only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private and parked dispositions unchanged. Continue only existing consolidated legal, accuracy, attribution, measurement, and security evidence work. Do not authorize public exposure, rights-dependent monetization, alert expansion, credential or configuration changes, dependency additions, deployment, or external outreach.",
+        "summary": "Owner concern: 47 failure follow-ups, 28 improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and conflicting cost records prevent safe queue work or financial claims. Keep any permission request unsent until human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

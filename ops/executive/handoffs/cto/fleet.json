@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:33:19.813Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T17:48:32.195Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new proposals, change requests, research requests, telemetry, dependencies, deployments, spend, monetization changes, or requeues are queue-eligible this cycle. Continue only existing repair-or-close, isolated validation, rollback, deduplication, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Preserve private launch gates, parked-site dispositions, unsent outreach, and existing measurement boundaries. Reassess only after ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented.",
+        "summary": "Approve containment-only execution. Technical feasibility is not the blocker, but no new queue entry is safe this cycle. Preserve SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog. Continue only existing repair-or-close, isolated validation, rollback, deduplication, measurement and attribution reconciliation, and bounded read-only legal/security evidence work. Create no new proposals, change requests, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Use existing recorded telemetry only; retain financial and causal outcomes as unknown where unsupported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain financial containment. Preserve the $4.92 aggregate commission as unattributed and keep revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift unknown. Continue existing reconciliation only; do not infer financial returns from traffic, rankings, clicks, sessions, conversions, orders, shipped items, performance metrics, or AI usage.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private and parked dispositions unchanged. Continue only the existing consolidated legal, accuracy, attribution, measurement, and security evidence work. Keep external outreach unsent and authorize no public exposure, rights-dependent monetization, alert expansion, credential or configuration changes, dependency additions, or deployment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog only. Technical feasibility is not the blocker; queue entry remains blocked by 47 open failure follow-ups, 28 improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and missing ownership, root-cause, validation, rollback, deduplication, and measurement evidence.",
+        "summary": "Retain the current private and parked dispositions and continue the existing bounded legal, security, and evidence work. Do not treat absent operations or security sweeps as passes, and do not infer revenue, ROI, margin, payback, or causal lift from available operating metrics.",
         "requested_action": null,
         "proposal_id": null
       }
