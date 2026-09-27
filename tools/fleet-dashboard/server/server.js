@@ -763,7 +763,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         const quarantined = [];
         const quarantinePaths = [];
         for (const duplicate of created.duplicate_tasks || []) {
-          if (duplicate.column !== 'backlog') continue;
+          // A stale done card is just as unsafe as a backlog duplicate here:
+          // it represents a prior attempt that never produced durable
+          // evidence, and otherwise blocks every honest retry forever. Move
+          // both stale columns to hold so the new run gets a clean lineage;
+          // genuinely completed done cards are handled by
+          // successfulTaskEvidence() before this branch.
+          if (!['backlog', 'done'].includes(duplicate.column)) continue;
           const moved = tasks.move(root, claimed.site, 'backlog', duplicate.file, 'hold');
           quarantined.push(moved.file);
           quarantinePaths.push(`ops/tasks/backlog/${duplicate.file}`);
@@ -3647,9 +3653,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const seeded = [];
       const skipped = [];
       const readiness = productivityProgram.queueReadiness(events, pilot.treatment_sites);
-      const blockedSites = new Map(
-        readiness.blocked_sites.map(item => [item.site, item])
-      );
+      const blockedSites = new Map(readiness.blocked_sites.map(item => [item.site, item]));
       const existing = new Set(
         events
           .listChangeRequests({ limit: 1000 })

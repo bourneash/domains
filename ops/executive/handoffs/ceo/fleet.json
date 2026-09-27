@@ -2,63 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:22:15.976Z",
-  "summary": "ceo checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:40:02.258Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only execution remains in force. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven. Do not create new design or implementation work, requeue failed work, add telemetry, deploy, spend, or alter monetization this cycle. Preserve the existing authorized UX work for 0xroulette.com, amputeenews.com, and girlpain.com without duplicating active site work; validate and measure only through their existing queues. Retain all other reversible design, accessibility, imagery, layout, and conversion opportunities as deferred backlog. No conversion lift is claimed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve containment-only execution. Retain site-factory, SEO, UX, accessibility, performance, content, monetization, and cross-site opportunities as deferred backlog while existing repair, measurement, attribution, legal, and security work proceeds. Complete the three approved bounded readiness assessments and preserve explicit unknowns. Do not create new proposals, change requests, experiments, telemetry, deployments, spend, or monetization changes this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No action candidates are queue-eligible. Drain the three approved readiness assessments and existing repair, measurement, attribution, legal, and security work. Preserve explicit unknowns and do not create or requeue production work, experiments, telemetry, deployments, spend, or monetization changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve existing authorized UX work without duplication; validate and measure only through existing queues. Retain all other reversible design, accessibility, imagery, layout, and conversion opportunities as deferred backlog. No conversion lift is claimed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve containment-only execution and reject new production work, requeues, telemetry, spend, deployments, experiments, and external outreach this cycle. Evidence: the authoritative candidate list is empty; 47 failure follow-ups remain open; 28 improvements await measurement; only 2 outcomes are proven; Amazon revenue is $4.92 aggregate for 2026-09-21 and not site-attributable. Margin, ROI, payback, causal lift, and budget capacity are unknown. Smallest next step: drain existing repair, measurement, legal, security, and three approved readiness assessments. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain the useful CRO, SEO, UX, site-factory, and repository opportunities as deferred backlog only. Do not create duplicate proposals or queue work while existing failure, validation, rollback, deduplication, attribution, and measurement gates remain open.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue only existing repair-or-close work. Before any requeue, require documented ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, and an available measurement boundary. Do not dispatch deferred site packets.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: keep SearchWoot private and retain parked dispositions. Legal has closed 0 of 4 launch tasks; source rights, privacy, security, accuracy, attribution, and measurement gates remain incomplete. Smallest next step is the consolidated evidence bundle and field-level rights matrix; external outreach remains unsent pending human-counsel review and owner authorization.",
+        "summary": "Recommendation: maintain containment-only execution and drain existing work. Evidence: the 30-day scorecard has zero queue-eligible candidates, 47 failure follow-ups, 31 deployed improvements awaiting measurement, and only 2 proven outcomes. Amazon revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $890.42 for 2026-09-01 through 2026-09-27. Margin, ROI, payback, causal lift, and budget capacity remain unknown. Smallest next step: complete repair-or-close, measurement, attribution, and approved readiness assessments. Owner decision: keep the prepared Woot permission request unsent, or authorize it only after human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

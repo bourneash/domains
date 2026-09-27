@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:22:15.978Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:40:02.260Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the duplicate security proposal and all new production, requeue, telemetry, spending, deployment, monetization, experiment, dependency, credential, permission, and external-outreach work. Continue only existing repair-or-close, attribution reconciliation, bounded security evidence, and the three already-approved readiness assessments. Preserve explicit unknowns and all private or parked gates. Revenue, ROI, margin, payback, readiness, compliance, health, and causal-lift claims remain unsupported.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, attribution reconciliation, measurement, and bounded legal/security evidence work. Preserve aggregate commission as unattributed and keep private launch gates unchanged. Owner concern: financial periods and attribution are incomplete; external outreach requires human-counsel review and remains unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing security evidence work only. Fleet-doctor, operations sweeps, and material security controls remain unevidenced; no security clearance or public-exposure approval is supported.",
         "requested_action": null,
         "proposal_id": null
       }

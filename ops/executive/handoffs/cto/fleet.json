@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:22:15.977Z",
+  "generated_at": "2026-09-27T23:40:02.259Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach are queue-ready this cycle. Retain existing UX work and evidence-backed SEO, UX, accessibility, performance, content, monetization, and site-factory opportunities as deferred backlog. Continue only the three approved bounded readiness assessments and existing repair, measurement, attribution, legal, and security work. Preserve explicit unknowns and existing private or parked gates; make no unsupported revenue, ROI, readiness, compliance, health, or causal-lift claims.",
+        "summary": "Handoff: continue existing repair-or-close and validation work only. Do not create or requeue new site work until ownership, root cause, isolated validation, rollback, deduplication, and measurement evidence are recorded. The CRO repository findings remain research evidence, not adoption approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the three already-approved bounded readiness assessments and existing repair-or-close work. Use authoritative records, named sources, dated artifacts, deterministic validation, explicit unknowns, owner handoff, and exactly one disposition or next action per assessment. Do not create duplicate requests or modify production, credentials, configuration, telemetry, spending, dependencies, deployments, or outreach.",
+        "summary": "Recommendation: maintain containment-only execution. Queue eligibility is false because the authoritative candidate list is empty, failure repairs and measurement work remain open, operations and security sweeps are unavailable, and attribution is incomplete. Continue only existing repair-or-close, validation, rollback, measurement, attribution, and bounded legal/security evidence work using recorded telemetry. Do not create or requeue production work, experiments, tracking, dependencies, deployments, spend, monetization changes, or unsupported revenue claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Before any requeue or release, document ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, and an available measurement boundary. Continue existing repair-or-close items only; do not dispatch deferred site packets or create duplicate work.",
+        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, site-factory, and repository opportunities as deferred backlog. Reconsider only after ownership, root cause, isolated validation, rollback, deduplication, release, and measurement evidence is recorded. CRO repository findings remain research evidence, not adoption approval.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and do not retrieve credentials, access private containers, change permissions, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Keep the gated product private and external outreach unsent. Continue the existing consolidated legal, accuracy, attribution, measurement, and security evidence work. Do not change configuration or credentials, add dependencies, deploy, expand alerts, expose data publicly, spend, or claim readiness until the existing gates are complete.",
         "requested_action": null,
         "proposal_id": null
       }
