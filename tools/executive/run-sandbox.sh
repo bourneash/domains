@@ -73,6 +73,54 @@ RUN_DIR="$(mktemp -d "$ROOT/tools/executive/data/.run.XXXXXX")"
 mkdir -m 700 "$RUN_DIR/input" "$RUN_DIR/output"
 trap 'rm -rf "$RUN_DIR"' EXIT
 
+# Register the real sandbox execution in the durable agent runtime. Failure to
+# record observability must not grant or alter execution authority, so the
+# legacy executive path remains available if the runtime database is briefly
+# unavailable.
+RUNTIME_RUN_ID="$(node - "$ROOT" "${EXECUTIVE_RUN_ID:-sandbox-$$}" <<'NODE' 2>/dev/null || true
+const root = process.argv[2];
+const key = process.argv[3];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const runtime = require(`${root}/tools/executive/agent-runtime`);
+const store = eventstore.open(root);
+try {
+  runtime.ensureRegistry(store);
+  const agent = store.getAgent('fleet-ceo');
+  const started = runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: key, work_id: 'executive-tick' });
+  process.stdout.write(started.run.run_id);
+} finally { store.close(); }
+NODE
+)"
+
+finish_runtime_run() {
+  local status="$1"
+  local error_message="${2:-}"
+  [[ -n "$RUNTIME_RUN_ID" ]] || return 0
+  node - "$ROOT" "$RUNTIME_RUN_ID" "$status" "$error_message" "$RUN_DIR/output/usage.json" <<'NODE' 2>/dev/null || true
+const fs = require('node:fs');
+const root = process.argv[2];
+const runId = process.argv[3];
+const status = process.argv[4];
+const error = process.argv[5] || null;
+const usageFile = process.argv[6];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const runtime = require(`${root}/tools/executive/agent-runtime`);
+const store = eventstore.open(root);
+try {
+  let usage = {};
+  try { usage = JSON.parse(fs.readFileSync(usageFile, 'utf8')); } catch {}
+  const updated = runtime.finish(store, runId, {
+    status: status === 'succeeded' ? 'succeeded' : 'failed',
+    error,
+    input_tokens: Number(usage.estimated_input_tokens || 0),
+    output_tokens: Number(usage.estimated_output_tokens || 0),
+    result: { passes: usage.calls || [], estimated_total_tokens: Number(usage.estimated_total_tokens || 0) },
+  });
+  if (fs.existsSync(usageFile)) runtime.attachArtifact(store, updated, { kind: 'report', label: 'Executive usage ledger', uri: usageFile });
+} finally { store.close(); }
+NODE
+}
+
 # Brief generation and plan application happen in the trusted control plane.
 node "$ROOT/tools/executive/runner.js" --brief-only > "$RUN_DIR/input/brief.json"
 
@@ -332,8 +380,15 @@ try {
   store.close();
 }
 NODE
+  finish_runtime_run failed "isolated executive model exited with status $MODEL_STATUS"
   exit "$MODEL_STATUS"
 fi
 
 [[ -s "$RUN_DIR/output/plan.json" ]] || { echo "executive model produced no plan" >&2; exit 1; }
-node "$ROOT/tools/executive/runner.js" --apply-plan-file "$RUN_DIR/output/plan.json" $MODE
+if node "$ROOT/tools/executive/runner.js" --apply-plan-file "$RUN_DIR/output/plan.json" $MODE; then
+  finish_runtime_run succeeded
+else
+  apply_status=$?
+  finish_runtime_run failed "executive plan application failed with status $apply_status"
+  exit "$apply_status"
+fi
