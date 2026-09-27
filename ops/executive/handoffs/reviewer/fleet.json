@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:29:32.969Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T21:36:31.478Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve private launch gates, parked dispositions, and unsent external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve aggregate commission as unattributed; keep private launch gates, parked dispositions, and unsent external outreach unchanged. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work using existing telemetry. Owner concern: any external permission request requires human-counsel review and explicit authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, monetization, and outreach actions. Continue only existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Preserve unattributed aggregate commission, private launch gates, parked dispositions, unknown financial and causal outcomes, and unsent external requests. Human-counsel review and explicit owner authorization remain required before any permission request.",
         "requested_action": null,
         "proposal_id": null
       }

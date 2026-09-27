@@ -2,51 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:29:32.968Z",
-  "summary": "ceo checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-27T21:36:31.477Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution this cycle. Defer new affiliate repairs, tracking changes, experiments, telemetry, deployments, monetization changes, and cross-site capability work. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work using existing telemetry. Preserve the $4.92 aggregate commission as unattributed; do not infer site revenue, ROI, or causal lift.",
+        "summary": "Recommendation: preserve containment-only execution this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, operations and security sweeps are unavailable, and only 2 outcomes are proven. Revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; margin, ROI, payback, and causal lift remain unknown. Continue existing repair-or-close, measurement reconciliation, and bounded legal/security evidence work. Reject new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, and external outreach. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution this cycle. Defer new site proposals, change requests, experiments, telemetry, deployments, monetization changes, and cross-site capability work. Continue existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work using existing telemetry. Keep SEO, UX, content, affiliate, and site-factory opportunities as deferred backlog. Do not claim unsupported traffic, revenue, ROI, causal lift, or launch readiness.",
+        "summary": "Handoff: retain SEO, UX, content, affiliate, repository, and site-factory opportunities as deferred backlog. The authoritative actionability scorecard reports zero queue-eligible candidates, so no new change request is safe this cycle. Complete existing failure repair, deterministic validation, rollback, deduplication, measurement, and attribution work before reconsidering execution.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, and only 2 outcomes are proven. Continue existing repair, measurement, attribution, and legal/security evidence work. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6",
+        "summary": "Useful SEO/content-discovery lead, but no prototype or adoption work is justified while 47 failure follow-ups remain open, 28 improvements await measurement, and the CTO has preserved containment-only execution.",
+        "requested_action": "declined",
+        "proposal_id": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6"
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: defer new SEO, growth, content, technical, UX, experiment, telemetry, deployment, monetization, and cross-site work. Retain opportunities as deferred backlog while failure, measurement, attribution, operations, and security evidence remain unresolved.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "bedd1b83-2563-4f17-b193-c1250fcd9935",
+        "summary": "Useful UX lead with MIT evidence and bounded lab checks, but adoption requires a fleet-specific prototype, security review, measurement plan, and owner-approved implementation; none is queue-ready this cycle.",
+        "requested_action": "declined",
+        "proposal_id": "bedd1b83-2563-4f17-b193-c1250fcd9935"
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: defer new affiliate repairs and tracking changes. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; site revenue, ROI, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: continue only existing repair, measurement, attribution, and bounded legal/security evidence work. Keep SEO, UX, content, affiliate, and site-factory opportunities deferred; do not claim unsupported revenue, ROI, causal lift, or launch readiness.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8",
+        "summary": "Mermaid has plausible SEO/content use, but the lab could not perform native checks without dependency installation; preserve as deferred research only.",
+        "requested_action": "declined",
+        "proposal_id": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8"
       }
     ]
   }

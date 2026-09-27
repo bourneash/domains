@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:29:32.969Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T21:36:31.477Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Defer all new proposals, change requests, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and external outreach. Deferred opportunities remain technically feasible but are not queue-ready while failure follow-ups, measurement, operations, security, and attribution gates remain unresolved.",
+        "summary": "CTO recommendation: preserve containment-only execution this cycle. Deferred SEO, UX, accessibility, performance, content, affiliate, and repository opportunities are technically feasible but not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, measurement, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Keep financial and causal outcomes unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO handoff: existing failures may proceed only through their current repair-or-close work items. Before any requeue or release, document ownership, root cause, smallest isolated repair, deterministic validation, rollback evidence, deduplication, and an available measurement boundary. Do not create duplicate work or request telemetry already present in the authoritative snapshot.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO financial and measurement disposition: preserve aggregate commission as unattributed and retain site revenue, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Continue existing period-aligned reconciliation only. Productivity output counts and technical metrics must not be treated as financial return or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO launch and isolation disposition: keep gated products private and retain parked-site dispositions. Continue only existing bounded read-only legal, security, accuracy, attribution, and measurement evidence work. External permission requests remain unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

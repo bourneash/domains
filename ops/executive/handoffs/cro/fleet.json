@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:29:32.968Z",
+  "generated_at": "2026-09-27T21:36:31.477Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Retain CRO opportunities as deferred backlog, including SEO click-uplift candidates, affiliate-path repairs, UX improvements, and bounded repository prototypes. Evidence supports no new queue work: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations and security sweeps are unavailable, revenue is limited to $4.92 aggregate commission that is not site-attributable, and causal, financial, and cost-to-learn outcomes remain unknown. Continue only existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work using existing telemetry. Do not create proposals, change requests, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach this cycle.",
+        "summary": "Product recommendation: preserve containment-only execution this cycle. The brief supports valuable deferred opportunities across SEO, UX, accessibility, performance, content, and monetization surfaces, but no new site proposal or work item is queue-ready. Evidence includes 47 open failure follow-ups, 28 deployed improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and only 2 proven outcomes. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep financial outcomes, causal lift, and revenue impact unknown; retain deferred opportunities for reconsideration after gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain SEO, affiliate, UX, content, performance, and repository opportunities as deferred backlog. No new queue work is safe while failures, measurement, operations, security, attribution, and financial evidence remain incomplete.",
+        "summary": "CRO recommendation: preserve containment-only execution this cycle. Deferred opportunities include SEO CTR/internal linking, affiliate-path repair, UX/accessibility improvements, performance remediation, content-depth work, and bounded repository prototypes. They are not queue-ready while 47 failure follow-ups remain open, 28 improvements await measurement, operations/security sweeps are unavailable, attribution is incomplete, and only 2 outcomes are proven. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep revenue impact, causal lift, ROI, margin, payback, and cost-to-learn unknown; reconsider the deferred backlog only after the existing gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
