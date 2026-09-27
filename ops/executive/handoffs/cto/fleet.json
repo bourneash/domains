@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:47:50.113Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T09:03:53.947Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence work. No new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization expansion, or unsupported claims. Preserve deferred SEO, UX, accessibility, performance, content, affiliate, attribution, and repository opportunities until ownership, isolation, deterministic validation, rollback, deduplication, measurement capacity, security, and attribution gates are satisfied. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization.",
+        "summary": "Handoff: preserve deferred SEO, UX, performance, content, attribution, and repository opportunities as backlog only. Continue existing failure repair-or-close and measurement work. Explicitly reject new deployments, requeues, experiments, dependencies, telemetry, and production changes until ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Existing queue work may continue only within its current isolated scope. Retained failures require documented ownership, root cause, smallest repair, deterministic validation, rollback, and deduplication before requeue. Measurement work must preserve unknowns and keep aggregate revenue unattributed. Security evidence remains read-only; missing operational and fleet-doctor results do not establish clearance.",
+        "summary": "Approve containment-only execution. Preserve the deferred SEO, UX, accessibility, performance, content, attribution, and repository backlog. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, deployments, and unsupported claims. Existing failures, limited measurement capacity, unevidenced security controls, partial attribution, and unreconciled costs prevent safe queue entry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile retained AI-cost records with period-aligned evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity from incomplete records.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue the existing read-only rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement evidence work pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }
