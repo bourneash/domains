@@ -1251,6 +1251,7 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       launch_review: 'update',
     };
     if (messageTypeAliases[messageType]) item.message_type = messageTypeAliases[messageType];
+    else if (!messageType) item.message_type = 'update';
   }
   for (const item of plan.data_requests) {
     const raw = String(item?.requested_by || '')
@@ -1443,6 +1444,11 @@ function validatePlan(plan) {
         'cro',
         'product-manager-fleet',
         'product-manager-sites',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
         'cfo',
         'legal',
         'security',
@@ -1471,6 +1477,11 @@ function validatePlan(plan) {
         'cro',
         'product-manager-fleet',
         'product-manager-sites',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
         'cfo',
         'legal',
         'security',

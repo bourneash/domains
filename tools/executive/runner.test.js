@@ -846,6 +846,40 @@ test('accepts provider natural-language message field aliases inside the closed 
   assert.equal(plan.messages[0].body, 'Recommendation: inspect the site backlog.');
 });
 
+test('defaults blank provider message types to update', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'growth-director',
+          message_type: '   ',
+          body: 'Recommendation: keep the bounded growth test.',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.messages[0].message_type, 'update');
+  runner.validatePlan(plan);
+});
+
+test('accepts messages from the delivery, design, growth, revenue, and site-factory roles', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        { actor: 'delivery-lead', body: 'Delivery update.' },
+        { actor: 'design-director', body: 'Design update.' },
+        { actor: 'growth-director', body: 'Growth update.' },
+        { actor: 'revenue-ops', body: 'Revenue update.' },
+        { actor: 'site-factory', body: 'Factory update.' },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.messages.map(message => message.actor),
+    ['delivery-lead', 'design-director', 'growth-director', 'revenue-ops', 'site-factory']
+  );
+});
+
 test('binds an omitted actor to the authenticated pass role', () => {
   const plan = runner.parseOutput(
     JSON.stringify({ messages: [{ body: 'Recommendation: keep this bounded.' }] }),
