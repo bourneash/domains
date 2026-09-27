@@ -585,6 +585,27 @@ function open(root, { file } = {}) {
       created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS agent_run_logs_run ON agent_run_logs(run_id, created_at);
+    CREATE TABLE IF NOT EXISTS agent_delegations (
+      delegation_id TEXT PRIMARY KEY,
+      from_agent_id TEXT NOT NULL,
+      to_agent_id TEXT NOT NULL,
+      work_kind TEXT NOT NULL DEFAULT 'any',
+      max_concurrent INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(from_agent_id, to_agent_id, work_kind)
+    );
+    CREATE TABLE IF NOT EXISTS runtime_providers (
+      provider_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      kind TEXT NOT NULL,
+      capabilities_json TEXT NOT NULL DEFAULT '[]',
+      config_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'disabled',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
   ensureColumn(db, 'improvement_runs', 'workspace_path', 'TEXT');
   ensureColumn(db, 'improvement_runs', 'production_before', 'TEXT');
@@ -623,6 +644,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_work_items', 'labels_json', "TEXT NOT NULL DEFAULT '[]'");
   ensureColumn(db, 'agent_registry', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
   ensureColumn(db, 'agent_runs', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'agent_workspaces', 'provider_id', 'TEXT');
   db.prepare(
     "UPDATE agent_registry SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
   ).run();
@@ -3719,6 +3741,7 @@ function open(root, { file } = {}) {
       agent_id: String(input.agent_id),
       run_id: input.run_id || null,
       site: input.site || null,
+      provider_id: input.provider_id || null,
       path: workspacePath,
       mode: String(input.mode || 'isolated'),
       status: String(input.status || 'active'),
@@ -3727,13 +3750,16 @@ function open(root, { file } = {}) {
       updated_at: now,
       closed_at: null,
     };
+    if (row.provider_id && !getRuntimeProvider(row.provider_id))
+      throw httpErr(404, 'runtime provider not found');
     db.prepare(
-      'INSERT INTO agent_workspaces (workspace_id,agent_id,run_id,site,path,mode,status,preview_url,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+      'INSERT INTO agent_workspaces (workspace_id,agent_id,run_id,site,provider_id,path,mode,status,preview_url,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
     ).run(
       row.workspace_id,
       row.agent_id,
       row.run_id,
       row.site,
+      row.provider_id,
       row.path,
       row.mode,
       row.status,
@@ -4057,6 +4083,97 @@ function open(root, { file } = {}) {
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json) }));
   }
 
+  function upsertAgentDelegation(input = {}) {
+    if (!getAgent(input.from_agent_id) || !getAgent(input.to_agent_id))
+      throw httpErr(404, 'delegation agent not found');
+    if (String(input.from_agent_id) === String(input.to_agent_id))
+      throw httpErr(400, 'agent cannot delegate to itself');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO agent_delegations (delegation_id,from_agent_id,to_agent_id,work_kind,max_concurrent,status,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(from_agent_id,to_agent_id,work_kind) DO UPDATE SET max_concurrent=excluded.max_concurrent,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.delegation_id || crypto.randomUUID(),
+      String(input.from_agent_id),
+      String(input.to_agent_id),
+      String(input.work_kind || 'any'),
+      Math.max(1, Number(input.max_concurrent) || 1),
+      input.status || 'active',
+      now,
+      now
+    );
+    return db
+      .prepare(
+        'SELECT * FROM agent_delegations WHERE from_agent_id=? AND to_agent_id=? AND work_kind=?'
+      )
+      .get(
+        String(input.from_agent_id),
+        String(input.to_agent_id),
+        String(input.work_kind || 'any')
+      );
+  }
+  function listAgentDelegations({ from_agent_id, to_agent_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['from_agent_id', from_agent_id],
+      ['to_agent_id', to_agent_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    return db
+      .prepare(
+        `SELECT * FROM agent_delegations${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function upsertRuntimeProvider(input = {}) {
+    const slug = String(input.slug || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !input.kind)
+      throw httpErr(400, 'valid provider slug and kind are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO runtime_providers (provider_id,slug,kind,capabilities_json,config_json,status,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET kind=excluded.kind,capabilities_json=excluded.capabilities_json,config_json=excluded.config_json,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.provider_id || crypto.randomUUID(),
+      slug,
+      String(input.kind),
+      JSON.stringify(Array.isArray(input.capabilities) ? input.capabilities.slice(0, 50) : []),
+      JSON.stringify(input.config && typeof input.config === 'object' ? input.config : {}),
+      input.status || 'disabled',
+      now,
+      now
+    );
+    return getRuntimeProvider(slug);
+  }
+  function getRuntimeProvider(id) {
+    const row = db
+      .prepare(
+        'SELECT provider_id,slug,kind,capabilities_json,status,created_at,updated_at FROM runtime_providers WHERE provider_id=? OR slug=?'
+      )
+      .get(String(id), String(id));
+    return row ? { ...row, capabilities: safeJsonArray(row.capabilities_json) } : null;
+  }
+  function listRuntimeProviders({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    const rows = status
+      ? db
+          .prepare(
+            'SELECT provider_id,slug,kind,capabilities_json,status,created_at,updated_at FROM runtime_providers WHERE status=? ORDER BY slug LIMIT ?'
+          )
+          .all(String(status), n)
+      : db
+          .prepare(
+            'SELECT provider_id,slug,kind,capabilities_json,status,created_at,updated_at FROM runtime_providers ORDER BY slug LIMIT ?'
+          )
+          .all(n);
+    return rows.map(row => ({ ...row, capabilities: safeJsonArray(row.capabilities_json) }));
+  }
+
   const KNOWLEDGE_TYPES = new Set([
     'official',
     'book',
@@ -4355,6 +4472,11 @@ function open(root, { file } = {}) {
     listRuntimeConnectors,
     appendAgentRunLog,
     listAgentRunLogs,
+    upsertAgentDelegation,
+    listAgentDelegations,
+    upsertRuntimeProvider,
+    getRuntimeProvider,
+    listRuntimeProviders,
     createOrganization,
     listOrganizations,
     getOrganization,

@@ -4748,6 +4748,41 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.post('/api/agent-events/trigger', (req, res) => {
+    try {
+      res.json(agentHeartbeat.triggerEvent(events, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-delegations', (req, res) => {
+    try {
+      res.json({ delegations: events.listAgentDelegations(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-delegations', (req, res) => {
+    try {
+      res.status(201).json({ delegation: events.upsertAgentDelegation(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-providers', (req, res) => {
+    try {
+      res.json({ providers: events.listRuntimeProviders(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-providers', (req, res) => {
+    try {
+      res.status(201).json({ provider: events.upsertRuntimeProvider(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/agent-evals', (req, res) => {
     try {
       res.json({ evaluations: events.listAgentEvals(req.query) });

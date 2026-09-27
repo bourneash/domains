@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Domain Fleet Manager</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="theme.css" />
   <meta name="theme-color" content="#070910" />
@@ -159,6 +160,7 @@
     </div>
   </div>
 
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});</script>
   <script src="scheduler-view.js"></script>
   <script src="app.js"></script>
   <script src="shell.js"></script>

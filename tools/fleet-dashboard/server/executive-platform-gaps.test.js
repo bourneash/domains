@@ -136,6 +136,52 @@ test('durable adapters, secrets, organizations, project work, and plan approvals
     const imported = portability.importOrganization(store, bundle);
     assert.notEqual(imported.organization.organization_id, organization.organization_id);
 
+    const worker = store.createAgent({
+      organization_id: organization.organization_id,
+      slug: 'acme-worker',
+      name: 'Acme Worker',
+      title: 'Worker',
+      role: 'engineer',
+      adapter: 'test-adapter',
+    });
+    store.upsertAgentDelegation({
+      from_agent_id: agent.agent_id,
+      to_agent_id: worker.agent_id,
+      work_kind: 'implementation',
+    });
+    assert.equal(store.listAgentDelegations({ from_agent_id: agent.agent_id }).length, 1);
+    store.createAgentRoutine({
+      agent_id: worker.agent_id,
+      name: 'on-work',
+      trigger_type: 'event',
+      schedule: 'work.created',
+    });
+    const eventDispatch = require('../../executive/agent-heartbeat').triggerEvent(store, {
+      event_type: 'work.created',
+      event_id: 'event-1',
+      payload: { work_id: work.work_id },
+    });
+    assert.equal(eventDispatch.dispatched.length, 1);
+    assert.equal(
+      require('../../executive/agent-heartbeat').triggerEvent(store, {
+        event_type: 'work.created',
+        event_id: 'event-1',
+      }).dispatched[0].reused,
+      true
+    );
+    const provider = store.upsertRuntimeProvider({
+      slug: 'local-sandbox',
+      kind: 'local',
+      capabilities: ['workspace'],
+      status: 'active',
+    });
+    const workspace = store.createAgentWorkspace({
+      agent_id: worker.agent_id,
+      provider_id: provider.provider_id,
+      path: '/tmp/platform-provider-workspace',
+    });
+    assert.equal(workspace.provider_id, provider.provider_id);
+
     const plan = store.createExecutivePlan({ title: 'Launch plan', goal_id: goal.goal_id });
     assert.equal(
       store.addExecutivePlanVersion(plan.plan_id, {
