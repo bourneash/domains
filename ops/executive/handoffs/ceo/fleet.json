@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:19:09.323Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:32:42.715Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and retain the evidence-backed CRO/product backlog as deferred. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI, margin, and causal lift are unknown. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, and unsupported claims. Smallest next step: complete existing failure repair-or-close and measurement reconciliation. Owner decision: after human-counsel review, authorize the prepared Woot permission request or keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve containment-only execution and retain the evidence-backed backlog as deferred. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Continue only existing failure repair-or-close, measurement reconciliation, and bounded read-only evidence work. Reject new production work, experiments, duplicate telemetry, dependencies, spend, requeues, monetization expansion, and unsupported claims.",
+        "summary": "Recommendation: preserve the evidence-backed SEO, UX, performance, content, attribution, and CRO opportunities as deferred backlog; do not create new production work this cycle. The authoritative candidate list is empty, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Reject new requeues, experiments, telemetry, dependencies, spend, monetization expansion, deployments, and unsupported revenue claims. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI and margin are unknown. Keep SearchWoot private and external outreach unsent. Smallest next step: complete existing repair-or-close and measurement reconciliation. Owner decision: after human-counsel review, authorize the prepared Woot permission request or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }

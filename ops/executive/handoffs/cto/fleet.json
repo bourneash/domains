@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:19:09.323Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:32:42.715Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve deferred SEO, UX, accessibility, performance, content, attribution, and repository opportunities. Continue only existing failed-work repair-or-close, measurement reconciliation, and bounded read-only security evidence. Do not requeue or deploy until ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are documented.",
+        "summary": "Approve containment-only execution. Preserve the deferred SEO, UX, accessibility, performance, content, attribution, audience, and monetization backlog. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Do not create or requeue production work, experiments, telemetry, dependencies, spend, deployments, monetization changes, or external outreach. Keep the gated product private until rights, privacy, security, accuracy, attribution, measurement, and owner gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new production work, requeues, experiments, dependencies, telemetry requests, spend, monetization expansion, or deployments are technically ready. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Preserve deferred opportunities until ownership, isolation, deterministic validation, rollback, deduplication, measurement capacity, security, attribution, and financial gates are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile conflicting cost records using existing evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend authorization from incomplete or misaligned records.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence and failed-work containment. Public exposure and security-sensitive releases remain blocked while authentication, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure controls are unevidenced. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, or requeue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue the existing read-only rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement checklist pending human-counsel review and explicit owner authorization.",
+        "summary": "Reconsider queue entry only after retained failures have documented ownership, root cause, isolated validation, rollback, and deduplication; measurement capacity and security, attribution, and financial gates must also be satisfied. Existing technical and revenue signals do not establish causal lift, ROI, margin, or readiness for new production work.",
         "requested_action": null,
         "proposal_id": null
       }

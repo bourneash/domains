@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:19:09.324Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:32:42.716Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, production, requeue, experiment, telemetry, dependency, spending, and monetization claims. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization. Revenue remains limited to 2026-09-21 aggregate commission of $4.92, not site-attributable; financial outcomes remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing work only; do not create duplicate requests or requeue deferred opportunities until ownership, root cause, isolated validation, rollback, deduplication, measurement capacity, security evidence, attribution, and financial reconciliation are documented.",
+        "summary": "Reject new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, and unsupported financial claims. Preserve only existing failure repair-or-close, measurement and attribution reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent. Site-level ROI, margin, causal lift, and revenue forecasts remain unsupported because attribution is partial, revenue covers one dated window, and cost records conflict.",
         "requested_action": null,
         "proposal_id": null
       }
