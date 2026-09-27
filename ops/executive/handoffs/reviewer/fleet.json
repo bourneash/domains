@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:48:29.500Z",
+  "generated_at": "2026-09-27T13:03:07.861Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, production, requeue, experiment, telemetry, dependency, spend, monetization, and public-launch claims. Retain the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. No new research request is justified.",
+        "summary": "Approve containment-only execution. Preserve the three SEO/performance opportunities as deferred backlog; reject new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, and unsupported financial claims. Continue only existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates and external outreach unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
