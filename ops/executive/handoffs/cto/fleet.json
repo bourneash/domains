@@ -2,30 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:18:22.291Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:33:57.978Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the three CRO opportunities as deferred prioritization evidence, not execution authorization. Existing failure, validation, rollback, deduplication, and measurement gates prevent safe new queue work this cycle. Continue only existing repair-or-close and read-only evidence work; do not requeue or deploy.",
+        "summary": "Technical disposition: approve containment-only execution. The three SEO/performance opportunities are feasible and reversible in isolation, but cannot safely enter the existing queue until failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue only existing repair, reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged; do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new queue work, requeues, experiments, telemetry, dependencies, deployments, spend, or monetization changes are technically supportable this cycle. Retain the three evidence-backed opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Preserve private launch gates and external outreach restrictions. Do not treat operating metrics or aggregate revenue as financial returns.",
+        "summary": "Maintain existing measurement and attribution reconciliation only. Preserve the dated aggregate commission as unattributed, reconcile period-aligned cost records, and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift. Do not treat impressions, clicks, rankings, sessions, conversions, technical scores, ordered items, or AI usage as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed SEO and performance opportunities are feasible and reversible in isolation, but cannot safely enter the existing queue until failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue only the already-authorized repair, reconciliation, and read-only evidence work.",
+        "summary": "Keep the gated product private and external outreach unsent. Continue only existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8",
+        "summary": "No new research or dependency adoption is justified while containment gates remain open. Preserve the bounded lab evidence for later review.",
+        "requested_action": "declined",
+        "proposal_id": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "bedd1b83-2563-4f17-b193-c1250fcd9935",
+        "summary": "The candidate is plausible, but prototype, security, isolation, measurement, and owner-approved implementation gates are incomplete. Defer.",
+        "requested_action": "declined",
+        "proposal_id": "bedd1b83-2563-4f17-b193-c1250fcd9935"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6",
+        "summary": "The bounded lab evidence is sufficient for now; defer further research or adoption until execution and measurement controls improve.",
+        "requested_action": "declined",
+        "proposal_id": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6"
       }
     ]
   }

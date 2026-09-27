@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:04:03.670Z",
+  "generated_at": "2026-09-27T11:33:57.977Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty; continue existing failure repair-or-close, measurement/attribution reconciliation, and bounded read-only legal/security evidence. Retain deferred opportunities for deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com without creating proposals, change requests, experiments, telemetry, dependencies, spend, deployments, or monetization work. Evidence remains insufficient for revenue or causal-lift claims; keep private launch gates unchanged.",
+        "summary": "Executive recommendation: preserve containment-only execution. Evidence supports retaining three deferred opportunities—deeppenetrations.com liquid-wrench search-result refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis—prioritized by user benefit, attributable learning, reversibility, and time-to-learn. Do not create duplicate proposals, work items, change requests, experiments, telemetry, dependencies, spend, deployments, or monetization changes this cycle. Continue existing failure repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Revenue evidence remains limited and unattributed; no revenue, ROI, margin, or causal-lift claims are supported. Existing launch gates remain unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

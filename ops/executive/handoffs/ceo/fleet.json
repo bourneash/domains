@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:18:22.291Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:33:57.977Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the three evidence-backed opportunities as deferred backlog only: deeppenetrations.com liquid-wrench CTR, broadwayshowgirls.com Priya Raghunathan CTR, and americastrikes.com mobile performance diagnosis. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven in the 30-day scorecard; revenue covers 2026-09-21 only with $4.92 aggregate commission and $0 site-attributed. Reject new change requests, requeues, experiments, telemetry, dependencies, spend, monetization expansion, and unsupported revenue claims. The fourth fleet-normalization item is not sufficiently evidenced in the supplied plan and is rejected pending a bounded evidence brief. Smallest next step: finish existing repair-or-close, measurement reconciliation, and legal/security evidence. Owner decision: authorize the prepared Woot permission request after counsel review, or keep it unsent.",
+        "summary": "Recommendation: preserve the three CRO opportunities as deferred backlog, not execution: deeppenetrations.com metadata refinement (95 impressions, position 2.8, 0 clicks), broadwayshowgirls.com writer-result refinement (64 impressions, position 2, 0 clicks), and americastrikes.com mobile diagnosis (performance 65, LCP 4,861ms, TBT 492ms). Evidence window: 30-day SEO snapshot generated 2026-09-27. No revenue, ROI, margin, or causal lift is calculable. With 47 failure follow-ups, 28 deployed improvements awaiting measurement, and only 2 proven outcomes, CTO/reviewer gates reject new queue work this cycle. Smallest next step: complete existing repair-or-close, measurement reconciliation, and legal/security evidence. Owner decision: authorize the prepared Woot permission request after counsel review, or keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: retain the CRO evidence and rollback plans for the three deferred site opportunities; do not create duplicate proposals, experiments, telemetry, dependencies, spend, deployments, or change requests until containment gates clear. Revenue remains limited to 2026-09-21: $4.92 aggregate commission, not site-attributable; site economics remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep SearchWoot private and external outreach unsent. Official Woot materials establish API access mechanics but not public or commercial reuse rights; all four launch-readiness legal tasks remain open, while security, accuracy, attribution, measurement, and owner gates are incomplete. The smallest next step is the existing consolidated read-only evidence bundle and counsel review.",
         "requested_action": null,
         "proposal_id": null
       }
