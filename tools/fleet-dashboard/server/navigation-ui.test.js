@@ -854,13 +854,24 @@ test('shared shell manages focus for every modal surface', () => {
   assert.match(shell, /installModalFocusManager/);
   assert.match(
     shell,
-    /\.modal:not\(\.hidden\), \.login-overlay:not\(\.hidden\), \.err-drawer-shell:not\(\.hidden\), #cmdk:not\(\.hidden\)/
+    /\.modal:not\(\.hidden\), \.login-overlay:not\(\.hidden\), \.err-drawer-shell:not\(\.hidden\), \.ex-run-drawer-shell:not\(\.hidden\), #cmdk:not\(\.hidden\)/
   );
   assert.match(shell, /previousFocus = document\.activeElement/);
   assert.match(shell, /e\.key !== 'Tab'/);
   assert.match(shell, /addEventListener\('keydown', e => \{/);
   assert.match(index, /id="modal"[^>]*role="dialog"[^>]*aria-modal="true"/);
   assert.match(index, /id="modal-close"[^>]*aria-label="Close dialog"/);
+});
+
+test('executive run logs open in an independent loading drawer', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /async function openExecutiveRunLog\(actionId\)/);
+  assert.match(app, /Loading run log…/);
+  assert.match(app, /openExecutiveRunLog\(button\.dataset\.id\)/);
+  assert.doesNotMatch(app, /EXEC_RUN_UI\.selected = button\.dataset\.id;\s*softRender\(\)/);
+  assert.match(style, /\.ex-run-drawer\s*\{/);
+  assert.match(style, /\.ex-run-drawer-loading::before/);
 });
 
 test('edit modals protect unsaved changes without retaining sensitive fields', () => {

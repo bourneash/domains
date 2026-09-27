@@ -629,6 +629,21 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .ex-run-log-entry pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:420px; overflow:auto; margin:8px 0 0; padding:10px; background:rgba(0,0,0,.22); border-radius:6px; font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; }
 .ex-run-action-item > div:first-child { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; }
 .ex-run-action-item p { margin:7px 0; line-height:1.45; }
+.ex-run-drawer-shell { position: fixed; inset: 0; z-index: 80; }
+.ex-run-drawer-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.46); }
+.ex-run-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(1080px, 94vw); display: flex; flex-direction: column; background: var(--panel); border-left: 1px solid var(--border); box-shadow: -18px 0 44px rgba(0,0,0,.42); animation: ex-run-drawer-in .18s ease-out; }
+@keyframes ex-run-drawer-in { from { transform: translateX(28px); opacity: .55; } to { transform: translateX(0); opacity: 1; } }
+.ex-run-drawer-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:20px 24px 16px; border-bottom:1px solid var(--border); }
+.ex-run-drawer-head h2 { margin:3px 0 5px; font-size:18px; }
+.ex-run-drawer-head p { margin:0; }
+.ex-run-drawer-toolbar { display:flex; align-items:center; gap:10px; padding:11px 24px; border-bottom:1px solid var(--border); }
+.ex-run-drawer-body { flex:1; overflow:auto; padding:20px 24px 28px; }
+.ex-run-drawer-summary { display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); font-size:12px; margin-bottom:18px; }
+.ex-run-drawer-loading { display:flex; align-items:center; gap:10px; color:var(--muted); padding:28px 0; }
+.ex-run-drawer-loading::before { content:''; width:14px; height:14px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation: ex-run-spin .7s linear infinite; }
+@keyframes ex-run-spin { to { transform:rotate(360deg); } }
+.ex-run-drawer .ex-run-detail-grid { grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr); }
+@media (max-width:820px) { .ex-run-drawer { width:100vw; } .ex-run-drawer-body { padding:16px; } .ex-run-drawer-head, .ex-run-drawer-toolbar { padding-left:16px; padding-right:16px; } }
 @media (max-width:820px) { .ex-run-detail-grid { grid-template-columns:1fr; } }
 @media (max-width:1100px) { .ex-run-panel:has(.ex-run-detail) { grid-template-columns: 1fr; } .ex-run-panel:has(.ex-run-detail) > .ex-run-queue, .ex-run-panel:has(.ex-run-detail) > .ex-run-detail { grid-column: 1; } }
 .errors-toolbar { align-items: end; }

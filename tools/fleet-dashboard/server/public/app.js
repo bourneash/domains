@@ -14367,10 +14367,10 @@ async function renderExecutive() {
   const activeRun = runStatus?.active;
   const latestRun = runStatus?.latest;
   const runQueue = runStatus?.queue || [];
-  const selectedRunId = EXEC_RUN_UI.selected || latestRun?.action_id || null;
-  const runDetail = selectedRunId
-    ? await apiOptional('GET', `/api/executive/run/${encodeURIComponent(selectedRunId)}`, null)
-    : null;
+  // Run logs load in their own drawer on demand. Fetching a full dossier here
+  // made every page refresh wait on a large transcript, even when no log was
+  // being viewed.
+  const selectedRunId = null;
   const runResult = latestRun?.result?.tick_result || latestRun?.result || {};
   const runCounts = runResult?.counts || runResult?.created_counts || {};
   const runFailureReason =
@@ -14470,23 +14470,6 @@ async function renderExecutive() {
   };
   const failedRunCount = runQueue.filter(run => run.status === 'failed').length;
   const runQueueToolbar = `<div class="ex-run-queue-toolbar"><input id="ex-run-filter" class="cm-input" placeholder="Filter runs…" value="${esc(EXEC_RUN_UI.q)}"><select id="ex-run-status" class="cm-input"><option value="all" ${EXEC_RUN_UI.status === 'all' ? 'selected' : ''}>All statuses</option><option value="running" ${EXEC_RUN_UI.status === 'running' ? 'selected' : ''}>Running</option><option value="completed" ${EXEC_RUN_UI.status === 'completed' ? 'selected' : ''}>Completed</option><option value="failed" ${EXEC_RUN_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select><label class="muted">Rows <select id="ex-run-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${EXEC_RUN_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>${failedRunCount ? '<button class="btn sm danger" id="ex-run-clear-failed" type="button">Clear failed</button>' : ''}</div>`;
-  const detailTranscript = (
-    runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || []
-  )
-    .map(
-      item =>
-        `<article class="ex-run-log-entry"><div class="ex-transcript-meta"><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type)} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
-    )
-    .join('');
-  const detailItems = (runDetail?.action_items || [])
-    .map(
-      item =>
-        `<article class="ex-run-action-item"><div><b>${esc(item.title)}</b><span class="badge ${item.status === 'done' ? 'b-green' : 'b-yellow'}">${esc(item.status)}</span></div><p>${esc(item.summary || '')}</p><div class="muted">${esc(item.owner)}${item.site ? ` · ${esc(item.site)}` : ''} · ${esc(item.run_operation || 'run item')}</div><div><b>Next:</b> ${esc(item.next_action || '—')}</div></article>`
-    )
-    .join('');
-  const runDetailPanel = runDetail
-    ? `<section class="ex-run-detail"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h3>${esc(runDetail.run?.source || (runDetail.run?.target_type === 'manual-executive-run' ? 'manual' : 'scheduled'))} run · ${esc(fmtDate(runDetail.run?.started_at))}</h3><p class="muted">${esc(runDetail.transcript?.length || 0)} model transcript entries · ${esc(runDetail.conversation?.length || 0)} executive messages · ${esc(runDetail.action_items?.length || 0)} action items</p></div><button class="btn sm" id="ex-run-log-close" type="button">Close</button></div><div class="ex-run-detail-grid"><div><h4>Full conversation and agent activity</h4><div class="ex-run-log">${detailTranscript || '<div class="ex-empty">No conversation was retained for this run.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail.action_log?.length || 0)})</summary><pre>${esc((runDetail.action_log || []).map(action => `${action.started_at} · ${action.actor} · ${action.action_type} · ${action.summary}${action.error ? ` · ERROR: ${action.error}` : ''}`).join('\n') || 'No audit actions recorded.')}</pre></details></div><div><h4>Action items from this run</h4><div class="ex-run-action-list">${detailItems || '<div class="ex-empty">This run created or updated no action items.</div>'}</div></div></div></section>`
-    : '';
   const croLabRows = croRuns
     .slice(0, 6)
     .map(run => {
@@ -14519,7 +14502,7 @@ async function renderExecutive() {
     <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
-        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div>${runDetailPanel}</section>
+        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose" id="ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEW CONVERSATION</div><h3>Message the executive team</h3></div><span class="muted">A durable thread the team can answer</span></div><p class="muted ex-compose-help">Start a new conversation here. Your message becomes a tracked request, appears in the inbox below, and is included in the executive team’s next run.</p><textarea id="ex-message" class="cm-input" rows="5" placeholder="What would you like the executive team to research, decide, or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Tip: include the question, context, links, and what a useful answer should contain.</span><button class="btn primary" id="ex-send">Start conversation</button></div></section>
@@ -14725,13 +14708,15 @@ async function renderExecutive() {
     button.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      EXEC_RUN_UI.selected = button.dataset.id;
-      softRender();
+      button.disabled = true;
+      button.textContent = 'Opening…';
+      openExecutiveRunLog(button.dataset.id).finally(() => {
+        if (button.isConnected) {
+          button.disabled = false;
+          button.textContent = 'View log';
+        }
+      });
     });
-  });
-  $('#ex-run-log-close')?.addEventListener('click', () => {
-    EXEC_RUN_UI.selected = null;
-    softRender();
   });
   $$('.ex-run-sort').forEach(
     button =>
@@ -15603,6 +15588,68 @@ function renderAgent(role) {
   return renderGenericAgent(role);
 }
 
+let EXEC_RUN_LOG_REQUEST = 0;
+
+function executiveRunDetailContent(runDetail) {
+  const transcript = (
+    runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || []
+  )
+    .map(
+      item =>
+        `<article class="ex-run-log-entry"><div class="ex-transcript-meta"><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type || 'event')} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
+    )
+    .join('');
+  const actionItems = (runDetail?.action_items || [])
+    .map(
+      item =>
+        `<article class="ex-run-action-item"><div><b>${esc(item.title)}</b><span class="badge ${item.status === 'done' ? 'b-green' : 'b-yellow'}">${esc(item.status)}</span></div><p>${esc(item.summary || '')}</p><div class="muted">${esc(item.owner || 'unassigned')}${item.site ? ` · ${esc(item.site)}` : ''} · ${esc(item.run_operation || 'run item')}</div><div><b>Next:</b> ${esc(item.next_action || '—')}</div></article>`
+    )
+    .join('');
+  const audit = (runDetail?.action_log || [])
+    .map(
+      action =>
+        `${action.started_at} · ${action.actor} · ${action.action_type} · ${action.summary}${action.error ? ` · ERROR: ${action.error}` : ''}`
+    )
+    .join('\n');
+  return `<div class="ex-run-drawer-summary"><b>${esc(runDetail?.transcript?.length || 0)} model transcript entries</b><span>·</span><b>${esc(runDetail?.conversation?.length || 0)} executive messages</b><span>·</span><b>${esc(runDetail?.action_items?.length || 0)} action items</b></div><div class="ex-run-detail-grid"><div><h4>Full conversation and agent activity</h4><div class="ex-run-log">${transcript || '<div class="ex-empty">No conversation was retained for this run.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail?.action_log?.length || 0)})</summary><pre>${esc(audit || 'No audit actions recorded.')}</pre></details></div><div><h4>Action items from this run</h4><div class="ex-run-action-list">${actionItems || '<div class="ex-empty">This run created or updated no action items.</div>'}</div></div></div>`;
+}
+
+function closeExecutiveRunLog() {
+  EXEC_RUN_LOG_REQUEST += 1;
+  $('#ex-run-log-drawer')?.remove();
+  EXEC_RUN_UI.selected = null;
+}
+
+async function openExecutiveRunLog(actionId) {
+  const requestId = ++EXEC_RUN_LOG_REQUEST;
+  EXEC_RUN_UI.selected = actionId;
+  $('#ex-run-log-drawer')?.remove();
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `<div id="ex-run-log-drawer" class="ex-run-drawer-shell" role="dialog" aria-modal="true" aria-labelledby="ex-run-drawer-title"><div class="ex-run-drawer-backdrop" data-ex-run-log-close></div><aside class="ex-run-drawer"><div class="ex-run-drawer-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h2 id="ex-run-drawer-title">Loading run log…</h2><p class="muted" id="ex-run-drawer-status">Fetching this run’s retained transcript and actions.</p></div><button class="icon-btn" type="button" data-ex-run-log-close aria-label="Close run log">×</button></div><div class="ex-run-drawer-toolbar"><button class="btn sm" type="button" id="ex-run-log-refresh">↻ Refresh log</button><span class="muted">This panel stays open during dashboard updates.</span></div><div class="ex-run-drawer-body"><div class="ex-run-drawer-loading" role="status">Loading run log…</div></div></aside></div>`
+  );
+  const shell = $('#ex-run-log-drawer');
+  $$('[data-ex-run-log-close]', shell).forEach(button =>
+    button.addEventListener('click', closeExecutiveRunLog)
+  );
+  $('#ex-run-log-refresh', shell)?.addEventListener('click', () => openExecutiveRunLog(actionId));
+  try {
+    const detail = await api('GET', `/api/executive/run/${encodeURIComponent(actionId)}`);
+    if (requestId !== EXEC_RUN_LOG_REQUEST || !$('#ex-run-log-drawer')) return;
+    const run = detail?.run || {};
+    $('#ex-run-drawer-title').textContent =
+      `${run.source || (run.target_type === 'manual-executive-run' ? 'manual' : 'scheduled')} run · ${fmtDate(run.started_at)}`;
+    $('#ex-run-drawer-status').textContent = 'Retained transcript and action history';
+    $('.ex-run-drawer-body', shell).innerHTML = executiveRunDetailContent(detail);
+  } catch (error) {
+    if (requestId !== EXEC_RUN_LOG_REQUEST || !$('#ex-run-log-drawer')) return;
+    $('#ex-run-drawer-title').textContent = 'Run log unavailable';
+    $('#ex-run-drawer-status').textContent = error.message;
+    $('.ex-run-drawer-body', shell).innerHTML =
+      `<div class="error-box">${esc(error.message)}</div>`;
+  }
+}
+
 // In-place refresh of the current view: capture UI state, repaint without the
 // loading flash, then restore the viewport after the view finishes. Live ticks
 // can arrive faster than slow API responses, so only one redraw is allowed at
@@ -15768,6 +15815,15 @@ function applyAutoUI() {
 function updateCountdown() {
   const next = $('#auto-next');
   if (!next) return;
+  if (
+    $('#ex-run-log-drawer') ||
+    $('.ex-request-detail:not(.ex-empty)') ||
+    $('.ex-case-detail') ||
+    $('details[open]')
+  ) {
+    next.textContent = 'paused while reading';
+    return;
+  }
   if (!autoCfg().on) {
     next.textContent = 'paused';
     return;
@@ -15806,6 +15862,12 @@ function refreshTick() {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
   if (document.hidden) return; // tab not visible
   if (!$('#modal').classList.contains('hidden')) return; // editing a task
+  const reading =
+    $('#ex-run-log-drawer') ||
+    $('.ex-request-detail:not(.ex-empty)') ||
+    $('.ex-case-detail') ||
+    $('details[open]');
+  if (reading) return; // never repaint an open reading surface underneath the operator
   const ae = document.activeElement; // mid-typing (e.g. commit msg)
   if (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
   softRender();
@@ -16004,6 +16066,7 @@ async function boot() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
+      closeExecutiveRunLog();
       cmCloseLogs();
       cmCloseDiff();
       cmCloseEditorSafely();
