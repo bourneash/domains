@@ -412,6 +412,30 @@ test('supports over-sampling candidates before capacity filtering', () => {
   );
 });
 
+test('classifies organic page opportunities as SEO work', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-09-23T07:00:00.000Z',
+      decision_support: {
+        priorities: {
+          items: [
+            {
+              site: 'example.com',
+              kind: 'page-opportunity',
+              title: 'Grow organic reach for the tips page',
+              recommendation: 'Improve search intent coverage and internal links.',
+              score: 79,
+            },
+          ],
+        },
+      },
+    },
+    ['example.com'],
+    { keys: new Set(), titles: new Set() }
+  );
+  assert.equal(candidates[0].type, 'seo');
+});
+
 test('does not create a duplicate candidate while the failed request is retryable', () => {
   const candidates = runner.actionCandidates(
     {

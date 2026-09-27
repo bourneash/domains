@@ -140,6 +140,16 @@ function actionCandidates(
   limit = 12
 ) {
   const allowed = new Set(sites);
+  const inferCandidateType = (item, fallback) => {
+    const text = `${item?.kind || ''} ${item?.type || ''} ${item?.title || ''} ${item?.recommendation || ''}`;
+    if (/affiliate|attribution|amazon|revenue|conversion|monetiz/i.test(text)) return 'marketing';
+    if (
+      /seo|search|organic|gsc|crawl|sitemap|index(?:ing)?|snippet|query|internal link/i.test(text)
+    )
+      return 'seo';
+    if (/design|ux|visual|layout|imagery|accessib/i.test(text)) return 'design';
+    return item?.type || item?.kind || fallback;
+  };
   const now = Date.parse(intelligence?.generated_at || '') || Date.now();
   const seoActions = Array.isArray(intelligence?.decision_support?.seo?.actions)
     ? intelligence.decision_support.seo.actions
@@ -148,7 +158,7 @@ function actionCandidates(
           site: action.site,
           key: action.key || null,
           title: action.title || 'Evidence-backed SEO opportunity',
-          type: action.type || 'seo',
+          type: inferCandidateType(action, 'seo'),
           evidence: action.evidence || null,
           score: action.rankScore || action.score || 0,
           recommendation: action.recommendation || null,
@@ -162,7 +172,7 @@ function actionCandidates(
           site: item.site,
           key: item.id || null,
           title: item.title || 'Evidence-backed portfolio action',
-          type: item.kind || 'portfolio',
+          type: inferCandidateType(item, 'portfolio'),
           evidence: item.evidence || null,
           score: item.score || 0,
           recommendation: item.recommendation || item.title || null,
