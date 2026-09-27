@@ -2,28 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:03:22.512Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T17:19:18.326Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the CRO CTA, content-ingestion, and execution-control concepts as deferred backlog only. Their evidence supports future bounded prototypes, but current failure ownership, validation, rollback, measurement, and release evidence do not support queue entry. No adoption, dependency addition, deployment, or requeue is authorized.",
+        "summary": "Handoff: retain SEO, UX, performance, content, affiliate, and repository opportunities as deferred backlog. Do not create or requeue implementation work while 47 failure follow-ups remain open and ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are incomplete. Continue existing repair-or-close work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Retain SEO, UX, accessibility, performance, content, affiliate, CTA, content-ingestion, and execution-control opportunities as deferred backlog only. Do not create or requeue implementation work, add dependencies or telemetry, deploy, spend, expand monetization, launch publicly, or conduct external outreach. Continue existing repair-or-close, deterministic validation, rollback, deduplication, measurement/attribution reconciliation, and bounded legal/security evidence work.",
+        "summary": "Approve containment-only execution. No new proposal, change request, requeue, deployment, experiment, dependency, telemetry, spend, monetization change, or unsupported financial claim is queue-eligible this cycle. Continue only existing repair-or-close, isolated validation, rollback, deduplication, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Preserve private launch gates, parked-site dispositions, and unsent external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical feasibility is not the blocker for deferred opportunities; safe queue entry is blocked by 47 open failure follow-ups, 28 improvements awaiting measurement, incomplete operations and security evidence, and an empty candidate list. Reconsider only after ownership, root cause, isolation, deterministic validation, rollback, deduplication, release readiness, and measurement boundaries are documented using existing recorded telemetry.",
+        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog. Technical feasibility is not the blocker; queue entry requires documented ownership, root cause, isolated validation, rollback, deduplication, and measurement readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Do not infer financial returns from operating metrics or conflicting cost records.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and retain parked-site dispositions. Continue only the existing consolidated rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Keep external outreach unsent; authorize no public exposure, rights-dependent monetization, alert expansion, credential or configuration change, dependency addition, or deployment.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not create duplicate requests, access credentials or private containers, change permissions or configuration, add dependencies, deploy, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
