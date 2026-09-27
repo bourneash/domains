@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:24:53.428Z",
+  "generated_at": "2026-09-27T20:30:40.741Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Defer new site proposals, experiments, telemetry, deployments, spend, monetization changes, and queue work. Continue existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations and security sweeps are unavailable, and only 2 outcomes are proven. Retain SEO, UX, accessibility, performance, content, monetization, experimentation, and cross-site opportunities as deferred backlog; do not infer revenue, ROI, or causal lift.",
+        "summary": "Recommendation: maintain containment-only execution. Defer new site proposals, experiments, telemetry, deployments, spend, monetization changes, and queue work. Continue existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations and security sweeps are unavailable, and only 2 outcomes are proven. Retain SEO, UX, accessibility, performance, content, monetization, experimentation, and cross-site opportunities as deferred backlog; do not infer revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
