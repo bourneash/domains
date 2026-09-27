@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:33:50.402Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T13:50:04.719Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep private launch gates unchanged and external outreach unsent. Official upstream materials establish API access mechanics, not public or commercial reuse rights; four SearchWoot legal tasks remain open. Continue the existing consolidated rights, data-flow, consent, vendor, and retention evidence bundle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Risk disposition: blocked for public launch, gated-product exposure, rights-dependent monetization, affiliate expansion, advertising, and alert expansion; conditional for ordinary reversible growth that preserves evidenced consent, disclosures, affiliate disclosures, claims, provenance, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: keep private launch gates unchanged, keep external outreach unsent, and continue only existing bounded read-only evidence work. Evidence: upstream API materials establish access mechanics but not rights to store, transform, cache, display, retain historical data, send alerts, use images/trademarks/prices, or monetize; compliance is a technical baseline with 37 pass, 15 fail, and 7 unknown, including open banner, consent, analytics, privacy, and terms findings; security, accuracy/freshness, attribution, measurement, and owner gates remain incomplete. Human counsel is required for upstream rights, jurisdiction-specific privacy treatment, and any public-display, affiliate, advertising, or alert-expansion decision.",
+        "summary": "Risk disposition: blocked for public launch, gated-product exposure, rights-dependent monetization, affiliate expansion, advertising, and alert expansion; conditional for ordinary reversible growth that preserves evidenced consent, disclosures, affiliate disclosures, claims substantiation, data provenance and rights, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: keep private launch gates unchanged, keep external outreach unsent, and authorize only existing bounded read-only evidence work. Evidence: upstream rights are unproven; compliance is a technical baseline only with 37 pass, 15 fail, and 7 unknown, including open banner, consent, analytics, privacy, and terms findings; fleet-doctor and operations sweeps have no results; accuracy/freshness, attribution, measurement, and owner gates remain incomplete. Incomplete telemetry alone does not block ordinary growth. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -30,7 +23,21 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is counsel_required and launch-blocked; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed; operational logs and Cloudflare hosting data are evidence_needed. No item is clear or conditionally launchable on current evidence.",
+        "summary": "Data-use review dispositions: Woot API deal and price-history data is counsel_required and launch-blocked. Missing current written permission or API agreement, field-level rights and provenance, permitted caching/display/alerts, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed; produce the repository and deployed data-flow and retention table, including deletion, correction, access, notification consent, and unsubscribe behavior. GA4 analytics is evidence_needed; capture deployed consent/withdrawal behavior, GA4 property and data-sharing settings, retention, and jurisdiction treatment without enabling tracking or advertising. Operational logs and Cloudflare hosting data are evidence_needed; produce a read-only log-field, retention, access, vendor/DPA, incident, and data-request inventory.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Compliance, data quality, analytics, site, and revenue evidence does not support a clean fleet launch clearance. Compliance records 37 pass, 15 fail, and 7 unknown with open banner, consent, analytics, privacy, and terms findings. Data quality is green overall but analytics and revenue attribution are yellow; failing sources must not be treated as zero. Analytics is configured for 39 sites, with known GSC permission errors and unconfigured sites. Revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable. Parked or unreachable sites require a concrete retain-parked or bounded-launch decision and completed site-specific checklist before exposure or monetization. Ordinary growth may continue only where site-specific consent, disclosures, claims, provenance, and platform boundaries are evidenced.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Candidate proposal review: decline the fleet execution control-plane capability for this cycle. Its operational evidence is credible, but introducing new control-plane scope is unsupported while 47 failure follow-ups remain open, 28 improvements await measurement, approved-proposal execution is 34% with 187 approved items unexecuted, security and operations evidence is incomplete, and cost records conflict. Preserve the concept only as an uncommitted future idea; create no proposal, queue entry, telemetry, dependency, spend, deployment, or requeue.",
         "requested_action": null,
         "proposal_id": null
       }

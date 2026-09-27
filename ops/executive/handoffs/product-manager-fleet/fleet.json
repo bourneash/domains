@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:18:06.560Z",
+  "generated_at": "2026-09-27T13:50:04.720Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Highest-leverage product friction is control-plane throughput: 187 approved proposals lack execution, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Prioritize completing existing repair-or-close, measurement/attribution reconciliation, and read-only security evidence before new work. Defer new capabilities—including unified fleet health gates, failure deduplication, proposal-to-queue automation, and AI-cost guardrails—until ownership, validation, rollback, measurement capacity, and security evidence are documented. Keep the gated product private and external outreach unsent. Do not create duplicate proposals, telemetry, work items, requeues, deployments, spend, or unsupported outcome claims.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Fleet execution admission, deduplication, and measurement-readiness control plane",
+        "summary": "Potential future operator-facing capability to reconcile proposal, request, task, failure-follow-up, and improvement states using existing records.",
+        "requested_action": "Do not route, implement, deploy, requeue, or expand this capability in the current cycle. Preserve as an uncommitted future concept only.",
         "proposal_id": null
       }
     ]

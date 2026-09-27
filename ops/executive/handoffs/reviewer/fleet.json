@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:33:50.403Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T13:50:04.719Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry requests, dependencies, deployments, spending, monetization expansion, and unsupported financial claims. Preserve the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence. Keep private launch gates unchanged and external outreach unsent. Owner message: revenue is limited to a single unattributed aggregate period; ROI, margin, payback, budget capacity, and causal lift remain unknown. Existing failures, pending measurements, conflicting cost records, and incomplete operational/security evidence make new production work unsupported this cycle.",
+        "summary": "Reject new production work, queue entries, requeues, experiments, telemetry, dependencies, deployments, spend, monetization expansion, and unsupported financial claims this cycle. Revenue is limited to one unattributed aggregate period; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Continue only existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged and external outreach unsent. Preserve the three cited SEO/performance opportunities as deferred backlog only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing period-aligned attribution and cost reconciliation. Preserve aggregate commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the private launch gate and keep external outreach unsent. Continue the existing consolidated read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work only.",
+        "summary": "Decline the proposed fleet execution control-plane capability for this cycle. Its operational evidence supports a future concept, but current failures, pending measurements, incomplete security and operations evidence, and conflicting cost records do not justify new scope. Do not create a proposal, queue entry, work item, telemetry request, or deployment.",
         "requested_action": null,
         "proposal_id": null
       }
