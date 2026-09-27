@@ -3668,6 +3668,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           });
           continue;
         }
+        const availableRoles = installedSiteRoles(root, spec.site);
+        const assignedRole = assignedRoleForSite(spec.category, undefined, availableRoles, {
+          delivery_mode: 'direct',
+        });
+        if (!assignedRole) {
+          skipped.push({
+            action_key: spec.action_key,
+            site: spec.site,
+            reason: 'no installed owner for category',
+            category: spec.category,
+            detail: `Install the ${spec.category} owner for ${spec.site} before seeding this lane.`,
+          });
+          continue;
+        }
         if (existing.has(spec.action_key)) {
           skipped.push({ action_key: spec.action_key, reason: 'already seeded' });
           continue;
@@ -3676,6 +3690,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           events,
           {
             ...spec,
+            assigned_role: assignedRole,
             provider: 'chatgpt',
             priority: 'high',
             delivery_mode: 'direct',
