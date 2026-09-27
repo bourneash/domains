@@ -141,7 +141,17 @@ function measureGroup(rows, sites, from, to) {
       group.affiliate_items += 1;
   }
   for (const row of rows.work) {
-    if (!allowed.has(String(row.site || '').toLowerCase()) || !inWindow(row.updated_at, from, to))
+    // Work items are frequently reconciled when an executive run observes
+    // them, even though the underlying work predates the pilot. Counting on
+    // updated_at would turn reconciliation activity into fake throughput.
+    // Require the work item itself to have entered the measured window. A
+    // future explicitly pilot-scoped source can opt in through its source
+    // type, but ordinary pre-existing backlog remains out of scope.
+    const pilotScoped = String(row.source_type || '').toLowerCase() === 'productivity-pilot';
+    if (
+      !allowed.has(String(row.site || '').toLowerCase()) ||
+      (!inWindow(row.created_at, from, to) && !pilotScoped)
+    )
       continue;
     if (COMPLETED_WORK_STATUSES.has(String(row.status || '').toLowerCase()))
       group.work_completed += 1;

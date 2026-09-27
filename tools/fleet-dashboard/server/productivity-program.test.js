@@ -139,3 +139,33 @@ test('queue readiness excludes sites with active requests or improvement windows
   );
   db.close();
 });
+
+test('productivity output does not count pre-existing work reconciled during the window', () => {
+  const db = fixture();
+  const from = new Date(Date.now() - 60_000).toISOString();
+  const to = new Date(Date.now() + 60_000).toISOString();
+  const old = db.createExecutiveWorkItem({
+    work_id: 'old-work',
+    site: 'treatment.example',
+    title: 'Pre-existing work',
+    status: 'done',
+    created_at: new Date(Date.now() - 86_400_000).toISOString(),
+    updated_at: new Date().toISOString(),
+  });
+  assert.equal(old.status, 'done');
+  db.createExecutiveWorkItem({
+    work_id: 'new-work',
+    site: 'treatment.example',
+    title: 'Pilot work',
+    status: 'done',
+    created_at: new Date().toISOString(),
+  });
+  const result = productivity.snapshot(db, {
+    from,
+    to,
+    treatment_sites: ['treatment.example'],
+    control_sites: [],
+  });
+  assert.equal(result.treatment.work_completed, 1);
+  db.close();
+});
