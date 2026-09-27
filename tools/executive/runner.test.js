@@ -165,6 +165,24 @@ test('action-mandate fallback escalates a fully blocked fleet to delivery leader
   assert.match(plan.work_items[0].next_action, /six hours/);
 });
 
+test('normalizes provider measurement work into the evidence lane', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      work_items: [
+        {
+          title: 'Measure the SEO treatment result',
+          kind: 'measurement',
+          status: 'in_progress',
+          owner: 'delivery-lead',
+          next_action: 'Record the before and after result.',
+        },
+      ],
+    }),
+    { defaultActor: 'delivery-lead' }
+  );
+  assert.equal(plan.work_items[0].kind, 'evidence');
+});
+
 test('restores an exact trusted task-routing key omitted by a provider', () => {
   const plan = {
     change_requests: [

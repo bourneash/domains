@@ -1327,6 +1327,8 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       defect: 'incident',
       analytics: 'evidence',
       telemetry: 'evidence',
+      measurement: 'evidence',
+      metrics: 'evidence',
       monitoring: 'evidence',
       launch: 'decision',
       growth: 'evidence',
