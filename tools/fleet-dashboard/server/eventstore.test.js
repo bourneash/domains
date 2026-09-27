@@ -246,3 +246,35 @@ test('agent registry, resumable runs, artifacts, and hard-stop budgets are durab
   );
   store.close();
 });
+
+test('routines and watchdogs provide durable scheduling and stalled-run detection', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-watchdog-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const agent = store.createAgent({
+    slug: 'watchdog-agent',
+    name: 'Watchdog',
+    title: 'Worker',
+    role: 'engineer',
+    adapter: 'codex',
+  });
+  const routine = store.createAgentRoutine({
+    agent_id: agent.agent_id,
+    name: 'hourly-check',
+    schedule: '3600',
+  });
+  assert.equal(
+    store.listAgentRoutines({ agent_id: agent.agent_id })[0].routine_id,
+    routine.routine_id
+  );
+  const run = store.createAgentRun({
+    agent_id: agent.agent_id,
+    started_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-01T00:00:00.000Z',
+    status: 'running',
+  });
+  store.createAgentWatchdog({ run_id: run.run_id, timeout_seconds: 30 });
+  const audit = store.auditAgentWatchdogs({ now: new Date('2026-01-01T00:01:00.000Z') });
+  assert.equal(audit.fired.length, 1);
+  assert.equal(store.listAgentWatchdogs({ status: 'fired' }).length, 1);
+  store.close();
+});

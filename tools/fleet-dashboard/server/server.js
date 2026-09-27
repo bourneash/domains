@@ -4458,6 +4458,48 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/agent-routines', (req, res) => {
+    try {
+      res.json({ routines: events.listAgentRoutines(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-routines', (req, res) => {
+    try {
+      res.status(201).json({ routine: events.createAgentRoutine(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agent-routines/:id', (req, res) => {
+    try {
+      res.json({ routine: events.touchAgentRoutine(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-watchdogs', (req, res) => {
+    try {
+      res.json({ watchdogs: events.listAgentWatchdogs(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-watchdogs', (req, res) => {
+    try {
+      res.status(201).json({ watchdog: events.createAgentWatchdog(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-watchdogs/audit', (req, res) => {
+    try {
+      res.json(events.auditAgentWatchdogs());
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/change-requests/transcribe', async (req, res) => {
     try {
       res.json(await changequeue.transcribe(req.body || {}));

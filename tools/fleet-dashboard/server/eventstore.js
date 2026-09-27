@@ -331,6 +331,76 @@ function open(root, { file } = {}) {
       UNIQUE(scope_type, scope_id, period)
     );
     CREATE INDEX IF NOT EXISTS budget_policies_scope ON budget_policies(scope_type, scope_id, status);
+    CREATE TABLE IF NOT EXISTS agent_routines (
+      routine_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      trigger_type TEXT NOT NULL DEFAULT 'interval',
+      schedule TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      coalesce INTEGER NOT NULL DEFAULT 1,
+      catch_up INTEGER NOT NULL DEFAULT 0,
+      max_concurrency INTEGER NOT NULL DEFAULT 1,
+      next_due_at TEXT,
+      last_run_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(agent_id, name)
+    );
+    CREATE INDEX IF NOT EXISTS agent_routines_due ON agent_routines(status, next_due_at);
+    CREATE TABLE IF NOT EXISTS agent_watchdogs (
+      watchdog_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL,
+      expected_outcome TEXT NOT NULL,
+      timeout_seconds INTEGER NOT NULL DEFAULT 900,
+      status TEXT NOT NULL DEFAULT 'armed',
+      recovery_action TEXT NOT NULL DEFAULT 'escalate',
+      last_checked_at TEXT,
+      fired_at TEXT,
+      detail TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_watchdogs_due ON agent_watchdogs(status, last_checked_at);
+    CREATE TABLE IF NOT EXISTS agent_evals (
+      eval_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      run_id TEXT,
+      evaluator TEXT NOT NULL,
+      dimension TEXT NOT NULL,
+      score REAL NOT NULL,
+      feedback TEXT NOT NULL DEFAULT '',
+      evidence_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_evals_agent ON agent_evals(agent_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS agent_tool_grants (
+      grant_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      tool_name TEXT NOT NULL,
+      scope_json TEXT NOT NULL DEFAULT '{}',
+      approval_required INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(agent_id, tool_name)
+    );
+    CREATE INDEX IF NOT EXISTS agent_tool_grants_agent ON agent_tool_grants(agent_id, status);
+    CREATE TABLE IF NOT EXISTS agent_workspaces (
+      workspace_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      run_id TEXT,
+      site TEXT,
+      path TEXT NOT NULL,
+      mode TEXT NOT NULL DEFAULT 'isolated',
+      status TEXT NOT NULL DEFAULT 'active',
+      preview_url TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      closed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_workspaces_agent ON agent_workspaces(agent_id, status);
+    CREATE INDEX IF NOT EXISTS agent_workspaces_run ON agent_workspaces(run_id, status);
   `);
   ensureColumn(db, 'improvement_runs', 'workspace_path', 'TEXT');
   ensureColumn(db, 'improvement_runs', 'production_before', 'TEXT');
@@ -2444,6 +2514,167 @@ function open(root, { file } = {}) {
     };
   }
 
+  function createAgentRoutine(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const now = new Date().toISOString();
+    const row = {
+      routine_id: input.routine_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      name: String(input.name || '').trim(),
+      trigger_type: String(input.trigger_type || 'interval'),
+      schedule: String(input.schedule || '').trim(),
+      status: String(input.status || 'active'),
+      coalesce: input.coalesce === false ? 0 : 1,
+      catch_up: input.catch_up === true ? 1 : 0,
+      max_concurrency: Math.max(1, Number(input.max_concurrency) || 1),
+      next_due_at: input.next_due_at || null,
+      last_run_at: input.last_run_at || null,
+      created_at: input.created_at || now,
+      updated_at: now,
+    };
+    if (!row.name || !row.schedule) throw httpErr(400, 'routine name and schedule are required');
+    if (!['interval', 'cron', 'event', 'webhook'].includes(row.trigger_type))
+      throw httpErr(400, 'invalid routine trigger');
+    db.prepare(
+      `INSERT INTO agent_routines (routine_id,agent_id,name,trigger_type,schedule,status,coalesce,catch_up,max_concurrency,next_due_at,last_run_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(agent_id,name) DO UPDATE SET trigger_type=excluded.trigger_type,schedule=excluded.schedule,status=excluded.status,coalesce=excluded.coalesce,catch_up=excluded.catch_up,max_concurrency=excluded.max_concurrency,next_due_at=excluded.next_due_at,updated_at=excluded.updated_at`
+    ).run(
+      row.routine_id,
+      row.agent_id,
+      row.name,
+      row.trigger_type,
+      row.schedule,
+      row.status,
+      row.coalesce,
+      row.catch_up,
+      row.max_concurrency,
+      row.next_due_at,
+      row.last_run_at,
+      row.created_at,
+      row.updated_at
+    );
+    return db
+      .prepare('SELECT * FROM agent_routines WHERE agent_id=? AND name=?')
+      .get(row.agent_id, row.name);
+  }
+  function listAgentRoutines({ agent_id, status, due_before, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    if (due_before) {
+      clauses.push('next_due_at IS NOT NULL AND next_due_at <= ?');
+      args.push(String(due_before));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_routines${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY next_due_at LIMIT ?`
+      )
+      .all(...args, n);
+  }
+  function touchAgentRoutine(id, patch = {}) {
+    const current = db.prepare('SELECT * FROM agent_routines WHERE routine_id=?').get(String(id));
+    if (!current) throw httpErr(404, 'routine not found');
+    db.prepare(
+      'UPDATE agent_routines SET status=?,next_due_at=?,last_run_at=?,updated_at=? WHERE routine_id=?'
+    ).run(
+      patch.status || current.status,
+      patch.next_due_at ?? current.next_due_at,
+      patch.last_run_at ?? new Date().toISOString(),
+      new Date().toISOString(),
+      current.routine_id
+    );
+    return db.prepare('SELECT * FROM agent_routines WHERE routine_id=?').get(current.routine_id);
+  }
+
+  function createAgentWatchdog(input = {}) {
+    if (!getAgentRun(input.run_id)) throw httpErr(404, 'agent run not found');
+    const now = new Date().toISOString();
+    const row = {
+      watchdog_id: input.watchdog_id || crypto.randomUUID(),
+      run_id: String(input.run_id),
+      expected_outcome: String(input.expected_outcome || 'terminal run with verified result'),
+      timeout_seconds: Math.max(30, Number(input.timeout_seconds) || 900),
+      status: String(input.status || 'armed'),
+      recovery_action: String(input.recovery_action || 'escalate'),
+      last_checked_at: null,
+      fired_at: null,
+      detail: null,
+      created_at: now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO agent_watchdogs (watchdog_id,run_id,expected_outcome,timeout_seconds,status,recovery_action,last_checked_at,fired_at,detail,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.watchdog_id,
+      row.run_id,
+      row.expected_outcome,
+      row.timeout_seconds,
+      row.status,
+      row.recovery_action,
+      row.last_checked_at,
+      row.fired_at,
+      row.detail,
+      row.created_at,
+      row.updated_at
+    );
+    return row;
+  }
+  function listAgentWatchdogs({ run_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['run_id', run_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_watchdogs${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+  function auditAgentWatchdogs({ now = new Date() } = {}) {
+    const armed = listAgentWatchdogs({ status: 'armed', limit: 1000 });
+    const fired = [];
+    for (const watchdog of armed) {
+      const run = getAgentRun(watchdog.run_id);
+      if (!run) continue;
+      const iso = now.toISOString();
+      if (['succeeded', 'failed', 'cancelled'].includes(run.status)) {
+        db.prepare(
+          'UPDATE agent_watchdogs SET status=?,last_checked_at=?,updated_at=? WHERE watchdog_id=?'
+        ).run(run.status === 'succeeded' ? 'satisfied' : 'failed', iso, iso, watchdog.watchdog_id);
+      } else if (now.getTime() - Date.parse(run.updated_at) > watchdog.timeout_seconds * 1000) {
+        db.prepare(
+          'UPDATE agent_watchdogs SET status=?,fired_at=?,last_checked_at=?,detail=?,updated_at=? WHERE watchdog_id=?'
+        ).run(
+          'fired',
+          iso,
+          iso,
+          `run ${run.run_id} exceeded ${watchdog.timeout_seconds}s`,
+          iso,
+          watchdog.watchdog_id
+        );
+        fired.push({ ...watchdog, status: 'fired', fired_at: iso });
+      } else
+        db.prepare(
+          'UPDATE agent_watchdogs SET last_checked_at=?,updated_at=? WHERE watchdog_id=?'
+        ).run(iso, iso, watchdog.watchdog_id);
+    }
+    return { checked: armed.length, fired };
+  }
+
   const KNOWLEDGE_TYPES = new Set([
     'official',
     'book',
@@ -2681,6 +2912,12 @@ function open(root, { file } = {}) {
     getBudgetPolicy,
     listBudgetPolicies,
     reserveBudget,
+    createAgentRoutine,
+    listAgentRoutines,
+    touchAgentRoutine,
+    createAgentWatchdog,
+    listAgentWatchdogs,
+    auditAgentWatchdogs,
     close,
     file: dbFile,
   };
