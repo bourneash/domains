@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T14:33:51.872Z",
+  "generated_at": "2026-09-27T14:48:33.766Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Create no proposals, work items, change requests, experiments, telemetry, deployments, spend, dependencies, or requeues. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, 187 approved proposals lack execution, proposal execution is 34%, fleet-doctor and operations sweeps are unavailable, and revenue attribution is partial. Retain three deferred, reversible opportunities: deeppenetrations.com liquid-wrench CTR refinement (95 impressions, position 2.8, 0 clicks; metric: query/page CTR; prototype: title/meta variant only; learn within 14 days or 100 new impressions); broadwayshowgirls.com Priya Raghunathan result refinement (64 impressions, position 2, 0 clicks; metric: page CTR; prototype: title/meta refinement only); and americastrikes.com mobile-performance diagnosis (performance 65, LCP 4861ms, TBT 492ms; metric: lab LCP/TBT and unchanged behavior; prototype: read-only asset/rendering diagnosis). Repository opportunities remain research-only: markitdown (MIT, bounded checks passed), shadcn/ui (MIT, bounded checks passed), and Mermaid (MIT, fit supported but no native checks); adoption risks include dependency/security review, maintenance, bundle impact, and prototype validation. Continue existing repair-or-close, validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Retain the three evidence-backed opportunities as deferred backlog. Existing failed-work, measurement, attribution, security, and compliance gates must clear before implementation. Continue only existing repair-or-close, validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
