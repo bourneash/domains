@@ -69,6 +69,7 @@ const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
 const executiveScorecard = require('./executive-scorecard');
 const executiveCalendar = require('./executive-calendar');
+const agentRuntime = require('../../executive/agent-runtime');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
 const revops = require('./revops');
@@ -444,6 +445,7 @@ function applyQualityPolicy(root, site, validation) {
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
   const events = eventstore.open(root);
+  agentRuntime.ensureRegistry(events);
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
 
