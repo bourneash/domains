@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:03:49.572Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T12:18:03.836Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan CTR refinement, and americastrikes.com mobile-performance diagnosis. They are technically feasible and reversible in isolation, but cannot enter the queue until existing failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Keep private launch gates unchanged.",
+        "summary": "Handoff: preserve the CRO and product-manager backlog as deferred, evidence-backed work only. Reject new change requests, requeues, experiments, telemetry, dependencies, deployments, spend, and monetization changes until failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue existing repair and read-only legal/security work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only security and legal evidence. Preserve explicit unknowns; do not treat missing operational sweeps, aggregate revenue, traffic, rankings, conversions, technical scores, or AI usage as financial or security clearance evidence.",
+        "summary": "Technical disposition: approve containment-only execution. Retain the three evidence-backed SEO and performance opportunities as deferred backlog; they are feasible and reversible in isolation but are not queue-eligible while failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates remain unresolved. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Keep private launch gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing period-aligned measurement and attribution reconciliation only. Preserve aggregate provider commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift. Do not treat impressions, clicks, rankings, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing private launch gate and keep external outreach unsent. Continue only the consolidated read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

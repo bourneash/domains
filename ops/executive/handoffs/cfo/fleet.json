@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:03:49.572Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T12:18:03.836Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain financial containment. Approve only existing period-aligned reconciliation; reject new spend, monetization expansion, forecasts, commitments, and unsupported revenue claims. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 aggregate row is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows do not align, infrastructure/domain/labor/marketing costs are absent or incomplete, approved budget limits are blank, and experiments have no defined incremental cost or learning outcome. AI cost records also conflict: $881.36333315 across 4,832 calls for 2026-09-01 through 2026-09-27 versus retained $973.3548129 across 5,439 calls. Minimum measurement: one identical reporting window reconciling attributable revenue, tracking IDs, AI, infrastructure, domain, labor, marketing, and approved-budget costs; define one learning outcome, baseline, incremental cost, and result per experiment. Treat impressions, rankings, CTR targets, sessions, conversions, technical scores, ordered items without attributable commission, and AI call counts as operating metrics rather than financial returns.",
+        "summary": "Recommendation: maintain financial containment. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable. ROI, margin, payback, budget capacity, and cost-to-learn remain unknown. Do not treat the CRO signals as financial returns. Smallest next step: continue the existing period-aligned attribution and cost reconciliation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the three evidence-backed SEO and performance opportunities as deferred backlog only: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan CTR refinement, and americastrikes.com mobile-performance diagnosis. Their metrics support prioritization only, not revenue upside, contribution margin, cost-to-learn, or causal lift. Do not create proposals, experiments, telemetry requests, change requests, dependencies, deployments, spending, or monetization work until existing failure repair-or-close, validation, rollback, deduplication, and measurement reconciliation are resolved or explicitly dispositioned.",
+        "summary": "Recommendation: approve containment-only execution and reject new spend, forecasts, monetization expansion, and unsupported revenue claims. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 aggregate row is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows do not align; AI-cost records conflict ($881.36 across 4,832 calls for 2026-09-01 through 2026-09-27 versus retained $973.35 across 5,439 calls); infrastructure, domain, labor, marketing, and approved-budget records are absent or incomplete; and experiments lack defined incremental costs and learning outcomes. The 30-day scorecard generated 2026-09-27 reports 47 open failure follow-ups, 28 deployed improvements awaiting measurement, and only 2 proven outcomes. Treat impressions, rankings, CTR targets, sessions, conversions, performance scores, ordered items without attributable commission, and AI usage as operating metrics, not financial returns. Retain the three opportunities as deferred backlog only. Continue only existing period-aligned attribution and cost reconciliation. Minimum measurement: one identical reporting window reconciling provider revenue and tracking IDs with AI, infrastructure, domain, labor, marketing, and approved-budget costs; calculate site contribution margin as attributable revenue minus directly assigned variable costs; and define one learning outcome, baseline, incremental cost, and result for each experiment.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the candidate plan's three opportunities as deferred backlog only. Their impressions, rankings, CTR targets, and mobile performance metrics support prioritization but do not establish revenue upside, contribution margin, cost-to-learn, ROI, payback, or causal lift. Continue existing reconciliation and preserve all financial unknowns; do not create proposals, experiments, telemetry requests, change requests, dependencies, deployments, spending, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       }

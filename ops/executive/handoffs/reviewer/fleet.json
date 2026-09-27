@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:03:49.573Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T12:18:03.837Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, production, requeue, experiment, telemetry, dependency, spend, monetization, and public-launch claims. Retain the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep private launch gates and external outreach restrictions unchanged; no new research request is justified.",
+        "summary": "Approve containment-only execution. Reject the proposed duplicate security report-only proposal and all new queue or production work this cycle. Preserve existing failure repair-or-close, attribution/cost reconciliation, and bounded legal/security evidence work. Retain the three SEO/performance opportunities as deferred backlog only; their operating signals do not support revenue, ROI, margin, causal-lift, or production claims. Keep private launch gates and external outreach unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain financial containment. Preserve the dated aggregate commission as unattributed; site economics, ROI, margin, payback, budget capacity, and causal lift remain unknown. Continue only the existing period-aligned reconciliation and do not treat traffic, rankings, clicks, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue only the already-open consolidated read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. No duplicate research request is justified because the shared telemetry and existing public-source evidence already cover the identified gaps.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:03:49.572Z",
+  "generated_at": "2026-09-27T12:18:03.836Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommendation: preserve containment-only execution. Retain three deferred, evidence-backed opportunities: deeppenetrations.com liquid-wrench CTR refinement (95 impressions, position 2.8, 0 clicks; smallest prototype: metadata/title refinement with rollback); broadwayshowgirls.com Priya Raghunathan CTR refinement (64 impressions, position 2, 0 clicks; smallest prototype: reversible title/description refinement); and americastrikes.com mobile-performance diagnosis (performance 65, LCP 4861ms, TBT 492ms; smallest prototype: read-only asset/rendering diagnosis). Expected metrics are search clicks/CTR and mobile LCP/TBT; time-to-learn is the existing measurement window, with no causal or financial outcome established. Do not create proposals, experiments, telemetry, change requests, dependencies, deployments, spending, or monetization changes while failure repair-or-close, validation, rollback, deduplication, measurement reconciliation, and legal/security evidence remain incomplete. GitHub candidates remain research-only: MIT licenses are noted for markitdown, shadcn/ui, and Mermaid, but maintenance, dependency, security, bundle, and fleet-fit risks require a separate prototype and review before adoption. Continue existing evidence work and preserve private launch gates.",
+        "summary": "Recommendation: preserve containment-only execution. Retain the three evidence-backed opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Their search and performance signals support prioritization only, not revenue, ROI, margin, or causal-lift claims. Do not create proposals, experiments, telemetry requests, change requests, dependencies, deployments, spend, or monetization changes until existing failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue existing attribution reconciliation and bounded legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       }
