@@ -138,6 +138,33 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 
+test('action-mandate fallback escalates a fully blocked fleet to delivery leadership', () => {
+  const brief = {
+    generated_at: '2026-09-27T21:00:00.000Z',
+    queue: [],
+    improvements: [],
+    productivity: {
+      queue_ready_fleet_sites: [],
+      blocked_fleet_sites: [
+        {
+          site: 'example.com',
+          reason: 'active improvement: measuring',
+          measurement_due: '2026-10-07',
+        },
+      ],
+    },
+    action_mandate: { candidates: [] },
+  };
+  const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(plan.work_items[0].work_id, 'executive-throughput-escalation:2026-09-27');
+  assert.equal(plan.work_items[0].owner, 'delivery-lead');
+  assert.equal(plan.work_items[0].priority, 'high');
+  assert.match(plan.work_items[0].title, /no queue-ready fleet sites/);
+  assert.match(plan.work_items[0].summary, /example\.com/);
+  assert.match(plan.work_items[0].next_action, /six hours/);
+});
+
 test('restores an exact trusted task-routing key omitted by a provider', () => {
   const plan = {
     change_requests: [

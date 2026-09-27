@@ -432,6 +432,7 @@ async function buildBrief(store, root = ROOT) {
         queue_readiness: productivityProgram.queueReadiness(store, pilot.treatment_sites),
       }))
     : [];
+  const fleetQueueReadiness = productivityProgram.queueReadiness(store, sites);
   const allActionCandidates = actionCandidates(
     intel.intelligence,
     sites,
@@ -529,6 +530,8 @@ async function buildBrief(store, root = ROOT) {
     actionability,
     productivity: {
       pilots: productivityPilots,
+      queue_ready_fleet_sites: fleetQueueReadiness.ready_sites,
+      blocked_fleet_sites: fleetQueueReadiness.blocked_sites,
       operating_rule:
         'Measure verified/deployed work, cycle time, design/SEO/affiliate output, and treatment-versus-control lift. Proposals and messages are not productivity outcomes.',
       lanes: productivityProgram.LANES,
@@ -915,7 +918,7 @@ function buildPassPrompt(brief, role, candidate = null) {
         : role === 'product-manager-sites'
           ? 'You are the Product Manager for the managed websites portfolio. Treat the published domains as products: inspect audience fit, information architecture, user journeys, content/product opportunities, accessibility, performance, monetization surfaces, experimentation, and cross-site capabilities in the read-only brief. Identify evidence-backed improvements that help visitors and produce durable portfolio value. Prioritize by expected user benefit, attributable outcome, confidence, time-to-learn, and reversibility. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not edit sites, deploy, add domains, spend money, or make unsupported revenue claims; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-sites.'
           : role === 'delivery-lead'
-            ? 'You are the Head of Portfolio Delivery. Convert approved intent into shipped work across three lanes: finish existing sites, grow SEO/design/affiliate revenue, and validate new-site launches. Inspect queue, failures, stranded work, site coverage, and measurements. Use each pilot queue_readiness block: never select a site with an active request or improvement/measurement window; select the next queue-ready site from the action candidates instead. Select a small batch of concrete reversible change requests across distinct ready sites; assign owners, due dates, acceptance tests, before/after metrics, and rollback notes. Do not create another proposal when an executable task can be made. Escalate blockers with an owner, SLA, and next action. Your success metric is verified/deployed work, not messages.'
+            ? 'You are the Head of Portfolio Delivery. Convert approved intent into shipped work across three lanes: finish existing sites, grow SEO/design/affiliate revenue, and validate new-site launches. Inspect queue, failures, stranded work, site coverage, and measurements. Use each pilot queue_readiness block and productivity.queue_ready_fleet_sites: never select a site with an active request or improvement/measurement window; select the next queue-ready site from the action candidates or the queue-ready fleet list instead. Select a small batch of concrete reversible change requests across distinct ready sites; assign owners, due dates, acceptance tests, before/after metrics, and rollback notes. Do not create another proposal when an executable task can be made. If no queue-ready site exists, create/update a delivery-lead escalation with the blocked sites, owner, SLA, and next action; do not close the cycle with a generic evidence report. Your success metric is verified/deployed work, not messages.'
             : role === 'design-director'
               ? 'You are the Fleet Design Director. Find the highest-value reversible design, UX, accessibility, imagery, layout, and conversion improvements across unfinished sites. Create concrete design or implementation work with exact site scope, preview/acceptance criteria, test, metric, and rollback. Prefer shipping one visible improvement over producing a design brief. Do not claim conversion lift without measurement.'
               : role === 'growth-director'
@@ -2544,7 +2547,13 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
   const candidates = Array.isArray(brief.action_mandate?.candidates)
     ? brief.action_mandate.candidates
     : [];
-  if (!candidates.length) return basePlan;
+  const readiness = brief.productivity || {};
+  const hasFullFleetBlock =
+    Array.isArray(readiness.blocked_fleet_sites) &&
+    readiness.blocked_fleet_sites.length > 0 &&
+    Array.isArray(readiness.queue_ready_fleet_sites) &&
+    readiness.queue_ready_fleet_sites.length === 0;
+  if (!candidates.length && !hasFullFleetBlock) return basePlan;
 
   const activeSites = new Set(
     [...(brief.queue || []), ...(brief.improvements || [])]
@@ -2579,30 +2588,50 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
   }
   if (!selected.length) {
     const day = String(brief.generated_at || new Date().toISOString()).slice(0, 10);
-    const checkpointId = `executive-cycle-checkpoint:${day}`;
+    const blockedSites = Array.isArray(readiness.blocked_fleet_sites)
+      ? readiness.blocked_fleet_sites
+      : [];
+    const fullyBlocked =
+      blockedSites.length > 0 &&
+      Array.isArray(readiness.queue_ready_fleet_sites) &&
+      readiness.queue_ready_fleet_sites.length === 0;
+    const checkpointId = fullyBlocked
+      ? `executive-throughput-escalation:${day}`
+      : `executive-cycle-checkpoint:${day}`;
     const existing = (brief.work_items || []).find(item => item.work_id === checkpointId);
     if (basePlan.work_items.some(item => item.work_id === checkpointId)) return basePlan;
+    const blockedSummary = blockedSites
+      .slice(0, 12)
+      .map(
+        item =>
+          `${item.site}: ${item.reason}${item.measurement_due ? ` (due ${item.measurement_due})` : ''}`
+      )
+      .join('; ');
     return {
       ...basePlan,
       work_items: [
         ...basePlan.work_items,
         {
           work_id: checkpointId,
-          title: `Executive evidence checkpoint ${day}`,
-          kind: 'evidence',
+          title: fullyBlocked
+            ? `Throughput escalation: no queue-ready fleet sites ${day}`
+            : `Executive evidence checkpoint ${day}`,
+          kind: fullyBlocked ? 'implementation' : 'evidence',
           status: 'in_progress',
-          priority: 'normal',
-          owner: 'ceo',
+          priority: fullyBlocked ? 'high' : 'normal',
+          owner: fullyBlocked ? 'delivery-lead' : 'ceo',
           site: 'fleet',
-          summary:
-            'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
-          next_action:
-            'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next step or explicit no-go reason.',
+          summary: fullyBlocked
+            ? `All discovered fleet sites are currently blocked by active work or measurement windows. Blockers: ${blockedSummary || 'see the authoritative queue readiness snapshot.'}`
+            : 'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
+          next_action: fullyBlocked
+            ? 'Within six hours, identify the earliest unblock, assign the responsible owner, and queue the next safe reversible site improvement or document the specific external dependency preventing it. Escalate overdue blockers to the CEO.'
+            : 'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next step or explicit no-go reason.',
           due_at: new Date(
-            Date.parse(brief.generated_at || Date.now()) + 24 * 60 * 60 * 1000
+            Date.parse(brief.generated_at || Date.now()) + (fullyBlocked ? 6 : 24) * 60 * 60 * 1000
           ).toISOString(),
           evidence: existing?.evidence || [],
-          created_by: 'ceo',
+          created_by: fullyBlocked ? 'delivery-lead' : 'ceo',
         },
       ],
     };
