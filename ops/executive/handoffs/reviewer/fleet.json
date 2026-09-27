@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:50:04.719Z",
+  "generated_at": "2026-09-27T14:03:37.275Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, queue entries, requeues, experiments, telemetry, dependencies, deployments, spend, monetization expansion, and unsupported financial claims this cycle. Revenue is limited to one unattributed aggregate period; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Continue only existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged and external outreach unsent. Preserve the three cited SEO/performance opportunities as deferred backlog only.",
+        "summary": "Reject new production work, requeues, experiments, telemetry, dependencies, deployments, spending, monetization expansion, external outreach, and unsupported financial claims. Continue only existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged and preserve the three SEO/performance opportunities as deferred backlog. Revenue is limited to one unattributed aggregate period; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Material concerns: 47 failure follow-ups, 28 improvements awaiting measurement, incomplete operational/security evidence, and conflicting cost records.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Decline the proposed fleet execution control-plane capability for this cycle. Its operational evidence supports a future concept, but current failures, pending measurements, incomplete security and operations evidence, and conflicting cost records do not justify new scope. Do not create a proposal, queue entry, work item, telemetry request, or deployment.",
+        "summary": "Continue the existing consolidated read-only legal and security evidence work. Keep the gated product private and outreach unsent; do not request duplicate telemetry, change credentials or configuration, expand alerts, deploy, or monetize until rights, privacy, security, accuracy, attribution, measurement, and owner gates are complete.",
         "requested_action": null,
         "proposal_id": null
       }

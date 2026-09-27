@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:50:04.719Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T14:03:37.275Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: decline the proposed fleet execution control-plane capability for this cycle. The evidence supports the operational problem, but 47 failure follow-ups, 28 deployed improvements awaiting measurement, incomplete security/operations evidence, and conflicting cost records make new control-plane scope unjustified. Continue existing repair-or-close, attribution reconciliation, measurement, and bounded read-only legal/security evidence work only. Keep private gates unchanged and create no new queue entries, requeues, telemetry, dependencies, spend, deployments, or external outreach.",
+        "summary": "Approve containment-only execution. The proposed plan is technically feasible and reversible in isolation, but no new production work or requeue is safe this cycle because 47 failure follow-ups remain open, 28 deployed improvements await measurement, operational/security evidence is incomplete, attribution is partial, and the authoritative candidate list is empty. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only. Continue existing repair-or-close, isolated validation, rollback, deduplication, ownership, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Do not create change requests, experiments, telemetry, dependencies, deployments, spend, monetization expansion, or external outreach. Preserve unknown ROI, margin, payback, cost-to-learn, budget capacity, causal lift, and operational-security status.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The three previously identified SEO/performance opportunities remain deferred backlog only. They are technically feasible and reversible in isolation, but are not queue-eligible until ownership, deduplication, isolated validation, rollback, failure repair-or-close, and measurement evidence are complete.",
+        "summary": "Continue existing failure repair-or-close and evidence work only. Acceptance requires documented ownership, root cause, deduplication, smallest isolated repair, deterministic validation, rollback, and explicit requeue-or-close disposition before any deferred production item can become queue-eligible. Existing telemetry may be used as recorded; do not request duplicate telemetry or invent outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate commission as unattributed and retain unknown revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift. Do not treat operating metrics or conflicting AI-cost records as financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and do not access credentials, modify permissions or configuration, add dependencies, deploy, requeue failures, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private launch gates unchanged and external outreach unsent. Continue only the existing consolidated rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work.",
+        "summary": "Maintain private launch gates and keep external outreach unsent. Continue the consolidated read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credential or permission changes, configuration changes, dependency additions, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

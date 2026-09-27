@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:33:50.402Z",
+  "generated_at": "2026-09-27T14:03:37.274Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or unsupported claims. Continue existing failure repair-or-close, validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Retain the three evidence-backed opportunities as deferred backlog only: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or unsupported claims. Continue existing failure repair-or-close, validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }
