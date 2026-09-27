@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T14:19:38.263Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T14:33:51.874Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject unsupported revenue claims, new production work, requeues, experiments, duplicate telemetry, dependencies, deployments, spending, monetization expansion, and unsafe tactics. Revenue is limited to one unattributed aggregate period; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Continue only existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence. Keep private launch gates unchanged and external outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner message: financial claims and new production work are unsupported this cycle because attribution is partial, telemetry is low-volume or unavailable for several controls, cost records conflict, 47 failure follow-ups remain open, and 28 improvements await measurement. Preserve the deferred SEO/performance backlog without queuing it.",
+        "summary": "Reject new proposals, queue work, requeues, experiments, telemetry, dependencies, deployments, spending, monetization expansion, and unsupported financial claims. Continue only existing repair-or-close, validation, rollback, attribution reconciliation, and bounded legal/security evidence work. Preserve the three cited SEO/performance opportunities as deferred backlog. Keep private launch gates unchanged and external outreach unsent. Revenue remains limited to one unattributed $4.92 aggregate period; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift are unknown. Do not duplicate existing evidence work or infer outcomes from low-volume telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

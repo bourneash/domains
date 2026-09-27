@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:50:04.720Z",
+  "generated_at": "2026-09-27T14:33:51.872Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Fleet execution admission, deduplication, and measurement-readiness control plane",
-        "summary": "Potential future operator-facing capability to reconcile proposal, request, task, failure-follow-up, and improvement states using existing records.",
-        "requested_action": "Do not route, implement, deploy, requeue, or expand this capability in the current cycle. Preserve as an uncommitted future concept only.",
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution this cycle. Do not create proposals, work items, change requests, experiments, telemetry, deployments, spend, or requeues. Evidence shows 47 failure follow-ups open, 28 deployed improvements awaiting measurement, 187 approved proposals without execution, 34% proposal execution rate, unavailable fleet-doctor and operations sweeps, and partial revenue attribution. Retain future opportunities as deferred backlog: deduplicated failure repair-or-close workflow, approval-to-execution reconciliation, measurement-readiness gates, unified operator queue health, and evidence-gated autonomous routing. Prioritize these later by operator time saved, reliability, reversibility, adoption, and measurable outcome. Continue existing repair, validation, rollback, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and do not invent telemetry. created_by=product-manager-fleet",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

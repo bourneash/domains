@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T14:19:38.261Z",
+  "generated_at": "2026-09-27T14:33:51.872Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog only. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or unsupported claims. Continue existing failure repair-or-close, validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
+        "summary": "Recommendation: preserve containment-only execution this cycle. Do not create proposals, work items, change requests, experiments, telemetry, deployments, spend, or requeues. Evidence shows 47 failure follow-ups open, 28 deployed improvements awaiting measurement, 187 approved proposals without execution, 34% proposal execution rate, unavailable fleet-doctor and operations sweeps, and partial revenue attribution. Retain evidence-backed opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Continue existing repair-or-close, validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }
