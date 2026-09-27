@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:40:02.259Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:52:47.600Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing repair-or-close and validation work only. Do not create or requeue new site work until ownership, root cause, isolated validation, rollback, deduplication, and measurement evidence are recorded. The CRO repository findings remain research evidence, not adoption approval.",
+        "summary": "CTO review: approve containment-only execution. Do not create or requeue production work this cycle. Retain the proposed SEO, UX, affiliate, site-factory, and product opportunities as deferred backlog. Existing failure repairs, measurement windows, attribution reconciliation, security evidence, validation, rollback, and deduplication gates remain open. No new telemetry, dependencies, deployments, spend, credentials, configuration changes, experiments, or monetization changes are authorized. Existing work remains isolated and reversible; queue admission can resume only after ownership, deterministic validation, rollback, deduplication, and an available recorded measurement boundary are evidenced. Preserve all unknown telemetry and do not claim revenue, ROI, margin, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Queue eligibility is false because the authoritative candidate list is empty, failure repairs and measurement work remain open, operations and security sweeps are unavailable, and attribution is incomplete. Continue only existing repair-or-close, validation, rollback, measurement, attribution, and bounded legal/security evidence work using recorded telemetry. Do not create or requeue production work, experiments, tracking, dependencies, deployments, spend, monetization changes, or unsupported revenue claims.",
+        "summary": "Technical disposition: the deferred broadwayshowgirls.com UX packet and deeppenetrations.com metadata packet are feasible as small isolated reversible changes, but neither is safe to enter the existing queue this cycle because current admission controls and measurement/review capacity are not clear. Retain their existing evidence and acceptance criteria without dispatch.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, site-factory, and repository opportunities as deferred backlog. Reconsider only after ownership, root cause, isolated validation, rollback, deduplication, release, and measurement evidence is recorded. CRO repository findings remain research evidence, not adoption approval.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue the existing consolidated legal, accuracy, attribution, measurement, and security evidence work. Do not change configuration or credentials, add dependencies, deploy, expand alerts, expose data publicly, spend, or claim readiness until the existing gates are complete.",
+        "summary": "Continue only existing repair-or-close, measurement, attribution, legal, and security evidence work. Keep private launch gates and parked dispositions unchanged. Operations and fleet-doctor sweeps remain unavailable, so no security clearance or deployment readiness should be inferred. Reconsider queue admission only after the current evidence and failure backlog is reduced and the authoritative candidate list contains an implementable, deduplicated, measurable request.",
         "requested_action": null,
         "proposal_id": null
       }

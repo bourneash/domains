@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:40:02.259Z",
-  "summary": "legal checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:52:47.600Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and external Woot outreach unsent. Evidence: 0 of 4 launch tasks are closed; source rights, privacy, security, accuracy, attribution, and measurement gates remain incomplete. Smallest next step: attach the consolidated read-only evidence bundle and field-level rights matrix, then route the draft request for human-counsel review.",
+        "summary": "Legal disposition: blocked for public launch, public beta, public data display, alert expansion, affiliate or advertising expansion, and external outreach. Keep SearchWoot private. Ordinary reversible growth remains conditional when it preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Evidence: 0 of 4 launch-readiness legal tasks are closed; upstream API access is documented but redistribution, storage, derivative, alert, display, and monetization rights are not established; security, accuracy, attribution, measurement, and owner gates remain incomplete. Technical compliance is only a baseline: 34 pass, 14 fail, and 11 unknown across 59 sites. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, public beta, public data display, alert expansion, rights-dependent affiliate or advertising expansion, and external outreach. Recommendation: keep searchwoot.com private; retain complicated.work and deadlymaracas.com parked; keep Woot outreach unsent pending human-counsel review and owner authorization. Ordinary reversible growth is conditional only when existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries are preserved. Evidence: 0 of 4 launch-readiness legal tasks are closed; Woot access documentation does not establish rights to store, derive, cache, display, alert on, or monetize returned data; accuracy/freshness, security, attribution, measurement, and owner gates remain incomplete. Technical compliance is a baseline only: 34 pass, 14 fail, 11 unknown, with 14 open banner/consent/GA4 findings and 4 privacy/terms findings. Human counsel is required for upstream rights and jurisdiction-specific privacy treatment. This is risk triage, not legal advice or certification.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed; all remain open: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. No task is closable on current evidence. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage/caching/display/derivatives/alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed and 4 remain open: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. No task is closable on current evidence. Progress is limited to partial source-rights documentation, partial repository/configuration data-flow evidence, and privacy/cookie-policy artifacts. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures.",
+        "summary": "Data-use review: Woot API deal and price-history data = counsel_required. Missing evidence: current API agreement or written permission; field-level provenance and rights; storage, caching, display, derivative, alert, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results = evidence_needed. Missing evidence: data inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce the repository and deployed data-flow and retention table. GA4 analytics = evidence_needed. Missing evidence: deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment. Smallest next action: capture existing consent and GA4 configuration without enabling tracking or advertising. Operational logs and Cloudflare hosting data = evidence_needed. Missing evidence: log-field inventory, retention/access controls, vendor/DPA review, incident handling, and data-request procedures. Smallest next action: produce a read-only operator/vendor inventory and identify counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot API deal and price-history data is counsel_required; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed; operational logs and Cloudflare hosting data are evidence_needed. No item is clear or conditional for public launch on the present evidence.",
+        "summary": "Checklist review: compliance findings are technical signals, not legal certification; 14 sites have open banner/accept/reject/GA4 findings, with additional privacy and terms findings. Analytics is broadly available but has permission or collector errors, including GSC failures; telemetry gaps do not independently block ordinary reversible growth. Revenue evidence covers one day only: $4.92 aggregate commission is not site-attributable, so site revenue, margin, ROI, payback, and causal lift remain unknown. Operations and fleet-doctor sweeps have no results, and security controls remain unevidenced. Keep all launch packets conditional or deferred; no site is supported for a new public launch on this evidence. Keep complicated.work parked after its compliance fail, retain deadlymaracas.com parked pending its approved assessment, and do not dispatch active-work candidates until their existing review, measurement, and release gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance and data-quality disposition: do not treat incomplete telemetry as a blanket growth blocker. Permit only bounded, reversible, site-specific work that preserves existing consent and disclosures and does not add tracking, monetization, data collection, external sharing, or unsupported claims. The compliance scan remains technical evidence only: 34 pass, 14 fail, 11 unknown. Analytics is yellow because some GA4/GSC sources are unavailable or erroring; revenue attribution is yellow because provider aggregate earnings remain unattributed. These are evidence boundaries, not proof of zero traffic or zero performance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain all growth, SEO, UX, affiliate, and repository opportunities as deferred backlog unless an existing bounded change is already authorized and independently passes its site-specific compliance, disclosure, provenance, claims, rollback, and measurement checks. No new public launch, monetization expansion, data-use expansion, or external outreach is authorized this cycle.",
+        "summary": "Exact decision: preserve private launch gates, keep external permission outreach unsent pending human-counsel review and owner authorization, continue only the existing read-only evidence workstream, and do not close any launch-readiness task until its stated evidence is attached and reviewed.",
         "requested_action": null,
         "proposal_id": null
       }
