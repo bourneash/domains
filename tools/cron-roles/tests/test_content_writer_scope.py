@@ -21,6 +21,9 @@ def test_offshorehookup_content_writer_scope_allows_hero_prompt_only():
     assert "/dev/null" in text
     assert "git add -A -- site/ ops/tasks/" not in text
     assert "git clean -fd -- ." not in text
+    assert "in-progress task already exists" in text
+    assert "refused non-regular selected task" in text
+    assert "refused missing or non-regular task" in text
 
     result = subprocess.run(["bash", "-n", str(SCRIPT)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr

@@ -264,7 +264,7 @@ function reconcileVerified(store, id, knownSite) {
   if (!current) throw httpErr(404, 'change request not found');
   if (current.status === 'verified') return current;
   if (
-    !['failed', 'running', 'reviewing', 'review', 'committed', 'deployed'].includes(current.status)
+    !['queued', 'claimed', 'failed', 'running', 'reviewing', 'review', 'committed', 'deployed'].includes(current.status)
   )
     throw httpErr(409, `cannot reconcile ${current.status} to verified`);
   if (!knownSite(current.site)) throw httpErr(404, 'unknown site');
@@ -274,6 +274,7 @@ function reconcileVerified(store, id, knownSite) {
     lease_owner: null,
     lease_expires_at: null,
     heartbeat_at: null,
+    next_attempt_at: null,
   });
   store.record({
     event_type: 'change-request.verified',

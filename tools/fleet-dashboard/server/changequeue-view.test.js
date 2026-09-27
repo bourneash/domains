@@ -27,6 +27,60 @@ test('report-only work can proceed during a measurement window', () => {
   assert.deepEqual(blockers, []);
 });
 
+test('diagnostic and control-plane work can proceed during a site measurement', () => {
+  for (const request of [
+    { status: 'queued', site: 'example.com', delivery_mode: 'direct', category: 'engineering', title: 'Measurement coverage review' },
+    { status: 'queued', site: 'example.com', delivery_mode: 'direct', category: 'engineering', title: 'Reassign task to engineer: Route performance-budget task' , action_key: 'task-routing:example:task.md' },
+  ]) {
+    assert.deepEqual(
+      view.queueBlockers(request, {
+        measuringRuns: [{ site: 'example.com', state: 'measuring', title: 'Improve /homepage', baseline: { evidence: 'homepage' } }],
+      }),
+      []
+    );
+  }
+});
+
+test('only overlapping production scope is held', () => {
+  const run = { site: 'example.com', state: 'measuring', title: 'Improve /homepage', baseline: { evidence: 'homepage' } };
+  assert.equal(view.measurementConflict({ site: 'example.com', title: 'Improve /homepage CTA', body: 'Change /homepage' }, run), true);
+  assert.equal(view.measurementConflict({ site: 'example.com', title: 'Improve /about', body: 'Change /about' }, run), false);
+});
+
+test('report-only work can proceed while an implementation is active', () => {
+  const blockers = view.queueBlockers(
+    { status: 'queued', site: 'example.com', delivery_mode: 'report_only' },
+    { activeCount: 1, capacity: 2, busySites: new Set(['example.com']) }
+  );
+  assert.deepEqual(blockers, []);
+});
+
+test('exposes measurement deadline and honors a per-request override', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-measurement-'));
+  const rows = view.enrichChangeRequests(
+    root,
+    [{
+      request_id: 'measurement-1',
+      status: 'queued',
+      site: 'example.com',
+      delivery_mode: 'direct',
+      created_at: '2026-09-26T10:00:00.000Z',
+    }],
+    { max_concurrent: 4 },
+    [{ site: 'example.com', state: 'measuring', measurement_due: '2026-10-10' }]
+  );
+  assert.equal(rows[0].measurement_window.due_at, '2026-10-10');
+  assert.equal(rows[0].queue_block.primary.code, 'measurement_window');
+  const overridden = view.enrichChangeRequests(
+    root,
+    [{ ...rows[0], measurement_override: 1 }],
+    { max_concurrent: 4 },
+    [{ site: 'example.com', state: 'measuring', measurement_due: '2026-10-10' }]
+  );
+  assert.equal(overridden[0].queue_block.blocked, false);
+  assert.equal(overridden[0].measurement_window.override, true);
+});
+
 test('enriches requests with registry context and retry state', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-view-'));
   fs.writeFileSync(

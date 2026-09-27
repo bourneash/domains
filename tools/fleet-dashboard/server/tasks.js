@@ -170,6 +170,23 @@ function listAll(root, slugs) {
   return all;
 }
 
+// Find the canonical board item for a durable producer lineage. A task
+// filename is not an identity: retries can collide on the same title/date and
+// receive a -2 suffix while the improvement row still contains the original
+// filename. source_id is the durable join key shared by the queue and board.
+function findAllBySourceId(root, slug, sourceId) {
+  const wanted = String(sourceId || '').trim();
+  if (!wanted) return [];
+  const board = list(root, slug);
+  return ['done', 'in-progress', 'backlog', 'hold'].flatMap(column =>
+    board[column].filter(task => String(task.source_id || '').trim() === wanted)
+  );
+}
+
+function findBySourceId(root, slug, sourceId) {
+  return findAllBySourceId(root, slug, sourceId)[0] || null;
+}
+
 // Read one task's full content + parsed parts for the editor.
 function get(root, slug, column, file) {
   if (!isValidColumn(column) || !isValidFilename(file))
@@ -307,6 +324,8 @@ module.exports = {
   COLUMNS,
   list,
   listAll,
+  findAllBySourceId,
+  findBySourceId,
   get,
   create,
   update,

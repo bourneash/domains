@@ -19,6 +19,27 @@ const TRANSITIONS = {
 };
 
 const FALSE_LIVENESS_ERROR = 'worker process is no longer present in its isolated container';
+const SUCCESSFUL_TERMINAL_STATES = new Set([
+  'deployed',
+  'measuring',
+  'proven',
+  'inconclusive',
+  'reported',
+]);
+
+function successfulTaskEvidence(store, request, task) {
+  return store
+    .listImprovements({
+      source: 'fleet-dashboard',
+      source_id: request.request_id,
+      limit: 1000,
+    })
+    .find(
+      run =>
+        SUCCESSFUL_TERMINAL_STATES.has(run.state) &&
+        ((task.task_id && run.task_id === task.task_id) || run.task_file === task.file)
+    );
+}
 
 function canRecoverReportOnly(current, input = {}) {
   const reviewerRejectedAfterSuccessfulWorker =
@@ -176,10 +197,33 @@ function startManual({ store, root, request, baseline = {} }) {
     .find(row => !['cancelled', 'failed', 'rolled-back'].includes(row.state));
   if (duplicate) return { run: duplicate, task_file: duplicate.task_file, duplicate: true };
 
+  // The task board is durable evidence too. A retry must not create another
+  // implementation task when the exact request lineage already reached
+  // done/ (the old filename-based lookup missed -2/-3 collision names).
+  const existingTasks = tasks.findAllBySourceId(root, request.site, request.request_id);
+  const existingTask = existingTasks.find(task => task.column === 'done') || existingTasks[0];
+  if (existingTask?.column === 'done' && successfulTaskEvidence(store, request, existingTask)) {
+    return {
+      completed: true,
+      task_file: existingTask.file,
+      task_column: existingTask.column,
+      task_reused: true,
+    };
+  }
+  if (existingTask?.column === 'done') {
+    return {
+      blocked_duplicate: true,
+      task_file: existingTask.file,
+      task_column: existingTask.column,
+      duplicate_tasks: existingTasks,
+      reason: 'matching done task has no successful durable improvement evidence',
+    };
+  }
+
   const runId = crypto.randomUUID();
   const taskId = crypto.randomUUID();
   const correlationId = `change-request:${request.request_id}`;
-  const taskTarget = taskRoutingTarget(root, request);
+  const taskTarget = taskRoutingTarget(root, request) || existingTask;
   const file = taskTarget
     ? taskTarget.file
     : tasks.create(root, request.site, 'backlog', {
@@ -427,6 +471,8 @@ module.exports = {
   reportOnlyEvidenceReady,
   start,
   startManual,
+  successfulTaskEvidence,
+  taskRoutingTarget,
   transition,
   summary,
   compareOutcome,

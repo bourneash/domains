@@ -244,6 +244,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'change_requests', 'lease_owner', 'TEXT');
   ensureColumn(db, 'change_requests', 'lease_expires_at', 'TEXT');
   ensureColumn(db, 'change_requests', 'heartbeat_at', 'TEXT');
+  ensureColumn(db, 'change_requests', 'measurement_override', 'INTEGER NOT NULL DEFAULT 0');
   ensureColumn(db, 'change_queue_settings', 'auto_review_enabled', 'INTEGER NOT NULL DEFAULT 1');
   ensureColumn(db, 'change_queue_settings', 'lease_minutes', 'INTEGER NOT NULL DEFAULT 30');
   ensureColumn(db, 'executive_proposals', 'implementation_json', "TEXT NOT NULL DEFAULT '{}'");
@@ -813,6 +814,7 @@ function open(root, { file } = {}) {
       'lease_owner',
       'lease_expires_at',
       'heartbeat_at',
+      'measurement_override',
       'run_id',
       'attempts',
       'review_attempts',
@@ -825,7 +827,7 @@ function open(root, { file } = {}) {
     };
     next.updated_at = new Date().toISOString();
     db.prepare(
-      `UPDATE change_requests SET site=?,title=?,body=?,category=?,priority=?,assigned_role=?,provider=?,model=?,delivery_mode=?,action_key=?,max_turns=?,auto_review=?,voice_transcript=?,requested_by=?,source_proposal_id=?,status=?,updated_at=?,next_attempt_at=?,claimed_at=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,run_id=?,attempts=?,review_attempts=?,error=? WHERE request_id=?`
+      `UPDATE change_requests SET site=?,title=?,body=?,category=?,priority=?,assigned_role=?,provider=?,model=?,delivery_mode=?,action_key=?,max_turns=?,auto_review=?,voice_transcript=?,requested_by=?,source_proposal_id=?,status=?,updated_at=?,next_attempt_at=?,claimed_at=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,measurement_override=?,run_id=?,attempts=?,review_attempts=?,error=? WHERE request_id=?`
     ).run(
       next.site,
       next.title,
@@ -849,6 +851,7 @@ function open(root, { file } = {}) {
       next.lease_owner,
       next.lease_expires_at,
       next.heartbeat_at,
+      next.measurement_override ? 1 : 0,
       next.run_id,
       next.attempts,
       next.review_attempts,

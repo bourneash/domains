@@ -62,7 +62,12 @@ async function renderScheduler() {
       ),
     ]);
   } catch (e) {
-    app.innerHTML = `<div class="page-head"><h2 class="page-title">Scheduler</h2></div><div class="empty">Scheduler unreachable: ${esc(e.message)}<br><span class="muted mono">tools/fleet-scheduler/bin/fleet-scheduler up</span></div>`;
+    const message = `Scheduler unreachable: ${e.message}`;
+    if (typeof globalThis.fleetRenderViewError === 'function') {
+      globalThis.fleetRenderViewError(app, message);
+    } else {
+      app.innerHTML = `<div class="page-head"><h2 class="page-title">Scheduler</h2></div><div class="error-box">${esc(message)}<br><span class="muted mono">tools/fleet-scheduler/bin/fleet-scheduler up</span></div>`;
+    }
     return;
   }
   const q = SCH.text.trim().toLowerCase();
@@ -213,7 +218,7 @@ function wireScheduler() {
       SCH.site = '';
       renderScheduler();
     });
-  root.addEventListener('click', e => {
+  root.addEventListener('click', async e => {
     const ib = e.target.closest('button[data-inst]');
     if (ib) {
       SCH.inst = ib.dataset.inst;
@@ -250,7 +255,13 @@ function wireScheduler() {
         b.dataset.en === '1' ? 'disabled' : 'enabled'
       );
     else if (act === 'sched') {
-      const v = prompt('New cron schedule (5 fields, America/New_York):', b.dataset.cur);
+      const v = await globalThis.fleetTextPrompt?.({
+        title: 'Change cron schedule',
+        label: 'New cron schedule (5 fields, America/New_York)',
+        placeholder: b.dataset.cur,
+        required: true,
+        submitLabel: 'Update schedule',
+      });
       if (v && v.trim() !== b.dataset.cur)
         schAct(
           () => api('PATCH', `${schBase()}/jobs/${id}`, { schedule: v.trim() }),
@@ -258,16 +269,25 @@ function wireScheduler() {
         );
     } else if (act === 'adopt') {
       if (
-        confirm(
-          `Adopt ${site}?\n\nThis STOPS and removes its legacy cron container, then runs its jobs from the scheduler.`
-        )
+        await globalThis.fleetConfirm?.({
+          title: `Adopt ${site}`,
+          message: 'This stops and removes its legacy cron container, then runs its jobs from the scheduler.',
+          confirmLabel: 'Adopt site',
+          danger: true,
+        })
       )
         schAct(
           () => api('POST', `/api/scheduler/sites/${encodeURIComponent(site)}/adopt`),
           `${site} adopted`
         );
     } else if (act === 'release') {
-      if (confirm(`Release ${site} back to its legacy cron container?`))
+      if (
+        await globalThis.fleetConfirm?.({
+          title: `Release ${site}`,
+          message: 'Release this site back to its legacy cron container?',
+          confirmLabel: 'Release site',
+        })
+      )
         schAct(
           () => api('POST', `/api/scheduler/sites/${encodeURIComponent(site)}/release`),
           `${site} released`

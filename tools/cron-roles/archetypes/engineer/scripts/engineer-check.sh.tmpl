@@ -157,6 +157,30 @@ _fm_status_is_done() {
   awk '/^---[[:space:]]*$/{c++; next} c==1' "$1" 2>/dev/null \
     | grep -qiE '^[[:space:]]*status:[[:space:]]*"?'\''?done'\''?"?[[:space:]]*$'
 }
+_fm_value() {
+  local key="$1" file="$2"
+  awk -v wanted="$key" '/^---[[:space:]]*$/{c++; next} c==1 {
+    line=$0
+    sub(/^[[:space:]]*/, "", line)
+    split(line, parts, ":")
+    if (parts[1] == wanted) {
+      sub(/^[^:]*:[[:space:]]*/, "", line)
+      gsub(/^['\"]|['\"]$/, "", line)
+      print line
+      exit
+    }
+  }' "$file" 2>/dev/null
+}
+_done_has_source_id() {
+  local source_id="$1" done_file done_source
+  [[ -z "$source_id" ]] && return 1
+  while IFS= read -r done_file; do
+    [[ -z "$done_file" ]] && continue
+    done_source=$(_fm_value source_id "$done_file")
+    [[ "$done_source" == "$source_id" ]] && return 0
+  done < <(find "$REPO_ROOT/ops/tasks/done" -maxdepth 1 -type f -name '*.md' -print 2>/dev/null)
+  return 1
+}
 # Keep one implementation task per Claude pass. A task's estimated_turns is
 # budgeted with a recovery buffer by run-engineer.sh; batching several tasks
 # can exhaust the global cap before the completion contract is printed.
@@ -165,6 +189,7 @@ MAX_TASKS="${ENGINEER_MAX_TASKS:-1}"
 _ENG_ALL=$(grep -rli 'assigned_role: *engineer' "$REPO_ROOT/ops/tasks/backlog/" 2>/dev/null | sort || true)
 ENG_ELIGIBLE=""
 ENG_DONE_STUCK=""
+ENG_DUPLICATE_DONE=""
 while IFS= read -r _f; do
   [[ -z "$_f" ]] && continue
   if [[ "$_f" =~ /HOLD[-_] ]]; then continue; fi
@@ -172,13 +197,22 @@ while IFS= read -r _f; do
     ENG_DONE_STUCK+="$_f"$'\n'
     continue
   fi
+  _source_id=$(_fm_value source_id "$_f")
+  if _done_has_source_id "$_source_id"; then
+    ENG_DUPLICATE_DONE+="$_f"$'\n'
+    continue
+  fi
   ENG_ELIGIBLE+="$_f"$'\n'
 done <<< "$_ENG_ALL"
 QUEUE_COUNT=$(printf '%s\n' "$ENG_ELIGIBLE" | grep -c . || true); QUEUE_COUNT=${QUEUE_COUNT:-0}
 HELD_COUNT=$(printf '%s\n' "$_ENG_ALL" | grep -ciE '/HOLD[-_]' || true); HELD_COUNT=${HELD_COUNT:-0}
 DONE_STUCK_COUNT=$(printf '%s\n' "$ENG_DONE_STUCK" | grep -c . || true); DONE_STUCK_COUNT=${DONE_STUCK_COUNT:-0}
+DONE_DUPLICATE_COUNT=$(printf '%s\n' "$ENG_DUPLICATE_DONE" | grep -c . || true); DONE_DUPLICATE_COUNT=${DONE_DUPLICATE_COUNT:-0}
 if [[ "$DONE_STUCK_COUNT" -gt 0 ]]; then
   rlog "queue: $DONE_STUCK_COUNT completed task(s) stuck in backlog/ (status: done, never moved to done/) — excluded from pickup: $(printf '%s' "$ENG_DONE_STUCK" | awk -F/ '{print $NF}' | paste -sd ',' -)"
+fi
+if [[ "$DONE_DUPLICATE_COUNT" -gt 0 ]]; then
+  rlog "queue: $DONE_DUPLICATE_COUNT backlog task(s) duplicate a done source_id — excluded from pickup: $(printf '%s' "$ENG_DUPLICATE_DONE" | awk -F/ '{print $NF}' | paste -sd ',' -)"
 fi
 ENGINEER_PAUSED=0
 if [[ -f "$REPO_ROOT/ops/.engineer-paused" ]]; then

@@ -7,6 +7,7 @@ const os = require('node:os');
 const path = require('node:path');
 const eventstore = require('./eventstore');
 const improvements = require('./improvements');
+const tasks = require('./tasks');
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'improvement-workbench-'));
@@ -496,6 +497,57 @@ test('does not create duplicate manual tasks when queue delivery is retried', ()
     fs.readdirSync(path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog')).length,
     1
   );
+  store.close();
+});
+
+test('reuses completed task lineage instead of creating another implementation task', () => {
+  const { root, store } = fixture();
+  const request = {
+    request_id: 'request-already-done',
+    site: 'example.com',
+    title: 'Bounded change',
+    body: 'Do one thing',
+    category: 'engineering',
+    priority: 'low',
+    assigned_role: 'engineer',
+    provider: 'chatgpt',
+    model: 'gpt-5',
+    max_turns: 2,
+  };
+  const first = improvements.startManual({ store, root, request });
+  store.updateImprovement(first.run.run_id, { state: 'deployed' });
+  const moved = tasks.move(root, request.site, 'backlog', first.task_file, 'done');
+  assert.equal(moved.file, first.task_file);
+  const retry = improvements.startManual({ store, root, request });
+  assert.equal(retry.completed, true);
+  assert.equal(retry.task_file, first.task_file);
+  assert.equal(store.listImprovements({ source: 'fleet-dashboard' }).length, 1);
+  assert.deepEqual(
+    fs.readdirSync(path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog')),
+    []
+  );
+  store.close();
+});
+
+test('blocks a done task lineage that has no successful delivery evidence', () => {
+  const { root, store } = fixture();
+  const request = {
+    request_id: 'request-ambiguous-done',
+    site: 'example.com',
+    title: 'Ambiguous change',
+    body: 'Do one thing',
+    category: 'engineering',
+    priority: 'low',
+    assigned_role: 'engineer',
+  };
+  const first = improvements.startManual({ store, root, request });
+  store.updateImprovement(first.run.run_id, { state: 'failed' });
+  tasks.move(root, request.site, 'backlog', first.task_file, 'done');
+  const retry = improvements.startManual({ store, root, request });
+  assert.equal(retry.blocked_duplicate, true);
+  assert.equal(retry.completed, undefined);
+  assert.match(retry.reason, /no successful durable improvement evidence/);
+  assert.equal(store.listImprovements({ source: 'fleet-dashboard' }).length, 1);
   store.close();
 });
 

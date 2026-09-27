@@ -317,35 +317,39 @@ async function matrix(root, slugs) {
           ? { state: 'paused', age: null }
           : cellState(enabled, last, schedule, now);
         let deploy = null;
-        // The deployer cell tracks DEPLOY HEALTH, not cron recency. Every site
-        // ships via push-to-deploy (commit → `git push origin main` → CF rebuild),
-        // so the local deployer cron is just a safety net — a site can be fully
-        // live with a stale cron. Judge it by whether main is in sync with origin:
-        // in sync → CF has it (fresh); commits ahead → unpushed, NOT live (red).
+        // The deployer cell tracks production deploy health, not cron recency.
+        // The deployhealth poller compares Cloudflare with the latest
+        // deployable site commit; ops-only commits are explicitly harmless.
         // (last actual deploy time is kept in `age` for the tooltip.)
         if (role === 'deployer' && enabled) {
           const g = gitBySlug[slug] || {};
           const onMain = g.branch === 'main' || g.branch === 'master';
           const pushed = onMain && (g.ahead || 0) === 0;
           age = last ? (now - last) / 1000 : null;
-          // Push state (cheap, every request) decides red/green first; the CF
-          // build verdict (background poller) refines a pushed-but-not-yet-live
-          // site — fresh push still building = amber, long-behind = red (failed).
+          // Push state is cheap and immediate; the CF verdict supplies the
+          // production meaning. Only a confirmed build failure is red.
           const bh = deployhealth.get(slug);
           let build = null;
           if (!g.isRepo) state = 'never';
           else if (g.ahead > 0)
-            state = 'overdue'; // committed but unpushed → not deployed
+            state = 'stale'; // committed but unpushed → pending, not confirmed failure
           else if (!onMain)
             state = 'stale'; // feature branch checked out
-          else if (bh && bh.ok && bh.live === false) {
-            const pushedAgo = bh.headTime ? now / 1000 - bh.headTime : Infinity;
-            state = pushedAgo <= 15 * 60 ? 'stale' : 'overdue'; // building vs failed/stuck
+          else if (bh && bh.status === 'failed') {
+            state = 'overdue'; // confirmed Cloudflare build failure
+          } else if (bh && ['deploying', 'behind'].includes(bh.status)) {
+            state = 'stale'; // pending/behind is attention, not confirmed failure
           } else state = 'fresh'; // in sync + (CF confirms live, or no CF data)
           if (bh)
             build = {
               ok: bh.ok,
               live: bh.live,
+              status: bh.status,
+              reason: bh.reason,
+              deployableHash: bh.deployableHash,
+              deployableTime: bh.deployableTime,
+              headHash: bh.headHash,
+              opsOnly: bh.opsOnly,
               version: bh.version,
               deployedAt: bh.deployedAt,
               error: bh.error,

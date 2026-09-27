@@ -6,6 +6,46 @@ const fleetregistry = require('./fleetregistry');
 
 const FAIRNESS_ESCALATION_MS = 30 * 60 * 1000;
 
+// These requests inspect, reconcile, or route existing work. They do not
+// change the measured production surface, so a site's experiment must not
+// freeze them behind a measurement window.
+const MEASUREMENT_SAFE_TEXT = /\b(?:measurement\s+coverage|attribution\s+reconciliation|attribution\s+assessment|orchestration\s+failure\s+diagnosis|mobile\s+performance\s+diagnosis|content\s+depth.*review|internal[- ]link(?:ing)?\s+review|capture\s+~?\d+\s+more\s+clicks?|reassign\s+task)\b/i;
+
+function textOf(request = {}) {
+  return `${request.title || ''}\n${request.body || ''}`;
+}
+
+function extractPaths(value = '') {
+  return [...String(value).matchAll(/(?:https?:\/\/[^\s)]+)?(\/[-a-zA-Z0-9._~%!$&'()*+,;=:@\/]*)/g)]
+    .map(match => (match[1] || match[0]).replace(/[.,;:)]+$/, '').toLowerCase())
+    .filter(path => path.length > 1 && path !== '//');
+}
+
+function isMeasurementSafe(request = {}) {
+  if (request.delivery_mode === 'report_only') return true;
+  if (String(request.action_key || '').startsWith('task-routing:')) return true;
+  return MEASUREMENT_SAFE_TEXT.test(textOf(request));
+}
+
+function measurementScope(value = {}) {
+  const explicit = value.measurement_scope || value.baseline?.measurement_scope;
+  const paths = Array.isArray(explicit?.paths) ? explicit.paths.map(String).map(path => path.toLowerCase()) : [];
+  return [...new Set([...paths, ...extractPaths(textOf(value))])];
+}
+
+// A measurement run blocks only a production request that could change the
+// same measured surface. When either side has no reliable URL/path scope we
+// stay conservative and hold it; diagnostics and control-plane work are
+// explicitly exempt above.
+function measurementConflict(request = {}, run = {}) {
+  if (isMeasurementSafe(request)) return false;
+  const requestPaths = measurementScope(request);
+  const runPaths = measurementScope(run);
+  if (requestPaths.length && runPaths.length)
+    return requestPaths.some(requestPath => runPaths.some(runPath => requestPath === runPath || requestPath.startsWith(`${runPath}/`) || runPath.startsWith(`${requestPath}/`)));
+  return true;
+}
+
 function readSiteDescriptions(root) {
   const descriptions = {};
   const registry = fleetregistry.read(root);
@@ -38,7 +78,7 @@ function siteContext(root, site, descriptions = readSiteDescriptions(root)) {
 
 function queueBlockers(
   request,
-  { activeCount = 0, capacity = 1, busySites, measuringSites, now = Date.now() } = {}
+  { activeCount = 0, capacity = 1, busySites, measuringSites, measuringRuns = [], measurementWindows, now = Date.now() } = {}
 ) {
   if (!request || request.status !== 'queued') return [];
   const blockers = [];
@@ -57,18 +97,25 @@ function queueBlockers(
       detail: `All ${capacity} worker slot${capacity === 1 ? '' : 's'} are occupied`,
     });
   }
-  if (busySites?.has(request.site)) {
+  if (busySites?.has(request.site) && request.delivery_mode !== 'report_only') {
     blockers.push({
       code: 'site_active',
       label: 'Site has active work',
-      detail: 'Another build or review is already running for this domain',
+      detail:
+        'Another build or review is already running for this domain; read-only reporting can still proceed',
     });
   }
-  if (measuringSites?.has(request.site) && request.delivery_mode !== 'report_only') {
+  const measurementDue = measurementWindows?.get?.(request.site) || null;
+  const conflictsWithMeasurement = measuringRuns.length
+    ? measuringRuns.some(run => run.site === request.site && measurementConflict(request, run))
+    : measuringSites?.has(request.site) && !isMeasurementSafe(request);
+  if (conflictsWithMeasurement && !request.measurement_override) {
     blockers.push({
       code: 'measurement_window',
       label: 'Measurement window active',
-      detail: 'Held until the current improvement measurement finishes',
+      detail: measurementDue
+        ? `Held until ${measurementDue}`
+        : 'Held until the current improvement measurement finishes',
     });
   }
   return blockers;
@@ -103,6 +150,15 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
     improvements.filter(r => ['building', 'review'].includes(r.state)).map(r => r.site)
   );
   const measuringSites = new Set(improvements.filter(r => r.state === 'measuring').map(r => r.site));
+  const measuringRuns = improvements.filter(r => r.state === 'measuring');
+  const measurementWindows = new Map();
+  for (const run of improvements.filter(r => r.state === 'measuring')) {
+    if (!run.measurement_due) continue;
+    const current = measurementWindows.get(run.site);
+    if (!current || String(run.measurement_due) < current)
+      measurementWindows.set(run.site, String(run.measurement_due));
+  }
+  const improvementsById = new Map(improvements.filter(r => r?.run_id).map(r => [r.run_id, r]));
   const descriptions = readSiteDescriptions(root);
   return requests.map(request => {
     const blockers = queueBlockers(request, {
@@ -110,14 +166,37 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
       capacity,
       busySites,
       measuringSites,
+      measuringRuns,
+      measurementWindows,
       now,
     });
     const blockedSince = request.queue_blocked_at || request.created_at;
     const blockedAgeMs = Math.max(0, now - (Date.parse(blockedSince) || now));
     const escalated = blockers.length > 0 && blockedAgeMs >= FAIRNESS_ESCALATION_MS;
     const nextRetry = request.next_attempt_at && Date.parse(request.next_attempt_at);
+    const run = request.run_id ? improvementsById.get(request.run_id) || null : null;
+    const isWorking = ['claimed', 'running', 'reviewing'].includes(request.status);
+    const workingSince = request.claimed_at || run?.created_at || null;
+    const heartbeatAt = request.heartbeat_at || run?.updated_at || null;
     return {
       ...request,
+      measurement_window: measurementWindows.has(request.site)
+        ? {
+            active: true,
+            due_at: measurementWindows.get(request.site),
+            override: Boolean(request.measurement_override),
+          }
+        : null,
+      work: {
+        active: isWorking,
+        state: isWorking ? request.status : run?.state || null,
+        since: workingSince,
+        heartbeat_at: heartbeatAt,
+        worker: request.lease_owner || run?.agent?.provider || run?.source || null,
+        run_id: request.run_id || run?.run_id || null,
+        run_state: run?.state || null,
+        title: run?.title || request.title,
+      },
       site_context: siteContext(root, request.site, descriptions),
       queue_block: blockers.length
         ? {
@@ -154,6 +233,9 @@ module.exports = {
   readSiteDescriptions,
   siteContext,
   queueBlockers,
+  isMeasurementSafe,
+  measurementScope,
+  measurementConflict,
   queueMetrics,
   enrichChangeRequests,
   buildQueueSnapshot,

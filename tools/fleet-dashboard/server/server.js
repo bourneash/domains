@@ -68,6 +68,8 @@ const executiveCroLab = require('../../executive/cro-lab');
 const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
 const executiveScorecard = require('./executive-scorecard');
+const executiveCalendar = require('./executive-calendar');
+const { execFileSync } = require('node:child_process');
 const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
@@ -109,6 +111,23 @@ const INFRASTRUCTURE_REVALIDATION_VERSION = 'worker-runtime-preview-v8';
 // It must not hold the normal queue pickup path hostage when an old worker or
 // container is slow; the recovery lock keeps the long pass single-flight.
 const QUEUE_RECOVERY_WAIT_MS = 5000;
+
+function commitExecutiveCalendar(root, message) {
+  try { return executiveCalendar.withLock(root, () => {
+    execFileSync('git', ['-C', root, 'add', '--', 'ops/executive/calendar.json'], { stdio: 'ignore' });
+    try {
+      execFileSync('git', ['-C', root, 'diff', '--cached', '--quiet', '--', 'ops/executive/calendar.json'], { stdio: 'ignore' });
+      let pending = '';
+      try { pending = execFileSync('git', ['-C', root, 'log', '-1', '--format=%H', 'origin/main..HEAD', '--', 'ops/executive/calendar.json'], { encoding: 'utf8' }).trim(); } catch {}
+      if (!pending) return { committed: false, pushed: true };
+      try { execFileSync('git', ['-C', root, 'push', 'origin', 'main'], { stdio: 'ignore', timeout: 30000 }); return { committed: false, pushed: true, retried: true }; }
+      catch { return { committed: false, pushed: false, warning: 'calendar push retry failed' }; }
+    } catch {}
+    execFileSync('git', ['-C', root, 'commit', '-m', message, '--', 'ops/executive/calendar.json'], { stdio: 'ignore' });
+    try { execFileSync('git', ['-C', root, 'push', 'origin', 'main'], { stdio: 'ignore', timeout: 30000 }); return { committed: true, pushed: true }; }
+    catch { return { committed: true, pushed: false, warning: 'calendar committed locally but push failed' }; }
+  }); } catch (e) { return { committed: false, pushed: false, warning: `calendar git persistence failed: ${e.message}` }; }
+}
 
 // Report-only work produces evidence in an isolated checkout and cannot ship
 // code. It should not spend another model call on a release-marker review;

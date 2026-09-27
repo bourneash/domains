@@ -10,6 +10,7 @@
   <meta name="theme-color" content="#070910" />
 </head>
 <body>
+  <a class="skip-link" href="#app">Skip to dashboard content</a>
   <header class="topbar">
     <div class="brand">
       <span class="dot"></span>
@@ -44,6 +45,8 @@
     </nav>
     <div class="fleet-filter-wrap" title="Filter the current view's rows by site name">
       <input id="fleet-filter" class="cm-input fleet-filter" type="search" placeholder="Filter sites…" aria-label="Filter sites" />
+      <button id="fleet-filter-clear" class="fleet-filter-clear" type="button" aria-label="Clear site filter" title="Clear site filter" hidden>×</button>
+      <span id="fleet-filter-count" class="fleet-filter-count" aria-live="polite"></span>
     </div>
     <div class="actions">
       <span id="updated" class="muted" role="status" aria-live="polite"></span>
@@ -72,11 +75,11 @@
   <!-- Dependency preflight banner (F7): hidden unless a dependency is missing. -->
   <div id="deps-banner" class="deps-banner hidden" role="alert"></div>
 
-  <main id="app">
+  <main id="app" aria-busy="false">
     <!-- views render here -->
   </main>
 
-  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><span id="toast-message"></span><button id="toast-close" type="button" aria-label="Dismiss notification" title="Dismiss notification">×</button></div>
 
   <!-- Auth gate (F1): shown only when the server requires a token and we lack one. -->
   <div id="login-overlay" class="login-overlay hidden" role="dialog" aria-modal="true">
@@ -146,11 +149,11 @@
   </div>
 
   <!-- Task editor / viewer modal -->
-  <div id="modal" class="modal hidden">
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-card">
       <div class="modal-head">
         <h2 id="modal-title">Task</h2>
-        <button id="modal-close" class="icon-btn">✕</button>
+        <button id="modal-close" class="icon-btn" type="button" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
       <div id="modal-body" class="modal-body"></div>
     </div>

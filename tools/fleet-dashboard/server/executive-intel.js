@@ -289,7 +289,7 @@ function compactOperations(value) {
       last_sweep: deploy.lastSweep || null,
       site_count: Object.keys(deploy.sites || {}).length,
       failed: Object.values(deploy.sites || {})
-        .filter(row => row && row.live === false)
+        .filter(row => row && (row.status === 'failed' || row.status === 'behind'))
         .slice(0, 40),
     },
     uptime: {
