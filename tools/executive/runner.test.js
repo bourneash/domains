@@ -846,6 +846,13 @@ test('accepts provider natural-language message field aliases inside the closed 
   assert.equal(plan.messages[0].body, 'Recommendation: inspect the site backlog.');
 });
 
+test('normalizes growth and affiliate change-request categories before queue application', () => {
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'affiliate' }).category, 'marketing');
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'growth' }).category, 'marketing');
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'ux' }).category, 'design');
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'unsupported' }).category, 'other');
+});
+
 test('defaults blank provider message types to update', () => {
   const plan = runner.parseOutput(
     JSON.stringify({

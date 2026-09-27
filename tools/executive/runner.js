@@ -1693,6 +1693,27 @@ function planFingerprint(plan) {
   return crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex');
 }
 
+function normalizeDirectChangeRequest(input = {}) {
+  const category = String(input.category || '')
+    .trim()
+    .toLowerCase();
+  const aliases = {
+    affiliate: 'marketing',
+    attribution: 'marketing',
+    conversion: 'marketing',
+    growth: 'marketing',
+    revenue: 'marketing',
+    ux: 'design',
+    'user-experience': 'design',
+    performance: 'engineering',
+    technical: 'engineering',
+  };
+  const normalizedCategory = changequeue.CATEGORIES.includes(category)
+    ? category
+    : aliases[category] || 'other';
+  return { ...input, category: normalizedCategory };
+}
+
 function actionMandateSatisfied(plan = {}, brief = {}) {
   const candidates = brief.action_mandate?.candidates || [];
   if (!candidates.length) return true;
@@ -3173,7 +3194,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       Math.min(6, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 6))
     );
     let queuedCount = 0;
-    for (const item of plan.change_requests) {
+    for (const rawItem of plan.change_requests) {
+      const item = normalizeDirectChangeRequest(rawItem);
       if (!item.site || !item.title || !item.body)
         throw new Error('change request requires site, title and body');
       if (queuedCount >= queueLimit || activeSites.has(item.site)) {
@@ -3430,6 +3452,7 @@ module.exports = {
   normalizeProviderProposalTypes,
   validatePlan,
   planFingerprint,
+  normalizeDirectChangeRequest,
   actionMandateSatisfied,
   reconcileApprovedProposalFollowThrough,
   drainApprovedProposalQueue,
