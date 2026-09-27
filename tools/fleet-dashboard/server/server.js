@@ -78,6 +78,7 @@ const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
 const workflowBoard = require('./workflow-board');
+const executiveLiveness = require('./executive-liveness');
 const {
   assignedRoleForType,
   assignedRoleForSite,
@@ -3623,12 +3624,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/executive/calendar', (req, res) => {
     try {
       const event = executiveCalendar.create(root, req.body || {}, 'owner');
-      res
-        .status(201)
-        .json({
-          event,
-          git: commitExecutiveCalendar(root, 'chore(executive): schedule calendar event'),
-        });
+      res.status(201).json({
+        event,
+        git: commitExecutiveCalendar(root, 'chore(executive): schedule calendar event'),
+      });
     } catch (e) {
       res.status(e.status || 400).json({ error: e.message });
     }
@@ -4264,6 +4263,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/executive/liveness', (req, res) => {
+    try {
+      res.json(executiveLiveness.audit(events));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.get('/api/cases', (req, res) => {
     try {
       const enrichRequests = requests =>
@@ -4414,11 +4420,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const request = events.getChangeRequest(req.params.id);
       if (!request) return res.status(404).json({ error: 'change request not found' });
       if (request.status !== 'queued')
-        return res
-          .status(409)
-          .json({
-            error: `only queued requests can override a measurement window; current status is ${request.status}`,
-          });
+        return res.status(409).json({
+          error: `only queued requests can override a measurement window; current status is ${request.status}`,
+        });
       const measuring = events
         .listImprovements({ site: request.site, limit: 100 })
         .filter(run => run.state === 'measuring');
