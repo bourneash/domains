@@ -12,6 +12,10 @@ const WORKER_START_GRACE_MS = Math.max(
   10_000,
   Number(process.env.FD_CHANGE_QUEUE_WORKER_START_GRACE_MS || 120_000)
 );
+const REVIEWER_TIMEOUT_MS = Math.max(
+  60_000,
+  Number(process.env.FD_CHANGE_QUEUE_REVIEWER_TIMEOUT_MS || 15 * 60 * 1000)
+);
 
 // The fleet worker image has a project-scoped Codex credential, while Claude
 // intentionally has no shared OAuth credential in the dashboard container.
@@ -234,7 +238,7 @@ function launch({
       timedOut = true;
       child.kill('SIGTERM');
     },
-    45 * 60 * 1000
+    phase === 'reviewer' ? REVIEWER_TIMEOUT_MS : 45 * 60 * 1000
   );
   if (timeout.unref) timeout.unref();
   store.updateImprovement(run.run_id, {
@@ -449,6 +453,7 @@ module.exports = {
   processListHasWorker,
   workerStartupGraceActive,
   WORKER_START_GRACE_MS,
+  REVIEWER_TIMEOUT_MS,
   defaultProvider,
   defaultModel,
   resolveWorkerProvider,
