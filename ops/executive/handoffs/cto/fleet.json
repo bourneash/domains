@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-26T23:48:17.505Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T00:03:31.438Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. The authoritative candidate list is empty; 29 deployed improvements await measurement, 46 failure follow-ups remain open, and only 1 outcome is proven. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new production work, experiments, telemetry, dependencies, requeues, deployments, spend, monetization expansion, or external outreach. Preserve isolation, rollback boundaries, and unknown revenue, ROI, causal lift, cost-to-learn, and operational outcomes.",
+        "summary": "Approve containment-only execution. Continue existing source-dated measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create or queue new production work, requeue failures, add telemetry or dependencies, change configuration, spend, expand monetization, conduct external outreach, or adopt external components. Preserve failed-work isolation until lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are documented. Keep the gated product private pending rights, privacy, security, accuracy, attribution, measurement, and owner gates. Preserve unknown financial, causal, and operational outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: retain the current queue boundary. Failed work may resume only after canonical lineage, ownership, root cause, smallest isolated repair, focused validation, rollback, deduplication, and explicit requeue-or-close evidence are documented. Existing measurement and evidence work may continue within scope using available telemetry only.",
+        "summary": "Retain the accessible CTA, content-transformation, editorial-diagram, attribution, and performance concepts as deferred backlog only. They are not implementation-ready because the authoritative candidate list is empty, existing repair and measurement capacity is occupied, and required isolation, validation, rollback, security, license, and owner gates are incomplete. Do not create proposals, experiments, research requests, dependencies, or change requests for them this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing financial evidence reconciliation using available telemetry only. Do not assign aggregate commission to any site, invent telemetry, or claim ROI, margin, payback, cost-to-learn, budget headroom, or causal lift. Reconcile conflicting AI-usage records and assemble the existing period-aligned cost ledger before final financial reporting.",
         "requested_action": null,
         "proposal_id": null
       }
