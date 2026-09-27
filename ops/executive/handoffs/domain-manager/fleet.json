@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:30:20.564Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:10:00.165Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Run therareunicorn.com audience, monetization, health, and backlog baseline",
-        "summary": "Analytics is recorded as not configured for therareunicorn.com. Audience, traffic, conversion, revenue, attribution, SEO, compliance, operational health, and AI cost remain unknown unless directly evidenced.",
-        "requested_action": "Produce a timestamped read-only assessment covering observable positioning, content scope, conversion paths, monetization readiness, available health evidence, backlog priorities, measurement boundaries, and explicit unknowns. Identify exactly one evidence-backed next action or blocker. Do not deploy, modify production, change credentials or configuration, request duplicate telemetry, spend money, or claim unavailable outcomes.",
-        "proposal_id": "3d9f1f9a-e9d8-46c1-8360-3044f8a142d7"
-      }
-    ]
+    "report_id": "cdee7350-8b2a-45b0-a307-b70c75c8a9e1",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 4,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
