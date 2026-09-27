@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:19:22.711Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T20:24:53.430Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new proposals, queue work, requeues, experiments, telemetry, deployments, dependencies, spending, monetization changes, and unsupported financial or causal claims. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Preserve $4.92 aggregate commission as unattributed; keep private and parked dispositions unchanged. Any external permission request requires human-counsel review and explicit owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SEO, UX, content, monetization, and CRO opportunities as deferred backlog only. Existing evidence shows 47 failure follow-ups, 28 improvements awaiting measurement, no queue-eligible candidates, unavailable operations/security sweeps, and only 2 proven outcomes. Do not create or requeue production work this cycle.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Preserve $4.92 aggregate commission as unattributed; keep private and parked dispositions unchanged. Owner concern: 47 failure follow-ups, 28 pending measurements, unavailable operations/security sweeps, and incomplete attribution block new production work. Any external permission request requires human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

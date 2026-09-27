@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:19:22.710Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T20:24:53.429Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Preserve private launch gates, parked dispositions, existing measurement boundaries, and unknown financial or causal outcomes.",
+        "summary": "Handoff: retain all new SEO, UX, content, monetization, CRO, and repository opportunities as deferred backlog. Continue only existing isolated repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, and measurement work. Do not create or requeue production work this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Preserve private launch gates, parked dispositions, existing measurement boundaries, and unknown financial or causal outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair-or-close and evidence work only. New queue entry requires documented ownership, root cause, isolated repair, deterministic validation, rollback, deduplication, and an available measurement boundary. Existing failures and unavailable operations/security sweeps prevent safe requeue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and retain parked dispositions. Continue only the existing consolidated legal, accuracy, attribution, measurement, and security evidence work. External outreach remains unsent pending human-counsel review and explicit owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain financial containment. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Continue existing period-aligned reconciliation only; do not infer financial returns from traffic, rankings, clicks, sessions, conversions, orders, shipped items, performance metrics, or AI usage.",
         "requested_action": null,
         "proposal_id": null
       }
