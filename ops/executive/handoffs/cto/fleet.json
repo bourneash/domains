@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:48:53.599Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:02:57.198Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue only existing failed-work repair-or-close, measurement reconciliation, and bounded security evidence. Reject the candidate plan’s new production work, requeues, experiments, telemetry, dependencies, and deployments because the authoritative candidate list is empty and 47 failure follow-ups remain open. Smallest next step: document ownership, root cause, isolated validation, rollback, and deduplication for retained failures.",
+        "summary": "CTO review: approve containment-only execution. The authoritative candidate list is empty and no new implementation is technically ready. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence work. Preserve deferred SEO, UX, accessibility, performance, content, monetization, and capability opportunities. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or unsupported claims. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue only existing failed-work repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Do not create or requeue production work, experiments, telemetry, dependencies, spend, monetization changes, deployments, or external outreach. Keep the gated product private until rights, privacy, security, accuracy, attribution, measurement, and owner gates are complete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the deferred SEO, UX, performance, accessibility, content, affiliate, attribution, and repository opportunities. Reconsider queue entry only after retained failures are repaired or explicitly closed with documented ownership, root cause, isolated validation, rollback, deduplication, available measurement capacity, and satisfied security and attribution gates.",
+        "summary": "CTO disposition: existing queue work may continue only within its current isolated scope. Retained failures require documented ownership, root cause, smallest repair, deterministic validation, rollback, and deduplication before requeue. Measurement and attribution work must preserve unknowns, keep aggregate revenue unattributed, and avoid unsupported financial inference. Security evidence remains read-only; missing fleet-doctor and operations results do not establish clearance. No new queue item is created by this pass.",
         "requested_action": null,
         "proposal_id": null
       }

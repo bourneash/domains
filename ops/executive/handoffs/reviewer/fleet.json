@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:48:53.600Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:02:57.198Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing failure repair-or-close review, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spending, monetization expansion, external outreach, and unsupported financial or causal claims. Keep the gated product private and prepared permission outreach unsent pending human-counsel review and explicit owner authorization. Owner concern: revenue covers one dated window, aggregate commission is not site-attributable, and conflicting cost records prevent ROI, margin, forecast, payback, and spend conclusions.",
+        "summary": "Independent review: retain containment-only execution. Revenue evidence is limited to one dated aggregate window with no site-attributed commission; conflicting cost records and missing cost components block ROI, margin, forecasts, and spend decisions. Open failures, measurement work, and unevidenced security controls block new production work, requeues, experiments, dependencies, and monetization expansion. Keep the gated product private and external outreach unsent pending counsel review and explicit authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve only continuation of existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Preserve deferred opportunities without requeueing or creating duplicate telemetry. No new production proposal is supportable this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
