@@ -83,7 +83,7 @@ function exportOrganization(store, organizationId) {
       limit: 1000,
     }),
     memories: agents.flatMap(agent =>
-      store.listAgentMemories({ agent_id: agent.agent_id, limit: 1000 })
+      store.listAgentMemories({ agent_id: agent.source_agent_id, limit: 1000 })
     ),
     secrets: { omitted: true, reason: 'secret values are never portable' },
   };
