@@ -20,7 +20,14 @@ async function processOne(store, { workerId, adapters = {} } = {}) {
     return { processed: true, dispatch, error };
   }
   try {
-    const result = await handler({ store, dispatch, run: store.getAgentRun(dispatch.run_id) });
+    const run = store.getAgentRun(dispatch.run_id);
+    const context = {
+      skills: store.resolveAgentSkills ? store.resolveAgentSkills(run.agent_id) : [],
+      memories: store.listAgentMemories
+        ? store.listAgentMemories({ agent_id: run.agent_id, limit: 20 })
+        : [],
+    };
+    const result = await handler({ store, dispatch, run, context });
     runtime.finish(store, dispatch.run_id, { status: 'succeeded', result: result || {} });
     return { processed: true, dispatch, result: result || {} };
   } catch (error) {

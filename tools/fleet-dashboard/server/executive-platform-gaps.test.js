@@ -8,6 +8,7 @@ const path = require('node:path');
 const eventstore = require('./eventstore');
 const runtime = require('../../executive/agent-runtime');
 const dispatcher = require('../../executive/agent-dispatcher');
+const portability = require('../../executive/organization-portability');
 
 test('durable adapters, secrets, organizations, project work, and plan approvals work together', async () => {
   const previousKey = process.env.FD_SECRET_KEY;
@@ -95,6 +96,45 @@ test('durable adapters, secrets, organizations, project work, and plan approvals
     });
     assert.equal(store.listWorkComments({ work_id: work.work_id }).length, 1);
     assert.equal(store.listWorkAttachments({ work_id: work.work_id }).length, 1);
+
+    const skill = store.createAgentSkill({ slug: 'launch-review', name: 'Launch review' });
+    store.publishAgentSkillVersion(skill.skill_id, {
+      instructions: 'Review launch evidence.',
+      created_by: 'owner-1',
+    });
+    store.assignAgentSkill({ agent_id: agent.agent_id, skill_id: skill.skill_id, version: 1 });
+    assert.equal(store.resolveAgentSkills(agent.agent_id)[0].version.version, 1);
+    store.upsertAgentMemory({
+      agent_id: agent.agent_id,
+      memory_key: 'rollback',
+      content: 'Always verify rollback evidence.',
+      confidence: 0.9,
+    });
+    assert.equal(
+      store.listAgentMemories({ agent_id: agent.agent_id })[0].content,
+      'Always verify rollback evidence.'
+    );
+    store.upsertRuntimePlugin({
+      slug: 'audit-plugin',
+      manifest: { name: 'Audit plugin', capabilities: ['read'] },
+    });
+    store.upsertRuntimeConnector({
+      slug: 'linear',
+      kind: 'ticket-system',
+      capabilities: ['issues.read'],
+    });
+    store.appendAgentRunLog({
+      run_id: started.run.run_id,
+      level: 'info',
+      message: 'adapter completed',
+    });
+    assert.equal(store.listAgentRunLogs({ run_id: started.run.run_id }).length, 1);
+
+    const bundle = portability.exportOrganization(store, organization.organization_id);
+    assert.equal(bundle.secrets.omitted, true);
+    assert.equal(JSON.stringify(bundle).includes('super-secret'), false);
+    const imported = portability.importOrganization(store, bundle);
+    assert.notEqual(imported.organization.organization_id, organization.organization_id);
 
     const plan = store.createExecutivePlan({ title: 'Launch plan', goal_id: goal.goal_id });
     assert.equal(

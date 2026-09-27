@@ -512,6 +512,79 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS agent_workspaces_agent ON agent_workspaces(agent_id, status);
     CREATE INDEX IF NOT EXISTS agent_workspaces_run ON agent_workspaces(run_id, status);
+    CREATE TABLE IF NOT EXISTS agent_skills (
+      skill_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS agent_skill_versions (
+      version_id TEXT PRIMARY KEY,
+      skill_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      instructions TEXT NOT NULL,
+      content_sha256 TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      tests_json TEXT NOT NULL DEFAULT '[]',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(skill_id, version)
+    );
+    CREATE TABLE IF NOT EXISTS agent_skill_assignments (
+      assignment_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      skill_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      scope_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      UNIQUE(agent_id, skill_id)
+    );
+    CREATE TABLE IF NOT EXISTS agent_memories (
+      memory_id TEXT PRIMARY KEY,
+      agent_id TEXT,
+      kind TEXT NOT NULL DEFAULT 'lesson',
+      memory_key TEXT NOT NULL,
+      content TEXT NOT NULL,
+      confidence REAL NOT NULL DEFAULT 0.5,
+      source_run_id TEXT,
+      expires_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(agent_id, memory_key)
+    );
+    CREATE INDEX IF NOT EXISTS agent_memories_lookup ON agent_memories(agent_id, kind, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS runtime_plugins (
+      plugin_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      manifest_json TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'disabled',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS runtime_connectors (
+      connector_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      kind TEXT NOT NULL,
+      config_json TEXT NOT NULL DEFAULT '{}',
+      capabilities_json TEXT NOT NULL DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT 'disabled',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS agent_run_logs (
+      log_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL,
+      level TEXT NOT NULL,
+      message TEXT NOT NULL,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_run_logs_run ON agent_run_logs(run_id, created_at);
   `);
   ensureColumn(db, 'improvement_runs', 'workspace_path', 'TEXT');
   ensureColumn(db, 'improvement_runs', 'production_before', 'TEXT');
@@ -3702,6 +3775,288 @@ function open(root, { file } = {}) {
       : null;
   }
 
+  function createAgentSkill(input = {}) {
+    const slug = String(input.slug || '').trim(),
+      name = String(input.name || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !name)
+      throw httpErr(400, 'valid skill slug and name are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO agent_skills (skill_id,slug,name,description,status,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)'
+    ).run(
+      input.skill_id || crypto.randomUUID(),
+      slug,
+      name,
+      String(input.description || ''),
+      input.status || 'active',
+      String(input.created_by || 'system'),
+      now,
+      now
+    );
+    return getAgentSkill(slug);
+  }
+  function getAgentSkill(id) {
+    const row = db
+      .prepare('SELECT * FROM agent_skills WHERE skill_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row || null;
+  }
+  function listAgentSkills({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return status
+      ? db
+          .prepare('SELECT * FROM agent_skills WHERE status=? ORDER BY name LIMIT ?')
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM agent_skills ORDER BY name LIMIT ?').all(n);
+  }
+  function publishAgentSkillVersion(skillId, input = {}) {
+    const skill = getAgentSkill(skillId);
+    if (!skill) throw httpErr(404, 'skill not found');
+    const instructions = String(input.instructions || '').trim();
+    if (!instructions || instructions.length > 100000)
+      throw httpErr(400, 'skill instructions are required and bounded');
+    const version =
+      Number(input.version || 0) ||
+      db
+        .prepare(
+          'SELECT COALESCE(MAX(version),0)+1 AS next FROM agent_skill_versions WHERE skill_id=?'
+        )
+        .get(skill.skill_id).next;
+    const now = new Date().toISOString();
+    const hash = crypto.createHash('sha256').update(instructions).digest('hex');
+    db.prepare(
+      'INSERT INTO agent_skill_versions (version_id,skill_id,version,instructions,content_sha256,status,tests_json,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      input.version_id || crypto.randomUUID(),
+      skill.skill_id,
+      version,
+      instructions,
+      hash,
+      input.status || 'published',
+      JSON.stringify(Array.isArray(input.tests) ? input.tests.slice(0, 50) : []),
+      String(input.created_by || 'system'),
+      now
+    );
+    return getAgentSkillVersion(skill.skill_id, version);
+  }
+  function getAgentSkillVersion(skillId, version) {
+    const row = db
+      .prepare('SELECT * FROM agent_skill_versions WHERE skill_id=? AND version=?')
+      .get(String(getAgentSkill(skillId)?.skill_id || skillId), Number(version));
+    return row ? { ...row, tests: safeJsonArray(row.tests_json) } : null;
+  }
+  function assignAgentSkill(input = {}) {
+    const agent = getAgent(input.agent_id),
+      skill = getAgentSkill(input.skill_id);
+    if (!agent || !skill) throw httpErr(404, 'agent or skill not found');
+    const version = getAgentSkillVersion(skill.skill_id, input.version);
+    if (!version || version.status !== 'published')
+      throw httpErr(409, 'published skill version not found');
+    db.prepare(
+      'INSERT INTO agent_skill_assignments (assignment_id,agent_id,skill_id,version,scope_json,status,created_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(agent_id,skill_id) DO UPDATE SET version=excluded.version,scope_json=excluded.scope_json,status=excluded.status'
+    ).run(
+      input.assignment_id || crypto.randomUUID(),
+      agent.agent_id,
+      skill.skill_id,
+      Number(input.version),
+      JSON.stringify(input.scope && typeof input.scope === 'object' ? input.scope : {}),
+      input.status || 'active',
+      new Date().toISOString()
+    );
+    return db
+      .prepare('SELECT * FROM agent_skill_assignments WHERE agent_id=? AND skill_id=?')
+      .get(agent.agent_id, skill.skill_id);
+  }
+  function listAgentAssignments({ agent_id, skill_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (agent_id) {
+      clauses.push('agent_id=?');
+      args.push(String(agent_id));
+    }
+    if (skill_id) {
+      clauses.push('skill_id=?');
+      args.push(String(getAgentSkill(skill_id)?.skill_id || skill_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM agent_skill_assignments${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function resolveAgentSkills(agentId, { site } = {}) {
+    return listAgentAssignments({ agent_id: agentId })
+      .filter(row => row.status === 'active')
+      .map(row => {
+        const scope = safeJson(row.scope_json);
+        if (scope.sites && (!site || !scope.sites.includes(site))) return null;
+        return {
+          ...row,
+          scope,
+          skill: getAgentSkill(row.skill_id),
+          version: getAgentSkillVersion(row.skill_id, row.version),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function upsertAgentMemory(input = {}) {
+    const agentId = input.agent_id ? String(input.agent_id) : null;
+    if (agentId && !getAgent(agentId)) throw httpErr(404, 'agent not found');
+    const key = String(input.memory_key || '').trim(),
+      content = String(input.content || '').trim(),
+      confidence = Number(input.confidence ?? 0.5);
+    if (
+      !key ||
+      !content ||
+      content.length > 20000 ||
+      !Number.isFinite(confidence) ||
+      confidence < 0 ||
+      confidence > 1
+    )
+      throw httpErr(400, 'invalid memory');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO agent_memories (memory_id,agent_id,kind,memory_key,content,confidence,source_run_id,expires_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(agent_id,memory_key) DO UPDATE SET kind=excluded.kind,content=excluded.content,confidence=excluded.confidence,source_run_id=excluded.source_run_id,expires_at=excluded.expires_at,updated_at=excluded.updated_at'
+    ).run(
+      input.memory_id || crypto.randomUUID(),
+      agentId,
+      String(input.kind || 'lesson'),
+      key,
+      content,
+      confidence,
+      input.source_run_id || null,
+      input.expires_at || null,
+      now,
+      now
+    );
+    return db
+      .prepare('SELECT * FROM agent_memories WHERE agent_id IS ? AND memory_key=?')
+      .get(agentId, key);
+  }
+  function listAgentMemories({ agent_id, kind, query, limit = 100 } = {}) {
+    const clauses = ['(expires_at IS NULL OR expires_at>?)'],
+      args = [new Date().toISOString()];
+    if (agent_id) {
+      clauses.push('agent_id=?');
+      args.push(String(agent_id));
+    }
+    if (kind) {
+      clauses.push('kind=?');
+      args.push(String(kind));
+    }
+    if (query) {
+      clauses.push('(memory_key LIKE ? OR content LIKE ?)');
+      args.push(`%${query}%`, `%${query}%`);
+    }
+    return db
+      .prepare(
+        `SELECT * FROM agent_memories WHERE ${clauses.join(' AND ')} ORDER BY confidence DESC,updated_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 100, 500)));
+  }
+
+  function upsertRuntimePlugin(input = {}) {
+    const slug = String(input.slug || '').trim(),
+      manifest = input.manifest && typeof input.manifest === 'object' ? input.manifest : {};
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !manifest.name)
+      throw httpErr(400, 'valid plugin slug and manifest name are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO runtime_plugins (plugin_id,slug,manifest_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET manifest_json=excluded.manifest_json,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      input.plugin_id || crypto.randomUUID(),
+      slug,
+      JSON.stringify(manifest),
+      input.status || 'disabled',
+      now,
+      now
+    );
+    return getRuntimePlugin(slug);
+  }
+  function getRuntimePlugin(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_plugins WHERE plugin_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row ? { ...row, manifest: safeJson(row.manifest_json) } : null;
+  }
+  function listRuntimePlugins({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return (
+      status
+        ? db
+            .prepare('SELECT * FROM runtime_plugins WHERE status=? ORDER BY slug LIMIT ?')
+            .all(String(status), n)
+        : db.prepare('SELECT * FROM runtime_plugins ORDER BY slug LIMIT ?').all(n)
+    ).map(row => ({ ...row, manifest: safeJson(row.manifest_json) }));
+  }
+  function upsertRuntimeConnector(input = {}) {
+    const slug = String(input.slug || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !input.kind)
+      throw httpErr(400, 'valid connector slug and kind are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO runtime_connectors (connector_id,slug,kind,config_json,capabilities_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET kind=excluded.kind,config_json=excluded.config_json,capabilities_json=excluded.capabilities_json,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      input.connector_id || crypto.randomUUID(),
+      slug,
+      String(input.kind),
+      JSON.stringify(input.config && typeof input.config === 'object' ? input.config : {}),
+      JSON.stringify(Array.isArray(input.capabilities) ? input.capabilities.slice(0, 50) : []),
+      input.status || 'disabled',
+      now,
+      now
+    );
+    return getRuntimeConnector(slug);
+  }
+  function getRuntimeConnector(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_connectors WHERE connector_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row
+      ? { ...row, config: undefined, capabilities: safeJsonArray(row.capabilities_json) }
+      : null;
+  }
+  function listRuntimeConnectors({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return (
+      status
+        ? db
+            .prepare('SELECT * FROM runtime_connectors WHERE status=? ORDER BY slug LIMIT ?')
+            .all(String(status), n)
+        : db.prepare('SELECT * FROM runtime_connectors ORDER BY slug LIMIT ?').all(n)
+    ).map(row => ({ ...row, capabilities: safeJsonArray(row.capabilities_json) }));
+  }
+  function appendAgentRunLog(input = {}) {
+    if (!getAgentRun(input.run_id)) throw httpErr(404, 'agent run not found');
+    const row = {
+      log_id: input.log_id || crypto.randomUUID(),
+      run_id: String(input.run_id),
+      level: String(input.level || 'info'),
+      message: String(input.message || '').slice(0, 20000),
+      metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
+      created_at: new Date().toISOString(),
+    };
+    if (!row.message) throw httpErr(400, 'log message is required');
+    db.prepare(
+      'INSERT INTO agent_run_logs (log_id,run_id,level,message,metadata_json,created_at) VALUES (?,?,?,?,?,?)'
+    ).run(
+      row.log_id,
+      row.run_id,
+      row.level,
+      row.message,
+      JSON.stringify(row.metadata),
+      row.created_at
+    );
+    return row;
+  }
+  function listAgentRunLogs({ run_id, limit = 500 } = {}) {
+    return db
+      .prepare('SELECT * FROM agent_run_logs WHERE run_id=? ORDER BY created_at LIMIT ?')
+      .all(String(run_id), Math.max(1, Math.min(Number(limit) || 500, 1000)))
+      .map(row => ({ ...row, metadata: safeJson(row.metadata_json) }));
+  }
+
   const KNOWLEDGE_TYPES = new Set([
     'official',
     'book',
@@ -3982,6 +4337,24 @@ function open(root, { file } = {}) {
     createAgentWorkspace,
     listAgentWorkspaces,
     closeAgentWorkspace,
+    createAgentSkill,
+    getAgentSkill,
+    listAgentSkills,
+    publishAgentSkillVersion,
+    getAgentSkillVersion,
+    assignAgentSkill,
+    listAgentAssignments,
+    resolveAgentSkills,
+    upsertAgentMemory,
+    listAgentMemories,
+    upsertRuntimePlugin,
+    getRuntimePlugin,
+    listRuntimePlugins,
+    upsertRuntimeConnector,
+    getRuntimeConnector,
+    listRuntimeConnectors,
+    appendAgentRunLog,
+    listAgentRunLogs,
     createOrganization,
     listOrganizations,
     getOrganization,

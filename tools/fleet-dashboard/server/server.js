@@ -73,6 +73,7 @@ const agentRuntime = require('../../executive/agent-runtime');
 const agentHeartbeat = require('../../executive/agent-heartbeat');
 const agentToolGateway = require('../../executive/agent-tool-gateway');
 const agentDispatcher = require('../../executive/agent-dispatcher');
+const organizationPortability = require('../../executive/organization-portability');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
 const revops = require('./revops');
@@ -4438,11 +4439,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/executive/work-items/:id/comments', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          comment: events.createWorkComment({ ...(req.body || {}), work_id: req.params.id }),
-        });
+      res.status(201).json({
+        comment: events.createWorkComment({ ...(req.body || {}), work_id: req.params.id }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4458,11 +4457,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/executive/work-items/:id/attachments', (req, res) => {
     try {
-      res
-        .status(201)
-        .json({
-          attachment: events.createWorkAttachment({ ...(req.body || {}), work_id: req.params.id }),
-        });
+      res.status(201).json({
+        attachment: events.createWorkAttachment({ ...(req.body || {}), work_id: req.params.id }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4554,6 +4551,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/organizations', (req, res) => {
     try {
       res.status(201).json({ organization: events.createOrganization(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/organizations/:id/export', (req, res) => {
+    try {
+      res.json(organizationPortability.exportOrganization(events, req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/organizations/import', (req, res) => {
+    try {
+      res.status(201).json(organizationPortability.importOrganization(events, req.body || {}));
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4810,6 +4821,103 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({ value: events.resolveAgentSecret(req.body?.name, req.body || {}) });
     } catch (e) {
       res.status(e.httpStatus || 403).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-skills', (req, res) => {
+    try {
+      res.json({ skills: events.listAgentSkills(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-skills', (req, res) => {
+    try {
+      res.status(201).json({ skill: events.createAgentSkill(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-skills/:id/versions', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ version: events.publishAgentSkillVersion(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-skill-assignments', (req, res) => {
+    try {
+      res.status(201).json({ assignment: events.assignAgentSkill(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-skill-assignments', (req, res) => {
+    try {
+      res.json({ assignments: events.listAgentAssignments(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-memories', (req, res) => {
+    try {
+      res.json({ memories: events.listAgentMemories(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-memories', (req, res) => {
+    try {
+      res.status(201).json({ memory: events.upsertAgentMemory(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-plugins', (req, res) => {
+    try {
+      res.json({ plugins: events.listRuntimePlugins(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugins', (req, res) => {
+    try {
+      res.status(201).json({ plugin: events.upsertRuntimePlugin(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-connectors', (req, res) => {
+    try {
+      res.json({ connectors: events.listRuntimeConnectors(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connectors', (req, res) => {
+    try {
+      res.status(201).json({ connector: events.upsertRuntimeConnector(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-runs/:id/logs', (req, res) => {
+    try {
+      res.json({
+        logs: events.listAgentRunLogs({ run_id: req.params.id, limit: req.query.limit }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-runs/:id/logs', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ log: events.appendAgentRunLog({ ...(req.body || {}), run_id: req.params.id }) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
   app.get('/api/agent-workspaces', (req, res) => {
