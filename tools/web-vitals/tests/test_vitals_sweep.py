@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import signal
 from pathlib import Path
 
 
@@ -88,3 +89,25 @@ def test_skipped_rows_are_reported_but_not_added_to_history(tmp_path):
         assert json.loads(history[0])["site"] == "open.example"
     finally:
         vitals.REPORTS = old
+
+
+def test_stop_chrome_tolerates_process_that_ignores_forced_shutdown(monkeypatch):
+    class StubbornProcess:
+        pid = 1234
+
+        def poll(self):
+            return None
+
+        def wait(self, timeout):
+            raise vitals.subprocess.TimeoutExpired("chrome", timeout)
+
+        def terminate(self):
+            pass
+
+        def kill(self):
+            pass
+
+    signals = []
+    monkeypatch.setattr(vitals.os, "killpg", lambda pid, sig: signals.append((pid, sig)))
+    vitals.stop_chrome(StubbornProcess())
+    assert signals == [(1234, signal.SIGTERM), (1234, signal.SIGKILL)]
