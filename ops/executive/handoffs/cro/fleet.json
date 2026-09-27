@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:48:16.313Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T21:29:32.968Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain SEO, UX, accessibility, performance, content, monetization, experimentation, and repository opportunities as deferred backlog only. No proposal, experiment, change request, deployment, requeue, telemetry, spend, dependency, or monetization change is queue-ready while 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations and security sweeps are unavailable, and only 2 outcomes are proven. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work using recorded telemetry only. Preserve unknown revenue, ROI, margin, payback, cost-to-learn, and causal lift.",
+        "summary": "Recommendation: preserve containment-only execution this cycle. Retain CRO opportunities as deferred backlog, including SEO click-uplift candidates, affiliate-path repairs, UX improvements, and bounded repository prototypes. Evidence supports no new queue work: 47 failure follow-ups remain open, 28 improvements await measurement, no queue-eligible candidates exist, operations and security sweeps are unavailable, revenue is limited to $4.92 aggregate commission that is not site-attributable, and causal, financial, and cost-to-learn outcomes remain unknown. Continue only existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work using existing telemetry. Do not create proposals, change requests, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution. Retain SEO, affiliate, UX, content, performance, and repository opportunities as deferred backlog. No new queue work is safe while failures, measurement, operations, security, attribution, and financial evidence remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,86 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:15:04.875Z",
-  "summary": "cto checked in 11 executive handoff item(s)",
+  "generated_at": "2026-09-27T21:29:32.969Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach this cycle.",
+        "summary": "Approve containment-only execution. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Defer all new proposals, change requests, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and external outreach. Deferred opportunities remain technically feasible but are not queue-ready while failure follow-ups, measurement, operations, security, and attribution gates remain unresolved.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Existing failures may proceed only through their current repair-or-close work items. Before any requeue or release, document ownership, root cause, smallest isolated repair, deterministic validation, rollback evidence, deduplication, and an available measurement boundary. Do not create duplicate work or request telemetry already present in the authoritative snapshot.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, experimentation, and site-factory opportunities as deferred backlog only. Existing analytics, SEO, revenue, AI-usage, compliance, and pilot records may support later prioritization, but they do not establish financial return, causal lift, or release readiness. Preserve private launch gates and parked dispositions.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain financial containment. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Continue existing period-aligned reconciliation only; do not infer financial outcomes from traffic, rankings, clicks, sessions, conversions, orders, shipped items, performance metrics, AI usage, or pilot output counts.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and continue only the existing consolidated legal, accuracy, attribution, measurement, and security evidence work. External outreach remains unsent pending human-counsel review and explicit owner authorization. No public exposure, alert expansion, credential or configuration change, dependency addition, deployment, or spend is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Fleet-doctor and operations sweeps remain unavailable, so material security controls are unevidenced. Do not retrieve credentials, access private containers, change permissions, add dependencies, deploy, exploit targets, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The productivity pilot does not establish financial or causal lift. Treatment and control output counts remain operational activity only; evaluation is incomplete. Defer new treatment work until existing measurement, failure, attribution, and release gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6",
-        "summary": "Discovery lead only; no prototype or adoption work is queue-ready while failure repair, measurement backlog, and security evidence gaps remain unresolved.",
-        "requested_action": "declined",
-        "proposal_id": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bedd1b83-2563-4f17-b193-c1250fcd9935",
-        "summary": "Bounded lab evidence does not establish fleet fit, security readiness, implementation effort, or measurable upside. Defer adoption work.",
-        "requested_action": "declined",
-        "proposal_id": "bedd1b83-2563-4f17-b193-c1250fcd9935"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8",
-        "summary": "Existing approved work is unexecuted; do not create duplicate report or implementation work during containment.",
-        "requested_action": "declined",
-        "proposal_id": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "4eb251e0-8570-4f86-83be-59e03f983c49",
-        "summary": "Technically feasible but not queue-ready. Preserve as deferred backlog until existing repair, validation, and measurement gates clear.",
-        "requested_action": "declined",
-        "proposal_id": "4eb251e0-8570-4f86-83be-59e03f983c49"
       }
     ]
   }
