@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:03:57.914Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T07:34:17.312Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, external outreach, and unsupported revenue claims. Keep the gated product private. Revenue is limited to $4.92 aggregate commission for 2026-09-21 with no site-attributed commission; ROI, margin, forecasts, and payback remain unknown. Continue only existing failure repair-or-close review, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: conflicting AI-cost records, incomplete period alignment, open failure follow-ups, and limited measured outcomes block financial or production conclusions. Preserve the five CRO opportunities as deferred backlog only; reconsider only after existing failure, measurement, security, attribution, and validation gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing work only: repair-or-close the retained failure with documented ownership, root cause, isolated validation, rollback, and deduplication; reconcile existing revenue, attribution, and cost records without treating missing telemetry as zero; continue bounded read-only security evidence; and maintain the private launch gate with prepared outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, and unsupported financial claims. Continue only existing failure repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence. Keep the gated product private and external outreach unsent pending counsel and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

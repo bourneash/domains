@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:03:57.914Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T07:34:17.311Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new queue item, proposal, experiment, telemetry request, dependency, spend, monetization change, deployment, requeue, or external outreach is technically ready. Continue only existing failed-work repair-or-close review, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Preserve deferred SEO, UX, accessibility, performance, content, attribution, and monetization opportunities until ownership, isolation, validation, rollback, deduplication, measurement, security, and financial gates are documented.",
+        "summary": "Handoff: continue existing failed-work repair-or-close, measurement reconciliation, and bounded security evidence only. Do not requeue or deploy deferred opportunities until ownership, root cause, isolated validation, rollback, and deduplication evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing stinkyleftfoot.com failure repair-or-close review. Do not requeue the deferred SEO opportunity until ownership, root cause, isolated repair, focused deterministic validation, rollback, and deduplication evidence are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing financial reconciliation only. Keep the $4.92 aggregate commission unattributed, reconcile conflicting AI-cost records and period boundaries, and preserve unknowns where cost or outcome evidence is absent. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend authorization from clicks, impressions, sessions, conversions, performance scores, or aggregate rows.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the private launch gate for the gated product. Continue the existing read-only rights, data-flow, consent, vendor, security, accuracy, attribution, and measurement checklist. Keep prepared external outreach unsent pending human-counsel review and explicit owner authorization; do not expose publicly, expand alerts, change credentials or configuration, deploy, add dependencies, or spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the CRO and product backlog as deferred evidence-backed work. Reconsider one bounded reversible implementation only after the authoritative candidate is unblocked, existing failures are repaired or explicitly closed, an isolated worktree and rollback path are available, measurement capacity is free, and security, attribution, and financial gates remain satisfied.",
+        "summary": "Continue existing failed-work repair-or-close, measurement reconciliation, and bounded security evidence only. Do not requeue or deploy deferred opportunities until ownership, root cause, isolated validation, rollback, and deduplication evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       }

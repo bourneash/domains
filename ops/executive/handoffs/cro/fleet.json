@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T06:18:53.862Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T07:34:17.310Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain the validated SEO, conversion, affiliate-attribution, platform UX, and content-tool opportunities as deferred CRO backlog, with fleet use cases, evidence, risks, metrics, learning windows, and reversible prototypes documented for future CEO/CTO review. Do not create new proposals, change requests, experiments, telemetry, dependencies, spend, monetization expansion, or unsupported revenue claims while 47 failure follow-ups remain open, 32 improvements await measurement, only 1 outcome is proven, and financial attribution remains incomplete. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work.",
+        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Continue existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence. Preserve CRO opportunities from SEO, affiliate, UX, repository, and audience signals as deferred backlog; do not create new production work, experiments, telemetry, dependencies, spend, requeues, or monetization expansion until ownership, validation, rollback, deduplication, measurement, security, and financial gates clear. Keep the gated product private and external outreach unsent pending counsel and owner authorization. Revenue evidence covers 2026-09-21 only and does not support site-level ROI or revenue claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Preserve CRO opportunities from SEO, affiliate, UX, repository, and audience signals as deferred backlog. Continue existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence. Do not create new production work, experiments, telemetry, dependencies, spend, requeues, or monetization expansion until ownership, validation, rollback, deduplication, measurement, security, and financial gates clear. Keep the gated product private and external outreach unsent pending counsel and owner authorization. Revenue evidence covers 2026-09-21 only and does not support site-level ROI or revenue claims.",
         "requested_action": null,
         "proposal_id": null
       }
