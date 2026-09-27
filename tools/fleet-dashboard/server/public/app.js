@@ -13519,6 +13519,7 @@ function applyExecutiveWorkspace(page) {
     hide(requests);
     hide(transcript);
     hide(recent);
+    hide(secondary);
     hide(strategy);
     hide(performance);
     hide(decisions);
@@ -13568,7 +13569,12 @@ function applyExecutiveWorkspace(page) {
     hide(layout);
     hide(strategy);
     hide(performance);
+    // The decisions workspace is a focused view, so its only visible panel
+    // must be expanded. The panel is a <details> element in the shared
+    // executive shell; leaving it closed makes this route look empty even
+    // when proposals and audit actions were loaded successfully.
     show(decisions);
+    if (decisions) decisions.open = true;
   } else if (page === 'signals') {
     hide(primary);
     hide(strategy);
